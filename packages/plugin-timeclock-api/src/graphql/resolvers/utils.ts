@@ -400,7 +400,7 @@ export const timeclockReportByUser = async (
 
       // deduct lunch break
       const findScheduleConfig =
-        scheduleShiftConfisMap[scheduleShift.scheduleConfigId || ''];
+        scheduleShiftConfisMap[scheduleShift.scheduleConfigId ?? ''];
 
       if (findScheduleConfig) {
         lunchBreakOfDay = findScheduleConfig.lunchBreakInMins / 60;
@@ -1224,7 +1224,7 @@ const returnTotalAbsences = async (
 
   // find Absences
   const requestsShiftRequest = totalRequests.filter((request) =>
-    shiftRequestAbsenceTypeIds.includes(request.absenceTypeId || ''),
+    shiftRequestAbsenceTypeIds.includes(request.absenceTypeId ?? ''),
   );
 
   const requestsWorkedAbroad = totalRequests.filter((request) =>
@@ -1232,11 +1232,11 @@ const returnTotalAbsences = async (
   );
 
   const requestsPaidAbsence = totalRequests.filter((request) =>
-    paidAbsenceTypeIds.includes(request.absenceTypeId || ''),
+    paidAbsenceTypeIds.includes(request.absenceTypeId ?? ''),
   );
 
   const requestsUnpaidAbsence = totalRequests.filter((request) =>
-    unpaidAbsenceTypeIds.includes(request.absenceTypeId || ''),
+    unpaidAbsenceTypeIds.includes(request.absenceTypeId ?? ''),
   );
 
   const requestsSick = totalRequests.filter((request) =>
