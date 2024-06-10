@@ -136,7 +136,7 @@ export const getMessengerData = async (
       messengerData = messengerData.toJSON();
     }
 
-    const languageCode = integration.languageCode || 'en';
+    const languageCode = integration.languageCode ?? 'en';
     const messages = (messengerData || {}).messages;
 
     if (messages) {
