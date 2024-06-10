@@ -22,7 +22,7 @@ export const compareStartAndEndTime = (
 
   const currShiftEnd = newShiftEnd || currShift.shiftEnd;
   const currShiftStart = newShiftStart || currShift.shiftStart;
-newShiftEnd || currShift.shiftEnd
+
   let overnightShift = false;
   let correctShiftEnd;
 
