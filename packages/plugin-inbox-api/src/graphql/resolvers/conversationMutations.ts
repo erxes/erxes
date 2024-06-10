@@ -217,7 +217,7 @@ export const sendNotifications = async (
       createdUser: user,
       link: `/inbox/index?_id=${conversation._id}`,
       title: 'Conversation updated',
-      content: messageContent || conversation.content || 'Conversation updated',
+      content: messageContent ?? conversation.content ?? 'Conversation updated',
       notifType: type,
       receivers: conversationNotifReceivers(conversation, user._id),
       action: 'updated conversation',
