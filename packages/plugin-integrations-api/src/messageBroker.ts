@@ -10,7 +10,6 @@ import {
 } from './callpro/controller';
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 import type {
-  MessageArgs,
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
