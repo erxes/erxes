@@ -162,7 +162,7 @@ export default {
         isRPC: true,
       });
 
-      return response ? response : '';
+      return response || '';
     } catch (e) {
       debugError(e);
       return null;
