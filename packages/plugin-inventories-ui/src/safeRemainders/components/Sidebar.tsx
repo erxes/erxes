@@ -1,5 +1,5 @@
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import React, { useRef } from "react";
+import React from "react";
 import { __, router } from "@erxes/ui/src/utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
 
