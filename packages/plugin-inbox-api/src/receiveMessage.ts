@@ -7,7 +7,6 @@ import {
 } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { IConversationDocument } from './models/definitions/conversations';
-import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
 import {
   RPError,
   RPResult,
