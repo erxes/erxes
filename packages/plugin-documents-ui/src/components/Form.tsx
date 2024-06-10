@@ -11,7 +11,6 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import RichTextEditor from '../containers/RichTextEditor';
 import { __ } from 'coreui/utils';
-import styled from 'styled-components';
 
 type Props = {
   contentType: string;
