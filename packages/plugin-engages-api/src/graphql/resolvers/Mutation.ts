@@ -309,7 +309,7 @@ const engageMutations = {
       const result = body.body;
 
       const senderToRemove = result.find((e) => e.from.email === email);
-      console.log('senderToRemove', senderToRemove);
+
       if (!senderToRemove) {
         throw new Error(`Sender with email ${email} not found`);
       }

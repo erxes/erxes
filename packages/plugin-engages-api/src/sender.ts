@@ -53,7 +53,7 @@ export const start = async (
 
   const transporter = await createTransporter(models);
   const VERSION = getEnv({ name: 'VERSION' });
-  console.log("VERSION",VERSION);
+
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
       if (VERSION === 'saas') {
