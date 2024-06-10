@@ -1,8 +1,7 @@
 import { IUser } from "@erxes/ui/src/auth/types";
 import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils/index";
+import { __ ,  getUserAvatar } from "@erxes/ui/src/utils/index";
 import { colors } from "@erxes/ui/src/styles";
-import { getUserAvatar } from "@erxes/ui/src/utils/index";
 import styled from "styled-components";
 import { Flex } from "@erxes/ui/src/styles/main";
 
