@@ -3,10 +3,10 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
-import { putCreateLog } from './logUtils';
-import { sendInboxMessage } from './messageBroker';
+import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
+import { debugError } from './debuggers';
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   if (message?.payload) {
@@ -147,9 +147,8 @@ const receiveMessage = async (
     mid: message.mid
   });
 
-  console.log({ mid: message.mid, conversationMessage });
-
   if (!conversationMessage) {
+    console.log({ mid: message.mid, conversationMessage });
     try {
       const created = await models.ConversationMessages.create({
         conversationId: conversation._id,
@@ -179,19 +178,21 @@ const receiveMessage = async (
         }
       );
       conversationMessage = created;
-      await putCreateLog(
-        models,
+
+      await sendAutomationsMessage({
         subdomain,
-        {
-          type: 'messages',
-          newData: message,
-          object: {
-            ...conversationMessage.toObject(),
-            payload: JSON.parse(message.payload || '{}')
-          }
+        action: 'trigger',
+        data: {
+          type: `facebook:messages`,
+          targets: [
+            {
+              ...conversationMessage.toObject(),
+              payload: JSON.parse(message.payload || '{}')
+            }
+          ]
         },
-        customer._id
-      );
+        defaultValue: null
+      }).catch((err) => debugError(err.message));
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
