@@ -120,8 +120,7 @@ class NotificationForm extends React.Component<Props, State> {
 
   render() {
     const { notification } = this.props;
-    const { message, title, titleCount, characterCount, isWebPush } =
-      this.state;
+    const { message, title, titleCount, characterCount } = this.state;
 
     const onChangeTitle = e =>
       this.onChangeNotification('title', (e.target as HTMLInputElement).value);
@@ -137,16 +136,6 @@ class NotificationForm extends React.Component<Props, State> {
         'isMobile',
         (e.target as HTMLInputElement).checked
       );
-    };
-
-    const onChangeIsWebPush = e => {
-      // this.onChangeNotification(
-      //   'isWebPush',
-      //   (e.target as HTMLInputElement).checked
-      // );
-      this.setState({
-        isWebPush: (e.target as HTMLInputElement).checked,
-      });
     };
 
     const onChangeTitleContent = e => {

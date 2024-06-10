@@ -3,6 +3,7 @@ import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import {
   IEngageMessage,
   IEngageMessageDocument,
+  IScheduleDateDocument,
 } from './models/definitions/engages';
 import { isUsingElk } from './utils';
 import {
@@ -137,6 +138,50 @@ export const generateCustomerSelector = async (
   };
 };
 
+const timeCheckScheduledBroadcast = async (
+  _id: string,
+  models: IModels,
+  scheduleDate?: IScheduleDateDocument
+) => {
+  const isValidScheduledBroadcast =
+    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
+  // Check for pre scheduled engages
+
+  if (isValidScheduledBroadcast) {
+    const dateTime = new Date(scheduleDate.dateTime || '');
+    const now = new Date();
+    const notRunNow = dateTime.getTime() > now.getTime();
+    if (notRunNow) {
+      await models.Logs.createLog(
+        _id,
+        'regular',
+        `Broadcast will run at "${dateTime.toLocaleString()}"`
+      );
+
+      return true;
+    }
+  }
+  return false;
+};
+
+const checkAlreadyRun = async (_id, kind, title, runCount, models: IModels) => {
+  const isValid = kind === CAMPAIGN_KINDS.MANUAL;
+  if (!isValid) return false;
+
+  const isAlreadyRun = runCount && runCount > 0;
+
+  if (isAlreadyRun) {
+    await models.Logs.createLog(
+      _id,
+      'regular',
+      `Broadcast "${title}" has already run before`
+    );
+
+    return true;
+  }
+  return false;
+};
+
 export const send = async (
   models: IModels,
   subdomain: string,
@@ -156,20 +201,14 @@ export const send = async (
     title,
   } = engageMessage;
 
-  // Check for pre scheduled engages
-  if (scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime) {
-    const dateTime = new Date(scheduleDate.dateTime);
-    const now = new Date();
+  const notRunNow = await timeCheckScheduledBroadcast(
+    _id,
+    models,
+    scheduleDate
+  );
 
-    if (dateTime.getTime() > now.getTime()) {
-      await models.Logs.createLog(
-        _id,
-        'regular',
-        `Broadcast will run at "${dateTime.toLocaleString()}"`
-      );
-
-      return;
-    }
+  if (notRunNow) {
+    return;
   }
 
   const user = await findUser(subdomain, fromUserId);
@@ -182,13 +221,15 @@ export const send = async (
     return;
   }
 
-  if (kind === CAMPAIGN_KINDS.MANUAL && runCount && runCount > 0) {
-    await models.Logs.createLog(
-      _id,
-      'regular',
-      `Broadcast "${title}" has already run before`
-    );
+  const isAlreadyRun = await checkAlreadyRun(
+    _id,
+    kind,
+    title,
+    runCount,
+    models
+  );
 
+  if (isAlreadyRun) {
     return;
   }
 

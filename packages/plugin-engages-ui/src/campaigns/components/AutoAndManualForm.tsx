@@ -16,11 +16,7 @@ import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  MESSAGE_KINDS,
-  MESSENGER_KINDS,
-  METHODS,
-} from '@erxes/ui-engage/src/constants';
+import { MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import {
   IEngageEmail,
