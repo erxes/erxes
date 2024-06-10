@@ -5,7 +5,7 @@ import Button from "@erxes/ui/src/components/Button";
 import { FlexRow } from "@erxes/ui-settings/src/styles";
 
 import ChartTemplates from "../../containers/template/Chart";
-import { IDashboard, IReport, IReportTemplate } from "../../types";
+import {IReportTemplate } from "../../types";
 import { FlexColumn, TemplateBox } from "../../styles";
 
 type Props = {
