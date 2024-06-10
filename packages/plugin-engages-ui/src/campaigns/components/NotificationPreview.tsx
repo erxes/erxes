@@ -106,7 +106,6 @@ type Props = {
 };
 
 function NotificationPreview(props: Props) {
-  console.log('NotificationPreview', props);
   return (
     <Preview>
       <h3>

@@ -12,7 +12,7 @@ import {
   sendContactsMessage,
   sendClientPortalMessage,
 } from './messageBroker';
-
+import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 import { awsRequests } from './trackers/engageTracker';
 interface IEngageParams {
@@ -438,8 +438,12 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email is not specified: ${user.username}`);
     }
 
+    const VERSION = getEnv({ name: 'VERSION' });
+
     const verifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+      VERSION === 'saas'
+        ? await sendgridVerifiedEmails(subdomain)
+        : (await awsRequests.getVerifiedEmails(models)) || [];
 
     if (!verifiedEmails.includes(user.email)) {
       throw new Error(`From user email "${user.email}" is not verified in AWS`);
@@ -447,19 +451,13 @@ export const checkCampaignDoc = async (
   }
 
   if (method === CAMPAIGN_METHODS.NOTIFICATION) {
-    if (!doc.notification) {
-      throw new Error('Notification cannot be empty');
+    if (!doc.notification || !doc.title || !doc?.notification.content) {
+      throw new Error('Required fields are missing. Please fill in all mandatory fields.');
     }
     if (!doc.cpId) {
       throw new Error(
         'Please select "Clientportal" in the notification campaign'
       );
-    }
-    if (!doc.notification.title) {
-      throw new Error('Notification title cannot be empty');
-    }
-    if (!doc.notification.content) {
-      throw new Error('Notification content cannot be empty');
     }
   }
 };
@@ -614,4 +612,58 @@ export const checkCustomerExists = async (
   });
 
   return customers.length > 0;
+};
+
+export const sendgridVerifiedEmails = async (subdomain) => {
+  const sendgrid = await sendgridClient(subdomain)
+
+  const request = {
+    url: `/v3/marketing/senders`,
+    method: 'GET',
+  };
+
+  const [body] = await sendgrid.request(request);
+
+  const result = body.body;
+
+  return result
+    .filter((e) => e.verified.status === true && e.locked === false)
+    .map((e) => {
+      return e.from.email;
+    });
+};
+
+export const sendWithSendgrid = async (subdomain, doc) => {
+  const sendgridMail = require('@sendgrid/mail');
+  const SENDGRID_API_KEY = await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code: 'SENDGRID_API_KEY', defaultValue: null },
+    isRPC: true,
+  });
+
+  sendgridMail.setApiKey(SENDGRID_API_KEY);
+
+  try {
+    const sendgridResponse = await sendgridMail.send(doc);
+
+    return JSON.stringify(sendgridResponse);
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+};
+
+export const sendgridClient = async (subdomain) => {
+  const client = require('@sendgrid/client');
+  const SENDGRID_CLIENT_KEY = await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+    isRPC: true,
+  });
+
+  client.setApiKey(SENDGRID_CLIENT_KEY);
+
+  return client;
 };
