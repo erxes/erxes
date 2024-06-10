@@ -1,6 +1,6 @@
-import React from 'react';
-import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import SelectServices from '../components/SelectServices';
+import React from "react";
+import { gql, useQuery } from "@apollo/client";
+import SelectServices from "../components/SelectServices";
 
 const XYP_SERVICES_QUERY = gql`
   query xypServiceList($url: String, $token: String) {
@@ -10,7 +10,7 @@ const XYP_SERVICES_QUERY = gql`
 
 const Container = ({ onChange, value, url, token }) => {
   const { data, loading, error } = useQuery(XYP_SERVICES_QUERY, {
-    variables: { url, token }
+    variables: { url, token },
   });
 
   const onSearch = (searchValue: string) => {
@@ -21,14 +21,14 @@ const Container = ({ onChange, value, url, token }) => {
     // });
   };
 
-  const duplicatedOrgNames = data?.xypServiceList.map(d => d.orgName);
+  const duplicatedOrgNames = data?.xypServiceList.map((d) => d.orgName);
   const orgNames = [...new Set(duplicatedOrgNames)];
-  const newList = orgNames.map(d => {
-    const orgServices = data?.xypServiceList.filter(x => x.orgName === d);
+  const newList = orgNames.map((d) => {
+    const orgServices = data?.xypServiceList.filter((x) => x.orgName === d);
 
-    const _servicesKeyValue = orgServices.map(d => ({
+    const _servicesKeyValue = orgServices.map((d) => ({
       value: d.wsOperationName,
-      label: `${d.wsOperationDetail} (хувилбар ${d.wsVersion})`
+      label: `${d.wsOperationDetail} (хувилбар ${d.wsVersion})`,
     }));
     return { label: d, options: _servicesKeyValue };
   });
