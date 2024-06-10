@@ -451,19 +451,13 @@ export const checkCampaignDoc = async (
   }
 
   if (method === CAMPAIGN_METHODS.NOTIFICATION) {
-    if (!doc.notification) {
-      throw new Error('Notification cannot be empty');
+    if (!doc.notification || !doc.title || !doc?.notification.content) {
+      throw new Error('Required fields are missing. Please fill in all mandatory fields.');
     }
     if (!doc.cpId) {
       throw new Error(
         'Please select "Clientportal" in the notification campaign'
       );
-    }
-    if (!doc.notification.title) {
-      throw new Error('Notification title cannot be empty');
-    }
-    if (!doc.notification.content) {
-      throw new Error('Notification content cannot be empty');
     }
   }
 };
