@@ -315,8 +315,9 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
-  const latestExecution: IExecutionDocument | null =
-    executions.length ? executions[0] : null;
+  const latestExecution: IExecutionDocument | null = executions.length
+    ? executions[0]
+    : null;
 
   if (latestExecution) {
     if (!reEnrollment || !reEnrollmentRules.length) {
@@ -426,6 +427,8 @@ export const receiveTrigger = async ({
   if (!automations.length) {
     return;
   }
+
+  console.log({ targets });
 
   for (const target of targets) {
     for (const automation of automations) {

@@ -178,6 +178,7 @@ const receiveMessage = async (
       );
 
       conversationMessage = created;
+      console.log({ payload: JSON.parse(message.payload || '{}') });
       await putCreateLog(
         models,
         subdomain,
