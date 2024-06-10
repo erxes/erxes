@@ -86,7 +86,7 @@ const ContractsList = (props: IProps) => {
     setSearchValue(value);
 
     timerRef.current = setTimeout(() => {
-      navigate(`/settings/contract-types?searchValue=${value}`);
+      navigate(`/erxes-plugin-loan/contract-list?searchValue=${value}`);
     }, 500);
   };
 
