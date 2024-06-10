@@ -1,10 +1,8 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { IModels } from '../models';
 import { createOrUpdateAccount } from '../server/controllers';
 const querystring = require('querystring');
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError} from '@erxes/api-utils/src/debuggers';
 import { getConfig } from '../server';
-import { extend } from 'lodash';
 
 const OAAPIUrl = 'https://openapi.zalo.me/v2.0/oa/';
 const OAAuthAPIUrl = 'https://oauth.zaloapp.com/v4/oa/access_token';
@@ -188,7 +186,7 @@ export const zaloGet = async (
   config?: ZaloRequestConfig,
 ) => {
   const access_token =
-    config?.access_token ||
+    config?.access_token ??
     (await zaloGetAccessToken(config?.models, config?.oa_id));
   return await axios
     .get(`${OAAPIUrl}${path}`, getRequestConfigs(config, access_token))
@@ -202,7 +200,7 @@ export const zaloSend = async (
   config?: ZaloRequestConfig,
 ) => {
   const access_token =
-    config?.access_token ||
+    config?.access_token ??
     (await zaloGetAccessToken(config?.models, config?.oa_id));
 
   return await axios
