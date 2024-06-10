@@ -1,6 +1,4 @@
-import * as dotenv from 'dotenv';
 import {
-  MessageArgs,
   MessageArgsOmitService,
   sendMessage as sendCommonMessage,
 } from '@erxes/api-utils/src/core';
