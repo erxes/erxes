@@ -1,11 +1,11 @@
-import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
-import { sendContactsMessage, sendInboxMessage } from './messageBroker';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { sendInboxMessage } from './messageBroker';
 // import { Customers, Messages } from '../../plugin-zalo-ui/models';
 import * as dotenv from 'dotenv';
 import { generateModels } from './connectionResolver';
 import { getConfig, getMessageOAID, getMessageUserID } from './commonUtils';
 import fetch from 'node-fetch';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { getOrCreateCustomer } from './helpers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
