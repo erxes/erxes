@@ -59,7 +59,7 @@ const Form = (props: Props) => {
   );
 
   const [stageId, setStageId] = useState<string>(goal.stageId);
-  const [pipelineId, setpipelineId] = useState<string>(goal.pipelineId);
+  const [pipelineId, setPipelineId] = useState<string>(goal.pipelineId);
   const [boardId, setboardId] = useState<string>(goal.boardId);
 
   const [periodGoal, setPeriodGoal] = useState<string>(
@@ -235,7 +235,7 @@ const Form = (props: Props) => {
                 pipelineId={pipelineId}
                 boardId={boardId}
                 onChangeStage={(id) => setStageId(id)}
-                onChangePipeline={(id) => setpipelineId(id)}
+                onChangePipeline={(id) => setPipelineId(id)}
                 onChangeBoard={(id) => setboardId(id)}
               />
             </FormGroup>
