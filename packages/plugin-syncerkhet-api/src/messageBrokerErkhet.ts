@@ -1,13 +1,13 @@
-import { init } from './messageBrokerErkhetHelper';
-import { consumeCustomer } from './utils/consumeCustomer';
+import { init } from "./messageBrokerErkhetHelper";
+import { consumeCustomer } from "./utils/consumeCustomer";
 import {
   consumeInventory,
   consumeInventoryCategory,
-} from './utils/consumeInventory';
-import redis from '@erxes/api-utils/src/redis';
-import { IModels } from './connectionResolver';
-import { ISyncLogDocument } from './models/definitions/syncLog';
-import { getConfig } from './utils/utils';
+} from "./utils/consumeInventory";
+import redis from "@erxes/api-utils/src/redis";
+import { IModels } from "./connectionResolver";
+import { ISyncLogDocument } from "./models/definitions/syncLog";
+import { getConfig } from "./utils/utils";
 
 let clientErkhet;
 
@@ -16,9 +16,9 @@ export const initBrokerErkhet = async () => {
 
   const { consumeQueue } = clientErkhet;
 
-  consumeQueue('rpc_queue:erkhet', async ({ subdomain, data }) => {
+  consumeQueue("rpc_queue:erkhet", async ({ subdomain, data }) => {
     const { object, old_code, action, api_key, api_secret } = data;
-    const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+    const mainConfig = await getConfig(subdomain, "ERKHET", {});
 
     if (mainConfig.apiKey !== api_key || mainConfig.apiSecret !== api_secret) {
       return;
@@ -29,18 +29,16 @@ export const initBrokerErkhet = async () => {
     const kind = objectData.model;
 
     switch (kind) {
-      case 'inventories.inventory':
+      case "inventories.inventory":
         await consumeInventory(subdomain, doc, old_code, action);
         break;
-      case 'inventories.category':
+      case "inventories.category":
         await consumeInventoryCategory(subdomain, doc, old_code, action);
         break;
-      case 'customers.customer':
+      case "customers.customer":
         await consumeCustomer(subdomain, doc, old_code, action);
         break;
     }
-
-    return;
   });
 };
 
@@ -48,24 +46,24 @@ export const sendRPCMessage = async (
   models: IModels,
   syncLog: ISyncLogDocument,
   channel: string,
-  message: any,
+  message: any
 ): Promise<any> => {
   await models.SyncLogs.updateOne(
     { _id: syncLog._id },
-    { $set: { sendData: message, sendStr: JSON.stringify(message) } },
+    { $set: { sendData: message, sendStr: JSON.stringify(message) } }
   );
   const response = await clientErkhet.sendRPCMessage(channel, message);
-  if (typeof response === 'string') {
+  if (typeof response === "string") {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { responseStr: JSON.stringify(response), error: response } },
+      { $set: { responseStr: JSON.stringify(response), error: response } }
     );
   } else {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       {
         $set: { responseData: response, responseStr: JSON.stringify(response) },
-      },
+      }
     );
   }
   return response;
