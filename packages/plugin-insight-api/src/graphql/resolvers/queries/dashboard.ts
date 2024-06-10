@@ -1,4 +1,5 @@
 import { IContext } from '../../../connectionResolver';
+
 const generateFilter = async (params, commonQuerySelector) => {
   const { branch, department, unit, contribution, date, endDate } = params;
   let filter: any = {};
