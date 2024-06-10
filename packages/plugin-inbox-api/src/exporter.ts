@@ -153,7 +153,7 @@ export const fillValue = async (
         resultValues.push(participatedUser ? participatedUser.username : '');
       }
 
-      value = (resultValues ? resultValues : []).join(', ');
+      value = (resultValues || []).join(', ');
 
       break;
 
