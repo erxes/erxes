@@ -1,11 +1,10 @@
-import { Chooser } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
+import { Chooser } from "@erxes/ui/src";
+import React, { useState } from "react";
 
-import { queries } from '../graphql';
-import { ContractTypesQueryResponse, IContractType } from '../types';
-import ContractTypeForm from './ContractTypeForm';
-import { useQuery } from '@apollo/client';
+import { queries } from "../graphql";
+import { ContractTypesQueryResponse, IContractType } from "../types";
+import ContractTypeForm from "./ContractTypeForm";
+import { useQuery, gql } from "@apollo/client";
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -26,11 +25,11 @@ const ContractTypeChooser: React.FC<WrapperProps & Props> = (props) => {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
         isRelated: data.isRelated,
-        sortField: 'createdAt',
+        sortField: "createdAt",
         sortDirection: -1,
       },
-      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
-    },
+      fetchPolicy: data.isRelated ? "network-only" : "cache-first",
+    }
   );
 
   const resetAssociatedItem = () => {
@@ -53,11 +52,11 @@ const ContractTypeChooser: React.FC<WrapperProps & Props> = (props) => {
       datas: data.contractTypes,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: 'contractType',
+      relType: "contractType",
     },
     search,
-    clearState: () => search(''),
-    title: 'ContractType',
+    clearState: () => search(""),
+    title: "ContractType",
     renderForm: (formProps) => (
       <ContractTypeForm
         {...formProps}
@@ -89,7 +88,7 @@ type WrapperProps = {
 
 const Wrapper: React.FC<WrapperProps> = (props) => {
   const [perPage, setPerPage] = useState(20);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
 
   const search = (value, loadmore) => {
     let perPage = 20;

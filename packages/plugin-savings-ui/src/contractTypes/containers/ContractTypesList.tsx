@@ -1,11 +1,10 @@
 import { Alert, Bulk, router } from "@erxes/ui/src";
-import { gql } from "@apollo/client";
 import React, { useState } from "react";
 
 import ContractTypesList from "../components/ContractTypesList";
 import { mutations, queries } from "../graphql";
 import { MainQueryResponse, RemoveMutationResponse } from "../types";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
 type Props = {
   queryParams: any;

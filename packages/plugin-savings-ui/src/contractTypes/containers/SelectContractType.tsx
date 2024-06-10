@@ -1,23 +1,23 @@
-import { SelectWithSearch } from '@erxes/ui/src';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
+import { SelectWithSearch } from "@erxes/ui/src";
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
+import React from "react";
 
-import { queries } from '../graphql';
-import { IContractType } from '../types';
+import { queries } from "../graphql";
+import { IContractType } from "../types";
 
 // get contractType options for react-select
 export function generateContractTypeOptions(
   array: IContractType[] = [],
   useFields?: string[]
 ): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const contractType = item || ({} as IContractType);
 
     ContractTypeById[contractType._id] = contractType;
 
     return {
       value: contractType._id,
-      label: `${contractType.code || ''} - ${contractType.name || ''}`
+      label: `${contractType.code || ""} - ${contractType.name || ""}`,
     };
   });
 }
@@ -31,13 +31,12 @@ export default ({
   multi = true,
   label,
   name,
-  disabled
+  disabled,
 }: {
   queryParams?: IQueryParams;
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
-  customOption?: IOption;
   value?: string | string[];
   name: string;
   disabled?: boolean;

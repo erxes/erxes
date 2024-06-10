@@ -6,12 +6,11 @@ import {
   RemoveMutationResponse,
 } from "../types";
 import { mutations, queries } from "../graphql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, gql } from "@apollo/client";
 
 import ContractTypeDetails from "../components/ContractTypeDetails";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
-import { gql } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
