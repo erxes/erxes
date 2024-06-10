@@ -1,8 +1,7 @@
 import { generateModels, IModels } from './connectionResolver';
 import { getConfig, resetConfigsCache } from './commonUtils';
-import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import fetch from 'node-fetch';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { sendInboxMessage } from './messageBroker';
 import { RPResult } from '@erxes/api-utils/src/messageBroker';
 
