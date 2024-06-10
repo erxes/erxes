@@ -1,8 +1,6 @@
-import * as dotenv from 'dotenv';
-import * as schedule from 'node-schedule';
-import { IModels } from '../connectionResolver';
-import { fetchSegment } from '../graphql/resolvers/queries/queryBuilder';
-import { putActivityLog } from '../logUtils'
+import { IModels } from "../connectionResolver";
+import { fetchSegment } from "../graphql/resolvers/queries/queryBuilder";
+import { putActivityLog } from "../logUtils";
 
 /**
  * Send conversation messages to customer
@@ -18,14 +16,14 @@ export const createActivityLogsFromSegments = async (
       continue;
     }
     const result = await fetchSegment(models, subdomain, segment, {
-      returnFullDoc: true
+      returnFullDoc: true,
     });
 
-    const contentIds = result.map(c => c._id) || [];
+    const contentIds = result.map((c) => c._id) || [];
 
     await putActivityLog(subdomain, {
-      action: 'createSegmentLog',
-      data: { segment, contentIds, contentType: segment.contentType }
+      action: "createSegmentLog",
+      data: { segment, contentIds, contentType: segment.contentType },
     });
   }
 };
