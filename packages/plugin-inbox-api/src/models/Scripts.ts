@@ -44,7 +44,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           action: 'brands.findOne',
           data: {
             query: {
-              _id: messengerIntegration.brandId || ''
+              _id: messengerIntegration.brandId ?? ''
             }
           },
           isRPC: true
