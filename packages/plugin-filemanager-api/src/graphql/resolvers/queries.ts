@@ -103,7 +103,7 @@ const queries = {
     }
 
     return models.Files.find(selector).sort({
-      [sortField || 'createdAt']: sortDirection ?? -1
+      [sortField ?? 'createdAt']: sortDirection ?? -1
     } as any);
   },
 
