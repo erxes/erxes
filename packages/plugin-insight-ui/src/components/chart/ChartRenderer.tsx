@@ -7,8 +7,6 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
-  DEFAULT_DATA_PER_CHART,
-  DEFAULT_LABELS_PER_CHART,
 } from './utils';
 import {
   commarizeNumbers,
@@ -23,10 +21,8 @@ interface IChartProps {
 
   data?: number[];
   labels?: string[];
-  template?: string;
   options?: any;
   chartType: ChartType | string;
-  name?: string;
   title?: string;
   loading?: boolean;
   chartVariables?: any
