@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 import { IUser } from "@erxes/ui/src/auth/types";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils/index";
