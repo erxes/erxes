@@ -1,7 +1,5 @@
 import Form from "@erxes/ui/src/components/form/Form";
 import Icon from "@erxes/ui/src/components/Icon";
-import { ITimeclock } from "../../types";
-import { __ } from "@erxes/ui/src/utils";
 import Button from "@erxes/ui/src/components/Button";
 import React, { useEffect, useState } from "react";
 import { ControlLabel, FormGroup } from "@erxes/ui/src/components/form";
@@ -13,16 +11,12 @@ import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
 type Props = {
   currentUser: IUser;
   isCurrentUserAdmin: boolean;
-
   departments: IDepartment[];
   branches: IBranch[];
-
-  queryParams: any;
   selectedUserId: string;
   closeModal: () => void;
   startClockTime: (userId: string) => void;
   stopClockTime: (userId: string, timeId: string) => void;
-  timeclocks: ITimeclock[];
   shiftId: string;
   shiftStarted: boolean;
 };
