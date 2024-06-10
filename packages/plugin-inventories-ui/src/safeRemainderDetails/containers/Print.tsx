@@ -1,8 +1,7 @@
 import React from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useQuery , gql } from '@apollo/client';
 import queryString from 'query-string';
-import { gql } from '@apollo/client';
 // local
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
