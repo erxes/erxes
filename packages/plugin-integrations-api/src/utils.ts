@@ -77,7 +77,7 @@ export const getEnv = ({
     debugBase(`Missing environment variable configuration for ${name}`);
   }
 
-  return value || '';
+  return value ?? '';
 };
 
 /**
