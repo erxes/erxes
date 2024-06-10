@@ -64,8 +64,8 @@ const TimeclockList = (props: Props) => {
   const { startDate, endDate } = queryParams;
   const [showModal, setShowModal] = useState(false);
   const [editTimeclock, setEditTimeclock] = useState({});
-  const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem("isSideBarOpen") === "true" ? true : false
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem("isSideBarOpen") === "true"
   );
 
   let lastColumnIdx = 1;
@@ -82,7 +82,7 @@ const TimeclockList = (props: Props) => {
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
-    setIsOpen(toggleIsOpen);
+    setIsSideBarOpen(toggleIsOpen);
     localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
