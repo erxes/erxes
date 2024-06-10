@@ -46,7 +46,7 @@ const ReportTemplate = (props: Props) => {
     <TemplateBox showMore={showMore}>
       <FlexRow alignItems="start" onClick={() => handleTemplateClick(template)}>
         <div>
-          <img src={template.img} width="200px" />
+          <img alt="template" src={template.img} width="200px" />
         </div>
         <FlexColumn>
           <h3>{template.title}</h3>
