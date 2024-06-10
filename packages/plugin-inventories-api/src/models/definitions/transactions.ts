@@ -29,9 +29,9 @@ export interface ITransaction {
   assignedUserIds: string[];
   paymentData: any;
   createdAt?: Date;
-  createdBy?: String;
+  createdBy?: string;
   modifiedAt?: Date;
-  modifiedBy?: String;
+  modifiedBy?: string;
 }
 
 export interface ITransactionInput extends ITransaction {
@@ -41,9 +41,9 @@ export interface ITransactionInput extends ITransaction {
 export interface ITransactionDocument extends ITransaction, Document {
   _id: string;
   createdAt: Date;
-  createdBy: String;
+  createdBy: string;
   modifiedAt: Date;
-  modifiedBy: String;
+  modifiedBy: string;
 }
 
 export const transactionSchema = schemaHooksWrapper(
