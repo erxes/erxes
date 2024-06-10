@@ -57,6 +57,7 @@ const queryParams = `
   sortDirection: Int
   search: String
   contentType: String
+  contentId: String
   success: String
   billType: String
   billIdRule: String
