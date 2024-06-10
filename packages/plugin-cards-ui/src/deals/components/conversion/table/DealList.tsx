@@ -6,9 +6,6 @@ import { CenterButton, Deals, SubHead } from '../style';
 import DealItem from './DealItem';
 
 type Props = {
-  listId: string;
-  listType?: string;
-  stageId: string;
   deals: IDeal[];
   hasMore: boolean;
   loadMore: () => void;

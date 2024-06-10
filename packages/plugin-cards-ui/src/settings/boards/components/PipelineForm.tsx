@@ -1,10 +1,11 @@
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
   ModalOverlay,
+  ColorPick, ColorPicker,Flex
+
 } from "@erxes/ui/src/styles/main";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import { IBoard, IPipeline, IStage } from "@erxes/ui-cards/src/boards/types";
@@ -17,7 +18,6 @@ import Button from "@erxes/ui/src/components/Button";
 import { COLORS } from "@erxes/ui/src/constants/colors";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
-import { Flex } from "@erxes/ui/src/styles/main";
 import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";

@@ -21,7 +21,6 @@ import Tip from '@erxes/ui/src/components/Tip';
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 class ActivityItem extends React.Component<Props> {

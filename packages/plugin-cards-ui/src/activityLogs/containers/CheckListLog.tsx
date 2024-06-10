@@ -1,8 +1,6 @@
 import * as compose from 'lodash.flowright';
-
-import { ActivityLogQueryResponse } from '@erxes/ui-log/src/activityLogs/types';
 import ChecklistLog from '../components/CheckListLog';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import { IActivityLog, ActivityLogQueryResponse } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as activityLogsQuery } from '@erxes/ui-log/src/activityLogs/graphql';

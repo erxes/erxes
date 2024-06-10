@@ -18,7 +18,6 @@ import ItemProductProbabilities from '@erxes/ui-cards/src/deals/components/ItemP
 type Props = {
   deals: IDeal[];
   totalCount: number;
-  date: IDateColumn;
   dealTotalAmounts: IDealTotalAmount[];
   onLoadMore: (skip: number) => void;
 };

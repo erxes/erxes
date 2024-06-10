@@ -21,7 +21,6 @@ import Purchase from '@erxes/ui-cards/src/purchases/components/PurchaseItem';
 type Props = {
   purchases: IPurchase[];
   totalCount: number;
-  date: IDateColumn;
   purchaseTotalAmounts: IPurchaseTotalAmount[];
   onLoadMore: (skip: number) => void;
 };

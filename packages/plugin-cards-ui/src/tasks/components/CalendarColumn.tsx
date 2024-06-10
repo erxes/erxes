@@ -16,7 +16,6 @@ import Task from '@erxes/ui-cards/src/tasks/components/TaskItem';
 type Props = {
   tasks: ITask[];
   totalCount: number;
-  date: IDateColumn;
   onLoadMore: (skip: number) => void;
 };
 

@@ -76,7 +76,6 @@ class Form extends React.Component<any, any, any> {
     }));
 
     const content = (
-      <>
         <FlexContent>
           <FlexItem>
             <FormGroup>
@@ -102,7 +101,6 @@ class Form extends React.Component<any, any, any> {
             </FormGroup>
           </FlexItem>
         </FlexContent>
-      </>
     );
 
     if (component === "filter") {

@@ -8,7 +8,6 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils/core';
 
 interface IProps {
-  queryParams: any;
   growthHacks: any[];
   totalCount: number;
   loading: boolean;

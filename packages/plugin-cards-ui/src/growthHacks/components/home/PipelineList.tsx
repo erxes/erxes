@@ -14,10 +14,10 @@ type Props = {
 };
 
 function PipelineList(props: Props) {
-  const [showPopup, setVisibility] = useState(false);
+  const [showPopup , setShowPopup] = useState(false);
 
   const toggleVisibility = () => {
-    setVisibility(!showPopup);
+    setShowPopup(!showPopup);
   };
 
   const renderAddForm = () => {

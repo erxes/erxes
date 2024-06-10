@@ -54,7 +54,7 @@ function Amount({
 }
 
 class Score extends React.Component<Props> {
-  static Amount = Amount;
+  static Amount;
 
   renderInput = (text: string, name: string, value: number) => {
     return (

@@ -127,7 +127,7 @@ class Task extends React.Component<Props, State> {
       );
     }
 
-    return <h4 onClick={this.onChange.bind(this, "editing")}>{task.name}</h4>;
+    return <h4 role="button" onClick={this.onChange.bind(this, "editing")}>{task.name}</h4>;
   }
 
   renderDetails() {

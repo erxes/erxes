@@ -6,7 +6,7 @@ import {
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, router } from 'coreui/utils';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate,Link } from 'react-router-dom';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
@@ -14,7 +14,6 @@ import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IOption } from '../types';
-import { Link } from 'react-router-dom';
 import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
 import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
@@ -23,19 +22,16 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {
   type: string;
   pipelines: IPipeline[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  updateOrder?: any;
   remove: (pipelineId: string) => void;
   archive: (pipelineId: string, status: string) => void;
   copied: (pipelineId: string) => void;
   boardId: string;
   options?: IOption;
-  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
   currentBoard?: IBoard;
 };
 

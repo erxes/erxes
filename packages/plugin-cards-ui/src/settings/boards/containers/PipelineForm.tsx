@@ -2,13 +2,13 @@ import * as compose from 'lodash.flowright';
 
 import {
   BoardsQueryResponse,
-  StagesQueryResponse
+  StagesQueryResponse,
+  IPipeline
 } from '@erxes/ui-cards/src/boards/types';
 
 import { DepartmentsQueryResponse } from '@erxes/ui/src/team/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IOption } from '../types';
-import { IPipeline } from '@erxes/ui-cards/src/boards/types';
 import PipelineForm from '../components/PipelineForm';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';

@@ -32,7 +32,6 @@ class Stage extends React.Component<Props> {
         </Values>
       );
     }
-    return;
   }
 
   render() {
