@@ -4,7 +4,10 @@ import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES,
 } from '../../models/definitions/constants';
+
 
 import {
   IAttachment,
@@ -12,15 +15,10 @@ import {
   IMessengerDataMessagesItem,
 } from '../../models/definitions/integrations';
 
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError} from '@erxes/api-utils/src/debuggers';
 
 import redis from '@erxes/api-utils/src/redis';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-
-import {
-  AUTO_BOT_MESSAGES,
-  BOT_MESSAGE_TYPES,
-} from '../../models/definitions/constants';
 
 import { getEnv, sendToWebhook } from '@erxes/api-utils/src';
 
