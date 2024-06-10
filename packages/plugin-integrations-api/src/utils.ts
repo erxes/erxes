@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as sanitizeHtml from 'sanitize-html';
 import { IModels } from './connectionResolver';
-import { debugBase, debugExternalRequests } from './debuggers';
+import { debugBase } from './debuggers';
 import redis from '@erxes/api-utils/src/redis';
 import { sendInboxMessage } from './messageBroker';
 
@@ -15,20 +15,20 @@ interface IRequestParams {
   params?: { [key: string]: string | boolean };
   body?: {
     [key: string]:
-      | string
-      | string[]
-      | boolean
-      | number
-      | {
-          [key: string]: string | number | boolean | any;
-        }
-      | any
-      | any[]
-      | {
-          [key: string]: {
-            [key: string]: string | boolean | any;
-          };
-        };
+    | string
+    | string[]
+    | boolean
+    | number
+    | {
+      [key: string]: string | number | boolean | any;
+    }
+    | any
+    | any[]
+    | {
+      [key: string]: {
+        [key: string]: string | boolean | any;
+      };
+    };
   };
 }
 
@@ -87,8 +87,8 @@ export const getEnv = ({
  */
 export const compose =
   (...fns) =>
-  (arg) =>
-    fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
+    (arg) =>
+      fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
 
 export const getConfigs = async (models: IModels) => {
   const configsCache = await redis.get('configs_erxes_integrations');
