@@ -538,8 +538,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         return isTimeInBetween(
           timezoneString,
           now,
-          everydayConf.from || '',
-          everydayConf.to || ''
+          everydayConf.from ??'',
+          everydayConf.to ??''
         );
       }
 
@@ -550,8 +550,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         return isTimeInBetween(
           timezoneString,
           now,
-          weekdaysConf.from || '',
-          weekdaysConf.to || ''
+          weekdaysConf.from ?? '',
+          weekdaysConf.to ?? ''
         );
       }
 
@@ -562,8 +562,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         return isTimeInBetween(
           timezoneString,
           now,
-          weekendsConf.from || '',
-          weekendsConf.to || ''
+          weekendsConf.from ?? '',
+          weekendsConf.to ??  ''
         );
       }
 
@@ -574,8 +574,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
         return isTimeInBetween(
           timezoneString,
           now,
-          dayConf.from || '',
-          dayConf.to || ''
+          dayConf.from ??'',
+          dayConf.to ?? ''
         );
       }
 
