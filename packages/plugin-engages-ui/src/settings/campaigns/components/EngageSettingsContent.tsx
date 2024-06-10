@@ -1,20 +1,19 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
-import { __, getVersion } from '@erxes/ui/src/utils/core';
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { __, getVersion } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { Verify } from '@erxes/ui-settings/src/general/components/styles';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -277,7 +276,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
             </>
           )}
 
-          {/* <Verify> */}
           <ControlLabel required={true}>Email</ControlLabel>
           <FormControl
             type='email'
@@ -291,7 +289,6 @@ class EngageSettingsContent extends React.Component<Props, State> {
             >
               Verify
             </Button>
-            {/* </Verify> */}
           </ModalFooter>
         </CollapseContent>
         <CollapseContent
