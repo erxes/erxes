@@ -19,7 +19,7 @@ const Detail = (props: Props) => {
   const { currentId } = props;
 
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [typingInfo, setTypingInfo] = useState("");
+  const [typingInfo, setTypingInfo] = useState();
 
   const messagesQuery = useQuery(gql(queries.zaloConversationMessages), {
     variables: {
