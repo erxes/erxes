@@ -882,6 +882,10 @@ const OperatorRemoveBtn = styled.div`
   }
 `;
 
+const KeyPadContainer = styled.div`
+  position: relative;
+`;
+
 export {
   ActivityRow,
   ActivityIcon,
@@ -892,5 +896,6 @@ export {
   DialogWrapper,
   MessageContent,
   OperatorFormView,
-  OperatorRemoveBtn
+  OperatorRemoveBtn,
+  KeyPadContainer
 };

@@ -19,6 +19,7 @@ const SipProviderContainer = (props) => {
   const [config, setConfig] = useState(
     JSON.parse(localStorage.getItem("config:call_integrations") || "{}")
   );
+
   const callInfo = JSON.parse(localStorage.getItem("callInfo") || "{}");
   const isConnectCallRequested = JSON.parse(
     localStorage.getItem("isConnectCallRequested") || "{}"

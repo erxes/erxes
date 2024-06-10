@@ -84,8 +84,10 @@ export const callActions = (
   disableTransferCall,
   direction,
   gotoDetail,
-  disableDetail
+  disableDetail,
+  onClickKeyPad
 ) => {
+  console.log(onClickKeyPad);
   return (
     <InCallFooter>
       <Actions>
@@ -118,7 +120,7 @@ export const callActions = (
             {__("Detail")}
           </div>
           <div>
-            <CallAction>
+            <CallAction onClick={onClickKeyPad}>
               <Icon size={20} icon={"dialpad-alt"} />
             </CallAction>
 
