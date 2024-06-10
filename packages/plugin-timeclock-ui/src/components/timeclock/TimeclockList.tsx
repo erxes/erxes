@@ -72,10 +72,10 @@ function List(props: Props) {
   } = props;
 
   const [extractType, setExtractType] = useState("All team members");
-  const [currUserIds, setUserIds] = useState([]);
+  const [currUserIds, setCurrUserIds] = useState([]);
 
-  const [selectedBranches, setBranches] = useState<string[]>([]);
-  const [selectedDepartments, setDepartments] = useState<string[]>([]);
+  const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
 
   const renderDepartmentOptions = (depts: IDepartment[]) => {
     return depts.map((dept) => ({
@@ -96,17 +96,17 @@ function List(props: Props) {
   const onBranchSelect = (el) => {
     const selectedBranchIds: string[] = [];
     selectedBranchIds.push(...el.map((branch) => branch.value));
-    setBranches(selectedBranchIds);
+    setSelectedBranches(selectedBranchIds);
   };
 
   const onDepartmentSelect = (el) => {
     const selectedDeptIds: string[] = [];
     selectedDeptIds.push(...el.map((dept) => dept.value));
-    setDepartments(selectedDeptIds);
+    setSelectedDepartments(selectedDeptIds);
   };
 
   const onMemberSelect = (selectedUsers) => {
-    setUserIds(selectedUsers);
+    setCurrUserIds(selectedUsers);
   };
 
   const returnTotalUserOptions = () => {
@@ -153,13 +153,13 @@ function List(props: Props) {
     <></>
   );
 
-  const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem("isSideBarOpen") === "true" ? true : false
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem("isSideBarOpen") === "true"
   );
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
-    setIsOpen(toggleIsOpen);
+    setIsSideBarOpen(toggleIsOpen);
     localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
