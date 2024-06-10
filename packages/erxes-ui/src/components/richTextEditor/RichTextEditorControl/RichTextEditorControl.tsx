@@ -1,6 +1,6 @@
 import { EditorControl } from './styles';
 import { IRichTextEditorLabels } from '../labels';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 export type RichTextEditorControlStylesNames = 'control';
@@ -17,9 +17,11 @@ export interface IRichTextEditorControlProps
   isSourceControl?: boolean;
 }
 
-export const RichTextEditorControl = (props: any) => {
+export const RichTextEditorControl = forwardRef<
+  HTMLButtonElement,
+  IRichTextEditorControlBaseProps
+>((props, ref) => {
   const { isSourceEnabled } = useRichTextEditorContext();
-  // const ref = useRef<HTMLButtonElement>(null);
 
   const {
     interactive,
@@ -33,7 +35,6 @@ export const RichTextEditorControl = (props: any) => {
   return (
     <EditorControl
       {...others}
-      type="span"
       disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
@@ -43,34 +44,32 @@ export const RichTextEditorControl = (props: any) => {
       }
       aria-pressed={(active && interactive) || undefined}
       aria-hidden={!interactive || undefined}
-      // ref={ref}
+      ref={ref}
       onMouseDown={(event) => {
         event.preventDefault();
         onMouseDown?.(event);
       }}
     />
   );
-};
+});
 
 export interface IRichTextEditorControlBaseProps
   extends IRichTextEditorControlProps {
   icon?: React.FC<{ style: React.CSSProperties }>;
 }
 
-export const RichTextEditorControlBase = <
+export const RichTextEditorControlBase = forwardRef<
   HTMLButtonElement,
-  RichTextEditorControlBaseProps,
->({
-  className,
-  icon: Icon,
-  ...others
-}: any) => {
+  IRichTextEditorControlBaseProps
+>((props, ref) => {
+  const { icon: Icon, ...otherProps } = props;
+
   return (
-    <RichTextEditorControl {...others}>
+    <RichTextEditorControl ref={ref} {...otherProps}>
       {Icon && <Icon style={{ width: '1rem', height: '1rem' }} />}
     </RichTextEditorControl>
   );
-};
+});
 
 export interface ICreateControlProps {
   label: keyof IRichTextEditorLabels;
@@ -86,7 +85,7 @@ export function createControl({
   icon,
 }: ICreateControlProps) {
   return <HTMLButtonElement, RichTextEditorControlBaseProps>(
-    props: RichTextEditorControlBaseProps,
+    props: RichTextEditorControlBaseProps
   ) => {
     const { editor, labels } = useRichTextEditorContext();
     const _label = labels[label] as string;
