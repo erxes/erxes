@@ -7,7 +7,7 @@ import { ContentContainer } from '../styles';
 import { Spinner } from '@erxes/ui/src';
 
 type Props = {
-  queryParams: any;
+  queryParams: string;
   loading: boolean;
 };
 
