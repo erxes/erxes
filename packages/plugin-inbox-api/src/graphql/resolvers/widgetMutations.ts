@@ -763,7 +763,7 @@ const widgetMutations = {
           (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
-        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+        const timeDelayIntValue = parseInt(timeDelay.value ?? '0', 10);
 
         const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
 
@@ -774,7 +774,7 @@ const widgetMutations = {
             (config) => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',
           ) || { value: defaultValue };
 
-          throw new Error(messageForDelay.value || defaultValue);
+          throw new Error(messageForDelay.value ?? defaultValue);
         }
       }
     }
