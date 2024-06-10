@@ -1,9 +1,8 @@
-import React from 'react';
-import { IReport, IUserReport } from '../../types';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
-import { timeFormat } from '../../constants';
-import { returnDeviceTypes } from '../../utils';
+import React from "react";
+import { IReport, IUserReport } from "../../types";
+import dayjs from "dayjs";
+import { timeFormat } from "../../constants";
+import { returnDeviceTypes } from "../../utils";
 
 type Props = {
   reportType: string;
@@ -21,36 +20,36 @@ const ReportRow = (
   showBranch: boolean
 ) => {
   switch (reportType) {
-    case 'Урьдчилсан':
+    case "Урьдчилсан":
       return (
         <tr key={Math.random()}>
           <td>
             <b>{index}</b>
           </td>
           <td>{userReport.user.employeeId}</td>
-          <td>{userReport.user.details?.lastName || '-'}</td>
-          <td>{userReport.user.details?.firstName || '-'}</td>
-          <td>{userReport.user.details?.position || '-'}</td>
+          <td>{userReport.user.details?.lastName || "-"}</td>
+          <td>{userReport.user.details?.firstName || "-"}</td>
+          <td>{userReport.user.details?.position || "-"}</td>
           <td>{userReport.totalDaysScheduled}</td>
           <td>{userReport.totalDaysWorked}</td>
-          <td>{'-'}</td>
+          <td>{"-"}</td>
         </tr>
       );
 
-    case 'Сүүлд':
+    case "Сүүлд":
       return (
         <tr key={Math.random()}>
           <td>
             <b>{index}</b>
           </td>
           {showDepartment && (
-            <td>{userReport.departmentTitles?.join(',\n') || '-'}</td>
+            <td>{userReport.departmentTitles?.join(",\n") || "-"}</td>
           )}
-          {showBranch && <td>{userReport.branchTitles?.join(',\n') || '-'}</td>}
+          {showBranch && <td>{userReport.branchTitles?.join(",\n") || "-"}</td>}
           <td>{userReport.user.employeeId}</td>
-          <td>{userReport.user.details?.lastName || '-'}</td>
-          <td>{userReport.user.details?.firstName || '-'}</td>
-          <td>{userReport.user.details?.position || '-'}</td>
+          <td>{userReport.user.details?.lastName || "-"}</td>
+          <td>{userReport.user.details?.firstName || "-"}</td>
+          <td>{userReport.user.details?.position || "-"}</td>
           <td>{userReport.totalDaysScheduled}</td>
           <td>{userReport.totalHoursScheduled}</td>
           <td>{userReport.totalHoursBreakScheduled}</td>
@@ -66,11 +65,11 @@ const ReportRow = (
           <td>{userReport.absenceInfo?.totalHoursPaidAbsence}</td>
           <td>{userReport.absenceInfo?.totalHoursUnpaidAbsence}</td>
           <td>{userReport.absenceInfo?.totalHoursSick}</td>
-          <td>{'-'}</td>
+          <td>{"-"}</td>
         </tr>
       );
 
-    case 'Pivot':
+    case "Pivot":
       if (!userReport.scheduleReport || !userReport.scheduleReport.length) {
         return (
           <tr key={Math.random()}>
@@ -78,10 +77,10 @@ const ReportRow = (
               <b>{index}</b>
             </td>
             <td>{userReport.user.employeeId}</td>
-            <td>{userReport.user.details?.lastName || '-'}</td>
-            <td>{userReport.user.details?.firstName || '-'}</td>
-            <td style={{ textAlign: 'left' }}>
-              {userReport.user.details?.position || '-'}
+            <td>{userReport.user.details?.lastName || "-"}</td>
+            <td>{userReport.user.details?.firstName || "-"}</td>
+            <td style={{ textAlign: "left" }}>
+              {userReport.user.details?.position || "-"}
             </td>
             <td>{}</td>
             <td>{}</td>
@@ -111,19 +110,19 @@ const ReportRow = (
               {userReport.user.employeeId}
             </td>
             <td rowSpan={userReport.scheduleReport.length + 2}>
-              {userReport.user.details?.lastName || '-'}
+              {userReport.user.details?.lastName || "-"}
             </td>
             <td rowSpan={userReport.scheduleReport.length + 2}>
-              {userReport.user.details?.firstName || '-'}
+              {userReport.user.details?.firstName || "-"}
             </td>
             <td
-              style={{ textAlign: 'left' }}
+              style={{ textAlign: "left" }}
               rowSpan={userReport.scheduleReport.length + 2}
             >
-              {userReport.user.details?.position || '-'}
+              {userReport.user.details?.position || "-"}
             </td>
           </tr>
-          {userReport.scheduleReport.map(scheduleReport => {
+          {userReport.scheduleReport.map((scheduleReport) => {
             return (
               <tr key={scheduleReport.timeclockDate}>
                 {renderScheduleShiftInfo(scheduleReport)}
@@ -135,18 +134,18 @@ const ReportRow = (
   }
 };
 
-const renderScheduleShiftInfo = scheduledShift => {
+const renderScheduleShiftInfo = (scheduledShift) => {
   const getInDevice =
     scheduledShift.inDevice ||
     (returnDeviceTypes(scheduledShift.deviceType)[0] &&
-    returnDeviceTypes(scheduledShift.deviceType)[0].includes('faceTerminal')
+    returnDeviceTypes(scheduledShift.deviceType)[0].includes("faceTerminal")
       ? scheduledShift.deviceName
       : scheduledShift.deviceType);
 
   const getOutDevice =
     scheduledShift.outDevice ||
     (returnDeviceTypes(scheduledShift.deviceType)[1] &&
-    returnDeviceTypes(scheduledShift.deviceType)[1].includes('faceTerminal')
+    returnDeviceTypes(scheduledShift.deviceType)[1].includes("faceTerminal")
       ? scheduledShift.deviceName
       : scheduledShift.deviceType);
 
@@ -155,14 +154,14 @@ const renderScheduleShiftInfo = scheduledShift => {
       <td>{scheduledShift.timeclockDate}</td>
       <td>
         {scheduledShift.scheduledStart
-          ? new Date(scheduledShift.scheduledStart).toTimeString().split(' ')[0]
-          : '-'}
+          ? new Date(scheduledShift.scheduledStart).toTimeString().split(" ")[0]
+          : "-"}
       </td>
 
       <td>
         {scheduledShift.scheduledEnd
-          ? new Date(scheduledShift.scheduledEnd).toTimeString().split(' ')[0]
-          : '-'}
+          ? new Date(scheduledShift.scheduledEnd).toTimeString().split(" ")[0]
+          : "-"}
       </td>
       <td>{scheduledShift.scheduledDuration}</td>
       <td>{scheduledShift.lunchBreakInHrs || 0}</td>
@@ -184,7 +183,7 @@ const ReportList = (props: Props) => {
   const { report, reportType, showDepartment, showBranch, index } = props;
   return (
     <tbody>
-      {report.groupReport.map(userReport =>
+      {report.groupReport.map((userReport) =>
         ReportRow(userReport, reportType, index, showDepartment, showBranch)
       )}
     </tbody>
