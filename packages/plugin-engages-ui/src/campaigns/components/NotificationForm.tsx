@@ -255,18 +255,6 @@ class NotificationForm extends React.Component<Props, State> {
               required
             />
           </FormGroup>
-
-          <FormGroup horizontal>
-            <FlexInfo>
-              <ControlLabel>{__('Is mobile notification')}:</ControlLabel>
-            </FlexInfo>
-            <input
-              onBlur={onChangeIsMobile}
-              defaultChecked={notification?.isMobile || false}
-              onChange={e => onChangeIsMobile(e)}
-              type='checkbox'
-            />
-          </FormGroup>
         </FlexPad>
 
         <FlexItem overflow='auto' count='2'>
