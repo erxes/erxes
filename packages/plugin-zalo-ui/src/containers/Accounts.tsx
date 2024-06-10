@@ -1,13 +1,12 @@
-import { Alert, getEnv } from '@erxes/ui/src/utils';
+import { Alert, getEnv } from "@erxes/ui/src/utils";
 
-import Accounts from '../components/Accounts';
-import Info from '@erxes/ui/src/components/Info';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { queries, mutations } from '../graphql';
-import { useQuery, useMutation } from '@apollo/client';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Accounts from "../components/Accounts";
+import Info from "@erxes/ui/src/components/Info";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { queries, mutations } from "../graphql";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
 
 type Props = {
   onSelectAccount: (accountId: string) => void;
@@ -18,7 +17,7 @@ type Props = {
 const AccountContainer = (props: Props) => {
   const accountsQuery = useQuery(gql(queries.accounts));
   const [removeAccount] = useMutation(gql(mutations.removeAccount), {
-    refetchQueries: ['accounts'],
+    refetchQueries: ["accounts"],
   });
 
   const popupWindow = (url, title, win, w, h) => {
@@ -28,7 +27,7 @@ const AccountContainer = (props: Props) => {
     return win.open(
       url,
       title,
-      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
+      `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
     );
   };
 
@@ -37,21 +36,21 @@ const AccountContainer = (props: Props) => {
 
     popupWindow(
       `${REACT_APP_API_URL}/pl:zalo/login`,
-      'Integration',
+      "Integration",
       window,
       660,
-      750,
+      750
     );
   };
 
   const removeAccountHandler = (accountId: string) => {
     removeAccount({ variables: { _id: accountId } })
       .then(() => {
-        Alert.success('You successfully removed an account');
+        Alert.success("You successfully removed an account");
 
         accountsQuery.refetch();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
