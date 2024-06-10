@@ -24,8 +24,9 @@ const checkIsBot = async (models: IModels, message, recipientId) => {
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
-  activity: Activity,
+  activity: Activity
 ) => {
+  console.log('received message');
   let {
     recipient,
     sender,
@@ -33,14 +34,14 @@ const receiveMessage = async (
     text,
     attachments = [],
     message,
-    postback,
+    postback
   } = activity.channelData as IChannelData;
 
   if (!text && !message && !!postback) {
     text = postback.title;
 
     message = {
-      mid: postback.mid,
+      mid: postback.mid
     };
 
     if (postback.payload) {
@@ -51,11 +52,13 @@ const receiveMessage = async (
     message.payload = message.quick_reply.payload;
   }
 
+  console.log('startging message');
+
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
-      { kind: INTEGRATION_KINDS.MESSENGER },
-    ],
+      { kind: INTEGRATION_KINDS.MESSENGER }
+    ]
   });
 
   const userId = sender.id;
@@ -68,16 +71,22 @@ const receiveMessage = async (
     subdomain,
     pageId,
     userId,
-    kind,
+    kind
   );
+
+  console.log('Customer:', !!customer);
 
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: userId,
-    recipientId: recipient.id,
+    recipientId: recipient.id
   });
 
+  console.log('conversation:');
+
   const botId = await checkIsBot(models, message, recipient.id);
+
+  console.log('botId:', botId);
 
   // create conversation
   if (!conversation) {
@@ -91,13 +100,13 @@ const receiveMessage = async (
         content: text,
         integrationId: integration._id,
         isBot: !!botId,
-        botId,
+        botId
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e,
+          : e
       );
     }
   } else {
@@ -113,11 +122,14 @@ const receiveMessage = async (
     .filter((att) => att.type !== 'fallback')
     .map((att) => ({
       type: att.type,
-      url: att.payload ? att.payload.url : '',
+      url: att.payload ? att.payload.url : ''
     }));
+
+  console.log('formattedAttachments:');
 
   // save on api
   try {
+    console.log('create-or-update-conversation');
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
       action: 'integrations.receive',
@@ -129,11 +141,13 @@ const receiveMessage = async (
           content: text || '',
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
-          updatedAt: timestamp,
-        }),
+          updatedAt: timestamp
+        })
       },
-      isRPC: true,
+      isRPC: true
     });
+
+    console.log('create-or-update-conversation Done:');
 
     conversation.erxesApiId = apiConversationResponse._id;
 
@@ -144,10 +158,12 @@ const receiveMessage = async (
   }
   // get conversation message
   let conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid,
+    mid: message.mid
   });
 
+  console.log('conversation Message');
   if (!conversationMessage) {
+    console.log('conversation Message dasc');
     try {
       const created = await models.ConversationMessages.create({
         conversationId: conversation._id,
@@ -156,27 +172,30 @@ const receiveMessage = async (
         content: text,
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
-        botId,
+        botId
       });
+      console.log('created');
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           ...created.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
+          conversationId: conversation.erxesApiId
+        }
       });
+
+      console.log('pubsub');
 
       graphqlPubsub.publish(
         `conversationMessageInserted:${conversation.erxesApiId}`,
         {
           conversationMessageInserted: {
             ...created.toObject(),
-            conversationId: conversation.erxesApiId,
-          },
-        },
+            conversationId: conversation.erxesApiId
+          }
+        }
       );
-
+      console.log('pubsub Done');
       conversationMessage = created;
       console.log({ payload: JSON.parse(message.payload || '{}') });
       await putCreateLog(
@@ -187,16 +206,16 @@ const receiveMessage = async (
           newData: message,
           object: {
             ...conversationMessage.toObject(),
-            payload: JSON.parse(message.payload || '{}'),
-          },
+            payload: JSON.parse(message.payload || '{}')
+          }
         },
-        customer._id,
+        customer._id
       );
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
-          : e,
+          : e
       );
     }
   }
