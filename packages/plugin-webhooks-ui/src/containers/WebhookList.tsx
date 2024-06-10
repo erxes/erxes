@@ -1,18 +1,16 @@
-import React from 'react';
+import React from "react";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
-
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import {
   ICommonFormProps,
   ICommonListProps,
-} from '@erxes/ui-settings/src/common/types';
-import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
-import { Alert } from '@erxes/ui/src/utils';
+} from "@erxes/ui-settings/src/common/types";
+import { queries as generalQueries } from "@erxes/ui-settings/src/general/graphql";
+import { Alert } from "@erxes/ui/src/utils";
 
-import WebhookList from '../components/WebhookList';
-import { mutations, queries } from '../graphql';
+import WebhookList from "../components/WebhookList";
+import { mutations, queries } from "../graphql";
 
 type Props = {
   queryParams: any;
@@ -25,28 +23,28 @@ const WebhookListContainer = (props: Props) => {
   // Queries
   const listQuery = useQuery(
     gql(queries.webhooks),
-    options({ queryParams: queryParams || {} }),
+    options({ queryParams: queryParams || {} })
   );
 
   const configsEnvQuery = useQuery(
     gql(generalQueries.configsGetEnv),
-    options({ queryParams: queryParams || {} }),
+    options({ queryParams: queryParams || {} })
   );
 
   const totalCountQuery = useQuery(
     gql(queries.webhooksTotalCount),
-    options({ queryParams: queryParams || {} }),
+    options({ queryParams: queryParams || {} })
   );
 
   // Mutations
   const [webhooksRemove] = useMutation(gql(mutations.webhooksRemove), {
-    refetchQueries: ['webhooks', 'webhooksTotalCount'],
+    refetchQueries: ["webhooks", "webhooksTotalCount"],
   });
 
   const removeWebhook = (_id: any) => {
     webhooksRemove({ variables: { _id } })
       .then(() => {
-        Alert.success('You successfully updated a census');
+        Alert.success("You successfully updated a census");
       })
       .catch((error: any) => Alert.error(error.message));
   };
@@ -71,7 +69,7 @@ const options = ({ queryParams }: { queryParams: any }): any => {
       _id: queryParams._id,
       searchValue: queryParams.searchValue,
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   };
 };
 
