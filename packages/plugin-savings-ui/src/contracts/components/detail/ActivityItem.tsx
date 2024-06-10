@@ -11,9 +11,8 @@ const activityItem = (activity: IActivityLog) => {
   console.log("action", action);
   console.log("contentType", contentType);
 
-  switch ((action && action) || contentType) {
-    default:
-      return renderInvoices(activity);
+  if ((action && action) || contentType) {
+    return renderInvoices(activity);
   }
 };
 
