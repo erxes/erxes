@@ -39,7 +39,7 @@ function ReportList(props: Props) {
     showSideBar,
     isCurrentUserAdmin,
   } = props;
-  const [reportType, setType] = useState(queryParams.reportType);
+  const [reportType, setReportType] = useState(queryParams.reportType);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -51,13 +51,13 @@ function ReportList(props: Props) {
     queryParams.showBranch ? JSON.parse(queryParams.showBranch) : false
   );
 
-  const [isSideBarOpen, setIsOpen] = useState(
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
     JSON.parse(localStorage.getItem("isSideBarOpen") || "false")
   );
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
-    setIsOpen(toggleIsOpen);
+    setIsSideBarOpen(toggleIsOpen);
     localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
@@ -212,7 +212,7 @@ function ReportList(props: Props) {
     const onTypeSelect = (type) => {
       router.setParams(navigate, location, { reportType: type.value });
       router.removeParams(navigate, location, "page", "perPage");
-      setType(type.value);
+      setReportType(type.value);
     };
 
     const selectOptions = ["Урьдчилсан", "Сүүлд", "Pivot"].map((ipt) => ({
