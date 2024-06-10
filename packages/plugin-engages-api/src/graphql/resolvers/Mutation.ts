@@ -230,7 +230,6 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      // const SENDGRID_API_KEY = getConfig({ name: 'SENDGRID_API_KEY', subdomain });
       const sendgrid = await sendgridClient(subdomain)
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
