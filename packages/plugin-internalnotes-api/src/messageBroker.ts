@@ -18,7 +18,6 @@ const checkService = async (serviceName: string, needsList?: boolean) => {
     return needsList ? [] : null;
   }
 
-  return;
 };
 
 export const setupMessageConsumers = async () => {
