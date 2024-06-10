@@ -1,9 +1,5 @@
-import { Model } from 'mongoose';
-import {
-  xypDataSchema,
-  IXypconfigDocument,
-  IXypData,
-} from './definitions/xypdata';
+import { Model } from "mongoose";
+import { xypDataSchema, IXypconfigDocument } from "./definitions/xypdata";
 
 export interface IXypDataModel extends Model<IXypconfigDocument> {
   getXypData(doc: any): IXypconfigDocument;
@@ -21,7 +17,7 @@ export const loadxypConfigClass = (models) => {
     public static async getXypData(doc: any) {
       const xypdataObj = await models.XypData.findOne(doc);
       if (!xypdataObj) {
-        throw new Error('XypData not found');
+        throw new Error("XypData not found");
       }
       return xypdataObj;
     }
@@ -48,7 +44,7 @@ export const loadxypConfigClass = (models) => {
             updatedAt: new Date(),
             ...doc,
           },
-        },
+        }
       );
       return models.XypData.findOne({ _id });
     }
@@ -63,7 +59,7 @@ export const loadxypConfigClass = (models) => {
       });
       if (xypdataObj) {
         const unique = xypdataObj?.data.filter(
-          (d) => d.wsOperationName !== data.wsOperationName,
+          (d) => d.wsOperationName !== data.wsOperationName
         );
         await models.XypData.updateOne(
           { _id: xypdataObj._id },
@@ -72,7 +68,7 @@ export const loadxypConfigClass = (models) => {
               updatedAt: new Date(),
               data: [...unique, data],
             },
-          },
+          }
         );
       } else {
         const ret = await models.XypData.create({

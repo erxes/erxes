@@ -1,18 +1,11 @@
-import { generateModels, IModels } from './connectionResolver';
-import {
-  sendCoreMessage,
-  fetchSegment,
-  sendContactsMessage,
-  sendCommonMessage,
-} from './messageBroker';
-import * as moment from 'moment';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { getServiceToFields } from './forms';
+import { generateModels, IModels } from "./connectionResolver";
+import { fetchSegment } from "./messageBroker";
+import { getServiceToFields } from "./forms";
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -24,7 +17,7 @@ const prepareData = async (
   let itemIds = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
+    itemIds = await fetchSegment(subdomain, "", { page, perPage }, segmentData);
 
     filter._id = { $in: itemIds };
     data = await models.XypData.find(filter).lean();
@@ -38,7 +31,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -48,9 +41,9 @@ const prepareDataCount = async (
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
-      '',
+      "",
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData,
+      segmentData
     );
 
     filter._id = { $in: itemIds };
@@ -66,10 +59,10 @@ const getExcelHeader = async (subdomain, columnsConfig) => {
   const { fieldsForExcel, list } = (await getServiceToFields(subdomain)) || [];
 
   for (const column of columnsConfig) {
-    if (column.startsWith('service.')) {
-      const serviceName = column.replace('service.', '');
+    if (column.startsWith("service.")) {
+      const serviceName = column.replace("service.", "");
       const oneServiceFields = fieldsForExcel.filter((x) =>
-        x.startsWith(serviceName),
+        x.startsWith(serviceName)
       );
       headers = [...headers, ...oneServiceFields];
     } else {
@@ -82,9 +75,9 @@ const getExcelHeader = async (subdomain, columnsConfig) => {
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Хурдан',
-    contentType: 'xyp',
-    icon: 'server-alt',
+    text: "Хурдан",
+    contentType: "xyp",
+    icon: "server-alt",
   },
 ];
 
@@ -127,14 +120,14 @@ export default {
       for (const item of results) {
         let result = {};
         for (const column of excelHeader) {
-          if (column.includes('.')) {
-            const splits = column.split('.');
+          if (column.includes(".")) {
+            const splits = column.split(".");
 
             const data = item.data.find((one) => one.serviceName === splits[0]);
 
             if (data) {
               const columnValue =
-                splits[1] in data?.data ? data.data[splits[1]] : '';
+                splits[1] in data?.data ? data.data[splits[1]] : "";
               result[column] = columnValue;
             }
           } else {
