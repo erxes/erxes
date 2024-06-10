@@ -1,8 +1,7 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import {
-  SAFE_REMAINDER_ITEM_STATUSES,
-  SAFE_REMAINDER_STATUSES
+  SAFE_REMAINDER_ITEM_STATUSES
 } from '../../../models/definitions/constants';
 
 const safeRemainderItemMutations = {
@@ -19,7 +18,7 @@ const safeRemainderItemMutations = {
 
     const doc = {
       count: remainder,
-      status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED
+      status: status ?? SAFE_REMAINDER_ITEM_STATUSES.CHECKED
     };
 
     return await models.SafeRemainderItems.updateItem(_id, doc, user._id);
