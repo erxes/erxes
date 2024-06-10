@@ -1,6 +1,5 @@
 import { Model, Document, Schema } from 'mongoose';
 import * as strip from 'strip';
-import { attachmentSchema } from '@erxes/api-utils/src/definitions/common';
 import { IModels } from '.';
 import { field } from './definitions/utils';
 
