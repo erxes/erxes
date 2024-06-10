@@ -1,4 +1,4 @@
-import { ChartTitle, ContentContainer, DragField } from "../../styles";
+import { ChartTitle, ContentContainer, DragField,RightDrawerContainer  } from "../../styles";
 import React, { useRef, useState } from "react";
 import { defaultLayout, deserializeItem } from "../../utils";
 
@@ -14,7 +14,6 @@ import { IDashboard } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import PageContent from "@erxes/ui/src/layout/components/PageContent";
 import Participators from "../utils/Participators";
-import { RightDrawerContainer } from "../../styles";
 import SelectMembersPopover from "../utils/SelectMembersPopover";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
