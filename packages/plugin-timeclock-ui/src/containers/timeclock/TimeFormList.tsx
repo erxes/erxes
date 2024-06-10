@@ -37,7 +37,7 @@ const ListContainer = (props: FinalProps) => {
   // get current location of an user
   let long = 0;
   let lat = 0;
-  navigator.geolocation.getCurrentPosition((position) => {
+  navigator.geolocation.getCurrentPosition(position => {
     long = position.coords.longitude;
     lat = position.coords.latitude;
   });
@@ -54,7 +54,7 @@ const ListContainer = (props: FinalProps) => {
       .then(() => {
         Alert.success("Successfully clocked in");
       })
-      .catch((err) => Alert.error(err.message));
+      .catch(err => Alert.error(err.message));
   };
 
   const stopClockTime = (userId: string, timeId?: string) => {
@@ -70,7 +70,7 @@ const ListContainer = (props: FinalProps) => {
       .then(() => {
         Alert.success("Successfully clocked out");
       })
-      .catch((err) => Alert.error(err.message));
+      .catch(err => Alert.error(err.message));
   };
 
   const updatedProps = {
