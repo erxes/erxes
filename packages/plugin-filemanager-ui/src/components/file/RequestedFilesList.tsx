@@ -7,7 +7,6 @@ import { ItemName } from "../../styles";
 import Label from "@erxes/ui/src/components/Label";
 import React from "react";
 import Table from "@erxes/ui/src/components/table";
-import Tip from "@erxes/ui/src/components/Tip";
 import dayjs from "dayjs";
 import { renderFileIcon } from "../../utils";
 import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
