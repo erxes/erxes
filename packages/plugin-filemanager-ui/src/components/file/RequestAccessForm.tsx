@@ -15,7 +15,7 @@ type Props = {
 };
 
 function RequestAccessForm({ requestAccess, fileId }: Props) {
-  const [description, setDesc] = useState("");
+  const [description, setDescription] = useState("");
 
   const onRequest = (callback) => {
     requestAccess(
@@ -28,7 +28,7 @@ function RequestAccessForm({ requestAccess, fileId }: Props) {
   };
 
   const renderForm = (props) => {
-    const onChange = (e) => setDesc((e.target as HTMLInputElement).value);
+    const onChange = (e) => setDescription((e.target as HTMLInputElement).value);
 
     return (
       <>
@@ -71,7 +71,7 @@ function RequestAccessForm({ requestAccess, fileId }: Props) {
   return (
     <RequestAccessWrapper>
       <AccessPopup>
-        <img src="/images/actions/36.svg" />
+        <img alt= "Permission?" src="/images/actions/36.svg" />
         <h3>{__("You need permission")}</h3>
         <p>
           {__("Want in? Ask for access, or log in account with permission")}
