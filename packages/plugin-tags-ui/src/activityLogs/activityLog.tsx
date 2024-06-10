@@ -1,26 +1,25 @@
-import React from 'react';
+import React from "react";
 import {
   ActivityIcon,
   ActivityRow,
-} from '@erxes/ui-log/src/activityLogs/styles';
+} from "@erxes/ui-log/src/activityLogs/styles";
 import {
   formatText,
   getIconAndColor,
-} from '@erxes/ui-log/src/activityLogs/utils';
+} from "@erxes/ui-log/src/activityLogs/utils";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import TaggedLog from './containers/TaggedLog';
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import TaggedLog from "./containers/TaggedLog";
 
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
   const renderDetail = (children: React.ReactNode) => {
-    const type = contentType.split(':')[1];
+    const type = contentType.split(":")[1];
     const iconAndColor = getIconAndColor(type || contentType) || {};
 
     return (
@@ -36,14 +35,13 @@ const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
   };
 
   const { action } = activity;
-  const type = activity.contentType.split(':')[1];
+  const type = activity.contentType.split(":")[1];
   const tagIds = activity.content ? activity.content.tagIds : [];
 
-  switch ((action && action) || type) {
-    case 'tagged':
-      return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
-    default:
-      return <div />;
+  if ((action && action) || type === "tagged") {
+    return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
+  } else {
+    return <div />;
   }
 };
 

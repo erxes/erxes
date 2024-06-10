@@ -1,6 +1,6 @@
 import { Alert, confirm } from "@erxes/ui/src/utils";
 import { mutations, queries } from "../graphql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, gql } from "@apollo/client";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
@@ -11,7 +11,6 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import { TagsQueryResponse } from "../types";
 import { __ } from "@erxes/ui/src/utils/core";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
-import { gql } from "@apollo/client";
 
 type Props = {
   location: any;
