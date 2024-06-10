@@ -12,7 +12,7 @@ import {
   sendContactsMessage,
   sendClientPortalMessage,
 } from './messageBroker';
-
+import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 import { awsRequests } from './trackers/engageTracker';
 interface IEngageParams {
@@ -438,8 +438,12 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email is not specified: ${user.username}`);
     }
 
+    const VERSION = getEnv({ name: 'VERSION' });
+
     const verifiedEmails: any =
-      (await awsRequests.getVerifiedEmails(models)) || [];
+      VERSION === 'saas'
+        ? await sendgridVerifiedEmails(subdomain)
+        : (await awsRequests.getVerifiedEmails(models)) || [];
 
     if (!verifiedEmails.includes(user.email)) {
       throw new Error(`From user email "${user.email}" is not verified in AWS`);
@@ -617,20 +621,12 @@ export const checkCustomerExists = async (
 };
 
 export const sendgridVerifiedEmails = async (subdomain) => {
-  const sendgrid = require('@sendgrid/client');
-  const SENDGRID_CLIENT_KEY = await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
-    isRPC: true,
-  });
+  const sendgrid = await sendgridClient(subdomain)
 
   const request = {
     url: `/v3/marketing/senders`,
     method: 'GET',
   };
-
-  sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
 
   const [body] = await sendgrid.request(request);
 
@@ -641,4 +637,39 @@ export const sendgridVerifiedEmails = async (subdomain) => {
     .map((e) => {
       return e.from.email;
     });
+};
+
+export const sendWithSendgrid = async (subdomain, doc) => {
+  const sendgridMail = require('@sendgrid/mail');
+  const SENDGRID_API_KEY = await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code: 'SENDGRID_API_KEY', defaultValue: null },
+    isRPC: true,
+  });
+
+  sendgridMail.setApiKey(SENDGRID_API_KEY);
+
+  try {
+    const sendgridResponse = await sendgridMail.send(doc);
+
+    return JSON.stringify(sendgridResponse);
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+};
+
+export const sendgridClient = async (subdomain) => {
+  const client = require('@sendgrid/client');
+  const SENDGRID_CLIENT_KEY = await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+    isRPC: true,
+  });
+
+  client.setApiKey(SENDGRID_CLIENT_KEY);
+
+  return client;
 };

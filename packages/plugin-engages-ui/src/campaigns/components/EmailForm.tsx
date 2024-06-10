@@ -119,6 +119,9 @@ class EmailForm extends React.Component<Props, State> {
       const { users, verifiedEmails } = this.props;
       const options: any[] = [];
 
+      console.log("users ",users)
+      console.log("verifiedEmails ", verifiedEmails)
+
       users.map((user) =>
         options.push({
           value: user._id,

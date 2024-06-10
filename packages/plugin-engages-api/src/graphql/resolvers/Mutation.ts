@@ -1,11 +1,11 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-
+import { getEnv } from '@erxes/api-utils/src';
 import { sendToWebhook } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CAMPAIGN_KINDS } from '../../constants';
-import { checkCampaignDoc, send } from '../../engageUtils';
+import { checkCampaignDoc, send, sendWithSendgrid, sendgridClient } from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -228,20 +228,17 @@ const engageMutations = {
     }: { email: string; address?: string; name?: string },
     { models, subdomain }: IContext
   ) {
-    // const VERSION = getEnv({ name: 'VERSION' });
-    const VERSION = 'saas';
+    const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
       // const SENDGRID_API_KEY = getConfig({ name: 'SENDGRID_API_KEY', subdomain });
-      const sendgrid = require('@sendgrid/client');
+      const sendgrid = await sendgridClient(subdomain)
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
         data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
         isRPC: true,
       });
-
-      console.log('SENDGRID_CLIENT_KEY', SENDGRID_CLIENT_KEY);
 
       sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
 
@@ -288,12 +285,11 @@ const engageMutations = {
     { email }: { email: string },
     { models, subdomain }: IContext
   ) {
-    // const VERSION = getEnv({ name: 'VERSION' });
-    const VERSION = 'saas';
+    const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      // const SENDGRID_API_KEY = getConfig({ name: 'SENDGRID_API_KEY', subdomain });
-      const sendgrid = require('@sendgrid/client');
+      
+      const sendgrid = await sendgridClient(subdomain)
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
@@ -371,34 +367,10 @@ const engageMutations = {
       user: targetUser,
     });
 
-    // const VERSION = getEnv({ name: 'VERSION' });
-    const VERSION = 'saas';
+    const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      const sendgridMail = require('@sendgrid/mail');
-      const SENDGRID_API_KEY = await sendCoreMessage({
-        subdomain,
-        action: 'getConfig',
-        data: { code: 'SENDGRID_API_KEY', defaultValue: null },
-        isRPC: true,
-      });
-
-      sendgridMail.setApiKey(SENDGRID_API_KEY);
-
-      try {
-        const sendgridResponse = await sendgridMail.send({
-          from,
-          to,
-          subject: title,
-          html: replacedContent,
-          text: replacedContent,
-        });
-
-        return JSON.stringify(sendgridResponse);
-      } catch (e) {
-        console.log(e);
-        return;
-      }
+      return await sendWithSendgrid(models, { content, from, to, title, replacedContent } );
     }
 
     try {

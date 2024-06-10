@@ -1,23 +1,13 @@
 import { Transform } from 'stream';
 
 import { chunkArray } from '@erxes/api-utils/src/core';
-import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
+import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 
-import {
-  customerSchema,
-  ICustomerDocument,
-  locationSchema,
-  visitorContactSchema,
-} from './models/definitions/customers';
-import {
-  sendCoreMessage,
-  sendEngagesMessage,
-  sendFormsMessage,
-  sendInboxMessage,
-  sendTagsMessage,
-} from './messageBroker';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
 import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from './connectionResolver';
 import {
   COMPANY_INFO,
@@ -26,10 +16,20 @@ import {
   EMAIL_VALIDATION_STATUSES,
   MODULE_NAMES,
 } from './constants';
+import {
+  sendCoreMessage,
+  sendEngagesMessage,
+  sendFormsMessage,
+  sendInboxMessage,
+  sendTagsMessage,
+} from './messageBroker';
 import { companySchema } from './models/definitions/companies';
-import { ICustomField, ILink } from '@erxes/api-utils/src/types';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
+import {
+  customerSchema,
+  ICustomerDocument,
+  locationSchema,
+  visitorContactSchema,
+} from './models/definitions/customers';
 
 const EXTEND_FIELDS = {
   CUSTOMER: [

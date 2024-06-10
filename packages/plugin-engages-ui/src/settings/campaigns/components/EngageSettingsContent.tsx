@@ -79,8 +79,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   onVerifyEmail = () => {
-    // const {VERSION} = getVersion();
-    const VERSION = 'saas'
+    const {VERSION} = getVersion();
     const { emailToVerify, name, address } = this.state;
 
     if (VERSION === 'saas' && (!emailToVerify || !name || !address)) {
@@ -244,8 +243,7 @@ class EngageSettingsContent extends React.Component<Props, State> {
   };
 
   render() {
-    // const { VERSION } = getVersion();
-    const VERSION = 'saas';
+    const { VERSION } = getVersion();
 
     return (
       <ContentBox id={'EngageSettingsMenu'}>

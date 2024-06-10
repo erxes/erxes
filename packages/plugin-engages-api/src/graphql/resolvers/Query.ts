@@ -14,7 +14,7 @@ import {
 } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { sendgridVerifiedEmails } from '../../engageUtils';
-
+import { getEnv } from '@erxes/api-utils/src';
 interface IPaged {
   page?: number;
   perPage?: number;
@@ -336,9 +336,8 @@ const engageQueries = {
    * Get all verified emails
    */
   async engageVerifiedEmails(_root, _args, { models, subdomain }: IContext) {
-    // const VERSION = getEnv({ name: 'VERSION' });
-    const VERSION = 'saas';
-
+    const VERSION = getEnv({ name: 'VERSION' });
+  
     const users = await sendCoreMessage({
       subdomain,
       action: 'users.find',
