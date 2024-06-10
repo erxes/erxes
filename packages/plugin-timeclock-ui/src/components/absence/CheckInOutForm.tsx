@@ -11,14 +11,13 @@ import {
 } from "../../styles";
 import { IAbsence, ITimeclock, ITimelog } from "../../types";
 import React, { useState } from "react";
-import { dateDayFormat, dateFormat } from "../../constants";
+import { dateDayFormat, dateFormat, timeFormat } from "../../constants";
 
 import { Alert } from "@erxes/ui/src/utils";
 import Button from "@erxes/ui/src/components/Button";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import Select from "react-select";
 import dayjs from "dayjs";
-import { timeFormat } from "../../constants";
 
 type Props = {
   timeclocksPerUser: ITimeclock[];
@@ -235,7 +234,6 @@ function CheckoutForm(props: Props) {
       status: `Approved`,
     });
     closeModal();
-    return;
   };
 
   return (
