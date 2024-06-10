@@ -1,5 +1,5 @@
 import { updateConfigs } from '../../server';
-import { IContext, IModels } from '../../models';
+import { IContext } from '../../models';
 
 const zaloMutations = {
   async zaloUpdateConfigs(_root, { configsMap }, { models }: IContext) {
