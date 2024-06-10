@@ -378,10 +378,10 @@ const getReactSelectStyle = (isSourceEnabled: boolean) => {
       padding: '0 6px',
       boxShadow: undefined,
     }),
-    option: (provided, { isFocused }) => ({
+    option: (provided, { isFocused, isSelected }) => ({
       ...provided,
-      backgroundColor: isFocused
-        ? rgba(colors.colorSecondary, 0.05)
+      backgroundColor: isSelected ? rgba(colors.colorSecondary, 0.15) 
+        : isFocused ? rgba(colors.colorSecondary, 0.05)
         : 'transparent',
       '&:hover': {
         cursor: 'pointer',
@@ -389,6 +389,7 @@ const getReactSelectStyle = (isSourceEnabled: boolean) => {
       '&:active': {
         backgroundColor: rgba(colors.colorSecondary, 0.15),
       },
+      color: isSelected ? '#000' : '#000',
     }
     ),
     menu: (provided) => ({
