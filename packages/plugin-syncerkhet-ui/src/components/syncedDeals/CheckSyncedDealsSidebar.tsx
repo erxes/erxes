@@ -90,43 +90,41 @@ const CheckerSidebar = (props: IProps) => {
     const lblEnd = `${dateType}EndDate`;
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
-          <CustomRangeContainer>
+      <FormGroup>
+        <ControlLabel>{`${dateType} Date range:`}</ControlLabel>
+        <CustomRangeContainer>
+          <DateContainer>
+            <Datetime
+              inputProps={{ placeholder: __("Choose Date") }}
+              dateFormat="YYYY-MM-DD"
+              timeFormat="HH:mm"
+              value={state[lblStart] || null}
+              closeOnSelect={true}
+              utc={true}
+              input={true}
+              onChange={onChangeRangeFilter.bind(this, lblStart)}
+              viewMode={"days"}
+              className={"filterDate"}
+            />
+          </DateContainer>
+          <EndDateContainer>
             <DateContainer>
               <Datetime
                 inputProps={{ placeholder: __("Choose Date") }}
                 dateFormat="YYYY-MM-DD"
                 timeFormat="HH:mm"
-                value={state[lblStart] || null}
+                value={state[lblEnd]}
                 closeOnSelect={true}
                 utc={true}
                 input={true}
-                onChange={onChangeRangeFilter.bind(this, lblStart)}
+                onChange={onChangeRangeFilter.bind(this, lblEnd)}
                 viewMode={"days"}
                 className={"filterDate"}
               />
             </DateContainer>
-            <EndDateContainer>
-              <DateContainer>
-                <Datetime
-                  inputProps={{ placeholder: __("Choose Date") }}
-                  dateFormat="YYYY-MM-DD"
-                  timeFormat="HH:mm"
-                  value={state[lblEnd]}
-                  closeOnSelect={true}
-                  utc={true}
-                  input={true}
-                  onChange={onChangeRangeFilter.bind(this, lblEnd)}
-                  viewMode={"days"}
-                  className={"filterDate"}
-                />
-              </DateContainer>
-            </EndDateContainer>
-          </CustomRangeContainer>
-        </FormGroup>
-      </>
+          </EndDateContainer>
+        </CustomRangeContainer>
+      </FormGroup>
     );
   };
 

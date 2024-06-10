@@ -9,8 +9,7 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { router } from "@erxes/ui/src/utils";
 import { __ } from "coreui/utils";
 import { DateContainer } from "@erxes/ui/src/styles/main";
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, Wrapper } from "@erxes/ui/src/layout";
 import { IQueryParams } from "@erxes/ui/src/types";
 import Button from "@erxes/ui/src/components/Button";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -21,7 +20,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
   queryParams: any;
-  loading: boolean;
 }
 
 const { Section } = Wrapper.Sidebar;

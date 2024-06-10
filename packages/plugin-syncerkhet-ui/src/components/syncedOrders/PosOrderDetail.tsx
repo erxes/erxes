@@ -18,10 +18,6 @@ type Props = {
 };
 
 class OrderDetail extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   displayValue(order, name) {
     const value = _.get(order, name);
     return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;

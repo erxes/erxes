@@ -37,10 +37,6 @@ type Props = {
 };
 
 class CheckSyncedOrders extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   renderRow = () => {
     const {
       orders,
@@ -121,10 +117,7 @@ class CheckSyncedOrders extends React.Component<Props> {
     );
 
     const sidebar = (
-      <CheckSyncedOrdersSidebar
-        queryParams={queryParams}
-        posList={posList}
-      />
+      <CheckSyncedOrdersSidebar queryParams={queryParams} posList={posList} />
     );
 
     const onClickCheck = () => {

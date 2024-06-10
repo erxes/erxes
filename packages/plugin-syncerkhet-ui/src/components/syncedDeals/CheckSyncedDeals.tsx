@@ -41,10 +41,6 @@ type Props = {
 };
 
 class CheckSyncedDeals extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   renderRow = () => {
     const {
       deals,
@@ -133,11 +129,7 @@ class CheckSyncedDeals extends React.Component<Props> {
       </Table>
     );
 
-    const sidebar = (
-      <CheckSyncedDealsSidebar
-        queryParams={queryParams}
-      />
-    );
+    const sidebar = <CheckSyncedDealsSidebar queryParams={queryParams} />;
 
     const onClickCheck = () => {
       confirm()
