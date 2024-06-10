@@ -24,7 +24,7 @@ export function generateAggregateOption(
 ) {
   for (let key of filter) {
     const option = options.find((row) => row.value == key);
-    if (option && option.aggregate) {
+    if (option?.aggregate) {
       if (__.isArray(option.aggregate)) {
         aggregate = [...aggregate, ...option.aggregate];
       } else if (
