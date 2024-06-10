@@ -119,7 +119,7 @@ export default (props: Props) => {
 
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
 
-  const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
+  const [lastSelectedDate, setLastSelectedDate] = useState(new Date());
 
   const [request, setRequest] = useState<Request>({
     byDay: { requestDates: [] },
@@ -141,7 +141,7 @@ export default (props: Props) => {
     10
   );
 
-  const [absenceIdx, setAbsenceArrIdx] = useState(
+  const [absenceIdx, setAbsenceIdx] = useState(
     checkAbsenceIdx < absenceTypes.length ? checkAbsenceIdx : 0
   );
 
@@ -215,7 +215,7 @@ export default (props: Props) => {
   };
 
   const onReasonSelect = (reason) => {
-    setAbsenceArrIdx(reason.arrayIdx);
+    setAbsenceIdx(reason.arrayIdx);
   };
 
   const onChangeAttachment = (files: IAttachment[]) => {
@@ -297,7 +297,7 @@ export default (props: Props) => {
         JSON.stringify(date).split("-")[1] !==
         JSON.stringify(lastSelectedDate).split("-")[1]
       ) {
-        setlastSelectedDate(new Date(date));
+        setLastSelectedDate(new Date(date));
       }
 
       const dateString = dayjs(date).format(dateFormat);
