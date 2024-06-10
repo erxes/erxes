@@ -4,14 +4,14 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
-} from '@erxes/ui/src/components';
-import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
-import { __ } from '@erxes/ui/src/utils';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import React from 'react';
-import { IConfigsMap } from '../types';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+  Icon,
+} from "@erxes/ui/src/components";
+import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import { __ } from "@erxes/ui/src/utils";
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import React from "react";
+import { IConfigsMap } from "../types";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -32,7 +32,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false
+      hasOpen: false,
     };
   }
 
@@ -48,7 +48,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -59,7 +59,7 @@ class PerSettings extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -98,15 +98,13 @@ class PerSettings extends React.Component<Props, State> {
         title={__(config.title)}
         beforeTitle={<Icon icon="settings" />}
         transparent={true}
-        open={
-          this.props.currentConfigKey === 'newremainderConfig' ? true : false
-        }
+        open={this.props.currentConfigKey === "newremainderConfig"}
       >
         <FormGroup>
-          <ControlLabel>{'Title'}</ControlLabel>
+          <ControlLabel>{"Title"}</ControlLabel>
           <FormControl
             defaultValue={config.title}
-            onChange={this.onChangeInput.bind(this, 'title')}
+            onChange={this.onChangeInput.bind(this, "title")}
             required={true}
             autoFocus={true}
           />
@@ -127,8 +125,8 @@ class PerSettings extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
           <FormColumn>
-            {this.renderInput('account', 'account', '')}
-            {this.renderInput('location', 'location', '')}
+            {this.renderInput("account", "account", "")}
+            {this.renderInput("location", "location", "")}
           </FormColumn>
         </FormWrapper>
         <ModalFooter>
@@ -146,7 +144,7 @@ class PerSettings extends React.Component<Props, State> {
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
-            disabled={config.pipelineId ? false : true}
+            disabled={!config.pipelineId}
           >
             Save
           </Button>

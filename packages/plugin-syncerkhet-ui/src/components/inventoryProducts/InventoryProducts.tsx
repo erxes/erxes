@@ -1,17 +1,17 @@
-import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
-import Table from '@erxes/ui/src/components/table';
-import Button from '@erxes/ui/src/components/Button';
-import Row from './InventoryProductsRow';
+import React from "react";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
+import Table from "@erxes/ui/src/components/table";
+import Button from "@erxes/ui/src/components/Button";
+import Row from "./InventoryProductsRow";
 import {
   CollapseContent,
   DataWithLoader,
-  Pagination
-} from '@erxes/ui/src/components';
-import { menuSyncerkhet } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { ContentBox } from '../../styles';
+  Pagination,
+} from "@erxes/ui/src/components";
+import { menuSyncerkhet } from "../../constants";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { ContentBox } from "../../styles";
 
 type Props = {
   loading: boolean;
@@ -32,7 +32,7 @@ class InventoryProducts extends React.Component<Props, State> {
 
     this.state = {
       openCollapse: 0,
-      loading: false
+      loading: false,
     };
   }
 
@@ -40,7 +40,7 @@ class InventoryProducts extends React.Component<Props, State> {
     if (data.length > 100) {
       data = data.slice(0, 100);
     }
-    return data.map(p => <Row key={p.code} product={p} action={action} />);
+    return data.map((p) => <Row key={p.code} product={p} action={action} />);
   };
   calculatePagination = (data: any) => {
     const { queryParams } = this.props;
@@ -72,7 +72,7 @@ class InventoryProducts extends React.Component<Props, State> {
   };
 
   excludeSyncTrue = (data: any) => {
-    return data.filter(d => d.syncStatus === false);
+    return data.filter((d) => d.syncStatus === false);
   };
 
   renderTable = (data: any, action: string) => {
@@ -83,11 +83,9 @@ class InventoryProducts extends React.Component<Props, State> {
       this.props.toSyncProducts(action, data);
     };
     const syncButton = (
-      <>
-        <Button btnStyle="success" icon="check-circle" onClick={onClickSync}>
-          Sync
-        </Button>
-      </>
+      <Button btnStyle="success" icon="check-circle" onClick={onClickSync}>
+        Sync
+      </Button>
     );
 
     const header = (
@@ -103,13 +101,13 @@ class InventoryProducts extends React.Component<Props, State> {
       <Table hover={true}>
         <thead>
           <tr>
-            <th>{__('Code')}</th>
-            <th>{__('Name')}</th>
-            <th>{__('Barcode')}</th>
-            <th>{__('Unit price')}</th>
-            {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-            {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-            {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+            <th>{__("Code")}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Barcode")}</th>
+            <th>{__("Unit price")}</th>
+            {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+            {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+            {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
           </tr>
         </thead>
         <tbody>{this.renderRow(data, action)}</tbody>
@@ -123,7 +121,7 @@ class InventoryProducts extends React.Component<Props, State> {
           data={content}
           loading={false}
           count={data.length}
-          emptyText={'Please sync again.'}
+          emptyText={"Please sync again."}
           emptyIcon="leaf"
           size="large"
           objective={true}
@@ -141,7 +139,7 @@ class InventoryProducts extends React.Component<Props, State> {
     };
 
     const checkOpenCollapse = (num: number): boolean => {
-      return openCollapse === num ? true : false;
+      return openCollapse === num;
     };
 
     const onChangeCollapse = (num: number): void => {
@@ -173,7 +171,7 @@ class InventoryProducts extends React.Component<Props, State> {
         <br />
         <CollapseContent
           title={__(
-            'Create products' + (items.create ? ':  ' + items.create.count : '')
+            "Create products" + (items.create ? ":  " + items.create.count : "")
           )}
           onClick={() => {
             onChangeCollapse(1);
@@ -184,12 +182,12 @@ class InventoryProducts extends React.Component<Props, State> {
             <DataWithLoader
               data={
                 items.create
-                  ? this.renderTable(items.create?.items, 'CREATE')
+                  ? this.renderTable(items.create?.items, "CREATE")
                   : []
               }
               loading={false}
               count={3}
-              emptyText={'Please check first.'}
+              emptyText={"Please check first."}
               emptyIcon="leaf"
               size="large"
               objective={true}
@@ -199,7 +197,7 @@ class InventoryProducts extends React.Component<Props, State> {
         </CollapseContent>
         <CollapseContent
           title={__(
-            'Update products' + (items.update ? ':  ' + items.update.count : '')
+            "Update products" + (items.update ? ":  " + items.update.count : "")
           )}
           onClick={() => {
             onChangeCollapse(2);
@@ -210,11 +208,11 @@ class InventoryProducts extends React.Component<Props, State> {
             <DataWithLoader
               data={
                 items.update
-                  ? this.renderTable(items.update.items, 'UPDATE')
+                  ? this.renderTable(items.update.items, "UPDATE")
                   : []
               }
               loading={false}
-              emptyText={'Please check first.'}
+              emptyText={"Please check first."}
               emptyIcon="leaf"
               size="large"
               objective={true}
@@ -224,7 +222,7 @@ class InventoryProducts extends React.Component<Props, State> {
         </CollapseContent>
         <CollapseContent
           title={__(
-            'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
+            "Delete products" + (items.delete ? ":  " + items.delete.count : "")
           )}
           onClick={() => {
             onChangeCollapse(3);
@@ -235,11 +233,11 @@ class InventoryProducts extends React.Component<Props, State> {
             <DataWithLoader
               data={
                 items.delete
-                  ? this.renderTable(items.delete.items, 'DELETE')
+                  ? this.renderTable(items.delete.items, "DELETE")
                   : []
               }
               loading={false}
-              emptyText={'Please check first.'}
+              emptyText={"Please check first."}
               emptyIcon="leaf"
               size="large"
               objective={true}
