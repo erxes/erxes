@@ -3,7 +3,6 @@ import Button from "@erxes/ui/src/components/Button";
 import { ITimeclock, ITimelog } from "../../types";
 import { __ } from "@erxes/ui/src/utils";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import TimeForm from "../../containers/timeclock/TimeFormList";
 import dayjs from "dayjs";
 import { dateFormat, timeFormat } from "../../constants";
 import Tip from "@erxes/ui/src/components/Tip";
