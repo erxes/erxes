@@ -1,5 +1,5 @@
-import { IDashboard, IReport, IReportTemplate } from "../../types";
-import React, { memo, useEffect, useState } from "react";
+import { IReportTemplate } from "../../types";
+import React, { useEffect, useState } from "react";
 
 import ChartLoader from "./ChartLoader";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
