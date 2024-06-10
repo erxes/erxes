@@ -49,13 +49,14 @@ const prepareHeader = async (sheet: any, title: string) => {
 };
 
 const isArrayPrimitive = (arr) => {
-  for (let i = 0; i < arr.length; i++) {
-    if (typeof arr[i] !== 'object' && typeof arr[i] !== 'function') {
-      return true; // If a non-object element is found, return true (primitive type)
+  for (const element of arr) {
+    if (typeof element !== 'object' && typeof element !== 'function') {
+      return true;
     }
   }
-  return false; // If no non-object element is found, return false (array of objects)
+  return false;
 };
+
 
 const extractAndAddIntoSheet = async (
   sheet: any,
