@@ -3,10 +3,9 @@ import {
   Conversations,
   ConversationMessages,
   IConversation,
-  Integrations,
-} from '../models';
-import { sendInboxMessage } from '../messageBroker';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+} from "../models";
+import { sendInboxMessage } from "../messageBroker";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 
 interface IWebhookMessage {
   event: string;
@@ -34,7 +33,7 @@ interface ICustomer {
 const messageListen = async (
   message: IWebhookMessage,
   integrationId: string,
-  subdomain: string,
+  subdomain: string
 ): Promise<void> => {
   const createData: ICustomer = {
     inboxIntegrationId: integrationId,
@@ -45,7 +44,7 @@ const messageListen = async (
   };
   const customer = await Customers.getOrCreate(createData, subdomain);
 
-  let conversation  = await Conversations.findOne({
+  let conversation = await Conversations.findOne({
     senderId: message.sender.id,
     integrationId,
   });
@@ -60,9 +59,9 @@ const messageListen = async (
       });
     } catch (e) {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
-          : e,
+        e.message.includes("duplicate")
+          ? "Concurrent request: conversation duplication"
+          : e
       );
     }
   }
@@ -70,13 +69,13 @@ const messageListen = async (
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'create-or-update-conversation',
+        action: "create-or-update-conversation",
         payload: JSON.stringify({
           customerId: customer.contactsId,
           integrationId,
-          content: message.message.text || '',
+          content: message.message.text || "",
           conversationId: conversation.erxesApiId,
           createdAt: message.timestamp,
         }),
@@ -101,15 +100,15 @@ const messageListen = async (
       messageType: message.message.type,
     };
 
-    if (['sticker', 'picture'].includes(message.message.type)) {
-      messageObj.attachments = [{ type: 'image', url: message.message.media }];
+    if (["sticker", "picture"].includes(message.message.type)) {
+      messageObj.attachments = [{ type: "image", url: message.message.media }];
     }
 
     const conversationMessage = await ConversationMessages.create(messageObj);
 
     await sendInboxMessage({
       subdomain,
-      action: 'conversationClientMessageInserted',
+      action: "conversationClientMessageInserted",
       data: {
         ...conversationMessage.toObject(),
         conversationId: conversation.erxesApiId,
@@ -123,7 +122,7 @@ const messageListen = async (
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId,
         },
-      },
+      }
     );
   } catch (e) {
     throw new Error(e);
