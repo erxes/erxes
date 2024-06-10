@@ -44,10 +44,6 @@ type FinalProps = {
   TimeClockMutationResponse;
 
 class ListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidUpdate(prevProps): void {
     if (prevProps.route !== this.props.route) {
       removeParams(this.props.navigate, this.props.location, "page", "perPage");
