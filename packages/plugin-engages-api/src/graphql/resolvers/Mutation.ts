@@ -1,8 +1,7 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { getEnv } from '@erxes/api-utils/src';
-import { sendToWebhook } from '@erxes/api-utils/src';
+import { getEnv, sendToWebhook} from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CAMPAIGN_KINDS } from '../../constants';
 import { checkCampaignDoc, send, sendWithSendgrid, sendgridClient } from '../../engageUtils';
