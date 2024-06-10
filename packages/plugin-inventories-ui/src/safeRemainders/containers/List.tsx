@@ -2,14 +2,13 @@
 import { Alert, confirm, router } from "@erxes/ui/src/utils";
 import { mutations, queries } from "../graphql";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery , gql } from "@apollo/client";
 
 import Bulk from "@erxes/ui/src/components/Bulk";
 import { ISafeRemainder } from "../types";
 // local
 import ListComponent from "../components/List";
 import React from "react";
-import { gql } from "@apollo/client";
 import queryString from "query-string";
 
 function ListContainer() {
