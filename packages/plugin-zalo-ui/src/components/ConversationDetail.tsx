@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
-import strip from "strip";
-import { queries } from "../graphql";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { sendDesktopNotification } from "@erxes/ui/src/utils";
+import React, { useState, useEffect } from 'react';
+import { gql , useQuery } from '@apollo/client';
+import strip from 'strip';
+import { queries } from '../graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { sendDesktopNotification } from '@erxes/ui/src/utils';
 
-import { subscriptions } from "@erxes/ui-inbox/src/inbox/graphql";
+import { subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 
-import Message from "./message/Message";
+import Message from './message/Message';
 
 type Props = {
   currentId: string;
@@ -19,7 +19,7 @@ const Detail = (props: Props) => {
   const { currentId } = props;
 
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [typingInfo, setTypingInfo] = useState();
+  const [typingInfo, setTypingInfo] = useState('');
 
   const messagesQuery = useQuery(gql(queries.zaloConversationMessages), {
     variables: {
@@ -27,15 +27,15 @@ const Detail = (props: Props) => {
       limit: 0,
       skip: 0,
     },
-    fetchPolicy: "network-only",
+    fetchPolicy: 'network-only',
   });
 
   const messagesTotalCountQuery = useQuery(
     gql(queries.zaloConversationMessagesCount),
     {
       variables: { conversationId: currentId },
-      fetchPolicy: "network-only",
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const Detail = (props: Props) => {
       }
 
       if (prevTypingInfoSubscription) {
-        setTypingInfo("");
+        setTypingInfo('');
         prevTypingInfoSubscription();
       }
 
@@ -74,7 +74,7 @@ const Detail = (props: Props) => {
           }
 
           // check whether or not already inserted
-          const prevEntry = messages.find(m => m._id === message._id);
+          const prevEntry = messages.find((m) => m._id === message._id);
 
           if (prevEntry) {
             return;
@@ -88,8 +88,8 @@ const Detail = (props: Props) => {
 
           // send desktop notification
           sendDesktopNotification({
-            title: "You have a message from Zalo",
-            content: strip(message.content) || "",
+            title: 'You have a message from Zalo',
+            content: strip(message.content) || '',
           });
 
           return next;
@@ -105,7 +105,7 @@ const Detail = (props: Props) => {
             subscriptionData: {
               data: { conversationClientTypingStatusChanged },
             },
-          }
+          },
         ) => {
           setTypingInfo(conversationClientTypingStatusChanged.text);
         },
@@ -138,7 +138,7 @@ const Detail = (props: Props) => {
           }
 
           const prevConversationMessages = prev.zaloConversationMessages || [];
-          const prevMessageIds = prevConversationMessages.map(m => m._id);
+          const prevMessageIds = prevConversationMessages.map((m) => m._id);
 
           const fetchedMessages: any[] = [];
 
@@ -165,23 +165,23 @@ const Detail = (props: Props) => {
 
     let tempId;
 
-    console.log("messages:", messages);
+    console.log('messages:', messages);
 
     // return rows
 
-    messages.forEach(message => {
+    messages.forEach((message) => {
       let parsedMessage = message;
       parsedMessage.attachments = message.attachments
         ?.map((attachment: any) => {
-          let type = attachment?.type || "text";
+          let type = attachment?.type || 'text';
           const url = attachment?.url;
           const name = attachment?.name;
 
-          if (["voice"].includes(type)) {
-            type = "audio";
+          if (['voice'].includes(type)) {
+            type = 'audio';
           }
-          if (["sticker", "gif"].includes(type)) {
-            type = "image";
+          if (['sticker', 'gif'].includes(type)) {
+            type = 'image';
           }
 
           let output: any = {
@@ -196,7 +196,7 @@ const Detail = (props: Props) => {
           }
           return output;
         })
-        .filter((attachment: any) => !["text"].includes(attachment.type));
+        .filter((attachment: any) => !['text'].includes(attachment.type));
 
       rows.push(
         <Message
@@ -208,13 +208,13 @@ const Detail = (props: Props) => {
           message={parsedMessage}
           key={message._id}
           isStaff={message.userId}
-        />
+        />,
       );
 
       tempId = message.userId ? message.userId : message.customerId;
     });
 
-    console.log("rows:", rows.length);
+    console.log('rows:', rows.length);
 
     return rows;
   };
@@ -224,10 +224,10 @@ const Detail = (props: Props) => {
   }
 
   const messages = messagesQuery.data.zaloConversationMessages || [];
-  console.log("messagesQuery.zaloConversationMessages:", messages.length);
+  console.log('messagesQuery.zaloConversationMessages:', messages.length);
   return renderMessages(
     messagesQuery.data.zaloConversationMessages,
-    messages[0]
+    messages[0],
   );
 };
 
