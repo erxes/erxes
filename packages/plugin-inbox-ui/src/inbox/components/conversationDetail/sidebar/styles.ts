@@ -1,4 +1,4 @@
-import { ActivityContent, DateContainer } from '@erxes/ui/src/styles/main';
+
 import {
   ActivityDate,
   ActivityIcon,
@@ -43,7 +43,6 @@ import {
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 import { CardItem } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
 import styled from 'styled-components';
 
 const FlexRow = styled(DateContainer)`

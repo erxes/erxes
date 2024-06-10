@@ -82,7 +82,8 @@ const LeftSidebar: React.FC<Props> = (props) => {
   const [isOpen, setIsOpen] = useState<boolean>(
     props.config?.showAddition || false,
   );
-  const [counts, setItemCounts] = useState<any>({});
+  const [counts, setCounts] = useState<{ [key: string]: number }>({});
+
 
   const renderTrigger = (text: string) => {
     return (

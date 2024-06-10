@@ -21,7 +21,6 @@ import Button from '@erxes/ui/src/components/Button';
 import ContentStep from './steps/ContentStep';
 import FormStep from './steps/FormStep';
 import FullPreview from '@erxes/ui/src/components/step/FullPreview';
-import { IAttachment } from '@erxes/ui/src/types';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IField } from '@erxes/ui/src/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
@@ -36,7 +35,6 @@ import { colors } from '@erxes/ui/src/styles';
 
 type Props = {
   integration?: IBookingIntegration;
-  queryParams?: any;
   configs: IConfig[];
   save: (params: {
     name: string;
@@ -365,7 +363,7 @@ function Booking(props: Props) {
                 successAction={state.successAction}
                 leadData={leadData}
                 formId={integration.formId}
-                emailTemplates={emailTemplates ? emailTemplates : []}
+                emailTemplates={emailTemplates || []}
                 successImage={state.successImage}
                 successImageSize={state.successImageSize}
               />

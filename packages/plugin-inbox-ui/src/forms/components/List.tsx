@@ -25,19 +25,17 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   integrations: ILeadIntegration[];
-  tags: ITag[];
+
   bulk: ILeadIntegration[];
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
   queryParams: any;
-  tagsCount: { [key: string]: number };
   toggleBulk: (target: ILeadIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: ILeadIntegration[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
-  refetch?: () => void;
   copy: (integrationId: string) => void;
   counts: IntegrationsCount;
   location: any;

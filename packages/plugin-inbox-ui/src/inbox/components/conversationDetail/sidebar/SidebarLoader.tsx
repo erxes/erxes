@@ -67,7 +67,7 @@ const Box = styled.div`
 `;
 
 type Props = {
-  loaderStyle?: any;
+
 };
 
 class SidebarLoader extends React.Component<Props> {

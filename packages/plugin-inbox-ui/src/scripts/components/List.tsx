@@ -12,8 +12,6 @@ import {
 } from "@erxes/ui-emailtemplates/src/styles";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { __, router } from "coreui/utils";
-
-import { Count } from "@erxes/ui/src/styles/main";
 import { EMPTY_CONTENT_SCRIPT } from "@erxes/ui-settings/src/constants";
 import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
 import Form from "../containers/Form";
@@ -97,7 +95,8 @@ const ScriptList = (props: Props) => {
       return "-";
     }
 
-    const showEllipsis = forms.length > 2 ? true : false;
+    const showEllipsis = forms.length > 2;
+
 
     return (
       <>

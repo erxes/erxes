@@ -76,20 +76,22 @@ function Manage({ integration, closeModal }: Props) {
     const { code, copied } = state;
 
     return (
-      <>
-        <MarkdownWrapper>
-          <ReactMarkdown children={code || ''} />
-          {code ? (
-            <CopyToClipboard text={code} onCopy={onCopy}>
-              <Button btnStyle='primary' icon='copy-1'>
-                {copied ? 'Copied' : 'Copy to clipboard'}
-              </Button>
-            </CopyToClipboard>
-          ) : (
-            <EmptyState icon='copy' text='No copyable code' size='small' />
-          )}
-        </MarkdownWrapper>
-      </>
+      <React.Fragment>
+      <MarkdownWrapper>
+      <ReactMarkdown>{code}</ReactMarkdown>
+
+        {code ? (
+          <CopyToClipboard text={code} onCopy={onCopy}>
+            <Button btnStyle='primary' icon='copy-1'>
+              {copied ? 'Copied' : 'Copy to clipboard'}
+            </Button>
+          </CopyToClipboard>
+        ) : (
+          <EmptyState icon='copy' text='No copyable code' size='small' />
+        )}
+      </MarkdownWrapper>
+    </React.Fragment>
+    
     );
   };
   return (

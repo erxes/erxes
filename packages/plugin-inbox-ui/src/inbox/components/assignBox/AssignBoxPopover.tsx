@@ -9,7 +9,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 type Props = {
   targets: IConversation[];
   trigger: React.ReactNode;
-  container?: Element | Node | React.Component<any, {}, any>;
+ 
   afterSave?: () => void;
   notifyHandler: () => void;
 };

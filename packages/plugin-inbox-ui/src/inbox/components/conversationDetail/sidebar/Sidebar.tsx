@@ -5,9 +5,7 @@ import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import Box from "@erxes/ui/src/components/Box";
 import CompanySection from "@erxes/ui-contacts/src/companies/components/CompanySection";
 import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import { IField } from "@erxes/ui/src/types";
-import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
@@ -137,7 +135,6 @@ type IndexProps = {
   loading: boolean;
   toggleSection: () => void;
   taggerRefetchQueries: any;
-  merge?: (doc: { ids: string[]; data: ICustomer }) => void;
 };
 
 type IndexState = {

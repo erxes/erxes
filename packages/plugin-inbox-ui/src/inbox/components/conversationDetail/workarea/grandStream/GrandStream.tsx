@@ -20,7 +20,6 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import { can } from "@erxes/ui/src/utils/core";
 import dayjs from "dayjs";
-import { readFile } from "@erxes/ui/src/utils/core";
 
 type Props = {
   conversation: IConversation;

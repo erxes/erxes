@@ -539,7 +539,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           timezoneString,
           now,
           everydayConf.from || '',
-          everydayConf.to || ''
+          everydayConf.to ?? ''
         );
       }
 

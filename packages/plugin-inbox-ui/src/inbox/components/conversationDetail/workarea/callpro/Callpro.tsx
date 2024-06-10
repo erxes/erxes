@@ -15,13 +15,10 @@ class CallPro extends React.Component<Props, {}> {
     }
 
     return (
-      <>
-        <audio controls={true}>
-          <source src={callProAudio} type='audio/ogg' />
-        </audio>
-      </>
-    );
-  }
-}
+      <audio controls={true}>
+      <source src={callProAudio} type="audio/ogg" />
+    </audio>
+    
+
 
 export default CallPro;

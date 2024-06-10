@@ -15,9 +15,7 @@ import { ILeadData } from "@erxes/ui-leads/src/types";
 import React, { useState } from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import { mutations } from "../graphql";
-import { queries } from "../graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core"; 
 import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
 import { useNavigate } from "react-router-dom";
 
@@ -111,7 +109,8 @@ const CreateBookingContainer = (props: FinalProps) => {
 export default compose(
   graphql(gql(queries.templateTotalCount), {
     name: "emailTemplatesTotalCountQuery",
-    skip: !isEnabled("engages") ? true : false,
+    skip: !isEnabled("engages"),
+
   }),
   graphql<FinalProps>(gql(queries.emailTemplates), {
     name: "emailTemplatesQuery",
@@ -120,7 +119,8 @@ export default compose(
         perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
       },
     }),
-    skip: !isEnabled("engages") ? true : false,
+    skip: !isEnabled("engages"),
+
   }),
   graphql<
     {},
