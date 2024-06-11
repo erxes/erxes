@@ -9,7 +9,6 @@ import Form from "../../components/report/Form";
 import { queries, mutations } from "../../graphql";
 import {
   ReportDetailQueryResponse,
-  ReportEditMutationResponse,
   ReportFormMutationVariables,
   InsightTemplatesListQueryResponse,
 } from "../../types";
