@@ -87,7 +87,5 @@ export default {
         content: { ...cpUser, clientPortal: cp }
       };
     }
-
-    return;
   }
 };
