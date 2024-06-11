@@ -1,5 +1,5 @@
 import { FieldStyle, RowFill } from "../../styles/activityLogs";
-import React, { useState } from "react";
+import React from "react";
 import { __, router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
