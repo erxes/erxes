@@ -1,8 +1,7 @@
-import { gql } from "@apollo/client";
+import { gql , useQuery } from "@apollo/client";
 import { router } from "@erxes/ui/src/utils";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import * as React from "react";
-import { useQuery } from "@apollo/client";
 import EmailDelivery from "../components/EmailDelivery";
 import queries from "../queries";
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -53,7 +52,7 @@ function EmailDeliveryContainer(props: Props) {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
     },
-    skip: isEnabled("engages") ? false : true,
+    skip: !isEnabled("engages"),
   });
 
   const handleSelectEmailType = (type: string) => {
