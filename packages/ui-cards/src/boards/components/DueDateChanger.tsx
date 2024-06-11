@@ -76,7 +76,7 @@ type IProps = {
 class DueDateChanger extends React.Component<IProps> {
   clearDate = () => this.props.onChange(null);
 
-  hasValue = () => (this.props.value ? true : false);
+  hasValue = () => (!!this.props.value);
 
   render() {
     const { onChange, value, isWarned } = this.props;
