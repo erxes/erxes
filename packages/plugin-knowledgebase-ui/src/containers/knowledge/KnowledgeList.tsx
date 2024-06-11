@@ -1,5 +1,4 @@
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import { gql , useQuery, useMutation } from '@apollo/client';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { Alert, confirm } from '@erxes/ui/src/utils';
