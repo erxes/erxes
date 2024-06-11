@@ -1,13 +1,12 @@
-import Alert from '@erxes/ui/src/utils/Alert';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { router } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
+import Alert from "@erxes/ui/src/utils/Alert";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import { router } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
 
-import ClassificationHistoryList from '../components/ClassificationHistoryList';
-import { mutations, queries } from '../graphql';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
-import { useMutation, useQuery } from '@apollo/client';
+import ClassificationHistoryList from "../components/ClassificationHistoryList";
+import { mutations, queries } from "../graphql";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { useMutation, useQuery, gql } from "@apollo/client";
 
 type Props = {
   queryParams: any;
@@ -28,15 +27,15 @@ const ClassificationListContainer = (props: Props) => {
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [classificationRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.classificationRemove),
     {
-      refetchQueries: ['classifications'],
-    },
+      refetchQueries: ["classifications"],
+    }
   );
 
   const removeClassificationHistory = ({ classificationIds }, emptyBulk) => {
@@ -45,14 +44,14 @@ const ClassificationListContainer = (props: Props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a periodLock');
+        Alert.success("You successfully deleted a periodLock");
       })
       .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  const searchValue = queryParams.searchValue || '';
+  const searchValue = queryParams.searchValue || "";
   const { list = [], totalCount = 0 } =
     classifications?.data?.classifications || {};
 

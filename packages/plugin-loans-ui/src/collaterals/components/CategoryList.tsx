@@ -7,11 +7,10 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { router } from "@erxes/ui/src/utils";
 import { IProductCategory } from "@erxes/ui-products/src/types";
 import React from "react";
-import { Link } from "react-router-dom";
 import { __ } from "coreui/utils";
 
 import { SidebarListItem } from "../styles";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
