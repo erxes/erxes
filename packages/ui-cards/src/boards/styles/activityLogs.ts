@@ -1,4 +1,4 @@
-import styledTS from 'styled-components-ts';
+
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 
