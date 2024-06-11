@@ -1,17 +1,16 @@
-import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
+import { IEditFormContent, IItem, IOptions } from "../../types";
 import { __, router as routerUtils } from "@erxes/ui/src/utils";
 
 import { ArchiveStatus } from "../../styles/item";
-import { CloseModal } from "@erxes/ui/src/styles/main";
-import Icon from "@erxes/ui/src/components/Icon";
-import React, { useState, useEffect, Fragment } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Dialog, Transition } from "@headlessui/react";
-import {
+import { CloseModal ,
   DialogContent,
   DialogWrapper,
   ModalOverlay,
 } from "@erxes/ui/src/styles/main";
+import Icon from "@erxes/ui/src/components/Icon";
+import React, { useState, useEffect, Fragment } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Dialog, Transition } from "@headlessui/react";
 import styled from "styled-components";
 
 const Relative = styled.div`
@@ -21,7 +20,6 @@ const Relative = styled.div`
 type Props = {
   options: IOptions;
   item: IItem;
-  addItem: (doc: IItemParams, callback: () => void, msg?: string) => void;
   removeItem: (itemId: string, callback: () => void) => void;
   copyItem: (itemId: string, callback: () => void, msg?: string) => void;
   beforePopupClose: (afterPopupClose?: () => void) => void;
