@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.11.7](https://github.com/erxes/erxes/compare/1.11.6...1.11.7) (2024-06-11)
+
+
+### Features
+
+* **engages:** introduce sendgrid as marketing mailer service ([#5323](https://github.com/erxes/erxes/issues/5323)) ([2481b95](https://github.com/erxes/erxes/commit/2481b953bcd3dd0846636fb3e542b39d69e7ce60))
+
+
+### Performance Improvements
+
+* **core-ui:** make possible to use public plugins js url in core ui ([5890eb0](https://github.com/erxes/erxes/commit/5890eb0c61a89c8066b49aa76159679e7d057755))
+
 ## [1.11.6](https://github.com/erxes/erxes/compare/1.11.5...1.11.6) (2024-06-07)
 
 
