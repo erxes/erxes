@@ -12,7 +12,6 @@ export class AccountsApi extends BaseApi {
   /**
    * get account list
    * @return {[KhanbankAccount]} - Returns an array of accounts
-   * TODO: update return type
    */
   async list() {
     try {
