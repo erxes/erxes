@@ -3,8 +3,7 @@ import * as compose from "lodash.flowright";
 import { IDeal, IPaymentsData, IProductData } from "../../types";
 
 import { AppConsumer } from "coreui/appContext";
-import { IProduct } from "@erxes/ui-products/src/types";
-import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import { IProduct , ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
 import ProductForm from "../../components/product/ProductForm";
 import React from "react";
 import { gql } from "@apollo/client";
