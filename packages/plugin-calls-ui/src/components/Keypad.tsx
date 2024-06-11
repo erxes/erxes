@@ -79,6 +79,7 @@ const KeyPad = (props: Props, context) => {
     pauseExtention,
     agentStatus,
     currentCallConversationId,
+    loading,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -125,7 +126,8 @@ const KeyPad = (props: Props, context) => {
 
   useEffect(() => {
     setNumber(phoneNumber);
-  }, [phoneNumber]);
+    setPaused(agentStatus === "pause" ? true : false);
+  }, [phoneNumber, loading]);
 
   // useEffect(() => {
   //   const audio = outgoingAudio.current;
