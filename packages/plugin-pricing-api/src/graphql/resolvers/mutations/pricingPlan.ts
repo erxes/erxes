@@ -8,7 +8,6 @@ import {
   moduleCheckPermission,
   moduleRequireLogin,
 } from '@erxes/api-utils/src/permissions';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 
 const PRINING_PLAN = 'pricingPlan';
 const pricingPlanMutations = {
