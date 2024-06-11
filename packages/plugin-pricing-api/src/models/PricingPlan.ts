@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
+import 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   IPricingPlan,
