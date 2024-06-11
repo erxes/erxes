@@ -23,16 +23,16 @@
     <script src="/js/env.js"></script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script>
-      const REACT_APP_PLUGINS_JS_PATH = "%REACT_APP_PLUGINS_JS_PATH%";
+      const REACT_APP_PLUGINSJS_PATH = "%REACT_APP_PLUGINSJS_PATH%";
       const REACT_APP_PUBLIC_PATH = "%REACT_APP_PUBLIC_PATH%";
 
-      console.log(REACT_APP_PLUGINS_JS_PATH, "----", REACT_APP_PUBLIC_PATH);
+      console.log(REACT_APP_PLUGINSJS_PATH, "----", REACT_APP_PUBLIC_PATH);
 
       if (
-        REACT_APP_PLUGINS_JS_PATH &&
-        !REACT_APP_PLUGINS_JS_PATH.includes("REACT_APP")
+        REACT_APP_PLUGINSJS_PATH &&
+        !REACT_APP_PLUGINSJS_PATH.includes("REACT_APP")
       ) {
-        document.write('<script src="%REACT_APP_PLUGINS_JS_PATH%"><\/script>');
+        document.write('<script src="%REACT_APP_PLUGINSJS_PATH%"><\/script>');
       } else {
         document.write('<script src="/js/plugins.js"><\/script>');
       }
