@@ -1,5 +1,5 @@
 import { Document, Model, Schema } from 'mongoose';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IModels } from '../connectionResolver';
 import { compareObjects } from '../utils';
 import { field } from './utils';
@@ -23,7 +23,7 @@ export interface ILogDoc {
   extraDesc?: string;
 }
 
-export interface ILogDocument extends ILogDoc, Document {}
+export interface ILogDocument extends ILogDoc, Document { }
 
 export interface ILogModel extends Model<ILogDocument> {
   createLog(doc: ILogDoc): Promise<ILogDocument>;
