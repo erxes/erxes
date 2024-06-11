@@ -1,4 +1,4 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { IModels } from './connectionResolver';
 
