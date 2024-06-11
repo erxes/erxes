@@ -1,5 +1,5 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import ArticleList from '../../components/article/ArticleList';
