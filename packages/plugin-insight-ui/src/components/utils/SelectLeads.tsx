@@ -24,7 +24,6 @@ export default (props: {
     onSelect: (value: string[] | string, name: string) => void;
     multi?: boolean;
     customOption?: IOption;
-    customField?: string;
     initialValue?: string | string[];
     name: string;
 }) => {
