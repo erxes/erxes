@@ -15,7 +15,6 @@ import { generateButtonStart } from "../../utils";
 
 type Props = {
   startDate: Date;
-  reminderMinute: number;
   onChangeField: (
     name: "startDate" | "reminderMinute" | "isComplete",
     value: any
