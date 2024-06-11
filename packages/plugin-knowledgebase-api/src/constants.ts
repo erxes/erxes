@@ -1,6 +1,4 @@
-import { articleSchema } from "./models/definitions/knowledgebase";
-import { categorySchema } from "./models/definitions/knowledgebase";
-import { topicSchema } from "./models/definitions/knowledgebase";
+import { articleSchema, categorySchema, topicSchema } from "./models/definitions/knowledgebase";
 
 export const MODULE_NAMES = {
   KB_TOPIC: 'knowledgeBaseTopic',
