@@ -27,7 +27,6 @@ export const types = `
   }
 `;
 
-// TODO: Replace mutation return type with KhanbankTransferResult after testing. Not tested yet because of lack of credentials.
 export const mutations = `
   khanbankTransfer(configId: String!, transfer: TransferInput): JSON
 `;
