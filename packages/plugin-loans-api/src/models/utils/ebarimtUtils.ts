@@ -1,7 +1,7 @@
-import { IModels } from '../../connectionResolver';
-import { sendMessageBroker } from '../../messageBroker';
-import { IContract } from '../definitions/contracts';
-import { ITransactionDocument } from '../definitions/transactions';
+import { IModels } from "../../connectionResolver";
+import { sendMessageBroker } from "../../messageBroker";
+import { IContract } from "../definitions/contracts";
+import { ITransactionDocument } from "../definitions/transactions";
 
 export async function createEbarimt(
   models: IModels,
@@ -12,7 +12,7 @@ export async function createEbarimt(
   {
     isGetEBarimt,
     isOrganization,
-    organizationRegister
+    organizationRegister,
   }: {
     isGetEBarimt?: boolean;
     isOrganization?: boolean;
@@ -32,13 +32,13 @@ export async function createEbarimt(
         productId: ebarimtConfig.amountEBarimtProduct._id,
         amount: transaction.payment,
         count: 1,
-        discount: 0
+        discount: 0,
       });
-    else throw new Error('Amount EBarimt config not found');
+    else throw new Error("Amount EBarimt config not found");
   }
 
   const interest =
-    (transaction?.interestEve || 0) + (transaction?.interestNonce || 0);
+    (transaction?.interestEve ?? 0) + (transaction?.interestNonce ?? 0);
   //interest config check
   if (interest && interest > 0 && ebarimtConfig.isInterestUseEBarimt) {
     if (ebarimtConfig.interestEBarimtProduct)
@@ -46,9 +46,9 @@ export async function createEbarimt(
         productId: ebarimtConfig.interestEBarimtProduct._id,
         amount: interest,
         count: 1,
-        discount: 0
+        discount: 0,
       });
-    else throw new Error('Interest EBarimt config not found');
+    else throw new Error("Interest EBarimt config not found");
   }
 
   //loss config check
@@ -62,55 +62,55 @@ export async function createEbarimt(
         productId: ebarimtConfig.lossEBarimtProduct._id,
         amount: transaction.loss,
         count: 1,
-        discount: 0
+        discount: 0,
       });
-    else throw new Error('Loss EBarimt config not found');
+    else throw new Error("Loss EBarimt config not found");
   }
 
   const sumAmount = details.reduce((v, r) => v + r.amount, 0);
 
   if (sumAmount !== transaction.total)
-    throw new Error('Sum value not match transaction total');
+    throw new Error("Sum value not match transaction total");
 
   const orderInfo: any = {
     number: transaction.number, // transactionii number l baihad bolno
     date:
-      new Date().toISOString().split('T')[0] +
-      ' ' +
-      new Date().toTimeString().split(' ')[0],
+      new Date().toISOString().split("T")[0] +
+      " " +
+      new Date().toTimeString().split(" ")[0],
     orderId: transaction._id,
-    billType: '1', // ** baiguullaga bol '3'
-    description: 'string',
+    billType: "1", // ** baiguullaga bol '3'
+    description: "string",
     details: details,
-    nonCashAmount: details.reduce((v, m) => v + m.amount, 0)
+    nonCashAmount: details.reduce((v, m) => v + m.amount, 0),
   };
 
   if (transaction.isManual && isOrganization && organizationRegister) {
-    orderInfo.billType = '3';
+    orderInfo.billType = "3";
     orderInfo.customerCode = organizationRegister;
-  } else if (contract.customerType === 'company') {
+  } else if (contract.customerType === "company") {
     const company = await sendMessageBroker(
       {
         subdomain,
-        action: 'companies.findOne',
+        action: "companies.findOne",
         data: { _id: contract.customerId },
-        isRPC: true
+        isRPC: true,
       },
-      'contacts'
+      "contacts"
     );
-    orderInfo.billType = '3';
+    orderInfo.billType = "3";
     orderInfo.customerCode = company.code;
   }
 
-  if (orderInfo.billType === '3') {
+  if (orderInfo.billType === "3") {
     const companyCheck = await sendMessageBroker(
       {
         subdomain,
-        action: 'putresponses.getCompany',
+        action: "putresponses.getCompany",
         data: { companyRD: orderInfo.customerCode },
-        isRPC: true
+        isRPC: true,
       },
-      'ebarimt'
+      "ebarimt"
     );
 
     if (companyCheck?.info?.found === false) return;
@@ -123,22 +123,22 @@ export async function createEbarimt(
     cityTaxPercent: 1,
     hasVat: ebarimtConfig?.isHasVat,
     hasCitytax: false,
-    defaultGSCode: ebarimtConfig?.defaultGSCode
+    defaultGSCode: ebarimtConfig?.defaultGSCode,
   };
 
   const ebarimt = await sendMessageBroker(
     {
-      action: 'putresponses.putDatas',
+      action: "putresponses.putDatas",
       data: {
-        contentType: 'loans:transaction',
+        contentType: "loans:transaction",
         contentId: transaction._id,
         orderInfo,
-        config
+        config,
       },
       subdomain,
-      isRPC: true
+      isRPC: true,
     },
-    'ebarimt'
+    "ebarimt"
   );
   if (ebarimt.length > 0)
     await models.Transactions.updateOne(
@@ -149,9 +149,9 @@ export async function createEbarimt(
             success: ebarimt[0]?.success,
             _id: ebarimt[0]?._id,
             taxType: ebarimt[0]?.taxType,
-            vat: ebarimt[0]?.vat
-          }
-        }
+            vat: ebarimt[0]?.vat,
+          },
+        },
       }
     );
 }
