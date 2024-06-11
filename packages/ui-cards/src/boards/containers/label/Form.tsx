@@ -113,7 +113,7 @@ class FormContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           btnSize="small"
-          block={!this.props.labelId && true}
+          block={!this.props.labelId}
           successMessage={`You successfully ${
             object && object._id ? 'updated' : 'added'
           } a ${name}`}
