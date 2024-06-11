@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   ControlLabel,
   FormControl,
@@ -68,13 +67,13 @@ class AwardContentComponent extends React.Component<IProps, State> {
           {CheckBox("Use Next Character", isOpenNextChar, () =>
             this.setState({
               isOpenNextChar: !isOpenNextChar,
-              isOpenInput: isOpenInput && false,
+              isOpenInput: false,
             })
           )}
           {CheckBox("Use  MultiDoLottery", isOpenInput, () =>
             this.setState({
               isOpenInput: !isOpenInput,
-              isOpenNextChar: isOpenNextChar && false,
+              isOpenNextChar: false,
               multiple: 0,
             })
           )}
@@ -97,7 +96,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
     };
     const NextChar = () => {
       const numberFormat = lotteryCampaign.numberFormat
-        .match(/ \* [0-9]* /g)[0]
+        .match(/ \* \d+ /g)[0]
         .substring(3);
 
       return (
