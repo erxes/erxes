@@ -2,7 +2,6 @@ import React from "react";
 
 import Alert from "@erxes/ui/src/utils/Alert/index";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { __ } from "@erxes/ui/src/utils/index";
 
 import Form from "../../components/dashboard/Form";
 import { queries, mutations } from "../../graphql";
