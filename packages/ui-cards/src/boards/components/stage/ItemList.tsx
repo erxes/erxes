@@ -52,7 +52,7 @@ function DraggableContainer(props: DraggableContainerProps) {
     Boolean(itemIdQueryParam)
   );
   const [hasNotified, setHasNotified] = useState(
-    item.hasNotified === false ? false : true
+    item.hasNotified !== false
   );
 
   const onClick = () => {
@@ -192,7 +192,7 @@ class InnerList extends React.PureComponent<InnerListProps> {
 }
 
 export default class ItemList extends React.Component<Props> {
-  static defaultProps = {
+  static readonly defaultProps = {
     listId: "LIST",
   };
 
