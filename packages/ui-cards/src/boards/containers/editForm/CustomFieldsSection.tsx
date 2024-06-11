@@ -83,7 +83,7 @@ export default (props: Props) => {
             },
           },
         }),
-        skip: !isEnabled('forms') ? true : false,
+        skip: !isEnabled('forms'),
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
