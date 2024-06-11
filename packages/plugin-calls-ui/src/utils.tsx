@@ -49,7 +49,7 @@ export const getSpentTime = (seconds: number) => {
 };
 export const renderKeyPad = (handNumPad) => {
   return (
-    <Keypad>
+    <Keypad $transparent={true}>
       {numbers.map((n) => (
         <div className="number" key={n} onClick={() => handNumPad(n)}>
           {n}
@@ -76,6 +76,20 @@ export const renderKeyPad = (handNumPad) => {
   );
 };
 
+export const endCallOption = (endCall, onClickKeyPad) => {
+  return (
+    <>
+      <div>
+        <CallAction onClick={endCall} $isDecline={true}>
+          <Icon size={20} icon="phone-slash" />
+        </CallAction>
+        {__("End Call")}
+      </div>
+      <span onClick={onClickKeyPad}>{__("Hide Keypad")}</span>
+    </>
+  );
+};
+
 export const callActions = (
   isMuted,
   handleAudioToggle,
@@ -87,7 +101,6 @@ export const callActions = (
   disableDetail,
   onClickKeyPad
 ) => {
-  console.log(onClickKeyPad);
   return (
     <InCallFooter>
       <Actions>

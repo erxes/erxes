@@ -168,7 +168,7 @@ export const AdditionalDetail = styled.div`
   }
 `;
 
-export const InputBar = styledTS<{ type?: string }>(styled.div)`
+export const InputBar = styledTS<{ type?: string, $transparent?: boolean }>(styled.div)`
   justify-content: center;
   align-items: center;
   display: flex;
@@ -178,13 +178,14 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
   height: 41px;
   margin: ${(props) =>
     props.type === 'country' ? '5px 0px 10px 0px' : '10px 20px'};
-  border: 1px solid ${colors.borderPrimary};
+  border: 1px solid ${props => props.$transparent ? 'rgba(255,255,255, 0.2)' : colors.borderPrimary};
 
   input {
     border: 0;
     width: 100%;
-    color: ${colors.textPrimary};
+    color: ${props => props.$transparent ? colors.colorWhite : colors.textPrimary};
     padding: ${dimensions.unitSpacing}px 0;
+    background: ${props => props.$transparent && 'none'};
     transition: all 0.3s ease;
 
     &:focus {
@@ -193,7 +194,7 @@ export const InputBar = styledTS<{ type?: string }>(styled.div)`
     }
   
     ::placeholder {
-      color: #aaa;
+      color: ${props => props.$transparent ? '#cecece' : '#aaa'};
     }
   }
 `;
@@ -278,7 +279,22 @@ export const Country = styled.div`
   margin: ${dimensions.unitSpacing}px 0;
 `;
 
-export const Keypad = styled.div`
+export const KeyPadFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  position: relative;
+
+  > span {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    cursor: pointer;
+  }
+`;
+
+export const Keypad = styledTS<{$transparent?: true}>(styled.div)`
   gap: 5px;
   display: flex;
   flex-wrap: wrap;
@@ -291,13 +307,13 @@ export const Keypad = styled.div`
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    border: 1.12px solid rgba(0, 0, 0, 0.08);
+    border: 1.12px solid ${props => props.$transparent ? 'rgba(255,255,255, 0.2)' : 'rgba(0, 0, 0, 0.08)'};
     border-radius: ${dimensions.unitSpacing}px;
     cursor: pointer;
     transition: all ease 0.3s;
 
     &:hover {
-      background: #f5f5f5;
+      background: ${props => props.$transparent ? 'rgba(0,0,0,.12)' : '#f5f5f5'};
     }
   }
 
@@ -614,6 +630,7 @@ export const IncomingContent = styled.div`
   padding: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
   color: ${colors.colorWhite};
   border-radius: ${dimensions.unitSpacing}px;
+  min-width: 375px;
 
   > p {
     margin: ${dimensions.unitSpacing}px 0;
