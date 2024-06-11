@@ -113,6 +113,7 @@ export const types = () => `
     customFieldsData: JSON
     savingContractId: String
     holidayType: String
+    mustPayDate: Date
   }
 
 

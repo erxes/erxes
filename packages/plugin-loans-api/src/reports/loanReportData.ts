@@ -10,14 +10,29 @@ const DIMENSION_OPTIONS = [
     aggregate: { project: { path: 'number', value: 1 } }
   },
   {
+    label: 'Status',
+    value: 'status',
+    aggregate: { project: { path: 'status', value: 1 } }
+  },
+  {
     label: 'Classification',
     value: 'classification',
     aggregate: { project: { path: 'classification', value: 1 } }
   },
   {
+    label: 'Tenor',
+    value: 'tenor',
+    aggregate: { project: { path: 'tenor', value: 1 } }
+  },
+  {
     label: 'Interest Rate',
     value: 'interestRate',
     aggregate: { project: { path: 'interestRate', value: 1 } }
+  },
+  {
+    label: 'Loss Percent',
+    value: 'lossPercent',
+    aggregate: { project: { path: 'lossPercent', value: 1 } }
   },
   {
     label: 'Contract Type',
@@ -55,34 +70,59 @@ const DIMENSION_OPTIONS = [
     aggregate: { project: { path: 'endDate', value: 1 } }
   },
   {
-    label: 'Expired Day',
+    label: 'MustPayDate',
     value: 'mustPayDate',
-    format: (v: Date | undefined) => v && moment(v).diff(moment(), 'day'),
+    format: (v: Date | undefined) => v && moment(v).format('YYYY-MM-DD'),
     aggregate: { project: { path: 'mustPayDate', value: 1 } }
   }
 ];
 
 const MEASURE_OPTIONS = [
   {
+    label: 'Margin amount',
+    value: 'marginAmount',
+    aggregate: { project: { path: 'marginAmount', value: 1 } },
+    format: (v: number = 0) => new BigNumber(v).toFormat()
+  },
+  {
+    label: 'Total Amount',
+    value: 'totalAmount',
+    aggregate: { project: { path: 'totalAmount', value: 1 } },
+    format: (v: number = 0) => new BigNumber(v).toFormat()
+  },
+  {
+    label: 'Given Amount',
+    value: 'givenAmount',
+    aggregate: { project: { path: 'givenAmount', value: 1 } },
+    format: (v: number = 0) => new BigNumber(v).toFormat()
+  },
+  {
     label: 'Balance Amount',
     value: 'loanBalanceAmount',
     aggregate: { project: { path: 'loanBalanceAmount', value: 1 } },
+    format: (v: number = 0) => new BigNumber(v).toFormat()
+  },
+  {
+    label: 'FeeAmount',
+    value: 'feeAmount',
+    aggregate: { project: { path: 'feeAmount', value: 1 } },
     format: (v: number = 0) => new BigNumber(v).toFormat()
   }
 ];
 
 const loanReportData = {
-  templateType: 'loanExpiredReportData',
+  templateType: 'loanReportData',
   serviceType: 'loans',
-  name: 'Loan Expired Data',
-  chartTypes: ['table', 'bar', 'pie'],
+  name: 'Loan Data',
+  chartTypes: ['table'],
   getChartResult: async (models: IModels, filter: any, chartType: string) => {
-    const title = 'Loan Expiration Data';
-    if (!filter.measure || filter.dimension?.length == 0) {
+    const title = 'Loan Data';
+
+    if (!filter.dimension && filter.dimension?.length == 0) {
       filter.dimension = ['number'];
     }
 
-    if (!filter.measure || filter.measure?.length == 0) {
+    if (filter.measure && filter.measure?.length == 0) {
       filter.measure = ['loanBalanceAmount'];
     }
 
