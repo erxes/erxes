@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
-import { getUserAvatar } from '@erxes/ui/src/utils/index';
+import { getUserAvatar, __ } from '@erxes/ui/src/utils/index';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from '@erxes/ui/src/utils/index';
 
 import { IDashboard, IReport } from '../../types';
 
