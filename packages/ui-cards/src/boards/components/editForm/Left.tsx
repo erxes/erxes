@@ -36,7 +36,7 @@ type DescProps = {
 const Description = (props: DescProps) => {
   const { item, saveItem, contentType } = props;
   const [edit, setEdit] = useState(false);
-  const [isSubmitted, setSubmit] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [description, setDescription] = useState(item.description);
 
   useEffect(() => {
@@ -51,12 +51,12 @@ const Description = (props: DescProps) => {
 
   const onSend = () => {
     saveItem({ description });
-    setSubmit(true);
+    setIsSubmitted(true);
   };
 
   const toggleEdit = () => {
     setEdit((currentValue) => !currentValue);
-    setSubmit(false);
+    setIsSubmitted(false);
   };
 
   const onChangeDescription = (content: string) => {
