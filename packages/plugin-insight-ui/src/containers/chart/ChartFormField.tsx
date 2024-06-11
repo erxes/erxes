@@ -183,13 +183,16 @@ const ChartFormFieldList = (props: Props) => {
   };
 
   const onChange = (input: any) => {
-    switch (fieldType) {
-      case "select":
-        selectHandler(input);
-        break;
+    // switch (fieldType) {
+    //   case "select":
+    //     selectHandler(input);
+    //     break;
 
-      default:
-        break;
+    //   default:
+    //     break;
+    // }
+    if(fieldType === "select"){
+      selectHandler(input);
     }
   };
 
