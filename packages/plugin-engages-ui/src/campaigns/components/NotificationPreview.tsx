@@ -18,23 +18,18 @@ const Preview = styled.div`
   }
 `;
 
-const From = styled.div`
-  font-weight: 700;
-`;
-
 const Message = styled.div`
-  word-break: break-word;
-  font-size: 12px;
-`;
-
-const MobileMessage = styled.div`
   width: 100%;
-  font-size: 12px;
+  font-size: 13px;
+  word-break: break-word;
+  span {
+    font-weight: bold;
+  }
 `;
 
 const MobileFrame = styled.div`
-  width: 360px;
-  height: 555px;
+  width: 420px;
+  height: 550px;
   background: url('/images/previews/mobile-notification.png') no-repeat;
   background-size: 100%;
   position: relative;
@@ -44,26 +39,17 @@ const MobileFrame = styled.div`
 `;
 
 const MobileContent = styled.div`
-  &::before {
-    content: '';
-    position: absolute;
-    top: 1.5rem;
-    left: 0.5rem;
-    width: 10px;
-    height: 10px;
-    background: #3b80d1;
-    border-radius: 5px;
-  }
-  position: relative;
+  position: absolute;
+  top: 38%;
   width: 100%;
-  height: fit-content;
-  background: #f5f5f5;
-  border-radius: 18px;
-  padding: 1rem 1rem 1rem 1.5rem;
+  padding: 1rem 5rem 1rem 2rem;
   margin: 1rem 0.5rem;
   font-size: 12px;
+  color: #fff;
+
   span {
     font-weight: bold;
+    font-size: 14px;
   }
 `;
 
@@ -72,61 +58,94 @@ const DesktopPreview = styled.div`
   background-position: center;
   width: 100%;
   background-size: contain;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: ${dimensions.unitSpacing / 2}px;
   flex: 1;
-  overflow: auto;
-  padding-top: ${dimensions.headerSpacing - 20}px;
-  margin-top: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.coreSpacing}px;
 `;
 
 const DesktopContent = styled.div`
-  margin-top: 10%;
-  width: 22%;
-  margin-right: 13%;
-  padding-left: 1rem;
+  margin-top: 15%;
+  width: 32%;
+  margin-right: 10%;
   margin-left: auto;
   position: relative;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0.5rem;
-    left: 0rem;
-    width: 10px;
-    height: 10px;
-    background: #3b80d1;
-    border-radius: 5px;
+  @media only screen and (max-width: 1400px) {
+    margin-top: 17%;
+    width: 34%;
+    margin-right: 6%;
+  }
+`;
+
+const WebPushPreview = styled.div`
+  background: url('/images/previews/web-push.png') no-repeat;
+  background-position: center;
+  width: 100%;
+  background-size: contain;
+  flex: 1;
+  margin: ${dimensions.coreSpacing}px;
+`;
+
+const WebPushContent = styled.div`
+  margin-top: 10.5%;
+  width: 40%;
+  margin-right: 6%;
+  margin-left: auto;
+  position: relative;
+  @media only screen and (max-width: 1400px) {
+    margin-top: 13%;
   }
 `;
 
 type Props = {
-  message: string;
-  title: string;
-  isMobile: boolean;
+  message: string | '';
+  title: string | '';
+  isMobile: boolean | false;
+  isWebPush: boolean | false;
 };
 
 function NotificationPreview(props: Props) {
-  console.log('NotificationPreview', props);
+  const renderPreview = () => {
+    const { message, title, isMobile, isWebPush } = props;
+
+    if (isWebPush) {
+      return (
+        <WebPushPreview>
+          <WebPushContent>
+            <Message>
+              <span>{title} </span> {message}
+            </Message>
+          </WebPushContent>
+        </WebPushPreview>
+      );
+    }
+
+    if (isMobile) {
+      return (
+        <MobileFrame>
+          <MobileContent>
+            <span>{title}</span>
+            <Message>{message}</Message>
+          </MobileContent>
+        </MobileFrame>
+      );
+    }
+
+    return (
+      <DesktopPreview>
+        <DesktopContent>
+          <Message>
+            <span>{title} </span> {message}
+          </Message>
+        </DesktopContent>
+      </DesktopPreview>
+    );
+  };
+
   return (
     <Preview>
       <h3>
         <Icon icon="eye" /> {__('Preview')}
       </h3>
-      {props.isMobile ? (
-        <MobileFrame>
-          <MobileContent>
-            <span className="bold">{props.title || '[From]'}</span>
-            {props.message && <MobileMessage>{props.message}</MobileMessage>}
-          </MobileContent>
-        </MobileFrame>
-      ) : (
-        <DesktopPreview>
-          <DesktopContent>
-            <From>{props.title || '[From]'}</From>
-            {props.message && <Message>{props.message}</Message>}
-          </DesktopContent>
-        </DesktopPreview>
-      )}
+      {renderPreview()}
     </Preview>
   );
 }

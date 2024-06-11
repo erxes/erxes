@@ -7,7 +7,7 @@ import EmailForm from '../components/EmailForm';
 import { mutations, queries } from '@erxes/ui-engage/src/graphql';
 import {
   EngageVerifiedEmailsQueryResponse,
-  IEmailFormProps
+  IEmailFormProps,
 } from '@erxes/ui-engage/src/types';
 
 type FinalProps = {
@@ -36,7 +36,7 @@ const EmailFormContainer = (props: FinalProps) => {
       .then(() => {
         Alert.success('Email has been sent');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -45,7 +45,7 @@ const EmailFormContainer = (props: FinalProps) => {
     ...props,
     error: error && error.message,
     verifiedEmails,
-    sendTestEmail
+    sendTestEmail,
   };
 
   return <EmailForm {...updatedProps} />;
@@ -58,7 +58,7 @@ export default withProps<IEmailFormProps>(
       { name: 'engageVerifiedEmailsQuery' }
     ),
     graphql(gql(mutations.sendTestEmail), {
-      name: 'engageSendTestEmail'
+      name: 'engageSendTestEmail',
     })
   )(EmailFormContainer)
 );

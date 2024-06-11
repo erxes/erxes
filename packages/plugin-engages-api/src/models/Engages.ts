@@ -241,7 +241,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         } = message;
 
         if (
-          message.kind === CAMPAIGN_KINDS.MANUAL &&
+          message.kind === CAMPAIGN_KINDS.VISITOR_AUTO &&
           (customerIds || []).length > 0 &&
           !customerIds.includes(customerObj._id)
         ) {
@@ -257,13 +257,6 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         });
 
         if (message.kind !== CAMPAIGN_KINDS.VISITOR_AUTO && !customerExists) {
-          continue;
-        }
-
-        if (
-          message.kind === CAMPAIGN_KINDS.VISITOR_AUTO &&
-          customerObj.state !== CONTENT_TYPES.VISITOR
-        ) {
           continue;
         }
 
@@ -304,7 +297,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           });
 
           if (messenger.rules) {
-            messenger.rules = messenger.rules.map((r) => ({
+            messenger.rules = messenger.rules.map(r => ({
               kind: r.kind,
               text: r.text,
               condition: r.condition,
@@ -329,20 +322,13 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             });
 
           if (conversationMessage) {
-            // collect created messages
             conversationMessages.push(conversationMessage);
-
-            // add given customer to customerIds list
-            if (
-              customer &&
-              message.customerIds &&
-              !message.customerIds.includes(customer._id)
-            ) {
-              await models.EngageMessages.updateOne(
-                { _id: message._id },
-                { $push: { customerIds: customer._id } }
-              );
-            }
+            await models.EngageMessages.updateOne(
+              { _id: message?._id },
+              {
+                $inc: { totalCustomersCount: 1 },
+              }
+            );
           }
         }
       } // end for loop
