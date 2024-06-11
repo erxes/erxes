@@ -1,13 +1,13 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { router, withProps } from '@erxes/ui/src/utils/core';
+import { router, withProps } from "@erxes/ui/src/utils/core";
 
-import { Bulk } from '@erxes/ui/src/components';
-import React from 'react';
-import ScoreLogsListComponent from '../components/List';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
+import { Bulk } from "@erxes/ui/src/components";
+import React from "react";
+import ScoreLogsListComponent from "../components/List";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
 type Props = {
   queryParams: any;
 };
@@ -20,10 +20,6 @@ type State = {
 };
 
 class ScoreLogsListContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { scoreLogs } = this.props;
 
@@ -66,10 +62,10 @@ const generateParams = ({ queryParams }) => ({
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.getScoreLogs), {
-      name: 'scoreLogs',
+      name: "scoreLogs",
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
       }),
-    }),
-  )(ScoreLogsListContainer),
+    })
+  )(ScoreLogsListContainer)
 );

@@ -90,7 +90,7 @@ const SideBar = (props: Props) => {
   };
 
   const checkParams = (type) => {
-    return router.getParam(location, type) ? true : false;
+    return !!router.getParam(location, type);
   };
 
   const handleOwnerId = (e) => {
