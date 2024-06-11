@@ -21,8 +21,21 @@
   </head>
   <body>
     <script src="/js/env.js"></script>
-    <script src="/js/plugins.js"></script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script>
+      const REACT_APP_PLUGINS_JS_PATH = "%REACT_APP_PLUGINS_JS_PATH%";
+
+      console.log(REACT_APP_PLUGINS_JS_PATH, "-----");
+
+      if (
+        REACT_APP_PLUGINS_JS_PATH &&
+        !REACT_APP_PLUGINS_JS_PATH.startsWith("%REACT_APP")
+      ) {
+        document.write('<script src="%REACT_APP_PLUGINS_JS_PATH%"><\/script>');
+      } else {
+        document.write('<script src="/js/plugins.js"><\/script>');
+      }
+    </script>
     <script>
       // get env config from process.env or window.env
       const getEnv = (name, defaultValue) => {
@@ -30,49 +43,49 @@
           return window.env[name];
         }
 
-        if (defaultValue.includes('REACT_APP')) {
-          return '';
+        if (defaultValue.includes("REACT_APP")) {
+          return "";
         }
 
-        return defaultValue || '';
+        return defaultValue || "";
       };
 
       window.envMaps = [
         {
-          name: 'REACT_APP_DOMAIN_FORMAT',
-          processValue: '%REACT_APP_DOMAIN_FORMAT%',
+          name: "REACT_APP_DOMAIN_FORMAT",
+          processValue: "%REACT_APP_DOMAIN_FORMAT%"
         },
         {
-          name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
-          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%',
+          name: "REACT_APP_FILE_UPLOAD_MAX_SIZE",
+          processValue: "%REACT_APP_FILE_UPLOAD_MAX_SIZE%"
         },
 
-        { name: 'REACT_APP_API_URL', processValue: '%REACT_APP_API_URL%' },
+        { name: "REACT_APP_API_URL", processValue: "%REACT_APP_API_URL%" },
         {
-          name: 'REACT_APP_API_SUBSCRIPTION_URL',
-          processValue: '%REACT_APP_API_SUBSCRIPTION_URL%',
+          name: "REACT_APP_API_SUBSCRIPTION_URL",
+          processValue: "%REACT_APP_API_SUBSCRIPTION_URL%"
         },
-        { name: 'REACT_APP_CDN_HOST', processValue: '%REACT_APP_CDN_HOST%' },
+        { name: "REACT_APP_CDN_HOST", processValue: "%REACT_APP_CDN_HOST%" },
         {
-          name: 'REACT_APP_DASHBOARD_URL',
-          processValue: '%REACT_APP_DASHBOARD_URL%',
-        },
-        {
-          name: 'REACT_APP_FILE_UPLOAD_MAX_SIZE',
-          processValue: '%REACT_APP_FILE_UPLOAD_MAX_SIZE%',
+          name: "REACT_APP_DASHBOARD_URL",
+          processValue: "%REACT_APP_DASHBOARD_URL%"
         },
         {
-          name: 'REACT_APP_APM_SERVER_URL',
-          processValue: '%REACT_APP_APM_SERVER_URL%',
+          name: "REACT_APP_FILE_UPLOAD_MAX_SIZE",
+          processValue: "%REACT_APP_FILE_UPLOAD_MAX_SIZE%"
         },
         {
-          name: 'REACT_APP_HIDE_MESSENGER',
-          processValue: '%REACT_APP_HIDE_MESSENGER%',
+          name: "REACT_APP_APM_SERVER_URL",
+          processValue: "%REACT_APP_APM_SERVER_URL%"
         },
         {
-          name: 'REACT_APP_VERSION',
-          processValue: '%REACT_APP_VERSION%',
+          name: "REACT_APP_HIDE_MESSENGER",
+          processValue: "%REACT_APP_HIDE_MESSENGER%"
         },
+        {
+          name: "REACT_APP_VERSION",
+          processValue: "%REACT_APP_VERSION%"
+        }
       ];
 
       for (var i = 0; i < window.envMaps.length; i++) {
