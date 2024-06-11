@@ -3,22 +3,17 @@ import Alert from "@erxes/ui/src/utils/Alert";
 import { mutations } from "../../graphql";
 import BasicInfoSection from "../../components/common/BasicInfoSection";
 import React from "react";
-import { IUser } from "@erxes/ui/src/auth/types";
 import { IContract, RemoveMutationResponse } from "../../types";
 import { useMutation } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { withProps } from "@erxes/ui/src/utils/core";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
   contract: IContract;
 };
 
-type FinalProps = { currentUser: IUser } & Props;
-
-const BasicInfoContainer = (props: FinalProps) => {
+const BasicInfoContainer = (props: Props) => {
   const navigate = useNavigate();
-  const { contract, currentUser } = props;
+  const { contract } = props;
 
   const [contractsRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.contractsRemove),
