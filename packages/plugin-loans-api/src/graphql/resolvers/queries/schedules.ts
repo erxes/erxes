@@ -55,11 +55,11 @@ const scheduleQueries = {
 
   virtualSchedules: async (_root, doc: IDefaultScheduleParam, {}) => {
     const result: {
-      index: Number;
-      loanBalance: Number;
-      loanPayment: Number;
-      calcedInterest: Number;
-      totalPayment: Number;
+      index: number;
+      loanBalance: number;
+      loanPayment: number;
+      calcedInterest: number;
+      totalPayment: number;
     }[] = [];
     if (doc.repayment === "equal") {
       let balance = doc.leaseAmount;
