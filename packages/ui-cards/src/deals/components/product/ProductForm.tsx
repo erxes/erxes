@@ -12,8 +12,7 @@ import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { IProduct } from "@erxes/ui-products/src/types";
-import { IProductCategory } from "@erxes/ui-products/src/types";
+import { IProduct , IProductCategory } from "@erxes/ui-products/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import PaymentForm from "./PaymentForm";
@@ -349,7 +348,7 @@ class ProductForm extends React.Component<Props, State> {
     const { paymentsData } = this.props;
     const { total } = this.state;
 
-    const changePayData = Object.assign({}, total);
+    const changePayData = { ...total};
     const payments = paymentsData || {};
 
     Object.keys(payments || {}).forEach((key) => {
@@ -594,7 +593,7 @@ class ProductForm extends React.Component<Props, State> {
             : 0,
           amount: 0,
           currency,
-          tickUsed: dealQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
+          tickUsed: dealQuery.stage?.defaultTick !== false, // undefined or null then true
           maxQuantity: 0,
           product,
           quantity: 1,
