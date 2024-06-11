@@ -80,7 +80,6 @@ export default function Row(props: Props) {
         </Tip>
       );
 
-    return;
   };
 
   const renderActions = () => {
