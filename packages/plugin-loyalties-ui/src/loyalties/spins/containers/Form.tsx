@@ -1,13 +1,12 @@
-import * as compose from 'lodash.flowright';
-import Form from '../components/Form';
-import React from 'react';
-import { withProps } from '@erxes/ui/src/utils';
-import { ButtonMutate } from '@erxes/ui/src/components';
-import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
-import { ISpin } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { mutations } from '../graphql';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import * as compose from "lodash.flowright";
+import Form from "../components/Form";
+import React from "react";
+import { withProps } from "@erxes/ui/src/utils";
+import { ButtonMutate } from "@erxes/ui/src/components";
+import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
+import { ISpin } from "../types";
+import { IUser, UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import { mutations } from "../graphql";
 
 type Props = {
   spin: ISpin;
@@ -27,11 +26,11 @@ class SpinFromContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      object
+      object,
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedSpin } = this.props;
 
-      const afterSave = data => {
+      const afterSave = (data) => {
         closeModal();
 
         if (getAssociatedSpin) {
@@ -48,7 +47,7 @@ class SpinFromContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -56,7 +55,7 @@ class SpinFromContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
     };
     return <Form {...updatedProps} />;
   }
@@ -64,13 +63,13 @@ class SpinFromContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    'spinsMain',
-    'spinDetail',
+    "spinsMain",
+    "spinDetail",
     // spins for customer detail spin associate
-    'spins',
-    'spinCounts',
-    'spinCampaigns',
-    'spinCampaignsTotalCount'
+    "spins",
+    "spinCounts",
+    "spinCampaigns",
+    "spinCampaignsTotalCount",
   ];
 };
 
