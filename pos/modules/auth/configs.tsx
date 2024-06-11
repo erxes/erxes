@@ -1,13 +1,12 @@
 "use client"
 
 import { ReactNode, useEffect, useState } from "react"
-import { modeAtom, refetchUserAtom } from "@/store"
+import { refetchUserAtom } from "@/store"
 import { configAtom, configsAtom, currentUserAtom } from "@/store/config.store"
 import { orderTypeAtom } from "@/store/order.store"
 import { useQuery } from "@apollo/client"
 import { useAtom, useSetAtom } from "jotai"
 
-import { useMediaQuery } from "@/lib/useMediaQuery"
 import { hexToHsl } from "@/lib/utils"
 import Loader from "@/components/ui/loader"
 import { useToast } from "@/components/ui/use-toast"
@@ -22,8 +21,6 @@ const Configs = ({ children }: { children: ReactNode }) => {
   const { onError } = useToast()
   const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
   const setOrderType = useSetAtom(orderTypeAtom)
-  const setMode = useSetAtom(modeAtom)
-  const isMobile = useMediaQuery("(max-width: 768px)")
 
   const { loading, data, refetch } = useQuery(queries.posCurrentUser)
 
@@ -52,12 +49,6 @@ const Configs = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     setCurrentUser(data?.posCurrentUser)
   }, [data, setCurrentUser])
-
-  useEffect(() => {
-    if (isMobile) {
-      setMode("mobile")
-    }
-  }, [isMobile, setMode])
 
   const { currentConfig } = config || {}
   const { _id, allowTypes, uiOptions } = currentConfig || {}
