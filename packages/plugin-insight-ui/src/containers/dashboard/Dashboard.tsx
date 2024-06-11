@@ -12,7 +12,6 @@ import {
   DashboardDetailQueryResponse,
   DashboardRemoveMutationResponse,
   IDashboard,
-  IReport,
 } from "../../types";
 import { useLocation, useNavigate } from "react-router-dom";
 
