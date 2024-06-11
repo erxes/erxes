@@ -6,7 +6,6 @@ import Alert from "@erxes/ui/src/utils/Alert/index";
 import React from "react";
 import SelectMembersBox from "../../components/utils/SelectMembersBox";
 import { UsersQueryResponse } from "@erxes/ui/src/auth/types";
-import { __ } from "@erxes/ui/src/utils/index";
 import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
 
 type Props = {
