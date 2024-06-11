@@ -18,7 +18,6 @@ export class StatementsApi extends BaseApi {
    * @param {number} perPage - per page
    * @param {number} record - record number
    * @return {[object]} - Returns an array of statements
-   * TODO: update return type
    */
   async list(args: {
     accountNumber: string;
