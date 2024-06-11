@@ -1,4 +1,3 @@
-import { TransferParams } from '../types';
 import { BaseApi } from './base';
 
 export class TaxesApi extends BaseApi {
@@ -13,7 +12,6 @@ export class TaxesApi extends BaseApi {
    * get customer TIN number
    * @param {string} registrationNumber - registration number
    * @return {object} - Returns a response object
-   * TODO: Add proper return type
    */
   async getCustomerTIN(registrationNumber: string) {
     try {
@@ -37,7 +35,6 @@ export class TaxesApi extends BaseApi {
    * @param {string} fromAccount - from account number
    * @param {string} toAccount - to account number
    * @return {[object]} - Returns an array of objects
-   * TODO: Add proper return type
    */
   async list(type: string, value: string) {
     const path =
