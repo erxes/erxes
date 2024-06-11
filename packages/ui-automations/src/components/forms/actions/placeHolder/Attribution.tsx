@@ -10,7 +10,6 @@ import { __ } from "@erxes/ui/src";
 
 type Props = {
   config: any;
-  triggerType: string;
   setConfig: (config: any) => void;
   inputName?: string;
   attributions: FieldsCombinedByType[];
