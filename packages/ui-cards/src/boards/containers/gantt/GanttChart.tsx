@@ -10,8 +10,6 @@ import {
   IItem,
   IOptions,
   ItemsQueryResponse,
-  RemoveStageMutation,
-  SaveItemMutation
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { mutations } from '../../graphql';
@@ -37,9 +35,7 @@ type StageProps = {
 };
 
 type FinalStageProps = {
-  addMutation: SaveItemMutation;
   itemsQuery: ItemsQueryResponse;
-  removeStageMutation: RemoveStageMutation;
 } & StageProps;
 
 type State = {
