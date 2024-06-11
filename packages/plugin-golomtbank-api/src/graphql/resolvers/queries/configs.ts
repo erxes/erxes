@@ -1,6 +1,6 @@
-import { checkPermission, paginate, requireLogin } from '@erxes/api-utils/src';
+import { checkPermission, paginate, requireLogin } from "@erxes/api-utils/src";
 
-import { IContext } from '../../../connectionResolver';
+import { IContext } from "../../../connectionResolver";
 
 const queries = {
   async golomtBankConfigsList(
@@ -8,19 +8,17 @@ const queries = {
     { page, perPage }: { page: number; perPage: number },
     { models }: IContext
   ) {
-    const totalCount = await models.GolomtBankConfigs.find({}).count();
+    const totalCount = await models.GolomtBankConfigs.find({});
 
     return {
       list: paginate(
-        models.GolomtBankConfigs.find({})
-          .sort({ createdAt: -1 })
-          .lean(),
+        models.GolomtBankConfigs.find({}).sort({ createdAt: -1 }).lean(),
         {
           page: page || 1,
-          perPage: perPage || 20
+          perPage: perPage || 20,
         }
       ),
-      totalCount
+      totalCount,
     };
   },
 
@@ -30,7 +28,7 @@ const queries = {
     { models }: IContext
   ) {
     const response = await models.GolomtBankConfigs.find({}).sort({
-      createdAt: -1
+      createdAt: -1,
     });
 
     return paginate(response, { page: page || 1, perPage: perPage || 20 });
@@ -42,6 +40,6 @@ const queries = {
     { models }: IContext
   ) {
     return models.GolomtBankConfigs.getConfig({ _id });
-  }
+  },
 };
 export default queries;

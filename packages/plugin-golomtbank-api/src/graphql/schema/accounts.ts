@@ -18,6 +18,25 @@ type GolomtBankAccountHolder {
 
   }
 
+  type GolomtBankAccountDetail {
+    requestId: String
+    accountNumber: String
+    currency: String
+    customerName: String
+    titlePrefix: String
+    accountName: String
+    accountShortName: String
+    freezeStatusCode: String
+    freezeReasonCode: String
+    openDate: String
+    status: String
+    productName: String
+    type: String
+    intRate: String
+    isRelParty: String
+    branchId: String
+  }
+
   type GolomtBankTransaction {
     record: Int
     tranDate: String
@@ -70,7 +89,7 @@ const dateParams = `
 
 export const queries = `
   golomtBankAccounts(configId: String): JSON
-  golomtBankAccountDetail(configId: String!, accountId: String!): GolomtBankAccount
+  golomtBankAccountDetail(configId: String!, accountId: String!): GolomtBankAccountDetail
   golomtBankAccountHolder(configId: String!, accountId: String! bankCode: String): GolomtBankAccountHolder
 
   golomtBankStatements(configId: String!, accountId: String!, ${paginationParams} ${dateParams} ): GolomtBankStatement

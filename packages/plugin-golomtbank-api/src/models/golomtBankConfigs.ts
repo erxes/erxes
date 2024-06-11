@@ -1,13 +1,14 @@
-import { Model } from 'mongoose';
+import { Model } from "mongoose";
 
-import { IModels } from '../connectionResolver';
+import { IModels } from "../connectionResolver";
 import {
   IGolomtBankConfig,
   IGolomtBankConfigDocument,
-  golomtBankConfigSchema
-} from './definitions/golomtBankConfigs';
+  golomtBankConfigSchema,
+} from "./definitions/golomtBankConfigs";
 
-export interface IGolomtBankConfigModel extends Model<IGolomtBankConfigDocument> {
+export interface IGolomtBankConfigModel
+  extends Model<IGolomtBankConfigDocument> {
   createConfig(doc: IGolomtBankConfig): Promise<IGolomtBankConfigDocument>;
   updateConfig(_id: string, doc: any): Promise<IGolomtBankConfigDocument>;
   getConfig(doc: any): Promise<IGolomtBankConfigDocument>;
@@ -19,10 +20,10 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
     public static async createConfig(doc: IGolomtBankConfig) {
       const golomtBankConfig = await models.GolomtBankConfigs.findOne({
         registerId: doc.registerId,
-        accountId: doc.accountId
+        accountId: doc.accountId,
       });
       if (golomtBankConfig) {
-        throw new Error('Config already exists');
+        throw new Error("Config already exists");
       }
       return models.GolomtBankConfigs.create(doc);
     }
@@ -49,14 +50,14 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
     }
 
     public static async removeConfig(_id: string) {
-      return models.GolomtBankConfigs.remove({ _id });
+      return "models.GolomtBankConfigs.remove({ _id });";
     }
 
     public static async getConfig(doc: any) {
       const golomtBankConfig = await models.GolomtBankConfigs.findOne(doc);
 
       if (!golomtBankConfig) {
-        throw new Error('Config not found');
+        throw new Error("Config not found");
       }
 
       return golomtBankConfig;
