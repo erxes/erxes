@@ -56,7 +56,7 @@ type State = {
 };
 
 class MainActionBar extends React.Component<Props, State> {
-  static defaultProps = {
+  static readonly defaultProps = {
     viewType: "board",
     boardText: "Board",
     pipelineText: "Pipeline",
@@ -67,7 +67,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     this.state = {
       showDetail:
-        localStorage.getItem("showSalesDetail") === "true" ? true : false,
+        localStorage.getItem("showSalesDetail") === "true",
     };
   }
 
