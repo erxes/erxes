@@ -1,8 +1,5 @@
 import React from "react";
-import { __ } from "@erxes/ui/src/utils";
-
 import { Wrapper } from "@erxes/ui/src/layout";
-
 import UserFilter from "../containers/filters/UserFilter";
 import ActionFilter from "./filters/ActionFilter";
 import ModuleFilter from "./filters/ModuleFilter";
