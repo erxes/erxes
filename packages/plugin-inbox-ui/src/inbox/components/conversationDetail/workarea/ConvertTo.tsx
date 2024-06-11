@@ -5,16 +5,17 @@ import {
 } from "@erxes/ui-inbox/src/inbox/types";
 
 import Button from "@erxes/ui/src/components/Button";
-import DealConvertTrigger from "@erxes/ui-cards/src/deals/components/DealConvertTrigger";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import Icon from "@erxes/ui/src/components/Icon";
-import PurchaseConvertTrigger from "@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger";
-import React from "react";
-import TaskConvertTrigger from "@erxes/ui-cards/src/tasks/components/TaskConvertTrigger";
-import TicketConvertTrigger from "@erxes/ui-cards/src/tickets/components/TicketConvertTrigger";
+import React, { useState } from "react";
 import { __ } from "@erxes/ui/src/utils/core";
 import styled from "styled-components";
+import { options as ticketOptions } from "@erxes/ui-cards/src/tickets/options";
+import { options as dealOptions } from "@erxes/ui-cards/src/deals/options";
+import { options as taskOptions } from "@erxes/ui-cards/src/tasks/options";
+import { options as purchaseOptions } from "@erxes/ui-cards/src/purchases/options";
+import AddForm from "@erxes/ui-cards/src/boards/containers/portable/AddForm";
 
 const Container = styled.div`
   display: inline-block;
@@ -38,6 +39,7 @@ type Props = {
 
 export default function ConvertTo(props: Props) {
   const { conversation, convertToInfo, conversationMessage, refetch } = props;
+  const [options, setOptions] = useState({} as any);
 
   const assignedUserIds = conversation.assignedUserId
     ? [conversation.assignedUserId]
@@ -48,13 +50,87 @@ export default function ConvertTo(props: Props) {
   const message: IMessage = conversationMessage || ({} as IMessage);
   const mailData = message.mailData || ({} as IMail);
 
-  const triggerProps: any = {
-    assignedUserIds,
-    relTypeIds: customerIds,
-    relType: "customer",
-    sourceConversationId,
-    subject: mailData.subject ? mailData.subject : "",
-    refetch,
+  const ticketTitle = convertToInfo.ticketUrl
+    ? __("Go to a ticket")
+    : __("Convert to a ticket");
+  const taskTitle = convertToInfo.taskUrl
+    ? __("Go to a task")
+    : __("Convert to a task");
+  const dealTitle = convertToInfo.dealUrl
+    ? __("Go to a deal")
+    : __("Convert to a deal");
+  const purchaseTitle = convertToInfo.purchaseUrl
+    ? __("Go to a purchase")
+    : __("Convert to a purchase");
+
+  const addForm = (props) => (
+    <AddForm
+      options={options}
+      {...props}
+      type={props.type}
+      description={props.description}
+      attachments={props.attachments}
+      refetch={refetch}
+      relType={"customer"}
+      relTypeIds={customerIds}
+      mailSubject={mailData.subject ? mailData.subject : ""}
+      assignedUserIds={assignedUserIds}
+      sourceConversationId={sourceConversationId}
+      showSelect={true}
+      bookingProductId={conversation.bookingProductId}
+    />
+  );
+
+  const menuItems = [
+    {
+      title: ticketTitle,
+      trigger: !convertToInfo.ticketUrl && (
+        <li key="ticket" onClick={() => setOptions(ticketOptions)}>
+          <a id="showTicketConvertModal">{ticketTitle}</a>
+        </li>
+      ),
+      content: addForm,
+    },
+    {
+      title: dealTitle,
+      trigger: !convertToInfo.dealUrl && (
+        <li key="deal" onClick={() => setOptions(dealOptions)}>
+          <a id="showDealConvertModal">{dealTitle}</a>
+        </li>
+      ),
+      content: addForm,
+    },
+    {
+      title: taskTitle,
+      trigger: !convertToInfo.taskUrl && (
+        <li key="task" onClick={() => setOptions(taskOptions)}>
+          <a id="showTaskConvertModal">{taskTitle}</a>
+        </li>
+      ),
+      content: addForm,
+    },
+    {
+      title: purchaseTitle,
+      trigger: !convertToInfo.purchaseUrl && (
+        <li key="purchase" onClick={() => setOptions(purchaseOptions)}>
+          <a id="showPurchaseConvertModal">{purchaseTitle}</a>
+        </li>
+      ),
+      content: addForm,
+    },
+  ];
+
+  const gotoTrigger = (url, autoOpenKey, title) => {
+    return url && (
+      <a
+        onClick={() => {
+          window.open(url, "_blank");
+        }}
+        id={autoOpenKey}
+      >
+        {title}
+      </a>
+    );
   };
 
   return (
@@ -68,29 +144,30 @@ export default function ConvertTo(props: Props) {
           </Button>
         }
         unmount={false}
+        modalMenuItems={menuItems}
       >
-        <li key="ticket">
-          <TicketConvertTrigger
-            {...triggerProps}
-            url={convertToInfo.ticketUrl}
-          />
-        </li>
-        <li key="deal">
-          <DealConvertTrigger
-            {...triggerProps}
-            bookingProductId={conversation.bookingProductId}
-            url={convertToInfo.dealUrl}
-          />
-        </li>
-        <li key="task">
-          <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
-        </li>
-        <li key="purchase">
-          <PurchaseConvertTrigger
-            {...triggerProps}
-            url={convertToInfo.purchaseUrl}
-          />
-        </li>
+        <>
+          {gotoTrigger(
+            convertToInfo.ticketUrl,
+            "showTicketConvertModal",
+            ticketTitle
+          )}
+          {gotoTrigger(
+            convertToInfo.taskUrl,
+            "showTaskConvertModal",
+            taskTitle
+          )}
+          {gotoTrigger(
+            convertToInfo.dealUrl,
+            "showDealConvertModal",
+            dealTitle
+          )}
+          {gotoTrigger(
+            convertToInfo.purchaseUrl,
+            "showPurchaseConvertModal",
+            purchaseTitle
+          )}
+        </>
       </Dropdown>
     </Container>
   );

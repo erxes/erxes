@@ -3,7 +3,7 @@ import TaskEditForm from './components/TaskEditForm';
 import TaskItem from './components/TaskItem';
 import { mutations, queries } from './graphql';
 
-const options = {
+export const options = {
   EditForm: TaskEditForm,
   Item: TaskItem,
   type: 'task',
