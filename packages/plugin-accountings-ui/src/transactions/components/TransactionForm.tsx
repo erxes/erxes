@@ -1,44 +1,39 @@
-import { Actions, InfoWrapper, PopoverHeader, PopoverButton } from "@erxes/ui/src/styles/main";
-import { Popover } from '@headlessui/react';
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import dayjs from 'dayjs';
+import { Box } from '@erxes/ui-contacts/src/customers/styles';
+import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
 import { LeftContent } from '@erxes/ui-settings/src/styles';
 import {
+  __,
   Alert,
   Button,
   ButtonMutate,
   Icon,
-  Step,
-  Steps,
   Wrapper,
-  __,
 } from '@erxes/ui/src';
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   ControlWrapper,
   Indicator,
   StepWrapper,
 } from '@erxes/ui/src/components/step/styles';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
+  Actions, FormColumn,
+  FormWrapper, InfoWrapper, ModalFooter, PopoverButton, PopoverHeader
 } from "@erxes/ui/src/styles/main";
 import { IQueryParams } from '@erxes/ui/src/types';
+import { Popover } from '@headlessui/react';
+import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ITransaction } from '../types';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { format } from 'date-fns';
-import { Box } from '@erxes/ui-contacts/src/customers/styles';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { journalComponentMaps } from '../utils/maps';
-import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-// import Popover from "@erxes/ui/src/components/Popover";
+import { journalConfigMaps } from '../utils/maps';
 
 type Props = {
   transactions?: ITransaction[];
@@ -49,9 +44,7 @@ type Props = {
 };
 
 type State = {
-  transactions?: ITransaction[];
   firstTransaction?: ITransaction;
-  balance: { dt: number; ct: number; }
 }
 
 const TransactionForm = (props: Props) => {
@@ -63,18 +56,25 @@ const TransactionForm = (props: Props) => {
     save,
   } = props;
 
-  const getBalance = () => {
-    return { dt: 0, ct: 0 }
-  }
-
-
   const [state, setState] = useState<State>({
     firstTransaction: transactions?.find(tr => tr._id === tr.parentId) as ITransaction,
-    balance: getBalance(),
-    transactions: transactions || [journalComponentMaps[defaultJournal || '']?.defaultData || {}]
   });
 
-  const [currentTransaction, setCurrentTransaction] = useState(transactions?.find(tr => tr._id === queryParams.trId));
+  const [trDocs, setTrDocs] = useState<ITransaction[]>(transactions || [journalConfigMaps[defaultJournal || '']?.defaultData || {}] || []);
+  const [currentTransaction, setCurrentTransaction] = useState(transactions && (transactions.find(tr => tr._id === queryParams.trId) || transactions[0]));
+  const [balance, setBalance] = useState((transactions || []).reduce((balance, tr) => {
+    balance.dt += tr.sumDt
+    balance.ct += tr.sumCt
+    return balance;
+  }, { dt: 0, ct: 0 }));
+
+  const getBalance = () => {
+    return (trDocs || []).reduce((balance, tr) => {
+      balance.dt += tr.sumDt
+      balance.ct += tr.sumCt
+      return balance;
+    }, { dt: 0, ct: 0 });
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +110,15 @@ const TransactionForm = (props: Props) => {
     );
   };
 
+  const onAddTr = (journal) => {
+    trDocs?.push(journalConfigMaps[journal]?.defaultData)
+    setTrDocs(trDocs)
+  }
+
+  const onRemoveTr = (id) => {
+    setTrDocs(trDocs.filter(tr => tr._id !== id))
+  }
+
   const renderTabContent = () => {
     if (!currentTransaction) {
       return (<Box>
@@ -133,7 +142,7 @@ const TransactionForm = (props: Props) => {
       </Box>);
     }
 
-    const Component = journalComponentMaps[currentTransaction?.journal]?.component;
+    const Component = journalConfigMaps[currentTransaction?.journal]?.component;
     return (
       <Box>
         <Component transactions={[currentTransaction]} />
@@ -177,13 +186,14 @@ const TransactionForm = (props: Props) => {
         </FormWrapper>
 
         <Tabs grayBorder={true}>
-          {(state.transactions || []).map(tr => (
+          {(trDocs || []).map(tr => (
             <TabTitle
               key={tr._id}
               className={currentTransaction?._id === tr._id ? 'active' : ''}
               onClick={() => setCurrentTransaction(tr)}
             >
               {__(tr.journal)} {tr._id}
+              <Icon icon='recycle' onClick={onRemoveTr.bind(tr._id)}></Icon>
             </TabTitle>
           ))}
           <TabTitle>
@@ -202,7 +212,7 @@ const TransactionForm = (props: Props) => {
                   <div >
                     <ul>
                       <strong>Ерөнхий</strong>
-                      <li>
+                      <li onClick={onAddTr.bind('main')}>
                         Ерөнхий журнал
                       </li>
                       <li>
@@ -266,8 +276,8 @@ const TransactionForm = (props: Props) => {
         <ControlWrapper>
           <Indicator>
             {__('You are')} {currentTransaction?._id ? 'editing' : 'creating'} {__('transaction')}.
-            {__('Sum Debit')}: <strong>{state.balance.dt ?? 0}</strong> {__('Sum Credit')}: <strong>{state.balance.ct ?? 0}</strong>
-            {__('Diff')}: <strong>{state.balance.dt ?? 0 - state.balance.ct ?? 0}</strong>
+            {__('Sum Debit')}: <strong>{balance.dt ?? 0}</strong> {__('Sum Credit')}: <strong>{balance.ct ?? 0}</strong>
+            {__('Diff')}: <strong>{balance.dt ?? 0 - balance.ct ?? 0}</strong>
           </Indicator>
           {renderButtons()}
         </ControlWrapper>

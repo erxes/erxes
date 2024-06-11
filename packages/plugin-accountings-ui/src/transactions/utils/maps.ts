@@ -16,7 +16,7 @@ export const commonData = (journal, date?): ITransaction => {
   }
 }
 
-export const journalComponentMaps = {
+export const journalConfigMaps = {
   'main': { component: TrFormMain, title: '', defaultData: { ...commonData('main') }, generateDoc: () => { }, },
   'cash': { component: TrFormCash, title: '', defaultData: { ...commonData('cash') }, generateDoc: () => { }, }
 }
