@@ -1,4 +1,4 @@
-import { IItem, IOptions } from "../../types";
+import { IItem, IOptions , IStage } from "../../types";
 import {
   MoveContainer,
   MoveContainerWidth,
@@ -10,7 +10,6 @@ import {
 } from "../../styles/item";
 
 import BoardSelect from "../../containers/BoardSelect";
-import { IStage } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
