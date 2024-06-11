@@ -6,7 +6,6 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import * as mongoose from 'mongoose';
 import { IKhanbankConfigDocument } from './models/definitions/khanbankConfigs';
-import Khanbank from './khanbank/khanbank';
 
 export interface IModels {
   KhanbankConfigs: IKhanbankConfigModel;
