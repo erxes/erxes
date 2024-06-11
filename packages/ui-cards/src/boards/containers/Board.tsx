@@ -10,19 +10,14 @@ import { gql, useQuery } from "@apollo/client";
 import ChartStack from "./chart/ChartRenderer";
 import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { IDateColumn } from "@erxes/ui/src/types";
 import Pipeline from "./Pipeline";
 import PipelineActivity from "./PipelineActivity";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import TimeItems from "./time/TimeItems";
 import ViewGroupBy from "./ViewGroupBy";
-import { compose } from "lodash.flowright";
 import { queries } from "../graphql";
-import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
-  date?: IDateColumn;
 } & WrapperProps;
 
 type WrapperProps = {
