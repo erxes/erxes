@@ -1,4 +1,3 @@
-import LocationOption from '@erxes/ui-forms/src/settings/properties/components/LocationOption';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
