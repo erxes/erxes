@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { gql, useQuery } from "@apollo/client";
 
-import Alert from "@erxes/ui/src/utils/Alert/index";
 import ChartFormField from "../../components/chart/ChartFormField";
 import { IFieldLogic } from "../../types";
 import { getValue } from "../../utils";
