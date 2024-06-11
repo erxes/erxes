@@ -230,19 +230,21 @@ export const transactionRule = async (
     commitmentInterest: number;
   }
 ) => {
-  result = {
-    payment: 0,
-    loss: 0,
-    interestEve: 0,
-    interestNonce: 0,
-    insurance: 0,
-    debt: 0,
-    surplus: 0,
-    storedInterest: 0,
-    calcInterest: 0,
-    calcedInfo: undefined,
-    commitmentInterest: 0,
-  };
+  if (!result) {
+    result = {
+      payment: 0,
+      loss: 0,
+      interestEve: 0,
+      interestNonce: 0,
+      insurance: 0,
+      debt: 0,
+      surplus: 0,
+      storedInterest: 0,
+      calcInterest: 0,
+      calcedInfo: undefined,
+      commitmentInterest: 0,
+    };
+  }
 
   if (!doc.contractId) {
     return result;
