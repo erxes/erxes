@@ -1,12 +1,12 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
-    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+    filter.searchText = { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] };
   }
 
   if (params.ids) {
@@ -43,7 +43,7 @@ const insuranceTypeQueries = {
       ),
       {
         page: params.page,
-        perPage: params.perPage
+        perPage: params.perPage,
       }
     );
   },
@@ -64,10 +64,10 @@ const insuranceTypeQueries = {
         models.InsuranceTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
-          perPage: params.perPage
+          perPage: params.perPage,
         }
       ),
-      totalCount: await models.InsuranceTypes.find(filter).countDocuments()
+      totalCount: await models.InsuranceTypes.find(filter).countDocuments(),
     };
   },
 
@@ -77,7 +77,7 @@ const insuranceTypeQueries = {
 
   insuranceTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.InsuranceTypes.getInsuranceType({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(insuranceTypeQueries);

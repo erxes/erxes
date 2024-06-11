@@ -1,16 +1,20 @@
-import { IContext } from '../../connectionResolver';
-import { getConfig, sendCoreMessage, sendMessageBroker } from '../../messageBroker';
+import { IContext } from "../../connectionResolver";
 import {
-  SCHEDULE_STATUS
-} from '../../models/definitions/constants';
-import { IContractDocument } from '../../models/definitions/contracts';
-import { IContract } from '../../models/definitions/contracts';
-import { getCalcedAmounts } from '../../models/utils/transactionUtils';
+  getConfig,
+  sendCoreMessage,
+  sendMessageBroker,
+} from "../../messageBroker";
+import { SCHEDULE_STATUS } from "../../models/definitions/constants";
+import {
+  IContractDocument,
+  IContract,
+} from "../../models/definitions/contracts";
+import { getCalcedAmounts } from "../../models/utils/transactionUtils";
 import {
   getDiffDay,
   getFullDate,
-  getNextMonthDay
-} from '../../models/utils/utils';
+  getNextMonthDay,
+} from "../../models/utils/utils";
 
 const Contracts = {
   async contractType(contract: IContract, _, { models }: IContext) {
@@ -22,9 +26,9 @@ const Contracts = {
 
     return sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: contract.relationExpertId },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -33,9 +37,9 @@ const Contracts = {
 
     return sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: contract.leasingExpertId },
-      isRPC: true
+      isRPC: true,
     });
   },
 
@@ -44,39 +48,39 @@ const Contracts = {
 
     return sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: contract.riskExpertId },
-      isRPC: true
+      isRPC: true,
     });
   },
 
   async customers(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== 'customer') return null;
+    if (contract.customerType !== "customer") return null;
 
     const customer = await sendMessageBroker(
       {
         subdomain,
-        action: 'customers.findOne',
+        action: "customers.findOne",
         data: { _id: contract.customerId },
-        isRPC: true
+        isRPC: true,
       },
-      'contacts'
+      "contacts"
     );
 
     return customer;
   },
 
   async companies(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== 'company') return null;
+    if (contract.customerType !== "company") return null;
 
     const company = await sendMessageBroker(
       {
         subdomain,
-        action: 'companies.findOne',
+        action: "companies.findOne",
         data: { _id: contract.customerId },
-        isRPC: true
+        isRPC: true,
       },
-      'contacts'
+      "contacts"
     );
 
     return company;
@@ -95,23 +99,23 @@ const Contracts = {
       }
 
       const insurance = await models.InsuranceTypes.getInsuranceType({
-        _id: data.insuranceTypeId
+        _id: data.insuranceTypeId,
       });
 
       const company = await sendMessageBroker(
         {
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: { _id: insurance.companyId },
-          isRPC: true
+          isRPC: true,
         },
-        'contacts'
+        "contacts"
       );
 
       insurances.push({
-        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+        ...(typeof data.toJSON === "function" ? data.toJSON() : data),
         insurance,
-        company
+        company,
       });
     }
 
@@ -129,21 +133,21 @@ const Contracts = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: 'findOne',
+          action: "findOne",
           data: { _id: data.collateralId },
-          isRPC: true
+          isRPC: true,
         },
-        'products'
+        "products"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
-        _id: data.insuranceTypeId
+        _id: data.insuranceTypeId,
       });
 
       collaterals.push({
-        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+        ...(typeof data.toJSON === "function" ? data.toJSON() : data),
         collateral,
-        insuranceType
+        insuranceType,
       });
     }
 
@@ -153,12 +157,12 @@ const Contracts = {
   async currentSchedule(contract: IContractDocument, _, { models }: IContext) {
     const currentSchedule: any = await models.Schedules.findOne({
       contractId: contract._id,
-      status: { $in: [SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PENDING] }
+      status: { $in: [SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PENDING] },
     }).sort({ payDate: 1 });
 
     if (!currentSchedule) {
       const lastDone: any = await models.Schedules.findOne({
-        contractId: contract._id
+        contractId: contract._id,
       }).sort({ payDate: -1 });
 
       if (!lastDone) {
@@ -186,7 +190,7 @@ const Contracts = {
     currentSchedule.balance = currentSchedule.balance + currentSchedule.payment;
     currentSchedule.remainderTenor = await models.Schedules.find({
       contractId: contract._id,
-      status: SCHEDULE_STATUS.PENDING
+      status: SCHEDULE_STATUS.PENDING,
     }).countDocuments();
 
     return currentSchedule;
@@ -203,7 +207,7 @@ const Contracts = {
   async hasTransaction(contract: IContractDocument, _, { models }: IContext) {
     return (
       (await models.Transactions.countDocuments({
-        contractId: contract._id
+        contractId: contract._id,
       })) > 0
     );
   },
@@ -213,7 +217,7 @@ const Contracts = {
     const expiredSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       scheduleDidStatus: { $ne: SCHEDULE_STATUS.DONE },
-      isDefault: true
+      isDefault: true,
     }).sort({ payDate: 1 });
 
     const paymentDate = getFullDate(expiredSchedule?.payDate as Date);
@@ -228,7 +232,7 @@ const Contracts = {
     const today = getFullDate(new Date());
     const schedules = await models.Schedules.find({
       contractId: contract._id,
-      payDate: { $lte: today }
+      payDate: { $lte: today },
     }).lean();
 
     return schedules.reduce((a, b) => a + (b.didPayment || 0), 0) || 0;
@@ -244,17 +248,22 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      status: SCHEDULE_STATUS.PENDING
+      status: SCHEDULE_STATUS.PENDING,
     })
       .sort({ payDate: 1 })
       .lean();
 
-      const config = await getConfig('loansConfig',subdomain)
+    const config = await getConfig("loansConfig", subdomain);
 
-    const calcedInfo = await getCalcedAmounts(models, subdomain, {
-      contractId: contract._id,
-      payDate: (nextSchedule && nextSchedule.payDate) || today
-    },config);
+    const calcedInfo = await getCalcedAmounts(
+      models,
+      subdomain,
+      {
+        contractId: contract._id,
+        payDate: (nextSchedule && nextSchedule.payDate) || today,
+      },
+      config
+    );
 
     return (
       (calcedInfo.payment || 0) +
@@ -272,7 +281,7 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      status: SCHEDULE_STATUS.PENDING
+      status: SCHEDULE_STATUS.PENDING,
     })
       .sort({ payDate: 1 })
       .lean();
@@ -286,7 +295,7 @@ const Contracts = {
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .limit(10)
@@ -297,7 +306,7 @@ const Contracts = {
 
   async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
     const storedInterests = await models.StoredInterest.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .limit(10)
@@ -307,14 +316,14 @@ const Contracts = {
   },
   async invoices(contract: IContractDocument, {}, { models }: IContext) {
     const invoices = await models.Invoices.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
 
     return invoices;
-  }
+  },
 };
 
 export default Contracts;

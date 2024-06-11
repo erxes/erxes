@@ -1,17 +1,17 @@
 import {
   ICollateralData,
   IContract,
-  IContractDocument
-} from '../../../models/definitions/contracts';
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+  IContractDocument,
+} from "../../../models/definitions/contracts";
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 import {
   sendCardsMessage,
   sendCoreMessage,
-  sendMessageBroker
-} from '../../../messageBroker';
-import { createLog, deleteLog, updateLog } from '../../../logUtils';
-import { putActivityLog } from '@erxes/api-utils/src/logUtils';
+  sendMessageBroker,
+} from "../../../messageBroker";
+import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
 const contractMutations = {
   contractsAdd: async (
@@ -22,10 +22,10 @@ const contractMutations = {
     const contract = await models.Contracts.createContract(doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       newData: doc,
       object: contract,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await createLog(subdomain, user, logData);
@@ -41,27 +41,27 @@ const contractMutations = {
     const validate = await sendMessageBroker(
       {
         subdomain,
-        action: 'clientPortalUsers.validatePassword',
+        action: "clientPortalUsers.validatePassword",
         data: {
           userId: doc.customerId,
           password: doc.secondaryPassword,
-          secondary: true
-        }
+          secondary: true,
+        },
       },
-      'clientportal'
+      "clientportal"
     );
 
-    if (validate?.status === 'error') {
+    if (validate?.status === "error") {
       throw new Error(validate.errorMessage);
     }
 
     const contract = await models.Contracts.createContract(doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       newData: doc,
       object: contract,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await createLog(subdomain, user, logData);
@@ -82,24 +82,24 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
     // action:'edit',data: { ...logData, coc: contract,contentType: `loans:${logData.type}` }}
     await putActivityLog(subdomain, {
-      action: 'putActivityLog',
+      action: "putActivityLog",
       data: {
         ...logData,
         createdBy: user._id,
         coc: contract,
         contentType: `loans:${logData.type}`,
-        contentId: contract._id
-      }
+        contentId: contract._id,
+      },
     });
 
     return updated;
@@ -111,10 +111,10 @@ const contractMutations = {
   ) => {
     const checkOtherDeals = await models.Contracts.countDocuments({
       dealId: doc.dealId,
-      _id: { $ne: _id }
+      _id: { $ne: _id },
     });
 
-    if (!!checkOtherDeals) {
+    if (checkOtherDeals) {
       await models.Contracts.updateMany(
         { dealId: doc.dealId, _id: { $ne: _id } },
         { $set: { dealId: undefined } }
@@ -125,11 +125,11 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -143,16 +143,16 @@ const contractMutations = {
 
   contractsClose: async (_root, doc, { models, user, subdomain }: IContext) => {
     const contract = await models.Contracts.getContract({
-      _id: doc.contractId
+      _id: doc.contractId,
     });
     const updated = await models.Contracts.closeContract(subdomain, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: doc,
       updatedDocument: updated,
-      extraParams: { models }
+      extraParams: { models },
     };
 
     await updateLog(subdomain, user, logData);
@@ -170,16 +170,16 @@ const contractMutations = {
     { models, user, subdomain }: IContext
   ) => {
     const contracts = await models.Contracts.find({
-      _id: { $in: contractIds }
+      _id: { $in: contractIds },
     }).lean();
 
     await models.Contracts.removeContracts(contractIds);
 
     for (const contract of contracts) {
       const logData = {
-        type: 'contract',
+        type: "contract",
         object: contract,
-        extraParams: { models }
+        extraParams: { models },
       };
 
       await deleteLog(subdomain, user, logData);
@@ -198,18 +198,18 @@ const contractMutations = {
     { models, subdomain }: IContext
   ) => {
     const contract = await models.Contracts.getContract({
-      _id: contractId
+      _id: contractId,
     });
 
     const dealIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'contract',
-        relTypes: ['deal'],
-        mainTypeId: contract._id
+        mainType: "contract",
+        relTypes: ["deal"],
+        mainTypeId: contract._id,
       },
-      isRPC: true
+      isRPC: true,
     });
 
     if (!dealIds) {
@@ -218,9 +218,9 @@ const contractMutations = {
 
     const deals = await sendCardsMessage({
       subdomain,
-      action: 'deals.find',
+      action: "deals.find",
       data: { _id: { $in: dealIds } },
-      isRPC: true
+      isRPC: true,
     });
 
     const oldCollateralIds = contract.collateralsData.map(
@@ -240,7 +240,7 @@ const contractMutations = {
             collateralTypeId: data.collateralTypeId,
             percent: 100,
             marginAmount: 0,
-            leaseAmount: 0
+            leaseAmount: 0,
           });
         }
       }
@@ -252,21 +252,21 @@ const contractMutations = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: 'findOne',
+          action: "findOne",
           data: { _id: data.collateralId },
-          isRPC: true
+          isRPC: true,
         },
-        'products'
+        "products"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
-        _id: data.insuranceTypeId
+        _id: data.insuranceTypeId,
       });
 
       collaterals.push({
         ...data,
         collateral,
-        insuranceType
+        insuranceType,
       });
     }
 
@@ -282,7 +282,7 @@ const contractMutations = {
       stoppedDate,
       isStopLoss,
       interestAmount,
-      lossAmount
+      lossAmount,
     }: {
       contractId: string;
       stoppedDate: Date;
@@ -297,7 +297,7 @@ const contractMutations = {
       stoppedDate,
       interestAmount,
       isStopLoss,
-      lossAmount
+      lossAmount,
     });
   },
   interestChange: async (
@@ -306,7 +306,7 @@ const contractMutations = {
       contractId,
       stoppedDate,
       interestAmount,
-      lossAmount
+      lossAmount,
     }: {
       contractId: string;
       stoppedDate: Date;
@@ -320,7 +320,7 @@ const contractMutations = {
       contractId,
       stoppedDate,
       interestAmount,
-      lossAmount
+      lossAmount,
     });
   },
   interestReturn: async (
@@ -328,7 +328,7 @@ const contractMutations = {
     {
       contractId,
       invDate,
-      interestAmount
+      interestAmount,
     }: {
       contractId: string;
       invDate: Date;
@@ -339,15 +339,15 @@ const contractMutations = {
     return await models.InterestCorrection.interestReturn({
       contractId,
       invDate,
-      interestAmount
+      interestAmount,
     });
-  }
+  },
 };
 
-checkPermission(contractMutations, 'contractsAdd', 'contractsAdd');
-checkPermission(contractMutations, 'contractsEdit', 'contractsEdit');
-checkPermission(contractMutations, 'contractsDealEdit', 'contractsDealEdit');
-checkPermission(contractMutations, 'contractsClose', 'contractsClose');
-checkPermission(contractMutations, 'contractsRemove', 'contractsRemove');
+checkPermission(contractMutations, "contractsAdd", "contractsAdd");
+checkPermission(contractMutations, "contractsEdit", "contractsEdit");
+checkPermission(contractMutations, "contractsDealEdit", "contractsDealEdit");
+checkPermission(contractMutations, "contractsClose", "contractsClose");
+checkPermission(contractMutations, "contractsRemove", "contractsRemove");
 
 export default contractMutations;
