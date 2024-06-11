@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { gql, useQuery } from '@apollo/client';
@@ -8,12 +8,7 @@ import Form from '../../components/chart/Form';
 import { mutations, queries } from '../../graphql';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { filterChartTemplates } from '../../utils';
-import { InsightTemplatesListQueryResponse } from '../../types';
-import {
-  IChart,
-  ChartFormMutationResponse,
-  InsightChartTemplatesListQueryResponse,
-  InsightServicesListQueryResponse,
+import { InsightTemplatesListQueryResponse,InsightChartTemplatesListQueryResponse,InsightServicesListQueryResponse,
 } from '../../types';
 
 type Props = {
