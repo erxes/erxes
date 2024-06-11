@@ -1,5 +1,5 @@
-import { GolomtBankAccount } from '../types';
-import { BaseApi } from './base';
+import { GolomtBankAccount } from "../types";
+import { BaseApi } from "./base";
 export class AccountsApi extends BaseApi {
   public params;
 
@@ -16,31 +16,31 @@ export class AccountsApi extends BaseApi {
   async list() {
     try {
       const res = await this.request({
-        method: 'POST',
-        path: 'v1/account/list',
-        type:'ACCTLST',
+        method: "POST",
+        path: "v1/account/list",
+        type: "ACCTLST",
         data: {
-          "registerNo": this.params.registerId
+          registerNo: this.params.registerId,
         },
-        params:{
-          "client_id": this.params.clientId
-        }
+        params: {
+          client_id: this.params.clientId,
+        },
       });
-      const  list =  [
+      const list = [
         {
-          "requestId": "cc65ebc637d04541a7e45d753aaddce2",
-          "accountId": "1605242952",
-          "accountName": "ОЧИР УНДРАА ОМЗ ББСБ",
-          "shortName": "ОЧИР УНДРА",
-          "currency": "USD",
-          "branchId": "160",
-          "isSocialPayConnected": "N",
-          "accountType": {
-            "schemeCode": "CA658",
-            "schemeType": "SBA"
-          }
-        }
-      ]
+          requestId: "cc65ebc637d04541a7e45d753aaddce2",
+          accountId: "1605242952",
+          accountName: "ОЧИР УНДРАА ОМЗ ББСБ",
+          shortName: "ОЧИР УНДРА",
+          currency: "USD",
+          branchId: "160",
+          isSocialPayConnected: "N",
+          accountType: {
+            schemeCode: "CA658",
+            schemeType: "SBA",
+          },
+        },
+      ];
       // const accounts: GolomtBankAccount[] = res.accounts.map(account => {
       //   return {
       //     requestId: account.requestId,
@@ -70,11 +70,19 @@ export class AccountsApi extends BaseApi {
   async get(accountId: string) {
     try {
       const res = await this.request({
-        method: 'GET',
-        path: `accounts/${accountId}/`
+        method: "POST",
+        path: "/v1/account/operative/details",
+        type: "OPERACCTDET",
+        data: {
+          registerNo: this.params.registerId,
+          accountId: this.params.accountId,
+        },
+        params: {
+          client_id: this.params.clientId,
+        },
       });
 
-      return 'res.account;'
+      return res.account;
     } catch (e) {
       console.error(e);
       throw new Error(e.message);
@@ -101,4 +109,3 @@ export class AccountsApi extends BaseApi {
   //   }
   // }
 }
- 

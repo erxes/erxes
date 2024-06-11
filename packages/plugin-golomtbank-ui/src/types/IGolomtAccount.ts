@@ -1,4 +1,4 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IAccountHolder {
   number: string;
@@ -8,20 +8,36 @@ export interface IAccountHolder {
 }
 
 export interface IGolomtBankAccount {
-  requestId: string,
-  accountId: string,
-  accountName: string,
-  shortName: string
-  currency: string
-  branchId: string
-  isSocialPayConnected: string
+  requestId: string;
+  accountId: string;
+  accountName: string;
+  shortName: string;
+  currency: string;
+  branchId: string;
+  isSocialPayConnected: string;
   accountType: {
-    schemeCode: string
-    schemeType: string
-  }
-
+    schemeCode: string;
+    schemeType: string;
+  };
 }
-
+export interface IGolomtBankAccountDetail {
+  requestId: string;
+  accountNumber: string;
+  currency: string;
+  customerName: string;
+  titlePrefix: string;
+  accountName: string;
+  accountShortName: string;
+  freezeStatusCode: string;
+  freezeReasonCode: string;
+  openDate: string;
+  status: string;
+  productName: string;
+  type: string;
+  intRate: string;
+  isRelParty: string;
+  branchId: string;
+}
 export type AccountsListQueryResponse = {
   golomtBankAccounts: IGolomtBankAccount[];
 
@@ -30,7 +46,7 @@ export type AccountsListQueryResponse = {
 } & QueryResponse;
 
 export type AccountDetailQueryResponse = {
-  golomtBankAccountDetail: IGolomtBankAccount;
+  golomtBankAccountDetail: IGolomtBankAccountDetail;
 
   loading: boolean;
   refetch: () => void;

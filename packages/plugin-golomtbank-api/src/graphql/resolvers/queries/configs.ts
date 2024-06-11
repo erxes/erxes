@@ -8,10 +8,10 @@ const queries = {
     { page, perPage }: { page: number; perPage: number },
     { models }: IContext
   ) {
-    const totalCount = await models.GolomtBankConfigs.find({});
+    const totalCount = await models.GolomtBankConfigs.find({}).countDocuments();
 
     return {
-      list: paginate(
+      list: await paginate(
         models.GolomtBankConfigs.find({}).sort({ createdAt: -1 }).lean(),
         {
           page: page || 1,
