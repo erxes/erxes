@@ -1,12 +1,12 @@
-import { Bulk } from '@erxes/ui/src';
-import { router } from '@erxes/ui/src/utils';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import LotteryDetail from '../../components/award/detail';
-import { queries } from '../../../../configs/voucherCampaign/graphql';
+import { Bulk } from "@erxes/ui/src";
+import { router } from "@erxes/ui/src/utils";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import LotteryDetail from "../../components/award/detail";
+import { queries } from "../../../../configs/voucherCampaign/graphql";
 
 type Props = { queryParams: any };
 
@@ -15,19 +15,15 @@ type FinalProps = {
   voucherCampaigns: any;
 };
 class AwardDetail extends React.Component<FinalProps, Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { voucherCampaigns, lotteryCampaign } = this.props;
     const updatedProps = {
       loading: voucherCampaigns.loading,
       data: voucherCampaigns.voucherCampaigns,
-      lotteryCampaign: lotteryCampaign
+      lotteryCampaign: lotteryCampaign,
     };
 
-    const content = props => {
+    const content = (props) => {
       return <LotteryDetail {...updatedProps} {...props} />;
     };
 
@@ -46,17 +42,17 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 export default withProps<Props>(
   compose(
     graphql<{ queryParams: [string] }>(gql(queries.voucherCampaigns), {
-      name: 'voucherCampaigns',
+      name: "voucherCampaigns",
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     })
   )(AwardDetail)
 );

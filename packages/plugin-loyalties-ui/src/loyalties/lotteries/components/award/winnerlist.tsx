@@ -1,16 +1,12 @@
-import { Button, Table } from '@erxes/ui/src';
-import React from 'react';
-import { TableContainer } from '../../../../styles';
-import { ILottery } from '../../types';
+import { Button, Table } from "@erxes/ui/src";
+import React from "react";
+import { TableContainer } from "../../../../styles";
+import { ILottery } from "../../types";
 interface IProps {
   lists: ILottery[];
 }
 
 class WinnersAwardList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { lists } = this.props;
 
