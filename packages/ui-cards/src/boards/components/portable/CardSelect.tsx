@@ -22,7 +22,6 @@ type Props = {
   placeholder: string;
   options: [{ label: string; value: string }];
   onChange: (option: { cardId?: string; name?: string }) => void;
-  type: string;
   additionalValue?: string;
 };
 
