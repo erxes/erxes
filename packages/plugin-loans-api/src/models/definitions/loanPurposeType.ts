@@ -1,5 +1,5 @@
-import { Document, Schema, HydratedDocument } from 'mongoose';
-import { schemaHooksWrapper, field } from './utils';
+import { Document, Schema, HydratedDocument } from "mongoose";
+import { field } from "./utils";
 
 export interface IPurposeType {
   _id: string;
@@ -10,5 +10,5 @@ export type IPurposeTypeDocument = HydratedDocument<IPurposeType>;
 
 export const purposeTypeSchema = new Schema<IPurposeType>({
   _id: field({ pkey: true }),
-  name: field({ type: String })
+  name: field({ type: String }),
 });
