@@ -1,4 +1,3 @@
-import { putCreateLog as commonPutCreateLog } from '@erxes/api-utils/src/logUtils';
 import { IModels } from './connectionResolver';
 
 const gatherDescriptions = (models, subdomain, logDoc) => {
