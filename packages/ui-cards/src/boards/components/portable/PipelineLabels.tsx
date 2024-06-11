@@ -3,9 +3,8 @@ import { IField, IOption } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
 import Select, { OnChangeValue } from "react-select";
-import { gql } from "@apollo/client";
+import { gql , useQuery } from "@apollo/client";
 import { queries } from "../../graphql";
-import { useQuery } from "@apollo/client";
 
 type Props = {
   pipelineId: string;
