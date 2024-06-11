@@ -1,17 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { gql, useQuery, useLazyQuery, useMutation } from '@apollo/client';
-
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { router } from '@erxes/ui/src/utils';
+import { gql, useQuery } from '@apollo/client';
 
 import ChartTemplates from '../../components/template/Chart';
-import ChartLoader from '../../components/template/ChartLoader';
-import { queries, mutations } from '../../graphql';
+import { queries } from '../../graphql';
 import {
-  IDashboard,
-  IReport,
   IReportTemplate,
   InsightChartTemplatesListQueryResponse,
 } from '../../types';
