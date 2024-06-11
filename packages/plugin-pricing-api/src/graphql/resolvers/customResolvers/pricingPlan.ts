@@ -1,3 +1,4 @@
+import 'lodash';
 import { IContext } from '../../../connectionResolver';
 import {
   sendProductsMessage,
