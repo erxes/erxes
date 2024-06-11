@@ -47,9 +47,10 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-export const renderKeyPad = (handNumPad) => {
+
+export const renderKeyPad = (handNumPad, isTransparent?: boolean) => {
   return (
-    <Keypad $transparent={true}>
+    <Keypad $transparent={isTransparent}>
       {numbers.map((n) => (
         <div className="number" key={n} onClick={() => handNumPad(n)}>
           {n}

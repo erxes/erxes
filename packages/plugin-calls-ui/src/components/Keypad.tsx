@@ -10,6 +10,7 @@ import {
   IncomingContent,
   InputBar,
   KeyPadContainer,
+  KeyPadFooter,
   KeypadHeader,
   NameCardContainer,
   NumberInput,
@@ -33,6 +34,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   calculateTimeElapsed,
   callActions,
+  endCallOption,
   formatPhone,
   getSpentTime,
   renderKeyPad,
@@ -88,6 +90,7 @@ const KeyPad = (props: Props, context) => {
 
   const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber || "");
+  const [code, setCode] = useState("0");
   const [dialCode, setDialCode] = useState("");
   // const [ringingSound, setRingingSound] = useState(false);
 
@@ -204,6 +207,13 @@ const KeyPad = (props: Props, context) => {
 
   const onClickKeyPad = () => {
     setShowKeyPad(!showKeyPad);
+  };
+
+  const onChangeCode = (val) => {
+    const { sendDtmf } = context;
+
+    setCode(val);
+    sendDtmf(val);
   };
 
   const handleCall = () => {
@@ -399,7 +409,26 @@ const KeyPad = (props: Props, context) => {
   };
 
   const renderKeyPadView = () => {
-    return <KeyPadContainer>{renderKeyPad(handNumPad)}</KeyPadContainer>;
+    return (
+      <KeyPadContainer>
+        <InputBar type="keypad">
+          <input
+            placeholder={__("0")}
+            name="searchValue"
+            value={code}
+            onKeyDown={handleKeyDown}
+            ref={inputRef}
+            autoComplete="off"
+            onChange={(e) => onChangeCode(e.target.value)}
+            type="number"
+          />
+        </InputBar>
+        {renderKeyPad(handNumPad)}
+        <KeyPadFooter>
+          {endCallOption(handleCallStop, onClickKeyPad)}
+        </KeyPadFooter>
+      </KeyPadContainer>
+    );
   };
 
   const renderCallerInfo = () => {

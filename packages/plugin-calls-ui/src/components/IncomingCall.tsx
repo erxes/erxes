@@ -86,7 +86,7 @@ const IncomingCall = (props: Props, context) => {
     primaryPhone ? true : false
   );
   const [showKeyPad, setShowKeyPad] = useState(false);
-  const [number, setNumber] = useState(phoneNumber || "");
+  const [code, setCode] = useState("0");
   const [selectFocus, setSelectFocus] = useState(false);
   const [dialCode, setDialCode] = useState("");
   const [timeSpent, setTimeSpent] = useState(0);
@@ -147,6 +147,13 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
+  const onChangeCode = (val) => {
+    const { sendDtmf } = context;
+
+    setCode(val);
+    sendDtmf(val);
+  };
+
   const onDeclineCall = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -183,18 +190,18 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const handNumPad = (e) => {
-    let num = number;
+    let num = code;
     let dialNumber = dialCode;
 
     setSelectFocus(!selectFocus);
 
     if (e === "delete") {
-      num = number.slice(0, -1);
+      num = code.slice(0, -1);
       dialNumber = dialCode.slice(0, -1);
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         setDialCode(dialNumber);
       } else {
-        setNumber(num);
+        setCode(num);
       }
     } else {
       // notfy by sound
@@ -211,7 +218,7 @@ const IncomingCall = (props: Props, context) => {
           setDialCode(dialNumber);
         }
       } else {
-        setNumber(num);
+        setCode(num);
       }
     }
   };
@@ -227,17 +234,17 @@ const IncomingCall = (props: Props, context) => {
       <KeyPadContainer>
         <InputBar $transparent={true} type="keypad">
           <input
-            placeholder={__("Enter Phone Number")}
+            placeholder={__("0")}
             name="searchValue"
-            value={number}
+            value={code}
             // onKeyDown={handleKeyDown}
             // ref={inputRef}
             autoComplete="off"
-            onChange={(e) => setNumber(e.target.value)}
+            onChange={(e) => onChangeCode(e.target.value)}
             type="number"
           />
         </InputBar>
-        {renderKeyPad(handNumPad)}
+        {renderKeyPad(handNumPad, true)}
         <KeyPadFooter>{endCallOption(endCall, onClickKeyPad)}</KeyPadFooter>
       </KeyPadContainer>
     );

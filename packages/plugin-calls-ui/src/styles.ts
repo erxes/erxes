@@ -294,7 +294,7 @@ export const KeyPadFooter = styled.div`
   }
 `;
 
-export const Keypad = styledTS<{$transparent?: true}>(styled.div)`
+export const Keypad = styledTS<{$transparent?: boolean}>(styled.div)`
   gap: 5px;
   display: flex;
   flex-wrap: wrap;
