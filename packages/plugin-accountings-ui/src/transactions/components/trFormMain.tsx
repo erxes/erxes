@@ -11,6 +11,7 @@ import { IQueryParams } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 import { ITransaction } from '../types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 
 type Props = {
   transactions?: ITransaction[];
@@ -23,7 +24,13 @@ const TrFormMain = (props: Props) => {
       <FormColumn>
         <FormGroup>
           <ControlLabel required={true}>{__('MainForm')}</ControlLabel>
+          <SelectAccount
+            multi={false}
+            label='Account'
+            name='account'
+            onSelect={(accountId) => { }}
 
+          ></SelectAccount>
         </FormGroup>
       </FormColumn>
     </FormWrapper>

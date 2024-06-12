@@ -53,6 +53,7 @@ const TransactionForm = (props: Props) => {
     transactions,
     defaultJournal,
     loading,
+
     save,
   } = props;
 
@@ -60,7 +61,7 @@ const TransactionForm = (props: Props) => {
     firstTransaction: transactions?.find(tr => tr._id === tr.parentId) as ITransaction,
   });
 
-  const [trDocs, setTrDocs] = useState<ITransaction[]>(transactions || [journalConfigMaps[defaultJournal || '']?.defaultData || {}] || []);
+  const [trDocs, setTrDocs] = useState<ITransaction[]>(transactions || defaultJournal && [journalConfigMaps[defaultJournal || '']?.defaultData()] || []);
   const [currentTransaction, setCurrentTransaction] = useState(transactions && (transactions.find(tr => tr._id === queryParams.trId) || transactions[0]));
   const [balance, setBalance] = useState((transactions || []).reduce((balance, tr) => {
     balance.dt += tr.sumDt
@@ -111,12 +112,18 @@ const TransactionForm = (props: Props) => {
   };
 
   const onAddTr = (journal) => {
-    trDocs?.push(journalConfigMaps[journal]?.defaultData)
+    const trData = journalConfigMaps[journal]?.defaultData()
+    trDocs?.push(trData)
+    console.log(trDocs)
     setTrDocs(trDocs)
+    setCurrentTransaction(trData)
   }
 
   const onRemoveTr = (id) => {
     setTrDocs(trDocs.filter(tr => tr._id !== id))
+    if (currentTransaction?._id === id) {
+      setCurrentTransaction(trDocs[0])
+    }
   }
 
   const renderTabContent = () => {
@@ -192,8 +199,8 @@ const TransactionForm = (props: Props) => {
               className={currentTransaction?._id === tr._id ? 'active' : ''}
               onClick={() => setCurrentTransaction(tr)}
             >
-              {__(tr.journal)} {tr._id}
-              <Icon icon='recycle' onClick={onRemoveTr.bind(tr._id)}></Icon>
+              {__(tr.journal)}
+              <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}></Icon>
             </TabTitle>
           ))}
           <TabTitle>
@@ -212,7 +219,7 @@ const TransactionForm = (props: Props) => {
                   <div >
                     <ul>
                       <strong>Ерөнхий</strong>
-                      <li onClick={onAddTr.bind('main')}>
+                      <li onClick={onAddTr.bind(this, 'main')}>
                         Ерөнхий журнал
                       </li>
                       <li>
@@ -224,7 +231,7 @@ const TransactionForm = (props: Props) => {
                     </ul>
                     <ul>
                       <strong>Мөнгөн хөрөнгө</strong>
-                      <li>
+                      <li onClick={onAddTr.bind(this, 'cash')}>
                         Касс
                       </li>
                       <li>
