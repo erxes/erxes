@@ -149,6 +149,8 @@ const ConfirmDialog = ({
         ),
       });
     }
+
+    invokeProceed();
   }, [confirm, invokeProceed, options]);
 
   const handleKeydown = useCallback(

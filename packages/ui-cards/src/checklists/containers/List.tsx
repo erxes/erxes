@@ -20,6 +20,7 @@ import {
 type Props = {
   listId: string;
   stageId: string;
+  refetch?: any;
   addItem: (doc: IItemParams, callback: () => void) => void;
 };
 
@@ -57,13 +58,14 @@ function ListContainer(props: FinalProps) {
   }
 
   function remove(checklistId: string) {
-    const { removeMutation } = props;
+    const { removeMutation, refetch } = props;
 
     confirm().then(() => {
       removeMutation({ variables: { _id: checklistId } })
         .then(() => {
           Alert.success('You successfully deleted a checklist');
           localStorage.removeItem(checklistId);
+          refetch && refetch();
         })
         .catch(e => {
           Alert.error(e.message);

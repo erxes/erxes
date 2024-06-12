@@ -89,7 +89,7 @@ class FormComponent extends React.Component<IProps, State> {
     }
   };
 
-  onChangeColorCode = (e: any) => {console.log('e', e)
+  onChangeColorCode = (e: any) => {
     const { label } = this.state;
 
     this.setState({ label: {...label, colorCode: e.hex} });
