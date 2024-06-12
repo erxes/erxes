@@ -48,7 +48,7 @@ type Props = {
   boardText?: string;
   pipelineText?: string;
   options: IOptions;
-  viewType: string;
+  viewType?: string;
 };
 
 type State = {
@@ -282,7 +282,7 @@ class MainActionBar extends React.Component<Props, State> {
           <div className="relative">
             <Listbox.Button>
               <Button btnStyle="primary" icon="list-ui-alt">
-                {viewType.charAt(0).toUpperCase() + viewType.slice(1)}
+                {(viewType || "").charAt(0).toUpperCase() + (viewType || "").slice(1)}
                 <Icon icon="angle-down" />
               </Button>
             </Listbox.Button>
