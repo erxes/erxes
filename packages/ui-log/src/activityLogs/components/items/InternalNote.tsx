@@ -18,7 +18,6 @@ import { urlify } from '@erxes/ui/src/utils/urlParser';
 import xss from 'xss';
 
 type Props = {
-  activity: any;
   edit: (variables, callback: () => void) => void;
   remove: () => void;
   internalNote: IInternalNote;
