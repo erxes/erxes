@@ -76,8 +76,6 @@ class PropertyForm extends React.Component<Props, State> {
     ) {
       return this.renderPropertyComponent();
     }
-
-    return;
   };
 
   renderSelect(
