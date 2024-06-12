@@ -165,8 +165,7 @@ export const checkCondition = async (
         })
       ) {
         segmentRes = true;
-        continue;
-      }
+        
     }
   }
 
