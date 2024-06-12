@@ -66,7 +66,7 @@ const Attachments: React.FC<AttachmentsProps> = ({
       mimeType = "",
       filename = "",
     } = attachment;
-    const type = mimeType ? mimeType : content_type;
+    const type = mimeType || content_type;
 
     return (
       <AttachmentItem key={key}>
