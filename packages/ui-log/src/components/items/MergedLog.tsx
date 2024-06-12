@@ -54,7 +54,6 @@ class MergedLog extends React.Component<IActivityLogItemProps> {
     const { createdAt } = this.props.activity;
 
     return (
-      <>
         <FlexCenterContent>
           <MergedContacts>{this.renderContent()}</MergedContacts>
           <Tip text={dayjs(createdAt).format('llll')}>
@@ -63,7 +62,6 @@ class MergedLog extends React.Component<IActivityLogItemProps> {
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-      </>
     );
   }
 }
