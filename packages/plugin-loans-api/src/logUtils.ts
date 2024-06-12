@@ -62,7 +62,7 @@ export async function createLog(subdomain, user, logData) {
     type: `loans:${logData.type}`,
     activityType: `loans:${logData.type}`,
     contentType: `loans:contract`,
-    contentId: logData.contractId,
+    contentId: logData.object?._id,
   });
 
   await putCreateLog(

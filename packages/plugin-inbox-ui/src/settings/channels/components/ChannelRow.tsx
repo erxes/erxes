@@ -33,9 +33,7 @@ class ChannelRow extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
+        <Icon icon="edit" />
       </Button>
     );
 
@@ -44,7 +42,12 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
+      <ModalTrigger
+        title="Edit"
+        tipText="Edit"
+        trigger={editTrigger}
+        content={content}
+      />
     );
   };
 
