@@ -1,5 +1,4 @@
 import { ICustomField } from '@erxes/api-utils/src/types';
-import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import { sendFormsMessage } from './messageBroker';
 import { IProduct, IProductCategory } from './models/definitions/products';
