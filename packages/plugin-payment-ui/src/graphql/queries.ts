@@ -132,6 +132,12 @@ const paymentConfigsTotalCount = gql`
   }
 `;
 
+const districts = gql`
+  query qpayGetDistricts($cityCode: String!) {
+    qpayGetDistricts(cityCode: $cityCode)
+  }
+`;
+
 export default {
   payments,
   paymentsTotalCountQuery,
@@ -141,5 +147,7 @@ export default {
   invoicesTotalCount,
 
   paymentConfigsQuery,
-  paymentConfigsTotalCount
+  paymentConfigsTotalCount,
+
+  districts
 };

@@ -1,6 +1,7 @@
 import { IModels } from "../../connectionResolver";
 import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_CLOSED, PROBABILITY_TASK, STATUS_TYPES, USER_TYPES } from "../constants";
 import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getStageIds } from "../utils";
+const util = require('util')
 
 const DIMENSION_OPTIONS = [
     { label: 'Team members', value: 'teamMember' },
@@ -352,7 +353,7 @@ export const taskCharts = [
             } else {
                 const pipeline = buildPipeline(filter, "task", matchFilter)
 
-                tasks = await models.Deals.aggregate(pipeline)
+                tasks = await models.Tasks.aggregate(pipeline)
             }
 
             const title = 'Total Tasks Count';

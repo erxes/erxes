@@ -133,8 +133,8 @@ const callHistoryAdd = `
 `;
 
 const callHistoryEdit = `
-  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String) {
-    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId) 
+  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $transferedCallStatus: String) {
+    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, transferedCallStatus: $transferedCallStatus) 
 }`;
 
 const callHistoryEditStatus = ` 

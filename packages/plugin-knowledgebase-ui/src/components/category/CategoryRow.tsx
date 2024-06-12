@@ -37,9 +37,7 @@ class CategoryRow extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
+        <Icon icon="edit" />
       </Button>
     );
 
@@ -53,6 +51,7 @@ class CategoryRow extends React.Component<Props> {
         title="Edit"
         trigger={editTrigger}
         content={content}
+        tipText="Edit"
       />
     );
   };

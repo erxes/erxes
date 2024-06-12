@@ -52,7 +52,7 @@ const command = async () => {
     $set: {
       value: {
         ...ebarimtConfig.value || {},
-        ebarimtUrl: 'https://ebarimt3.erkhet.biz/',
+        ebarimtUrl: 'https://ebarimt3.erkhet.biz',
         checkTaxpayerUrl: 'https://ebarimt-bridge.erkhet.biz'
       }
     }
@@ -110,7 +110,7 @@ const command = async () => {
         receipts: [{
           _id: nanoid(),
           id: doc.billId,
-          totalAmount: doc.totalAmount,
+          totalAmount: Number(doc.amount),
           totalVAT: doc.vat,
           totalCityTax: doc.cityTax,
           taxType: taxTypes[doc.taxType],
@@ -130,9 +130,9 @@ const command = async () => {
         }],
         id: doc.billId,
         inactiveId: doc.returnBillId,
-        totalAmount: doc.totalAmount,
-        totalVAT: doc.vat,
-        totalCityTax: doc.cityTax,
+        totalAmount: Number(doc.amount),
+        totalVAT: Number(doc.vat),
+        totalCityTax: Number(doc.cityTax),
         type: doc.billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT',
         easy: false,
         districtCode: rdMap[doc.registerNo]?.districtCode,
