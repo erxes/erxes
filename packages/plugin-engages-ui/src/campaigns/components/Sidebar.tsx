@@ -7,12 +7,11 @@ import { __, router } from "coreui/utils";
 
 import CountsByTag from "@erxes/ui/src/components/CountsByTag";
 import { ITag } from "@erxes/ui-tags/src/types";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import React from "react";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { statusFilters } from "@erxes/ui-engage/src/constants";
-import { useLocation } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
