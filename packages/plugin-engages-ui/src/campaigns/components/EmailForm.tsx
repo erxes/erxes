@@ -201,7 +201,7 @@ class EmailForm extends React.Component<Props, State> {
             defaultValue={testEmail}
           />
           <Button
-            disabled={testEmail ? false : true}
+            disabled={testEmail}
             btnStyle="primary"
             icon="send"
             onClick={sendAsTest}
