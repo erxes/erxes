@@ -105,7 +105,6 @@ class EventForm extends React.Component<Props, State> {
         </>
       );
     }
-    return;
   };
 
   isChecked = (attributeName) => {
