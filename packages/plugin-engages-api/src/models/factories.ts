@@ -20,18 +20,18 @@ export const telnyxWebhookDataFactory = (params: ITelnyxWebhookData) => ({
       completed_at: new Date().toISOString(),
       direction: faker.random.word(),
       encoding: faker.random.word(),
-      from: params.from || faker.phone.phoneNumber(),
-      id: params.telnyxId || faker.random.uuid(),
+      from: params.from ?? faker.phone.phoneNumber(),
+      id: params.telnyxId ?? faker.random.uuid(),
       messaging_profile_id: faker.random.uuid(),
       organization_id: faker.random.uuid(),
       parts: faker.random.number(),
       received_at: new Date().toISOString(),
       record_type: faker.random.word(),
       sent_at: new Date().toISOString(),
-      text: params.text || faker.random.word(),
+      text: params.text ?? faker.random.word(),
       to: [
         {
-          phone_number: params.to || faker.phone.phoneNumber(),
+          phone_number: params.to ?? faker.phone.phoneNumber(),
           status: faker.random.word()
         }
       ],
@@ -49,10 +49,10 @@ export const telnyxWebhookDataFactory = (params: ITelnyxWebhookData) => ({
 
 export const smsRequestFactory = async (models: IModels, params: ISmsRequest) => {
   const smsRequest = new models.SmsRequests({
-    engageMessageId: params.engageMessageId || faker.random.uuid(),
+    engageMessageId: params.engageMessageId ?? faker.random.uuid(),
     to: params.to || faker.phone.phoneNumber(),
     requestData: params.requestData || '{}',
-    telnyxId: params.telnyxId || faker.random.uuid()
+    telnyxId: params.telnyxId ?? faker.random.uuid()
   });
 
   return smsRequest.save();
