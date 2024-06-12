@@ -10,8 +10,6 @@ import dayjs from 'dayjs';
 export type IActivityListProps = {
   activities: IActivityLog[];
   user: IUser;
-  target?: string;
-  type: string;
   activityRenderItem?: (
     activity: IActivityLog,
     currentUser?: IUser
