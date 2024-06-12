@@ -192,7 +192,7 @@ const Tagger: React.FC<TaggerProps> = (props) => {
     className,
     links,
     selectable: true,
-    treeView: disableTreeView ? false : true,
+    treeView: !disableTreeView,
     items: JSON.parse(JSON.stringify(state.tagsForList)),
     isIndented: false,
     singleSelect,
