@@ -211,7 +211,6 @@ const checkSyncedMutations = {
     };
 
     const configs = await models.Configs.getConfig("ebarimtConfig", {});
-    const moveConfigs = await models.Configs.getConfig("stageInMoveConfig", {});
     const mainConfig = await models.Configs.getConfig("ERKHET", {});
 
     const deals = await sendCardsMessage({

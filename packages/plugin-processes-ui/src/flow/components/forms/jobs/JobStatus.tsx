@@ -55,14 +55,17 @@ class JobStatus extends React.Component<Props, State> {
       : [];
 
     return (
-      (products || []).filter((p) => p.product && p.product._id) || []
+    (products || []).filter((p) => p.product?._id) || []
     ).map((product) => {
       if (!product.product) {
         return <li>Unknown product</li>;
       }
 
       const productId = product.product._id;
-      const name = `${product.product.code} - ${product.product.name}` || "";
+      const name = (product.product.code && product.product.name) 
+            ? `${product.product.code} - ${product.product.name}` 
+            : "";
+
 
       if (matchProducts.length && !matchProductIds.includes(productId)) {
         return (
@@ -195,8 +198,8 @@ class JobStatus extends React.Component<Props, State> {
       return <>Not found active job</>;
     }
 
-    const activeFlowJobId =
-      activeFlowJob && activeFlowJob.id ? activeFlowJob.id : "";
+    const activeFlowJobId = activeFlowJob?.id || "";
+
     const beforeFlowJobs = flowJobs.filter((e) =>
       (e.nextJobIds || []).includes(activeFlowJobId)
     );

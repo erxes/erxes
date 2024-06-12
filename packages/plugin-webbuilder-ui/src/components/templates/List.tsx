@@ -40,7 +40,6 @@ function List(props: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [name, setName] = useState("");
   const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
     undefined
   );

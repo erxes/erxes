@@ -1,7 +1,6 @@
 import { getEnv } from "@erxes/api-utils/src";
 import {
   Conversations,
-  IConversation,
   IConversationDocument,
   ConversationMessages,
 } from "../models";

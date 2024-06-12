@@ -38,7 +38,7 @@ const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
   const type = activity.contentType.split(":")[1];
   const tagIds = activity.content ? activity.content.tagIds : [];
 
-  if ((action && action) || type === "tagged") {
+  if (action || type === "tagged"){
     return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
   } else {
     return <div />;

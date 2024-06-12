@@ -1,4 +1,4 @@
-import { Document, Schema, HydratedDocument } from 'mongoose';
+import { Schema, HydratedDocument } from 'mongoose';
 import { field } from './utils';
 
 export interface IPurpose {

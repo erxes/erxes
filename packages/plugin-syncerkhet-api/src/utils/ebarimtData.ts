@@ -73,7 +73,8 @@ export const getPostData = async (subdomain, config, deal, dateType = "") => {
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || "";
+      customerCode = customers.find((c) => c?.code)?.code || "";
+
     }
   }
 
@@ -333,7 +334,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = "") => {
         isRPC: true,
         defaultValue: [],
       });
-      customerCode = (customers.find((c) => c.code) || {}).code || "";
+      customerCode = customers.find((c) => c?.code)?.code || "";
     }
   }
 

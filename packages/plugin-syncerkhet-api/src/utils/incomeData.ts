@@ -67,7 +67,8 @@ export const getIncomeData = async (
         isRPC: true,
         defaultValue: [],
       });
-      customerCode = (customers.find((c) => c.code) || {}).code || "";
+      customerCode = customers.find(c => c?.code)?.code || "";
+
     }
   }
 
