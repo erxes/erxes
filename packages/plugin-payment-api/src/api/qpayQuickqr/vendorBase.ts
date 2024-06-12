@@ -13,7 +13,7 @@ export class VendorBaseAPI {
     let username = process.env.QUICK_QR_USERNAME || '';
     let password = process.env.QUICK_QR_PASSWORD || '';
 
-    if (config.mccCode !== '0000') {
+    if (config.isFlat) {
       username = process.env.FLAT_QUICK_QR_USERNAME || '';
       password = process.env.FLAT_QUICK_QR_PASSWORD || '';
     }
@@ -138,7 +138,7 @@ export class VendorBaseAPI {
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
       ).then((r) => r.json());
-
+      console.log(response);
       return response;
     } catch (e) {
       if (e.message === 'UnauthorizedError') {

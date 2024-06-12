@@ -1,5 +1,10 @@
 import { Counts, QueryResponse } from '@erxes/ui/src/types';
 
+export type District = {
+  name: string;
+  code: string;
+};
+
 export interface IPayment {
   name: string;
   kind: string;
