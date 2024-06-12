@@ -1,4 +1,4 @@
-import { Alert, getEnv } from "@erxes/ui/src/utils";
+import { Alert, getEnv, __, cleanIntegrationKind } from "@erxes/ui/src/utils";
 import {
   IIntegration,
   IntegrationMutationVariables,
@@ -21,8 +21,6 @@ import React from "react";
 import RefreshPermissionForm from "../facebook/RefreshPermission";
 import Tip from "@erxes/ui/src/components/Tip";
 import WithPermission from "coreui/withPermission";
-import { __ } from "@erxes/ui/src/utils";
-import { cleanIntegrationKind } from "@erxes/ui/src/utils";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import { queries } from "../../graphql/index";
