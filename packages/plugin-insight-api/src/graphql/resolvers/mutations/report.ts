@@ -80,12 +80,14 @@ const reportsMutations = {
         });
     },
     async reportRemove(_root, _id: string, { models }: IContext) {
-        await models.Charts.remove({ contentId: _id });
+        await models.Charts.deleteMany({ contentId: _id });
         return models.Reports.removeReport(_id);
     },
     async reportRemoveMany(_root, { ids }, { models }: IContext) {
-        await models.Charts.remove({ contentId: { $in: ids } });
-        return models.Reports.remove({ _id: { $in: ids } });
+        await models.Charts.deleteMany({ contentId: { $in: ids } });
+        const reports = await models.Reports.find({ _id: { $in: ids } });
+        await models.Reports.deleteMany({ _id: { $in: ids } });
+        return reports;
     },
 
     async reportDuplicate(_root, _id: string, { models, user }: IContext) {
@@ -94,9 +96,10 @@ const reportsMutations = {
             throw new Error('Report not found');
         }
 
+        const {_id: _, ...dup} = report.toObject();
+
         const duplicatedReport = await models.Reports.createReport({
-            ...report.toObject(),
-            _id: undefined,
+            ...dup,
             name: `${report.name} copied`,
             createdBy: user._id,
             createdAt: new Date(),

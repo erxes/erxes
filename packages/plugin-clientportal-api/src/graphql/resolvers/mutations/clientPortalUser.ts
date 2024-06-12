@@ -469,7 +469,7 @@ const clientPortalUserMutations = {
   /*
    * Change user password
    */
-  clientPortalUserChangePassword(
+  async clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
     { cpUser, models }: IContext
@@ -483,7 +483,7 @@ const clientPortalUserMutations = {
   /*
    * Change user password
    */
-  clientPortalResetPasswordWithCode(
+  async clientPortalResetPasswordWithCode(
     _root,
     args: {
       phone: string;
@@ -496,7 +496,7 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.changePasswordWithCode(args);
   },
 
-  clientPortalResetPassword(
+  async clientPortalResetPassword(
     _root,
     args: { token: string; newPassword: string },
     { models }: IContext
@@ -896,7 +896,7 @@ const clientPortalUserMutations = {
         cpUser.twoFactorDevices || [];
       if (!twoFactorDevices.includes(args.twoFactor)) {
         twoFactorDevices.push(args.twoFactor);
-        await cpUser.update({ $set: { twoFactorDevices } });
+        await cpUser.updateOne({ $set: { twoFactorDevices } });
       }
       return tokenHandler(
         cpUser,
@@ -1337,7 +1337,7 @@ const clientPortalUserMutations = {
         _id: cpUser.clientPortalId,
       }).lean();
 
-      if (cp || cp.kind === 'vendor') {
+      if (cp?.kind === 'vendor') {
         await models.Companies.createOrUpdateCompany({
           erxesCompanyId,
           clientPortalId: cp._id,
@@ -1369,7 +1369,7 @@ const clientPortalUserMutations = {
       }
     }
 
-    await models.ClientPortalUsers.update({ _id }, { $set: doc });
+    await models.ClientPortalUsers.updateOne({ _id }, { $set: doc });
 
     return models.ClientPortalUsers.findOne({ _id });
   },

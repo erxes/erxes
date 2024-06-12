@@ -82,8 +82,8 @@ export const loadPosClass = (models: IModels, _subdomain) => {
         throw new Error('This pos used in orders');
       }
 
-      await models.ProductGroups.remove({ posId: pos._id });
-      await models.PosSlots.remove({ posId: pos._id });
+      await models.ProductGroups.deleteMany({ posId: pos._id });
+      await models.PosSlots.deleteMany({ posId: pos._id });
 
       await models.Pos.updateOne({ _id }, { $set: { status: 'deleted' } });
 

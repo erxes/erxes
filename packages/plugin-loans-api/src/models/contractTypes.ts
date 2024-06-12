@@ -5,15 +5,13 @@ import {
 } from './definitions/contractTypes';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
+import { FilterQuery } from 'mongoose';
 
 export const loadContractTypeClass = (models: IModels) => {
   class ContractType {
     /**
-     *
      * Get ContractType
      */
-
     public static async getContractType(
       selector: FilterQuery<IContractTypeDocument>
     ) {
@@ -43,17 +41,24 @@ export const loadContractTypeClass = (models: IModels) => {
      */
     public static async updateContractType(_id, doc) {
       await models.ContractTypes.updateOne({ _id }, { $set: doc });
-
       return models.ContractTypes.findOne({ _id });
     }
 
     /**
      * Remove ContractType
      */
-    public static async removeContractTypes(_ids) {
-      // await models.ContractTypes.getContractTypeCatogery(models, { _id });
-      // TODO: check collateralsData
-      return models.ContractTypes.deleteMany({ _id: { $in: _ids } });
+    public static async removeContractTypes(_ids: string[]) {
+      let deleteContractTypes: string[] = [];
+      for await (let id of _ids) {
+        const contract = await models.Contracts.findOne({ contractTypeId: _ids });
+        if (!contract) {
+          deleteContractTypes.push(id);
+        }
+      }
+
+      return models.ContractTypes.deleteMany({
+        _id: { $in: deleteContractTypes }
+      });
     }
   }
 

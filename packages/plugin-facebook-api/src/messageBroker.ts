@@ -139,7 +139,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.PostConversations.findOne({ erxesApiId }, true),
+        data: await models.PostConversations.findOne({ erxesApiId }),
         status: 'success'
       };
     }
@@ -245,6 +245,13 @@ export const sendCoreMessage = async (
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
+    ...args
+  });
+};
+
+export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
+  return sendCommonMessage({
+    serviceName: 'automations',
     ...args
   });
 };

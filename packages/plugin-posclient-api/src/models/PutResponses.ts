@@ -271,7 +271,7 @@ export const loadPutResponseClass = (models: IModels) => {
      * Update a putResponse
      */
     public static async updatePutResponse(_id, doc) {
-      const response = await models.PutResponses.update(
+      const response = await models.PutResponses.updateOne(
         { _id },
         {
           $set: {

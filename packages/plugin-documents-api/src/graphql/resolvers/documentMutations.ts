@@ -5,7 +5,7 @@ const documentMutations = {
   /**
    * Save document configuration
    */
-  documentsSave(_root, args, { user, models }: IContext) {
+  async documentsSave(_root, args, { user, models }: IContext) {
     const { _id, ...doc } = args;
 
     return models.Documents.saveDocument({
@@ -14,7 +14,7 @@ const documentMutations = {
     });
   },
 
-  documentsRemove(_root, { _id }, { models }: IContext) {
+  async documentsRemove(_root, { _id }, { models }: IContext) {
     return models.Documents.deleteOne({ _id });
   }
 };

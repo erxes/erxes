@@ -1,7 +1,7 @@
 import { IModels } from '../connectionResolver';
 import * as DataLoader from 'dataloader';
 import * as _ from 'underscore';
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 
 export default function generateDataLoaderBranch(models: IModels, subdomain) {
   return new DataLoader<string, any>(async (ids: readonly string[]) => {

@@ -11,7 +11,6 @@ import type {
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import { formConsumers } from '@erxes/api-utils/src/forms';
-import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 
 import {
@@ -54,7 +53,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
       const models = await generateModels(subdomain);
 
       if (type === 'uninstall' && message === 'done') {
-        await models.InstallationLogs.remove({ pluginName: name });
+        await models.InstallationLogs.deleteMany({ pluginName: name });
         return;
       }
 
@@ -64,7 +63,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
       });
 
       if (message === 'done') {
-        await models.InstallationLogs.remove({
+        await models.InstallationLogs.deleteMany({
           pluginName: name,
           message: { $ne: 'done' },
         });
@@ -584,6 +583,15 @@ export const setupMessageConsumers = async (): Promise<void> => {
     return {
       status: 'success',
       data: await models.Units.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('core:userGroups.getIds', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.UsersGroups.find(data).distinct('_id'),
     };
   });
 

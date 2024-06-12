@@ -42,7 +42,7 @@ const SettingsContainer: React.FC<FinalProps> = (props) => {
       return <Spinner />;
     }
 
-    fieldGroups = fieldsQuery.data.fieldsGroups || [];
+    fieldGroups = fieldsQuery?.data?.fieldsGroups || [];
   }
   // create or update action
   const save = (map: IConfigsMap) => {

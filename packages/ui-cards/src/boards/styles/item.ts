@@ -250,7 +250,7 @@ export const HeaderContentSmall = styled.div`
 export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
-  width: max-content;
+  width: 100%;
 `;
 
 export const SpaceContent = styled(Flex)`
