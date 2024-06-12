@@ -154,8 +154,7 @@ const PtrList: React.FC<IProps> = (props) => {
   };
 
   const breadcrumb = [
-    { title: __("Settings"), link: "/settings" },
-    { title: __("Accounts") },
+    { title: __("Accountings"), link: "" },
   ];
 
   const onChangeChecked = (e) => {
@@ -185,8 +184,6 @@ const PtrList: React.FC<IProps> = (props) => {
       Add account
     </Button>
   );
-
-  // const modalContent = (props) => <Form {...props} />;
 
   const actionBarRight = () => {
     if (bulk.length > 0) {
@@ -226,20 +223,12 @@ const PtrList: React.FC<IProps> = (props) => {
           autoFocus={true}
           onFocus={moveCursorAtTheEnd}
         />
-        <ModalTrigger
-          title="Add Account"
-          trigger={trigger}
-          autoOpenKey="showAccountModal"
-          content={'modalContent'}
-          // content={modalContent}
-          size="lg"
-        />
       </BarItems>
     );
   };
 
   const actionBarLeft = (
-    <Title>{`Transactions (${transactionsCount})`}</Title>
+    <Title>{`Transactions (${transactionsCount || 0})`}</Title>
   );
 
   return (
@@ -254,7 +243,7 @@ const PtrList: React.FC<IProps> = (props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/30.svg"
-          title={"Accounts"}
+          title={"Transactions"}
           description={`${__(
             "All information and know-how related to your business transactions and services are found here"
           )}.${__(

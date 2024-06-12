@@ -34,6 +34,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ITransaction } from '../types';
 import { journalConfigMaps } from '../utils/maps';
+import AddTransactionLink from './AddTr';
 
 type Props = {
   transactions?: ITransaction[];
@@ -112,6 +113,9 @@ const TransactionForm = (props: Props) => {
   };
 
   const onAddTr = (journal) => {
+    if (!journalConfigMaps[journal]) {
+      return Alert.error('wron cho')
+    }
     const trData = journalConfigMaps[journal]?.defaultData()
     trDocs?.push(trData)
     console.log(trDocs)
@@ -204,78 +208,7 @@ const TransactionForm = (props: Props) => {
             </TabTitle>
           ))}
           <TabTitle>
-            <PopoverButton>
-              <Dropdown
-                as={DropdownToggle}
-                toggleComponent={
-                  <>
-                    <Icon icon='add' />
-                    {__('New transaction')}
-                    <Icon icon="angle-down" />
-                  </>
-                }
-              >
-                <FormWrapper>
-                  <div >
-                    <ul>
-                      <strong>Ерөнхий</strong>
-                      <li onClick={onAddTr.bind(this, 'main')}>
-                        Ерөнхий журнал
-                      </li>
-                      <li>
-                        Авлага өглөг
-                      </li>
-                      <li>
-                        НӨАТ
-                      </li>
-                    </ul>
-                    <ul>
-                      <strong>Мөнгөн хөрөнгө</strong>
-                      <li onClick={onAddTr.bind(this, 'cash')}>
-                        Касс
-                      </li>
-                      <li>
-                        Харилцах
-                      </li>
-                    </ul>
-                    <ul>
-                      <strong>Бараа материал</strong>
-                      <li>
-                        Орлого
-                      </li>
-                      <li>
-                        Хангамжийн зарлага
-                      </li>
-                      <li>
-                        Борлуулалт (байнгын)
-                      </li>
-                      <li>
-                        Борлуулалт (ажил үйлчилгээ)
-                      </li>
-                      <li>
-                        Дотоод хөдөлгөөн
-                      </li>
-                    </ul>
-                    <ul>
-                      <strong>Үндсэн хөрөнгө</strong>
-                      <li>
-                        Орлого
-                      </li>
-                      <li>
-                        Акт
-                      </li>
-                      <li>
-                        Хөдөлгөөн
-                      </li>
-                      <li>
-                        Тохируулга
-                      </li>
-                    </ul>
-                  </div>
-                </FormWrapper>
-              </Dropdown>
-            </PopoverButton>
-
+            <AddTransactionLink onClick={onAddTr} />
           </TabTitle>
         </Tabs>
         {renderTabContent()}
