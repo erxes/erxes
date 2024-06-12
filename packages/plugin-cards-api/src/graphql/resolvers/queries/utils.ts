@@ -919,7 +919,7 @@ export const archivedItemsCount = async (
   if (stages.length > 0) {
     const filter = generateArhivedItemsFilter(params, stages);
 
-    return collection.find(filter).count();
+    return collection.find(filter).countDocuments();
   }
 
   return 0;

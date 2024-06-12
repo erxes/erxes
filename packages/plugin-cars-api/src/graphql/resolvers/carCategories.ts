@@ -1,5 +1,7 @@
+import { IContext } from "../../connectionResolver";
+
 const CarCategories = {
-  carCount(category, {}, { models }) {
+  async carCount(category, {}, { models }: IContext) {
     return models.Cars.countDocuments({
       categoryId: category._id
       // status: { $ne: "Deleted" },

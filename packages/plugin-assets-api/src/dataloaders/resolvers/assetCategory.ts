@@ -8,7 +8,7 @@ export default {
   },
 
   async isRoot(category: IAssetCategoriesDocument, {}) {
-    return category.parentId ? false : true;
+    return !category.parentId;
   },
 
   async assetCount(

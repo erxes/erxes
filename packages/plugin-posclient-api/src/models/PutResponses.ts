@@ -8,10 +8,11 @@ import {
   IEbarimtFull,
   ebarimtSchema
 } from './definitions/putResponses';
+import { IModels } from '../connectionResolver';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
-    doc: IEbarimt,
+    doc: IDoc,
     config: IEbarimtConfig
   ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
@@ -56,7 +57,7 @@ const checkContinuingRequest = async (models, contentType, contentId) => {
   }
 }
 
-export const loadPutResponseClass = models => {
+export const loadPutResponseClass = (models: IModels) => {
   class PutResponse {
     public static async putData(doc: IDoc, config: IEbarimtConfig) {
       // check previously post
@@ -144,7 +145,7 @@ export const loadPutResponseClass = models => {
           // customerName: params.customerName,
         });
 
-        result.putData = await models.PutResponses.findOne({ _id: resObj._id }).lean();
+        result.putData = await models.PutResponses.findOne({ _id: resObj._id }).lean() || undefined;
       }
 
       if (innerData) {
@@ -208,6 +209,7 @@ export const loadPutResponseClass = models => {
             { _id: prePutResponse._id },
             { $set: { state: 'inactive' } },
           );
+          await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { modifiedAt: new Date() } });
         });
 
         resultObjIds.push(resObj._id);
@@ -269,7 +271,7 @@ export const loadPutResponseClass = models => {
      * Update a putResponse
      */
     public static async updatePutResponse(_id, doc) {
-      const response = await models.PutResponses.update(
+      const response = await models.PutResponses.updateOne(
         { _id },
         {
           $set: {

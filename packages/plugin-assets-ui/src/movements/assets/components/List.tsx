@@ -3,7 +3,6 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  Icon,
   ModalTrigger,
   Pagination,
   Table,
@@ -11,10 +10,9 @@ import {
   __,
   router,
 } from "@erxes/ui/src";
-import { FlexItem, InputBar, Title } from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
 
-import { DefaultWrapper } from "../../../common/utils";
 import Form from "../../movements/containers/Form";
 import { IMovementItem } from "../../../common/types";
 import Row from "./Row";
@@ -45,8 +43,7 @@ const List = (props: Props) => {
     setSearchValue(searchValue);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { searchValue, page: undefined });
     }, 500);
   };
 
@@ -114,19 +111,14 @@ const List = (props: Props) => {
 
     const rightActionBar = (
       <BarItems>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={searchValue}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={searchValue}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         {renderForm()}
       </BarItems>
     );

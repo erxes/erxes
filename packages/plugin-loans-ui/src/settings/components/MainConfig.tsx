@@ -251,6 +251,14 @@ const MainConfig = (props: Props) => {
             required={true}
           />
         </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__("Transaction password")}</ControlLabel>
+          <FormControl
+            defaultValue={config["transactionPassword"]}
+            onChange={onChangeInputNumber.bind(this, "transactionPassword")}
+            required={true}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="primary"

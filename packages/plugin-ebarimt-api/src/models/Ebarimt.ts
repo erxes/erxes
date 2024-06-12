@@ -8,10 +8,11 @@ import {
 } from './definitions/ebarimt';
 import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
-    doc: IEbarimt,
+    doc: IDoc,
     config: IEbarimtConfig
   ): Promise<{ putData?: IEbarimtDocument, innerData?: IEbarimtFull }>;
   returnBill(
@@ -39,7 +40,7 @@ export interface IPutResponseModel extends Model<IEbarimtDocument> {
   ): Promise<IEbarimtDocument>;
 }
 
-export const loadPutResponseClass = models => {
+export const loadPutResponseClass = (models: IModels) => {
   class PutResponse {
     public static async putData(doc: IDoc, config: IEbarimtConfig) {
       // check previously post
@@ -124,10 +125,9 @@ export const loadPutResponseClass = models => {
         }
 
         await models.PutResponses.updatePutResponse(resObj._id, {
-          ...response,
-          // customerName: params.customerName,
+          ...response
         });
-        result.putData = await models.PutResponses.findOne({ _id: resObj._id }).lean();
+        result.putData = await models.PutResponses.findOne({ _id: resObj._id }).lean() || undefined;
       }
 
       if (innerData) {
@@ -184,6 +184,7 @@ export const loadPutResponseClass = models => {
             { _id: prePutResponse._id },
             { $set: { state: 'inactive' } },
           );
+          await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { modifiedAt: new Date() } })
         });
 
         resultObjIds.push(resObj._id);
@@ -245,7 +246,7 @@ export const loadPutResponseClass = models => {
      * Update a putResponse
      */
     public static async updatePutResponse(_id, doc) {
-      const response = await models.PutResponses.update(
+      const response = await models.PutResponses.updateOne(
         { _id },
         {
           $set: {

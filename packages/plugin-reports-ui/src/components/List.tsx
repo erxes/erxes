@@ -68,7 +68,7 @@ function List(props: Props) {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__("Search a report")}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}

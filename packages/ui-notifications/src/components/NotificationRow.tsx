@@ -70,18 +70,6 @@ const NotificationRow = (props: Props) => {
     );
   };
 
-  const getTitle = (title, user) => {
-    if (!user) {
-      return title.replace("{userName}", "");
-    }
-
-    if (!user.details || user.details.fullName) {
-      return title.replace("{userName}", user.email);
-    }
-
-    return title.replace("{userName}", user.details.fullName);
-  };
-
   const renderContent = (content: string, type: string) => {
     if (!type.includes("conversation")) {
       return <b> {content}</b>;

@@ -51,6 +51,7 @@ class OverallWorks extends React.Component<IProps, {}> {
 
     return (
       <Wrapper
+        hasBorder={true}
         header={
           <Wrapper.Header title={__(`Overall works`)} submenu={menuNavs} />
         }

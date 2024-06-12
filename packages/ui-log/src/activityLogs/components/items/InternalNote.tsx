@@ -78,7 +78,7 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
 
     return (
       <ActivityContent
-        isInternalNote={true}
+        $isInternalNote={true}
         dangerouslySetInnerHTML={{ __html: xss(urlify(content)) }}
         onClick={isCurrentUserNote ? this.onEditing : undefined}
       />

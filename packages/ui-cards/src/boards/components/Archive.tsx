@@ -253,7 +253,7 @@ function Archive(props: Props) {
         <FormControl
           type="text"
           autoFocus={true}
-          placeholder={`Search ${type}...`}
+          placeholder={`Type to search ${type}...`}
           value={searchInputValue}
           onChange={(e) =>
             setSearchInputValue((e.target as HTMLInputElement).value)
