@@ -1,15 +1,14 @@
-import * as compose from "lodash.flowright";
 
-import { Alert, withProps } from "@erxes/ui/src/utils";
+
+import { Alert } from "@erxes/ui/src/utils";
 import { IProduct, ProductRemoveMutationResponse } from "../../../types";
 
 import BasicInfo from "../../../components/product/detail/BasicInfo";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
+import { gql,useMutation } from "@apollo/client";
+import {} from "@apollo/client/react/hoc";
 import { mutations } from "../../../graphql";
-import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
