@@ -267,8 +267,7 @@ const PerSettings: React.FC<Props> = (props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.codeMask ? false : true}
-        >
+          disabled={!config.codeMask}          >
           Save
         </Button>
       </ModalFooter>
