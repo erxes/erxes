@@ -1,4 +1,6 @@
 import { generateModels } from './connectionResolver';
+import loanExpirationReportData from './reports/loanExpiredReportData';
+import loanReportData from './reports/loanReportData';
 
 const reportTemplates = [
   {
@@ -6,69 +8,22 @@ const reportTemplates = [
     title: 'Loans chart',
     serviceName: 'loans',
     description: 'Chat conversation charts',
-    charts: ['loanExpiredReportData'],
+    charts: ['loanExpiredReportData', 'loanReportData'],
     img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png'
   }
 ];
 
-const chartTemplates = [
-  {
-    templateType: 'loanExpiredReportData',
-    serviceType: 'loans',
-    name: 'Loan Expired Data',
-    chartTypes: [
-      'table'
-    ],
-    getChartResult: async (
-    ) => {
-        
-
-      const data = [0,1,5,6,5] 
-
-      const labels = ['normal','expired','doubtful','negative','bad'] 
-
-      const title = 'Loan expiration Data';
-
-      const datasets = { title, data, labels };
-
-      return datasets;
-    },
-
-    filterTypes: [
-      {
-        fieldName: 'leaseExpertId',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'users',
-        fieldLabel: 'Select lease expert'
-      },
-      {
-        fieldName: 'branchId',
-        fieldType: 'select',
-        multi: false,
-        fieldQuery: 'branches',
-        fieldLabel: 'Select branches'
-      },
-      {
-        fieldName: 'customerId',
-        fieldType: 'select',
-        fieldQuery: 'customers',
-        multi: false,
-        fieldOptions: 'customerId',
-        fieldLabel: 'Select source'
-      }
-    ]
-  }
-];
+const chartTemplates = [loanReportData, loanExpirationReportData];
 
 const getChartResult = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
-  const { templateType, filter, dimension } = data;
+
+  const { templateType, filter, chartType } = data;
 
   const template =
     chartTemplates.find((t) => t.templateType === templateType) || ({} as any);
 
-  return template.getChartResult(models, filter, dimension, subdomain);
+  return template.getChartResult(models, filter, chartType, subdomain);
 };
 
 export default {

@@ -61,6 +61,30 @@ class MainConfig extends React.Component<Props, State> {
     const { config } = this.state;
     return (
       <>
+      <CollapseContent title={__(config.title)} open={false}>
+        <FormGroup>
+          <ControlLabel>{__("Calculation number fixed")}</ControlLabel>
+          <FormControl
+            defaultValue={config["calculationFixed"]}
+            type="number"
+            min={0}
+            max={100}
+            onChange={this.onChangeInput.bind(this, "calculationFixed")}
+            required={true}
+          />
+        </FormGroup>
+
+        <ModalFooter>
+          <Button
+            btnStyle="primary"
+            icon="check-circle"
+            onClick={this.onSave}
+            uppercase={false}
+          >
+            {__("Save")}
+          </Button>
+        </ModalFooter>
+      </CollapseContent>
         <CollapseContent
           title={__("period lock config")}
           open={false}
@@ -69,7 +93,8 @@ class MainConfig extends React.Component<Props, State> {
             <ControlLabel required={true}>{__('Period lock type')}</ControlLabel>
             <FormControl
               name="periodLockType"
-              componentClass="select"
+              componentclass="select"
+              type='select'
               defaultValue={config['periodLockType']}
               onChange={this.onChangeInput.bind(this, 'periodLockType')}
             >
@@ -85,7 +110,7 @@ class MainConfig extends React.Component<Props, State> {
             <FormControl
               className= 'flex-item'
               type= 'checkbox'
-              componentClass= 'checkbox'
+              componentclass= 'checkbox'
               name='isStoreInterest'
               checked= {config['isStoreInterest']}
               onChange={this.onChangeCheck.bind(this, 'isStoreInterest')}
@@ -117,10 +142,10 @@ class MainConfig extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Loan give account type')}</ControlLabel>
+            <ControlLabel>{__('Transaction account type')}</ControlLabel>
             <FormControl
               name="transactionAccountType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={config['transactionAccountType']}
               onChange={this.onChangeInput.bind(this, 'transactionAccountType')}
             >
@@ -132,7 +157,7 @@ class MainConfig extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Loan give account number')}</ControlLabel>
+            <ControlLabel>{__('Transaction account number')}</ControlLabel>
             <FormControl
               defaultValue={config['transactionAccountNumber']}
               type="number"
