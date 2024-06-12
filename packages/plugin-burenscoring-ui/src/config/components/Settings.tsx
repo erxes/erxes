@@ -5,9 +5,8 @@ import {
   FormControl,
   FormGroup,
 } from '@erxes/ui/src/components';
-
+import React, { useState } from "react";
 import { IConfigsMaps } from '../../types';
-import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 
@@ -17,56 +16,58 @@ type Props = {
 };
 
 type State = {
-  title: string;
+  url?: string,
   client_id: string;
   secretKey: string;
 };
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-   
-    super(props);
-    this.state = props.configsMap?.burenScoringConfig || {};
-  }
-  onSave = e => {
+export default function GeneralSettings (props:Props) {
+const burenScoringConfig = props.configsMap?.burenScoringConfig || {}
+  const [url, setUrl]= useState(burenScoringConfig?.url || '')
+  const [client_id, setClient_id] =  useState(burenScoringConfig?.client_id || '')
+  const [secretKey, setSecretKey] = useState(burenScoringConfig?.secretKey || '')
+  
+
+
+  const onSave = e => {
     e.preventDefault();
-    const { configsMap } = this.props;
-    configsMap.burenScoringConfig = this.state;
-    this.props.save(configsMap);
+    const { configsMap } = props;
+    configsMap.burenScoringConfig = {url,client_id,secretKey};
+    props.save(configsMap);
   };
 
-  onChangeConfig = (code: keyof State, value) => {
-    this.setState({ [code]: value } as any);
-  };
-
-  onChangeInput = (code: keyof State, e) => {
-    this.onChangeConfig(code, e.target.value);
-  };
-
-
-  render() {
-    const config = this.state
     return (
       <CollapseContent title={__('Buren Scoring config')} open>
         <FormGroup>
+          <ControlLabel>{__('url')}</ControlLabel>
+          <FormControl
+            defaultValue={url}
+            type="text"
+            min={0}
+            max={1000}
+            onChange={(e:any)=>setUrl(e.target.value)}
+            required={true}
+          />
+        </FormGroup>
+        <FormGroup>
           <ControlLabel>{__('client id')}</ControlLabel>
           <FormControl
-            defaultValue={config['client id']}
+            defaultValue={client_id}
             type="text"
             min={0}
             max={100}
-            onChange={this.onChangeInput.bind(this, 'client id')}
+            onChange={(e:any)=>setClient_id(e.target.value)}
             required={true}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('secret Key')}</ControlLabel>
           <FormControl
-            defaultValue={config['secretKey']}
+            defaultValue={secretKey}
             type="text"
             min={0}
             max={100}
-            onChange={this.onChangeInput.bind(this, 'secretKey')}
+            onChange={(e:any)=>setSecretKey(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -74,7 +75,7 @@ class GeneralSettings extends React.Component<Props, State> {
           <Button
             btnStyle="primary"
             icon="check-circle"
-            onClick={this.onSave.bind(this)}
+            onClick={e=>onSave(e)}
             uppercase={false}
           >
             {__('Save')}
@@ -82,7 +83,6 @@ class GeneralSettings extends React.Component<Props, State> {
         </ModalFooter>
       </CollapseContent>
     )
-  }
+  
 }
 
-export default GeneralSettings;
