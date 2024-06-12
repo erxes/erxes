@@ -1,7 +1,6 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { queries, mutations } from '../../graphql';
-import { gql } from '@apollo/client';
 import { IPost, PostDetailQueryResponse } from '../../types';
 import { withProps, confirm } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';

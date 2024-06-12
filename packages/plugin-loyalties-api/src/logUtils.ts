@@ -3,7 +3,6 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   LogDesc,
-  gatherNames,
   IDescriptions,
   getSchemaLabels,
 } from '@erxes/api-utils/src/logUtils';

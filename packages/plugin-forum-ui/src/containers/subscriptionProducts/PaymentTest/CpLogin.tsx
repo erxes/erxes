@@ -1,6 +1,5 @@
 import React, { useState, FC } from 'react';
-import { gql } from '@apollo/client';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 
 const LOGOUT = gql`
   mutation Mutation {

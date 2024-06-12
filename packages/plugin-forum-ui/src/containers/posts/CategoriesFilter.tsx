@@ -1,7 +1,6 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery,gql } from '@apollo/client';
 import { queries } from '../../graphql';
-import { gql } from '@apollo/client';
 import CategoryFilter from '../../components/posts/CategoriesFilter';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert } from '@erxes/ui/src/utils';

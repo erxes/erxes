@@ -1,7 +1,6 @@
-import * as _ from 'underscore';
 import { randomBetween } from './utils';
 import { spinSchema, ISpin, ISpinDocument } from './definitions/spins';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { SPIN_STATUS } from './definitions/constants';
 import { IBuyParams } from './definitions/common';
@@ -84,7 +83,7 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
             ownerType,
             ownerId,
             modifiedAt: now,
-            status: status || SPIN_STATUS.NEW,
+            status: status ?? SPIN_STATUS.NEW,
             userId
           }
         }

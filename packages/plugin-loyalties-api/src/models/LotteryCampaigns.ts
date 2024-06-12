@@ -1,10 +1,8 @@
-import * as _ from 'underscore';
 import { CAMPAIGN_STATUS, LOTTERY_STATUS } from './definitions/constants';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { getRandomNumber, randomBetween, validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
 import {
-  ILotteryAward,
   ILotteryCampaign,
   ILotteryCampaignDocument,
   lotteryCampaignSchema
@@ -234,7 +232,7 @@ export const loadLotteryCampaignClass = (
           afterChars,
           fitLotteriesCount,
           luckyLottery: await models.Lotteries.findOne({
-            _id: (luckyLottery as any)._id
+            _id: (luckyLottery)._id
           }).lean()
         };
       }

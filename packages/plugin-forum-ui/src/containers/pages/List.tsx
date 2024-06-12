@@ -1,19 +1,17 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { PagesQueryResponse, RemoveMutationResponse } from '../../types';
+import { PagesQueryResponse, RemoveMutationResponse, IPage } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IPage } from '../../types';
 import PageList from '../../components/pages/PageList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { useQuery } from '@apollo/client';
+import { useQuery , gql} from '@apollo/client';
 
 type Props = {
   queryParams: any;

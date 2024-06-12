@@ -79,7 +79,6 @@ const List = (props: IProps) => {
 
   const renderCategoryHeader = () => {
     return (
-      <>
         <Section.Title>
           {__("Categories")}
           <Section.QuickButtons>
@@ -92,7 +91,6 @@ const List = (props: IProps) => {
             )}
           </Section.QuickButtons>
         </Section.Title>
-      </>
     );
   };
 

@@ -1,6 +1,5 @@
-import * as _ from 'underscore';
 import { CAMPAIGN_STATUS } from './definitions/constants';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   assignmentCampaignSchema,

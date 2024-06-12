@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 const ORDERS = gql`
   query ForumCpMySubscriptionOrders {
