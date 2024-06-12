@@ -1,19 +1,18 @@
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { IField } from "@erxes/ui/src/types";
+import React from "react";
 
 type Props = {
-  contentType: string;
   field: IField;
   onChange: (ids: string[], relationType: string) => void;
 };
 
 const SelectContacts = (props: Props) => {
   const { field, onChange } = props;
-  const { relationType = '' } = field;
+  const { relationType = "" } = field;
 
-  if (!['contacts:customer', 'contacts:company'].includes(relationType)) {
+  if (!["contacts:customer", "contacts:company"].includes(relationType)) {
     return null;
   }
 
@@ -23,7 +22,7 @@ const SelectContacts = (props: Props) => {
   };
 
   const renderCustomerSelect = () => {
-    if (relationType.includes('company')) {
+    if (relationType.includes("company")) {
       return null;
     }
 
@@ -39,7 +38,7 @@ const SelectContacts = (props: Props) => {
   };
 
   const renderCompanySelect = () => {
-    if (relationType.includes('customer')) {
+    if (relationType.includes("customer")) {
       return null;
     }
 

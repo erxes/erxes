@@ -1,45 +1,44 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { Alert, __, confirm, router } from 'coreui/utils';
+import { Alert, __, confirm, router } from "coreui/utils";
 import {
   CUSTOMER_STATE_OPTIONS,
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES,
-} from '@erxes/ui-contacts/src/customers/constants';
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "@erxes/ui-contacts/src/customers/constants";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
-import CustomerRow from './CustomerRow';
-import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DateFilter from '@erxes/ui/src/components/DateFilter';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import { ICustomer } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
-import { Menu } from '@headlessui/react';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Sidebar from './Sidebar';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { gql } from '@apollo/client';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import CustomerForm from "@erxes/ui-contacts/src/customers/containers/CustomerForm";
+import CustomerRow from "./CustomerRow";
+import CustomersMerge from "@erxes/ui-contacts/src/customers/components/detail/CustomersMerge";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import DateFilter from "@erxes/ui/src/components/DateFilter";
+import { EMPTY_CONTENT_CONTACTS } from "@erxes/ui-settings/src/constants";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IConfigColumn } from "@erxes/ui-forms/src/settings/properties/types";
+import { ICustomer } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ManageColumns from "@erxes/ui-forms/src/settings/properties/containers/ManageColumns";
+import { Menu } from "@headlessui/react";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Sidebar from "./Sidebar";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Table from "@erxes/ui/src/components/table";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import TemporarySegment from "@erxes/ui-segments/src/components/filter/TemporarySegment";
+import Widget from "@erxes/ui-engage/src/containers/Widget";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { menuContacts } from "@erxes/ui/src/utils/menus";
+import { queries } from "@erxes/ui-contacts/src/customers/graphql";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 interface IProps {
   type: string;
@@ -56,7 +55,7 @@ interface IProps {
   searchValue: string;
   removeCustomers: (
     doc: { customerIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   mergeCustomers: (doc: {
     ids: string[];
@@ -86,7 +85,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   let timer;
 
   const [searchValue, setSearchValue] = useState<string | undefined>(
-    props.searchValue,
+    props.searchValue
   );
   const [searchType, setSearchType] = useState<string | undefined>();
 
@@ -95,7 +94,7 @@ const CustomersList: React.FC<IProps> = (props) => {
       if (searchType === props.type) {
         routerUtils.setParams(navigate, location, { searchValue });
       } else {
-        setSearchValue('');
+        setSearchValue("");
       }
     }
   }, [searchValue, props.queryParams, props.type]);
@@ -103,7 +102,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   const onChange = () => {
     const { toggleAll, customers } = props;
 
-    toggleAll(customers, 'customers');
+    toggleAll(customers, "customers");
   };
 
   const removeCustomersHandler = (customers) => {
@@ -127,7 +126,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   const changeVerificationStatus = (
     type: string,
     status: string,
-    customers,
+    customers
   ) => {
     const customerIds: string[] = [];
 
@@ -184,17 +183,17 @@ const CustomersList: React.FC<IProps> = (props) => {
               </th>
               {(columnsConfig || []).map(({ _id, name, label }) => (
                 <th key={name}>
-                  {_id !== '#' ? (
+                  {_id !== "#" ? (
                     <SortHandler sortField={name} label={__(label)} />
                   ) : (
                     <>#</>
                   )}
                 </th>
               ))}
-              <th>{__('Tags')}</th>
+              <th>{__("Tags")}</th>
             </tr>
           </thead>
-          <tbody id="customers" className={isExpand ? 'expand' : ''}>
+          <tbody id="customers" className={isExpand ? "expand" : ""}>
             {(customers || []).map((customer, i) => (
               <CustomerRow
                 index={(page - 1) * perPage + i + 1}
@@ -224,7 +223,7 @@ const CustomersList: React.FC<IProps> = (props) => {
     setSearchType(type);
 
     timer = setTimeout(() => {
-      router.removeParams(navigate, location, 'page');
+      router.removeParams(navigate, location, "page");
       router.setParams(navigate, location, { searchValue });
     }, 500);
   };
@@ -232,7 +231,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -260,16 +259,16 @@ const CustomersList: React.FC<IProps> = (props) => {
 
   const addTrigger = (
     <Button btnStyle="success" size="small" icon="plus-circle">
-      Add {type || 'customer'}
+      Add {type || "customer"}
     </Button>
   );
 
   const onEmailStatusClick = (value) => {
-    changeVerificationStatus('email', value, bulk);
+    changeVerificationStatus("email", value, bulk);
   };
 
   const onPhoneStatusClick = (value) => {
-    changeVerificationStatus('phone', value, bulk);
+    changeVerificationStatus("phone", value, bulk);
   };
 
   const onStateClick = (e) => {
@@ -290,7 +289,7 @@ const CustomersList: React.FC<IProps> = (props) => {
         >
           {status.label}
         </a>
-      </Menu.Item>,
+      </Menu.Item>
     );
   }
 
@@ -308,7 +307,7 @@ const CustomersList: React.FC<IProps> = (props) => {
         >
           {status.label}
         </a>
-      </Menu.Item>,
+      </Menu.Item>
     );
   }
 
@@ -320,11 +319,11 @@ const CustomersList: React.FC<IProps> = (props) => {
         <a id={option.value} href="#changeState" onClick={onStateClick}>
           {option.label}
         </a>
-      </Menu.Item>,
+      </Menu.Item>
     );
   }
 
-  const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
+  const editColumns = <a href="#edit">{__("Choose Properties/View")}</a>;
 
   const dateFilter = queryParams.form && (
     <DateFilter queryParams={queryParams} />
@@ -367,7 +366,7 @@ const CustomersList: React.FC<IProps> = (props) => {
     <BarItems>
       <FormControl
         type="text"
-        placeholder={__('Type to search')}
+        placeholder={__("Type to search")}
         onChange={search}
         value={searchValue}
         autoFocus={true}
@@ -378,14 +377,14 @@ const CustomersList: React.FC<IProps> = (props) => {
 
       {dateFilter}
 
-      {isEnabled('segments') && (
+      {isEnabled("segments") && (
         <TemporarySegment contentType={`contacts:${type}`} />
       )}
 
       <Menu as="div" className="relative">
         <Menu.Button>
           <Button btnStyle="simple" size="small">
-            {__('Customize ')} <Icon icon="angle-down" />
+            {__("Customize ")} <Icon icon="angle-down" />
           </Button>
         </Menu.Button>
         <Menu.Items className="absolute" unmount={false}>
@@ -398,37 +397,37 @@ const CustomersList: React.FC<IProps> = (props) => {
           </Menu.Item>
           <Menu.Item>
             <Link to="/settings/properties?type=contacts:customer">
-              {__('Manage properties')}
+              {__("Manage properties")}
             </Link>
           </Menu.Item>
           <Menu.Item>
             <a href="#export" onClick={exportData.bind(this, bulk)}>
-              {type === 'lead'
-                ? __('Export this leads')
-                : __('Export this contacts')}
+              {type === "lead"
+                ? __("Export this leads")
+                : __("Export this contacts")}
             </a>
           </Menu.Item>
           <Menu.Item>
             <a
               href="#verifyEmail"
-              onClick={verifyCustomers.bind(this, 'email')}
+              onClick={verifyCustomers.bind(this, "email")}
             >
-              {__('Verify emails')}
+              {__("Verify emails")}
             </a>
           </Menu.Item>
           <Menu.Item>
             <a
               href="#verifyPhone"
-              onClick={verifyCustomers.bind(this, 'phone')}
+              onClick={verifyCustomers.bind(this, "phone")}
             >
-              {__('Verify phone numbers')}
+              {__("Verify phone numbers")}
             </a>
           </Menu.Item>
         </Menu.Items>
       </Menu>
       <Link to={`/settings/importHistories?type=${type}`}>
         <Button btnStyle="primary" size="small" icon="arrow-from-right">
-          {__('Go to import')}
+          {__("Go to import")}
         </Button>
       </Link>
 
@@ -469,14 +468,14 @@ const CustomersList: React.FC<IProps> = (props) => {
 
     const refetchQuery = {
       query: gql(queries.customerCounts),
-      variables: { type, only: 'byTag' },
+      variables: { type, only: "byTag" },
     };
 
     actionBarLeft = (
       <BarItems>
         <Widget customers={bulk} emptyBulk={emptyBulk} />
 
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <TaggerPopover
             type={TAG_TYPES.CUSTOMER}
             successCallback={afterTag}
@@ -498,7 +497,7 @@ const CustomersList: React.FC<IProps> = (props) => {
         <Menu as="div" className="relative">
           <Menu.Button>
             <Button btnStyle="simple" size="small">
-              {__('Change email status')} <Icon icon="angle-down" />
+              {__("Change email status")} <Icon icon="angle-down" />
             </Button>
           </Menu.Button>
           <Menu.Items className="absolute">
@@ -509,7 +508,7 @@ const CustomersList: React.FC<IProps> = (props) => {
         <Menu as="div" className="relative">
           <Menu.Button>
             <Button btnStyle="simple" size="small">
-              {__('Change phone status')} <Icon icon="angle-down" />
+              {__("Change phone status")} <Icon icon="angle-down" />
             </Button>
           </Menu.Button>
           <Menu.Items className="absolute">
@@ -520,7 +519,7 @@ const CustomersList: React.FC<IProps> = (props) => {
         <Menu as="div" className="relative">
           <Menu.Button>
             <Button btnStyle="simple" size="small">
-              {__('Change state')} <Icon icon="angle-down" />
+              {__("Change state")} <Icon icon="angle-down" />
             </Button>
           </Menu.Button>
           <Menu.Items className="absolute">
@@ -575,4 +574,4 @@ const CustomersList: React.FC<IProps> = (props) => {
   );
 };
 
-export default withTableWrapper('Customer', CustomersList);
+export default withTableWrapper("Customer", CustomersList);

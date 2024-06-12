@@ -1,5 +1,4 @@
 import { IModels } from '../../connectionResolver';
-import { sendClientPortalMessage } from '../../messageBroker';
 import { BUSINESSPORTAL_STATE_TYPES, CONTACT_STATES, CONTACT_STATE_TYPES, DATERANGE_TYPES, INTEGRATION_TYPES } from '../constants';
 import { buildMatchFilter, getBusinessPortalCount, getBusinnesPortalPipeline, getIntegrationsKinds } from '../utils';
 

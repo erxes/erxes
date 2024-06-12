@@ -1,6 +1,6 @@
 import { Alert, __, confirm, router } from "coreui/utils";
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
@@ -12,7 +12,6 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { ICompany } from "../../types";
 import { IConfigColumn } from "@erxes/ui-forms/src/settings/properties/types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
 import ManageColumns from "@erxes/ui-forms/src/settings/properties/containers/ManageColumns";
 import { Menu } from "@headlessui/react";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";

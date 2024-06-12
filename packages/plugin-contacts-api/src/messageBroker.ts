@@ -3,7 +3,7 @@ import {
   findCustomer,
   getContentItem,
   prepareEngageCustomers,
-} from './utils';
+ updateContactsField } from './utils';
 
 import { generateModels } from './connectionResolver';
 import {
@@ -15,10 +15,7 @@ import { getNumberOfVisits } from './events';
 import {
   AWS_EMAIL_STATUSES,
   EMAIL_VALIDATION_STATUSES,
-  MODULE_NAMES,
 } from './constants';
-import { updateContactsField } from './utils';
-import { putCreateLog } from './logUtils';
 import {
   consumeRPCQueue,
   consumeQueue,

@@ -122,7 +122,7 @@ export const validateBulk = async (
             headers: { 'Content-Type': 'application/json' },
           });
         } catch (e) {
-          return reject(e);
+          return reject(new Error(e));
         }
 
         resolve('done');
@@ -166,7 +166,7 @@ export const validateBulk = async (
           headers: { 'Content-Type': 'application/json' },
         });
       } catch (e) {
-        return reject(e);
+        return reject(new Error(e));
       }
       resolve('done');
     });

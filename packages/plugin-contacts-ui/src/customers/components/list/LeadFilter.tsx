@@ -3,7 +3,7 @@ import {
   SidebarCounter,
   SidebarList,
 } from "@erxes/ui/src/layout/styles";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { __, router } from "coreui/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 

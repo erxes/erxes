@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+
 import { generateModels } from './connectionResolver';
 import { IMPORT_EXPORT_TYPES } from './constants';
 import { generatePronoun } from './importUtils';
@@ -157,12 +157,11 @@ export default {
 
         switch (property.name) {
           case 'customProperty':
-            {
+            
               doc.customFieldsData.push({
                 field: property.id,
                 value: fieldValue[colIndex],
               });
-
               doc.customFieldsData = await sendFormsMessage({
                 subdomain,
                 action: 'fields.prepareCustomFieldsData',
@@ -171,13 +170,10 @@ export default {
                 defaultValue: doc.customFieldsData,
                 timeout: 60 * 1000, // 1 minute
               });
-            }
             break;
 
           case 'customData':
-            {
               doc[property.name] = value;
-            }
             break;
 
           case 'ownerEmail':
@@ -198,21 +194,15 @@ export default {
             break;
 
           case 'pronoun':
-            {
               doc.sex = generatePronoun(value);
-            }
             break;
 
           case 'companiesPrimaryNames':
-            {
               doc.companiesPrimaryNames = value.split(',');
-            }
             break;
 
           case 'companiesPrimaryEmails':
-            {
               doc.companiesPrimaryEmails = value.split(',');
-            }
             break;
 
           case 'customersPrimaryEmails':
@@ -267,9 +257,7 @@ export default {
             break;
 
           default:
-            {
               doc[property.name] = value;
-
               if (property.name === 'createdAt' && value) {
                 doc.createdAt = new Date(value);
               }
@@ -305,7 +293,6 @@ export default {
               if (property.name === 'isComplete') {
                 doc.isComplete = Boolean(value);
               }
-            }
             break;
         } // end property.type switch
 
