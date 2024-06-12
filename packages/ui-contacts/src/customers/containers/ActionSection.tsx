@@ -13,11 +13,11 @@ import {
 import { mutations, queries } from "../graphql";
 
 import ActionSection from "../components/common/ActionSection";
-import { IRouterProps } from "@erxes/ui/src/types";
 import React from "react";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   customer: ICustomer;
@@ -27,17 +27,17 @@ type Props = {
 type FinalProps = Props &
   RemoveMutationResponse &
   MergeMutationResponse &
-  ChangeStateMutationResponse &
-  IRouterProps;
+  ChangeStateMutationResponse;
 
 const ActionSectionContainer = (props: FinalProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     isSmall,
     customer,
     customersRemove,
     customersMerge,
     customersChangeState,
-    navigate,
   } = props;
 
   const { _id } = customer;
@@ -48,7 +48,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success("You successfully deleted a customer");
-        navigate("/contacts/customer");
+        !location.pathname.includes('inbox') && navigate("/contacts/customer");
       })
       .catch((e) => {
         Alert.error(e.message);
