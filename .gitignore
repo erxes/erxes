@@ -44,3 +44,4 @@ packages/workers/src/private/uploads/
 
 docker/data/**
 docker/rabbitmq-data/**
+packages/plugin-payment-api/src/public/js/bundle.js
