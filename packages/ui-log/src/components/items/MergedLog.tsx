@@ -54,16 +54,14 @@ class MergedLog extends React.Component<IActivityLogItemProps> {
     const { createdAt } = this.props.activity;
 
     return (
-      <>
-        <FlexCenterContent>
-          <MergedContacts>{this.renderContent()}</MergedContacts>
-          <Tip text={dayjs(createdAt).format('llll')}>
-            <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
-            </ActivityDate>
-          </Tip>
-        </FlexCenterContent>
-      </>
+      <FlexCenterContent>
+        <MergedContacts>{this.renderContent()}</MergedContacts>
+        <Tip text={dayjs(createdAt).format('llll')}>
+          <ActivityDate>
+            {dayjs(createdAt).format('MMM D, h:mm A')}
+          </ActivityDate>
+        </Tip>
+      </FlexCenterContent>
     );
   }
 }
