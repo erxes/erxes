@@ -26,6 +26,7 @@ interface IQueryParams {
   departmentId: string;
   currency: string;
   journal: string;
+  journals: string[];
 }
 
 export const generateFilter = async (
@@ -46,6 +47,7 @@ export const generateFilter = async (
     journal,
     ids,
     excludeIds,
+    journals,
   } = params;
   const filter: any = commonQuerySelector;
 
@@ -102,6 +104,11 @@ export const generateFilter = async (
 
   if (currency) {
     filter.currency = currency;
+  }
+
+
+  if (journals?.length) {
+    filter.journal = { $in: journals }
   }
 
   if (journal) {

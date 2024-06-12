@@ -39,8 +39,9 @@ const accountsFilterParamDefs = `
   $excludeIds: Boolean,
   $isOutBalance: Boolean,
   $branchId: String,
-  $accountsCurrency2: String,
+  $accountsCurrency: String,
   $departmentId: String,
+  $journals: [String]
 `;
 const accountsFilterParams = `
   status: $accountsStatus,
@@ -51,8 +52,9 @@ const accountsFilterParams = `
   excludeIds: $excludeIds,
   isOutBalance: $isOutBalance,
   branchId: $branchId,
-  currency: $accountsCurrency2,
+  currency: $accountsCurrency,
   departmentId: $departmentId,
+  journals: $journals
 `;
 
 const commonParamDefs = `

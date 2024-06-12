@@ -28,6 +28,7 @@ const TrFormMain = (props: Props) => {
             multi={false}
             label='Account'
             name='account'
+            filterParams={{ journals: ['main'] }}
             onSelect={(accountId) => { }}
 
           ></SelectAccount>
