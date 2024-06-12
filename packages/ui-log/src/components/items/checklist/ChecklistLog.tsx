@@ -76,25 +76,21 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     }
 
     return (
-      <>
-        <FlexCenterContent>
-          <FlexBody>
-            {' '}
-            <span>
-              <strong>{userName}</strong> {action}d&nbsp;
-              <strong>{checklistName}</strong> {contentType}&nbsp;
-              <ShowMore onClick={this.onCollapse}>show details</ShowMore>
-            </span>
-          </FlexBody>
-          <Tip text={dayjs(createdAt).format('llll')}>
-            <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
-            </ActivityDate>
-          </Tip>
-        </FlexCenterContent>
-      </>
+      <FlexCenterContent>
+        <FlexBody>
+          <span>
+            <strong>{userName}</strong> {action}d&nbsp;
+            <strong>{checklistName}</strong> {contentType}&nbsp;
+            <ShowMore onClick={this.onCollapse}>show details</ShowMore>
+          </span>
+        </FlexBody>
+        <Tip text={dayjs(createdAt).format('llll')}>
+          <ActivityDate>
+            {dayjs(createdAt).format('MMM D, h:mm A')}
+          </ActivityDate>
+        </Tip>
+      </FlexCenterContent>
     );
   }
 }
-
 export default ChecklistLog;
