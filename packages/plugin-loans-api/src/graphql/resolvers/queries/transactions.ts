@@ -28,6 +28,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.customerId = params.customerId;
   }
 
+  if (params.transactionType) {
+    filter.transactionType = params.transactionType;
+  }
+
   if (params.startDate) {
     filter.payDate = {
       $gte: new Date(params.startDate)
@@ -42,15 +46,13 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.startDate && params.endDate) {
     filter.payDate = {
-      $and: [
-        { $gte: new Date(params.startDate) },
-        { $lte: new Date(params.endDate) }
-      ]
+      $gte: new Date(params.startDate),
+      $lte: new Date(params.endDate)
     };
   }
 
   if (params.payDate === 'today') {
-    filter.payDate = { $and: [{ $gte: new Date() }, { $lte: new Date() }] };
+    filter.payDate = { $gte: new Date(), $lte: new Date() };
   }
 
   if (params.contractHasnt) {
@@ -58,7 +60,13 @@ const generateFilter = async (models, params, commonQuerySelector) => {
   }
 
   if (params.description) {
-    filter.description = { $in:  [new RegExp(`.*${params.searchValue}.*`, 'i')] };
+    filter.description = {
+      $in: [new RegExp(`.*${params.description}.*`, 'i')]
+    };
+  }
+
+  if (params.total) {
+    filter.total = params.total;
   }
 
   return filter;
@@ -137,7 +145,6 @@ const transactionQueries = {
       scheduleDate
     );
   }
-
 };
 
 checkPermission(transactionQueries, 'transactions', 'showTransactions');
