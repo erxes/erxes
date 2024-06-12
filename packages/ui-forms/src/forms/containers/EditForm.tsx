@@ -1,6 +1,6 @@
 import * as compose from "lodash.flowright";
 
-import { Alert, removeTypename, withProps } from "@erxes/ui/src/utils";
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   BulkEditAndAddMutationVariables,
   EditFormMutationResponse,
@@ -46,7 +46,7 @@ type FinalProps = {
   FieldsBulkAddAndEditMutationResponse;
 
 class EditFormContainer extends React.Component<FinalProps> {
-  static defaultProps = {
+  static readonly defaultProps = {
     showMessage: true,
   };
 
@@ -138,7 +138,6 @@ class EditFormContainer extends React.Component<FinalProps> {
             // collect fields to update
             if (dbFieldIds.includes(field._id)) {
               existingIds.push(field._id);
-              continue;
             }
           }
 
