@@ -33,13 +33,11 @@ export default class AppMessage extends React.Component<Props, {}> {
     const { message } = this.props;
 
     return (
-      <>
         <MessageContent internal={false}>
           <span
             dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
           />
         </MessageContent>
-      </>
     );
   }
 
