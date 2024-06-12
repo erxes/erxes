@@ -11,7 +11,7 @@ const stringRegex = (to: number = 50) =>
 const registerRegex = /^[a-zA-Zа-яА-ЯёЁөӨүҮ0-9]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
-const booleanRegex = /^[01]{1}$/;
+const booleanRegex = /^[01]{}$/;
 const numberLimRegex = /^\d{1,10}$/;
 const fullDateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1]) (2[0-3]|[01]\d):[0-5]\d:[0-5]\d$/;
 const amountRegex = /^[+-]?\d+(\.\d+)?$/;
