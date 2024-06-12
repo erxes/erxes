@@ -15,7 +15,6 @@ import LoadMore from "@erxes/ui/src/components/LoadMore";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
-import Spinner from "@erxes/ui/src/components/Spinner";
 import { TopHeader } from "@erxes/ui/src/styles/main";
 
 type Props = {
