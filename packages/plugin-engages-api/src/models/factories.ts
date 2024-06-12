@@ -50,7 +50,7 @@ export const telnyxWebhookDataFactory = (params: ITelnyxWebhookData) => ({
 export const smsRequestFactory = async (models: IModels, params: ISmsRequest) => {
   const smsRequest = new models.SmsRequests({
     engageMessageId: params.engageMessageId ?? faker.random.uuid(),
-    to: params.to || faker.phone.phoneNumber(),
+    to: params.to ?? faker.phone.phoneNumber(),
     requestData: params.requestData || '{}',
     telnyxId: params.telnyxId ?? faker.random.uuid()
   });
