@@ -9,12 +9,14 @@ import forms from './forms';
 import initialSetup from './initialSetup';
 import segments from './segments';
 import dashboards from './dashboards';
+import templates from './templates';
 
 export default {
   name: 'forms',
   permissions,
   meta: {
     dashboards,
+    templates,
     forms,
     initialSetup,
     // for fixing permissions

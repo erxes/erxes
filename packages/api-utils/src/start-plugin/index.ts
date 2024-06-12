@@ -252,6 +252,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       readFileHook,
       payment,
       reports,
+      templates,
       cpCustomerHandle,
     } = configs.meta;
 
@@ -484,6 +485,18 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           async (args) => ({
             status: 'success',
             data: await reports.getChartResult(args),
+          }),
+        );
+      }
+    }
+
+    if (templates) {
+      if (templates.useTemplate) {
+        consumeRPCQueue(
+          `${configs.name}:templates.useTemplate`,
+          async (args) => ({
+            status: 'success',
+            data: await templates.useTemplate(args),
           }),
         );
       }

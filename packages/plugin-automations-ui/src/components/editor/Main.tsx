@@ -39,6 +39,7 @@ import TriggerDetailForm from "../forms/triggers/TriggerDetailForm";
 import TriggerForm from "../../containers/forms/triggers/TriggerForm";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils/core";
+import SaveTemplate from "@erxes/ui-template/src/components/SaveTemplate";
 
 type Props = {
   automation: IAutomation;
@@ -546,29 +547,16 @@ class Editor extends React.Component<Props, State> {
   renderTemplateModal() {
     const { automation } = this.props;
 
-    const content = ({ closeModal }) => {
-      return (
-        <Form
-          renderContent={(formProps) => (
-            <TemplateForm
-              formProps={formProps}
-              closeModal={closeModal}
-              id={automation._id}
-              name={automation.name}
-            />
-          )}
-        />
-      );
-    };
+    const { _id, name, createdAt, updatedAt, createdBy, updatedBy, ...automationContent } = automation
 
-    const trigger = (
-      <Button btnStyle="primary" size="small" icon={"check-circle"}>
-        Save as a template
-      </Button>
-    );
+    const content = {
+      content: JSON.stringify(automationContent),
+      contentType: 'automations',
+      serviceName: 'automations'
+    }
 
     return (
-      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
+      <SaveTemplate {...content} />
     );
   }
 
