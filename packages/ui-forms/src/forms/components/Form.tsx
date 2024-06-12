@@ -24,9 +24,6 @@ type Props = {
   type: string;
   form?: IForm;
   hideOptionalFields?: boolean;
-  currentMode?: "create" | "update" | undefined;
-  currentField?: IField;
-  color?: string;
 };
 
 type State = {
