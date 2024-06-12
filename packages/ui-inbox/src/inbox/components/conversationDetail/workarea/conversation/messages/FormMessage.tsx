@@ -9,7 +9,6 @@ import {
   FieldWrapper,
   FormMessageInput,
   FormTable,
-  MessageBody,
   ProductItem,
 } from "../styles";
 import ReactToPrint, { PrintContextConsumer } from "react-to-print";
