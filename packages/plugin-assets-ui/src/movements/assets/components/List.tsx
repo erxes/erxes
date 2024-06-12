@@ -43,8 +43,7 @@ const List = (props: Props) => {
     setSearchValue(searchValue);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { searchValue, page: undefined });
     }, 500);
   };
 

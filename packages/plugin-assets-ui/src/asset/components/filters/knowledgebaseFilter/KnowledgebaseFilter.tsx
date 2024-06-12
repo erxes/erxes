@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Box, SidebarList, __, router } from '@erxes/ui/src';
+import React, { useState, useEffect } from "react";
+import { Box, SidebarList, __, router } from "@erxes/ui/src";
 
-import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
-import KnowledgebaseAssignmentFilter from './AssignmentFilter';
-import ArticleFilter from '../../../containers/filters/ArticleFilter';
-import { useLocation, useNavigate } from 'react-router-dom';
+import CollapsibleList from "@erxes/ui/src/components/collapsibleList/CollapsibleList";
+import KnowledgebaseAssignmentFilter from "./AssignmentFilter";
+import ArticleFilter from "../../../containers/filters/ArticleFilter";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -17,13 +17,12 @@ type Props = {
 };
 
 const KnowledgebaseFilter = (props: Props) => {
-  const { queryParams, knowledgeBaseTopics, loadedArticles, loading } =
-    props;
-    const location = useLocation();
-    const navigate = useNavigate();
+  const { queryParams, knowledgeBaseTopics, loadedArticles, loading } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
   const [knowledgebase, setKnowledgebase] = useState<any[]>([]);
   const [queryParamName, setQueryParamName] = useState<string>(
-    'knowledgebaseCategoryId',
+    "knowledgebaseCategoryId"
   );
 
   useEffect(() => {
@@ -57,12 +56,12 @@ const KnowledgebaseFilter = (props: Props) => {
       queryParams.knowledgebaseCategoryId === undefined ||
       queryParams.knowledgebaseCategoryId === null
     ) {
-      router.removeParams(navigate,location, 'articleIds');
+      router.removeParams(navigate, location, "articleIds");
     }
   }, [queryParams.knowledgebaseCategoryId]);
 
   const categoryIds = (knowledgebase || [])
-    .filter((topic) => topic.__typename === 'KnowledgeBaseCategory')
+    .filter((topic) => topic.__typename === "KnowledgeBaseCategory")
     .map((category) => category._id);
 
   const getArticlesCategory = (categoryId) => {
@@ -73,14 +72,16 @@ const KnowledgebaseFilter = (props: Props) => {
 
   const handleClick = (id) => {
     const selectedCategory = knowledgebase.find(
-      (category) => category._id === id,
+      (category) => category._id === id
     );
 
-    if (selectedCategory.__typename === 'KnowledgeBaseCategory') {
-      setQueryParamName('knowledgebaseCategoryId');
+    if (selectedCategory.__typename === "KnowledgeBaseCategory") {
+      setQueryParamName("knowledgebaseCategoryId");
       const articleIds = getArticlesCategory(id);
-      router.setParams(navigate,location, { knowledgebaseCategoryId: id });
-      router.setParams(navigate,location, { articleIds });
+      router.setParams(navigate, location, {
+        knowledgebaseCategoryId: id,
+        articleIds,
+      });
     }
   };
 
@@ -101,11 +102,9 @@ const KnowledgebaseFilter = (props: Props) => {
 
   return (
     <>
-      <KnowledgebaseAssignmentFilter
-        queryParams={queryParams}
-      />
+      <KnowledgebaseAssignmentFilter queryParams={queryParams} />
       <Box
-        title={__('Filter by Knowledgebase')}
+        title={__("Filter by Knowledgebase")}
         name="assetKnowledgebase"
         isOpen={queryParams.articleIds || queryParams.knowledgebaseCategoryId}
         collapsible={knowledgeBaseTopics.length > 6}
@@ -113,10 +112,7 @@ const KnowledgebaseFilter = (props: Props) => {
         {renderContent()}
       </Box>
       {queryParams.knowledgebaseCategoryId && (
-        <ArticleFilter
-          categoryIds={categoryIds}
-          queryParams={queryParams}
-        />
+        <ArticleFilter categoryIds={categoryIds} queryParams={queryParams} />
       )}
     </>
   );

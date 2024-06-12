@@ -61,6 +61,7 @@ const loginMiddleware = async (req, res) => {
     code: req.query.code
   };
   debugResponse(debugFacebook, req, JSON.stringify(config));
+  console.log(req, JSON.stringify(config), 'req, JSON.stringify(config)');
   // If this branch executes user is already being redirected back with
   // code (whatever that is)
   // code is set
