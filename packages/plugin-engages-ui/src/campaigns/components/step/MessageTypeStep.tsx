@@ -9,7 +9,7 @@ import {
 } from "@erxes/ui-engage/src/constants";
 import { SelectMessageType } from "@erxes/ui-engage/src/styles";
 import { ClientPortalConfig } from "@erxes/plugin-clientportal-ui/src/types";
-import { EmptyState, Spinner } from "@erxes/ui/src";
+import { EmptyState } from "@erxes/ui/src";
 import React from "react";
 import BrandStep from "../../containers/BrandStep";
 import SegmentStep from "../../containers/SegmentStep";
