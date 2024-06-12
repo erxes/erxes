@@ -10,8 +10,6 @@ type Props = {
   categories: ICategory[];
   onChange?: (values: string[]) => any;
   defaultValue?: string[];
-  isRequired?: boolean;
-  description?: string;
 };
 
 class SelectCategories extends React.Component<Props, {}> {
