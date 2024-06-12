@@ -49,7 +49,7 @@ const HandleOrder = () => {
 
   useEffect(() => {
     if (totalAmount > 0 && notPaidAmount === 0) {
-      setView("")
+      setView("billType")
     }
   }, [totalAmount, notPaidAmount, setView])
 

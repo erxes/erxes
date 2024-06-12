@@ -130,13 +130,13 @@ const Detail = (props: Props) => {
     });
   };
 
-  const renderDeliveryInfo = () => {
-    const { deliveryInfo } = order;
-    if (!deliveryInfo) {
+  const renderDescription = () => {
+    const { description } = order;
+    if (!description) {
       return <></>;
     }
 
-    return renderRow("Delivery info", deliveryInfo.description);
+    return renderRow("Delivery info", description);
   };
 
   const save = () => {
@@ -206,7 +206,7 @@ const Detail = (props: Props) => {
         "Date",
         dayjs(order.paidDate || order.createdAt).format("lll")
       )}
-      {renderDeliveryInfo()}
+      {renderDescription()}
       {order.syncErkhetInfo
         ? renderRow("Erkhet Info", order.syncErkhetInfo)
         : ""}

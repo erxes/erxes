@@ -1,4 +1,5 @@
 import { mutations } from "@/modules/checkout/graphql"
+import { modeAtom } from "@/store"
 import {
   activeOrderIdAtom,
   billTypeAtom,
@@ -11,11 +12,13 @@ import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
+import useTab from "@/lib/useTab"
 import { useToast } from "@/components/ui/use-toast"
 
 import useRenderEbarimt from "./useRenderBillTypes"
 
 const usePrintBill = (onCompleted?: () => void) => {
+  const mode = useAtomValue(modeAtom)
   const _id = useAtomValue(activeOrderIdAtom)
   const billType = useAtomValue(billTypeAtom)
   const registerNumber = useAtomValue(registerNumberAtom)
@@ -25,6 +28,7 @@ const usePrintBill = (onCompleted?: () => void) => {
   const { onError } = useToast()
   const { skipEbarimt } = useRenderEbarimt()
   const disabled = unPaidAmount > 0
+  const { openNewWindow } = useTab(() => !!onCompleted && onCompleted())
 
   const [settlePayment, { loading }] = useMutation(
     mutations.ordersSettlePayment,
@@ -35,6 +39,9 @@ const usePrintBill = (onCompleted?: () => void) => {
         registerNumber,
       },
       onCompleted() {
+        if (mode === "mobile") {
+          return openNewWindow("/reciept/ebarimt?id=" + _id)
+        }
         !!onCompleted && onCompleted()
         changeVisiblity(true)
       },

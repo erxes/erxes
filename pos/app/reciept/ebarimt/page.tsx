@@ -46,7 +46,7 @@ const Reciept = () => {
       if (orderDetail?._id === _id) {
         setOrderStates(orderDetail)
         data.billType === BILL_TYPES.INNER && setType("inner")
-        mode !== "mobile" && setTimeout(() => window.print(), 50)
+        setTimeout(() => window.print(), 50)
       }
     }
   }, [_id, data, setOrderStates, setType])
@@ -62,6 +62,10 @@ const Reciept = () => {
     ) {
       setType("inner")
       return setTimeout(() => window.print(), 20)
+    }
+
+    if (mode === "mobile") {
+      return window.close()
     }
 
     const data = { message: "close" }

@@ -1,5 +1,6 @@
 "use client"
 
+import { mobileTabAtom } from "@/store"
 import { atom } from "jotai"
 import { atomWithStorage } from "jotai/utils"
 
@@ -59,6 +60,7 @@ export const orderTotalAmountAtom = atom<number>(0)
 export const cashAmountAtom = atom<number>(0)
 export const mobileAmountAtom = atom<number>(0)
 export const directDiscountAtom = atom<number>(0)
+export const directDiscountTypeAtom = atom<"percent" | "amount">("amount")
 export const paidAmountsAtom = atom<IPaidAmount[]>([])
 export const payByProductAtom = atom<PayByProductItem[]>([])
 export const payByProductTotalAtom = atom<number>((get) =>
@@ -91,6 +93,7 @@ export const orderUserAtom = atom<IOrderUser | null>(null)
 export const setInitialAtom = atom(
   () => "",
   (get, set) => {
+    set(mobileTabAtom, "products")
     set(cartAtom, [])
     set(customerAtom, null)
     set(customerTypeAtom, "")
@@ -176,7 +179,10 @@ export const setOrderStatesAtom = atom(
 export const orderValuesAtom = atom((get) => ({
   items: get(orderItemInput),
   totalAmount: get(totalAmountAtom),
-  directDiscount: get(directDiscountAtom),
+  directDiscount:
+    get(directDiscountTypeAtom) === "percent"
+      ? get(directDiscountAtom)
+      : (get(directDiscountAtom) / get(totalAmountAtom)) * 100,
   type: get(orderTypeAtom),
   _id: get(activeOrderIdAtom),
   customerType: get(customerTypeAtom),

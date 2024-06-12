@@ -2,6 +2,7 @@ import { activeCatName, mobileTabAtom } from "@/store"
 import { cartAtom } from "@/store/cart.store"
 import { useAtom, useAtomValue } from "jotai"
 
+import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -20,8 +21,8 @@ const SelectTab = () => {
         <TabsTrigger value="products">
           Бараа <CategoryName />
         </TabsTrigger>
-        <TabsTrigger value="checkout">
-          Сагс (<TotalProducts />)
+        <TabsTrigger value="checkout" className="py-[3px]">
+          Сагс <TotalProducts />
         </TabsTrigger>
       </TabsList>
       <TabsContent
@@ -45,7 +46,7 @@ const SelectTab = () => {
 const TotalProducts = () => {
   const cart = useAtomValue(cartAtom)
   const itemCount = cart.reduce((prev, current) => prev + current.count, 0)
-  return <>{itemCount}</>
+  return <Badge className="ml-2 px-2">{itemCount}</Badge>
 }
 
 const CategoryName = () => {
