@@ -109,7 +109,7 @@ const List = (props: Props) => {
             const fileContent = reader?.result?.toString() ?? '';
             try {
                 const jsonData = JSON.parse(fileContent);
-                fetch(`${REACT_APP_API_URL}/pl:test/file-import`, {
+                fetch(`${REACT_APP_API_URL}/pl:template/file-import`, {
                     method: 'POST',
                     body: JSON.stringify(jsonData),
                     headers: {
@@ -141,7 +141,7 @@ const List = (props: Props) => {
             ...currentTemplate
         })
 
-        window.open(`${REACT_APP_API_URL}/pl:test/file-export?${stringified}`)
+        window.open(`${REACT_APP_API_URL}/pl:template/file-export?${stringified}`)
     }
 
     const renderHeader = () => {
