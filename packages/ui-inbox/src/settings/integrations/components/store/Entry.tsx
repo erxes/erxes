@@ -39,7 +39,6 @@ type Props = {
   getClassName: (selectedKind: string) => string;
   toggleBox: (kind: string) => void;
   customLink?: (kind: string, addLink: string) => void;
-  queryParams: any;
   totalCount: TotalCount;
 };
 
