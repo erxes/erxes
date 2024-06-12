@@ -1,11 +1,11 @@
-import { ColorButton } from '../../styles/common';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __, Alert } from '@erxes/ui/src/utils';
-import * as React from 'react';
-import Popover from '@erxes/ui/src/components/Popover';
-import { ChooseLabelWrapper } from '../../styles/label';
-import { IPipelineLabel } from '../../types';
-import Overlay from './Overlay';
+import { ColorButton } from "../../styles/common";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __, Alert } from "@erxes/ui/src/utils";
+import React, { useState, useEffect } from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import { ChooseLabelWrapper } from "../../styles/label";
+import { IPipelineLabel } from "../../types";
+import Overlay from "./Overlay";
 
 type Props = {
   pipelineId: string;
@@ -17,72 +17,53 @@ type Props = {
   onChangeRefresh: () => void;
 };
 
-class ChooseLabel extends React.Component<
-  Props,
-  { selectedLabelIds: string[] }
-> {
-  private overlayTrigger;
+const ChooseLabel = (props: Props) => {
+  const { labels, toggleConfirm, pipelineId, onChangeRefresh } = props;
+  const [selectedLabelIds, setSelectedLabelIds] = useState(
+    props.selectedLabelIds
+  );
 
-  constructor(props) {
-    super(props);
+  useEffect(() => {
+    setSelectedLabelIds(props.selectedLabelIds);
+  }, [props.selectedLabelIds]);
 
-    this.state = { selectedLabelIds: props.selectedLabelIds };
-  }
+  const onSelectLabels = (selectedLabelIds: string[]) => {
+    setSelectedLabelIds(selectedLabelIds);
 
-  componentDidUpdate(prevProps: Props) {
-    if (
-      this.props.selectedLabelIds.toString() !==
-      prevProps.selectedLabelIds.toString()
-    ) {
-      this.setState({ selectedLabelIds: this.props.selectedLabelIds });
-    }
-  }
-
-  onOverlayClose = () => {
-    this.overlayTrigger.hide();
+    props.doLabel(selectedLabelIds);
+    Alert.success("You successfully updated a label");
   };
 
-  onSelectLabels = (selectedLabelIds: string[]) => {
-    this.setState({ selectedLabelIds });
-
-    this.props.doLabel(selectedLabelIds);
-    Alert.success('You successfully updated a label');
-  };
-
-  renderOverlay() {
-    const { labels, toggleConfirm, pipelineId, onChangeRefresh } = this.props;
-    const { selectedLabelIds } = this.state;
-
-    const props = {
+  const renderOverlay = (close) => {
+    const updatedProps = {
       pipelineId,
       selectedLabelIds,
       labels,
       toggleConfirm,
-      onClose: this.onOverlayClose,
-      onSelectLabels: this.onSelectLabels,
+      onClose: close,
+      onSelectLabels: onSelectLabels,
       onChangeRefresh,
     };
 
-    return <Overlay {...props} />;
-  }
+    return <Overlay {...updatedProps} />;
+  };
 
-  render() {
-    return (
-      <ChooseLabelWrapper>
-        <Popover
-          placement="bottom-start"
-          trigger={
-            <ColorButton>
-              <Icon icon="label-alt" />
-              {__('Labels')}
-            </ColorButton>
-          }
-        >
-          {this.renderOverlay()}
-        </Popover>
-      </ChooseLabelWrapper>
-    );
-  }
-}
+  return (
+    <ChooseLabelWrapper>
+      <Popover
+        placement="bottom-start"
+        trigger={
+          <ColorButton>
+            <Icon icon="label-alt" />
+            {__("Labels")}
+          </ColorButton>
+        }
+        closeAfterSelect={true}
+      >
+        {renderOverlay}
+      </Popover>
+    </ChooseLabelWrapper>
+  );
+};
 
 export default ChooseLabel;

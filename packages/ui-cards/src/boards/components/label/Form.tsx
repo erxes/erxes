@@ -8,7 +8,6 @@ import Form from '@erxes/ui/src/components/form/Form';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import * as React from 'react';
 import { IPipelineLabel } from '../../types';
-// import TwitterPicker from 'react-color/lib/Twitter';
 import { ColorChooserWrapper } from '../../styles/label';
 import { COLORS } from '@erxes/ui/src/constants/colors';
 import { TwitterPicker } from 'react-color';
@@ -90,12 +89,10 @@ class FormComponent extends React.Component<IProps, State> {
     }
   };
 
-  onChangeColorCode = (e: any) => {
+  onChangeColorCode = (e: any) => {console.log('e', e)
     const { label } = this.state;
 
-    label.colorCode = e.hex;
-
-    this.setState({ label });
+    this.setState({ label: {...label, colorCode: e.hex} });
   };
 
   renderContent = (formProps: IFormProps) => {
