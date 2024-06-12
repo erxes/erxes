@@ -32,7 +32,7 @@ type Props = {
   remove: () => void;
   setLive: () => void;
   setLiveManual: () => void;
-  setPause: () => void;
+
   copy: () => void;
 
   isChecked: boolean;
