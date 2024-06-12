@@ -60,6 +60,7 @@ export interface ICustomerDoc {
 }
 
 export interface IUrlVisits {
+  id: string;
   url: string;
   count: number;
   createdAt: string;

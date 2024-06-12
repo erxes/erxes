@@ -1,5 +1,4 @@
 import { GENDER_TYPES } from './constants';
-import { __ } from '@erxes/ui/src/utils';
 
 export const genderChoices = __ => {
   const options: Array<{ value: string; label: string }> = [];

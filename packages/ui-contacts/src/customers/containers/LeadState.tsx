@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, __ } from '@erxes/ui/src/utils';
+import { Alert, __ , confirm} from '@erxes/ui/src/utils';
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
@@ -12,7 +12,6 @@ import {
 
 import LeadState from '../components/LeadState';
 import React from 'react';
-import { confirm } from '@erxes/ui/src/utils';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { mutations } from '@erxes/ui-contacts/src/customers/graphql';
@@ -22,7 +21,6 @@ type Props = {
 };
 
 type FinalProps = {
-  customersQuery: CustomersQueryResponse;
 } & Props &
   EditMutationResponse &
   ChangeStateMutationResponse;

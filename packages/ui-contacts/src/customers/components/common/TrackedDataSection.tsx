@@ -16,7 +16,6 @@ import dayjs from 'dayjs';
 type Props = {
   customer?: ICustomer;
   company?: ICompany;
-  queryParams?: any;
   collapseCallback?: () => void;
 };
 
@@ -32,8 +31,8 @@ class TrackedDataSection extends React.Component<Props> {
   renderTrackedData(trackedData: any[]) {
     return (
       <>
-        {trackedData.map((data, index) => (
-          <li key={index}>
+        {trackedData.map((data) => (
+          <li key={data.id}>
             <FieldStyle>{data.field}</FieldStyle>
             <SidebarCounter>
               {this.renderCustomValue(data.value)}

@@ -1,6 +1,6 @@
 import { Alert, __, confirm } from "@erxes/ui/src/utils";
 import { Box, States } from "../../styles";
-import { Dialog, Menu } from "@headlessui/react";
+import { Menu } from "@headlessui/react";
 
 import { Actions } from "@erxes/ui/src/styles/main";
 import Button from "@erxes/ui/src/components/Button";
@@ -55,7 +55,7 @@ class ActionSection extends React.Component<
       <>
         {(isEnabled("engages") || isEnabled("imap")) && (
           <EmailWidget
-            disabled={primaryEmail ? false : true}
+            disabled={!primaryEmail}
             buttonStyle={primaryEmail ? "primary" : "simple"}
             emailTo={primaryEmail}
             customerId={cocType === "customer" ? coc._id : undefined}
@@ -69,7 +69,7 @@ class ActionSection extends React.Component<
           tipText="Send SMS"
           trigger={
             <Button
-              disabled={primaryPhone ? false : true}
+              disabled={!primaryPhone}
               size="small"
               btnStyle={primaryPhone ? "primary" : "simple"}
             >
@@ -83,7 +83,7 @@ class ActionSection extends React.Component<
             href={primaryPhone && `tel:${primaryPhone}`}
             size="small"
             btnStyle={primaryPhone ? "primary" : "simple"}
-            disabled={primaryPhone ? false : true}
+            disabled={! primaryPhone}
           >
             <Icon icon="phone" />
           </Button>

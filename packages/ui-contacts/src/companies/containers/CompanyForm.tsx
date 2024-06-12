@@ -6,9 +6,8 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CompanyForm from '../components/CompanyForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICompany } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { UsersQueryResponse,IUser } from '@erxes/ui/src/auth/types';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 

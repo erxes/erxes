@@ -69,12 +69,15 @@ class CompaniesMerge extends React.Component<Props, State> {
       selectedValues[key] = value;
 
       if (key === 'links') {
-        const links = Object.assign(
-          { ...this.state.selectedValues.links },
-          value
-        );
+        const links = {
+          ...this.state.selectedValues.links,
+          ...value
+        };
         selectedValues[key] = links;
+      } else {
+        delete selectedValues[key];
       }
+      
     } else {
       delete selectedValues[key];
     }

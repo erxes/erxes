@@ -2,7 +2,6 @@ import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __, renderFullName } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -12,7 +11,7 @@ import {
   CUSTOMER_LINKS
 } from '../../constants';
 import { InfoAvatar, InfoDetail } from '../../styles';
-import { Info, InfoTitle } from '@erxes/ui/src/styles/main';
+import { Info, InfoTitle, ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   ICustomer,
   ICustomerDoc,
@@ -76,12 +75,13 @@ class CustomersMerge extends React.Component<Props, State> {
       selectedValues[key] = value;
 
       if (key === 'links') {
-        const links = Object.assign(
-          { ...this.state.selectedValues.links },
+        const links = {
+          ...this.state.selectedValues.links,
           value
-        );
+        };
         selectedValues[key] = links;
-      }
+      }      
+      
     } else {
       delete selectedValues[key];
     }

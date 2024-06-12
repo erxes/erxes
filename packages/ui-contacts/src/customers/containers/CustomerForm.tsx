@@ -8,8 +8,7 @@ import { mutations, queries } from "../graphql";
 import { AppConsumer } from "@erxes/ui/src/appContext";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import CustomerForm from "../components/CustomerForm";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
-import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
+import { IFieldsVisibility, ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React, { useState } from "react";
 import client from "@erxes/ui/src/apolloClient";
@@ -94,7 +93,7 @@ const CustomerFormContainer = (props: FinalProps) => {
         callback={afterSave}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
-        disableLoading={redirectType ? true : false}
+        disableLoading={!!redirectType}
         disabled={isSubmitted}
         type="submit"
         icon="check-circle"
