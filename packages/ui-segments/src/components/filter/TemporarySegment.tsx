@@ -97,7 +97,6 @@ function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
     );
 
     const modalContent = (props) => (
-      <>
         <form>
           <FormGroup>
             <ControlLabel required={true}>Name</ControlLabel>
@@ -135,8 +134,7 @@ function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
               Save
             </Button>
           </ModalFooter>
-        </form>
-      </>
+      </form>
     );
 
     return (
@@ -176,7 +174,6 @@ function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
   };
 
   const content = (
-    <>
       <Transition
         show={showDrawer}
         className="slide-in-right"
@@ -191,8 +188,7 @@ function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
             />
           </ScrolledContent>
         </RightDrawerContainer>
-      </Transition>
-    </>
+    </Transition>
   );
 
   return (
