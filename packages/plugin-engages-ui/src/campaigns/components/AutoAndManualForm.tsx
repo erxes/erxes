@@ -338,7 +338,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         img={imagePath}
         title='Compose your broadcast'
         message={message}
-        noButton={method !== METHODS.EMAIL && true}
+        noButton={method !== METHODS.EMAIL}
       >
         <MessageStep
           brands={brands}
