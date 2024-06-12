@@ -16,7 +16,7 @@ interface IoCAddress {
   o_c_address_zipcode: number;
 }
 
-interface c_job {
+interface Cjob {
   c_job_position: string;
   c_job_name: string;
   c_job_address: string;
@@ -24,7 +24,7 @@ interface c_job {
   c_job_mail: string;
 }
 
-interface o_c_related_orgs {
+interface OCRelatedOrgs {
   '-action': string;
   o_c_related_org_index: number;
   o_c_related_org_name: string;
@@ -35,7 +35,7 @@ interface o_c_related_orgs {
   o_c_related_org_isfinancial_onus: boolean;
 }
 
-interface o_c_loan_transactions {
+interface OcloanTransactions {
   o_c_loan_schedule_type: string; //хавсрал Й
   o_c_loan_schedule_status: boolean;
   o_c_loan_schedule_change_reason: string;
@@ -43,7 +43,7 @@ interface o_c_loan_transactions {
   o_c_loan_payment: [o_c_loan_payment];
 }
 
-interface o_c_loan_schedule {
+interface OcloanSchedule {
   '-action': string;
   o_c_schedule_due_date: Date;
   o_c_schedule_principal: number;
@@ -52,7 +52,7 @@ interface o_c_loan_schedule {
   o_c_schedule_balance: number;
 }
 
-interface o_c_loan_payment {
+interface OcloanPayment {
   '-action': string;
   o_c_payment_due_date: Date;
   o_c_payment_date: Date;
@@ -61,7 +61,7 @@ interface o_c_loan_payment {
   o_c_payment_additional: number;
 }
 
-interface o_c_related_customers {
+interface OcrelatedCustomers {
   '-action': string;
   o_c_related_customer_index: number;
   o_c_related_customer_firstname: string;
@@ -74,21 +74,21 @@ interface o_c_related_customers {
   o_c_related_customer_isfinancial_onus: boolean;
 }
 
-interface o_c_coll_state_registration {
+interface OccollStateRegistration {
   o_c_coll_certificateno: string;
   o_c_coll_state_regnum: string;
   o_c_coll_registered_date: Date;
   o_c_coll_confirmed_date: Date;
 }
 
-interface o_c_coll_other_registration {
+interface OccollOtherRegistration {
   o_c_coll_other_certificateno: string;
   o_c_coll_other_regnum: string;
   o_c_coll_other_name: string;
   o_c_coll_other_registered_date: Date;
 }
 
-interface o_c_coll_customer {
+interface OccollCustomer {
   o_c_coll_customer_firstname: string;
   o_c_coll_customer_lastname: string;
   o_c_coll_customer_isforeign: boolean;
@@ -96,7 +96,7 @@ interface o_c_coll_customer {
   o_c_coll_customer_regnum: string;
 }
 
-interface o_c_coll_org {
+interface Occollorg {
   o_c_coll_org_name: string;
   o_c_coll_org_islocal: boolean;
   o_c_coll_org_regnum: string;
@@ -105,13 +105,13 @@ interface o_c_coll_org {
 
 //Begin legal
 
-interface o_orgrate {
+interface Oorgrate {
   o_fitch_rating: string; // attachment П
   o_sandp_rating: string; // attachment Р
   o_moodys_rating: string; // attachment С
 }
 
-interface o_ceo {
+interface Oceo {
   o_ceo_civil_id: string;
   o_ceo_regnum: string;
   o_ceo_firstname: string;
@@ -123,7 +123,7 @@ interface o_ceo {
   o_ceo_email: string;
 }
 
-interface o_shareholder_orgs {
+interface Oshareholderorgs {
   '-action': string;
   o_shareholder_org_name: string;
   o_shareholder_org_isforeign: string;
@@ -133,7 +133,7 @@ interface o_shareholder_orgs {
   o_shareholder_org_phone: string;
   o_shareholder_org_email: string;
 }
-interface o_shareholder_customers {
+interface OshareholderCustomers {
   '-action': string;
   o_shareholder_customer_civil_id: string;
   o_shareholder_customer_regnum: string;
