@@ -267,7 +267,7 @@ const engageQueries = {
   ) {
     const { page, perPage, customerId, status, searchValue } = params;
     const _page = Number(page || '1');
-    const _limit = Number(perPage || '20');
+    const _limit = Number(perPage ?? '20');
     const filter: any = {};
 
     if (customerId) {
