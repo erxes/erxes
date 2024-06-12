@@ -5,11 +5,7 @@ import { IOption } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils";
 import React from "react";
 import Select from "react-select";
-
 import { IPaymentDocument } from "../types";
-
-
-
 type Props = {
   payments: IPaymentDocument[];
   isRequired?: boolean;
@@ -41,9 +37,7 @@ const SelectPayments: React.FC<Props> = (props) => {
       <ControlLabel required={isRequired}>Payments</ControlLabel>
       <p>
         {" "}
-        {description
-          ? description
-          : __("Select payments that you want to use ")}
+        {description || __("Select payments that you want to use ")}
       </p>
       <FlexRow>
         <LeftContent>
