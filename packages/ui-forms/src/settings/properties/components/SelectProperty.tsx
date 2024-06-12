@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IOption } from "@erxes/ui/src/types";
+import { IButtonMutateProps, IOption , IField } from "@erxes/ui/src/types";
 import {
   LeftContent,
   Row,
@@ -7,7 +7,6 @@ import {
 import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IField } from "@erxes/ui/src/types";
 import { IFieldGroup } from "../types";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import PropertyForm from "../containers/PropertyForm";
