@@ -187,7 +187,7 @@ export const awsRequests = {
     return new Promise((resolve, reject) => {
       api.deleteVerifiedEmailAddress({ EmailAddress: email }, (error, data) => {
         if (error) {
-          return reject(error);
+          return reject(error instanceof Error ? error : new Error(error));
         }
 
         return resolve(data);
