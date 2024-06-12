@@ -1,5 +1,4 @@
 import { Button } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState, useEffect } from 'react';
 import { ObjectListItemContainer } from '../styles';
 import ObjectListItem from './ObjectListItem';
@@ -15,13 +14,13 @@ type Props = {
 export default function ObjectList(props: Props) {
   const { value, objectListConfigs, onChange } = props;
 
-  const [isEditing, setEditing] = useState(props.isEditing);
+  const [isEditing, setIsEditing] = useState(props.isEditing);
   const [objects, setObjects] = useState(value);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
   useEffect(() => {
     setObjects(value);
-    setEditing(props.isEditing);
+    setIsEditing(props.isEditing);
   }, [value, props.isEditing, currentIndex, setCurrentIndex]);
 
   const onChangeValue = (index: number, key: string, values: any) => {
@@ -34,11 +33,11 @@ export default function ObjectList(props: Props) {
 
   const onEdit = (index: number) => {
     setCurrentIndex(index);
-    setEditing(true);
+    setIsEditing(true);
   };
 
   const onClickCancel = () => {
-    setEditing(false);
+    setIsEditing(false);
   };
 
   const onClickRemove = () => {
@@ -46,7 +45,7 @@ export default function ObjectList(props: Props) {
 
     setObjects(objects);
     onChange(objects);
-    setEditing(false);
+    setIsEditing(false);
   };
 
   const renderButtons = (index: number) => {
