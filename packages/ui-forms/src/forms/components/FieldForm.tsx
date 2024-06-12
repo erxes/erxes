@@ -472,7 +472,7 @@ class FieldForm extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel
               htmlFor="text"
-              required={(field.type || "") !== "html" ? true : false}
+              required={(field.type || "") !== "html"}
             >
               Field Label
             </ControlLabel>
@@ -635,7 +635,6 @@ class FieldForm extends React.Component<Props, State> {
     }
 
     return (
-      <>
         <FormGroup>
           <ControlLabel>Property type:</ControlLabel>
           <FormControl
@@ -649,7 +648,6 @@ class FieldForm extends React.Component<Props, State> {
             <option value={"contacts:company"}>Company</option>
           </FormControl>
         </FormGroup>
-      </>
     );
   }
 
@@ -669,7 +667,6 @@ class FieldForm extends React.Component<Props, State> {
     };
 
     return (
-      <>
         <FormGroup>
           <ControlLabel>Categories:</ControlLabel>
           <FormControl
@@ -686,7 +683,6 @@ class FieldForm extends React.Component<Props, State> {
             ))}
           </FormControl>
         </FormGroup>
-      </>
     );
   }
 
@@ -795,7 +791,6 @@ class FieldForm extends React.Component<Props, State> {
       this.props.field.associatedFieldId;
 
     return (
-      <>
         <FormGroup>
           <SelectProperty
             queryParams={{ type: group }}
@@ -804,7 +799,6 @@ class FieldForm extends React.Component<Props, State> {
             onChange={this.onPropertyChange}
           />
         </FormGroup>
-      </>
     );
   }
 
