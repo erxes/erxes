@@ -10,7 +10,6 @@ import {
 import React, { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries, subscriptions } from "./graphql";
-
 import { IUser } from "@erxes/ui/src/auth/types";
 import strip from "strip";
 
