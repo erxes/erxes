@@ -147,7 +147,7 @@ class GeneralSettings extends React.Component<Props, State> {
         <FlexRow $justifyContent={actionComponent ? 'space-between' : ''}>
           <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
 
-          {actionComponent && actionComponent}
+          {actionComponent ? actionComponent : null}
         </FlexRow>
         {description && <p>{__(description)}</p>}
         <FormControl
@@ -632,16 +632,18 @@ class GeneralSettings extends React.Component<Props, State> {
                 'GOOGLE_APPLICATION_CREDENTIALS_JSON',
                 'Firebase config for notifications',
                 undefined,
-                configsMap?.GOOGLE_APPLICATION_CREDENTIALS_JSON?<LinkButton
-                  onClick={() =>
-                    this.onChangeConfig('GOOGLE_APP_ADDITIONAL_CREDS_JSON', [
-                      ...(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []),
-                      '',
-                    ])
-                  }
-                >
-                  {__('+ Add additional JSON config')}
-                </LinkButton>:undefined
+                configsMap?.GOOGLE_APPLICATION_CREDENTIALS_JSON ? (
+                  <LinkButton
+                    onClick={() =>
+                      this.onChangeConfig('GOOGLE_APP_ADDITIONAL_CREDS_JSON', [
+                        ...(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []),
+                        '',
+                      ])
+                    }
+                  >
+                    {__('+ Add additional JSON config')}
+                  </LinkButton>
+                ) : undefined,
               )}
               {(configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || []).map(
                 (additionalJSON, index) => (

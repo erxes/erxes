@@ -153,7 +153,7 @@ export const getUserActionsMap = async (
     }
 
     const groupPermissionQuery = {
-      groupId: { $in: [...user?.groupIds, ...groupIds] },
+      groupId: { $in: [...(user?.groupIds || []), ...groupIds] },
     };
 
     const groupPermissions = await (permissionsFind
