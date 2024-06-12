@@ -158,7 +158,7 @@ export const awsRequests = {
     return new Promise((resolve, reject) => {
       api.listVerifiedEmailAddresses((error, data) => {
         if (error) {
-          return reject(error instanceof Error ? error : new Error(error));
+    return reject(error instanceof Error ? error : new Error(error));
         }
         resolve(data); 
         return resolve(data.VerifiedEmailAddresses);
@@ -172,7 +172,8 @@ export const awsRequests = {
     return new Promise((resolve, reject) => {
       api.verifyEmailAddress({ EmailAddress: email }, (error, data) => {
         if (error) {
-          return reject(error);
+          return reject(error instanceof Error ? error : new Error(error));
+          );
         }
 
         return resolve(data);
