@@ -78,7 +78,7 @@ export const subscribeEngage = (models: IModels) => {
       .catch(e => {
         debugError(e.message);
 
-        return reject(e.message);
+        return reject (new Error(e.message));
       });
 
     if (!topicArn) {
