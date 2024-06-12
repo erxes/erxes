@@ -53,7 +53,6 @@ const VideoCallMessage = (props: Props) => {
 
   if (videoCallData.status === 'end') {
     return (
-      <>
         <CallBox>
           <UserInfo>
             <strong>
@@ -63,12 +62,10 @@ const VideoCallMessage = (props: Props) => {
             {renderRecordings()}
           </UserInfo>
         </CallBox>
-      </>
     );
   }
 
   return (
-    <>
       <AppMessageBox>
         <UserInfo>
           <h5>{__('Video call invitation sent')}</h5>
@@ -91,7 +88,6 @@ const VideoCallMessage = (props: Props) => {
           </a>
         </CallButton>
       </AppMessageBox>
-    </>
   );
 };
 
