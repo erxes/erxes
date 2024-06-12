@@ -67,7 +67,7 @@ const checkSplit = async (
         })
       ) {
         segmentRes = true;
-        continue;
+        
       }
     }
   }
