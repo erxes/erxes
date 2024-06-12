@@ -16,7 +16,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -37,7 +37,7 @@ const insuranceTypeQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.InsuranceTypes.find(
         await generateFilter(params, commonQuerySelector)
       ),
@@ -60,14 +60,14 @@ const insuranceTypeQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
+      list: await paginate(
         models.InsuranceTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: models.InsuranceTypes.find(filter).count()
+      totalCount: await models.InsuranceTypes.find(filter).countDocuments()
     };
   },
 

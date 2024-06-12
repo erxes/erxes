@@ -135,7 +135,7 @@ export const setupMessageConsumers = () => {
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
-      const count = await models.Integrations.count(selector);
+      const count = await models.Integrations.countDocuments(selector);
 
       return { data: count, status: 'success' };
     },

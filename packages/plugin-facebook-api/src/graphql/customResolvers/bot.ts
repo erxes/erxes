@@ -3,7 +3,7 @@ import { IBotDocument } from '../../models/definitions/bots';
 import { graphRequest } from '../../utils';
 
 export default {
-  account(bot: IBotDocument, _args, { models }: IContext) {
+  async account(bot: IBotDocument, _args, { models }: IContext) {
     return models.Accounts.findOne({ _id: bot.accountId }).select({
       name: 1,
     });

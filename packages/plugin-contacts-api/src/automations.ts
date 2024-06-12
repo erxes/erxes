@@ -208,7 +208,7 @@ export default {
         icon: 'users-alt',
         label: 'Customer',
         description:
-          'Start with a blank workflow that enralls and is triggered off Customers'
+          'Start with a blank workflow that enrolls and is triggered off Customers'
       },
       {
         type: 'contacts:lead',
@@ -216,7 +216,7 @@ export default {
         icon: 'users-alt',
         label: 'Lead',
         description:
-          'Start with a blank workflow that enralls and is triggered off Leads'
+          'Start with a blank workflow that enrolls and is triggered off Leads'
       },
       {
         type: 'contacts:company',
@@ -224,7 +224,7 @@ export default {
         icon: 'university',
         label: 'Company',
         description:
-          'Start with a blank workflow that enralls and is triggered off company'
+          'Start with a blank workflow that enrolls and is triggered off company'
       }
     ],
     emailRecipientTypes: [

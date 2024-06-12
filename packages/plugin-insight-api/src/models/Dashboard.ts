@@ -42,7 +42,7 @@ export const loadDashboardClass = (models: IModels, subdomain: string) => {
     }
 
     public static async removeDashboard(_id: string) {
-      const dashboard = await models.Dashboards.findOne({
+      const dashboard = await models.Dashboards.findOneAndDelete({
         _id,
       });
 
@@ -50,7 +50,7 @@ export const loadDashboardClass = (models: IModels, subdomain: string) => {
         throw new Error('Dashboard not found');
       }
 
-      return models.Dashboards.deleteOne({ _id });
+      return dashboard;
     }
   }
 

@@ -23,10 +23,6 @@ type FinalProps = {
   PerformRemoveMutationResponse;
 
 class WorkListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       performsQuery,

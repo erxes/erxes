@@ -20,7 +20,7 @@ const configQueries = {
   /**
    * Config object
    */
-  configs(_root, _args, { models }: IContext) {
+  async configs(_root, _args, { models }: IContext) {
     return models.Configs.find({});
   },
 
@@ -55,14 +55,14 @@ const configQueries = {
     return result;
   },
 
-  configsGetEnv(_root) {
+  async configsGetEnv(_root) {
     return {
       USE_BRAND_RESTRICTIONS: process.env.USE_BRAND_RESTRICTIONS,
       RELEASE: process.env.RELEASE,
     };
   },
 
-  configsConstants(_root, _args, { models }: IContext) {
+  async configsConstants(_root, _args, { models }: IContext) {
     return {
       allValues: models.Configs.constants(),
       defaultValues: DEFAULT_CONSTANT_VALUES,
@@ -85,7 +85,7 @@ const configQueries = {
     }
   },
 
-  configsGetEmailTemplate(_root, { name }: { name?: string }) {
+  async configsGetEmailTemplate(_root, { name }: { name?: string }) {
     return readFile(name || 'base');
   },
 

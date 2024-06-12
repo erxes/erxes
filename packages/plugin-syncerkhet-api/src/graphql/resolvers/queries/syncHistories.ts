@@ -61,7 +61,7 @@ const erkhetQueries = {
 
   async syncHistoriesCount(_root, params, { models }: IContext) {
     const selector = generateFilter(params);
-    return models.SyncLogs.find(selector).count();
+    return models.SyncLogs.find(selector).countDocuments();
   }
 };
 

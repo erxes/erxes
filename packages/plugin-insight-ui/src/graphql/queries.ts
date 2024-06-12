@@ -409,8 +409,8 @@ const insightChartTemplatesList = `
 `;
 
 const chartGetResult = `
-  query chartGetResult($serviceName: String!, $templateType: String!, $filter: JSON, $dimension: JSON){
-    chartGetResult(serviceName: $serviceName, templateType: $templateType, filter: $filter , dimension: $dimension)
+  query chartGetResult($serviceName: String!, $templateType: String!, $chartType: String!, $filter: JSON, $dimension: JSON){
+    chartGetResult(serviceName: $serviceName, templateType: $templateType,  chartType: $chartType, filter: $filter , dimension: $dimension)
   }
 `;
 

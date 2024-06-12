@@ -108,6 +108,7 @@ export interface IEbarimtFull extends IEbarimt {
   qrData?: string;
   lottery?: string;
   date: string;
+  registerNo?: string;
 }
 
 export interface IEbarimtDocument extends Document, IEbarimtFull {
@@ -133,6 +134,7 @@ export const itemsSchema = schemaHooksWrapper(
     totalAmount: field({ type: Number, label: 'totalAmount' }),
     data: field({ type: Object, label: 'data' }),
     recId: field({ type: String, label: 'recId' }),
+    registerNo: String
   }),
 
   'erxes_ebarimt'

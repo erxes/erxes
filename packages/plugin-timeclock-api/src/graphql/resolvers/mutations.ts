@@ -200,27 +200,27 @@ const timeclockMutations = {
   /**
    * Removes a single timeclock
    */
-  timeclockRemove(_root, { _id }, { models }: IContext) {
+  async timeclockRemove(_root, { _id }, { models }: IContext) {
     return models.Timeclocks.removeTimeClock(_id);
   },
 
-  timeclockEdit(_root, { _id, ...doc }: ITimeClockEdit, { models }: IContext) {
+  async timeclockEdit(_root, { _id, ...doc }: ITimeClockEdit, { models }: IContext) {
     return models.Timeclocks.updateTimeClock(_id, doc);
   },
 
-  timeclockCreate(_root, doc, { models }: IContext) {
+  async timeclockCreate(_root, doc, { models }: IContext) {
     return models.Timeclocks.createTimeClock(doc);
   },
 
-  absenceTypeAdd(_root, doc, { models }: IContext) {
+  async absenceTypeAdd(_root, doc, { models }: IContext) {
     return models.AbsenceTypes.createAbsenceType(doc);
   },
 
-  absenceTypeRemove(_root, { _id }, { models }: IContext) {
+  async absenceTypeRemove(_root, { _id }, { models }: IContext) {
     return models.AbsenceTypes.removeAbsenceType(_id);
   },
 
-  absenceTypeEdit(
+  async absenceTypeEdit(
     _root,
     { _id, ...doc }: IAbsenceTypeEdit,
     { models }: IContext,
@@ -627,14 +627,14 @@ const timeclockMutations = {
     );
   },
 
-  scheduleRemove(_root, { _id }, { models }: IContext) {
-    models.Schedules.removeSchedule(_id);
-    models.Shifts.remove({ scheduleId: _id });
+  async scheduleRemove(_root, { _id }, { models }: IContext) {
+    await models.Schedules.removeSchedule(_id);
+    await models.Shifts.deleteMany({ scheduleId: _id });
     return;
   },
   async scheduleShiftRemove(_root, { _id }, { models }: IContext) {
     const getShift = await models.Shifts.getShift(_id);
-    const getShiftsCount = await models.Shifts.count({
+    const getShiftsCount = await models.Shifts.countDocuments({
       scheduleId: getShift.scheduleId,
     });
     // if it's the only one shift in schedule, remove schedule
@@ -703,19 +703,19 @@ const timeclockMutations = {
 
     return;
   },
-  payDateAdd(_root, { dateNums }, { models }: IContext) {
+  async payDateAdd(_root, { dateNums }, { models }: IContext) {
     return models.PayDates.createPayDate({ payDates: dateNums });
   },
 
-  payDateEdit(_root, { _id, dateNums }, { models }: IContext) {
+  async payDateEdit(_root, { _id, dateNums }, { models }: IContext) {
     return models.PayDates.updatePayDate(_id, { payDates: dateNums });
   },
 
-  payDateRemove(_root, { _id }, { models }: IContext) {
+  async payDateRemove(_root, { _id }, { models }: IContext) {
     return models.PayDates.removePayDate(_id);
   },
 
-  holidayAdd(_root, { name, startDate, endDate }, { models }: IContext) {
+  async holidayAdd(_root, { name, startDate, endDate }, { models }: IContext) {
     return models.Absences.createAbsence({
       holidayName: name,
       startTime: startDate,
@@ -726,7 +726,7 @@ const timeclockMutations = {
     });
   },
 
-  holidayEdit(
+  async holidayEdit(
     _root,
     { _id, name, startDate, endDate, doc },
     { models }: IContext,
@@ -740,7 +740,7 @@ const timeclockMutations = {
     });
   },
 
-  holidayRemove(_root, { _id }, { models }: IContext) {
+  async holidayRemove(_root, { _id }, { models }: IContext) {
     return models.Absences.removeAbsence(_id);
   },
 
@@ -853,7 +853,7 @@ const timeclockMutations = {
   ) {
     return models.DeviceConfigs.removeDeviceConfig(_id);
   },
-  scheduleConfigOrderEdit(
+  async scheduleConfigOrderEdit(
     _root,
     { userId, ...params },
     { models, user }: IContext,
@@ -872,7 +872,7 @@ const timeclockMutations = {
     return models.ScheduleConfigOrder.updateOne(query, update, options);
   },
 
-  checkReport(_root, doc, { models, user }: IContext) {
+  async checkReport(_root, doc, { models, user }: IContext) {
     const getUserId = doc.userId || user._id;
     return models.ReportChecks.createReportCheck({
       userId: getUserId,
@@ -880,13 +880,13 @@ const timeclockMutations = {
     });
   },
 
-  checkSchedule(_root, { scheduleId }, { models }: IContext) {
+  async checkSchedule(_root, { scheduleId }, { models }: IContext) {
     return models.Schedules.updateSchedule(scheduleId, {
       scheduleChecked: true,
     });
   },
 
-  createTimeClockFromLog(
+  async createTimeClockFromLog(
     _root,
     { userId, timelog, inDevice },
     { models }: IContext,
