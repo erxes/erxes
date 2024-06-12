@@ -147,7 +147,7 @@ export const subscribeEngage = (models: IModels) => {
           return;
         }
 
-        return reject(e.message);
+        return reject (new Error("e.message"));
       });
 
     return resolve(true);
