@@ -1,16 +1,15 @@
 // queries
-  export interface IBurenScoring {
-    _id: string;
-    externalScoringResponse: any;
-    score?: number;
-    customerId?: string;
-    reportPurpose?: string;
-    keyword?: string;
-    restInquiryResponse?: any;
-    createdAt?: Date;
-    createdBy?: string;
-  }
-
+export interface IBurenScoring {
+  _id?: string;
+  externalScoringResponse: any;
+  score?: number;
+  customerId?: string;
+  reportPurpose?: string;
+  keyword?: string;
+  restInquiryResponse?: any;
+  createdAt?: Date;
+  createdBy?: string;
+}
 
 export type BurenScoringQueryResponse = {
   burenCustomerScoringsMain: { list: IBurenScoring[]; totalCount: number };
@@ -29,7 +28,9 @@ export type ScoringResultResponse = {
 };
 
 export type ToFintechScoringResponse = {
-  toFintechScoring: (params: { variables: { reportPurpose: string, keyword: string } }) => Promise<any>;
+  toFintechScoring: (params: {
+    variables: { reportPurpose: string; keyword: string };
+  }) => Promise<any>;
 };
 export type IConfigsMaps = { [key: string]: any };
 
