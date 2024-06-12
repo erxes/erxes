@@ -37,7 +37,7 @@ type FinalProps = {
   FieldsBulkAddAndEditMutationResponse;
 
 class CreateFormContainer extends React.Component<FinalProps, {}> {
-  static defaultProps = {
+  static readonly defaultProps = {
     showMessage: true,
   };
 
