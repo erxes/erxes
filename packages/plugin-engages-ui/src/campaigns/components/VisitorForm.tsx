@@ -140,7 +140,7 @@ class VisitorForm extends React.Component<Props, State> {
           </>
         );
       }
-      return;
+
     };
 
     return (
