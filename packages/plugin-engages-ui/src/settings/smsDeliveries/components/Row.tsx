@@ -7,7 +7,7 @@ import { ISmsDelivery } from '../types';
 
 type Props = {
   log: ISmsDelivery;
-  type: string;
+
 };
 
 const DIRECTIONS = {
