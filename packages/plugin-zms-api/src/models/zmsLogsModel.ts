@@ -3,7 +3,7 @@ import { ZmsLogs } from '.';
 
 interface IZmsLog {
   createdAt: Date;
-  zmsId: String;
+  zmsId: string;
   action: string;
   object: any;
   status: boolean;
