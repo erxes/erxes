@@ -1,5 +1,5 @@
 import { EditMutationResponse, IProduct } from '../../../types';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery,gql } from '@apollo/client';
 
 import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
 import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
@@ -8,7 +8,6 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { gql } from '@apollo/client';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { mutations } from '../../../graphql';
 
