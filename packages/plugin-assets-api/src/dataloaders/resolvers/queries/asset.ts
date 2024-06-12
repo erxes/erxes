@@ -88,7 +88,7 @@ export const generateCommonAssetFilter = async (
 
     filter.$or = fields;
   }
-  if (!!articleIds?.length) {
+  if (articleIds?.length) {
     filter.kbArticleIds = { $in: articleIds };
   }
 
@@ -189,7 +189,7 @@ const assetQueries = {
     return models.Assets.find(filter).countDocuments();
   },
 
-  assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Assets.findOne({ _id }).lean();
   },
 };

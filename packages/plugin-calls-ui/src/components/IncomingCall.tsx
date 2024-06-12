@@ -2,6 +2,11 @@ import * as PropTypes from 'prop-types';
 
 import { Alert, __ } from '@erxes/ui/src/utils';
 import {
+  CALL_STATUS_ACTIVE,
+  CALL_STATUS_IDLE,
+  CALL_STATUS_STARTING,
+} from '../lib/enums';
+import {
   IncomingActionButton,
   IncomingButtonContainer,
   IncomingCallNav,
@@ -10,22 +15,25 @@ import {
   NameCardContainer,
   PhoneNumber,
 } from '../styles';
-import { ICustomer } from '../types';
 import React, { useEffect, useRef, useState } from 'react';
 import { callPropType, sipPropType } from '../lib/types';
 
 import Avatar from '@erxes/ui/src/components/nameCard/Avatar';
-import { CALL_STATUS_IDLE } from '../lib/enums';
+import { ICustomer } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { callActions } from '../utils';
 import { caller } from '../constants';
 import { renderFullName } from '@erxes/ui/src/utils/core';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   customer: ICustomer;
   channels: any;
   hasMicrophone: boolean;
   phoneNumber: string;
+  hideIncomingCall?: boolean;
+  inboxId: string;
+  currentCallConversationId: string;
 };
 
 const getSpentTime = (seconds: number) => {
@@ -57,17 +65,32 @@ const formatNumber = (n: number) => {
 
 const IncomingCall = (props: Props, context) => {
   const Sip = context;
-  const { mute, unmute, isMuted, isHolded, hold, unhold } = Sip;
-  const { customer, hasMicrophone, phoneNumber, channels } = props;
+  const { mute, unmute, isMuted, isHolded, hold, unhold, call } = Sip;
+  const {
+    customer,
+    hasMicrophone,
+    phoneNumber,
+    channels,
+    hideIncomingCall,
+    currentCallConversationId,
+    inboxId,
+  } = props;
   const primaryPhone = customer?.primaryPhone || '';
+
+  const navigate = useNavigate();
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
     primaryPhone ? true : false,
   );
   const [timeSpent, setTimeSpent] = useState(0);
-  const [status, setStatus] = useState('pending');
+  const [status, setStatus] = useState(
+    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+  );
 
+  let direction = context.call?.direction?.split('/')[1];
+  direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
@@ -81,6 +104,9 @@ const IncomingCall = (props: Props, context) => {
       }, 1000);
     }
     if (status !== 'accepted') {
+      if (call.status === CALL_STATUS_STARTING) {
+        localStorage.removeItem('transferedCallStatus');
+      }
       setHaveIncomingCall(true);
     }
 
@@ -144,11 +170,18 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
+  const gotoDetail = () => {
+    navigate(`/inbox/index?_id=${currentCallConversationId}`, {
+      replace: true,
+    });
+  };
+
   const renderUserInfo = (type?: string) => {
     const inCall = type === 'incall' ? true : false;
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
     const fullName = renderFullName(customer || '', false);
+    const hasGroupName = call.groupName || '';
 
     return (
       <NameCardContainer>
@@ -158,6 +191,11 @@ const IncomingCall = (props: Props, context) => {
         {primaryPhone && (
           <PhoneNumber>
             {primaryPhone}
+            {hasGroupName && (
+              <span>
+                {__('from')} {hasGroupName}
+              </span>
+            )}
             {hasChannel && (
               <span>
                 {__('is calling to')} {channelName}
@@ -199,7 +237,7 @@ const IncomingCall = (props: Props, context) => {
     );
   }
 
-  if (status === 'accepted' && !haveIncomingCall) {
+  if (status === 'accepted' && !haveIncomingCall && !hideIncomingCall) {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
@@ -215,9 +253,15 @@ const IncomingCall = (props: Props, context) => {
             {callActions(
               isMuted,
               handleAudioToggle,
-              isHolded,
-              handleHold,
               endCall,
+              inboxId,
+              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              direction,
+              gotoDetail,
+              currentCallConversationId &&
+                currentCallConversationId.length !== 0
+                ? false
+                : true,
             )}
           </IncomingContent>
         </IncomingContainer>

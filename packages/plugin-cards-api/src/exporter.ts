@@ -115,19 +115,19 @@ const prepareDataCount = async (
 
   switch (type) {
     case MODULE_NAMES.DEAL:
-      data = await models.Deals.find(boardItemsFilter).count();
+      data = await models.Deals.find(boardItemsFilter).countDocuments();
 
       break;
     case MODULE_NAMES.PURCHASE:
-      data = await models.Purchases.find(boardItemsFilter).count();
+      data = await models.Purchases.find(boardItemsFilter).countDocuments();
 
       break;
     case MODULE_NAMES.TASK:
-      data = await models.Tasks.find(boardItemsFilter).count();
+      data = await models.Tasks.find(boardItemsFilter).countDocuments();
 
       break;
     case MODULE_NAMES.TICKET:
-      data = await models.Tickets.find(boardItemsFilter).count();
+      data = await models.Tickets.find(boardItemsFilter).countDocuments();
       break;
   }
 

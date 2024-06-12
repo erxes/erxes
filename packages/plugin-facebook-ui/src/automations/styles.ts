@@ -22,10 +22,6 @@ export const Container = styled.div`
 
 export const Padding = styled.div`
   padding: 10px;
-
-  input {
-    width: 110px;
-  }
 `;
 
 export const Row = styled.div`
@@ -401,4 +397,11 @@ export const ListItem = styled.div`
 export const PreviewButton = styled.div`
   flex-shrink: 0;
   margin-right: 30px;
+`;
+
+export const FieldInfo = styledTS<{ error?: boolean }>(styled.div)`
+  width: 100%;
+  display:flex;
+  justify-content: end;
+  color:${({ error }) => (error ? colors.colorCoreRed : colors.colorCoreGray)}
 `;

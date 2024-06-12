@@ -139,7 +139,7 @@ const insightQueries = {
 
     async chartGetResult(
         _root,
-        { serviceName, templateType, filter, dimension },
+        { serviceName, templateType, chartType, filter, dimension },
         { subdomain, user }: IContext,
     ) {
         const chartResult = await sendCommonMessage({
@@ -150,6 +150,7 @@ const insightQueries = {
                 filter,
                 dimension,
                 templateType,
+                chartType,
                 currentUser: user,
             },
             isRPC: true,

@@ -4,10 +4,11 @@ import {
   pop,
   slideRight,
 } from '@erxes/ui/src/utils/animations';
+import { dimensions, typography } from '@erxes/ui/src/styles';
 import styled, { css, keyframes } from 'styled-components';
 
+import { WhiteBox } from '@erxes/ui/src/layout/styles';
 import colors from '@erxes/ui/src/styles/colors';
-import { dimensions } from '@erxes/ui/src/styles';
 import styledTS from 'styled-components-ts';
 
 export const Tab = styled(TabTitle)`
@@ -34,14 +35,14 @@ export const TabsContainer = styled(Tabs)`
   border-top: 1px solid ${colors.borderPrimary};
   border-radius: 0 0 25px 10px;
   overflow: hidden;
-  background:red;
+  background: red;
 `;
 
-export const TabsWrapper = styled.div `
+export const TabsWrapper = styled.div`
   border-top: 1px solid ${colors.borderPrimary};
   margin-bottom: ${dimensions.unitSpacing}px;
 
-  > div{
+  > div {
     border-bottom: none;
   }
 `;
@@ -74,9 +75,9 @@ export const Contacts = styled.div`
   }
 `;
 
-export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
+export const PhoneNumber = styledTS<{ $shrink?: boolean }>(styled.div)`
   ${(props) =>
-    props.shrink
+    props.$shrink
       ? `font-weight: 600;
     font-size: 15px;`
       : `font-weight: 500;
@@ -97,14 +98,14 @@ export const PhoneNumber = styledTS<{ shrink?: boolean }>(styled.div)`
 `;
 
 export const CallDetail = styledTS<{
-  isMissedCall: boolean;
-  isIncoming: boolean;
+  $isMissedCall: boolean;
+  $isIncoming: boolean;
 }>(styled.div)`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 5px 20px;
-  padding-left: ${(props) => props.isIncoming && '40px'};
+  padding-left: ${(props) => props.$isIncoming && '40px'};
   cursor: pointer;
   transition: all ease .3s;
 
@@ -123,13 +124,13 @@ export const CallDetail = styledTS<{
 
     ${PhoneNumber} {
         color: ${(props) =>
-          props.isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
+          props.$isMissedCall ? colors.colorCoreRed : colors.colorCoreDarkGray};
     }
   }
 
   a {
     font-weight: 700;
-    color: ${(props) => (props.isMissedCall ? '#FF4949' : '#000')};
+    color: ${(props) => (props.$isMissedCall ? '#FF4949' : '#000')};
   }
 `;
 
@@ -137,6 +138,7 @@ export const AdditionalDetail = styled.div`
   color: #888;
   align-items: center;
   display: flex;
+  position: relative;
 
   > span {
     font-size: 11px;
@@ -224,8 +226,9 @@ export const NumberInput = styled.div`
     padding: 5px 10px;
     font-size: 15px;
   }
-  
-  .css-13cymwt-control, .css-t3ipsp-control {
+
+  .css-13cymwt-control,
+  .css-t3ipsp-control {
     min-height: unset;
     border-bottom: none;
   }
@@ -334,7 +337,9 @@ export const IncomingCallNav = styledTS<{ type?: string }>(styled.div)`
   bottom: ${(props) => (props.type === 'outgoing' ? '0' : '150px')};
   right: ${(props) => (props.type === 'outgoing' ? '0' : '20px')};
   z-index: 999;
-  animation: ${css`${slideRight}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`
+    ${slideRight}
+  `} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
 
   button {
     height: 30px;
@@ -369,7 +374,9 @@ export const CallButton = styledTS<{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: ${(props) => (props.type === 'decline' ? '0' : '0px')};
-  animation: ${css`${pulse}`} 1.5s infinite alternate;
+  animation: ${css`
+    ${pulse}
+  `} 1.5s infinite alternate;
 `;
 
 export const InCall = styled.div`
@@ -395,16 +402,13 @@ export const CallInfo = styledTS<{ shrink?: boolean }>(styled.div)`
 `;
 
 export const Actions = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
 
   > div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
     .coming-soon {
       margin-bottom: -10px;
       margin-top: -3px;
@@ -414,10 +418,15 @@ export const Actions = styled.div`
   }
 `;
 
+export const InnerActions = styled.div`
+  display: flex;
+  gap: 25px;
+`;
+
 export const CallAction = styledTS<{
-  isDecline?: boolean;
-  active?: boolean;
-  disabled?: boolean;
+  $isDecline?: boolean;
+  $active?: boolean;
+  $disabled?: boolean;
 }>(styled.div)`
   width: 60px;
   height: 60px;
@@ -426,21 +435,21 @@ export const CallAction = styledTS<{
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  cursor: pointer;
-  color: ${(props) => (props.active ? colors.textPrimary : colors.colorWhite)};
+  cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
+  color: ${(props) => (props.$active ? colors.textPrimary : colors.colorWhite)};
   background: ${(props) =>
-    props.disabled
+    props.$disabled
       ? colors.colorShadowGray
-      : props.isDecline
+      : props.$isDecline
         ? colors.colorCoreRed
-        : props.active
+        : props.$active
           ? colors.colorWhite
           : 'rgba(255, 255, 255, 0.4)'};
-  margin-bottom: 5px;
+  margin-bottom: 2px;
   transition: all ease .3s;
 
   ${(props) =>
-    props.isDecline &&
+    props.$isDecline &&
     `
     justify-self: center;
     grid-column-start: span 3;
@@ -448,9 +457,9 @@ export const CallAction = styledTS<{
 
   &:hover {
     background: ${(props) =>
-      props.isDecline
+      props.$isDecline
         ? 'rgba(234, 71, 93, 0.6)'
-        : !props.active && !props.disabled && 'rgba(255, 255, 255, 0.2)'};
+        : !props.$active && !props.$disabled && 'rgba(255, 255, 255, 0.2)'};
   }
 `;
 
@@ -540,7 +549,9 @@ export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
   transition:
     box-shadow 0.3s ease-in-out,
     background-image 0.3s ease-in;
-  animation: ${css`${pop}`} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
+  animation: ${css`
+    ${pop}
+  `} 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -548,7 +559,10 @@ export const WidgetWrapper = styledTS<{ $isConnected?: boolean }>(styled.div)`
 
   &:before {
     animation: ${(props) =>
-      !props.$isConnected && css`${animationPulse} 2s infinite`};
+      !props.$isConnected &&
+      css`
+        ${animationPulse} 2s infinite
+      `};
     border-radius: 50%;
     color: inherit;
     content: '';
@@ -647,7 +661,8 @@ export const NameCardContainer = styled.div`
 
     > i {
       margin-right: 5px;
-      animation: ${css`${pulse}`} 2s infinite;
+      animation: ${css`
+          ${pulse}`} 2s infinite;
     }
   }
 
@@ -707,3 +722,175 @@ export const IncomingCalls = styled.div`
 export const ActiveCalls = styled.div`
   background: ${colors.colorWhite};
 `;
+
+const iconWrapperWidth = 80;
+
+const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
+  padding: ${(props) => (props.isConversation ? '0' : dimensions.coreSpacing)}px;
+  background: ${(props) => props.isConversation && colors.bgLight};
+  position: relative;
+  overflow: visible;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  border-radius: 5px;
+  height: auto;
+  transition:height 0.3s ease-out;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: ${(props) => props.isConversation && colors.bgLightPurple};
+  }
+`;
+
+const ActivityIcon = styledTS<{ color?: string }>(styled.span)`
+  display: inline-block;
+  position: absolute;
+  background-color: ${(props) => props.color};
+  height: ${iconWrapperWidth * 0.4}px;
+  width: ${iconWrapperWidth * 0.4}px;
+  line-height: ${iconWrapperWidth * 0.4}px;
+  text-align: center;
+  border-radius: 50%;
+  left: ${-iconWrapperWidth + iconWrapperWidth * 0.3}px;
+  top: ${dimensions.coreSpacing}px;
+  z-index: 2;
+
+  & i {
+    margin: 0;
+    color: ${colors.colorWhite};
+  }
+`;
+
+const ActivityDate = styled.div`
+  color: ${colors.colorCoreGray};
+  font-weight: ${typography.fontWeightLight};
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-left: ${dimensions.unitSpacing}px;
+`;
+
+const AcitivityHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const TransferCallWrapper = styled.div`
+  margin: 20px 20px 0px 20px;
+  padding-bottom: 20px;
+`;
+
+const DialogWrapper = styledTS<{ direction?: string }>(styled.div)`
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 1000000;
+  left: auto;
+  margin-right: ${(props) => (props.direction === 'incoming' ? '30px' : '25px')};
+  width: 360px;
+  margin-top: 120px;
+`;
+
+const CallWrapper = styled.div`
+  position: absolute;
+  width: 72px;
+  z-index: 999999;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 80px;
+  right: 12px;
+`;
+const MessageContent = styledTS<{ $internal?: boolean; $staff?: boolean }>(
+  styled.div,
+)`
+  margin-top: 5px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+  border-radius: 20px;
+  background: ${colors.colorWhite};
+  background: ${(props) =>
+    props.$internal
+      ? colors.bgInternal
+      : props.$staff && colors.colorSecondary};
+  word-break: break-word;
+  box-shadow: 0 1px 1px 0 ${colors.darkShadow};
+  color: ${(props) => props.$staff && !props.$internal && colors.colorWhite};
+  text-align: left;
+
+  a {
+    color: ${(props) =>
+      props.$staff && !props.$internal
+        ? colors.colorWhite
+        : colors.linkPrimary};
+    text-decoration: underline;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  > span {
+    display: block;
+  }
+
+  .mention {
+    font-weight: bold;
+    display: inline-block;
+  }
+
+  img {
+    max-width: 300px;
+    border-radius: 2px;
+  }
+
+  ul,
+  ol {
+    padding-left: 25px;
+    margin: 0;
+  }
+
+  h3 {
+    margin-top: 0;
+  }
+
+  blockquote {
+    margin-bottom: 0;
+    border-color: ${colors.borderDarker};
+  }
+
+  pre {
+    margin-bottom: 0;
+  }
+`;
+
+const OperatorFormView = styled.div`
+  position: relative;
+  background: ${colors.bgActive};
+  padding: 5px ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  border-radius: 4px;
+`;
+
+const OperatorRemoveBtn = styled.div`
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  > button {
+    padding: 3px 5px;
+  }
+`;
+
+export {
+  ActivityRow,
+  ActivityIcon,
+  ActivityDate,
+  AcitivityHeader,
+  TransferCallWrapper,
+  CallWrapper,
+  DialogWrapper,
+  MessageContent,
+  OperatorFormView,
+  OperatorRemoveBtn
+};

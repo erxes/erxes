@@ -26,35 +26,28 @@ type Props = {
 };
 
 const TableList = (props: Props) => {
-  const { dataset, serviceName } = props;
-  const { title, data, labels } = dataset;
+  const { dataset: { data = [], }, } = props;
 
-  const headerTitle =
-    serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
-  const formatType =
-    title && title.toLowerCase().includes("time") ? "time" : "commarize";
+  const headers = data.length > 0 ? Object.keys(data[0]) : [];
 
   return (
     <ScrollWrapper>
       <Table>
         <thead>
           <tr>
-            <th>{headerTitle}</th>
-            <th>{title}</th>
+            {(headers || []).map(header => (
+              <th key={header}>{header}</th>
+            ))}
           </tr>
         </thead>
-
         <tbody>
-          {(
-            (labels || [])
-              .map((label, index) => ({ label, value: data[index] }))
-              .sort((a, b) => b.value - a.value) || []
-          ).map(({ label, value }, index) => (
+          {(data || []).map((item, index) => (
             <tr key={index}>
-              <td>
-                <b>{label}</b>
-              </td>
-              <td>{formatNumbers(value, "x", formatType)}</td>
+              {(headers || []).map(header => (
+                <td key={header}>
+                  {item[header] || '-'}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

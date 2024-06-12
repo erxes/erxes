@@ -9,6 +9,7 @@ const Market = dynamic(() => import("./market"))
 const Main = dynamic(() => import("./main"))
 const Kiosk = dynamic(() => import("./kiosk"))
 const Restaurant = dynamic(() => import("./restaurant"))
+const Mobile = dynamic(() => import("./mobile"))
 
 export default function IndexPage() {
   const mode = useAtomValue(modeAtom)
@@ -18,6 +19,7 @@ export default function IndexPage() {
       {["main", "coffee-shop"].includes(mode) && <Main />}
       {mode === "restaurant" && <Restaurant />}
       {mode === "kiosk" && <Kiosk />}
+      {mode === "mobile" && <Mobile />}
       <RequirePassword />
     </>
   )

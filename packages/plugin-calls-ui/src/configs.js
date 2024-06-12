@@ -10,6 +10,7 @@ module.exports = {
     "./integrationDetailsForm": "./src/components/IntegrationEditForm.tsx",
     "./integrationCustomActions": "./src/components/TokenButton.tsx",
     "./inboxIntegrationSettings": "./src/containers/UpdateConfigsContainer.tsx",
+    "./activityLog": "./src/components/ActivityLogs.tsx",
   },
 
   routes: {
@@ -17,11 +18,11 @@ module.exports = {
     scope: "calls",
     module: "./routes",
   },
-  innerWidget: {
+
+  layout: {
     url: "http://localhost:3119/remoteEntry.js",
     scope: "calls",
     module: "./call",
-    style: "bottom: 80px;right: 12px",
   },
   inboxIntegrationForm: "./inboxIntegrationForm",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
@@ -38,4 +39,5 @@ module.exports = {
       createModal: "grandstream",
     },
   ],
+  activityLog: "./activityLog",
 };

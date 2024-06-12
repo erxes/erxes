@@ -42,7 +42,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -63,7 +63,7 @@ const invoiceQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.Invoices.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
@@ -84,11 +84,14 @@ const invoiceQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(models.Invoices.find(filter).sort(sortBuilder(params)), {
-        page: params.page,
-        perPage: params.perPage
-      }),
-      totalCount: models.Invoices.find(filter).count()
+      list: await paginate(
+        models.Invoices.find(filter).sort(sortBuilder(params)),
+        {
+          page: params.page,
+          perPage: params.perPage
+        }
+      ),
+      totalCount: await models.Invoices.find(filter).countDocuments()
     };
   },
 
@@ -109,18 +112,17 @@ const invoiceQueries = {
     { models, subdomain }: IContext
   ) => {
     const currentDate = getFullDate(payDate);
-    const config = await getConfig('loansConfig',subdomain)
-    const {
-      payment,
-      loss,
-      storedInterest,
-      calcInterest,
-      insurance,
-      debt
-    } = await getCalcedAmounts(models, subdomain, {
-      contractId,
-      payDate: currentDate
-    },config)
+    const config = await getConfig('loansConfig', subdomain);
+    const { payment, loss, storedInterest, calcInterest, insurance, debt } =
+      await getCalcedAmounts(
+        models,
+        subdomain,
+        {
+          contractId,
+          payDate: currentDate
+        },
+        config
+      );
 
     return {
       contractId: contractId,

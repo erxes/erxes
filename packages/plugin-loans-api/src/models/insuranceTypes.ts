@@ -1,11 +1,10 @@
 import {
   IInsuranceType,
-  insuranceTypeSchema
+  insuranceTypeSchema,
+  IInsuranceTypeDocument
 } from './definitions/insuranceTypes';
-import { IInsuranceTypeDocument } from './definitions/insuranceTypes';
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongodb';
 
 export interface IInsuranceTypeModel extends Model<IInsuranceTypeDocument> {
   getInsuranceType(selector: FilterQuery<IInsuranceTypeDocument>);
@@ -38,7 +37,7 @@ export const loadInsuranceTypeClass = (models: IModels) => {
      */
     public static async createInsuranceType(doc: IInsuranceType) {
       if (!doc.companyId) throw new Error('Company is required');
-      return models.InsuranceTypes.create(doc);
+      return await models.InsuranceTypes.create(doc);
     }
 
     /**
@@ -50,7 +49,7 @@ export const loadInsuranceTypeClass = (models: IModels) => {
     ) {
       await models.InsuranceTypes.updateOne({ _id }, { $set: doc });
 
-      return models.InsuranceTypes.findOne({ _id });
+      return await models.InsuranceTypes.findOne({ _id });
     }
 
     /**
@@ -59,7 +58,7 @@ export const loadInsuranceTypeClass = (models: IModels) => {
     public static async removeInsuranceTypes(_ids: string[]) {
       // await models.InsuranceTypes.getInsuranceTypeCatogery(models, { _id });
       // TODO: check collateralsData
-      return models.InsuranceTypes.deleteMany({ _id: { $in: _ids } });
+      return await models.InsuranceTypes.deleteMany({ _id: { $in: _ids } });
     }
   }
   insuranceTypeSchema.loadClass(InsuranceType);

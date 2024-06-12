@@ -7,7 +7,7 @@ import {
   Wrapper,
   __,
 } from '@erxes/ui/src';
-import Appearance, { IUIOptions } from './step/Appearance';
+import Appearance from './step/Appearance';
 import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,
@@ -172,28 +172,6 @@ const Pos = (props: Props) => {
 
   const onChange = (key: string, value: any) => {
     setState((prevState) => ({ ...prevState, [key]: value }));
-  };
-
-  const onChangeAppearance = (key: string, value: any) => {
-    let uiOptions = state.uiOptions || {};
-    const { pos = {} as IPos } = state || {};
-    uiOptions[key] = value;
-
-    if (uiOptions[key]) {
-      uiOptions[key] = value;
-    } else {
-      uiOptions = { [key]: value } as IUIOptions;
-    }
-
-    if (pos.uiOptions) {
-      pos.uiOptions = uiOptions;
-    }
-
-    setState((prevState) => ({ ...prevState, pos }));
-  };
-
-  const onFormDocChange = (formData) => {
-    setState((prevState) => ({ ...prevState, formData }));
   };
 
   const onStepClick = (currentStepNumber) => {

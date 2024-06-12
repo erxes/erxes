@@ -48,7 +48,7 @@ export const loadExpenseClass = (models: IModels, subdomain: string) => {
       if (!data) {
         throw new Error(`not found with id ${_id}`);
       }
-      return models.Expenses.remove({ _id });
+      return models.Expenses.deleteOne({ _id });
     }
   }
 

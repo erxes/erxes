@@ -55,7 +55,6 @@ export interface IProduct {
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
-  productId?: string;
   tagIds?: string[];
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];

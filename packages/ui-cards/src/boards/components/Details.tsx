@@ -1,10 +1,10 @@
-import { ItemBox, ItemIndicator, Quantity } from '../styles/stage';
+import { ItemBox, ItemIndicator, Quantity } from "../styles/stage";
 
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
-import { renderFullName } from '@erxes/ui/src/utils';
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IProduct } from "@erxes/ui-products/src/types";
+import React from "react";
+import { renderFullName } from "@erxes/ui/src/utils";
 
 type Props = {
   items: ICompany[] | ICustomer[] | IProduct[];
@@ -16,18 +16,20 @@ class Details extends React.Component<Props> {
     return (
       <ItemBox key={index}>
         <ItemIndicator color={color} />
-        {item.name || item.primaryName || renderFullName(item)}
+        {item.product
+          ? item.product.name
+          : item.name || item.primaryName || renderFullName(item)}
         {item.quantity && (
           <Quantity>
-            ({item.quantity} {item.uom ? item.uom : 'PC'})
+            ({item.quantity} {item.uom ? item.uom : "PC"})
           </Quantity>
         )}
         {item.unitPrice && (
           <>
-            {' '}
-            -{' '}
+            {" "}
+            -{" "}
             {item.unitPrice.toLocaleString(undefined, {
-              maximumFractionDigits: 0
+              maximumFractionDigits: 0,
             })}
           </>
         )}

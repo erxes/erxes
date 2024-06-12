@@ -4,9 +4,7 @@ import * as mongoose from 'mongoose';
 dotenv.config();
 
 const options = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true
+  family: 4
 };
 
 const command = async (API_MONGO_URL, MONGO_URL) => {

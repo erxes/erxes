@@ -53,14 +53,14 @@ const ChartFormField = (props: Props) => {
 
   const { fieldQueryVariables } = filterType;
 
+  const [fieldValue, setFieldValue] = useState(initialValue);
+
   useEffect(() => {
     if (!fieldValue && fieldDefaultValue) {
       setFieldValue(fieldDefaultValue);
       onChange(fieldDefaultValue);
     }
   }, [fieldDefaultValue]);
-
-  const [fieldValue, setFieldValue] = useState(initialValue);
 
   const onSelect = (selectedOption) => {
     if (selectedOption === undefined || selectedOption === null) {
@@ -97,17 +97,18 @@ const ChartFormField = (props: Props) => {
       setFilter("brandIds", brandIds);
     }
   };
-
-  const groupsOptions =
-    fieldType === "groups"
-      ? (fieldOptions || []).map((group) => ({
-          label: group.label,
-          options: (group.value || []).map((field) => ({
-            value: field._id,
-            label: field.text,
-          })),
-        }))
-      : [];
+  let onlyOptions = [] as any;
+  Object.keys(fieldOptions[0] || []).indexOf("options") > 0 &&
+    fieldOptions.map((pp) => pp.options.map((o) => onlyOptions.push(o)));
+  const valueOptions =
+    fieldValue &&
+    (Object.keys(fieldOptions[0] || []).indexOf("options") > 0
+      ? multi
+        ? onlyOptions.filter((o) => fieldValue.includes(o.value))
+        : onlyOptions.find((o) => o.value === fieldValue)
+      : multi
+        ? fieldOptions.filter((o) => fieldValue.includes(o.value))
+        : fieldOptions.find((o) => o.value === fieldValue));
 
   switch (fieldQuery) {
     case "users":
@@ -288,12 +289,7 @@ const ChartFormField = (props: Props) => {
         <div>
           <ControlLabel>{fieldLabel}</ControlLabel>
           <Select
-            value={
-              fieldValue &&
-              (multi
-                ? fieldOptions.filter((o) => fieldValue.includes(o.value))
-                : fieldOptions.find((o) => o.value === fieldValue))
-            }
+            value={valueOptions}
             isClearable={true}
             isMulti={multi}
             onChange={onSelect}

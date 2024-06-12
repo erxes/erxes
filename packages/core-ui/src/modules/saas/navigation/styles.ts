@@ -54,7 +54,7 @@ const NavItem = styled.div`
 const List = styled.ul`
   list-style: none;
   position: absolute;
-  padding: 10px 0;
+  padding: 8px 0;
   right: 100%;
   top: 0;
   background: ${colors.colorWhite};
@@ -101,7 +101,7 @@ const Add = styled.a`
 `;
 
 const ExistingOrg = styled(Add)`
-  padding: 10px 0 !important;
+  padding: 0 !important;
 `;
 
 const Container = styled.div`

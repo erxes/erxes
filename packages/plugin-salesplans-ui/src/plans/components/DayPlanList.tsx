@@ -10,7 +10,6 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  Icon,
   ModalTrigger,
   Table,
 } from "@erxes/ui/src/components";
@@ -18,12 +17,7 @@ import { IDayPlan, IDayPlanConfirmParams } from "../types";
 import { ITimeframe } from "../../settings/types";
 import { menuSalesplans } from "../../constants";
 import { TableWrapper } from "../../styles";
-import {
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -152,19 +146,14 @@ const DayPlanList = (props: Props) => {
 
     return (
       <FlexRow>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              type="text"
-              placeholder={__("Type to search")}
-              onChange={handleSearch}
-              value={search}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={search}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
         <ModalTrigger
           title="Add label"
           trigger={trigger}

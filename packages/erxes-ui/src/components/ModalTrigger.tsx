@@ -1,18 +1,15 @@
 import * as routerUtils from "../utils/router";
 
-import {
-  CloseModal,
-  DialogContent,
-  DialogWrapper,
-  ModalOverlay,
-} from "../styles/main";
-import { Dialog, Transition } from "@headlessui/react";
-import React, { Fragment, forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { __, router } from "../utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { CSSTransition } from "react-transition-group";
+import { CloseModal } from "../styles/main";
 import Icon from "./Icon";
+import { Modal } from "react-bootstrap";
 import queryString from "query-string";
+import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   title: string;
@@ -20,7 +17,7 @@ type Props = {
   trigger?: React.ReactNode;
   autoOpenKey?: string;
   content: any;
-  size?: "xs" | "sm" | "lg" | "xl";
+  size?: "sm" | "lg" | "xl";
   ignoreTrans?: boolean;
   dialogClassName?: string;
   backDrop?: "static" | boolean;
@@ -30,7 +27,25 @@ type Props = {
   addisOpenToQueryParam?: boolean;
   paddingContent?: "less-padding";
   centered?: boolean;
+  style?: any;
   onExit?: () => void;
+  tipText?: string;
+  tipPlacement?:
+    | "auto-start"
+    | "auto"
+    | "auto-end"
+    | "top-start"
+    | "top"
+    | "top-end"
+    | "right-start"
+    | "right"
+    | "right-end"
+    | "bottom-end"
+    | "bottom"
+    | "bottom-start"
+    | "left-end"
+    | "left"
+    | "left-start";
   isAnimate?: boolean;
 };
 
@@ -41,16 +56,21 @@ const ModalTrigger: React.FC<Props> = forwardRef(
       trigger,
       autoOpenKey,
       content,
-      as = "div",
-      size = "sm",
+      size,
       dialogClassName,
       enforceFocus,
       hideHeader,
       isOpen,
       addisOpenToQueryParam,
-      paddingContent = "less-padding",
+      paddingContent,
       onExit,
       ignoreTrans,
+      backDrop,
+      centered,
+      style,
+      tipText,
+      tipPlacement,
+      isAnimate = false,
     },
     ref
   ) => {
@@ -105,10 +125,9 @@ const ModalTrigger: React.FC<Props> = forwardRef(
       }
 
       return (
-        <Dialog.Title as="h3">
-          {ignoreTrans ? title : __(title)}
-          <Icon icon="times" size={24} onClick={closeModal} />
-        </Dialog.Title>
+        <Modal.Header closeButton={true} className={paddingContent}>
+          <Modal.Title>{ignoreTrans ? title : __(title)}</Modal.Title>
+        </Modal.Header>
       );
     };
 
@@ -121,42 +140,40 @@ const ModalTrigger: React.FC<Props> = forwardRef(
 
     return (
       <>
-        {triggerComponent}
-
-        {isOpenTrigger && (
-          <Dialog
-            open={true}
-            as={as ? as : "div"}
-            onClose={closeModal}
-            className={`${dialogClassName} relative z-10`}
-            initialFocus={(enforceFocus as any) || false}
+        {tipText ? (
+          <Tip
+            text={__(tipText)}
+            placement={tipPlacement ? tipPlacement : "bottom"}
           >
-            <Transition
-              as={Fragment}
-              show={isOpenTrigger}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <ModalOverlay />
-            </Transition>
-            <DialogWrapper>
-              <DialogContent>
-                <Dialog.Panel
-                  className={`${paddingContent} dialog-size-${size}`}
-                >
-                  {renderHeader()}
-                  <div className="dialog-description">
-                    {content({ closeModal }, ref)}
-                  </div>
-                </Dialog.Panel>
-              </DialogContent>
-            </DialogWrapper>
-          </Dialog>
+            {triggerComponent}
+          </Tip>
+        ) : (
+          triggerComponent
         )}
+
+        <Modal
+          dialogClassName={dialogClassName}
+          size={size}
+          show={isOpenTrigger}
+          onHide={closeModal}
+          backdrop={backDrop}
+          enforceFocus={enforceFocus}
+          onExit={onExit}
+          animation={isAnimate}
+          centered={centered}
+          style={style}
+        >
+          {renderHeader()}
+          <Modal.Body className={paddingContent}>
+            <CSSTransition
+              in={isOpenTrigger}
+              timeout={300}
+              unmountOnExit={true}
+            >
+              {content({ closeModal })}
+            </CSSTransition>
+          </Modal.Body>
+        </Modal>
       </>
     );
   }

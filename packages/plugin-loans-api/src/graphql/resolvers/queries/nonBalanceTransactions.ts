@@ -40,8 +40,8 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = params => {
-  const {sortField} = params;
+export const sortBuilder = (params) => {
+  const { sortField } = params;
   const sortDirection = params.sortDirection || 0;
 
   if (sortField) {
@@ -60,7 +60,7 @@ const nonBalanceTransactionQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.NonBalanceTransactions.find(
         await generateFilter(params, commonQuerySelector)
       ),
@@ -84,22 +84,34 @@ const nonBalanceTransactionQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.NonBalanceTransactions.find(filter).count()
+      totalCount:
+        await models.NonBalanceTransactions.find(filter).countDocuments()
     };
   },
 
-    /**
+  /**
    * Get one transaction
    */
 
   nonBalancTransactionDetail: async (_root, { _id }, { models }: IContext) => {
-      return models.NonBalanceTransactions.getNonBalanceTransaction({ _id });
-    },
+    return models.NonBalanceTransactions.getNonBalanceTransaction({ _id });
+  }
 };
 
-checkPermission(nonBalanceTransactionQueries, 'nonBalanceTransactions', 'showNonBalanceTransactions');
-checkPermission(nonBalanceTransactionQueries, 'nonBalanceTransactionsMain', 'showNonBalanceTransactions');
-checkPermission(nonBalanceTransactionQueries, 'nonBalancTransactionDetail', 'showNonBalanceTransactions');
-
+checkPermission(
+  nonBalanceTransactionQueries,
+  'nonBalanceTransactions',
+  'showNonBalanceTransactions'
+);
+checkPermission(
+  nonBalanceTransactionQueries,
+  'nonBalanceTransactionsMain',
+  'showNonBalanceTransactions'
+);
+checkPermission(
+  nonBalanceTransactionQueries,
+  'nonBalancTransactionDetail',
+  'showNonBalanceTransactions'
+);
 
 export default nonBalanceTransactionQueries;

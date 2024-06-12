@@ -6,7 +6,7 @@ import {
   method,
   objToString,
 } from "@/modules/checkout/hooks/useTDB"
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { tdbResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -18,13 +18,11 @@ import BankAmountUi from "./bank-amount-ui"
 const TDB = () => {
   const [tdbResponse, setTdbResponse] = useAtom(tdbResponseAtom)
   const [loading, setLoading] = useState(false)
-  const config = useAtomValue(coverConfigAtom)
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const { onError } = useToast()
   const { getLabel } = usePaymentLabel()
 
-  const bank = config?.paymentTypes.find(
-    (pt) => BANK_CARD_TYPES.TDB === pt.type
-  )
+  const bank = paymentTypes.find((pt) => BANK_CARD_TYPES.TDB === pt.type)
 
   const getTDBCover = () => {
     setLoading(true)
