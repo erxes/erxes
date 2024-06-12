@@ -33,8 +33,7 @@ export default ({
   onSelect: (values: string[] | string, name: string) => void;
   multi?: boolean;
   customOption?: IOption;
-  initialValue?: string | string[];
-  setParam?: boolean;
+    initialValue?: string | string[];
   name: string;
   contentTypes: string[];
   filterParams?: any;
