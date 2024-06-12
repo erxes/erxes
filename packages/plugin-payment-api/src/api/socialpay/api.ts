@@ -3,9 +3,10 @@ import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { ITransactionDocument } from '../../models/definitions/transactions';
 import { BaseAPI } from '../base';
 import { ISocialPayInvoice } from '../types';
+import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
@@ -15,22 +16,17 @@ export const hmac256 = (key, message) => {
 export const socialpayCallbackHandler = async (models: IModels, data: any) => {
   const { resp_code, amount, checksum, invoice, terminal } = data;
 
-  let status = PAYMENT_STATUS.PAID;
+  let status = '';
 
   if (resp_code !== '00') {
     status = PAYMENT_STATUS.PENDING;
   }
 
-  const invoiceObj = await models.Invoices.getInvoice(
-    {
-      identifier: invoice,
-    },
-    true,
-  );
+  const transaction = await models.Transactions.getTransaction({
+    _id: invoice,
+  });
 
-  const payment = await models.Payments.getPayment(
-    invoiceObj.selectedPaymentId,
-  );
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   try {
     const api = new SocialPayAPI(payment.config);
@@ -42,17 +38,15 @@ export const socialpayCallbackHandler = async (models: IModels, data: any) => {
     });
 
     if (res !== PAYMENT_STATUS.PAID) {
-      return invoiceObj;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoiceObj._id },
-      { $set: { status, resolvedAt: new Date() } },
-    );
+    transaction.status = res;
+    transaction.updatedAt = new Date();
 
-    invoiceObj.status = status;
+    await transaction.save();
 
-    return invoiceObj;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -74,29 +68,32 @@ export class SocialPayAPI extends BaseAPI {
     this.apiUrl = PAYMENTS.socialpay.apiUrl;
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(invoice: ITransactionDocument) {
     const amount = invoice.amount.toString();
-    const path = PAYMENTS.socialpay.actions.invoiceQr;
+    const details = invoice.details || {};
+
+    const path = details.phone
+      ? PAYMENTS.socialpay.actions.invoicePhone
+      : PAYMENTS.socialpay.actions.invoiceQr;
 
     const data: ISocialPayInvoice = {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount,
+        this.inStoreSPTerminal + invoice._id + amount
       ),
-      invoice: invoice.identifier,
+      invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
     };
 
-    // TODO: add phone number back
-    // if (invoice.phone) {
-    //   data.phone = invoice.phone;
-    //   path = PAYMENTS.socialpay.actions.invoicePhone;
-    //   data.checksum = hmac256(
-    //     this.inStoreSPKey,
-    //     this.inStoreSPTerminal + invoice.identifier + amount + invoice.phone
-    //   );
-    // }
+    if (details.phone) {
+      data.phone = details.phone;
+
+      data.checksum = hmac256(
+        this.inStoreSPKey,
+        this.inStoreSPTerminal + invoice._id + amount + details.phone
+      );
+    }
 
     try {
       const { header, body } = await this.request({
@@ -105,13 +102,20 @@ export class SocialPayAPI extends BaseAPI {
         headers: { 'Content-Type': 'application/json' },
         data,
       }).then((r) => r.json());
-
+      
       if (header.code !== 200) {
         return { error: body.error.errorDesc };
       }
 
       if (body.response.status !== 'SUCCESS') {
         return { error: 'Error occured while creating invoice' };
+      }
+
+      if (details.phone && body.response.desc.includes('success')) {
+        return {
+          message:
+            'Invoice has been sent to your phone, Please go to SocialPay app to pay',
+        };
       }
 
       const qrData = await QRCode.toDataURL(body.response.desc);
@@ -122,16 +126,16 @@ export class SocialPayAPI extends BaseAPI {
     }
   }
 
-  async cancelInvoice(invoice: IInvoiceDocument) {
+  async cancelInvoice(invoice: ITransactionDocument) {
     const amount = invoice.amount.toString();
 
     const data: ISocialPayInvoice = {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount,
+        this.inStoreSPTerminal + invoice._id + amount
       ),
-      invoice: invoice.identifier,
+      invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
     };
 
@@ -166,16 +170,16 @@ export class SocialPayAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
     const amount = invoice.amount.toString();
 
     const data: ISocialPayInvoice = {
       amount,
       checksum: hmac256(
         this.inStoreSPKey,
-        this.inStoreSPTerminal + invoice.identifier + amount,
+        this.inStoreSPTerminal + invoice._id + amount
       ),
-      invoice: invoice.identifier,
+      invoice: invoice._id,
       terminal: this.inStoreSPTerminal,
     };
 

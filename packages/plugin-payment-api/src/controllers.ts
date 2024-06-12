@@ -2,17 +2,53 @@ import { getEnv, getSubdomain } from '@erxes/api-utils/src/core';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { Router } from 'express';
 
-import { generateModels } from './connectionResolver';
-import redisUtils from './redisUtils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import fetch from 'node-fetch';
 import { PAYMENTS } from './api/constants';
 import { StorePayAPI } from './api/storepay/api';
-import fetch from 'node-fetch';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
-import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { generateModels } from './connectionResolver';
+import redisUtils from './redisUtils';
 
 const router = Router();
+
+router.get('/invoice/:invoiceId', async (req, res) => {
+  const { invoiceId } = req.params;
+
+  if (!invoiceId) {
+    return res.status(404).render('notFound');
+  }
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+  const invoice = await models.Invoices.findOne({ _id: invoiceId });
+
+  if (!invoice) {
+    return res.status(404).render('notFound');
+  }
+
+  const DOMAIN = getEnv({ name: 'DOMAIN' })
+    ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+    : 'http://localhost:4000';
+  const apiDomain = DOMAIN.replace('<subdomain>', subdomain);
+
+  return res.render('index', {
+    title: 'Payment gateway',
+    apiDomain,
+    invoiceId,
+  });
+});
+
+router.post('/invoice', async (req, res) => {
+  const data = req.body;
+
+  return res.render('index', {
+    title: 'Payment gateway',
+    domain: 'http://localhost:4000',
+    data,
+  });
+});
 
 router.post('/checkInvoice', async (req, res) => {
   const { invoiceId } = req.body;
@@ -45,7 +81,7 @@ router.post('/gateway/manualCheck', async (req, res) => {
   if (status === 'paid') {
     const invoiceDoc = await models.Invoices.getInvoice(
       { _id: invoiceId },
-      true,
+      true
     );
 
     graphqlPubsub.publish(`invoiceUpdated:${invoiceDoc._id}`, {
@@ -103,7 +139,7 @@ router.post('/gateway/storepay', async (req, res) => {
     await models.Invoices.updateOne({ _id: invoice._id }, { $set: { phone } });
   }
 
-  const payment = await models.Payments.getPayment(selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(selectedPaymentId);
 
   const api = new StorePayAPI(payment.config, domain);
 
@@ -113,7 +149,7 @@ router.post('/gateway/storepay', async (req, res) => {
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
-      { $set: { apiResponse: apiRes } },
+      { $set: { apiResponse: apiRes } }
     );
     return res.json({ invoice: invoice.apiResponse });
   } catch (e) {
@@ -140,8 +176,8 @@ router.post('/gateway/updateInvoice', async (req, res) => {
 
   if (
     invoice &&
-    invoice.status !== 'paid' &&
-    invoice.selectedPaymentId !== selectedPaymentId
+    invoice.status !== 'paid' 
+    // invoice.selectedPaymentId !== selectedPaymentId
   ) {
     const doc: any = {
       selectedPaymentId,
@@ -150,9 +186,6 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       domain,
     };
 
-    if (!invoice.selectedPaymentId) {
-      doc.identifier = randomAlphanumeric(32);
-    }
 
     await models.Invoices.updateInvoice(invoice._id, doc);
   }
@@ -163,7 +196,7 @@ router.post('/gateway/updateInvoice', async (req, res) => {
       selectedPaymentId,
       phone,
       domain,
-      identifier: randomAlphanumeric(32),
+      
     });
   }
 
@@ -191,7 +224,7 @@ router.get('/gateway', async (req, res) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('utf8'),
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);
@@ -203,7 +236,7 @@ router.get('/gateway', async (req, res) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const paymentsFound = await models.Payments.find(filter)
+  const paymentsFound = await models.PaymentMethods.find(filter)
     .sort({
       type: 1,
     })
@@ -250,7 +283,7 @@ router.post('/gateway', async (req, res, next) => {
   const { params } = req.query;
 
   const data = JSON.parse(
-    Buffer.from(params as string, 'base64').toString('utf8'),
+    Buffer.from(params as string, 'base64').toString('utf8')
   );
 
   const subdomain = getSubdomain(req);
@@ -264,7 +297,7 @@ router.post('/gateway', async (req, res, next) => {
     filter._id = { $in: data.paymentIds };
   }
 
-  const paymentsFound = await models.Payments.find(filter)
+  const paymentsFound = await models.PaymentMethods.find(filter)
     .sort({
       type: 1,
     })
@@ -340,8 +373,8 @@ router.post('/gateway', async (req, res, next) => {
 
   if (
     invoice &&
-    invoice.status !== 'paid' &&
-    invoice.selectedPaymentId !== selectedPaymentId
+    invoice.status !== 'paid' 
+    // invoice.selectedPaymentId !== selectedPaymentId
   ) {
     await models.Invoices.updateInvoice(invoice._id, {
       selectedPaymentId,
@@ -403,7 +436,7 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
       headers: {
         'Content-Type': 'application/json',
       },
-    },
+    }
   ).then((res) => res.json());
 
   if (loginResponse.code !== 0) {
@@ -425,7 +458,7 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     ).then((res) => res.json());
 
     if (couponResponse.code !== 0) {
@@ -460,7 +493,7 @@ router.post('/gateway/monpay/coupon', async (req, res, next) => {
       { _id: invoice._id },
       {
         $set: { couponCode, couponAmount: couponResponse.result.couponAmount },
-      },
+      }
     );
 
     return res.json({

@@ -80,7 +80,7 @@ export class PaypalAPI extends BaseAPI {
         Authorization: `Bearer ${res.access_token}`,
       };
     } catch (e) {
-      console.log('e', e);
+      console.error('e', e);
     }
   }
 }

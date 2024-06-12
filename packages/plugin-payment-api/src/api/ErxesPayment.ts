@@ -1,4 +1,3 @@
-import { IInvoiceDocument } from '../models/definitions/invoices';
 import { IPaymentDocument } from '../models/definitions/payments';
 import { MonpayAPI } from './monpay/api';
 import { PaypalAPI } from './paypal/api';
@@ -8,6 +7,9 @@ import { SocialPayAPI } from './socialpay/api';
 import { StorePayAPI } from './storepay/api';
 import { WechatPayAPI } from './wechatpay/api';
 import { PocketAPI } from './pocket/api';
+import { ITransactionDocument } from '../models/definitions/transactions';
+import { MinuPayAPI } from './minupay/api';
+import { GolomtAPI } from './golomt/api';
 
 class ErxesPayment {
   public socialpay: SocialPayAPI;
@@ -18,6 +20,8 @@ class ErxesPayment {
   public wechatpay: WechatPayAPI;
   public qpayQuickqr: QPayQuickQrAPI;
   public pocket: PocketAPI;
+  public minupay: MinuPayAPI;
+  public golomt: GolomtAPI;
   public domain: string;
 
   private payment: any;
@@ -33,29 +37,32 @@ class ErxesPayment {
     this.wechatpay = new WechatPayAPI(payment.config, domain);
     this.qpayQuickqr = new QPayQuickQrAPI(payment.config, domain);
     this.pocket = new PocketAPI(payment.config, domain);
+    this.minupay = new MinuPayAPI(payment.config, domain);
+    this.golomt = new GolomtAPI(payment.config);
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(transaction: ITransactionDocument) {
     const { payment } = this;
+    const details = transaction.details || {};
 
     // return { qrData: await QRCode.toDataURL('test') };
 
     const api = this[payment.kind];
 
-    if (invoice.couponAmount) {
-      const amount = invoice.amount - invoice.couponAmount;
+    if (details.monpayCoupon) {
+      const amount = transaction.amount - details.monpayCoupon;
 
-      invoice.amount = amount > 0 ? amount : 0;
+      transaction.amount = amount > 0 ? amount : 0;
     }
 
     try {
-      return await api.createInvoice(invoice, payment);
+      return await api.createInvoice(transaction, payment);
     } catch (e) {
       return { error: e.message };
     }
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
+  async checkInvoice(invoice: ITransactionDocument) {
     const { payment } = this;
 
     const api = this[payment.kind];
@@ -67,7 +74,7 @@ class ErxesPayment {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
     const { payment } = this;
 
     const api = this[payment.kind];
@@ -79,7 +86,7 @@ class ErxesPayment {
     }
   }
 
-  async cancelInvoice(invoice: IInvoiceDocument) {
+  async cancelInvoice(invoice: ITransactionDocument) {
     const { payment } = this;
 
     const api = this[payment.kind];

@@ -11,10 +11,13 @@ import {
   loadPaymentConfigClass,
 } from './models/PaymentConfigs';
 import { IPaymentModel, loadPaymentClass } from './models/Payments';
+import { ITransactionModel, loadTransactionClass } from './models/Transactions';
+import { ITransactionDocument } from './models/definitions/transactions';
 
 export interface IModels {
-  Payments: IPaymentModel;
+  PaymentMethods: IPaymentModel;
   Invoices: IInvoiceModel;
+  Transactions: ITransactionModel;
   PaymentConfigs: IPaymentConfigModel;
 }
 
@@ -26,19 +29,24 @@ export interface IContext extends IMainContext {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.Payments = db.model<IPaymentDocument, IPaymentModel>(
-    'payments',
-    loadPaymentClass(models),
+  models.PaymentMethods = db.model<IPaymentDocument, IPaymentModel>(
+    'payment_methods',
+    loadPaymentClass(models)
   );
 
   models.Invoices = db.model<IInvoiceDocument, IInvoiceModel>(
-    'invoices',
-    loadInvoiceClass(models),
+    'payment_invoices',
+    loadInvoiceClass(models)
   );
 
   models.PaymentConfigs = db.model<IPaymentConfigDocument, IPaymentConfigModel>(
     'payment_configs',
-    loadPaymentConfigClass(models),
+    loadPaymentConfigClass(models)
+  );
+
+  models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
+    'payment_transactions',
+    loadTransactionClass(models)
   );
 
   return models;

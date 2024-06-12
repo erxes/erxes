@@ -72,6 +72,17 @@ export const PAYMENTS = {
     },
     handlerMethod: 'GET',
   },
+  minupay: {
+    title: 'MinuPay',
+    kind: 'minupay',
+    apiUrl: 'https://api.minu.mn',
+    actions: {
+      login: 'oncom/login',
+      invoice: 'oncom/invoice',
+      checkInvoice: 'oncom/checkTxn',
+    },
+    handlerMethod: 'POST',
+  },
   wechatpay: {
     title: 'WeChat Pay',
     kind: 'wechatpay',
@@ -93,6 +104,17 @@ export const PAYMENTS = {
     handlerMethod: 'POST',
   },
 
+  golomt: {
+    title: 'Golomt E-Commerce',
+    kind: 'golomt',
+    apiUrl: 'https://ecommerce.golomtbank.com',
+    actions: {
+      invoice: 'api/invoice',
+      invoiceCheck: 'api/inquiry',
+    },
+    handlerMethod: 'POST',
+  },
+
   ALL: [
     'qpay',
     'socialpay',
@@ -101,7 +123,9 @@ export const PAYMENTS = {
     'pocket',
     'wechatpay',
     'paypal',
+    'minupay',
     'qpayQuickqr',
+    'golomt',
   ],
 };
 
@@ -112,14 +136,5 @@ export const PAYMENT_STATUS = {
   FAILED: 'failed',
   CANCELLED: 'cancelled',
   REJECTED: 'rejected',
-
   ALL: ['paid', 'pending', 'refunded', 'failed', 'cancelled', 'rejected'],
-};
-
-export const PLUGIN_RESOLVERS_META = {
-  'inbox:conversations': {
-    action: 'getConversation',
-    queryKey: 'conversationId',
-  },
-  'cards:deals': { action: 'deals.findOne', queryKey: '_id' },
 };

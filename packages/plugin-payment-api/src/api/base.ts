@@ -27,6 +27,7 @@ export class BaseAPI {
         requestOptions.headers['Content-Type'] = 'application/json';
       }
 
+
       const res = await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
@@ -34,7 +35,8 @@ export class BaseAPI {
 
       return res;
     } catch (e) {
-      console.error('error ', e);
+      console.error(`Error in request to ${this.apiUrl}/${path}`, e);
+      // console.error('error ', e);
       throw new Error(e.message);
     }
   }

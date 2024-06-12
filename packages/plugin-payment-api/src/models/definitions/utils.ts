@@ -18,13 +18,3 @@ export const field = options => {
 
   return options;
 };
-
-export const schemaWrapper = schema => {
-  schema.add({ scopeBrandIds: [String] });
-
-  return schema;
-};
-
-export const schemaHooksWrapper = (schema, _cacheKey: string) => {
-  return schemaWrapper(schema);
-};
