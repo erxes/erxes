@@ -1,10 +1,9 @@
 import React from 'react';
 import { useQuery } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
 
 //erxes
-import { Alert } from '@erxes/ui/src/utils';
+import {  } from '@erxes/ui/src/utils';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 // local
