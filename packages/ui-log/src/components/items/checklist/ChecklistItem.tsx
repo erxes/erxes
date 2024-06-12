@@ -53,11 +53,9 @@ class CheckListItem extends React.Component<
       <ActivityRow>
         <FlexCenterContent>
           <FlexBody>
-            <>
-              <span>
-                {userName} <strong>{contentAction}</strong> {name}
-              </span>
-            </>
+            <span>
+              {userName} <strong>{contentAction}</strong> {name}
+            </span>
           </FlexBody>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
@@ -69,5 +67,6 @@ class CheckListItem extends React.Component<
     );
   }
 }
+
 
 export default CheckListItem;
