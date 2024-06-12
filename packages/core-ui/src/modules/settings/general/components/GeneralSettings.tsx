@@ -127,8 +127,6 @@ class GeneralSettings extends React.Component<Props, State> {
     let credentials =
       this.state?.configsMap?.GOOGLE_APP_ADDITIONAL_CREDS_JSON || [];
 
-    console.log(index, credentials);
-
     credentials = credentials.filter((_, i) => i !== index);
 
     this.onChangeConfig('GOOGLE_APP_ADDITIONAL_CREDS_JSON', credentials);

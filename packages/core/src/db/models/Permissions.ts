@@ -153,7 +153,6 @@ export const loadUserGroupClass = (models: IModels) => {
      * Create a group
      */
     public static async createGroup(doc: IUserGroup, memberIds?: string[]) {
-      console.log({ doc });
       const group = await models.UsersGroups.create(doc);
 
       await models.Users.updateMany(
@@ -172,8 +171,6 @@ export const loadUserGroupClass = (models: IModels) => {
       doc: IUserGroup,
       memberIds?: string[],
     ) {
-      console.log({ updateDoc: doc });
-
       // remove groupId from old members
       await models.Users.updateMany(
         { groupIds: { $in: [_id] } },
