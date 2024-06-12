@@ -31,7 +31,7 @@ class NonBalanceTransactionForm extends React.Component<Props> {
           </FormColumn>
       </FormWrapper>
         <CollapseContent title={title} >
-        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true} $striped>
           <thead>
             <tr>
               <th>{__('Detail Type')}</th>
