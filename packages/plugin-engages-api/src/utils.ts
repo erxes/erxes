@@ -82,7 +82,7 @@ export const subscribeEngage = (models: IModels) => {
       });
 
     if (!topicArn) {
-      return reject("Error occured");
+      return reject (new Error("Error occured"));
     }
 
     await snsApi
