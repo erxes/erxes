@@ -1,20 +1,20 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as path from 'path';
-import * as cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser';
 
 import { generateModels } from './connectionResolver';
 import * as permissions from './permissions';
 
+import app from '@erxes/api-utils/src/app';
+import { PAYMENTS } from './api/constants';
 import controllers from './controllers';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { setupMessageConsumers } from './messageBroker';
 import { callbackHandler } from './utils';
 import i18n = require('i18n');
-import { PAYMENTS } from './api/constants';
-import app from '@erxes/api-utils/src/app';
 
 export default {
   name: 'payment',

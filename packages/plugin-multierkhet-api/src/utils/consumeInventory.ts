@@ -30,7 +30,8 @@ export const consumeInventory = async (
     }
 
     const document: any = {
-      name: doc.nickname || doc.name,
+      name: doc.name || '',
+      shortName: doc.nickname || '',
       type: doc.is_service ? 'service' : 'product',
       unitPrice: doc.unit_price,
       code: doc.code,

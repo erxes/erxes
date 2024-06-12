@@ -15,17 +15,13 @@ import { colors } from '../../../styles';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 
-const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
-  <span className="editor_icon textcolor_icon" />
-);
-
 export const RichTextEditorColorControl = () => {
   let overLayRef;
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [pickerColor, setPickerColor] = useState(colors.colorPrimary);
   const [color, setColor] = useState('');
 
-  const { editor, labels } = useRichTextEditorContext();
+  const { editor, labels, isSourceEnabled } = useRichTextEditorContext();
 
   useEffect(() => {
     if (!color) {
@@ -103,6 +99,13 @@ export const RichTextEditorColorControl = () => {
     isActive = false;
   }
 
+  const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
+    <span
+      className="editor_icon textcolor_icon"
+      style={{ ...(isSourceEnabled && { opacity: 0.3 }) }}
+    />
+  );
+
   const renderColorPickerOverlay = () => (
     <ColorPickerWrapper>
       {isPickerVisible ? (
@@ -148,7 +151,7 @@ export const RichTextEditorColorControl = () => {
 
   return (
     <Popover id="color-picker">
-      <Popover.Button>
+      <Popover.Button disabled={isSourceEnabled}>
         <RichTextEditorControlBase
           icon={LinkIcon}
           aria-label={labels.colorPickerControlLabel}

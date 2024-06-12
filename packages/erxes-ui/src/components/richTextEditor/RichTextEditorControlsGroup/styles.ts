@@ -9,7 +9,7 @@ const ControlsGroupWrapper = styled.div<{
   $toolbarPlacement?: 'top' | 'bottom';
 }>`
   display: flex;
-
+  gap: 0.05rem;
   .Select {
     border: 0.0625rem solid #eee;
     border-radius: 0.25rem;
@@ -86,13 +86,13 @@ const ControlsGroupWrapper = styled.div<{
     }
   }
 
-  .dropdown-toggle {
+  [data-group-dropdown] {
     display: flex;
     align-items: center;
     height: 1.75rem;
     background: ${({ $isActive }) =>
-      $isActive ? rgba(colors.colorSecondary, 0.05) : 'transparent'};
-    border: 0.0625rem solid #eee;
+    $isActive ? rgba(colors.colorSecondary, 0.05) : 'transparent'};
+    border: 0;
     border-radius: 0.25rem;
     padding: 0 0.4rem;
     button {
@@ -101,7 +101,7 @@ const ControlsGroupWrapper = styled.div<{
       width: 100%;
       pointer-events: none;
       color: ${({ $isActive }) =>
-        $isActive ? colors.colorSecondary : colors.textPrimary};
+    $isActive ? colors.colorSecondary : colors.textPrimary};
       background: transparent;
     }
   }
@@ -110,30 +110,43 @@ const ControlsGroupWrapper = styled.div<{
     padding: 0;
   }
 
-  .dropdown-item {
-    padding: 0;
+  &[data-rich-text-editor-control] {
+    button {
+      border-radius: 0;
+      &:not(:last-of-type) {
+        border-right: 0;
+      }
+      &:first-of-type {
+        border-bottom-left-radius: 0.25rem;
+        border-top-left-radius: 0.25rem;
+      }
+      &:last-of-type {
+        margin-right: 0;
+        border-bottom-right-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+      }
+    }
+  }
+
+  [role='option'] {
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+
     &:active {
       background-color: unset;
     }
+
     button[data-rich-text-editor-control] {
       width: 100%;
       border: none;
       border-radius: 0;
-    }
 
-    &:first-of-type {
-      border-top-left-radius: 0.25rem;
-      border-top-right-radius: 0.25rem;
-      button[data-rich-text-editor-control] {
+      &:first-of-type {
         border-top-left-radius: 0.25rem;
         border-top-right-radius: 0.25rem;
       }
-    }
 
-    &:last-of-type {
-      border-bottom-left-radius: 0.25rem;
-      border-bottom-right-radius: 0.25rem;
-      button[data-rich-text-editor-control] {
+      &:last-of-type {
         border-bottom-left-radius: 0.25rem;
         border-bottom-right-radius: 0.25rem;
       }
@@ -141,4 +154,11 @@ const ControlsGroupWrapper = styled.div<{
   }
 `;
 
-export { ControlsGroupWrapper };
+const VerticalSeparator = styled.div`
+  width: 1px;
+  border-right: 0.0625rem solid #eee;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+`;
+
+export { ControlsGroupWrapper, VerticalSeparator };
