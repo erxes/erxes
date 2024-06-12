@@ -23,7 +23,6 @@ type Props = {
   customFieldsData: any;
   fieldGroup: IFieldGroup;
   fieldsGroups: IFieldGroup[];
-  fieldsCombined: IField[];
   loading?: boolean;
   object?: any;
   data: any;
@@ -414,7 +413,7 @@ class GenerateGroup extends React.Component<Props, State> {
           customFieldsData: Object.keys(updatedData).map((key) => ({
             field: key,
             value: updatedData[key],
-            extraValue: !!extraValues?.length ? extraValues[key] : undefined,
+            extraValue: extraValues?.length ? extraValues[key] : undefined,
           })),
         },
         callback,
