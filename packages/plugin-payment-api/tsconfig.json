@@ -11,7 +11,7 @@
     "target": "ES2022",
     "moduleResolution": "Node",
     "module": "CommonJS",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
     "noImplicitAny": false,
     "skipLibCheck": true,
     "strict": true,
