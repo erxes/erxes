@@ -128,7 +128,7 @@ export const prepareMessage = async ({
     from: integration.telnyxPhoneNumber,
     to,
     text: content,
-    messaging_profile_id: integration.telnyxProfileId || '',
+    messaging_profile_id: integration.telnyxProfileId ?? '',
     // webhook_url: `${MAIN_API_DOMAIN}/telnyx/webhook`,
     // webhook_failover_url: `${MAIN_API_DOMAIN}/telnyx/webhook-failover`
   };
