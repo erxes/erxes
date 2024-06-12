@@ -6,7 +6,6 @@ import React from "react";
 import _ from "lodash";
 
 type Props = {
-  contentType: string;
   fields: IField[];
   onClickProperty: (field: IField) => void;
 };
