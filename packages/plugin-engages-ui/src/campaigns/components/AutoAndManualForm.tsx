@@ -44,8 +44,7 @@ type Props = {
   kind: string;
   segmentType?: string;
   isActionLoading: boolean;
-  handleSubmit?: (name: string, e: React.MouseEvent) => void;
-  save: (doc: IEngageMessageDoc) => Promise<any>;
+ save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
     doc: IEngageMessageDoc
