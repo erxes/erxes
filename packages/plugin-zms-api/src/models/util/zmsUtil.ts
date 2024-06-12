@@ -15,7 +15,7 @@ const IdRegex = /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,12}$/;
 const registerRegex = /^[a-zA-Z]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
-const booleanRegex = /^[0-1]{1}$/;
+const booleanRegex = /^[0-1]{}$/;
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const numberLimRegex = /^\d{1,10}$/;
 const fullDateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1]) (2[0-3]|[01]\d):[0-5]\d:[0-5]\d$/;
@@ -844,7 +844,7 @@ export const validationFields = [
 
 //#region interface
 
-interface Io_c_address {
+interface IoCAddress {
   o_c_address_full: string;
   o_c_address_aimag_city_name: string;
   o_c_address_aimag_city_code: string;
@@ -859,7 +859,7 @@ interface Io_c_address {
   o_c_address_zipcode: number;
 }
 
-interface c_job {
+interface Cjob {
   c_job_position: string;
   c_job_name: string;
   c_job_address: string;
@@ -867,7 +867,7 @@ interface c_job {
   c_job_mail: string;
 }
 
-interface o_c_related_orgs {
+interface Ocrelatedorgs {
   '-action': string;
   o_c_related_org_index: number;
   o_c_related_org_name: string;
@@ -878,15 +878,15 @@ interface o_c_related_orgs {
   o_c_related_org_isfinancial_onus: boolean;
 }
 
-interface o_c_loan_transactions {
+interface Ocloantransactions {
   o_c_loan_schedule_type: string; //хавсрал Й
   o_c_loan_schedule_status: boolean;
   o_c_loan_schedule_change_reason: string;
-  o_c_loan_schedule: [o_c_loan_schedule];
-  o_c_loan_payment: [o_c_loan_payment];
+  o_c_loan_schedule: [Ocloanschedule];
+  o_c_loan_payment: [OcloanPayment];
 }
 
-interface o_c_loan_schedule {
+interface Ocloanschedule {
   '-action': string;
   o_c_schedule_due_date: Date;
   o_c_schedule_principal: number;
@@ -895,7 +895,7 @@ interface o_c_loan_schedule {
   o_c_schedule_balance: number;
 }
 
-interface o_c_loan_payment {
+interface OcloanPayment {
   '-action': string;
   o_c_payment_due_date: Date;
   o_c_payment_date: Date;
@@ -904,7 +904,7 @@ interface o_c_loan_payment {
   o_c_payment_additional: number;
 }
 
-interface o_c_related_customers {
+interface OcrelatedCustomers {
   '-action': string;
   o_c_related_customer_index: number;
   o_c_related_customer_firstname: string;
@@ -917,21 +917,21 @@ interface o_c_related_customers {
   o_c_related_customer_isfinancial_onus: boolean;
 }
 
-interface o_c_coll_state_registration {
+interface OccollStateRegistration {
   o_c_coll_certificateno: string;
   o_c_coll_state_regnum: string;
   o_c_coll_registered_date: Date;
   o_c_coll_confirmed_date: Date;
 }
 
-interface o_c_coll_other_registration {
+interface OccollOtherRegistration {
   o_c_coll_other_certificateno: string;
   o_c_coll_other_regnum: string;
   o_c_coll_other_name: string;
   o_c_coll_other_registered_date: Date;
 }
 
-interface o_c_coll_customer {
+interface OccollCustomer {
   o_c_coll_customer_firstname: string;
   o_c_coll_customer_lastname: string;
   o_c_coll_customer_isforeign: boolean;
@@ -939,7 +939,7 @@ interface o_c_coll_customer {
   o_c_coll_customer_regnum: string;
 }
 
-interface o_c_coll_org {
+interface Occollorg {
   o_c_coll_org_name: string;
   o_c_coll_org_islocal: boolean;
   o_c_coll_org_regnum: string;
@@ -948,13 +948,13 @@ interface o_c_coll_org {
 
 //Begin legal
 
-interface o_orgrate {
+interface Oorgrate {
   o_fitch_rating: string; // attachment П
   o_sandp_rating: string; // attachment Р
   o_moodys_rating: string; // attachment С
 }
 
-interface o_ceo {
+interface Oceo {
   o_ceo_civil_id: string;
   o_ceo_regnum: string;
   o_ceo_firstname: string;
@@ -966,7 +966,7 @@ interface o_ceo {
   o_ceo_email: string;
 }
 
-interface o_shareholder_orgs {
+interface Oshareholderorgs {
   '-action': string;
   o_shareholder_org_name: string;
   o_shareholder_org_isforeign: string;
@@ -976,7 +976,7 @@ interface o_shareholder_orgs {
   o_shareholder_org_phone: string;
   o_shareholder_org_email: string;
 }
-interface o_shareholder_customers {
+interface OshareholderCustomers {
   '-action': string;
   o_shareholder_customer_civil_id: string;
   o_shareholder_customer_regnum: string;
