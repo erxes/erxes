@@ -18,7 +18,6 @@ import {
 type Props = {
   type: string;
   onChange: (name: "type" | "color" | "theme", value: string) => void;
-  calloutBtnText?: string;
   color: string;
   theme: string;
 };
