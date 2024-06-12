@@ -6,11 +6,13 @@ import { __ } from "@erxes/ui/src/utils/index";
 import { colors } from "@erxes/ui/src/styles";
 import { getUserAvatar } from "@erxes/ui/src/utils/index";
 import styled from "styled-components";
+import { Flex } from "@erxes/ui/src/styles/main";
 
 const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
   margin-left: 10px;
+  display: flex;
 
   &:hover {
     cursor: pointer;
@@ -48,9 +50,16 @@ const Participators = (props: Props) => {
   const length = participatedUsers.length;
 
   const Trigger = (user) => {
-    const name = (user.details && user.details.fullName) || user.username || "";
+    const name =
+      (user.details && user.details.fullName) || user.username || user.email;
 
-    return <ParticipatorImg key={user._id} src={getUserAvatar(user)} />;
+    return (
+      <Tip placement="top" text={name}>
+        <Flex>
+          <ParticipatorImg key={user._id} src={getUserAvatar(user)} />
+        </Flex>
+      </Tip>
+    );
   };
 
   const Tooltip = (
