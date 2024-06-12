@@ -14,7 +14,7 @@ const InvoiceList = (props: IProps) => {
 
   return (
     <>
-      <Table striped>
+      <Table $striped>
         <thead>
           <tr>
             <th>{__('Date')}</th>
