@@ -85,8 +85,10 @@ const List = (props: Props) => {
     setSearch(value);
 
     timerRef.current = window.setTimeout(() => {
-      router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue: value });
+      router.setParams(navigate, location, {
+        searchValue: value,
+        page: undefined,
+      });
     }, 500);
   };
 
@@ -260,9 +262,8 @@ const List = (props: Props) => {
   const sidebar = <Sidebar queryParams={queryParams} />;
 
   const leftActionBar = (
-    <Title>{`${
-      currentCategory.name || currentParent.name || "All Assets"
-    } (${assetsCount})`}</Title>
+    <Title>{`${currentCategory.name || currentParent.name || "All Assets"
+      } (${assetsCount})`}</Title>
   );
 
   return (

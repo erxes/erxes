@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Box from "@erxes/ui/src/components/Box";
-import Icon from "@erxes/ui/src/components/Icon";
 import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import { router, __ } from "@erxes/ui/src/utils";
 import { assetStatusChoises } from "../../../common/utils";
@@ -21,10 +20,12 @@ const StatusFilter = (props: Props) => {
     }
   }, [queryParams.status]);
 
-  const onClick = (value: string) => {
-    router.setParams(navigate, location, { status: value });
-    router.removeParams(navigate, location, "assetId");
-    router.removeParams(navigate, location, "assetCategoryId");
+  const onClick = (value) => {
+    router.setParams(navigate, location, {
+      status: value,
+      assetId: undefined,
+      assetCategoryId: undefined,
+    });
   };
 
   return (

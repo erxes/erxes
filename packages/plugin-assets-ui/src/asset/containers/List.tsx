@@ -1,22 +1,36 @@
-import { Alert, Bulk } from "@erxes/ui/src";
+import { Alert, Bulk } from '@erxes/ui/src';
 import {
   IAssetCategoryDetailQueryResponse,
   IAssetDetailQueryResponse,
   IAssetQueryResponse,
   IAssetTotalCountQueryResponse,
-} from "../../common/types";
-import { generateParamsIds, getRefetchQueries } from "../../common/utils";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+} from '../../common/types';
+import { generateParamsIds, getRefetchQueries } from '../../common/utils';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import List from "../components/List";
-import React from "react";
-import { generatePaginationParams } from "@erxes/ui/src/utils/router";
-
+import List from '../components/List';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   location: any;
   navigate: any;
+};
+
+const generateQueryParams = (queryParams) => {
+  return {
+    categoryId: queryParams?.assetCategoryId,
+    parentId: queryParams?.assetId,
+    searchValue: queryParams?.searchValue,
+    type: queryParams?.type,
+    irregular: Boolean(queryParams?.irregular),
+    articleIds: generateParamsIds(queryParams?.articleIds),
+    withKnowledgebase: queryParams?.state
+      ? queryParams?.state === 'Assigned'
+      : undefined,
+    ...generatePaginationParams(queryParams || {}),
+  };
 };
 
 const ListContainer = (props: Props) => {
@@ -24,14 +38,14 @@ const ListContainer = (props: Props) => {
 
   const assetsQuery = useQuery<IAssetQueryResponse>(gql(queries.assets), {
     variables: generateQueryParams(queryParams),
-    fetchPolicy: "network-only",
+    fetchPolicy: 'network-only',
   });
 
   const assetsCountQuery = useQuery<IAssetTotalCountQueryResponse>(
     gql(queries.assetsCount),
     {
       variables: generateQueryParams(queryParams),
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
     }
   );
 
@@ -73,9 +87,9 @@ const ListContainer = (props: Props) => {
 
         const status = removeStatus?.data?.assetsRemove;
 
-        status === "deleted"
-          ? Alert.success("You successfully deleted a asset")
-          : Alert.warning("Asset status deleted");
+        status === 'deleted'
+          ? Alert.success('You successfully deleted a asset')
+          : Alert.warning('Asset status deleted');
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -87,7 +101,7 @@ const ListContainer = (props: Props) => {
       variables: { ids, ...generateQueryParams(queryParams), ...data },
     })
       .then(() => {
-        Alert.success("Success");
+        Alert.success('Success');
         callback();
       })
       .catch((e) => {
@@ -106,7 +120,7 @@ const ListContainer = (props: Props) => {
       .then((result: any) => {
         callback();
 
-        Alert.success("You successfully merged a asset");
+        Alert.success('You successfully merged a asset');
         navigate(
           `/settings/asset-movements/detail/${result.data.assetsMerge._id}`
         );
@@ -129,7 +143,7 @@ const ListContainer = (props: Props) => {
       currentCategory:
         assetCategoryDetailQuery?.data?.assetCategoryDetail || {},
       currentParent: assetDetailQuery?.data?.assetDetail || {},
-      searchValue: queryParams.searchValue || "",
+      searchValue: queryParams.searchValue || '',
     };
 
     return <List {...bulkProps} {...updatedProps} />;
@@ -140,21 +154,6 @@ const ListContainer = (props: Props) => {
   };
 
   return <Bulk content={assetList} refetch={refetch} />;
-};
-
-const generateQueryParams = (queryParams) => {
-  return {
-    categoryId: queryParams?.assetCategoryId,
-    parentId: queryParams?.assetId,
-    searchValue: queryParams?.searchValue,
-    type: queryParams?.type,
-    irregular: Boolean(queryParams?.irregular),
-    articleIds: generateParamsIds(queryParams?.articleIds),
-    withKnowledgebase: queryParams?.state
-      ? queryParams?.state === "Assigned"
-      : undefined,
-    ...generatePaginationParams(queryParams || {}),
-  };
 };
 
 export default ListContainer;

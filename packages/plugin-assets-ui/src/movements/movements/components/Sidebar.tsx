@@ -44,10 +44,10 @@ const Sidebar = (props: Props) => {
 
   const handleDate = (field, date) => {
     if (dayjs(date).isValid()) {
-      const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
-
-      router.setParams(navigate, location, { [field]: cDate });
-      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, {
+        [field]: dayjs(date).format("YYYY-MM-DD HH:mm"),
+        page: undefined,
+      });
     }
   };
 

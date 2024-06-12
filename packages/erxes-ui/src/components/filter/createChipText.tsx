@@ -37,7 +37,8 @@ const ChipText = (props: any) => {
     (asset && `${asset.code} - ${asset.name}`) ||
     (knowledgeBaseCategory && knowledgeBaseCategory.title) ||
     (user && user.details.fullName) ||
-    user.email
+    user.email ||
+    '-'
   );
 };
 

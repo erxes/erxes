@@ -14,9 +14,7 @@ const AssignmentFilter = (props: Props) => {
   const navigate = useNavigate();
 
   const handleWithKnowledge = (type) => {
-    router.removeParams(navigate,location, 'page');
-    router.setParams(navigate,location, { state: type });
-    
+    router.setParams(navigate, location, { state: type, page: undefined });
   };
 
   const renderTypeContent = () => {

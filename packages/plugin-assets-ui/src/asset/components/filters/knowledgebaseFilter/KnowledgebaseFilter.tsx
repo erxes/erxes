@@ -76,8 +76,10 @@ const KnowledgebaseFilter = (props: Props) => {
     if (selectedCategory.__typename === "KnowledgeBaseCategory") {
       setQueryParamName("knowledgebaseCategoryId");
       const articleIds = getArticlesCategory(id);
-      router.setParams(navigate, location, { knowledgebaseCategoryId: id });
-      router.setParams(navigate, location, { articleIds });
+      router.setParams(navigate, location, {
+        knowledgebaseCategoryId: id,
+        articleIds,
+      });
     }
   };
 
