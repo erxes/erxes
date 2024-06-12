@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { Zmss } from '.';
 
-interface Io_c_address {
+interface IoCAddress {
   o_c_address_full: string;
   o_c_address_aimag_city_name: string;
   o_c_address_aimag_city_code: string;
