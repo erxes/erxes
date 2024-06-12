@@ -1,10 +1,9 @@
 import * as compose from "lodash.flowright";
 
 import { Alert, getEnv, withProps } from "@erxes/ui/src/utils";
-import { DefaultColumnsConfigQueryResponse, IConfigColumn } from "../types";
+import { DefaultColumnsConfigQueryResponse, IConfigColumn , FieldsCombinedByTypeQueryResponse } from "../types";
 
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from "@erxes/ui-settings/src/constants";
-import { FieldsCombinedByTypeQueryResponse } from "../types";
 import ManageColumns from "../components/ManageColumns";
 import React from "react";
 import { gql } from "@apollo/client";
@@ -157,9 +156,7 @@ export default withProps<Props>(
               ? "contacts:customer"
               : contentType,
             usageType: type,
-            excludedNames: excludedNames
-              ? excludedNames
-              : renderExcludedNames(isImport),
+            excludedNames: excludedNames || renderExcludedNames(isImport),
           },
         };
       },
