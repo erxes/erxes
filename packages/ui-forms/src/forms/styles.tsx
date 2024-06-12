@@ -6,8 +6,6 @@ import {
 import { Formgroup, SelectWrapper } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled, { css } from 'styled-components';
-
-import { SidebarMainContent } from '@erxes/ui/src/layout/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
 
