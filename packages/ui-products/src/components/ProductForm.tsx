@@ -309,11 +309,9 @@ const Form = (props: Props) => {
   const onComboEvent = (variable: string, e) => {
     let value = "";
 
-    switch (variable) {
-      case "vendorId":
+    if (variable === "vendorId") {
         value = e;
-        break;
-      default:
+    } else {
         value = e.target.value;
     }
 
@@ -373,7 +371,7 @@ const Form = (props: Props) => {
   const onChangeAttachmentMore = (files: IAttachment[]) => {
     setState((prevState) => ({
       ...prevState,
-      attachmentMore: files ? files : undefined,
+      attachmentMore: files || undefined,
     }));
   };
 
