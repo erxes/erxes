@@ -63,7 +63,7 @@ class PropertyDetail extends React.Component<Props, {}> {
         return choiceOption === propertyValue;
       });
 
-      text = option ? option : text;
+      text = option || text;
     }
 
     return text;
