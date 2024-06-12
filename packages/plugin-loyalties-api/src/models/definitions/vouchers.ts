@@ -1,7 +1,6 @@
 import { commonSchema, ICommonDocument, ICommonFields } from './common';
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
-import { schemaHooksWrapper } from './utils';
+import { schemaHooksWrapper, field } from './utils';
 import { VOUCHER_STATUS } from './constants';
 
 export interface IVoucher extends ICommonFields {

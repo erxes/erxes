@@ -1,5 +1,5 @@
 import React from 'react';
-import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
+import { ControlLabel, FormGroup } from '@erxes/ui/src';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import SelectSpinCampaign from '../../common/SelectSpin';

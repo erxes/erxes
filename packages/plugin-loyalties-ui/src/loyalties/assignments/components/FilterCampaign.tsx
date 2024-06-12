@@ -9,7 +9,6 @@ import { __, router } from "@erxes/ui/src/utils";
 
 import React from "react";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { SidebarFilters } from "../../common/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 

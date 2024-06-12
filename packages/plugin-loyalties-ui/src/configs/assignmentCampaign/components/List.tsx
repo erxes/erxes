@@ -15,12 +15,11 @@ import {
 
 import CreateForm from "./CreateForm";
 import { IAssignmentCampaign } from "../types";
-import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import Row from "./Row";
 import Sidebar from "../../general/components/Sidebar";
 import { Wrapper } from "@erxes/ui/src/layout";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,Link } from "react-router-dom";
 
 type Props = {
   assignmentCampaigns: IAssignmentCampaign[];

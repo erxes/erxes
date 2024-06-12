@@ -4,7 +4,6 @@ import { FormControl, ModalTrigger } from "@erxes/ui/src/components";
 import {
   formatValue,
   renderFullName,
-  renderUserFullName,
 } from "@erxes/ui/src/utils";
 
 import { FlexItem } from "../../common/styles";

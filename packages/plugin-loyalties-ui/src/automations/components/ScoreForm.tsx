@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   ControlLabel,
-  FormControl,
   FormGroup,
   SelectTeamMembers,
   TabTitle,
@@ -43,7 +42,6 @@ const OWNER_TYPES = [
 ];
 
 type Props = {
-  onSave: () => void;
   closeModal: () => void;
   activeAction: IAction;
   addAction: (action: IAction, actionId?: string, config?: any) => void;

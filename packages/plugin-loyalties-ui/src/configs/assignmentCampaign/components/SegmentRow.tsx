@@ -3,7 +3,6 @@ import { Indicator } from '../../../styles';
 
 type Props = {
   segment: any;
-  history: any;
 };
 
 class Row extends React.Component<Props> {
