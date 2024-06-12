@@ -7,7 +7,6 @@ import React from "react";
 import { categoryStatusChoises } from "../../../utils";
 
 type Props = {
-  searchable?: boolean;
 };
 
 const CategoryStatusFilter: React.FC<Props> = (props) => {
@@ -57,27 +56,30 @@ const CategoryStatusFilter: React.FC<Props> = (props) => {
         isOpen={router.getParam(location, [productParam])}
       >
         <SidebarList>
-          {categoryStatusChoises(__).map(
-            (
-              { value, label }: { value: string; label: string },
-              index: number
-            ) =>
-              value === "deleted" && (
-                <li key={index}>
-                  <a
-                    href="#filter"
-                    tabIndex={0}
-                    className={
-                      router.getParam(location, [productParam]) === value
-                        ? "active"
-                        : ""
-                    }
-                    onClick={onClick.bind(this, productParam, value)}
-                  >
-                    <FieldStyle>{label}</FieldStyle>
-                  </a>
-                </li>
-              )
+          {categoryStatusChoises(__).map(({ value, label} : {value: string, label: string} , index: number ) =>
+              {
+
+                if(value !== "deleted") { 
+                  return <></>
+                }
+
+                return (
+                  <li key={index}>
+                    <a
+                      href="#filter"
+                      tabIndex={0}
+                      className={
+                        router.getParam(location, [productParam]) === value
+                          ? "active"
+                          : ""
+                      }
+                      onClick={onClick.bind(this, productParam, value)}
+                    >
+                      <FieldStyle>{label}</FieldStyle>
+                    </a>
+                  </li>
+                )
+              }
           )}
         </SidebarList>
       </Box>
