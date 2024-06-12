@@ -30,7 +30,7 @@ class MessengerPreview extends React.Component<Props, State> {
   renderNotificationBody = () => {
     const { content, sentAs, user } = this.props;
 
-    const type = sentAs ? sentAs : "default";
+    const type = sentAs || "default";
     const classNames = `engage-message type-${type}`;
     const isFullmessage = sentAs === "fullMessage";
 
