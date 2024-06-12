@@ -9,7 +9,7 @@ import {
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES,
 } from "@erxes/ui-contacts/src/companies/constants";
-import { IAttachment, IField, ILocationOption } from "@erxes/ui/src/types";
+import { IAttachment, IField, ILocationOption , IOption } from "@erxes/ui/src/types";
 import { LogicIndicator, SelectInput } from "../styles";
 import {
   RenderDynamicComponent,
@@ -21,7 +21,6 @@ import Select, { OnChangeValue } from "react-select";
 import Datetime from "@nateradebaugh/react-datetime";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { IOption } from "@erxes/ui/src/types";
 import Map from "@erxes/ui/src/containers/map/Map";
 import ModifiableList from "@erxes/ui/src/components/ModifiableList";
 import ObjectList from "./ObjectList";
@@ -529,7 +528,7 @@ export default class GenerateField extends React.Component<Props, State> {
           objectListConfigs={objectListConfigs}
           value={value}
           onChange={onChange}
-          isEditing={isEditing ? isEditing : false}
+          isEditing={isEditing || false}
         />
       </ErrorBoundary>
     );
