@@ -58,9 +58,10 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
         return onCompleted && onCompleted(_id)
       },
       onError(error) {
-        if (origin !== "market") {
+        if (error.message !== "Order is already paid") {
           return onError(error)
         }
+        ordersAdd()
       },
       refetchQueries: ["orderDetail", "PoscSlots"],
     }

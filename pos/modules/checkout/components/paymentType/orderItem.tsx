@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FocusChanger } from "@/components/ui/focus-changer"
 import { Input } from "@/components/ui/input"
+import { Slider } from "@/components/ui/slider"
 import {
   Tooltip,
   TooltipContent,
@@ -75,7 +76,7 @@ const OrderItem = ({ _id, productName, unitPrice, isTake, count }: T) => {
         </Button>
         <FocusChanger>
           <Input
-            className="mx-2 w-8 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className="mx-2 w-16 border-none p-1 text-center text-sm font-semibold [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             type="number"
             value={product?.count || 0}
             onChange={(e) => handleChange(Number(e.target.value))}
@@ -108,6 +109,13 @@ const OrderItem = ({ _id, productName, unitPrice, isTake, count }: T) => {
                   )}
                 />
               ))}
+              <Slider
+                value={[(product?.count || 0) * 100]}
+                max={count * 100}
+                onValueChange={(value) => handleChange(value[0] / 100)}
+                className={cn("w-full")}
+                disabled={availableCount === 0}
+              />
             </div>
           </TooltipTrigger>
           <TooltipContent>
