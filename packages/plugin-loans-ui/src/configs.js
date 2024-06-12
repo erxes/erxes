@@ -2,6 +2,7 @@ module.exports = {
   srcDir: __dirname,
   name: "loans",
   port: 3227,
+  scope: 'loans',
   exposes: {
     "./routes": "./src/routes.tsx",
     // './settings': './src/Settings.tsx',
