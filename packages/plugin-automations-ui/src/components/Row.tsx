@@ -50,11 +50,11 @@ function ActionRow({
   const editAction = () => {
     return (
       <Link to={`/automations/details/${automation._id}`}>
-        <Button btnStyle="link">
-          <Tip text={__("Edit")} placement="top">
+        <Tip text={__("Edit")} placement="top">
+          <Button btnStyle="link">
             <Icon icon="edit-3" />
-          </Tip>
-        </Button>
+          </Button>
+        </Tip>
       </Link>
     );
   };
