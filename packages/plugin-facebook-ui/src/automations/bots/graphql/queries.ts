@@ -37,6 +37,7 @@ const detail = `
           _id,text,type,link
         }
         greetText
+        tag
       }
     }
 `;
