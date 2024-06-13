@@ -62,8 +62,6 @@ const PaymentGateway = (props: Props) => {
         (t) => t.paymentId === payment._id && t.status === 'pending',
       );
 
-      console.log('pending ', pendingTransaction);
-
       if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
       } else if (
