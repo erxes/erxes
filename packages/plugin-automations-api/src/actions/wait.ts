@@ -112,8 +112,6 @@ export const doWaitingResponseAction = async (
     exec.save();
   };
 
-  console.log({ lenght: waitingExecutions.length });
-
   for (const exec of waitingExecutions) {
     const automation = await models.Automations.findOne({
       _id: exec.automationId,
@@ -154,8 +152,6 @@ export const doWaitingResponseAction = async (
       if (!optionalConnection) {
         continue;
       }
-
-      console.log(optionalConnection, { objToCheck, propertyValue });
 
       exec.responseActionId = undefined;
       exec.startWaitingDate = undefined;
