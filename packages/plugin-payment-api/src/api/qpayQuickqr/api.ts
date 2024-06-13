@@ -242,8 +242,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       },
     });
 
-    console.log('callback url', `${this.domain}/pl:payment/callback/${PAYMENTS.qpayQuickqr.kind}?_id=${invoice._id}`)
-
     return {
       ...res,
       qrData: `data:image/jpg;base64,${res.qr_image}`,
