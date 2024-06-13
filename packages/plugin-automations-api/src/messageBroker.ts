@@ -10,7 +10,10 @@ import {
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const setupMessageConsumers = async () => {
@@ -31,6 +34,31 @@ export const setupMessageConsumers = async () => {
     }
 
     await receiveTrigger({ models, subdomain, type, targets });
+  });
+
+  consumeRPCQueue('automations:trigger', async ({ subdomain, data }) => {
+    debugInfo(`Receiving queue data: ${JSON.stringify(data)}`);
+
+    const models = await generateModels(subdomain);
+    const { type, actionType, targets } = data;
+
+    if (actionType && actionType === 'waiting') {
+      await playWait(models, subdomain, data);
+      return;
+    }
+
+    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
+      await doWaitingResponseAction(models, subdomain, data);
+      return;
+    }
+
+    try {
+      await receiveTrigger({ models, subdomain, type, targets });
+      return 'done'
+    } catch (error) {
+      return error.meesage
+    }
+
   });
 
   consumeQueue('automations:find.count', async ({ subdomain, data }) => {

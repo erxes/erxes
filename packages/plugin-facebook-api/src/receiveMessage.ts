@@ -7,6 +7,7 @@ import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 import { debugError } from './debuggers';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   if (message?.payload) {
@@ -178,6 +179,8 @@ const receiveMessage = async (
       );
       conversationMessage = created;
 
+      console.log({ payload: JSON.parse(message.payload || '{}') });
+      
       await sendAutomationsMessage({
         subdomain,
         action: 'trigger',
@@ -190,8 +193,11 @@ const receiveMessage = async (
             }
           ]
         },
+        isRPC:true,
         defaultValue: null
-      }).catch((err) => debugError(err.message));
+      }).catch((err) => debugError(err.message)).then(()=>{
+        debugInfo('sent message')
+      });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
