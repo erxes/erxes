@@ -112,6 +112,8 @@ export const doWaitingResponseAction = async (
     exec.save();
   };
 
+  console.log({ lenght: waitingExecutions.length });
+
   for (const exec of waitingExecutions) {
     const automation = await models.Automations.findOne({
       _id: exec.automationId,

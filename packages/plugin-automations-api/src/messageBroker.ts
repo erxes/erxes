@@ -52,8 +52,18 @@ export const setupMessageConsumers = async () => {
       };
     }
 
+    console.log({
+      check: await checkWaitingResponseAction(
+        models,
+        type,
+        actionType,
+        targets,
+      ),
+    });
+
     if (await checkWaitingResponseAction(models, type, actionType, targets)) {
-      await doWaitingResponseAction(models, subdomain, data);
+      const res = await doWaitingResponseAction(models, subdomain, data);
+      console.log({ res });
       return {
         status: 'success',
         data: 'complete',
