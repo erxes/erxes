@@ -13,7 +13,7 @@ import { setupMessageConsumers } from './messageBroker';
 import * as permissions from './permissions';
 import { callbackHandler } from './utils';
 
-import cookieParser = require('cookie-parser');
+import cookieParser = require('cookie-parser')
 import i18n = require('i18n');
 
 export default {

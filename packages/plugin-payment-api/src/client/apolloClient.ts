@@ -5,9 +5,13 @@ import { createClient } from 'graphql-ws';
 import { ApolloLink, split } from '@apollo/client/link/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 
-const { apiDomain } = window as any;
+let apiDomain;
 
-const wsUri = apiDomain.replace('http', 'ws');
+if (typeof window !== 'undefined') {
+  apiDomain = (window as any).apiDomain;
+}
+
+const wsUri = apiDomain?.replace('http', 'ws');
 
 const httpLink = createHttpLink({
   uri: `${apiDomain}/graphql`,
@@ -36,7 +40,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: `${wsUri}/graphql`,
+    url: `${wsUri}/graphql`
   })
 );
 

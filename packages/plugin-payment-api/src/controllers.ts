@@ -14,6 +14,7 @@ import redisUtils from './redisUtils';
 const router = Router();
 
 router.get('/invoice/:invoiceId', async (req, res) => {
+  console.log("asd")
   const { invoiceId } = req.params;
 
   if (!invoiceId) {
@@ -144,14 +145,13 @@ router.post('/gateway/storepay', async (req, res) => {
   const api = new StorePayAPI(payment.config, domain);
 
   try {
-    const apiRes = await api.createInvoice({ ...invoice, phone } as any);
-    invoice.apiResponse = apiRes;
+    const apiRes:any = await api.createInvoice({ ...invoice, phone } as any);
 
     await models.Invoices.updateOne(
       { _id: invoice._id },
       { $set: { apiResponse: apiRes } }
     );
-    return res.json({ invoice: invoice.apiResponse });
+    return res.json({ invoice: apiRes });
   } catch (e) {
     return res.json({ error: e.message });
   }

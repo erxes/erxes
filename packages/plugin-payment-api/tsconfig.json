@@ -1,25 +1,16 @@
 {
-  "extends": "../tsconfig.api.jsonc",
+  "extends" : "../tsconfig.api.jsonc",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "sourceMap": true,
-    "jsx": "react",
-    "allowJs": true,
-    "checkJs": true,
-    "declaration": false,
-    "target": "ES2022",
-    "moduleResolution": "Node",
-    "module": "CommonJS",
-    "lib": ["ES2022", "DOM"],
-    "noImplicitAny": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "useUnknownInCatchVariables": false,
-    "preserveSymlinks": true,
-    "allowSyntheticDefaultImports": true,
-    "incremental": true
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "allowJs": true,
+      "target": "es5",
+      "moduleResolution": "node",
+      "module": "commonjs",
+      "lib": ["es2015", "es6", "es7", "esnext.asynciterable", "dom"],
+      "sourceMap": true,
+      "jsx": "react"
   },
   "include": ["./src"],
-  "exclude": ["./src/public", "node_modules"]
+  "exclude": ["./src/public"]
 }

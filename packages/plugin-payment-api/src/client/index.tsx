@@ -21,8 +21,6 @@ const App = () => {
     return <div className="py-12 text-center">Bad request</div>;
   }
 
-  // children = <div>Hello world</div>;
-
   children = <Payments invoiceId={invoiceId} apiDomain={apiDomain} />;
 
   return (

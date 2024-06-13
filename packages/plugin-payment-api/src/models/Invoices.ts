@@ -43,7 +43,7 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async updateInvoice(_id: string, doc: any) {
       const result = await models.Invoices.updateOne({ _id }, { $set: doc });
 
-      if (result.n === 0) {
+      if (result.matchedCount === 0) {
         throw new Error('Invoice not found');
       }
 

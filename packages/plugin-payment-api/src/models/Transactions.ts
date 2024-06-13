@@ -85,7 +85,7 @@ export const loadTransactionClass = (models: IModels) => {
         { $set: doc }
       );
 
-      if (result.n === 0) {
+      if (result.matchedCount === 0) {
         throw new Error('Transaction not found');
       }
 
