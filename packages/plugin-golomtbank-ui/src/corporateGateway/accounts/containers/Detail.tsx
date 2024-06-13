@@ -1,4 +1,3 @@
-import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
 import React from "react";
@@ -6,7 +5,8 @@ import { useQuery } from "@apollo/client";
 
 import Detail from "../components/Detail";
 import queries from "../graphql/queries";
-import { AccountDetailQueryResponse } from "../../../types/IGolomtAccount";
+import { AccountDetailQueryResponse, AccountBalanceQueryResponse } from "../../../types/IGolomtAccount";
+import { ErrorMsg } from "@erxes/ui";
 
 type Props = {
   queryParams: any;
@@ -20,7 +20,17 @@ const DetailContainer = (props: Props) => {
     {
       variables: {
         configId: _id,
-        accountNumber: account,
+        accountId: account,
+      },
+      fetchPolicy: "network-only",
+    }
+  );
+  const balance = useQuery<AccountBalanceQueryResponse>(
+    gql(queries.getBalance),
+    {
+      variables: {
+        configId: _id,
+        accountId: account,
       },
       fetchPolicy: "network-only",
     }
@@ -34,29 +44,8 @@ const DetailContainer = (props: Props) => {
   //   return <ErrorMsg>{error.message}</ErrorMsg>;
   // }
 
-  // const accountDetail = data && data.golomtBankAccountDetail;
-  const accountDetail = {
-    requestId: "d15b529764394dca937b555fbc854a7a",
-    accountNumber: "4005110163",
-    currency: "MNT",
-    customerName: "XXX XXK",
-    titlePrefix: "M/S.",
-    accountName: "ОЧИР УНДРАА ОМЗ ББСБ",
-    accountShortName: "ОЧИР УНДРА",
-    freezeStatusCode: "",
-    freezeReasonCode: "",
-    openDate: "2017-07-31",
-    status: "A",
-    productName: "ҮНДСЭН ДАНС-БАЙГУУЛЛАГА",
-    type: {
-      schemeCode: "CA602",
-      schemeType: "SBA",
-    },
-    intRate: 0,
-    isRelParty: "N",
-    branchId: "814",
-  };
-
+  const accountDetail = data && data.golomtBankAccountDetail ;
+  const balances = balance.data?.golomtBankAccountBalance ;
   if (!accountDetail) {
     return null;
   }
@@ -65,6 +54,7 @@ const DetailContainer = (props: Props) => {
     ...props,
     loading,
     account: accountDetail,
+    balances: balances,
   };
 
   return (

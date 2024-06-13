@@ -1,5 +1,3 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
-
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Detail from './Detail';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
@@ -9,7 +7,6 @@ import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 
-// import Detail from '../containers/Detail';
 type Props = {
   queryParams: any;
   loading?: boolean;

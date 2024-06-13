@@ -1,13 +1,10 @@
-import { GolomtBankAccount } from "../types";
 import { BaseApi } from "./base";
 export class AccountsApi extends BaseApi {
   public params;
-
   constructor(args) {
     super(args);
     this.params = args;
   }
-
   /**
    * get account list
    * @return {[GolomtBankAccount]} - Returns an array of accounts
@@ -41,19 +38,6 @@ export class AccountsApi extends BaseApi {
           },
         },
       ];
-      // const accounts: GolomtBankAccount[] = res.accounts.map(account => {
-      //   return {
-      //     requestId: account.requestId,
-      //     accountId: account.accountId,
-      //     accountName: account.accountName,
-      //     shortName: account.shortName,
-      //     currency: account.currency,
-      //     branchId: account.branchId,
-      //     isSocialPayConnected: account.isSocialPayConnected,
-      //     accountType: account.accountType
-      //   };
-      // });
-
       return list;
     } catch (e) {
       console.error(e);
@@ -69,20 +53,38 @@ export class AccountsApi extends BaseApi {
    */
   async get(accountId: string) {
     try {
-      const res = await this.request({
+      return await this.request({
         method: "POST",
-        path: "/v1/account/operative/details",
+        path: "v1/account/operative/details",
         type: "OPERACCTDET",
         data: {
           registerNo: this.params.registerId,
-          accountId: this.params.accountId,
+          accountId: accountId,
         },
         params: {
           client_id: this.params.clientId,
         },
       });
+    } catch (e) {
+      console.error(e);
+      throw new Error(e.message);
+    }
+  }
 
-      return res.account;
+  async getBalance(accountId: string) {
+    try {
+      return await this.request({
+        method: "POST",
+        path: "/v1/account/balance/inq",
+        type: "ACCTBALINQ",
+        data: {
+          registerNo: this.params.registerId,
+          accountId: accountId,
+        },
+        params: {
+          client_id: this.params.clientId,
+        },
+      });
     } catch (e) {
       console.error(e);
       throw new Error(e.message);
@@ -96,16 +98,4 @@ export class AccountsApi extends BaseApi {
    * @return {object} - Returns an account object
    * TODO: update return type
    */
-  // async getHolder(accountId: string, bankCode?: string) {
-  //   try {
-  //     const res = await this.request({
-  //       method: 'GET',
-  //       path: `accounts/${accountId}/name?bank=${bankCode}`
-  //     });
-
-  //     return { ...res.account, ...res.customer };
-  //   } catch (e) {
-  //     throw new Error(e.message);
-  //   }
-  // }
 }

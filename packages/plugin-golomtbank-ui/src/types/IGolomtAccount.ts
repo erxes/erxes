@@ -38,6 +38,10 @@ export interface IGolomtBankAccountDetail {
   isRelParty: string;
   branchId: string;
 }
+export interface IGolomtBankAccountBalance {
+  currency: string;
+  balanceLL?: [any];
+}
 export type AccountsListQueryResponse = {
   golomtBankAccounts: IGolomtBankAccount[];
 
@@ -49,5 +53,12 @@ export type AccountDetailQueryResponse = {
   golomtBankAccountDetail: IGolomtBankAccountDetail;
 
   loading: boolean;
+  refetch: () => void;
+} & QueryResponse;
+
+export type AccountBalanceQueryResponse = {
+  golomtBankAccountBalance: IGolomtBankAccountBalance;
+
+  loader: boolean;
   refetch: () => void;
 } & QueryResponse;

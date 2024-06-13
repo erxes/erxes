@@ -7,21 +7,43 @@ import React from "react";
 
 import { BlockRow } from "../../../styles";
 import { getCurrencySymbol } from "../../../utils";
-import { IGolomtBankAccount } from "../../../types/IGolomtAccount";
+import { IGolomtBankAccount, IGolomtBankAccountBalance, IGolomtBankAccountDetail } from "../../../types/IGolomtAccount";
 
 type Props = {
   queryParams: any;
-  account: IGolomtBankAccount;
+  account: IGolomtBankAccountDetail;
+  balances?: IGolomtBankAccountBalance;
 };
 
 const Detail = (props: Props) => {
-  const { account, queryParams } = props;
+  const { account, queryParams ,balances} = props;
   const accountNumber = queryParams.account;
 
   const defaultAccount = JSON.parse(
     localStorage.getItem("golomtbankDefaultAccount") || "{}"
   );
-
+const getStatusValue = (value) =>{
+   switch (value) {
+    case "A":
+      return "active";
+    case "I":
+      return "inactive";
+    case "D":
+      return "dormant";
+    default:
+      return "";
+  }
+}
+const isRel = (value) =>{
+  switch (value) {
+    case "N":
+      return "NO";
+    case "Y":
+      return "YES";
+    default:
+      return "";
+ }
+}
   const [isChecked, setIsChecked] = React.useState(
     defaultAccount.accountNumber === accountNumber
   );
@@ -58,36 +80,55 @@ const Detail = (props: Props) => {
         <BlockRow>
           <FormGroup>
             <p>{__("Account")}</p>
-            <strong>{accountNumber}</strong>
+            <strong>{account.accountNumber}</strong>
           </FormGroup>
 
           <FormGroup>
-            <p>{__("Account holder")} </p>
-            {/* //<strong>{holderInfo}</strong> */}
+            <p>{__("Account name")} </p>
+            <strong>{account.accountName}</strong>
           </FormGroup>
 
           <FormGroup>
-            <p>{__("Balance")} </p>
-            <strong>
-              {/* {account.balance.toLocaleString()}{' '} */}
-              {getCurrencySymbol(account.currency || "MNT")}
-            </strong>
+            <p>{__("Customer name")} </p>
+            <strong>{account.customerName}</strong>
           </FormGroup>
         </BlockRow>
 
         <BlockRow>
-          <FormGroup>
-            <p>{__("Default account")}</p>
-            <Toggle
-              checked={isChecked}
-              onChange={toggleChange}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
-              }}
-            />
-          </FormGroup>
+        <FormGroup>
+            <p>{__("Balance")} </p>
+            {(balances?.balanceLL || []).map((balance) => (
+            <strong>
+            {balance.amount.value.toLocaleString()}
+            {getCurrencySymbol(balance.amount.currency || "MNT")}
+          </strong>
+      ))}
 
+          </FormGroup>
+          <FormGroup>
+            <p>{__("product name")} </p>
+            <strong>{account.productName}</strong>
+          </FormGroup>
+          <FormGroup>
+            <p>{__("branch")} </p>
+            <strong>{account.branchId}</strong>
+          </FormGroup>
+        </BlockRow>
+        <BlockRow>
+        <FormGroup>
+            <p>{__("status")}</p>
+            <strong>{ getStatusValue(account.status)}</strong>
+          </FormGroup>
+          <FormGroup>
+            <p>{__("registration")}</p>
+            <strong>{ isRel(account.isRelParty)}</strong>
+          </FormGroup>
+          <FormGroup>
+            <p>{__("open date")}</p>
+            <strong>{account.openDate}</strong>
+          </FormGroup>
+        </BlockRow>
+        <BlockRow>
           <FormGroup>
             <ModalTrigger
               size="lg"

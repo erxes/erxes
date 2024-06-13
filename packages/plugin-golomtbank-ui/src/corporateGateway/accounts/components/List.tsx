@@ -25,22 +25,26 @@ const List = (props: any) => {
     });
   };
 
-  return <Sidebar>{(accounts || []).map((account) => (
-    <SidebarListItem
-      id={account.accountId}
-      key={account.accountId}
-      onClick={onClickRow}
-      $isActive={queryParams.account === account.accountId}
-      style={{overflow:'auto'}}
-    >
-      <Link to={`?_id=${props._id}&account=${account.number}`}>
-        <FieldStyle>
-          {account.accountId}
-          <Description>{account.accountName}</Description>
-        </FieldStyle>
-      </Link>
-    </SidebarListItem>
-))}</Sidebar>;
+  return (
+    <Sidebar>
+      {(accounts || []).map((account) => (
+        <SidebarListItem
+          id={account.accountId}
+          key={account.accountId}
+          onClick={onClickRow}
+          $isActive={queryParams.account === account.accountId}
+          style={{ overflow: "auto" }}
+        >
+          <Link to={`?_id=${props._id}&account=${account.number}`}>
+            <FieldStyle>
+              {account.accountId}
+              <Description>{account.accountName}</Description>
+            </FieldStyle>
+          </Link>
+        </SidebarListItem>
+      ))}
+    </Sidebar>
+  );
 };
 
 export default List;

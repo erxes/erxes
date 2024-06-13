@@ -1,9 +1,5 @@
 import * as routerUtils from "@erxes/ui/src/utils/router";
-
 import { useLocation, useNavigate } from "react-router-dom";
-
-import AccountList from "../corporateGateway/accounts/containers/List";
-import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
 import { ConfigList } from "../styles";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
@@ -16,6 +12,7 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import { TopHeader } from "@erxes/ui/src/styles/main";
+import AccountRow from "../corporateGateway/accounts/components/Row";
 
 type Props = {
   configs: IGolomtBankConfigsItem[];
@@ -26,7 +23,7 @@ type Props = {
 };
 
 const ConfigsList = (props: Props) => {
-  const { configs, totalCount, queryParams, loading, refetch } = props;
+  const { configs, totalCount, queryParams, loading } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,11 +46,6 @@ const ConfigsList = (props: Props) => {
     }
   }, []);
 
-  const onClickRow = (config) => {
-    setCurrentConfig(config._id);
-    routerUtils.setParams(navigate, location, { _id: config._id });
-  };
-
   const onRefresh = () => {
     setFetchPolicy("network-only");
   };
@@ -67,22 +59,13 @@ const ConfigsList = (props: Props) => {
   const renderRow = () => {
     return configs.map((config, index) => {
       return (
-        <Box
-          key={index}
-          extraButtons={reload}
-          title={config.accountId}
-          isOpen={currentConfig === config._id}
-          name={config._id}
-          callback={() => {
-            onClickRow(config);
-          }}
-        >
-          <AccountList
-            {...props}
-            configId={config._id}
-            fetchPolicy={fetchPolicy}
-          />
-        </Box>
+        <AccountRow
+          {...config}
+          queryParams={queryParams}
+          account={config}
+          configId={config._id}
+          fetchPolicy={fetchPolicy}
+        />
       );
     });
   };

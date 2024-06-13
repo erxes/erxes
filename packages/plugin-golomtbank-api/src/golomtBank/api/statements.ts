@@ -1,6 +1,4 @@
-import { formatDate } from '../../utils/utils';
 import { BaseApi } from './base';
-
 export class StatementsApi extends BaseApi {
   public params;
 
@@ -40,21 +38,6 @@ export class StatementsApi extends BaseApi {
     if (endDate) {
       data.endDate = endDate;
     }
-
-    // if (page) {
-    //   queryParams.page = page - 1;
-    // }
-
-    // if (perPage) {
-    //   queryParams.size = perPage;
-    // }
-
-    // if (record) {
-    //   queryParams.record = record;
-    //   delete queryParams.from;
-    //   delete queryParams.to;
-    // }
-    // queryParams.from = '20190101';
 
     try {
       return await this.request({

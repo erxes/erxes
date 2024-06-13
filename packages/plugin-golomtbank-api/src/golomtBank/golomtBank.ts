@@ -1,8 +1,6 @@
-import { IGolomtBankConfigDocument } from '../models/definitions/golomtBankConfigs';
-import { AccountsApi } from './api/accounts';
-import { StatementsApi } from './api/statements';
-// import { TaxesApi } from './api/taxes';
-// import { TransferApi } from './api/transfer';
+import { IGolomtBankConfigDocument } from "../models/definitions/golomtBankConfigs";
+import { AccountsApi } from "./api/accounts";
+import { StatementsApi } from "./api/statements";
 
 class GolomtBank {
   public apiUrl: string;
@@ -13,10 +11,9 @@ class GolomtBank {
   public ivKey: string;
   public sessionKey: string;
   public configPassword: string;
+  public accountId: string;
   public accounts: AccountsApi;
   public statements: StatementsApi;
-  // public transfer: TransferApi;
-  // public taxes: TaxesApi;
 
   constructor(config: IGolomtBankConfigDocument) {
     const auth = {
@@ -26,11 +23,12 @@ class GolomtBank {
       clientId: config.clientId,
       ivKey: config.ivKey,
       sessionKey: config.sessionKey,
-      configPassword: config.configPassword
+      configPassword: config.configPassword,
+      accountId: config.accountId,
     };
 
     if (!auth.registerId || !auth.configPassword) {
-      throw new Error('Consumer register and secret password are required');
+      throw new Error("Consumer register and secret password are required");
     }
     this.registerId = config.registerId;
     this.name = config.name;
@@ -39,13 +37,11 @@ class GolomtBank {
     this.ivKey = config.ivKey;
     this.sessionKey = config.sessionKey;
     this.configPassword = config.configPassword;
+    this.accountId = config.accountId;
+    this.apiUrl = "https://openapi-uat.golomtbank.com/api";
 
-    this.apiUrl = 'https://openapi-uat.golomtbank.com/api';
-    
     this.accounts = new AccountsApi(this);
     this.statements = new StatementsApi(this);
-    // this.transfer = new TransferApi(this);
-    // this.taxes = new TaxesApi(this);
   }
 }
 

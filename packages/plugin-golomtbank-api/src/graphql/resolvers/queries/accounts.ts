@@ -1,6 +1,5 @@
-
-import { IContext } from '../../../connectionResolver';
-import GolomtBank from '../../../golomtBank/golomtBank';
+import { IContext } from "../../../connectionResolver";
+import GolomtBank from "../../../golomtBank/golomtBank";
 
 const queries = {
   async golomtBankAccounts(
@@ -8,31 +7,13 @@ const queries = {
     { configId }: { configId: string },
     { models }: IContext
   ) {
-    
     const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
     if (!config) {
-      throw new Error('Not found config');
+      throw new Error("Not found config");
     }
     const golomtBank = new GolomtBank(config);
-    // const  list =  [
-    //   {
-    //     "requestId": "cc65ebc637d04541a7e45d753aaddce2",
-    //     "accountId": "1605242952",
-    //     "accountName": "ОЧИР УНДРАА ОМЗ ББСБ",
-    //     "shortName": "ОЧИР УНДРА",
-    //     "currency": "USD",
-    //     "branchId": "160",
-    //     "isSocialPayConnected": "N",
-    //     "accountType": {
-    //       "schemeCode": "CA658",
-    //       "schemeType": "SBA"
-    //     }
-    //   }
-    // ]
-   //const test = golomtBank.accounts.list();
     try {
-
-    golomtBank.accounts.list();
+      golomtBank.accounts.list();
     } catch (e) {
       throw new Error(e.message);
     }
@@ -47,11 +28,8 @@ const queries = {
 
     const golomtBank = new GolomtBank(config);
 
-    try {
-      return golomtBank.accounts.get(accountId);
-    } catch (e) {
-      throw new Error(e.message);
-    }
+    const res = await golomtBank.accounts.get(accountId);
+    return JSON.parse(res);
   },
   async golomtBankStatements(
     _root,
@@ -66,11 +44,13 @@ const queries = {
     { models }: IContext
   ) {
     const { configId } = args;
-    
+
     try {
-      const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
+      const config = await models.GolomtBankConfigs.getConfig({
+        _id: configId,
+      });
       if (!config) {
-        throw new Error('Not found config');
+        throw new Error("Not found config");
       }
       // if (config.accountId !== args.accountId) {
       //   throw new Error('please check account number');
@@ -81,6 +61,19 @@ const queries = {
     } catch (e) {
       throw new Error(e.message);
     }
+  },
+  async golomtBankAccountBalance(
+    _root,
+    { configId, accountId }: { configId: string; accountId: string },
+    { models }: IContext
+  ) {
+    const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
+
+    const golomtBank = new GolomtBank(config);
+  
+      const res = await golomtBank.accounts.getBalance(accountId);
+      return  JSON.parse(res);
+    
   },
 };
 

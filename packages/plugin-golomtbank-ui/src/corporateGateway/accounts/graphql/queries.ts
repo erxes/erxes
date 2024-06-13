@@ -18,26 +18,35 @@ query GolomtBankAccounts($configId: String) {
 `;
 
 const detailQuery = `
-query GolomtBankAccountDetail($accountNumber: String!, $configId: String!) {
-  golomtBankAccountDetail(accountNumber: $accountNumber, configId: $configId) {
-    ${commonFields}
-    homeBranch
-    homePhone
-    intFrom
-    intMethod
+query GolomtBankAccountDetail($configId: String!, $accountId: String!) {
+  golomtBankAccountDetail(configId: $configId, accountId: $accountId) {
+    requestId
+    accountNumber
+    currency
+    customerName
+    titlePrefix
+    accountName
+    accountShortName
+    freezeStatusCode
+    freezeReasonCode
+    openDate
+    status
+    productName
+    type
     intRate
-    intTo
-    lastFinancialTranDate
-    
-    holderInfo(accountNumber: $accountNumber, configId: $configId) {
-      custLastName
-      custFirstName
-    }
+    isRelParty
+    branchId
   }
 }
 `;
-
+const getBalance = `query GolomtBankAccountBalance($configId: String!, $accountId: String!) {
+  golomtBankAccountBalance(configId: $configId, accountId: $accountId) {
+    currency
+    balanceLL
+  }
+}`
 export default {
   listQuery,
-  detailQuery
+  detailQuery,
+  getBalance
 };
