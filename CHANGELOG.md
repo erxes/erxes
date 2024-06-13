@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.13.0-rc.0...1.13.0-rc.1) (2024-06-13)
+
+
+### Bug Fixes
+
+* fix insight table type ([efd64e3](https://github.com/erxes/erxes/commit/efd64e3109a2a335ae800f6c01ace02c22e0a8be))
+
 ## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.12.0...1.13.0-rc.0) (2024-06-12)
 
 ### Bug Fixes
