@@ -155,6 +155,8 @@ export const doWaitingResponseAction = async (
         continue;
       }
 
+      console.log(optionalConnection, { objToCheck, propertyValue });
+
       exec.responseActionId = undefined;
       exec.startWaitingDate = undefined;
       exec.objToCheck = undefined;
