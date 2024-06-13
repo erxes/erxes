@@ -85,8 +85,8 @@ export function getToolbarControl({
     if (
       items.some((item) =>
         ['alignLeft', 'alignRight', 'alignCenter', 'alignJustify'].includes(
-          item,
-        ),
+          item
+        )
       )
     )
       return [
@@ -108,7 +108,7 @@ export function getToolbarControl({
     if (!isValidToolbarParam(control)) return null;
 
     const controlItems = control.items.map((item: any, index: number) =>
-      getControlItem(item, item + index),
+      getControlItem(item, item + index)
     );
 
     if (!control.isMoreControl)
@@ -141,9 +141,12 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
       // Separator encountered, push the current group to the controlGroups array
       if (currentGroup.length > 0) {
         controlGroups.push(
-          <RichTextEditor.ControlsGroup key={`$${item}-${index}`}>
-            {currentGroup}
-          </RichTextEditor.ControlsGroup>,
+          <>
+            <RichTextEditor.ControlsGroup key={`$${item}-${index}`}>
+              {currentGroup}
+            </RichTextEditor.ControlsGroup>
+            <RichTextEditor.Separator />
+          </>
         );
         currentGroup = [];
       }
@@ -158,7 +161,7 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
     controlGroups.push(
       <RichTextEditor.ControlsGroup key={`last-group-${controlGroups.length}`}>
         {currentGroup}
-      </RichTextEditor.ControlsGroup>,
+      </RichTextEditor.ControlsGroup>
     );
   }
   return controlGroups;

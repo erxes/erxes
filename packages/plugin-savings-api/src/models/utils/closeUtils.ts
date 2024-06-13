@@ -25,7 +25,7 @@ export const getCloseInfo = async (
     balance: contract.savingAmount,
     interestRate: contractType.closeInterestRate,
     dayOfMonth: day,
-    fixed: config?.calculationFixed || 2
+    fixed: Number(config?.calculationFixed || 2)
   });
 
   const result = {
