@@ -44,21 +44,32 @@ export const setupMessageConsumers = async () => {
 
     if (actionType && actionType === 'waiting') {
       await playWait(models, subdomain, data);
-      return;
+      return {
+        status: 'success',
+        data: 'complete',
+      };
     }
 
     if (await checkWaitingResponseAction(models, type, actionType, targets)) {
       await doWaitingResponseAction(models, subdomain, data);
-      return;
+      return {
+        status: 'success',
+        data: 'complete',
+      };
     }
 
     try {
       await receiveTrigger({ models, subdomain, type, targets });
-      return 'done'
+      return {
+        status: 'success',
+        data: 'complete',
+      };
     } catch (error) {
-      return error.meesage
+      return {
+        status: 'error',
+        errorMessage: error?.message || 'error',
+      };
     }
-
   });
 
   consumeQueue('automations:find.count', async ({ subdomain, data }) => {
