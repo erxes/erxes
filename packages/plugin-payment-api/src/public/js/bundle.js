@@ -13651,7 +13651,6 @@ var PaymentGateway = function PaymentGateway(props) {
       var pendingTransaction = transactions.find(function (t) {
         return t.paymentId === payment._id && t.status === 'pending';
       });
-      console.log('pending ', pendingTransaction);
       if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
       } else if (pendingTransaction && pendingTransaction.paymentKind === 'golomt') {
