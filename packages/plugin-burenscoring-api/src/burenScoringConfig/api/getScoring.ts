@@ -7,18 +7,17 @@ export class BurenScoringApi extends BaseApi {
     vendor: string;
   }) {
     try {
-      const result =  await this.request({
+      return await this.request({
         method: 'POST',
         path: 'api/v1/scoring',
         data: {
           keyword: params.keyword,
           reportPurpose: params.reportPurpose,
-          vendor:  params.vendor || "AND_SCORING"
+          vendor: params.vendor || 'AND_SCORING'
         }
-      }).then(r=>r.json() );
-      return result
+      }).then((r) => r.json());
     } catch (e) {
-      throw new Error('getscoring',e);
+      throw new Error('getscoring', e);
     }
   }
 }

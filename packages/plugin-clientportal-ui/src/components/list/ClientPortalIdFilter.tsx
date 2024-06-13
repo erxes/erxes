@@ -45,11 +45,6 @@ function ClientPortalUser({
     router.removeParams(navigate, location, "cpId");
   };
 
-  const onClickRow = (id) => {
-    router.removeParams(navigate, location, "page");
-    router.setParams(navigate, location, { cpId: id });
-  };
-
   const extraButtons = (
     <>
       {router.getParam(location, "cpId") && (
@@ -63,7 +58,10 @@ function ClientPortalUser({
   const data = (
     <SidebarList>
       {clientPortalGetConfigs.map((cp) => {
-  
+        const onClick = () => {
+          router.setParams(navigate, location, { cpId: cp._id });
+          router.removeParams(navigate, location, "page");
+        };
 
         return (
           <li key={cp._id}>
@@ -75,7 +73,7 @@ function ClientPortalUser({
                   ? "active"
                   : ""
               }
-              onClick={()=> onClickRow(cp._id)}
+              onClick={onClick}
             >
               <FieldStyle>{cp.name}</FieldStyle>
               <SidebarCounter>{counts[cp._id || ""]}</SidebarCounter>

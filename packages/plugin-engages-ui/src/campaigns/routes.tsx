@@ -1,12 +1,12 @@
-import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const MessageForm = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageForm - Engage" */ './containers/MessageForm'
+    /* webpackChunkName: "MessageForm - Engage" */ "./containers/MessageForm"
   );
 
   return comp;
@@ -14,7 +14,7 @@ const MessageForm = asyncComponent(() => {
 
 const MessageList = asyncComponent(() => {
   const comp = import(
-    /* webpackChunkName: "MessageList - Engage" */ './containers/MessageList'
+    /* webpackChunkName: "MessageList - Engage" */ "./containers/MessageList"
   );
 
   return comp;
@@ -23,14 +23,14 @@ const MessageList = asyncComponent(() => {
 const EngageStats = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats'
+      /* webpackChunkName: "EngageStats - Engage" */ "./containers/EngageStats"
     )
 );
 
 const EngageConfigs = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Engage configs" */ '../settings/campaigns/components/EngageConfigs'
+      /* webpackChunkName: "Engage configs" */ "../settings/campaigns/components/EngageConfigs"
     )
 );
 
@@ -42,7 +42,7 @@ const CreateForm = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <MessageForm kind={'manual'} />;
+  return <MessageForm kind={queryParams.kind} />;
 };
 
 const EditForm = () => {
@@ -60,29 +60,29 @@ const Statistic = () => {
 const routes = () => {
   return (
     <Routes>
-      <Route key='/campaigns' path='/campaigns' element={<EngageList />} />
+      <Route key="/campaigns" path="/campaigns" element={<EngageList />} />
 
       <Route
-        key='/campaigns/create'
-        path='/campaigns/create'
+        key="/campaigns/create"
+        path="/campaigns/create"
         element={<CreateForm />}
       />
 
       <Route
-        key='/campaigns/edit'
-        path='/campaigns/edit/:_id'
+        key="/campaigns/edit"
+        path="/campaigns/edit/:_id"
         element={<EditForm />}
       />
 
       <Route
-        key='/campaigns/show'
-        path='/campaigns/show/:_id'
+        key="/campaigns/show"
+        path="/campaigns/show/:_id"
         element={<Statistic />}
       />
 
       <Route
-        key='/settings/campaign-configs/'
-        path='/settings/campaign-configs/'
+        key="/settings/campaign-configs/"
+        path="/settings/campaign-configs/"
         element={<EngageConfigs />}
       />
     </Routes>

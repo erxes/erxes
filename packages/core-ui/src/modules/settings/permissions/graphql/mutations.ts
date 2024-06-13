@@ -2,16 +2,12 @@ const commonUserGroupParamsDef = `
   $name: String!,
   $description: String,
   $memberIds: [String],
-  $branchIds: [String],
-  $departmentIds: [String],
 `;
 
 const commonUserGroupParams = `
   name: $name,
   description: $description,
   memberIds: $memberIds,
-  branchIds: $branchIds,
-  departmentIds: $departmentIds
 `;
 
 const commonParamsDef = `
@@ -87,5 +83,5 @@ export default {
   usersGroupsAdd,
   usersGroupsEdit,
   usersGroupsRemove,
-  usersGroupsCopy,
+  usersGroupsCopy
 };

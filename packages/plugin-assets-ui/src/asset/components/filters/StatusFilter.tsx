@@ -22,11 +22,9 @@ const StatusFilter = (props: Props) => {
   }, [queryParams.status]);
 
   const onClick = (value) => {
-    router.setParams(navigate, location, {
-      status: value,
-      assetId: undefined,
-      assetCategoryId: undefined,
-    });
+    router.setParams(navigate, location, { status: value });
+    router.removeParams(navigate, location, "assetId");
+    router.removeParams(navigate, location, "assetCategoryId");
   };
 
   return (

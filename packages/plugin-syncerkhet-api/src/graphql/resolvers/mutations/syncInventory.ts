@@ -48,14 +48,14 @@ const inventoryMutations = {
     const productCodes = products.map((p) => p.code) || [];
     const response = await fetch(
       process.env.ERKHET_URL +
-      '/get-api/?' +
-      new URLSearchParams({
-        kind: 'inventory',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true',
-      }),
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inventory',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true',
+        }),
     );
 
     const responseData = await response.json();
@@ -86,8 +86,8 @@ const inventoryMutations = {
         const product = productByCode[resProd.code];
 
         if (
-          resProd.name === product.name &&
-          resProd.nickname === product.shortName &&
+          (resProd.name === product.name ||
+            resProd.nickname === product.name) &&
           resProd.unit_price === product.unitPrice &&
           resProd.barcodes === (product.barcodes || []).join(',') &&
           (resProd.vat_type || '') === (product.taxType || '') &&
@@ -149,14 +149,14 @@ const inventoryMutations = {
 
     const response = await fetch(
       process.env.ERKHET_URL +
-      '/get-api/?' +
-      new URLSearchParams({
-        kind: 'inv_category',
-        api_key: config.apiKey,
-        api_secret: config.apiSecret,
-        token: config.apiToken,
-        is_gen_fk: 'true',
-      }),
+        '/get-api/?' +
+        new URLSearchParams({
+          kind: 'inv_category',
+          api_key: config.apiKey,
+          api_secret: config.apiSecret,
+          token: config.apiToken,
+          is_gen_fk: 'true',
+        }),
     );
 
     const responseData = await response.json();

@@ -28,7 +28,7 @@ interface IScheduleDate {
   dateTime?: string | Date;
 }
 
-export interface IScheduleDateDocument extends IScheduleDate, Document {}
+interface IScheduleDateDocument extends IScheduleDate, Document {}
 
 interface IMessenger {
   brandId?: string;
@@ -113,7 +113,7 @@ export const scheduleDateSchema = new Schema(
       min: [Date.now, `Date time value must be greather than today`],
     }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const emailSchema = new Schema(
@@ -125,7 +125,7 @@ export const emailSchema = new Schema(
     content: field({ type: String, label: 'Content' }),
     templateId: field({ type: String, optional: true, label: 'Template' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const messengerSchema = new Schema(
@@ -144,7 +144,7 @@ export const messengerSchema = new Schema(
     content: field({ type: String, label: 'Content' }),
     rules: field({ type: [ruleSchema], label: 'Rules' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const smsSchema = new Schema(
@@ -153,7 +153,7 @@ export const smsSchema = new Schema(
     content: field({ type: String, label: 'SMS content' }),
     fromIntegrationId: field({ type: String, label: 'Configured integration' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const notificationSchema = new Schema(
@@ -162,7 +162,7 @@ export const notificationSchema = new Schema(
     content: field({ type: String, label: 'Notification content' }),
     isMobile: field({ type: Boolean, label: 'Is mobile' }),
   },
-  { _id: false }
+  { _id: false },
 );
 
 export const engageMessageSchema = schemaWrapper(
@@ -230,5 +230,5 @@ export const engageMessageSchema = schemaWrapper(
       optional: true,
       default: 0,
     }),
-  })
+  }),
 );

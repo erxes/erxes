@@ -1,4 +1,4 @@
-import { assetFields } from "../../common/graphql/asset";
+import { assetFields } from '../../common/graphql/asset';
 
 export const listParamDefs = `
     $parentId: String,

@@ -3,7 +3,6 @@ import { CAMPAIGN_KINDS, CAMPAIGN_METHODS, CONTENT_TYPES } from './constants';
 import {
   IEngageMessage,
   IEngageMessageDocument,
-  IScheduleDateDocument,
 } from './models/definitions/engages';
 import { isUsingElk } from './utils';
 import {
@@ -68,7 +67,7 @@ export const generateCustomerSelector = async (
       data: { query: { brandId: { $in: brandIds } } },
     });
 
-    customerQuery = { integrationId: { $in: integrations.map(i => i._id) } };
+    customerQuery = { integrationId: { $in: integrations.map((i) => i._id) } };
   }
 
   if (segmentIds.length > 0) {
@@ -138,50 +137,6 @@ export const generateCustomerSelector = async (
   };
 };
 
-const timeCheckScheduledBroadcast = async (
-  _id: string,
-  models: IModels,
-  scheduleDate?: IScheduleDateDocument
-) => {
-  const isValidScheduledBroadcast =
-    scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime;
-  // Check for pre scheduled engages
-
-  if (isValidScheduledBroadcast) {
-    const dateTime = new Date(scheduleDate.dateTime || '');
-    const now = new Date();
-    const notRunNow = dateTime.getTime() > now.getTime();
-    if (notRunNow) {
-      await models.Logs.createLog(
-        _id,
-        'regular',
-        `Broadcast will run at "${dateTime.toLocaleString()}"`
-      );
-
-      return true;
-    }
-  }
-  return false;
-};
-
-const checkAlreadyRun = async (_id, kind, title, runCount, models: IModels) => {
-  const isValid = kind === CAMPAIGN_KINDS.MANUAL;
-  if (!isValid) return false;
-
-  const isAlreadyRun = runCount && runCount > 0;
-
-  if (isAlreadyRun) {
-    await models.Logs.createLog(
-      _id,
-      'regular',
-      `Broadcast "${title}" has already run before`
-    );
-
-    return true;
-  }
-  return false;
-};
-
 export const send = async (
   models: IModels,
   subdomain: string,
@@ -201,14 +156,20 @@ export const send = async (
     title,
   } = engageMessage;
 
-  const notRunNow = await timeCheckScheduledBroadcast(
-    _id,
-    models,
-    scheduleDate
-  );
+  // Check for pre scheduled engages
+  if (scheduleDate && scheduleDate.type === 'pre' && scheduleDate.dateTime) {
+    const dateTime = new Date(scheduleDate.dateTime);
+    const now = new Date();
 
-  if (notRunNow) {
-    return;
+    if (dateTime.getTime() > now.getTime()) {
+      await models.Logs.createLog(
+        _id,
+        'regular',
+        `Broadcast will run at "${dateTime.toLocaleString()}"`
+      );
+
+      return;
+    }
   }
 
   const user = await findUser(subdomain, fromUserId);
@@ -221,15 +182,13 @@ export const send = async (
     return;
   }
 
-  const isAlreadyRun = await checkAlreadyRun(
-    _id,
-    kind,
-    title,
-    runCount,
-    models
-  );
+  if (kind === CAMPAIGN_KINDS.MANUAL && runCount && runCount > 0) {
+    await models.Logs.createLog(
+      _id,
+      'regular',
+      `Broadcast "${title}" has already run before`
+    );
 
-  if (isAlreadyRun) {
     return;
   }
 
@@ -265,37 +224,18 @@ export const send = async (
   ) {
     const brandId =
       (engageMessage.messenger && engageMessage.messenger.brandId) || '';
-    const integrations = await sendInboxMessage({
+    const integration = await sendInboxMessage({
       subdomain,
-      action: 'integrations.find',
-      data: { query: { brandId, kind: 'messenger' } },
+      action: 'integrations.findOne',
+      data: { brandId },
       isRPC: true,
       defaultValue: null,
     });
-
-    if (integrations?.length === 0) {
-      throw new Error("The Brand doesn't have Messenger Integration ");
-    }
-
-    if (integrations?.length > 1) {
-      throw new Error('The Brand has multiple integrations');
-    }
-
-    const integration = integrations[0];
-
     if (!integration || !brandId) {
       throw new Error('Integration not found or brandId is not provided');
     }
 
-    const erxesCustomerIds = await sendContactsMessage({
-      subdomain,
-      action: 'customers.getCustomerIds',
-      data: customersSelector,
-      isRPC: true,
-      defaultValue: [],
-    });
-
-    for (const customerId of erxesCustomerIds || []) {
+    for (const customerId of customerIds || []) {
       await models.EngageMessages.createVisitorOrCustomerMessages({
         brandId,
         integrationId: integration._id,
@@ -309,19 +249,6 @@ export const send = async (
         visitorId: undefined,
         browserInfo: {},
       });
-    }
-
-    const receiversLength = erxesCustomerIds?.length || 0;
-
-    if (receiversLength > 0) {
-      await models.EngageMessages.updateOne(
-        { _id: engageMessage._id },
-        {
-          $set: {
-            totalCustomersCount: receiversLength,
-          },
-        }
-      );
     }
   }
 
@@ -546,7 +473,7 @@ export const findElk = async (subdomain: string, index: string, query) => {
     defaultValue: { hits: { hits: [] } },
   });
 
-  return response.hits.hits.map(hit => {
+  return response.hits.hits.map((hit) => {
     return {
       _id: hit._id,
       ...hit._source,
@@ -625,7 +552,7 @@ export const checkCustomerExists = async (
 
     must.push({
       terms: {
-        integrationId: integraiontIds.map(e => e._id),
+        integrationId: integraiontIds.map((e) => e._id),
       },
     });
   }

@@ -313,11 +313,9 @@ export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 export const initFirebase = async (
   models: IModels,
   customConfig?: string,
-  customName?: string,
 ): Promise<void> => {
   let codeString = 'value';
 
-  // get google application credentials JSON
   if (customConfig) {
     codeString = customConfig;
   } else {
@@ -326,9 +324,7 @@ export const initFirebase = async (
     });
 
     if (!config) {
-      throw new Error(
-        'Cannot find google application credentials JSON configuration',
-      );
+      return;
     }
     codeString = config.value;
   }
@@ -338,14 +334,11 @@ export const initFirebase = async (
 
     if (serviceAccount.private_key) {
       try {
-        admin.initializeApp(
-          {
-            credential: admin.credential.cert(serviceAccount),
-          },
-          customName || '[DEFAULT]',
-        );
+        await admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
       } catch (e) {
-        debugError(`initFireBase error: ${e.message}`);
+        console.log(`initFireBase error: ${e.message}`);
       }
     }
   }
@@ -1413,16 +1406,8 @@ export const sendMobileNotification = async (
   if (!admin.apps.length) {
     await initFirebase(models, customConfig);
   }
-  const additionalConfigs = await models.Configs.findOne({
-    code: 'GOOGLE_APP_ADDITIONAL_CREDS_JSON',
-  });
 
-  if (admin.apps.length === 1 && additionalConfigs) {
-    (additionalConfigs?.value || []).forEach(async (item, index) => {
-      await initFirebase(models, item, `app${index + 1}`);
-    });
-  }
-
+  const transporter = admin.messaging();
   const tokens: string[] = [];
 
   if (receivers) {
@@ -1444,28 +1429,20 @@ export const sendMobileNotification = async (
 
   if (tokens.length > 0) {
     // send notification
-    for (const app of admin.apps) {
-      if (app) {
-        const transporter = app.messaging();
+    for (const token of tokens) {
+      try {
+        await transporter.send({
+          token,
+          notification: { title, body },
+          data: data || {},
+        });
+      } catch (e) {
+        debugError(`Error occurred during firebase send: ${e.message}`);
 
-        for (const token of tokens) {
-          await transporter
-            .send({
-              token,
-              notification: { title, body },
-              data: data || {},
-            })
-            .catch(async (e) => {
-              debugError(`Error occurred during firebase send: ${e.message}`);
-
-              if (!e.message.includes('SenderId mismatch')) {
-                await models.Users.updateOne(
-                  { deviceTokens: token },
-                  { $pull: { deviceTokens: token } },
-                );
-              }
-            });
-        }
+        await models.Users.updateOne(
+          { deviceTokens: token },
+          { $pull: { deviceTokens: token } },
+        );
       }
     }
   }

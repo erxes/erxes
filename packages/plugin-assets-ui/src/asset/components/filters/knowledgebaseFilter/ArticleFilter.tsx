@@ -29,16 +29,14 @@ const ArticleFilter = (props: Props) => {
     const articleIds = generateParamsIds(queryParams?.articleIds) || [];
 
     if (articleIds.includes(id)) {
-      return router.setParams(navigate, location, {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, {
         articleIds: (articleIds || []).filter((articleId) => articleId !== id),
-        page: undefined,
       });
     }
 
-    router.setParams(navigate, location, {
-      articleIds: [...articleIds, id],
-      page: undefined,
-    });
+    router.setParams(navigate, location, { articleIds: [...articleIds, id] });
+    router.removeParams(navigate, location, "page");
   };
 
   const renderArticlesContent = () => {

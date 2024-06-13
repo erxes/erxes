@@ -1,6 +1,6 @@
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
+import { __ } from "@erxes/ui/src/utils/core";
+import React, { useEffect, useState } from "react";
+import Select from "react-select";
 
 type Props = {
   loading?: boolean;
@@ -10,10 +10,10 @@ type Props = {
   onChange: (value: string[]) => void;
 };
 
-const SelectServices: React.FC<Props> = props => {
+const SelectServices: React.FC<Props> = (props) => {
   const { filtered = [], value } = props;
 
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>("");
 
   useEffect(() => {
     let timeoutId: any = null;
@@ -29,20 +29,19 @@ const SelectServices: React.FC<Props> = props => {
     }
   }, [searchValue]);
 
-  const onInputChange = value => {
+  const onInputChange = (value) => {
     setSearchValue(value);
   };
 
-  const onChangeTag = options => {
-    props.onChange(options);
+  const onChangeTag = (options) => {
+    const value = options.map((o) => o.value);
+    props.onChange(value);
   };
-
-  const flat = filtered.map(d => d.options).flat();
 
   return (
     <Select
-      placeholder={__('Type to search...')}
-      value={value.map(o => flat.find(x => x.value === o))}
+      placeholder={__("Type to search...")}
+      value={filtered.filter((o) => value.includes(o.value))}
       onChange={onChangeTag}
       isLoading={props.loading}
       onInputChange={onInputChange}

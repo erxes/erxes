@@ -26,8 +26,6 @@ export const types = `
     description: String
     memberIds: [String]
     members: [User]
-    branchIds: [String]
-    departmentIds:[String]
   }
 `;
 
@@ -43,8 +41,6 @@ const commonUserGroupParams = `
   name: String!,
   description: String,
   memberIds: [String],
-  branchIds: [String],
-  departmentIds: [String],
 `;
 
 export const queries = `

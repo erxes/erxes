@@ -130,7 +130,6 @@ const productSender = async (
       object: {
         code: product.code || 'ш',
         name: product.name || '',
-        nickname: product.shortName || '',
         measureUnit: product.uom,
         subMeasureUnit,
         ratioMeasureUnit,

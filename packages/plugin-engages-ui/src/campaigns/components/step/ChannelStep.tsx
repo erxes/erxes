@@ -60,23 +60,24 @@ class ChannelStep extends React.Component<Props> {
         {this.renderBox(
           METHODS.EMAIL,
           'envelope-edit',
-          `Master email marketing with fully customized templates`
+          `Master email marketing with fully customized templates`,
         )}
         {this.renderBox(
           METHODS.MESSENGER,
           'comment-edit',
-          'Interact personally with direct in-app-messaging'
+          'Interact personally with direct in-app-messaging',
         )}
         {/* {isEnabled('integrations') && this.renderBox(
           METHODS.SMS,
           'comment-alt-message',
           `Send bulk SMS online with simple and direct texts`
         )} */}
-        {isEnabled('clientportal') &&
+        {this.props.kind === 'manual' &&
+          isEnabled('clientportal') &&
           this.renderBox(
             METHODS.NOTIFICATION,
             'message',
-            'Send automated notifications to your customers'
+            'Send automated notifications to your customers',
           )}
       </FullContent>
     );

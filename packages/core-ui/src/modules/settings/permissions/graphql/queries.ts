@@ -29,8 +29,6 @@ const usersGroups = `
           avatar
         }
       }
-      departmentIds
-      branchIds
     }
   }
 `;
@@ -94,5 +92,5 @@ export default {
   actions,
   totalCount,
   userTotalCount,
-  usersGroups,
+  usersGroups
 };

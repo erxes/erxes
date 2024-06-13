@@ -21,8 +21,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     const document: any = {
-      name: doc.name || '',
-      shortName: doc.nickname || '',
+      name: doc.nickname || doc.name,
       type: doc.is_service ? 'service' : 'product',
       unitPrice: doc.unit_price,
       code: doc.code,

@@ -16,7 +16,7 @@ import {
   colors,
 } from '@erxes/ui/src';
 import { Columns } from '@erxes/ui/src/styles/chooser';
-import { Column, LinkButton } from '@erxes/ui/src/styles/main';
+import { Column } from '@erxes/ui/src/styles/main';
 import React, { useState, useEffect } from 'react';
 import { Padding, TopContainer } from '../styles';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
@@ -100,7 +100,6 @@ const sendNotifcation = (props: Props) => {
             <FormGroup>
               <ControlLabel>
                 {__('GOOGLE APPLICATION CREDENTIALS JSON')}
-                <LinkButton>{__('Add additional JSON')}</LinkButton>
               </ControlLabel>
               <p>{__('Firebase config for notifications')}</p>
               <FormControl
