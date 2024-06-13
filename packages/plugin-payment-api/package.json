@@ -6,6 +6,7 @@
     "dev:client": "yarn dev-server & yarn dev-webpack",
     "build": "tsc",
     "build:client": "webpack --config webpack.config.js",
+    "build:webpack": "webpack --mode production --config=webpack.prod.config.js",
     "dev-webpack": "webpack --mode development --watch --progress",
     "dev-server": "NODE_ENV=development nodemon -e ts --project tsconfig.json --exec ts-node"
   },
