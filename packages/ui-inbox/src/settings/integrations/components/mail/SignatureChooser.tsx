@@ -3,6 +3,8 @@ import {
   SignatureDropdownWrapper,
   SignatureHiderButton,
   SignatureOptionWrapper,
+  SignatureContainer,
+  SignatureContentWrapper,
 } from "./styles";
 
 import EmptyState from "@erxes/ui/src/components/EmptyState";
@@ -11,7 +13,7 @@ import { IEmailSignature } from "@erxes/ui-settings/src/email/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Label } from "@erxes/ui/src/components/form/styles";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import React from "react";
+import React, { useState } from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import Popover from "@erxes/ui/src/components/Popover";
@@ -103,21 +105,40 @@ const SignatureChooser = ({
     signature: IEmailSignature,
     close: any
   ) => {
+    const [showPreview, setShowPreview] = useState(false);
     const brandName =
       brands.find((brand: IBrand) => brand._id === signature.brandId)?.name ||
       "";
 
+    if (brandName === "") {
+      return null;
+    }
+
     return (
       <React.Fragment key={`${signature.brandId}-${signature.signature}`}>
-        <SignatureDropdownWrapper>
-          <button
-            onClick={() =>
-              handleSignatureSelection(signature.brandId || "", close)
-            }
-            className={`${emailSignature === signature.brandId ? 'active' : ''}`}
-          >
-            <SignatureOptionWrapper>{brandName}</SignatureOptionWrapper>
-          </button>
+        <SignatureDropdownWrapper
+          className={`${emailSignature === signature.brandId ? "active" : ""}`}
+        >
+          <SignatureOptionWrapper>
+            <button
+              onClick={() =>
+                handleSignatureSelection(signature.brandId || "", close)
+              }
+            >
+              <b>{brandName}</b>
+            </button>
+            <Icon icon="eye" onClick={() => setShowPreview(!showPreview)} />
+          </SignatureOptionWrapper>
+          <SignatureContentWrapper show={showPreview}>
+            <div
+              onClick={() =>
+                handleSignatureSelection(signature.brandId || "", close)
+              }
+              dangerouslySetInnerHTML={{
+                __html: signature.signature || "",
+              }}
+            />
+          </SignatureContentWrapper>
         </SignatureDropdownWrapper>
       </React.Fragment>
     );
@@ -178,7 +199,7 @@ const SignatureChooser = ({
     return (
       <>
         <div className="popover-header">{__("Signatures")}</div>
-        {renderSignatures(close)}
+        <SignatureContainer>{renderSignatures(close)}</SignatureContainer>
         {renderSignatureFooter()}
       </>
     );
@@ -188,6 +209,7 @@ const SignatureChooser = ({
     <Popover
       trigger={renderIcon({ text: "Insert signature", icon: "edit-alt" })}
       closeAfterSelect={true}
+      placement="top-end"
     >
       {popoverContent}
     </Popover>

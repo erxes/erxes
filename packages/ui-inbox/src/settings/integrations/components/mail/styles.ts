@@ -369,12 +369,29 @@ const SignatureChooserFooter = styledTS<{
   border-top: 1px solid #e9ecef;
 `;
 
+const SignatureContentWrapper = styledTS<{show: boolean}>(styled.div)`
+  height: ${props => props.show ? 'fit-content': 0};
+  transition: all ease 3s;
+  overflow: hidden;
+
+  p {
+    margin: 0;
+  }
+`;
+
 const SignatureOptionWrapper = styled.div`
   min-width: 260px;
   max-width: 400px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  justify-content: space-between;
+
+  i {
+    cursor: pointer;
+    margin-left: auto;
+  }
 `;
 
 const SignatureHiderButton = styled.button`
@@ -388,21 +405,28 @@ const SignatureHiderButton = styled.button`
 
 // dropdown-item
 const SignatureDropdownWrapper = styled.div`
+  padding: 0.5rem 1rem;
+
   button {
-    padding: 0.5rem 1rem;
     border: none;
     text-align: left;
     background: transparent;
-
-    &:hover {
-      cursor: pointer;
-      background-color: ${rgba(colors.colorSecondary, 0.2)};
-    }
-
-    &.active {
-      background-color: ${rgba(colors.colorSecondary, 0.4)};
-    }
+    flex: 1;
+    padding: 0;
   }
+  &:hover {
+    cursor: pointer;
+    background-color: ${rgba(colors.colorSecondary, 0.2)};
+  }
+
+  &.active {
+    background-color: ${rgba(colors.colorSecondary, 0.4)};
+  }
+`;
+
+const SignatureContainer = styled.div`
+  max-height: 400px;
+  overflow: auto;
 `;
 
 export {
@@ -432,5 +456,7 @@ export {
   SignatureOptionWrapper,
   SignatureHiderButton,
   SignatureDropdownWrapper,
-  EditorFooterGroup
+  EditorFooterGroup,
+  SignatureContainer,
+  SignatureContentWrapper
 };
