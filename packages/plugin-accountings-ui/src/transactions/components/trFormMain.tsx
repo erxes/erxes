@@ -44,8 +44,9 @@ const TrFormMain = (props: Props) => {
           <SelectCompanies
             multi={false}
             label={__('Company')}
+            initialValue={trDoc.customerId}
             name="customerId"
-            onSelect={(companyId) => { }}
+            onSelect={(companyId) => onChange('customerId', companyId)}
           />
         </FormGroup>
       )
@@ -56,9 +57,10 @@ const TrFormMain = (props: Props) => {
           <ControlLabel required={true}>{__('Team member')}</ControlLabel>
           <SelectTeamMembers
             multi={false}
+            initialValue={trDoc.customerId}
             label={__('Team Member')}
             name="customerId"
-            onSelect={(userId) => { }}
+            onSelect={(userId) => onChange('customerId', userId)}
           />
         </FormGroup>
       )
@@ -69,9 +71,10 @@ const TrFormMain = (props: Props) => {
         <ControlLabel required={true}>{__('Customer')}</ControlLabel>
         <SelectCustomers
           multi={false}
+          initialValue={trDoc.customerId}
           label={__('Customer')}
           name="customerId"
-          onSelect={(customerId) => { }}
+          onSelect={(customerId) => onChange('customerId', customerId)}
         />
       </FormGroup>
     )
@@ -111,7 +114,7 @@ const TrFormMain = (props: Props) => {
               name="side"
               value={trDoc.details[0]?.side || TR_SIDES.DEBIT}
               options={TR_SIDES.OPTIONS}
-              onChange={e => { }}
+              onChange={e => onChangeDetail('side', (e.target as any).value)}
             />
           </FormGroup>
           <FormGroup>
@@ -134,7 +137,7 @@ const TrFormMain = (props: Props) => {
               value={trDoc.details[0]?.amount || 0}
               autoFocus={true}
               required={true}
-              onChange={e => { }}
+              onChange={e => onChangeDetail('amount', (e.target as any).value)}
             />
           </FormGroup>
           <FormGroup>
@@ -160,7 +163,7 @@ const TrFormMain = (props: Props) => {
             initialValue={trDoc.departmentId || ''}
             label='Department'
             name='departmentId'
-            onSelect={(accountId) => { }}
+            onSelect={(departmentId) => onChange('departmentId', departmentId)}
           />
         </FormColumn>
         <FormColumn>
@@ -170,7 +173,7 @@ const TrFormMain = (props: Props) => {
             initialValue={trDoc.assignedUserIds || []}
             label='Assigned Users'
             name='assignedUserIds'
-            onSelect={(accountId) => { }}
+            onSelect={(userIds) => onChange('assignedUserIds', userIds)}
           />
         </FormColumn>
       </FormWrapper>
