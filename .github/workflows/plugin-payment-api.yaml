@@ -6,7 +6,7 @@ on:
       - dev
       - master
       - rc
-      - staging
+      - payment-new-ui
       - build-test
     paths:
       - 'packages/api-utils/**'
@@ -17,7 +17,7 @@ on:
       - dev
       - master
       - rc
-      - staging
+      - payment-new-ui
       - build-test
     paths:
       - 'packages/api-utils/**'
@@ -58,7 +58,7 @@ jobs:
           yarn build plugin payment
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/payment-new-ui' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
