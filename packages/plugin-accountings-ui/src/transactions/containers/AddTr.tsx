@@ -1,3 +1,4 @@
+import { AppConsumer } from 'coreui/appContext';
 import {
   __,
   Icon,
@@ -5,24 +6,29 @@ import {
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import {
-  FormWrapper, PopoverButton, PopoverHeader
+  FormWrapper, PopoverButton
 } from "@erxes/ui/src/styles/main";
 import React, { useState } from 'react';
+import { can } from '@erxes/ui/src/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   onClick: (journal: string) => void;
 };
 
-const AddTransactionLink = (props: Props) => {
-  const { onClick } = props;
+type FinalProps = {
+  currentUser: IUser;
+} & Props
 
+const AddTransactionLink = (props: FinalProps) => {
+  const { onClick, currentUser } = props;
   return (
     <PopoverButton>
       <Dropdown
         as={DropdownToggle}
         toggleComponent={
           <>
-            <Icon icon='add' />
+            <Icon icon='add' />&nbsp;
             {__('New transaction')}
             <Icon icon="angle-down" />
           </>
@@ -32,9 +38,13 @@ const AddTransactionLink = (props: Props) => {
           <div >
             <ul>
               <strong>Ерөнхий</strong>
-              <li onClick={onClick.bind(this, 'main')}>
-                Ерөнхий журнал
-              </li>
+              {
+                can('accountingsCreateMainTr', currentUser) &&
+                <li onClick={onClick.bind(this, 'main')}>
+                  Ерөнхий журнал
+                </li>
+              }
+
               <li onClick={onClick.bind(this, 'debt')}>
                 Авлага өглөг
               </li>
@@ -89,5 +99,13 @@ const AddTransactionLink = (props: Props) => {
       </Dropdown>
     </PopoverButton>
   )
+
 }
-export default AddTransactionLink
+
+export default (props: Props) => (
+  <AppConsumer>
+    {({ currentUser }) => (
+      <AddTransactionLink {...props} currentUser={currentUser || ({} as IUser)} />
+    )}
+  </AppConsumer>
+);

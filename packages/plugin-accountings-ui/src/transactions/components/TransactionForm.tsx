@@ -34,7 +34,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ITransaction } from '../types';
 import { journalConfigMaps } from '../utils/maps';
-import AddTransactionLink from './AddTr';
+import AddTransactionLink from '../containers/AddTr';
 
 type Props = {
   transactions?: ITransaction[];
@@ -63,7 +63,9 @@ const TransactionForm = (props: Props) => {
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(transactions || defaultJournal && [journalConfigMaps[defaultJournal || '']?.defaultData()] || []);
-  const [currentTransaction, setCurrentTransaction] = useState(transactions && (transactions.find(tr => tr._id === queryParams.trId) || transactions[0]));
+  const [currentTransaction, setCurrentTransaction] = useState(
+    trDocs && (trDocs.find(tr => tr._id === queryParams.trId) || trDocs[0])
+  );
   const [balance, setBalance] = useState((transactions || []).reduce((balance, tr) => {
     balance.dt += tr.sumDt
     balance.ct += tr.sumCt
@@ -126,6 +128,9 @@ const TransactionForm = (props: Props) => {
   const onRemoveTr = (id) => {
     setTrDocs(trDocs.filter(tr => tr._id !== id))
     if (currentTransaction?._id === id) {
+      setCurrentTransaction(trDocs[0])
+    }
+    if (!currentTransaction && trDocs.length) {
       setCurrentTransaction(trDocs[0])
     }
   }

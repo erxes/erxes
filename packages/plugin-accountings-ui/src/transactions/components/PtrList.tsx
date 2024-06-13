@@ -16,6 +16,8 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import Table from "@erxes/ui/src/components/table";
 import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import AddTransactionLink from "../containers/AddTr";
+import { journalConfigMaps } from "../utils/maps";
 
 interface IProps {
   queryParams: any;
@@ -138,8 +140,8 @@ const PtrList: React.FC<IProps> = (props) => {
                   onChange={onChange}
                 />
               </th>
-              <th>{__("Code")}</th>
-              <th>{__("Name")}</th>
+              <th>{__("Number")}</th>
+              <th>{__("Date")}</th>
               <th>{__("Category")}</th>
               <th>{__("Currency")}</th>
               <th>{__("Kind")}</th>
@@ -178,6 +180,13 @@ const PtrList: React.FC<IProps> = (props) => {
       router.removeParams(navigate, location, "page", "ids");
     }
   };
+
+  const onAddTr = (journal) => {
+    if (!journalConfigMaps[journal]) {
+      return Alert.error('wron cho')
+    }
+    navigate(`/accountings/transaction/create?defaultJournal=${journal}`)
+  }
 
   const trigger = (
     <Button btnStyle="success" icon="plus-circle">
@@ -223,6 +232,11 @@ const PtrList: React.FC<IProps> = (props) => {
           autoFocus={true}
           onFocus={moveCursorAtTheEnd}
         />
+        <Button
+          btnStyle="success"
+        >
+          <AddTransactionLink onClick={onAddTr} />
+        </Button>
       </BarItems>
     );
   };

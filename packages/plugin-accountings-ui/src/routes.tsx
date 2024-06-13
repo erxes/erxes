@@ -6,7 +6,7 @@ import TransactionRoutes from './transactions/routes';
 const routes = () => {
   return (
     <>
-      <AccountRoutes />;
+      <AccountRoutes />
       <TransactionRoutes />
     </>
   );

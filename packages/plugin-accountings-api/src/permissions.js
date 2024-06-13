@@ -33,8 +33,11 @@ module.exports = {
       {
         name: 'accountingsTrAll',
         description: 'Transaction ALL',
-        
       },
+      {
+        name: 'accountingsCreateMainTr',
+        description: 'create main transaction'
+      }
     ]
   },
 };

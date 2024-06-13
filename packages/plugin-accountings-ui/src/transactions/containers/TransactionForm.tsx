@@ -15,7 +15,7 @@ type Props = {
 };
 
 const PosContainer = (props: Props) => {
-  const { parentId } = props;
+  const { parentId, queryParams } = props;
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -76,6 +76,7 @@ const PosContainer = (props: Props) => {
     ...props,
     transactions,
     save,
+    defaultJournal: queryParams.defaultJournal,
     isActionLoading: loading,
   };
 
