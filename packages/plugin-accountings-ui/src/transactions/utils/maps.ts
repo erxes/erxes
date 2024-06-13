@@ -29,13 +29,13 @@ export const journalConfigMaps: {
   'main': {
     component: TrFormMain,
     title: '',
-    defaultData: (date) => { return { ...commonData('main') } },
+    defaultData: (date) => { return { ...commonData('main', date) } },
     generateDoc: () => { },
   },
   'cash': {
     component: TrFormCash,
     title: '',
-    defaultData: () => { return { ...commonData('cash') } },
+    defaultData: (date) => { return { ...commonData('cash', date) } },
     generateDoc: () => { },
   }
 }

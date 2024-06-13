@@ -1,4 +1,3 @@
-import { Box } from '@erxes/ui-contacts/src/customers/styles';
 import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
 import { LeftContent } from '@erxes/ui-settings/src/styles';
 import {
@@ -35,6 +34,7 @@ import { Link } from 'react-router-dom';
 import { ITransaction } from '../types';
 import { journalConfigMaps } from '../utils/maps';
 import AddTransactionLink from '../containers/AddTr';
+import { Box } from "../../styles";
 
 type Props = {
   transactions?: ITransaction[];
@@ -46,6 +46,8 @@ type Props = {
 
 type State = {
   firstTransaction?: ITransaction;
+  date: Date;
+  number: string;
 }
 
 const TransactionForm = (props: Props) => {
@@ -60,9 +62,11 @@ const TransactionForm = (props: Props) => {
 
   const [state, setState] = useState<State>({
     firstTransaction: transactions?.find(tr => tr._id === tr.parentId) as ITransaction,
+    date: transactions?.find(tr => tr._id === tr.parentId)?.date || new Date(),
+    number: transactions?.find(tr => tr._id === tr.parentId)?.number || ''
   });
 
-  const [trDocs, setTrDocs] = useState<ITransaction[]>(transactions || defaultJournal && [journalConfigMaps[defaultJournal || '']?.defaultData()] || []);
+  const [trDocs, setTrDocs] = useState<ITransaction[]>(transactions || defaultJournal && [journalConfigMaps[defaultJournal || '']?.defaultData(state.date)] || []);
   const [currentTransaction, setCurrentTransaction] = useState(
     trDocs && (trDocs.find(tr => tr._id === queryParams.trId) || trDocs[0])
   );
@@ -116,22 +120,21 @@ const TransactionForm = (props: Props) => {
 
   const onAddTr = (journal) => {
     if (!journalConfigMaps[journal]) {
-      return Alert.error('wron cho')
+      return Alert.error('wron cho');
     }
-    const trData = journalConfigMaps[journal]?.defaultData()
-    trDocs?.push(trData)
-    console.log(trDocs)
-    setTrDocs(trDocs)
-    setCurrentTransaction(trData)
+    const trData = journalConfigMaps[journal]?.defaultData(state.date)
+    trDocs?.push(trData);
+    setTrDocs(trDocs);
+    setCurrentTransaction(trData);
   }
 
   const onRemoveTr = (id) => {
     setTrDocs(trDocs.filter(tr => tr._id !== id))
     if (currentTransaction?._id === id) {
-      setCurrentTransaction(trDocs[0])
+      setCurrentTransaction(trDocs[0]);
     }
     if (!currentTransaction && trDocs.length) {
-      setCurrentTransaction(trDocs[0])
+      setCurrentTransaction(trDocs[0]);
     }
   }
 
@@ -168,6 +171,15 @@ const TransactionForm = (props: Props) => {
 
   const breadcrumb = [{ title: 'Transactions', link: `/accountings/ptrlist` }, { title: 'Form' }];
 
+  const onChangeDate = (date) => {
+    setState((prevState) => ({
+      ...prevState, date
+    }));
+
+    setTrDocs(trDocs.map(tr => ({ ...tr, date })))
+  }
+
+  console.log(trDocs)
   return (
     <StepWrapper>
       <Wrapper.Header title={__('Transaction')} breadcrumb={breadcrumb} />
@@ -178,9 +190,12 @@ const TransactionForm = (props: Props) => {
               <ControlLabel required={true}>{__('Number')}</ControlLabel>
               <FormControl
                 name="number"
-                defaultValue={state.firstTransaction?.number}
+                value={state.number || ''}
                 autoFocus={true}
                 required={true}
+                onChange={e => setState((prevState) => ({
+                  ...prevState, number: (e.target as any).value
+                }))}
               />
             </FormGroup>
           </FormColumn>
@@ -189,13 +204,11 @@ const TransactionForm = (props: Props) => {
               <ControlLabel required={true}>{__('Date')}</ControlLabel>
               <DateControl
                 required={true}
-                defaultValue={state.firstTransaction?.date || new Date()}
-                onChange={date => setState((prevState) => ({
-                  ...prevState, date
-                }))}
+                value={state.date || new Date()}
                 name={'date'}
                 placeholder="Enter date"
                 dateFormat='YYYY-MM-DD'
+                onChange={onChangeDate}
               />
             </FormGroup>
           </FormColumn>

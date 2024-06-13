@@ -10,6 +10,7 @@ import { IQueryParams } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 import { ITransaction } from '../types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 
 type Props = {
   transactions?: ITransaction[];
@@ -23,10 +24,17 @@ const TrFormCash = (props: Props) => {
 
   return (
     <FormWrapper>
+      <ControlLabel required={true}>{__('CashForm')}</ControlLabel>
       <FormColumn>
         <FormGroup>
-          <ControlLabel required={true}>{__('CashForm')}</ControlLabel>
-
+          <ControlLabel required={true}>{__('Account')}</ControlLabel>
+          <SelectAccount
+            multi={false}
+            label='Account'
+            name='account'
+            filterParams={{ journals: ['cash'] }}
+            onSelect={(accountId) => { }}
+          />
         </FormGroup>
       </FormColumn>
     </FormWrapper>
