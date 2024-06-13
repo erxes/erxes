@@ -279,7 +279,9 @@ const sendMessage = async (
     },
     recipientId,
     integration.erxesApiId,
-  );
+  ).catch((error) => {
+    throw new Error(error.message);
+  });
 
   const resp = await sendReply(
     models,
