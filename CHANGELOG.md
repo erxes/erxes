@@ -1,25 +1,33 @@
 # Changelog
 
-## [1.12.0-rc.7](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-11)
-
+## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.12.0...1.13.0-rc.0) (2024-06-12)
 
 ### Bug Fixes
 
-* **coreui:** editor font size control style ([#5353](https://github.com/erxes/erxes/issues/5353)) ([10d0a7b](https://github.com/erxes/erxes/commit/10d0a7b7b8fe15da4ab5e54f188241bcca33b860))
+- (broadcast) Update broadcast ([#5352](https://github.com/erxes/erxes/issues/5352)) ([bd7ad30](https://github.com/erxes/erxes/commit/bd7ad30e0744efa00e5d22c9df02e53a4707f1fe))
+- **burenscoring:** some fix ([127e4fa](https://github.com/erxes/erxes/commit/127e4fa755f5d9a2479566222e7e86dc7f15c836))
+- **clientportal:** fix sidebar filter of client portal user list ([2a686e2](https://github.com/erxes/erxes/commit/2a686e240c9b1c6ede72c3911ddb7f67f5cb5759))
+- **coreui:** added default chip text ([d326eaa](https://github.com/erxes/erxes/commit/d326eaa5807f15af8702d647bd0fa32bab35e7c9))
+- **facebook:** can't send message to automation trigger when message or comment added ([052c476](https://github.com/erxes/erxes/commit/052c476a7551bfaac2f63a2755b04d82d92474cc))
+- loans contract filter ([#5344](https://github.com/erxes/erxes/issues/5344)) ([019d73e](https://github.com/erxes/erxes/commit/019d73e4132603ff1c6bb8646aac151b0fd14c9b))
+- Loans some fix ([#5356](https://github.com/erxes/erxes/issues/5356)) ([6c462d4](https://github.com/erxes/erxes/commit/6c462d4b0316d17a064997d4a43c55dbc18ebc7c))
+- Loans transaction filter ([#5346](https://github.com/erxes/erxes/issues/5346)) ([a6143d3](https://github.com/erxes/erxes/commit/a6143d3be46d7ee804c96e7c2f3d6ff28026fef4))
+- savings and loans configs ([#5341](https://github.com/erxes/erxes/issues/5341)) ([0739a96](https://github.com/erxes/erxes/commit/0739a969d3c78a9ecfbc8d4e5a643e514422efcd))
+- syncerkhet check products shortName ([a0d424e](https://github.com/erxes/erxes/commit/a0d424ec2d5e22747cf01fd7846cca277d87f223))
+- **xyp:** some ui update ([#5333](https://github.com/erxes/erxes/issues/5333)) ([c63e9fe](https://github.com/erxes/erxes/commit/c63e9fecfd04ab7585a25eb8a823d5d26bfb781f))
 
-## [1.12.0-rc.5](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-06)
+### Performance Improvements
 
-## [1.12.0-rc.4](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-05)
+- Loans report ([#5321](https://github.com/erxes/erxes/issues/5321)) ([1ec890e](https://github.com/erxes/erxes/commit/1ec890ef233b515b60ca433985a46e473a498d32))
 
-## [1.12.0-rc.2](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-03)
+## [1.12.0](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-12)
 
-## [1.11.0-rc.8](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-05-28)
+### Bug Fixes
 
-## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-05-28)
+- **calls:** pause call and fixed websocket error ([4a12815](https://github.com/erxes/erxes/commit/4a12815e288c0035b29f66e1c54d589e5f7936d9))
+- **coreui:** editor font size control style ([#5353](https://github.com/erxes/erxes/issues/5353)) ([10d0a7b](https://github.com/erxes/erxes/commit/10d0a7b7b8fe15da4ab5e54f188241bcca33b860))
 
-## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-05-28)
-
-## [1.12.0-rc.6](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-10)
+## [1.12.0-rc.6](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-10)
 
 ### Bug Fixes
 
@@ -30,7 +38,7 @@
 - fix loans bug to omz ([e4e92b8](https://github.com/erxes/erxes/commit/e4e92b8070193cf91660f9cdb3be320baaa0ae60))
 - format ([1ffd884](https://github.com/erxes/erxes/commit/1ffd88439dc1e3073a04b1d47f21aa3ef6721cd2))
 
-## [1.12.0-rc.3](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-05)
+## [1.12.0-rc.3](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-05)
 
 ### Bug Fixes
 
@@ -43,7 +51,7 @@
 - insight multi dimension select ([#5325](https://github.com/erxes/erxes/issues/5325)) ([4037ec2](https://github.com/erxes/erxes/commit/4037ec2b1c848f7ac9d837b679e647596b7f9814))
 - loans and savings, Contract type fix ([#5313](https://github.com/erxes/erxes/issues/5313)) ([b8fd89f](https://github.com/erxes/erxes/commit/b8fd89f468322838d6dbc79953868575592f136d))
 
-## [1.12.0-rc.1](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-05-30)
+## [1.12.0-rc.1](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-05-30)
 
 ### Bug Fixes
 
@@ -58,7 +66,7 @@
 - **profile:** save button not working and add confirm action ([94c5bc3](https://github.com/erxes/erxes/commit/94c5bc33dad7d3276063735516cf5ac7a68f7272))
 - **saas:** some styling and view ([#5207](https://github.com/erxes/erxes/issues/5207)) ([d56e990](https://github.com/erxes/erxes/commit/d56e990b26141ba9846c14be1c70ed78dcf723ba))
 
-## [1.12.0-rc.0](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-05-29)
+## [1.12.0-rc.0](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-05-29)
 
 ### Features
 
@@ -85,19 +93,27 @@
 
 - **pos-ui:** os and saas merge code ([d165a4a](https://github.com/erxes/erxes/commit/d165a4afcb20d154a88aa4cabdd2292310a3c27c))
 
-## [1.11.6](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-07)
+## [1.11.7](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-11)
 
 ### Features
 
-- ebarimt putresponses filter by contentId ([4c71ab0](https://github.com/erxes/erxes/commit/4c71ab06b2193d8e11d8c3ea0f559a6ddb41ed70))
+- **engages:** introduce sendgrid as marketing mailer service ([#5323](https://github.com/erxes/erxes/issues/5323)) ([2481b95](https://github.com/erxes/erxes/commit/2481b953bcd3dd0846636fb3e542b39d69e7ce60))
 
-### Bug Fixes
+### Performance Improvements
 
-- **payment:** quick qr ([dd8fad4](https://github.com/erxes/erxes/commit/dd8fad41a9dc19644f2bac9d213fcca4c9a07074))
+- **core-ui:** make possible to use public plugins js url in core ui ([5890eb0](https://github.com/erxes/erxes/commit/5890eb0c61a89c8066b49aa76159679e7d057755))
 
-## [1.11.5](https://github.com/erxes/erxes/compare/1.12.0-rc.5...1.12.0-rc.7) (2024-06-03)
+## [1.11.7](https://github.com/erxes/erxes/compare/1.11.6...1.11.7) (2024-06-11)
 
-## [1.12.0-rc.6](https://github.com/erxes/erxes/compare/1.12.0-rc.3...1.12.0-rc.6) (2024-06-10)
+### Features
+
+- **engages:** introduce sendgrid as marketing mailer service ([#5323](https://github.com/erxes/erxes/issues/5323)) ([2481b95](https://github.com/erxes/erxes/commit/2481b953bcd3dd0846636fb3e542b39d69e7ce60))
+
+### Performance Improvements
+
+- **core-ui:** make possible to use public plugins js url in core ui ([5890eb0](https://github.com/erxes/erxes/commit/5890eb0c61a89c8066b49aa76159679e7d057755))
+
+## [1.11.6](https://github.com/erxes/erxes/compare/1.11.5...1.11.6) (2024-06-07)
 
 ### Bug Fixes
 
