@@ -77,8 +77,10 @@ const CategoryFilter = (props: Props) => {
   };
 
   const handleClick = (categoryId) => {
-    router.setParams(navigate, location, { assetCategoryId: categoryId });
-    router.removeParams(navigate, location, 'page');
+    router.setParams(navigate, location, {
+      assetCategoryId: categoryId,
+      page: undefined,
+    });
   };
 
   const renderContent = () => {
@@ -100,7 +102,7 @@ const CategoryFilter = (props: Props) => {
   };
 
   const parentCount = assetCategories.filter(
-    (category) => !category.parentId || category.parentId === '',
+    (category) => !category.parentId || category.parentId === ''
   ).length;
 
   return (
