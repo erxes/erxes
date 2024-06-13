@@ -398,6 +398,10 @@ const SignatureDropdownWrapper = styled.div`
       cursor: pointer;
       background-color: ${rgba(colors.colorSecondary, 0.2)};
     }
+
+    &.active {
+      background-color: ${rgba(colors.colorSecondary, 0.4)};
+    }
   }
 `;
 
