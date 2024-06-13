@@ -27,13 +27,14 @@ type Props = {
 
 const TrFormMain = (props: Props) => {
   const { trDoc, setTrDoc } = props;
+  const detail = trDoc?.details && trDoc?.details[0] || {};
 
   const onChange = (key, value) => {
     setTrDoc({ ...trDoc, [key]: value });
   }
 
   const onChangeDetail = (key, value) => {
-    setTrDoc({ ...trDoc, details: [{ ...trDoc.details[0], [key]: value }] });
+    setTrDoc({ ...trDoc, details: [{ ...detail, [key]: value }] });
   }
 
   const renderCustomerChooser = () => {
@@ -89,7 +90,7 @@ const TrFormMain = (props: Props) => {
             <ControlLabel required={true}>{__('Account')}</ControlLabel>
             <SelectAccount
               multi={false}
-              initialValue={trDoc.details[0]?.accountId || ''}
+              initialValue={detail.accountId || ''}
               label='Account'
               name='account'
               filterParams={{ journals: ['main'] }}
@@ -112,7 +113,7 @@ const TrFormMain = (props: Props) => {
             <FormControl
               componentclass='select'
               name="side"
-              value={trDoc.details[0]?.side || TR_SIDES.DEBIT}
+              value={detail.side || TR_SIDES.DEBIT}
               options={TR_SIDES.OPTIONS}
               onChange={e => onChangeDetail('side', (e.target as any).value)}
             />
@@ -134,7 +135,7 @@ const TrFormMain = (props: Props) => {
             <FormControl
               type='number'
               name="amount"
-              value={trDoc.details[0]?.amount || 0}
+              value={detail.amount || 0}
               autoFocus={true}
               required={true}
               onChange={e => onChangeDetail('amount', (e.target as any).value)}
@@ -150,7 +151,7 @@ const TrFormMain = (props: Props) => {
           <ControlLabel required={true}>{__('Branch')}</ControlLabel>
           <SelectBranches
             multi={false}
-            initialValue={trDoc.branchId || ''}
+            initialValue={trDoc.branchId}
             label='Branch'
             name='branchId'
             onSelect={(branchId) => onChange('branchId', branchId)}

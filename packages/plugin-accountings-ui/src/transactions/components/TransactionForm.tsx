@@ -35,6 +35,7 @@ import { ITransaction } from '../types';
 import { journalConfigMaps } from '../utils/maps';
 import AddTransactionLink from '../containers/AddTr';
 import { Box } from "../../styles";
+import { TR_SIDES } from "../../constants";
 
 type Props = {
   transactions?: ITransaction[];
@@ -70,26 +71,33 @@ const TransactionForm = (props: Props) => {
   const [currentTransaction, setCurrentTransaction] = useState(
     trDocs && (trDocs.find(tr => tr._id === queryParams.trId) || trDocs[0])
   );
-  const [balance, setBalance] = useState((transactions || []).reduce((balance, tr) => {
-    balance.dt += tr.sumDt
-    balance.ct += tr.sumCt
-    return balance;
-  }, { dt: 0, ct: 0 }));
 
   const getBalance = () => {
-    return (trDocs || []).reduce((balance, tr) => {
-      balance.dt += tr.sumDt
-      balance.ct += tr.sumCt
-      return balance;
-    }, { dt: 0, ct: 0 });
+    const result = { dt: 0, ct: 0 };
+
+    trDocs.forEach(tr => {
+      (tr.details || []).forEach(detail => {
+        if (detail.side === TR_SIDES.DEBIT) {
+          result.dt += Number(detail.amount) ?? 0;
+        } else {
+          result.ct += Number(detail.amount) ?? 0;
+        }
+      })
+    })
+
+    const diff = result.dt - result.ct;
+    if (diff > 0.05 && diff < 0.05) {
+      return result;
+    }
+
+    if (diff > 0) {
+      return { ...result, side: TR_SIDES.CREDIT, diff };
+    }
+    return { ...result, side: TR_SIDES.DEBIT, diff: -1 * diff };
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-  };
-
-  const onChange = (key: string, value: any) => {
-    setState((prevState) => ({ ...prevState, [key]: value }));
   };
 
   const renderButtons = () => {
@@ -145,7 +153,7 @@ const TransactionForm = (props: Props) => {
       } else {
         return { ...tr }
       }
-    }))
+    }));
   }
 
   const renderTabContent = () => {
@@ -173,8 +181,8 @@ const TransactionForm = (props: Props) => {
 
     const Component = journalConfigMaps[currentTransaction?.journal]?.component;
     return (
-      <Box>
-        <Component transactions={trDocs.filter(tr => tr.originId === currentTransaction._id)} trDoc={trDocs.find(tr => tr._id === currentTransaction._id)} setTrDoc={onEditTr} />
+      <Box key={currentTransaction._id}>
+        <Component key={currentTransaction._id} transactions={trDocs.filter(tr => tr.originId === currentTransaction._id)} trDoc={trDocs.find(tr => tr._id === currentTransaction._id)} setTrDoc={onEditTr} />
       </Box>
     );
   }
@@ -189,7 +197,8 @@ const TransactionForm = (props: Props) => {
     setTrDocs(trDocs.map(tr => ({ ...tr, date })))
   }
 
-  console.log(trDocs)
+  const balance: { dt: number, ct: number, diff?: number, side?: string } = getBalance();
+
   return (
     <StepWrapper>
       <Wrapper.Header title={__('Transaction')} breadcrumb={breadcrumb} />
@@ -243,9 +252,11 @@ const TransactionForm = (props: Props) => {
 
         <ControlWrapper>
           <Indicator>
-            {__('You are')} {currentTransaction?._id ? 'editing' : 'creating'} {__('transaction')}.
-            {__('Sum Debit')}: <strong>{balance.dt ?? 0}</strong> {__('Sum Credit')}: <strong>{balance.ct ?? 0}</strong>
-            {__('Diff')}: <strong>{balance.dt ?? 0 - balance.ct ?? 0}</strong>
+            <>{__('You are')} {currentTransaction?._id ? 'editing' : 'creating'} {__('transaction')}.</>
+            <> {__('Sum Debit')}: <strong>{(balance.dt ?? 0).toLocaleString()}</strong>;</>
+            <> {__('Sum Credit')}: <strong>{(balance.ct ?? 0).toLocaleString()}</strong>;</>
+            {balance?.diff && (<> + {__(balance.side || '')}: <strong>{balance.diff}</strong>;</>) || ''}
+
           </Indicator>
           {renderButtons()}
         </ControlWrapper>
