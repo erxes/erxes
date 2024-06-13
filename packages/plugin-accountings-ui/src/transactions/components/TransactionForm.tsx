@@ -138,6 +138,16 @@ const TransactionForm = (props: Props) => {
     }
   }
 
+  const onEditTr = (trDoc: ITransaction) => {
+    setTrDocs(trDocs.map(tr => {
+      if (tr._id === trDoc._id) {
+        return { ...tr, ...trDoc }
+      } else {
+        return { ...tr }
+      }
+    }))
+  }
+
   const renderTabContent = () => {
     if (!currentTransaction) {
       return (<Box>
@@ -164,12 +174,12 @@ const TransactionForm = (props: Props) => {
     const Component = journalConfigMaps[currentTransaction?.journal]?.component;
     return (
       <Box>
-        <Component transactions={[currentTransaction]} />
+        <Component transactions={trDocs.filter(tr => tr.originId === currentTransaction._id)} trDoc={trDocs.find(tr => tr._id === currentTransaction._id)} setTrDoc={onEditTr} />
       </Box>
     );
   }
 
-  const breadcrumb = [{ title: 'Transactions', link: `/accountings/ptrlist` }, { title: 'Form' }];
+  const breadcrumb = [{ title: 'Transactions', link: `/accountings/ptrs` }, { title: 'Form' }];
 
   const onChangeDate = (date) => {
     setState((prevState) => ({

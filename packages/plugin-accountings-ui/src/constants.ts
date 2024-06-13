@@ -49,10 +49,17 @@ export const ACCOUNT_CATEGORY_MASK_TYPES = {
   ALL: ['', 'soft', 'hard'],
 };
 
+export const TR_CUSTOMER_TYPES = [
+  { value: 'customer', label: 'Customer' },
+  { value: 'company', label: 'Company' },
+  { value: 'user', label: 'Team Member' },
+];
+
 export const TR_SIDES = {
   DEBIT: 'dt',
   CREDIT: 'ct',
-  ALL: ['dt', 'ct']
+  ALL: ['dt', 'ct'],
+  OPTIONS: [{ value: 'dt', label: 'debit' }, { value: 'ct', label: 'credit' }]
 }
 
 export const TR_STATUSES = {
