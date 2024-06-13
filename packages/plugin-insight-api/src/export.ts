@@ -39,7 +39,7 @@ const addIntoSheet = async (
 };
 
 const prepareHeader = async (sheet: any, title?: string, dimensions?: string[], measures?: string[]) => {
-  const headers = dimensions && measures ? [...dimensions, ...measures] : ["sda", title];
+  const headers = dimensions && measures ? [...dimensions, ...measures] : [title, "count"];
 
   for (let i = 0; i < headers.length; i++) {
     const columnLetter = String.fromCharCode(65 + i);
