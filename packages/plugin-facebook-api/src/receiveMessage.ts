@@ -190,6 +190,7 @@ const receiveMessage = async (
             }
           ]
         },
+        isRPC:true,
         defaultValue: null
       }).catch((err) => debugError(err.message));
     } catch (e) {
