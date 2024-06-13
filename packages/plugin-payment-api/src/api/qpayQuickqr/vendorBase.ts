@@ -138,7 +138,7 @@ export class VendorBaseAPI {
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
       ).then((r) => r.json());
-      console.log(response);
+
       return response;
     } catch (e) {
       if (e.message === 'UnauthorizedError') {

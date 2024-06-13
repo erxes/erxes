@@ -38,7 +38,6 @@ export class GolomtAPI extends BaseAPI {
   }
 
   async createInvoice(invoice: ITransactionDocument) {
-    console.log('merchant ', this.merchant);
     const amount = invoice.amount.toString();
 
     const data: IGolomtInvoice = {
@@ -76,10 +75,9 @@ export class GolomtAPI extends BaseAPI {
         },
         data,
       }).then((r) => r.json());
-      console.log('res', res);
       return res;
     } catch (e) {
-      console.error('eerrrrr', e);
+      console.error('error', e);
       return { error: e.message };
     }
   }

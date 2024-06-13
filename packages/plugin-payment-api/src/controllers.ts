@@ -14,7 +14,6 @@ import redisUtils from './redisUtils';
 const router = Router();
 
 router.get('/invoice/:invoiceId', async (req, res) => {
-  console.log("asd")
   const { invoiceId } = req.params;
 
   if (!invoiceId) {
