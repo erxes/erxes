@@ -1,7 +1,5 @@
 import * as xlsxPopulate from 'xlsx-populate';
-import { IModels } from './connectionResolver';
 import { chartGetResult } from './graphql/resolvers/utils';
-
 /**
  * Creates blank workbook
  */
@@ -40,18 +38,20 @@ const addIntoSheet = async (
   r.style({ wrapText: true });
 };
 
-const prepareHeader = async (sheet: any, title: string) => {
-  const header = ['Team member', title];
+const prepareHeader = async (sheet: any, title?: string, dimensions?: string[], measures?: string[]) => {
+  const headers = dimensions && measures ? [...dimensions, ...measures] : ["sda", title];
 
-  sheet.column('A').width(40);
-  sheet.column('B').width(15);
+  for (let i = 0; i < headers.length; i++) {
+    const columnLetter = String.fromCharCode(65 + i);
+    sheet.column(columnLetter).width(15);
+  }
 
-  addIntoSheet([header], 'A1', 'B1', sheet);
+  addIntoSheet([headers], 'A1', `${String.fromCharCode(65 + headers.length - 1)}1`, sheet);
 };
 
 const isArrayPrimitive = (arr) => {
-  for (let i = 0; i < arr.length; i++) {
-    if (typeof arr[i] !== 'object' && typeof arr[i] !== 'function') {
+  for (const element of arr) {
+    if (typeof element !== 'object' && typeof element !== 'function') {
       return true; // If a non-object element is found, return true (primitive type)
     }
   }
@@ -61,26 +61,40 @@ const isArrayPrimitive = (arr) => {
 const extractAndAddIntoSheet = async (
   sheet: any,
   data: any,
-  labels: string[],
+  labels?: string[],
+  dimensions?: string[],
+  measures?: string[]
 ) => {
-  const extractValuesIntoArr: any[][] = [];
-  const startRowIdx = 2;
-  const endRowIdx = 2 + data.length;
+  let headers: string[] = [];
 
-  const sortedData = data.sort((a, b) => Number(b) - Number(a));
-
-  if (isArrayPrimitive(data)) {
-    for (let i = 0; i < sortedData.length; i++) {
-      extractValuesIntoArr.push([labels[i], data[i]]);
-    }
+  if (labels?.length) {
+    headers = labels;
+  } else if (dimensions && measures) {
+    headers = [...dimensions, ...measures];
   }
 
-  const dataRange = sheet.range(`A${startRowIdx - 1}:B${endRowIdx - 1}`);
+  const extractValuesIntoArr: any[][] = [];
+
+  const startRowIdx = 2;
+  const endRowIdx = startRowIdx + data?.length;
+
+  if (labels?.length) {
+    if (isArrayPrimitive(data)) {
+      extractValuesIntoArr.push(...labels.map((label, i) => [label, data[i]]));
+    }
+  } else if (data?.length) {
+    data.forEach(item => {
+      const extractedValues = headers.map(key => item[key]);
+      extractValuesIntoArr.push(extractedValues);
+    });
+  }
+
+  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`);
   dataRange.style({ border: 'thin' });
 
-  addIntoSheet(extractValuesIntoArr, `A${startRowIdx}`, `B${endRowIdx}`, sheet);
-};
+  addIntoSheet(extractValuesIntoArr, `A${startRowIdx}`, `${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`, sheet);
 
+};
 const toCamelCase = (str: string) => {
   return str.replace(/[-_](.)/g, function (match, group) {
     return group.toUpperCase();
@@ -90,10 +104,12 @@ const toCamelCase = (str: string) => {
 export const buildFile = async (subdomain: string, params: any) => {
   const { workbook, sheet } = await createXlsFile();
   const dataset = await chartGetResult(params, subdomain);
+
+  const { dimension, measure } = JSON.parse(params.filter);
   const { title, data, labels } = dataset;
 
-  await prepareHeader(sheet, title);
-  await extractAndAddIntoSheet(sheet, data, labels);
+  await prepareHeader(sheet, title, dimension, measure);
+  await extractAndAddIntoSheet(sheet, data, labels, dimension, measure);
 
   return {
     name: `${toCamelCase(title)}`,
