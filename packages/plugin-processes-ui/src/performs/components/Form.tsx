@@ -442,7 +442,7 @@ class Form extends React.Component<Props, State> {
   };
 
   focusNext = (index: number, length: number, val?: number) => {
-    let next = index + (val || 1);
+    let next = index + (val ?? 1);
     if (next >= length) {
       next = 0;
     }
