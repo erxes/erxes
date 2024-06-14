@@ -197,7 +197,7 @@ const clientPortalUserMutations = {
 
       const { id, name, email, picture, first_name, last_name } =
         response || {};
-        
+
       let qry: any = {};
       let user: any = {};
 
@@ -884,6 +884,11 @@ const clientPortalUserMutations = {
     );
 
     const twoFactorConfig = clientPortal.twoFactorConfig;
+
+    if (!(args.emailOtp || args.phoneOtp)) {
+      throw new Error('Provide emailOtp or phoneOtp.');
+    }
+
     const user = await models.ClientPortalUsers.verifyUser(subdomain, {
       emailOtp: args.emailOtp,
       phoneOtp: args.phoneOtp,
