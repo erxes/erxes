@@ -318,7 +318,7 @@ class Form extends React.Component<Props, State> {
         });
     };
     return (
-      <>
+      
         <FormGroup>
           <ControlLabel>Product</ControlLabel>
           <SelectProducts
@@ -333,7 +333,7 @@ class Form extends React.Component<Props, State> {
             multi={false}
           />
         </FormGroup>
-      </>
+      
     );
   }
 
