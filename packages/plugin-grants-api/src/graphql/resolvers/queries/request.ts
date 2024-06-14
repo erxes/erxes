@@ -106,7 +106,7 @@ const generateSort = (sortField, sortDirection) => {
   let sort: any = { createdAt: -1 };
 
   if (sortField && sortDirection) {
-    sort = {};
+    
     sort = { [sortField]: sortDirection };
   }
   return sort;
