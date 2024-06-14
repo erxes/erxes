@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql, seQuery } from '@apollo/client';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -9,7 +9,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 import ClassificationForm from '../components/list/ClassificationForm';
 import { queries } from '../../contractTypes/graphql';
-import { useQuery } from '@apollo/client';
+
 
 type Props = {
   contracts: IContract[];
