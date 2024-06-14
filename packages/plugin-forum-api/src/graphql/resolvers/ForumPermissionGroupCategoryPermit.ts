@@ -1,7 +1,6 @@
 import { IContext } from '..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IPermissionGroupCategoryPermit } from '../../db/models/permissionGroupModels/permissionGroupCategoryPermit';
-import { Console } from 'console';
 
 const ForumPermissionGroupCategoryPermit: IObjectTypeResolver<
   IPermissionGroupCategoryPermit,

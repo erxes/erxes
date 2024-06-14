@@ -3,7 +3,7 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { Types, ObjectId, Schema } from 'mongoose';
+import { Types } from 'mongoose';
 
 const quizQueries: IObjectTypeResolver<any, IContext> = {
   async forumQuizzes(_, { sort = {}, offset = 0, limit = 0 }, { models: { Quiz } }) {

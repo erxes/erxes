@@ -1,7 +1,6 @@
 import { IContext } from '..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { ICategory } from '../../db/models/category';
-import { buildPostsQuery } from './Query/postQueries';
 
 /*
     _id: ID!

@@ -1,4 +1,3 @@
-// import { generateModels } from './connectionResolver';
 import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
   MessageArgs,

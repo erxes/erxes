@@ -1,5 +1,4 @@
 import {
-  Document,
   Schema,
   Model,
   Connection,
@@ -7,7 +6,6 @@ import {
   HydratedDocument,
 } from 'mongoose';
 import { IModels } from '../index';
-import * as _ from 'lodash';
 import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
 
 // null, undefined, '' means it's for every user types

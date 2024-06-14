@@ -1,5 +1,4 @@
 import * as DataLoader from 'dataloader';
-import * as _ from 'underscore';
 import { IModels } from '../../db/models';
 import post from './post';
 

@@ -1,6 +1,5 @@
 import { IContext } from '..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { IPost } from '../../db/models/post';
 import { Quiz } from '../../db/models/quiz';
 
 const ForumQuiz: IObjectTypeResolver<Quiz, IContext> = {

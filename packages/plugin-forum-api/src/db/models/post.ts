@@ -1,10 +1,9 @@
-import { IUser, IUserDocument } from "@erxes/api-utils/src/types";
+import { IUserDocument } from "@erxes/api-utils/src/types";
 import { Schema, Model, Connection, Types, HydratedDocument } from "mongoose";
 import { USER_TYPES, UserTypes } from "../../consts";
 import { ICpUser } from "../../graphql";
 import { IModels } from "./index";
 import {
-  InsufficientUserLevelError,
   LoginRequiredError,
 } from "../../customErrors";
 import { notifyUsersPublishedPost } from "./utils";
@@ -371,7 +370,7 @@ export const generatePostModel = (
         categoryApprovalState,
 
         createdUserType: USER_TYPES[0],
-        createdById: input.createdById || user._id,
+        createdById: input.createdById ?? user._id,
 
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,

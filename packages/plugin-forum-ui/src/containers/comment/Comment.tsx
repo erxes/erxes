@@ -7,9 +7,8 @@ import { mutations, queries } from '../../graphql';
 import CommentComponent from '../../components/comment/Comment';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql} from '@apollo/client';
 
 type Props = {
   comment: IComment;

@@ -1,5 +1,4 @@
 import {
-  Document,
   Schema,
   Model,
   Connection,
@@ -7,7 +6,6 @@ import {
   HydratedDocument,
 } from 'mongoose';
 import { IModels } from '../index';
-import * as _ from 'lodash';
 import { PermissionGroupDocument } from './permissionGroup';
 
 export interface IPermissionGroupUser {
@@ -108,10 +106,6 @@ export const generatePermissionGroupUserModel = (
       permissionGroupId: string,
       cpUserIds: string[] | undefined | null,
     ): Promise<boolean> {
-      // await models.PermissionGroupUser.deleteMany({
-      //   userId: { $nin: cpUserIds || [] },
-      //   permissionGroupId,
-      // });
 
       const ops: any[] = (cpUserIds || []).map((userId) => ({
         updateOne: {

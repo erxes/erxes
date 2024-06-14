@@ -7,8 +7,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICategory } from '../../types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 type Props = {
   category?: ICategory;

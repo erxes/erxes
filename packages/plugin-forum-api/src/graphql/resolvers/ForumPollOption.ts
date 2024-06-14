@@ -1,7 +1,4 @@
-import { IContext } from '..';
-import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { IPost } from '../../db/models/post';
-import { PollOption } from '../../db/models/pollOption';
+
 
 const ForumPollOption = {
   async createdByCp({ createdByCpId }) {

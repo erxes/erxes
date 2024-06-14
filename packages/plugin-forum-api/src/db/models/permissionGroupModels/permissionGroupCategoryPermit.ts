@@ -1,6 +1,5 @@
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import {  Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from '../index';
-import * as _ from 'lodash';
 import { Permissions } from '../../../consts';
 
 const { ObjectId } = Types;
@@ -100,28 +99,7 @@ export const generatePermissionGroupCategoryPermitModel = (
 
       return count > 0;
 
-      /*
-      const result = await models.PermissionGroupUser.aggregate()
-        .match({ userId: cpUserId })
-        .lookup({
-          from: models.PermissionGroupCategoryPermit.collection.collectionName,
-          localField: 'permissionGroupId',
-          foreignField: 'permissionGroupId',
-          as: 'permits'
-        })
-        .match({
-          permits: {
-            $elemMatch: {
-              permission: permission,
-              categoryId: ObjectId(categoryId.toString())
-            }
-          }
-        })
-        .limit(1)
-        .project({ _id: 1 });
-
-      return result.length > 0;
-      */
+      
     }
 
     public static async userPermittedCategoryIds(
