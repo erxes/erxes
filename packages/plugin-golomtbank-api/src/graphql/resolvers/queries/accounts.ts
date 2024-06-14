@@ -13,7 +13,7 @@ const queries = {
     }
     const golomtBank = new GolomtBank(config);
     try {
-      golomtBank.accounts.list();
+      await golomtBank.accounts.list();
     } catch (e) {
       throw new Error(e.message);
     }
@@ -52,9 +52,7 @@ const queries = {
       if (!config) {
         throw new Error("Not found config");
       }
-      // if (config.accountId !== args.accountId) {
-      //   throw new Error('please check account number');
-      // }
+   
       const golomtBank = new GolomtBank(config);
 
       return await golomtBank.statements.list(args);

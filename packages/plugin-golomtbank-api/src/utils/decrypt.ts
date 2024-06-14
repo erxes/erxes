@@ -1,7 +1,4 @@
 const CryptoJS = require("crypto-js");
-
-// const IV_KEY = 'qJIboRV56D4S1NiS';
-// const SESSION_KEY = 'A6d26tFgKEFLCawY';
 const unpad = (s) => {
   const paddingLength = s.charCodeAt(s.length - 1);
   return s.slice(0, s.length - paddingLength);

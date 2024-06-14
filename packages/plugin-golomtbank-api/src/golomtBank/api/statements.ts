@@ -15,8 +15,6 @@ export class StatementsApi extends BaseApi {
    * @param {number} page - page number
    * @param {number} perPage - per page
    * @param {number} record - record number
-   * @return {[object]} - Returns an array of statements
-   * TODO: update return type
    */
   async list(args: {
     accountId: string;
@@ -26,7 +24,7 @@ export class StatementsApi extends BaseApi {
     perPage?: number;
     record?: number;
   }) {
-    const { accountId, startDate, endDate, page, perPage, record } = args;
+    const { accountId, startDate, endDate } = args;
 
     const queryParams: any = { client_id: this.params.client_id };
     const data: any = { registerNo: this.params.registerId, accountId:accountId };

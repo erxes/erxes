@@ -8,11 +8,10 @@ export class AccountsApi extends BaseApi {
   /**
    * get account list
    * @return {[GolomtBankAccount]} - Returns an array of accounts
-   * TODO: update return type
    */
   async list() {
     try {
-      const res = await this.request({
+      return await this.request({
         method: "POST",
         path: "v1/account/list",
         type: "ACCTLST",
@@ -23,22 +22,6 @@ export class AccountsApi extends BaseApi {
           client_id: this.params.clientId,
         },
       });
-      const list = [
-        {
-          requestId: "cc65ebc637d04541a7e45d753aaddce2",
-          accountId: "1605242952",
-          accountName: "ОЧИР УНДРАА ОМЗ ББСБ",
-          shortName: "ОЧИР УНДРА",
-          currency: "USD",
-          branchId: "160",
-          isSocialPayConnected: "N",
-          accountType: {
-            schemeCode: "CA658",
-            schemeType: "SBA",
-          },
-        },
-      ];
-      return list;
     } catch (e) {
       console.error(e);
       throw new Error(e.message);
@@ -49,7 +32,6 @@ export class AccountsApi extends BaseApi {
    * get account detail
    * @param {string} accountId - account number
    * @return {object} - Returns an account object
-   * TODO: update return type
    */
   async get(accountId: string) {
     try {
@@ -96,6 +78,5 @@ export class AccountsApi extends BaseApi {
    * @param {string} accountId - account number
    * @param {string} bankCode - bank code
    * @return {object} - Returns an account object
-   * TODO: update return type
    */
 }

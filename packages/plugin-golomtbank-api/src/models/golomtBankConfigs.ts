@@ -29,20 +29,7 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
     }
 
     public static async updateConfig(_id: string, doc: any) {
-      // const golomtBankConfig = await models.GolomtBankConfigs.findOne({
-      //   registerId: doc.registerId,
-      //   name: doc.name,
-      //   organizationName: doc.organizationName,
-      //   clientId: doc.clientId,
-      //   ivKey: doc.ivKey,
-      //   sessionKey: doc.sessionKey,
-      //   configPassword: doc.configPassword,
-      //   accountId: doc.accountId
-      // });
 
-      // if (golomtBankConfig && golomtBankConfig._id !== _id) {
-      //   throw new Error('Config exists with same credentials');
-      // }
 
       await models.GolomtBankConfigs.updateOne({ _id }, { $set: doc });
 

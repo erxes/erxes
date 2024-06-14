@@ -7,25 +7,6 @@ import {
   import {
     types as accountTypes,
     queries as accountQueries} from'./schema/accounts'
-// const types = `
-//   type Golomtbank {
-//     requestId: String,
-//     accountId: String,            
-//     accountName: String,
-//     shortName: String
-//     currency: String
-//     branchId: String
-//   }
-// `;
- 
-// const queries = `
-
-//   golomtBankAccounts: JSON
-// `;
-
-// const mutations = `
-//   golomtbankAccountRemove(_id: String!): String
-// `;
 
 const typeDefs = async () => gql`
   scalar JSON

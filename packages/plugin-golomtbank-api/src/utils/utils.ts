@@ -1,7 +1,6 @@
 import fetch from 'node-fetch';
 import redis from '../redis';
 import { encryptedPassword } from './encryptPassword';
-import { decryptData } from './decrypt';
 
 export const getAuthHeaders = async (args: {
   name: string,
@@ -13,7 +12,7 @@ export const getAuthHeaders = async (args: {
   registerId: string
 }) => {
 
-  const { name, organizationName,ivKey, clientId,configPassword,registerId, sessionKey } = args;
+  const { name,ivKey, clientId,configPassword, sessionKey } = args;
 
   const accessToken = await redis.get(
     `golomtbank_token_${clientId}:${sessionKey}`,
