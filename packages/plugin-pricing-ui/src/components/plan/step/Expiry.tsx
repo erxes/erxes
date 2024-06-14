@@ -208,7 +208,7 @@ export default function Expiry(props: Props) {
         </>
       );
 
-    return;
+
   };
 
   return (
