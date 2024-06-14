@@ -1,10 +1,10 @@
 import React from 'react';
 import { IContract } from '../../types';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { queries } from '@erxes/ui-cards/src/deals/graphql';
 import Items from '@erxes/ui-cards/src/boards/components/portable/Items';
 import options from '@erxes/ui-cards/src/deals/options';
-import { useQuery } from '@apollo/client';
+
 
 interface Props {
   contract: IContract;
