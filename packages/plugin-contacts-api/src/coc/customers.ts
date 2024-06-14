@@ -240,7 +240,7 @@ export class Builder extends CommonBuilder<IListArgs> {
     const selector = {
       ...this.context.commonQuerySelector,
       status: { $ne: 'deleted' },
-      state: this.params.type || 'customer',
+      state: this.params.type ?? 'customer',
       $or: [
         {
           integrationId: { $in: [null, undefined, ''] },
