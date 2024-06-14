@@ -292,7 +292,7 @@ const PerformSidebar = (props: Props) => {
                 componentclass="select"
                 value={filterParams.status}
                 required={false}
-                onChange={(e) => setFilter("status", (e.target as any).value)}
+                onChange={(e: any) => setFilter("status", (e.target.value))}
               >
                 {Object.keys(PERFORM_STATUSES).map((key) => (
                   <option value={key} key={Math.random()}>
