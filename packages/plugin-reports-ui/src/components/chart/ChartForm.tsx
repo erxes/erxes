@@ -161,7 +161,7 @@ const ChartForm = (props: Props) => {
     filters[fieldName] = value;
 
     setFilters({ ...filters });
-
+    
   };
 
   const renderFilterTypes = filterTypes.length ? (
