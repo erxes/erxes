@@ -3,8 +3,8 @@ import {
   ICollateralTypeDocument,
   collateralTypeSchema
 } from './definitions/collateralType';
-import { FilterQuery } from 'mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 
 export interface ICollateralTypeModel extends Model<ICollateralTypeDocument> {
