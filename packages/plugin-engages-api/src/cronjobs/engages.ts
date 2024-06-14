@@ -147,7 +147,7 @@ const checkDayJobs = async (subdomain: string) => {
 };
 
 const loopOrganizations = async ({ callback1, callback2, action }: IParams) => {
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: 'VERSION'});
 
   if (VERSION && VERSION === 'saas') {
     const organizations = await getOrganizations();
