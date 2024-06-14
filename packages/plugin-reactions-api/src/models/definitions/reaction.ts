@@ -21,8 +21,8 @@ export interface ICommentDocument extends IComment, Document {
 
 export interface IEmoji {
   type: string;
-  contentType: String;
-  contentId: String;
+  contentType: string;
+  contentId: string;
   userId: String;
   createdAt: Date;
   updatedBy: String;
