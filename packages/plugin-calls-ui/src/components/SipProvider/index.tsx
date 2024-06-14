@@ -384,7 +384,7 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
-      rtcOfferConstraints: { iceRestart: this.props.iceRestart },
+      // rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
@@ -486,6 +486,11 @@ export default class SipProvider extends React.Component<
 
     ua.on('disconnected', (e) => {
       this.logger.debug('UA "disconnected" event');
+
+      if (e.code === 1006) {
+        // Retry connection after a delay
+        setTimeout(this.reinitializeJsSIP, 5000); // Retry after 5 seconds
+      }
       if (this.ua !== ua) {
         return;
       }
