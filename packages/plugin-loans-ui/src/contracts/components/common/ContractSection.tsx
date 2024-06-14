@@ -18,10 +18,10 @@ import {
   MainQueryResponse,
 } from '../../types';
 import { can } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { useMutation, useQuery } from '@apollo/client';
+
 
 type Props = {
   name: string;
