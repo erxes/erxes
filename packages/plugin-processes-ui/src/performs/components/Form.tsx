@@ -576,17 +576,17 @@ class Form extends React.Component<Props, State> {
 
     if (type === "income") {
       return (
-        <>
+      
           <FormColumn>{this.renderPerformIncome()}</FormColumn>
-        </>
+  
       );
     }
 
     if (type === "outlet" || type === "move") {
       return (
-        <>
+      
           <FormColumn>{this.renderPerformIn()}</FormColumn>
-        </>
+      
       );
     }
 
