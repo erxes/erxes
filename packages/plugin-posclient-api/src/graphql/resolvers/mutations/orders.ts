@@ -162,7 +162,7 @@ export const ordersAdd = async (
     models,
     subdomain,
   }: {
-    posUser: IPosUserDocument;
+    posUser?: IPosUserDocument;
     config: IConfigDocument;
     models: IModels;
     subdomain: string;

@@ -24,10 +24,11 @@ export default {
     const subscriptions = await models.PosOrders.find({
       $and: [
         { 'items.closeDate': { $gte: START_TODAY } },
-        { 'items.closeDate': { $lte: END_TODAY } },
+        { 'items.closeDate': { $lte: END_TODAY } }
       ],
+      customerId: { $exists: true, $nin: [null, ''] },
       'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
-      status: 'complete',
+      status: 'complete'
     }).lean();
 
     for (const subscription of subscriptions) {
@@ -39,8 +40,7 @@ export default {
         customerType,
         customerId,
         description,
-        subscriptionInfo,
-        userId,
+        subscriptionInfo
       } = subscription;
 
       const pos = await models.Pos.findOne({ token: posToken }).lean();
@@ -57,8 +57,7 @@ export default {
         status: 'new',
         createdAt: new Date(),
         subscriptionId: subscriptionInfo?.subscriptionId,
-        posToken,
-        userId,
+        posToken
       };
 
       for (const item of items) {
@@ -72,10 +71,10 @@ export default {
             subdomain,
             action: 'findOne',
             data: {
-              _id: item.productId,
+              _id: item.productId
             },
             isRPC: true,
-            defaultValue: null,
+            defaultValue: null
           });
 
           const uom = await sendProductsMessage({
@@ -83,7 +82,7 @@ export default {
             action: 'uoms.findOne',
             data: { code: product?.uom },
             isRPC: true,
-            defaultValue: null,
+            defaultValue: null
           });
 
           const { subscriptionConfig = {} } = uom || {};
@@ -113,10 +112,10 @@ export default {
               order: {
                 ...doc,
                 _id: nanoid(),
-                items: [{ ...item, status: 'new' }],
-              },
+                items: [{ ...item, status: 'new' }]
+              }
             },
-            pos,
+            pos
           }).catch((error) => {
             debugError(error.message);
           });
@@ -129,10 +128,10 @@ export default {
         data: {
           order: {
             _id: subscription._id,
-            'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED,
-          },
+            'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED
+          }
         },
-        pos,
+        pos
       });
 
       await models.PosOrders.updateOne(
@@ -140,5 +139,5 @@ export default {
         { 'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.CLOSED }
       );
     }
-  },
+  }
 };

@@ -248,13 +248,11 @@ export const setupMessageConsumers = async () => {
 
       const { order = {} } = data || {};
 
-      const { userId, posToken } = order;
-
-      const posUser = await models.PosUsers.findOne({ _id: userId });
+      const { posToken } = order;
 
       const config = await models.Configs.findOne({ token: posToken });
 
-      if (!posUser || !config) {
+      if (!config) {
         return {
           status: 'error',
           errorMessage: 'Cannot find pos user or config'
@@ -266,7 +264,6 @@ export const setupMessageConsumers = async () => {
         data: await ordersAdd(order, {
           subdomain,
           models,
-          posUser,
           config
         })
       };
