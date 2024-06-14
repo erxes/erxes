@@ -1,9 +1,9 @@
 import React from 'react';
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { mutations, queries } from '../graphql';
 import { Spinner, confirm } from '@erxes/ui/src';
 import List from '../components/List';
-import { useQuery, useMutation } from '@apollo/client';
+
 
 type Props = {
   queryParams: any;
