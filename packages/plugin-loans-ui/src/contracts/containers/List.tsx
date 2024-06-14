@@ -8,7 +8,7 @@ import { mutations, queries } from "../graphql";
 import queryString from "query-string";
 import { MainQueryResponse, RemoveMutationResponse } from "../types";
 import { FILTER_PARAMS_CONTRACT } from "../../constants";
-
+import { useMutation, useQuery } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -45,7 +45,7 @@ const ContractListContainer = (props: Props) => {
         customerId: queryParams.customerId,
         branchId: queryParams.branchId,
 
-        leaseAmount: !!queryParams.leaseAmount
+        leaseAmount: queryParams.leaseAmount
           ? parseFloat(queryParams.leaseAmount)
           : undefined,
         interestRate: !!queryParams.interestRate
