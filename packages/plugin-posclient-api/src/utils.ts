@@ -4,12 +4,16 @@ import { IModels } from './connectionResolver';
 import {
   fetchSegment,
   sendPosMessage,
+  sendProductsMessage,
   sendSegmentsMessage,
   sendTagsMessage,
 } from './messageBroker';
 import { productSchema } from './models/definitions/products';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { BILL_TYPES } from './models/definitions/constants';
+import {
+  BILL_TYPES,
+  SUBSCRIPTION_INFO_STATUS,
+} from './models/definitions/constants';
 import {
   checkOrderStatus,
   prepareEbarimtData,
@@ -22,6 +26,7 @@ import {
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IOrderDocument } from './models/definitions/orders';
 import { IConfigDocument } from './models/definitions/configs';
+import moment from 'moment';
 import { IDoc } from './models/PutData';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
@@ -254,10 +259,10 @@ export const updateMobileAmount = async (
 
   let order = await models.Orders.findOne(orderSelector).lean();
 
-  if(!order) {
+  if (!order) {
     throw new Error(`Order not found`);
   }
-  
+
   const sumMobileAmount = (order.mobileAmounts || []).reduce(
     (sum, i) => sum + i.amount,
     0,
@@ -269,7 +274,7 @@ export const updateMobileAmount = async (
 
   order = await models.Orders.findOne(orderSelector).lean();
 
-  if(!order) {
+  if (!order) {
     throw new Error(`Order not found`);
   }
 
@@ -283,7 +288,9 @@ export const updateMobileAmount = async (
     ) {
       const conf = await models.Configs.findOne({ token: posToken });
       if (!conf) {
-        debugError(`Error occurred while sending data to erxes: config not found`);
+        debugError(
+          `Error occurred while sending data to erxes: config not found`,
+        );
         return;
       }
 
@@ -377,7 +384,7 @@ export const prepareSettlePayment = async (
         ebarimtConfig,
         items,
         billType,
-        registerNumber
+        registerNumber,
       );
 
       try {
@@ -392,8 +399,8 @@ export const prepareSettlePayment = async (
           _id: `Err${Math.random()}`,
           billId: 'Error',
           success: 'false',
-          message: e.message
-        })
+          message: e.message,
+        });
       }
     }
 
@@ -436,9 +443,49 @@ export const prepareSettlePayment = async (
       const products = await models.Products.find({
         _id: { $in: items.map((i) => i.productId) },
       }).lean();
+
+      let uoms: any[] = [];
+
+      if (products.find((product) => product?.type === 'subscription')) {
+        uoms = await sendProductsMessage({
+          subdomain,
+          action: 'uoms.findOne',
+          data: {
+            code: { $in: products.map((product) => product?.uom) },
+          },
+          isRPC: true,
+          defaultValue: [],
+        });
+      }
+
       for (const item of items) {
         const product = products.find((p) => p._id === item.productId);
         item.productName = `${product?.code} - ${product?.name}`;
+
+        const uom = uoms.find((uom) => uom?.code === product?.uom);
+
+        if (
+          product?.type === 'subscription' &&
+          order?.subscriptionInfo?.status === SUBSCRIPTION_INFO_STATUS.ACTIVE &&
+          uom
+        ) {
+          const { isForSubscription, subscriptionConfig = {} } = uom || {};
+
+          if (
+            isForSubscription &&
+            subscriptionConfig?.rule === 'startPaidDate'
+          ) {
+            const period = (subscriptionConfig?.period || '').replace('ly', '');
+
+            if (period) {
+              item.closeDate = new Date(
+                moment()
+                  .add(item?.count || 0, period)
+                  .toISOString(),
+              );
+            }
+          }
+        }
       }
     }
 
