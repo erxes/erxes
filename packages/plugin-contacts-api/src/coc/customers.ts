@@ -28,7 +28,7 @@ export interface IConformityQueryParams {
 
 export const sortBuilder = (params: IListArgs): ISortParams => {
   const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
+  const sortDirection = params.sortDirection ?? 0;
 
   let sortParams: ISortParams = { createdAt: -1 };
 
