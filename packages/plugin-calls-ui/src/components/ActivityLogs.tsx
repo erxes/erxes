@@ -14,11 +14,11 @@ import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils/core";
-import { can } from "@erxes/ui/src/utils/core";
+import { __, can, readFile } from "@erxes/ui/src/utils/core";
+
 import dayjs from "dayjs";
 import { getIconAndColor } from "@erxes/ui-log/src/activityLogs/utils";
-import { readFile } from "@erxes/ui/src/utils/core";
+
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 import { urlify } from "@erxes/ui/src/utils/urlParser";
