@@ -116,7 +116,7 @@ const commonQueryParams = `
 `;
 
 const queryParams = `
-${commonQueryParams}
+  ${commonQueryParams}
   search: String
   paidStartDate: Date
   paidEndDate: Date
@@ -150,7 +150,7 @@ export const queries = `
   posOrderRecordsCount(${queryParams}): Int
   posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
   posOrderCustomersTotalCount(${commonQueryParams}):Int
-  checkSubscription(customerId:String,productId:String):Order
+  checkSubscription(customerId:String, productId:String): PosOrder
 `;
 
 export const mutations = `

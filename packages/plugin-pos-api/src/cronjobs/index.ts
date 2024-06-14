@@ -36,7 +36,6 @@ export default {
         posToken,
         origin,
         type,
-        slotCode,
         customerType,
         customerId,
         description,
@@ -45,11 +44,13 @@ export default {
       } = subscription;
 
       const pos = await models.Pos.findOne({ token: posToken }).lean();
+      if (!pos) {
+        continue;
+      }
 
       const doc = {
         origin,
         type,
-        slotCode,
         customerType,
         customerId,
         description,
