@@ -10,10 +10,10 @@ import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IContractType } from "../types";
 import React from "react";
 import { __ } from "coreui/utils";
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { mutations } from "../graphql";
 import productCategoryQueries from "@erxes/ui-products/src/graphql/queries";
-import { useQuery } from "@apollo/client";
+
 
 type Props = {
   contractType: IContractType;
