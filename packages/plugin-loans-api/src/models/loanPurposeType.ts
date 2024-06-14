@@ -2,9 +2,8 @@ import {
   IPurposeTypeDocument,
   purposeTypeSchema
 } from './definitions/loanPurposeType';
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
 
 export interface IPurposeTypeModel extends Model<IPurposeTypeDocument> {}
 

@@ -7,10 +7,10 @@ import {
   trAfterSchedule,
   transactionRule
 } from './utils/transactionUtils';
-import { Model } from 'mongoose';
+import { Model, ilterQuery } from 'mongoose';
 import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
+
 import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
