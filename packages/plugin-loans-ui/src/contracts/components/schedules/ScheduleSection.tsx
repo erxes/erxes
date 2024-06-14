@@ -69,7 +69,7 @@ function ScheduleSection({
     <Box
       title={__(`${(isFirst && 'First ') || ''}Schedules`)}
       name="showSchedules"
-      isOpen={!isFirst}
+      isOpen={true}
       extraButtons={can('manageSchedule', currentUser) && renderExtraButton()}
     >
       <ScrollTableColls>
