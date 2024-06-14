@@ -106,7 +106,6 @@ const ChartRenderer = (props: IChartProps) => {
     type: chartType,
     data: chartData,
     plugins: [ChartDataLabels],
-    // options: { ...options, plugins },
     options: {
       scales: {
         y: {
@@ -133,7 +132,7 @@ const ChartRenderer = (props: IChartProps) => {
   return (
     <div
       className="canvas"
-      style={{ width: `auto`, height: `${chartHeight}px` }}
+      style={{ width: `auto`, height: `${chartHeight}px`, display: 'flex', justifyContent: 'center' }}
     >
       <canvas ref={chartRef} />
     </div>
