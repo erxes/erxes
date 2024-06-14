@@ -1,11 +1,11 @@
 import Chooser from '@erxes/ui/src/components/Chooser';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import React, { useState } from 'react';
 
 import { queries } from '../graphql';
 import { ContractsQueryResponse, IContract } from '../types';
 import ContractForm from './ContractForm';
-import { useQuery } from '@apollo/client';
+
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
