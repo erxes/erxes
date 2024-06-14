@@ -26,8 +26,7 @@ const ConfigsList = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [fetchPolicy, setFetchPolicy] = React.useState("cache-first");
-
+ 
   React.useEffect(() => {
     const defaultAccount = JSON.parse(
       localStorage.getItem("golomtBankDefaultAccount") || "{}"
@@ -41,14 +40,13 @@ const ConfigsList = (props: Props) => {
     }
   }, []);
   const renderRow = () => {
-    return configs.map((config, index) => {
+    return configs.map((config) => {
       return (
         <AccountRow
           {...config}
           queryParams={queryParams}
           account={config}
           configId={config._id}
-          fetchPolicy={fetchPolicy}
         />
       );
     });

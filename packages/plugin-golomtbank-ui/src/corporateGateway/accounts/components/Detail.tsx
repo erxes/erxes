@@ -9,7 +9,6 @@ import { getCurrencySymbol } from "../../../utils";
 import { IGolomtBankAccountBalance, IGolomtBankAccountDetail } from "../../../types/IGolomtAccount";
 
 type Props = {
-  queryParams: any;
   account: IGolomtBankAccountDetail;
   balances?: IGolomtBankAccountBalance;
 };
