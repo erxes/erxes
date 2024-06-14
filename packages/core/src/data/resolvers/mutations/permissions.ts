@@ -153,7 +153,12 @@ const usersGroupMutations = {
    */
   async usersGroupsAdd(
     _root,
-    { memberIds, ...doc }: IUserGroup & { memberIds?: string[] },
+    {
+      memberIds,
+      branchIds,
+      departmentIds,
+      ...doc
+    }: IUserGroup & { memberIds?: string[] },
     { user, models, subdomain }: IContext,
   ) {
     // users before updating

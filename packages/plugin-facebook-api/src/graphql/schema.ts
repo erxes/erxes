@@ -113,6 +113,7 @@ export const types = `
     persistentMenus:[BotPersistentMenuType]
     profileUrl:String
     greetText:String
+    tag:String
   }
 `;
 
@@ -140,10 +141,19 @@ export const queries = `
   facebookGetBotPost(botId:String,postId:String):JSON
 `;
 
+const commonBotParams = `
+  name:String,
+  accountId:String,
+  pageId:String,
+  persistentMenus:[BotPersistentMenuInput],
+  greetText:String
+  tag:String
+`;
+
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
-  facebookMessengerAddBot(name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput],greetText:String):JSON
-  facebookMessengerUpdateBot(_id:String,name:String,accountId:String,pageId:String,persistentMenus:[BotPersistentMenuInput],greetText:String):JSON
+  facebookMessengerAddBot(${commonBotParams}):JSON
+  facebookMessengerUpdateBot(_id:String,${commonBotParams}):JSON
   facebookMessengerRemoveBot(_id:String):JSON
   facebookMessengerRepairBot(_id:String):JSON
   facebookRepair(_id: String!): JSON

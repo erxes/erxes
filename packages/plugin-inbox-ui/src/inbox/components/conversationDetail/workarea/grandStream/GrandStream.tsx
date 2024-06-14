@@ -4,23 +4,23 @@ import {
   Download,
   StatusContent,
   StatusIcon,
-} from "./styles";
-import { ICallHistory, IConversation } from "@erxes/ui-inbox/src/inbox/types";
+} from './styles';
+import { ICallHistory, IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import {
   MessageBody,
   MessageItem,
-} from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles";
-import React, { useRef } from "react";
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
+import React, { useRef } from 'react';
 
-import { AppConsumer } from "coreui/appContext";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils";
-import { can } from "@erxes/ui/src/utils/core";
-import dayjs from "dayjs";
-import { readFile } from "@erxes/ui/src/utils/core";
+import { AppConsumer } from 'coreui/appContext';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import { can } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   conversation: IConversation;
@@ -43,34 +43,33 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
     `operatorPhone:${operatorPhone}-` +
     `customerPhone:${customerPhone}-` +
     `${callType}:${callStatus}` +
-    dayjs(createdAt).format("YYYY-MM-DD HH:mm");
+    dayjs(createdAt).format('YYYY-MM-DD HH:mm');
 
   const handleDownload = () => {
-    const audioSrc = audioRef.current.querySelector("source").src;
+    const audioSrc = audioRef?.current?.querySelector('source').src;
 
     fetch(audioSrc)
       .then((response) => response.blob())
       .then((blob) => {
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `${audioTitle}.wav`); // Set the desired file name here
+        link.setAttribute('download', `${audioTitle}.wav`); // Set the desired file name here
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(link.href);
       })
       .catch((error) =>
-        console.error("Error downloading the audio file:", error)
+        console.error('Error downloading the audio file:', error),
       );
   };
 
   const renderDownloadAudio = () => {
-    if (!can("showCallRecord", currentUser)) {
+    if (!can('showCallRecord', currentUser) || !recordUrl) {
       return null;
     }
-
     return (
-      <Tip text={__("Download audio")} placement="top">
+      <Tip text={__('Download audio')} placement="top">
         <Download href="#" onClick={handleDownload} id="downloadButton">
           <Icon icon="download-1" size={16} />
         </Download>
@@ -80,7 +79,7 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
 
   const renderAudio = () => {
     return (
-      can("showCallRecord", currentUser) && (
+      can('showCallRecord', currentUser) && (
         <Audio>
           <audio
             controls={true}
@@ -97,27 +96,27 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
 
   const renderIcon = () => {
     switch (callStatus) {
-      case "connected":
-        return "missed-call";
-      case "missed":
-        return "missed-call";
-      case "cancelled":
-        return "phone-times";
+      case 'connected':
+        return 'missed-call';
+      case 'missed':
+        return 'missed-call';
+      case 'cancelled':
+        return 'phone-times';
       default:
-        return "phone-slash";
+        return 'phone-slash';
     }
   };
 
   const renderCallStatus = () => {
     switch (callStatus) {
-      case "connected":
-        return "Call ended";
-      case "missed":
-        return "Missed call";
-      case "cancelled":
-        return "Call cancelled";
+      case 'connected':
+        return 'Call ended';
+      case 'missed':
+        return 'Missed call';
+      case 'cancelled':
+        return 'Call cancelled';
       default:
-        return "Outgoing call";
+        return 'Outgoing call';
     }
   };
 
@@ -143,8 +142,8 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
           </StatusContent>
           {recordUrl && renderAudio()}
         </CallWrapper>
-        <Tip text={dayjs(createdAt).format("lll")}>
-          <footer>{dayjs(createdAt).format("LT")}</footer>
+        <Tip text={dayjs(createdAt).format('lll')}>
+          <footer>{dayjs(createdAt).format('LT')}</footer>
         </Tip>
       </MessageBody>
     </MessageItem>

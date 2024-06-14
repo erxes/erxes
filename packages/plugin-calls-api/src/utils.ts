@@ -71,6 +71,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     const extension = queue?.find((queue) =>
       queue?.members?.split(",")?.includes(extentionNumber)
     )?.extension;
+    console.log('extentionNumber:', extentionNumber, extension);
 
     const startDate = moment(callStartTime).format("YYYY-MM-DD");
     const endTime = moment(callEndTime).format("YYYY-MM-DD");
@@ -114,14 +115,22 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       user
     );
 
+<<<<<<< HEAD
     let cdr_root = "";
 
+=======
+    let cdr_root = '';
+>>>>>>> 1327982ddd8f3b31edfd5498a70a856ea917ff00
     if (cdrData && cdrData.response) {
       cdr_root = cdrData.response.cdr_root;
     } else if (cdrData && cdrData.cdr_root) {
       cdr_root = cdrData?.cdr_root;
     }
+<<<<<<< HEAD
     console.log("2");
+=======
+    console.log('2', cdr_root);
+>>>>>>> 1327982ddd8f3b31edfd5498a70a856ea917ff00
 
     const todayCdr = cdr_root && JSON.parse(JSON.stringify(cdr_root));
     const sortedCdr =
@@ -130,8 +139,13 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
     let lastCreatedObject = sortedCdr[todayCdr.length - 1];
 
+<<<<<<< HEAD
     let fileNameWithoutExtension = "";
     console.log("3");
+=======
+    let fileNameWithoutExtension = '';
+    console.log('3', lastCreatedObject);
+>>>>>>> 1327982ddd8f3b31edfd5498a70a856ea917ff00
 
     const transferCall = findTransferCall(lastCreatedObject);
     console.log(transferCall, "transferCall");
