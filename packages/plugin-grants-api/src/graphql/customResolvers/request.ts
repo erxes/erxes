@@ -45,7 +45,7 @@ export default {
     return users;
   },
 
-  async requester({ requesterId }: IGrantRequest, {}, { subdomain }: IContext) {
+  async requester({ requesterId }: IGrantRequest, { subdomain }: IContext) {
     return await sendCoreMessage({
       subdomain,
       action: 'users.findOne',
