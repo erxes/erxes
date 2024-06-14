@@ -11,9 +11,7 @@ interface IProps {
 
 const InvoiceList = (props: IProps) => {
   const { invoices } = props;
-
   return (
-    <>
       <Table $striped>
         <thead>
           <tr>
@@ -30,7 +28,6 @@ const InvoiceList = (props: IProps) => {
           ))}
         </tbody>
       </Table>
-    </>
   );
 };
 
