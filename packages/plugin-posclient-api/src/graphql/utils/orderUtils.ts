@@ -388,17 +388,11 @@ export const prepareOrderDoc = async (
   doc: IOrderInput,
   config: IConfigDocument,
   models: IModels,
-  posUser: IPosUserDocument,
+  posUser?: IPosUserDocument,
 ) => {
   const { catProdMappings = [] } = config;
 
-  const subscriptionUoms = await sendProductsMessage({
-    subdomain,
-    action: 'uoms.find',
-    data: { isForSubscription: true },
-    isRPC: true,
-    defaultValue: [],
-  });
+  let subscriptionUoms: any[] = [];
 
   const items = doc.items.filter((i) => !i.isPackage) || [];
 
@@ -413,6 +407,16 @@ export const prepareOrderDoc = async (
   }
 
   let subscriptionInfo;
+
+  if (products.find((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION)) {
+    subscriptionUoms = await sendProductsMessage({
+      subdomain,
+      action: 'uoms.find',
+      data: { isForSubscription: true },
+      isRPC: true,
+      defaultValue: [],
+    });
+  }
 
   // set unitPrice
   doc.totalAmount = 0;
