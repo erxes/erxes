@@ -1,6 +1,7 @@
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
+import { IIntegrationDocument } from '../models/Integrations';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
 import { sendReply } from '../utils';
@@ -252,6 +253,56 @@ const generateObjectToWait = ({
   };
 };
 
+const sendMessage = async (
+  models,
+  {
+    senderId,
+    recipientId,
+    integration,
+    message,
+    tag,
+  }: {
+    senderId: string;
+    recipientId: string;
+    integration: IIntegrationDocument;
+    message: any;
+    tag?: string;
+  },
+) => {
+  await sendReply(
+    models,
+    'me/messages',
+    {
+      recipient: { id: senderId },
+      sender_action: 'typing_on',
+      tag,
+    },
+    recipientId,
+    integration.erxesApiId,
+  ).catch((error) => {
+    throw new Error(error.message);
+  });
+
+  const resp = await sendReply(
+    models,
+    'me/messages',
+    {
+      recipient: { id: senderId },
+      message,
+      tag,
+    },
+    recipientId,
+    integration.erxesApiId,
+  ).catch((error) => {
+    throw new Error(error);
+  });
+
+  if (!resp) {
+    return;
+  }
+  return resp;
+};
+
 export const actionCreateMessage = async (
   models: IModels,
   subdomain,
@@ -284,6 +335,8 @@ export const actionCreateMessage = async (
     return;
   }
 
+  const bot = await models.Bots.findOne({ _id: botId }, { tag: 1 }).lean();
+
   let result: any[] = [];
 
   try {
@@ -299,32 +352,32 @@ export const actionCreateMessage = async (
     }
 
     for (const { botData, inputData, ...message } of messages) {
-      await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          sender_action: 'typing_on',
-        },
+      let resp = await sendMessage(models, {
+        senderId,
         recipientId,
-        integration.erxesApiId,
-      );
-
-      const resp = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          message,
-        },
-        recipientId,
-        integration.erxesApiId,
-      ).catch((error) => {
-        throw new Error(error);
+        integration,
+        message,
+      }).catch(async (error) => {
+        if (
+          error.message.includes(
+            'This message is sent outside of allowed window',
+          ) &&
+          bot?.tag
+        ) {
+          resp = await sendMessage(models, {
+            senderId,
+            recipientId,
+            integration,
+            message,
+            tag: bot?.tag,
+          });
+        }
+        debugError(error.message);
+        throw new Error(error.message);
       });
 
       if (!resp) {
-        return;
+        throw new Error('Something went wrong to send this message');
       }
 
       const conversationMessage = await models.ConversationMessages.addMessage({
