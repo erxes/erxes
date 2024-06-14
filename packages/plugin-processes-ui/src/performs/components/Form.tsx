@@ -438,7 +438,7 @@ class Form extends React.Component<Props, State> {
   onChangePerView = (values: any) => {
     this.setStateWrapper({
       ...values,
-    } as any);
+    });
   };
 
   focusNext = (index: number, length: number, val?: number) => {
