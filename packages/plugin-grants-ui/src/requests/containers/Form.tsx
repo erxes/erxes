@@ -1,10 +1,10 @@
 import React from 'react';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import queries from '../graphql/queries';
-import { RequestDetailQueryResponse } from '../../common/type';
+import { RequestDetailQueryResponse, IGrantRequest, IGrantResponse } from '../../common/type';
 import { Spinner } from '@erxes/ui/src';
-import { useQuery } from '@apollo/client';
-import { IGrantRequest, IGrantResponse } from '../../common/type';
+
+
 
 import FormComponent from '../components/Form';
 
