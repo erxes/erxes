@@ -9,7 +9,7 @@ const renderInvoices = (activity: IActivityLog) => {
 const activityItem = (activity: IActivityLog) => {
   const { contentType, action } = activity;
 
-  switch ((action && action) || contentType) {
+  if ((action && action) || contentType) {
     default:
       return renderInvoices(activity);
   }
