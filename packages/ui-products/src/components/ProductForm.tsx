@@ -635,11 +635,13 @@ const Form = (props: Props) => {
                   }))
                 }
               >
-                {Object.keys(TYPES).map((typeName, index) => (
-                  <option key={index} value={TYPES[typeName]}>
-                    {typeName}
-                  </option>
-                ))}
+                {Object.keys(TYPES)
+                  .filter((type) => type !== "ALL")
+                  .map((typeName, index) => (
+                    <option key={index} value={TYPES[typeName]}>
+                      {typeName}
+                    </option>
+                  ))}
               </FormControl>
             </FormGroup>
 
