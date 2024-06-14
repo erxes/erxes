@@ -2,12 +2,12 @@ import * as routerUtils from "@erxes/ui/src/utils/router";
 import { Description, SidebarListItem } from "@erxes/ui-settings/src/styles";
 import { FieldStyle } from "@erxes/ui/src/layout/styles";
 import { IGolomtBankAccount } from "../../../types/IGolomtAccount";
-import { Link } from "react-router-dom";
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Sidebar } from "@erxes/ui/src";
 
 type Props = {
+  _id: string
   queryParams: any;
   configId: string;
   accounts: IGolomtBankAccount[];

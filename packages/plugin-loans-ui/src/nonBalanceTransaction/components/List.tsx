@@ -1,10 +1,8 @@
 import {
   Alert,
   BarItems,
-  Bulk,
   Button,
   DataWithLoader,
-  FormControl,
   ModalTrigger,
   Pagination,
   SortHandler,
@@ -14,7 +12,6 @@ import {
   confirm,
 } from "@erxes/ui/src";
 
-import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { INonBalanceTransaction } from "../types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import NonBalanceTransactionForm from "../containers/Form";
@@ -151,45 +148,6 @@ const addTrigger = (
   </Button>
 );
 
-    // const actionBarRight = (
-    //   <BarItems>
-    //     {can('manageTransactions', currentUser) && (
-    //       <Dropdown>
-    //         <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-    //           <Button btnStyle="success" size="medium" icon="add">
-    //             {__('Add Non Balance')}
-    //           </Button>
-    //         </Dropdown.Toggle>
-    //         <Dropdown.Menu >
-    //           <li>
-    //             <ModalTrigger
-    //               title={__('collateral')}
-    //               trigger={ <a href="#collateral">{__('Collateral')}</a>}
-    //               size="lg"
-    //               content={() =>setType('çç')}
-    //             />
-    //           </li>
-    //           <li>
-    //           <ModalTrigger
-    //               title={__('Interest Change')}
-    //               trigger={ <a href="#Interest Change">{__('Interest Change')}</a>}
-    //               size="lg"
-    //               content={() =>setType('interest')}
-    //             />
-    //           </li>
-    //           <li>
-    //           <ModalTrigger
-    //               title={__('Loan')}
-    //               trigger={ <a href="#Loan">{__('Loan')}</a>}
-    //               size="lg"
-    //               content={() =>setType('loan')}
-    //             />
-    //           </li>
-    //         </Dropdown.Menu>
-    //       </Dropdown>
-    //     )}
-    //   </BarItems>
-    // );
     const actionBarRight = (
       <BarItems>
         

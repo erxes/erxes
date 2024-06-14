@@ -1,13 +1,12 @@
 import Button from "@erxes/ui/src/components/Button";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Toggle from "@erxes/ui/src/components/Toggle";
 import { __ } from "@erxes/ui/src/utils/core";
 import React from "react";
 
 import { BlockRow } from "../../../styles";
 import { getCurrencySymbol } from "../../../utils";
-import { IGolomtBankAccount, IGolomtBankAccountBalance, IGolomtBankAccountDetail } from "../../../types/IGolomtAccount";
+import { IGolomtBankAccountBalance, IGolomtBankAccountDetail } from "../../../types/IGolomtAccount";
 
 type Props = {
   queryParams: any;
@@ -17,11 +16,8 @@ type Props = {
 
 const Detail = (props: Props) => {
   const { account, queryParams ,balances} = props;
-  const accountNumber = queryParams.account;
 
-  const defaultAccount = JSON.parse(
-    localStorage.getItem("golomtbankDefaultAccount") || "{}"
-  );
+
 const getStatusValue = (value) =>{
    switch (value) {
     case "A":
@@ -44,27 +40,6 @@ const isRel = (value) =>{
       return "";
  }
 }
-  const [isChecked, setIsChecked] = React.useState(
-    defaultAccount.accountNumber === accountNumber
-  );
-
-  React.useEffect(() => {
-    setIsChecked(defaultAccount.accountNumber === accountNumber);
-  }, [queryParams.account]);
-
-  const toggleChange = (e) => {
-    setIsChecked(e.target.checked);
-
-    if (!e.target.checked) {
-      return localStorage.removeItem("golomtbankDefaultAccount");
-    }
-
-    localStorage.setItem(
-      "golomtbankDefaultAccount",
-      JSON.stringify({ accountNumber, configId: queryParams._id })
-    );
-  };
-
   const transactionTrigger = (
     <Button btnStyle="simple" size="small" icon="money-insert">
       {__("Transfer")}

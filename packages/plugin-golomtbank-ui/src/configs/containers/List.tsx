@@ -1,9 +1,8 @@
 import { router } from "@erxes/ui/src";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { Alert, confirm } from "@erxes/ui/src/utils";
-import { gql } from "@apollo/client";
 import React from "react";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
 import SidebarList from "../../components/ConfigsList";
 import List from "../components/List";

@@ -1,12 +1,10 @@
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { gql } from "@apollo/client";
 import React from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client";
 
 import Detail from "../components/Detail";
 import queries from "../graphql/queries";
 import { AccountDetailQueryResponse, AccountBalanceQueryResponse } from "../../../types/IGolomtAccount";
-import { ErrorMsg } from "@erxes/ui";
 
 type Props = {
   queryParams: any;
@@ -15,7 +13,7 @@ type Props = {
 const DetailContainer = (props: Props) => {
   const { _id, account } = props.queryParams;
 
-  const { data, loading, error } = useQuery<AccountDetailQueryResponse>(
+  const { data, loading } = useQuery<AccountDetailQueryResponse>(
     gql(queries.detailQuery),
     {
       variables: {

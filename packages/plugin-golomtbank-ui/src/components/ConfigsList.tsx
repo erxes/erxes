@@ -5,7 +5,6 @@ import { ConfigList } from "../styles";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Form from "../configs/containers/Form";
 import { IGolomtBankConfigsItem } from "../types/IConfigs";
-import Icon from "@erxes/ui/src/components/Icon";
 import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
 import LoadMore from "@erxes/ui/src/components/LoadMore";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
@@ -27,10 +26,6 @@ const ConfigsList = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [currentConfig, setCurrentConfig] = React.useState<string | undefined>(
-    queryParams._id
-  );
-
   const [fetchPolicy, setFetchPolicy] = React.useState("cache-first");
 
   React.useEffect(() => {
@@ -49,12 +44,6 @@ const ConfigsList = (props: Props) => {
   const onRefresh = () => {
     setFetchPolicy("network-only");
   };
-
-  const reload = (
-    <a href="#refresh" onClick={onRefresh} tabIndex={0}>
-      <Icon icon="refresh" size={8} />
-    </a>
-  );
 
   const renderRow = () => {
     return configs.map((config, index) => {
