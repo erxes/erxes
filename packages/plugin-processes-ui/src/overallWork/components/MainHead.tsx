@@ -159,7 +159,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
     const { icon, title, summary, actionBar } = this.props;
 
     return (
-      <>
+    
         <MainDescription expand={this.state.expand} onClick={this.onClick}>
           <Description>
             {this.state.expand && <DescImg src={icon} />}
@@ -179,7 +179,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
             {actionBar}
           </ActionBar>
         </MainDescription>
-      </>
+  
     );
   }
 }
