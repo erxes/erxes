@@ -15,7 +15,7 @@ type Props = {
 };
 
 const Detail = (props: Props) => {
-  const { account, queryParams ,balances} = props;
+  const { account ,balances} = props;
 
 
 const getStatusValue = (value) =>{
@@ -73,7 +73,7 @@ const isRel = (value) =>{
         <FormGroup>
             <p>{__("Balance")} </p>
             {(balances?.balanceLL || []).map((balance) => (
-            <strong>
+            <strong key={balance.amount.toString()}>
             {balance.amount.value.toLocaleString()}
             {getCurrencySymbol(balance.amount.currency || "MNT")}
           </strong>

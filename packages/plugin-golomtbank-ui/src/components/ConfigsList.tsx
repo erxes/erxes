@@ -40,11 +40,6 @@ const ConfigsList = (props: Props) => {
       });
     }
   }, []);
-
-  const onRefresh = () => {
-    setFetchPolicy("network-only");
-  };
-
   const renderRow = () => {
     return configs.map((config, index) => {
       return (

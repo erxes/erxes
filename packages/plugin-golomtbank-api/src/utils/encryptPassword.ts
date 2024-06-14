@@ -1,4 +1,4 @@
-var CryptoJS = require("crypto-js");
+const CryptoJS = require("crypto-js");
 
 export function encryptedPassword(data:any, keySession:string, keyiv:string) {
     // key-үүдийг parse хийж байгаа

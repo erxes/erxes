@@ -9,10 +9,6 @@ export const customerSchema = new Schema({
 });
 
 export const loadCustomerClass = () => {
-  class Customer {}
-
-  customerSchema.loadClass(Customer);
-
   return customerSchema;
 };
 
@@ -40,10 +36,6 @@ export const messageSchema = new Schema({
 });
 
 export const loadMessageClass = () => {
-  class Message {}
-
-  messageSchema.loadClass(Message);
-
   return messageSchema;
 };
 
@@ -54,9 +46,6 @@ export const integrationSchema = new Schema({
 });
 
 export const loadIntegrationClass = () => {
-  class Integration {}
-
-  integrationSchema.loadClass(Integration);
 
   return integrationSchema;
 };

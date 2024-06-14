@@ -27,7 +27,7 @@ const mutations = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    return await models.GolomtBankConfigs.removeConfig(_id);
+    return models.GolomtBankConfigs.removeConfig(_id);
   }
 };
 

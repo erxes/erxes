@@ -42,9 +42,9 @@ const Detail = (props: Props) => {
     return (
       <>
         <Tabs full={true}>
-          {Object.values(serviceTypes).map((type, index) => (
+          {Object.values(serviceTypes).map((type) => (
             <TabTitle
-              key={index}
+              key={type}
               className={currentTab === type ? 'active' : ''}
               onClick={() => tabOnClick(type)}
             >

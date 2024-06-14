@@ -37,11 +37,6 @@ const DetailContainer = (props: Props) => {
   if (loading) {
     return <Spinner />;
   }
-
-  // if (error) {
-  //   return <ErrorMsg>{error.message}</ErrorMsg>;
-  // }
-
   const accountDetail = data && data.golomtBankAccountDetail ;
   const balances = balance.data?.golomtBankAccountBalance ;
   if (!accountDetail) {
@@ -56,9 +51,7 @@ const DetailContainer = (props: Props) => {
   };
 
   return (
-    <>
       <Detail {...extendedProps} />
-    </>
   );
 };
 
