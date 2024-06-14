@@ -10,7 +10,7 @@ export default {
     const product = await models.Products.findOne({ _id: orderItem.productId });
 
     if (!product) {
-      return orderItem.productName || 'product not found';
+      return orderItem.productName ?? 'product not found';
     }
 
     return `${product.code} - ${product.name}`;

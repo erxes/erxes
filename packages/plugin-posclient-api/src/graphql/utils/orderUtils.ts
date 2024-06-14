@@ -133,7 +133,7 @@ export const validateOrder = async (
         subdomain,
         config,
         checkProducts,
-        doc.branchId || config.branchId
+        doc.branchId ?? config.branchId
       );
 
       const errors: string[] = [];
@@ -345,7 +345,6 @@ const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
       }
     }
   }
-  return;
 };
 
 const checkPrices = async (subdomain, preparedDoc, config, posUser) => {
@@ -432,7 +431,7 @@ export const prepareOrderDoc = async (
 
     for (const item of hasTakeItems) {
       const product = productsOfId[item.productId];
-      const category = categoriesOfId[product.categoryId || ''];
+      const category = categoriesOfId[product.categoryId ?? ''];
 
       if (!category) {
         continue;

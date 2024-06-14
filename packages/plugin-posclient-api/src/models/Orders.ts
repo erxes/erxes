@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IOrder, IOrderDocument, orderSchema } from './definitions/orders';
 
 export interface IOrderModel extends Model<IOrderDocument> {
@@ -36,8 +36,8 @@ export const loadOrderClass = models => {
 
     public static getPaidAmount(order: IOrderDocument) {
       return (
-        (order.cashAmount || 0) +
-        (order.mobileAmount || 0) +
+        (order.cashAmount ?? 0) +
+        (order.mobileAmount ?? 0) +
         (order.paidAmounts || []).reduce(
           (sum, i) => Number(sum) + Number(i.amount),
           0

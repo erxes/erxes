@@ -90,7 +90,7 @@ const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) 
 
     const resp = await getCompanyInfo({
       checkTaxpayerUrl: config.checkTaxpayerUrl,
-      no: doc.customerTin || doc.customerCode || '',
+      no: doc.customerTin ?? doc.customerCode ?? '',
     });
 
     if (resp.status !== 'checked') {

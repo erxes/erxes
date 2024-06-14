@@ -1,11 +1,11 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { ICover, ICoverDocument, coverSchema } from './definitions/covers';
 
 export interface ICoverModel extends Model<ICoverDocument> {
   getCover(_id: string): Promise<ICoverDocument>;
   createCover(doc: ICover): Promise<ICoverDocument>;
   updateCover(_id: string, doc: ICover): Promise<ICoverDocument>;
-  deleteCover(_id: string): Promise<String>;
+  deleteCover(_id: string): Promise<string>;
 }
 
 export const loadCoverClass = models => {

@@ -119,7 +119,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
   if (sortField) {
     sort[sortField] = sortDirection;
   } else {
-    sort.createdAt = sortDirection || 1;
+    sort.createdAt = sortDirection ?? 1;
   }
 
   return paginate(

@@ -14,8 +14,8 @@ const bridgesQueries = {
     { searchValue, type, perPage, page }: IListArgs,
     { subdomain }: IContext
   ) {
-    const limit = perPage || 20;
-    const skip = ((page || 1) - 1) * limit;
+    const limit = perPage ?? 20;
+    const skip = ((page ?? 1) - 1) * limit;
 
     if (type === 'company') {
       const companies = await sendContactsMessage({
@@ -141,7 +141,6 @@ const bridgesQueries = {
         lastName: customer.lastName
       }));
     }
-    return;
   },
 
   async poscCustomerDetail(
@@ -231,7 +230,6 @@ const bridgesQueries = {
         lastName: customer.lastName
       };
     }
-    return;
   }
 };
 

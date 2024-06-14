@@ -43,7 +43,7 @@ interface ICategoryParams extends ICommonParams {
   status: string;
   excludeEmpty?: boolean;
   meta?: string;
-  isKiosk: Boolean;
+  isKiosk: boolean;
   ids?: string[];
   excludeIds?: boolean;
 }
@@ -297,9 +297,9 @@ const productQueries = {
 
     if (sortField) {
       if (sortField === 'unitPrice') {
-        sortParams = { [`prices.${config.token}`]: sortDirection || 1 };
+        sortParams = { [`prices.${config.token}`]: sortDirection ?? 1 };
       } else {
-        sortParams = { [sortField]: sortDirection || 1 };
+        sortParams = { [sortField]: sortDirection ?? 1 };
       }
     }
 
@@ -319,7 +319,7 @@ const productQueries = {
       subdomain,
       config,
       paginatedProducts,
-      branchId || ''
+      branchId ?? ''
     );
   },
 

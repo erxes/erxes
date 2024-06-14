@@ -16,13 +16,13 @@ export const getServerAddress = async (
     return `${SERVER_DOMAIN.replace(
       '<subdomain>',
       subdomain
-    )}/pl:${serviceName || 'pos'}`;
+    )}/pl:${serviceName ?? 'pos'}`;
   }
 
-  const posService = await getService(serviceName || 'pos');
+  const posService = await getService(serviceName ?? 'pos');
 
   if (!posService.address) {
-    return `http://localhost:4000/pl:${serviceName || 'pos'}`;
+    return `http://localhost:4000/pl:${serviceName ?? 'pos'}`;
   }
 
   return posService.address;

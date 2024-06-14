@@ -1,5 +1,4 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import * as _ from 'underscore';
 import { IModels } from './connectionResolver';
 import {
   fetchSegment,
