@@ -9,7 +9,6 @@ export default {
 
   async users(
     request: { _id: string } & IGrantRequest,
-    {},
     { subdomain, models }: IContext,
   ) {
     if (!request?.userIds?.length) {
