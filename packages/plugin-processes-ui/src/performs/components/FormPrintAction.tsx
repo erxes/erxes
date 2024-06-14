@@ -63,7 +63,7 @@ type State = {
   documents: any[];
   loading: boolean;
   showPopup: boolean;
-  selectedDocumentId: String;
+  selectedDocumentId: string;
   copies: number;
   width: number;
 };
