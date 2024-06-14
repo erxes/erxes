@@ -15,8 +15,8 @@ import { router } from "@erxes/ui/src/utils";
 import { __ } from "coreui/utils";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import { MenuFooter, SidebarFilters } from "../../styles";
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, rapper } from "@erxes/ui/src/layout";
+
 import { IQueryParams } from "@erxes/ui/src/types";
 import SelectJobCategory from "../../job/containers/category/SelectJobCategory";
 import SelectJobRefer from "../../job/containers/refer/SelectJobRefer";
