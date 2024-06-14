@@ -59,7 +59,6 @@ export default {
 
   async detail(
     { contentType, contentTypeId, scope }: IGrantRequest,
-    {},
     { subdomain }: IContext,
   ) {
     const detail = await sendCommonMessage({
@@ -77,13 +76,12 @@ export default {
   },
   async responses(
     { _id }: { _id: string } & IGrantRequest,
-    {},
     { models }: IContext,
   ) {
     return await models.Responses.find({ requestId: _id });
   },
 
-  async actionLabel({ action }: IGrantRequest, {}, { models }: IContext) {
+  async actionLabel({ action }: IGrantRequest,{ models }: IContext) {
     const actions = await models.Requests.getGrantActions();
     return (
       actions.find((grantAction) => grantAction.action === action)?.label ||
