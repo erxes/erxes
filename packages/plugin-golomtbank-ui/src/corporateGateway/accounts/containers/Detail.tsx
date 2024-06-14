@@ -37,21 +37,21 @@ const DetailContainer = (props: Props) => {
   if (loading) {
     return <Spinner />;
   }
-  const accountDetail = data && data.golomtBankAccountDetail ;
+  const detail = data && data.golomtBankAccountDetail ;
   const balances = balance.data?.golomtBankAccountBalance ;
-  if (!accountDetail) {
+  if (!detail) {
     return null;
   }
 
-  const extendedProps = {
+  const update = {
     ...props,
     loading,
-    account: accountDetail,
+    account: detail,
     balances: balances,
   };
 
   return (
-      <Detail {...extendedProps} />
+      <Detail {...update} />
   );
 };
 
