@@ -250,12 +250,12 @@ const SipProviderContainer = (props) => {
     port: parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
-        urls: `stun:${STUN_SERVER_URL}` || '',
-      },
-      {
         urls: `turn:${TURN_SERVER_URL}` || '',
         username: TURN_SERVER_USERNAME || '',
         credential: TURN_SERVER_CREDENTIAL || '',
+      },
+      {
+        urls: `stun:${STUN_SERVER_URL}` || '',
       },
     ],
   };
