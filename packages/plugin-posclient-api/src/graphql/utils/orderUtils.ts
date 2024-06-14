@@ -123,6 +123,12 @@ export const validateOrder = async (
     }
   }
 
+  if(products.find(product=>product?.type === PRODUCT_TYPES.SUBSCRIPTION) && !doc?.customerId){
+    throw new Error(
+      'Please ensure that the customer information is included in the order, as there are subscription-based products within it.'
+    );
+  }
+
   if (
     config.isCheckRemainder &&
     (doc.branchId || config.branchId) &&
