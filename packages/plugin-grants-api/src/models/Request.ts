@@ -101,7 +101,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         defaultValue: null,
       });
 
-      if (!!link) {
+      if (link) {
         await sendNotificationsMessage({
           subdomain,
           action: 'send',
@@ -279,14 +279,14 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           isRPC: true,
           defaultValue: null,
         });
-        if (!!removedRequesterIds?.length) {
+        if (removedRequesterIds?.length) {
           const responses = await models.Responses.find({
             requestId: request._id,
             userId: { $in: removedRequesterIds },
             status: { $ne: 'waiting' },
           });
 
-          if (!!responses?.length) {
+          if (responses?.length) {
             throw new Error(
               'Cannot remove some requesters from request.Because some requesters are already responded',
             );
@@ -323,7 +323,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
           });
         }
 
-        if (!!newRequesterIds?.length) {
+        if (newRequesterIds?.length) {
           await sendNotificationsMessage({
             subdomain,
             action: 'send',
