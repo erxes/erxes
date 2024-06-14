@@ -41,8 +41,8 @@ const DetailForm: React.FC<Props> = ({ detail }: Props) => {
         </FormColumn>
         <FormColumn>
           {(responses || []).map((response) => (
-            <Row gap={25}>
-              <ResponseCard key={response._id}>
+            <Row gap={25} key={response._id}>
+              <ResponseCard>
                 <NameCard user={response?.user || {}} />
                 {response.description}
                 <Row gap={5}>
