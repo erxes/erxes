@@ -3,7 +3,6 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
-import { putCreateLog } from './logUtils';
 import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
