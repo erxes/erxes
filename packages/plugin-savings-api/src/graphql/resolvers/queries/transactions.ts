@@ -107,8 +107,10 @@ const transactionQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    if (!params.contractId && !params.customerId)
+    if (!params.contractId && !params.customerId) {
       throw new Error('Customer not found');
+    }
+
     return paginate(
       models.Transactions.find(
         await generateFilter(models, params, commonQuerySelector)
