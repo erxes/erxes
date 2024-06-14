@@ -36,7 +36,7 @@ export const buildLookup = ({ fields, localField, foreignField, extraConditions 
             {
                 $lookup: {
                     from: COLLECTION_MAP[field],
-                    let: { fieldId: `$_id.${localField || DIMENSION_MAP[field]}` },
+                    let: { fieldId: `$_id.${localField ?? DIMENSION_MAP[field]}` },
                     pipeline,
                     as: field,
                 },
