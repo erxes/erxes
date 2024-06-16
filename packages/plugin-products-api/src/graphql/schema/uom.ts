@@ -4,12 +4,16 @@ export const types = `
     name: String
     code: String
     createdAt: Date
+    isForSubscription:Boolean
+    subscriptionConfig:JSON
   }
 `;
 
 const params = `
   name: String,
-  code: String
+  code: String,
+  isForSubscription:Boolean,
+  subscriptionConfig:JSON
 `;
 
 export const queries = `
