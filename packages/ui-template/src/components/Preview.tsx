@@ -1,9 +1,10 @@
 import React from 'react'
 import { PreviewWrapper } from '@erxes/ui-template/src/styles'
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import { ITemplate } from '../types';
 
 type Props = {
-    template: any;
+    template: ITemplate;
     type: string;
 }
 

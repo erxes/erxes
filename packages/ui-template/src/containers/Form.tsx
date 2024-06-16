@@ -6,6 +6,7 @@ import { gql, useQuery, useMutation } from "@apollo/client";
 import { queries, mutations } from '../graphql';
 import { generateOptions } from '../utils';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { TemplateCategoryListQueryResponse } from '../types';
 
 type Props = {
     mode: string;
@@ -22,7 +23,7 @@ const FormContainer = (props: Props) => {
 
     const { contentType, content, serviceName, closeDrawer } = props
 
-    const categoryListQueries = useQuery(gql(queries.categoryList))
+    const categoryListQueries = useQuery<TemplateCategoryListQueryResponse>(gql(queries.categoryList))
 
     const renderButton = ({ text, values, isSubmitted, object, }: IButtonMutateProps) => {
         const afterSave = (data) => {
@@ -31,13 +32,19 @@ const FormContainer = (props: Props) => {
 
         const variables = {
             ...values,
-            contentType: `${serviceName}:${contentType}`,
-            content,
+        }
+
+        if (!object) {
+            Object.assign(variables, {
+                contentType: `${serviceName}:${contentType}`,
+                content,
+            })
         }
 
         return (
             <ButtonMutate
                 mutation={object ? mutations.templateEdit : mutations.templateAdd}
+
                 variables={variables}
                 callback={afterSave}
                 refetchQueries={['templateList']}
@@ -49,7 +56,7 @@ const FormContainer = (props: Props) => {
         );
     }
 
-    const { list = [], totalCount = 0 } = categoryListQueries?.data?.categoryList || {}
+    const { list = [] } = categoryListQueries?.data?.categoryList || {}
     const categoryOptions = generateOptions(list)
 
     if (categoryListQueries?.loading) {

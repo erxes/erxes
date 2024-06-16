@@ -12,7 +12,7 @@ const Template = (props) => {
     const constants = automationConstantsQuery?.data?.automationConstants || {}
 
     if (automationConstantsQuery.loading) {
-        return <Spinner />
+        return <Spinner objective={true} />
     }
 
     const finalProps = {

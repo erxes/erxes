@@ -5,6 +5,7 @@ import Alert from "@erxes/ui/src/utils/Alert/index";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 import { mutations, queries } from '../../../ui-template/src/graphql';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { ITemplate, TemplateListQueryResponse, TemplateRemoveMutationResponse, TemplateUseMutationResponse } from '@erxes/ui-template/src/types';
 
 type Props = {
     location: any;
@@ -16,7 +17,7 @@ const ListContainer = (props: Props) => {
 
     const { queryParams, navigate } = props;
 
-    const templateListQuery = useQuery(gql(queries.templateList), {
+    const templateListQuery = useQuery<TemplateListQueryResponse>(gql(queries.templateList), {
         variables: {
             ...generatePaginationParams(queryParams),
             searchValue: queryParams.searchValue,
@@ -25,23 +26,23 @@ const ListContainer = (props: Props) => {
         }
     })
 
-    const [templateRemove] = useMutation(gql(mutations.templateRemove), {
-        refetchQueries: [{ query: gql(queries.templateList) }]
+    const [templateRemove] = useMutation<TemplateRemoveMutationResponse>(gql(mutations.templateRemove), {
+        refetchQueries: ['templateList']
     })
-
     const [templateUse] = useMutation(gql(mutations.templateUse))
 
     const removeTemplate = (_id: string) => {
         confirm("Are you sure to delete selected template?").then(() => {
             templateRemove({ variables: { _id } })
                 .then(() => {
+                    templateListQuery.refetch()
                     Alert.success("Successfully deleted a template");
                 })
                 .catch((e: Error) => Alert.error(e.message));
         });
     }
 
-    const useTemplate = (template: any) => {
+    const useTemplate = (template: ITemplate) => {
 
         const [serviceName, contentType] = template?.contentType?.split(":") || []
 
@@ -69,7 +70,8 @@ const ListContainer = (props: Props) => {
         loading,
 
         removeTemplate,
-        useTemplate
+        useTemplate,
+        refetch: templateListQuery.refetch
     }
 
     return (

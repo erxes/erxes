@@ -1,26 +1,26 @@
-import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import styled, { css } from 'styled-components';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import { SCREEN_BREAK_POINTS } from './constants';
 
-const Templates = styled.div`
+const Templates = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
     display: grid;
     grid-template-columns: repeat(1, 1fr);
 
-    gap: 10px;
+    gap: 15px;
     padding: 20px 20px 0 20px;
     
-    @media (min-width: 710px) {
+    @media (min-width: ${({ isSidebarOpen }) => SCREEN_BREAK_POINTS.md[isSidebarOpen ? 'max' : 'min']}px) {
         grid-template-columns: repeat(2, 1fr);   
     }
 
-    @media (min-width: 860px) {
+    @media (min-width: ${({ isSidebarOpen }) => SCREEN_BREAK_POINTS.lg[isSidebarOpen ? 'max' : 'min']}px) {
         grid-template-columns: repeat(3, 1fr);   
     }
 
-    @media (min-width: 1170px) {
+    @media (min-width: ${({ isSidebarOpen }) => SCREEN_BREAK_POINTS.xl[isSidebarOpen ? 'max' : 'min']}px) {
         grid-template-columns: repeat(4, 1fr);   
     }
 `
@@ -32,7 +32,7 @@ const TemplateBox = styled.div`
 
     padding: 25px 30px;
     border-radius: 6px;
-    box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.1);
     position: relative;
     cursor: pointer;
 `;
@@ -65,16 +65,26 @@ const TemplateDescription = styledTS<{ limit?: number }>(styled.div)`
     ${({ limit }) => limit ? `-webkit-line-clamp: ${limit};` : ''}
 `;
 
-const CategoryItem = styled.div`
+const CategoryItem = styledTS<{ isActive?: boolean }>(styled.div)`
     font-size: 12px;
-    padding: 2px 5px;
-    border: 1px solid ${colors.bgGray};
-    border-radius: 6px;
-    margin-right: 5px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 4px;
+    color: ${({ isActive }) => isActive ? '#fff' : '#000'};
+    background-color: ${({ isActive }) => isActive ? colors.colorPrimary : colors.bgActive};
+    transition: background-color 0.3s ease; 
+    cursor: pointer;
+
+    &:hover {
+        color: #fff;
+        background-color: ${colors.colorPrimary};
+    }
 `;
 
 const Categories = styledTS<{ justifyContent?: string }>(styled.div)`
     display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
     justify-content: ${props => props.justifyContent || 'end'};
     margin-top: 8px;
 
@@ -175,12 +185,17 @@ const PreviewWrapper = styled.div`
     }
 `;
 
-const UploadInput = styled.div`
-    cursor: pointer;
+const ImportInput = styled.input`
+    display: none;
+`;
 
-    input[type="file"] {
-        display: none;
-    }
+const ImportLabel = styled.label`
+    background: ${colors.bgActive};
+    border-radius: 8px;
+    margin: 0 10px;
+    padding: 0 10px;
+
+    cursor: pointer;
 `;
 
 export {
@@ -204,5 +219,7 @@ export {
     FormActions,
 
     PreviewWrapper,
-    UploadInput
+
+    ImportInput,
+    ImportLabel
 }

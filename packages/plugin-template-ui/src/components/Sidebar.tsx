@@ -10,6 +10,7 @@ import Form from '../containers/category/Form';
 import CollapsibleList from '@erxes/ui/src/components/collapsibleList/CollapsibleList';
 import Button from "@erxes/ui/src/components/Button";
 import { router } from '@erxes/ui/src/utils';
+import { ITemplateCategory } from '@erxes/ui-template/src/types';
 
 type Props = {
     location: any;
@@ -18,7 +19,7 @@ type Props = {
 
     templateTypes: any
 
-    categories: any[]
+    categories: ITemplateCategory[]
     removeCategory(_id: string): void
 }
 
@@ -27,9 +28,8 @@ const Sidebar = (props: Props) => {
     const { queryParams, navigate, location, templateTypes, categories, removeCategory } = props
 
     const [toggleDrawer, setToggleDrawer] = useState<boolean>(false)
-    const [currentType, setCurrentType] = useState(null)
-    const [currentCategory, setCurrentCategory] = useState(null)
-    const [categoryIds, setCategoryIds] = useState<string[]>(queryParams.categoryIds || []);
+    const [currentType, setCurrentType] = useState<string | null>(null)
+    const [currentCategory, setCurrentCategory] = useState<ITemplateCategory | null>(null)
 
     const closeDrawer = () => {
         setToggleDrawer(false)
@@ -37,7 +37,7 @@ const Sidebar = (props: Props) => {
         setCurrentCategory(null)
     }
 
-    const renderEditAction = (category: any) => {
+    const renderEditAction = (category: ITemplateCategory) => {
         return (
             <Button
                 btnStyle="link"
@@ -54,7 +54,7 @@ const Sidebar = (props: Props) => {
         );
     };
 
-    const renderRemoveAction = (category: any) => {
+    const renderRemoveAction = (category: ITemplateCategory) => {
         return (
             <Button
                 btnStyle="link"
@@ -67,7 +67,7 @@ const Sidebar = (props: Props) => {
         );
     };
 
-    const handleClick = (type) => {
+    const handleClick = (type: string) => {
         if (!type) {
             return
         }
@@ -82,33 +82,47 @@ const Sidebar = (props: Props) => {
     }
 
     const handleClickAction = (categoryId: string) => {
-        setCategoryIds(prevCategoryIds => {
-            const newCategoryIds = [...prevCategoryIds];
+        const { categoryIds } = queryParams
 
-            if (newCategoryIds.includes(categoryId)) {
-                newCategoryIds.splice(newCategoryIds.indexOf(categoryId), 1);
-            } else {
-                newCategoryIds.push(categoryId);
-            }
+        router.removeParams(navigate, location, "page");
 
-            router.removeParams(navigate, location, "page");
-            router.setParams(navigate, location, { categoryIds: newCategoryIds });
+        if (Array.isArray(categoryIds) && categoryIds.includes(categoryId)) {
 
-            return newCategoryIds;
-        });
+            const index = categoryIds.indexOf(categoryId)
+
+            index > -1 && categoryIds.splice(index, 1)
+
+            return router.setParams(navigate, location, { categoryIds });
+        }
+
+        if (Array.isArray(categoryIds) && !categoryIds.includes(categoryId)) {
+            return router.setParams(navigate, location, { categoryIds: [...categoryIds, categoryId] });
+        }
+
+        if (categoryId === categoryIds) {
+            return router.removeParams(navigate, location, "categoryIds")
+        }
+
+        if (categoryId !== categoryIds) {
+            return router.setParams(navigate, location, { categoryIds: [categoryIds, categoryId] })
+        }
+
+        router.setParams(navigate, location, { categoryIds: categoryId })
     };
 
-    const handleTypeFilter = (type) => {
+    const handleTypeFilter = (type: string) => {
 
         if (queryParams.contentType) {
-            router.removeParams(navigate, location, "type");
-        } else {
-            router.removeParams(navigate, location, "page");
-            router.setParams(navigate, location, { contentType: type });
+            return router.removeParams(navigate, location, "contentType");
         }
+
+        router.removeParams(navigate, location, "page");
+        router.removeParams(navigate, location, "categoryIds");
+        router.setParams(navigate, location, { contentType: type });
+
     }
 
-    const renderCategories = (type) => {
+    const renderCategories = (type: string) => {
 
         const items = categories.filter(category => category.contentType === type)
 
@@ -117,8 +131,8 @@ const Sidebar = (props: Props) => {
                 <CollapsibleList
                     items={items}
                     queryParams={queryParams}
+                    queryParamName='categoryIds'
                     keyCount="templateCount"
-                    icon="chart-pie"
                     treeView={true}
                     editAction={renderEditAction}
                     removeAction={renderRemoveAction}
@@ -142,7 +156,7 @@ const Sidebar = (props: Props) => {
                 <a
                     onClick={() => handleClick(type)}
                 >
-                    <Icon icon="cog" />
+                    <Icon icon="plus-1" />
                 </a>
             </>
         )
@@ -174,7 +188,7 @@ const Sidebar = (props: Props) => {
                 <RightDrawerContainer>
                     <Form
                         type={currentType}
-                        category={currentCategory}
+                        category={currentCategory!}
                         categories={categories}
                         closeDrawer={closeDrawer}
                     />

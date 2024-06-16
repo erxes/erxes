@@ -31,14 +31,18 @@ const initApp = async () => {
     }))
 
     app.post('/file-import', async (req, res) => {
-
-        const data = req.body
+        const data = req.body;
 
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        models.Templates.createTemplate(data, subdomain)
-    })
+        try {
+            await models.Templates.createTemplate(data, subdomain);
+            res.status(200).json({ success: true })
+        } catch (error) {
+            res.status(500).json({ success: false })
+        }
+    });
 }
 
 export default initApp

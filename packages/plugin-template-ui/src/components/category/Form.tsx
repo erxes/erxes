@@ -7,10 +7,11 @@ import { FormActions, FormContent, FormFooter, FormHeader, FormTitle } from '../
 import Icon from '@erxes/ui/src/components/Icon';
 import Select from "react-select";
 import { Form as CommonForm } from "@erxes/ui/src/components/form";
+import { ITemplateCategory } from '@erxes/ui-template/src/types';
 
 type Props = {
-    type: any;
-    category: any
+    type: string;
+    category: ITemplateCategory
     categoryOptions: any[];
     closeDrawer(): void;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -20,7 +21,7 @@ const Form = (props: Props) => {
 
     const { type, category, categoryOptions, renderButton, closeDrawer } = props
 
-    const [parentId, setParentId] = useState(category?.parentId || '')
+    const [parentId, setParentId] = useState<string>(category?.parentId || '')
 
     const handleSelect = (option) => {
         setParentId(option?.value || '')

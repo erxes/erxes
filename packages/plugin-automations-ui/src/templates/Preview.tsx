@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactFlow, {
     Background,
     Controls,
@@ -6,7 +6,9 @@ import ReactFlow, {
     useEdgesState,
     ConnectionMode,
     Handle,
-    Position
+    Position,
+    useReactFlow,
+    ReactFlowProvider
 } from 'reactflow';
 import { generateNodes, generateEdges } from '../components/editor/utils';
 import 'reactflow/dist/style.css';
@@ -176,17 +178,26 @@ const nodeTypes = {
     scratch: ScratchNode,
 };
 
-const Preview = (props: Props) => {
-
+const Flow = (props: Props) => {
     const { template } = props
 
-    const [edges] = useEdgesState(
+    const reactFlow = useReactFlow()
+
+    const [edges, setEdges] = useEdgesState(
         generateEdges({ triggers: template.triggers, actions: template.actions })
     );
 
-    const [nodes] = useNodesState(
+    const [nodes, setNodes] = useNodesState(
         generateNodes({ triggers: template.triggers, actions: template.actions }, props)
     );
+
+    useEffect(() => {
+        setNodes(generateNodes({ triggers: template.triggers, actions: template.actions }, props));
+        setEdges(generateEdges({ triggers: template.triggers, actions: template.actions }));
+
+        setTimeout(() => reactFlow.fitView(), 20)
+
+    }, [JSON.stringify(template.triggers), JSON.stringify(template.actions), reactFlow]);
 
     const proOptions = { hideAttribution: true };
 
@@ -210,6 +221,16 @@ const Preview = (props: Props) => {
             <Controls showInteractive={false} position='bottom-right' />
         </ReactFlow>
     )
+}
+
+const Preview = (props: Props) => {
+
+    return (
+        <ReactFlowProvider>
+            <Flow {...props} />
+        </ReactFlowProvider>
+    );
+
 }
 
 export default Preview

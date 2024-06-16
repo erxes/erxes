@@ -2,12 +2,13 @@ import React from 'react'
 import Form from '../../components/category/Form'
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { queries, mutations } from '../../graphql';
+import { mutations } from '../../graphql';
 import { generateOptions } from '../../../../ui-template/src/utils';
+import { ITemplateCategory } from '@erxes/ui-template/src/types';
 
 type Props = {
     type: any;
-    category: any;
+    category: ITemplateCategory;
     categories: any[];
     closeDrawer(): void;
 }

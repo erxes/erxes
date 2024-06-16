@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Categories, CategoryItem, FormActions, FormContent, FormEditor, FormFooter, FormHeader, FormTitle, PreviewWrapper, TemplateDescription, TemplateTitle } from '../styles'
+import { Categories, CategoryItem, FormActions, FormContent, FormEditor, FormFooter, FormHeader, FormTitle, TemplateDescription, TemplateTitle } from '../styles'
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from "@erxes/ui/src/components/form/Control";
@@ -10,10 +10,11 @@ import Select from "react-select";
 import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
 import Preview from '../containers/Preview';
 import xss from "xss";
+import { ITemplate } from '../types';
 
 type Props = {
     mode: string
-    template?: any;
+    template?: ITemplate;
     categoryOptions: any[]
     closeDrawer(): void;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -26,12 +27,11 @@ const Form = (props: Props) => {
     const [description, setDescription] = useState<string>(template?.description || '')
     const [categoryIds, setCategoryIds] = useState<string[]>([])
 
-    // useEffect(() => {
-    //     if (template) {
-    //         const ids = template.gategories?.map(category => category._id)
-    //         setCategoryIds(ids)
-    //     }
-    // }, [])
+    useEffect(() => {
+        if (template) {
+            setCategoryIds(template.categories?.map(category => category._id))
+        }
+    }, [])
 
     const generateDocs = (values) => {
         const finalValues = values;
@@ -60,7 +60,6 @@ const Form = (props: Props) => {
     }
 
     const renderView = (formProps: IFormProps) => {
-        const { isSubmitted, values } = formProps;
 
         if (mode === 'edit') {
             return (
@@ -78,20 +77,11 @@ const Form = (props: Props) => {
 
                     <FormGroup>
                         <ControlLabel required={true}>Description</ControlLabel>
-                        {/* <FormControl
-                            {...formProps}
-                            name="code"
-                            defaultValue={template?.description || ''}
-                            required={true}
-                        /> */}
                         <FormEditor>
                             <RichTextEditor
-                                {...formProps}
                                 content={description}
                                 onChange={handleDescriptionChange}
                                 height={160}
-                                isSubmitted={isSubmitted}
-                                name={`${template?.contentType}_description_${template?._id}`}
                                 toolbar={[
                                     'bold',
                                     'italic',
@@ -106,7 +96,7 @@ const Form = (props: Props) => {
                         <Select
                             isClearable={true}
                             isMulti={true}
-                            defaultValue={categoryOptions.find(option => categoryIds.includes(option.value))}
+                            value={categoryOptions.filter(option => categoryIds.includes(option.value))}
                             options={categoryOptions}
                             onChange={handleSelect}
                         />
@@ -119,14 +109,18 @@ const Form = (props: Props) => {
             <>
                 <Preview template={template} />
                 <TemplateTitle>{template?.name}</TemplateTitle>
-                <TemplateDescription dangerouslySetInnerHTML={{ __html: xss(template?.description) }} />
+                <TemplateDescription dangerouslySetInnerHTML={{ __html: xss(template?.description || '') }} />
                 <FormGroup>
-                    <ControlLabel>Categories</ControlLabel>
-                    <Categories justifyContent='start'>
-                        {(template?.categories || []).map(
-                            category => (<CategoryItem>{category.name}</CategoryItem>)
-                        )}
-                    </Categories>
+                    {
+                        !!template?.categories?.length && <>
+                            <ControlLabel>Categories</ControlLabel>
+                            <Categories justifyContent='start'>
+                                {(template?.categories || []).map(
+                                    category => (<CategoryItem key={category._id}>{category.name}</CategoryItem>)
+                                )}
+                            </Categories>
+                        </>
+                    }
                 </FormGroup>
             </>
         )

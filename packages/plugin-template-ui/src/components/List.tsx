@@ -4,11 +4,11 @@ import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import FormControl from '@erxes/ui/src/components/form/Control'
 import Icon from '@erxes/ui/src/components/Icon';
-import { Alert, router, uploadHandler } from '@erxes/ui/src/utils'
+import { Alert, router } from '@erxes/ui/src/utils'
 import { FilterContainer, FlexItem, FlexRow, InputBar } from "@erxes/ui-settings/src/styles";
 import Sidebar from '../containers/Sidebar';
 
-import { Templates, TemplateBox, TemplateTitle, TemplateHeader, TemplateActions, TemplateDescription, Categories, CategoryItem, RightDrawerContainer, UploadInput } from '../../../ui-template/src/styles';
+import { Templates, TemplateBox, TemplateTitle, TemplateHeader, TemplateActions, TemplateDescription, Categories, CategoryItem, RightDrawerContainer, ImportInput, ImportLabel } from '@erxes/ui-template/src/styles';
 import { Transition } from '@headlessui/react';
 import Form from '@erxes/ui-template/src/containers/Form';
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
@@ -16,38 +16,51 @@ import Dropdown from '@erxes/ui/src/components/Dropdown';
 import xss from "xss";
 import { getEnv } from "@erxes/ui/src/utils/index";
 import queryString from 'query-string';
-import Uploader from "@erxes/ui/src/components/Uploader";
+import { includesAny } from '@erxes/ui-template/src/utils';
+import { ITemplate } from '@erxes/ui-template/src/types';
 
 type Props = {
     location: any;
     navigate: any;
     queryParams?: any;
 
-    templates: any
+    templates: ITemplate[]
     totalCount: number;
     loading: boolean;
     removeTemplate: (id: string) => void;
-    useTemplate: (template: any) => void
+    useTemplate: (template: ITemplate) => void
+    refetch: () => void;
 };
 
 const List = (props: Props) => {
 
-    const { queryParams, location, navigate, templates, totalCount, loading, removeTemplate, useTemplate } = props;
+    const { queryParams, location, navigate, templates, totalCount, loading, removeTemplate, useTemplate, refetch } = props;
 
     const timerRef = useRef<number | null>(null)
-    const [toggleSidebar, setToggleSidebar] = useState(false)
-    const [toggleDrawer, setToggleDrawer] = useState(false)
+    const [toggleSidebar, setToggleSidebar] = useState<boolean>(false)
+    const [toggleDrawer, setToggleDrawer] = useState<boolean>(false)
 
-    const [searchValue, setSearchValue] = useState(queryParams.searchValue || '')
-    const [template, setTemplate] = useState(null)
-    const [mode, setMode] = useState('view')
+    const [searchValue, setSearchValue] = useState<string>(queryParams.searchValue || '')
+    const [template, setTemplate] = useState<ITemplate | null>(null)
+    const [mode, setMode] = useState<string>('view')
+
+    const isActive = (categoryId: string) => {
+
+        const { categoryIds } = queryParams
+
+        if (Array.isArray(categoryIds)) {
+            return categoryIds.includes(categoryId)
+        }
+
+        return queryParams.categoryIds === categoryId
+    }
 
     const closeDrawer = () => {
         setToggleDrawer(false)
         setTemplate(null)
     }
 
-    const handleEdit = (currentTemplate: any) => {
+    const handleEdit = (currentTemplate: ITemplate) => {
         setMode('edit')
         setTemplate(currentTemplate)
         setToggleDrawer(true);
@@ -67,7 +80,7 @@ const List = (props: Props) => {
         }, 500);
     };
 
-    const handleClick = (currentTemplate) => {
+    const handleClick = (currentTemplate: ITemplate) => {
         if (!currentTemplate) {
             return
         };
@@ -82,7 +95,39 @@ const List = (props: Props) => {
         setToggleDrawer(isCurrentTemplateSelected ? !toggleDrawer : true);
     }
 
-    const handleUse = (currentTemplate) => {
+    const handleCategoryClick = (e: any, categoryId: string) => {
+
+        const { categoryIds } = queryParams
+
+        e.stopPropagation()
+
+        router.removeParams(navigate, location, "page");
+
+        if (Array.isArray(categoryIds) && categoryIds.includes(categoryId)) {
+
+            const index = categoryIds.indexOf(categoryId)
+
+            index > -1 && categoryIds.splice(index, 1)
+
+            return router.setParams(navigate, location, { categoryIds });
+        }
+
+        if (Array.isArray(categoryIds) && !categoryIds.includes(categoryId)) {
+            return router.setParams(navigate, location, { categoryIds: [...categoryIds, categoryId] });
+        }
+
+        if (categoryId === categoryIds) {
+            return router.removeParams(navigate, location, "categoryIds")
+        }
+
+        if (categoryId !== categoryIds) {
+            return router.setParams(navigate, location, { categoryIds: [categoryIds, categoryId] })
+        }
+
+        router.setParams(navigate, location, { categoryIds: categoryId })
+    }
+
+    const handleUse = (currentTemplate: ITemplate) => {
         if (!currentTemplate) {
             return
         }
@@ -94,19 +139,17 @@ const List = (props: Props) => {
         const file = target.files[0];
 
         const { REACT_APP_API_URL } = getEnv();
-
         const fileInfo = { name: file.name, size: file.size, type: file.type };
 
         if (fileInfo.size > 15 * 1024 * 1024) {
-            Alert.warning(
-                `Your file ${fileInfo.name} size is too large. Upload files less than 15MB.`
-            );
+            Alert.warning(`Your file ${fileInfo.name} size is too large. Upload files less than 15MB.`);
             return;
         }
 
         const reader = new FileReader();
         reader.onload = () => {
             const fileContent = reader?.result?.toString() ?? '';
+
             try {
                 const jsonData = JSON.parse(fileContent);
                 fetch(`${REACT_APP_API_URL}/pl:template/file-import`, {
@@ -115,36 +158,48 @@ const List = (props: Props) => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    credentials: 'include',
-                }).then(response => {
-                    console.log('response', response)
-                    if (response.ok) {
-                        console.log('JSON data uploaded successfully');
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            refetch()
+                            Alert.success('Uploaded successfully');
                     } else {
-                        console.error('JSON data upload failed');
+                            Alert.error('Upload failed');
                     }
-                }).catch(err => {
-                    Alert.error(err.message);
+                    })
+                    .catch(err => {
+                        Alert.error(`Upload failed: ${err.message}`);
                 });
             } catch (error) {
                 Alert.error('Failed to parse JSON file');
             }
         };
-        reader.readAsText(file);
 
+        reader.onerror = () => {
+            Alert.error('Failed to read the file');
+        };
+
+        reader.readAsText(file);
     };
 
-    const handleExport = (currentTemplate) => {
+    const handleExport = (currentTemplate: ITemplate) => {
         const { REACT_APP_API_URL } = getEnv()
 
         const stringified = queryString.stringify({
             ...currentTemplate
         })
 
+        console.log(currentTemplate)
+
         window.open(`${REACT_APP_API_URL}/pl:template/file-export?${stringified}`)
     }
 
     const renderHeader = () => {
+
+        const { contentType } = queryParams
+
+        const filterTitle = (contentType || '')?.split(':')?.[1]
 
         const breadcrumb = [
             { title: 'Templates' }
@@ -155,11 +210,12 @@ const List = (props: Props) => {
                 title={"Templates"}
                 breadcrumb={breadcrumb}
                 queryParams={queryParams}
+                filterTitle={filterTitle}
             />
         )
     }
 
-    const renderActions = (template) => {
+    const renderActions = (template: ITemplate) => {
 
         return (
             <TemplateActions>
@@ -201,21 +257,16 @@ const List = (props: Props) => {
         const actionBarRight = (
             <FilterContainer>
                 <FlexRow>
-                    <input
+                    <ImportInput
+                        id='import'
                         type='file'
                         onChange={handleInput}
                         multiple={false}
                         accept="application/JSON"
                     />
-                    {/* <Uploader
-                    
-                        icon='upload'
-                        showOnlyIcon
-                        hideUploadButtonOnLoad
-                        onChange={handleUpload}
-                        multiple={false}
-                        single={true}
-                    /> */}
+                    <ImportLabel htmlFor='import'>
+                        <Icon icon='import' size={21} />
+                    </ImportLabel>
                     <InputBar type="searchBar">
                         <Icon icon="search-1" size={20} />
                         <FlexItem>
@@ -238,15 +289,29 @@ const List = (props: Props) => {
     }
 
     const renderSidebar = () => {
-
-        if (!toggleSidebar) {
-            return <></>
-        }
-
-        return <Sidebar queryParams={queryParams} location={location} navigate={navigate} />
+        return <Sidebar queryParams={queryParams} location={location} navigate={navigate} toggleSidebar={toggleSidebar} />
     }
 
-    const renderTemplate = (template) => {
+    const renderCategories = (template: ITemplate) => {
+        const { categoryIds } = queryParams
+        const { categories } = template
+        const displayedCategories = categories.slice(0, 3);
+        const hasMoreCategories = categories.length > 3;
+
+        const remainingCategoryIds = categories.filter(category => !displayedCategories.includes(category)).map(category => category._id);
+        const isMoreActive = includesAny(remainingCategoryIds, categoryIds)
+
+        return (
+            <Categories>
+                {displayedCategories.map((category) => (
+                    <CategoryItem key={category._id} isActive={isActive(category._id)} onClick={(e) => handleCategoryClick(e, category._id)}>{category.name}</CategoryItem>
+                ))}
+                {hasMoreCategories && <CategoryItem key="more" isActive={isMoreActive} onClick={() => handleClick(template)}>...</CategoryItem>}
+            </Categories>
+        );
+    }
+
+    const renderTemplate = (template: ITemplate) => {
         return (
             <TemplateBox key={template._id} onClick={() => handleClick(template)}>
                 <div>
@@ -256,18 +321,14 @@ const List = (props: Props) => {
                     </TemplateHeader>
                     <TemplateDescription limit={3} dangerouslySetInnerHTML={{ __html: xss(template?.description) }} />
                 </div>
-                <Categories>
-                    {(template?.categories || []).map(
-                        category => (<CategoryItem key={category._id}>{category.name}</CategoryItem>)
-                    )}
-                </Categories>
+                {renderCategories(template)}
             </TemplateBox>
         )
     }
 
     const renderTemplates = () => {
         return (
-            <Templates>{(templates || []).map(renderTemplate)}</Templates>
+            <Templates isSidebarOpen={toggleSidebar}>{(templates || []).map(renderTemplate)}</Templates>
         )
     }
 

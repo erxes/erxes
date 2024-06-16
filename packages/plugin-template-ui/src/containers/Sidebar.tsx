@@ -4,19 +4,24 @@ import Alert from "@erxes/ui/src/utils/Alert/index";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { queries, mutations } from "../graphql";
+import { TemplateCategoryListQueryResponse, TemplateCategoryRemoveMutationResponse } from '@erxes/ui-template/src/types';
 
 type Props = {
     location: any;
     navigate: any;
     queryParams?: any;
+
+    toggleSidebar: boolean
 }
 
 const SidebarContainer = (props: Props) => {
 
-    const templateTypesQuery = useQuery(gql(queries.templatesGetTypes))
-    const categoryListQueries = useQuery(gql(queries.categoryList))
+    const { toggleSidebar } = props
 
-    const [categoryRemove] = useMutation(gql(mutations.categoryRemove), {
+    const templateTypesQuery = useQuery(gql(queries.templatesGetTypes))
+    const categoryListQueries = useQuery<TemplateCategoryListQueryResponse>(gql(queries.categoryList))
+
+    const [categoryRemove] = useMutation<TemplateCategoryRemoveMutationResponse>(gql(mutations.categoryRemove), {
         refetchQueries: [
             {
                 query: gql(queries.categoryList)
@@ -40,7 +45,7 @@ const SidebarContainer = (props: Props) => {
 
     const templateTypes = templateTypesQuery?.data?.templatesGetTypes || []
 
-    const { list = [], totalCount = 0 } = categoryListQueries?.data?.categoryList || {}
+    const { list = [] } = categoryListQueries?.data?.categoryList || {}
 
     const finalProps = {
         ...props,
@@ -48,6 +53,10 @@ const SidebarContainer = (props: Props) => {
 
         categories: list,
         removeCategory
+    }
+
+    if (!toggleSidebar) {
+        return <></>
     }
 
     return (

@@ -1,6 +1,5 @@
 import { Model } from 'mongoose';
 import { ITemplate, TemplateDocument, templateSchema } from './definitions/templates';
-import { sendCommonMessage } from '../messageBroker';
 
 type ITemplateDocument = Omit<ITemplate, '_id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>
 
@@ -55,11 +54,11 @@ export const loadTemplateClass = models => {
                 throw new Error('Template not created');
             }
 
-            const updatedTemplate = await models.Templates.updateOne({
+            const updatedTemplate = await models.Templates.findOneAndUpdate({ _id }, {
                 ...doc,
                 updatedAt: new Date(),
                 updatedBy: user?._id
-            })
+            }, { new: true })
 
             return updatedTemplate;
         }
