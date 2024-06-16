@@ -3,9 +3,8 @@ import { twMerge } from "tailwind-merge"
 
 import { IPaymentType } from "@/types/config.types"
 import { Customer } from "@/types/customer.types"
+import { IPaidAmount, OrderItem } from "@/types/order.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
-
-import { IPaidAmount } from "../types/order.types"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -33,17 +32,20 @@ export const getEnv = (): any => {
   const envs: any = {}
 
   if (typeof window !== "undefined") {
-    const appVersion = localStorage.getItem(`pos_env_NEXT_PUBLIC_APP_VERSION`) || 'OS';
+    const appVersion =
+      localStorage.getItem(`pos_env_NEXT_PUBLIC_APP_VERSION`) || "OS"
 
-    if (appVersion === 'SAAS') {
-      const subdomain = window.location.hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+    if (appVersion === "SAAS") {
+      const subdomain = window.location.hostname
+        .replace(/(^\w+:|^)\/\//, "")
+        .split(".")[0]
 
       for (const envMap of (window as any).envMaps) {
-        const value = localStorage.getItem(`pos_env_${envMap.name}`) || '';
-        envs[envMap.name] = value.replace('<subdomain>', subdomain);
+        const value = localStorage.getItem(`pos_env_${envMap.name}`) || ""
+        envs[envMap.name] = value.replace("<subdomain>", subdomain)
       }
 
-      return envs;
+      return envs
     }
 
     for (const envMap of (window as any).envMaps || []) {
@@ -140,9 +142,9 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   if (checked) {
     const options = splitter
       ? {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
       : undefined
 
     return checked.toLocaleString(undefined, options)
@@ -151,6 +153,39 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   return "0"
 }
 
+export const getCartTotal = (items: OrderItem[]) =>
+  (items || []).reduce(
+    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
+    0
+  )
+
+export const getItemInputs = (items: OrderItem[]) =>
+  items.map(
+    ({
+      _id,
+      productId,
+      count,
+      unitPrice,
+      isPackage,
+      isTake,
+      status,
+      manufacturedDate,
+      description,
+      attachment,
+    }) => ({
+      _id,
+      productId,
+      count,
+      unitPrice,
+      isPackage,
+      isTake,
+      status,
+      manufacturedDate,
+      description,
+      attachment,
+    })
+  )
+  
 export const getSumsOfAmount = (
   paidAmounts: { type: string; amount: number }[],
   paymentTypes?: IPaymentType[]

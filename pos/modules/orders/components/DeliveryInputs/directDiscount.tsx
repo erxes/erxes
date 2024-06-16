@@ -1,7 +1,11 @@
-import React, { ChangeEvent } from "react"
+import React, { ChangeEvent, useEffect } from "react"
 import { totalAmountAtom } from "@/store/cart.store"
 import { permissionConfigAtom } from "@/store/config.store"
-import { directDiscountAtom, directDiscountTypeAtom } from "@/store/order.store"
+import {
+  directDiscountAtom,
+  directDiscountTypeAtom,
+  savedDirectDiscountAtom,
+} from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { Input } from "@/components/ui/input"
@@ -16,8 +20,15 @@ const DirectDiscount: React.FC = () => {
 
   const allowDirectDiscount = directDiscountCheck && directDiscountLimit
   const [directDiscount, setDirectDiscount] = useAtom(directDiscountAtom)
+  const savedDiscount = useAtomValue(savedDirectDiscountAtom)
   const [type, setType] = useAtom(directDiscountTypeAtom)
   const totalAmount = useAtomValue(totalAmountAtom)
+
+  useEffect(() => {
+    type === "amount" && setDirectDiscount((directDiscount * totalAmount) / 100)
+    type === "percent" &&
+      setDirectDiscount((directDiscount / totalAmount) * 100)
+  }, [type])
 
   if (!allowDirectDiscount) {
     return null
@@ -26,7 +37,7 @@ const DirectDiscount: React.FC = () => {
   const limit =
     type === "percent"
       ? directDiscountLimit
-      : totalAmount * directDiscountLimit * 0.01
+      : (totalAmount / (100 - savedDiscount)) * directDiscountLimit
 
   const handleDirectDiscountChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = Number(Number(e.target.value).toFixed(2))

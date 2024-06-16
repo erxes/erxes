@@ -8,6 +8,7 @@ import {
   OrderItemInput,
 } from "@/types/order.types"
 import { ORDER_STATUSES } from "@/lib/constants"
+import { getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
 
@@ -109,38 +110,12 @@ export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
 export const cartChangedAtom = atomWithStorage<boolean>("cartChanged", false)
 
 export const orderItemInput = atom<OrderItemInput[]>((get) =>
-  get(cartAtom).map(
-    ({
-      _id,
-      productId,
-      count,
-      unitPrice,
-      isPackage,
-      isTake,
-      status,
-      manufacturedDate,
-      description,
-      attachment,
-    }) => ({
-      _id,
-      productId,
-      count,
-      unitPrice,
-      isPackage,
-      isTake,
-      status,
-      manufacturedDate,
-      description,
-      attachment,
-    })
-  )
+  getItemInputs(get(cartAtom))
 )
 export const requirePasswordAtom = atom<IUpdateItem | null>(null)
+
 export const totalAmountAtom = atom<number>((get) =>
-  (get(cartAtom) || []).reduce(
-    (total, item) => total + (item?.count || 0) * (item.unitPrice || 0),
-    0
-  )
+  getCartTotal(get(cartAtom))
 )
 export const addToCartAtom = atom(
   () => "",

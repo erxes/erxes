@@ -1,5 +1,6 @@
 // Inspired by react-hot-toast library
 import * as React from "react"
+import { ApolloError } from "@apollo/client"
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
@@ -166,6 +167,10 @@ function toast({ ...props }: Toast) {
   }
 }
 
+export const onError = (error: ApolloError) => {
+  toast({ description: error.message, variant: "destructive" })
+}
+
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -178,9 +183,6 @@ function useToast() {
       }
     }
   }, [state])
-
-  const onError = (error: { message: string }) =>
-    toast({ description: error.message, variant: "destructive" })
 
   return {
     ...state,

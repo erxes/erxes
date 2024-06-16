@@ -1,23 +1,23 @@
-import { modeAtom, refetchOrderAtom, refetchUserAtom } from "@/store"
-import { cartChangedAtom } from "@/store/cart.store"
-import { orderValuesAtom } from "@/store/order.store"
+import { modeAtom } from "@/store"
+import { orderValuesAtom, setOnOrderChangeAtom } from "@/store/order.store"
 import { ApolloError, useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import { Customer } from "@/types/customer.types"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
+const onError = (error: ApolloError) => {
+  toast({ description: error.message, variant: "destructive" })
+}
+
 const useOrderCU = (onCompleted?: (id: string) => void) => {
-  const { toast } = useToast()
   const { customer, type, _id, slotCode, ...rest } =
     useAtomValue(orderValuesAtom)
 
   const origin = useAtomValue(modeAtom)
-  const setRefetchUser = useSetAtom(refetchUserAtom)
-  const setRefetchOrder = useSetAtom(refetchOrderAtom)
-  const setCartChanged = useSetAtom(cartChangedAtom)
+  const onOrderChange = useSetAtom(setOnOrderChangeAtom)
 
   // TODO: get type default from config
   const variables = {
@@ -29,17 +29,11 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
     slotCode: slotCode || null,
   }
 
-  const onError = (error: ApolloError) => {
-    toast({ description: error.message, variant: "destructive" })
-  }
-
   const [ordersAdd, { loading }] = useMutation(mutations.ordersAdd, {
     variables,
     onCompleted(data) {
       const { _id } = (data || {}).ordersAdd || {}
-      setRefetchUser(true)
-      setRefetchOrder(true)
-      setCartChanged(false)
+      onOrderChange()
       onCompleted && onCompleted(_id)
     },
     onError,
@@ -52,9 +46,7 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
       variables,
       onCompleted(data) {
         const { _id } = (data || {}).ordersEdit || {}
-        setRefetchUser(true)
-        setRefetchOrder(true)
-        setCartChanged(false)
+        onOrderChange()
         return onCompleted && onCompleted(_id)
       },
       onError(error) {
