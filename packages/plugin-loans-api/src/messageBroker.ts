@@ -11,7 +11,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Contracts.find(data).lean(),
+      data: await models.Contracts.find(data).lean()
     };
   });
 
@@ -20,18 +20,21 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Contracts.findOne(data).lean(),
+      data: await models.Contracts.findOne(data).lean()
     };
   });
 
-  consumeRPCQueue('loans:firstLoanSchedules.findOne', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'loans:firstLoanSchedules.findOne',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.FirstSchedules.findOne(data).lean(),
-    };
-  });
+      return {
+        status: 'success',
+        data: await models.FirstSchedules.findOne(data).lean()
+      };
+    }
+  );
 
   consumeRPCQueue('loans:contracts.update', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -40,7 +43,7 @@ export const setupMessageConsumers = async () => {
     const result = await models.Contracts.updateOne(selector, modifier);
     return {
       status: 'success',
-      data: result,
+      data: result
     };
   });
 
@@ -49,26 +52,26 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const contract = await models.Contracts.getContract({
-        _id: data.contractId,
+        _id: data.contractId
       });
       const closeInfo = await getCloseInfo(
         models,
         subdomain,
         contract,
-        data.closeDate,
+        data.closeDate
       );
       return {
         status: 'success',
-        data: closeInfo,
+        data: closeInfo
       };
-    },
+    }
   );
 
   consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
-      data: await models.ContractTypes.findOne(data).lean(),
+      data: await models.ContractTypes.findOne(data).lean()
     };
   });
 
@@ -77,7 +80,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.ContractTypes.find(data).lean(),
+      data: await models.ContractTypes.find(data).lean()
     };
   });
 
@@ -86,7 +89,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Transactions.find(data).lean(),
+      data: await models.Transactions.find(data).lean()
     };
   });
 
@@ -99,28 +102,36 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map((c) => c._id) },
-        }).lean(),
+          contractId: { $in: contracts.map((c) => c._id) }
+        }).lean()
       };
-    },
+    }
   );
   consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
     console.log('subdomain, data', subdomain, data);
     return {
-      status: 'success',
+      status: 'success'
     };
   });
   consumeRPCQueue(
     'loans:firstLoanSchedules.insertMany',
-    async ({ subdomain,data }) => {
+    async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      
+
       return {
         data: await models.FirstSchedules.insertMany(data),
-        status: 'success',
+        status: 'success'
       };
-    },
-  )
+    }
+  );
+  consumeRPCQueue('loans:transaction.add', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.FirstSchedules.insertMany(data),
+      status: 'success'
+    };
+  });
 };
 
 export const sendMessageBroker = async (
@@ -136,60 +147,64 @@ export const sendMessageBroker = async (
     | 'syncerkhet'
     | 'ebarimt'
     | 'syncpolaris'
-    | 'savings',
+    | 'savings'
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,
-    ...args,
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args,
+    ...args
   });
 };
 
 export const sendReactionsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
-    ...args,
+    ...args
   });
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
 export const getConfig = async (
-  code: 'loansConfig' | 'holidayConfig' | 'MESSAGE_PRO_API_KEY' | 'MESSAGE_PRO_PHONE_NUMBER',
+  code:
+    | 'loansConfig'
+    | 'holidayConfig'
+    | 'MESSAGE_PRO_API_KEY'
+    | 'MESSAGE_PRO_PHONE_NUMBER',
   subdomain: string,
-  defaultValue?: string,
+  defaultValue?: string
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (!configs[code]) {
@@ -203,19 +218,19 @@ export const sendSms = async (
   subdomain: string,
   type: string,
   phoneNumber: string,
-  content: string,
+  content: string
 ) => {
   if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
       'MESSAGE_PRO_API_KEY',
       subdomain,
-      '',
+      ''
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
       'MESSAGE_PRO_PHONE_NUMBER',
       subdomain,
-      '',
+      ''
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
@@ -229,8 +244,8 @@ export const sendSms = async (
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
-            text: content,
-          }),
+            text: content
+          })
       );
 
       return 'sent';

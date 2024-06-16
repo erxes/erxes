@@ -1,6 +1,6 @@
 import { IModels } from '../../connectionResolver';
 import { IConfig } from '../../interfaces/config';
-import { getConfig } from '../../messageBroker';
+import { getConfig, sendMessageBroker } from '../../messageBroker';
 import { TRANSACTION_TYPE } from '../definitions/constants';
 import {
   ITransaction,
@@ -24,15 +24,6 @@ export async function checkTransactionValidation(periodLock, doc, subdomain) {
   }
 }
 
-/**
- * this method generate saving payment data
- */
-
-export const getCloseInfo = async () => {
-  let result = {};
-  return result;
-};
-
 export const transactionDealt = async (
   doc: ITransaction,
   models: IModels,
@@ -46,8 +37,91 @@ export const transactionDealt = async (
 
     doc.transactionType = TRANSACTION_TYPE.INCOME;
 
-    await models.Transactions.createTransaction(doc, subdomain);
+    return await models.Transactions.createTransaction(doc, subdomain);
+  } else if (doc?.dealtType === 'external') {
+    return await externalTransaction(doc, subdomain);
   }
+  return null;
+};
+
+const externalTransaction = async (doc: ITransaction, subdomain: string) => {
+  const config = await getConfig('savingConfig', subdomain);
+
+  console.log('config', config);
+
+  let response: any = null;
+
+  switch (doc.externalBankName) {
+    case 'loans':
+      response = await loanTransaction(doc, subdomain);
+      break;
+    case '050000':
+      response = await sendMessageBroker(
+        {
+          action: 'domesticTransfer',
+          data: {
+            configId: config.transactionConfigId,
+            transferParams: {
+              fromAccount: doc.ownBankNumber,
+              toAccount: doc.accountNumber,
+              amount: doc.total,
+              description: doc.description,
+              currency: doc.currency,
+              loginName: config.transactionLoginName,
+              password: config.transactionLoginName,
+              transferid: ''
+            }
+          },
+          subdomain,
+          isRPC: true
+        },
+        'khanbank'
+      );
+
+      break;
+    default:
+      response = await sendMessageBroker(
+        {
+          action: 'interbankTransfer',
+          subdomain,
+          data: {
+            configId: config.transactionConfigId,
+            toCurrency: doc.currency,
+            toAccountName: doc.accountHolderName,
+            toBank: doc.accountNumber,
+            transferParams: {
+              fromAccount: doc.ownBankNumber,
+              toAccount: doc.accountNumber,
+              amount: doc.total,
+              description: doc.description,
+              currency: doc.currency,
+              loginName: config.transactionLoginName,
+              password: config.transactionPassword,
+              transferid: ''
+            }
+          }
+        },
+        'khanbank'
+      );
+
+      break;
+  }
+
+  return response;
+};
+
+const loanTransaction = async (doc: ITransaction, subdomain: string) => {
+  const repayment = {
+    contractId: 'FExx8N7XvdGe9BYHeJkDw',
+    transactionType: 'repayment',
+    payDate: doc.payDate,
+    total: doc.total
+  };
+
+  return await sendMessageBroker(
+    { action: 'transaction.add', subdomain, data: repayment, isRPC: true },
+    'loans'
+  );
 };
 
 export const removeTrAfterSchedule = async (

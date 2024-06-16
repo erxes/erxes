@@ -21,7 +21,7 @@ export class AccountsApi extends BaseApi {
         path: 'accounts'
       });
 
-      const accounts: KhanbankAccount[] = res.accounts.map(account => {
+      const accounts: KhanbankAccount[] = res.accounts.map((account) => {
         return {
           number: account.number,
           type: account.type,
@@ -86,7 +86,7 @@ export class AccountsApi extends BaseApi {
         path: `accounts/${accountNumber}/name?bank=${bankCode}`
       });
 
-      return { ...res.account, ...res.customer };
+      return res;
     } catch (e) {
       throw new Error(e.message);
     }

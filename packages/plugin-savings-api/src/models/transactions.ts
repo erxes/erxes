@@ -50,15 +50,13 @@ export const loadTransactionClass = (models: IModels) => {
     ) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
-      
-
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
       })
         .sort({ date: -1 })
         .lean();
 
-      await checkTransactionValidation(periodLock,doc,subdomain)
+      await checkTransactionValidation(periodLock, doc, subdomain);
 
       const contract = await models.Contracts.findOne({
         _id: doc.contractId
@@ -77,6 +75,7 @@ export const loadTransactionClass = (models: IModels) => {
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
       doc.payment = doc.total;
       doc.balance = contract.savingAmount;
+
       switch (doc.transactionType) {
         case TRANSACTION_TYPE.INCOME:
           await models.Contracts.updateOne(
@@ -90,7 +89,7 @@ export const loadTransactionClass = (models: IModels) => {
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
           if (doc.dealtType) {
-            await transactionDealt(doc, models,subdomain);
+            doc.dealtResponse = await transactionDealt(doc, models, subdomain);
           }
           break;
 
@@ -115,7 +114,10 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId || 'undefined'))
+      if (
+        periodLock &&
+        !periodLock?.excludeContracts.includes(doc.contractId || 'undefined')
+      )
         throw new Error(
           'At this moment transaction can not been created because this date closed'
         );
@@ -202,7 +204,9 @@ export const loadTransactionClass = (models: IModels) => {
 
           if (
             periodLock &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId || 'undefined')
+            !periodLock?.excludeContracts.includes(
+              oldTr.contractId || 'undefined'
+            )
           )
             throw new Error(
               'At this moment transaction can not been created because this date closed'

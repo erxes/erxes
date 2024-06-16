@@ -1,7 +1,7 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage,
+  sendMessage
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
@@ -13,7 +13,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Contracts.find(data).lean(),
+      data: await models.Contracts.find(data).lean()
     };
   });
 
@@ -22,25 +22,25 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Contracts.findOne(data).lean(),
+      data: await models.Contracts.findOne(data).lean()
     };
   });
 
   consumeRPCQueue('savings:block.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    console.log('data',data)
+    const deposit = await models.Contracts.findOne({
+      customerId: data.customerId,
+      isDeposit: true
+    });
 
-    const deposit = await models.Contracts.findOne({customerId:data.customerId,isDeposit:true})
-    
-    if(!deposit)
-      throw new Error('contract not found')
-    
-    data.contractId = deposit._id
+    if (!deposit) throw new Error('contract not found');
+
+    data.contractId = deposit._id;
 
     return {
       status: 'success',
-      data: await models.Block.createBlock(data),
+      data: await models.Block.createBlock(data)
     };
   });
 
@@ -49,16 +49,16 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const contractType = await models.ContractTypes.findOne({
-        isDeposit: true,
+        isDeposit: true
       });
       return {
         status: 'success',
         data: await models.Contracts.findOne({
           contractTypeId: contractType?._id,
-          customerId: data.customerId,
-        }).lean(),
+          customerId: data.customerId
+        }).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue('savings:contracts.update', async ({ subdomain, data }) => {
@@ -68,7 +68,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: result,
+      data: result
     };
   });
 
@@ -77,7 +77,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Transactions.find(data).lean(),
+      data: await models.Transactions.find(data).lean()
     };
   });
 
@@ -87,9 +87,9 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
       return {
         status: 'success',
-        data: await models.ContractTypes.findOne(data).lean(),
+        data: await models.ContractTypes.findOne(data).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -101,37 +101,40 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map((c) => c._id) },
-        }).lean(),
+          contractId: { $in: contracts.map((c) => c._id) }
+        }).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
     'savings:transactions.createTransaction',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const transaction = await models.Transactions.createTransaction(data,subdomain)
+      const transaction = await models.Transactions.createTransaction(
+        data,
+        subdomain
+      );
 
       return {
         status: 'success',
         data: transaction
       };
-    },
+    }
   );
 };
 
 export const getConfig = async (
   code: 'savingConfig',
   subdomain: string,
-  defaultValue?: string,
+  defaultValue?: string
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
     action: 'getConfigs',
     data: {},
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (!configs[code]) {
@@ -153,44 +156,44 @@ export const sendMessageBroker = async (
     | 'clientportal'
     | 'syncerkhet'
     | 'ebarimt'
-    | 'loans' 
-    | 'khanbank',
+    | 'loans'
+    | 'khanbank'
 ): Promise<any> => {
   return sendMessage({
     serviceName: name,
-    ...args,
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args,
+    ...args
   });
 };
 
 export const sendReactionsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'reactions',
-    ...args,
+    ...args
   });
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
