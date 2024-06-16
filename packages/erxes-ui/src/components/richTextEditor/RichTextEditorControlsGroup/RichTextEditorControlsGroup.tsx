@@ -3,7 +3,9 @@ import React, { ReactNode, useRef, useState } from 'react';
 
 import { ControlsGroupWrapper } from './styles';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
-
+import { useDropdownPlacement } from '../hooks/index';
+import Icon from '../../Icon';
+import styled from 'styled-components';
 export interface IRichTextEditorControlsGroupProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -17,11 +19,27 @@ export interface IRichTextEditorControlsGroupProps
   children: ReactNode;
 }
 
+const StyledListOptions = styled(Listbox.Options)`
+  width: 100%;
+  border-radius: 0.25rem;
+  border: 0.0625rem solid #eee;
+`;
+
+const MoreIcon = (props) => <Icon icon="angle-down" {...props} />;
+
 export const RichTextEditorControlsGroup = (
-  props: IRichTextEditorControlsGroupProps,
+  props: IRichTextEditorControlsGroupProps
 ) => {
-  const { isDropdown, controlNames, toolbarPlacement, children } = props;
+  const { isDropdown, controlNames, children } = props;
   const { editor, isSourceEnabled } = useRichTextEditorContext();
+
+  // This hook manages menu placement by determining whether the dropdown should appear at the top or bottom of the screen based on its position.
+  const {
+    setReferenceElement,
+    setPopperElement,
+    popper: { styles, attributes },
+  } = useDropdownPlacement();
+
   const ref = useRef<HTMLDivElement>(null);
 
   const isActive = isDropdown
@@ -37,10 +55,7 @@ export const RichTextEditorControlsGroup = (
     const [selectedItem, setSelectedItem] = useState(firstChild);
 
     return (
-      <ControlsGroupWrapper
-        $isActive={isActive}
-        $toolbarPlacement={toolbarPlacement}
-      >
+      <ControlsGroupWrapper $isActive={isActive}>
         <Listbox
           value={selectedItem}
           onChange={setSelectedItem}
@@ -48,8 +63,35 @@ export const RichTextEditorControlsGroup = (
         >
           {({ open }) => (
             <div className="relative">
-              <Listbox.Button id="rte-controls-group-dropdown-button">
-                {selectedItem}
+              <Listbox.Button
+                data-group-dropdown={true}
+                style={{
+                  position: 'relative',
+                  textAlign: 'left',
+                  paddingLeft: '6px',
+                  width: '45px',
+                  border: '0',
+                  borderRadius: '0.25rem',
+                }}
+                id="rte-controls-group-dropdown-button"
+                ref={setReferenceElement}
+              >
+                <span style={{ display: 'block' }}>{selectedItem}</span>
+                <span
+                  style={{
+                    position: 'absolute',
+                    pointerEvents: 'none',
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    left: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    paddingRight: 2,
+                  }}
+                >
+                  <MoreIcon color={isSourceEnabled ? '#AAAEB3' : '#444'} />
+                </span>
               </Listbox.Button>
               <Transition
                 show={open}
@@ -58,7 +100,15 @@ export const RichTextEditorControlsGroup = (
                 leaveTo="opacity-0"
                 className="absolute mt-1 w-full rounded-md bg-white shadow-lg"
               >
-                <Listbox.Options static>
+                <StyledListOptions
+                  static
+                  ref={setPopperElement}
+                  style={{
+                    width: '100%',
+                    ...styles.popper,
+                  }}
+                  {...attributes.popper}
+                >
                   {React.Children.map(childrenArray, (child, index) => {
                     return (
                       /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
@@ -72,7 +122,7 @@ export const RichTextEditorControlsGroup = (
                       </Listbox.Option>
                     );
                   })}
-                </Listbox.Options>
+                </StyledListOptions>
               </Transition>
             </div>
           )}

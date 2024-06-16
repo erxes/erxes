@@ -11,7 +11,8 @@
     "aws-sdk": "^2.493.0",
     "faker": "^4.1.0",
     "nodemailer": "^6.2.1",
-    "telnyx": "^1.7.2"
+    "telnyx": "^1.7.2",
+    "@sendgrid/client":"^8.1.3"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"
