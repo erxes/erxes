@@ -2,9 +2,10 @@ import {
   Routes as BrowserRoutes,
   Route,
   BrowserRouter as Router,
-  useLocation,
+  useLocation
 } from "react-router-dom";
 import { pluginLayouts, pluginRouters } from "./pluginUtils";
+import * as Sentry from "@sentry/react";
 
 import AccountSuspended from "modules/saas/limit/AccountSuspend";
 import { IUser } from "./modules/auth/types";
@@ -18,6 +19,9 @@ import asyncComponent from "modules/common/components/AsyncComponent";
 import { getVersion } from "@erxes/ui/src/utils/core";
 import queryString from "query-string";
 import withCurrentUser from "modules/auth/containers/withCurrentUser";
+import { getEnv } from "@erxes/ui/src/utils";
+import posthog from "posthog-js";
+import { initializeFaro } from "@grafana/faro-react";
 
 const MainLayout = asyncComponent(
   () =>
@@ -54,7 +58,7 @@ export const UnsubscribeComponent = () => {
   return <Unsubscribe queryParams={queryParams} />;
 };
 
-const renderRoutes = (currentUser) => {
+const renderRoutes = currentUser => {
   const UserConfirmationComponent = () => {
     const location = useLocation();
     const queryParams = queryString.parse(location.search);
@@ -69,6 +73,44 @@ const renderRoutes = (currentUser) => {
   }
 
   const { VERSION } = getVersion();
+  const {
+    REACT_APP_SENTRY_URL,
+    REACT_APP_PUBLIC_POSTHOG_KEY,
+    REACT_APP_PUBLIC_POSTHOG_HOST,
+    REACT_APP_FARO_COLLECTOR_URL,
+    REACT_APP_FARO_APP_NAME
+  } = getEnv();
+
+  if (REACT_APP_SENTRY_URL) {
+    Sentry.init({
+      dsn: REACT_APP_SENTRY_URL,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration()
+      ],
+      // Performance Monitoring
+      tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
+      replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
+      replaysOnErrorSampleRate: 1.0 // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+    });
+  }
+
+  if (REACT_APP_PUBLIC_POSTHOG_KEY && REACT_APP_PUBLIC_POSTHOG_HOST) {
+    posthog.init(REACT_APP_PUBLIC_POSTHOG_KEY, {
+      api_host: REACT_APP_PUBLIC_POSTHOG_HOST
+    });
+  }
+  if (REACT_APP_FARO_COLLECTOR_URL && REACT_APP_FARO_APP_NAME) {
+    initializeFaro({
+      // required: the URL of the Grafana collector
+      url: REACT_APP_FARO_COLLECTOR_URL,
+
+      // required: the identification label of your application
+      app: {
+        name: REACT_APP_FARO_APP_NAME
+      }
+    });
+  }
 
   if (currentUser) {
     if (VERSION && VERSION === "saas") {
@@ -99,15 +141,15 @@ const renderRoutes = (currentUser) => {
       <MainLayout currentUser={currentUser}>
         <SettingsRoutes />
         <WelcomeRoutes currentUser={currentUser} />
-          {pluginLayouts(currentUser)}
-          {pluginRouters()}
-          <BrowserRoutes>
-            <Route
-              key="/confirmation"
-              path="/confirmation"
-              element={<UserConfirmationComponent />}
-            />
-          </BrowserRoutes>
+        {pluginLayouts(currentUser)}
+        {pluginRouters()}
+        <BrowserRoutes>
+          <Route
+            key="/confirmation"
+            path="/confirmation"
+            element={<UserConfirmationComponent />}
+          />
+        </BrowserRoutes>
       </MainLayout>
     );
   }
