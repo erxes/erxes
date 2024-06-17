@@ -8,7 +8,6 @@ import {
 } from './utils';
 import { getEnv, resetConfigsCache } from './commonUtils';
 import fetch from 'node-fetch';
-import { error } from 'console';
 
 export const removeIntegration = async (
   subdomain: string,
@@ -136,8 +135,8 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
-        console.error(error.occ)
-        throw e;
+        console.error(e);
+        
       }
     }
   }
