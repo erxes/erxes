@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.13.0-rc.3](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-06-17)
+
+## [1.12.0-rc.7](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-06-11)
+
+## [1.12.0-rc.5](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-06-06)
+
+## [1.12.0-rc.4](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-06-05)
+
+## [1.12.0-rc.2](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-06-03)
+
+## [1.11.0-rc.8](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-05-28)
+
+## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-05-28)
+
+## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.3) (2024-05-28)
+
 ## [1.13.0-rc.2](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-17)
 
 ## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-13)
