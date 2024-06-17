@@ -20,7 +20,7 @@ type Props = {
 };
 
 const CompanyAssignForm = (props: Props) => {
-  const { clientPortalUser, assignCompany, queryParams } = props;
+  const { clientPortalUser, assignCompany } = props;
 
   const getUserErxesCompanyId =
     clientPortalUser && clientPortalUser.erxesCompanyId
