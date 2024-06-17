@@ -2,6 +2,7 @@ import { IContext } from '../../types';
 import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
+import { SUBSCRIPTION_INFO_STATUS } from '../../../models/definitions/constants';
 import { getCompanyInfo } from '../../../models/PutData';
 
 interface ISearchParams {
@@ -213,13 +214,13 @@ const orderQueries = {
     if (!checkTaxpayerUrl) {
       throw new Error('Not found check taxpayer url');
     }
-    const resp = await getCompanyInfo({ checkTaxpayerUrl, no: registerNumber })
+    const resp = await getCompanyInfo({ checkTaxpayerUrl, no: registerNumber });
 
     if (resp.status !== 'checked' || !resp.tin) {
       throw new Error('Company register number required for checking');
     }
 
-    return resp.result?.data
+    return resp.result?.data;
   },
 
   async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {

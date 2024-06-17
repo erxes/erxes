@@ -151,6 +151,23 @@ function AutoCompletionSelect({
     },
   });
 
+  useEffect(() => {
+    setFields({
+      added: {
+        label: __(`Possible ${autoCompletionType}`),
+        options: defaultOptions.map((item) => ({
+          label: item,
+          value: item,
+          onRemove: handleRemove,
+        })),
+      },
+      search: {
+        label: __("Search result"),
+        options: [],
+      },
+    });
+  }, [defaultOptions]);
+
   const [selectedValue, setSelectedValue] = useState<Option | null>(
     defaultValue ? { label: defaultValue, value: defaultValue } : null
   );
