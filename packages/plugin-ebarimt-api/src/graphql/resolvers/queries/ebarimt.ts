@@ -239,7 +239,7 @@ const queries = {
       { $group: { _id: '', amount: { $sum: { $toDecimal: '$totalAmount' } } } },
     ]);
 
-    if (!res || !res.length) {
+    if (!res?.length) {
       return 0;
     }
 
