@@ -32,6 +32,5 @@ const blockMutations = {
   }
 };
 
-// requireLogin(blockMutations, 'packagesAdd');
 
 export default blockMutations;
