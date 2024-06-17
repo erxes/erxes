@@ -20,7 +20,7 @@ const exportHistoryQueries = {
       date: -1
     });
 
-    const count = models.ExportHistory.find(filter).countDocuments();
+    const count = await models.ExportHistory.find(filter).countDocuments();
 
     return { list, count };
   }
