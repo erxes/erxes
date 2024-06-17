@@ -66,16 +66,15 @@ class ActionSection extends React.Component<
         <ModalTrigger
           dialogClassName="middle"
           title={`Send SMS to (${primaryPhone})`}
+          tipText="Send SMS"
           trigger={
-            <Tip text="Send SMS" placement="top-end">
-              <Button
-                disabled={primaryPhone ? false : true}
-                size="small"
-                btnStyle={primaryPhone ? "primary" : "simple"}
-              >
-                <Icon icon="message" />
-              </Button>
-            </Tip>
+            <Button
+              disabled={primaryPhone ? false : true}
+              size="small"
+              btnStyle={primaryPhone ? "primary" : "simple"}
+            >
+              <Icon icon="message" />
+            </Button>
           }
           content={smsForm}
         />

@@ -2,26 +2,27 @@ import {
   EMPTY_CONTENT_DEAL_PIPELINE,
   EMPTY_CONTENT_PURCHASE_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE,
-} from '@erxes/ui-settings/src/constants';
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import { useLocation, useNavigate,Link } from 'react-router-dom';
+} from "@erxes/ui-settings/src/constants";
+import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { __, router } from "coreui/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IOption } from '../types';
-import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
-import PipelineForm from '../containers/PipelineForm';
-import PipelineRow from './PipelineRow';
-import React, { useState, useEffect } from 'react';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import Button from "@erxes/ui/src/components/Button";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IOption } from "../types";
+import { Link } from "react-router-dom";
+import { PipelineCount } from "@erxes/ui-cards/src/settings/boards/styles";
+import PipelineForm from "../containers/PipelineForm";
+import PipelineRow from "./PipelineRow";
+import React, { useState, useEffect } from "react";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 type Props = {
   type: string;
@@ -61,13 +62,12 @@ function Pipelines(props: Props) {
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(
-    location.hash.includes('showPipelineModal') || false,
+    location.hash.includes("showPipelineModal") || false
   );
   const [pipelines, setPipelines] = useState<IPipeline[]>(
-    props.pipelines || [],
+    props.pipelines || []
   );
   const [isDragDisabled, setIsDragDisabled] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     if (props.pipelines !== pipelines) {
@@ -110,7 +110,7 @@ function Pipelines(props: Props) {
 
     if (searchValue) {
       updatedPipelines = pipelines.filter((p) =>
-        p.name.toLowerCase().includes(searchValue),
+        p.name.toLowerCase().includes(searchValue)
       );
     }
 
@@ -120,8 +120,8 @@ function Pipelines(props: Props) {
   const renderRows = () => {
     const { renderButton, type, options } = props;
 
-    const sortDirection = router.getParam(location, 'sortDirection');
-    const sortField = router.getParam(location, 'sortField');
+    const sortDirection = router.getParam(location, "sortDirection");
+    const sortField = router.getParam(location, "sortField");
 
     const sortedPipelines = [...pipelines];
 
@@ -147,14 +147,14 @@ function Pipelines(props: Props) {
   const renderContent = () => {
     const { pipelines, options, type } = props;
 
-    const pipelineName = options?.pipelineName || 'pipeline';
+    const pipelineName = options?.pipelineName || "pipeline";
 
     if (pipelines.length === 0) {
-      if (type === 'deal' || type === 'task') {
+      if (type === "deal" || type === "task") {
         return (
           <EmptyContent
             content={
-              type === 'deal'
+              type === "deal"
                 ? EMPTY_CONTENT_DEAL_PIPELINE
                 : EMPTY_CONTENT_TASK_PIPELINE
             }
@@ -163,11 +163,11 @@ function Pipelines(props: Props) {
         );
       }
 
-      if (type === 'purchase') {
+      if (type === "purchase") {
         return (
           <EmptyContent
             content={
-              type === 'purchase'
+              type === "purchase"
                 ? EMPTY_CONTENT_PURCHASE_PIPELINE
                 : EMPTY_CONTENT_TASK_PIPELINE
             }
@@ -188,12 +188,12 @@ function Pipelines(props: Props) {
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={'name'} label={__('Name')} />
+              <SortHandler sortField={"name"} label={__("Name")} />
             </th>
-            <th>{__('Status')}</th>
-            <th>{__('Created at')}</th>
-            <th>{__('Created By')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Status")}</th>
+            <th>{__("Created at")}</th>
+            <th>{__("Created By")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>{renderRows()}</tbody>
@@ -225,7 +225,7 @@ function Pipelines(props: Props) {
 
   const renderButton = () => {
     const { options, boardId } = props;
-    const pipelineName = options?.pipelineName || 'pipeline';
+    const pipelineName = options?.pipelineName || "pipeline";
 
     if (!boardId) {
       return null;
@@ -235,9 +235,9 @@ function Pipelines(props: Props) {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           onChange={searchHandler}
-          value={router.getParam(location, 'searchValue')}
+          value={router.getParam(location, "searchValue")}
           autoFocus={true}
         />
 
@@ -250,15 +250,15 @@ function Pipelines(props: Props) {
   };
 
   const { currentBoard, options } = props;
-  const pipelineName = options?.pipelineName || 'pipeline';
+  const pipelineName = options?.pipelineName || "pipeline";
 
   const leftActionBar = (
     <Title>
-      {currentBoard ? currentBoard.name : ''}
+      {currentBoard ? currentBoard.name : ""}
 
       <PipelineCount>
         ({pipelines.length} {__(pipelineName)}
-        {pipelines.length > 1 && 's'})
+        {pipelines.length > 1 && "s"})
       </PipelineCount>
     </Title>
   );

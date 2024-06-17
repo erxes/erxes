@@ -113,6 +113,8 @@ export const types = () => `
     customFieldsData: JSON
     savingContractId: String
     holidayType: String
+    mustPayDate: Date
+    depositAccountId: String
   }
 
 
@@ -261,6 +263,13 @@ const clientFields = `
   secondaryPassword: String
 `;
 
+const clientCreditLoanRequestFields = `
+  contractId: String
+  amount: Float
+  customerId: String
+  secondaryPassword: String
+`;
+
 export const mutations = `
   contractsAdd(${commonFields}): LoanContract
   clientLoanContractsAdd(${commonFields}${clientFields}): LoanContract
@@ -272,4 +281,5 @@ export const mutations = `
   stopInterest(${interestCorrectionFields}): LoanContract
   interestChange(${interestCorrectionFields}): LoanContract
   interestReturn(${interestCorrectionFields}): LoanContract
+  clientCreditLoanRequest(${clientCreditLoanRequestFields}): LoanContract
 `;

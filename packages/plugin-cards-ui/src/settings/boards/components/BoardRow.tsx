@@ -1,14 +1,14 @@
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import BoardForm from './BoardForm';
-import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import BoardForm from "./BoardForm";
+import { BoardItem } from "@erxes/ui-cards/src/settings/boards/styles";
+import Button from "@erxes/ui/src/components/Button";
+import { IBoard } from "@erxes/ui-cards/src/boards/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   type: string;
@@ -32,9 +32,7 @@ class BoardRow extends React.Component<Props, {}> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text="Edit" placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
+        <Icon icon="edit" />
       </Button>
     );
 
@@ -52,6 +50,7 @@ class BoardRow extends React.Component<Props, {}> {
         size={this.size}
         title="Edit"
         trigger={editTrigger}
+        tipText="Edit"
         content={content}
       />
     );
@@ -61,7 +60,7 @@ class BoardRow extends React.Component<Props, {}> {
     const { board, isActive } = this.props;
 
     return (
-      <BoardItem key={board._id} $isActive={isActive}>
+      <BoardItem key={board._id} $isActive={isActive} $withOverflow={true}>
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}

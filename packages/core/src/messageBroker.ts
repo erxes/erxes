@@ -11,7 +11,6 @@ import type {
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import { formConsumers } from '@erxes/api-utils/src/forms';
-import { graphqlPubsub } from './pubsub';
 import { registerOnboardHistory } from './data/modules/robot';
 
 import {
@@ -584,6 +583,15 @@ export const setupMessageConsumers = async (): Promise<void> => {
     return {
       status: 'success',
       data: await models.Units.findOne(data).lean(),
+    };
+  });
+
+  consumeRPCQueue('core:userGroups.getIds', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.UsersGroups.find(data).distinct('_id'),
     };
   });
 

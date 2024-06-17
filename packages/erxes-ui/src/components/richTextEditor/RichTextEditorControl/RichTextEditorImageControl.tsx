@@ -35,10 +35,10 @@ const INITIAL_FORM_STATE = {
 };
 
 export const RichTextEditorImageControl = (
-  props: RichTextEditorLinkControlProps,
+  props: RichTextEditorLinkControlProps
 ) => {
   const { icon } = props;
-  const ctx = useRichTextEditorContext();
+  const { editor, labels } = useRichTextEditorContext();
   const [inputs, setInputs] = useState(INITIAL_FORM_STATE);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -47,8 +47,8 @@ export const RichTextEditorImageControl = (
   };
 
   const setImage = () => {
-    if (ctx.editor) {
-      ctx.editor
+    if (editor) {
+      editor
         .chain()
         .focus()
         .extendMarkRange('link')
@@ -86,8 +86,8 @@ export const RichTextEditorImageControl = (
               id="link-input"
               name="link"
               autoFocus={true}
-              placeholder={ctx.labels.imageUrlControlLabel}
-              aria-label={ctx.labels.imageUrlControlLabel}
+              placeholder={labels.imageUrlControlLabel}
+              aria-label={labels.imageUrlControlLabel}
               value={inputs.link}
               onChange={handleChange}
             />
@@ -156,14 +156,15 @@ export const RichTextEditorImageControl = (
 
   return (
     <ModalTrigger
+      centered
       enforceFocus={false}
       title="Insert/ Edit Image"
       trigger={
         <RichTextEditorControlBase
           icon={icon || LinkIcon}
-          aria-label={ctx.labels.imageControlLabel}
-          title={ctx.labels.imageControlLabel}
-          active={ctx.editor?.isActive('image')}
+          aria-label={labels.imageControlLabel}
+          title={labels.imageControlLabel}
+          active={editor?.isActive('image')}
         />
       }
       content={renderContent}
