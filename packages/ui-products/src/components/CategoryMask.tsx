@@ -6,7 +6,6 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { Flex, FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import { IProductCategory } from "../types";
-import { __ } from "@erxes/ui/src/utils/core";
 import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
 import { TableOver } from "../styles";
 import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
@@ -15,12 +14,9 @@ import { SpaceFormsWrapper } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   parentCategory?: IProductCategory;
-  categoryId?: string;
-  code: string;
   maskType: string;
   mask: any;
   fieldGroups: IFieldGroup[];
-  changeCode: (code: string) => void;
   changeMask: (mask: any) => void;
 };
 
@@ -322,7 +318,6 @@ class CategoryMask extends React.Component<Props, State> {
     const { values = [] } = mask || {};
 
     return (
-      <>
         <FormGroup>
           <ControlLabel>Code mask</ControlLabel>
 
@@ -358,8 +353,7 @@ class CategoryMask extends React.Component<Props, State> {
           </TableOver>
 
           {this.renderCurrentConfig(isEdit)}
-        </FormGroup>
-      </>
+      </FormGroup>
     );
   }
 
