@@ -71,8 +71,8 @@ const notificationQueries = {
       };
     }
 
-    if (eventDataFilter) {
-      const { field, values } = eventDataFilter || {};
+    if (Object.values(eventDataFilter).length) {
+      const { field='', values=[] } = eventDataFilter;
       query[`eventData.${field}`] = { $in: values || [] };
     }
 
