@@ -6,7 +6,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import CommonForm from "@erxes/ui/src/components/form/Form";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 
-import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { ModalFooter, ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __, generateRandomColorCode } from "@erxes/ui/src/utils";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
@@ -24,7 +24,6 @@ import {
 } from "../../types";
 import ConditionsList from "../preview/ConditionsList";
 
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import React from "react";
 import { FilterBox, SegmentBackIcon, SegmentWrapper, Count } from "../styles";
 import PropertyCondition from "../../containers/form/PropertyCondition";

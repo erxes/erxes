@@ -1,4 +1,3 @@
-import { ITrigger } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Title } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -29,8 +28,6 @@ type Props = {
   isModal: boolean;
   hideDetailForm?: boolean;
   closeModal: () => void;
-  closeParentModal?: () => void;
-  activeTrigger?: ITrigger;
 };
 
 const SegmentsForm = (props: Props) => {

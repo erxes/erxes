@@ -1,15 +1,8 @@
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { ITrigger } from '../../types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import SegmentsForm from '../../components/form/SegmentsForm';
-import { mutations, queries } from '../../graphql';
 import {
+  ITrigger,
   AddMutationResponse,
   EditMutationResponse,
   EventsQueryResponse,
@@ -18,6 +11,13 @@ import {
   SegmentDetailQueryResponse,
   SegmentsQueryResponse
 } from '../../types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import SegmentsForm from '../../components/form/SegmentsForm';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
   contentType: string;
@@ -161,7 +161,7 @@ class SegmentsFormContainer extends React.Component<
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
     const segments = segmentsQuery.segments || [];
-    const isModal = history ? false : true;
+    const isModal = !history;
 
     const updatedProps = {
       ...this.props,
