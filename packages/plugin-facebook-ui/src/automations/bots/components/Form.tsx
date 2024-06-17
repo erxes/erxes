@@ -344,8 +344,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
                       <div className="persistentMenu">
                         <div className="dragger" />
                         <ul>
-                          {(doc?.persistentMenus || []).map((menu) => (
-                            <li key={menu._id}>{menu.text || ''}</li>
+                            {(doc?.persistentMenus || []).map((menu) => (
+                              <li key={menu._id}>{menu.text || ''}</li> 
                           ))}
                         </ul>
                       </div>
