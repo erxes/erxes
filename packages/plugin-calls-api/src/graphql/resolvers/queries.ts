@@ -39,7 +39,7 @@ const callsQueries = {
 
     return customer;
   },
-  async callsActiveSession(_root, {}, { models, user }: IContext) {
+  async callsActiveSession(_root, { models, user }: IContext) {
     const activeSession = models.ActiveSessions.getActiveSession(user._id);
 
     return activeSession;
@@ -98,8 +98,8 @@ const callsQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
-      const { account } = queueData?.response;
+    if (queueData?.response) {
+      const { account } = queueData.response;  
 
       if (account) {
         return account;
