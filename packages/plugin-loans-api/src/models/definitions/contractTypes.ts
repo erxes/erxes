@@ -53,8 +53,6 @@ export interface IContractConfig {
   doubtExpirationDay: number;
   negativeExpirationDay: number;
   badExpirationDay: number;
-  customFieldsData?: ICustomField[];
-  productId: string
 }
 
 export interface IContractType {
@@ -81,6 +79,8 @@ export interface IContractType {
   savingUpperPercent: number;
   usePrePayment: boolean;
   invoiceDay: string;
+  customFieldsData?: ICustomField[];
+  productId: string
 }
 
 export interface IContractTypeDocument extends IContractType, Document {

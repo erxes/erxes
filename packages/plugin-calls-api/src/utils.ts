@@ -72,6 +72,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       (queue) =>
         queue.members && queue.members.split(',').includes(extentionNumber),
     )?.extension;
+    console.log('extentionNumber:', extentionNumber, extension);
 
     const startDate = moment(callStartTime).format('YYYY-MM-DD');
     const endTime = moment(callEndTime).format('YYYY-MM-DD');
@@ -116,13 +117,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     )) as any;
 
     let cdr_root = '';
-
     if (cdrData && cdrData.response) {
       cdr_root = cdrData.response.cdr_root;
     } else if (cdrData && cdrData.cdr_root) {
       cdr_root = cdrData?.cdr_root;
     }
-    console.log('2');
+    console.log('2', cdr_root);
 
     const todayCdr = cdr_root && JSON.parse(JSON.stringify(cdr_root));
     const sortedCdr =
@@ -132,7 +132,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     let lastCreatedObject = sortedCdr[todayCdr.length - 1];
 
     let fileNameWithoutExtension = '';
-    console.log('3');
+    console.log('3', lastCreatedObject);
 
     const transferCall = findTransferCall(lastCreatedObject);
     console.log(transferCall, 'transferCall');
