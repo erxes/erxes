@@ -9,7 +9,6 @@ const NotifierContainer = styled.div`
 `;
 
 const Notifier = () => {
-  const [show, setShow] = useState<boolean>(false);
   const [activeRoute, setActiveRoute] = useState<string>('feature');
 
   const renderNotifications = () => {
