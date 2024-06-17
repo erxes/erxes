@@ -27,7 +27,7 @@ export default function GeneralSettings(props: Props) {
   );
   const fields = props.customFields?.fieldsCombinedByContentType || [];
   const [fieldRegister, setField] = useState(
-    burenScoringConfig.fieldRegister || ""
+    burenScoringConfig?.fieldRegister || ""
   );
   const onSave = (e) => {
     e.preventDefault();
