@@ -2,8 +2,8 @@ import { IContext } from '../../../connectionResolver';
 import { sendContactsMessage } from '../../../messageBroker';
 
 export default {
-  async customer({ customerPhone }, { subdomain }: IContext) {
-  
+  async customer({ customerPhone }, _, { subdomain }: IContext) {
+
     if (!customerPhone) {
       return null;
     }

@@ -39,7 +39,7 @@ const callsQueries = {
 
     return customer;
   },
-  async callsActiveSession(_root, { models, user }: IContext) {
+  async callsActiveSession(_root, _, { models, user }: IContext) {
     const activeSession = models.ActiveSessions.getActiveSession(user._id);
 
     return activeSession;
