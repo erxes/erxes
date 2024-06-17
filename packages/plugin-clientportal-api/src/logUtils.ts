@@ -100,7 +100,7 @@ export const putActivityLog = async (
   subdomain,
   params: { action: string; data: any },
 ) => {
-  const { data, action } = params;
+  const data = params;
 
   const updatedParams = {
     ...params,
