@@ -97,6 +97,7 @@ const notificationQueries = {
   /**
    * Module list used in notifications
    */
+
   async notificationsModules() {
     const services = await getServices();
     const modules: Array<{

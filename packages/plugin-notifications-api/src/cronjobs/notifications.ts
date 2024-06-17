@@ -14,6 +14,7 @@ export const removeOldNotifications = async (subdomain: string) => {
       }
     },
     isRPC: true
+
   });
 
   const value = config ? config.value : 3;
