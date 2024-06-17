@@ -11,7 +11,7 @@ import {
   IAutomationNote,
   ITrigger,
 } from "../../types";
-import { BackButton, BackIcon } from "@erxes/ui-automations/src/styles";
+import { BackButton, BackIcon, ScrolledContent } from "@erxes/ui-automations/src/styles";
 import { BarItems, FlexContent } from "@erxes/ui/src/layout/styles";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 import { connection, getTriggerConfig, getTriggerType } from "../../utils";
@@ -31,7 +31,6 @@ import { Link } from "react-router-dom";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import PageContent from "@erxes/ui/src/layout/components/PageContent";
 import React from "react";
-import { ScrolledContent } from "@erxes/ui-automations/src/styles";
 import TemplateForm from "../../containers/forms/TemplateForm";
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { Transition } from "@headlessui/react";
