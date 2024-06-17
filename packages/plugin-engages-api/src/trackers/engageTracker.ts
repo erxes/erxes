@@ -1,5 +1,4 @@
 import * as AWS from 'aws-sdk';
-
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendContactsMessage } from '../messageBroker';
 import { ISESConfig } from '../models/Configs';
@@ -173,7 +172,6 @@ export const awsRequests = {
       api.verifyEmailAddress({ EmailAddress: email }, (error, data) => {
         if (error) {
           return reject(error instanceof Error ? error : new Error(error));
-          );
         }
 
         return resolve(data);
