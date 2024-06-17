@@ -83,7 +83,7 @@ export const handleInstagramMessage = async (
     const id = commentConversationResult
       ? commentConversationResult.comment_id
       : post.postId;
-    if (commentConversationResult ?? commentConversationResult.comment_id) {
+    if (commentConversationResult.comment_id) {
       data = {
         message: ` ${strippedContent}`,
         attachment_url: attachment_url
