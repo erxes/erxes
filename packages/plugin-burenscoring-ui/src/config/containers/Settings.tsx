@@ -1,6 +1,6 @@
 
 import { Alert } from '@erxes/ui/src/utils';
-import { ConfigsResponse, IConfigsMaps } from '../../types';
+import { ConfigsResponse, CustomerFieldsResponse, IConfigsMaps } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import { useQuery, useMutation, gql } from "@apollo/client";
@@ -22,7 +22,17 @@ export default function SettingsContainer (props: FinalProps)  {
         fetchPolicy: "network-only",
       }
     );
-  
+
+    const customFields = useQuery<CustomerFieldsResponse>(
+      gql(queries.fieldsCombinedByContentType),
+      
+      {
+        variables: {
+          contentType: "contacts:customer"
+        },
+        fetchPolicy: "network-only",
+      }
+    );
     const [updateConfigs] = useMutation(gql(mutations.updateScoringConfigs));
     // create or update action
     const save = (map: IConfigsMaps) => {
@@ -55,6 +65,7 @@ export default function SettingsContainer (props: FinalProps)  {
       configsMap,
       save,
       loading: loading,
+      customFields: customFields?.data || []
     };
     if(loading)
       return null

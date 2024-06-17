@@ -1,5 +1,5 @@
 import { CollapseContent, Table, __ } from "@erxes/ui/src";
-
+import dayjs from "dayjs"
 import { IBurenScoring } from "../types";
 import React from "react";
 type Props = {
@@ -26,67 +26,68 @@ export default function DetailForm(props: Props) {
   const customer = customerScore?.restInquiryResponse?.customer || {};
   return (
     <>
-      <CollapseContent title="Customer info">
+      <CollapseContent title="Харилцагчийн мэдээлэл">
         <div className="row">
           <div className=" flex gap-4 ">
             <Box hasShadow={true}>
-              <span>score: {creditScore?.scoringResult}</span>
-              <span>badRatio: {creditScore?.badRatio}</span>
-              <span>odds : {creditScore?.odds}</span>
+              <span>Оноо: {creditScore?.scoringResult}</span>
+              <span>Эрсдлийн харьцаа: {creditScore?.badRatio}</span>
+              <span>Магадлал : {creditScore?.odds}</span>
               <span>
-                Monthly Repayment: {monthlyLoanRepayment?.userMonthlyRepayment}
+                Сарын төлөлт: {monthlyLoanRepayment?.userMonthlyRepayment}
               </span>
               <span>
-                line Base Amount: {monthlyLoanRepayment?.lineTotalBaseAmount}
+                Шугаман зээлийн хэмжээ: {monthlyLoanRepayment?.lineTotalBaseAmount}
               </span>
               <span>
-                line Remain Amount:{" "}
+                Шугаман зээлийн үлдэгдэл:{" "}
                 {monthlyLoanRepayment?.lineTotalRemainAmount}
               </span>
               <span>
-                Active Remain Amount:{" "}
+                Идэвхитэй зээлийн үлдэгдэл:{" "}
                 {activeLoanInformation?.activeLoanTotalRemainAmount}
               </span>
             </Box>
           </div>
           <div className=" flex gap-4 ">
             <Box hasShadow={true} className="text-right">
-              <span>firstname:{customer?.firstname}</span>
-              <span>lastname: {customer?.lastname}</span>
-              <span>address : {customer?.address}</span>
-              <span>registerno: {customer?.registerno}</span>
-              <span>familyname: {customer?.familyname}</span>
-              <span>nationality: {customer?.nationality}</span>
+
+              <span>Овог: {customer?.lastname}</span>
+              <span>Нэр:{customer?.firstname}</span>
+              <span>Хаяг : {customer?.address}</span>
+              <span>Регистер: {customer?.registerno}</span>
+              <span>Ургийн овог: {customer?.familyname}</span>
+              <span>Улс: {customer?.nationality}</span>
             </Box>
           </div>
         </div>
       </CollapseContent>
-      <CollapseContent title="Loan's class">
+      <CollapseContent title="Зээлийн мэдээлэл">
         <Table $striped={true} $condensed={true} $bordered={true}>
           <thead>
             <th></th>
-            <th>{__("normal")}</th>
-            <th>{__("overdue")}</th>
-            <th>{__("bad")}</th>
-            <th>{__("total")}</th>
+            <th>{__("Хэвийн")}</th>
+            <th>{__("Анхаарал хандуулах")}</th>
+            <th>{__("Муу")}</th>
+            <th>{__("Нийт")}</th>
           </thead>
           <tbody>
             <tr>
-              <th>out standing</th>
+              <th>Идэвхитэй</th>
               <th>{loanclass?.outstanding?.normal}</th>
               <th>{loanclass?.outstanding?.overdue}</th>
               <th>{loanclass?.outstanding?.bad}</th>
               <th>{loanclass?.outstanding?.total}</th>
             </tr>
             <tr>
-              <th>closed</th>
+              <th>Хаагдсан</th>
               <th>{loanclass?.closed?.normal}</th>
               <th>{loanclass?.closed?.overdue}</th>
               <th>{loanclass?.closed?.bad}</th>
               <th>{loanclass?.closed?.total}</th>
             </tr>
             <tr>
-              <th>total</th>
+              <th>Нийт</th>
               <th>{loanclass?.total?.normal}</th>
               <th>{loanclass?.total?.overdue}</th>
               <th>{loanclass?.total?.bad}</th>
@@ -95,19 +96,19 @@ export default function DetailForm(props: Props) {
           </tbody>
         </Table>
       </CollapseContent>
-      <CollapseContent title="Loan's inquiry">
+      <CollapseContent title="Зээлийн лавлага">
         <Table $striped={true} $condensed={true} $bordered={true}>
           <thead>
-            <th>{__("loan type")}</th>
-            <th>{__("avarge amount")}</th>
-            <th>{__("balance")}</th>
-            <th>{__("currency code")}</th>
-            <th>{__("org name")}</th>
-            <th>{__("loan class")}</th>
-            <th>{__("relation type")}</th>
-            <th>{__("started date")}</th>
-            <th>{__("exp date")}</th>
-            <th>{__("paid date")}</th>
+            <th>{__("Төрөл")}</th>
+            <th>{__("Олгосон дүн")}</th>
+            <th>{__("Үлдэгдэл")}</th>
+            <th>{__("Валют")}</th>
+            <th>{__("Байгууллага")}</th>
+            <th>{__("Ангилал")}</th>
+            <th>{__("Хамтран")}</th>
+            <th>{__("Эхэлсэн өдөр")}</th>
+            <th>{__("Дуусах өдөр")}</th>
+            <th>{__("Төлсөн өдөр")}</th>
           </thead>
           <tbody>
             {inquiries.map((inquiry) => {
@@ -120,9 +121,9 @@ export default function DetailForm(props: Props) {
                   <th> {inquiry.ORGNAME}</th>
                   <th>{inquiry?.LOANCLASS}</th>
                   <th>{inquiry?.RELATION_TYPE}</th>
-                  <th>{inquiry.STARTEDDATE}</th>
-                  <th>{inquiry?.EXPDATE}</th>
-                  <th> {inquiry?.PAID_DATE}</th>
+                  <th>{dayjs(inquiry.STARTEDDATE).format('YYYY-MM-DD')}</th>
+                  <th>{dayjs(inquiry?.EXPDATE).format('YYYY-MM-DD')}</th>
+                  <th> {dayjs(inquiry?.PAID_DATE).format('YYYY-MM-DD')}</th>
                 </tr>
               );
             })}
