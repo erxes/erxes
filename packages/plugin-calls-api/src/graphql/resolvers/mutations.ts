@@ -160,8 +160,12 @@ const callsMutations = {
       await models.CallHistory.updateOne(
         { _id },
         {
-          $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id },
-          callStatus: callStatus,
+          $set: {
+            ...doc,
+            modifiedAt: new Date(),
+            modifiedBy: user._id,
+            callStatus: callStatus,
+          },
         },
       );
 
