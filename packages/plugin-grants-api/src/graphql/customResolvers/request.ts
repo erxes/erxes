@@ -9,6 +9,7 @@ export default {
 
   async users(
     request: { _id: string } & IGrantRequest,
+    _: any,
     { subdomain, models }: IContext,
   ) {
     if (!request?.userIds?.length) {
@@ -45,7 +46,7 @@ export default {
     return users;
   },
 
-  async requester({ requesterId }: IGrantRequest, { subdomain }: IContext) {
+  async requester({ requesterId }: IGrantRequest, _: any,{ subdomain }: IContext) {
     return await sendCoreMessage({
       subdomain,
       action: 'users.findOne',
@@ -59,6 +60,7 @@ export default {
 
   async detail(
     { contentType, contentTypeId, scope }: IGrantRequest,
+    _: any,
     { subdomain }: IContext,
   ) {
     const detail = await sendCommonMessage({
@@ -76,12 +78,13 @@ export default {
   },
   async responses(
     { _id }: { _id: string } & IGrantRequest,
+    _: any,
     { models }: IContext,
   ) {
     return await models.Responses.find({ requestId: _id });
   },
 
-  async actionLabel({ action }: IGrantRequest,{ models }: IContext) {
+  async actionLabel({ action }: IGrantRequest, _: any,{ models }: IContext) {
     const actions = await models.Requests.getGrantActions();
     return (
       actions.find((grantAction) => grantAction.action === action)?.label ||
