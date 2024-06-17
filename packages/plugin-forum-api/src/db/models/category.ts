@@ -1,5 +1,6 @@
 import { Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from './index';
+import _ from 'lodash';
 import {
   ALL_CP_USER_LEVELS,
   ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES,
