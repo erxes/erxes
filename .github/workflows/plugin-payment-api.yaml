@@ -56,7 +56,7 @@ jobs:
           cd dist
           yarn install
           yarn build plugin payment
-          cd packages/plugin-payment-ui
+          cd packages/plugin-payment-api
           yarn build:webpack
           
 
