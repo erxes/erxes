@@ -1,6 +1,6 @@
 import { Actions, InfoWrapper } from "@erxes/ui/src/styles/main";
 import { Alert, __, confirm } from "@erxes/ui/src/utils";
-import { AssetContent, ContainerBox } from "../../../style";
+import { AssetContent } from "../../../style";
 import {
   FieldStyle,
   SidebarCounter,
