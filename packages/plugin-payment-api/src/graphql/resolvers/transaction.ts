@@ -15,7 +15,7 @@ export default {
     );
   },
 
-  async payment(transaction: ITransactionDocument, {}, { models }: IContext) {
+  async payment(transaction: ITransactionDocument, _args, { models }: IContext) {
     return await models.PaymentMethods.findOne({ _id: transaction.paymentId });
   },
 };
