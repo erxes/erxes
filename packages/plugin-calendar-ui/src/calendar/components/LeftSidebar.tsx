@@ -5,14 +5,13 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import { IBoard, IGroup } from "../types";
+import { IBoard, IGroup, IAccount, INylasCalendar } from "../types";
 import React from "react";
 import { Link } from "react-router-dom";
 import { STORAGE_CALENDAR_IDS } from "../constants";
 import EventForm from "../containers/EventForm";
 import { CalendarItem, SidebarHeading } from "../styles";
 import { MenuFooter } from "@erxes/ui-cards/src/boards/styles/rightMenu";
-import { IAccount, INylasCalendar } from "../types";
 import BoardChooser from "./BoardChooser";
 
 type Props = {
