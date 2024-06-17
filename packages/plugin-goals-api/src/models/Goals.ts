@@ -68,7 +68,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
 
     public static async progressIdsGoals(filter, params) {
       try {
-        // const doc = await models.Goals.find({}).lean();
         const doc = await models.Goals.find(filter)
           .skip((params.page - 1) * params.perPage)
           .limit(params.perPage);

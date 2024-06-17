@@ -105,7 +105,7 @@ const reducer = (state, action) => {
   }
 };
 
-const goalForm = (props: Props) => {
+const GoalForm = (props: Props) => {
   const { goalType, closeModal, renderButton } = props;
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -678,4 +678,4 @@ const mapWeeks = (startDate, endDate): string[] => {
   return weeks;
 };
 
-export default goalForm;
+export default GoalForm;
