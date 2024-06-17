@@ -4,4 +4,5 @@ sed -i 's/${NGINX_HOST}/'"$NGINX_HOST"'/' /etc/nginx/conf.d/default.conf
 sed -i 's/${NGINX_PORT}/'"$NGINX_PORT"'/' /etc/nginx/conf.d/default.conf
 sed -i 's~%REACT_APP_PUBLIC_PATH%~'"$REACT_APP_PUBLIC_PATH"'~g' /usr/share/nginx/html/index.html
 sed -i 's~%REACT_APP_PLUGINSJS_PATH%~'"$REACT_APP_PLUGINSJS_PATH"'~g' /usr/share/nginx/html/index.html
+sed -i 's~%REACT_APP_ENVJS_PATH%~'"$REACT_APP_ENVJS_PATH"'~g' /usr/share/nginx/html/index.html
 exec "$@"

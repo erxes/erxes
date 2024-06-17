@@ -1,6 +1,14 @@
 # Changelog
 
 ## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.13.0-rc.0...1.13.0-rc.1) (2024-06-13)
+## [1.12.1](https://github.com/erxes/erxes/compare/1.12.0...1.12.1) (2024-06-14)
+
+
+### Features
+
+* **core-ui:** get env js from public url ([ffa7f57](https://github.com/erxes/erxes/commit/ffa7f5715afee93a63addc762cd5f918762f10e2))
+
+## [1.12.0](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-12)
 
 
 ### Bug Fixes

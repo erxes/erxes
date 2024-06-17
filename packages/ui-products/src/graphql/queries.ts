@@ -171,6 +171,8 @@ const uoms = `
       name
       code
       createdAt
+      isForSubscription
+      subscriptionConfig
     }
   }
 `;
