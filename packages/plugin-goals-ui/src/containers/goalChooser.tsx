@@ -38,7 +38,7 @@ const GoalTypeChooser = (props: Props) => {
     },
   );
 
-  const [goalTypesAdd] = useMutation<AddMutationResponse>(
+ useMutation<AddMutationResponse>(
     gql(mutations.goalTypesAdd),
   );
 
@@ -104,10 +104,9 @@ const Wrapper = (props: WrapperProps) => {
     let page = 20;
 
     if (loadmore) {
-      page = page + 20;
+      page += 20;
     }
 
-    setPerPage(perPage);
     setSearchValue(value);
   };
 
