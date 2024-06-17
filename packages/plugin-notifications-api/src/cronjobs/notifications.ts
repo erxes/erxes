@@ -1,7 +1,6 @@
 import * as schedule from 'node-schedule';
 import { generateModels } from '../connectionResolver';
 import { sendCoreMessage } from '../messageBroker';
-// import { debugCrons } from '../debuggers';
 
 export const removeOldNotifications = async (subdomain: string) => {
   const models = await generateModels(subdomain);
