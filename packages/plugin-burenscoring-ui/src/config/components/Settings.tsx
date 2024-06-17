@@ -25,10 +25,10 @@ export default function GeneralSettings(props: Props) {
   const [secretKey, setSecretKey] = useState(
     burenScoringConfig?.secretKey || ""
   );
+  const configField = burenScoringConfig?.fieldRegister || "";
+  const [fieldRegister, setField] = useState(configField);
   const fields = props.customFields?.fieldsCombinedByContentType || [];
-  const [fieldRegister, setField] = useState(
-    burenScoringConfig?.fieldRegister || ""
-  );
+
   const onSave = (e) => {
     e.preventDefault();
     const { configsMap } = props;
@@ -81,8 +81,8 @@ export default function GeneralSettings(props: Props) {
           placeholder={__("Choose field")}
           name="fieldRegister"
           options={fields.map((field) => ({
-            value: field.name,
-            label: field.label,
+            value: field.name || "",
+            label: field.label || "",
           }))}
           value={fieldRegister}
           onChange={(e: any) => setField(e.target.value)}
