@@ -5,7 +5,7 @@ import { generateTree, __ } from '@erxes/ui/src/utils/core';
 import { KbCategories, KbCategoriesContainer, KbTopics } from '../../../style';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import styled from 'styled-components';
-import { FlexRow, Row } from '@erxes/ui-settings/src/styles';
+import { FlexRow } from '@erxes/ui-settings/src/styles';
 
 const KbCat = styled(KbCategories)`
   &:before {
