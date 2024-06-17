@@ -1,22 +1,14 @@
 import {
   ICollateralData,
   IContract,
-<<<<<<< HEAD
   IContractDocument,
-=======
-  IContractDocument
->>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
 } from "../../../models/definitions/contracts";
 import { checkPermission } from "@erxes/api-utils/src";
 import { IContext } from "../../../connectionResolver";
 import {
   sendCardsMessage,
   sendCoreMessage,
-<<<<<<< HEAD
   sendMessageBroker,
-=======
-  sendMessageBroker
->>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
 } from "../../../messageBroker";
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
@@ -216,11 +208,7 @@ const contractMutations = {
       data: {
         mainType: "contract",
         relTypes: ["deal"],
-<<<<<<< HEAD
         mainTypeId: contract._id,
-=======
-        mainTypeId: contract._id
->>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
       },
       isRPC: true,
     });
@@ -355,53 +343,6 @@ const contractMutations = {
       interestAmount,
     });
   },
-<<<<<<< HEAD
-=======
-  clientCreditLoanRequest: async (
-    _root,
-    {
-      secondaryPassword,
-      customerId,
-      amount,
-      contractId
-    }: {
-      contractId: string;
-      amount: number;
-      customerId: string;
-      secondaryPassword: string;
-    },
-    { models, subdomain }: IContext
-  ) => {
-    const validate = await sendMessageBroker(
-      {
-        subdomain,
-        action: "clientPortalUsers.validatePassword",
-        data: {
-          userId: customerId,
-          password: secondaryPassword,
-          secondary: true
-        }
-      },
-      "clientportal"
-    );
-
-    if (validate?.status === "error") {
-      throw new Error(validate.errorMessage);
-    }
-
-    const contract = await models.Contracts.getContract({ _id: contractId });
-
-    if (!contract) {
-      throw new Error("Contract not found!");
-    }
-
-    return await models.Contracts.clientCreditLoanRequest(
-      subdomain,
-      { customerId, amount, contractId },
-      contract
-    );
-  }
->>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
 };
 
 checkPermission(contractMutations, "contractsAdd", "contractsAdd");
