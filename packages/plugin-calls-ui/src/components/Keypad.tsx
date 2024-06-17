@@ -99,14 +99,7 @@ const KeyPad = (props: Props, context) => {
   );
   const [hasMicrophone, setHasMicrophone] = useState(false);
   const [timeSpent, setTimeSpent] = useState(
-<<<<<<< HEAD
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0
-=======
-    call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
-  );
-  const [isPaused, setPaused] = useState(
-    agentStatus === 'pause' ? true : false,
->>>>>>> 1327982ddd8f3b31edfd5498a70a856ea917ff00
   );
   const [isPaused, setIsPaused] = useState(agentStatus === "paused");
 
