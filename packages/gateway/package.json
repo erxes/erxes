@@ -13,6 +13,7 @@
     "@escape.tech/graphql-armor-max-aliases": "^2.3.0",
     "@escape.tech/graphql-armor-max-depth": "^2.2.0",
     "@graphql-tools/schema": "^9.0.16",
+    "@sentry/node": "^8.9.2",
     "agentkeepalive": "^4.3.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.4",

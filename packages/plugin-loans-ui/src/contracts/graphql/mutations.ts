@@ -1,4 +1,4 @@
-import { contractDetailFields } from './queries';
+import { contractDetailFields } from "./queries";
 
 const commonFields = `
   $contractTypeId: String,
@@ -63,6 +63,7 @@ const commonFields = `
   $savingContractId: String
   $customFieldsData: JSON
   $holidayType: String
+  $depositAccountId: String
 `;
 
 const commonVariables = `
@@ -127,6 +128,7 @@ const commonVariables = `
   savingContractId: $savingContractId
   customFieldsData: $customFieldsData
   holidayType: $holidayType
+  depositAccountId: $depositAccountId
 `;
 
 const contractsAdd = `
@@ -246,5 +248,5 @@ export default {
   changeClassification,
   stopInterest,
   interestChange,
-  interestReturn,
+  interestReturn
 };
