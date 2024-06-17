@@ -147,8 +147,6 @@ export class WechatPayAPI extends BaseAPI {
     } catch (e) {
       throw new Error(e.message);
     }
-
-    return '';
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
