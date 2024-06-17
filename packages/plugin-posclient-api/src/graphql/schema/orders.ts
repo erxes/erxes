@@ -70,7 +70,7 @@ const addEditParams = `
   saleStatus: String,
   buttonType: String,
   description: String,
-  isPre: Boolean
+  isPre: Boolean,
 `;
 
 export const types = `

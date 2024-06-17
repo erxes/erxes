@@ -307,7 +307,7 @@ const List: React.FC<IProps> = (props) => {
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
-          size="lg"
+          size="xl"
         />
       </BarItems>
     );
