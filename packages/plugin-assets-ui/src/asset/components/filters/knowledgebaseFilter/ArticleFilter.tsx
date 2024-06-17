@@ -45,7 +45,7 @@ const ArticleFilter = (props: Props) => {
     return (
       <SidebarList>
         {articles.map((article) => (
-          <li key={Math.random()} style={{ marginBottom: "5px" }}>
+          <li key={name.id()} style={{ marginBottom: "5px" }}>
             <a
               href="#filter"
               tabIndex={0}
