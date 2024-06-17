@@ -1,4 +1,3 @@
-import { IContext } from '../../connectionResolver';
 import { IAutomationDoc } from '../../models/definitions/automaions';
 
 export default {
