@@ -179,12 +179,12 @@ const Form = (props: Props) => {
     if (label === "Departments") {
       Selection = SelectDepartments;
       field = "departmentId";
-
+ 
     }
     if (label === "Team Member") {
       Selection = SelectTeamMembers;
       field = "teamMemberId";
-
+ 
     }
     if (label === "Company") {
       Selection = SelectCompanies;
@@ -193,7 +193,7 @@ const Form = (props: Props) => {
     if (label === "Customer") {
       Selection = SelectCustomers;
       field = "customerId";
-
+ 
     }
 
     const handleChange = (selected) => {
