@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { sendContactsMessage, sendFormsMessage } from '../../../messageBroker';
 
 const blockQueries = {
   async getBalance(_root, { erxesCustomerId }, { models }: IContext) {
