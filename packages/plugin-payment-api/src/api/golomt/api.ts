@@ -1,12 +1,10 @@
 import * as crypto from 'crypto';
-import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { ITransactionDocument } from '../../models/definitions/transactions';
 import { BaseAPI } from '../base';
+import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IGolomtInvoice } from '../types';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
@@ -14,8 +12,33 @@ export const hmac256 = (key, message) => {
 };
 
 export const golomtCallbackHandler = async (models: IModels, data: any) => {
-  console.log('GOLOMT CALL BACK DATA', data);
-  return {} as any;
+  const transaction = await models.Transactions.getTransaction({
+    _id: data.invoice,
+  });
+
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+
+  if (payment.kind !== 'golomt') {
+    throw new Error('Payment config type is mismatched');
+  }
+
+  try {
+    const api = new GolomtAPI(payment.config);
+    const status = await api.checkInvoice(transaction);
+
+    if (status !== PAYMENT_STATUS.PAID) {
+      return transaction;
+    }
+
+    transaction.status = status;
+    transaction.updatedAt = new Date();
+
+    await transaction.save();
+
+    return transaction;
+  } catch (e) {
+    throw new Error(e.message);
+  }
 };
 
 export interface IGolomtParams {
@@ -28,42 +51,31 @@ export class GolomtAPI extends BaseAPI {
   private merchant: string;
   private key: string;
   private token: string;
+  private domain?: string;
 
-  constructor(config: IGolomtParams) {
+  constructor(config: IGolomtParams, domain?: string) {
     super(config);
     this.merchant = config.merchant;
     this.token = config.token;
     this.key = config.key;
     this.apiUrl = PAYMENTS.golomt.apiUrl;
+    this.domain = domain;
   }
 
-  async createInvoice(invoice: ITransactionDocument) {
-    const amount = invoice.amount.toString();
+  async createInvoice(transaction: ITransactionDocument) {
+    const amount = transaction.amount.toString();
+
+    const callback = `${this.domain}/pl:payment/callback/golomt`;
 
     const data: IGolomtInvoice = {
       amount,
-      checksum: hmac256(
-        this.key,
-        invoice._id +
-          amount +
-          'GET' +
-          'http://localhost:4000/pl:payment/callback/golomt',
-      ),
-      transactionId: invoice._id,
+      checksum: hmac256(this.key, transaction._id + amount + 'GET' + callback),
+      transactionId: transaction._id,
       genToken: 'N',
       socialDeeplink: 'Y',
-      callback: 'http://localhost:4000/pl:payment/callback/golomt',
+      callback,
       returnType: 'GET',
     };
-
-    // if (details.phone) {
-    //   data.phone = details.phone;
-
-    //   data.checksum = hmac256(
-    //     this.token,
-    //     this.key + invoice._id + amount + details.phone
-    //   );
-    // }
 
     try {
       const res = await this.request({
@@ -82,76 +94,37 @@ export class GolomtAPI extends BaseAPI {
     }
   }
 
-  //   async cancelInvoice(invoice: ITransactionDocument) {
-  //     const amount = invoice.amount.toString();
+  private async check(transaction: any) {
+    const data = {
+      transactionId: transaction._id,
+      checksum: hmac256(this.key, transaction._id + transaction._id),
+    };
+    try {
+      const response = await this.request({
+        path: PAYMENTS.golomt.actions.invoiceCheck,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + this.token,
+        },
+        data,
+      }).then((r) => r.json());
 
-  //     const data: IGolomtInvoice = {
-  //       amount,
-  //       checksum: hmac256(this.token, this.key + invoice._id + amount),
-  //       invoice: invoice._id,
-  //       terminal: this.key,
-  //     };
+      if (response.status && response.status === 'SENT') {
+        return PAYMENT_STATUS.PAID;
+      }
 
-  //     try {
-  //       return await this.request({
-  //         path: PAYMENTS.golomt.actions.invoiceCancel,
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         data,
-  //       });
-  //     } catch (e) {
-  //       throw new Error(e.message);
-  //     }
-  //   }
+      return PAYMENT_STATUS.PENDING;
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  }
 
-  //   async checkInvoice(data: any) {
-  //     try {
-  //       const { body } = await this.request({
-  //         path: PAYMENTS.golomt.actions.invoiceCheck,
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         data,
-  //       }).then((r) => r.json());
+  async checkInvoice(transaction: any) {
+    return this.check(transaction);
+  }
 
-  //       if (body.response.resp_code !== '00') {
-  //         throw new Error(body.response.resp_desc);
-  //       }
-
-  //       return PAYMENT_STATUS.PAID;
-  //     } catch (e) {
-  //       throw new Error(e.message);
-  //     }
-  //   }
-
-  //   async manualCheck(invoice: ITransactionDocument) {
-  //     const amount = invoice.amount.toString();
-
-  //     const data: IGolomtInvoice = {
-  //       amount,
-  //       checksum: hmac256(this.token, this.key + invoice._id + amount),
-  //       invoice: invoice._id,
-  //       terminal: this.key,
-  //     };
-
-  //     try {
-  //       const { body } = await this.request({
-  //         path: PAYMENTS.golomt.actions.invoiceCheck,
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         data,
-  //       }).then((r) => r.json());
-
-  //       if (body.error) {
-  //         return body.error.errorDesc;
-  //       }
-
-  //       if (body.response.resp_code !== '00') {
-  //         throw new Error(body.response.resp_desc);
-  //       }
-
-  //       return PAYMENT_STATUS.PAID;
-  //     } catch (e) {
-  //       throw new Error(e.message);
-  //     }
-  //   }
+  async manualCheck(transaction: ITransactionDocument) {
+    return this.check(transaction);
+  }
 }

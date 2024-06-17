@@ -38,7 +38,7 @@ class ErxesPayment {
     this.qpayQuickqr = new QPayQuickQrAPI(payment.config, domain);
     this.pocket = new PocketAPI(payment.config, domain);
     this.minupay = new MinuPayAPI(payment.config, domain);
-    this.golomt = new GolomtAPI(payment.config);
+    this.golomt = new GolomtAPI(payment.config, domain);
   }
 
   async createInvoice(transaction: ITransactionDocument) {

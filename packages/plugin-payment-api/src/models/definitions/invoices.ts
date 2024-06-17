@@ -55,7 +55,7 @@ invoiceSchema.pre<IInvoiceDocument>('save', async function (next) {
         this.constructor as Model<IInvoiceDocument>
       ).findOne({}, {}, { sort: { createdAt: -1 } });
 
-      if (!lastInvoice) {
+      if (!lastInvoice || !lastInvoice.invoiceNumber) {
         const currentDate = new Date();
         const year = currentDate.getFullYear().toString().slice(-2);
         const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);

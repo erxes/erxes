@@ -1,20 +1,19 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { PAYMENTS, PAYMENT_STATUS } from './api/constants';
+import { golomtCallbackHandler } from './api/golomt/api';
 import { monpayCallbackHandler } from './api/monpay/api';
-import { paypalCallbackHandler } from './api/paypal/api';
+import { pocketCallbackHandler } from './api/pocket/api';
 import { qpayCallbackHandler } from './api/qpay/api';
+import { quickQrCallbackHandler } from './api/qpayQuickqr/api';
 import { socialpayCallbackHandler } from './api/socialpay/api';
 import { storepayCallbackHandler } from './api/storepay/api';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { generateModels } from './connectionResolver';
-import { PAYMENTS, PAYMENT_STATUS } from './api/constants';
-import redisUtils from './redisUtils';
-import { quickQrCallbackHandler } from './api/qpayQuickqr/api';
-import { pocketCallbackHandler } from './api/pocket/api';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 import { ITransactionDocument } from './models/definitions/transactions';
-import { golomtCallbackHandler } from './api/golomt/api';
+import redisUtils from './redisUtils';
 
 export const callbackHandler = async (req, res) => {
   const { route, body, query } = req;
@@ -54,6 +53,7 @@ export const callbackHandler = async (req, res) => {
         break;
       case PAYMENTS.golomt.kind:
         transaction = await golomtCallbackHandler(models, data);
+        break;
       default:
         return res.status(400).send('Invalid kind');
     }

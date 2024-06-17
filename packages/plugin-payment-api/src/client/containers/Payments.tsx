@@ -92,7 +92,7 @@ const Payments = (props: Props) => {
   const checkInvoiceHandler = (id: string) => {
     checkInvoice({ variables: { id } })
       .catch(e => {
-        console.log(e);
+        console.error(e);
       })
       .then(({ data }: any) => {
         const status = data?.invoicesCheck;
