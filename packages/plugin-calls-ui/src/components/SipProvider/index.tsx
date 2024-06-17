@@ -65,6 +65,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       diversionHeader?: string,
+      endedBy?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -72,6 +73,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       callStartTime: Date,
+      queueName: string | null,
     ) => void;
   },
   {
@@ -673,6 +675,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               diversionHeader || '',
+              data.originator,
             );
           }
           this.setState({
@@ -752,6 +755,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               this.state.rtcSession.start_time,
+              this.state.groupName,
             );
           }
           [this.remoteAudio.srcObject] =
