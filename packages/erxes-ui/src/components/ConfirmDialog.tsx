@@ -109,6 +109,7 @@ const ConfirmDialog = ({
   }, [confirm, options, proceed]);
 
   const handleProceed = useCallback(() => {
+
     const { hasDeleteConfirm, hasUpdateConfirm, hasPasswordConfirm } = options;
 
     if (hasDeleteConfirm) {
@@ -149,8 +150,8 @@ const ConfirmDialog = ({
         ),
       });
     }
-
-    invokeProceed();
+    
+    return invokeProceed();
   }, [confirm, invokeProceed, options]);
 
   const handleKeydown = useCallback(
