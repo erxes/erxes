@@ -36,7 +36,14 @@ export const callHistorySchema = new Schema({
   callStatus: field({
     type: String,
     label: 'status',
-    enum: ['missed', 'connected', 'rejected', 'cancelled', 'active'],
+    enum: [
+      'missed',
+      'connected',
+      'rejected',
+      'cancelled',
+      'active',
+      'transfered',
+    ],
     default: 'missed',
   }),
   acceptedUserId: field({
@@ -56,4 +63,5 @@ export const callHistorySchema = new Schema({
     type: String,
     label: `'Local' indicates the call was ended by Erxes, while 'remote' indicates the call was ended by the customer`,
   }),
+  queueName: field({ type: String, label: 'queue name' }),
 });

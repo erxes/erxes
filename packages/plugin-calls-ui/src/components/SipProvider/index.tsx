@@ -73,6 +73,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       callStartTime: Date,
+      queueName: string | null,
     ) => void;
   },
   {
@@ -754,6 +755,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               this.state.rtcSession.start_time,
+              this.state.groupName,
             );
           }
           [this.remoteAudio.srcObject] =

@@ -153,9 +153,16 @@ const callsMutations = {
     });
 
     if (history && history.callStatus === 'active') {
+      let callStatus = doc.callStatus;
+      if (doc.transferedCallStatus) {
+        callStatus = 'transfered';
+      }
       await models.CallHistory.updateOne(
         { _id },
-        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } },
+        {
+          $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id },
+          callStatus: callStatus,
+        },
       );
 
       await putUpdateLog(
