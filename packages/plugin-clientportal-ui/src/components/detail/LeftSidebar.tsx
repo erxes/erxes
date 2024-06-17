@@ -28,7 +28,7 @@ type Props = {
 };
 
 const LeftSidebar: React.FC<Props> = (props: Props) => {
-  const { clientPortalUser, queryParams } = props;
+  const { clientPortalUser } = props;
   const navigate = useNavigate()
   const renderCustomer = () => {
     return renderFullName(clientPortalUser.customer);
