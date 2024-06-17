@@ -8,13 +8,16 @@ import { mutations } from '../graphql';
 import { INonBalanceTransaction } from '../types';
 type Props = {
   nonBalanceTransaction: INonBalanceTransaction;
+  transactionType: string;
   closeModal: () => void;
+  getAssociatedTransaction?: (nonBalanceTransactionId: string) => void;
 };
 
 type FinalProps = {
   usersQuery: UsersQueryResponse;
   currentUser: IUser;
 } & Props;
+
 class NonBalanceTransactionContainer extends React.Component<FinalProps> {
   render() {
     const { nonBalanceTransaction } = this.props;
@@ -25,11 +28,14 @@ class NonBalanceTransactionContainer extends React.Component<FinalProps> {
       isSubmitted,
       object
     }: IButtonMutateProps) => {
-      const { closeModal } = this.props;
+      const { closeModal, getAssociatedTransaction } = this.props;
 
-      const afterSave = () => {
+      const afterSave = data => {
         closeModal();
-        getRefetchQueries()
+
+        if (getAssociatedTransaction) {
+          getAssociatedTransaction(data.nonBalanceTransactionsAdd);
+        }
       };
 
       return (

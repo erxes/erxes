@@ -12,7 +12,7 @@ import {
 import { IResponse } from "../containers/ResponseForm";
 
 type Props = {
-  closeModal: () => void;
+  // closeModal: () => void;  
   response: (props: IResponse) => void;
 };
 

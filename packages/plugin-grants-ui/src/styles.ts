@@ -17,7 +17,7 @@ export const Padding = styledTS<{
   vertical?: boolean;
   padding?: string;
 }>(styled.div)`
-  padding: ${({ horizontal, vertical, padding }) =>
+  padding: ${({ horizontal, vertical, padding }) => 
     !horizontal && !vertical
       ? '10px'
       : `${vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${

@@ -280,22 +280,6 @@ const posOrderRecordsCount = `
   }
 `;
 
-const posOrdersByCustomers = `
-query PosOrderCustomers ($page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
-  posOrderCustomers(page: $page, perPage: $perPage, sortField: $sortField, sortDirection: $sortDirection) {
-    _id
-    customerDetail
-    customerType
-    orders {
-      _id
-    },
-    totalOrders
-    totalAmount
-  }
-  posOrderCustomersTotalCount(page: $page, perPage: $perPage, sortField: $sortField, sortDirection: $sortDirection)
-}
-`;
-
 export default {
   posOrders,
   posOrdersSummary,
@@ -307,6 +291,5 @@ export default {
   coversCount,
   coverDetail,
   posOrderRecords,
-  posOrderRecordsCount,
-  posOrdersByCustomers,
+  posOrderRecordsCount
 };

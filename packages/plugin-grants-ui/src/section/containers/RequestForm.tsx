@@ -6,9 +6,8 @@ import { Alert, ButtonMutate, confirm } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IGrantRequest } from '../../common/type';
 import { refetchQueries } from '../../common/utils';
-import { gql } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import client from '@erxes/ui/src/apolloClient';
-import { useMutation } from '@apollo/client';
 
 type Props = {
   closeModal: () => void;
@@ -102,7 +101,7 @@ const RequestFormContainer: React.FC<Props> = (props) => {
     loading,
   };
 
-  if (!!Object.keys(request).length) {
+  if (Object.keys(request).length) {
     updatedProps.request = {
       ...request,
       params: JSON.parse(request?.params || '{}'),

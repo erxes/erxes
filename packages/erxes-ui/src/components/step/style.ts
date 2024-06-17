@@ -7,9 +7,7 @@ import { Embedded, PreviewContainer, SlideLeftContent } from './preview/styles';
 
 const Space = `${dimensions.unitSpacing + dimensions.coreSpacing}px`;
 
-const Box = styledTS<{ selected?: boolean; glowBorderSelected?: boolean }>(
-  styled(BoxRoot)
-)`
+const Box = styledTS<{ selected?: boolean }>(styled(BoxRoot))`
   padding: ${dimensions.coreSpacing * 1.5}px;
   width: 50%;
   background: ${colors.colorWhite};
@@ -24,14 +22,6 @@ const Box = styledTS<{ selected?: boolean; glowBorderSelected?: boolean }>(
   &:last-child {
     margin-right: 0;
   }
-
-  ${({ glowBorderSelected, selected }) =>
-    selected && glowBorderSelected
-      ? `
-      border: 1px dashed ${colors.colorPrimary} ;
-      `
-      : ''}
-
 `;
 
 const BoxRow = styledTS<{ type?: string }>(styled.div)`

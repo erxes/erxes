@@ -24,7 +24,6 @@ export interface IOrderItem {
   manufacturedDate?: string;
   description?: string;
   attachment?: IAttachment;
-  closeDate?: Date;
 }
 
 export interface IOrderItemDocument extends Document, IOrderItem {
@@ -83,12 +82,7 @@ export const orderItemSchema = schemaHooksWrapper(
     }),
     manufacturedDate: field({ type: String, label: 'manufactured' }),
     description: field({ type: String, label: 'Description' }),
-    attachment: field({ type: Object, label: 'Attachment' }),
-    closeDate: field({
-      type: Date,
-      label: 'Subscription Close Date',
-      optional: true
-    })
+    attachment: field({ type: Object, label: 'Attachment' })
   }),
   'erxes_orderItem'
 );

@@ -25,23 +25,9 @@ const productsMerge = `
 
 // UOM
 
-const commonUomParams = `
-  $name: String,
-  $code: String
-  $isForSubscription:Boolean
-  $subscriptionConfig:JSON
-`;
-
-const commonUomParamsDef = `
-  name: $name,
-  code: $code,
-  isForSubscription: $isForSubscription,
-  subscriptionConfig:$subscriptionConfig
-`;
-
 const uomsAdd = `
-  mutation uomsAdd(${commonUomParams}) {
-    uomsAdd(${commonUomParamsDef}) {
+  mutation uomsAdd($name: String, $code: String) {
+    uomsAdd(name: $name, code: $code) {
       _id
       name
       code
@@ -51,8 +37,8 @@ const uomsAdd = `
 `;
 
 const uomsEdit = `
-  mutation uomsEdit($id: String!,${commonUomParams}) {
-    uomsEdit(_id: $id, ${commonUomParamsDef}) {
+  mutation uomsEdit($id: String!, $name: String, $code: String) {
+    uomsEdit(_id: $id, name: $name, code: $code) {
       _id
       name
       code
@@ -84,5 +70,5 @@ export default {
   uomsEdit,
   uomsRemove,
 
-  productsConfigsUpdate,
+  productsConfigsUpdate
 };

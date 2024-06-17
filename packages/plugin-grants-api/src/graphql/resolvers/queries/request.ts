@@ -61,7 +61,7 @@ const generateFilter = async (
   }
 
   if (params?.contentFilter) {
-    const { contentType, filters } = params?.contentFilter;
+    const { contentType, filters } = params ? params.contentFilter: {} as any;
     const request = await models.Requests.findOne({
       contentType,
       activeStatus: 'active'
@@ -106,7 +106,7 @@ const generateSort = (sortField, sortDirection) => {
   let sort: any = { createdAt: -1 };
 
   if (sortField && sortDirection) {
-    sort = {};
+    
     sort = { [sortField]: sortDirection };
   }
   return sort;

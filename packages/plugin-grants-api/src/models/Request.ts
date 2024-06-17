@@ -378,7 +378,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
       for (const serviceName of services) {
         const service = await getService(serviceName);
         const meta = service.config.meta || {};
-        if (meta && meta.grants) {
+        if (meta ?? meta.grants) {
           const actions = meta.grants?.actions || [];
 
           for (const { label, action, type } of actions) {

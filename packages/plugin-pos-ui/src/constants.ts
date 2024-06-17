@@ -3,8 +3,7 @@ export const menuPos = [
   { title: 'Pos Covers', link: '/pos-covers' },
   { title: 'Pos by Items', link: '/pos-order-items' },
   { title: 'Pos Items', link: '/pos-order-records' },
-  { title: 'Pos Summary', link: '/pos-order-summary' },
-  { title: 'Pos Orders By Customer', link: '/pos-orders-by-customers' }
+  { title: 'Pos Summary', link: '/pos-order-summary' }
 ];
 
 export const TEXT_COLORS = [

@@ -2,7 +2,6 @@ export const TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
   UNIQUE: 'unique',
-  SUBSCRIPTION: 'subscription',
   ALL: ['product', 'service', 'unique']
 };
 

@@ -12,8 +12,7 @@ export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
   UNIQUE: 'unique',
-  SUBSCRIPTION: 'subscription',
-  ALL: ['product', 'service', 'unique', 'subscription']
+  ALL: ['product', 'service', 'unique']
 };
 
 export const PRODUCT_STATUSES = {

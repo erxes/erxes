@@ -61,7 +61,6 @@ type State = {
   code: string;
   category?: IProductCategory;
   maskStr?: string;
-  type: string;
 };
 
 const Form = (props: Props) => {
@@ -108,7 +107,6 @@ const Form = (props: Props) => {
     scopeBrandIds,
     code: code || "",
     categoryId: categoryId || paramCategoryId,
-    type: product.type || "",
   });
 
   useEffect(() => {
@@ -213,15 +211,6 @@ const Form = (props: Props) => {
     };
   };
 
-  const getUoms = (uoms?: IUom[]) =>
-    (uoms || [])
-      .filter(({ isForSubscription }) =>
-        state.type === TYPES.SUBSCRIPTION
-          ? isForSubscription
-          : !isForSubscription
-      )
-      .map((e) => e.code);
-
   const renderFormTrigger = (trigger: React.ReactNode) => {
     const content = (props) => (
       <CategoryForm {...props} categories={props.productCategories} />
@@ -266,7 +255,7 @@ const Form = (props: Props) => {
               <ControlLabel>Sub UOM</ControlLabel>
               <AutoCompletionSelect
                 defaultValue={subUom.uom}
-                defaultOptions={getUoms(uoms)}
+                defaultOptions={(uoms || []).map((e) => e.code)}
                 autoCompletionType="uoms"
                 placeholder="Enter an uom"
                 queryName="uoms"
@@ -521,7 +510,8 @@ const Form = (props: Props) => {
   };
 
   const renderContent = (formProps: IFormProps) => {
-    let { renderButton, closeModal, product, productCategories, uoms } = props;
+    const { renderButton, closeModal, product, productCategories, uoms } =
+      props;
     const { values, isSubmitted } = formProps;
     const object = product || ({} as IProduct);
 
@@ -628,20 +618,12 @@ const Form = (props: Props) => {
                 componentclass="select"
                 defaultValue={object.type}
                 required={true}
-                onChange={(e) =>
-                  setState((prevState) => ({
-                    ...prevState,
-                    type: (e.target as HTMLInputElement).value,
-                  }))
-                }
               >
-                {Object.keys(TYPES)
-                  .filter((type) => type !== "ALL")
-                  .map((typeName, index) => (
-                    <option key={index} value={TYPES[typeName]}>
-                      {typeName}
-                    </option>
-                  ))}
+                {Object.keys(TYPES).map((typeName, index) => (
+                  <option key={index} value={TYPES[typeName]}>
+                    {typeName}
+                  </option>
+                ))}
               </FormControl>
             </FormGroup>
 
@@ -801,7 +783,7 @@ const Form = (props: Props) => {
               <Row>
                 <AutoCompletionSelect
                   defaultValue={state.uom}
-                  defaultOptions={getUoms(uoms)}
+                  defaultOptions={(uoms || []).map((e) => e.code)}
                   autoCompletionType="uoms"
                   placeholder="Enter an uom"
                   queryName="uoms"
@@ -815,6 +797,7 @@ const Form = (props: Props) => {
                   icon="plus-circle"
                   onClick={onClickAddSub}
                 >
+                  {" "}
                   Add sub
                 </Button>
               </Row>

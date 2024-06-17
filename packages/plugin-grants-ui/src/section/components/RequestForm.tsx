@@ -176,7 +176,7 @@ const RequestForm: React.FC<Props> = (props) => {
             text: 'Grant Request',
             values: generateDocs(),
             isSubmitted: formProps.isSubmitted,
-            object: !!Object.keys(props.request || {}).length ? request : null,
+            object: Object.keys(props.request || {}).length ? request : null,
           })}
         </ModalFooter>
       </>

@@ -1,13 +1,13 @@
 import {
   IContract,
   IContractDocument
-} from "../../../models/definitions/contracts";
-import { checkPermission } from "@erxes/api-utils/src";
-import { IContext } from "../../../connectionResolver";
+} from '../../../models/definitions/contracts';
+import { checkPermission } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
 
-import { createLog, deleteLog, updateLog } from "../../../logUtils";
-import { TRANSACTION_TYPE } from "../../../models/definitions/constants";
-import { sendMessageBroker } from "../../../messageBroker";
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
+import { TRANSACTION_TYPE } from '../../../models/definitions/constants';
+import { sendMessageBroker } from '../../../messageBroker';
 
 const contractMutations = {
   savingsContractsAdd: async (
@@ -18,7 +18,7 @@ const contractMutations = {
     const contract = await models.Contracts.createContract(doc);
 
     const logData = {
-      type: "contract",
+      type: 'contract',
       newData: doc,
       object: contract,
       extraParams: { models }
@@ -36,7 +36,7 @@ const contractMutations = {
     let savingAmount = doc.savingAmount;
     if (!doc.depositAccount) {
       throw new Error(
-        "No deposit account linked. Please select a deposit account to proceed with your savings."
+        'No deposit account linked. Please select a deposit account to proceed with your savings.'
       );
     }
 
@@ -46,30 +46,30 @@ const contractMutations = {
     const validate = await sendMessageBroker(
       {
         subdomain,
-        action: "clientPortalUsers.validatePassword",
+        action: 'clientPortalUsers.validatePassword',
         data: {
           userId: doc.customerId,
           password: doc.secondaryPassword,
           secondary: true
         }
       },
-      "clientportal"
+      'clientportal'
     );
 
-    if (validate?.status === "error") {
+    if (validate?.status === 'error') {
       throw new Error(validate.errorMessage);
     }
 
     const customer = await sendMessageBroker(
       {
-        action: "customers.findOne",
+        action: 'customers.findOne',
         subdomain,
         data: {
           _id: doc.customerId
         },
         isRPC: true
       },
-      "contacts"
+      'contacts'
     );
 
     if (savingAmount > 0 && contract) {
@@ -87,7 +87,7 @@ const contractMutations = {
         transactionType: TRANSACTION_TYPE.OUTCOME,
         contractId: deposit._id,
         customerId: doc.customerId,
-        description: "saving",
+        description: 'saving',
         payment: savingAmount,
         accountNumber: contract.number,
         accountHolderName: customer.firstName
@@ -99,7 +99,7 @@ const contractMutations = {
         transactionType: TRANSACTION_TYPE.INCOME,
         contractId: contract._id,
         customerId: doc.customerId,
-        description: "saving",
+        description: 'saving',
         payment: savingAmount,
         accountNumber: deposit.number,
         accountHolderName: customer.firstName
@@ -107,66 +107,8 @@ const contractMutations = {
     }
 
     const logData = {
-      type: "contract",
+      type: 'contract',
       newData: doc,
-      object: contract,
-      extraParams: { models }
-    };
-
-    await createLog(subdomain, user, logData);
-
-    return contract;
-  },
-
-  clientSavingSubmit: async (
-    _root,
-    { customerId }: { customerId: string },
-    { user, models, subdomain }: IContext
-  ) => {
-    const customer = await sendMessageBroker(
-      {
-        action: "customers.findOne",
-        subdomain,
-        data: {
-          _id: customerId
-        },
-        isRPC: true
-      },
-      "contacts"
-    );
-
-    if (!customer) {
-      throw new Error("Customer not found!");
-    }
-
-    const contractType = await models.ContractTypes.findOne({
-      isDeposit: true
-    });
-
-    if (!contractType) {
-      throw new Error("Deposit account type not found!");
-    }
-
-    const depositAccount: any = {
-      customerId: customerId,
-      contractTypeId: contractType._id,
-      startDate: new Date(),
-      isDeposit: true,
-      duration: 36,
-      savingAmount: 0,
-      blockAmount: 0,
-      closeInterestRate: 0,
-      description: "client submit",
-      interestRate: 0,
-      isAllowIncome: true,
-      isAllowOutcome: true
-    };
-
-    const contract = await models.Contracts.createContract(depositAccount);
-
-    const logData = {
-      type: "contract",
-      newData: depositAccount,
       object: contract,
       extraParams: { models }
     };
@@ -189,7 +131,7 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: "contract",
+      type: 'contract',
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
@@ -221,7 +163,7 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: "contract",
+      type: 'contract',
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
@@ -248,7 +190,7 @@ const contractMutations = {
     const updated = await models.Contracts.closeContract(subdomain, doc);
 
     const logData = {
-      type: "contract",
+      type: 'contract',
       object: contract,
       newData: doc,
       updatedDocument: updated,
@@ -277,7 +219,7 @@ const contractMutations = {
 
     for (const contract of contracts) {
       const logData = {
-        type: "contract",
+        type: 'contract',
         object: contract,
         extraParams: { models }
       };
@@ -343,26 +285,26 @@ const contractMutations = {
   }
 };
 
-checkPermission(contractMutations, "saingsContractsAdd", "saingsContractsAdd");
+checkPermission(contractMutations, 'saingsContractsAdd', 'saingsContractsAdd');
 checkPermission(
   contractMutations,
-  "saingsContractsEdit",
-  "saingsContractsEdit"
+  'saingsContractsEdit',
+  'saingsContractsEdit'
 );
 checkPermission(
   contractMutations,
-  "saingsContractsDealEdit",
-  "saingsContractsDealEdit"
+  'saingsContractsDealEdit',
+  'saingsContractsDealEdit'
 );
 checkPermission(
   contractMutations,
-  "saingsContractsClose",
-  "saingsContractsClose"
+  'saingsContractsClose',
+  'saingsContractsClose'
 );
 checkPermission(
   contractMutations,
-  "saingsContractsRemove",
-  "saingsContractsRemove"
+  'saingsContractsRemove',
+  'saingsContractsRemove'
 );
 
 export default contractMutations;

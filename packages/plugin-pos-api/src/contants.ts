@@ -132,10 +132,3 @@ export const EXTEND_FIELDS = [
     type: 'string'
   }
 ];
-
-export const SUBSCRIPTION_INFO_STATUS = {
-  ACTIVE: 'active',
-  CANCELLED: 'cancelled',
-  CLOSED: 'closed',
-  ALL: ['active', 'closed', 'cancellled']
-};

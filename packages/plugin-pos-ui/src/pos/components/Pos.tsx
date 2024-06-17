@@ -165,8 +165,6 @@ const Pos = (props: Props) => {
       };
     }
 
-    console.log({ doc });
-
     save(doc);
   };
 

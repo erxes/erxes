@@ -1,8 +1,7 @@
 export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
-  SUBSCRIPTION:"subscription",
-  ALL: ['product', 'service','subscription'],
+  ALL: ['product', 'service'],
 };
 
 export const PRODUCT_STATUSES = {
@@ -77,11 +76,4 @@ export const ORDER_ORIGINS = {
   POS: '',
   KIOSK: 'kiosk',
   ALL: ['', 'kiosk'],
-};
-
-export const SUBSCRIPTION_INFO_STATUS = {
-  ACTIVE: 'active',
-  CANCELLED: 'cancelled',
-  DONE: 'done',
-  ALL: ['active', 'done', 'cancellled'],
 };

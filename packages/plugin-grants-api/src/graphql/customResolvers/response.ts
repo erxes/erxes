@@ -9,7 +9,6 @@ export default {
 
   async user(
     { userId }: { _id: string } & IGrantResponse,
-    {},
     { subdomain }: IContext
   ) {
     if (!userId) {

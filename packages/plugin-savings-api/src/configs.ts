@@ -1,25 +1,24 @@
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { generateModels } from "./connectionResolver";
-import { setupMessageConsumers } from "./messageBroker";
-import documents from "./documents";
-import forms from "./forms";
-import imports from "./imports";
-import exporter from "./exporter";
-import logs from "./logUtils";
-import * as permissions from "./permissions";
-import payment from "./payment";
-import reports from "./reports";
-import { storeInterestCron } from "./cronjobs/contractCronJobs";
-import { getSubdomain } from "@erxes/api-utils/src/core";
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { generateModels } from './connectionResolver';
+import { setupMessageConsumers } from './messageBroker';
+import documents from './documents';
+import forms from './forms';
+import imports from './imports';
+import exporter from './exporter';
+import logs from './logUtils';
+import * as permissions from './permissions';
+import payment from './payment';
+import { storeInterestCron } from './cronjobs/contractCronJobs';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export default {
-  name: "savings",
+  name: 'savings',
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers()
+      resolvers: await resolvers(),
     };
   },
 
@@ -37,14 +36,13 @@ export default {
   meta: {
     logs: { consumers: logs },
     cronjobs: {
-      handleMinutelyJob: storeInterestCron
+      handleMinutelyJob: storeInterestCron,
     },
     documents,
-    reports,
     permissions,
     forms,
     imports,
     exporter,
-    payment
-  }
+    payment,
+  },
 };
