@@ -26,11 +26,7 @@ const generateQueryParams = (queryParams) => {
     type: queryParams?.type,
     irregular: Boolean(queryParams?.irregular),
     articleIds: generateParamsIds(queryParams?.articleIds),
-    withKnowledgebase: queryParams?.state
-      ? queryParams?.state === 'Assigned'
-        ? true
-        : false
-      : undefined,
+    withKnowledgebase: queryParams?.state === 'Assigned' || undefined,
     ...generatePaginationParams(queryParams || {}),
   };
 };
