@@ -1,8 +1,4 @@
-import {
-  generateToken,
-  getRecordUrl,
-  sendToGrandStreamRequest,
-} from '../../utils';
+import { generateToken, getRecordUrl, sendToGrandStream } from '../../utils';
 import { IContext, IModels } from '../../connectionResolver';
 
 import acceptCall from '../../acceptCall';
@@ -259,7 +255,7 @@ const callsMutations = {
 
     const extentionNumber = operator?.gsUsername || '1001';
 
-    const queueData = (await sendToGrandStreamRequest(
+    const queueData = (await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -324,11 +320,7 @@ const callsMutations = {
     const {
       response: listBridgedChannelsResponse,
       extentionNumber: extension,
-    } = await sendToGrandStreamRequest(
-      models,
-      listBridgedChannelsPayload,
-      user,
-    );
+    } = await sendToGrandStream(models, listBridgedChannelsPayload, user);
     let channel = '';
     console.log('22', extension, extensionNumber);
     if (listBridgedChannelsResponse?.response) {
@@ -377,7 +369,7 @@ const callsMutations = {
     };
     console.log('88');
 
-    const callTransferResponse = await sendToGrandStreamRequest(
+    const callTransferResponse = await sendToGrandStream(
       models,
       callTransferPayload,
       user,
