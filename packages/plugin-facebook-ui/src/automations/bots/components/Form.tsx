@@ -118,7 +118,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
-                  onSelect(accountId, 'accountId'), setAccount(account);
+                  onSelect(accountId, 'accountId')
+                  setAccount(account);
                 }}
               />
             </Padding>
