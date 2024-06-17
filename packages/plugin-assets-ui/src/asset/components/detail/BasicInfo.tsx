@@ -18,7 +18,6 @@ import { IAsset } from "../../../common/types";
 import { IAttachment } from "@erxes/ui/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import KnowledgeBase from "../../containers/detail/KnowledgeBase";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import { Name } from "@erxes/ui-contacts/src/customers/styles";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { Tip } from "@erxes/ui/src";
