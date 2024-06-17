@@ -1,5 +1,4 @@
 import {
-  __,
   Button,
   ControlLabel,
   Form,
