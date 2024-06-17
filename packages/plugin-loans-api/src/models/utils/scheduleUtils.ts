@@ -496,7 +496,7 @@ export const fixSchedules = async (
       prevSchedule = scheduleRow;
 
       for await (let { _id, ...transaction } of transactions) {
-        const trInfo = await transactionRule(models, subdomain, transaction);
+        const trInfo = await transactionRule(models, subdomain, transaction as any);
 
         await models.Transactions.updateOne(
           { _id },
@@ -537,7 +537,7 @@ export const fixSchedules = async (
 
   if (transactions.length > 0)
     for await (let { _id, ...transaction } of transactions) {
-      const trInfo = await transactionRule(models, subdomain, transaction);
+      const trInfo = await transactionRule(models, subdomain, transaction as any);
       await models.Transactions.updateOne(
         { _id },
         { $set: { ...transaction, ...trInfo } }
