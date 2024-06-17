@@ -223,7 +223,7 @@ const SipProviderContainer = (props) => {
   const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
-  const [host, port] = wsServer?.split(':');
+  const [host = 'call.erxes.io', port = '8089'] = wsServer?.split(':');
 
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
