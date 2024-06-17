@@ -174,17 +174,17 @@ const Form = (props: Props) => {
     if (label === "Branches") {
       Selection = SelectBranches;
       field = "branchId";
-      text = asset?.branch?.title;
+
     }
     if (label === "Departments") {
       Selection = SelectDepartments;
       field = "departmentId";
-      text = asset?.department?.title;
+
     }
     if (label === "Team Member") {
       Selection = SelectTeamMembers;
       field = "teamMemberId";
-      text = asset?.teamMember?.email;
+
     }
     if (label === "Company") {
       Selection = SelectCompanies;
@@ -193,7 +193,7 @@ const Form = (props: Props) => {
     if (label === "Customer") {
       Selection = SelectCustomers;
       field = "customerId";
-      text = asset?.customer?.primaryEmail;
+
     }
 
     const handleChange = (selected) => {
