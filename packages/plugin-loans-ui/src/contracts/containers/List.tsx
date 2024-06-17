@@ -8,7 +8,7 @@ import { mutations, queries } from "../graphql";
 import queryString from "query-string";
 import { MainQueryResponse, RemoveMutationResponse } from "../types";
 import { FILTER_PARAMS_CONTRACT } from "../../constants";
-import { useMutation, useQuery } from "@apollo/client";
+
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {

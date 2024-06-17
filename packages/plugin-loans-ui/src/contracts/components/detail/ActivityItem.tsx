@@ -10,7 +10,7 @@ const activityItem = (activity: IActivityLog) => {
   const { contentType, action } = activity;
 
   if ((action && action) || contentType) {
-    default:
+    
       return renderInvoices(activity);
   }
 };
