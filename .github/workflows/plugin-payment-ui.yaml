@@ -6,7 +6,7 @@ on:
       - dev
       - master
       - rc
-      - staging
+      - payment-new-ui
       - build-test
     paths:
       - 'packages/erxes-ui/**'
