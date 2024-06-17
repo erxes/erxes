@@ -91,7 +91,7 @@ class EmailTemplateList extends React.Component<Props> {
         object || {};
 
       return (
-        <Template key={index} $isLongName={name.length > 46}>
+        <Template key={name.id} $isLongName={name.length > 46}>
           <TemplateBox>
             <Actions>
               {this.renderEditAction(object)}
