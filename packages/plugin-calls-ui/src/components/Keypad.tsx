@@ -64,9 +64,6 @@ const KeyPad = (props: Props, context) => {
   const Sip = context;
   const inputRef = useRef<any>(null);
   const navigate = useNavigate();
-  // const outgoingAudio = useRef(new Audio("/sound/outgoing.mp3"));
-  // const pickupAudio = useRef(new Audio("/sound/pickup.mp3"));
-  // const hangupAudio = useRef(new Audio("/sound/hangup.mp3"));
 
   const { call, mute, unmute, isMuted } = Sip;
   const {
@@ -88,7 +85,6 @@ const KeyPad = (props: Props, context) => {
   const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber || '');
   const [dialCode, setDialCode] = useState('');
-  // const [ringingSound, setRingingSound] = useState(false);
 
   const [showTrigger, setShowTrigger] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -127,20 +123,6 @@ const KeyPad = (props: Props, context) => {
     setPaused(agentStatus === 'pause' ? true : false);
   }, [phoneNumber, loading]);
 
-  // useEffect(() => {
-  //   const audio = outgoingAudio.current;
-
-  //   if (ringingSound) {
-  //     audio.loop = true;
-  //     audio
-  //       .play()
-  //       .catch((error) => console.error("Error playing audio:", error));
-  //   } else {
-  //     audio.loop = false;
-  //     audio.pause();
-  //     audio.currentTime = 0;
-  //   }
-  // }, [ringingSound]);
 
   useEffect(() => {
     let timer;
@@ -168,10 +150,6 @@ const KeyPad = (props: Props, context) => {
     }
     if (call?.status === CALL_STATUS_ACTIVE) {
       const { startTime } = call;
-      // setRingingSound(false);
-
-      // const audio = pickupAudio.current;
-      // audio.play();
 
       if (startTime) {
         timer = setInterval(() => {
@@ -184,17 +162,8 @@ const KeyPad = (props: Props, context) => {
       localStorage.removeItem('isCallTransfered');
     }
 
-    // if (
-    //   call?.status === CALL_STATUS_STOPPING ||
-    //   call?.status === CALL_STATUS_FAILED ||
-    //   call?.status === CALL_STATUS_DISCONNECTED ||
-    //   call?.status === CALL_STATUS_ENDED
-    // ) {
-    //   const audio = hangupAudio.current;
-    //   audio.play();
-    // }
     return () => {
-      // setRingingSound(false);
+
 
       clearInterval(timer);
     };
@@ -276,7 +245,6 @@ const KeyPad = (props: Props, context) => {
         setNumber(num);
       }
     } else {
-      // notfy by sound
       const audio = new Audio('/sound/clickNumPad.mp3');
       audio.play();
 
@@ -537,13 +505,10 @@ const KeyPad = (props: Props, context) => {
               icon="outgoing-call"
               onClick={handleCall}
             >
-              {Sip.call?.status === CALL_STATUS_IDLE
-                ? 'Call'
-                : Sip.call?.status === CALL_STATUS_STARTING
-                  ? 'Calling'
-                  : 'Stopping'}
+              {Sip.call?.status === CALL_STATUS_IDLE ? 'Call': Sip.call?.status === CALL_STATUS_STARTING ? 'Calling' : 'Stopping'}
             </Button>
           )}
+          
         </>
       </NumberInput>
     );
