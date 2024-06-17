@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Box from "@erxes/ui/src/components/Box";
-import Icon from "@erxes/ui/src/components/Icon";
 import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import { router, __ } from "@erxes/ui/src/utils";
 import { assetStatusChoises } from "../../../common/utils";
