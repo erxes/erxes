@@ -266,7 +266,7 @@ const engageMutations = {
 
         return JSON.stringify(res);
       } catch (e) {
-        throw new Error(`Error occurred while verifying email ${email}`);
+        throw new Error(`Error occurred while verifying email ${email}, message: ${e}`);
       }
     }
 
