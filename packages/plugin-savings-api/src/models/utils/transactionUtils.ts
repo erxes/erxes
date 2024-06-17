@@ -1,25 +1,25 @@
-import { IModels } from '../../connectionResolver';
-import { IConfig } from '../../interfaces/config';
-import { getConfig, sendMessageBroker } from '../../messageBroker';
-import { TRANSACTION_TYPE } from '../definitions/constants';
+import { IModels } from "../../connectionResolver";
+import { IConfig } from "../../interfaces/config";
+import { getConfig, sendMessageBroker } from "../../messageBroker";
+import { TRANSACTION_TYPE } from "../definitions/constants";
 import {
   ITransaction,
   ITransactionDocument
-} from '../definitions/transactions';
+} from "../definitions/transactions";
 
 export async function checkTransactionValidation(periodLock, doc, subdomain) {
   if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId)) {
     throw new Error(
-      'At this moment transaction can not been created because this date closed'
+      "At this moment transaction can not been created because this date closed"
     );
   }
   if (doc.transactionType === TRANSACTION_TYPE.OUTCOME && subdomain) {
-    const config: IConfig = await getConfig('savingConfig', subdomain);
+    const config: IConfig = await getConfig("savingConfig", subdomain);
     if (!config.oneTimeTransactionLimit) {
-      throw new Error('oneTimeTransactionLimit not configured');
+      throw new Error("oneTimeTransactionLimit not configured");
     }
     if (config.oneTimeTransactionLimit < doc.total) {
-      throw new Error('One Time Transaction Limit not configured');
+      throw new Error("One Time Transaction Limit not configured");
     }
   }
 }
@@ -29,36 +29,34 @@ export const transactionDealt = async (
   models: IModels,
   subdomain
 ) => {
-  if (doc?.dealtType === 'internal') {
+  if (doc?.dealtType === "internal") {
     const contract = await models.Contracts.findOne({
       number: doc?.accountNumber
     }).lean();
-    if (!contract) throw new Error('Dealt contract not found');
+    if (!contract) throw new Error("Dealt contract not found");
 
     doc.transactionType = TRANSACTION_TYPE.INCOME;
 
     return await models.Transactions.createTransaction(doc, subdomain);
-  } else if (doc?.dealtType === 'external') {
+  } else if (doc?.dealtType === "external") {
     return await externalTransaction(doc, subdomain);
   }
   return null;
 };
 
 const externalTransaction = async (doc: ITransaction, subdomain: string) => {
-  const config = await getConfig('savingConfig', subdomain);
-
-  console.log('config', config);
+  const config = await getConfig("savingConfig", subdomain);
 
   let response: any = null;
 
   switch (doc.externalBankName) {
-    case 'loans':
+    case "loans":
       response = await loanTransaction(doc, subdomain);
       break;
-    case '050000':
+    case "050000":
       response = await sendMessageBroker(
         {
-          action: 'domesticTransfer',
+          action: "domesticTransfer",
           data: {
             configId: config.transactionConfigId,
             transferParams: {
@@ -68,21 +66,21 @@ const externalTransaction = async (doc: ITransaction, subdomain: string) => {
               description: doc.description,
               currency: doc.currency,
               loginName: config.transactionLoginName,
-              password: config.transactionLoginName,
-              transferid: ''
+              password: config.transactionPassword,
+              transferid: ""
             }
           },
           subdomain,
           isRPC: true
         },
-        'khanbank'
+        "khanbank"
       );
 
       break;
     default:
       response = await sendMessageBroker(
         {
-          action: 'interbankTransfer',
+          action: "interbankTransfer",
           subdomain,
           data: {
             configId: config.transactionConfigId,
@@ -97,11 +95,11 @@ const externalTransaction = async (doc: ITransaction, subdomain: string) => {
               currency: doc.currency,
               loginName: config.transactionLoginName,
               password: config.transactionPassword,
-              transferid: ''
+              transferid: ""
             }
           }
         },
-        'khanbank'
+        "khanbank"
       );
 
       break;
@@ -112,15 +110,15 @@ const externalTransaction = async (doc: ITransaction, subdomain: string) => {
 
 const loanTransaction = async (doc: ITransaction, subdomain: string) => {
   const repayment = {
-    contractId: 'FExx8N7XvdGe9BYHeJkDw',
-    transactionType: 'repayment',
+    contractId: "FExx8N7XvdGe9BYHeJkDw",
+    transactionType: "repayment",
     payDate: doc.payDate,
     total: doc.total
   };
 
   return await sendMessageBroker(
-    { action: 'transaction.add', subdomain, data: repayment, isRPC: true },
-    'loans'
+    { action: "transaction.add", subdomain, data: repayment, isRPC: true },
+    "loans"
   );
 };
 
@@ -135,7 +133,7 @@ export const removeTrAfterSchedule = async (
 
   if (nextTrsCount > 0) {
     throw new Error(
-      'this transaction is not last transaction. Please This contracts last transaction only to change or remove'
+      "this transaction is not last transaction. Please This contracts last transaction only to change or remove"
     );
   }
 
