@@ -77,7 +77,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.ASSET_CATEGORIES:
-      const parentIds: string[] = [];
+      {const parentIds: string[] = [];
 
       if (object.parentId) {
         parentIds.push(object.parentId);
@@ -98,6 +98,7 @@ const gatherDescriptions = async (
       }
 
       break;
+    }
     default:
       break;
   }
