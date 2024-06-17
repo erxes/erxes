@@ -381,13 +381,11 @@ const contractMutations = {
       throw new Error("Contract not found!");
     }
 
-    const request = await models.Contracts.clientCreditLoanRequest(
+    return await models.Contracts.clientCreditLoanRequest(
       subdomain,
       { customerId, amount, contractId },
       contract
     );
-
-    return request;
   }
 };
 

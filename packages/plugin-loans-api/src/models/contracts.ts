@@ -258,8 +258,9 @@ export const loadContractClass = (models: IModels) => {
       const transactions = await models.Transactions.countDocuments({
         contractId: _ids
       });
-      if (transactions > 0)
+      if (transactions > 0) {
         throw new Error("You can not delete contract with transaction");
+      }
       await models.Schedules.deleteMany({
         contractId: { $in: _ids }
       });
@@ -313,7 +314,9 @@ export const loadContractClass = (models: IModels) => {
           },
           "savings"
         );
-      } else throw new Error("Limit exceed!");
+      } else {
+        throw new Error("Limit exceed!");
+      }
       return contract;
     }
   }
