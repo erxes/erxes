@@ -110,7 +110,7 @@ const notificationQueries = {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
-      if (meta && meta.notificationModules) {
+      if (meta?.notificationModules) {
         const notificationModules = meta.notificationModules || [];
         for (const notificationModule of notificationModules) {
           modules.push(notificationModule);
