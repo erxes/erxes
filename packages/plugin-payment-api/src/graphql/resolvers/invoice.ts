@@ -7,11 +7,11 @@ export default {
     return models.Invoices.findOne({ _id });
   },
 
-  async transactions(invoice: IInvoiceDocument, {}, { models }: IContext) {
+  async transactions(invoice: IInvoiceDocument, _args, { models }: IContext) {
     return models.Transactions.find({ invoiceId: invoice._id });
   },
 
-  async remainingAmount(invoice: IInvoiceDocument, {}, { models }: IContext) {
+  async remainingAmount(invoice: IInvoiceDocument, _args, { models }: IContext) {
     // find paid transactions with invoiceId
     const transactions = await models.Transactions.find({
       invoiceId: invoice._id,
@@ -32,7 +32,7 @@ export default {
     }
   },
 
-  async customer(invoice: IInvoice, {}, { subdomain }: IContext) {
+  async customer(invoice: IInvoice, _args, { subdomain }: IContext) {
     switch (invoice.customerType) {
       case 'company':
         return await sendContactsMessage({
@@ -65,7 +65,7 @@ export default {
     }
   },
 
-  async payment(invoice: IInvoice, {}, { models }: IContext) {
+  async payment(invoice: IInvoice, _args, { models }: IContext) {
     return '';
     // return (
     //   invoice.selectedPaymentId &&
