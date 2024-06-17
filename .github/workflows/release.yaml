@@ -26,9 +26,9 @@ jobs:
           docker buildx imagetools create erxes/erxes:master --tag  erxes/erxes:${GITHUB_REF#refs/tags/} 
 
 
-          aws s3 cp s3://erxes-rc-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar
+          aws s3 cp s3://erxes-master-plugins/locales.tar s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/locales.tar
 
-          aws s3 cp s3://erxes-rc-plugins/pluginsMap.js s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/pluginsMap.js
+          aws s3 cp s3://erxes-master-plugins/pluginsMap.js s3://erxes-release-plugins/${GITHUB_REF#refs/tags/}/pluginsMap.js
       - name: core
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
@@ -381,13 +381,13 @@ jobs:
 
           docker buildx imagetools create erxes/plugin-facebook-api:master --tag  erxes/plugin-facebook-api:${GITHUB_REF#refs/tags/}
 
-      - name: plugin-ecommerce-api
+      - name: plugin-ecommemastere-api
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
 
-          docker buildx imagetools create erxes/plugin-ecommerce-api:master --tag  erxes/plugin-ecommerce-api:${GITHUB_REF#refs/tags/}
+          docker buildx imagetools create erxes/plugin-ecommemastere-api:master --tag  erxes/plugin-ecommemastere-api:${GITHUB_REF#refs/tags/}
 
       - name: plugin-cars-api
         run: >
@@ -568,194 +568,194 @@ jobs:
           docker buildx imagetools create erxes/plugin-burenscoring-api:master --tag  erxes/plugin-burenscoring-api:${GITHUB_REF#refs/tags/}
 
       - name: inbox ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-inbox-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
       - name: automations ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-automations-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-automations-ui
           s3://erxes-release-plugins/uis/plugin-automations-ui/${GITHUB_REF#refs/tags/}/
       - name: calendar ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-calendar-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-calendar-ui
           s3://erxes-release-plugins/uis/plugin-calendar-ui/${GITHUB_REF#refs/tags/}/
       - name: cards ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-cards-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-cards-ui
           s3://erxes-release-plugins/uis/plugin-cards-ui/${GITHUB_REF#refs/tags/}/
       - name: clientportal ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-clientportal-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-clientportal-ui
           s3://erxes-release-plugins/uis/plugin-clientportal-ui/${GITHUB_REF#refs/tags/}/
       - name: contacts ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-contacts-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-contacts-ui
           s3://erxes-release-plugins/uis/plugin-contacts-ui/${GITHUB_REF#refs/tags/}/
       - name: dashboard ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-dashboard-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-dashboard-ui
           s3://erxes-release-plugins/uis/plugin-dashboard-ui/${GITHUB_REF#refs/tags/}/
       - name: emailtemplates ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-emailtemplates-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-emailtemplates-ui
           s3://erxes-release-plugins/uis/plugin-emailtemplates-ui/${GITHUB_REF#refs/tags/}/
       - name: engages ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-engages-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-engages-ui
           s3://erxes-release-plugins/uis/plugin-engages-ui/${GITHUB_REF#refs/tags/}/
       - name: forms ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-forms-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-forms-ui
           s3://erxes-release-plugins/uis/plugin-forms-ui/${GITHUB_REF#refs/tags/}/
       - name: knowledgebase ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-knowledgebase-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-knowledgebase-ui
           s3://erxes-release-plugins/uis/plugin-knowledgebase-ui/${GITHUB_REF#refs/tags/}/
       - name: logs ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-logs-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-logs-ui
           s3://erxes-release-plugins/uis/plugin-logs-ui/${GITHUB_REF#refs/tags/}/
       - name: loyalties ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-loyalties-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-loyalties-ui
           s3://erxes-release-plugins/uis/plugin-loyalties-ui/${GITHUB_REF#refs/tags/}/
       - name: notifications ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-notifications-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-notifications-ui
           s3://erxes-release-plugins/uis/plugin-notifications-ui/${GITHUB_REF#refs/tags/}/
       - name: webhooks ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-webhooks-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-webhooks-ui
           s3://erxes-release-plugins/uis/plugin-webhooks-ui/${GITHUB_REF#refs/tags/}/
       - name: products ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-products-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-products-ui
           s3://erxes-release-plugins/uis/plugin-products-ui/${GITHUB_REF#refs/tags/}/
       - name: segments ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-segments-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-segments-ui
           s3://erxes-release-plugins/uis/plugin-segments-ui/${GITHUB_REF#refs/tags/}/
       - name: tags ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-tags-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-tags-ui
           s3://erxes-release-plugins/uis/plugin-tags-ui/${GITHUB_REF#refs/tags/}/
       - name: webbuilder ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-webbuilder-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-webbuilder-ui
           s3://erxes-release-plugins/uis/plugin-webbuilder-ui/${GITHUB_REF#refs/tags/}/
       - name: documents ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-documents-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-documents-ui
           s3://erxes-release-plugins/uis/plugin-documents-ui/${GITHUB_REF#refs/tags/}/
       - name: ebarimt ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-ebarimt-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-ebarimt-ui
           s3://erxes-release-plugins/uis/plugin-ebarimt-ui/${GITHUB_REF#refs/tags/}/
       - name: exm ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-exm-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-exm-ui
           s3://erxes-release-plugins/uis/plugin-exm-ui/${GITHUB_REF#refs/tags/}/
       - name: pos ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-pos-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-pos-ui
           s3://erxes-release-plugins/uis/plugin-pos-ui/${GITHUB_REF#refs/tags/}/
       - name: syncerkhet ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-syncerkhet-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-syncerkhet-ui
           s3://erxes-release-plugins/uis/plugin-syncerkhet-ui/${GITHUB_REF#refs/tags/}/
       - name: salesplans ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-salesplans-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-salesplans-ui
           s3://erxes-release-plugins/uis/plugin-salesplans-ui/${GITHUB_REF#refs/tags/}/
       - name: processes ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-processes-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-processes-ui
           s3://erxes-release-plugins/uis/plugin-processes-ui/${GITHUB_REF#refs/tags/}/
       - name: inventories ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-inventories-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-inventories-ui
           s3://erxes-release-plugins/uis/plugin-inventories-ui/${GITHUB_REF#refs/tags/}/
       - name: imap ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-imap-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-imap-ui
           s3://erxes-release-plugins/uis/plugin-imap-ui/${GITHUB_REF#refs/tags/}/
 
       - name: goals ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-goals-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-goals-ui
           s3://erxes-release-plugins/uis/plugin-goals-ui/${GITHUB_REF#refs/tags/}/
 
       - name: msdynamic ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-msdynamic-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-msdynamic-ui
           s3://erxes-release-plugins/uis/plugin-msdynamic-ui/${GITHUB_REF#refs/tags/}/
 
       - name: facebook ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-facebook-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-facebook-ui
           s3://erxes-release-plugins/uis/plugin-facebook-ui/${GITHUB_REF#refs/tags/}/
 
       - name: timeclock ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-timeclock-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-timeclock-ui
           s3://erxes-release-plugins/uis/plugin-timeclock-ui/${GITHUB_REF#refs/tags/}/
 
       - name: cars ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-cars-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-cars-ui
           s3://erxes-release-plugins/uis/plugin-cars-ui/${GITHUB_REF#refs/tags/}/
 
       - name: pricing ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-pricing-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-pricing-ui
           s3://erxes-release-plugins/uis/plugin-pricing-ui/${GITHUB_REF#refs/tags/}/
 
       - name: assets ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-assets-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-assets-ui
           s3://erxes-release-plugins/uis/plugin-assets-ui/${GITHUB_REF#refs/tags/}/
 
       - name: payment ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-payment-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-payment-ui
           s3://erxes-release-plugins/uis/plugin-payment-ui/${GITHUB_REF#refs/tags/}/
 
       - name: loans ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-loans-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-loans-ui
           s3://erxes-release-plugins/uis/plugin-loans-ui/${GITHUB_REF#refs/tags/}/
 
       - name: savings ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-savings-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-savings-ui
           s3://erxes-release-plugins/uis/plugin-savings-ui/${GITHUB_REF#refs/tags/}/
 
       - name: productplaces ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-productplaces-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-productplaces-ui
           s3://erxes-release-plugins/uis/plugin-productplaces-ui/${GITHUB_REF#refs/tags/}/
 
       - name: meetings ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-meetings-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-meetings-ui
           s3://erxes-release-plugins/uis/plugin-meetings-ui/${GITHUB_REF#refs/tags/}/
 
       - name: viber ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-viber-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-viber-ui
           s3://erxes-release-plugins/uis/plugin-viber-ui/${GITHUB_REF#refs/tags/}/
 
       - name: xyp ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-xyp-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-xyp-ui
           s3://erxes-release-plugins/uis/plugin-xyp-ui/${GITHUB_REF#refs/tags/}/
 
       - name: zalo ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-zalo-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-zalo-ui
           s3://erxes-release-plugins/uis/plugin-zalo-ui/${GITHUB_REF#refs/tags/}/
 
       - name: riskassessment ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-riskassessment-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-riskassessment-ui
           s3://erxes-release-plugins/uis/plugin-riskassessment-ui/${GITHUB_REF#refs/tags/}/
 
       - name: assets ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-assets-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-assets-ui
           s3://erxes-release-plugins/uis/plugin-assets-ui/${GITHUB_REF#refs/tags/}/
 
       - name: forum ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-forum-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-forum-ui
           s3://erxes-release-plugins/uis/plugin-forum-ui/${GITHUB_REF#refs/tags/}/
 
       - name: dailyco ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-dailyco-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-dailyco-ui
           s3://erxes-release-plugins/uis/plugin-dailyco-ui/${GITHUB_REF#refs/tags/}/
 
       - name: reports ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-reports-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-reports-ui
           s3://erxes-release-plugins/uis/plugin-reports-ui/${GITHUB_REF#refs/tags/}/
 
       - name: instagram ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-instagram-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-instagram-ui
           s3://erxes-release-plugins/uis/plugin-instagram-ui/${GITHUB_REF#refs/tags/}/
 
       - name: calls ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-calls-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-calls-ui
           s3://erxes-release-plugins/uis/plugin-calls-ui/${GITHUB_REF#refs/tags/}/
 
       - name: syncpolaris ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-syncpolaris-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-syncpolaris-ui
           s3://erxes-release-plugins/uis/plugin-syncpolaris-ui/${GITHUB_REF#refs/tags/}/
 
       - name: multierkhet ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-multierkhet-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-multierkhet-ui
           s3://erxes-release-plugins/uis/plugin-multierkhet-ui/${GITHUB_REF#refs/tags/}/
 
       - name: insight ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-insight-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-insight-ui
           s3://erxes-release-plugins/uis/plugin-insight-ui/${GITHUB_REF#refs/tags/}/
 
       - name: khanbank ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-khanbank-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-khanbank-ui
           s3://erxes-release-plugins/uis/plugin-khanbank-ui/${GITHUB_REF#refs/tags/}/
 
       - name: burenscoring ui
-        run: aws s3 sync s3://erxes-rc-plugins/uis/plugin-burenscoring-ui
+        run: aws s3 sync s3://erxes-master-plugins/uis/plugin-burenscoring-ui
           s3://erxes-release-plugins/uis/plugin-burenscoring-ui/${GITHUB_REF#refs/tags/}/
