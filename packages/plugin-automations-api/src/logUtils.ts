@@ -1,12 +1,10 @@
-import { ILogDataParams } from '@erxes/api-utils/src/logUtils';
-
 import {
+  ILogDataParams, 
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
+  putActivityLog as commonPutActivityLog,
 } from '@erxes/api-utils/src/logUtils';
-
-import { putActivityLog as commonPutActivityLog } from '@erxes/api-utils/src/logUtils';
 
 import { generateModels } from './connectionResolver';
 
