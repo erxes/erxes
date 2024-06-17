@@ -126,12 +126,14 @@ export default {
             const data = item.data.find((one) => one.serviceName === splits[0]);
 
             if (data) {
-              const columnValue =
-                splits[1] in data?.data ? data.data[splits[1]] : "";
+              let columnValue = "";
+              if (data.data && splits[1] !== undefined && splits[1] in data.data) {
+                columnValue = data.data[splits[1]];
+              }
               result[column] = columnValue;
-            }
-          } else {
-            result[column] = item[column];
+            } else {
+              result[column] = item[column];
+            }            
           }
         }
         docs.push(result);
