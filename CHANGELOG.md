@@ -1,20 +1,14 @@
 # Changelog
 
-## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.13.0-rc.0...1.13.0-rc.1) (2024-06-13)
+## [1.13.0-rc.2](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-17)
 
-## [1.12.1](https://github.com/erxes/erxes/compare/1.12.0...1.12.1) (2024-06-14)
-
-### Features
-
-- **core-ui:** get env js from public url ([ffa7f57](https://github.com/erxes/erxes/commit/ffa7f5715afee93a63addc762cd5f918762f10e2))
-
-## [1.12.0](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-12)
+## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-13)
 
 ### Bug Fixes
 
 - fix insight table type ([efd64e3](https://github.com/erxes/erxes/commit/efd64e3109a2a335ae800f6c01ace02c22e0a8be))
 
-## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.12.0...1.13.0-rc.0) (2024-06-12)
+## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-12)
 
 ### Bug Fixes
 
@@ -30,7 +24,39 @@
 - syncerkhet check products shortName ([a0d424e](https://github.com/erxes/erxes/commit/a0d424ec2d5e22747cf01fd7846cca277d87f223))
 - **xyp:** some ui update ([#5333](https://github.com/erxes/erxes/issues/5333)) ([c63e9fe](https://github.com/erxes/erxes/commit/c63e9fecfd04ab7585a25eb8a823d5d26bfb781f))
 
+### Performance Improvements
+
 - Loans report ([#5321](https://github.com/erxes/erxes/issues/5321)) ([1ec890e](https://github.com/erxes/erxes/commit/1ec890ef233b515b60ca433985a46e473a498d32))
+
+## [1.12.2](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-17)
+
+### Performance Improvements
+
+- **coreui:** add sentry on ui for error tracking ([617a0b0](https://github.com/erxes/erxes/commit/617a0b078c32b55014293330af7ca47fb53c83e7))
+- **monitoring:** add grafana faro react monitoring on core ui ([8b6f741](https://github.com/erxes/erxes/commit/8b6f7419d2f651e1b0b12a130148b15e3b66afff))
+- **monitoring:** add posthog on ui & add sentry on api ([a3ae094](https://github.com/erxes/erxes/commit/a3ae094bd8dd123543b22ab6bf268dcff59f04af))
+
+## [1.12.1](https://github.com/erxes/erxes/compare/1.13.0-rc.1...1.13.0-rc.2) (2024-06-14)
+
+### Features
+
+- **core-ui:** get env js from public url ([ffa7f57](https://github.com/erxes/erxes/commit/ffa7f5715afee93a63addc762cd5f918762f10e2))
+
+## [1.12.2](https://github.com/erxes/erxes/compare/1.12.1...1.12.2) (2024-06-17)
+
+### Performance Improvements
+
+- **coreui:** add sentry on ui for error tracking ([617a0b0](https://github.com/erxes/erxes/commit/617a0b078c32b55014293330af7ca47fb53c83e7))
+- **monitoring:** add grafana faro react monitoring on core ui ([8b6f741](https://github.com/erxes/erxes/commit/8b6f7419d2f651e1b0b12a130148b15e3b66afff))
+- **monitoring:** add posthog on ui & add sentry on api ([a3ae094](https://github.com/erxes/erxes/commit/a3ae094bd8dd123543b22ab6bf268dcff59f04af))
+
+## [1.12.1](https://github.com/erxes/erxes/compare/1.12.0...1.12.1) (2024-06-14)
+
+## [1.12.1](https://github.com/erxes/erxes/compare/1.12.0...1.12.1) (2024-06-14)
+
+### Features
+
+- **core-ui:** get env js from public url ([ffa7f57](https://github.com/erxes/erxes/commit/ffa7f5715afee93a63addc762cd5f918762f10e2))
 
 ## [1.12.0](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-12)
 
@@ -55,6 +81,7 @@
 ### Bug Fixes
 
 - **calls:** add download option ([200b0eb](https://github.com/erxes/erxes/commit/200b0eb082c3ba4af7d5d9f1e2017fda0446189b))
+- **calls:** saved transfer call record ([afbcb1e](https://github.com/erxes/erxes/commit/afbcb1e4090cd238d126e21d311980af1c8c48d0))
 - **calls:** some change on activity log ([484e34b](https://github.com/erxes/erxes/commit/484e34b786323f0f80a2e973d177a20b2178157f))
 - **coreui:** update wootric createdAt ([eb667af](https://github.com/erxes/erxes/commit/eb667afed37c8be114868cd942e9ac584ac54c2a))
 - ebarimt-ui putResposes list filter ([98170aa](https://github.com/erxes/erxes/commit/98170aafb4b44907d33181573dd56efe46909135))

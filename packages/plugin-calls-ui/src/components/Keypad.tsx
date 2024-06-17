@@ -145,7 +145,7 @@ const KeyPad = (props: Props, context) => {
   useEffect(() => {
     let timer;
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      ?.getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
