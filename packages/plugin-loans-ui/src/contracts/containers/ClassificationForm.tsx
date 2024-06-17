@@ -1,4 +1,4 @@
-import { gql, seQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';

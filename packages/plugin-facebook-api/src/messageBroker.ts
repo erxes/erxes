@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { sendMessage, sendMessage as sendCommonMessage, MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+import { sendMessage, sendMessage as sendCommonMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 
 import {
   facebookCreateIntegration,
