@@ -235,7 +235,7 @@ class GeneralSettings extends React.Component<Props, State> {
       value = defaultValues[kind] || '';
     }
 
-    const optionValue = value.every((i) => typeof i === 'string')
+    const optionValue = value?.every((i) => typeof i === 'string')
       ? constant.filter((o) => value.includes(o.value))
       : value;
 
