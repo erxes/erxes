@@ -232,7 +232,7 @@ export const loadLotteryCampaignClass = (
           afterChars,
           fitLotteriesCount,
           luckyLottery: await models.Lotteries.findOne({
-            _id: (luckyLottery)._id
+            _id: (luckyLottery as { _id: string })._id
           }).lean()
         };
       }
