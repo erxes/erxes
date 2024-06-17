@@ -274,7 +274,7 @@ export const calculateExecution = async ({
   const { reEnrollment, reEnrollmentRules, contentId } = config;
 
   try {
-    if (!!isCustom) {
+    if (isCustom) {
       const [serviceName, collectionType] = (trigger?.type || '').split(':');
 
       if (
