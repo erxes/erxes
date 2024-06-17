@@ -57,6 +57,7 @@ jobs:
           yarn install
           yarn build plugin payment
           cd ../packages/plugin-payment-api
+          yarn install
           yarn build:webpack
           
 
