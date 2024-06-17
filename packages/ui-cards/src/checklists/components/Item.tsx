@@ -136,6 +136,7 @@ function Item(props: Props) {
               type="submit"
               size="small"
               icon="check-1"
+              onClick={onSubmit}
             />
             <Button
               btnStyle="simple"
