@@ -3,7 +3,7 @@ import {
   IContractTypeDocument,
   contractTypeSchema
 } from './definitions/contractTypes';
-import { Model, FilterQuery} from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 
