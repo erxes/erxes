@@ -1,22 +1,20 @@
-import * as compose from "lodash.flowright";
-
 import { Alert, Bulk, router, withProps } from "@erxes/ui/src";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables,
 } from "../types";
-import { mutations, queries } from "../graphql";
-
-import List from "../components/List";
-import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
-  closeModal: () => void;
+  history: any;
 };
 
 type FinalProps = {
@@ -41,11 +39,8 @@ class NonBalanceTransactionListContainer extends React.Component<
   }
 
   render() {
-    const {
-      nonBalanceTransactionsMainQuery,
-      nonBalanceTransactionsRemove,
-      closeModal,
-    } = this.props;
+    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove } =
+      this.props;
 
     const removeNonBalanceTransactions = (
       { nonBalanceTransactionIds },
@@ -72,7 +67,6 @@ class NonBalanceTransactionListContainer extends React.Component<
       loading: nonBalanceTransactionsMainQuery.loading || this.state.loading,
       removeNonBalanceTransactions,
       tableHeadName: tableHeadName,
-      closeModal: closeModal,
     };
 
     const nonBalanceTransactionsList = (props) => {
