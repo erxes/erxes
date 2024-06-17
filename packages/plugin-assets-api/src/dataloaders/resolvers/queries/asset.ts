@@ -138,9 +138,9 @@ const assetQueries = {
     },
     { commonQuerySelector, models, subdomain, user }: IContext,
   ) {
-    let filter: any = commonQuerySelector;
 
-    filter = await generateCommonAssetFilter(models, {
+
+     await generateCommonAssetFilter(models, {
       categoryId,
       parentId,
       searchValue,
@@ -153,7 +153,7 @@ const assetQueries = {
       ...pagintationArgs,
     });
 
-    filter.status = { $ne: ASSET_STATUSES.DELETED };
+    { $ne: ASSET_STATUSES.DELETED };
 
     return afterQueryWrapper(
       subdomain,
@@ -169,7 +169,7 @@ const assetQueries = {
       },
 
       await paginate(
-        models.Assets.find(filter).sort({ order: 1 }).lean(),
+        models.Assets.find().sort({ order: 1 }).lean(),
         pagintationArgs,
       ),
       user,
@@ -181,12 +181,11 @@ const assetQueries = {
     params,
     { commonQuerySelector, models }: IContext,
   ) {
-    let filter: any = commonQuerySelector;
 
-    filter = await generateCommonAssetFilter(models, params);
-    filter.status = { $ne: ASSET_STATUSES.DELETED };
+    await generateCommonAssetFilter(models, params);
+    { $ne: ASSET_STATUSES.DELETED };
 
-    return models.Assets.find(filter).countDocuments();
+    return models.Assets.find().countDocuments();
   },
 
   async assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
