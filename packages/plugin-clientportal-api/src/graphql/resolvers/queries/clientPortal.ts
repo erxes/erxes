@@ -181,7 +181,7 @@ const configClientPortalQueries = {
   ) {
     const selector: any = {};
 
-    if (searchValue && searchValue.trim() && topicId && topicId.trim()) {
+    if (searchValue  && topicId ) {
       selector.$and = [
         {
           $or: [
