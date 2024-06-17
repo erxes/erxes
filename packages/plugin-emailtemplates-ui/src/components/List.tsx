@@ -89,7 +89,7 @@ class EmailTemplateList extends React.Component<Props> {
     return this.props.objects.map((object, index) => {
       const { name, content, createdAt, modifiedAt, createdUser } =
         object || {};
-
+    
       return (
         <Template key={name.id} $isLongName={name.length > 46}>
           <TemplateBox>

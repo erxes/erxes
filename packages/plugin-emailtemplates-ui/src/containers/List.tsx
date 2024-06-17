@@ -89,7 +89,7 @@ const EmailListContainer = (props: Props) => {
   };
 
   const duplicate = (id: string) => {
-    client;
+    
     emailTemplatesDuplicate({
       variables: { _id: id },
     })
