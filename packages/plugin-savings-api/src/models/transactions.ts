@@ -1,16 +1,16 @@
-import { ITransaction, transactionSchema } from './definitions/transactions';
-import { findContractOfTr } from './utils/findUtils';
+import { ITransaction, transactionSchema } from "./definitions/transactions";
+import { findContractOfTr } from "./utils/findUtils";
 import {
   checkTransactionValidation,
   removeTrAfterSchedule,
   transactionDealt
-} from './utils/transactionUtils';
-import { Model } from 'mongoose';
-import { ITransactionDocument } from './definitions/transactions';
-import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
-import { IContractDocument } from './definitions/contracts';
-import { TRANSACTION_TYPE } from './definitions/constants';
+} from "./utils/transactionUtils";
+import { Model } from "mongoose";
+import { ITransactionDocument } from "./definitions/transactions";
+import { IModels } from "../connectionResolver";
+import { FilterQuery } from "mongoose";
+import { IContractDocument } from "./definitions/contracts";
+import { TRANSACTION_TYPE } from "./definitions/constants";
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: FilterQuery<ITransactionDocument>);
@@ -35,7 +35,7 @@ export const loadTransactionClass = (models: IModels) => {
       const transaction = await models.Transactions.findOne(selector);
 
       if (!transaction) {
-        throw new Error('Transaction not found');
+        throw new Error("Transaction not found");
       }
 
       return transaction;
@@ -50,21 +50,19 @@ export const loadTransactionClass = (models: IModels) => {
     ) {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
-      
-
       const periodLock = await models.PeriodLocks.findOne({
         date: { $gte: doc.payDate }
       })
         .sort({ date: -1 })
         .lean();
 
-      await checkTransactionValidation(periodLock,doc,subdomain)
+      await checkTransactionValidation(periodLock, doc, subdomain);
 
       const contract = await models.Contracts.findOne({
         _id: doc.contractId
       }).lean<IContractDocument>();
 
-      if (!contract) throw new Error('Contract not found');
+      if (!contract) throw new Error("Contract not found");
 
       if (!doc.currency && contract?.currency) {
         doc.currency = contract?.currency;
@@ -77,6 +75,7 @@ export const loadTransactionClass = (models: IModels) => {
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
       doc.payment = doc.total;
       doc.balance = contract.savingAmount;
+
       switch (doc.transactionType) {
         case TRANSACTION_TYPE.INCOME:
           await models.Contracts.updateOne(
@@ -90,7 +89,7 @@ export const loadTransactionClass = (models: IModels) => {
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
           if (doc.dealtType) {
-            await transactionDealt(doc, models,subdomain);
+            doc.dealtResponse = await transactionDealt(doc, models, subdomain);
           }
           break;
 
@@ -115,10 +114,14 @@ export const loadTransactionClass = (models: IModels) => {
         .sort({ date: -1 })
         .lean();
 
-      if (periodLock && !periodLock?.excludeContracts.includes(doc.contractId || 'undefined'))
+      if (
+        periodLock &&
+        !periodLock?.excludeContracts.includes(doc.contractId || "undefined")
+      ) {
         throw new Error(
-          'At this moment transaction can not been created because this date closed'
+          "At this moment transaction can not been created because this date closed"
         );
+      }
 
       const oldTr = await models.Transactions.getTransaction({
         _id
@@ -160,7 +163,7 @@ export const loadTransactionClass = (models: IModels) => {
         !periodLock?.excludeContracts.includes(oldTr.contractId)
       )
         throw new Error(
-          'At this moment transaction can not been created because this date closed'
+          "At this moment transaction can not been created because this date closed"
         );
 
       const contract = await models.Contracts.findOne({
@@ -202,10 +205,12 @@ export const loadTransactionClass = (models: IModels) => {
 
           if (
             periodLock &&
-            !periodLock?.excludeContracts.includes(oldTr.contractId || 'undefined')
+            !periodLock?.excludeContracts.includes(
+              oldTr.contractId || "undefined"
+            )
           )
             throw new Error(
-              'At this moment transaction can not been created because this date closed'
+              "At this moment transaction can not been created because this date closed"
             );
 
           await models.Contracts.updateOne(

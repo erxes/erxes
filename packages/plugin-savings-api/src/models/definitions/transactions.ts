@@ -18,6 +18,7 @@ export interface ITransaction {
   storeReaction?: any;
   isManual?: boolean;
   dealtType?: 'internal' | 'external';
+  dealtResponse?: any;
   accountNumber?: string;
   accountHolderName?: string;
   externalBankName?: string;
@@ -93,6 +94,7 @@ export const transactionSchema = schemaHooksWrapper(
     storeReaction: field({ type: Object, label: 'Contract reaction' }),
     isManual: field({ type: Boolean, label: 'Is manual transaction' }),
     dealtType: field({ type: String, label: 'dealtType' }),
+    dealtResponse: field({ type: String, label: 'dealtResponse' }),
     accountNumber: field({ type: String, label: 'accountNumber' }),
     accountHolderName: field({ type: String, label: 'accountHolderName' }),
     externalBankName: field({ type: String, label: 'externalBankName' }),
