@@ -9,6 +9,7 @@
     "@headlessui/react": "1.7.16",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@popperjs/core": "^2.11.8",
+    "@sentry/react": "^8.9.2",
     "abortcontroller-polyfill": "^1.4.0",
     "copy-text-to-clipboard": "^3.0.1",
     "dayjs": "^1.11.10",
