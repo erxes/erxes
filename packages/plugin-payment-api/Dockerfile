@@ -4,3 +4,10 @@ RUN chown -R node:node /erxes
 COPY --chown=node:node . .
 USER node
 ENTRYPOINT ["node", "--max-http-header-size=16384", "packages/plugin-payment-api/src/index"]
+
+WORKDIR /erxes/packages/plugin-payment-api
+COPY package*.json ./
+RUN npm install
+COPY . .
+
+CMD ["npm", "run", "build:webpack"]
