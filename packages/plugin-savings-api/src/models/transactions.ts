@@ -1,16 +1,29 @@
+<<<<<<< HEAD
 import {
   ITransaction,
   transactionSchema,
   ITransactionDocument,
 } from "./definitions/transactions";
+=======
+import { ITransaction, transactionSchema } from "./definitions/transactions";
+>>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
 import { findContractOfTr } from "./utils/findUtils";
 import {
   checkTransactionValidation,
   removeTrAfterSchedule,
+<<<<<<< HEAD
   transactionDealt,
 } from "./utils/transactionUtils";
 import { IModels } from "../connectionResolver";
 import { FilterQuery, Model } from "mongoose";
+=======
+  transactionDealt
+} from "./utils/transactionUtils";
+import { Model } from "mongoose";
+import { ITransactionDocument } from "./definitions/transactions";
+import { IModels } from "../connectionResolver";
+import { FilterQuery } from "mongoose";
+>>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
 import { IContractDocument } from "./definitions/contracts";
 import { TRANSACTION_TYPE } from "./definitions/constants";
 
@@ -77,6 +90,7 @@ export const loadTransactionClass = (models: IModels) => {
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
       doc.payment = doc.total;
       doc.balance = contract.savingAmount;
+
       switch (doc.transactionType) {
         case TRANSACTION_TYPE.INCOME:
           await models.Contracts.updateOne(
@@ -90,7 +104,11 @@ export const loadTransactionClass = (models: IModels) => {
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
           if (doc.dealtType) {
+<<<<<<< HEAD
             await transactionDealt(doc, models, subdomain);
+=======
+            doc.dealtResponse = await transactionDealt(doc, models, subdomain);
+>>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
           }
           break;
 
@@ -118,10 +136,15 @@ export const loadTransactionClass = (models: IModels) => {
       if (
         periodLock &&
         !periodLock?.excludeContracts.includes(doc.contractId || "undefined")
+<<<<<<< HEAD
       )
+=======
+      ) {
+>>>>>>> 4da3750595fd6e102e1c0ce6f55c001ba3ba8623
         throw new Error(
           "At this moment transaction can not been created because this date closed"
         );
+      }
 
       const oldTr = await models.Transactions.getTransaction({
         _id,
