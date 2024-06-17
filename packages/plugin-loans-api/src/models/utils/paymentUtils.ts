@@ -60,7 +60,7 @@ function getDiffFromLast(
 
 export async function getPaymentInfo(
   contract: IContractDocument,
-  payDate: Date = new Date(),
+  payDate: Date,
   models: IModels,
   config?:any
 ): Promise<IPaymentInfo> {
@@ -74,7 +74,7 @@ export async function getPaymentInfo(
     insurance: 0,
     debt: 0,
     commitmentInterest: 0,
-    payDate: payDate,
+    payDate: new Date(),
     expiredDay: 0,
     balance: 0,
     total: 0,
