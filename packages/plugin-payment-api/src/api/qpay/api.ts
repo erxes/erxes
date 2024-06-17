@@ -133,12 +133,11 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async checkInvoice(invoice: ITransactionDocument) {
-    return PAYMENT_STATUS.PAID;
+  private async check(transaction) {
     try {
       const res = await this.request({
         method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
+        path: `${PAYMENTS.qpay.actions.invoice}/${transaction.response.invoice_id}`,
         headers: await this.getHeaders(),
       }).then((r) => r.json());
 
@@ -152,22 +151,13 @@ export class QpayAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: ITransactionDocument) {
-    try {
-      const res = await this.request({
-        method: 'GET',
-        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.response.invoice_id}`,
-        headers: await this.getHeaders(),
-      }).then((r) => r.json());
+  async checkInvoice(transaction: ITransactionDocument) {
+    // return PAYMENT_STATUS.PAID;
+    return this.check(transaction)
+  }
 
-      if (res.invoice_status === 'CLOSED') {
-        return PAYMENT_STATUS.PAID;
-      }
-
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
-    }
+  async manualCheck(transaction: ITransactionDocument) {
+    return this.check(transaction)
   }
 
   async cancelInvoice(invoice: ITransactionDocument) {
