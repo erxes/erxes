@@ -53,8 +53,7 @@ function renderEditAction(insuranceType: IInsuranceType) {
   const trigger = (
     <ActionButton
       style={{ cursor: "pointer" }}
-      children={<Icon icon="edit-1" />}
-    />
+    ><Icon icon="edit-1" /></ActionButton>
   );
 
   return renderFormTrigger(trigger, insuranceType);
