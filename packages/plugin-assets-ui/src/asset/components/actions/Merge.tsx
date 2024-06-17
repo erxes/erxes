@@ -4,11 +4,10 @@ import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { ASSET_INFO } from '../../../common/constant';
 import { InfoDetail } from '../../../style';
-import { Info, InfoTitle } from '@erxes/ui/src/styles/main';
+import { Info, InfoTitle, ModalFooter } from '@erxes/ui/src/styles/main';
 
 type IAssetDoc = IAssetDocc & {};
 
