@@ -26,7 +26,7 @@ export default function GeneralSettings(props: Props) {
     burenScoringConfig?.secretKey || ""
   );
   const configField = burenScoringConfig?.fieldRegister || "";
-  const [fieldRegister, setField] = useState(configField);
+  const [field, setField] = useState(configField);
   const fields = props.customFields?.fieldsCombinedByContentType || [];
 
   const onSave = (e) => {
@@ -36,7 +36,7 @@ export default function GeneralSettings(props: Props) {
       url,
       client_id,
       secretKey,
-      fieldRegister,
+      field,
     };
     props.save(configsMap);
   };
@@ -79,12 +79,12 @@ export default function GeneralSettings(props: Props) {
         <ControlLabel required={true}>{__("Choose field")}</ControlLabel>
         <FormControl
           placeholder={__("Choose field")}
-          name="fieldRegister"
-          options={fields.map((field) => ({
-            value: field.name || "",
-            label: field.label || "",
+          name="field"
+          options={fields.map((f) => ({
+            value: f.name || "",
+            label: f.label || "",
           }))}
-          value={fieldRegister}
+          value={field}
           onChange={(e: any) => setField(e.target.value)}
           componentclass="select"
           required={true}
