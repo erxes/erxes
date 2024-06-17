@@ -168,7 +168,7 @@ class SegmentsFormContainer extends React.Component<
 
     const getSegment = () =>{
 
-      if (!segment&&segmentData) {
+      if (!segment && segmentData) {
         return { ...segmentData, subSegmentConditions: [segmentData] };
       }
       return segment

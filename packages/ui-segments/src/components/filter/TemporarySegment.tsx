@@ -200,7 +200,7 @@ function TemporarySegment({
               segmentData={
                 queryParams?.segmentData
                   ? JSON.parse(queryParams.segmentData)
-                  : {}
+                  : undefined
               }
             />
           </ScrolledContent>
