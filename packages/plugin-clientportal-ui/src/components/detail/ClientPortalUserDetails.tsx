@@ -30,7 +30,7 @@ type Props = {
 };
 
 const ClientPortalUserDetails: React.FC<Props> = (props: Props) => {
-  const { clientPortalUser, currentUser, queryParams } = props;
+  const clientPortalUser = props;
 
   const renderContent = (content) => {
     if (isEnabled('logs')) {

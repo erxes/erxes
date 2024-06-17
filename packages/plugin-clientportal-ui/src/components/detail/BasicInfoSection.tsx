@@ -6,7 +6,6 @@ import Button from "@erxes/ui/src/components/Button";
 import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-// import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
 import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
 import { IClientPortalUser } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
