@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.3](https://github.com/erxes/erxes/compare/1.12.2...1.12.3) (2024-06-17)
+
+
+### Bug Fixes
+
+* added await some promise functions ([549c599](https://github.com/erxes/erxes/commit/549c599e233965cb8c8c5191acddb959c1f651ed))
+
 ## [1.12.2](https://github.com/erxes/erxes/compare/1.12.1...1.12.2) (2024-06-17)
 
 
