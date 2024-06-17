@@ -84,6 +84,7 @@ const SipProviderContainer = (props) => {
     direction: string,
     customerPhone: string,
     transferStatus?: string,
+    endedBy?: string,
   ) => {
     const transferedCallStatus = localStorage.getItem('transferedCallStatus');
     let duration = 0;
@@ -106,6 +107,7 @@ const SipProviderContainer = (props) => {
           transferedCallStatus: transferStatus
             ? 'remote'
             : transferedCallStatus,
+          endedBy,
         },
         refetchQueries: ['callHistories'],
       })

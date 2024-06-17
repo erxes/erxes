@@ -65,6 +65,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       diversionHeader?: string,
+      endedBy?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -673,6 +674,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               diversionHeader || '',
+              data.originator,
             );
           }
           this.setState({

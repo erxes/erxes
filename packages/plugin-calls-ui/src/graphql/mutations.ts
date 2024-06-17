@@ -123,8 +123,8 @@ const callDisconnect = `
 `;
 
 const callHistoryAdd = `
-  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $sessionId: String) {
-  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId) {
+  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $sessionId: String, $endedBy: String) {
+  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId, endedBy: $endedBy) {
     _id
     sessionId
     conversationId
@@ -133,8 +133,8 @@ const callHistoryAdd = `
 `;
 
 const callHistoryEdit = `
-  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $transferedCallStatus: String) {
-    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, transferedCallStatus: $transferedCallStatus) 
+  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $transferedCallStatus: String, $endedBy: String) {
+    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, transferedCallStatus: $transferedCallStatus, endedBy: $endedBy) 
 }`;
 
 const callHistoryEditStatus = ` 
