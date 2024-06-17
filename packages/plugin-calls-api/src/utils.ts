@@ -58,9 +58,9 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     )) as any;
 
     let queue;
-    if (response && response.response) {
+    if (response?.response) {
       queue = response.response.queue;
-    } else if (response && response.queue) {
+    } else if (response?.queue) {
       queue = response?.queue;
     }
 
@@ -126,8 +126,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
     const todayCdr = cdr_root && JSON.parse(JSON.stringify(cdr_root));
     const sortedCdr =
-      todayCdr &&
-      todayCdr.sort((a, b) => a.createdAt?.getTime() - b.createdAt?.getTime());
+      todayCdr?.sort((a, b) => a.createdAt?.getTime() - b.createdAt?.getTime());
 
     let lastCreatedObject = sortedCdr[todayCdr.length - 1];
 

@@ -29,7 +29,7 @@ export const loadIntegrationClass = (models: IModels) => {
       }
 
       if (integrationId) {
-        const a = integrations.map((integration: IIntegration) => {
+          integrations.map((integration: IIntegration) => {
           return integration.inboxId === integrationId;
         });
       }
