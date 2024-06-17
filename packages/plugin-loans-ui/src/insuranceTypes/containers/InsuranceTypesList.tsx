@@ -12,7 +12,7 @@ type Props = {
 };
 
 const InsuranceTypeListContainer = (props: Props) => {
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const { queryParams } = props;
 
   const insuranceTypesMainQuery = useQuery<MainQueryResponse>(
