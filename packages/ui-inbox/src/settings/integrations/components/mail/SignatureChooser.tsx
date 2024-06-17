@@ -39,6 +39,8 @@ const SignatureChooser = ({
   onContentChange,
   onSignatureChange,
 }: Props) => {
+  const [showPreview, setShowPreview] = useState("");
+
   const removeSignature = ({
     openingTag = "<data>",
     closingTag = "</data>",
@@ -105,7 +107,6 @@ const SignatureChooser = ({
     signature: IEmailSignature,
     close: any
   ) => {
-    const [showPreview, setShowPreview] = useState(false);
     const brandName =
       brands.find((brand: IBrand) => brand._id === signature.brandId)?.name ||
       "";
@@ -127,9 +128,12 @@ const SignatureChooser = ({
             >
               <b>{brandName}</b>
             </button>
-            <Icon icon="eye" onClick={() => setShowPreview(!showPreview)} />
+            <Icon
+              icon="eye"
+              onClick={() => setShowPreview(signature.brandId || "")}
+            />
           </SignatureOptionWrapper>
-          <SignatureContentWrapper show={showPreview}>
+          <SignatureContentWrapper show={signature.brandId === showPreview}>
             <div
               onClick={() =>
                 handleSignatureSelection(signature.brandId || "", close)
