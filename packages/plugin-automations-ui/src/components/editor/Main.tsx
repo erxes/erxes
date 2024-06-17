@@ -113,7 +113,7 @@ class Editor extends React.Component<Props, State> {
     this.setState({ name: value });
   };
   switchActionbarTab = (type) => {
-    this.setState({ isActionTab: type === "action" ? true : false });
+    this.setState({ isActionTab: type === "action" });
   };
 
   onToggle = (e) => {
@@ -176,7 +176,7 @@ class Editor extends React.Component<Props, State> {
       showDrawer: true,
       showTrigger: false,
       currentTab: "actions",
-      activeAction: action ? action : ({} as IAction),
+      activeAction: action || ({} as IAction),
     });
   };
 
@@ -190,7 +190,7 @@ class Editor extends React.Component<Props, State> {
       showAction: false,
       currentTab: "triggers",
       selectedContentId,
-      activeTrigger: trigger ? trigger : ({} as ITrigger),
+      activeTrigger: trigger || ({} as ITrigger),
     });
   };
 
