@@ -13,12 +13,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 type Props = {
   save: (configsMap: IConfigsMaps) => void;
   configsMap: IConfigsMaps;
-};
-
-type State = {
-  url?: string,
-  client_id: string;
-  secretKey: string;
+  customFields: any;
 };
 
 export default function GeneralSettings (props:Props) {
@@ -26,16 +21,14 @@ const burenScoringConfig = props.configsMap?.burenScoringConfig || {}
   const [url, setUrl]= useState(burenScoringConfig?.url || '')
   const [client_id, setClient_id] =  useState(burenScoringConfig?.client_id || '')
   const [secretKey, setSecretKey] = useState(burenScoringConfig?.secretKey || '')
-  
-
-
+  const fields = props.customFields?.fieldsCombinedByContentType || []
+  const [fieldRegister, setField] = useState(burenScoringConfig.fieldRegister)
   const onSave = e => {
     e.preventDefault();
     const { configsMap } = props;
-    configsMap.burenScoringConfig = {url,client_id,secretKey};
+    configsMap.burenScoringConfig = {url,client_id,secretKey, fieldRegister};
     props.save(configsMap);
   };
-
     return (
       <CollapseContent title={__('Buren Scoring config')} open>
         <FormGroup>
@@ -71,6 +64,22 @@ const burenScoringConfig = props.configsMap?.burenScoringConfig || {}
             required={true}
           />
         </FormGroup>
+        <FormGroup>
+            <ControlLabel required={true}>{__("Choose field")}</ControlLabel>
+            <FormControl
+              placeholder={__("Choose field")}
+              name="fieldRegister"
+              options={fields.map((field) => ({
+                value: field.name,
+                label: field.label,
+              }))}
+              value={fieldRegister}
+              onChange={(e: any) => setField(e.target.value)}
+              componentclass="select"
+              required={true}
+            />
+          </FormGroup>
+
         <ModalFooter>
           <Button
             btnStyle="primary"

@@ -1,23 +1,17 @@
-<<<<<<< HEAD
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-=======
-import * as compose from "lodash.flowright";
-
 import { Alert, Bulk, router, withProps } from "@erxes/ui/src";
->>>>>>> 83cfbd59c93cff11c52102422a358abbdb24457d
+import { IRouterProps } from "@erxes/ui/src/types";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
-} from '../types';
+  RemoveMutationVariables,
+} from "../types";
 
 type Props = {
   queryParams: any;
@@ -46,7 +40,8 @@ class NonBalanceTransactionListContainer extends React.Component<
   }
 
   render() {
-    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove } = this.props;
+    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove } =
+      this.props;
 
     const removeNonBalanceTransactions = (
       { nonBalanceTransactionIds },
@@ -72,7 +67,7 @@ class NonBalanceTransactionListContainer extends React.Component<
       nonBalanceTransactions: list,
       loading: nonBalanceTransactionsMainQuery.loading || this.state.loading,
       removeNonBalanceTransactions,
-      tableHeadName: tableHeadName
+      tableHeadName: tableHeadName,
     };
 
     const nonBalanceTransactionsList = (props) => {
