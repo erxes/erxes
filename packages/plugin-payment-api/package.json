@@ -19,7 +19,6 @@
     "react-dom": "^16.11.0",
     "@apollo/client": "~3.7.14",
     "graphql-ws": "^5.11.2",
-
     "styled-components": "^5.3.11",
     "styled-components-ts": "^0.0.15",
     "react-modal": "3.16.1",
