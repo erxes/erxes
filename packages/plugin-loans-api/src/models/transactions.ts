@@ -7,7 +7,7 @@ import {
   trAfterSchedule,
   transactionRule
 } from './utils/transactionUtils';
-import { Model, ilterQuery } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
 
