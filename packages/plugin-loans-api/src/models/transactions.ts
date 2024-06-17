@@ -262,7 +262,7 @@ export const loadTransactionClass = (models: IModels) => {
         await models.Invoices.updateInvoice(doc.invoiceId, invoiceData);
       }
 
-      const trInfo = await transactionRule(models, subdomain, { ...doc });
+      const trInfo = await transactionRule(models, subdomain, { ...doc } as any);
 
       await models.Transactions.updateOne(
         { _id },

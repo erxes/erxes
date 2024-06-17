@@ -7,7 +7,7 @@ import {
 
 import { beforeResolverHandlers } from './beforeResolvers';
 import {
-  consumeSalesPlans,
+  ConsumeSalesPlans,
   removeFromSalesPlans,
 } from './utils/consumeSalesPlans';
 import {
@@ -36,7 +36,7 @@ export const setupMessageConsumers = async () => {
 
       const models = await generateModels(subdomain);
 
-      const qb = new consumeSalesPlans(models, subdomain, {
+      const qb = new ConsumeSalesPlans(models, subdomain, {
         dayPlans,
         date,
         branchId,
