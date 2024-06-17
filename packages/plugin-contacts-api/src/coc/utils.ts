@@ -1,28 +1,28 @@
 import {
   fetchEs,
   generateElkIds,
-  getRealIdFromElk,
-} from '@erxes/api-utils/src/elasticsearch';
+  getRealIdFromElk
+} from "@erxes/api-utils/src/elasticsearch";
 
-import { IModels } from '../connectionResolver';
-import { COC_LEAD_STATUS_TYPES } from '../constants';
+import { IModels } from "../connectionResolver";
+import { COC_LEAD_STATUS_TYPES } from "../constants";
 import {
   fetchSegment,
   sendCoreMessage,
   sendInboxMessage,
   sendSegmentsMessage,
-  sendTagsMessage,
-} from '../messageBroker';
-import { companySchema } from '../models/definitions/companies';
-import { customerSchema } from '../models/definitions/customers';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+  sendTagsMessage
+} from "../messageBroker";
+import { companySchema } from "../models/definitions/companies";
+import { customerSchema } from "../models/definitions/customers";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export interface ICountBy {
   [index: string]: number;
 }
 
 export const getEsTypes = (contentType: string) => {
-  const schema = ['company', 'companies'].includes(contentType)
+  const schema = ["company", "companies"].includes(contentType)
     ? companySchema
     : customerSchema;
 
@@ -40,7 +40,7 @@ export const countBySegment = async (
   subdomain: string,
   contentType: string,
   qb,
-  source?: string,
+  source?: string
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -48,21 +48,21 @@ export const countBySegment = async (
   let segments: any[] = [];
 
   // show all contact related engages when engage
-  if (source === 'engages') {
+  if (source === "engages") {
     segments = await sendSegmentsMessage({
       subdomain,
-      action: 'find',
+      action: "find",
       data: { name: { $exists: true } },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
   } else {
     segments = await sendSegmentsMessage({
       subdomain,
-      action: 'find',
+      action: "find",
       data: { contentType, name: { $exists: true } },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
   }
 
@@ -71,7 +71,7 @@ export const countBySegment = async (
     try {
       await qb.buildAllQueries();
       await qb.segmentFilter(s, source);
-      counts[s._id] = await qb.runQueries('count');
+      counts[s._id] = await qb.runQueries("count");
     } catch (e) {
       debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
@@ -83,26 +83,26 @@ export const countBySegment = async (
 
 export const countByBrand = async (
   subdomain: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by brand
   const brands = await sendCoreMessage({
     subdomain,
-    action: 'brands.find',
+    action: "brands.find",
     data: {
-      query: {},
+      query: {}
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const brand of brands) {
     await qb.buildAllQueries();
     await qb.brandFilter(brand._id);
 
-    counts[brand._id] = await qb.runQueries('count');
+    counts[brand._id] = await qb.runQueries("count");
   }
 
   return counts;
@@ -111,24 +111,24 @@ export const countByBrand = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   // Count customers by tag
   const tags = await sendTagsMessage({
     subdomain,
-    action: 'find',
+    action: "find",
     data: { type },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const tag of tags) {
     await qb.buildAllQueries();
     await qb.tagFilter(tag._id);
 
-    counts[tag._id] = await qb.runQueries('count');
+    counts[tag._id] = await qb.runQueries("count");
   }
 
   return counts;
@@ -142,7 +142,7 @@ export const countByLeadStatus = async (qb): Promise<ICountBy> => {
 
     qb.leadStatusFilter(type);
 
-    counts[type] = await qb.runQueries('count');
+    counts[type] = await qb.runQueries("count");
   }
 
   return counts;
@@ -150,23 +150,23 @@ export const countByLeadStatus = async (qb): Promise<ICountBy> => {
 
 export const countByIntegrationType = async (
   subdomain: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   const kindsMap = await sendInboxMessage({
     subdomain,
     data: {},
-    action: 'getIntegrationKinds',
+    action: "getIntegrationKinds",
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
   for (const type of Object.keys(kindsMap)) {
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
 
-    counts[type] = await qb.runQueries('count');
+    counts[type] = await qb.runQueries("count");
   }
 
   return counts;
@@ -204,14 +204,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public models: IModels;
   public subdomain: string;
 
-  private contentType: 'customers' | 'companies';
+  private contentType: "customers" | "companies";
 
   constructor(
     models: IModels,
     subdomain: string,
-    contentType: 'customers' | 'companies',
+    contentType: "customers" | "companies",
     params: IListArgs,
-    context,
+    context
   ) {
     this.contentType = contentType;
     this.context = context;
@@ -227,7 +227,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   public resetNegativeList() {
-    this.negativeList = [{ term: { status: 'deleted' } }];
+    this.negativeList = [{ term: { status: "deleted" } }];
   }
 
   public resetPositiveList() {
@@ -243,16 +243,16 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const selector = await fetchSegment(
       this.subdomain,
       segment._id,
-      source === 'engages' && !segment.contentType.includes('contacts')
+      source === "engages" && !segment.contentType.includes("contacts")
         ? {
             returnAssociated: {
               mainType: segment.contentType,
-              relType: `contacts:${this.getRelType()}`,
+              relType: `contacts:${this.getRelType()}`
             },
-            returnSelector: true,
+            returnSelector: true
           }
         : { returnSelector: true },
-      segmentData,
+      segmentData
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -265,8 +265,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (withRelated) {
       const tag = await sendTagsMessage({
         subdomain: this.subdomain,
-        action: 'find',
-        data: { _id: tagId },
+        action: "find",
+        data: { _id: tagId }
       });
 
       tagIds = [tagId, ...(tag?.relatedIds || [])];
@@ -274,20 +274,20 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     this.positiveList.push({
       terms: {
-        tagIds,
-      },
+        tagIds
+      }
     });
   }
 
   // filter by search value
   public searchFilter(value: string): void {
-    if (value.includes('@')) {
+    if (value.includes("@")) {
       this.positiveList.push({
         match_phrase: {
           searchText: {
-            query: value,
-          },
-        },
+            query: value
+          }
+        }
       });
     } else {
       this.positiveList.push({
@@ -296,17 +296,17 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
             {
               match: {
                 searchText: {
-                  query: value,
-                },
-              },
+                  query: value
+                }
+              }
             },
             {
               wildcard: {
-                searchText: `*${value.toLowerCase()}*`,
-              },
-            },
-          ],
-        },
+                searchText: `*${value.toLowerCase()}*`
+              }
+            }
+          ]
+        }
       });
     }
   }
@@ -315,8 +315,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public searchByAutoCompletionType(value: string, type: string): void {
     this.positiveList.push({
       wildcard: {
-        [type]: `*${(value || '').toLowerCase()}*`,
-      },
+        [type]: `*${(value || "").toLowerCase()}*`
+      }
     });
   }
 
@@ -324,11 +324,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async idsFilter(ids: string[]): Promise<void> {
     if (this.params.excludeIds) {
       this.negativeList.push({
-        terms: { _id: await generateElkIds(ids, this.subdomain) },
+        terms: { _id: await generateElkIds(ids, this.subdomain) }
       });
     } else {
       this.positiveList.push({
-        terms: { _id: await generateElkIds(ids, this.subdomain) },
+        terms: { _id: await generateElkIds(ids, this.subdomain) }
       });
     }
   }
@@ -337,21 +337,21 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public leadStatusFilter(leadStatus: string): void {
     this.positiveList.push({
       term: {
-        leadStatus,
-      },
+        leadStatus
+      }
     });
   }
 
   public emailValidateFilter(emailValidationStatus: string): void {
     this.positiveList.push({
       term: {
-        emailValidationStatus,
-      },
+        emailValidationStatus
+      }
     });
   }
 
   public getRelType() {
-    return this.contentType === 'customers' ? 'customer' : 'company';
+    return this.contentType === "customers" ? "customer" : "company";
   }
 
   public async conformityFilter() {
@@ -360,7 +360,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       conformityMainTypeId,
       conformityIsRelated,
       conformityRelType,
-      conformityIsSaved,
+      conformityIsSaved
     } = this.params;
 
     if (!conformityMainType && !conformityMainTypeId) {
@@ -372,40 +372,40 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (conformityIsRelated) {
       const relTypeIds = await sendCoreMessage({
         subdomain: this.subdomain,
-        action: 'conformities.relatedConformity',
+        action: "conformities.relatedConformity",
         data: {
-          mainType: conformityMainType || '',
-          mainTypeId: conformityMainTypeId || '',
-          relType,
+          mainType: conformityMainType || "",
+          mainTypeId: conformityMainTypeId || "",
+          relType
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       this.positiveList.push({
         terms: {
-          _id: await generateElkIds(relTypeIds || [], this.subdomain),
-        },
+          _id: await generateElkIds(relTypeIds || [], this.subdomain)
+        }
       });
     }
 
     if (conformityIsSaved) {
       const relTypeIds = await sendCoreMessage({
         subdomain: this.subdomain,
-        action: 'conformities.savedConformity',
+        action: "conformities.savedConformity",
         data: {
-          mainType: conformityMainType || '',
-          mainTypeId: conformityMainTypeId || '',
-          relTypes: [relType],
+          mainType: conformityMainType || "",
+          mainTypeId: conformityMainTypeId || "",
+          relTypes: [relType]
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       this.positiveList.push({
         terms: {
-          _id: await generateElkIds(relTypeIds || [], this.subdomain),
-        },
+          _id: await generateElkIds(relTypeIds || [], this.subdomain)
+        }
       });
     }
   }
@@ -421,16 +421,16 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (this.params.segmentData) {
       const segment = JSON.parse(this.params.segmentData);
 
-      await this.segmentFilter({}, '', segment);
+      await this.segmentFilter({}, "", segment);
     }
 
     // filter by segment
     if (this.params.segment) {
       const segment = await sendSegmentsMessage({
         isRPC: true,
-        action: 'findOne',
+        action: "findOne",
         subdomain: this.subdomain,
-        data: { _id: this.params.segment },
+        data: { _id: this.params.segment }
       });
 
       await this.segmentFilter(segment);
@@ -452,7 +452,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // If there are ids and form params, returning ids filter only filter by ids
     if (this.params.ids && this.params.ids.length > 0) {
-      if (typeof this.params.ids === 'string') {
+      if (typeof this.params.ids === "string") {
         this.params.ids = [this.params.ids];
       }
       this.idsFilter(this.params.ids.filter((id) => id));
@@ -463,7 +463,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       this.params.autoCompletion
         ? this.searchByAutoCompletionType(
             this.params.searchValue,
-            this.params.autoCompletionType || '',
+            this.params.autoCompletionType || ""
           )
         : this.searchFilter(this.params.searchValue);
     }
@@ -474,7 +474,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async findAllMongo(_limit: number): Promise<any> {
     return Promise.resolve({
       list: [],
-      totalCount: 0,
+      totalCount: 0
     });
   }
 
@@ -482,17 +482,17 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
    * Run queries
    */
   public async runQueries(
-    action = 'search',
-    unlimited?: boolean,
+    action = "search",
+    unlimited?: boolean
   ): Promise<any> {
     const {
       page = 0,
       perPage = 0,
       sortField,
       sortDirection,
-      searchValue,
+      searchValue
     } = this.params;
-    const paramKeys = Object.keys(this.params).join(',');
+    const paramKeys = Object.keys(this.params).join(",");
 
     const _page = Number(page || 1);
     let _limit = Number(perPage || 20);
@@ -501,33 +501,33 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       _limit = 10000;
     }
 
-    if (
-      !unlimited &&
-      page === 1 &&
-      perPage === 20 &&
-      (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
-    ) {
-      return this.findAllMongo(_limit);
-    }
+    // if (
+    //   !unlimited &&
+    //   page === 1 &&
+    //   perPage === 20 &&
+    //   (paramKeys === 'page,perPage' || paramKeys === 'page,perPage,type')
+    // ) {
+    return this.findAllMongo(_limit);
+    // }
 
     const queryOptions: any = {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList,
-        },
-      },
+          must_not: this.negativeList
+        }
+      }
     };
 
     let totalCount = 0;
 
-    if (action === 'search') {
+    if (action === "search") {
       const totalCountResponse = await fetchEs({
         subdomain: this.subdomain,
-        action: 'count',
+        action: "count",
         index: this.contentType,
         body: queryOptions,
-        defaultValue: 0,
+        defaultValue: 0
       });
 
       totalCount = totalCountResponse.count;
@@ -537,9 +537,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
       const esTypes = getEsTypes(this.contentType);
 
-      let fieldToSort = sortField || 'createdAt';
+      let fieldToSort = sortField || "createdAt";
 
-      if (!esTypes[fieldToSort] || esTypes[fieldToSort] === 'email') {
+      if (!esTypes[fieldToSort] || esTypes[fieldToSort] === "email") {
         fieldToSort = `${fieldToSort}.keyword`;
       }
 
@@ -548,10 +548,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
           [fieldToSort]: {
             order: sortDirection
               ? sortDirection === -1
-                ? 'desc'
-                : 'asc'
-              : 'desc',
-          },
+                ? "desc"
+                : "asc"
+              : "desc"
+          }
         };
       }
     }
@@ -560,23 +560,23 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions,
+      body: queryOptions
     });
 
-    if (action === 'count') {
+    if (action === "count") {
       return response && response.count ? response.count : 0;
     }
 
     const list = response.hits.hits.map((hit) => {
       return {
         _id: getRealIdFromElk(hit._id),
-        ...hit._source,
+        ...hit._source
       };
     });
 
     return {
       list,
-      totalCount,
+      totalCount
     };
   }
 }

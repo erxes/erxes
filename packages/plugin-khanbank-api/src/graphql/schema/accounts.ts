@@ -88,7 +88,7 @@ const dateParams = `
 export const queries = `
   khanbankAccounts(configId: String!): [KhanbankAccount]
   khanbankAccountDetail(configId: String!, accountNumber: String!): KhanbankAccount
-  khanbankAccountHolder(configId: String!, accountNumber: String! bankCode: String): JSON
+  khanbankAccountHolder(configId: String!, accountNumber: String! bankCode: String): KhanbankAccountHolder
 
   khanbankStatements(configId: String!, accountNumber: String!, ${paginationParams} ${dateParams} ): KhanbankStatement
   khanbankStatementsAfterRecord(configId: String!, accountNumber: String!, record: Int! ${paginationParams}): KhanbankStatement

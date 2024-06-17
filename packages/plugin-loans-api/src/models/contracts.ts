@@ -3,7 +3,7 @@ import {
   LEASE_TYPES,
   REPAYMENT,
   SCHEDULE_STATUS
-} from './definitions/constants';
+} from "./definitions/constants";
 import {
   contractSchema,
   ICloseVariable,
@@ -11,18 +11,21 @@ import {
   IContractDocument,
   IInsurancesData,
   ICollateralData
-} from './definitions/contracts';
-import { getCloseInfo } from './utils/closeUtils';
+} from "./definitions/contracts";
+import { getCloseInfo } from "./utils/closeUtils";
 import {
   addMonths,
   calcInterest,
   getDiffDay,
   getFullDate,
   getNumber
-} from './utils/utils';
-import { Model, FilterQuery } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { ITransaction } from './definitions/transactions';
+} from "./utils/utils";
+import { Model, FilterQuery } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { ITransaction } from "./definitions/transactions";
+import BigNumber from "bignumber.js";
+import { getConfig, sendMessageBroker } from "../messageBroker";
+import { IConfig } from "../interfaces/config";
 
 const getInsurancAmount = (
   insurancesData: IInsurancesData[],
@@ -45,6 +48,11 @@ export interface IContractModel extends Model<IContractDocument> {
   createContract(doc: IContract): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
   closeContract(subdomain, doc: ICloseVariable);
+  clientCreditLoanRequest(
+    subdomain,
+    requestParams: { contractId: string; amount: number; customerId: string },
+    contract: IContractDocument
+  );
   removeContracts(_ids);
 }
 
@@ -61,7 +69,7 @@ export const loadContractClass = (models: IModels) => {
       const contract = await models.Contracts.findOne(selector);
 
       if (!contract) {
-        throw new Error('Contract not found');
+        throw new Error("Contract not found");
       }
 
       return contract;
@@ -90,7 +98,7 @@ export const loadContractClass = (models: IModels) => {
       );
 
       if (doc.repayment === REPAYMENT.CUSTOM && !schedule) {
-        throw new Error('Custom graphic not exists');
+        throw new Error("Custom graphic not exists");
       }
 
       const contract = await models.Contracts.create(doc);
@@ -251,14 +259,65 @@ export const loadContractClass = (models: IModels) => {
         contractId: _ids
       });
       if (transactions > 0)
-        throw new Error('You can not delete contract with transaction');
+        throw new Error("You can not delete contract with transaction");
       await models.Schedules.deleteMany({
         contractId: { $in: _ids }
       });
 
       return models.Contracts.deleteMany({ _id: { $in: _ids } });
     }
+
+    public static async clientCreditLoanRequest(
+      subdomain,
+      requestParams: { contractId: string; amount: number; customerId: string },
+      contract: IContractDocument
+    ) {
+      const config: IConfig = await getConfig("loansConfig", subdomain);
+      const trDate = new Date();
+      if (
+        new BigNumber(contract.leaseAmount).toNumber() <=
+        new BigNumber(contract.loanBalanceAmount)
+          .plus(requestParams.amount)
+          .dp(config.calculationFixed)
+          .toNumber()
+      ) {
+        const loanTr = await models.Transactions.createTransaction(subdomain, {
+          total: requestParams.amount,
+          give: requestParams.amount,
+          contractId: requestParams.contractId,
+          customerId: requestParams.customerId,
+          payDate: new Date(),
+          currency: contract.currency
+        });
+
+        const savingTr = {
+          contractId: contract.depositAccountId,
+          customerId: requestParams.customerId,
+          transactionType: "income",
+          description: "credit loan give",
+          payDate: trDate,
+          payment: requestParams.amount,
+          currency: contract.currency,
+          total: requestParams.amount,
+          dealtType: "external",
+          dealtResponse: loanTr,
+          accountNumber: contract.number,
+          externalBankName: "loans"
+        };
+
+        await sendMessageBroker(
+          {
+            action: "transactions.createTransaction",
+            subdomain,
+            data: savingTr
+          },
+          "savings"
+        );
+      } else throw new Error("Limit exceed!");
+      return contract;
+    }
   }
+
   contractSchema.loadClass(Contract);
   return contractSchema;
 };

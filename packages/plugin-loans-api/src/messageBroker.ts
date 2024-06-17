@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 import fetch from 'node-fetch';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { getCloseInfo } from './models/utils/closeUtils';
+import { IConfig } from './interfaces/config';
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
@@ -197,7 +198,7 @@ export const getConfig = async (
     | 'MESSAGE_PRO_API_KEY'
     | 'MESSAGE_PRO_PHONE_NUMBER',
   subdomain: string,
-  defaultValue?: string
+  defaultValue: IConfig = {calculationFixed:2}
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
@@ -223,14 +224,12 @@ export const sendSms = async (
   if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
       'MESSAGE_PRO_API_KEY',
-      subdomain,
-      ''
+      subdomain
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
       'MESSAGE_PRO_PHONE_NUMBER',
-      subdomain,
-      ''
+      subdomain
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
