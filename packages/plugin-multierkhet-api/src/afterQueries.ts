@@ -94,9 +94,10 @@ export const afterQueryHandlers = async (subdomain, data) => {
               if (!Object.keys(responseByCode).includes(invCode)) {
                 responseByCode[invCode] = "";
               }
-              const remainder = `${accounts.length > 1 ? `${acc}/` : ""}${
-                locations.length > 1 ? `${loc}:` : ""
-              } ${resp[invCode]}`;
+              const remainder = (accounts.length > 1 ? acc + '/' : '') +
+              (locations.length > 1 ? loc + ':' : '') +
+              resp[invCode];
+
               responseByCode[invCode] = responseByCode[invCode]
                 ? `${responseByCode[invCode]}, ${remainder}`
                 : `${remainder}`;

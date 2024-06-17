@@ -260,7 +260,7 @@ const Contracts = {
       subdomain,
       {
         contractId: contract._id,
-        payDate: (nextSchedule && nextSchedule.payDate) || today,
+        payDate: (nextSchedule?.payDate) || today,
       },
       config
     );
