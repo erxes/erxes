@@ -25,7 +25,7 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
     const iconAndColor = getIconAndColor(type || contentType) || {};
 
     return (
-      <ActivityRow key={Math.random()}>
+      <ActivityRow>
         <Tip text={formatText(type || contentType)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
