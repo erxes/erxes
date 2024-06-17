@@ -12,7 +12,6 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import {
   AutomationConstants,
   IAutomation,
