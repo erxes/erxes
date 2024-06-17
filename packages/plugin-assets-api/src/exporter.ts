@@ -71,21 +71,21 @@ export const fillValue = async (
       break;
 
     case 'categoryName':
-      const category = await models.AssetCategories.findOne({
+      {const category = await models.AssetCategories.findOne({
         _id: item.categoryId
       }).lean();
 
       value = category?.name || '-';
 
-      break;
+      break;}
     case 'parentName':
-      const parent = await models.Assets.findOne({
+      {const parent = await models.Assets.findOne({
         _id: item.parentId
       }).lean();
 
       value = parent?.name || '-';
 
-      break;
+      break;}
 
     default:
       break;
