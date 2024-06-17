@@ -1,5 +1,5 @@
-import { Schema, model, Document, Model, HydratedDocument } from "mongoose";
-import { sendInboxMessage } from "./messageBroker";
+import { Schema, model, Document, Model, HydratedDocument } from 'mongoose';
+import { sendInboxMessage } from './messageBroker';
 
 interface ICustomer {
   inboxIntegrationId: string;
@@ -14,7 +14,7 @@ export const customerSchema: Schema<ICustomer> = new Schema<ICustomer>({
   contactsId: String,
   viberId: String,
   name: String,
-  country: String,
+  country: String
 });
 
 export const loadCustomerClass = () => {
@@ -31,24 +31,24 @@ export const loadCustomerClass = () => {
           contactsId: null,
           viberId: viberAccount.viberId,
           name: viberAccount.name,
-          country: viberAccount.country,
+          country: viberAccount.country
         });
 
         try {
           const apiCustomerResponse = await sendInboxMessage({
             subdomain,
-            action: "integrations.receive",
+            action: 'integrations.receive',
             data: {
-              action: "get-create-update-customer",
+              action: 'get-create-update-customer',
               payload: JSON.stringify({
                 integrationId: viberAccount.inboxIntegrationId,
                 firstName: viberAccount.name,
                 lastName: null,
                 avatar: null,
-                isUser: true,
-              }),
+                isUser: true
+              })
             },
-            isRPC: true,
+            isRPC: true
           });
 
           customer.contactsId = apiCustomerResponse._id;
@@ -67,26 +67,24 @@ export const loadCustomerClass = () => {
 };
 
 export const Customers = model<any, any>(
-  "viber_customers",
+  'viber_customers',
   loadCustomerClass()
 );
 
 export const integrationSchema: Schema<any> = new Schema({
   inboxId: String,
   accountId: String,
-  token: String,
+  token: String
 });
 
 export const loadIntegrationClass = () => {
-  class Integration {
-    constructor() {}
-  }
+  class Integration {}
   integrationSchema.loadClass(Integration);
   return integrationSchema;
 };
 
 export const Integrations = model<any, any>(
-  "viber_integrations",
+  'viber_integrations',
   loadIntegrationClass()
 );
 
@@ -99,19 +97,20 @@ export interface IConversation {
 }
 export type IConversationDocument = HydratedDocument<IConversation>;
 
-export const conversationSchema: Schema<IConversation> =
-  new Schema<IConversation>({
-    erxesApiId: String,
-    timestamp: Date,
-    senderId: { type: String, index: true },
-    recipientId: { type: String, index: true, required: false },
-    integrationId: String,
-  });
+export const conversationSchema: Schema<IConversation> = new Schema<
+  IConversation
+>({
+  erxesApiId: String,
+  timestamp: Date,
+  senderId: { type: String, index: true },
+  recipientId: { type: String, index: true, required: false },
+  integrationId: String
+});
 
 conversationSchema.index({ senderId: 1, recipientId: 1 }, { unique: true });
 
 export const Conversations: Model<IConversation, {}> = model<IConversation>(
-  "viber_conversation",
+  'viber_conversation',
   conversationSchema
 );
 
@@ -125,19 +124,18 @@ export interface IConversationMessages extends Document {
   attachments?: any;
 }
 
-export const conversationMessageSchema: Schema<IConversationMessages> =
-  new Schema<IConversationMessages>({
-    conversationId: String,
-    userId: String,
-    customerId: String,
-    createdAt: Date,
-    content: String,
-    messageType: String,
-    attachments: Schema.Types.Mixed,
-  });
+export const conversationMessageSchema: Schema<IConversationMessages> = new Schema<
+  IConversationMessages
+>({
+  conversationId: String,
+  userId: String,
+  customerId: String,
+  createdAt: Date,
+  content: String,
+  messageType: String,
+  attachments: Schema.Types.Mixed
+});
 
-export const ConversationMessages: Model<IConversationMessages, {}> =
-  model<IConversationMessages>(
-    "viber_conversation_messages",
-    conversationMessageSchema
-  );
+export const ConversationMessages: Model<IConversationMessages, {}> = model<
+  IConversationMessages
+>('viber_conversation_messages', conversationMessageSchema);
