@@ -62,10 +62,7 @@ const burenScoringQueries = {
       isRPC: true,
     });
 
-    if (
-      config?.fieldRegister &&
-      config?.fieldRegister?.includes("customFieldsData.")
-    ) {
+    if (config?.fieldRegister?.includes("customFieldsData.")) {
       const fieldKey = config?.fieldRegister?.replace("customFieldsData.", "");
       return a.customFieldsData?.find((el) => el.field == fieldKey)?.value;
     }
