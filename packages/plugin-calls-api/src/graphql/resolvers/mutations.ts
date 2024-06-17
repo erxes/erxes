@@ -280,7 +280,7 @@ const callsMutations = {
       user
     );
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { need_apply } = queueData?.response;
       if (need_apply) {
         const operator = await models.Operators.getOperator(user._id);

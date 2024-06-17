@@ -98,7 +98,7 @@ const callsQueries = {
       user
     );
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { account } = queueData?.response;
 
       if (account) {
