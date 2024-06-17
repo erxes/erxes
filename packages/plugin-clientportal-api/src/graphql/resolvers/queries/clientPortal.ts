@@ -320,7 +320,7 @@ const configClientPortalQueries = {
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
   ) {
-    const id = userId || (cpUser && cpUser._id);
+    const id = userId || cpUser?._id;
 
     if (!id) {
       return [];
@@ -333,7 +333,7 @@ const configClientPortalQueries = {
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
   ) {
-    const id = userId || (cpUser && cpUser._id);
+    const id = userId || cpUser?._id;
 
     if (!id) {
       return [];
@@ -361,7 +361,7 @@ const configClientPortalQueries = {
     { userId }: { userId: string },
     { models, cpUser, subdomain }: IContext
   ) {
-    const id = userId || (cpUser && cpUser._id);
+    const id = userId || cpUser?._id;
 
     if (!id) {
       return [];
