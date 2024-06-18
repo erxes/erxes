@@ -503,8 +503,15 @@ class MainActionBar extends React.Component<Props, State> {
         {this.renderTimeView()}
         {queryParams && <Filter queryParams={queryParams} />}
 
-        {isEnabled("segments") && (
-          <TemporarySegment contentType={`cards:${type}`} />
+        {isEnabled('segments') && (
+          <TemporarySegment
+            contentType={`cards:${type}`}
+            serviceConfig={{
+              boardId: currentBoard?._id,
+              pipelineId: currentPipeline?._id
+            }}
+            hideSaveButton
+          />
         )}
 
         {this.renderViewChooser()}
