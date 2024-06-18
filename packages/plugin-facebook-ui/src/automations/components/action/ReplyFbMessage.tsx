@@ -360,8 +360,8 @@ function ReplyFbMessage({
     return (
       <BottomBarContainer>
         <BottomBarActionsContainer>
-          {BOTTOM_BAR_ITEMS.map(({ title, icon, type }) => (
-            <BottomBarAction onClick={() => addMessage(type)}>
+          {BOTTOM_BAR_ITEMS.map(({ title, icon, type }, item) => (
+            <BottomBarAction key={item} onClick={() => addMessage(type)}>
               <Icon icon={icon} />
               <p>{title}</p>
             </BottomBarAction>
