@@ -6,7 +6,7 @@ type Props = {
 };
 
 const Row = ({ price, action }: Props) => {
-  const { Item_No, Unit_Price, Ending_Date, code, unitPrice, syncStatus } =
+  const { Item_No, Unit_Price, Ending_Date, code, unitPrice } =
     price;
 
   return (

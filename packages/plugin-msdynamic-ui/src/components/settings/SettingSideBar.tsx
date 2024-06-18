@@ -10,7 +10,7 @@ import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeade
 type Props = {};
 
 const SettingSideBar = (props: Props) => {
-  const {} = props;
+
 
   const renderListItem = (url: string, text: string) => {
     return (
