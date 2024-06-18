@@ -102,7 +102,7 @@ const PermissionList = (props: Props) => {
               (o) => o.value === queryParams.module
             )}
             options={generateModuleParams(modules)}
-            onChange={() => setFilter.bind(this, "module")}
+            onChange={(e) => setFilter("module", e as generatedList)}
           />
         </FilterItem>
 
@@ -114,7 +114,7 @@ const PermissionList = (props: Props) => {
               (o) => o.value === queryParams.action
             )}
             options={filterActions(actions, queryParams.module)}
-            onChange={() => setFilter.bind(this, "action")}
+            onChange={(e) => setFilter("action", e as generatedList)}
           />
         </FilterItem>
         <FilterItem id="permission-choose-users">
