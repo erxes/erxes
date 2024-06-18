@@ -71,6 +71,7 @@ function FieldChoices(props: Props) {
         icon="envelope-alt"
       />
       <FieldChoice {...props} type="phone" text={__('Phone')} icon="phone" />
+      <FieldChoice {...props} type="internationalPhone" text={__('International Phone number')} icon="phone" />
       <FieldChoice
         {...props}
         type="firstName"
