@@ -52,11 +52,10 @@ function renderFormTrigger(
 function renderEditAction(insuranceType: IInsuranceType) {
   const trigger = (
     <ActionButton
-      style={{ cursor: "pointer" }}
-      children={<Icon icon="edit-1" />}
-    />
+      style={{ cursor: "pointer" }}>
+        <Icon icon="edit-1"/>
+      </ActionButton>
   );
-
   return renderFormTrigger(trigger, insuranceType);
 }
 
