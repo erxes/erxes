@@ -54,14 +54,14 @@ export default class LogModal extends React.Component<Props> {
           }
         }
 
-        list.push(<li key={Math.random()}>{value}</li>);
+        list.push(<li key={Math?.random()}>{value}</li>);
       }
 
       if (typeof elem === 'object') {
         const sub: JSX.Element[] = this.buildListFromObject(elem);
 
         list.push(
-          <li className="modal-li" key={Math.random()}>
+          <li className="modal-li" key={Math?.random()}>
             {sub}({index + 1})
           </li>
         );
@@ -69,7 +69,7 @@ export default class LogModal extends React.Component<Props> {
     });
 
     if (list.length > 0) {
-      return <ul key={Math.random()}>{list}</ul>;
+      return <ul key={Math?.random()}>{list}</ul>;
     }
 
     return <ul key="array" />;
@@ -136,7 +136,7 @@ export default class LogModal extends React.Component<Props> {
           item = this.buildListFromArray(field, name);
 
           list.push(
-            <div className="field-name" key={Math.random()}>
+            <div className="field-name" key={Math?.random()}>
               {label}:
             </div>
           );
@@ -145,15 +145,15 @@ export default class LogModal extends React.Component<Props> {
         } else {
           const sub = this.buildListFromObject(field, false);
 
-          item = <li key={Math.random()}>{name}:</li>;
+          item = <li key={Math?.random()}>{name}:</li>;
 
           list.push(
-            <div className="field-name" key={Math.random()}>
+            <div className="field-name" key={Math?.random()}>
               {label}:
             </div>
           );
 
-          list.push(<li key={Math.random()}>{sub}</li>);
+          list.push(<li key={Math?.random()}>{sub}</li>);
         }
       } else {
         // primary types
