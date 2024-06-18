@@ -86,10 +86,6 @@ const ChartTypes = (props: Props) => {
         return <ChartTypeBoxes>{chartTypes.map(type => renderChartType(type))}</ChartTypeBoxes>
     }
 
-    const renderColorPalette = () => {
-        return <ChartBox><Icon icon='swatchbook' size={22} /></ChartBox>
-    }
-
     return (
         <ChartBoxes>
             {renderCharTypes()}
