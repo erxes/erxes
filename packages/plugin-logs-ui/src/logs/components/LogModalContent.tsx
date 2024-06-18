@@ -145,7 +145,6 @@ export default class LogModal extends React.Component<Props> {
         } else {
           const sub = this.buildListFromObject(field, false);
 
-          item = <li key={Math?.random()}>{name}:</li>;
 
           list.push(
             <div className="field-name" key={Math?.random()}>
