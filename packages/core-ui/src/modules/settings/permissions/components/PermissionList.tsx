@@ -173,9 +173,9 @@ const PermissionList = (props: Props) => {
     return <PermissionForm {...extendedProps} />;
   };
 
-  const renderPermissionFixer = (props) => {
+  const renderPermissionFixer = (modalProps) => {
     const updatedProps = {
-      ...props,
+      ...modalProps,
       fixPermissions: props.fixPermissions,
     };
 
