@@ -50,16 +50,6 @@ export class VendorBaseAPI {
       //   tokenExpiration: expires_in * 1000 + Date.now()
       // };
 
-      // await redis.set(
-      //   'qpay_merchant_data',
-      //   JSON.stringify(data),
-      //   'EX',
-      //   expires_in
-      // );
-
-      // this.accessToken = access_token;
-
-      // return access_token;
     } catch (e) {
       throw new Error(e.message);
     }
