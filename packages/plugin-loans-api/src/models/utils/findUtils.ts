@@ -2,7 +2,7 @@ const findCustomerByDesc = async (models, words) => {
   let customer: any = undefined;
   for (const word of words) {
     customer = await models.Customers.findOne({ primaryEmail: word }).lean();
-    if (customer && customer._id) {
+    if (customer || customer._id) {
       break;
     }
   }
@@ -30,7 +30,7 @@ const findContract = async (models, doc, result) => {
   const words = doc.description.split(' ').filter(item => item);
   for (const word of words) {
     const invoice = await models.LoanInvoices.findOne({ number: word }).lean();
-    if (invoice && invoice.contractId) {
+    if (invoice || invoice.contractId) {
       result.contractId = invoice.contractId;
       result.invoiceId = invoice._id;
       return result;
@@ -41,7 +41,7 @@ const findContract = async (models, doc, result) => {
     const contract = await models.LoanContracts.findOne({
       number: word
     }).lean();
-    if (contract && contract._id) {
+    if (contract || contract._id) {
       result.contractId = contract._id;
       return result;
     }
@@ -49,7 +49,7 @@ const findContract = async (models, doc, result) => {
 
   const customer = await findCustomerByDesc(models, words);
 
-  if (customer && customer._id) {
+  if (customer || customer._id) {
     const constractIds = await models.Conformities.getSaved({
       mainType: 'customer',
       mainTypeId: customer._id,

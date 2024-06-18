@@ -43,12 +43,3 @@ export const sendCoreMessage = async (
     ...args,
   });
 };
-
-export const sendContractsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'contacts',
-    ...args,
-  });
-};

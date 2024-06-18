@@ -35,5 +35,4 @@ export const queries = `
   burenCustomerScoringsMain(${queryParams}): burenCustomerScoringsMainResponce
   getCustomerScore(customerId: String!): burenCustomerScoring
   getCustomerScoring(${scoringParams}): JSON
-  getRegister(customerId: String!): JSON
 `;

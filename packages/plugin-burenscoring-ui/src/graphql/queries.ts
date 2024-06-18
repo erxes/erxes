@@ -66,12 +66,7 @@ query getCustomerScoring(${fintechParams}) {
   getCustomerScoring(${fintechParamsDefs})
 }
 `;
-export const fieldsCombinedByContentType = `query fieldsCombinedByContentType($contentType: String!) {
-  fieldsCombinedByContentType(contentType: $contentType)
-}`
-export const getRegister =  `query Query($customerId: String!) {
-  getRegister(customerId: $customerId)
-}`
+
 const BurenConfigs = `
   query configs {
     configs {
@@ -85,9 +80,7 @@ export default {
   burenCustomerScoringsMain,
   getCustomerScore,
   getCustomerScoring,
-  BurenConfigs,
-  fieldsCombinedByContentType,
-  getRegister
+  BurenConfigs
 };
 
 
