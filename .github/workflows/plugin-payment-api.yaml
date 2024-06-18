@@ -59,16 +59,11 @@ jobs:
           cd erxes/packages/plugin-payment-api
           yarn install
           yarn build:client
-          pwd
-          ls -la
-          ls src/public/js
           
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/payment-new-ui' || github.ref == 'refs/heads/build-test' )
         run: |
           cd dist/erxes 
-          ls -la
-          pwd
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker buildx build -t erxes/plugin-payment-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/plugin-payment-api:${GITHUB_REF#refs/heads/}
