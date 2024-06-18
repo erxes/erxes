@@ -160,7 +160,21 @@ export class QpayAPI extends BaseAPI {
   }
 
   async manualCheck(invoice: IInvoiceDocument) {
-    return await this.checkInvoice(invoice);
+    try {
+      const res = await this.request({
+        method: 'GET',
+        path: `${PAYMENTS.qpay.actions.invoice}/${invoice.apiResponse.invoice_id}`,
+        headers: await this.getHeaders(),
+      }).then((r) => r.json());
+
+      if (res.invoice_status === 'CLOSED') {
+        return PAYMENT_STATUS.PAID;
+      }
+
+      return PAYMENT_STATUS.PENDING;
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 
   async cancelInvoice(invoice: IInvoiceDocument) {
