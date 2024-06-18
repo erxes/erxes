@@ -198,8 +198,6 @@ const ChartFormFieldList = (props: Props) => {
     return <></>;
   }
 
-  // const isMulti = chartType === "table" && (fieldName === "dimension" || fieldName === "measure") ? true : multi
-
   return (
     <ChartFormField
       fieldType={fieldType}
