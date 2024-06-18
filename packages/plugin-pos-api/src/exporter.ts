@@ -79,7 +79,7 @@ export const fillValue = async (
     case 'createdAt':
       value = moment(order.createdAt).format('YYYY-MM-DD HH:mm:ss');
       break;
-    case 'branchId':
+    case 'branchId': {
       const branch = await sendCoreMessage({
         subdomain,
         action: 'branches.findOne',
@@ -91,7 +91,8 @@ export const fillValue = async (
       });
       value = branch ? `${branch.code || ''} - ${branch.title || ''}` : '';
       break;
-    case 'departmentId':
+    }
+    case 'departmentId': {
       const department = await sendCoreMessage({
         subdomain,
         action: 'departments.findOne',
@@ -103,6 +104,7 @@ export const fillValue = async (
         ? `${department.code || ''} - ${department.title}`
         : '';
       break;
+    }
     case 'customerId':
       if (order.customerId) {
         let info: any = {};
@@ -138,7 +140,7 @@ export const fillValue = async (
                 _id: user._id,
                 code: user.code,
                 primaryPhone:
-                  (user.details && user.details.operatorPhone) || '',
+                (user.details?.operatorPhone) || '',
                 firstName: `${user.firstName || ''} ${user.lastName || ''}`,
                 primaryEmail: user.email,
                 lastName: user.username
@@ -188,7 +190,7 @@ export const fillValue = async (
     case 'number':
       value = order.number ? order.number : 'number not found';
       break;
-    case 'userId':
+    case 'userId': {
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -201,6 +203,7 @@ export const fillValue = async (
       value = createdUser ? createdUser.username : 'user not found';
 
       break;
+    }
     case 'convertDealId':
       value = order.convertDealId ? order.convertDealId : '';
       break;
@@ -222,10 +225,11 @@ export const fillValue = async (
         )
       ].join(', ');
       break;
-    case 'pos':
+    case 'pos': {
       const pos = await models.Pos.findOne({ token: order.posToken });
       value = pos ? pos.name : '';
       break;
+    }
     default:
       value = order[column] || '';
       break;
@@ -314,20 +318,22 @@ const fillPosOrderItemValue = async (subdomain, column, order) => {
       case 'items.amount':
         value = itemData.unitPrice * itemData.count;
         break;
-      case 'items.productCategoryCode':
+      case 'items.productCategoryCode': {
         const categoryC =
           productCategoriesById[
             (productsById[itemData.productId] || {}).categoryId || ''
           ];
-        value = (categoryC && categoryC.code) || '';
+        value = (categoryC?.code) || '';
         break;
-      case 'items.productCategoryName':
+      }
+      case 'items.productCategoryName': {
         const categoryN =
           productCategoriesById[
             (productsById[itemData.productId] || {}).categoryId || ''
           ];
-        value = (categoryN && categoryN.name) || '';
+        value = (categoryN?.name) || '';
         break;
+      }
       case 'items.productCode':
         product = productsById[itemData.productId || ''] || {};
         value = product.code;
@@ -381,9 +387,7 @@ export default {
       totalCount = results;
 
       for (const column of columnsConfig) {
-        if (column.startsWith('items')) {
-          headers.push(column);
-        } else {
+        if (column) {
           headers.push(column);
         }
       }
@@ -411,11 +415,9 @@ export default {
       const results = await prepareData(models, subdomain, data);
 
       for (const column of columnsConfig) {
-        if (column.startsWith('items')) {
+        if (column) {
           headers.push(column);
-        } else {
-          headers.push(column);
-        }
+        } 
       }
 
       for (const order of results) {
