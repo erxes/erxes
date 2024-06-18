@@ -101,7 +101,7 @@ function Preview({ messages }) {
         {renderCard({ text } as any)}
         <QuickReplies>
           {quickReplies.map((quickReply) => (
-            <QuickReply>{quickReply.text}</QuickReply>
+            <QuickReply key={quickReply.id}>{quickReply.text}</QuickReply>
           ))}
         </QuickReplies>
       </div>
