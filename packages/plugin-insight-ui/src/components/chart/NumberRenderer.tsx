@@ -19,7 +19,6 @@ const Num = styled.div`
 `;
 
 type IDataSet = {
-    title: string;
     data: number[] | any;
     labels: string[];
 };
@@ -30,7 +29,7 @@ type Props = {
 
 const NumberRenderer = (props: Props) => {
     const { dataset } = props;
-    const { title, data, labels } = dataset;
+    const { data, labels } = dataset;
 
     return (
         <NumberContainer>
