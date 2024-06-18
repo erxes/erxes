@@ -82,20 +82,25 @@ const queries = {
 
     for (const kind of PAYMENTS.ALL) {
       const countQueryResult = await count({ paymentKind: kind, ...qry });
-      counts.byKind[kind] = !params.kind
-        ? countQueryResult
-        : params.kind === kind
-          ? countQueryResult
-          : 0;
+      if (!params.kind) {
+        counts.byKind[kind] = countQueryResult;
+      }
+      else if (params.kind === kind) {
+        counts.byKind[kind] = countQueryResult;
+      } else {
+        counts.byKind[kind] = 0;
+      }
     }
 
     for (const status of PAYMENT_STATUS.ALL) {
       const countQueryResult = await count({ status, ...qry });
-      counts.byStatus[status] = !params.status
-        ? countQueryResult
-        : params.status === status
-          ? countQueryResult
-          : 0;
+      if (!params.status) {
+        counts.byStatus[status] = countQueryResult;
+      } else if (params.status === status) {
+        counts.byStatus[status] = countQueryResult;
+      } else {
+        counts.byStatus[status] = 0;
+      }
     }
 
     counts.total = await count(qry);
