@@ -71,11 +71,13 @@ const queries = {
 
     for (const kind of PAYMENTS.ALL) {
       const countQueryResult = await count({ kind, ...qry });
-      counts.byKind[kind] = !args.kind
-        ? countQueryResult
-        : args.kind === kind
-        ? countQueryResult
-        : 0;
+      if (!args.kind) {
+        counts.byKind[kind] = countQueryResult;
+      } else if (args.kind === kind) {
+        counts.byKind[kind] = countQueryResult;
+      } else {
+        counts.byKind[kind] = 0;
+      }
     }
 
     counts.byStatus.active = await count({ isActive: true, ...qry });
