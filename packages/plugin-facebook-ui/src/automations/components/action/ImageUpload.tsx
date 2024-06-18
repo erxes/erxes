@@ -122,12 +122,12 @@ function ImageUploader({
       ) : (
         <img alt="image" style={previewStyle} src={readFile(previewUrl)} />
       )}
-      <label>
+      <label htmlFor="imageInput">
         <div>
           <Icon icon="export" size={30} />
           <p>{label || 'Upload Image'}</p>
         </div>
-        <input type="file" accept={fileType} onChange={handleImageChange} />
+        <input id="imageInput" type="file" accept={fileType} onChange={handleImageChange} />
       </label>
       {renderUploadLoader()}
     </ImagePreview>
