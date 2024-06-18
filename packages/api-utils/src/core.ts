@@ -386,7 +386,7 @@ export const createGenerateModels = <IModels>(
       hostnameOrSubdomain: string = '',
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
-
+      console.log("SUBDOMAIN ===== ",subdomain)
       // means hostname
       if (subdomain && subdomain.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
