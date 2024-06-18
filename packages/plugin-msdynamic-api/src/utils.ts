@@ -670,7 +670,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       ).then((r) => r.json());
 
       if (responseCustomer.value.length === 0) {
-        responseData = await fetch(customerApi, {
+        await fetch(customerApi, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -681,7 +681,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           body: JSON.stringify('sendData'),
         }).then((r) => r.json());
 
-        const brandIds = (customer || {}).scopeBrandIds || [];
+        const brandIds = customer?.scopeBrandIds || [];
 
         if (
           !brandIds.includes(params.scopeBrandIds[0]) &&
@@ -801,7 +801,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
 
-        if (responseSaleLine?.error && responseSaleLine?.error?.message) {
+        if (responseSaleLine?.error?.message) {
           const foundSyncLog = await models.SyncLogs.findOne({
             _id: syncLog._id,
           });
