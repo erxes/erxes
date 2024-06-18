@@ -445,6 +445,26 @@ export default class SipProvider extends React.Component<
       } as any;
 
       this.ua = new JsSIP.UA(options);
+
+      function reconnectWebSocket() {
+        console.log('Attempting to reconnect WebSocket...');
+        setTimeout(() => {
+          socket.connect();
+        }, 5000); // Retry after 5 seconds
+      }
+      socket.onconnect = () => {
+        console.log('WebSocket connected');
+      };
+
+      socket.ondisconnect = (error, code, reason) => {
+        console.log('error:', error);
+        console.log('Code:', code);
+        console.log('Reason:', reason);
+
+        if (code === 1006) {
+          reconnectWebSocket();
+        }
+      };
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
