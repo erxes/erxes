@@ -127,7 +127,7 @@ const KeyPad = (props: Props, context) => {
   useEffect(() => {
     let timer;
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      ?.getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
@@ -505,7 +505,7 @@ const KeyPad = (props: Props, context) => {
               icon="outgoing-call"
               onClick={handleCall}
             >
-              {Sip.call?.status === CALL_STATUS_IDLE ? 'Call': Sip.call?.status === CALL_STATUS_STARTING ? 'Calling' : 'Stopping'}
+              {Sip.call?.status === CALL_STATUS_IDLE &&  'Call' || Sip.call?.status === CALL_STATUS_STARTING && 'Calling' || 'Stopping'}
             </Button>
           )}
           
