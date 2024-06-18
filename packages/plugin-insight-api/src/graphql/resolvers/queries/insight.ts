@@ -41,7 +41,7 @@ const insightQueries = {
             const service = await getService(serviceName);
             const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
-            if (chartTemplates && chartTemplates.length) {
+            if (chartTemplates?.length) {
                 totalServicesNamesList.push(serviceName);
             }
         }
