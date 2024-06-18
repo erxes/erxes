@@ -37,7 +37,7 @@ export class VendorBaseAPI {
         },
       }).then((res) => res.json());
 
-      const { access_token, refresh_token, expires_in } = authResponse;
+      const { access_token } = authResponse;
 
       this.accessToken = access_token;
 
