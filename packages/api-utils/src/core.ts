@@ -391,7 +391,6 @@ export const createGenerateModels = <IModels>(
         throw new Error(`Subdomain is \`${subdomain}\``);
       }
 
-      console.log("SUBDOMAIN ===== ",subdomain)
       // means hostname
       if (subdomain && subdomain.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
