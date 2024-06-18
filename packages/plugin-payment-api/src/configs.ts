@@ -26,6 +26,11 @@ export default {
     };
   },
 
+  yaml: {
+    beforeRow: "yarn build plugin payment",
+    addrows: ["cd erxes/packages/plugin-payment-api", "yarn install", "yarn build:webpack"]
+  },
+
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
