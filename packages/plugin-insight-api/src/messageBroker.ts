@@ -6,29 +6,7 @@ import type {
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 
-export const setupMessageConsumers = async () => {
-  // consumeRPCQueue('goals:find', async ({ subdomain, data }) => {
-  //   const models = await generateModels(subdomain);
-  //   return {
-  //     data: await models.Goals.find(data).lean(),
-  //     status: 'success',
-  //   };
-  // });
-  // consumeRPCQueue('goals:findOne', async ({ subdomain, data }) => {
-  //   const models = await generateModels(subdomain);
-  //   return {
-  //     data: await models.Goals.findOne(data).lean(),
-  //     status: 'success',
-  //   };
-  // });
-  // consumeRPCQueue('goals:createGoal', async ({ subdomain, data }) => {
-  //   const models = await generateModels(subdomain);
-  //   return {
-  //     status: 'success',
-  //     data: await models.Goals.createGoal(data),
-  //   };
-  // });
-};
+export const setupMessageConsumers = async () => { };
 
 export const sendCoreMessage = async (
   args: MessageArgsOmitService,
