@@ -71,6 +71,9 @@ h4 {
 .row {
   margin-left: -15px;
   margin-right: -15px;
+  display: flex;
+    flex-grow: 1;
+    flex-direction: column;
 }
 
 .relative {
@@ -192,7 +195,6 @@ hr {
 
 .btn-try {
   line-height: 38px;
-  font-weight: 500;
   margin-right: 20px;
   font-size: 15px;
   text-transform: inherit;
@@ -527,12 +529,6 @@ span.red {
 }
 .select-wrapper select:focus {
   outline: 0;
-}
-
-.row {
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
 }
 
 .col-1 {
