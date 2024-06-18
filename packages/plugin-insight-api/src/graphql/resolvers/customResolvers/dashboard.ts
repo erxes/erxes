@@ -4,7 +4,7 @@ import { IDashboardDocument } from '../../../models/definitions/insight';
 export default {
   async charts(
     dashboard: IDashboardDocument,
-    {},
+    _,
     { models }: IContext,
     { queryParams },
   ) {
@@ -15,7 +15,7 @@ export default {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
-  async chartsCount(dashboard: IDashboardDocument, {}, { models }: IContext) {
+  async chartsCount(dashboard: IDashboardDocument, _, { models }: IContext) {
     try {
       const { _id } = dashboard;
       return models.Charts.find({ contentId: _id }).countDocuments();
