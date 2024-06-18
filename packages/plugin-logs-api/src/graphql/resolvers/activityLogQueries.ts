@@ -55,7 +55,7 @@ const activityLogQueries = {
       const service = await getService(serviceName);
       const meta = service.config.meta || {};
 
-      if (meta && meta.logs) {
+      if (meta?.logs) {
         const logs = meta.logs;
 
         if (logs.providesActivityLog) {
