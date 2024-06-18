@@ -29,7 +29,7 @@ const Sidebar = (props: Props) => {
   return (
     <Wrapper.Sidebar hasBorder={true}>
       {renderDashboard()}
-      {/* {isEnabled('goals') && renderGoals()} */}
+      { }
       {renderReports()}
     </Wrapper.Sidebar>
   );
