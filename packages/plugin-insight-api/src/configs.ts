@@ -22,12 +22,6 @@ export default {
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
-    // context.serverTiming = {
-    //   startTime: res.startTime,
-    //   endTime: res.endTime,
-    //   setMetric: res.setMetric,
-    // };
-
     return context;
   },
 
