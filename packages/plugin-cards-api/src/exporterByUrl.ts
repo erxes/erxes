@@ -110,7 +110,7 @@ const fillCellValue = async (
       cellValue = moment(cellValue).format('YYYY-MM-DD HH:mm');
 
       break;
-    case 'userId':
+    case 'userId':{
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -123,8 +123,9 @@ const fillCellValue = async (
       cellValue = createdUser ? createdUser.username : 'user not found';
 
       break;
+    }
     // deal, purchase ,task, ticket fields
-    case 'assignedUserIds':
+    case 'assignedUserIds':{
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
@@ -142,8 +143,8 @@ const fillCellValue = async (
         .join(', ');
 
       break;
-
-    case 'watchedUserIds':
+    }
+    case 'watchedUserIds':{
       const watchedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
@@ -161,8 +162,8 @@ const fillCellValue = async (
         .join(', ');
 
       break;
-
-    case 'labelIds':
+    }
+    case 'labelIds':{
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
           _id: { $in: item.labelIds }
@@ -172,7 +173,8 @@ const fillCellValue = async (
       cellValue = labels.map(label => label.name).join(', ');
 
       break;
-    case 'stageId':
+    }
+    case 'stageId':{
       const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -180,8 +182,8 @@ const fillCellValue = async (
       cellValue = stage ? stage.name : emptyMsg;
 
       break;
-
-    case 'boardId':
+    }
+    case 'boardId':{
       const stageForBoard = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -201,8 +203,8 @@ const fillCellValue = async (
       }
 
       break;
-
-    case 'pipelineId':
+    }
+    case 'pipelineId':{
       const stageForPipeline = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -218,8 +220,8 @@ const fillCellValue = async (
       }
 
       break;
-
-    case 'initialStageId':
+    }
+    case 'initialStageId':{
       const initialStage: IStageDocument | null = await models.Stages.findOne({
         _id: item.initialStageId
       });
@@ -227,8 +229,8 @@ const fillCellValue = async (
       cellValue = initialStage ? initialStage.name : emptyMsg;
 
       break;
-
-    case 'modifiedBy':
+    }
+    case 'modifiedBy':{
       const modifiedBy: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -241,7 +243,7 @@ const fillCellValue = async (
       cellValue = modifiedBy ? modifiedBy.username : emptyMsg;
 
       break;
-
+    }
     default:
       break;
   }
@@ -308,7 +310,7 @@ const addCell = (
   }
 };
 
-const fillDealProductValue = async (
+const fillDealProductValue = async ({
   subdomain,
   column,
   item,
@@ -317,7 +319,7 @@ const fillDealProductValue = async (
   rowIndex,
   dealIds,
   dealRowIndex
-) => {
+}) => {
   const productsData = item.productsData;
 
   if (productsData.length === 0) {

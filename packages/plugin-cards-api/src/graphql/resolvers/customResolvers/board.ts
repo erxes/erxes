@@ -5,7 +5,7 @@ import { IBoardDocument } from '../../../models/definitions/boards';
 export default {
   async pipelines(
     board: IBoardDocument,
-    {},
+    _,
     { user, models, subdomain }: IContext
   ) {
     if (board.pipelines) {

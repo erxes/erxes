@@ -82,12 +82,12 @@ export const prepareImportDocs = async (models: IModels, args) => {
       });
 
       const pipeline = await models.Pipelines.findOne({
-        boardId: board && board._id,
+        boardId: board?._id,
         name: pipelineName
       });
 
       const stage = await models.Stages.findOne({
-        pipelineId: pipeline && pipeline._id,
+        pipelineId: pipeline?._id,
         name: stageName
       });
 

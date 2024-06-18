@@ -118,7 +118,7 @@ export const itemsAdd = async (
 
   const extendedDoc = {
     ...modifiedDoc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection,
@@ -266,17 +266,27 @@ export const changeItemStatus = async (
   });
 };
 
-export const itemsEdit = async (
+export const itemsEdit = async ({
+  models,
+  subdomain,
+  _id,
+  type,
+  oldItem,
+  doc,
+  processId,
+  user,
+  modelUpdate,
+}: {
   models: IModels,
   subdomain: string,
   _id: string,
   type: string,
   oldItem: any,
   doc: any,
-  proccessId: string,
+  processId: string,
   user: IUserDocument,
-  modelUpate,
-) => {
+  modelUpdate: any 
+}) => {
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
@@ -388,7 +398,7 @@ export const itemsEdit = async (
   }
 
   // exclude [null]
-  if (doc.tagIds && doc.tagIds.length) {
+  if (doc.tagIds?.length) {
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
@@ -720,16 +730,25 @@ export const itemsRemove = async (
   return removed;
 };
 
-export const itemsCopy = async (
+export const itemsCopy = async ({
+  models,
+  subdomain,
+  _id,
+  processId,
+  type,
+  user,
+  extraDocParam,
+  modelCreate
+}: {
   models: IModels,
   subdomain: string,
   _id: string,
-  proccessId: string,
+  processId: string,
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
-  modelCreate: any,
-) => {
+  modelCreate: any 
+}) => {
   const { collection } = getCollection(models, type);
   const item = await collection.findOne({ _id }).lean();
 

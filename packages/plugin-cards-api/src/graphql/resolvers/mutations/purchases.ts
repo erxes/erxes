@@ -142,10 +142,8 @@ const purchaseMutations = {
     }
 
     if (
-      doc.expensesData &&
-      doc.expensesData.length &&
-      doc.productsData &&
-      doc.productsData.length
+      doc.expensesData?.length &&
+      doc.productsData?.length
     ) {
       const dataOfQuantity = doc.expensesData.filter(
         (ed) => ed.type === EXPENSE_DIVIDE_TYPES.QUANTITY,

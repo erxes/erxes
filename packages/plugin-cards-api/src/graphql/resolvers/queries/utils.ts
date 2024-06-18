@@ -306,7 +306,7 @@ export const generateCommonFilters = async (
     filter._id = contains(filterIds || []);
   }
 
-  if (_ids && _ids.length) {
+  if (_ids?.length) {
     filter._id = contains(_ids);
   }
 
@@ -950,11 +950,11 @@ const generateArhivedItemsFilter = (
     Object.assign(filter, regexSearchText(search, 'name'));
   }
 
-  if (userIds && userIds.length) {
+  if (userIds?.length) {
     filter.userId = { $in: userIds };
   }
 
-  if (priorities && priorities.length) {
+  if (priorities?.length) {
     filter.priority = { $in: priorities };
   }
 
@@ -962,11 +962,11 @@ const generateArhivedItemsFilter = (
     filter.assignedUserIds = { $in: assignedUserIds };
   }
 
-  if (labelIds && labelIds.length) {
+  if (labelIds?.length) {
     filter.labelIds = { $in: labelIds };
   }
 
-  if (productIds && productIds.length) {
+  if (productIds?.length) {
     filter['productsData.productId'] = { $in: productIds };
   }
 
@@ -986,18 +986,28 @@ const generateArhivedItemsFilter = (
     }
   }
 
-  if (sources && sources.length) {
+  if (sources?.length) {
     filter.source = { $in: sources };
   }
 
-  if (hackStages && hackStages.length) {
+  if (hackStages?.length) {
     filter.hackStages = { $in: hackStages };
   }
 
   return filter;
 };
 
-export const getItemList = async (
+export const getItemList = async ({
+  models,
+  subdomain,
+  filter,
+  args,
+  user,
+  type,
+  extraFields,
+  getExtraFields,
+  serverTiming
+}: {
   models: IModels,
   subdomain: string,
   filter: any,
@@ -1006,8 +1016,8 @@ export const getItemList = async (
   type: string,
   extraFields?: { [key: string]: number },
   getExtraFields?: (item: any) => { [key: string]: any },
-  serverTiming?
-) => {
+  serverTiming?: any 
+}) => {
   const { collection } = getCollection(models, type);
   const { page, perPage } = args;
   const sort = generateSort(args);

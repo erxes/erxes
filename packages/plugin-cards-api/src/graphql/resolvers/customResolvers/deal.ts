@@ -15,7 +15,7 @@ export const generateProducts = async (
 ) => {
   const products: any = [];
 
-  if (!productsData || !productsData.length) {
+  if (!productsData?.length) {
     return products;
   }
 
@@ -246,7 +246,7 @@ export default {
   async isWatched(deal: IDealDocument, _args, { user }: IContext) {
     const watchedUserIds = deal.watchedUserIds || [];
 
-    if (watchedUserIds && watchedUserIds.includes(user._id)) {
+    if (watchedUserIds?.includes(user._id)) {
       return true;
     }
 

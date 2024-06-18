@@ -69,7 +69,7 @@ export default {
     return models.Stages.findOne({ _id });
   },
 
-  members(stage: IStageDocument, {}) {
+  members(stage: IStageDocument, _) {
     if (stage.visibility === VISIBLITIES.PRIVATE && stage.memberIds) {
       return stage.memberIds.map(memberId => ({
         __typename: 'User',

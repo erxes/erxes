@@ -29,11 +29,11 @@ export const generateConditionStageIds = async (
 ) => {
   let pipelineIds: string[] = [];
 
-  if (options && options.pipelineId) {
+  if (options?.pipelineId) {
     pipelineIds = [options.pipelineId];
   }
 
-  if (boardId && (!options || !options.pipelineId)) {
+  if (boardId && (!options?.pipelineId)) {
     const board = await models.Boards.getBoard(boardId);
 
     const pipelines = await models.Pipelines.find(
@@ -342,7 +342,7 @@ export const getCardItem = async (
 export const getBoardsAndPipelines = (doc) => {
   const { config } = doc;
 
-  if (!config || !config.boardsPipelines) {
+  if (!config?.boardsPipelines) {
     return doc;
   }
 

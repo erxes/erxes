@@ -16,7 +16,8 @@ export default {
     const oldInfo = (bankData.info?.invoices || []).find((i) => i._id === _id);
 
     const newAmount = (bankData.amount || 0) - (oldInfo?.amount || 0) + amount;
-    bankData.amount = (newAmount <= 0 && 0) || newAmount;
+    bankData.amount = newAmount <= 0 ? 0 : newAmount;
+
     bankData.currency = currency || 'MNT';
     bankData.info.invoices = [
       ...(bankData.info?.invoices || []).filter((i) => i._id !== _id),
