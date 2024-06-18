@@ -120,7 +120,7 @@ const OrderDetail = (props: Props) => {
       <>
         {(order.putResponses || []).map((p) => {
           return (
-            <DetailRow key={Math.random()}>
+            <DetailRow key={Math?.random()}>
               {renderRow('Bill ID', p.billId)}
               {renderRow('Ebarimt Date', dayjs(p.date).format('lll'))}
             </DetailRow>
