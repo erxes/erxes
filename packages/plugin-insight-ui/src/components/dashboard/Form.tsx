@@ -13,7 +13,6 @@ import ReportTemplate from "../template/Report";
 import SelectMembersForm from "../utils/SelectMembersForm";
 import SelectSections from "../../containers/utils/SelectSections";
 import { __ } from "@erxes/ui/src/utils/index";
-import { capitalize } from "lodash";
 import { groupServiceTypesByServiceName } from "../../utils";
 
 type Props = {
@@ -79,10 +78,6 @@ const Form = (props: Props) => {
     setDepartmentIds(_departmentIds);
   };
 
-  const calculateName = () => {
-    return serviceNames.map((type) => capitalize(type)).join(" & ") + " Charts";
-  };
-
   const handleTemplateClick = (template) => {
     const { serviceType, serviceName, charts } = template;
 
@@ -113,7 +108,6 @@ const Form = (props: Props) => {
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { values, isSubmitted } = formProps;
 
     return (
       <>
