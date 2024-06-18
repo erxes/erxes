@@ -133,8 +133,8 @@ function Preview({ messages }) {
 
       return (
         <div>
-          {buttons.map((button, idx) => (
-            <div key={idx}>{renderButton(button)}</div>
+          {buttons.map((button) => (
+            <div key={button.id}>{renderButton(button)}</div>
           ))}
         </div>
       );
