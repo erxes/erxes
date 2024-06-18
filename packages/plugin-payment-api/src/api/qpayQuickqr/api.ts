@@ -276,7 +276,23 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async manualCheck(invoice: IInvoiceDocument) {
-    return await this.checkInvoice(invoice);
+    try {
+      const res = await this.makeRequest({
+        method: 'POST',
+        path: meta.paths.checkInvoice,
+        data: {
+          invoice_id: invoice.apiResponse.id,
+        },
+      });
+
+      if (res.invoice_status === 'PAID') {
+        return PAYMENT_STATUS.PAID;
+      }
+
+      return PAYMENT_STATUS.PENDING;
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 
   async get(_id: string) {
