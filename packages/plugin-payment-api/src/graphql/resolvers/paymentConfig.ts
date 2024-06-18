@@ -8,7 +8,7 @@ export default {
     return models.PaymentConfigs.findOne({ _id });
   },
 
-  async contentName(config: IPaymentConfig, {}, { subdomain }: IContext) {
+  async contentName(config: IPaymentConfig, _, { subdomain }: IContext) {
     if (config.contentType.includes('integrations')) {
       if (!isEnabled('inbox')) {
         return 'Inbox service is not enabled';
@@ -29,7 +29,7 @@ export default {
     return config.contentTypeId;
   },
 
-  async payments(config: IPaymentConfig, {}, { models }: IContext) {
+  async payments(config: IPaymentConfig, _, { models }: IContext) {
     return models.Payments.find({ _id: { $in: config.paymentIds } }).lean();
   },
 };
