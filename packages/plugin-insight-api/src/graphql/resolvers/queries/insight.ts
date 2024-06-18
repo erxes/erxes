@@ -95,7 +95,7 @@ const insightQueries = {
     async insightChartTemplatesList(
         _root,
         { serviceName }: { serviceName: string },
-        { }: IContext,
+        _: IContext,
     ) {
         const service = await getService(serviceName);
         const chartTemplates = service.config?.meta?.reports?.chartTemplates;
