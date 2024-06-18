@@ -5,7 +5,7 @@ import { IReportDocument } from '../../../models/definitions/insight';
 export default {
     async charts(
         report: IReportDocument,
-        { },
+        _,
         { models }: IContext,
         { queryParams }
     ) {
