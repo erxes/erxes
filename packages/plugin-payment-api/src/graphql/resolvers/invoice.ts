@@ -7,7 +7,7 @@ export default {
     return models.Invoices.findOne({ _id });
   },
 
-  async customer(invoice: IInvoice, {}, { subdomain }: IContext) {
+  async customer(invoice: IInvoice, _, { subdomain }: IContext) {
     switch (invoice.customerType) {
       case 'company':
         return await sendContactsMessage({
@@ -40,7 +40,7 @@ export default {
     }
   },
 
-  async payment(invoice: IInvoice, {}, { models }: IContext) {
+  async payment(invoice: IInvoice, _, { models }: IContext) {
     return (
       invoice.selectedPaymentId &&
       (await models.Payments.findOne({ _id: invoice.selectedPaymentId }).lean())
@@ -71,15 +71,15 @@ export default {
 
     switch (invoice.paymentKind) {
       case 'qpay':
-        return apiResponse.error && apiResponse.error;
+        return apiResponse.error && apiResponse?.error;
       case 'socialpay':
-        return apiResponse.error && apiResponse.error;
+        return apiResponse.error && apiResponse?.error;
       case 'qpayQuickqr':
-        return apiResponse.error && apiResponse.error;
+        return apiResponse.error && apiResponse?.error;
       case 'storepay':
-        return apiResponse.error && apiResponse.error;
+        return apiResponse.error && apiResponse?.error;
       case 'monpay':
-        return apiResponse.error && apiResponse.error;
+        return apiResponse.error && apiResponse?.error;
       default:
         return;
     }
