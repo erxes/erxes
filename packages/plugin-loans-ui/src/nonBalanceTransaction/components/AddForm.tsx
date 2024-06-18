@@ -1,6 +1,7 @@
 import {
   Button,
   ControlLabel,
+  DateControl,
   Form,
   MainStyleFormColumn as FormColumn,
   FormControl,
@@ -11,128 +12,67 @@ import {
   __,
 } from "@erxes/ui/src";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import {
-  INonBalanceDetail,
-  INonBalanceTransaction,
-  INonBalanceTransactionDoc,
-} from "../types";
+import { INonBalanceTransaction, INonBalanceTransactionDoc } from "../types";
 import { DateContainer } from "@erxes/ui/src/styles/main";
-import React from "react";
+import React, { useState } from "react";
 import SelectContracts, {
   Contracts,
 } from "../../contracts/components/common/SelectContract";
-import Select from "react-select";
+
+import { detailTypeList } from "../utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  nonBalanceTransaction: INonBalanceTransaction;
+  NonBalanceTransaction: INonBalanceTransaction;
   closeModal: () => void;
 };
 
-type State = {
-  contractId: string;
-  customerId: string;
-  description: string;
-  number: string;
-  detail: INonBalanceDetail;
-  isDedit: boolean;
-  amount: number;
-  detailType: string;
-  currency: string;
-  detailTypeList: any;
-};
+export default function AddTransactionForm(props: Props) {
+  const { NonBalanceTransaction } = props;
+  const [contractId, setcontractId] = useState(
+    NonBalanceTransaction.contractId || ""
+  );
+  const [customerId, setcustomerId] = useState(
+    NonBalanceTransaction.customerId || ""
+  );
+  const [description, setDescription] = useState(
+    NonBalanceTransaction.description || ""
+  );
+  const [isDedit, setDedit] = useState(false);
+  const [detailType, setdetailType] = useState("interest");
+  const [amount, setAmount] = useState(0);
+  const [currency, setCurrency] = useState("");
+  const [nonBalanceDate, setDate] = useState(new Date());
 
-class AddTransactionForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    const { nonBalanceTransaction = {}, transactionType } = props;
-
-    this.state = {
-        contractId: nonBalanceTransaction.contractId || '',
-        customerId: nonBalanceTransaction.customerId || '',
-        description: nonBalanceTransaction.description || '',
-        number: nonBalanceTransaction.number || '',
-        detail: nonBalanceTransaction.detail || [],
-        isDedit: false,
-        detailType:  nonBalanceTransaction.detail?.detailType || '',
-        amount: 0,
-        currency: nonBalanceTransaction.detail?.currency || '',
-        detailTypeList: [
-          {
-            value: 'interest',
-            label: 'interest'
-          },
-          {
-            value: 'stoppedInterest',
-            label: 'stoppedInterest'
-          },
-          {
-            value: 'storedInterest',
-            label: 'storedInterest'
-          },
-          {
-            value: 'allOfInterest',
-            label: 'stoppedInterest && storedInterest'
-          },
-          {
-            value: 'loan',
-            label: 'loan'
-          },{
-            value: 'collateral',
-            label: 'collateral'
-          }
-      ] 
-      };
-      
-  }
-
-  generateDoc = (values: { _id: string } & INonBalanceTransactionDoc) => {
-   
+  const generateDoc = (values: { _id: string } & INonBalanceTransactionDoc) => {
     const finalValues = values;
     let addDetail: any = {};
-    addDetail.currency = this.state.currency;
-    addDetail.dtAmount = this.state.isDedit ? this.state.amount : 0;
-    addDetail.ktAmount = !this.state.isDedit ? this.state.amount : 0;
-    addDetail.type = this.state.detailType;
-    addDetail.currency = this.state.currency || "";
-    finalValues.contractId = this.state.contractId || "";
-    finalValues.customerId = this.state.customerId || "";
-    finalValues.description = this.state.description;
-    finalValues.transactionType =  this.state.description || 'loan';
+    isDedit ? (addDetail.dtAmount = amount) : (addDetail.ktAmount = amount);
+    addDetail.type = detailType;
+    addDetail.currency = currency;
+    finalValues.contractId = contractId || "";
+    finalValues.customerId = customerId;
+    finalValues.description = description;
+    finalValues.transactionType = detailType;
     finalValues.detail = [addDetail];
+    finalValues.detail = [addDetail];
+    finalValues.nonBalanceDate = nonBalanceDate;
     return finalValues;
   };
 
-  onFieldClick = (e) => {
+  const onFieldClick = (e) => {
     e.target.select();
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
+  const onChangeDate = (date: any) => {
+    console.log("onChangeDate:::", onChangeDate);
+    //setDate(date);
+  };
+
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
     const { values, isSubmitted } = formProps;
-
-    const onSelect = (value, name) => {
-      this.setState({ [name]: value } as any);
-    };
-
-    const onchangeType = (value, name) => {
-      this.setState({ ["detailType"]: value.value } as any);
-    };
-
-    const onChangeField = (e) => {
-      const value =
-        e.target.type === "checkbox"
-          ? (e.target as HTMLInputElement).checked
-          : (e.target as HTMLInputElement).value;
-
-      const { name } = e.target as HTMLInputElement;
-      this.setState({
-        [name]: value,
-      } as any);
-    };
-
-    const detailTypeOptions = this.state.detailTypeList.map((f) => ({
+    const detailTypeOptions = detailTypeList.map((f) => ({
       value: f.value,
       label: f.label,
     }));
@@ -147,29 +87,31 @@ class AddTransactionForm extends React.Component<Props, State> {
                 <SelectContracts
                   label={__("Choose an contract")}
                   name="contractId"
-                  initialValue={this.state.contractId}
-                  onSelect={(v, n) => {
-                    onSelect(v, n);
+                  initialValue={contractId}
+                  onSelect={(v) => {
                     if (typeof v === "string") {
-                      onSelect(Contracts[v].customerId, "customerId");
-                      onSelect(Contracts[v].currency, "currency");
+                      setcustomerId(Contracts[v].customerId);
+                      setCurrency(Contracts[v].currency);
+                      setcontractId(v);
                     }
                   }}
                   multi={false}
                 />
               </FormGroup>
+
               <FormGroup>
                 <ControlLabel>{__("type")}</ControlLabel>
-                <Select
+                <FormControl
                   placeholder={__("Choose detail type")}
                   name="detailType"
-                  options={detailTypeOptions}
-                  value={detailTypeOptions.find(
-                    (o) => o.value === this.state.detailType
-                  )}
-                  onChange={onchangeType}
-                  isMulti={false}
-                  isClearable={true}
+                  options={detailTypeOptions.map((f) => ({
+                    value: f.value,
+                    label: f.label,
+                  }))}
+                  value={detailType}
+                  componentclass="select"
+                  onChange={(e: any) => setdetailType(e.target.value)}
+                  required={true}
                 />
               </FormGroup>
               <FormGroup>
@@ -181,9 +123,9 @@ class AddTransactionForm extends React.Component<Props, State> {
                   useNumberFormat
                   fixed={0}
                   name="isDedit"
-                  value={this.state.isDedit}
-                  onChange={onChangeField}
-                  onClick={this.onFieldClick}
+                  value={isDedit}
+                  onChange={(e: any) => setDedit(e.target.value)}
+                  onClick={onFieldClick}
                 />
               </FormGroup>
               <FormGroup>
@@ -194,8 +136,9 @@ class AddTransactionForm extends React.Component<Props, State> {
                   useNumberFormat
                   fixed={2}
                   name="amount"
-                  onChange={onChangeField}
-                  onClick={this.onFieldClick}
+                  value={amount}
+                  onChange={(e: any) => setAmount(e.target.value)}
+                  onClick={onFieldClick}
                 />
               </FormGroup>
               <FormGroup>
@@ -205,8 +148,8 @@ class AddTransactionForm extends React.Component<Props, State> {
                     {...formProps}
                     required={false}
                     name="description"
-                    value={this.state.description}
-                    onChange={onChangeField}
+                    value={description}
+                    onChange={(e: any) => setDescription(e.target.value)}
                   />
                 </DateContainer>
               </FormGroup>
@@ -223,18 +166,14 @@ class AddTransactionForm extends React.Component<Props, State> {
           </Button>
           {renderButton({
             name: "nonBalanceTransaction",
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            object: this.props.nonBalanceTransaction,
+            object: props.NonBalanceTransaction,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
+  return <Form renderContent={renderContent} />;
 }
-
-export default AddTransactionForm;

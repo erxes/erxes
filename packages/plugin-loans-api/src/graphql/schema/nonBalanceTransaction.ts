@@ -1,4 +1,3 @@
-
 export const types = `
 
   type nonBalanceDetail {
@@ -19,7 +18,8 @@ export const types = `
     contract: LoanContract,
     customer: Customer,
     transactionType: String,
-    detail:[nonBalanceDetail]
+    detail:[nonBalanceDetail],
+    nonBalanceDate: Date,
   }
 
   type nonBalanceTransactionsListResponse {
@@ -39,7 +39,8 @@ const commonFields = `
   description: String,
   number: String,
   transactionType: String,
-  detail: [JSON]
+  detail: [JSON],
+  nonBalanceDate: Date,
 `;
 
 const queryParams = `
@@ -63,4 +64,4 @@ export const queries = `
 export const mutations = `
   nonBalanceTransactionsAdd(${commonFields}): nonBalanceTransaction
   nonBalanceTransactionsRemove(nonBalanceTransactionIds: [String]): [String]
-`
+`;

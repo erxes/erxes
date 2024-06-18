@@ -1,6 +1,5 @@
-import { IContract } from '../contracts/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-
+import { IContract } from "../contracts/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 
 export interface INonBalanceDetail {
   type: string;
@@ -16,8 +15,9 @@ export interface INonBalanceTransactionDoc {
   customerId?: string;
   description?: string;
   number?: string;
-  transactionType?:string;
+  transactionType?: string;
   detail: [INonBalanceDetail];
+  nonBalanceDate: Date;
 }
 
 export interface INonBalanceTransaction extends INonBalanceTransactionDoc {
@@ -39,7 +39,9 @@ export type RemoveMutationResponse = {
 };
 
 export type AddMutationResponse = {
-  nonBalanceTransactionsAdd: (params: { variables: INonBalanceTransactionDoc }) => Promise<any>;
+  nonBalanceTransactionsAdd: (params: {
+    variables: INonBalanceTransactionDoc;
+  }) => Promise<any>;
 };
 
 // query types
@@ -59,7 +61,10 @@ export type ListQueryVariables = {
 };
 
 export type MainQueryResponse = {
-  nonBalanceTransactionsMain: { list: INonBalanceTransaction[]; totalCount: number };
+  nonBalanceTransactionsMain: {
+    list: INonBalanceTransaction[];
+    totalCount: number;
+  };
   loading: boolean;
   refetch: () => void;
 };
