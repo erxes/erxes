@@ -20,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { mutations } from "./graphql"
 
@@ -29,13 +29,14 @@ const ChooseConfig = () => {
 
   const [config] = useAtom(configAtom)
   const [configs] = useAtom(configsAtom)
-  const { onError } = useToast()
   const reset = useSetAtom(resetAtom)
 
   const [chooseConfig, { loading }] = useMutation(mutations.chooseConfig, {
     refetchQueries: ["CurrentConfig"],
     onCompleted: reset,
-    onError,
+    onError({ message }) {
+      onError(message)
+    },
   })
 
   const handleChange = (value: string) => {

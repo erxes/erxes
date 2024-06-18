@@ -15,7 +15,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 import Amount from "@/app/reciept/components/Amount"
 import Footer from "@/app/reciept/components/footer"
 import EbarimtHeader from "@/app/reciept/components/header"
@@ -29,13 +29,14 @@ const Reciept = () => {
   const [type, setType] = useAtom(printTypeAtom)
   const putResponses = useAtomValue(putResponsesAtom)
   const setOrderStates = useSetAtom(setOrderStatesAtom)
-  const { onError } = useToast()
 
   const { hasCopy } = useAtomValue(ebarimtConfigAtom) || {}
 
   const { loading, data } = useQuery(queries.ebarimtDetail, {
     fetchPolicy: "network-only",
-    onError,
+    onError({ message }) {
+      onError(message)
+    },
     skip: !_id,
     variables: { _id },
   })

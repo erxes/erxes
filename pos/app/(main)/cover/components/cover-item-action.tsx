@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Link from "next/link"
-import { useMutation } from "@apollo/client"
+import { useMutation, type ApolloError } from "@apollo/client"
 import { Row } from "@tanstack/react-table"
 import { MoreHorizontal } from "lucide-react"
 
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { toast, useToast } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
@@ -35,7 +35,6 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
   const { _id, status } = row.original || {}
   const [actionType, setActionType] = useState("")
   const [openSheet, setOpenSheet] = useState(false)
-  const { onError } = useToast()
 
   const options = {
     variables: {
@@ -44,7 +43,9 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
     onCompleted() {
       actionType === "delete" && toast({ description: "Амжилттай устлаа" })
     },
-    onError,
+    onError({ message }: ApolloError) {
+      onError(message)
+    },
     refetchQueries: ["Covers"],
   }
 

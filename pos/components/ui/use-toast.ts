@@ -1,6 +1,5 @@
 // Inspired by react-hot-toast library
 import * as React from "react"
-import { ApolloError } from "@apollo/client"
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
@@ -167,8 +166,8 @@ function toast({ ...props }: Toast) {
   }
 }
 
-export const onError = (error: ApolloError) => {
-  toast({ description: error.message, variant: "destructive" })
+export const onError = (message: string) => {
+  toast({ description: message, variant: "destructive" })
 }
 
 function useToast() {
@@ -186,8 +185,6 @@ function useToast() {
 
   return {
     ...state,
-    toast,
-    onError,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }

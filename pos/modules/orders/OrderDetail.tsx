@@ -9,7 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
 import Loader from "@/components/ui/loader"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { queries, subscriptions } from "./graphql"
 
@@ -21,12 +21,13 @@ const OrderDetail = ({ children }: { children: React.ReactNode }) => {
   const setPaymentSheet = useSetAtom(paymentSheetAtom)
   const setRefetchOrder = useSetAtom(refetchOrderAtom)
   const invoiceId = useAtomValue(invoiceIdAtom)
-  const { onError } = useToast()
 
   const [getOrderDetail, { loading, data, refetch, subscribeToMore }] =
     useLazyQuery(queries.orderDetail, {
       fetchPolicy: "network-only",
-      onError,
+      onError({ message }) {
+        onError(message)
+      },
     })
 
   useEffect(() => {

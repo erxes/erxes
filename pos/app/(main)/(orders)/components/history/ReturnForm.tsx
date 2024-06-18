@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import ReturnOdd from "./ReturnOdd"
 
@@ -55,13 +55,11 @@ const ReturnForm = ({
     defaultValues: { cashAmount, ...amounts },
   })
 
-  const { onError } = useToast()
-
   const [orderReturn, { loading: loadingReturn }] = useMutation(
     mutations.ordersReturn,
     {
       onError(err) {
-        onError(err)
+        onError(err.message)
         changeOpen(null)
       },
       onCompleted() {

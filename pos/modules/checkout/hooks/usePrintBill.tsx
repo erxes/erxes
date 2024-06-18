@@ -13,7 +13,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 
 import { BILL_TYPES } from "@/lib/constants"
 import useTab from "@/lib/useTab"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import useRenderEbarimt from "./useRenderBillTypes"
 
@@ -25,7 +25,6 @@ const usePrintBill = (onCompleted?: () => void) => {
   const paidDate = useAtomValue(paidDateAtom)
   const unPaidAmount = useAtomValue(unPaidAmountAtom)
   const changeVisiblity = useSetAtom(ebarimtSheetAtom)
-  const { onError } = useToast()
   const { skipEbarimt } = useRenderEbarimt()
   const disabled = unPaidAmount > 0
   const { openNewWindow } = useTab(() => !!onCompleted && onCompleted())
@@ -45,21 +44,18 @@ const usePrintBill = (onCompleted?: () => void) => {
         !!onCompleted && onCompleted()
         changeVisiblity(true)
       },
-
-      onError,
+      onError({ message }) {
+        onError(message)
+      },
     }
   )
 
   const printBill = () => {
-    if (disabled)
-      return onError({
-        message: "Төлбөрөө бүрэн төлнө үү",
-      })
+    if (disabled) return onError("Төлбөрөө бүрэн төлнө үү")
     if (!!paidDate) return changeVisiblity(true)
-    if (billType === "3" && !registerNumber)
-      return onError({
-        message: "Байгуулга РД-аа зөв оруулана уу",
-      })
+    if (billType === "3" && !registerNumber) {
+      return onError("Байгуулга РД-аа зөв оруулана уу")
+    }
     return settlePayment()
   }
 

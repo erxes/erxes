@@ -38,8 +38,8 @@ const useSplitOrder = () => {
         items: getItemInputs(mainItems),
         totalAmount: getCartTotal(mainItems),
       },
-      onError(error) {
-        return onError(error)
+      onError({ message }) {
+        return onError(message)
       },
       refetchQueries: ["orderDetail", "PoscSlots"],
     }

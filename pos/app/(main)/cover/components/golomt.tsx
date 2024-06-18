@@ -6,15 +6,14 @@ import { useAtom, useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
 import { parseBase64 } from "@/lib/utils"
-import { useToast } from "@/components/ui/use-toast"
 
 import BankAmountUi from "./bank-amount-ui"
+import { onError } from '@/components/ui/use-toast'
 
 const Golomt = () => {
   const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const [response, setResponse] = useAtom(golomtResponseAtom)
   const [loading, setLoading] = useState(false)
-  const { onError } = useToast()
 
   const golomt = paymentTypes.find((pt) => pt.type === BANK_CARD_TYPES.GOLOMT)
 
@@ -33,12 +32,12 @@ const Golomt = () => {
           const recieptData = parseBase64(terminalRes?.data)
           setResponse(JSON.stringify(recieptData))
         } else {
-          onError({ message: terminalRes.responseDesc })
+          onError(terminalRes.responseDesc)
         }
         setLoading(false)
       })
       .catch((e) => {
-        onError(e)
+        onError(e?.message)
         setLoading(false)
       })
   }

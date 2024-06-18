@@ -9,7 +9,7 @@ import { useAtom, useSetAtom } from "jotai"
 
 import { hexToHsl } from "@/lib/utils"
 import Loader from "@/components/ui/loader"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { queries } from "./graphql"
 
@@ -18,7 +18,6 @@ const Configs = ({ children }: { children: ReactNode }) => {
   const setCurrentUser = useSetAtom(currentUserAtom)
   const setConfig = useSetAtom(configAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
-  const { onError } = useToast()
   const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
   const setOrderType = useSetAtom(orderTypeAtom)
 
@@ -33,8 +32,8 @@ const Configs = ({ children }: { children: ReactNode }) => {
       setConfigs(data.posclientConfigs)
       setTimeout(() => setLoadingConfigs(false), 20)
     },
-    onError: (error) => {
-      onError(error)
+    onError: ({ message }) => {
+      onError(message)
       setTimeout(() => setLoadingConfigs(false), 20)
     },
   })
@@ -58,6 +57,7 @@ const Configs = ({ children }: { children: ReactNode }) => {
       setConfig(currentConfig)
       setOrderType((allowTypes || [])[0])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config])
 
   if (loading || loadingConfig || loadingConfigs)

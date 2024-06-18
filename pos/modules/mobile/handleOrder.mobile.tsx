@@ -10,7 +10,7 @@ import Loader from "@/components/ui/loader"
 
 import TotalAmount from "../checkout/components/totalAmount/totalAmount.kiosk"
 
-const SelectPaymentType = dynamic(
+const SelectPaymentType: any = dynamic(
   () =>
     import(
       "@/modules/checkout/components/paymentType/selectPaymentType.mobile"
@@ -20,21 +20,21 @@ const SelectPaymentType = dynamic(
   }
 )
 
-const PaymentType = dynamic(
+const PaymentType: any = dynamic(
   () => import("@/modules/checkout/components/paymentType/paymentType.mobile"),
   {
     loading: () => <Loader className="min-h-[15rem]" />,
   }
 )
 
-const BillType = dynamic(
+const BillType: any = dynamic(
   () => import("@/modules/checkout/components/ebarimt/billType.mobile"),
   {
     loading: () => <Loader className="min-h-[15rem]" />,
   }
 )
 
-const Ebarimt = dynamic(
+const Ebarimt: any = dynamic(
   () => import("@/modules/checkout/components/ebarimt/ebarimtView.mobile"),
   {
     loading: () => <Loader className="min-h-[15rem]" />,

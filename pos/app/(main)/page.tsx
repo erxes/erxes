@@ -5,11 +5,11 @@ import RequirePassword from "@/modules/checkout/components/cart/RequirePassword"
 import { modeAtom } from "@/store"
 import { useAtomValue } from "jotai"
 
-const Market = dynamic(() => import("./market"))
-const Main = dynamic(() => import("./main"))
-const Kiosk = dynamic(() => import("./kiosk"))
-const Restaurant = dynamic(() => import("./restaurant"))
-const Mobile = dynamic(() => import("./mobile"))
+const Market: any = dynamic(() => import("./market"))
+const Main: any = dynamic(() => import("./main"))
+const Kiosk: any = dynamic(() => import("./kiosk"))
+const Restaurant: any = dynamic(() => import("./restaurant"))
+const Mobile: any = dynamic(() => import("./mobile"))
 
 export default function IndexPage() {
   const mode = useAtomValue(modeAtom)

@@ -3,12 +3,11 @@ import { LogOutIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { useToast } from "@/components/ui/use-toast"
 
 import queries from "../graphql/queries"
+import { onError } from '@/components/ui/use-toast'
 
 const Logout = () => {
-  const { onError } = useToast()
   const [logout, { loading }] = useMutation(
     gql`
       mutation {
@@ -16,7 +15,9 @@ const Logout = () => {
       }
     `,
     {
-      onError,
+      onError({ message }) {
+        onError(message)
+      },
       refetchQueries: [queries.posCurrentUser],
     }
   )

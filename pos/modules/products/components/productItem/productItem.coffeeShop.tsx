@@ -11,9 +11,12 @@ import { CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import Image from "@/components/ui/image"
 
-const ChooseSimilarities = dynamic(() => import("../ChooseFromSimilarities"), {
-  loading: () => <div style={{ height: "350px" }}></div>,
-})
+const ChooseSimilarities: any = dynamic(
+  () => import("../ChooseFromSimilarities"),
+  {
+    loading: () => <div style={{ height: "350px" }}></div>,
+  }
+)
 
 const ProductItem = (props: IProduct) => {
   const [open, setOpen] = useState(false)

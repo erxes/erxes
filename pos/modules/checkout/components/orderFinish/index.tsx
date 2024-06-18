@@ -4,20 +4,21 @@ import { useAtomValue, useSetAtom } from "jotai"
 
 import { Customer } from "@/types/customer.types"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { mutations } from "../../graphql"
 
 const OrderFinish = () => {
   const setInitial = useSetAtom(setInitialAtom)
-  const { onError } = useToast()
   const { customer, ...orderData } = useAtomValue(orderValuesAtom)
 
   const [finishOrder, { loading }] = useMutation(mutations.ordersFinish, {
     onCompleted: () => {
       setInitial()
     },
-    onError,
+    onError({ message }) {
+      onError(message)
+    }
   })
 
   return (

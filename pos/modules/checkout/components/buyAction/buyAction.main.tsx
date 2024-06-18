@@ -17,7 +17,7 @@ import { ORDER_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import PrintProgress from "@/app/(main)/(orders)/components/progress/PrintProgress"
 
-const OrderFinish = dynamic(() => import("../orderFinish"), {
+const OrderFinish: any = dynamic(() => import("../orderFinish"), {
   loading: () => <div />,
 })
 

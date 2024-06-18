@@ -10,7 +10,7 @@ import { useSetAtom } from "jotai"
 
 import Loader from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import Amounts from "../components/amounts"
 import Dates from "../components/cover-detail-dates"
@@ -20,7 +20,6 @@ import { queries } from "../graphql"
 const CoverDetail = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
-  const { onError } = useToast()
   const setCover = useSetAtom(setCoverDetailAtom)
   const setIsFetched = useSetAtom(isCoverAmountsFetchedAtom)
 
@@ -33,7 +32,9 @@ const CoverDetail = () => {
       setCover(coverDetail || {})
       setIsFetched(true)
     },
-    onError,
+    onError({ message }) {
+      onError(message)
+    },
   })
 
   if (loading) return <Loader />
