@@ -38,7 +38,6 @@ class ErxesPayment {
   async createInvoice(invoice: IInvoiceDocument) {
     const { payment } = this;
 
-    // return { qrData: await QRCode.toDataURL('test') };
 
     const api = this[payment.kind];
 
