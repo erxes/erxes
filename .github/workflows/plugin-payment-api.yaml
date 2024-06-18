@@ -56,11 +56,10 @@ jobs:
           cd dist
           yarn install
           yarn build plugin payment
-          cd ../packages/plugin-payment-api
+          cd erxes/packages/plugin-payment-api
           yarn install
           yarn build:webpack
           
-
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/payment-new-ui' || github.ref == 'refs/heads/build-test' )
         run: |
