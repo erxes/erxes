@@ -101,12 +101,12 @@ function ImageUploader({
   if (!previewUrl) {
     return (
       <UploadWrapper>
-        <label>
+        <label htmlFor="fileInput">
           <div>
             <Icon icon="export" size={30}></Icon>
             <p>{label || 'Upload Image'}</p>
           </div>
-          <input type="file" accept={fileType} onChange={handleImageChange} />
+          <input id="fileInput" type="file" accept={fileType} onChange={handleImageChange} />
         </label>
       </UploadWrapper>
     );
