@@ -22,7 +22,6 @@ type Props = {
 };
 
 const IntegrationListItem: React.FC<Props> = (props) => {
-  const [externalData, setExternalData] = useState(null);
   const { payment, removePayment } = props;
 
   const renderRemoveAction = () => {
