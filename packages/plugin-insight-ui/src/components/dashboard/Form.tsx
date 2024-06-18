@@ -179,10 +179,10 @@ const Form = (props: Props) => {
               Create reports from templates
             </ControlLabel>
 
-            {reportTemplates.map((template, index) => {
+            {reportTemplates.map((template) => {
               return (
                 <ReportTemplate
-                  key={index}
+                  key={template.title}
                   report={dashboard}
                   template={template}
                   selectedTemplateType={serviceTypes}
