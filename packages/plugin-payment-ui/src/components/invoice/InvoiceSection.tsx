@@ -37,7 +37,7 @@ export default function Component(props: Props) {
     }
 
     const renderStatus = (status) => {
-      let labelStyle = "error";
+      let labelStyle;
 
       switch (status) {
         case "paid":
