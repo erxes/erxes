@@ -14,7 +14,7 @@ const Title = styled.div`
     font-size: 12px;
 `;
 
-const Number = styled.div`
+const Num = styled.div`
     font-size: clamp(1em, 5vw, 2em);
 `;
 
@@ -36,7 +36,7 @@ const NumberRenderer = (props: Props) => {
     return (
         <NumberContainer>
             <Title>{labels}</Title>
-            <Number>{formatNumbers(data, 'x', 'commarize')}</Number>
+            <Num>{formatNumbers(data, 'x', 'commarize')}</Num>
         </NumberContainer>
     )
 }
