@@ -1,9 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Chart } from 'chart.js/auto';
-
 const DATA_COUNT = 7;
 const NUMBER_CFG = { count: DATA_COUNT, min: -100, max: 100 };
-
 const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
 const data = {
   labels,
@@ -23,23 +21,6 @@ const data = {
   ],
 };
 
-// const config = {
-//   type: 'line',
-//   data,
-//   options: {
-//     responsive: true,
-//     plugins: {
-//       legend: {
-//         position: 'top'
-//       },
-//       title: {
-//         display: true,
-//         text: 'Line chart'
-//       }
-//     }
-//   }
-// };
-
 const config = {
   type: 'bar',
   data: {
@@ -53,7 +34,6 @@ const config = {
     labels: ['a', 'b'],
   },
 };
-
 export default function LineChart() {
   const chartRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -64,6 +44,5 @@ export default function LineChart() {
       };
     }
   }, []);
-
   return <canvas id="linearChart" ref={chartRef} />;
 }
