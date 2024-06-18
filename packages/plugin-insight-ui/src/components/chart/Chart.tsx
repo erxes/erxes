@@ -171,7 +171,7 @@ const ChartComponent: React.FC<IChartProps> = ({
 
       const options: ChartOptions = {};
 
-      const cfg = {
+      const cfg: any = {
         type: 'bar',
         data: {
           datasets: [
