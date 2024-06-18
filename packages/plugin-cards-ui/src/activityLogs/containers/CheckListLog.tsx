@@ -22,7 +22,7 @@ type FinalProps = {
 
 class ChecklisLogContainer extends React.Component<FinalProps> {
   render() {
-    const { activityLogQuery, checkListDetailQuery, activity } = this.props;
+    const { activityLogQuery, checkListDetailQuery } = this.props;
 
     if (activityLogQuery.loading || checkListDetailQuery.loading) {
       return <Spinner />;
