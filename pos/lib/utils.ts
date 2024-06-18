@@ -41,7 +41,7 @@ export const getEnv = (): any => {
         .split(".")[0]
 
       for (const envMap of (window as any).envMaps) {
-        const value = localStorage.getItem(`pos_env_${envMap.name}`) || ""
+        const value = localStorage.getItem(`pos_env_${envMap.name}`) ?? ""
         envs[envMap.name] = value.replace("<subdomain>", subdomain)
       }
 
@@ -185,7 +185,7 @@ export const getItemInputs = (items: OrderItem[]) =>
       attachment,
     })
   )
-  
+
 export const getSumsOfAmount = (
   paidAmounts: { type: string; amount: number }[],
   paymentTypes?: IPaymentType[]

@@ -206,7 +206,7 @@ export const setOrderStatesAtom = atom(
 
     const { directDiscount: allowDirectDiscount, directDiscountLimit } =
       get(permissionConfigAtom) || {}
-    const discount = directDiscount || 0
+    const discount = directDiscount ?? 0
     if (allowDirectDiscount && directDiscountLimit) {
       const discountValue =
         get(directDiscountTypeAtom) === "percent"

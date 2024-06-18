@@ -23,7 +23,7 @@ const useSplitOrder = () => {
       totalAmount: getCartTotal(subItems),
     },
     onCompleted(data) {
-      const { _id } = (data || {}).ordersAdd || {}
+      const { _id } = data?.ordersAdd || {}
       router.push(
         `/checkout?orderId=${_id}&paymentType=${paymentType}&mainOrder=${variables._id}`
       )

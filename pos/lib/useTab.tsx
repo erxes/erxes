@@ -8,8 +8,10 @@ const useTab = (onCompleted?: () => void) => {
     newWindow = window.open(url, "_blank")
 
     checkWindowClosed = setInterval(() => {
-      if (newWindow && newWindow.closed) {
-        if (checkWindowClosed) clearInterval(checkWindowClosed)
+      if (newWindow?.closed) {
+        if (checkWindowClosed) {
+          clearInterval(checkWindowClosed)
+        }
         newWindow = null
       }
     }, 500)
