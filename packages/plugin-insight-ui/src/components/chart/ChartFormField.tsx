@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DateRange from "../utils/DateRange";
-import { IFieldLogic } from "../../types";
 import { IFilterType } from "../../containers/chart/ChartFormField";
 import { MarginY } from "../../styles";
 import Select from "react-select";
@@ -28,8 +27,6 @@ type Props = {
   setFilter?: (fieldName: string, value: any) => void;
   startDate?: Date;
   endDate?: Date;
-  fieldValues?: any;
-  fieldLogics?: IFieldLogic[];
   fieldDefaultValue?: any;
   filterType: IFilterType;
 };
@@ -39,14 +36,12 @@ const ChartFormField = (props: Props) => {
     fieldType,
     fieldOptions,
     fieldLabel,
-    fieldLogics,
     initialValue,
     multi,
     onChange,
     setFilter,
     startDate,
     endDate,
-    fieldValues,
     fieldDefaultValue,
     filterType,
   } = props;
