@@ -397,7 +397,7 @@ const msdynamicCheckMutations = {
         isRPC: true,
       });
 
-      if (order && order.syncErkhetInfo) {
+      if (order?.syncErkhetInfo) {
         const obj = {};
         obj[order.syncErkhetInfo] = id;
 
@@ -420,9 +420,7 @@ const msdynamicCheckMutations = {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`,
+        Authorization: `Basic ${Buffer.from('base64')}`,
       },
       timeout: 60000,
     }).then((r) => r.json());
