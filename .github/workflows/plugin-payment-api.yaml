@@ -58,7 +58,7 @@ jobs:
           yarn build plugin payment
           cd erxes/packages/plugin-payment-api
           yarn install
-          yarn build:webpack
+          yarn build:client
           pwd
           ls -la
           ls src/public/js
