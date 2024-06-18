@@ -93,7 +93,7 @@ const ChartTypes = (props: Props) => {
     return (
         <ChartBoxes>
             {renderCharTypes()}
-            {/* {renderColorPalette()} */}
+            { }
         </ChartBoxes>
     )
 }
