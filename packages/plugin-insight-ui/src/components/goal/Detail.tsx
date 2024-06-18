@@ -87,8 +87,8 @@ const Detail = (props: Props) => {
             </tr>
           </thead>
           <tbody>
-            {(specificPeriodGoals || []).map((element, index) => (
-              <tr key={index}>
+            {(specificPeriodGoals || []).map((element) => (
+              <tr key={element._id}>
                 <td>{element.addTarget}</td>
                 <td>{progress?.current}</td>
                 <td>{element.progress + '%'}</td>
