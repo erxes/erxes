@@ -127,7 +127,7 @@ const KeyPad = (props: Props, context) => {
   useEffect(() => {
     let timer;
     navigator.mediaDevices
-      ?.getUserMedia({ audio: true })
+      .getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
@@ -159,7 +159,7 @@ const KeyPad = (props: Props, context) => {
       }
     }
     if (call?.status !== CALL_STATUS_ACTIVE) {
-      localStorage.removeItem('transferedCallStatus');
+      localStorage.removeItem('isCallTransfered');
     }
 
     return () => {

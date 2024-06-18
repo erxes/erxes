@@ -218,16 +218,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         user,
       );
 
-<<<<<<< HEAD
-    let queue;
-    if (response?.response) {
-      queue = response.response.queue;
-    } else if (response?.queue) {
-      queue = response?.queue;
-    }
-=======
       const queue = response?.response?.queue || response?.queue;
->>>>>>> 21eb675445ae27f654cf3940480a5633a44d6dc2
 
       if (!queue) {
         throw new Error('Queue not found');
@@ -288,11 +279,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       let cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
       if (!cdrRoot) throw new Error('CDR root not found');
 
-<<<<<<< HEAD
-    const todayCdr = cdr_root && JSON.parse(JSON.stringify(cdr_root));
-    const sortedCdr =
-      todayCdr?.sort((a, b) => a.createdAt?.getTime() - b.createdAt?.getTime());
-=======
       const sortedCdr = cdrRoot.sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -301,7 +287,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       if (!lastCreatedObject) {
         throw new Error('Not found cdr');
       }
->>>>>>> 21eb675445ae27f654cf3940480a5633a44d6dc2
 
       const transferCall = findTransferCall(lastCreatedObject);
 
