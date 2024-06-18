@@ -67,7 +67,7 @@ const Row: React.FC<Props> = (props) => {
     status,
   } = invoice;
 
-  let labelStyle = "danger";
+  let labelStyle;
 
   switch (status) {
     case "paid":
