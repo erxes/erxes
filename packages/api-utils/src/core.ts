@@ -387,13 +387,13 @@ export const createGenerateModels = <IModels>(
     ): Promise<IModels> {
       let subdomain: string = hostnameOrSubdomain;
 
+      if (!subdomain) {
+        throw new Error(`Subdomain is \`${subdomain}\``);
+      }
+
       // means hostname
       if (subdomain && subdomain.includes('.')) {
         subdomain = getSubdomain(hostnameOrSubdomain);
-      }
-
-      if (!subdomain) {
-        throw new Error(`Subdomain is \`${subdomain}\``);
       }
 
       await getCoreConnection();
