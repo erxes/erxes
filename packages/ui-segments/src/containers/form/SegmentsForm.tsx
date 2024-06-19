@@ -1,7 +1,7 @@
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { ITrigger } from '../../types';
+import { ISegment, ITrigger } from '../../types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
@@ -29,6 +29,8 @@ type Props = {
   filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
+  serviceConfig?:any
+  segmentData?:ISegment
 };
 
 type FinalProps = {
@@ -149,7 +151,8 @@ class SegmentsFormContainer extends React.Component<
       eventsQuery,
       segmentsQuery,
       history,
-      filterContent
+      filterContent,
+      segmentData
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -163,13 +166,23 @@ class SegmentsFormContainer extends React.Component<
     const segments = segmentsQuery.segments || [];
     const isModal = history ? false : true;
 
+    const getSegment = () =>{
+
+      if (!segment && segmentData) {
+        return { ...segmentData, subSegmentConditions: [segmentData] };
+      }
+      return segment
+    }
+
     const updatedProps = {
       ...this.props,
-      segment,
-      headSegments: headSegments.filter(s =>
+      segment:getSegment(),
+      headSegments: headSegments.filter((s) =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
-      segments: segments.filter(s => (segment ? s._id !== segment._id : true)),
+      segments: segments.filter((s) =>
+        segment ? s._id !== segment._id : true
+      ),
       events,
       renderButton: this.renderButton,
       previewCount: this.previewCount,
