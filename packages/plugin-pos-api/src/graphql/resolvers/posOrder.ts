@@ -4,7 +4,7 @@ import { IPosDocument } from '../../models/definitions/pos';
 import { IPosOrderDocument } from '../../models/definitions/orders';
 
 const resolvers = {
-  putResponses: async (order, {}, { subdomain }) => {
+  putResponses: async (order, _, { subdomain }) => {
     return sendEbarimtMessage({
       subdomain,
       action: 'putresponses.find',
@@ -19,12 +19,12 @@ const resolvers = {
     });
   },
 
-  posName: async (order, {}, { models }) => {
+  posName: async (order, _, { models }) => {
     const pos = await models.Pos.findOne({ token: order.posToken }).lean();
     return pos ? pos.name : '';
   },
 
-  paidAmounts: async (order: IPosOrderDocument, {}, { models }: IContext) => {
+  paidAmounts: async (order: IPosOrderDocument, _, { models }: IContext) => {
     if (!order.paidAmounts || !order.paidAmounts.length) {
       return;
     }
@@ -50,7 +50,7 @@ const resolvers = {
     }));
   },
 
-  user: async (order, {}, { subdomain }) => {
+  user: async (order, _, { subdomain }) => {
     if (!order.userId) {
       return null;
     }
