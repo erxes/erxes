@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
+import "./instrument";
 import * as http from "http";
 import * as cookieParser from "cookie-parser";
 import userMiddleware from "./middlewares/userMiddleware";
@@ -22,16 +23,9 @@ import { applyInspectorEndpoints } from "@erxes/api-utils/src/inspect";
 import app from "@erxes/api-utils/src/app";
 import { sanitizeHeaders } from "@erxes/api-utils/src/headers";
 import { applyGraphqlLimiters } from "./middlewares/graphql-limiter";
-import * as Sentry from "@sentry/node";
 
-const {
-  DOMAIN,
-  WIDGETS_DOMAIN,
-  CLIENT_PORTAL_DOMAINS,
-  ALLOWED_ORIGINS,
-  PORT,
-  SENTRY_URL
-} = process.env;
+const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
+  process.env;
 
 (async () => {
   app.use((req, _res, next) => {
@@ -86,14 +80,6 @@ const {
   await setAfterQueries();
 
   await applyProxyToCore(app, targets);
-
-  if (SENTRY_URL) {
-    Sentry.init({
-      dsn: SENTRY_URL,
-
-      tracesSampleRate: 1.0 //  Capture 100% of the transactions
-    });
-  }
 
   console.log(`Erxes gateway ready at http://localhost:${port}/`);
 })();
