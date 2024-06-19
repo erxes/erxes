@@ -49,7 +49,7 @@ export default {
 
   prepareImportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { result, properties, contentType, user } = data;
+    const { result, properties } = data;
 
     const bulkDoc: any = [];
 
@@ -65,33 +65,36 @@ export default {
         const value = (fieldValue[colIndex] || '').toString();
 
         switch (property.name) {
-          case 'createdAt':
+          case 'createdAt': {
             const createdAt = await models.PosOrders.findOne({
               createdAt: new Date(value)
             });
             doc.createdAt = createdAt ? createdAt.createdAt : new Date(value);
             break;
+          }
 
-          case 'status':
+          case 'status': {
             const status = await models.PosOrders.findOne({
               status: value
             });
             doc.status = status ? status.status : value;
             break;
-
-          case 'paidDate':
+          }
+          case 'paidDate': {
             const paidDate = await models.PosOrders.findOne({
               paidDate: new Date(value)
             });
             doc.paidDate = paidDate ? paidDate.paidDate : new Date(value);
             break;
-          case 'dueDate':
+          }
+          case 'dueDate': {
             const dueDate = await models.PosOrders.findOne({
               dueDate: new Date(value)
             });
             doc.dueDate = dueDate ? dueDate.dueDate : new Date(value);
             break;
-          case 'totalAmount':
+          }
+          case 'totalAmount': {
             const totalAmountData = parseFloat(value);
 
             if (!Array.isArray(doc.totalAmount)) {
@@ -105,7 +108,7 @@ export default {
             }
             doc.totalAmount = totalAmountSum;
             break;
-
+          }
           default:
             {
               doc[property.name] = value;
