@@ -7,13 +7,13 @@ export default {
     return models.AssetCategories.findOne({ _id });
   },
 
-  async isRoot(category: IAssetCategoriesDocument,) {
+  async isRoot(category: IAssetCategoriesDocument,_) {
     return !category.parentId;
   },
 
   async assetCount(
     category: IAssetCategoriesDocument,
-    
+    _,
     { models }: IContext
   ) {
     const order = category.order.slice(-1)
