@@ -8,7 +8,7 @@ import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
-  stroke: '#a1a1a1',
+  stroke: '#a1a1a1'
 };
 
 export const hoverPaintStyle = {
@@ -28,7 +28,7 @@ export const sourceEndpoint = {
   isSource: true,
   connector: [
     'Bezier',
-    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true },
+    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
   hoverPaintStyle,
@@ -37,7 +37,7 @@ export const sourceEndpoint = {
     tolerance: 'touch',
     hoverClass: 'dropHover',
     activeClass: 'dragActive'
-  },
+  }
 };
 
 export const yesEndPoint = {
@@ -64,10 +64,10 @@ export const yesEndPoint = {
         visible: true,
         labelStyle: {
           color: colors.colorCoreGreen
-        },
-      },
-    ],
-  ],
+        }
+      }
+    ]
+  ]
 };
 
 export const noEndPoint = {
@@ -167,13 +167,13 @@ export const connection = (
   const { sourceId, type, connectType } = info || {};
 
   if (type === 'trigger') {
-    const trigger = triggers.find((t) => t.id.toString() === sourceId);
+    const trigger = triggers.find(t => t.id.toString() === sourceId);
 
     if (trigger) {
       trigger.actionId = actionId;
     }
   } else {
-    const sourceAction = actions.find((a) => a.id.toString() === sourceId);
+    const sourceAction = actions.find(a => a.id.toString() === sourceId);
 
     if (sourceAction) {
       if (sourceAction.type === 'if') {
@@ -229,7 +229,7 @@ export const connection = (
 
         sourceAction.config = {
           ...sourceConfig,
-          optionalConnects: updatedOptionalConnects,
+          optionalConnects: updatedOptionalConnects
         };
       } else {
         sourceAction.nextActionId = actionId;

@@ -2,17 +2,17 @@ import {
   generateToken,
   getRecordUrl,
   sendToGrandStream,
-} from "../../utils";
-import { IContext, IModels } from "../../connectionResolver";
+} from '../../utils';
+import { IContext, IModels } from '../../connectionResolver';
 
-import acceptCall from "../../acceptCall";
-import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
-import { IUserDocument } from "@erxes/api-utils/src/types";
-import { ICallHistory } from "../../models/definitions/callHistories";
-import { sendInboxMessage } from "../../messageBroker";
-import { updateConfigs } from "../../helpers";
-import { getOrCreateCustomer } from "../../store";
-import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
+import acceptCall from '../../acceptCall';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { ICallHistory } from '../../models/definitions/callHistories';
+import { sendInboxMessage } from '../../messageBroker';
+import { updateConfigs } from '../../helpers';
+import { getOrCreateCustomer } from '../../store';
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 export interface ISession {
   sessionCode: string;
@@ -36,28 +36,28 @@ const callsMutations = {
 
   async callAddCustomer(_root, args, { models, subdomain }: IContext) {
     const integration = await models.Integrations.findOne({
-      inboxId: args.inboxIntegrationId,
+      inboxId: args.inboxIntegrationId
     }).lean();
 
     if (!integration) {
-      throw new Error("Integration not found");
+      throw new Error('Integration not found');
     }
     const customer = await getOrCreateCustomer(models, subdomain, args);
 
     const channels = await sendInboxMessage({
       subdomain,
-      action: "channels.find",
+      action: 'channels.find',
       data: {
-        integrationIds: { $in: [integration.inboxId] },
+        integrationIds: { $in: [integration.inboxId] }
       },
-      isRPC: true,
+      isRPC: true
     });
     return {
       customer: customer?.erxesApiId && {
-        __typename: "Customer",
-        _id: customer.erxesApiId,
+        __typename: 'Customer',
+        _id: customer.erxesApiId
       },
-      channels,
+      channels
     };
   },
 
@@ -70,7 +70,7 @@ const callsMutations = {
     }: { models: IModels; user: IUserDocument & ISession; subdomain: string }
   ) {
     const activeSession = await models.ActiveSessions.findOne({
-      userId: user._id,
+      userId: user._id
     });
 
     if (activeSession) {
@@ -79,23 +79,23 @@ const callsMutations = {
 
     await models.ActiveSessions.create({
       userId: user._id,
-      lastLoginDeviceId: user.sessionCode,
+      lastLoginDeviceId: user.sessionCode
     });
 
     return await models.ActiveSessions.findOne({
-      userId: user._id,
+      userId: user._id
     });
   },
 
   async callTerminateSession(_root, {}, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
-      userId: user._id,
+      userId: user._id
     });
 
     graphqlPubsub.publish(
       `sessionTerminateRequested:${subdomain}:${user._id}`,
       {
-        userId: user._id,
+        userId: user._id
       }
     );
     return user._id;
@@ -103,17 +103,17 @@ const callsMutations = {
 
   async callDisconnect(_root, {}, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
-      userId: user._id,
+      userId: user._id
     });
 
     graphqlPubsub.publish(
       `sessionTerminateRequested:${subdomain}:${user._id}`,
       {
-        userId: user._id,
+        userId: user._id
       }
     );
 
-    return "disconnected";
+    return 'disconnected';
   },
 
   async callHistoryAdd(
@@ -126,16 +126,16 @@ const callsMutations = {
       subdomain,
       doc,
       user,
-      "addHistory"
+      'addHistory'
     );
 
     await putCreateLog(
       subdomain,
       {
-        type: "call",
+        type: 'call',
         newData: doc,
         object: history,
-        description: `Call "${history._id}" has been created`,
+        description: `Call '${history._id}' has been created`
       },
       user
     );
@@ -153,7 +153,7 @@ const callsMutations = {
   ) {
     const { _id } = doc;
     const history = await models.CallHistory.findOne({
-      _id,
+      _id
     });
 
     if (history && history.callStatus === 'active') {
@@ -168,7 +168,7 @@ const callsMutations = {
             ...doc,
             modifiedAt: new Date(),
             modifiedBy: user._id,
-            callStatus: callStatus,
+            callStatus: callStatus
           },
         },
       );
@@ -176,17 +176,17 @@ const callsMutations = {
       await putUpdateLog(
         subdomain,
         {
-          type: "call",
+          type: 'call',
           object: history,
           newData: doc,
-          description: `call ${history._id} has been edited`,
+          description: `call ${history._id} has been edited`
         },
         user
       );
       const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
       if (
         callRecordUrl &&
-        callRecordUrl !== "Check transfered call record url!"
+        callRecordUrl !== 'Check transfered call record url!'
       ) {
         await models.CallHistory.updateOne(
           { _id },
@@ -194,10 +194,10 @@ const callsMutations = {
         );
         return callRecordUrl;
       }
-      if (callRecordUrl === "Check transfered call record url!") {
+      if (callRecordUrl === 'Check transfered call record url!') {
         return callRecordUrl;
       }
-      return "success";
+      return 'success';
     } else {
       throw new Error(`You cannot edit`);
     }
@@ -208,18 +208,18 @@ const callsMutations = {
     { callStatus, sessionId }: { callStatus: string; sessionId: string },
     { user, models }: IContext
   ) {
-    if (sessionId && sessionId !== "") {
+    if (sessionId && sessionId !== '') {
       await models.CallHistory.updateOne(
         { sessionId },
         {
           $set: {
             callStatus,
             modifiedAt: new Date(),
-            modifiedBy: user._id,
+            modifiedBy: user._id
           },
         }
       );
-      return "success";
+      return 'success';
     }
     throw new Error(`Cannot found session id`);
   },
@@ -237,9 +237,9 @@ const callsMutations = {
     await putDeleteLog(
       subdomain,
       {
-        type: "call",
+        type: 'call',
         object: history,
-        description: `call "${history?._id}" has been deleted`,
+        description: `call '${history?._id}' has been deleted`,
       },
       user
     );
@@ -249,7 +249,7 @@ const callsMutations = {
   async callsUpdateConfigs(_root, { configsMap }, { models }: IContext) {
     await updateConfigs(models, configsMap);
 
-    return { status: "ok" };
+    return { status: 'ok' };
   },
 
   async callsPauseAgent(
@@ -258,35 +258,35 @@ const callsMutations = {
     { models, user }: IContext
   ) {
     const integration = await models.Integrations.findOne({
-      inboxId: integrationId,
+      inboxId: integrationId
     }).lean();
 
     if (!integration) {
-      throw new Error("Integration not found");
+      throw new Error('Integration not found');
     }
     const operator = integration.operators.find(
       (operator) => operator.userId === user?._id
     );
 
-    const extentionNumber = operator?.gsUsername || "1001";
+    const extentionNumber = operator?.gsUsername || '1001';
 
     const queueData = await sendToGrandStream(
       models,
       {
-        path: "api",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         data: {
           request: {
-            action: "pauseUnpauseQueueAgent",
+            action: 'pauseUnpauseQueueAgent',
             operatetype: status,
-            interface: extentionNumber,
+            interface: extentionNumber
           },
         },
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: false,
+        isAddExtention: false
       },
       user
     );
@@ -301,13 +301,13 @@ const callsMutations = {
           await models.Operators.create({
             userId: user._id,
             status,
-            extension: extentionNumber,
+            extension: extentionNumber
           });
         }
         return need_apply;
       }
     }
-    return "failed";
+    return 'failed';
   },
 
   async callTransfer(
@@ -316,21 +316,21 @@ const callsMutations = {
     { models, user }: IContext
   ) {
     const listBridgedChannelsPayload = {
-      path: "api",
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      path: 'api',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       data: {
         request: {
-          action: "listBridgedChannels",
+          action: 'listBridgedChannels'
         },
       },
       integrationId,
       retryCount: 3,
       isConvertToJson: true,
       isAddExtention: false,
-      isGetExtension: true,
+      isGetExtension: true
     };
-    console.log("11");
+    console.log('11');
 
     const {
       response: listBridgedChannelsResponse,
@@ -340,62 +340,62 @@ const callsMutations = {
     console.log('22', extension, extensionNumber);
     if (listBridgedChannelsResponse?.response) {
       const channels = listBridgedChannelsResponse.response.channel;
-      console.log("33");
+      console.log('33');
       if (channels) {
-        console.log("44");
+        console.log('44');
 
         const filteredChannels = channels.filter((ch) => {
-          if (direction === "incoming") {
-            console.log("55");
+          if (direction === 'incoming') {
+            console.log('55');
             return ch.callerid2 === extension;
           } else {
-            console.log("66");
+            console.log('66');
 
             return ch.callerid1 === extension;
           }
         });
         if (filteredChannels.length > 0) {
-          console.log("77");
+          console.log('77');
 
-          if (direction === "incoming") {
-            channel = filteredChannels[0].channel2 || "";
+          if (direction === 'incoming') {
+            channel = filteredChannels[0].channel2 || '';
           } else {
-            channel = filteredChannels[0].channel1 || "";
+            channel = filteredChannels[0].channel1 || '';
           }
         }
       }
     }
 
     const callTransferPayload = {
-      path: "api",
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      path: 'api',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       data: {
         request: {
-          action: "callTransfer",
+          action: 'callTransfer',
           extension: extensionNumber,
-          channel,
+          channel
         },
       },
       integrationId,
       retryCount: 3,
       isConvertToJson: true,
-      isAddExtention: false,
+      isAddExtention: false
     };
-    console.log("88");
+    console.log('88');
 
     const callTransferResponse = await sendToGrandStream(
       models,
       callTransferPayload,
       user
     );
-    console.log("99");
+    console.log('99');
 
     if (callTransferResponse?.response?.need_apply) {
       return callTransferResponse?.response?.need_apply;
     }
 
-    return "failed";
+    return 'failed';
   },
 };
 
