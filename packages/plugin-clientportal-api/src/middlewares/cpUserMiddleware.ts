@@ -28,7 +28,7 @@ export default async function cpUserMiddleware(
   }
   const { body } = req;
 
-  const operationName = body.operationName && body.operationName.split('__')[0];
+  const operationName = body.operationName?.split('__')[0];
 
   if (
     [
@@ -64,7 +64,7 @@ export default async function cpUserMiddleware(
     // verify user token and retrieve stored user information
     const verifyResult: any = jwt.verify(
       token,
-      process.env.JWT_TOKEN_SECRET || ''
+      process.env.JWT_TOKEN_SECRET ?? ''
     );
 
     const { userId, isPassed2FA, isEnableTwoFactor } = verifyResult;
