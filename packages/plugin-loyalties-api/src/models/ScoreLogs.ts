@@ -71,7 +71,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     public static async getScoreLogs(doc: IScoreParams) {
       const { order, orderType } = doc;
       const filter = generateFilter(doc);
-      const list = paginate(
+      const list = await paginate(
         models.ScoreLogs.find(filter).sort({ [orderType]: order } as any),
         doc
       );

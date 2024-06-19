@@ -36,17 +36,18 @@ class Stages extends React.Component<Props, {}> {
   add = () => {
     const { stages, onChangeStages, type } = this.props;
 
-    stages.push({
-      _id: Math.random().toString(),
-      name: "",
-      visibility: "public",
-      probability: "10%",
-      memberIds: [],
-      departmentIds: [],
-      type,
-    });
-
-    onChangeStages(stages);
+    onChangeStages([
+      ...stages,
+      {
+        _id: Math.random().toString(),
+        name: "",
+        visibility: "public",
+        probability: "10%",
+        memberIds: [],
+        departmentIds: [],
+        type,
+      },
+    ]);
   };
 
   remove = (stageId) => {
