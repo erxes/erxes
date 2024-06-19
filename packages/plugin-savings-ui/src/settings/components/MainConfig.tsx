@@ -31,7 +31,7 @@ class MainConfig extends React.Component<Props, State> {
     };
   }
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { config } = this.state;
     const { configsMap } = this.props;
@@ -61,19 +61,43 @@ class MainConfig extends React.Component<Props, State> {
     const { config } = this.state;
     return (
       <>
-        <CollapseContent
-          title={__("period lock config")}
-          open={false}
-        >
+        <CollapseContent title={__(config.title)} open={false}>
           <FormGroup>
-            <ControlLabel required={true}>{__('Period lock type')}</ControlLabel>
+            <ControlLabel>{__('Calculation number fixed')}</ControlLabel>
+            <FormControl
+              defaultValue={config['calculationFixed']}
+              type="number"
+              min={0}
+              max={100}
+              onChange={this.onChangeInput.bind(this, 'calculationFixed')}
+              required={true}
+            />
+          </FormGroup>
+
+          <ModalFooter>
+            <Button
+              btnStyle="primary"
+              icon="check-circle"
+              onClick={this.onSave}
+              uppercase={false}
+            >
+              {__('Save')}
+            </Button>
+          </ModalFooter>
+        </CollapseContent>
+        <CollapseContent title={__('period lock config')} open={false}>
+          <FormGroup>
+            <ControlLabel required={true}>
+              {__('Period lock type')}
+            </ControlLabel>
             <FormControl
               name="periodLockType"
-              componentClass="select"
+              componentclass="select"
+              type="select"
               defaultValue={config['periodLockType']}
               onChange={this.onChangeInput.bind(this, 'periodLockType')}
             >
-              {['daily', 'endOfMonth','manual'].map((typeName) => (
+              {['daily', 'endOfMonth', 'manual'].map((typeName) => (
                 <option key={typeName} value={typeName}>
                   {__(typeName)}
                 </option>
@@ -83,11 +107,11 @@ class MainConfig extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{__('Is Store Interest')}</ControlLabel>
             <FormControl
-              className= 'flex-item'
-              type= 'checkbox'
-              componentClass= 'checkbox'
-              name='isStoreInterest'
-              checked= {config['isStoreInterest']}
+              className="flex-item"
+              type="checkbox"
+              componentclass="checkbox"
+              name="isStoreInterest"
+              checked={config['isStoreInterest']}
               onChange={this.onChangeCheck.bind(this, 'isStoreInterest')}
             />
           </FormGroup>
@@ -103,24 +127,24 @@ class MainConfig extends React.Component<Props, State> {
             </Button>
           </ModalFooter>
         </CollapseContent>
-        <CollapseContent
-          title={__("internet bank config")}
-          open={false}
-        >
+        <CollapseContent title={__('internet bank config')} open={false}>
           <FormGroup>
             <ControlLabel>{__('one time transaction limit')}</ControlLabel>
             <FormControl
               defaultValue={config['oneTimeTransactionLimit']}
               type="number"
-              onChange={this.onChangeInputNumber.bind(this, 'oneTimeTransactionLimit')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'oneTimeTransactionLimit'
+              )}
               required={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Loan give account type')}</ControlLabel>
+            <ControlLabel>{__('Transaction account type')}</ControlLabel>
             <FormControl
               name="transactionAccountType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={config['transactionAccountType']}
               onChange={this.onChangeInput.bind(this, 'transactionAccountType')}
             >
@@ -132,11 +156,50 @@ class MainConfig extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Loan give account number')}</ControlLabel>
+            <ControlLabel>{__('Transaction account number')}</ControlLabel>
             <FormControl
               defaultValue={config['transactionAccountNumber']}
               type="number"
-              onChange={this.onChangeInputNumber.bind(this, 'transactionAccountNumber')}
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'transactionAccountNumber'
+              )}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('transaction Config')}</ControlLabel>
+            <FormControl
+              defaultValue={config['transactionConfigId']}
+              type="password"
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'transactionConfigId'
+              )}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Transaction Login Name')}</ControlLabel>
+            <FormControl
+              defaultValue={config['transactionLoginName']}
+              type="password"
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'transactionLoginName'
+              )}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Transaction password')}</ControlLabel>
+            <FormControl
+              defaultValue={config['transactionPassword']}
+              type="password"
+              onChange={this.onChangeInputNumber.bind(
+                this,
+                'transactionPassword'
+              )}
               required={true}
             />
           </FormGroup>

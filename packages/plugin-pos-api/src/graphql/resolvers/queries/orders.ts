@@ -11,6 +11,7 @@ import {
   getTomorrow,
   shortStrToDate,
 } from '@erxes/api-utils/src/core';
+import { SUBSCRIPTION_INFO_STATUS } from '../../../contants';
 
 export const paginate = (
   collection,
@@ -838,6 +839,76 @@ const queries = {
   ) => {
     return posOrderRecordsCountQuery(models, params, commonQuerySelector, user);
   },
+
+  posOrderCustomers: async (_root, params, { subdomain, models }: IContext) => {
+    return paginate(
+      models.PosOrders.aggregate([
+        {
+          $match: {
+            customerId: { $nin: [null, '', undefined] },
+          },
+        },
+        {
+          $group: {
+            _id: '$customerId',
+            customerType: { $first: '$customerType' },
+            orders: { $push: '$$ROOT' },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            customerType: 1,
+            orders: 1,
+            totalOrders: { $size: '$orders' },
+            totalAmount: { $sum: '$orders.totalAmount' },
+          },
+        },
+        { $sort: { _id: -1 } },
+      ]),
+      params
+    );
+  },
+  posOrderCustomersTotalCount: async (
+    _root,
+    params,
+    { subdomain, models }: IContext
+  ) => {
+    const [{ totalDocuments }] = await models.PosOrders.aggregate([
+      {
+        $group: {
+          _id: '$customerId',
+          customerType: { $first: '$customerType' },
+          orders: { $push: '$$ROOT' },
+        },
+      },
+
+      {
+        $count: 'totalDocuments',
+      },
+    ]);
+
+    return totalDocuments;
+  },
+
+  async checkSubscription(
+    _root,
+    { customerId, productId },
+    { models }: IContext
+  ) {
+    const subscription = await models.PosOrders.findOne({
+      customerId,
+      'items.productId': productId,
+      'subscriptionInfo.status': SUBSCRIPTION_INFO_STATUS.ACTIVE,
+      'items.closeDate': { $gte: new Date() },
+    });
+
+    if (!subscription) {
+      throw new Error(`Cannot find subscription`);
+    }
+
+    return subscription;
+  },
 };
 
 checkPermission(queries, 'posOrders', 'showOrders');
@@ -848,5 +919,6 @@ checkPermission(queries, 'posOrdersGroupSummary', 'showOrders');
 checkPermission(queries, 'posProducts', 'showOrders');
 checkPermission(queries, 'posOrderRecords', 'showOrders');
 checkPermission(queries, 'posOrderRecordsCount', 'showOrders');
+// checkPermission(queries, 'posOrderCustomers', 'showOrders');
 
 export default queries;

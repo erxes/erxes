@@ -78,6 +78,7 @@ const KeyPad = (props: Props, context) => {
     pauseExtention,
     agentStatus,
     currentCallConversationId,
+    loading,
   } = props;
 
   const defaultCallIntegration = localStorage.getItem(
@@ -101,7 +102,7 @@ const KeyPad = (props: Props, context) => {
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
   const [isPaused, setPaused] = useState(
-    agentStatus === 'paused' ? true : false,
+    agentStatus === 'pause' ? true : false,
   );
 
   const shrink = customer ? true : false;
@@ -123,7 +124,8 @@ const KeyPad = (props: Props, context) => {
 
   useEffect(() => {
     setNumber(phoneNumber);
-  }, [phoneNumber]);
+    setPaused(agentStatus === 'pause' ? true : false);
+  }, [phoneNumber, loading]);
 
   // useEffect(() => {
   //   const audio = outgoingAudio.current;
@@ -143,7 +145,7 @@ const KeyPad = (props: Props, context) => {
   useEffect(() => {
     let timer;
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      ?.getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
@@ -179,7 +181,7 @@ const KeyPad = (props: Props, context) => {
       }
     }
     if (call?.status !== CALL_STATUS_ACTIVE) {
-      localStorage.removeItem('isCallTransfered');
+      localStorage.removeItem('transferedCallStatus');
     }
 
     // if (

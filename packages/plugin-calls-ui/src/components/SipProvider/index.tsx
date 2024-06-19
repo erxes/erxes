@@ -65,6 +65,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       diversionHeader?: string,
+      endedBy?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -72,6 +73,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       callStartTime: Date,
+      queueName: string | null,
     ) => void;
   },
   {
@@ -384,7 +386,7 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
-      rtcOfferConstraints: { iceRestart: this.props.iceRestart },
+      // rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
@@ -486,6 +488,11 @@ export default class SipProvider extends React.Component<
 
     ua.on('disconnected', (e) => {
       this.logger.debug('UA "disconnected" event');
+
+      if (e.code === 1006) {
+        // Retry connection after a delay
+        setTimeout(this.reinitializeJsSIP, 5000); // Retry after 5 seconds
+      }
       if (this.ua !== ua) {
         return;
       }
@@ -668,6 +675,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               diversionHeader || '',
+              data.originator,
             );
           }
           this.setState({
@@ -747,6 +755,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               this.state.rtcSession.start_time,
+              this.state.groupName,
             );
           }
           [this.remoteAudio.srcObject] =

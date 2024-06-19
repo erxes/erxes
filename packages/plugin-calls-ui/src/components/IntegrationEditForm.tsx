@@ -1,9 +1,10 @@
+import React, { useEffect, useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import React, { useState, useEffect } from "react";
 import OperatorForm from "./OperatorForm";
-import Button from "@erxes/ui/src/components/Button";
 import { __ } from "@erxes/ui/src/utils/core";
 
 interface IProps {
@@ -100,8 +101,8 @@ const IntegrationEditForm = (props: IProps) => {
         <FormGroup>
           <div style={{ display: "flex", justifyContent: "end" }}>
             <Button
-              btnStyle="primary"
-              icon="plus"
+              btnStyle="simple"
+              icon="plus-1"
               size="medium"
               onClick={handleAddOperation}
             >

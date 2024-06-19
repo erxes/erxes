@@ -1,55 +1,37 @@
 import {
   Bulk,
   Button,
-  FormControl,
   Icon,
   ModalTrigger,
   Tip,
   __,
-} from '@erxes/ui/src';
-import React from 'react';
-import DetailForm from './DetailForm';
-import { INonBalanceTransaction } from '../types';
-import dayjs from 'dayjs';
+} from "@erxes/ui/src";
+import React from "react";
+import DetailForm from "./DetailForm";
+import { INonBalanceTransaction } from "../types";
+import dayjs from "dayjs";
 
 type Props = {
   nonBalanceTransaction: INonBalanceTransaction;
   isChecked: boolean;
-  toggleBulk: (nonBalanceTransaction: INonBalanceTransaction, isChecked?: boolean) => void;
+  toggleBulk: (
+    nonBalanceTransaction: INonBalanceTransaction,
+    isChecked?: boolean
+  ) => void;
 };
 function nonBalanceTransactionRow({
-  nonBalanceTransaction,
-  isChecked,
-  toggleBulk
+  nonBalanceTransaction
 }: Props) {
-  const onChange = e => {
-    if (toggleBulk) {
-      toggleBulk(nonBalanceTransaction, e.target.checked);
-    }
-  };
-  const onClick = e => {
-    e.stopPropagation();
-  };    
+   
   const checkForm = () => {
     const content = () => {
-      return (
-        <DetailForm
-          nonBalanceTransaction={nonBalanceTransaction} 
-        />
-      );
+      return <DetailForm nonBalanceTransaction={nonBalanceTransaction} />;
     };
-  return <Bulk content={content} />;
+    return <Bulk content={content} />;
   };
-  
+
   return (
       <tr>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentclass="checkbox"
-            onChange={onChange}
-          />
-        </td>
         <td key={'contractId'}>
           {(nonBalanceTransaction && nonBalanceTransaction?.contract?.number) ||
             ''}
@@ -78,5 +60,4 @@ function nonBalanceTransactionRow({
       </tr>
   );
 }
-
 export default nonBalanceTransactionRow;

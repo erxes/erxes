@@ -84,6 +84,7 @@ const SipProviderContainer = (props) => {
     direction: string,
     customerPhone: string,
     transferStatus?: string,
+    endedBy?: string,
   ) => {
     const transferedCallStatus = localStorage.getItem('transferedCallStatus');
     let duration = 0;
@@ -106,6 +107,7 @@ const SipProviderContainer = (props) => {
           transferedCallStatus: transferStatus
             ? 'remote'
             : transferedCallStatus,
+          endedBy,
         },
         refetchQueries: ['callHistories'],
       })
@@ -147,6 +149,7 @@ const SipProviderContainer = (props) => {
     direction: string,
     customerPhone: string,
     callStartTime: Date,
+    queueName?: string,
   ) => {
     addHistoryMutation({
       variables: {
@@ -156,6 +159,7 @@ const SipProviderContainer = (props) => {
         customerPhone,
         inboxIntegrationId: config?.inboxId || '',
         callStartTime,
+        queueName,
       },
     })
       .then(({ data }: any) => {
@@ -223,7 +227,7 @@ const SipProviderContainer = (props) => {
   const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
-  const [host, port] = wsServer?.split(':');
+  const [host = 'call.erxes.io', port = '8089'] = wsServer?.split(':');
 
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
@@ -250,12 +254,12 @@ const SipProviderContainer = (props) => {
     port: parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
-        urls: `stun:${STUN_SERVER_URL}` || '',
-      },
-      {
         urls: `turn:${TURN_SERVER_URL}` || '',
         username: TURN_SERVER_USERNAME || '',
         credential: TURN_SERVER_CREDENTIAL || '',
+      },
+      {
+        urls: `stun:${STUN_SERVER_URL}` || '',
       },
     ],
   };
