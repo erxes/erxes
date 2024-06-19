@@ -51,11 +51,12 @@ const GeneralSettings = (props: Props) => {
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    delete configsMap.creditScore[currentConfigKey];
-    delete configsMap.creditScore["newCreditConfig"];
+    let newConfig = JSON.parse(JSON.stringify(configsMap));
+    delete newConfig.creditScore[currentConfigKey];
+    delete newConfig.creditScore["newCreditConfig"];
 
-    setConfigsMap(configsMap);
-    props.save(configsMap);
+    setConfigsMap({...newConfig});
+    props.save(newConfig);
   };
 
   const renderConfigs = (configs) => {
