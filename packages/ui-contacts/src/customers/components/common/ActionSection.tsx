@@ -197,19 +197,14 @@ class ActionSection extends React.Component<
     return (
       <Dropdown
         toggleComponent={
-          this.props.isSmall ? (
-            <Button size="small" btnStyle="default">
-              <Icon icon="ellipsis-h" />
-            </Button>
-          ) : (
-            <Button size="small" btnStyle="default">
-              {__("Action")} <Icon icon="angle-down" />
-            </Button>
-          )
+          <Button size="small" btnStyle="default">
+            {!this.props.isSmall && __("Action")}
+            <Icon icon={this.props.isSmall ? "ellipsis-h" : "angle-down"} />
+          </Button>
         }
         modalMenuItems={[
           {
-            title: "",
+            title: "Edit basic info",
             trigger: <a>{__("Edit")}</a>,
             content: cocType === "company" ? companyForm : customerForm,
           },

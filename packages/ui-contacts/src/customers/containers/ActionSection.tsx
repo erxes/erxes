@@ -48,7 +48,9 @@ const ActionSectionContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success("You successfully deleted a customer");
-        !location.pathname.includes('inbox') && navigate("/contacts/customer");
+        location.pathname.includes("inbox")
+          ? navigate("/inbox")
+          : navigate("/contacts/customer");
       })
       .catch((e) => {
         Alert.error(e.message);
