@@ -11,6 +11,11 @@ const ImportColumnRow = styled.tr`
   i {
     font-size: 15px;
   }
+  .css-1nmdiq5-menu {
+    width: fit-content;
+    overflow-x: visible;
+    overflow-y: scroll;
+  }
 `;
 
 const Content = styled.div`
