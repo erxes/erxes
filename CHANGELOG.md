@@ -1,6 +1,7 @@
 # Changelog
 
 ## [1.13.0-rc.4](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-18)
+## [1.12.5](https://github.com/erxes/erxes/compare/1.12.4...1.12.5) (2024-06-19)
 
 
 ### Bug Fixes
@@ -52,6 +53,21 @@
 ### Bug Fixes
 
 * added await some promise functions ([549c599](https://github.com/erxes/erxes/commit/549c599e233965cb8c8c5191acddb959c1f651ed))
+* **automations:** can't get notes of automations ([a3641d5](https://github.com/erxes/erxes/commit/a3641d53e1de8ebc228b4d6b77adcb603d9456a5))
+* **cards:** can't delete item ([9a5351a](https://github.com/erxes/erxes/commit/9a5351ac0dacb2b242bcaa2c841d4d6f65f64fae))
+* **cards:** description edit height when edit card ([03cd614](https://github.com/erxes/erxes/commit/03cd614c77d133d48a7505d92767ff9741c28081))
+* **cards:** stage pipeline form update ([117322f](https://github.com/erxes/erxes/commit/117322fc7052bc0d253475402ca17dd4845779af))
+* **core:** can''t get structure main list ([c76f715](https://github.com/erxes/erxes/commit/c76f71592c0aef0f4717e697a96c845380e6fce1))
+* **core:** can't edit user profile ([966c741](https://github.com/erxes/erxes/commit/966c741add2400373a535478943865b5129a3520))
+* **core:** can't get plugins usage in organization profile ([836b580](https://github.com/erxes/erxes/commit/836b580cb90ff9a752ed2b3d3b49b220c91a1be9))
+* **core:** can't remove departmentRemove ([b8c4aaa](https://github.com/erxes/erxes/commit/b8c4aaadad7b71f470dd92ead8389d27136830f8))
+* **coreui:** import, export properties ([14a6a0e](https://github.com/erxes/erxes/commit/14a6a0ebd7bea954b501369e67a2182a260183bd))
+* **engage:** fix create broadcast ([35ef987](https://github.com/erxes/erxes/commit/35ef987db9c3e04645b6ea3979e9173c08d9c11e))
+* **product:** Advanced view ui ([996647f](https://github.com/erxes/erxes/commit/996647fa1619cd0bbedca565684a8494c8bac017))
+* **product:** Advanced view ui ([2474030](https://github.com/erxes/erxes/commit/2474030c7cb9b1c1de65b67aaed034de76c41db6))
+* **syncerkhet:** sync erkhet filter, permission filter ([92320ec](https://github.com/erxes/erxes/commit/92320ec77c90a10d4d2820196d78c29bfd412f41))
+* update to use cursor() method in place of stream() for Mongoose 8 compatibility ([7c005ab](https://github.com/erxes/erxes/commit/7c005ab1a8feb97a7554ff033545423f2e40cd74))
+* **workers:** can't get import histories ([1f36da6](https://github.com/erxes/erxes/commit/1f36da607f4bdb3308ad6e590d329cd4e77aac01))
 
 ## [1.12.4](https://github.com/erxes/erxes/compare/1.12.3...1.12.4) (2024-06-18)
 
