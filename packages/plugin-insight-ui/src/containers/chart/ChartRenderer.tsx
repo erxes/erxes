@@ -45,7 +45,7 @@ type FinalProps = {
   chartGetResultQuery: any;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { chartGetResultQuery, chartVariables, filter, chartType } = props;
+  const { chartGetResultQuery, chartVariables, chartType } = props;
 
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
