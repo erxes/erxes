@@ -35,7 +35,7 @@ type Props = {
 };
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, chartType, setFilter, fieldValues } = props;
+  const { filterType, setFilter, fieldValues } = props;
 
   const {
     fieldName,
