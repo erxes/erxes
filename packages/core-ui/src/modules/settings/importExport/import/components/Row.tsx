@@ -101,8 +101,6 @@ class Row extends React.Component<Props, State> {
       }
 
       if (chosenField) {
-       console.log('chosenField[column].value', chosenField[column] && chosenField[column])
-
         return renderOptions().find(option => option.value === (chosenField[column] && chosenField[column].value))
       }
 
