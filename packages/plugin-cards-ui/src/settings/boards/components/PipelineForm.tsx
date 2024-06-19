@@ -9,7 +9,7 @@ import {
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import { IBoard, IPipeline, IStage } from "@erxes/ui-cards/src/boards/types";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { __, generateTree } from "coreui/utils";
 
 import BoardNumberConfigs from "./numberConfig/BoardNumberConfigs";
@@ -87,6 +87,10 @@ const PipelineForm = (props: Props) => {
     pipeline ? pipeline.departmentIds : []
   );
 
+  useEffect(() => {
+    setStages((props.stages || []).map((stage) => ({ ...stage })));
+  }, [props.stages]);
+
   const onChangeStages = (stages) => {
     setStages(stages);
   };
@@ -112,7 +116,6 @@ const PipelineForm = (props: Props) => {
   };
 
   const onChangeNumber = (key: string, value: string) => {
-    console.log("key", key, value);
     if (key === "numberConfig") {
       setNumberConfig(value);
     }
