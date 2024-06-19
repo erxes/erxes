@@ -6,13 +6,13 @@ export default {
     return models.Assets.findOne({ _id });
   },
 
-  async user(movement: IMovementDocument, { dataLoaders }: IContext) {
+  async user(movement: IMovementDocument, _, { dataLoaders }: IContext) {
     return (
       (movement.userId && dataLoaders.teamMember.load(movement.userId)) || null
     );
   },
 
-  async items(movement: IMovementDocument, { models }: IContext) {
+  async items(movement: IMovementDocument, _, { models }: IContext) {
     return await models.MovementItems.find({ movementId: movement._id });
   }
 };
