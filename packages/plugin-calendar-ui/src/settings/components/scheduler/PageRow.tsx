@@ -29,7 +29,7 @@ class PageRow extends React.Component<Props> {
   renderExtraLinks() {
     const { page } = this.props;
 
-    return (
+    return ( 
       <>
         <Tip text="Delete">
           <Button
