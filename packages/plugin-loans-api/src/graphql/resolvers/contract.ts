@@ -53,7 +53,9 @@ const Contracts = {
   },
 
   async customers(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== "customer") return null;
+    if (contract.customerType !== "customer") {
+      return null;
+    }
 
     const customer = await sendMessageBroker(
       {
