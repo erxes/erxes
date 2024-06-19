@@ -65,6 +65,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       diversionHeader?: string,
+      endedBy?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -72,6 +73,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       callStartTime: Date,
+      queueName: string | null,
     ) => void;
   },
   {
@@ -443,6 +445,26 @@ export default class SipProvider extends React.Component<
       } as any;
 
       this.ua = new JsSIP.UA(options);
+
+      function reconnectWebSocket() {
+        console.log('Attempting to reconnect WebSocket...');
+        setTimeout(() => {
+          socket.connect();
+        }, 5000); // Retry after 5 seconds
+      }
+      socket.onconnect = () => {
+        console.log('WebSocket connected');
+      };
+
+      socket.ondisconnect = (error, code, reason) => {
+        console.log('error:', error);
+        console.log('Code:', code);
+        console.log('Reason:', reason);
+
+        if (code === 1006) {
+          reconnectWebSocket();
+        }
+      };
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
@@ -673,6 +695,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               diversionHeader || '',
+              data.originator,
             );
           }
           this.setState({
@@ -752,6 +775,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               this.state.rtcSession.start_time,
+              this.state.groupName,
             );
           }
           [this.remoteAudio.srcObject] =

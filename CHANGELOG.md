@@ -1,6 +1,23 @@
 # Changelog
 
-## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.12.0...1.13.0-rc.0) (2024-06-12)
+## [1.13.0-rc.4](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-18)
+
+
+### Bug Fixes
+
+* **calls:** fix websocket error ([a3a9a2e](https://github.com/erxes/erxes/commit/a3a9a2e7909019b8e32abb42b932e2d0d88e4dbc))
+* **calls:** improve record file and added report fields ([e535219](https://github.com/erxes/erxes/commit/e535219ec9f1b127e1b0d85b269d72f9639615ad))
+
+## [1.13.0-rc.2](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-17)
+
+## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-13)
+
+
+### Bug Fixes
+
+* fix insight table type ([efd64e3](https://github.com/erxes/erxes/commit/efd64e3109a2a335ae800f6c01ace02c22e0a8be))
+
+## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-12)
 
 
 ### Bug Fixes
@@ -21,6 +38,50 @@
 ### Performance Improvements
 
 * Loans report ([#5321](https://github.com/erxes/erxes/issues/5321)) ([1ec890e](https://github.com/erxes/erxes/commit/1ec890ef233b515b60ca433985a46e473a498d32))
+
+## [1.12.4](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-18)
+
+
+### Features
+
+* **forms:** add international phone option to form fields ([ab0385d](https://github.com/erxes/erxes/commit/ab0385d6ac2720443868d6cdbd93c57762c5cc3a))
+
+## [1.12.3](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-17)
+
+
+### Bug Fixes
+
+* added await some promise functions ([549c599](https://github.com/erxes/erxes/commit/549c599e233965cb8c8c5191acddb959c1f651ed))
+
+## [1.12.4](https://github.com/erxes/erxes/compare/1.12.3...1.12.4) (2024-06-18)
+
+
+### Features
+
+* **forms:** add international phone option to form fields ([ab0385d](https://github.com/erxes/erxes/commit/ab0385d6ac2720443868d6cdbd93c57762c5cc3a))
+
+## [1.12.3](https://github.com/erxes/erxes/compare/1.12.2...1.12.3) (2024-06-17)
+
+
+### Bug Fixes
+
+* added await some promise functions ([549c599](https://github.com/erxes/erxes/commit/549c599e233965cb8c8c5191acddb959c1f651ed))
+
+## [1.12.2](https://github.com/erxes/erxes/compare/1.12.1...1.12.2) (2024-06-17)
+
+
+### Performance Improvements
+
+* **coreui:** add sentry on ui for error tracking ([617a0b0](https://github.com/erxes/erxes/commit/617a0b078c32b55014293330af7ca47fb53c83e7))
+* **monitoring:** add grafana faro react monitoring on core ui ([8b6f741](https://github.com/erxes/erxes/commit/8b6f7419d2f651e1b0b12a130148b15e3b66afff))
+* **monitoring:** add posthog on ui & add sentry on api ([a3ae094](https://github.com/erxes/erxes/commit/a3ae094bd8dd123543b22ab6bf268dcff59f04af))
+
+## [1.12.1](https://github.com/erxes/erxes/compare/1.12.0...1.12.1) (2024-06-14)
+
+
+### Features
+
+* **core-ui:** get env js from public url ([ffa7f57](https://github.com/erxes/erxes/commit/ffa7f5715afee93a63addc762cd5f918762f10e2))
 
 ## [1.12.0](https://github.com/erxes/erxes/compare/1.12.0-rc.6...1.12.0) (2024-06-12)
 
