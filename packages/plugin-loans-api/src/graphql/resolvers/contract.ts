@@ -57,7 +57,7 @@ const Contracts = {
       return null;
     }
 
-    const customer = await sendMessageBroker(
+    return await sendMessageBroker(
       {
         subdomain,
         action: "customers.findOne",
@@ -65,15 +65,15 @@ const Contracts = {
         isRPC: true
       },
       "contacts"
-    );
-
-    return customer;
+    );;
   },
 
   async companies(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== "company") return null;
-
-    const company = await sendMessageBroker(
+    if (contract.customerType !== "company") {
+      return null;
+    }
+    
+    return await sendMessageBroker(
       {
         subdomain,
         action: "companies.findOne",
@@ -82,8 +82,6 @@ const Contracts = {
       },
       "contacts"
     );
-
-    return company;
   },
 
   async insurances(
