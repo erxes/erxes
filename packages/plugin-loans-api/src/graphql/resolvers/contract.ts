@@ -6,8 +6,7 @@ import {
   sendMessageBroker
 } from "../../messageBroker";
 import { SCHEDULE_STATUS } from "../../models/definitions/constants";
-import { IContractDocument } from "../../models/definitions/contracts";
-import { IContract } from "../../models/definitions/contracts";
+import { IContractDocument, IContract } from "../../models/definitions/contracts";
 import { getCalcedAmounts } from "../../models/utils/transactionUtils";
 import {
   getDiffDay,
