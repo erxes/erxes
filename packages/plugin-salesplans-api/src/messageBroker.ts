@@ -24,7 +24,7 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue(
     'salesplans:timeframes.find',
-    async ({ subdomain, data: {} }) => {
+    async ({ subdomain}) => {
       const models = await generateModels(subdomain);
 
       return {
