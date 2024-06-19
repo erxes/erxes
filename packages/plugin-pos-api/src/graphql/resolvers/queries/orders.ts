@@ -83,10 +83,10 @@ const generateFilterPosQuery = async (
   }
 
   if (
-    (statuses && statuses.length) ||
-    (excludeStatuses && excludeStatuses.length)
+    (statuses?.length) ||
+    (excludeStatuses?.length)
   ) {
-    const _in = statuses && statuses.length ? { $in: statuses || [] } : {};
+    const _in = statuses?.length ? { $in: statuses || [] } : {};
     query.status = { ..._in, $nin: excludeStatuses || [] };
   }
 
@@ -140,7 +140,7 @@ const generateFilterPosQuery = async (
     query.createdAt = createdQry;
   }
 
-  if (types && types.length) {
+  if (types?.length) {
     query.type = { $in: types };
   }
 
@@ -238,7 +238,7 @@ export const posOrderRecordsQuery = async (
 
   const customerIds = orders
     .filter(
-      (o) => o.customerType || ('customer' === 'customer' && o.customerId)
+      (o) => o.customerType || ('customer' && o.customerId)
     )
     .map((o) => o.customerId);
   const companyIds = orders
@@ -340,7 +340,7 @@ export const posOrderRecordsQuery = async (
         order.customer = {
           _id: user._id,
           code: user.code,
-          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          primaryPhone: (user.details?.operatorPhone) || '',
           firstName: `${user.firstName || ''} ${user.lastName || ''}`,
           primaryEmail: user.email,
           lastName: user.username,
@@ -457,7 +457,7 @@ const queries = {
 
     for (const item of (orderDetail.items || [])) {
       // @ts-ignore
-      item.productName = (productById[item.productId] || {}).name || 'unknown';
+      item.productName = productById[item.productId]?.name || 'unknown';
     }
 
     return orderDetail;
@@ -919,6 +919,5 @@ checkPermission(queries, 'posOrdersGroupSummary', 'showOrders');
 checkPermission(queries, 'posProducts', 'showOrders');
 checkPermission(queries, 'posOrderRecords', 'showOrders');
 checkPermission(queries, 'posOrderRecordsCount', 'showOrders');
-// checkPermission(queries, 'posOrderCustomers', 'showOrders');
 
 export default queries;
