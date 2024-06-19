@@ -23,7 +23,6 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {
   type: string;
@@ -71,7 +70,6 @@ function Pipelines(props: Props) {
     props.pipelines || [],
   );
   const [isDragDisabled, setIsDragDisabled] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     if (props.pipelines !== pipelines) {
