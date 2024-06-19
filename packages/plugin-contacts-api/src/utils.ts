@@ -575,7 +575,7 @@ export const prepareEngageCustomers = async (
 
       for (const chunk of chunks) {
         data.customers = chunk;
-
+                
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
@@ -630,7 +630,7 @@ export const prepareEngageCustomers = async (
 
   const customersStream = (
     Customers.find(customersSelector, fieldsOption) as any
-  ).stream();
+  ).cursor();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
