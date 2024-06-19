@@ -9,7 +9,32 @@ const Box = styled('div')`
   margin: 10px 10px 0 0;
 `;
 
+const DropdownList = styled.div`
+  max-height: 300px;
+  overflow-y: auto;
+
+  h3 {
+    cursor: default;
+  }
+
+  li {
+    padding: 5px 15px;
+    white-space: nowrap;
+    
+    &:hover {
+      background: ${colors.bgGray};
+    }
+  }
+`;
+
+const DropdownNoPadding = styled.div`
+  [id^="headlessui-menu-items-"] {
+    padding: 0;
+  } 
+`
 
 export {
   Box,
+  DropdownList,
+  DropdownNoPadding,
 };
