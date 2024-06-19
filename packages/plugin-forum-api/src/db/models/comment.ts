@@ -1,15 +1,15 @@
-import { IUserDocument } from "@erxes/api-utils/src/types";
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import {
   Schema,
   Model,
   Connection,
   Types,
   HydratedDocument,
-} from "mongoose";
-import { UserTypes, USER_TYPES } from "../../consts";
-import { LoginRequiredError } from "../../customErrors";
-import { ICpUser } from "../../graphql";
-import { IModels } from "./index";
+} from 'mongoose';
+import { UserTypes, USER_TYPES } from '../../consts';
+import { LoginRequiredError } from '../../customErrors';
+import { ICpUser } from '../../graphql';
+import { IModels } from './index';
 
 export interface IComment {
   replyToId?: string;
@@ -28,15 +28,15 @@ export interface IComment {
 }
 
 const OMIT_FROM_INPUT = [
-  "_id",
-  "createdUserType",
-  "createdAt",
-  "createdById",
-  "createdByCpId",
-  "updatedUserType",
-  "updatedAt",
-  "updatedById",
-  "updatedByCpId",
+  '_id',
+  'createdUserType',
+  'createdAt',
+  'createdById',
+  'createdByCpId',
+  'updatedUserType',
+  'updatedAt',
+  'updatedById',
+  'updatedByCpId',
 ] as const;
 
 type CommentCreateInput = Omit<IComment, (typeof OMIT_FROM_INPUT)[number]>;
@@ -98,12 +98,12 @@ export const generateCommentModel = (
     public static async findByIdOrThrow(_id: string): Promise<CommentDocument> {
       const comment = await models.Comment.findById(_id);
       if (!comment) {
-        throw new Error(`Comment with \`{ "_id" : "${_id}"}\` doesn't exist`);
+        throw new Error(`Comment with \`{ '_id' : '${_id}'}\` doesn't exist`);
       }
       return comment;
     }
     public static async createComment(
-      c: Omit<IComment, "_id">,
+      c: Omit<IComment, '_id'>,
       user: IUserDocument
     ): Promise<CommentDocument> {
       const res = await models.Comment.create({
@@ -151,7 +151,7 @@ export const generateCommentModel = (
       return comment;
     }
     public static async createCommentCp(
-      c: Omit<IComment, "_id">,
+      c: Omit<IComment, '_id'>,
       cpUser?: ICpUser
     ): Promise<CommentDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -160,7 +160,7 @@ export const generateCommentModel = (
       const category = await models.Category.findById(post.categoryId);
 
       await models.Category.ensureUserIsAllowed(
-        "WRITE_COMMENT",
+        'WRITE_COMMENT',
         category,
         cpUser
       );
@@ -185,7 +185,7 @@ export const generateCommentModel = (
       content: string,
       cpUser?: ICpUser
     ): Promise<CommentDocument> {
-      if (!cpUser) throw new Error("Unauthorized");
+      if (!cpUser) throw new Error('Unauthorized');
 
       const comment = await models.Comment.findByIdOrThrowCp(_id, cpUser);
       comment.content = content;
@@ -215,7 +215,7 @@ export const generateCommentModel = (
   commentSchema.loadClass(CommentModel);
 
   models.Comment = con.model<IComment, ICommentModel>(
-    "forum_comments",
+    'forum_comments',
     commentSchema
   );
 };
@@ -231,7 +231,7 @@ async function deleteCommentCommon(
     const replies = await models.Comment.find({
       replyToId: { $in: findRepliesOf },
     })
-      .select("_id")
+      .select('_id')
       .lean();
     const replyIds = replies.map((reply) => reply._id);
     idsToDelete.push(...replyIds);

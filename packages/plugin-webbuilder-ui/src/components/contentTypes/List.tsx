@@ -1,12 +1,12 @@
-import "grapesjs/dist/css/grapes.min.css";
+import 'grapesjs/dist/css/grapes.min.css';
 
-import { ContentTypeItem } from "./styles";
-import { FlexCenter } from "@erxes/ui/src/styles/main";
-import { IContentTypeDoc } from "../../types";
-import Icon from "@erxes/ui/src/components/Icon";
-import { List } from "../pages/styles";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils/core";
+import { ContentTypeItem } from './styles';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
+import { IContentTypeDoc } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { List } from '../pages/styles';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentTypes: IContentTypeDoc[];
@@ -23,35 +23,35 @@ class ContentTypesList extends React.Component<Props> {
           <li key={type._id}>
             <a>
               <FlexCenter>
-                <Icon icon="layers" />
+                <Icon icon='layers' />
                 <ContentTypeItem
-                  onClick={() => handleItemSettings(type, "entries")}
+                  onClick={() => handleItemSettings(type, 'entries')}
                 >
                   {type.displayName}
                   <i>
-                    ({type.entries.length || 0} {__("items")})
+                    ({type.entries.length || 0} {__('items')})
                   </i>
                 </ContentTypeItem>
               </FlexCenter>
             </a>
             <Icon
-              icon="settings"
-              onClick={() => handleItemSettings(type, "contenttype")}
+              icon='settings'
+              onClick={() => handleItemSettings(type, 'contenttype')}
             />
           </li>
         ))}
         <li
-          className="link"
+          className='link'
           onClick={() =>
             handleItemSettings(
-              { displayName: "", code: "", fields: [] },
-              "contenttype"
+              { displayName: '', code: '', fields: [] },
+              'contenttype'
             )
           }
         >
           <div>
-            <Icon icon="plus-1" /> &nbsp;
-            {__("Create content type")}
+            <Icon icon='plus-1' /> &nbsp;
+            {__('Create content type')}
           </div>
         </li>
       </List>

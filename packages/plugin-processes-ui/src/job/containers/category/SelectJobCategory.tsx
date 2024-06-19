@@ -1,9 +1,9 @@
-import { IOption, IQueryParams } from "@erxes/ui/src/types";
+import { IOption, IQueryParams } from '@erxes/ui/src/types';
 
-import { IJobCategory } from "../../types";
-import React from "react";
-import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
-import { queries } from "../../graphql";
+import { IJobCategory } from '../../types';
+import React from 'react';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import { queries } from '../../graphql';
 
 // get config options for react-select
 export function generateProductOptions(array: IJobCategory[] = []): IOption[] {
@@ -12,15 +12,15 @@ export function generateProductOptions(array: IJobCategory[] = []): IOption[] {
 
     const foundedString = category.order.match(/[/]/gi);
 
-    let space = "";
+    let space = '';
 
     if (foundedString) {
-      space = "\u00A0 \u00A0".repeat(foundedString.length);
+      space = '\u00A0 \u00A0'.repeat(foundedString.length);
     }
 
     return {
       value: category._id,
-      label: `${space}${category.code} - ${category.name}`,
+      label: `${space}${category.code} - ${category.name}`
     };
   });
 }
@@ -32,7 +32,7 @@ export default ({
   multi = true,
   label,
   name,
-  customOption,
+  customOption
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -48,7 +48,7 @@ export default ({
     <SelectWithSearch
       showAvatar={false}
       label={label}
-      queryName="jobCategories"
+      queryName='jobCategories'
       customOption={customOption}
       name={name}
       customQuery={queries.jobCategories}

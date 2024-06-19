@@ -1,5 +1,5 @@
-import { Model } from "mongoose";
-import { xypDataSchema, IXypconfigDocument } from "./definitions/xypdata";
+import { Model } from 'mongoose';
+import { xypDataSchema, IXypconfigDocument } from './definitions/xypdata';
 
 export interface IXypDataModel extends Model<IXypconfigDocument> {
   getXypData(doc: any): IXypconfigDocument;
@@ -17,7 +17,7 @@ export const loadxypConfigClass = (models) => {
     public static async getXypData(doc: any) {
       const xypdataObj = await models.XypData.findOne(doc);
       if (!xypdataObj) {
-        throw new Error("XypData not found");
+        throw new Error('XypData not found');
       }
       return xypdataObj;
     }

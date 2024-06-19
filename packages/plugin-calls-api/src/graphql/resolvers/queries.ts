@@ -29,8 +29,8 @@ const callsQueries = {
     let customer = await sendCommonMessage({
       subdomain,
       isRPC: true,
-      serviceName: "contacts",
-      action: "customers.findOne",
+      serviceName: 'contacts',
+      action: 'customers.findOne',
       data: {
         primaryPhone: customerPhone,
       },
@@ -52,7 +52,7 @@ const callsQueries = {
   async callHistoriesTotalCount(
     _root,
     params: IHistoryArgs,
-    { models, user }: IContext
+    { models, user }: IContext,
   ) {
     return models.CallHistory.getHistoriesCount(params, user);
   },
@@ -66,7 +66,7 @@ const callsQueries = {
     if (operator) {
       return operator.status;
     }
-    return "unAvailable";
+    return 'unAvailable';
   },
 
   async callExtensionList(
@@ -77,9 +77,9 @@ const callsQueries = {
     const queueData = await sendToGrandStream(
       models,
       {
-        path: "api",
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         data: {
           request: {
             action: 'listAccount',
@@ -93,9 +93,9 @@ const callsQueries = {
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: false,
+        isAddExtention: false
       },
-      user
+      user,
     );
 
     if (queueData?.response) {
@@ -106,7 +106,7 @@ const callsQueries = {
       }
       return [];
     }
-    return "request failed";
+    return 'request failed';
   },
 };
 

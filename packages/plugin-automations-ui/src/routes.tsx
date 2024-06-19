@@ -3,7 +3,7 @@ import {
   Routes,
   useNavigate,
   useLocation,
-  useParams,
+  useParams
 } from "react-router-dom";
 import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";

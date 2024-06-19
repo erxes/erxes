@@ -26,9 +26,9 @@ const Contracts = {
 
     return sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: contract.relationExpertId },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -37,9 +37,9 @@ const Contracts = {
 
     return sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: contract.leasingExpertId },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -48,9 +48,9 @@ const Contracts = {
 
     return sendCoreMessage({
       subdomain,
-      action: "users.findOne",
+      action: 'users.findOne',
       data: { _id: contract.riskExpertId },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -60,27 +60,27 @@ const Contracts = {
     const customer = await sendMessageBroker(
       {
         subdomain,
-        action: "customers.findOne",
+        action: 'customers.findOne',
         data: { _id: contract.customerId },
-        isRPC: true,
+        isRPC: true
       },
-      "contacts"
+      'contacts'
     );
 
     return customer;
   },
 
   async companies(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== "company") return null;
+    if (contract.customerType !== 'company') return null;
 
     const company = await sendMessageBroker(
       {
         subdomain,
-        action: "companies.findOne",
+        action: 'companies.findOne',
         data: { _id: contract.customerId },
-        isRPC: true,
+        isRPC: true
       },
-      "contacts"
+      'contacts'
     );
 
     return company;
@@ -105,17 +105,17 @@ const Contracts = {
       const company = await sendMessageBroker(
         {
           subdomain,
-          action: "companies.findOne",
+          action: 'companies.findOne',
           data: { _id: insurance.companyId },
-          isRPC: true,
+          isRPC: true
         },
-        "contacts"
+        'contacts'
       );
 
       insurances.push({
-        ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
         insurance,
-        company,
+        company
       });
     }
 
@@ -133,11 +133,11 @@ const Contracts = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: "findOne",
+          action: 'findOne',
           data: { _id: data.collateralId },
-          isRPC: true,
+          isRPC: true
         },
-        "products"
+        'products'
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
@@ -145,9 +145,9 @@ const Contracts = {
       });
 
       collaterals.push({
-        ...(typeof data.toJSON === "function" ? data.toJSON() : data),
+        ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
         collateral,
-        insuranceType,
+        insuranceType
       });
     }
 
@@ -232,7 +232,7 @@ const Contracts = {
     const today = getFullDate(new Date());
     const schedules = await models.Schedules.find({
       contractId: contract._id,
-      payDate: { $lte: today },
+      payDate: { $lte: today }
     }).lean();
 
     return schedules.reduce((a, b) => a + (b.didPayment || 0), 0) || 0;
@@ -248,12 +248,12 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      status: SCHEDULE_STATUS.PENDING,
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();
 
-    const config = await getConfig("loansConfig", subdomain);
+    const config = await getConfig('loansConfig', subdomain);
 
     const calcedInfo = await getCalcedAmounts(
       models,
@@ -281,7 +281,7 @@ const Contracts = {
     const nextSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       payDate: { $gte: today },
-      status: SCHEDULE_STATUS.PENDING,
+      status: SCHEDULE_STATUS.PENDING
     })
       .sort({ payDate: 1 })
       .lean();
@@ -306,7 +306,7 @@ const Contracts = {
 
   async storeInterest(contract: IContractDocument, {}, { models }: IContext) {
     const storedInterests = await models.StoredInterest.find({
-      contractId: contract._id,
+      contractId: contract._id
     })
       .sort({ createdAt: -1 })
       .limit(10)
@@ -316,14 +316,14 @@ const Contracts = {
   },
   async invoices(contract: IContractDocument, {}, { models }: IContext) {
     const invoices = await models.Invoices.find({
-      contractId: contract._id,
+      contractId: contract._id
     })
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
 
     return invoices;
-  },
+  }
 };
 
 export default Contracts;

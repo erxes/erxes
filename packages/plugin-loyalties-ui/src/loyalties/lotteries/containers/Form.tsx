@@ -1,12 +1,12 @@
-import * as compose from "lodash.flowright";
-import Form from "../components/Form";
-import React from "react";
-import { withProps } from "@erxes/ui/src/utils";
-import { ButtonMutate } from "@erxes/ui/src/components";
-import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
-import { ILottery } from "../types";
-import { mutations } from "../graphql";
-import { UsersQueryResponse, IUser } from "@erxes/ui/src/auth/types";
+import * as compose from 'lodash.flowright';
+import Form from '../components/Form';
+import React from 'react';
+import { withProps } from '@erxes/ui/src/utils';
+import { ButtonMutate } from '@erxes/ui/src/components';
+import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
+import { ILottery } from '../types';
+import { mutations } from '../graphql';
+import { UsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   lottery: ILottery;
@@ -45,9 +45,9 @@ class LotteryFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
@@ -63,13 +63,13 @@ class LotteryFromContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    "lotteriesMain",
-    "lotteryDetail",
+    'lotteriesMain',
+    'lotteryDetail',
     // lotteries for customer detail lottery associate
-    "lotteries",
-    "lotteryCounts",
-    "lotteryCampaigns",
-    "lotteryCampaignsTotalCount",
+    'lotteries',
+    'lotteryCounts',
+    'lotteryCampaigns',
+    'lotteryCampaignsTotalCount',
   ];
 };
 

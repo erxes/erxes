@@ -1,12 +1,12 @@
-import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { __ } from "@erxes/ui/src/utils/core";
-import React from "react";
-import SelectServices from "./settings/containers/SelectServices";
-import Icon from "@erxes/ui/src/components/Icon";
+import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import SelectServices from './settings/containers/SelectServices';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   onChangeConfig: (code: string, value: any) => void;
@@ -14,31 +14,31 @@ type Props = {
 };
 
 const labels = {
-  url: "Url",
-  token: "Token",
+  url: 'Url',
+  token: 'Token',
 };
 
 const XypConfigs = (props: Props) => {
   const configs = props.configsMap.XYP_CONFIGS || {
-    url: "",
-    token: "",
+    url: '',
+    token: '',
     servicelist: [],
   };
 
   React.useEffect(() => {
-    props.onChangeConfig("XYP_CONFIGS", props.configsMap.XYP_CONFIGS);
+    props.onChangeConfig('XYP_CONFIGS', props.configsMap.XYP_CONFIGS);
   }, [props.configsMap]);
 
   const onChange = (e) => {
     const { name, value } = e.target;
 
-    props.onChangeConfig("XYP_CONFIGS", {
+    props.onChangeConfig('XYP_CONFIGS', {
       ...configs,
       [name]: value,
     });
   };
   const onChangeService = (value) => {
-    props.onChangeConfig("XYP_CONFIGS", {
+    props.onChangeConfig('XYP_CONFIGS', {
       ...configs,
       servicelist: value,
     });
@@ -69,11 +69,11 @@ const XypConfigs = (props: Props) => {
   return (
     <CollapseContent
       transparent={true}
-      title={__("Xypdan")}
-      beforeTitle={<Icon icon="favorite" />}
+      title={__('Xypdan')}
+      beforeTitle={<Icon icon='favorite' />}
     >
-      {renderItem("url")}
-      {renderItem("token")}
+      {renderItem('url')}
+      {renderItem('token')}
       <FormGroup>
         <ControlLabel>Operation</ControlLabel>
         <SelectServices
@@ -81,8 +81,8 @@ const XypConfigs = (props: Props) => {
           token={configs.token}
           value={configs.servicelist}
           onChange={(value) => {
-            const list = value.map((d) => d.value);
-            console.log("this works", list);
+            const list = value.map(d => d.value);
+            console.log('this works', list);
             onChangeService(list);
           }}
         />

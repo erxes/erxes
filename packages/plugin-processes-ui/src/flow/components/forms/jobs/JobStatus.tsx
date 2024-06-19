@@ -1,11 +1,11 @@
-import Label from "@erxes/ui/src/components/Label";
-import React from "react";
-import { DisabledSpan } from "../../../styles";
-import { FLOWJOB_TYPES } from "../../../../flow/constants";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
-import { IFlowDocument, IJob } from "../../../types";
-import { IJobRefer } from "../../../../job/types";
-import { IProduct } from "@erxes/ui-products/src/types";
+import Label from '@erxes/ui/src/components/Label';
+import React from 'react';
+import { DisabledSpan } from '../../../styles';
+import { FLOWJOB_TYPES } from '../../../../flow/constants';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { IFlowDocument, IJob } from '../../../types';
+import { IJobRefer } from '../../../../job/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   activeFlowJob: IJob;
@@ -45,7 +45,7 @@ class JobStatus extends React.Component<Props, State> {
     this.state = {
       jobReferById,
       subFlowById,
-      productById,
+      productById
     };
   }
 
@@ -64,7 +64,7 @@ class JobStatus extends React.Component<Props, State> {
       const productId = product.product._id;
       const name = (product.product.code && product.product.name) 
             ? `${product.product.code} - ${product.product.name}` 
-            : "";
+            : '';
 
 
       if (matchProducts.length && !matchProductIds.includes(productId)) {
@@ -83,7 +83,7 @@ class JobStatus extends React.Component<Props, State> {
     title,
     job: IJob,
     match?: { jobs: IJob[]; type: string },
-    kind = "result"
+    kind = 'result'
   ) {
     const { jobReferById, productById, subFlowById } = this.state;
     const jobConfig = job.config;
@@ -94,7 +94,7 @@ class JobStatus extends React.Component<Props, State> {
         if (matchConfig.jobReferId) {
           const matchJobRefer = jobReferById[matchConfig.jobReferId] || {};
           matchProducts = matchProducts.concat(
-            match.type === "need"
+            match.type === 'need'
               ? matchJobRefer.needProducts
               : matchJobRefer.resultProducts
           );
@@ -102,25 +102,25 @@ class JobStatus extends React.Component<Props, State> {
         if (matchConfig.productId) {
           const matchProduct = productById[matchConfig.productId];
           if (
-            (match.type === "need" &&
+            (match.type === 'need' &&
               [FLOWJOB_TYPES.OUTLET, FLOWJOB_TYPES.MOVE].includes(
                 matchJob.type
               )) ||
-            (match.type === "result" &&
+            (match.type === 'result' &&
               [FLOWJOB_TYPES.INCOME, FLOWJOB_TYPES.MOVE].includes(
                 matchJob.type
               ))
           ) {
             matchProducts.push({
               productId: matchProduct._id,
-              product: matchProduct,
+              product: matchProduct
             });
           }
         }
         if (matchConfig.subFlowId) {
           const matchSubFlow = subFlowById[matchConfig.subFlowId] || {};
           matchProducts = matchProducts.concat(
-            match.type === "need"
+            match.type === 'need'
               ? matchSubFlow.latestNeedProducts
               : matchSubFlow.latestResultProducts
           );
@@ -143,7 +143,7 @@ class JobStatus extends React.Component<Props, State> {
       if ([FLOWJOB_TYPES.JOB, FLOWJOB_TYPES.ENDPOINT].includes(job.type)) {
         const jobRefer = jobReferById[jobConfig.jobReferId] || {};
         products =
-          kind === "need"
+          kind === 'need'
             ? jobRefer.needProducts || []
             : jobRefer.resultProducts || [];
       }
@@ -152,13 +152,13 @@ class JobStatus extends React.Component<Props, State> {
     if (jobConfig.subFlowId && FLOWJOB_TYPES.FLOW === job.type) {
       const subFlow = subFlowById[jobConfig.subFlowId] || {};
       products =
-        kind === "need"
+        kind === 'need'
           ? subFlow.latestNeedProducts || []
           : subFlow.latestResultProducts || [];
     }
 
     if (jobConfig.productId) {
-      if (kind === "need") {
+      if (kind === 'need') {
         if ([FLOWJOB_TYPES.OUTLET, FLOWJOB_TYPES.MOVE].includes(job.type)) {
           products =
             (productById[jobConfig.productId] && [
@@ -198,7 +198,7 @@ class JobStatus extends React.Component<Props, State> {
       return <>Not found active job</>;
     }
 
-    const activeFlowJobId = activeFlowJob?.id || "";
+    const activeFlowJobId = activeFlowJob?.id || '';
 
     const beforeFlowJobs = flowJobs.filter((e) =>
       (e.nextJobIds || []).includes(activeFlowJobId)
@@ -207,26 +207,26 @@ class JobStatus extends React.Component<Props, State> {
     return (
       <FormWrapper>
         <FormColumn>
-          <Label lblColor="#673FBD">Өмнөх дамжлагаас бэлэн болох:</Label>
+          <Label lblColor='#673FBD'>Өмнөх дамжлагаас бэлэн болох:</Label>
           {(beforeFlowJobs || []).map((b) =>
             this.renderBlock(`${b.label}`, b, {
               jobs: [activeFlowJob],
-              type: "need",
+              type: 'need'
             })
           )}
         </FormColumn>
 
         <FormColumn>
-          <Label lblColor="#3CCC38">Уг дамжлагад хэрэгцээт:</Label>
+          <Label lblColor='#3CCC38'>Уг дамжлагад хэрэгцээт:</Label>
           {this.renderBlock(
-            "",
+            '',
             activeFlowJob,
-            { jobs: beforeFlowJobs, type: "result" },
-            "need"
+            { jobs: beforeFlowJobs, type: 'result' },
+            'need'
           )}
 
-          <Label lblColor="#F7CE53">Уг дамжлагаас гарц:</Label>
-          {this.renderBlock("", activeFlowJob)}
+          <Label lblColor='#F7CE53'>Уг дамжлагаас гарц:</Label>
+          {this.renderBlock('', activeFlowJob)}
         </FormColumn>
       </FormWrapper>
     );

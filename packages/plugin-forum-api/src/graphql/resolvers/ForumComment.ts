@@ -9,11 +9,11 @@ const ForumComment = {
     return Comment.find({ replyToId: _id }).lean();
   },
   async createdBy({ createdById }) {
-    return createdById && { __typename: "User", _id: createdById };
+    return createdById && { __typename: 'User', _id: createdById };
   },
   async createdByCp({ createdByCpId }) {
     return (
-      createdByCpId && { __typename: "ClientPortalUser", _id: createdByCpId }
+      createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
     );
   },
 
@@ -27,14 +27,14 @@ const ForumComment = {
   async upVotes({ _id }, _, { models: { CommentUpVote } }) {
     const upVotes = await CommentUpVote.find({ contentId: _id }).lean();
     return upVotes.map((v) => ({
-      __typename: "ClientPortalUser",
+      __typename: 'ClientPortalUser',
       _id: v.userId,
     }));
   },
   async downVotes({ _id }, _, { models: { CommentDownVote } }) {
     const downVotes = await CommentDownVote.find({ contentId: _id }).lean();
     return downVotes.map((v) => ({
-      __typename: "ClientPortalUser",
+      __typename: 'ClientPortalUser',
       _id: v.userId,
     }));
   },

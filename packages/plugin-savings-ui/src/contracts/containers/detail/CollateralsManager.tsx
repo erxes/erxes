@@ -1,11 +1,11 @@
-import { AppConsumer, Alert } from "@erxes/ui/src";
-import { IProduct } from "@erxes/ui-products/src/types";
-import { gql, useMutation } from "@apollo/client";
-import React, { useState } from "react";
+import { AppConsumer, Alert } from '@erxes/ui/src';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { gql, useMutation } from '@apollo/client';
+import React, { useState } from 'react';
 
-import CollateralsManager from "../../components/collaterals/CollateralsManager";
-import { mutations } from "../../graphql";
-import { FillFromDealMutationResponse, ICollateralData } from "../../types";
+import CollateralsManager from '../../components/collaterals/CollateralsManager';
+import { mutations } from '../../graphql';
+import { FillFromDealMutationResponse, ICollateralData } from '../../types';
 
 type Props = {
   onChangeCollateralsData: (collateralsData: ICollateralData[]) => void;
@@ -49,7 +49,7 @@ const CollateralsManagerContainer = (props: Props) => {
           ...props,
           currencies: configs.dealCurrency || [],
           collateralsData: collateralsData,
-          fillFromDeal,
+          fillFromDeal
         };
 
         return <CollateralsManager {...extendedProps} />;

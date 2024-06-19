@@ -1,27 +1,27 @@
-import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherDependentServicesType,
-  ISegmentContentType,
-} from "@erxes/api-utils/src/segments";
+  ISegmentContentType
+} from '@erxes/api-utils/src/segments';
 import {
   checkPermission,
-  requireLogin,
-} from "@erxes/api-utils/src/permissions";
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
-import { IContext } from "../../../connectionResolver";
-import { fetchSegment } from "./queryBuilder";
+import { IContext } from '../../../connectionResolver';
+import { fetchSegment } from './queryBuilder';
 import {
   getService,
   getServices,
-  isEnabled,
-} from "@erxes/api-utils/src/serviceDiscovery";
+  isEnabled
+} from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IPreviewParams {
   contentType: string;
   conditions;
   subOf?: string;
   config: any;
-  conditionsConjunction?: "and" | "or";
+  conditionsConjunction?: 'and' | 'or';
 }
 
 interface IAssociatedType {
@@ -61,7 +61,7 @@ const segmentQueries = {
   },
 
   async segmentsGetAssociationTypes(_root, { contentType }) {
-    const [serviceName] = contentType.split(":");
+    const [serviceName] = contentType.split(':');
 
     const service = await getService(serviceName);
     const meta = service.config.meta || {};
@@ -76,7 +76,7 @@ const segmentQueries = {
     const associatedTypes: IAssociatedType[] = serviceCts.map(
       (ct: ISegmentContentType) => ({
         type: `${serviceName}:${ct.type}`,
-        description: ct.description,
+        description: ct.description
       })
     );
 
@@ -97,7 +97,7 @@ const segmentQueries = {
         contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({
             type: `${dService.name}:${ct.type}`,
-            description: ct.description,
+            description: ct.description
           });
         });
       }
@@ -109,14 +109,14 @@ const segmentQueries = {
       (ct: ISegmentContentType, sName: string) => {
         associatedTypes.push({
           type: `${sName}:${ct.type}`,
-          description: ct.description,
+          description: ct.description
         });
       }
     );
 
     return associatedTypes.map((atype) => ({
       value: atype.type,
-      description: atype.description,
+      description: atype.description
     }));
   },
 
@@ -135,7 +135,7 @@ const segmentQueries = {
     const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes },
-      name: { $exists: true },
+      name: { $exists: true }
     };
 
     if (ids) {
@@ -168,7 +168,7 @@ const segmentQueries = {
       ...commonQuerySelector,
       ...selector,
       name: { $exists: true },
-      $or: [{ subOf: { $exists: false } }, { subOf: "" }],
+      $or: [{ subOf: { $exists: false } }, { subOf: '' }]
     });
   },
 
@@ -190,13 +190,13 @@ const segmentQueries = {
     const aggs = {
       names: {
         terms: {
-          field: "name",
+          field: 'name',
         },
         aggs: {
           hits: {
             top_hits: {
-              _source: ["attributes"],
-              size: 1,
+              _source: ['attributes'],
+              size: 1
             },
           },
         },
@@ -205,17 +205,17 @@ const segmentQueries = {
 
     const query = {
       exists: {
-        field: contentType === "company" ? "companyId" : "customerId",
+        field: contentType === 'company' ? 'companyId' : 'customerId'
       },
     };
 
     const aggreEvents = await fetchEs({
       subdomain,
-      action: "search",
-      index: "events",
+      action: 'search',
+      index: 'events',
       body: {
         aggs,
-        query,
+        query
       },
     });
 
@@ -243,7 +243,7 @@ const segmentQueries = {
       conditions,
       subOf,
       config,
-      conditionsConjunction,
+      conditionsConjunction
     }: IPreviewParams,
     { models, subdomain }: IContext
   ) {
@@ -251,24 +251,24 @@ const segmentQueries = {
       models,
       subdomain,
       {
-        name: "preview",
-        color: "#fff",
-        subOf: subOf ?? "",
+        name: 'preview',
+        color: '#fff',
+        subOf: subOf ?? '',
         config,
         contentType,
         conditions,
-        conditionsConjunction,
+        conditionsConjunction
       },
       { returnCount: true }
     );
   },
 };
 
-requireLogin(segmentQueries, "segmentsGetHeads");
-requireLogin(segmentQueries, "segmentDetail");
-requireLogin(segmentQueries, "segmentsPreviewCount");
-requireLogin(segmentQueries, "segmentsEvents");
+requireLogin(segmentQueries, 'segmentsGetHeads');
+requireLogin(segmentQueries, 'segmentDetail');
+requireLogin(segmentQueries, 'segmentsPreviewCount');
+requireLogin(segmentQueries, 'segmentsEvents');
 
-checkPermission(segmentQueries, "segments", "showSegments", []);
+checkPermission(segmentQueries, 'segments', 'showSegments', []);
 
 export default segmentQueries;

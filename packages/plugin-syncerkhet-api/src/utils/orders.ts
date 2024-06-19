@@ -1,10 +1,10 @@
-import { generateModels } from "../connectionResolver";
+import { generateModels } from '../connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
-} from "../messageBroker";
-import { sendRPCMessage } from "../messageBrokerErkhet";
+  sendProductsMessage
+} from '../messageBroker';
+import { sendRPCMessage } from '../messageBrokerErkhet';
 
 export const getPureDate = (date: Date) => {
   const ndate = new Date(date);
@@ -15,14 +15,14 @@ export const getPureDate = (date: Date) => {
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: "getConfig",
+    action: 'getConfig',
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
 export const getPostData = async (subdomain, pos, order) => {
-  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||
@@ -41,21 +41,21 @@ export const getPostData = async (subdomain, pos, order) => {
       (
         await sendCoreMessage({
           subdomain,
-          action: "users.findOne",
+          action: 'users.findOne',
           data: { _id: order.userId },
           isRPC: true,
           defaultValue: {},
         })
       ).email) ||
-    "";
+    '';
 
   const productsIds = order.items.map((item) => item.productId);
   const products = await sendProductsMessage({
     subdomain,
-    action: "find",
+    action: 'find',
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const productCodeById = {};
@@ -78,7 +78,7 @@ export const getPostData = async (subdomain, pos, order) => {
       amount,
       discount: item.discountAmount,
       inventoryCode: productCodeById[item.productId],
-      workerEmail,
+      workerEmail
     });
   }
 
@@ -107,16 +107,16 @@ export const getPostData = async (subdomain, pos, order) => {
     payments[pos.erkhetConfig.defaultPay] = sumSaleAmount;
   }
 
-  let customerCode = "";
+  let customerCode = '';
   if (order.customerId) {
-    const customerType = order.customerType || "customer";
-    if (customerType === "company") {
+    const customerType = order.customerType || 'customer';
+    if (customerType === 'company') {
       customerCode = customerCode = (
         (await sendContactsMessage({
           subdomain,
-          action: "companies.findOne",
+          action: 'companies.findOne',
           data: {
-            _id: order.customerId,
+            _id: order.customerId
           },
           isRPC: true,
           defaultValue: {},
@@ -126,7 +126,7 @@ export const getPostData = async (subdomain, pos, order) => {
       customerCode = (
         (await sendContactsMessage({
           subdomain,
-          action: "customers.findOne",
+          action: 'customers.findOne',
           data: {
             _id: order.customerId,
           },
@@ -152,9 +152,9 @@ export const getPostData = async (subdomain, pos, order) => {
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ""}${order.number}`,
+      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
       details,
-      ...payments,
+      ...payments
     },
   ];
 
@@ -165,12 +165,12 @@ export const getPostData = async (subdomain, pos, order) => {
     token: erkhetConfig.apiToken,
     apiKey: erkhetConfig.apiKey,
     apiSecret: erkhetConfig.apiSecret,
-    orderInfos: JSON.stringify(orderInfos),
+    orderInfos: JSON.stringify(orderInfos)
   };
 };
 
 export const orderDeleteToErkhet = async (subdomain, pos, order) => {
-  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
   const models = await generateModels(subdomain);
 
   if (
@@ -183,18 +183,18 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
   }
 
   const syncLog = await models.SyncLogs.syncLogsAdd({
-    contentType: "pos:order",
+    contentType: 'pos:order',
     createdAt: new Date(),
     contentId: order._id,
     consumeData: order,
-    consumeStr: JSON.stringify(order),
+    consumeStr: JSON.stringify(order)
   });
   try {
     const orderInfos = [
       {
         date: order.paidDate,
         orderId: order._id,
-        returnKind: "hard",
+        returnKind: 'hard'
       },
     ];
 
@@ -205,19 +205,19 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
       token: erkhetConfig.apiToken,
       apiKey: erkhetConfig.apiKey,
       apiSecret: erkhetConfig.apiSecret,
-      orderInfos: JSON.stringify(orderInfos),
+      orderInfos: JSON.stringify(orderInfos)
     };
 
     return await sendRPCMessage(
       models,
       syncLog,
-      "rpc_queue:erxes-automation-erkhet",
+      'rpc_queue:erxes-automation-erkhet',
       {
-        action: "get-response-return-order",
+        action: 'get-response-return-order',
         isJson: true,
         isEbarimt: false,
         payload: JSON.stringify(postData),
-        thirdService: true,
+        thirdService: true
       }
     );
   } catch (e) {

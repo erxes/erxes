@@ -1,9 +1,9 @@
-import { Button, ControlLabel, FormGroup } from "@erxes/ui/src/components";
-import React, { useState } from "react";
+import { Button, ControlLabel, FormGroup } from '@erxes/ui/src/components';
+import React, { useState } from 'react';
 
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
-import Select from "react-select";
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
+import Select from 'react-select';
 
 interface IProps {
   datas: any;
@@ -16,7 +16,7 @@ const TransferCallForm = (props: IProps) => {
   const initialExtension = datas?.[0]?.extension ?? null;
 
   const [selectedExtension, setSelectedExtension] = useState(
-    initialExtension || ""
+    initialExtension || ''
   );
 
   const onChange = (obj) => {
@@ -40,7 +40,7 @@ const TransferCallForm = (props: IProps) => {
         <ControlLabel>Transfer call</ControlLabel>
 
         <Select
-          placeholder={__("Choose a extension")}
+          placeholder={__('Choose a extension')}
           value={renderOptions(datas).find(
             (o) => o.value === selectedExtension
           )}
@@ -52,21 +52,21 @@ const TransferCallForm = (props: IProps) => {
 
       <ModalFooter>
         <Button
-          btnStyle="simple"
-          type="button"
-          icon="times-circle"
+          btnStyle='simple'
+          type='button'
+          icon='times-circle'
           onClick={() => props.closeModal()}
         >
           Cancel
         </Button>
 
         <Button
-          type="submit"
-          btnStyle="success"
-          icon="check-circle"
+          type='submit'
+          btnStyle='success'
+          icon='check-circle'
           onClick={handleTransferCall}
         >
-          {__("Transfer")}
+          {__('Transfer')}
         </Button>
       </ModalFooter>
     </>

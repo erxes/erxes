@@ -1,8 +1,8 @@
-import { IContext as IMainContext } from "@erxes/api-utils/src";
-import * as mongoose from "mongoose";
-import { IXypconfigDocument } from "./models/definitions/xypdata";
-import { IXypDataModel, loadxypConfigClass } from "./models/xypdata";
-import { createGenerateModels } from "@erxes/api-utils/src/core";
+import { IContext as IMainContext } from '@erxes/api-utils/src';
+import * as mongoose from 'mongoose';
+import { IXypconfigDocument } from './models/definitions/xypdata';
+import { IXypDataModel, loadxypConfigClass } from './models/xypdata';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
   XypData: IXypDataModel;
@@ -21,7 +21,7 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.XypData = db.model<IXypconfigDocument, IXypDataModel>(
-    "xyp_data",
+    'xyp_data',
     loadxypConfigClass(models)
   );
 

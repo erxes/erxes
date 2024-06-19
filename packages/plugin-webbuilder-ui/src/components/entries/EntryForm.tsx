@@ -2,17 +2,17 @@ import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-} from "@erxes/ui/src/styles/main";
-import { IContentTypeDoc, IEntryDoc } from "../../types";
-import React, { useEffect, useState } from "react";
-import { readFile } from "@erxes/ui/src/utils";
+} from '@erxes/ui/src/styles/main';
+import { IContentTypeDoc, IEntryDoc } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { readFile } from '@erxes/ui/src/utils';
 
-import Button from "@erxes/ui/src/components/Button";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { Uploader } from "@erxes/ui/src/components";
+import Button from '@erxes/ui/src/components/Button';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { Uploader } from '@erxes/ui/src/components';
 
 type Props = {
   contentType: IContentTypeDoc;
@@ -70,11 +70,11 @@ function Form(props: Props) {
   };
 
   const renderField = (field: any) => {
-    const value = data[field.code]?.value || "";
+    const value = data[field.code]?.value || '';
     let input;
 
     switch (field.type) {
-      case "textarea":
+      case 'textarea':
         input = (
           <RichTextEditor
             content={value}
@@ -85,7 +85,7 @@ function Form(props: Props) {
         );
 
         break;
-      case "input":
+      case 'input':
         input = (
           <FormControl
             value={value}
@@ -94,7 +94,7 @@ function Form(props: Props) {
         );
         break;
 
-      case "file":
+      case 'file':
         input = (
           <Uploader
             defaultFileList={
@@ -103,7 +103,7 @@ function Form(props: Props) {
                     {
                       name: field.code,
                       url: value,
-                      type: "image",
+                      type: 'image',
                     },
                   ]
                 : []
@@ -118,7 +118,7 @@ function Form(props: Props) {
 
     return (
       <FormGroup key={field.code}>
-        <ControlLabel htmlFor="html">{field.text}:</ControlLabel>
+        <ControlLabel htmlFor='html'>{field.text}:</ControlLabel>
         {input}
       </FormGroup>
     );
@@ -127,8 +127,8 @@ function Form(props: Props) {
   const renderButtons = () => {
     const cancelButton = (
       <Button
-        btnStyle="simple"
-        icon="times-circle"
+        btnStyle='simple'
+        icon='times-circle'
         onClick={closeModal}
         uppercase={false}
       >
@@ -141,8 +141,8 @@ function Form(props: Props) {
         {cancelButton}
 
         <Button
-          btnStyle="success"
-          icon={"check-circle"}
+          btnStyle='success'
+          icon={'check-circle'}
           uppercase={false}
           onClick={() => submit()}
         >

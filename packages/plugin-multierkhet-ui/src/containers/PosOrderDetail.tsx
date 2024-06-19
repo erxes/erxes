@@ -1,9 +1,9 @@
-import Detail from "../components/syncedOrders/PosOrderDetail";
-import React from "react";
-import { queries } from "../graphql";
-import { OrderDetailQueryResponse } from "../types";
-import { Spinner } from "@erxes/ui/src";
-import { useQuery, gql } from "@apollo/client";
+import Detail from '../components/syncedOrders/PosOrderDetail';
+import React from 'react';
+import { queries } from '../graphql';
+import { OrderDetailQueryResponse } from '../types';
+import { Spinner } from '@erxes/ui/src';
+import { useQuery, gql } from '@apollo/client';
 
 type Props = {
   order: any;
@@ -14,9 +14,9 @@ const OrdersDetailContainer = (props: Props) => {
     gql(queries.posOrderDetail),
     {
       variables: {
-        _id: props.order._id,
+        _id: props.order._id
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }
   );
 
@@ -28,7 +28,7 @@ const OrdersDetailContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    order,
+    order
   };
 
   return <Detail {...updatedProps} />;

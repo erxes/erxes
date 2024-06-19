@@ -1,8 +1,8 @@
-import { IContext } from "../../../connectionResolver";
-import { sendMessageBroker } from "../../../messageBroker";
-import { IDefaultScheduleParam } from "../../../models/definitions/schedules";
-import { getGraphicValue } from "../../../models/utils/scheduleUtils";
-import { calcPerVirtual, getFullDate } from "../../../models/utils/utils";
+import { IContext } from '../../../connectionResolver';
+import { sendMessageBroker } from '../../../messageBroker';
+import { IDefaultScheduleParam } from '../../../models/definitions/schedules';
+import { getGraphicValue } from '../../../models/utils/scheduleUtils';
+import { calcPerVirtual, getFullDate } from '../../../models/utils/utils';
 
 const scheduleQueries = {
   scheduleYears: async (
@@ -31,7 +31,7 @@ const scheduleQueries = {
       const f_year = new Date(params.year + 1, 0, 1);
       filter.$and = [
         { payDate: { $gte: b_year } },
-        { payDate: { $lte: f_year } },
+        { payDate: { $lte: f_year } }
       ];
     }
 
@@ -41,7 +41,7 @@ const scheduleQueries = {
 
     const lastTransaction = await models.Transactions.findOne({
       contractId: params.contractId,
-      transactionType: { $ne: "give" },
+      transactionType: { $ne: 'give' },
     })
       .sort({ payDate: -1 })
       .lean();
@@ -61,7 +61,7 @@ const scheduleQueries = {
       calcedInterest: number;
       totalPayment: number;
     }[] = [];
-    if (doc.repayment === "equal") {
+    if (doc.repayment === 'equal') {
       let balance = doc.leaseAmount;
 
       for (let i = 1; i < doc.tenor; i++) {
@@ -75,22 +75,22 @@ const scheduleQueries = {
     const holidayConfig: any = await sendMessageBroker(
       {
         subdomain,
-        action: "configs.findOne",
+        action: 'configs.findOne',
         data: {
           query: {
-            code: "holidayConfig",
+            code: 'holidayConfig'
           },
         },
-        isRPC: true,
+        isRPC: true
       },
-      "core"
+      'core'
     );
 
     const perHolidays = !holidayConfig?.value
       ? []
       : Object.keys(holidayConfig.value).map((key) => ({
           month: Number(holidayConfig.value[key].month) - 1,
-          day: Number(holidayConfig.value[key].day),
+          day: Number(holidayConfig.value[key].day)
         }));
 
     getGraphicValue(contract, perHolidays);

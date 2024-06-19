@@ -1,28 +1,28 @@
 /* transaction logic */
 //#region  import
-import BigNumber from "bignumber.js";
-import { IModels } from "../../connectionResolver";
+import BigNumber from 'bignumber.js';
+import { IModels } from '../../connectionResolver';
 import {
   INVOICE_STATUS,
   LEASE_TYPES,
   SCHEDULE_STATUS,
-} from "../definitions/constants";
-import { IContractDocument } from "../definitions/contracts";
-import { ISchedule, IScheduleDocument } from "../definitions/schedules";
+} from '../definitions/constants';
+import { IContractDocument } from '../definitions/contracts';
+import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 import {
   ICalcDivideParams,
   ICalcTrParams,
   ITransactionDocument,
-} from "../definitions/transactions";
+} from '../definitions/transactions';
 import {
   getDiffDay,
   getFullDate,
   getDatesDiffMonth,
   calcInterest,
-} from "./utils";
-import { IConfig } from "../../interfaces/config";
-import { getConfig } from "../../messageBroker";
-import { scheduleFixAfterCurrent } from "./scheduleFixUtils";
+} from './utils';
+import { IConfig } from '../../interfaces/config';
+import { getConfig } from '../../messageBroker';
+import { scheduleFixAfterCurrent } from './scheduleFixUtils';
 //#endregion
 
 /**
@@ -47,8 +47,8 @@ export const getAOESchedules = async (
       $in:
         contract.leaseType === LEASE_TYPES.LINEAR
           ? [SCHEDULE_STATUS.PENDING]
-          : [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE],
-    },
+          : [SCHEDULE_STATUS.DONE, SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PRE]
+    }
   })
     .sort({ payDate: -1 })
     .lean<IScheduleDocument>();
@@ -56,7 +56,7 @@ export const getAOESchedules = async (
   const nextSchedule: any = await models.Schedules.findOne({
     contractId: contract._id,
     status: { $in: [SCHEDULE_STATUS.PENDING] },
-    payDate: { $gte: trDate },
+    payDate: { $gte: trDate }
   })
     .sort({ payDate: 1 })
     .lean<IScheduleDocument>();
@@ -97,13 +97,13 @@ async function fillCommitmentInterest(
     result.commitmentInterestEve += calcInterest({
       balance: unUsedBalance,
       interestRate: contract.commitmentInterest,
-      dayOfMonth: diffEve,
+      dayOfMonth: diffEve
     });
 
     result.commitmentInterestNonce += calcInterest({
       balance: unUsedBalance,
       interestRate: contract.commitmentInterest,
-      dayOfMonth: diffNonce,
+      dayOfMonth: diffNonce
     });
   }
 
@@ -151,7 +151,7 @@ export const getCalcedAmounts = async (
     storedInterest: 0,
     commitmentInterest: 0,
     calcInterest: 0,
-    closeAmount: 0,
+    closeAmount: 0
   };
 
   if (!doc.contractId) {
@@ -161,7 +161,7 @@ export const getCalcedAmounts = async (
   const trDate = getFullDate(doc.payDate);
 
   const contract = await models.Contracts.getContract({
-    _id: doc.contractId,
+    _id: doc.contractId
   });
   /**
    * @property preSchedule /schedule of done or less payed/
@@ -172,10 +172,10 @@ export const getCalcedAmounts = async (
 
   let schedules = await models.Schedules.find({
     contractId: contract._id,
-    status: { $ne: "give" },
+    status: { $ne: 'give' },
     payDate: {
-      $lte: trDate,
-    },
+      $lte: trDate
+    }
   });
 
   schedules.forEach((row) => {
@@ -196,7 +196,7 @@ export const getCalcedAmounts = async (
     balance: contract.loanBalanceAmount,
     interestRate: contract.interestRate,
     dayOfMonth: diffDay,
-    fixed: config.calculationFixed,
+    fixed: config.calculationFixed
   });
 
   result.storedInterest = contract.storedInterest;
@@ -242,7 +242,7 @@ export const transactionRule = async (
       storedInterest: 0,
       calcInterest: 0,
       calcedInfo: undefined,
-      commitmentInterest: 0,
+      commitmentInterest: 0
     };
   }
 
@@ -250,14 +250,14 @@ export const transactionRule = async (
     return result;
   }
 
-  const config = await getConfig("loansConfig", subdomain);
+  const config = await getConfig('loansConfig', subdomain);
 
   result.calcedInfo = await getCalcedAmounts(
     models,
     subdomain,
     {
       contractId: doc.contractId,
-      payDate: doc.payDate,
+      payDate: doc.payDate
     },
     config
   );
@@ -360,13 +360,13 @@ export const trAfterSchedule = async (
   const trDate = getFullDate(tr.payDate);
 
   const contract = await models.Contracts.getContract({
-    _id: tr.contractId,
+    _id: tr.contractId
   });
 
   // with skipped of done
   let schedule = await models.Schedules.findOne({
     contractId: contract._id,
-    payDate: trDate,
+    payDate: trDate
   });
 
   if (schedule) {
@@ -379,7 +379,7 @@ export const trAfterSchedule = async (
           didLoss: tr.loss ?? 0,
           didDebt: tr.debt ?? 0,
           didCommitmentInterest: tr.commitmentInterest ?? 0,
-          didTotal: tr.total ?? 0,
+          didTotal: tr.total ?? 0
         },
       }
     );
@@ -397,10 +397,10 @@ export const trAfterSchedule = async (
       didCommitmentInterest: tr.commitmentInterest ?? 0,
       didTotal: tr.total ?? 0,
       total: tr.total,
-      version: "",
+      version: '',
       createdAt: new Date(),
-      status: "done",
-      unUsedBalance: 0,
+      status: 'done',
+      unUsedBalance: 0
     };
 
     await models.Schedules.create(schedule);
@@ -426,12 +426,12 @@ export const removeTrAfterSchedule = async (
 
   const nextTrsCount = await models.Transactions.countDocuments({
     contractId: tr.contractId,
-    payDate: { $gt: tr.payDate },
+    payDate: { $gt: tr.payDate }
   }).lean();
 
   if (nextTrsCount > 0) {
     throw new Error(
-      "this transaction is not last transaction. Please This contracts last transaction only to change or remove"
+      'this transaction is not last transaction. Please This contracts last transaction only to change or remove'
     );
   }
 
@@ -453,8 +453,8 @@ export const removeTrAfterSchedule = async (
       bulkOps.unshift({
         updateOne: {
           filter: { _id: reaction.scheduleId },
-          update: { $set: { ...reaction.preData } },
-        },
+          update: { $set: { ...reaction.preData } }
+        }
       });
     }
   }
@@ -466,7 +466,7 @@ export const removeTrAfterSchedule = async (
   if (delIds.length) {
     await models.Schedules.deleteMany({
       _id: { $in: delIds },
-      isDefault: { $ne: true },
+      isDefault: { $ne: true }
     });
   }
 

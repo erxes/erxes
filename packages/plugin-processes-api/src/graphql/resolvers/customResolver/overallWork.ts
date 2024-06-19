@@ -1,8 +1,8 @@
-import { getProductsData } from "./utils";
-import { IContext } from "../../../connectionResolver";
-import { IOverallWork } from "./../../../models/definitions/overallWorks";
-import { JOB_TYPES } from "../../../models/definitions/constants";
-import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { getProductsData } from './utils';
+import { IContext } from '../../../connectionResolver';
+import { IOverallWork } from './../../../models/definitions/overallWorks';
+import { JOB_TYPES } from '../../../models/definitions/constants';
+import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -34,9 +34,9 @@ export default {
 
     return await sendProductsMessage({
       subdomain,
-      action: "findOne",
+      action: 'findOne',
       data: { _id: typeId },
-      isRPC: true,
+      isRPC: true
     });
   },
 
@@ -50,9 +50,9 @@ export default {
 
     return await sendCoreMessage({
       subdomain,
-      action: "branches.findOne",
-      data: { _id: inBranchId || "" },
-      isRPC: true,
+      action: 'branches.findOne',
+      data: { _id: inBranchId || '' },
+      isRPC: true
     });
   },
 
@@ -66,9 +66,9 @@ export default {
 
     return await sendCoreMessage({
       subdomain,
-      action: "branches.findOne",
-      data: { _id: outBranchId || "" },
-      isRPC: true,
+      action: 'branches.findOne',
+      data: { _id: outBranchId || '' },
+      isRPC: true
     });
   },
 
@@ -81,9 +81,9 @@ export default {
 
     return await sendCoreMessage({
       subdomain,
-      action: "departments.findOne",
-      data: { _id: inDepartmentId || "" },
-      isRPC: true,
+      action: 'departments.findOne',
+      data: { _id: inDepartmentId || '' },
+      isRPC: true
     });
   },
 
@@ -96,9 +96,9 @@ export default {
 
     return await sendCoreMessage({
       subdomain,
-      action: "departments.findOne",
-      data: { _id: outDepartmentId || "" },
-      isRPC: true,
+      action: 'departments.findOne',
+      data: { _id: outDepartmentId || '' },
+      isRPC: true
     });
   },
 

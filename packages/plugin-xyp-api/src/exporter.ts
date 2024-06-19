@@ -1,6 +1,6 @@
-import { generateModels, IModels } from "./connectionResolver";
-import { fetchSegment } from "./messageBroker";
-import { getServiceToFields } from "./forms";
+import { generateModels, IModels } from './connectionResolver';
+import { fetchSegment } from './messageBroker';
+import { getServiceToFields } from './forms';
 
 const prepareData = async (
   models: IModels,
@@ -17,7 +17,7 @@ const prepareData = async (
   let itemIds = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(subdomain, "", { page, perPage }, segmentData);
+    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
 
     filter._id = { $in: itemIds };
     data = await models.XypData.find(filter).lean();
@@ -41,7 +41,7 @@ const prepareDataCount = async (
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
-      "",
+      '',
       { scroll: true, page: 1, perPage: 10000 },
       segmentData
     );
@@ -59,8 +59,8 @@ const getExcelHeader = async (subdomain, columnsConfig) => {
   const { fieldsForExcel, list } = (await getServiceToFields(subdomain)) || [];
 
   for (const column of columnsConfig) {
-    if (column.startsWith("service.")) {
-      const serviceName = column.replace("service.", "");
+    if (column.startsWith('service.')) {
+      const serviceName = column.replace('service.', '');
       const oneServiceFields = fieldsForExcel.filter((x) =>
         x.startsWith(serviceName)
       );
@@ -75,9 +75,9 @@ const getExcelHeader = async (subdomain, columnsConfig) => {
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: "Хурдан",
-    contentType: "xyp",
-    icon: "server-alt",
+    text: 'Хурдан',
+    contentType: 'xyp',
+    icon: 'server-alt',
   },
 ];
 
@@ -120,13 +120,13 @@ export default {
       for (const item of results) {
         let result = {};
         for (const column of excelHeader) {
-          if (column.includes(".")) {
-            const splits = column.split(".");
+          if (column.includes('.')) {
+            const splits = column.split('.');
 
             const data = item.data.find((one) => one.serviceName === splits[0]);
 
             if (data) {
-              let columnValue = "";
+              let columnValue = '';
               if (data.data && splits[1] !== undefined && splits[1] in data.data) {
                 columnValue = data.data[splits[1]];
               }

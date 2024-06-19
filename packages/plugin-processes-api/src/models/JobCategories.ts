@@ -1,12 +1,12 @@
-import { Model } from "mongoose";
-import { IModels } from "../connectionResolver";
-import { JOB_STATUSES } from "./definitions/constants";
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { JOB_STATUSES } from './definitions/constants';
 import {
   IJobCategory,
   IJobCategoryDocument,
-  jobCategorySchema,
-} from "./definitions/jobCategories";
-import { escapeRegExp } from "@erxes/api-utils/src/core";
+  jobCategorySchema
+} from './definitions/jobCategories';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 
 export interface IJobCategoryModel extends Model<IJobCategoryDocument> {
   getJobCategory(_id: string): Promise<IJobCategoryDocument>;
@@ -27,23 +27,23 @@ export const loadJobCategoryClass = (models: IModels) => {
       const job = await models.JobCategories.findOne({ _id });
 
       if (!job) {
-        throw new Error("JobCategory not found");
+        throw new Error('JobCategory not found');
       }
 
       return job;
     }
 
     static async checkCodeDuplication(code: string) {
-      if (code.includes("/")) {
-        throw new Error('The "/" character is not allowed in the code');
+      if (code.includes('/')) {
+        throw new Error('The '/' character is not allowed in the code');
       }
 
       const category = await models.JobCategories.findOne({
-        code,
+        code
       });
 
       if (category) {
-        throw new Error("Code must be unique");
+        throw new Error('Code must be unique');
       }
     }
 
@@ -54,7 +54,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       await this.checkCodeDuplication(doc.code);
 
       const parentCategory = await models.JobCategories.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
 
       // Generatingg order
@@ -62,7 +62,7 @@ export const loadJobCategoryClass = (models: IModels) => {
 
       const job = await models.JobCategories.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return job;
@@ -79,11 +79,11 @@ export const loadJobCategoryClass = (models: IModels) => {
       }
 
       const parentCategory = await models.JobCategories.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
-        throw new Error("Cannot change category");
+        throw new Error('Cannot change category');
       }
 
       // Generatingg  order
@@ -95,10 +95,10 @@ export const loadJobCategoryClass = (models: IModels) => {
         $and: [
           {
             order: {
-              $regex: new RegExp(`^${escapeRegExp(jobCategory.order)}`),
-            },
+              $regex: new RegExp(`^${escapeRegExp(jobCategory.order)}`)
+            }
           },
-          { _id: { $ne: _id } },
+          { _id: { $ne: _id } }
         ],
       });
 
@@ -126,12 +126,12 @@ export const loadJobCategoryClass = (models: IModels) => {
       await models.JobCategories.getJobCategory(_id);
       let count = await models.JobRefers.countDocuments({
         categoryId: _id,
-        status: { $ne: JOB_STATUSES.ARCHIVED },
+        status: { $ne: JOB_STATUSES.ARCHIVED }
       });
       count += await models.JobCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {
-        throw new Error("Can't remove a job category");
+        throw new Error('Can't remove a job category');
       }
       return models.JobCategories.deleteOne({ _id });
     }

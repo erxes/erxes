@@ -1,16 +1,16 @@
-import React from "react";
-import { useQuery, useMutation, gql } from "@apollo/client";
+import React from 'react';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
-import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   ICommonFormProps,
   ICommonListProps,
-} from "@erxes/ui-settings/src/common/types";
-import { queries as generalQueries } from "@erxes/ui-settings/src/general/graphql";
-import { Alert } from "@erxes/ui/src/utils";
+} from '@erxes/ui-settings/src/common/types';
+import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
+import { Alert } from '@erxes/ui/src/utils';
 
-import WebhookList from "../components/WebhookList";
-import { mutations, queries } from "../graphql";
+import WebhookList from '../components/WebhookList';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -38,13 +38,13 @@ const WebhookListContainer = (props: Props) => {
 
   // Mutations
   const [webhooksRemove] = useMutation(gql(mutations.webhooksRemove), {
-    refetchQueries: ["webhooks", "webhooksTotalCount"],
+    refetchQueries: ['webhooks', 'webhooksTotalCount'],
   });
 
   const removeWebhook = (_id: any) => {
     webhooksRemove({ variables: { _id } })
       .then(() => {
-        Alert.success("You successfully updated a census");
+        Alert.success('You successfully updated a census');
       })
       .catch((error: any) => Alert.error(error.message));
   };
@@ -69,7 +69,7 @@ const options = ({ queryParams }: { queryParams: any }): any => {
       _id: queryParams._id,
       searchValue: queryParams.searchValue,
     },
-    fetchPolicy: "network-only",
+    fetchPolicy: 'network-only',
   };
 };
 

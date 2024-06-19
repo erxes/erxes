@@ -4,14 +4,14 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon,
-} from "@erxes/ui/src/components";
-import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
-import { __ } from "@erxes/ui/src/utils";
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import React from "react";
-import { IConfigsMap } from "../types";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+  Icon
+} from '@erxes/ui/src/components';
+import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
+import { __ } from '@erxes/ui/src/utils';
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import React from 'react';
+import { IConfigsMap } from '../types';
+import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -32,7 +32,7 @@ class PerSettings extends React.Component<Props, State> {
 
     this.state = {
       config: props.config,
-      hasOpen: false,
+      hasOpen: false
     };
   }
 
@@ -96,15 +96,15 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
-        beforeTitle={<Icon icon="settings" />}
+        beforeTitle={<Icon icon='settings' />}
         transparent={true}
-        open={this.props.currentConfigKey === "newremainderConfig"}
+        open={this.props.currentConfigKey === 'newremainderConfig'}
       >
         <FormGroup>
-          <ControlLabel>{"Title"}</ControlLabel>
+          <ControlLabel>{'Title'}</ControlLabel>
           <FormControl
             defaultValue={config.title}
-            onChange={this.onChangeInput.bind(this, "title")}
+            onChange={this.onChangeInput.bind(this, 'title')}
             required={true}
             autoFocus={true}
           />
@@ -113,7 +113,7 @@ class PerSettings extends React.Component<Props, State> {
           <FormColumn>
             <FormGroup>
               <BoardSelectContainer
-                type="deal"
+                type='deal'
                 autoSelectStage={false}
                 boardId={config.boardId}
                 pipelineId={config.pipelineId}
@@ -125,14 +125,14 @@ class PerSettings extends React.Component<Props, State> {
             </FormGroup>
           </FormColumn>
           <FormColumn>
-            {this.renderInput("account", "account", "")}
-            {this.renderInput("location", "location", "")}
+            {this.renderInput('account', 'account', '')}
+            {this.renderInput('location', 'location', '')}
           </FormColumn>
         </FormWrapper>
         <ModalFooter>
           <Button
-            btnStyle="danger"
-            icon="cancel-1"
+            btnStyle='danger'
+            icon='cancel-1'
             onClick={this.onDelete}
             uppercase={false}
           >
@@ -140,8 +140,8 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="success"
-            icon="check-circle"
+            btnStyle='success'
+            icon='check-circle'
             onClick={this.onSave}
             uppercase={false}
             disabled={!config.pipelineId}

@@ -1,9 +1,9 @@
-import { IModels } from "../../connectionResolver";
-import { sendMessageBroker } from "../../messageBroker";
-import { CONTRACT_CLASSIFICATION } from "../definitions/constants";
-import { IContractTypeDocument } from "../definitions/contractTypes";
-import { IContractDocument } from "../definitions/contracts";
-import { ITransactionDocument } from "../definitions/transactions";
+import { IModels } from '../../connectionResolver';
+import { sendMessageBroker } from '../../messageBroker';
+import { CONTRACT_CLASSIFICATION } from '../definitions/constants';
+import { IContractTypeDocument } from '../definitions/contractTypes';
+import { IContractDocument } from '../definitions/contracts';
+import { ITransactionDocument } from '../definitions/transactions';
 
 export async function generateFinance(
   tr: ITransactionDocument,
@@ -15,29 +15,29 @@ export async function generateFinance(
     _id: tr.contractId,
   }).lean<IContractDocument>();
 
-  let customerCode = "";
+  let customerCode = '';
 
-  if (contract?.customerType == "customer") {
+  if (contract?.customerType == 'customer') {
     const customer = await sendMessageBroker(
       {
-        action: "customers.findOne",
+        action: 'customers.findOne',
         data: { _id: tr.customerId },
         subdomain,
-        isRPC: true,
+        isRPC: true
       },
-      "contacts"
+      'contacts'
     );
 
     customerCode = customer?.code;
   } else {
     const company = await sendMessageBroker(
       {
-        action: "customers.findOne",
+        action: 'customers.findOne',
         data: { _id: tr.customerId },
         subdomain,
-        isRPC: true,
+        isRPC: true
       },
-      "contacts"
+      'contacts'
     );
     customerCode = company?.code;
   }
@@ -46,7 +46,7 @@ export async function generateFinance(
     _id: contract?.contractTypeId,
   }).lean<IContractTypeDocument>();
   if (!contract)
-    throw new Error("there is not connected transaction with contract");
+    throw new Error('there is not connected transaction with contract');
 
   let financeTransaction = fillTransaction(
     tr,
@@ -76,7 +76,7 @@ function findAccounts(
     lossAccount: config?.lossAccount,
     transAccount: config?.transAccount,
     debtAccount: config?.debtAccount,
-    insuranceAccount: config?.insuranceAccount,
+    insuranceAccount: config?.insuranceAccount
   };
 
   switch (classification) {
@@ -113,7 +113,7 @@ function fillTransaction(
   var dtl: {
     amount: number;
     account: string;
-    side: "debit" | "credit";
+    side: 'debit' | 'credit';
   }[] = [];
 
   const account = findAccounts(contract.classification, config);
@@ -122,46 +122,46 @@ function fillTransaction(
     dtl.push({
       amount: tr.payment,
       account: account?.paymentAccount,
-      side: "credit",
+      side: 'credit'
     });
   }
   const interest = (tr.interestEve ?? 0) + (tr.interestNonce ?? 0);
   if (interest > 0) {
     dtl.push({
       amount: interest,
-      side: "credit",
-      account: account?.interestAccount,
+      side: 'credit',
+      account: account?.interestAccount
     });
   }
 
   if (tr.loss && tr.loss > 0) {
     dtl.push({
       amount: tr.loss,
-      side: "credit",
-      account: account?.lossAccount,
+      side: 'credit',
+      account: account?.lossAccount
     });
   }
 
   if (tr.debt && tr.debt > 0) {
     dtl.push({
       amount: tr.debt,
-      side: "credit",
-      account: account?.debtAccount,
+      side: 'credit',
+      account: account?.debtAccount
     });
   }
 
   if (tr.insurance && tr.insurance > 0) {
     dtl.push({
       amount: tr.insurance,
-      side: "credit",
-      account: account?.insuranceAccount,
+      side: 'credit',
+      account: account?.insuranceAccount
     });
   }
 
   dtl.push({
-    side: "debit",
+    side: 'debit',
     amount: tr.total,
-    account: account?.transAccount,
+    account: account?.transAccount
   });
 
   return {
@@ -176,6 +176,6 @@ function fillTransaction(
       .toISOString()
       .slice(0, 10)}`,
     amount: tr.total,
-    dtl,
+    dtl
   };
 }

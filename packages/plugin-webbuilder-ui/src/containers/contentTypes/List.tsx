@@ -1,12 +1,12 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
-import { TypesMainQueryResponse } from "../../types";
+import { TypesMainQueryResponse } from '../../types';
 
-import List from "../../components/contentTypes/List";
-import React from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../../graphql";
+import List from '../../components/contentTypes/List';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../graphql';
 
 type Props = {
   siteId: string;
@@ -30,7 +30,7 @@ function ContentTypesContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     contentTypes: list,
-    contentTypesCount: totalCount,
+    contentTypesCount: totalCount
   };
 
   return <List {...updatedProps} />;
@@ -38,12 +38,12 @@ function ContentTypesContainer(props: FinalProps) {
 
 export default compose(
   graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
-    name: "typesMainQuery",
+    name: 'typesMainQuery',
     options: ({ siteId }) => ({
       variables: {
         siteId,
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
     }),
   })
 )(ContentTypesContainer);

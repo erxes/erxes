@@ -1,8 +1,8 @@
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 
-import React from "react";
+import React from 'react';
 
 interface IProps {
   integrationKind: string;
@@ -11,7 +11,7 @@ interface IProps {
 }
 
 const IntegrationEditForm = (props: IProps) => {
-  if (props.integrationKind !== "viber") {
+  if (props.integrationKind !== 'viber') {
     return null;
   }
 
@@ -23,10 +23,10 @@ const IntegrationEditForm = (props: IProps) => {
     <FormGroup>
       <ControlLabel required={false}>Token</ControlLabel>
       <FormControl
-        name="token"
+        name='token'
         required={false}
         autoFocus={false}
-        defaultValue={props.details.token || ""}
+        defaultValue={props.details.token || ''}
         onChange={onChange}
       />
     </FormGroup>

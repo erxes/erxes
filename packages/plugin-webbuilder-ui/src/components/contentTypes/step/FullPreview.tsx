@@ -1,10 +1,10 @@
-import { FlexItem, FullPreview } from "@erxes/ui/src/components/step/style";
+import { FlexItem, FullPreview } from '@erxes/ui/src/components/step/style';
 
-import { Alert } from "@erxes/ui/src/utils";
-import FieldForm from "../FieldForm";
-import FieldsPreview from "@erxes/ui-forms/src/forms/components/FieldsPreview";
-import FormPreview from "@erxes/ui/src/components/step/preview/FormPreview";
-import React from "react";
+import { Alert } from '@erxes/ui/src/utils';
+import FieldForm from '../FieldForm';
+import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
+import FormPreview from '@erxes/ui/src/components/step/preview/FormPreview';
+import React from 'react';
 
 type Props = {
   type: string;
@@ -15,7 +15,7 @@ type Props = {
 };
 
 type State = {
-  currentMode: "create" | "update" | undefined;
+  currentMode: 'create' | 'update' | undefined;
   currentField?: any;
 };
 
@@ -30,7 +30,7 @@ class FullPreviewStep extends React.Component<Props, State> {
   }
 
   onFieldClick = (field: any) => {
-    this.setState({ currentMode: "update", currentField: field });
+    this.setState({ currentMode: 'update', currentField: field });
   };
 
   onFieldSubmit = (field: any) => {
@@ -45,10 +45,10 @@ class FullPreviewStep extends React.Component<Props, State> {
     });
 
     if (duplicated) {
-      return Alert.error("Sorry field code duplicated!");
+      return Alert.error('Sorry field code duplicated!');
     }
 
-    onChange("fields", fields);
+    onChange('fields', fields);
 
     this.setState({ currentField: undefined });
   };
@@ -63,7 +63,7 @@ class FullPreviewStep extends React.Component<Props, State> {
       currentField: undefined,
     });
 
-    onChange("fields", fields);
+    onChange('fields', fields);
   };
 
   onFieldFormCancel = () => {
@@ -87,14 +87,14 @@ class FullPreviewStep extends React.Component<Props, State> {
         <FormPreview
           {...this.props}
           formData={{}}
-          title={"Entry"}
-          btnText={"Add entry"}
+          title={'Entry'}
+          btnText={'Add entry'}
           previewRenderer={previewRenderer}
           currentPage={1}
         />
         {currentField && (
           <FieldForm
-            mode={currentMode || "create"}
+            mode={currentMode || 'create'}
             field={currentField}
             onSubmit={this.onFieldSubmit}
             onDelete={this.onFieldDelete}

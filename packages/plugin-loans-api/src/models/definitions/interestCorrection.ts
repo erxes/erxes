@@ -23,26 +23,26 @@ export const InterestCorrectionSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     number: field({
       type: String,
-      label: "Number",
+      label: 'Number',
       index: true,
     }),
-    description: field({ type: String, optional: true, label: "Description" }),
+    description: field({ type: String, optional: true, label: 'Description' }),
     invDate: field({
       type: Date,
       default: new Date(),
-      label: "Created at",
+      label: 'Created at',
     }),
-    interestAmount: field({ type: Number, min: 0, label: "Interest Amount" }),
-    lossAmount: field({ type: Number, min: 0, label: "Loss Amount" }),
-    contractId: field({ type: String, min: 0, label: "Contract Id" }),
-    type: field({ type: String, label: "type" }),
-    isStopLoss: field({ type: Boolean, label: "is Stop loss" }),
+    interestAmount: field({ type: Number, min: 0, label: 'Interest Amount' }),
+    lossAmount: field({ type: Number, min: 0, label: 'Loss Amount' }),
+    contractId: field({ type: String, min: 0, label: 'Contract Id' }),
+    type: field({ type: String, label: 'type' }),
+    isStopLoss: field({ type: Boolean, label: 'is Stop loss' }),
     createdAt: field({
       type: Date,
       default: () => new Date(),
-      label: "Created at",
+      label: 'Created at',
     }),
-    createdBy: { type: String, optional: true, label: "created member" },
+    createdBy: { type: String, optional: true, label: 'created member' },
   }),
-  "erxes_interestCorrectionSchema"
+  'erxes_interestCorrectionSchema'
 );

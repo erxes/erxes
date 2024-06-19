@@ -1,7 +1,7 @@
-import { CollapseContent, Spinner } from "@erxes/ui/src";
-import moment from "moment";
-import React from "react";
-import { Column, Container, Description, Divider } from "../../../../styles";
+import { CollapseContent, Spinner } from '@erxes/ui/src';
+import moment from 'moment';
+import React from 'react';
+import { Column, Container, Description, Divider } from '../../../../styles';
 
 type State = {};
 
@@ -16,7 +16,7 @@ class LotteryDetail extends React.Component<IProps, State> {
     const { lotteryCampaign, data, loading } = this.props;
 
     const parseDate = (value: any) => {
-      return moment(value).format("MM/D/YYYY");
+      return moment(value).format('MM/D/YYYY');
     };
 
     const RowDiv = ({ head, value, isdate }) => (
@@ -31,30 +31,30 @@ class LotteryDetail extends React.Component<IProps, State> {
     return (
       <Container>
         <div>
-          <RowDiv head="Title" isdate={false} value={lotteryCampaign?.title} />
+          <RowDiv head='Title' isdate={false} value={lotteryCampaign?.title} />
           <RowDiv
-            head="Buy Score"
+            head='Buy Score'
             isdate={false}
             value={lotteryCampaign?.buyScore}
           />
           <RowDiv
-            head="Start Date"
+            head='Start Date'
             isdate={true}
             value={lotteryCampaign?.startDate}
           />
 
           <RowDiv
-            head="End Date"
+            head='End Date'
             isdate={true}
             value={lotteryCampaign?.endDate}
           />
           <RowDiv
-            head="End of Use Date"
+            head='End of Use Date'
             isdate={true}
             value={lotteryCampaign?.finishDateOfUse}
           />
           <RowDiv
-            head="Description"
+            head='Description'
             isdate={false}
             value={
               <Description
@@ -73,24 +73,24 @@ class LotteryDetail extends React.Component<IProps, State> {
               return (
                 <CollapseContent key={i} title={item.title}>
                   <RowDiv
-                    head="Voucher Type"
+                    head='Voucher Type'
                     isdate={false}
                     value={item.voucherType}
                   />
-                  <RowDiv head="Status" isdate={false} value={item.status} />
+                  <RowDiv head='Status' isdate={false} value={item.status} />
                   <RowDiv
-                    head="Buy Score"
+                    head='Buy Score'
                     isdate={false}
                     value={item.buyScore}
                   />
                   <RowDiv
-                    head="Start Date"
+                    head='Start Date'
                     isdate={true}
                     value={item.startDate}
                   />
-                  <RowDiv head="End Date" isdate={true} value={item.endDate} />
+                  <RowDiv head='End Date' isdate={true} value={item.endDate} />
                   <RowDiv
-                    head="Finish Date of Use"
+                    head='Finish Date of Use'
                     isdate={true}
                     value={item.finishDateOfUse}
                   />

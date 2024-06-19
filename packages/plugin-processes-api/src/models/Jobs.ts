@@ -1,10 +1,10 @@
-import { Model } from "mongoose";
-import { IModels } from "../connectionResolver";
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
 import {
   IJobRefer,
   IJobReferDocument,
-  jobReferSchema,
-} from "./definitions/jobs";
+  jobReferSchema
+} from './definitions/jobs';
 
 export interface IJobReferModel extends Model<IJobReferDocument> {
   getJobRefer(_id: string): Promise<IJobReferDocument>;
@@ -23,7 +23,7 @@ export const loadJobReferClass = (models: IModels) => {
       const job = await models.JobRefers.findOne({ _id });
 
       if (!job) {
-        throw new Error("JobRefer not found");
+        throw new Error('JobRefer not found');
       }
 
       return job;
@@ -35,7 +35,7 @@ export const loadJobReferClass = (models: IModels) => {
     public static async createJobRefer(doc: IJobRefer) {
       const job = await models.JobRefers.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return job;
@@ -66,7 +66,7 @@ export const loadJobReferClass = (models: IModels) => {
     public static async removeJobRefers(jobRefersIds: string[]) {
       await models.JobRefers.deleteMany({ _id: { $in: jobRefersIds } });
 
-      return "deleted";
+      return 'deleted';
     }
   }
 

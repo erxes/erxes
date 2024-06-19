@@ -1,13 +1,13 @@
-import "grapesjs/dist/css/grapes.min.css";
+import 'grapesjs/dist/css/grapes.min.css';
 
-import { ISite, ISiteDoc } from "../../types";
+import { ISite, ISiteDoc } from '../../types';
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import React from "react";
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
 
 type Props = {
   closeModal: () => void;
@@ -38,11 +38,11 @@ class TemplateForm extends React.Component<Props, State> {
     if (selectedSite._id) {
       return saveSite(selectedSite._id, {
         name,
-        domain: selectedSite.domain || "",
+        domain: selectedSite.domain || '',
       });
     }
 
-    return useTemplate(currentTemplateId || "", name);
+    return useTemplate(currentTemplateId || '', name);
   };
 
   render() {
@@ -52,7 +52,7 @@ class TemplateForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Your WebSite Name</ControlLabel>
 
           <FormControl
-            name="name"
+            name='name'
             autoFocus={true}
             defaultValue={this.state.name}
             required={true}
@@ -62,17 +62,17 @@ class TemplateForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle='simple'
             onClick={this.props.closeModal}
-            icon="times-circle"
+            icon='times-circle'
             uppercase={false}
           >
             Cancel
           </Button>
 
           <Button
-            btnStyle="success"
-            icon="check-circle"
+            btnStyle='success'
+            icon='check-circle'
             onClick={this.onClick}
             uppercase={false}
           >

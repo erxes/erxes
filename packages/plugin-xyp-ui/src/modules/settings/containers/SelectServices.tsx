@@ -1,6 +1,6 @@
-import React from "react";
-import { gql, useQuery } from "@apollo/client";
-import SelectServices from "../components/SelectServices";
+import React from 'react';
+import { gql, useQuery } from '@apollo/client';
+import SelectServices from '../components/SelectServices';
 
 const XYP_SERVICES_QUERY = gql`
   query xypServiceList($url: String, $token: String) {

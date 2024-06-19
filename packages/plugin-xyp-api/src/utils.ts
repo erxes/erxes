@@ -1,6 +1,6 @@
-import { sendCommonMessage } from "./messageBroker";
-import { nanoid } from "nanoid";
-import { IModels } from "./connectionResolver";
+import { sendCommonMessage } from './messageBroker';
+import { nanoid } from 'nanoid';
+import { IModels } from './connectionResolver';
 
 /*
  * Mongoose field options wrapper
@@ -39,8 +39,8 @@ export const convertToPropertyData = async (
   const customerId = doc.customerId;
 
   const customer = await sendCommonMessage({
-    serviceName: "contacts",
-    action: "customers.findOne",
+    serviceName: 'contacts',
+    action: 'customers.findOne',
     data: { _id: customerId },
     isRPC: true,
     defaultValue: null,
@@ -48,18 +48,18 @@ export const convertToPropertyData = async (
   });
 
   if (!customer) {
-    throw new Error("Customer not found");
+    throw new Error('Customer not found');
   }
 
   try {
     const fields = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
-      action: "fields.find",
+      serviceName: 'forms',
+      action: 'fields.find',
       data: {
         query: {
-          contentType: "contacts:customer",
-          code: { $exists: true, $ne: "" },
+          contentType: 'contacts:customer',
+          code: { $exists: true, $ne: '' },
         },
         projection: {
           groupId: 1,
@@ -74,7 +74,7 @@ export const convertToPropertyData = async (
     const customFieldsData: any[] = customer.customFieldsData || [];
 
     const xyp = await models.XypData.findOne({
-      contentType: "contacts:customer",
+      contentType: 'contacts:customer',
       contentTypeId: customer._id,
     });
 
@@ -86,7 +86,7 @@ export const convertToPropertyData = async (
 
     const serviceNames = data.map((x) => x.serviceName);
     const citizen = data.find(
-      (x) => x.serviceName === "WS100101_getCitizenIDCardInfo"
+      (x) => x.serviceName === 'WS100101_getCitizenIDCardInfo'
     );
     let customerMainFields = {};
     if (citizen) {
@@ -98,11 +98,11 @@ export const convertToPropertyData = async (
 
     const groups = await sendCommonMessage({
       subdomain,
-      serviceName: "forms",
-      action: "fieldsGroups.find",
+      serviceName: 'forms',
+      action: 'fieldsGroups.find',
       data: {
         query: {
-          contentType: "contacts:customer",
+          contentType: 'contacts:customer',
           code: { $in: serviceNames },
         },
         projection: {
@@ -140,8 +140,8 @@ export const convertToPropertyData = async (
     }
 
     await sendCommonMessage({
-      serviceName: "contacts",
-      action: "customers.updateCustomer",
+      serviceName: 'contacts',
+      action: 'customers.updateCustomer',
       data: {
         _id: customerId,
         doc: {
@@ -153,9 +153,9 @@ export const convertToPropertyData = async (
       subdomain,
     });
 
-    return "ok";
+    return 'ok';
   } catch (e) {
-    console.error("error ", e);
+    console.error('error ', e);
     throw new Error(e);
   }
 };

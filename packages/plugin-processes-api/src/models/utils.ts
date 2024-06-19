@@ -1,17 +1,17 @@
-import { IModels } from "../connectionResolver";
-import { JOB_TYPES } from "./definitions/constants";
-import { IFlowDocument, IJob } from "./definitions/flows";
-import { IProductsData } from "./definitions/jobs";
+import { IModels } from '../connectionResolver';
+import { JOB_TYPES } from './definitions/constants';
+import { IFlowDocument, IJob } from './definitions/flows';
+import { IProductsData } from './definitions/jobs';
 
 const getProductIds = (
   job: IJob,
   jobReferById: any,
   subFlowById: { [key: string]: IFlowDocument },
-  type = "need"
+  type = 'need'
 ) => {
   const jobConfig = job.config;
-  const key = type === "need" ? "needProducts" : "resultProducts";
-  const fkey = type === "need" ? "latestNeedProducts" : "latestResultProducts";
+  const key = type === 'need' ? 'needProducts' : 'resultProducts';
+  const fkey = type === 'need' ? 'latestNeedProducts' : 'latestResultProducts';
   let productIds: string[] = [];
   if (jobConfig.jobReferId && JOB_TYPES.JOBS.includes(job.type)) {
     productIds =
@@ -30,7 +30,7 @@ const getProductIds = (
 
   if (jobConfig.productId) {
     const types = [JOB_TYPES.MOVE];
-    if (type === "need") {
+    if (type === 'need') {
       types.push(JOB_TYPES.OUTLET);
     } else {
       types.push(JOB_TYPES.INCOME);
@@ -76,7 +76,7 @@ const checkBeforeJobs = (
     }
 
     beforeResultProductIds = beforeResultProductIds.concat(
-      getProductIds(beforeJob, jobReferById, subFlowById, "result")
+      getProductIds(beforeJob, jobReferById, subFlowById, 'result')
     );
   }
 
@@ -88,7 +88,7 @@ const checkBeforeJobs = (
     return `${label}less products`;
   }
 
-  return "";
+  return '';
 };
 
 export const recursiveChecker = (
@@ -117,7 +117,7 @@ export const recursiveChecker = (
       }
     }
   }
-  return "";
+  return '';
 };
 
 export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
@@ -147,8 +147,8 @@ export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
 };
 
 export const getLatestLocations = (latestJob: IJob) => {
-  let latestBranchId = "";
-  let latestDepartmentId = "";
+  let latestBranchId = '';
+  let latestDepartmentId = '';
 
   if (latestJob) {
     latestBranchId = (latestJob.config || {}).outBranchId;
@@ -157,7 +157,7 @@ export const getLatestLocations = (latestJob: IJob) => {
 
   return {
     latestBranchId,
-    latestDepartmentId,
+    latestDepartmentId
   };
 };
 
@@ -173,7 +173,7 @@ export const getResultProductsFromFlow = async (
   if ([JOB_TYPES.ENDPOINT, JOB_TYPES.JOB].includes(latestJob.type)) {
     if (config.jobReferId) {
       const jobRefer = await models.JobRefers.findOne({
-        _id: config.jobReferId,
+        _id: config.jobReferId
       }).lean();
       if (jobRefer?.resultProducts) {
         return jobRefer.resultProducts;
@@ -188,7 +188,7 @@ export const getResultProductsFromFlow = async (
           _id: Math.random().toString(),
           productId: config.productId,
           quantity: config.quantity ?? 1,
-          uom: config.uom ?? "",
+          uom: config.uom ?? ''
         },
       ];
     }
@@ -239,7 +239,7 @@ export const getNeedProductsFromFlow = async (
     .filter((bj) => bj.config?.jobReferId)
     .map((bj) => bj.config.jobReferId);
   const jobRefers = await models.JobRefers.find({
-    _id: { $in: jobReferIds },
+    _id: { $in: jobReferIds }
   }).lean();
   const jobReferById = {};
   for (const jobRefer of jobRefers) {
@@ -264,7 +264,7 @@ export const getNeedProductsFromFlow = async (
           _id: Math.random().toString(),
           productId: config.productId,
           quantity: config.quantity ?? 1,
-          uom: config.uom ?? "",
+          uom: config.uom ?? ''
         });
       }
     }

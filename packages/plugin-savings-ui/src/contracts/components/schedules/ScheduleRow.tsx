@@ -1,8 +1,8 @@
-import dayjs from "dayjs";
-import React from "react";
+import dayjs from 'dayjs';
+import React from 'react';
 
-import { ExtraRow, DidAmount } from "../../styles";
-import { ITransaction } from "../../../transactions/types";
+import { ExtraRow, DidAmount } from '../../styles';
+import { ITransaction } from '../../../transactions/types';
 
 type Props = {
   transaction: ITransaction;
@@ -15,12 +15,12 @@ function ScheduleRow({ transaction }: Props) {
 
   return (
     <ExtraRow key={transaction._id}>
-      <td>{dayjs(transaction.payDate).format("YYYY/MM/DD")}</td>
+      <td>{dayjs(transaction.payDate).format('YYYY/MM/DD')}</td>
       <td>{transaction.transactionType}</td>
-      <td>{renderCell("balance")}</td>
-      <td>{renderCell("payment")}</td>
-      <td>{renderCell("storedInterest")}</td>
-      <td>{renderCell("total")}</td>
+      <td>{renderCell('balance')}</td>
+      <td>{renderCell('payment')}</td>
+      <td>{renderCell('storedInterest')}</td>
+      <td>{renderCell('total')}</td>
     </ExtraRow>
   );
 }

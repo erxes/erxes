@@ -1,8 +1,8 @@
-import { requireLogin } from "@erxes/api-utils/src/permissions";
+import { requireLogin } from '@erxes/api-utils/src/permissions';
 
-import * as dotenv from "dotenv";
-import { IContext } from "../../../connectionResolver";
-import { sendCardsMessage, sendProductsMessage } from "../../../messageBroker";
+import * as dotenv from 'dotenv';
+import { IContext } from '../../../connectionResolver';
+import { sendCardsMessage, sendProductsMessage } from '../../../messageBroker';
 
 dotenv.config();
 
@@ -29,24 +29,24 @@ const configQueries = {
   ) {
     const deal = await sendCardsMessage({
       subdomain,
-      action: "deals.findOne",
+      action: 'deals.findOne',
       data: { _id },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!deal || !deal.productsData || !deal.productsData.length) {
       return [];
     }
 
-    const mainConfigs = await models.Configs.getConfig("erkhetConfig", {});
+    const mainConfigs = await models.Configs.getConfig('erkhetConfig', {});
 
     const brandIds = Object.keys(mainConfigs);
 
     if (!brandIds.length) {
       return [
         {
-          _id: "",
-          name: "",
+          _id: '',
+          name: '',
           amount: deal.productsData.reduce(
             (sum, pd) => Number(sum) + Number(pd.amount),
             0
@@ -59,13 +59,13 @@ const configQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: 'find',
       data: {
         query: { _id: { $in: productsIds } },
         limit: deal.productsData.length,
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const productById = {};
@@ -90,12 +90,12 @@ const configQueries = {
 
       if (
         !(product.scopeBrandIds || []).length &&
-        brandIds.includes("noBrand")
+        brandIds.includes('noBrand')
       ) {
-        if (!amountByBrandId["noBrand"]) {
-          amountByBrandId["noBrand"] = 0;
+        if (!amountByBrandId['noBrand']) {
+          amountByBrandId['noBrand'] = 0;
         }
-        amountByBrandId["noBrand"] += productData.amount;
+        amountByBrandId['noBrand'] += productData.amount;
         continue;
       }
 
@@ -114,11 +114,11 @@ const configQueries = {
       _id: brandId,
       name: mainConfigs[brandId].title,
       amount: amountByBrandId[brandId],
-      paymentIds: mainConfigs[brandId].paymentIds || [],
+      paymentIds: mainConfigs[brandId].paymentIds || []
     }));
   },
 };
 
-requireLogin(configQueries, "multierkhetConfigs");
+requireLogin(configQueries, 'multierkhetConfigs');
 
 export default configQueries;

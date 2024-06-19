@@ -1,10 +1,10 @@
-import { Chooser } from "@erxes/ui/src";
-import { gql, useQuery } from "@apollo/client";
-import React, { useState } from "react";
+import { Chooser } from '@erxes/ui/src';
+import { gql, useQuery } from '@apollo/client';
+import React, { useState } from 'react';
 
-import { queries } from "../graphql";
-import { ContractsQueryResponse, IContract } from "../types";
-import ContractForm from "./ContractForm";
+import { queries } from '../graphql';
+import { ContractsQueryResponse, IContract } from '../types';
+import ContractForm from './ContractForm';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -27,10 +27,10 @@ const ContractChooser = (props: Props & WrapperProps) => {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
         isRelated: data.isRelated,
-        sortField: "createdAt",
-        sortDirection: -1,
+        sortField: 'createdAt',
+        sortDirection: -1
       },
-      fetchPolicy: data.isRelated ? "network-only" : "cache-first",
+      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
     }
   );
 
@@ -54,11 +54,11 @@ const ContractChooser = (props: Props & WrapperProps) => {
       datas: data.contracts,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: "contract",
+      relType: 'contract'
     },
     search,
-    clearState: () => search(""),
-    title: "Contract",
+    clearState: () => search(''),
+    title: 'Contract',
     renderForm: (formProps) => (
       <ContractForm
         {...formProps}
@@ -69,7 +69,7 @@ const ContractChooser = (props: Props & WrapperProps) => {
     newItem: newContract,
     resetAssociatedItem: resetAssociatedItem,
     datas: contractsQuery?.data?.contracts || [],
-    refetchQuery: queries.contracts,
+    refetchQuery: queries.contracts
   };
 
   return <Chooser limit={1} {...updatedProps} />;
@@ -90,7 +90,7 @@ type WrapperProps = {
 
 const Wrapper = (props: WrapperProps) => {
   const [perPage, setPerPage] = useState(20);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
 
   const search = (value, loadmore) => {
     let perPage = 20;

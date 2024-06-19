@@ -1,14 +1,14 @@
-import { FLOW_STATUSES, JOB_TYPES } from "./definitions/constants";
-import { flowSchema, IFlow, IFlowDocument, IJob } from "./definitions/flows";
+import { FLOW_STATUSES, JOB_TYPES } from './definitions/constants';
+import { flowSchema, IFlow, IFlowDocument, IJob } from './definitions/flows';
 import {
   getLatestJob,
   getLatestLocations,
   getNeedProductsFromFlow,
   getResultProductsFromFlow,
-  recursiveChecker,
-} from "./utils";
-import { IModels } from "../connectionResolver";
-import { Model } from "mongoose";
+  recursiveChecker
+} from './utils';
+import { IModels } from '../connectionResolver';
+import { Model } from 'mongoose';
 
 export interface IFlowModel extends Model<IFlowDocument> {
   getFlow(_id: string): Promise<IFlowDocument>;
@@ -28,7 +28,7 @@ export const loadFlowClass = (models: IModels) => {
       const flow = await models.Flows.findOne({ _id });
 
       if (!flow) {
-        throw new Error("Flow not found");
+        throw new Error('Flow not found');
       }
 
       return flow;
@@ -36,16 +36,16 @@ export const loadFlowClass = (models: IModels) => {
 
     public static async checkValidation(jobs?: IJob[]) {
       if (!jobs || !(jobs || []).length) {
-        return "Has not jobs";
+        return 'Has not jobs';
       }
 
       const endJobs = jobs.filter((j) => j.type === JOB_TYPES.ENDPOINT);
       if (!endJobs || !(endJobs || []).length) {
-        return "Has not endPoint job";
+        return 'Has not endPoint job';
       }
 
       if (endJobs.length > 1) {
-        return "Many endPoint jobs";
+        return 'Many endPoint jobs';
       }
 
       const latestJobs = jobs.filter(
@@ -53,11 +53,11 @@ export const loadFlowClass = (models: IModels) => {
       );
 
       if (!latestJobs || !latestJobs.length) {
-        return "Has not latest job";
+        return 'Has not latest job';
       }
 
       if (latestJobs.length > 1) {
-        return "Many latest jobs";
+        return 'Many latest jobs';
       }
 
       const jobRefers = await models.JobRefers.find({
@@ -88,7 +88,7 @@ export const loadFlowClass = (models: IModels) => {
         return result;
       }
 
-      return "";
+      return '';
     }
 
     /**
@@ -117,7 +117,7 @@ export const loadFlowClass = (models: IModels) => {
         latestDepartmentId,
         latestResultProducts,
         latestNeedProducts,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return flow;
@@ -130,7 +130,7 @@ export const loadFlowClass = (models: IModels) => {
       let status = doc.status;
       const flowValidation = await models.Flows.checkValidation(doc.jobs);
 
-      if (flowValidation !== "" && status === FLOW_STATUSES.ACTIVE) {
+      if (flowValidation !== '' && status === FLOW_STATUSES.ACTIVE) {
         status = FLOW_STATUSES.DRAFT;
       }
 
@@ -156,7 +156,7 @@ export const loadFlowClass = (models: IModels) => {
             latestBranchId,
             latestDepartmentId,
             latestResultProducts,
-            latestNeedProducts,
+            latestNeedProducts
           },
         }
       );
@@ -180,7 +180,7 @@ export const loadFlowClass = (models: IModels) => {
     public static async removeFlows(flowIds: string[]) {
       await models.Flows.deleteMany({ _id: { $in: flowIds } });
 
-      return "deleted";
+      return 'deleted';
     }
   }
 

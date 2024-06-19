@@ -1,17 +1,17 @@
-import { Title } from "@erxes/ui-settings/src/styles";
-import { EmptyState, HeaderDescription } from "@erxes/ui/src/components";
-import { Wrapper } from "@erxes/ui/src/layout";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import Sidebar from "../../Sidebar";
+import { Title } from '@erxes/ui-settings/src/styles';
+import { EmptyState, HeaderDescription } from '@erxes/ui/src/components';
+import { Wrapper } from '@erxes/ui/src/layout';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
+import Sidebar from '../../Sidebar';
 
 const breadcrumb = [
-  { title: __("Settings"), link: "/settings" },
+  { title: __('Settings'), link: '/settings' },
   {
-    title: __("Automations config"),
-    link: "/settings/automations/general",
+    title: __('Automations config'),
+    link: '/settings/automations/general',
   },
-  { title: __("General config") },
+  { title: __('General config') },
 ];
 
 function GeneralSettings() {

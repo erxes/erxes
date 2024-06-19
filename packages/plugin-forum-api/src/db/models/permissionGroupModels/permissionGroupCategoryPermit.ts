@@ -101,6 +101,28 @@ export const generatePermissionGroupCategoryPermitModel = (
 
       
     }
+    /*
+      const result = await models.PermissionGroupUser.aggregate()
+        .match({ userId: cpUserId })
+        .lookup({
+          from: models.PermissionGroupCategoryPermit.collection.collectionName,
+          localField: 'permissionGroupId',
+          foreignField: 'permissionGroupId',
+          as: 'permits'
+        })
+        .match({
+          permits: {
+            $elemMatch: {
+              permission: permission,
+              categoryId: ObjectId(categoryId.toString())
+            }
+          }
+        })
+        .limit(1)
+        .project({ _id: 1 });
+      return result.length > 0;
+      */
+
 
     public static async userPermittedCategoryIds(
       userId: string

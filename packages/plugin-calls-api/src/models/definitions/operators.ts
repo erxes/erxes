@@ -1,5 +1,5 @@
-import { Schema, Document } from "mongoose";
-import { field } from "./utils";
+import { Schema, Document } from 'mongoose';
+import { field } from './utils';
 
 export interface IOperator {
   userId: string;
@@ -9,12 +9,12 @@ export interface IOperator {
 export interface IOperatorDocuments extends IOperator, Document {}
 
 export const operatorSchema = new Schema({
-  userId: field({ type: String, label: "user id", unique: true }),
-  extension: field({ type: String, label: "Operator extension" }),
+  userId: field({ type: String, label: 'user id', unique: true }),
+  extension: field({ type: String, label:'Operator extension' }),
   status: field({
     type: String,
-    label: "Operator extension",
-    enum: ["unAvailable", "idle", "pause", "unpause"],
-    default: "unAvailable",
+    label: 'Operator extension',
+    enum: ['unAvailable', 'idle', 'pause', 'unpause'],
+    default: 'unAvailable',
   }),
 });

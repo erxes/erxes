@@ -1,27 +1,27 @@
-import fetch from "node-fetch";
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
-import { generateModels } from "./connectionResolver";
+import fetch from 'node-fetch';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { generateModels } from './connectionResolver';
 
 export default {
-  products: ["products"],
+  products: ['products']
 };
 
 export const afterQueryHandlers = async (subdomain, data) => {
   const { args, results, queryName } = data;
   const models = await generateModels(subdomain);
 
-  if (queryName !== "products") {
+  if (queryName !== 'products') {
     return results;
   }
 
   const { pipelineId } = args;
 
-  if (!pipelineId || !(await isEnabled("multierkhet"))) {
+  if (!pipelineId || !(await isEnabled('multierkhet'))) {
     return results;
   }
   try {
-    const configs = await models.Configs.getConfig("erkhetConfig", {});
-    const remConfigs = await models.Configs.getConfig("remainderConfig", {});
+    const configs = await models.Configs.getConfig('erkhetConfig', {});
+    const remConfigs = await models.Configs.getConfig('remainderConfig', {});
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
       return results;
@@ -35,12 +35,12 @@ export const afterQueryHandlers = async (subdomain, data) => {
     for (const product of results) {
       if (
         !(product.scopeBrandIds || []).length &&
-        configBrandIds.includes("noBrand")
+        configBrandIds.includes('noBrand')
       ) {
-        if (!codesByBrandId["noBrand"]) {
-          codesByBrandId["noBrand"] = [];
+        if (!codesByBrandId['noBrand']) {
+          codesByBrandId['noBrand'] = [];
         }
-        codesByBrandId["noBrand"].push(product.code);
+        codesByBrandId['noBrand'].push(product.code);
         continue;
       }
 
@@ -66,15 +66,15 @@ export const afterQueryHandlers = async (subdomain, data) => {
       }
 
       const response = await fetch(
-        `${process.env.ERKHET_URL || "https://erkhet.biz"}/get-api/?` +
+        `${process.env.ERKHET_URL || 'https://erkhet.biz'}/get-api/?` +
           new URLSearchParams({
-            kind: "remainder",
+            kind: 'remainder',
             api_key: mainConfig.apiKey,
             api_secret: mainConfig.apiSecret,
-            check_relate: codesByBrandId[brandId].length < 4 ? "1" : "",
+            check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
             accounts: remainderConfig.account,
             locations: remainderConfig.location,
-            inventories: codesByBrandId[brandId].join(","),
+            inventories: codesByBrandId[brandId].join(','),
           }),
         {
           timeout: 8000,
@@ -84,15 +84,15 @@ export const afterQueryHandlers = async (subdomain, data) => {
       const jsonRes = await response.json();
 
       if (remainderConfig.account && remainderConfig.location) {
-        const accounts = remainderConfig.account.split(",") || [];
-        const locations = remainderConfig.location.split(",") || [];
+        const accounts = remainderConfig.account.split(',') || [];
+        const locations = remainderConfig.location.split(',') || [];
 
         for (const acc of accounts) {
           for (const loc of locations) {
             const resp = (jsonRes[acc] || {})[loc] || {};
             for (const invCode of Object.keys(resp)) {
               if (!Object.keys(responseByCode).includes(invCode)) {
-                responseByCode[invCode] = "";
+                responseByCode[invCode] = '';
               }
               const remainder = (accounts.length > 1 ? acc + '/' : '') +
               (locations.length > 1 ? loc + ':' : '') +
@@ -108,7 +108,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
     }
 
     for (const r of results) {
-      r.name = (r.name || "").concat(` (${responseByCode[r.code] || "-0"})`);
+      r.name = (r.name || '').concat(` (${responseByCode[r.code] || '-0'})`);
     }
   } catch (e) {
     console.log(e.message);

@@ -1,15 +1,15 @@
-import { Alert, EmptyState, Spinner } from "@erxes/ui/src";
-import { IUser } from "@erxes/ui/src/auth/types";
-import React from "react";
-import ContractDetails from "../../components/detail/ContractDetails";
-import { mutations, queries } from "../../graphql";
+import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import ContractDetails from '../../components/detail/ContractDetails';
+import { mutations, queries } from '../../graphql';
 import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
-  RegenSchedulesMutationResponse,
-} from "../../types";
-import { useQuery, useMutation, gql } from "@apollo/client";
+  RegenSchedulesMutationResponse
+} from '../../types';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   id: string;
@@ -26,7 +26,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(queries.contractDetail),
     {
       variables: {
-        _id: id,
+        _id: id
       },
     }
   );
@@ -34,21 +34,21 @@ const ContractDetailsContainer = (props: FinalProps) => {
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),
     {
-      refetchQueries: ["contractDetail"],
+      refetchQueries: ['contractDetail'],
     }
   );
 
   const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.regenSchedules),
     {
-      refetchQueries: ["schedules", "scheduleYears"],
+      refetchQueries: ['schedules', 'scheduleYears'],
     }
   );
 
   const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.fixSchedules),
     {
-      refetchQueries: ["schedules", "scheduleYears"],
+      refetchQueries: ['schedules', 'scheduleYears'],
     }
   );
 
@@ -82,7 +82,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
 
   if (!contractDetailQuery?.data?.savingsContractDetail) {
     return (
-      <EmptyState text="Contract not found" image="/images/actions/24.svg" />
+      <EmptyState text='Contract not found' image='/images/actions/24.svg' />
     );
   }
 
@@ -95,7 +95,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     currentUser,
     saveItem,
     regenSchedules: regenSchedulesHandler,
-    fixSchedules: fixSchedulesHandler,
+    fixSchedules: fixSchedulesHandler
   };
 
   return <ContractDetails {...updatedProps} />;

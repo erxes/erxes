@@ -1,9 +1,9 @@
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import Button from "@erxes/ui/src/components/Button";
-import Icon from "@erxes/ui/src/components/Icon";
-import Tip from "@erxes/ui/src/components/Tip";
-import React from "react";
-import { IPermission } from "../../types";
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import React from 'react';
+import { IPermission } from '../../types';
 
 type Props = {
   permissions: IPermission[];
@@ -15,19 +15,19 @@ class PermissionRow extends React.Component<Props> {
     const { removeItem, permissions } = this.props;
     return permissions.map((item) => (
       <tr key={item._id}>
-        <td>{item.category?.name || ""}</td>
-        <td>{item.permission || ""}</td>
-        <td>{item.permissionGroup?.name || ""}</td>
+        <td>{item.category?.name || ''}</td>
+        <td>{item.permission || ''}</td>
+        <td>{item.permissionGroup?.name || ''}</td>
         <td>
           <ActionButtons>
-            <Tip text="Delete" placement="top">
+            <Tip text='Delete' placement='top'>
               <Button
-                btnStyle="link"
+                btnStyle='link'
                 onClick={() =>
                   removeItem(item._id, item.permission, [item.category._id])
                 }
               >
-                <Icon icon="times-circle" />
+                <Icon icon='times-circle' />
               </Button>
             </Tip>
           </ActionButtons>

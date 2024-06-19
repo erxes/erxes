@@ -1,34 +1,34 @@
 import {
   customFieldToObject,
   fetchPolaris,
-  sendMessageBrokerData,
-} from "../utils";
+  sendMessageBrokerData
+} from '../utils';
 
 export const outcomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
 
   const savingContract = await sendMessageBrokerData(
     subdomain,
-    "savings",
-    "contracts.findOne",
+    'savings',
+    'contracts.findOne',
     { _id: transaction.contractId }
   );
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    "contacts",
-    "customers.findOne",
+    'contacts',
+    'customers.findOne',
     { _id: savingContract.customerId }
   );
 
   const customerData = await customFieldToObject(
     subdomain,
-    "contacts:customer",
+    'contacts:customer',
     customer
   );
 
   const sendData = {
-    operCode: "13610010",
+    operCode: '13610010',
     txnAcntCode: savingContract.number,
     txnAmount: transaction.total,
     rate: 1,
@@ -39,26 +39,26 @@ export const outcomeDeposit = async (subdomain, params) => {
     tcustName: customerData.firstName,
     tcustAddr: customerData.firstName,
     tcustRegister: customerData.registerCode,
-    tcustRegisterMask: "3",
+    tcustRegisterMask: '3',
     tcustContact: customerData.phones[0],
     tranAmt: transaction.total,
     tranCurCode: transaction.currency,
-    sourceType: "OI",
+    sourceType: 'OI',
     isPreview: 0,
     isTmw: 1,
     aspParam: [
       [
         {
           acntCode: savingContract.number,
-          acntType: "EXPENSE",
+          acntType: 'EXPENSE'
         },
       ],
     ],
   };
 
   return await fetchPolaris({
-    op: "13610010",
+    op: '13610010',
     data: [sendData],
-    subdomain,
+    subdomain
   });
 };

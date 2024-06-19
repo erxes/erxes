@@ -1,10 +1,10 @@
-import { IContext } from "../../../connectionResolver";
-import { sendMessageBroker } from "../../../messageBroker";
+import { IContext } from '../../../connectionResolver';
+import { sendMessageBroker } from '../../../messageBroker';
 import {
   IPeriodLock,
-  IPeriodLockDocument,
-} from "../../../models/definitions/periodLocks";
-import { createLog, deleteLog, updateLog } from "../../../logUtils";
+  IPeriodLockDocument
+} from '../../../models/definitions/periodLocks';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
 const periodLockMutations = {
   savingsPeriodLocksAdd: async (
@@ -19,9 +19,9 @@ const periodLockMutations = {
     );
 
     const logData = {
-      type: "periodLock",
+      type: 'periodLock',
       object: periodLock,
-      extraParams: { models },
+      extraParams: { models }
     };
 
     await createLog(subdomain, user, logData);
@@ -44,9 +44,9 @@ const periodLockMutations = {
     );
 
     const logData = {
-      type: "periodLock",
+      type: 'periodLock',
       object: periodLock,
-      extraParams: { models },
+      extraParams: { models }
     };
 
     await updateLog(subdomain, user, logData);
@@ -65,7 +65,7 @@ const periodLockMutations = {
   ) => {
     // TODO: contracts check
     const periodLocks = await models.PeriodLocks.find({
-      _id: { $in: periodLockIds },
+      _id: { $in: periodLockIds }
     }).lean();
 
     await models.PeriodLocks.removePeriodLocks(periodLockIds);
@@ -73,18 +73,18 @@ const periodLockMutations = {
     for (const periodLock of periodLocks) {
       await sendMessageBroker(
         {
-          action: "deleteTransaction",
+          action: 'deleteTransaction',
           subdomain,
           data: { orderId: periodLock._id, config: {} },
-          isRPC: true,
+          isRPC: true
         },
-        "syncerkhet"
+        'syncerkhet'
       );
 
       const logData = {
-        type: "periodLock",
+        type: 'periodLock',
         object: periodLock,
-        extraParams: { models },
+        extraParams: { models }
       };
 
       await deleteLog(subdomain, user, logData);

@@ -1,6 +1,6 @@
-import { generateModels, IModels } from "./connectionResolver";
-import { IMPORT_EXPORT_TYPES } from "./imports";
-import * as moment from "moment";
+import { generateModels, IModels } from './connectionResolver';
+import { IMPORT_EXPORT_TYPES } from './imports';
+import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
@@ -45,11 +45,11 @@ export const fillValue = async (
 ): Promise<string> => {
   let value = item[column];
 
-  if (column === "createdAt") {
-    value = moment(value).format("YYYY-MM-DD");
+  if (column === 'createdAt') {
+    value = moment(value).format('YYYY-MM-DD');
   }
 
-  return value || "-";
+  return value || '-';
 };
 
 export default {
@@ -78,7 +78,7 @@ export default {
       }
     } catch (e) {
       return {
-        error: e.message,
+        error: e.message
       };
     }
     return { totalCount, excelHeader };
@@ -103,7 +103,7 @@ export default {
         for (const column of headers) {
           const value = await fillValue(models, subdomain, column, item);
 
-          result[column] = value || "-";
+          result[column] = value || '-';
         }
 
         docs.push(result);

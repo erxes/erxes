@@ -1,9 +1,9 @@
-import { IContext } from "../../connectionResolver";
-import { sendMessageBroker } from "../../messageBroker";
+import { IContext } from '../../connectionResolver';
+import { sendMessageBroker } from '../../messageBroker';
 import {
   IContractDocument,
-  IContract,
-} from "../../models/definitions/contracts";
+  IContract
+} from '../../models/definitions/contracts';
 
 const Contracts = {
   async contractType(contract: IContract, _, { models }: IContext) {
@@ -11,32 +11,32 @@ const Contracts = {
   },
 
   async customers(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== "customer") return null;
+    if (contract.customerType !== 'customer') return null;
 
     const customer = await sendMessageBroker(
       {
         subdomain,
-        action: "customers.findOne",
+        action: 'customers.findOne',
         data: { _id: contract.customerId },
-        isRPC: true,
+        isRPC: true
       },
-      "contacts"
+      'contacts'
     );
 
     return customer;
   },
 
   async companies(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== "company") return null;
+    if (contract.customerType !== 'company') return null;
 
     const company = await sendMessageBroker(
       {
         subdomain,
-        action: "companies.findOne",
+        action: 'companies.findOne',
         data: { _id: contract.customerId },
-        isRPC: true,
+        isRPC: true
       },
-      "contacts"
+      'contacts'
     );
 
     return company;
@@ -45,7 +45,7 @@ const Contracts = {
   async hasTransaction(contract: IContractDocument, _, { models }: IContext) {
     return (
       (await models.Transactions.countDocuments({
-        contractId: contract._id,
+        contractId: contract._id
       })) > 0
     );
   },
@@ -80,11 +80,11 @@ const Contracts = {
     const loans = await sendMessageBroker(
       {
         subdomain,
-        action: "contracts.find",
-        data: { savingContractId: contract._id, status: { $ne: "closed" } },
+        action: 'contracts.find',
+        data: { savingContractId: contract._id, status: { $ne: 'closed' } },
         isRPC: true,
       },
-      "loans"
+      'loans'
     );
 
     return loans;

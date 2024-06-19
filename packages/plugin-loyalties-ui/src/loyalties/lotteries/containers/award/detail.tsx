@@ -1,12 +1,12 @@
-import { Bulk } from "@erxes/ui/src";
-import { router } from "@erxes/ui/src/utils";
-import { withProps } from "@erxes/ui/src/utils/core";
-import { gql } from "@apollo/client";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
-import LotteryDetail from "../../components/award/detail";
-import { queries } from "../../../../configs/voucherCampaign/graphql";
+import { Bulk } from '@erxes/ui/src';
+import { router } from '@erxes/ui/src/utils';
+import { withProps } from '@erxes/ui/src/utils/core';
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import LotteryDetail from '../../components/award/detail';
+import { queries } from '../../../../configs/voucherCampaign/graphql';
 
 type Props = { queryParams: any };
 
@@ -48,10 +48,10 @@ const generateParams = ({ queryParams }) => ({
 export default withProps<Props>(
   compose(
     graphql<{ queryParams: [string] }>(gql(queries.voucherCampaigns), {
-      name: "voucherCampaigns",
+      name: 'voucherCampaigns',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: "network-only",
+        fetchPolicy: 'network-only',
       }),
     })
   )(AwardDetail)

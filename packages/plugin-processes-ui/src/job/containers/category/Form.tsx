@@ -1,9 +1,9 @@
-import React from "react";
-import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import CategoryForm from "../../components/category/Form";
-import { mutations } from "../../graphql";
-import { IJobCategory } from "../../types";
+import React from 'react';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import CategoryForm from '../../components/category/Form';
+import { mutations } from '../../graphql';
+import { IJobCategory } from '../../types';
 
 type Props = {
   categories: IJobCategory[];
@@ -18,7 +18,7 @@ class CategoryFormContainer extends React.Component<Props> {
       values,
       isSubmitted,
       callback,
-      object,
+      object
     }: IButtonMutateProps) => {
       const attachment = values.attachment ? values.attachment : undefined;
 
@@ -35,10 +35,10 @@ class CategoryFormContainer extends React.Component<Props> {
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           uppercase={false}
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
@@ -46,7 +46,7 @@ class CategoryFormContainer extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      renderButton,
+      renderButton
     };
 
     return <CategoryForm {...updatedProps} />;
@@ -54,7 +54,7 @@ class CategoryFormContainer extends React.Component<Props> {
 }
 
 const getRefetchQueries = () => {
-  return ["jobCategories", "jobCategoriesTotalCount", "products"];
+  return ['jobCategories', 'jobCategoriesTotalCount', 'products'];
 };
 
 export default CategoryFormContainer;

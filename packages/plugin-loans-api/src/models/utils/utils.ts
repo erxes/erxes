@@ -1,9 +1,9 @@
-import { IContractDocument } from "../definitions/contracts";
-import { IDefaultScheduleParam } from "../definitions/schedules";
-import { IModels } from "../../connectionResolver";
-import { sendMessageBroker } from "../../messageBroker";
-import { BigNumber } from "bignumber.js";
-import * as moment from "moment";
+import { IContractDocument } from '../definitions/contracts';
+import { IDefaultScheduleParam } from '../definitions/schedules';
+import { IModels } from '../../connectionResolver';
+import { sendMessageBroker } from '../../messageBroker';
+import { BigNumber } from 'bignumber.js';
+import * as moment from 'moment';
 export const calcInterest = ({
   balance,
   interestRate,
@@ -29,17 +29,17 @@ export function isWeekend(date: Date) {
 }
 
 export function nextOffWeekend(date: Date) {
-  let nextDate = moment(date).add(1, "day"); // Start with the next day
+  let nextDate = moment(date).add(1, 'day'); // Start with the next day
   while (isWeekend(nextDate.toDate())) {
-    nextDate = nextDate.add(1, "day"); // Increment until we find a non-weekend day
+    nextDate = nextDate.add(1, 'day'); // Increment until we find a non-weekend day
   }
   return nextDate.toDate();
 }
 
 export function preOffWeekend(date: Date) {
-  let nextDate = moment(date).add(-1, "day"); // Start with the next day
+  let nextDate = moment(date).add(-1, 'day'); // Start with the next day
   while (isWeekend(nextDate.toDate())) {
-    nextDate = nextDate.add(-1, "day"); // Increment until we find a non-weekend day
+    nextDate = nextDate.add(-1, 'day'); // Increment until we find a non-weekend day
   }
   return nextDate.toDate();
 }
@@ -50,7 +50,7 @@ export const calcPerVirtual = (doc: IDefaultScheduleParam) => {
 
   const calcedInterest = calcInterest({
     balance: doc.leaseAmount,
-    interestRate: doc.interestRate,
+    interestRate: doc.interestRate
   });
 
   const totalPayment = loanPayment + calcedInterest;
@@ -59,7 +59,7 @@ export const calcPerVirtual = (doc: IDefaultScheduleParam) => {
     loanBalance,
     loanPayment,
     calcedInterest,
-    totalPayment,
+    totalPayment
   };
 };
 
@@ -111,7 +111,7 @@ export const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
   if (fDate.getMonth() === tDate.getMonth()) {
     return {
       diffEve: getDiffDay(fromDate, toDate),
-      diffNonce: 0,
+      diffNonce: 0
     };
   }
 
@@ -185,7 +185,7 @@ export const calcPerMonthEqual = async (
       loanBalance,
       calcedInterestEve: 0,
       calcedInterestNonce: 0,
-      totalPayment,
+      totalPayment
     };
   }
 
@@ -195,7 +195,7 @@ export const calcPerMonthEqual = async (
     balance,
     interestRate: doc.interestRate,
     dayOfMonth: diffDay,
-    fixed: calculationFixed,
+    fixed: calculationFixed
   });
 
   const { diffEve } = getDatesDiffMonth(currentDate, nextDay);
@@ -204,7 +204,7 @@ export const calcPerMonthEqual = async (
     balance,
     interestRate: doc.interestRate,
     dayOfMonth: diffEve,
-    fixed: calculationFixed,
+    fixed: calculationFixed
   });
 
   const calcedInterestNonce = new BigNumber(interest)
@@ -227,7 +227,7 @@ export const calcPerMonthEqual = async (
     loanBalance,
     calcedInterestEve,
     calcedInterestNonce,
-    totalPayment,
+    totalPayment
   };
 };
 
@@ -236,7 +236,7 @@ export const getEqualPay = async ({
   interestRate,
   leaseAmount,
   paymentDates,
-  calculationFixed,
+  calculationFixed
 }: {
   startDate: Date;
   interestRate: number;
@@ -254,7 +254,7 @@ export const getEqualPay = async ({
     return 0;
   }
 
-  let currentDate = getFullDate(moment(startDate).add(-1, "day").toDate());
+  let currentDate = getFullDate(moment(startDate).add(-1, 'day').toDate());
   let mainRatio = new BigNumber(0);
   let ratio = 1;
   for (const nextDay of paymentDates) {
@@ -299,21 +299,21 @@ export const calcPerMonthFixed = async (
       loanBalance,
       loanPayment,
       calcedInterestEve: 0,
-      calcedInterestNonce: 0,
+      calcedInterestNonce: 0
     };
   }
   const diffDay = getDiffDay(currentDate, nextDay);
   const interest = calcInterest({
     balance,
     interestRate: doc.interestRate,
-    dayOfMonth: diffDay,
+    dayOfMonth: diffDay
   });
 
   const { diffEve, diffNonce } = getDatesDiffMonth(currentDate, nextDay);
   const calcedInterestEve = calcInterest({
     balance,
     interestRate: doc.interestRate,
-    dayOfMonth: diffEve,
+    dayOfMonth: diffEve
   });
 
   const calcedInterestNonce = new BigNumber(interest)
@@ -335,15 +335,15 @@ export const calcPerMonthFixed = async (
     loanBalance,
     loanPayment,
     calcedInterestEve,
-    calcedInterestNonce,
+    calcedInterestNonce
   };
 };
 
 export const generateRandomString = (len: number = 10) => {
   const charSet =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-  let randomString = "";
+  let randomString = '';
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -366,26 +366,26 @@ export const getRandomNumber = () => {
 
 export const getNumber = async (models: IModels, contractTypeId: string) => {
   const preNumbered = await models.Contracts.findOne({
-    contractTypeId: contractTypeId,
+    contractTypeId: contractTypeId
   }).sort({ createdAt: -1 });
 
   const type = await models.ContractTypes.getContractType({
-    _id: contractTypeId,
+    _id: contractTypeId
   });
 
   if (!preNumbered) {
-    return `${type.number}${"0".repeat(type.vacancy - 1)}1`;
+    return `${type.number}${'0'.repeat(type.vacancy - 1)}1`;
   }
 
   const preNumber = preNumbered.number;
-  const preInt = Number(preNumber.replace(type.number, ""));
+  const preInt = Number(preNumber.replace(type.number, ''));
 
   const preStrLen = String(preInt).length;
   let lessLen = type.vacancy - preStrLen;
 
   if (lessLen < 0) lessLen = 0;
 
-  return `${type.number}${"0".repeat(lessLen)}${preInt + 1}`;
+  return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`;
 };
 
 export const getLossPercent = async (
@@ -398,16 +398,16 @@ export const getLossPercent = async (
     (await sendMessageBroker(
       {
         subdomain,
-        action: "configs.findOne",
+        action: 'configs.findOne',
         data: {
           query: {
-            code: "lossConfig",
+            code: 'lossConfig'
           },
         },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       },
-      "core"
+      'core'
     )) || {};
 
   const lossConfigs = Object.values<{
@@ -433,7 +433,7 @@ export const getLossPercent = async (
   if (contract.lossPercent > 0) return contract.lossPercent / 100;
 
   const contractType = await models.ContractTypes.findOne({
-    _id: contract.contractTypeId,
+    _id: contract.contractTypeId
   }).lean();
 
   if (contractType?.lossPercent && contractType?.lossPercent > 0)

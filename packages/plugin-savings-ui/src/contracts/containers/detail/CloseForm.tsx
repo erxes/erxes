@@ -1,11 +1,11 @@
-import { ButtonMutate } from "@erxes/ui/src";
-import { __ } from "coreui/utils";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { gql, useQuery } from "@apollo/client";
-import React, { useEffect, useState } from "react";
-import CloseForm from "../../components/detail/CloseForm";
-import { mutations, queries } from "../../graphql";
-import { CloseInfoQueryResponse, IContract } from "../../types";
+import { ButtonMutate } from '@erxes/ui/src';
+import { __ } from 'coreui/utils';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { gql, useQuery } from '@apollo/client';
+import React, { useEffect, useState } from 'react';
+import CloseForm from '../../components/detail/CloseForm';
+import { mutations, queries } from '../../graphql';
+import { CloseInfoQueryResponse, IContract } from '../../types';
 
 type Props = {
   contract: IContract;
@@ -21,15 +21,15 @@ const CloseFromContainer = (props: Props) => {
     {
       variables: {
         contractId: contract._id,
-        date: new Date(),
+        date: new Date()
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }
   );
 
   useEffect(() => {
     closeInfoQuery.refetch({
-      closeDate,
+      closeDate
     });
   }, [closeDate]);
 
@@ -45,10 +45,10 @@ const CloseFromContainer = (props: Props) => {
         callback={afterSave}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
-        type="submit"
+        type='submit'
         successMessage={__(`You successfully closed this contract`)}
       >
-        {__("Save")}
+        {__('Save')}
       </ButtonMutate>
     );
   };
@@ -69,7 +69,7 @@ const CloseFromContainer = (props: Props) => {
     renderButton,
     closeInfo,
     onChangeDate,
-    closeDate,
+    closeDate
   };
 
   return <CloseForm {...updatedProps} />;
@@ -77,12 +77,12 @@ const CloseFromContainer = (props: Props) => {
 
 const getRefetchQueries = () => {
   return [
-    "contractsMain",
-    "contractDetail",
-    "contracts",
-    "contractCounts",
-    "activityLogs",
-    "schedules",
+    'contractsMain',
+    'contractDetail',
+    'contracts',
+    'contractCounts',
+    'activityLogs',
+    'schedules'
   ];
 };
 

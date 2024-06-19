@@ -1,11 +1,11 @@
-import BigNumber from "bignumber.js";
-import { IModels } from "../../connectionResolver";
+import BigNumber from 'bignumber.js';
+import { IModels } from '../../connectionResolver';
 
 export const calcInterest = ({
   balance,
   interestRate,
   dayOfMonth = 30,
-  fixed = 2,
+  fixed = 2
 }: {
   balance: number;
   interestRate: number;
@@ -68,7 +68,7 @@ export const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
   if (fDate.getMonth() === tDate.getMonth()) {
     return {
       diffEve: getDiffDay(fromDate, toDate),
-      diffNonce: 0,
+      diffNonce: 0
     };
   }
 
@@ -78,7 +78,7 @@ export const getDatesDiffMonth = (fromDate: Date, toDate: Date) => {
 
   return {
     diffEve: getDiffDay(fromDate, lastDate),
-    diffNonce: getDiffDay(lastDate, toDate),
+    diffNonce: getDiffDay(lastDate, toDate)
   };
 };
 
@@ -90,9 +90,9 @@ export const getDiffDay = (fromDate: Date, toDate: Date) => {
 
 export const generateRandomString = (len: number = 10) => {
   const charSet =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-  let randomString = "";
+  let randomString = '';
 
   for (let i = 0; i < len; i++) {
     const position = Math.floor(Math.random() * charSet.length);
@@ -115,24 +115,24 @@ export const getRandomNumber = () => {
 
 export const getNumber = async (models: IModels, contractTypeId: string) => {
   const preNumbered = await models.Contracts.findOne({
-    contractTypeId: contractTypeId,
+    contractTypeId: contractTypeId
   }).sort({ createdAt: -1 });
 
   const type = await models.ContractTypes.getContractType({
-    _id: contractTypeId,
+    _id: contractTypeId
   });
 
   if (!preNumbered) {
-    return `${type.number}${"0".repeat(type.vacancy - 1)}1`;
+    return `${type.number}${'0'.repeat(type.vacancy - 1)}1`;
   }
 
   const preNumber = preNumbered.number;
-  const preInt = Number(preNumber.replace(type.number, ""));
+  const preInt = Number(preNumber.replace(type.number, ''));
 
   const preStrLen = String(preInt).length;
   let lessLen = type.vacancy - preStrLen;
 
   if (lessLen < 0) lessLen = 0;
 
-  return `${type.number}${"0".repeat(lessLen)}${preInt + 1}`;
+  return `${type.number}${'0'.repeat(lessLen)}${preInt + 1}`;
 };

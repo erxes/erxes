@@ -2,10 +2,10 @@ import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog,
-} from "@erxes/api-utils/src/logUtils";
+} from '@erxes/api-utils/src/logUtils';
 
-import { IModels } from "./connectionResolver";
-import { IUserDocument } from "@erxes/api-utils/src/types";
+import { IModels } from './connectionResolver';
+import { IUserDocument } from '@erxes/api-utils/src/types';
 
 export type LogDesc = {
   [key: string]: any;

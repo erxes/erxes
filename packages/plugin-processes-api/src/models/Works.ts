@@ -1,6 +1,6 @@
-import { Model } from "mongoose";
-import { IModels } from "../connectionResolver";
-import { IWork, IWorkDocument, workSchema } from "./definitions/works";
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { IWork, IWorkDocument, workSchema } from './definitions/works';
 
 export interface IWorkModel extends Model<IWorkDocument> {
   getWork(_id: string): Promise<IWorkDocument>;
@@ -18,7 +18,7 @@ export const loadWorkClass = (models: IModels) => {
       const work = await models.Works.findOne({ _id });
 
       if (!work) {
-        throw new Error("Work not found");
+        throw new Error('Work not found');
       }
 
       return work;
@@ -30,7 +30,7 @@ export const loadWorkClass = (models: IModels) => {
     public static async createWork(doc: IWork) {
       const work = await models.Works.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return work;

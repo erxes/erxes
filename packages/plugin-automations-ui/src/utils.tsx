@@ -1,55 +1,55 @@
-import React from "react";
-import { ITrigger } from "./types";
-import { IAction } from "@erxes/ui-automations/src/types";
-import { confirm, Alert } from "@erxes/ui/src/utils";
-import { rgba } from "@erxes/ui/src/styles/ecolor";
-import { colors } from "@erxes/ui/src/styles";
-import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import React from 'react';
+import { ITrigger } from './types';
+import { IAction } from '@erxes/ui-automations/src/types';
+import { confirm, Alert } from '@erxes/ui/src/utils';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { colors } from '@erxes/ui/src/styles';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 export const connectorPaintStyle = {
   strokeWidth: 2,
-  stroke: "#a1a1a1",
+  stroke: '#a1a1a1',
 };
 
 export const hoverPaintStyle = {
-  fill: colors.colorPrimary,
+  fill: colors.colorPrimary
 };
 
 export const connectorHoverStyle = {
-  stroke: colors.colorPrimary,
+  stroke: colors.colorPrimary
 };
 
 export const sourceEndpoint = {
-  endpoint: "Dot",
+  endpoint: 'Dot',
   paintStyle: {
     fill: rgba(colors.colorSecondary, 1),
-    radius: 10,
+    radius: 10
   },
   isSource: true,
   connector: [
-    "Bezier",
+    'Bezier',
     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true },
   ],
   connectorStyle: connectorPaintStyle,
   hoverPaintStyle,
   connectorHoverStyle,
   dropOptions: {
-    tolerance: "touch",
-    hoverClass: "dropHover",
-    activeClass: "dragActive",
+    tolerance: 'touch',
+    hoverClass: 'dropHover',
+    activeClass: 'dragActive'
   },
 };
 
 export const yesEndPoint = {
-  endpoint: "Dot",
+  endpoint: 'Dot',
   paintStyle: {
     fill: rgba(colors.colorCoreGreen, 1),
-    radius: 10,
+    radius: 10
   },
   isSource: true,
   connector: [
-    "Bezier",
-    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true },
+    'Bezier',
+    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
   hoverPaintStyle,
@@ -57,13 +57,13 @@ export const yesEndPoint = {
   anchor: [1, 0.3],
   overlays: [
     [
-      "Label",
+      'Label',
       {
         location: [1.8, 0.5],
-        label: "True",
+        label: 'True',
         visible: true,
         labelStyle: {
-          color: colors.colorCoreGreen,
+          color: colors.colorCoreGreen
         },
       },
     ],
@@ -71,15 +71,15 @@ export const yesEndPoint = {
 };
 
 export const noEndPoint = {
-  endpoint: "Dot",
+  endpoint: 'Dot',
   paintStyle: {
     fill: rgba(colors.colorCoreRed, 1),
-    radius: 10,
+    radius: 10
   },
   isSource: true,
   connector: [
-    "Bezier",
-    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true },
+    'Bezier',
+    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
   ],
   connectorStyle: connectorPaintStyle,
   hoverPaintStyle,
@@ -87,13 +87,13 @@ export const noEndPoint = {
   anchor: [1, 0.7],
   overlays: [
     [
-      "Label",
+      'Label',
       {
         location: [1.9, 0.6],
-        label: "False",
+        label: 'False',
         visible: true,
         labelStyle: {
-          color: colors.colorCoreRed,
+          color: colors.colorCoreRed
         },
       },
     ],
@@ -102,14 +102,14 @@ export const noEndPoint = {
 
 // the definition of target endpoints (will appear when the user drags a connection)
 export const targetEndpoint = {
-  endpoint: "Dot",
+  endpoint: 'Dot',
   paintStyle: { fill: rgba(colors.colorCoreYellow, 1), radius: 10 },
   hoverPaintStyle: {
-    fill: colors.colorPrimary,
+    fill: colors.colorPrimary
   },
   maxConnections: -1,
-  dropOptions: { hoverClass: "hover", activeClass: "active" },
-  isTarget: true,
+  dropOptions: { hoverClass: 'hover', activeClass: 'active' },
+  isTarget: true
 };
 
 export const createInitialConnections = (
@@ -122,19 +122,19 @@ export const createInitialConnections = (
       instance.connect({
         source: `trigger-${trigger.id}`,
         target: `action-${trigger.actionId}`,
-        anchors: ["Right", "Left"],
+        anchors: ['Right', 'Left']
       });
     }
   }
 
   for (const action of actions) {
-    if (action.type === "if") {
+    if (action.type === 'if') {
       if (action.config) {
         if (action.config.yes) {
           instance.connect({
             source: `action-${action.id}`,
             target: `action-${action.config.yes}`,
-            anchors: [[1, 0.3], "Left"],
+            anchors: [[1, 0.3], 'Left']
           });
         }
 
@@ -142,7 +142,7 @@ export const createInitialConnections = (
           instance.connect({
             source: `action-${action.id}`,
             target: `action-${action.config.no}`,
-            anchors: [[1, 0.7], "Left"],
+            anchors: [[1, 0.7], 'Left']
           });
         }
       }
@@ -151,7 +151,7 @@ export const createInitialConnections = (
         instance.connect({
           source: `action-${action.id}`,
           target: `action-${action.nextActionId}`,
-          anchors: ["Right", "Left"],
+          anchors: ['Right', 'Left']
         });
       }
     }
@@ -166,7 +166,7 @@ export const connection = (
 ) => {
   const { sourceId, type, connectType } = info || {};
 
-  if (type === "trigger") {
+  if (type === 'trigger') {
     const trigger = triggers.find((t) => t.id.toString() === sourceId);
 
     if (trigger) {
@@ -176,12 +176,12 @@ export const connection = (
     const sourceAction = actions.find((a) => a.id.toString() === sourceId);
 
     if (sourceAction) {
-      if (sourceAction.type === "if") {
+      if (sourceAction.type === 'if') {
         if (!sourceAction.config) {
           sourceAction.config = {};
         }
 
-        const [sourceHandle] = info.sourceHandle.split("-");
+        const [sourceHandle] = info.sourceHandle.split('-');
 
         sourceAction.config[sourceHandle] = actionId;
       }
@@ -210,7 +210,7 @@ export const connection = (
           updatedOptionalConnects.push({
             sourceId,
             actionId,
-            optionalConnectId: info?.optionalConnectId,
+            optionalConnectId: info?.optionalConnectId
           });
         }
 
@@ -239,12 +239,12 @@ export const connection = (
 };
 
 export const deleteConnection = (instance) => {
-  instance.bind("click", (conn, event) => {
+  instance.bind('click', (conn, event) => {
     confirm(
-      "Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"
+      'Delete connection from ' + conn.sourceId + ' to ' + conn.targetId + '?'
     )
       .then(() => instance.deleteConnection(conn))
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   });
@@ -255,13 +255,13 @@ export const getTriggerType = (
   triggers: any,
   activeActionId: string
 ) => {
-  const activeTrigger = triggers.find((t) => t.actionId === activeActionId);
+  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
 
   if (activeTrigger) {
     return activeTrigger.type;
   }
 
-  const activeAction = actions.find((t) => t.nextActionId === activeActionId);
+  const activeAction = actions.find(t => t.nextActionId === activeActionId);
 
   if (activeAction) {
     return getTriggerType(actions, triggers, activeAction.id);
@@ -277,13 +277,13 @@ export const getTriggerConfig = (
   triggers: any,
   activeActionId: string
 ) => {
-  const activeTrigger = triggers.find((t) => t.actionId === activeActionId);
+  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
 
   if (activeTrigger) {
     return activeTrigger?.config;
   }
 
-  const activeAction = actions.find((t) => t.nextActionId === activeActionId);
+  const activeAction = actions.find(t => t.nextActionId === activeActionId);
 
   if (activeAction) {
     return getTriggerType(actions, triggers, activeAction.id);
@@ -304,7 +304,7 @@ export const renderDynamicComponent = (props, type) => {
           scope={plugin.scope}
           component={plugin.automation}
           injectedProps={{
-            ...props,
+            ...props
           }}
         />
       );

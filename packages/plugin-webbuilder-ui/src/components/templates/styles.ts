@@ -1,7 +1,7 @@
-import { colors } from "@erxes/ui/src/styles";
+import { colors } from '@erxes/ui/src/styles';
 
-import { rgba } from "@erxes/ui/src/styles/ecolor";
-import styled from "styled-components";
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
 
 const TemplateBox = styled.div`
   width: 100%;

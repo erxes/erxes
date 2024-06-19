@@ -1,5 +1,5 @@
-import * as xlsxPopulate from "xlsx-populate";
-import { reportChartGetResult } from "./graphql/resolvers/utils";
+import * as xlsxPopulate from 'xlsx-populate';
+import { reportChartGetResult } from './graphql/resolvers/utils';
 
 /**
  * Creates blank workbook
@@ -39,16 +39,16 @@ const addIntoSheet = async (
 };
 
 const prepareHeader = async (sheet: any, title: string) => {
-  const header = ["Team member", title];
+  const header = ['Team member', title];
 
-  sheet.column("A").width(40);
+  sheet.column('A').width(40);
 
-  addIntoSheet([header], "A1", "B1", sheet);
+  addIntoSheet([header], 'A1', 'B1', sheet);
 };
 
 const isArrayPrimitive = (arr) => {
   for (let i of arr) {
-    if (typeof i !== "object" && typeof i !== "function") {
+    if (typeof i !== 'object' && typeof i !== 'function') {
       return true; // If a non-object element is found, return true (primitive type)
     }
   }
@@ -89,6 +89,6 @@ export const buildFile = async (subdomain: string, params: any) => {
 
   return {
     name: `${toCamelCase(title)}`,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };

@@ -1,14 +1,14 @@
-import fetch from "node-fetch";
-import { sendCommonMessage } from "./messageBroker";
+import fetch from 'node-fetch';
+import { sendCommonMessage } from './messageBroker';
 
 export default {
   constants: {
     actions: [
       {
-        type: "webhooks:webhook.create",
-        icon: "send",
-        label: "Create webhook",
-        description: "Create webhook",
+        type: 'webhooks:webhook.create',
+        icon: 'send',
+        label: 'Create webhook',
+        description: 'Create webhook',
         isAvailable: true,
       },
     ],
@@ -18,7 +18,7 @@ export default {
 
     const { triggerType } = execution;
 
-    const [serviceName, contentType] = triggerType.split(":");
+    const [serviceName, contentType] = triggerType.split(':');
 
     let { target } = execution;
     const { config } = action;
@@ -29,7 +29,7 @@ export default {
       const replacedContent = await sendCommonMessage({
         subdomain,
         serviceName,
-        action: "automations.replacePlaceHolders",
+        action: 'automations.replacePlaceHolders',
         data: {
           target: { ...specifiedFields, _id: target?._id, type: contentType },
           config: specifiedFields,
@@ -52,25 +52,25 @@ export default {
     }, {});
 
     try {
-      await fetch(url + "?" + new URLSearchParams(params), {
-        method: method || "POST",
+      await fetch(url + '?' + new URLSearchParams(params), {
+        method: method || 'POST',
         headers: {
           ...headers,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          actionType: "automations.webhook",
+          actionType: 'automations.webhook',
           triggerType,
           data: target,
         }),
       });
       return {
         url,
-        method: method || "POST",
+        method: method || 'POST',
         headers,
         params,
         data: target,
-        status: "success",
+        status: 'success',
       };
     } catch (error) {
       return error.message;

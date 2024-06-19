@@ -51,7 +51,7 @@ export const loadTransactionClass = (models: IModels) => {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.payDate },
+        date: { $gte: doc.payDate }
       })
         .sort({ date: -1 })
         .lean();
@@ -59,7 +59,7 @@ export const loadTransactionClass = (models: IModels) => {
       await checkTransactionValidation(periodLock, doc, subdomain);
 
       const contract = await models.Contracts.findOne({
-        _id: doc.contractId,
+        _id: doc.contractId
       }).lean<IContractDocument>();
 
       if (!contract) throw new Error("Contract not found");
@@ -109,7 +109,7 @@ export const loadTransactionClass = (models: IModels) => {
       doc = { ...doc, ...(await findContractOfTr(models, doc)) };
 
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.payDate },
+        date: { $gte: doc.payDate }
       })
         .sort({ date: -1 })
         .lean();
@@ -124,11 +124,11 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       const oldTr = await models.Transactions.getTransaction({
-        _id,
+        _id
       });
 
       const contract = await models.Contracts.findOne({
-        _id: doc.contractId,
+        _id: doc.contractId
       }).lean();
       if (!contract || !contract._id) {
         await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
@@ -138,7 +138,7 @@ export const loadTransactionClass = (models: IModels) => {
       await removeTrAfterSchedule(models, oldTr);
 
       const newTr = await models.Transactions.getTransaction({
-        _id,
+        _id
       });
 
       return newTr;
@@ -149,11 +149,11 @@ export const loadTransactionClass = (models: IModels) => {
      */
     public static async changeTransaction(_id: string, doc) {
       const oldTr = await models.Transactions.getTransaction({
-        _id,
+        _id
       });
 
       const periodLock = await models.PeriodLocks.findOne({
-        date: { $gte: oldTr.payDate },
+        date: { $gte: oldTr.payDate }
       })
         .sort({ date: -1 })
         .lean();
@@ -167,7 +167,7 @@ export const loadTransactionClass = (models: IModels) => {
         );
 
       const contract = await models.Contracts.findOne({
-        _id: oldTr.contractId,
+        _id: oldTr.contractId
       }).lean();
 
       if (!contract || !contract._id) {

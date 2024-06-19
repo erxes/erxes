@@ -1,12 +1,12 @@
-import * as compose from "lodash.flowright";
-import Form from "../components/Form";
-import React from "react";
-import { ButtonMutate } from "@erxes/ui/src/components";
-import { withProps } from "@erxes/ui/src/utils";
-import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
-import { IDonate } from "../types";
-import { mutations } from "../graphql";
-import { UsersQueryResponse, IUser } from "@erxes/ui/src/auth/types";
+import * as compose from 'lodash.flowright';
+import Form from '../components/Form';
+import React from 'react';
+import { ButtonMutate } from '@erxes/ui/src/components';
+import { withProps } from '@erxes/ui/src/utils';
+import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
+import { IDonate } from '../types';
+import { mutations } from '../graphql';
+import { UsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   donate: IDonate;
@@ -26,7 +26,7 @@ class DonateFromContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      object,
+      object
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedDonate } = this.props;
 
@@ -45,9 +45,9 @@ class DonateFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
@@ -55,7 +55,7 @@ class DonateFromContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      renderButton,
+      renderButton
     };
     return <Form {...updatedProps} />;
   }
@@ -63,13 +63,13 @@ class DonateFromContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    "donatesMain",
-    "donateDetail",
+    'donatesMain',
+    'donateDetail',
     // donates for customer detail donate associate
-    "donates",
-    "donateCounts",
-    "donateCampaigns",
-    "donateCampaignsTotalCount",
+    'donates',
+    'donateCounts',
+    'donateCampaigns',
+    'donateCampaignsTotalCount'
   ];
 };
 

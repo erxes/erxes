@@ -1,9 +1,9 @@
-import { gql, useQuery } from "@apollo/client";
-import { Bulk } from "@erxes/ui/src";
-import React, { useState } from "react";
-import SchedulesList from "../components/schedules/SchedulesList";
-import { queries } from "../graphql";
-import { SchedulesQueryResponse } from "../types";
+import { gql, useQuery } from '@apollo/client';
+import { Bulk } from '@erxes/ui/src';
+import React, { useState } from 'react';
+import SchedulesList from '../components/schedules/SchedulesList';
+import { queries } from '../graphql';
+import { SchedulesQueryResponse } from '../types';
 
 type Props = {
   contractId: string;
@@ -21,9 +21,9 @@ const SchedulesListContainer = (props: Props) => {
       variables: {
         contractId,
         isFirst,
-        year: new Date().getFullYear(),
+        year: new Date().getFullYear()
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }
   );
 
@@ -32,7 +32,7 @@ const SchedulesListContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     transactions,
-    loading: schedulesQuery.loading || loading,
+    loading: schedulesQuery.loading || loading
   };
 
   const contractsList = (props) => {

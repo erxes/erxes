@@ -1,9 +1,9 @@
-import { IContext } from "../../../connectionResolver";
+import { IContext } from '../../../connectionResolver';
 import {
   IContractType,
-  IContractTypeDocument,
-} from "../../../models/definitions/contractTypes";
-import { createLog, deleteLog, updateLog } from "../../../logUtils";
+  IContractTypeDocument
+} from '../../../models/definitions/contractTypes';
+import { createLog, deleteLog, updateLog } from '../../../logUtils';
 
 const contractTypeMutations = {
   savingsContractTypesAdd: async (
@@ -14,10 +14,10 @@ const contractTypeMutations = {
     const contractType = await models.ContractTypes.createContractType(doc);
 
     const logData = {
-      type: "contractType",
+      type: 'contractType',
       newData: doc,
       object: contractType,
-      extraParams: { models },
+      extraParams: { models }
     };
 
     await createLog(subdomain, user, logData);
@@ -34,15 +34,15 @@ const contractTypeMutations = {
     { models, user, subdomain }: IContext
   ) => {
     const contractType = await models.ContractTypes.getContractType({
-      _id,
+      _id
     });
     const updated = await models.ContractTypes.updateContractType(_id, doc);
 
     const logData = {
-      type: "contractType",
+      type: 'contractType',
       newData: doc,
       object: contractType,
-      extraParams: { models },
+      extraParams: { models }
     };
 
     await updateLog(subdomain, user, logData);
@@ -61,16 +61,16 @@ const contractTypeMutations = {
   ) => {
     // TODO: contracts check
     const contractTypes = await models.ContractTypes.find({
-      _id: { $in: contractTypeIds },
+      _id: { $in: contractTypeIds }
     }).lean();
 
     await models.ContractTypes.removeContractTypes(contractTypeIds);
 
     for (const contractType of contractTypes) {
       const logData = {
-        type: "contractType",
+        type: 'contractType',
         object: contractType,
-        extraParams: { models },
+        extraParams: { models }
       };
       await deleteLog(subdomain, user, logData);
     }

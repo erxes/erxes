@@ -1,7 +1,7 @@
-import { Button, Table } from "@erxes/ui/src";
-import React from "react";
-import { TableContainer } from "../../../../styles";
-import { ILottery } from "../../types";
+import { Button, Table } from '@erxes/ui/src';
+import React from 'react';
+import { TableContainer } from '../../../../styles';
+import { ILottery } from '../../types';
 interface IProps {
   lists: ILottery[];
 }
@@ -24,7 +24,7 @@ class WinnersAwardList extends React.Component<IProps> {
               <tr>
                 <td>{list?.owner.email}</td>
                 <td>
-                  <Button btnStyle="white" icon="ellipsis-h" />
+                  <Button btnStyle='white' icon='ellipsis-h' />
                 </td>
               </tr>
             ))}

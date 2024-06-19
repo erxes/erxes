@@ -1,18 +1,18 @@
-import Alert from "@erxes/ui/src/utils/Alert";
-import CheckSyncedOrders from "../components/syncedOrders/CheckSyncedOrders";
-import React, { useState } from "react";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { Bulk } from "@erxes/ui/src/components";
+import Alert from '@erxes/ui/src/utils/Alert';
+import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
+import React, { useState } from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { Bulk } from '@erxes/ui/src/components';
 import {
   CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
-  ToSyncOrdersMutationResponse,
-} from "../types";
-import { mutations, queries } from "../graphql";
-import { router } from "@erxes/ui/src/utils/core";
-import { useQuery, useMutation, gql } from "@apollo/client";
+  ToSyncOrdersMutationResponse
+} from '../types';
+import { mutations, queries } from '../graphql';
+import { router } from '@erxes/ui/src/utils/core';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   queryParams: any;
@@ -34,7 +34,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
     gql(queries.checkSyncOrders),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only'
     }
   );
 
@@ -43,7 +43,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
       gql(queries.checkSyncOrdersTotalCount),
       {
         variables: generateParams({ queryParams }),
-        fetchPolicy: "network-only",
+        fetchPolicy: 'network-only'
       }
     );
 
@@ -60,7 +60,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
   // remove action
   const checkSynced = async ({ orderIds }, emptyBulk) => {
     await toMultiCheckSynced({
-      variables: { ids: orderIds, type: "pos" },
+      variables: { ids: orderIds, type: 'pos' },
     })
       .then((response) => {
         emptyBulk();
@@ -127,7 +127,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
     unSyncedOrderIds: unSyncedOrderIds,
     syncedOrderInfos: syncedOrderInfos,
     toSyncOrders,
-    posList: posListQuery?.data?.posList,
+    posList: posListQuery?.data?.posList
   };
 
   const content = (props) => <CheckSyncedOrders {...props} {...updatedProps} />;
@@ -150,7 +150,7 @@ const generateParams = ({ queryParams }) => {
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined,
     page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20,
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
   };
 };
 

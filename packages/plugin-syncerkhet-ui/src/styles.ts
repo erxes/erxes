@@ -1,5 +1,5 @@
-import { dimensions } from "@erxes/ui/src/styles";
-import styled from "styled-components";
+import { dimensions } from '@erxes/ui/src/styles';
+import styled from 'styled-components';
 
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
@@ -43,7 +43,7 @@ export const CustomRangeContainer = styled.div`
   > div {
     flex: 1;
     margin-right: 8px;
-    input[type="text"] {
+    input[type='text'] {
       border: none;
       width: 100%;
       height: 34px;

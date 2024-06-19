@@ -18,7 +18,7 @@ const TemplateFormContainer = (props: FinalProps) => {
   const renderButton = ({
     values,
     isSubmitted,
-    callback,
+    callback
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -29,7 +29,7 @@ const TemplateFormContainer = (props: FinalProps) => {
           {
             query: gql(queries.automations),
             variables: {
-              status: "template",
+              status: "template"
             },
           },
         ]}
@@ -43,7 +43,7 @@ const TemplateFormContainer = (props: FinalProps) => {
 
   const extendedProps = {
     ...props,
-    renderButton,
+    renderButton
   };
 
   return <TemplateForm {...extendedProps} />;

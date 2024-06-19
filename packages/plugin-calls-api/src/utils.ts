@@ -1,11 +1,11 @@
-import * as jwt from "jsonwebtoken";
-import fetch from "node-fetch";
-import * as crypto from "crypto";
-import redis from "@erxes/api-utils/src/redis";
-import { getEnv } from "@erxes/api-utils/src/core";
-import * as FormData from "form-data";
-import * as moment from "moment";
-import type { RequestInit, HeadersInit } from "node-fetch";
+import * as jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
+import * as crypto from 'crypto';
+import redis from '@erxes/api-utils/src/redis';
+import { getEnv } from '@erxes/api-utils/src/core';
+import * as FormData from 'form-data';
+import * as moment from 'moment';
+import type { RequestInit, HeadersInit } from 'node-fetch';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const CALL_API_EXPIRY = 10 * 60; // 10 minutes
@@ -302,9 +302,9 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         ['QUEUE', 'TRANSFERED'].some((substring) =>
           lastCreatedObject?.action_type?.includes(substring),
         ) &&
-        !(transferedCallStatus === "remote" && callType === "incoming")
+        !(transferedCallStatus === 'remote' && callType === 'incoming')
       ) {
-        fileDir = "queue";
+        fileDir = 'queue';
       }
       const recordfiles = lastCreatedObject?.recordfiles;
       if (!recordfiles) throw new Error('Record files not found');
@@ -315,12 +315,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const records = await sendToGrandStream(
         models,
         {
-          path: "api",
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          path: 'api',
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           data: {
             request: {
-              action: "recapi",
+              action: 'recapi',
               filedir: fileDir,
               filename: fileNameWithoutExtension,
             },

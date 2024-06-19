@@ -1,5 +1,5 @@
-import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
-import React from "react";
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import React from 'react';
 
 const renderInvoices = (activity: IActivityLog) => {
   return <div></div>;
@@ -8,8 +8,8 @@ const renderInvoices = (activity: IActivityLog) => {
 const activityItem = (activity: IActivityLog) => {
   const { contentType, action } = activity;
 
-  console.log("action", action);
-  console.log("contentType", contentType);
+  console.log('action', action);
+  console.log('contentType', contentType);
 
   if ((action && action) || contentType) {
     return renderInvoices(activity);

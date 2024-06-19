@@ -1,6 +1,6 @@
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { colors, dimensions } from "@erxes/ui/src/styles/";
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { colors, dimensions } from '@erxes/ui/src/styles/';
 
 export const LoyaltyAmount = styled.div`
   font-weight: 500;
@@ -97,7 +97,7 @@ export const Row = styled.div`
 
 export const Badge = styled.div`
   border-radius: 15px;
-  background-color: ${(props) => props.color};
+  background-color: ${props => props.color};
   font-size: 11px;
   max-width: 50px;
   color: white;
@@ -151,7 +151,7 @@ export const Indicator = styledTS<{ color: string }>(styled.div)`
   border-radius: 50%;
   width: 10px; 
   height: 10px;
-  background: ${(props) => props.color}
+  background: ${props => props.color}
 `;
 
 export const FormFooter = styled.div`

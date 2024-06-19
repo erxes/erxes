@@ -5,23 +5,23 @@ import {
   ModalTrigger,
   MainStyleButtonRelated as ButtonRelated,
   SectionBodyItem,
-  Alert,
-} from "@erxes/ui/src";
-import React from "react";
-import { Link } from "react-router-dom";
-import ContractChooser from "../../containers/ContractChooser";
-import { mutations, queries } from "../../graphql";
+  Alert
+} from '@erxes/ui/src';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import ContractChooser from '../../containers/ContractChooser';
+import { mutations, queries } from '../../graphql';
 import {
   EditMutationResponse,
   IContract,
   IContractDoc,
-  MainQueryResponse,
-} from "../../types";
-import { can } from "@erxes/ui/src/utils/core";
-import withConsumer from "../../../withConsumer";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { __ } from "coreui/utils";
-import { useQuery, useMutation, gql } from "@apollo/client";
+  MainQueryResponse
+} from '../../types';
+import { can } from '@erxes/ui/src/utils/core';
+import withConsumer from '../../../withConsumer';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'coreui/utils';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   name: string;
@@ -39,27 +39,27 @@ function Component(
   this: any,
   {
     name,
-    mainType = "",
-    mainTypeId = "",
+    mainType = '',
+    mainTypeId = '',
     collapseCallback,
     title,
-    currentUser,
+    currentUser
   }: Props
 ) {
   const contractsQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
     {
-      fetchPolicy: "network-only",
+      fetchPolicy: 'network-only',
       variables:
-        mainType === "customer" || mainType === "company"
+        mainType === 'customer' || mainType === 'company'
           ? { customerId: mainTypeId }
-          : { dealId: mainTypeId },
+          : { dealId: mainTypeId }
     }
   );
 
   const [contractsDealEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsDealEdit),
-    { refetchQueries: ["contractsMain"] }
+    { refetchQueries: ['contractsMain'] }
   );
 
   const renderContractChooser = (props) => {
@@ -70,7 +70,7 @@ function Component(
           name,
           contracts: contractsQuery?.data?.savingsContractsMain?.list,
           mainType,
-          mainTypeId,
+          mainTypeId
         }}
         onSelect={(contracts: IContractDoc[]) => {
           contractsDealEdit({
@@ -115,30 +115,30 @@ function Component(
 
   const contractTrigger = (
     <button>
-      <Icon icon="plus-circle" />
+      <Icon icon='plus-circle' />
     </button>
   );
 
   const relContractTrigger = (
     <ButtonRelated>
-      <span>{__("See related contracts..")}</span>
+      <span>{__('See related contracts..')}</span>
     </ButtonRelated>
   );
 
-  const quickButtons = can("contractsDealEdit", currentUser) && (
+  const quickButtons = can('contractsDealEdit', currentUser) && (
     <ModalTrigger
-      title="Associate"
+      title='Associate'
       trigger={contractTrigger}
-      size="lg"
+      size='lg'
       content={renderContractChooser}
     />
   );
 
   const relQuickButtons = (
     <ModalTrigger
-      title="Related Associate"
+      title='Related Associate'
       trigger={relContractTrigger}
-      size="lg"
+      size='lg'
       content={renderRelatedContractChooser}
     />
   );
@@ -149,14 +149,14 @@ function Component(
         (contract, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/erxes-plugin-saving/contract-details/${contract._id}`}>
-              <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
-              <span>{contract.number || "Unknown"}</span>
+              <Icon icon='arrow-to-right' style={{ marginRight: 5 }} />
+              <span>{contract.number || 'Unknown'}</span>
             </Link>
           </SectionBodyItem>
         )
       )}
       {contractsQuery?.data?.savingsContractsMain?.list.length === 0 && (
-        <EmptyState icon="building" text="No contract" />
+        <EmptyState icon='building' text='No contract' />
       )}
       {mainTypeId && mainType && relQuickButtons}
     </>
@@ -164,8 +164,8 @@ function Component(
 
   return (
     <Box
-      title={__("Saving contracts")}
-      name="showContracts"
+      title={__('Saving contracts')}
+      name='showContracts'
       extraButtons={quickButtons}
       isOpen={true}
       callback={collapseCallback}

@@ -10,16 +10,16 @@ import {
   Title,
   ToggleWrapper,
   ZoomFlowJobs,
-  ZoomIcon,
-} from "../../styles";
-import { Alert, __ } from "@erxes/ui/src/utils";
+  ZoomIcon
+} from '../../styles';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   BarItems,
   FlexContent,
-  HeightedWrapper,
-} from "@erxes/ui/src/layout/styles";
-import { FLOWJOBS, FLOWJOB_TYPES } from "../../constants";
-import { IFlowDocument, IJob } from "../../../flow/types";
+  HeightedWrapper
+} from '@erxes/ui/src/layout/styles';
+import { FLOWJOBS, FLOWJOB_TYPES } from '../../constants';
+import { IFlowDocument, IJob } from '../../../flow/types';
 import {
   connection,
   connectorHoverStyle,
@@ -28,26 +28,26 @@ import {
   deleteConnection,
   hoverPaintStyle,
   sourceEndpoint,
-  targetEndpoint,
-} from "../../utils";
+  targetEndpoint
+} from '../../utils';
 
-import Button from "@erxes/ui/src/components/Button";
-import { CSSTransition } from "react-transition-group";
-import Confirmation from "../../containers/forms/Confirmation";
-import FlowJobsForm from "./jobs/FlowJobsForm";
-import { FormControl } from "@erxes/ui/src/components/form";
-import { IProduct } from "@erxes/ui-products/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import JobDetailForm from "./jobs/JobDetailForm";
-import Label from "@erxes/ui/src/components/Label";
-import { Link } from "react-router-dom";
-import PageContent from "@erxes/ui/src/layout/components/PageContent";
-import React from "react";
-import Tip from "@erxes/ui/src/components/Tip";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import jquery from "jquery";
-import { jsPlumb } from "jsplumb";
+import Button from '@erxes/ui/src/components/Button';
+import { CSSTransition } from 'react-transition-group';
+import Confirmation from '../../containers/forms/Confirmation';
+import FlowJobsForm from './jobs/FlowJobsForm';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IProduct } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import JobDetailForm from './jobs/JobDetailForm';
+import Label from '@erxes/ui/src/components/Label';
+import { Link } from 'react-router-dom';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -95,23 +95,23 @@ class FlowForm extends React.Component<Props, State> {
     );
 
     this.state = {
-      name: lenFlow.length ? flow.name : "Your flow title",
+      name: lenFlow.length ? flow.name : 'Your flow title',
       flowJobs,
-      currentTab: "flowJobs",
-      isActive: flow.status === "active",
+      currentTab: 'flowJobs',
+      isActive: flow.status === 'active',
       showDrawer: false,
       showFlowJob: false,
       isZoomable: false,
       zoomStep: 0.025,
-      zoom: Number(localStorage.getItem("processFlowZoom")) || 1,
+      zoom: Number(localStorage.getItem('processFlowZoom')) || 1,
       percentage:
-        Number(localStorage.getItem("processFlowZoomPercentage")) || 100,
+        Number(localStorage.getItem('processFlowZoomPercentage')) || 100,
       activeFlowJob: {} as IJob,
       flowJobEdited: false,
-      productId: flow.productId || "",
+      productId: flow.productId || '',
       product: flow.product,
       lastFlowJob: undefined,
-      flowValidation: flow.flowValidation || "",
+      flowValidation: flow.flowValidation || ''
     };
   }
 
@@ -131,7 +131,7 @@ class FlowForm extends React.Component<Props, State> {
     if (nextProps.flow !== this.props.flow) {
       this.setState({
         flowValidation: nextProps.flow.flowValidation,
-        isActive: nextProps.flow.status === "active",
+        isActive: nextProps.flow.status === 'active'
       });
     }
   }
@@ -147,18 +147,18 @@ class FlowForm extends React.Component<Props, State> {
       instanceZoom = instanceZoom || jsPlumb;
       el = el || instanceZoom.getContainer();
 
-      const p = ["webkit", "moz", "ms", "o"];
-      const s = "scale(" + zoom + ")";
+      const p = ['webkit', 'moz', 'ms', 'o'];
+      const s = 'scale(' + zoom + ')';
       const oString =
-        transformOrigin[0] * 100 + "% " + transformOrigin[1] * 100 + "%";
+        transformOrigin[0] * 100 + '% ' + transformOrigin[1] * 100 + '%';
 
       // tslint:disable-next-line:prefer-for-of
       for (let i of p) {
-        el.style[i + "Transform"] = s;
-        el.style[i + "TransformOrigin"] = oString;
+        el.style[i + 'Transform'] = s;
+        el.style[i + 'TransformOrigin'] = oString;
       }
 
-      localStorage.setItem("processFlowZoom", JSON.stringify(zoom));
+      localStorage.setItem('processFlowZoom', JSON.stringify(zoom));
 
       el.style.transform = s;
       el.style.transformOrigin = oString;
@@ -167,32 +167,32 @@ class FlowForm extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    document.removeEventListener("click", this.handleClickOutside, true);
+    document.removeEventListener('click', this.handleClickOutside, true);
   }
 
   connectInstance = () => {
     instance = plumb.getInstance({
-      DragOptions: { cursor: "pointer", zIndex: 2000 },
+      DragOptions: { cursor: 'pointer', zIndex: 2000 },
       PaintStyle: connectorPaintStyle,
       HoverPaintStyle: connectorHoverStyle,
       EndpointStyle: { radius: 10 },
       EndpointHoverStyle: hoverPaintStyle,
-      Container: "canvas",
+      Container: 'canvas'
     });
 
     const { flowJobs } = this.state;
 
-    instance.bind("ready", () => {
-      instance.bind("connection", (info) => {
+    instance.bind('ready', () => {
+      instance.bind('connection', (info) => {
         this.onConnection(info);
       });
 
-      instance.bind("connectionDetached", (info) => {
+      instance.bind('connectionDetached', (info) => {
         this.onDettachConnection(info);
       });
 
       for (const flowJob of flowJobs) {
-        this.renderControl("flowJob", flowJob, this.onClickFlowJob);
+        this.renderControl('flowJob', flowJob, this.onClickFlowJob);
       }
 
       // create connections ===================
@@ -203,19 +203,19 @@ class FlowForm extends React.Component<Props, State> {
     });
 
     // hover flowJob control ===================
-    jquery("#canvas .control").hover((event) => {
+    jquery('#canvas .control').hover((event) => {
       event.preventDefault();
 
-      jquery(`div#${event.currentTarget.id}`).toggleClass("show-flowJob-menu");
+      jquery(`div#${event.currentTarget.id}`).toggleClass('show-flowJob-menu');
     });
 
     // delete control ===================
-    jquery("#canvas").on("click", ".delete-control", (event) => {
+    jquery('#canvas').on('click', '.delete-control', (event) => {
       event.preventDefault();
 
       const innerFlowJobs = this.state.flowJobs;
       const item = event.currentTarget.id;
-      const splitItem = item.split("-");
+      const splitItem = item.split('-');
       const type = splitItem[0];
 
       instance.remove(item);
@@ -224,7 +224,7 @@ class FlowForm extends React.Component<Props, State> {
         (flowJob) => flowJob.id !== splitItem[1]
       );
 
-      if (type === "flowJob") {
+      if (type === 'flowJob') {
         return this.setState({
           flowJobs: leftFlowJobs,
         });
@@ -236,14 +236,14 @@ class FlowForm extends React.Component<Props, State> {
     const { name, isActive, flowJobs, productId, flowValidation } = this.state;
     const { flow } = this.props;
 
-    if (!name || name === "Your flow title") {
-      return Alert.error("Please choose flow product");
+    if (!name || name === 'Your flow title') {
+      return Alert.error('Please choose flow product');
     }
 
     const finalValues = {
-      _id: flow._id || "",
+      _id: flow._id || '',
       name,
-      status: isActive ? "active" : "draft",
+      status: isActive ? 'active' : 'draft',
       productId,
       flowValidation,
       jobs: flowJobs.map((a) => ({
@@ -251,9 +251,9 @@ class FlowForm extends React.Component<Props, State> {
         type: a.type,
         nextJobIds: a.nextJobIds,
         label: a.label,
-        description: a.description || "",
+        description: a.description || '',
         config: a.config,
-        style: jquery(`#flowJob-${a.id}`).attr("style"),
+        style: jquery(`#flowJob-${a.id}`).attr('style')
       })),
     };
 
@@ -289,7 +289,7 @@ class FlowForm extends React.Component<Props, State> {
 
     if (inRange) {
       this.setState({ zoom: zoom + step });
-      this.setZoom(zoom, jsPlumb, null, jquery("#canvas")[0]);
+      this.setZoom(zoom, jsPlumb, null, jquery('#canvas')[0]);
 
       if (isZoomable) {
         this.setState({ zoom: zoom + step });
@@ -297,7 +297,7 @@ class FlowForm extends React.Component<Props, State> {
       }
     }
 
-    localStorage.setItem("processFlowZoom", JSON.stringify(this.state.zoom));
+    localStorage.setItem('processFlowZoom', JSON.stringify(this.state.zoom));
   };
 
   onZoom = (type: string) => {
@@ -308,23 +308,23 @@ class FlowForm extends React.Component<Props, State> {
       const max = zoom <= 1;
       const min = zoom >= 0.399;
 
-      if (type === "zoomIn") {
+      if (type === 'zoomIn') {
         step = +zoomStep;
 
         this.doZoom(step, max);
         this.setState({ percentage: max ? percentage + 10 : 100 }, () => {
           localStorage.setItem(
-            "processFlowZoomPercentage",
+            'processFlowZoomPercentage',
             JSON.stringify(this.state.percentage)
           );
         });
       }
 
-      if (type === "zoomOut") {
+      if (type === 'zoomOut') {
         this.doZoom(step, min);
         this.setState({ percentage: min ? percentage - 10 : 0 }, () => {
           localStorage.setItem(
-            "processFlowZoomPercentage",
+            'processFlowZoomPercentage',
             JSON.stringify(this.state.percentage)
           );
         });
@@ -336,7 +336,7 @@ class FlowForm extends React.Component<Props, State> {
     this.setState({
       showFlowJob: true,
       showDrawer: true,
-      currentTab: "flowJobs",
+      currentTab: 'flowJobs',
       activeFlowJob: flowJob || ({} as IJob),
     });
   };
@@ -348,18 +348,18 @@ class FlowForm extends React.Component<Props, State> {
       flowJobs: connection(
         flowJobs,
         info,
-        info.targetId.replace("flowJob-", ""),
-        "connect"
+        info.targetId.replace('flowJob-', ''),
+        'connect'
       ),
     });
 
     const sourceFlowJob = flowJobs.find(
-      (a) => a.id.toString() === info.sourceId.replace("flowJob-", "")
+      (a) => a.id.toString() === info.sourceId.replace('flowJob-', '')
     );
 
-    const idElm = "flowJob-" + (sourceFlowJob || {}).id;
+    const idElm = 'flowJob-' + (sourceFlowJob || {}).id;
     instance.addEndpoint(idElm, sourceEndpoint, {
-      anchor: ["Right"],
+      anchor: ['Right']
     });
     instance.draggable(instance.getSelector(`#${idElm}`));
   };
@@ -371,8 +371,8 @@ class FlowForm extends React.Component<Props, State> {
       flowJobs: connection(
         flowJobs,
         info,
-        info.targetId.replace("flowJob-", ""),
-        "disconnect"
+        info.targetId.replace('flowJob-', ''),
+        'disconnect'
       ),
     });
   };
@@ -391,7 +391,7 @@ class FlowForm extends React.Component<Props, State> {
     this.setState({
       showDrawer: !this.state.showDrawer,
       activeFlowJob: undefined,
-      currentTab: type,
+      currentTab: type
     });
   };
 
@@ -435,9 +435,9 @@ class FlowForm extends React.Component<Props, State> {
       { flowJobs, activeFlowJob: flowJob, flowJobEdited: true },
       () => {
         if (jobId) {
-          this.reRenderControl("flowJob", flowJob, this.onClickFlowJob);
+          this.reRenderControl('flowJob', flowJob, this.onClickFlowJob);
         } else {
-          this.renderControl("flowJob", flowJob, this.onClickFlowJob);
+          this.renderControl('flowJob', flowJob, this.onClickFlowJob);
         }
       }
     );
@@ -451,24 +451,24 @@ class FlowForm extends React.Component<Props, State> {
   renderControl = (key: string, item: IJob, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
-    jquery("#canvas").append(`
-      <div class="${key} control" id="${idElm}" style="${item.style}">
-        <div class="trigger-header">
+    jquery('#canvas').append(`
+      <div class='${key} control' id='${idElm}' style='${item.style}'>
+        <div class='trigger-header'>
           <div class='custom-menu'>
             <div>
-              <i class="icon-trash-alt delete-control" id="${idElm}" title=${__(
-                "Delete control one"
+              <i class='icon-trash-alt delete-control' id='${idElm}' title=${__(
+                'Delete control one'
               )}></i>
             </div>
           </div>
           <div>
-            <i class="icon-${
+            <i class='icon-${
               (
                 FLOWJOBS.find((f) => f.type === item.type) || {
-                  icon: "sync-exclamation",
+                  icon: 'sync-exclamation'
                 }
               ).icon
-            }"></i>
+            }'></i>
             <span class='job-label'>${item.label}</span>
           </div>
         </div>
@@ -476,19 +476,19 @@ class FlowForm extends React.Component<Props, State> {
       </div>
     `);
 
-    jquery("#canvas").on("dblclick", `#${idElm}`, (event) => {
+    jquery('#canvas').on('dblclick', `#${idElm}`, (event) => {
       event.preventDefault();
 
       onClick(item);
     });
 
-    if (key === "flowJob") {
+    if (key === 'flowJob') {
       instance.addEndpoint(idElm, targetEndpoint, {
-        anchor: ["Left"],
+        anchor: ['Left']
       });
 
       instance.addEndpoint(idElm, sourceEndpoint, {
-        anchor: ["Right"],
+        anchor: ['Right']
       });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
@@ -498,11 +498,11 @@ class FlowForm extends React.Component<Props, State> {
   reRenderControl = (key: string, item: IJob, onClick: any) => {
     const idElm = `${key}-${item.id}`;
 
-    jquery(`#canvas #${idElm} .job-label`).html(item.label ?? "Unknown");
-    jquery(`#canvas #${idElm} .job-description`).html(item.description ?? "");
+    jquery(`#canvas #${idElm} .job-label`).html(item.label ?? 'Unknown');
+    jquery(`#canvas #${idElm} .job-description`).html(item.description ?? '');
 
-    jquery("#canvas").off("dblclick", `#${idElm}`);
-    jquery("#canvas").on("dblclick", `#${idElm}`, (event) => {
+    jquery('#canvas').off('dblclick', `#${idElm}`);
+    jquery('#canvas').on('dblclick', `#${idElm}`, (event) => {
       event.preventDefault();
 
       onClick(item);
@@ -512,10 +512,10 @@ class FlowForm extends React.Component<Props, State> {
   renderButtons() {
     return (
       <Button
-        btnStyle="primary"
-        size="small"
-        icon="plus-circle"
-        onClick={this.toggleDrawer.bind(this, "flowJobs")}
+        btnStyle='primary'
+        size='small'
+        icon='plus-circle'
+        onClick={this.toggleDrawer.bind(this, 'flowJobs')}
       >
         Add a Job
       </Button>
@@ -532,58 +532,58 @@ class FlowForm extends React.Component<Props, State> {
     return (
       <BarItems>
         <ToggleWrapper>
-          <span>{__("Product: ")}</span>
+          <span>{__('Product: ')}</span>
           {(product &&
             this.renderLabelInfo(
               `default`,
               `${product.code} - ${product.name}`
             )) ||
-            this.renderLabelInfo(`simple`, "Not found yet")}
+            this.renderLabelInfo(`simple`, 'Not found yet')}
         </ToggleWrapper>
 
         <ToggleWrapper>
-          <span>{__("Validation status: ")}</span>
-          {flowValidation === "" && this.renderLabelInfo("success", "True")}
-          {flowValidation && this.renderLabelInfo("danger", flowValidation)}
+          <span>{__('Validation status: ')}</span>
+          {flowValidation === '' && this.renderLabelInfo('success', 'True')}
+          {flowValidation && this.renderLabelInfo('danger', flowValidation)}
         </ToggleWrapper>
         {(this.props.flow.isSub && (
           <ToggleWrapper>
-            <span className={"active"}>{__("SubFlow")}</span>
+            <span className={'active'}>{__('SubFlow')}</span>
             <Toggle
-              defaultChecked={(flowValidation === "" && isActive) || false}
+              defaultChecked={(flowValidation === '' && isActive) || false}
               onChange={this.onToggle}
-              disabled={flowValidation !== ""}
+              disabled={flowValidation !== ''}
             />
           </ToggleWrapper>
         )) || (
           <ToggleWrapper>
-            <span className={isActive ? "active" : ""}>{__("Inactive")}</span>
+            <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
             <Toggle
-              defaultChecked={(flowValidation === "" && isActive) || false}
+              defaultChecked={(flowValidation === '' && isActive) || false}
               onChange={this.onToggle}
-              disabled={flowValidation !== ""}
+              disabled={flowValidation !== ''}
             />
-            <span className={!isActive ? "active" : ""}>{__("Active")}</span>
+            <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
           </ToggleWrapper>
         )}
 
         <ActionBarButtonsWrapper>
           <Button
-            btnStyle="simple"
-            size="small"
-            icon={"file-copy-alt"}
+            btnStyle='simple'
+            size='small'
+            icon={'file-copy-alt'}
             onClick={this.copySubmit}
           >
-            {__("Copy")}
+            {__('Copy')}
           </Button>
           {this.renderButtons()}
           <Button
-            btnStyle="success"
-            size="small"
-            icon={"check-circle"}
+            btnStyle='success'
+            size='small'
+            icon={'check-circle'}
             onClick={this.handleSubmit}
           >
-            {__("Save")}
+            {__('Save')}
           </Button>
         </ActionBarButtonsWrapper>
       </BarItems>
@@ -597,18 +597,18 @@ class FlowForm extends React.Component<Props, State> {
       <FlexContent>
         <Link to={`/processes/Flows`}>
           <BackButton>
-            <Icon icon="angle-left" size={20} />
+            <Icon icon='angle-left' size={20} />
           </BackButton>
         </Link>
         <Title>
           <FormControl
-            name="name"
+            name='name'
             value={name}
             onChange={this.onNameChange}
             required={true}
             autoFocus={true}
           />
-          <Icon icon="edit-alt" size={16} />
+          <Icon icon='edit-alt' size={16} />
         </Title>
         {/* <CenterBar>
 
@@ -637,17 +637,17 @@ class FlowForm extends React.Component<Props, State> {
         <>
           <Description noMargin={true}>
             <BackIcon onClick={onBackAction}>
-              <Icon icon="angle-left" size={20} /> {__("Back to jobs")}
+              <Icon icon='angle-left' size={20} /> {__('Back to jobs')}
             </BackIcon>
             <CloseIcon
               onClick={() => {
                 this.setState({
-                  showDrawer: false,
+                  showDrawer: false
                 });
               }}
             >
-              <Tip text={__("Close")} placement="bottom">
-                <Icon icon="cancel" size={18} />
+              <Tip text={__('Close')} placement='bottom'>
+                <Icon icon='cancel' size={18} />
               </Tip>
             </CloseIcon>
           </Description>
@@ -678,20 +678,20 @@ class FlowForm extends React.Component<Props, State> {
   renderZoomFlowJobs() {
     return (
       <ZoomFlowJobs>
-        <div className="icon-wrapper">
+        <div className='icon-wrapper'>
           <ZoomIcon
             disabled={this.state.zoom >= 1}
-            onMouseDown={this.onZoom.bind(this, "zoomIn")}
+            onMouseDown={this.onZoom.bind(this, 'zoomIn')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon="plus" />
+            <Icon icon='plus' />
           </ZoomIcon>
           <ZoomIcon
             disabled={this.state.zoom <= 0.399}
-            onMouseDown={this.onZoom.bind(this, "zoomOut")}
+            onMouseDown={this.onZoom.bind(this, 'zoomOut')}
             onMouseUp={() => this.setState({ isZoomable: false })}
           >
-            <Icon icon="minus" />{" "}
+            <Icon icon='minus' />{' '}
           </ZoomIcon>
         </div>
         <span>{`${this.state.percentage}%`}</span>
@@ -706,11 +706,11 @@ class FlowForm extends React.Component<Props, State> {
       return (
         <Container>
           <div
-            className="trigger scratch"
-            onClick={this.toggleDrawer.bind(this, "flowJobs")}
+            className='trigger scratch'
+            onClick={this.toggleDrawer.bind(this, 'flowJobs')}
           >
-            <Icon icon="file-plus" size={25} />
-            <p>{__("Please add first job")}?</p>
+            <Icon icon='file-plus' size={25} />
+            <p>{__('Please add first job')}?</p>
           </div>
         </Container>
       );
@@ -720,8 +720,8 @@ class FlowForm extends React.Component<Props, State> {
       <Container>
         {this.renderZoomFlowJobs()}
         <div
-          id="canvas"
-          style={{ transform: `scale(${zoom})`, transformOrigin: "50% 50%" }}
+          id='canvas'
+          style={{ transform: `scale(${zoom})`, transformOrigin: '50% 50%' }}
         />
       </Container>
     );
@@ -760,10 +760,10 @@ class FlowForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <FlowFormContainer>
             <Wrapper.Header
-              title={`${(flow && flow.name) || "Flow detail"}`}
+              title={`${(flow && flow.name) || 'Flow detail'}`}
               breadcrumb={[
-                { title: __("Flows"), link: "/processes/Flows" },
-                { title: `${(flow && flow.name) || "New Form"}` },
+                { title: __('Flows'), link: '/processes/Flows' },
+                { title: `${(flow && flow.name) || 'New Form'}` }
               ]}
             />
             <PageContent
@@ -783,7 +783,7 @@ class FlowForm extends React.Component<Props, State> {
             <CSSTransition
               in={this.state.showDrawer}
               timeout={300}
-              classNames="slide-in-right"
+              classNames='slide-in-right'
               unmountOnExit={true}
             >
               <RightDrawerContainer>

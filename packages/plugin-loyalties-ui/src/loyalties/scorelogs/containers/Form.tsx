@@ -1,9 +1,9 @@
-import { ButtonMutate } from "@erxes/ui/src";
-import { withProps } from "@erxes/ui/src/utils/core";
-import * as compose from "lodash.flowright";
-import React from "react";
-import ScoreForm from "../components/Form";
-import mutations from "../graphql/mutations";
+import { ButtonMutate } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils/core';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import ScoreForm from '../components/Form';
+import mutations from '../graphql/mutations';
 
 type Props = {};
 
@@ -17,9 +17,9 @@ class ScoreFormContainer extends React.Component<FinalProps> {
           mutation={mutations.changeScore}
           variables={values}
           callback={callback}
-          refetchQueries={["scoreLogList"]}
+          refetchQueries={['scoreLogList']}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully`}
         />
       );
@@ -27,7 +27,7 @@ class ScoreFormContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      renderBtn: renderButton,
+      renderBtn: renderButton
     };
 
     return <ScoreForm {...updatedProps} />;

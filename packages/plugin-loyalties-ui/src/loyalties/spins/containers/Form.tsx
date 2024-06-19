@@ -1,12 +1,12 @@
-import * as compose from "lodash.flowright";
-import Form from "../components/Form";
-import React from "react";
-import { withProps } from "@erxes/ui/src/utils";
-import { ButtonMutate } from "@erxes/ui/src/components";
-import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
-import { ISpin } from "../types";
-import { IUser, UsersQueryResponse } from "@erxes/ui/src/auth/types";
-import { mutations } from "../graphql";
+import * as compose from 'lodash.flowright';
+import Form from '../components/Form';
+import React from 'react';
+import { withProps } from '@erxes/ui/src/utils';
+import { ButtonMutate } from '@erxes/ui/src/components';
+import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
+import { ISpin } from '../types';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { mutations } from '../graphql';
 
 type Props = {
   spin: ISpin;
@@ -26,7 +26,7 @@ class SpinFromContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      object,
+      object
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedSpin } = this.props;
 
@@ -45,9 +45,9 @@ class SpinFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
-            object ? "updated" : "added"
+            object ? 'updated' : 'added'
           } a ${name}`}
         />
       );
@@ -63,13 +63,13 @@ class SpinFromContainer extends React.Component<FinalProps> {
 
 const getRefetchQueries = () => {
   return [
-    "spinsMain",
-    "spinDetail",
+    'spinsMain',
+    'spinDetail',
     // spins for customer detail spin associate
-    "spins",
-    "spinCounts",
-    "spinCampaigns",
-    "spinCampaignsTotalCount",
+    'spins',
+    'spinCounts',
+    'spinCampaigns',
+    'spinCampaignsTotalCount'
   ];
 };
 

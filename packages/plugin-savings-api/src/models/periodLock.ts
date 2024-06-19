@@ -1,14 +1,14 @@
 import {
   IPeriodLock,
   IPeriodLockDocument,
-  periodLockSchema,
-} from "./definitions/periodLocks";
-import { IModels } from "../connectionResolver";
-import { FilterQuery, Model } from "mongoose";
-import { IStoredInterestDocument } from "./definitions/storedInterest";
-import { getDiffDay, getFullDate } from "./utils/utils";
-import { CONTRACT_STATUS } from "./definitions/constants";
-import storeInterest from "./utils/storeInterestUtils";
+  periodLockSchema
+} from './definitions/periodLocks';
+import { IModels } from '../connectionResolver';
+import { FilterQuery, Model } from 'mongoose';
+import { IStoredInterestDocument } from './definitions/storedInterest';
+import { getDiffDay, getFullDate } from './utils/utils';
+import { CONTRACT_STATUS } from './definitions/constants';
+import storeInterest from './utils/storeInterestUtils';
 
 export const loadPeriodLockClass = (models: IModels) => {
   class PeriodLock {
@@ -21,7 +21,7 @@ export const loadPeriodLockClass = (models: IModels) => {
       const periodLock = await models.PeriodLocks.findOne(selector);
 
       if (!periodLock) {
-        throw new Error("PeriodLock not found");
+        throw new Error('PeriodLock not found');
       }
 
       return periodLock;
@@ -32,7 +32,7 @@ export const loadPeriodLockClass = (models: IModels) => {
      */
     public static async createPeriodLock(doc: IPeriodLock, subdomain: string) {
       const nextLock = await models.PeriodLocks.findOne({
-        date: { $gte: doc.date },
+        date: { $gte: doc.date }
       })
         .sort({ date: -1 })
         .lean();
@@ -47,7 +47,7 @@ export const loadPeriodLockClass = (models: IModels) => {
 
       const contracts = await models.Contracts.find({
         status: CONTRACT_STATUS.NORMAL,
-        interestRate: { $gt: 0 },
+        interestRate: { $gt: 0 }
       }).lean();
 
       for await (let contract of contracts) {
@@ -71,7 +71,7 @@ export const loadPeriodLockClass = (models: IModels) => {
       await models.PeriodLocks.updateOne({ _id }, { $set: doc });
 
       const prevLock = await models.PeriodLocks.findOne({
-        date: { $lt: doc.date },
+        date: { $lt: doc.date }
       }).sort({ date: -1 });
 
       const transactions = await models.Transactions.find({
@@ -79,7 +79,7 @@ export const loadPeriodLockClass = (models: IModels) => {
           $lte: doc.date,
           ...(prevLock?.date ? { $gt: prevLock?.date } : {}),
         },
-        contractId: { $nin: doc.excludeContracts || [], $exists: true },
+        contractId: { $nin: doc.excludeContracts || [], $exists: true }
       });
 
       return models.PeriodLocks.findOne({ _id });
@@ -99,14 +99,14 @@ export const loadPeriodLockClass = (models: IModels) => {
           {
             $set: {
               storedInterst: { $inc: storedInterst.amount * -1 },
-              lastStoredDate: storedInterst.prevStoredDate,
+              lastStoredDate: storedInterst.prevStoredDate
             },
           }
         );
       }
 
       await models.StoredInterest.deleteMany({
-        _id: storedInterestList.map((a) => a._id),
+        _id: storedInterestList.map((a) => a._id)
       });
       return models.PeriodLocks.deleteMany({ _id: { $in: _ids } });
     }

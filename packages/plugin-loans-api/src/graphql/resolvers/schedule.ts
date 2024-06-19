@@ -1,4 +1,4 @@
-import { IScheduleDocument } from "../../models/definitions/schedules";
+import { IScheduleDocument } from '../../models/definitions/schedules';
 
 const Schedules = {
   async interest(schedule: IScheduleDocument) {

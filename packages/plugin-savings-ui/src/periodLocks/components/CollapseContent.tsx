@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import Collapse from "@erxes/ui/src/components/Collapse";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import colors from "@erxes/ui/src/styles/colors";
+import React, { useState } from 'react';
+import Collapse from '@erxes/ui/src/components/Collapse';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import colors from '@erxes/ui/src/styles/colors';
 
 const Container = styledTS<{ open: boolean }>(styled.div)`
   margin-bottom: 10px;
@@ -16,7 +16,7 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
 `;
 
 const Content = styledTS<{ full: boolean }>(styled.div)`
-  padding: ${(props) => (props.full ? "0" : "20px")};
+  padding: ${(props) => (props.full ? '0' : '20px')};
   border-top: 1px solid ${colors.borderPrimary};
   background: ${colors.colorWhite};
   border-bottom-left-radius: 4px;
@@ -57,7 +57,7 @@ function CollapseContent(props: Props) {
       <React.Fragment>
         {React.cloneElement(props.children, { onClick })}
         <props.containerParent>
-          <Container open={open} id={props.id} style={{ width: "100%" }}>
+          <Container open={open} id={props.id} style={{ width: '100%' }}>
             <Collapse show={open}>
               <Content
                 full={hasImage || props.full || false}
@@ -76,7 +76,7 @@ function CollapseContent(props: Props) {
     <React.Fragment>
       {React.cloneElement(props.children, { onClick })}
 
-      <Container open={open} id={props.id} style={{ width: "100%" }}>
+      <Container open={open} id={props.id} style={{ width: '100%' }}>
         <Collapse show={open}>
           <div>
             <Content full={hasImage || props.full || false}>

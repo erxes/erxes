@@ -1,63 +1,63 @@
-import { MessageArgsOmitService, sendMessage } from "@erxes/api-utils/src/core";
-import { afterMutationHandlers } from "./afterMutations";
-import { afterQueryHandlers } from "./afterQueries";
+import { MessageArgsOmitService, sendMessage } from '@erxes/api-utils/src/core';
+import { afterMutationHandlers } from './afterMutations';
+import { afterQueryHandlers } from './afterQueries';
 
-import { generateModels } from "./connectionResolver";
-import { sendRPCMessage } from "./messageBrokerErkhet";
-import { loansTransactionToErkhet } from "./utils/loansTransactionToErkhet";
-import { getPostData, orderDeleteToErkhet } from "./utils/orders";
+import { generateModels } from './connectionResolver';
+import { sendRPCMessage } from './messageBrokerErkhet';
+import { loansTransactionToErkhet } from './utils/loansTransactionToErkhet';
+import { getPostData, orderDeleteToErkhet } from './utils/orders';
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from "@erxes/api-utils/src/messageBroker";
+  consumeRPCQueue
+} from '@erxes/api-utils/src/messageBroker';
 
 export const setupMessageConsumers = async () => {
-  consumeQueue("syncerkhet:afterMutation", async ({ subdomain, data }) => {
+  consumeQueue('syncerkhet:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
   });
 
-  consumeRPCQueue("syncerkhet:afterQuery", async ({ subdomain, data }) => {
+  consumeRPCQueue('syncerkhet:afterQuery', async ({ subdomain, data }) => {
     return {
-      status: "success",
-      data: await afterQueryHandlers(subdomain, data),
+      status: 'success',
+      data: await afterQueryHandlers(subdomain, data)
     };
   });
 
-  consumeRPCQueue("syncerkhet:toOrder", async ({ subdomain, data }) => {
+  consumeRPCQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { pos, order } = data;
     const syncLogDoc = {
-      contentType: "pos:order",
+      contentType: 'pos:order',
       createdAt: new Date(),
-      createdBy: order.userId,
+      createdBy: order.userId
     };
     const syncLog = await models.SyncLogs.syncLogsAdd({
       ...syncLogDoc,
       contentId: order._id,
       consumeData: order,
-      consumeStr: JSON.stringify(order),
+      consumeStr: JSON.stringify(order)
     });
     try {
       const postData = await getPostData(subdomain, pos, order);
       if (!postData) {
         return {
-          status: "success",
-          data: {},
+          status: 'success',
+          data: {}
         };
       }
 
       return {
-        status: "success",
+        status: 'success',
         data: await sendRPCMessage(
           models,
           syncLog,
-          "rpc_queue:erxes-automation-erkhet",
+          'rpc_queue:erxes-automation-erkhet',
           {
-            action: "get-response-send-order-info",
+            action: 'get-response-send-order-info',
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true,
+            isJson: true
           }
         ),
       };
@@ -67,25 +67,25 @@ export const setupMessageConsumers = async () => {
         { $set: { error: e.message } }
       );
       return {
-        status: "success",
-        data: { error: e.message },
+        status: 'success',
+        data: { error: e.message }
       };
     }
   });
 
-  consumeRPCQueue("syncerkhet:loanTransaction", async ({ subdomain, data }) => {
+  consumeRPCQueue('syncerkhet:loanTransaction', async ({ subdomain, data }) => {
     const { generals, orderId } = data;
     const models = await generateModels(subdomain);
 
     const syncLogDoc = {
-      contentType: "loans:transaction",
-      createdAt: new Date(),
+      contentType: 'loans:transaction',
+      createdAt: new Date()
     };
     const syncLog = await models.SyncLogs.syncLogsAdd({
       ...syncLogDoc,
       contentId: orderId,
       consumeData: data,
-      consumeStr: JSON.stringify(data),
+      consumeStr: JSON.stringify(data)
     });
 
     try {
@@ -96,23 +96,23 @@ export const setupMessageConsumers = async () => {
       );
       if (!postData) {
         return {
-          status: "success",
-          data: {},
+          status: 'success',
+          data: {}
         };
       }
 
       return {
-        status: "success",
+        status: 'success',
         data: await sendRPCMessage(
           models,
           syncLog,
-          "rpc_queue:erxes-automation-erkhet",
+          'rpc_queue:erxes-automation-erkhet',
           {
-            action: "get-response-send-journal-orders",
+            action: 'get-response-send-journal-orders',
             isEbarimt: false,
             payload: JSON.stringify(postData),
             thirdService: true,
-            isJson: true,
+            isJson: true
           }
         ),
       };
@@ -122,26 +122,26 @@ export const setupMessageConsumers = async () => {
         { $set: { error: e.message } }
       );
       return {
-        status: "success",
-        data: { error: e.message },
+        status: 'success',
+        data: { error: e.message }
       };
     }
   });
 
   consumeRPCQueue(
-    "syncerkhet:deleteTransaction",
+    'syncerkhet:deleteTransaction',
     async ({ subdomain, data }) => {
       const { generals, orderId } = data;
       const models = await generateModels(subdomain);
       const syncLogDoc = {
-        contentType: "loans:transaction",
-        createdAt: new Date(),
+        contentType: 'loans:transaction',
+        createdAt: new Date()
       };
       const syncLog = await models.SyncLogs.syncLogsAdd({
         ...syncLogDoc,
         contentId: orderId,
         consumeData: data,
-        consumeStr: JSON.stringify(data),
+        consumeStr: JSON.stringify(data)
       });
 
       try {
@@ -152,23 +152,23 @@ export const setupMessageConsumers = async () => {
         );
         if (!postData) {
           return {
-            status: "success",
-            data: {},
+            status: 'success',
+            data: {}
           };
         }
 
         return {
-          status: "success",
+          status: 'success',
           data: await sendRPCMessage(
             models,
             syncLog,
-            "rpc_queue:erxes-automation-erkhet",
+            'rpc_queue:erxes-automation-erkhet',
             {
-              action: "get-response-delete-journal-orders",
+              action: 'get-response-delete-journal-orders',
               isEbarimt: false,
               payload: JSON.stringify(postData),
               thirdService: true,
-              isJson: true,
+              isJson: true
             }
           ),
         };
@@ -178,19 +178,19 @@ export const setupMessageConsumers = async () => {
           { $set: { error: e.message } }
         );
         return {
-          status: "success",
-          data: { error: e.message },
+          status: 'success',
+          data: { error: e.message }
         };
       }
     }
   );
 
-  consumeRPCQueue("syncerkhet:returnOrder", async ({ subdomain, data }) => {
+  consumeRPCQueue('syncerkhet:returnOrder', async ({ subdomain, data }) => {
     const { pos, order } = data;
 
     return {
-      status: "success",
-      data: await orderDeleteToErkhet(subdomain, pos, order),
+      status: 'success',
+      data: await orderDeleteToErkhet(subdomain, pos, order)
     };
   });
 };
@@ -199,8 +199,8 @@ export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "products",
-    ...args,
+    serviceName: 'products',
+    ...args
   });
 };
 
@@ -208,8 +208,8 @@ export const sendFormsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "forms",
-    ...args,
+    serviceName: 'forms',
+    ...args
   });
 };
 
@@ -217,8 +217,8 @@ export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "contacts",
-    ...args,
+    serviceName: 'contacts',
+    ...args
   });
 };
 
@@ -226,8 +226,8 @@ export const sendCardsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "cards",
-    ...args,
+    serviceName: 'cards',
+    ...args
   });
 };
 
@@ -235,8 +235,8 @@ export const sendPosMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "pos",
-    ...args,
+    serviceName: 'pos',
+    ...args
   });
 };
 
@@ -244,8 +244,8 @@ export const sendEbarimtMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "ebarimt",
-    ...args,
+    serviceName: 'ebarimt',
+    ...args
   });
 };
 
@@ -253,8 +253,8 @@ export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "core",
-    ...args,
+    serviceName: 'core',
+    ...args
   });
 };
 
@@ -262,7 +262,7 @@ export const sendNotificationsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "notifications",
-    ...args,
+    serviceName: 'notifications',
+    ...args
   });
 };
