@@ -19,15 +19,13 @@ import { router } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams: any;
-
   goals: IGoalType[];
-  sections: ISection[];
 
   removeGoalTypes: (goalIds: string[]) => void;
 };
 
 const GoalSection = (props: Props) => {
-  const { goals, sections, queryParams, removeGoalTypes } = props;
+  const { goals, queryParams, removeGoalTypes } = props;
   const location = useLocation();
   const navigate = useNavigate();
 

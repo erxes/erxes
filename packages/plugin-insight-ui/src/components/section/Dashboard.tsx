@@ -28,7 +28,6 @@ type Props = {
 
 const DashboardSection = (props: Props) => {
   const { queryParams, sections, dashboards, loading, removeDashboard } = props;
-  const location = useLocation();
   const navigate = useNavigate();
 
   const wrapperRef = useRef<any>(null);

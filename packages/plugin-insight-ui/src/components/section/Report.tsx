@@ -28,7 +28,6 @@ type Props = {
 
 const ReportSection = (props: Props) => {
   const { queryParams, reports, sections, loading, removeReports } = props;
-  const location = useLocation();
   const navigate = useNavigate();
 
   const wrapperRef = useRef<any>(null);
