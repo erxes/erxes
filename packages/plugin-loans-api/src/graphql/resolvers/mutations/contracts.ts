@@ -349,12 +349,22 @@ const contractMutations = {
       secondaryPassword,
       customerId,
       amount,
-      contractId
+      contractId,
+      dealtType,
+      dealtResponse,
+      accountNumber,
+      accountHolderName,
+      externalBankName
     }: {
       contractId: string;
       amount: number;
       customerId: string;
       secondaryPassword: string;
+      dealtType?: "own" | "external";
+      dealtResponse?: any;
+      accountNumber?: string;
+      accountHolderName?: string;
+      externalBankName?: string;
     },
     { models, subdomain }: IContext
   ) => {
@@ -383,7 +393,16 @@ const contractMutations = {
 
     return await models.Contracts.clientCreditLoanRequest(
       subdomain,
-      { customerId, amount, contractId },
+      {
+        customerId,
+        amount,
+        contractId,
+        dealtType,
+        dealtResponse,
+        accountNumber,
+        accountHolderName,
+        externalBankName
+      },
       contract
     );
   }
