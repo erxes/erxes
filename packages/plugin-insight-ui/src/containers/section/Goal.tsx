@@ -21,7 +21,7 @@ type Props = {
 
 const GoalSectionContainer = (props: Props) => {
   const { queryParams } = props;
-  const { goalId, dashboardId, reportId } = queryParams;
+
   const location = useLocation();
   const navigate = useNavigate();
 
