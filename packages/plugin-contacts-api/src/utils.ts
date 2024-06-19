@@ -45,7 +45,7 @@ const EXTEND_FIELDS = {
 export const findCustomer = async (
   { Customers }: IModels,
   subdomain: string,
-  doc,
+  doc
 ) => {
   let customer;
 
@@ -92,7 +92,7 @@ export const findCustomer = async (
   if (customer) {
     customer.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       customer,
-      subdomain,
+      subdomain
     );
   }
 
@@ -102,7 +102,7 @@ export const findCustomer = async (
 export const findCompany = async (
   { Companies }: IModels,
   subdomain: string,
-  doc,
+  doc
 ) => {
   let company;
 
@@ -180,7 +180,7 @@ export const findCompany = async (
   if (company) {
     company.customFieldsDataByFieldCode = await customFieldsDataByFieldCode(
       company,
-      subdomain,
+      subdomain
     );
   }
 
@@ -191,7 +191,7 @@ const generateUsersOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string,
+  subdomain: string
 ) => {
   const users = await sendCoreMessage({
     subdomain,
@@ -220,7 +220,7 @@ const generateBrandsOptions = async (
   name: string,
   label: string,
   type: string,
-  subdomain: string,
+  subdomain: string
 ) => {
   const brands = await sendCoreMessage({
     subdomain,
@@ -413,7 +413,7 @@ export const generateFields = async ({ subdomain, data }) => {
     'ownerId',
     'Owner',
     'user',
-    subdomain,
+    subdomain
   );
 
   const tags = await getTags(type, subdomain);
@@ -428,7 +428,7 @@ export const generateFields = async ({ subdomain, data }) => {
     if (config) {
       const formSubmissionFields = await getFormSubmissionFields(
         subdomain,
-        config,
+        config
       );
       fields = [...fields, ...formSubmissionFields];
     }
@@ -455,7 +455,7 @@ export const generateFields = async ({ subdomain, data }) => {
       'scopeBrandIds',
       'Brands',
       'brand',
-      subdomain,
+      subdomain
     );
 
     fields.push(brandsOptions);
@@ -477,7 +477,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
 export const getContentItem = async (
   { Customers, Companies }: IModels,
-  activityLog,
+  activityLog
 ) => {
   const { action, contentType, content } = activityLog;
 
@@ -506,7 +506,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
   const editor = await new EditorAttributeUtil(
     `${process.env.DOMAIN}/gateway/pl:core`,
     services,
-    subdomain,
+    subdomain
   );
 
   return editor;
@@ -515,7 +515,7 @@ export const getEditorAttributeUtil = async (subdomain: string) => {
 export const prepareEngageCustomers = async (
   { Customers }: IModels,
   subdomain: string,
-  { engageMessage, customersSelector, action, user },
+  { engageMessage, customersSelector, action, user }
 ): Promise<any> => {
   const customerInfos: Array<{
     _id: string;
@@ -697,11 +697,10 @@ export const updateContactsField = async (
     cachedCustomerId?: string;
     integration: any;
     submissionsGrouped: any;
-  },
+  }
 ) => {
   let { cachedCustomerId } = args;
   const { browserInfo, integration, submissionsGrouped } = args;
-
   const { leadData } = integration;
 
   const conformityIds: {
@@ -721,6 +720,7 @@ export const updateContactsField = async (
 
     const customFieldsData: ICustomField[] = [];
     const companyCustomData: ICustomField[] = [];
+    const phones: string[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
       const submissionType = submission.type || '';
@@ -732,6 +732,11 @@ export const updateContactsField = async (
 
       if (submissionType.includes('companyLinks')) {
         companyLinks[getSocialLinkKey(submissionType)] = submission.value;
+        continue;
+      }
+
+      if (['phone', 'internationalPhone'].includes(submissionType)) {
+        phones.push(submission.value);
         continue;
       }
 
@@ -858,9 +863,9 @@ export const updateContactsField = async (
         cachedCustomer = await createCustomer(
           models,
           integration._id,
-          customerDoc,
+          { ...customerDoc, phones },
           integration.brandId || '',
-          leadData.saveAsCustomer,
+          leadData.saveAsCustomer
         );
       }
 
@@ -871,9 +876,10 @@ export const updateContactsField = async (
           ...customerDoc,
           customFieldsData,
           links: customerLinks,
+          phones,
           scopeBrandIds: [integration.brandId || ''],
         },
-        cachedCustomer,
+        cachedCustomer
       );
 
       cachedCustomerId = cachedCustomer._id;
@@ -893,7 +899,7 @@ export const updateContactsField = async (
           models,
           integration._id,
           customerDoc,
-          integration.brandId || '',
+          integration.brandId || ''
         );
       }
 
@@ -904,9 +910,10 @@ export const updateContactsField = async (
           ...customerDoc,
           customFieldsData,
           links: customerLinks,
+          phones,
           scopeBrandIds: [integration.brandId || ''],
         },
-        customer,
+        customer
       );
 
       conformityIds[groupId] = { customerId: customer._id, companyId: '' };
@@ -956,7 +963,7 @@ export const updateContactsField = async (
     if (company.customFieldsData && companyCustomData.length > 0) {
       companyDoc.customFieldsData = prepareCustomFieldsData(
         company.customFieldsData,
-        companyCustomData,
+        companyCustomData
       );
     }
 
@@ -968,7 +975,7 @@ export const updateContactsField = async (
     ) {
       await models.Companies.updateOne(
         { _id: company._id },
-        { $push: { scopeBrandIds: integration.brandId } },
+        { $push: { scopeBrandIds: integration.brandId } }
       );
     }
 
@@ -1029,7 +1036,7 @@ export const updateCustomerFromForm = async (
   models: IModels,
   browserInfo: any,
   doc: any,
-  customer: ICustomerDocument,
+  customer: ICustomerDocument
 ) => {
   const customerDoc: any = {
     ...doc,
@@ -1049,7 +1056,6 @@ export const updateCustomerFromForm = async (
     ...(customer.primaryPhone
       ? {}
       : {
-          phones: [doc.phone],
           primaryPhone: doc.phone,
         }),
   };
@@ -1061,7 +1067,7 @@ export const updateCustomerFromForm = async (
   if (customer.customFieldsData && doc.customFieldsData.length > 0) {
     customerDoc.customFieldsData = prepareCustomFieldsData(
       customer.customFieldsData,
-      doc.customFieldsData,
+      doc.customFieldsData
     );
   }
 
@@ -1084,7 +1090,7 @@ export const updateCustomerFromForm = async (
 
 const prepareCustomFieldsData = (
   customerData: ICustomField[],
-  submissionData: ICustomField[],
+  submissionData: ICustomField[]
 ) => {
   const customFieldsData: ICustomField[] = customerData;
 
@@ -1114,7 +1120,7 @@ const createCustomer = async (
   integrationId: string,
   customerDoc: any,
   brandId?: string,
-  saveAsCustomer?: boolean,
+  saveAsCustomer?: boolean
 ) => {
   const doc: any = {
     integrationId,
