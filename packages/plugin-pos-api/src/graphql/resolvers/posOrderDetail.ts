@@ -9,7 +9,7 @@ import { IPosOrderDocument } from '../../models/definitions/orders';
 import { getConfig } from '../../utils';
 
 const resolvers = {
-  user: async (order, {}, { subdomain }) => {
+  user: async (order, _, { subdomain }) => {
     if (!order.userId) {
       return null;
     }
@@ -21,12 +21,12 @@ const resolvers = {
     });
   },
 
-  posName: async (order, {}, { models }) => {
+  posName: async (order, _, { models }) => {
     const pos = await models.Pos.findOne({ token: order.posToken }).lean();
     return pos ? pos.name : '';
   },
 
-  customer: async (order, {}, { subdomain }) => {
+  customer: async (order, _, { subdomain }) => {
     if (!order.customerId) {
       return null;
     }
