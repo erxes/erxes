@@ -1,13 +1,23 @@
 export type TransferParams = {
-  fromAccount: string;
-  toAccount: string;
-  amount: number;
-  description: string;
-  currency: string;
-
-  loginName: string;
-  password: string;
-  transferid: string;
+  genericType: string;
+  registerNumber: string;
+  type: string;
+  refCode: string;
+  initiatorGenericType: string;
+  initiatorAcctName: string;
+  initiatorAcctNo: string;
+  initiatorAmountValue: number;
+  initiatorAmountCurrency: string;
+  initiatorParticulars: string;
+  initiatorBank: string;
+  receivesGenericType: string;
+  receivesAcctName: string;
+  receivesAcctNo: string;
+  receivesAmountValue: number;
+  receivesAmountCurrency: string;
+  receivesParticulars: string;
+  receivesBank: string;
+  receivesRemarks: string;
 };
 
 export type GolomtBankAccount = {
@@ -19,5 +29,4 @@ export type GolomtBankAccount = {
   branchId: string;
   isSocialPayConnected: string;
   accountType: string;
-  
-}
+};

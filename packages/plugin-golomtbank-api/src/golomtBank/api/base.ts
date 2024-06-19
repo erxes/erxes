@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import type { RequestInit, HeadersInit } from "node-fetch";
 import { encryptData } from "../../utils/encrypt";
 import { decryptData } from "../../utils/decrypt";
+import TimeGenerateBase from "../../utils/timeGenerateBase";
 export class BaseApi {
   private config: any;
 
@@ -33,6 +34,7 @@ export class BaseApi {
         headers,
       };
       requestOptions.headers["Content-Type"] = "application/json";
+      console.log("typeRequest:", type);
       const checkSum = await encryptData(
         data,
         this.config.sessionKey,
@@ -41,6 +43,13 @@ export class BaseApi {
       requestOptions.headers["X-Golomt-Checksum"] = checkSum;
       requestOptions.headers["X-Golomt-Service"] = type;
 
+      if (type === "CGWTXNADD") {
+        const xcode = "300716";
+        // TimeGenerateBase.generateCurrentNumberString("4IO2WPYBASQOSQMS");
+        // console.log("xcode:", xcode);
+        requestOptions.headers["X-Golomt-Code"] = xcode;
+      }
+
       if (data) {
         requestOptions.body = JSON.stringify(data);
       }
@@ -48,11 +57,14 @@ export class BaseApi {
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions
       ).then((res) => res.text());
-      return await decryptData(
+
+      const dec = await decryptData(
         response,
         this.config.ivKey,
         this.config.sessionKey
       );
+      console.log("dec:", dec);
+      return dec;
     } catch (e) {
       console.log("e", e);
       throw new Error(e);

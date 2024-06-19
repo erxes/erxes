@@ -1,6 +1,7 @@
 import { IGolomtBankConfigDocument } from "../models/definitions/golomtBankConfigs";
 import { AccountsApi } from "./api/accounts";
 import { StatementsApi } from "./api/statements";
+import { TransferApi } from "./api/transfer";
 
 class GolomtBank {
   public apiUrl: string;
@@ -14,6 +15,7 @@ class GolomtBank {
   public accountId: string;
   public accounts: AccountsApi;
   public statements: StatementsApi;
+  public transfer: TransferApi;
 
   constructor(config: IGolomtBankConfigDocument) {
     const auth = {
@@ -41,6 +43,7 @@ class GolomtBank {
     this.apiUrl = "https://openapi-uat.golomtbank.com/api";
 
     this.accounts = new AccountsApi(this);
+    this.transfer = new TransferApi(this);
     this.statements = new StatementsApi(this);
   }
 }
