@@ -36,7 +36,7 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
     );
   };
   /* check content type */
-  const { contentType, action, _id, contentId } = activity;
+  const { contentType, action, contentId } = activity;
 
   const type = contentType.split(':')[1];
 
