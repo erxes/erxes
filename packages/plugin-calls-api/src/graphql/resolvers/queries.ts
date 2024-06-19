@@ -1,6 +1,6 @@
-import { IContext } from "../../connectionResolver";
-import { sendCommonMessage } from "../../messageBroker";
-import { sendToGrandStreamRequest } from "../../utils";
+import { IContext } from '../../connectionResolver';
+import { sendCommonMessage } from '../../messageBroker';
+import { sendToGrandStream } from '../../utils';
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -74,7 +74,7 @@ const callsQueries = {
     { integrationId },
     { models, user }: IContext
   ) {
-    const queueData = await sendToGrandStreamRequest(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: "api",
@@ -82,12 +82,12 @@ const callsQueries = {
         headers: { "Content-Type": "application/json" },
         data: {
           request: {
-            action: "listAccount",
-            item_num: "40",
-            options: "extension,fullname,status",
-            page: "1",
-            sidx: "extension",
-            sord: "asc",
+            action: 'listAccount',
+            item_num: '50',
+            options: 'extension,fullname,status',
+            page: '1',
+            sidx: 'extension',
+            sord: 'asc',
           },
         },
         integrationId: integrationId,

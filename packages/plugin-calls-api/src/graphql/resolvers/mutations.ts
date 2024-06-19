@@ -1,7 +1,7 @@
 import {
   generateToken,
   getRecordUrl,
-  sendToGrandStreamRequest,
+  sendToGrandStream,
 } from "../../utils";
 import { IContext, IModels } from "../../connectionResolver";
 
@@ -156,10 +156,21 @@ const callsMutations = {
       _id,
     });
 
-    if (history && history.callStatus === "active") {
+    if (history && history.callStatus === 'active') {
+      let callStatus = doc.callStatus;
+      if (doc.transferedCallStatus) {
+        callStatus = 'transfered';
+      }
       await models.CallHistory.updateOne(
         { _id },
-        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: user._id } }
+        {
+          $set: {
+            ...doc,
+            modifiedAt: new Date(),
+            modifiedBy: user._id,
+            callStatus: callStatus,
+          },
+        },
       );
 
       await putUpdateLog(
@@ -259,7 +270,7 @@ const callsMutations = {
 
     const extentionNumber = operator?.gsUsername || "1001";
 
-    const queueData = await sendToGrandStreamRequest(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: "api",
@@ -324,13 +335,9 @@ const callsMutations = {
     const {
       response: listBridgedChannelsResponse,
       extentionNumber: extension,
-    } = await sendToGrandStreamRequest(
-      models,
-      listBridgedChannelsPayload,
-      user
-    );
-    let channel = "";
-    console.log("22", extension, extensionNumber);
+    } = await sendToGrandStream(models, listBridgedChannelsPayload, user);
+    let channel = '';
+    console.log('22', extension, extensionNumber);
     if (listBridgedChannelsResponse?.response) {
       const channels = listBridgedChannelsResponse.response.channel;
       console.log("33");
@@ -377,7 +384,7 @@ const callsMutations = {
     };
     console.log("88");
 
-    const callTransferResponse = await sendToGrandStreamRequest(
+    const callTransferResponse = await sendToGrandStream(
       models,
       callTransferPayload,
       user

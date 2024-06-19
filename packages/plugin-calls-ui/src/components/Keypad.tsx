@@ -122,7 +122,7 @@ const KeyPad = (props: Props, context) => {
 
   useEffect(() => {
     setNumber(phoneNumber);
-    setPaused(agentStatus === 'pause' ? true : false);
+    setIsPaused(agentStatus === 'pause' ? true : false);
   }, [phoneNumber, loading]);
 
   // useEffect(() => {
@@ -143,7 +143,7 @@ const KeyPad = (props: Props, context) => {
   useEffect(() => {
     let timer;
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      ?.getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
@@ -179,7 +179,7 @@ const KeyPad = (props: Props, context) => {
       }
     }
     if (call?.status !== CALL_STATUS_ACTIVE) {
-      localStorage.removeItem("isCallTransfered");
+      localStorage.removeItem('transferedCallStatus');
     }
 
     // if (
