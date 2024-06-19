@@ -354,7 +354,7 @@ const userMutations = {
       employeeId,
     };
 
-    const updatedUser = models.Users.editProfile(user._id, doc);
+    const updatedUser = await models.Users.editProfile(user._id, doc);
 
     await putUpdateLog(
       models,
