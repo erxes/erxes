@@ -6,7 +6,7 @@ export default {
     return models.Labels.findOne({ _id });
   },
 
-  async rules(label: ILabelDocument, _, {}: IContext) {
+  async rules(label: ILabelDocument, _) {
     if (!label.rules) {
       return [];
     }
