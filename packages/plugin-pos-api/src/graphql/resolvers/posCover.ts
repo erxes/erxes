@@ -3,7 +3,7 @@ import { sendCoreMessage } from '../../messageBroker';
 import { ICover } from '../../models/definitions/covers';
 
 export default {
-  async user(cover: ICover, {}, { subdomain }: IContext) {
+  async user(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.userId) {
       return null;
     }
@@ -15,7 +15,7 @@ export default {
     });
   },
 
-  async createdUser(cover: ICover, {}, { subdomain }: IContext) {
+  async createdUser(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.createdBy) {
       return null;
     }
@@ -27,7 +27,7 @@ export default {
     });
   },
 
-  async modifiedUser(cover: ICover, {}, { subdomain }: IContext) {
+  async modifiedUser(cover: ICover, _, { subdomain }: IContext) {
     if (!cover.modifiedBy) {
       return null;
     }
@@ -38,7 +38,7 @@ export default {
       isRPC: true
     });
   },
-  posName: async (cover, {}, { models }) => {
+  posName: async (cover, _, { models }) => {
     const pos = await models.Pos.findOne({ token: cover.posToken }).lean();
     return pos ? pos.name : '';
   }
