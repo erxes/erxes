@@ -44,7 +44,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     });
   }
 
-  if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
+  if (pos.erkhetConfig?.isSyncErkhet) {
     const configs = await sendCoreMessage({
       subdomain,
       action: 'getConfig',
@@ -210,11 +210,11 @@ export const getProductsData = async (
 
   const followProductIds: string[] = [];
 
-  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+  if (pos.deliveryConfig?.productId) {
     followProductIds.push(pos.deliveryConfig.productId);
   }
 
-  if (pos.catProdMappings && pos.catProdMappings.length) {
+  if (pos.catProdMappings?.length) {
     for (const map of pos.catProdMappings) {
       if (!followProductIds.includes(map.productId)) {
         followProductIds.push(map.productId);
@@ -312,8 +312,7 @@ export const unfetchOrderInfo = async (req, res) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
-    !erkhetConfig ||
-    !erkhetConfig.apiToken ||
+    !(erkhetConfig?.apiToken) ||
     erkhetConfig.apiToken !== token
   ) {
     return res.send({ error: 'not found token' });
