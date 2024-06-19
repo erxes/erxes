@@ -20,7 +20,7 @@ class Chart extends React.PureComponent<Props> {
   renderPoint = (data) => {
     if (data.count === 1) {
       return (
-        <Point key={Math.random()} x={data.x} y={data.y}>
+        <Point key={data._id} x={data.x} y={data.y}>
           <span>{data.names[0]}</span>
         </Point>
       );
@@ -38,8 +38,8 @@ class Chart extends React.PureComponent<Props> {
         <h3>{__("Experiment names")}</h3>
         <PopoverContent>
           <ExperimentList>
-            {data.names.map((name, index) => (
-              <li key={index}>{name}</li>
+            {data.names.map((name) => (
+              <li key={data._id}>{name}</li>
             ))}
           </ExperimentList>
         </PopoverContent>

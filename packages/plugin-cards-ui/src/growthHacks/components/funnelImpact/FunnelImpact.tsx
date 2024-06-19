@@ -35,11 +35,13 @@ class FunnelImpact extends React.Component<Props, States> {
   }
 
   toggle = (hackStage: string, isOpen: boolean) => {
-    const hackStages = this.state.hackStages;
-    hackStages[hackStage] = !isOpen;
-
-    this.setState({ hackStages });
+    this.setState((prevState) => {
+      const hackStages = { ...prevState.hackStages }; 
+      hackStages[hackStage] = !isOpen;
+      return { hackStages };
+    });
   };
+  
 
   renderContent = () => {
     const queryParams = this.props.queryParams;

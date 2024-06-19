@@ -21,8 +21,8 @@ export default class DealList extends React.Component<Props> {
 
   render() {
     const { deals } = this.props;
-    const contents = deals.map((deal, index) => (
-      <DealItem key={index} deal={deal} />
+    const contents = deals.map((deal) => (
+      <DealItem key={deal._id} deal={deal} />
     ));
 
     return (

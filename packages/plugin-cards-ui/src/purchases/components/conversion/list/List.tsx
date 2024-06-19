@@ -40,7 +40,7 @@ class List extends React.Component<Props, {}> {
     const contents = stages.map((stage: IConversionStage, index: number) => (
       <Stage
         spacing={this.calcSpace(stages.length, index)}
-        key={index}
+        key={stage._id}
         stage={stage}
       />
     ));

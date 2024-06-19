@@ -21,8 +21,8 @@ export default class PurchaseList extends React.Component<Props> {
 
   render() {
     const { purchases } = this.props;
-    const contents = purchases.map((purchase, index) => (
-      <PurchaseItem key={index} purchase={purchase} />
+    const contents = purchases.map((purchase) => (
+      <PurchaseItem key={purchase._id} purchase={purchase} />
     ));
 
     return (
