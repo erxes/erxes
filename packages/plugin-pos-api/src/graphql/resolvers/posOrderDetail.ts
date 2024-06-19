@@ -69,7 +69,7 @@ const resolvers = {
       return {
         _id: user._id,
         code: user.code,
-        primaryPhone: (user.details && user.details.operatorPhone) || '',
+        primaryPhone: (user.details?.operatorPhone) || '',
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         primaryEmail: user.email,
         lastName: user.username,
@@ -102,18 +102,18 @@ const resolvers = {
     return {};
   },
 
-  syncedErkhet: async (order, {}, { subdomain }) => {
+  syncedErkhet: async (order, _, { subdomain }) => {
     if (order.syncedErkhet) {
       return true;
     }
     const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-    if (!erkhetConfig || !erkhetConfig.apiToken) {
+    if (!erkhetConfig?.apiToken) {
       return true;
     }
     return order.syncedErkhet;
   },
 
-  putResponses: async (order, {}, { subdomain }: IContext) => {
+  putResponses: async (order, _, { subdomain }: IContext) => {
     return sendEbarimtMessage({
       subdomain,
       action: 'putresponses.find',
@@ -128,7 +128,7 @@ const resolvers = {
     });
   },
 
-  async deal(order: IPosOrderDocument, {}, { subdomain }: IContext) {
+  async deal(order: IPosOrderDocument, _, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
@@ -141,7 +141,7 @@ const resolvers = {
     });
   },
 
-  async dealLink(order: IPosOrderDocument, {}, { subdomain }: IContext) {
+  async dealLink(order: IPosOrderDocument, _, { subdomain }: IContext) {
     if (!order.convertDealId) {
       return null;
     }
