@@ -22,6 +22,13 @@ export default {
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
+
+    // context.serverTiming = {
+    //   startTime: res.startTime,
+    //   endTime: res.endTime,
+    //   setMetric: res.setMetric,
+    // };
+
     return context;
   },
 
@@ -32,6 +39,7 @@ export default {
         const { query } = req;
 
         const subdomain = getSubdomain(req);
+        const models = await generateModels(subdomain);
 
         const result = await buildFile(subdomain, query);
 

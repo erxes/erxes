@@ -25,10 +25,11 @@ type IDataSet = {
 
 type Props = {
     dataset: IDataSet;
+    serviceName: string
 }
 
 const NumberRenderer = (props: Props) => {
-    const { dataset } = props;
+    const { dataset, serviceName } = props;
     const { data, labels } = dataset;
 
     return (

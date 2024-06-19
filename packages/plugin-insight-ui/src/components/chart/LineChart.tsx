@@ -21,7 +21,24 @@ const data = {
   ],
 };
 
-const config = {
+// const config = {
+//   type: 'line',
+//   data,
+//   options: {
+//     responsive: true,
+//     plugins: {
+//       legend: {
+//         position: 'top'
+//       },
+//       title: {
+//         display: true,
+//         text: 'Line chart'
+//       }
+//     }
+//   }
+// };
+
+const config: any = {
   type: 'bar',
   data: {
     datasets: [

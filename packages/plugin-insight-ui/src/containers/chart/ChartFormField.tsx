@@ -198,6 +198,8 @@ const ChartFormFieldList = (props: Props) => {
     return <></>;
   }
 
+  // const isMulti = chartType === "table" && (fieldName === "dimension" || fieldName === "measure") ? true : multi
+
   return (
     <ChartFormField
       fieldType={fieldType}
@@ -208,7 +210,6 @@ const ChartFormFieldList = (props: Props) => {
         fieldOptions ||
         (fieldParentVariable ? fieldParentOptions : queryFieldOptions)
       }
-      fieldLogics={logics}
       fieldLabel={fieldLabel}
       fieldDefaultValue={fieldDefaultValue}
       onChange={onChange}
