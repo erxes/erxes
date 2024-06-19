@@ -1,4 +1,3 @@
-import * as schedule from 'node-schedule';
 import { generateModels } from '../connectionResolver';
 import { sendCoreMessage } from '../messageBroker';
 
@@ -14,7 +13,6 @@ export const removeOldNotifications = async (subdomain: string) => {
       }
     },
     isRPC: true
-
   });
 
   const value = config ? config.value : 3;
