@@ -1,7 +1,7 @@
 import { sendProductsMessage } from '../../messageBroker';
 
 const resolvers = {
-  category: async (posProduct, {}, { subdomain }) => {
+  category: async (posProduct, _, { subdomain }) => {
     return sendProductsMessage({
       subdomain,
       action: 'categories.findOne',
