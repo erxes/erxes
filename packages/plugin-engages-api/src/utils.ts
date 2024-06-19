@@ -363,6 +363,8 @@ export const setCampaignCount = async (models: IModels, data: ICampaign) => {
 export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getServices();
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+  console.log("*************** domain **************** ",DOMAIN)
+
   const editor = await new EditorAttributeUtil(
     `${DOMAIN}/gateway/pl:core`,
     services,

@@ -350,12 +350,16 @@ const engageMutations = {
       data: { customerPrimaryEmail: to },
     });
 
+    console.log("customer", customer)
+
     const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
       subdomain,
       isRPC: true,
     });
+
+    console.log('targetUser', targetUser)
 
     const attributeUtil = await getEditorAttributeUtil(subdomain);
 
@@ -364,6 +368,8 @@ const engageMutations = {
       customer,
       user: targetUser,
     });
+
+    console.log("replacedContent", replacedContent)
 
     const VERSION = getEnv({ name: 'VERSION' });
 

@@ -125,10 +125,6 @@ export const sendEmail = async (
     if (VERSION === 'saas') {
       const serverId = getEnv({ name: 'SOCKETLABS_SERVER_ID' });
       const password = getEnv({ name: 'SOCKETLABS_PASSWORD' });
-      console.log("serverid ",serverId);
-      console.log("password ", password);
-
-      
 
       transporter = nodemailer.createTransport({
         host: 'smtp.socketlabs.com',
@@ -139,8 +135,6 @@ export const sendEmail = async (
           pass: password,
         },
       });
-
-      console.log('transporter is socketlabs')
     }
 
     if (transportMethod === 'sendgrid') {
@@ -247,15 +241,12 @@ export const sendEmail = async (
     mailOptions.headers = headers;
 
     try {
-      if (sendgridMail && mailOptions.subject === 'Reset password') {
-        console.log("Reset password with sendgrid")
+      if (VERSION === 'saas' && mailOptions.subject === 'Reset password') {
         const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
   
         sendgridMail.setApiKey(SENDGRID_API_KEY);
         return sendgridMail.send(mailOptions);
       }
-
-      console.log("sending ", JSON.stringify(mailOptions, null, 2))
 
       return transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
