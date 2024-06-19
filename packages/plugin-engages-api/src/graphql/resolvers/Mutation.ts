@@ -374,7 +374,7 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      return await sendWithSendgrid(subdomain, { content, from, to, title, replacedContent } );
+      return await sendWithSendgrid(subdomain, { from, to, title, html:replacedContent } );
     }
 
     try {
