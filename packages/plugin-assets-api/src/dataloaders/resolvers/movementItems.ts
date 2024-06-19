@@ -5,14 +5,14 @@ export default {
     return models.Movements.findOne({ _id });
   },
 
-  async branch(movement: IMovementItemDocument, { dataLoaders }: IContext) {
+  async branch(movement: IMovementItemDocument, _, { dataLoaders }: IContext) {
     return (
       (movement.branchId && dataLoaders.branch.load(movement.branchId)) || null
     );
   },
   async customer(
     movement: IMovementItemDocument,
-  
+  _,
     { dataLoaders }: IContext
   ) {
     return (
@@ -22,7 +22,7 @@ export default {
   },
   async company(
     movement: IMovementItemDocument,
-  
+  _,
     { dataLoaders }: IContext
   ) {
     return (
@@ -32,7 +32,7 @@ export default {
   },
   async teamMember(
     movement: IMovementItemDocument,
-  
+  _,
     { dataLoaders }: IContext
   ) {
     return (
@@ -52,7 +52,7 @@ export default {
       null
     );
   },
-  async assetDetail(movement: IMovementItemDocument, { models }: IContext) {
+  async assetDetail(movement: IMovementItemDocument, _, { models }: IContext) {
     return (await models.Assets.findOne({ _id: movement.assetId })) || null;
   }
 };
