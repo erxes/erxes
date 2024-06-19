@@ -10,7 +10,7 @@ import {
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+import { consumeQueue, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const setupMessageConsumers = async () => {
@@ -33,7 +33,7 @@ export const setupMessageConsumers = async () => {
     await receiveTrigger({ models, subdomain, type, targets });
   });
 
-  consumeQueue('automations:find.count', async ({ subdomain, data }) => {
+  consumeRPCQueue('automations:find.count', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { query = {} } = data || {};

@@ -1,8 +1,9 @@
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { sendRPCMessage } from '../messageBroker';
 import { ORGANIZATION_PLAN } from './constants';
 import {
   coreModelOrganizations,
-  getOrgPromoCodes,
+  // getOrgPromoCodes,
   getOrganizationDetail,
   getPlugins,
   removeOrgsCache
@@ -380,14 +381,14 @@ export const checkOrganizationCharge = async (args: {
     return;
   }
 
-  const orgPromoCodes = await getOrgPromoCodes(organization);
+  // const orgPromoCodes = await getOrgPromoCodes(organization);
 
   const { totalAmount, usedAmount } = await calcUsage({
     subdomain,
     pluginType,
     organization,
     donotCalcUsed,
-    orgPromoCodes,
+    // orgPromoCodes,
     params
   });
 
@@ -401,7 +402,7 @@ export const calcUsage = async (args: {
   pluginType: string;
   organization: IOrganization;
   donotCalcUsed?: boolean;
-  orgPromoCodes: any[];
+  // orgPromoCodes: any[];
   params?: any;
 }): Promise<any> => {
   const {
@@ -409,7 +410,7 @@ export const calcUsage = async (args: {
     donotCalcUsed,
     pluginType,
     organization,
-    orgPromoCodes,
+    // orgPromoCodes,
     params
   } = args;
 
@@ -441,12 +442,17 @@ export const calcUsage = async (args: {
   if (donotCalcUsed) {
     totalUsage = parseInt(chargeDetail.used || 0, 10);
   } else {
-    const usageResponse = await getUsageByPluginType({
-      pluginType,
-      subdomain,
-      params
-    });
-    totalUsage = usageResponse.totalUsage;
+    try {
+      const usageResponse = await getUsageByPluginType({
+        pluginType,
+        subdomain,
+        params
+      });
+      totalUsage = usageResponse.totalUsage || 0;
+      
+    } catch (error) {
+      debugError(`Error occurred while getting plugin usage ${error.message}`);
+    }
   }
 
   const purchased = parseInt(chargeDetail.purchased || 0, 10);
@@ -457,24 +463,25 @@ export const calcUsage = async (args: {
   let totalAmount = freeAmount + purchasedAmount;
   let promoCodeAmount = 0;
 
-  if (orgPromoCodes.length) {
-    // find promo code amount that related current plugin
-    for (const promoCode of orgPromoCodes) {
-      const { amounts = {} } = promoCode;
+  // if (orgPromoCodes.length) {
+  //   // find promo code amount that related current plugin
+  //   for (const promoCode of orgPromoCodes) {
+  //     const { amounts = {} } = promoCode;
 
-      const pluginAmount = amounts[plugin.type] || 0;
+  //     const pluginAmount = amounts[plugin.type] || 0;
 
-      if (pluginAmount) {
-        promoCodeAmount += pluginAmount;
-      }
-    }
+  //     if (pluginAmount) {
+  //       promoCodeAmount += pluginAmount;
+  //     }
+  //   }
 
-    totalAmount += promoCodeAmount;
-  } else if (plan === ORGANIZATION_PLAN.GROWTH) {
+  //   totalAmount += promoCodeAmount;
+  // } else
+   if (plan === ORGANIZATION_PLAN.GROWTH) {
     totalAmount += growthInitialCount;
   }
 
-  const remainingAmount = totalAmount - totalUsage;
+  const remainingAmount = (totalAmount - totalUsage) || 0;
 
   return {
     freeAmount,

@@ -24,7 +24,7 @@ function ChargeItem(props: Props) {
     remainingAmount,
     usedAmount,
     freeAmount,
-    promoCodeAmount,
+    // promoCodeAmount,
     purchasedAmount,
   } = usage;
 
@@ -62,9 +62,9 @@ function ChargeItem(props: Props) {
           "-"
         )}
       </td>
-      <td>
+      {/* <td>
         {!unLimited ? `${formatNumber(promoCodeAmount)} ${unit || ""}` : "-"}
-      </td>
+      </td> */}
       <td>
         {!unLimited ? (
           `${formatNumber(purchasedAmount)} ${unit || ""}`

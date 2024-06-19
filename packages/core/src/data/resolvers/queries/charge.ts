@@ -17,14 +17,14 @@ const chargeQueries = {
       models,
     });
 
-    const orgPromoCodes = await getOrgPromoCodes(currentOrganization);
+    // const orgPromoCodes = await getOrgPromoCodes(currentOrganization);
 
     for (const plugin of plugins) {
       plugin.usage = await calcUsage({
         subdomain,
         pluginType: plugin.type,
         organization: currentOrganization,
-        orgPromoCodes,
+        // orgPromoCodes,
       });
     }
 
