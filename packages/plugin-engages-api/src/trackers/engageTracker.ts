@@ -23,10 +23,6 @@ export const getApi = async (models: IModels, type: string): Promise<any> => {
   return new AWS.SNS();
 };
 
-/**
- * Receives notification from amazon simple notification service
- * And updates engage message status and stats
- */
 const handleMessage = async (models: IModels, subdomain: string, message) => {
   let parsedMessage;
 
@@ -60,8 +56,7 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
   const type = eventType.toLowerCase();
 
-  // change message destination after EmailDeliveries are migrated
-  // TODO: Message without consumer
+
   if (emailDeliveryId) {
     return sendMessage('engagesNotification', {
       subdomain,
@@ -74,10 +69,10 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   }
 
   const mailHeaders = {
-    engageMessageId: engageMessageId && engageMessageId.value,
-    mailId: mailId && mailId.value,
-    customerId: customerId && customerId.value,
-    email: to && to.value,
+    engageMessageId: engageMessageId?.value,
+    mailId: mailId?.value,
+    customerId: customerId?.value,
+    email: to?.value,
   };
 
   const exists = await models.DeliveryReports.findOne({
@@ -85,7 +80,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
     status: type,
   });
 
-  // to prevent duplicate event counting
   if (!exists) {
     await models.Stats.updateStats(mailHeaders.engageMessageId, type);
 
@@ -109,7 +103,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   return true;
 };
 
-// aws service middleware
 export const engageTracker = async (req, res) => {
   const chunks: any = [];
 
@@ -157,7 +150,7 @@ export const awsRequests = {
     return new Promise((resolve, reject) => {
       api.listVerifiedEmailAddresses((error, data) => {
         if (error) {
-    return reject(error instanceof Error ? error : new Error(error));
+          return reject(new Error(`Error occured: ${error}`));
         }
         resolve(data); 
         return resolve(data.VerifiedEmailAddresses);
@@ -171,7 +164,7 @@ export const awsRequests = {
     return new Promise((resolve, reject) => {
       api.verifyEmailAddress({ EmailAddress: email }, (error, data) => {
         if (error) {
-          return reject(error instanceof Error ? error : new Error(error));
+          return reject(new Error(`Error occured: ${error}`));
         }
 
         return resolve(data);
@@ -185,7 +178,7 @@ export const awsRequests = {
     return new Promise((resolve, reject) => {
       api.deleteVerifiedEmailAddress({ EmailAddress: email }, (error, data) => {
         if (error) {
-          return reject(error instanceof Error ? error : new Error(error));
+          return reject(new Error(`Error occured: ${error}`));
         }
 
         return resolve(data);
