@@ -1,3 +1,4 @@
+// import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
 import { Recipient, Recipients } from '@erxes/ui-engage/src/styles';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import { ContentBox, FlexRow } from '@erxes/ui-settings/src/styles';
