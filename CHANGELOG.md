@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.6](https://github.com/erxes/erxes/compare/1.12.5...1.12.6) (2024-06-20)
+
+
+### Bug Fixes
+
+* **coreui:** update confirm modal ([29d01fe](https://github.com/erxes/erxes/commit/29d01fe829ed13ca5e49e30ffba5f78fedac5134))
+
 ## [1.12.5](https://github.com/erxes/erxes/compare/1.12.4...1.12.5) (2024-06-19)
 
 
