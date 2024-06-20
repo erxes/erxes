@@ -33,8 +33,6 @@ export const loadAppClass = (models: IModels) => {
       const tokenOptions: any = {};
       const refreshOptions: any = {};
 
-      console.log(doc, 'doc');
-
       if (doc.expireDate && !doc.noExpire) {
         const date = new Date(doc.expireDate);
         const oneDay = 30 * 24 * 3600 * 1000;

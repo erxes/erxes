@@ -88,7 +88,6 @@ class PlanOverview extends React.Component<Props> {
   render() {
     const { chargeItems, currentOrganization } = this.props;
 
-    const { CORE_URL } = getEnv();
 
     return (
       <StatusBox largePadding={true} largeMargin={true}>
@@ -105,13 +104,13 @@ class PlanOverview extends React.Component<Props> {
             >
               <thead>
                 <tr>
-                  <th>{__("Name")}</th>
-                  <th>{__("Used")}</th>
-                  <th>{__("Remaining")}</th>
-                  <th>{__("Free")}</th>
-                  <th>{__("Promo Code")}</th>
-                  <th>{__("Purchased")}</th>
-                  <th className="odd">{__("Total")}</th>
+                  <th>{__('Name')}</th>
+                  <th>{__('Used')}</th>
+                  <th>{__('Remaining')}</th>
+                  <th>{__('Free')}</th>
+                  {/* <th>{__("Promo Code")}</th> */}
+                  <th>{__('Purchased')}</th>
+                  <th className="odd">{__('Total')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -128,7 +127,7 @@ class PlanOverview extends React.Component<Props> {
           </span>
           <a
             target="_blank"
-            href={`${CORE_URL}/signin`}
+            href={`https://erxes.io/organizations`}
             rel="noopener noreferrer"
           >
             <Button btnStyle="primary" icon="clipboard-notes" uppercase={false}>
