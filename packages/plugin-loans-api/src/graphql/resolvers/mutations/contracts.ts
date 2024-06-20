@@ -343,6 +343,50 @@ const contractMutations = {
       interestAmount
     });
   },
+  clientCreditLoanRequest: async (
+    _root,
+    {
+      secondaryPassword,
+      customerId,
+      amount,
+      contractId
+    }: {
+      contractId: string;
+      amount: number;
+      customerId: string;
+      secondaryPassword: string;
+    },
+    { models, subdomain }: IContext
+  ) => {
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: "clientPortalUsers.validatePassword",
+        data: {
+          userId: customerId,
+          password: secondaryPassword,
+          secondary: true
+        }
+      },
+      "clientportal"
+    );
+
+    if (validate?.status === "error") {
+      throw new Error(validate.errorMessage);
+    }
+
+    const contract = await models.Contracts.getContract({ _id: contractId });
+
+    if (!contract) {
+      throw new Error("Contract not found!");
+    }
+
+    return await models.Contracts.clientCreditLoanRequest(
+      subdomain,
+      { customerId, amount, contractId },
+      contract
+    );
+  }
 };
 
 checkPermission(contractMutations, "contractsAdd", "contractsAdd");

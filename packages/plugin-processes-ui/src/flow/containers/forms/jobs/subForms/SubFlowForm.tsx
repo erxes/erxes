@@ -1,14 +1,14 @@
-import * as compose from "lodash.flowright";
+import * as compose from 'lodash.flowright';
 
-import { FlowDetailQueryResponse, IFlow, IJob } from "../../../../types";
-import React, { useState } from "react";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import SubFlowForm from "../../../../components/forms/jobs/subForms/SubFlowForm";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../../../../graphql";
-import { withProps } from "@erxes/ui/src/utils";
+import { FlowDetailQueryResponse, IFlow, IJob } from '../../../../types';
+import React, { useState } from 'react';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import SubFlowForm from '../../../../components/forms/jobs/subForms/SubFlowForm';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../../../../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   id: string;
@@ -55,7 +55,7 @@ const SubFlowFormContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, FlowDetailQueryResponse>(gql(queries.flowDetail), {
-      name: "flowDetailQuery",
+      name: 'flowDetailQuery',
       skip: ({ activeFlowJob }) => !activeFlowJob.config.subFlowId,
       options: ({ activeFlowJob }) => ({
         variables: {

@@ -1,20 +1,20 @@
-import { IContext } from "../../connectionResolver";
+import { IContext } from '../../connectionResolver';
 import {
   getConfig,
   sendCoreMessage,
   sendMessageBroker,
-} from "../../messageBroker";
-import { SCHEDULE_STATUS } from "../../models/definitions/constants";
+} from '../../messageBroker';
+import { SCHEDULE_STATUS } from '../../models/definitions/constants';
 import {
   IContractDocument,
   IContract,
-} from "../../models/definitions/contracts";
-import { getCalcedAmounts } from "../../models/utils/transactionUtils";
+} from '../../models/definitions/contracts';
+import { getCalcedAmounts } from '../../models/utils/transactionUtils';
 import {
   getDiffDay,
   getFullDate,
   getNextMonthDay,
-} from "../../models/utils/utils";
+} from '../../models/utils/utils';
 
 const Contracts = {
   async contractType(contract: IContract, _, { models }: IContext) {
@@ -55,7 +55,7 @@ const Contracts = {
   },
 
   async customers(contract: IContract, _, { subdomain }: IContext) {
-    if (contract.customerType !== "customer") return null;
+    if (contract.customerType !== 'customer') return null;
 
     const customer = await sendMessageBroker(
       {
@@ -99,7 +99,7 @@ const Contracts = {
       }
 
       const insurance = await models.InsuranceTypes.getInsuranceType({
-        _id: data.insuranceTypeId,
+        _id: data.insuranceTypeId
       });
 
       const company = await sendMessageBroker(
@@ -141,7 +141,7 @@ const Contracts = {
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
-        _id: data.insuranceTypeId,
+        _id: data.insuranceTypeId
       });
 
       collaterals.push({
@@ -157,12 +157,12 @@ const Contracts = {
   async currentSchedule(contract: IContractDocument, _, { models }: IContext) {
     const currentSchedule: any = await models.Schedules.findOne({
       contractId: contract._id,
-      status: { $in: [SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PENDING] },
+      status: { $in: [SCHEDULE_STATUS.LESS, SCHEDULE_STATUS.PENDING] }
     }).sort({ payDate: 1 });
 
     if (!currentSchedule) {
       const lastDone: any = await models.Schedules.findOne({
-        contractId: contract._id,
+        contractId: contract._id
       }).sort({ payDate: -1 });
 
       if (!lastDone) {
@@ -190,7 +190,7 @@ const Contracts = {
     currentSchedule.balance = currentSchedule.balance + currentSchedule.payment;
     currentSchedule.remainderTenor = await models.Schedules.find({
       contractId: contract._id,
-      status: SCHEDULE_STATUS.PENDING,
+      status: SCHEDULE_STATUS.PENDING
     }).countDocuments();
 
     return currentSchedule;
@@ -207,7 +207,7 @@ const Contracts = {
   async hasTransaction(contract: IContractDocument, _, { models }: IContext) {
     return (
       (await models.Transactions.countDocuments({
-        contractId: contract._id,
+        contractId: contract._id
       })) > 0
     );
   },
@@ -217,7 +217,7 @@ const Contracts = {
     const expiredSchedule = await models.Schedules.findOne({
       contractId: contract._id,
       scheduleDidStatus: { $ne: SCHEDULE_STATUS.DONE },
-      isDefault: true,
+      isDefault: true
     }).sort({ payDate: 1 });
 
     const paymentDate = getFullDate(expiredSchedule?.payDate as Date);
@@ -260,7 +260,7 @@ const Contracts = {
       subdomain,
       {
         contractId: contract._id,
-        payDate: (nextSchedule?.payDate) || today,
+        payDate: (nextSchedule?.payDate) || today
       },
       config
     );
@@ -295,7 +295,7 @@ const Contracts = {
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
-      contractId: contract._id,
+      contractId: contract._id
     })
       .sort({ createdAt: -1 })
       .limit(10)

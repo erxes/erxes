@@ -36,7 +36,7 @@ const OMIT_FROM_INPUT = [
   'updatedUserType',
   'updatedAt',
   'updatedById',
-  'updatedByCpId',
+  'updatedByCpId'
 ] as const;
 
 type CommentCreateInput = Omit<IComment, (typeof OMIT_FROM_INPUT)[number]>;
@@ -82,10 +82,10 @@ export const commentSchema = new Schema<IComment>(
 
     updatedUserType: { type: String, required: true, enum: USER_TYPES },
     updatedById: String,
-    updatedByCpId: String,
+    updatedByCpId: String
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
 
@@ -111,7 +111,7 @@ export const generateCommentModel = (
         createdById: user._id,
         createdUserType: USER_TYPES[0],
         updatedById: user._id,
-        updatedUserType: USER_TYPES[0],
+        updatedUserType: USER_TYPES[0]
       });
       await models.Post.updateOne(
         { _id: c.postId },
@@ -170,7 +170,7 @@ export const generateCommentModel = (
         createdByCpId: cpUser.userId,
         createdUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
-        updatedUserType: USER_TYPES[1],
+        updatedUserType: USER_TYPES[1]
       });
 
       await models.Post.updateOne(
@@ -229,7 +229,7 @@ async function deleteCommentCommon(
 
   while (findRepliesOf?.length) {
     const replies = await models.Comment.find({
-      replyToId: { $in: findRepliesOf },
+      replyToId: { $in: findRepliesOf }
     })
       .select('_id')
       .lean();
@@ -239,14 +239,14 @@ async function deleteCommentCommon(
   }
 
   await models.Comment.deleteMany({
-    _id: { $in: idsToDelete },
+    _id: { $in: idsToDelete }
   });
 
   await models.CommentDownVote.deleteMany({
-    contentId: { $in: idsToDelete },
+    contentId: { $in: idsToDelete }
   });
   await models.CommentUpVote.deleteMany({
-    contentId: { $in: idsToDelete },
+    contentId: { $in: idsToDelete }
   });
 
   await models.Post.updateOne(

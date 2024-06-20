@@ -7,7 +7,7 @@ import { getCloseInfo } from './models/utils/closeUtils';
 import { IConfig } from './interfaces/config';
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue("loans:contracts.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:contracts.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -16,7 +16,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("loans:contracts.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:contracts.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -37,7 +37,7 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue("loans:contracts.update", async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:contracts.update', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { selector, modifier } = data;
 
@@ -49,7 +49,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    "loans:contracts.getCloseInfo",
+    'loans:contracts.getCloseInfo',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const contract = await models.Contracts.getContract({
@@ -68,7 +68,7 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue("loans:contractType.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:contractType.findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     return {
       status: 'success',
@@ -76,7 +76,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("loans:contractType.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:contractType.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -85,7 +85,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("loans:transactions.find", async ({ subdomain, data }) => {
+  consumeRPCQueue('loans:transactions.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -95,21 +95,21 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    "loans:transactions.findAtContracts",
+    'loans:transactions.findAtContracts',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const contracts = await models.Contracts.find(data, { _id: 1 }).lean();
 
       return {
-        status: "success",
+        status: 'success',
         data: await models.Transactions.find({
           contractId: { $in: contracts.map((c) => c._id) }
         }).lean()
       };
     }
   );
-  consumeRPCQueue("loans:transaction", async ({ subdomain, data }) => {
-    console.log("subdomain, data", subdomain, data);
+  consumeRPCQueue('loans:transaction', async ({ subdomain, data }) => {
+    console.log('subdomain, data', subdomain, data);
     return {
       status: 'success'
     };
@@ -202,7 +202,7 @@ export const getConfig = async (
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
-    action: "getConfigs",
+    action: 'getConfigs',
     data: {},
     isRPC: true,
     defaultValue: []
@@ -221,7 +221,7 @@ export const sendSms = async (
   phoneNumber: string,
   content: string
 ) => {
-  if (type === "messagePro") {
+  if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
       'MESSAGE_PRO_API_KEY',
       subdomain
@@ -233,12 +233,12 @@ export const sendSms = async (
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
-      throw new Error("messaging config not set properly");
+      throw new Error('messaging config not set properly');
     }
 
     try {
       await fetch(
-        "https://api.messagepro.mn/send?" +
+        'https://api.messagepro.mn/send?' +
           new URLSearchParams({
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
@@ -247,7 +247,7 @@ export const sendSms = async (
           })
       );
 
-      return "sent";
+      return 'sent';
     } catch (e) {
       throw new Error(e.message);
     }

@@ -1,17 +1,17 @@
-import { IUserDocument } from "@erxes/api-utils/src/types";
-import { Schema, Model, Connection, Types, HydratedDocument } from "mongoose";
-import { USER_TYPES, UserTypes } from "../../consts";
-import { ICpUser } from "../../graphql";
-import { IModels } from "./index";
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { USER_TYPES, UserTypes } from '../../consts';
+import { ICpUser } from '../../graphql';
+import { IModels } from './index';
 import {
   LoginRequiredError,
-} from "../../customErrors";
-import { notifyUsersPublishedPost } from "./utils";
-import * as strip from "strip";
+} from '../../customErrors';
+import { notifyUsersPublishedPost } from './utils';
+import * as strip from 'strip';
 
-export const POST_STATES = ["DRAFT", "PUBLISHED"] as const;
+export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
-export const ADMIN_APPROVAL_STATES = ["PENDING", "APPROVED", "DENIED"] as const;
+export const ADMIN_APPROVAL_STATES = ['PENDING', 'APPROVED', 'DENIED'] as const;
 
 export type PostStates = (typeof POST_STATES)[number];
 export type AdminApprovalStates = (typeof ADMIN_APPROVAL_STATES)[number];
@@ -75,25 +75,25 @@ export interface IPost extends CommonPostFields {
 export type PostDocument = HydratedDocument<IPost>;
 
 const OMIT_FROM_INPUT = [
-  "_id",
+  '_id',
 
-  "viewCount",
-  "trendScore",
+  'viewCount',
+  'trendScore',
 
-  "createdUserType",
-  "createdByCpId",
+  'createdUserType',
+  'createdByCpId',
 
-  "categoryApprovalState",
+  'categoryApprovalState',
 
-  "updatedUserType",
-  "updatedById",
-  "updatedByCpId",
+  'updatedUserType',
+  'updatedById',
+  'updatedByCpId',
 
-  "lastPublishedAt",
+  'lastPublishedAt',
 
-  "requiredLevel",
-  "isPermissionRequired",
-  "commentCount",
+  'requiredLevel',
+  'isPermissionRequired',
+  'commentCount',
 ] as const;
 
 interface PollOptionInput {
@@ -110,7 +110,7 @@ export type PostPatchInput = Partial<PostCreateInput>;
 
 export type PostCreateInputCp = Omit<
   PostCreateInput,
-  "createdById" | "lastPublishedAt"
+  'createdById' | 'lastPublishedAt'
 >;
 export type PostPatchInputCp = Partial<PostCreateInputCp>;
 
@@ -146,14 +146,14 @@ export interface IPostModel extends Model<IPost> {
   addTranslation(
     _id: string,
     lang: string,
-    translation: Omit<TranslationsFields, "lang">,
+    translation: Omit<TranslationsFields, 'lang'>,
     isClientPortal?: boolean,
     cpUser?: ICpUser
   );
   updateTranslation(
     _id: string,
     lang: string,
-    translation: Omit<TranslationsFields, "lang">,
+    translation: Omit<TranslationsFields, 'lang'>,
     isClientPortal?: boolean,
     cpUser?: ICpUser
   );
@@ -167,12 +167,12 @@ export interface IPostModel extends Model<IPost> {
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
   createPostCp(
-    c: Omit<PostCreateInput, "createdAt" | "lastPublishedAt">,
+    c: Omit<PostCreateInput, 'createdAt' | 'lastPublishedAt'>,
     user?: ICpUser
   ): Promise<PostDocument>;
   patchPostCp(
     _id: string,
-    c: Omit<PostPatchInput, "createdAt" | "lastPublishedAt">,
+    c: Omit<PostPatchInput, 'createdAt' | 'lastPublishedAt'>,
     user?: ICpUser
   ): Promise<PostDocument>;
   deletePostCp(_id: string, user?: ICpUser): Promise<PostDocument>;
@@ -259,8 +259,8 @@ postSchema.index({ tagIds: 1, state: 1 });
 postSchema.index({ lastPublishedAt: -1 });
 
 postSchema.index({
-  title: "text",
-  "translations.title": "text",
+  title: 'text',
+  'translations.title': 'text',
 });
 
 // for displaying posts in category page
@@ -284,7 +284,7 @@ postSchema.index(
 
 const wordCountHtml = (html?: string | null): number => {
   if (!html) return 0;
-  const text = strip(html || "");
+  const text = strip(html || '');
   return text.trim().split(/\s+/).length;
 };
 async function cleanupAfterDelete(
@@ -309,7 +309,7 @@ export const generatePostModel = (
     public static async findByIdOrThrow(_id: string): Promise<PostDocument> {
       const post = await models.Post.findById(_id);
       if (!post) {
-        throw new Error(`Post with \`{ "_id" : "${_id}"}\` doesn't exist`);
+        throw new Error(`Post with \`{ '_id' : '${_id}'}\` doesn't exist`);
       }
       return post;
     }
@@ -358,11 +358,11 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       // admin posts are always approved
-      const categoryApprovalState: AdminApprovalStates = "APPROVED";
+      const categoryApprovalState: AdminApprovalStates = 'APPROVED';
 
       const { pollOptions, ...doc } = input;
 
-      let lastPublishedAt = doc.state === "PUBLISHED" ? new Date() : null;
+      let lastPublishedAt = doc.state === 'PUBLISHED' ? new Date() : null;
 
       const res = await models.Post.create({
         ...doc,
@@ -383,12 +383,12 @@ export const generatePostModel = (
         await models.PollOption.handleChanges(
           res._id,
           pollOptions.map(({ title, order }) => ({ title, order })),
-          "CP",
+          'CP',
           user._id
         );
       }
 
-      if (res.state === "PUBLISHED") {
+      if (res.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, res);
       }
       return res;
@@ -404,7 +404,7 @@ export const generatePostModel = (
 
       const originalState = post.state;
 
-      const update: Partial<Omit<IPost, "_id">> = {
+      const update: Partial<Omit<IPost, '_id'>> = {
         ...patch,
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
@@ -415,7 +415,7 @@ export const generatePostModel = (
         update.wordCount = wordCountHtml(update.content);
       }
 
-      if (originalState === "DRAFT" && patch.state === "PUBLISHED") {
+      if (originalState === 'DRAFT' && patch.state === 'PUBLISHED') {
         update.lastPublishedAt = new Date();
         update.viewCount = 0;
       }
@@ -427,19 +427,19 @@ export const generatePostModel = (
       );
 
       if (!updatedPost) {
-        throw new Error(`Post with \`{ "_id" : "${_id}"}\` doesn't exist`);
+        throw new Error(`Post with \`{ '_id' : '${_id}'}\` doesn't exist`);
       }
 
       if (pollOptions !== undefined) {
         await models.PollOption.handleChanges(
           post._id,
           pollOptions || [],
-          "CP",
+          'CP',
           user._id
         );
       }
 
-      if (originalState === "DRAFT" && patch.state === "PUBLISHED") {
+      if (originalState === 'DRAFT' && patch.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, post);
       }
 
@@ -452,7 +452,7 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
       await post.deleteOne();
-      cleanupAfterDelete(models, _id, "CRM", user._id);
+      cleanupAfterDelete(models, _id, 'CRM', user._id);
       return post;
     }
 
@@ -462,26 +462,26 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
-      return changeStateCommon(subdomain, models, post, state, user._id, "CRM");
+      return changeStateCommon(subdomain, models, post, state, user._id, 'CRM');
     }
 
     public static async draft(
       _id: string,
       user: IUserDocument
     ): Promise<PostDocument> {
-      return models.Post.changeState(_id, "DRAFT", user);
+      return models.Post.changeState(_id, 'DRAFT', user);
     }
     public static async publish(
       _id: string,
       user: IUserDocument
     ): Promise<PostDocument> {
-      return models.Post.changeState(_id, "PUBLISHED", user);
+      return models.Post.changeState(_id, 'PUBLISHED', user);
     }
 
     public static async addTranslation(
       _id: string,
       lang: string,
-      translation: Omit<TranslationsFields, "lang">,
+      translation: Omit<TranslationsFields, 'lang'>,
       isClientPortal?: boolean,
       cpUser?: ICpUser
     ) {
@@ -514,7 +514,7 @@ export const generatePostModel = (
     public static async updateTranslation(
       _id: string,
       lang: string,
-      translation: Omit<TranslationsFields, "lang">,
+      translation: Omit<TranslationsFields, 'lang'>,
       isClientPortal?: boolean,
       cpUser?: ICpUser
     ) {
@@ -527,7 +527,7 @@ export const generatePostModel = (
       })();
 
       if (!post.translations?.some((t) => t.lang === lang)) {
-        throw new Error("Translation doesn't exist");
+        throw new Error('Translation doesn't exist');
       }
 
       const translationDoc = { ...translation, lang };
@@ -536,11 +536,11 @@ export const generatePostModel = (
         { _id },
         {
           $set: {
-            "translations.$[elem]": translationDoc,
+            'translations.$[elem]': translationDoc,
           },
         },
         {
-          arrayFilters: [{ "elem.lang": lang }],
+          arrayFilters: [{ 'elem.lang': lang }],
         }
       );
     }
@@ -559,7 +559,7 @@ export const generatePostModel = (
       })();
 
       if (!post.translations?.some((t) => t.lang === lang)) {
-        throw new Error("Translation already doesn't exist");
+        throw new Error('Translation already doesn't exist');
       }
 
       await models.Post.updateOne(
@@ -588,7 +588,7 @@ export const generatePostModel = (
       return post;
     }
     public static async createPostCp(
-      input: Omit<PostCreateInputCp, "createdAt" | "lastPublishedAt">,
+      input: Omit<PostCreateInputCp, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -597,12 +597,12 @@ export const generatePostModel = (
 
       const category = await models.Category.findById(post.categoryId);
 
-      await models.Category.ensureUserIsAllowed("WRITE_POST", category, cpUser);
+      await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
 
       const categoryApprovalState: AdminApprovalStates =
-        category?.postsReqCrmApproval ? "PENDING" : "APPROVED";
+        category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
 
-      const lastPublishedAt = post.state === "PUBLISHED" ? new Date() : null;
+      const lastPublishedAt = post.state === 'PUBLISHED' ? new Date() : null;
 
       const res = await models.Post.create({
         ...post,
@@ -623,19 +623,19 @@ export const generatePostModel = (
         await models.PollOption.handleChanges(
           res._id,
           pollOptions.map(({ title, order }) => ({ title, order })),
-          "CP",
+          'CP',
           cpUser.userId
         );
       }
 
-      if (res.state === "PUBLISHED") {
+      if (res.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, res);
       }
       return res;
     }
     public static async patchPostCp(
       _id: string,
-      input: Omit<PostPatchInputCp, "createdAt" | "lastPublishedAt">,
+      input: Omit<PostPatchInputCp, 'createdAt' | 'lastPublishedAt'>,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new LoginRequiredError();
@@ -651,12 +651,12 @@ export const generatePostModel = (
 
       const category = await models.Category.findById(resultingCategoryId);
 
-      await models.Category.ensureUserIsAllowed("WRITE_POST", category, cpUser);
+      await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
 
       const categoryApprovalState: AdminApprovalStates =
-        category?.postsReqCrmApproval ? "PENDING" : "APPROVED";
+        category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
 
-      const update: Partial<Omit<IPost, "_id">> = {
+      const update: Partial<Omit<IPost, '_id'>> = {
         ...patch,
         categoryApprovalState,
         updatedUserType: USER_TYPES[1],
@@ -668,7 +668,7 @@ export const generatePostModel = (
         update.wordCount = wordCountHtml(update.content);
       }
 
-      if (originalState === "DRAFT" && update.state === "PUBLISHED") {
+      if (originalState === 'DRAFT' && update.state === 'PUBLISHED') {
         update.lastPublishedAt = new Date();
         update.viewCount = 0;
       }
@@ -680,19 +680,19 @@ export const generatePostModel = (
       );
 
       if (!updatedPost) {
-        throw new Error("Post not found");
+        throw new Error('Post not found');
       }
 
       if (pollOptions !== undefined) {
         await models.PollOption.handleChanges(
           post._id,
           pollOptions || [],
-          "CP",
+          'CP',
           cpUser.userId
         );
       }
 
-      if (originalState === "DRAFT" && post.state === "PUBLISHED") {
+      if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
         await notifyUsersPublishedPost(subdomain, models, post);
       }
       return updatedPost;
@@ -708,7 +708,7 @@ export const generatePostModel = (
       await cleanupAfterDelete(
         models,
         post._id.toString(),
-        "CP",
+        'CP',
         cpUser.userId
       );
       return post;
@@ -727,7 +727,7 @@ export const generatePostModel = (
         post,
         state,
         cpUser.userId,
-        "CP"
+        'CP'
       );
 
       return res;
@@ -737,20 +737,20 @@ export const generatePostModel = (
       _id: string,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      return models.Post.changeStateCp(_id, "DRAFT", cpUser);
+      return models.Post.changeStateCp(_id, 'DRAFT', cpUser);
     }
     public static async publishCp(
       _id: string,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
-      return models.Post.changeStateCp(_id, "PUBLISHED", cpUser);
+      return models.Post.changeStateCp(_id, 'PUBLISHED', cpUser);
     }
 
     public static async updateTrendScoreOfPublished(query = {}) {
       await models.Post.find(
-        { ...query, state: "PUBLISHED" },
+        { ...query, state: 'PUBLISHED' },
         { viewCount: 1, lastPublishedAt: 1, trendScore: 1 },
-        { readPreference: "secondaryPreferred" }
+        { readPreference: 'secondaryPreferred' }
       )
         .cursor()
         .eachAsync(async function updateTrendScores(post: PostDocument) {
@@ -766,8 +766,8 @@ export const generatePostModel = (
   }
   postSchema.loadClass(PostModel);
 
-  models.Post = con.model<IPost, IPostModel>("forum_posts", postSchema);
-  models.Post.collection.createIndex({ "customIndexed.$**": 1 });
+  models.Post = con.model<IPost, IPostModel>('forum_posts', postSchema);
+  models.Post.collection.createIndex({ 'customIndexed.$**': 1 });
 };
 
 async function changeStateCommon(
@@ -783,13 +783,13 @@ async function changeStateCommon(
 
   post.viewCount = 0;
 
-  if (originalState === "DRAFT" && state === "PUBLISHED") {
+  if (originalState === 'DRAFT' && state === 'PUBLISHED') {
     post.lastPublishedAt = new Date();
   }
 
   await post.save();
 
-  if (originalState === "DRAFT" && post.state === "PUBLISHED") {
+  if (originalState === 'DRAFT' && post.state === 'PUBLISHED') {
     await notifyUsersPublishedPost(subdomain, models, post);
   }
   return post;

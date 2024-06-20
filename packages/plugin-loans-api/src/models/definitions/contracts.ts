@@ -151,7 +151,7 @@ export const insuranceDataSchema = {
   _id: { type: String },
   insuranceTypeId: { type: String },
   currency: { type: String },
-  amount: { type: Number },
+  amount: { type: Number }
 };
 
 export const collateralDataSchema = {
@@ -167,7 +167,7 @@ export const collateralDataSchema = {
   collateralTypeId: { type: String },
   insuranceTypeId: { type: String },
   currency: { type: String },
-  insuranceAmount: { type: Number },
+  insuranceAmount: { type: Number }
 };
 
 export const contractSchema = schemaHooksWrapper(
@@ -182,21 +182,21 @@ export const contractSchema = schemaHooksWrapper(
       type: String,
       label: "Number",
       optional: true,
-      index: true,
+      index: true
     }),
     status: field({
       type: String,
       label: "Status",
       enum: CONTRACT_STATUS.ALL,
       required: true,
-      default: CONTRACT_STATUS.NORMAL,
+      default: CONTRACT_STATUS.NORMAL
     }),
     classification: field({
       type: String,
       label: "Classification",
       enum: CONTRACT_CLASSIFICATION.ALL,
       required: true,
-      default: CONTRACT_CLASSIFICATION.NORMAL,
+      default: CONTRACT_CLASSIFICATION.NORMAL
     }),
     branchId: field({
       type: String,
@@ -271,7 +271,7 @@ export const contractSchema = schemaHooksWrapper(
       enum: LEASE_TYPES.ALL,
       label: "Lease Type",
       required: true,
-      default: LEASE_TYPES.FINANCE,
+      default: LEASE_TYPES.FINANCE
     }),
     commitmentInterest: field({
       type: Number,
@@ -341,7 +341,7 @@ export const contractSchema = schemaHooksWrapper(
     relCustomer: field({
       type: [{ customerId: String, customerType: String }],
       optional: true,
-      label: "Loan related customer's",
+      label: "Loan related customer's"
     }),
     relationExpertId: field({
       type: String,

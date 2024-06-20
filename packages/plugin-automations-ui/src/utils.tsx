@@ -94,10 +94,10 @@ export const noEndPoint = {
         visible: true,
         labelStyle: {
           color: colors.colorCoreRed
-        },
-      },
-    ],
-  ],
+        }
+      }
+    ]
+  ]
 };
 
 // the definition of target endpoints (will appear when the user drags a connection)
@@ -186,13 +186,13 @@ export const connection = (
         sourceAction.config[sourceHandle] = actionId;
       }
 
-      if (connectType === "optional") {
+      if (connectType === 'optional') {
         const sourceConfig = sourceAction?.config || {};
 
         const optionalConnects = sourceConfig?.optionalConnects || [];
 
         //update optionalConnects if optional connect exists in sourceAction
-        let updatedOptionalConnects = optionalConnects.map((optConnect) =>
+        let updatedOptionalConnects = optionalConnects.map(optConnect =>
           optConnect.sourceId === sourceId &&
           optConnect.optionalConnectId === info.optionalConnectId
             ? { ...optConnect, actionId }
@@ -202,7 +202,7 @@ export const connection = (
         // add optionalConnect if optional connect not exists in sourceAction
         if (
           !optionalConnects.some(
-            (optConnect) =>
+            optConnect =>
               optConnect.sourceId === sourceId &&
               optConnect.optionalConnectId === info?.optionalConnectId
           )
@@ -223,7 +223,7 @@ export const connection = (
           )
         ) {
           updatedOptionalConnects = updatedOptionalConnects.filter(
-            (optConnect) => optConnect.sourceId !== sourceId
+            optConnect => optConnect.sourceId !== sourceId
           );
         }
 
@@ -238,7 +238,7 @@ export const connection = (
   }
 };
 
-export const deleteConnection = (instance) => {
+export const deleteConnection = instance => {
   instance.bind('click', (conn, event) => {
     confirm(
       'Delete connection from ' + conn.sourceId + ' to ' + conn.targetId + '?'

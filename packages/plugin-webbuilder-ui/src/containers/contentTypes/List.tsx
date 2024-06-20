@@ -29,8 +29,7 @@ function ContentTypesContainer(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    contentTypes: list,
-    contentTypesCount: totalCount
+    contentTypes: list
   };
 
   return <List {...updatedProps} />;
