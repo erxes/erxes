@@ -424,6 +424,11 @@ class ProductItem extends React.Component<Props, State> {
       );
     };
 
+    const customStyles = {
+      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+      menu: (base) => ({ ...base, zIndex: 9999 }),
+    };
+
     return (
       <tr key={productData._id}>
         <td>{this.renderType(productData.product)}</td>
@@ -508,6 +513,8 @@ class ProductItem extends React.Component<Props, State> {
             components={{ Option }}
             isClearable={true}
             options={currencyOptions}
+            styles={customStyles}
+            menuPortalTarget={document.body}
           />
         </td>
         <td style={avStyle}>
@@ -519,6 +526,8 @@ class ProductItem extends React.Component<Props, State> {
             components={{ Option }}
             isClearable={true}
             options={uoms}
+            styles={customStyles}
+            menuPortalTarget={document.body}
           />
         </td>
         <td>

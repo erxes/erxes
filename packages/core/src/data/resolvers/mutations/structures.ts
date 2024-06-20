@@ -40,7 +40,7 @@ const structuresMutations = {
     if (!ids.length) {
       throw new Error('You must specify at least one department id to remove');
     }
-    const deleteResponse = models.Departments.removeDepartments(ids);
+    const deleteResponse = await models.Departments.removeDepartments(ids);
     return deleteResponse;
   },
 
