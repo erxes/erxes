@@ -35,8 +35,7 @@ const Goal = (props: Props) => {
   }, [goal]);
 
   const renderActionBar = () => {
-    const title =
-      `${capitalize(goal.entity) || ""} ${goal.goalTypeChoose}` || "";
+    const title = `${capitalize(goal.entity) ?? ""} ${goal.goalTypeChoose ?? ''}`;
 
     const leftActionBar = <Title>{__(`${title} `)}</Title>;
 
