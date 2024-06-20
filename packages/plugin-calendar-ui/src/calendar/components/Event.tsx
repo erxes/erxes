@@ -130,7 +130,7 @@ class Event extends React.Component<Props, State> {
           return (
             <ColumnHeader
               key={week}
-              isWeek={dt ? true : false}
+              isWeek={!dt}
               isCurrent={
                 dt &&
                 isCurrentDate(
