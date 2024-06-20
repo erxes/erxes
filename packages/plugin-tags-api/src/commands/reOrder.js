@@ -17,7 +17,7 @@ let Tags;
 const setOrder = async (tags, parentTag) => {
   console.log(parentTag?.code)
   for (const tag of tags) {
-    const parentOrder = parentTag ? parentTag.order : '' || '';
+    const parentOrder = parentTag ? parentTag.order : '';
     await Tags.updateOne(
       { _id: tag._id },
       { $set: { order: `${parentOrder}${tag.name}/` } }
