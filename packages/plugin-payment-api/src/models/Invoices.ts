@@ -228,7 +228,7 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async checkInvoice(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      if (!invoice.selectedPaymentId || !invoice.selectedPaymentId.length) {
+      if (!invoice.selectedPaymentId?.length) {
         return 'pending';
       }
 
