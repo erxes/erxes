@@ -71,11 +71,11 @@ const TransactionForm = (props: Props) => {
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(
-    transactions ||
-      (defaultJournal && [
-        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-      ]) ||
-      []
+    transactions && transactions.length && [...transactions] ||
+    (defaultJournal && [
+      journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+    ]) ||
+    []
   );
   const [currentTransaction, setCurrentTransaction] = useState(
     trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
@@ -145,6 +145,7 @@ const TransactionForm = (props: Props) => {
       return Alert.error("wron cho");
     }
     const trData = journalConfigMaps[journal]?.defaultData(state.date);
+    console.log(trDocs, 'kkkkkkkkkkkkkkkkkkkkkk')
     trDocs?.push(trData);
     setTrDocs(trDocs);
     setCurrentTransaction(trData);
@@ -236,76 +237,76 @@ const TransactionForm = (props: Props) => {
   const content = () => {
     return (
       <StepWrapper>
-      <LeftContent>
-        <FormWrapper>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>{__('Number')}</ControlLabel>
-              <FormControl
-                name="number"
-                value={state.number || ''}
-                autoFocus={true}
-                required={true}
-                onChange={e => setState((prevState) => ({
-                  ...prevState, number: (e.target as any).value
-                }))}
-              />
-            </FormGroup>
-          </FormColumn>
-          <FormColumn>
-            <FormGroup>
-              <ControlLabel required={true}>{__('Date')}</ControlLabel>
-              <DateControl
-                required={true}
-                value={state.date || new Date()}
-                name={'date'}
-                placeholder="Enter date"
-                dateFormat='YYYY-MM-DD'
-                onChange={onChangeDate}
-              />
-            </FormGroup>
-          </FormColumn>
-        </FormWrapper>
-        <ContentHeader
-          background={'colorWhite'}
-        >
-          <HeaderContent>
-            <HeaderItems $hasFlex={true}>
-              <Tabs grayBorder={true}>
-                {(trDocs || []).map(tr => (
-                  <TabTitle
-                    key={tr._id}
-                    className={currentTransaction?._id === tr._id ? 'active' : ''}
-                    onClick={() => setCurrentTransaction(tr)}
-                  >
-                    {__(tr.journal)}
-                    <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}></Icon>
+        <LeftContent>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>{__('Number')}</ControlLabel>
+                <FormControl
+                  name="number"
+                  value={state.number || ''}
+                  autoFocus={true}
+                  required={true}
+                  onChange={e => setState((prevState) => ({
+                    ...prevState, number: (e.target as any).value
+                  }))}
+                />
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                <ControlLabel required={true}>{__('Date')}</ControlLabel>
+                <DateControl
+                  required={true}
+                  value={state.date || new Date()}
+                  name={'date'}
+                  placeholder="Enter date"
+                  dateFormat='YYYY-MM-DD'
+                  onChange={onChangeDate}
+                />
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+          <ContentHeader
+            background={'colorWhite'}
+          >
+            <HeaderContent>
+              <HeaderItems $hasFlex={true}>
+                <Tabs grayBorder={true}>
+                  {(trDocs || []).map(tr => (
+                    <TabTitle
+                      key={tr._id}
+                      className={currentTransaction?._id === tr._id ? 'active' : ''}
+                      onClick={() => setCurrentTransaction(tr)}
+                    >
+                      {__(tr.journal)}
+                      <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}></Icon>
+                    </TabTitle>
+                  ))}
+                  <TabTitle>
+                    <AddTransactionLink onClick={onAddTr} />
                   </TabTitle>
-                ))}
-                <TabTitle>
-                  <AddTransactionLink onClick={onAddTr} />
-                </TabTitle>
-              </Tabs>
-            </HeaderItems>
-            <HeaderItems $rightAligned={true}>
-              {renderButtons()}
-            </HeaderItems>
-          </HeaderContent>
-        </ContentHeader>
-        {renderTabContent()}
+                </Tabs>
+              </HeaderItems>
+              <HeaderItems $rightAligned={true}>
+                {renderButtons()}
+              </HeaderItems>
+            </HeaderContent>
+          </ContentHeader>
+          {renderTabContent()}
 
-        <ControlWrapper>
-          <Indicator>
-            <>{__('You are')} {currentTransaction?._id ? 'editing' : 'creating'} {__('transaction')}.</>
-            <> {__('Sum Debit')}: <strong>{(balance.dt ?? 0).toLocaleString()}</strong>;</>
-            <> {__('Sum Credit')}: <strong>{(balance.ct ?? 0).toLocaleString()}</strong>;</>
-            {balance?.diff && (<> + {__(balance.side || '')}: <strong>{balance.diff}</strong>;</>) || ''}
+          <ControlWrapper>
+            <Indicator>
+              <>{__('You are')} {currentTransaction?._id ? 'editing' : 'creating'} {__('transaction')}.</>
+              <> {__('Sum Debit')}: <strong>{(balance.dt ?? 0).toLocaleString()}</strong>;</>
+              <> {__('Sum Credit')}: <strong>{(balance.ct ?? 0).toLocaleString()}</strong>;</>
+              {balance?.diff && (<> + {__(balance.side || '')}: <strong>{balance.diff}</strong>;</>) || ''}
 
-          </Indicator>
-          save template
-        </ControlWrapper>
-      </LeftContent>
-    </StepWrapper >
+            </Indicator>
+            save template
+          </ControlWrapper>
+        </LeftContent>
+      </StepWrapper >
     );
   };
 
