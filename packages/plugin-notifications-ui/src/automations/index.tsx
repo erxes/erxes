@@ -11,11 +11,10 @@ const Automations = props => {
 
     const [_serviceName, contentType, _action] = fixedType.split(':');
 
-    switch (contentType) {
-      case 'appNotification':
-        return <SendNotification {...props} />;
-      default:
-        return null;
+    if (contentType === 'appNotification') {
+      return <SendNotification {...props} />;
+    } else {
+      return null;
     }
   }
   if (componentType === 'historyActionResult') {
