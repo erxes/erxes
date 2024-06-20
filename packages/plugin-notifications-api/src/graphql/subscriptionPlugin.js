@@ -1,4 +1,3 @@
-var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
   name: 'notifications',
