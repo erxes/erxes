@@ -203,7 +203,7 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Schedules.countDocuments(selector);
+    const totalCount = await models.Schedules.countDocuments(selector);
 
     const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
@@ -223,7 +223,7 @@ const timeclockQueries = {
   },
 
   async deviceConfigs(_root, queryParams, { models }: IContext) {
-    const totalCount = models.DeviceConfigs.countDocuments({});
+    const totalCount = await models.DeviceConfigs.countDocuments({});
     const { searchValue } = queryParams;
     const query: any = {};
 
