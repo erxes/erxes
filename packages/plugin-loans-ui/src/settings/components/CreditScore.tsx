@@ -65,7 +65,7 @@ const PerSettings = (props: Props) => {
       <FormGroup>
         <ControlLabel>{__("Start score")}</ControlLabel>
         <FormControl
-          defaultValue={config["startScore"]}
+          value={config["startScore"]}
           type="number"
           min={0}
           max={700}
@@ -76,7 +76,7 @@ const PerSettings = (props: Props) => {
       <FormGroup>
         <ControlLabel>{__("End score")}</ControlLabel>
         <FormControl
-          defaultValue={config["endScore"]}
+          value={config["endScore"]}
           type="number"
           min={0}
           max={700}
@@ -87,7 +87,7 @@ const PerSettings = (props: Props) => {
       <FormGroup>
         <ControlLabel>{__("Amount")}</ControlLabel>
         <FormControl
-          defaultValue={config["amount"]}
+          value={config["amount"]}
           type="number"
           useNumberFormat
           min={0}

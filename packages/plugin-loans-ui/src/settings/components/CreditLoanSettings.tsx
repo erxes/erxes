@@ -28,17 +28,17 @@ type Props = {
 };
 
 const GeneralSettings = (props: Props) => {
-  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>({
+    ...(props.configsMap?.creditScore || {})
+  });
 
   const add = (e) => {
     e.preventDefault();
 
-    if (!configsMap.creditScore) {
-      configsMap.creditScore = {};
-    }
+    console.log("configsMap", configsMap);
 
     // must save prev item saved then new item
-    configsMap.creditScore.newCreditConfig = {
+    configsMap.newCreditConfig = {
       title: "New Credit Config",
       startScore: 0,
       endScore: 0,
@@ -47,16 +47,17 @@ const GeneralSettings = (props: Props) => {
 
     let newConfig = JSON.parse(JSON.stringify(configsMap));
 
+    console.log("newConfig", newConfig);
+
     setConfigsMap({ ...newConfig });
   };
 
   const deleteHandler = (currentConfigKey: string) => {
     let newConfig = JSON.parse(JSON.stringify(configsMap));
     delete newConfig.creditScore[currentConfigKey];
-    delete newConfig.creditScore["newCreditConfig"];
-
-    setConfigsMap({...newConfig});
-    props.save(newConfig);
+    props.configsMap.creditScore = newConfig;
+    setConfigsMap({ ...newConfig });
+    props.save(props.configsMap);
   };
 
   const renderConfigs = (configs) => {
@@ -64,7 +65,7 @@ const GeneralSettings = (props: Props) => {
       return (
         <CreditScore
           key={`Loss${key}`}
-          configsMap={configsMap}
+          configsMap={props.configsMap}
           config={configs[key]}
           currentConfigKey={key}
           save={props.save}
@@ -75,10 +76,10 @@ const GeneralSettings = (props: Props) => {
   };
 
   const renderContent = () => {
-    const configs = configsMap.creditScore || {};
-
     return (
-      <ContentBox id={"UndueSettingsMenu"}>{renderConfigs(configs)}</ContentBox>
+      <ContentBox id={"UndueSettingsMenu"}>
+        {renderConfigs(configsMap)}
+      </ContentBox>
     );
   };
 
