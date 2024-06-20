@@ -98,7 +98,7 @@ const StyledTable = styledTS<{
       td {
         padding: ${props.$wideHeader
               ? `${dimensions.unitSpacing + 2}px`
-              : `${dimensions.unitSpacing - 2}`}
+              : `${dimensions.unitSpacing - 2}px`}
           ${dimensions.coreSpacing - 2}px;
       }
     }

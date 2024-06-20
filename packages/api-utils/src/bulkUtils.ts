@@ -31,7 +31,7 @@ export const stream = (
     }
   });
 
-  const chldStream = generateChildStream().stream();
+  const chldStream = generateChildStream().cursor();
 
   return new Promise((resolve, reject) => {
     const pipe = chldStream.pipe(parentTransformerStream);
