@@ -8,7 +8,6 @@ import {
   sendClientPortalMessage,
 } from './messageBroker';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
-// import { getEnv } from './utils';
 
 dotenv.config();
 
@@ -113,7 +112,6 @@ export const prepareMessage = async ({
   to,
   integrations,
 }: IMessageParams): Promise<ITelnyxMessageParams> => {
-  // const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
   const { content, from, fromIntegrationId } = shortMessage;
 
   const integration = integrations.find(
