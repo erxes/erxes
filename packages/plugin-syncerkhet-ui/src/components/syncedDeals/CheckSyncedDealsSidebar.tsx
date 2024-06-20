@@ -38,19 +38,6 @@ const CheckerSidebar = (props: IProps) => {
     number: queryParams.number,
   });
 
-  const clearCategoryFilter = () => {
-    router.setParams(navigate, location, {
-      ownerId: null,
-      ownerType: null,
-      status: null,
-      voucherCampaignId: null,
-    });
-  };
-
-  const setFilter = (name, value) => {
-    router.setParams(navigate, location, { [name]: value });
-  };
-
   const onFilter = () => {
     const {
       boardId,
@@ -82,7 +69,10 @@ const CheckerSidebar = (props: IProps) => {
 
   const onChangeRangeFilter = (kind, date) => {
     const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
-    setState({ [kind]: cDate } as any);
+    setState((prevState) => ({
+      ...prevState,
+      [kind]: cDate,
+    }));
   };
 
   const renderRange = (dateType: string) => {
@@ -171,7 +161,10 @@ const CheckerSidebar = (props: IProps) => {
   const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
     const value = (e.currentTarget as HTMLInputElement).value;
     const name = (e.currentTarget as HTMLInputElement).name;
-    setState({ [name]: value } as any);
+    setState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   return (

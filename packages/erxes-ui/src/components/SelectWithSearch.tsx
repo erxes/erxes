@@ -264,6 +264,11 @@ class SelectWithSearch extends React.Component<
       </components.MultiValue>
     );
 
+    const customStyles = {
+      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+      menu: (base) => ({ ...base, zIndex: 9999 }),
+    };
+
     return (
       <Select
         isClearable={true}
@@ -278,6 +283,8 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        styles={customStyles}
+        menuPortalTarget={document.body}
       />
     );
   }
