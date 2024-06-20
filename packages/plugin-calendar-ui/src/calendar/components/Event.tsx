@@ -104,12 +104,12 @@ class Event extends React.Component<Props, State> {
   };
 
   onToggleModal = (date?: Date) => {
-    this.setState({
-      isPopupVisible: !this.state.isPopupVisible,
+    this.setState(prevState =>( {
+      isPopupVisible: prevState.isPopupVisible,
       selectedDate: date,
       event: {} as IEvent,
       account: {} as IAccount,
-    });
+    }));
   };
 
   editEvent = (event: IEvent, account?: IAccount) => {
