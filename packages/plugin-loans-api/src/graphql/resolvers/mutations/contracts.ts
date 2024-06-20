@@ -6,6 +6,8 @@ import {
 import { checkPermission } from "@erxes/api-utils/src";
 import { IContext } from "../../../connectionResolver";
 import {
+  getConfig,
+  getFieldObject,
   sendCardsMessage,
   sendCoreMessage,
   sendMessageBroker
@@ -405,6 +407,98 @@ const contractMutations = {
       },
       contract
     );
+  },
+  clientCreditLoanCalculate: async (
+    _root,
+    {
+      customerId
+    }: {
+      customerId: string;
+    },
+    { subdomain }: IContext
+  ) => {
+    let customerCreditAmount = 0;
+
+    const customer = await sendMessageBroker(
+      {
+        subdomain,
+        action: "customers.findOne",
+        data: { _id: customerId },
+        isRPC: true
+      },
+      "contacts"
+    );
+
+    const customerScore = await sendMessageBroker(
+      { subdomain, action: "getScoring", data: { customerId }, isRPC: true },
+      "burenscoring"
+    );
+
+    const configs = await getConfig("creditScore", subdomain);
+
+    if (!configs) {
+      throw new Error("Credit score config not configured!");
+    }
+
+    for (let key in configs) {
+      const config = configs[key];
+
+      if (
+        config.startScore <= customerScore.score &&
+        config.endScore >= customerScore.score
+      ) {
+        customerCreditAmount = config.amount;
+        break;
+      }
+    }
+
+    const maxLeaseAmountField = await getFieldObject(
+      subdomain,
+      "contacts:customer",
+      "maxLeaseAmount"
+    );
+
+    if (customerCreditAmount > 0 && maxLeaseAmountField) {
+      const index =
+        customer.customFieldsData?.findIndex(
+          (a) => a.field == maxLeaseAmountField._id
+        ) || -1;
+      if (index == -1) {
+        customer.customFieldsData = [
+          ...customer.customFieldsData,
+          {
+            field: maxLeaseAmountField._id,
+            value: customerCreditAmount.toString(),
+            stringValue: customerCreditAmount.toString(),
+            numberValue: customerCreditAmount,
+            text: maxLeaseAmountField.code
+          }
+        ];
+      } else {
+        customer.customFieldsData[index] = {
+          field: maxLeaseAmountField._id,
+          value: customerCreditAmount.toString(),
+          stringValue: customerCreditAmount.toString(),
+          numberValue: customerCreditAmount,
+          text: maxLeaseAmountField.code
+        };
+      }
+
+      await sendMessageBroker(
+        {
+          subdomain,
+          action: "customers.updateOne",
+          data: {
+            selector: { _id: customerId },
+            modifier: { $set: customer }
+          },
+          isRPC: true
+        },
+        "contacts"
+      );
+    }
+
+    return customerCreditAmount;
   }
 };
 

@@ -288,4 +288,5 @@ export const mutations = `
   interestChange(${interestCorrectionFields}): LoanContract
   interestReturn(${interestCorrectionFields}): LoanContract
   clientCreditLoanRequest(${clientCreditLoanRequestFields}): LoanContract
+  clientCreditLoanCalculate(customerId: String): JSON
 `;
