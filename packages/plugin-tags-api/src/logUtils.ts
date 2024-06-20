@@ -26,7 +26,7 @@ const gatherTagNames = async (
   if (doc.parentId) {
     const parent = await models.Tags.findOne({ _id: doc.parentId });
 
-    options.push({ parentId: doc.parentId, name: parent && parent.name });
+    options.push({ parentId: doc.parentId, name: parent?.name });
   }
 
   if (doc.relatedIds) {

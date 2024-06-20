@@ -20,7 +20,7 @@ const tagQueries = {
     for (const serviceName of services) {
       const service = await getService(serviceName);
       const meta = service.config.meta || {};
-      if (meta && meta.tags) {
+      if (meta?.tags) {
         const types = meta.tags.types || [];
 
         for (const type of types) {
@@ -112,7 +112,7 @@ const tagQueries = {
     }
 
     const pagintationArgs = { page, perPage };
-    if (ids && ids.length && !excludeIds && ids.length > (perPage || 20)) {
+    if (ids?.length && !excludeIds && ids.length > (perPage || 20)) {
       pagintationArgs.page = 1;
       pagintationArgs.perPage = ids.length;
     }
