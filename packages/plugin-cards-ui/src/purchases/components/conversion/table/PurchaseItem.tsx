@@ -6,6 +6,8 @@ import * as React from 'react';
 import { BodyRow } from '../style';
 
 type Props = {
+  listType?: string;
+  stageId: string;
   purchase: IPurchase;
 };
 

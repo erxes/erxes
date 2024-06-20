@@ -12,9 +12,7 @@ type Props = {
 };
 
 export default class DealList extends React.Component<Props> {
-  static defaultProps = {
-    listId: 'LIST'
-  };
+
 
   render() {
     const { deals } = this.props;

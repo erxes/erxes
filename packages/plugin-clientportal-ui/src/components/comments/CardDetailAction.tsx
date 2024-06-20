@@ -59,7 +59,6 @@ const Container: React.FC<Props> = ({
     setContent(e.target.value);
   };
 
-
   const createComment = () => {
     setContent("");
 

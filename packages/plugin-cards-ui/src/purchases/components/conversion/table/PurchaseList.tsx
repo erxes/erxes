@@ -9,12 +9,10 @@ type Props = {
   purchases: IPurchase[];
   hasMore: boolean;
   loadMore: () => void;
-  listId?: string;
 };
 
 export default class PurchaseList extends React.Component<Props> {
   static readonly defaultProps = {
-    listId: "LIST",
   };
 
   render() {
