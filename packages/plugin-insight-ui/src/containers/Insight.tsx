@@ -65,7 +65,7 @@ type Props = {
   queryParams: any;
 };
 
-const withLastDashboard = (props: Props) => {
+const WithLastDashboard = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -91,7 +91,6 @@ const withLastDashboard = (props: Props) => {
         { [dashboard?.type + "Id"]: dashboard?._id },
         true
       );
-      return;
     }
   }, [dashboard]);
 
@@ -104,4 +103,4 @@ const withLastDashboard = (props: Props) => {
   return <InsightContainer {...updatedProps} />;
 };
 
-export default withLastDashboard;
+export default WithLastDashboard;
