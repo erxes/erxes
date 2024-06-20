@@ -64,14 +64,13 @@ class EmailForm extends React.Component<Props, State> {
   }
 
   changeContent = (key, value) => {
-    const email = { ...this.state.email } as IEngageEmail;
-
-    email[key] = value;
-
-    this.setState({ email });
-
-    this.props.onChange("email", email);
+    this.setState((prevState) => {
+      const updatedEmail = { ...prevState.email, [key]: value };
+      this.props.onChange("email", updatedEmail); 
+      return { email: updatedEmail }; 
+    });
   };
+  
 
   changeUser = (fromUserId: string) => {
     this.setState({ fromUserId });
@@ -79,14 +78,15 @@ class EmailForm extends React.Component<Props, State> {
   };
 
   templateChange = (value) => {
-    const email = { ...this.state.email } as IEngageEmail;
-
-    email.templateId = value;
-
-    this.setState({ content: this.findTemplate(value), email }, () => {
+    this.setState((prevState) => {
+      const email = { ...prevState.email, templateId: value };
+  
+      return { content: this.findTemplate(value), email };
+    }, () => {
       this.props.onChange("email", this.state.email);
     });
   };
+  
 
   findTemplate = (id) => {
     const template = this.props.templates.find((t) => t._id === id);
@@ -201,7 +201,7 @@ class EmailForm extends React.Component<Props, State> {
             defaultValue={testEmail}
           />
           <Button
-            disabled={testEmail}
+            disabled={!testEmail}
             btnStyle="primary"
             icon="send"
             onClick={sendAsTest}
