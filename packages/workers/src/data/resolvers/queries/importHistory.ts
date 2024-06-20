@@ -19,10 +19,9 @@ const importHistoryQueries = {
     const list = await paginate(models.ImportHistory.find(filter), args).sort({
       date: -1,
     });
+    const count =await models.ImportHistory.countDocuments({...filter});
 
-    const count = models.ImportHistory.find(filter).countDocuments();
-
-    return { list, count };
+    return { list, count}
   },
 
   async importHistoryDetail(
