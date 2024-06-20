@@ -115,9 +115,9 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Timeclocks.countDocuments(selector);
+    const totalCount = await models.Timeclocks.countDocuments(selector);
 
-    const list = paginate(models.Timeclocks.find(selector), {
+    const list = await paginate(models.Timeclocks.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page,
     })
@@ -155,14 +155,14 @@ const timeclockQueries = {
       'timelog',
       user,
     );
-    const totalCount = models.TimeLogs.countDocuments(selector);
+    const totalCount = await models.TimeLogs.countDocuments(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
       return { list: [], totalCount: 0 };
     }
 
-    const list = paginate(models.TimeLogs.find(selector), {
+    const list = await paginate(models.TimeLogs.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page,
     })
