@@ -1,3 +1,51 @@
+const trDetailFields = `
+  _id: String
+  accountId: String
+  transactionId: String
+  originId: String
+  followInfos: JSON
+
+  side: String
+  amount: Float
+  currency: String
+  currencyAmount: Float
+  customRate: Float
+  assignedUserId: String
+
+  productId: String
+  count: Float
+  unitPrice: Float
+`;
+
+const transactionFields = `
+  ptrId: String
+  parentId: String
+  number: String
+
+  date: Date
+  description: String
+  journal: String
+  followInfos: JSON
+
+  branchId: String
+  departmentId: String
+  customerType: String
+  customerId: String
+  assignedUserIds: [String]
+
+  hasVat: Boolean
+  vatRowId: String
+  afterVat: Boolean
+  afterVatAccountId: String
+  isHandleVat: Boolean
+  vatAmount: Float
+
+  hasCtax: Boolean
+  ctaxRowId: String
+  isHandleCtax: Boolean
+  ctaxAmount: Float
+`;
+
 export const types = () => `
   type FollowTrType {
     type: String
@@ -5,45 +53,23 @@ export const types = () => `
   }
 
   type TrDetail @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String
-    accountId: String
-    transactionId: String
-    originId: String
+    ${trDetailFields}
     follows: [FollowTrType]
-  
-    side: String
-    amount: Float
-    currency: String
-    currencyAmount: Float
-    customRate: Float
-    assignedUserId: String
-  
-    productId: String
-    count: Float
-    unitPrice: Float
   }
 
   type CommonTransaction @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String!
-    ptrId: String
-    parentId: String
-    number: String
+    _id: String
+
+    ${transactionFields}
+
+    status: String
     ptrStatus: String
+
     createdAt: Date
     modifiedAt: Date
 
-    date: Date
-    description: String
-    status: String
-    journal: String
     originId: String
     follows: [FollowTrType]
-
-    branchId: String
-    departmentId: String
-    customerType: String
-    customerId: String
-    assignedUserIds: [String]
 
     details: [TrDetail]
     shortDetail: TrDetail
@@ -55,45 +81,25 @@ export const types = () => `
     permission: String
     followTrs: [CommonTransaction]
   }
+
+  input CommonTrDetailInput {
+    ${trDetailFields}
+  }
+  type CommonTrDetailInputs {
+    ${trDetailFields}
+  }
+
+  input TransactionInput {
+    ${transactionFields}
+
+    details: [CommonTrDetailInput]
+  }
 `;
 
 const mainTrParams = `
-  ptrId: String
-  parentId: String
-  number: String
-  date: Date
-  description: String
-  journal: String
+  ${transactionFields}
 
-  branchId: String
-  departmentId: String
-  customerType: String
-  customerId: String
-  assignedUserIds: [String]
-
-  accountId: String
-  side: String
-  amount: Float
-`;
-
-const currencyParams = `
-  currencyAmount: Float
-  customRate: Float
-  currencyDiffAccountId: String
-`;
-
-const taxParams = `
-  hasVat: Boolean,
-  vatRowId: String,
-  afterVat: Boolean,
-  afterVatAccountId: String,
-  isHandleVat: Boolean,
-  vatAmount: Float,
-
-  hasCtax: Boolean,
-  ctaxRowId: String,
-  isHandleCtax: Boolean,
-  ctaxAmount: Float,
+  details: CommonTrDetailInput
 `;
 
 
@@ -134,7 +140,7 @@ export const queries = `
     sortField: String
     sortDirection: Int
   ): [CommonTransaction]
-  transactionDetail(_id: String!): CommonTransaction
+  transactionDetail(_id: String!): [CommonTransaction]
   transactionsCount(${trsQueryParams}): Int
   ptrs(
     ${trsQueryParams},
@@ -147,6 +153,8 @@ export const queries = `
 `;
 
 export const mutations = `
+  transactionsCreate(trDocs: [TransactionInput]): [CommonTransaction]
+  transactionsEdit(parentId: String, trDocs: [TransactionInput]): [CommonTransaction]
   mainTrAdd(${mainTrParams}): [CommonTransaction]
   mainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
   mainTrRemove(_id: String!): String
@@ -155,10 +163,10 @@ export const mutations = `
 
   transactionsLink(trIds: [String], ptrId: String): [CommonTransaction]
 
-  cashTrAdd(${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
-  cashTrEdit(_id: String!, ${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
-  fundTrAdd(${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
-  fundTrEdit(_id: String!, ${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
-  debtTrAdd(${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
-  debtTrEdit(_id: String!, ${mainTrParams}, ${currencyParams}, ${taxParams}): [CommonTransaction]
+  cashTrAdd(${mainTrParams}): [CommonTransaction]
+  cashTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  fundTrAdd(${mainTrParams}): [CommonTransaction]
+  fundTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
+  debtTrAdd(${mainTrParams}): [CommonTransaction]
+  debtTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
 `;

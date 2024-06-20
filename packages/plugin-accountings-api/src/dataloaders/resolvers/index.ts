@@ -9,6 +9,7 @@ import {
   CtaxRows as MutationsCtaxRow,
   TransactionMain as MutationTrMain,
   TransactionCash as MutationTrCash,
+  Transactions as MutationsTransactions
 } from './mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -16,6 +17,7 @@ import {
   Accounts as QueriesAccount,
   VatRows as QueriesVatRows,
   CtaxRows as QueriesCtaxRows,
+  Transactions as QueriesTransactions,
 } from './queries';
 
 const resolvers: any = {
@@ -28,6 +30,7 @@ const resolvers: any = {
     ...MutationsAccountingConfig,
     ...MutationsVatRow,
     ...MutationsCtaxRow,
+    ...MutationsTransactions,
     ...MutationTrMain,
     ...MutationTrCash,
   },
@@ -36,7 +39,8 @@ const resolvers: any = {
     ...QueriesAccountCategory,
     ...QueriesAccountingConfig,
     ...QueriesVatRows,
-    ...QueriesCtaxRows
+    ...QueriesCtaxRows,
+    ...QueriesTransactions,
   },
 };
 

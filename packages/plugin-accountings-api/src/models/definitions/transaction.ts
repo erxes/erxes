@@ -2,55 +2,15 @@ import { Schema, Document } from 'mongoose';
 import { field, schemaWrapper } from './utils';
 import { JOURNALS, PTR_STATUSES, TR_SIDES, TR_STATUSES } from './constants';
 
-export interface IMainTrInput {
-  ptrId: string
-  parentId: string
-  number: string
-  date: Date
-  description: string
-  journal: string
-
-  branchId: string
-  departmentId: string
-  customerType: string
-  customerId: string
-  assignedUserIds?: [string]
-
-  accountId: string
-  side: string
-  amount: number;
-}
-
-export interface ISingleTrInput extends IMainTrInput {
-  currencyAmount?: number;
-  customRate?: number;
-  currencyDiffAccountId?: string;
-
-  hasVat: boolean;
-  vatRowId?: string;
-  afterVat?: boolean;
-  afterVatAccountId?: string;
-  isHandleVat?: boolean;
-  vatAmount?: number;
-
-  hasCtax: boolean;
-  ctaxRowId?: string;
-  isHandleCtax?: boolean;
-  ctaxAmount?: number;
-}
-
-export interface ICashTrInput extends ISingleTrInput { }
-export interface IFundTrInput extends ISingleTrInput { }
-export interface IDebtTrInput extends ISingleTrInput { }
-
 export interface IFollowsForTr {
   type: string;
   id: string;
 }
 export interface ITrDetail {
-  _id: string;
+  _id?: string;
   accountId: string;
   originId?: string;
+  followInfos?: any;
   follows?: IFollowsForTr[];
 
   side: string;
@@ -58,6 +18,7 @@ export interface ITrDetail {
   currency?: string;
   currencyAmount?: number;
   customRate?: number;
+
   assignedUserId?: string;
 
   productId?: string;
@@ -75,6 +36,7 @@ export interface ITransaction {
   journal: string;
   ptrStatus?: string;
   originId?: string;
+  followInfos?: any;
   follows?: IFollowsForTr[];
   preTrId?: string;
 
@@ -88,6 +50,18 @@ export interface ITransaction {
   shortDetail?: ITrDetail;
   createdBy?: string;
   modifiedBy?: string;
+
+  hasVat?: boolean;
+  vatRowId?: string;
+  afterVat?: boolean;
+  afterVatAccountId?: string;
+  isHandleVat?: boolean;
+  vatAmount?: number;
+
+  hasCtax?: boolean;
+  ctaxRowId?: string;
+  isHandleCtax?: boolean;
+  ctaxAmount?: number;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -126,15 +100,26 @@ export interface IHiddenTransaction extends Document {
   permission?: string;
 }
 
+export const followDetailSchema = schemaWrapper(
+  new Schema({
+    id: field({ type: String, index: true, label: 'follow tr id' }),
+    type: field({
+      type: String, label: 'follow tr type', enum: [
+        'currencyDiff',
+      ]
+    }),
+  })
+)
+
 export const transactionDetailSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     accountId: field({ type: String, label: 'Account', index: true }),
+    followInfos: field({
+      type: Object, label: 'Follower tr detail input'
+    }),
     follows: field({
-      type: [{
-        type: String,
-        id: String,
-      }], label: 'Follower transactions'
+      type: [followDetailSchema], label: 'Follower tr detail'
     }),
 
     side: field({
@@ -157,12 +142,17 @@ export const transactionDetailSchema = schemaWrapper(
   })
 );
 
-export const followInfoSchema = schemaWrapper(
+export const followSchema = schemaWrapper(
   new Schema({
-    id: field({ type: String, index: true }),
-    type: field({ type: String }),
+    id: field({ type: String, index: true, label: 'follow tr id' }),
+    type: field({
+      type: String, label: 'follow tr type', enum: [
+        'vat', 'ctax'
+      ]
+    }),
   })
 )
+
 export const transactionSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -172,7 +162,7 @@ export const transactionSchema = schemaWrapper(
       type: String,
       enum: TR_STATUSES.ALL,
       label: 'Status',
-      default: 'new',
+      default: 'real',
       index: true,
     }),
     ptrId: field({ type: String, label: 'Group' }),
@@ -194,8 +184,11 @@ export const transactionSchema = schemaWrapper(
       index: true,
     }),
     originId: field({ type: String, label: 'Source Transaction' }),
+    followInfos: field({
+      type: Object, label: 'Follower transactions'
+    }),
     follows: field({
-      type: [followInfoSchema], label: 'Follower transactions'
+      type: [followSchema], label: 'Follower transactions'
     }),
     preTrId: field({ type: String, optional: true, label: 'previous transaction', index: true }),
 
@@ -214,5 +207,19 @@ export const transactionSchema = schemaWrapper(
     modifiedBy: field({ type: String, optional: true, label: 'Modified user' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
     modifiedAt: field({ type: Date, optional: true, label: 'Modified at' }),
+
+    // vat 
+    hasVat: field({ type: Boolean, optional: true, label: 'hasVat' }),
+    vatRowId: field({ type: String, optional: true, label: 'vatRowId' }),
+    afterVat: field({ type: Boolean, optional: true, label: 'afterVat' }),
+    afterVatAccountId: field({ type: String, optional: true, label: 'afterVatAccountId' }),
+    isHandleVat: field({ type: Boolean, optional: true, label: 'isHandleVat' }),
+    vatAmount: field({ type: Number, optional: true, label: 'vatAmount' }),
+
+    // ctax
+    hasCtax: field({ type: Boolean, optional: true, label: 'hasCtax' }),
+    ctaxRowId: field({ type: String, optional: true, label: 'ctaxRowId' }),
+    isHandleCtax: field({ type: Boolean, optional: true, label: 'isHandleCtax' }),
+    ctaxAmount: field({ type: Number, optional: true, label: 'ctaxAmount' }),
   }),
 );

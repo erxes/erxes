@@ -3,11 +3,12 @@ import { Alert, Spinner } from "@erxes/ui/src";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  AddTransactionsMutationResponse,
+  EditTransactionsMutationResponse,
   TransactionDetailQueryResponse,
 } from "../types";
 import TransactionForm from "../components/TransactionForm";
 import { mutations, queries } from "../graphql";
-import { ITransaction } from "../types";
 
 type Props = {
   parentId?: string;
@@ -31,49 +32,106 @@ const PosContainer = (props: Props) => {
     }
   );
 
-
-  // const [addPosMutation] = useMutation<AddPosMutationResponse>(
-  //   gql(mutations.posAdd)
-  // );
-  // const [editPosMutation] = useMutation<EditPosMutationResponse>(
-  //   gql(mutations.posEdit)
-  // );
+  const [addTransactionsMutation] = useMutation<AddTransactionsMutationResponse>(
+    gql(mutations.transactionsCreate)
+  );
+  const [editTransactionsMutation] = useMutation<EditTransactionsMutationResponse>(
+    gql(mutations.transactionsUpdate)
+  );
 
   if (trDetailQuery && trDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const save = (doc) => {
+  const save = (docs) => {
     setLoading(true);
 
-    // const saveMutation = posId ? editPosMutation : addPosMutation;
+    const saveMutation = parentId ? editTransactionsMutation : addTransactionsMutation;
 
-    // saveMutation({
-    //   variables: {
-    //     _id: posId,
-    //     ...doc,
-    //   },
-    // })
-    //   .then(() => {
-    //     Alert.success("You successfully updated a pos");
+    const trDocs: any = [];
 
-    //     navigate({
-    //       pathname: `/pos`,
-    //       search: "?refetchList=true",
-    //     });
-    //   })
+    for (const doc of docs) {
+      const trDoc: any = {
+        ptrId: doc.ptrId,
+        parentId,
+        number: doc.number,
 
-    //   .catch((error) => {
-    //     Alert.error(error.message);
+        date: new Date(doc.date),
+        description: doc.description,
+        journal: doc.journal,
+        followInfos: doc.followInfos,
 
-    //     setLoading(false);
-    //   });
+        branchId: doc.branchId,
+        departmentId: doc.departmentId,
+        customerType: doc.customerType,
+        customerId: doc.customerId,
+        assignedUserIds: doc.assignedUserIds,
+
+        hasVat: doc.hasVat,
+        vatRowId: doc.vatRowId,
+        afterVat: doc.afterVat,
+        afterVatAccountId: doc.afterVatAccountId,
+        isHandleVat: doc.isHandleVat,
+        vatAmount: doc.vatAmount && Number(doc.vatAmount),
+
+        hasCtax: doc.hasCtax,
+        ctaxRowId: doc.ctaxRowId,
+        isHandleCtax: doc.isHandleCtax,
+        ctaxAmount: doc.ctaxAmount && Number(doc.ctaxAmount),
+        details: [],
+      }
+
+      for (const detail of doc.details) {
+        trDoc.details.push({
+          _id: detail._id,
+          accountId: detail.accountId,
+          transactionId: detail.transactionId,
+          originId: detail.originId,
+          followInfos: detail.followInfos,
+
+          side: detail.side,
+          amount: detail.amount && Number(detail.amount),
+          currency: detail.currency,
+          currencyAmount: detail.currencyAmount && Number(detail.currencyAmount),
+          customRate: detail.customRate && Number(detail.customRate),
+          assignedUserId: detail.assignedUserId,
+
+          productId: detail.productId,
+          count: detail.count && Number(detail.count),
+          unitPrice: detail.unitPrice && Number(detail.unitPrice),
+        })
+      }
+
+      trDocs.push(trDoc);
+    }
+
+    saveMutation({
+      variables: {
+        parentId,
+        trDocs: trDocs,
+      },
+    })
+      .then((data) => {
+        const newParentId = data.data.transactionsCreate[0]?.parentId
+        Alert.success("You successfully updated a pos");
+
+        navigate({
+          pathname: `/accountings/transaction/edit/${newParentId}`,
+        });
+      })
+
+      .catch((error) => {
+        Alert.error(error.message);
+
+        setLoading(false);
+      });
   };
 
   const transactions = trDetailQuery?.data?.transactionDetail;
 
   const updatedProps = {
     ...props,
+    parentId,
     transactions,
     save,
     defaultJournal: queryParams.defaultJournal,

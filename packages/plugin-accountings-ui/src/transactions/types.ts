@@ -1,7 +1,7 @@
 import { IAccount } from "../settings/accounts/types"
 import { QueryResponse } from '@erxes/ui/src/types';
 
-export interface IMainTrInput {
+export interface ITrInput {
   ptrId: string
   parentId: string
   number: string
@@ -19,28 +19,6 @@ export interface IMainTrInput {
   side: string
   amount: number;
 }
-
-export interface ISingleTrInput extends IMainTrInput {
-  currencyAmount?: number;
-  customRate?: number;
-  currencyDiffAccountId?: string;
-
-  hasVat: boolean;
-  vatRowId?: string;
-  afterVat?: boolean;
-  afterVatAccountId?: string;
-  isHandleVat?: boolean;
-  vatAmount?: number;
-
-  hasCtax: boolean;
-  ctaxRowId?: string;
-  isHandleCtax?: boolean;
-  ctaxAmount?: number;
-}
-
-export interface ICashTrInput extends ISingleTrInput { }
-export interface IFundTrInput extends ISingleTrInput { }
-export interface IDebtTrInput extends ISingleTrInput { }
 
 export interface ITrDetail {
   _id?: string;
@@ -113,13 +91,31 @@ export type TransactionsCountQueryResponse = {
   transactionsCount: number;
 } & QueryResponse;
 
+export type AddTransactionsMutationResponse = {
+  addTransactionsMutation: (params: {
+    variables: {
+      trDocs: ITransaction[];
+    }
+  }) => Promise<ITransaction[]>;
+};
+
+export type EditTransactionsMutationResponse = {
+  editTransactionsMutation: (params: {
+    variables: {
+      parentId: string,
+      trDocs: ITransaction
+    };
+  }) => Promise<ITransaction[]>;
+};
+
+
 export type AddMainTrMutationResponse = {
-  addMainTrMutation: (params: { variables: IMainTrInput }) => Promise<ITransaction>;
+  addMainTrMutation: (params: { variables: ITrInput }) => Promise<ITransaction>;
 };
 
 export type EditMainTrMutationResponse = {
   editMainTrMutation: (params: {
-    variables: { _id: string } & IMainTrInput;
+    variables: { _id: string } & ITrInput;
   }) => Promise<ITransaction>;
 };
 

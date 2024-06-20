@@ -5,6 +5,7 @@ import CtaxRows from './ctaxRows';
 import AccountingConfigs from './configs';
 import TransactionMain from './transactionsMian';
 import TransactionCash from './transactionsCash';
+import Transactions from './transacations';
 
 export {
   Accounts,
@@ -12,6 +13,7 @@ export {
   AccountingConfigs,
   VatRows,
   CtaxRows,
+  Transactions,
   TransactionMain,
   TransactionCash,
 };

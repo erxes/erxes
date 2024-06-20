@@ -1,18 +1,22 @@
 import { nanoid } from 'nanoid';
-import { ISingleTrInput, ITransaction, ITransactionDocument } from "../models/definitions/transaction";
+import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
 import { JOURNALS, TR_SIDES } from '../models/definitions/constants';
 import { IModels } from '../connectionResolver';
 
-export const checkValidationCurrency = async (models: IModels, doc: ISingleTrInput) => {
+export const checkValidationCurrency = async (models: IModels, doc: ITransaction) => {
+  const detail = doc.details[0];
+  if (!detail) {
+    throw new Error('has not detail')
+  }
   const mainCurrency = await models.AccountingConfigs.getConfig('MainCurrency');
-  const account = await models.Accounts.getAccount({ _id: doc.accountId });
+  const account = await models.Accounts.getAccount({ _id: detail.accountId });
   if (mainCurrency === account.currency) {
     return;
   }
 
   let currencyDiffTrDoc: ITransaction | undefined;
 
-  if (!doc.currencyAmount) {
+  if (!detail.currencyAmount) {
     throw new Error('must fill Currency Amount')
   }
 
@@ -23,18 +27,18 @@ export const checkValidationCurrency = async (models: IModels, doc: ISingleTrInp
   }
   const spotRate = spotRateObj.rate;
 
-  if (doc.customRate && spotRate !== doc.customRate && !doc.currencyDiffAccountId) {
+  if (detail.customRate && spotRate !== detail.customRate && !detail.followInfos?.currencyDiffAccountId) {
     throw new Error('not found spot rate')
   }
 
-  if (doc.customRate && spotRate !== doc.customRate && doc.currencyDiffAccountId) {
-    const rateDiff = doc.customRate - spotRate;
-    let amount = doc.currencyAmount * rateDiff;
+  if (detail.customRate && spotRate !== detail.customRate && detail.followInfos.currencyDiffAccountId) {
+    const rateDiff = detail.customRate - spotRate;
+    let amount = detail.currencyAmount * rateDiff;
 
-    let side = doc.side;
+    let side = detail.side;
     if (amount < 0) {
-      side = TR_SIDES.DEBIT === doc.side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
-      amount = -1 * amount
+      side = TR_SIDES.DEBIT === detail.side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
+      amount = -1 * amount;
     }
 
     currencyDiffTrDoc = {
@@ -50,7 +54,7 @@ export const checkValidationCurrency = async (models: IModels, doc: ISingleTrInp
       customerId: doc.customerId,
       details: [{
         _id: nanoid(),
-        accountId: doc.currencyDiffAccountId,
+        accountId: detail.followInfos.currencyDiffAccountId,
         side,
         amount
       }],

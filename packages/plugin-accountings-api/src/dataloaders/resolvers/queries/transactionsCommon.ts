@@ -153,11 +153,13 @@ const transactionCommon = {
   ) {
     const { _id } = params;
     let firstTr = await models.Transactions.getTransaction({ $or: [{ _id }, { parentId: _id }] });
+
     if (firstTr.originId) {
       firstTr = await models.Transactions.getTransaction({ _id: firstTr.originId });
     }
 
     const relatedTrs: ITransactionDocument[] = await models.Transactions.find({ $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }] }).lean();
+
     return await checkPermissionTrs(models, relatedTrs, user);
   },
 

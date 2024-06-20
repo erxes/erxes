@@ -22,11 +22,11 @@ interface IQueryParams {
   sortField?: string;
   sortDirection?: number;
   isOutBalance?: boolean,
-  branchId: string;
-  departmentId: string;
-  currency: string;
-  journal: string;
-  journals: string[];
+  branchId?: string;
+  departmentId?: string;
+  currency?: string;
+  journal?: string;
+  journals?: string[];
 }
 
 export const generateFilter = async (

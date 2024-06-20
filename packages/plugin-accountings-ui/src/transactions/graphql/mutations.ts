@@ -1,48 +1,21 @@
 import { commonTransactionFields } from "./queries";
 
 const mainTrInputParamDefs = `
-  $code: String,
-  $name: String,
-  $categoryId: String,
+  $ptrId: String,
   $parentId: String,
-  $currency: String,
-  $kind: String,
-  $journal: String,
+  $number: String,
+
+  $date: Date,
   $description: String,
+  $journal: String,
+  $followInfos: JSON,
+
   $branchId: String,
   $departmentId: String,
-  $isOutBalance: Boolean,
-  $scopeBrandIds: [String]
-`;
+  $customerType: String,
+  $customerId: String,
+  $assignedUserIds: [String],
 
-const mainTrInputParams = `
-  code: $code,
-  name: $name,
-  categoryId: $categoryId,
-  parentId: $parentId,
-  currency: $currency,
-  kind: $kind,
-  journal: $journal,
-  description: $description,
-  branchId: $branchId,
-  departmentId: $departmentId,
-  isOutBalance: $isOutBalance,
-  scopeBrandIds: $scopeBrandIds
-`;
-
-const currencyParamDefs = `
-  $currencyAmount: Float
-  $customRate: Float
-  $currencyDiffAccountId: String
-`;
-
-const currencyParams = `
-  currencyAmount: $currencyAmount
-  customRate: $customRate
-  currencyDiffAccountId: $currencyDiffAccountId
-`;
-
-const taxParamDefs = `
   $hasVat: Boolean,
   $vatRowId: String,
   $afterVat: Boolean,
@@ -54,9 +27,26 @@ const taxParamDefs = `
   $ctaxRowId: String,
   $isHandleCtax: Boolean,
   $ctaxAmount: Float,
+
+  $details: CommonTrDetailInput,
 `;
 
-const taxParams = `
+const mainTrInputParams = `
+  ptrId: $ptrId,
+  parentId: $parentId,
+  number: $number,
+
+  date: $date,
+  description: $description,
+  journal: $journal,
+  followInfos: $followInfos,
+
+  branchId: $branchId,
+  departmentId: $departmentId,
+  customerType: $customerType,
+  customerId: $customerId,
+  assignedUserIds: $assignedUserIds,
+
   hasVat: $hasVat,
   vatRowId: $vatRowId,
   afterVat: $afterVat,
@@ -68,8 +58,9 @@ const taxParams = `
   ctaxRowId: $ctaxRowId,
   isHandleCtax: $isHandleCtax,
   ctaxAmount: $ctaxAmount,
-`;
 
+  details: $details,
+`;
 
 const mainTrAdd = `
   mutation mainTrAdd(${mainTrInputParamDefs}) {
@@ -106,54 +97,72 @@ const transactionsLink = `
 `;
 
 const cashTrAdd = `
-  mutation cashTrAdd(${mainTrInputParamDefs}, ${currencyParamDefs}, ${taxParamDefs}) {
-    cashTrAdd(${mainTrInputParams}, ${currencyParams}, ${taxParams}) {
+  mutation cashTrAdd(${mainTrInputParamDefs}) {
+    cashTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const cashTrEdit = `
-  mutation cashTrEdit($_id: String!${mainTrInputParamDefs}, ${currencyParamDefs}, ${taxParamDefs}) {
-    cashTrEdit(_id: $_id, ${mainTrInputParams}, ${currencyParams}, ${taxParams}) {
+  mutation cashTrEdit($_id: String!${mainTrInputParamDefs}) {
+    cashTrEdit(_id: $_id, ${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const fundTrAdd = `
-  mutation fundTrAdd(${mainTrInputParamDefs}, ${currencyParamDefs}, ${taxParamDefs}) {
-    fundTrAdd(${mainTrInputParams}, ${currencyParams}, ${taxParams}) {
+  mutation fundTrAdd(${mainTrInputParamDefs}) {
+    fundTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const fundTrEdit = `
-  mutation fundTrEdit($_id: String!${mainTrInputParamDefs}, ${currencyParamDefs}, ${taxParamDefs}) {
-    fundTrEdit(_id: $_id, ${mainTrInputParams}, ${currencyParams}, ${taxParams}) {
+  mutation fundTrEdit($_id: String!${mainTrInputParamDefs}) {
+    fundTrEdit(_id: $_id, ${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const debtTrAdd = `
-  mutation debtTrAdd(${mainTrInputParamDefs}, ${currencyParamDefs}, ${taxParamDefs}) {
-    debtTrAdd(${mainTrInputParams}, ${currencyParams}, ${taxParams}) {
+  mutation debtTrAdd(${mainTrInputParamDefs}) {
+    debtTrAdd(${mainTrInputParams}) {
       ${commonTransactionFields}
     }
   }
 `;
 
 const debtTrEdit = `
-  mutation debtTrEdit($_id: String!${mainTrInputParamDefs}, ${currencyParamDefs}, ${taxParamDefs}) {
-    debtTrEdit(_id: $_id, ${mainTrInputParams}, ${currencyParams}, ${taxParams}) {
+  mutation debtTrEdit($_id: String!, ${mainTrInputParamDefs}) {
+    debtTrEdit(_id: $_id, ${mainTrInputParams}) {
+      ${commonTransactionFields}
+    }
+  }
+`;
+
+const transactionsCreate = `
+  mutation transactionsCreate($trDocs: [TransactionInput]) {
+    transactionsCreate(trDocs: $trDocs) {
+      ${commonTransactionFields}
+    }
+  }
+`;
+
+const transactionsUpdate = `
+  mutation transactionsUpdate($parentId: String!, $trDocs: [TransactionInput]) {
+    transactionsUpdate(parentId: $parentId, trDocs: $trDocs) {
       ${commonTransactionFields}
     }
   }
 `;
 
 export default {
+  transactionsCreate,
+  transactionsUpdate,
   mainTrAdd,
   mainTrEdit,
   mainTrRemove,

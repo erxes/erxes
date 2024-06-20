@@ -7,9 +7,9 @@ import {
   MODULE_NAMES,
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { ISingleTrInput } from '../../../models/definitions/transaction';
 import { checkValidationCurrency, doCurrencyTr } from '../../../utils/currencyTr';
 import { JOURNALS } from '../../../models/definitions/constants';
+import { ITransaction } from '../../../models/definitions/transaction';
 
 const cashTrMutations = {
   /**
@@ -18,17 +18,18 @@ const cashTrMutations = {
    */
   async cashTrAdd(
     _root,
-    doc: ISingleTrInput,
+    doc: ITransaction,
     { user, models, subdomain }: IContext,
   ) {
+    const detail = doc.details[0];
     const updatedDoc = {
       ...doc,
       journal: JOURNALS.CASH,
       details: [{
         _id: nanoid(),
-        accountId: doc.accountId,
-        side: doc.side,
-        amount: doc.amount,
+        accountId: detail.accountId,
+        side: detail.side,
+        amount: detail.amount,
       }]
     };
 
@@ -60,23 +61,24 @@ const cashTrMutations = {
    */
   async cashTrEdit(
     _root,
-    { _id, ...doc }: ISingleTrInput & { _id: string },
+    { _id, ...doc }: ITransaction & { _id: string },
     { user, models, subdomain }: IContext,
   ) {
     const transaction = await models.Transactions.getTransaction({
       _id,
     });
-
+    const detail = doc.details[0];
     const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
+
 
     const updatedDoc = {
       ...doc,
       journal: JOURNALS.CASH,
       details: [{
         _id: nanoid(),
-        accountId: doc.accountId,
-        side: doc.side,
-        amount: doc.amount,
+        accountId: detail.accountId,
+        side: detail.side,
+        amount: detail.amount,
       }]
     };
 

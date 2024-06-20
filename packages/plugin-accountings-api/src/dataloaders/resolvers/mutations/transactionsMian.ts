@@ -7,8 +7,8 @@ import {
   MODULE_NAMES,
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IMainTrInput } from '../../../models/definitions/transaction';
 import { JOURNALS } from '../../../models/definitions/constants';
+import { ITransaction } from '../../../models/definitions/transaction';
 
 const mainTrMutations = {
   async transactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
@@ -21,17 +21,19 @@ const mainTrMutations = {
    */
   async mainTrAdd(
     _root,
-    doc: IMainTrInput,
+    doc: ITransaction,
     { user, models, subdomain }: IContext,
   ) {
+    const detail = doc.details[0];
+
     const updatedDoc = {
       ...doc,
       journal: JOURNALS.MAIN,
       details: [{
         _id: nanoid(),
-        accountId: doc.accountId,
-        side: doc.side,
-        amount: doc.amount,
+        accountId: detail.accountId,
+        side: detail.side,
+        amount: detail.amount,
       }]
     };
 
@@ -59,21 +61,22 @@ const mainTrMutations = {
    */
   async mainTrEdit(
     _root,
-    { _id, ...doc }: IMainTrInput & { _id: string },
+    { _id, ...doc }: ITransaction & { _id: string },
     { user, models, subdomain }: IContext,
   ) {
     const transaction = await models.Transactions.getTransaction({
       _id,
     });
 
+    const detail = doc.details[0];
     const updatedDoc = {
       ...doc,
       journal: JOURNALS.MAIN,
       details: [{
         _id: nanoid(),
-        accountId: doc.accountId,
-        side: doc.side,
-        amount: doc.amount,
+        accountId: detail.accountId,
+        side: detail.side,
+        amount: detail.amount,
       }]
     };
 

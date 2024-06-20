@@ -36,10 +36,12 @@ import { journalConfigMaps } from '../utils/maps';
 import AddTransactionLink from '../containers/AddTr';
 import { Box } from "../../styles";
 import { TR_SIDES } from "../../constants";
+import { ContentHeader, HeaderContent, HeaderItems } from "@erxes/ui/src/layout/styles";
 
 type Props = {
   transactions?: ITransaction[];
   defaultJournal?: string;
+  parentId?: string;
   loading?: boolean;
   save: (params: any) => void;
   queryParams: IQueryParams;
@@ -98,6 +100,7 @@ const TransactionForm = (props: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    save(trDocs);
   };
 
   const renderButtons = () => {
@@ -113,6 +116,14 @@ const TransactionForm = (props: Props) => {
 
     return (
       <Button.Group>
+        <Button
+          btnStyle="simple"
+          icon={'alignright'}
+          onClick={handleSubmit}
+        >
+          T balance
+        </Button>
+
         {cancelButton}
 
         <Button
@@ -232,22 +243,32 @@ const TransactionForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-
-        <Tabs grayBorder={true}>
-          {(trDocs || []).map(tr => (
-            <TabTitle
-              key={tr._id}
-              className={currentTransaction?._id === tr._id ? 'active' : ''}
-              onClick={() => setCurrentTransaction(tr)}
-            >
-              {__(tr.journal)}
-              <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}></Icon>
-            </TabTitle>
-          ))}
-          <TabTitle>
-            <AddTransactionLink onClick={onAddTr} />
-          </TabTitle>
-        </Tabs>
+        <ContentHeader
+          background={'colorWhite'}
+        >
+          <HeaderContent>
+            <HeaderItems $hasFlex={true}>
+              <Tabs grayBorder={true}>
+                {(trDocs || []).map(tr => (
+                  <TabTitle
+                    key={tr._id}
+                    className={currentTransaction?._id === tr._id ? 'active' : ''}
+                    onClick={() => setCurrentTransaction(tr)}
+                  >
+                    {__(tr.journal)}
+                    <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}></Icon>
+                  </TabTitle>
+                ))}
+                <TabTitle>
+                  <AddTransactionLink onClick={onAddTr} />
+                </TabTitle>
+              </Tabs>
+            </HeaderItems>
+            <HeaderItems $rightAligned={true}>
+              {renderButtons()}
+            </HeaderItems>
+          </HeaderContent>
+        </ContentHeader>
         {renderTabContent()}
 
         <ControlWrapper>
@@ -258,7 +279,7 @@ const TransactionForm = (props: Props) => {
             {balance?.diff && (<> + {__(balance.side || '')}: <strong>{balance.diff}</strong>;</>) || ''}
 
           </Indicator>
-          {renderButtons()}
+          save template
         </ControlWrapper>
       </LeftContent>
     </StepWrapper >
