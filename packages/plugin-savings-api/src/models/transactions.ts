@@ -75,7 +75,6 @@ export const loadTransactionClass = (models: IModels) => {
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
       doc.payment = doc.total;
       doc.balance = contract.savingAmount;
-
       switch (doc.transactionType) {
         case TRANSACTION_TYPE.INCOME:
           await models.Contracts.updateOne(
@@ -89,7 +88,11 @@ export const loadTransactionClass = (models: IModels) => {
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
           if (doc.dealtType) {
-            doc.dealtResponse = await transactionDealt(doc, models, subdomain);
+            doc.dealtResponse = await transactionDealt(
+              { ...doc },
+              models,
+              subdomain
+            );
           }
           break;
 
