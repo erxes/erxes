@@ -11,6 +11,7 @@ import { ORDER_STATUSES } from "@/lib/constants"
 import { getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
+import { activeOrderIdAtom } from "./order.store"
 
 interface IUpdateItem {
   _id: string
@@ -50,7 +51,9 @@ export const changeCartItem = (
 
     if (!fromAdd) {
       return cart.map((item) =>
-        item._id === _id ? { ...item, count: validCount } : item
+        item._id === _id
+          ? { ...item, count: validCount < 0 ? 0 : validCount }
+          : item
       )
     }
 
@@ -107,8 +110,10 @@ export const addToCart = (
 // Atoms
 // cart
 export const cartAtom = atomWithStorage<OrderItem[]>("cart", [])
-export const cartChangedAtom = atomWithStorage<boolean>("cartChanged", false)
-
+export const cartChangedAtom = atomWithStorage<boolean | string>(
+  "cartChanged",
+  false
+)
 export const orderItemInput = atom<OrderItemInput[]>((get) =>
   getItemInputs(get(cartAtom))
 )
@@ -120,7 +125,7 @@ export const totalAmountAtom = atom<number>((get) =>
 export const addToCartAtom = atom(
   () => "",
   (get, set, update: IAddToCartInput) => {
-    set(cartChangedAtom, true)
+    set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
     set(cartAtom, addToCart(update, get(cartAtom)))
   }
 )
@@ -135,7 +140,7 @@ export const updateCartAtom = atom(
       set(requirePasswordAtom, update)
       return
     }
-    set(cartChangedAtom, true)
+    set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
     set(
       cartAtom,
       changeCartItem(update, get(cartAtom), !!get(banFractionsAtom))

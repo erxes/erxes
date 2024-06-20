@@ -46,7 +46,7 @@ const SelectTab = () => {
 const TotalProducts = () => {
   const cart = useAtomValue(cartAtom)
   const itemCount = cart.reduce((prev, current) => prev + current.count, 0)
-  return <Badge className="ml-2 px-2">{itemCount}</Badge>
+  return <Badge className="ml-2 px-2">{itemCount.toFixed(1)}</Badge>
 }
 
 const CategoryName = () => {

@@ -68,13 +68,14 @@ export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "products"
 )
 
+export const nextOrderIdAtom = atom<string | null>(null)
+
 export const resetAtom = atom(
   () => "",
   (get, set) => {
-    set(setInitialAtom)
     set(activeCategoryAtom, "")
-    set(slotFilterAtom, null)
     set(refetchUserAtom, true)
+    set(nextOrderIdAtom, "-")
   }
 )
 

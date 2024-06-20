@@ -3,6 +3,7 @@
 import {
   currentAmountAtom,
   mobileTabAtom,
+  orderCollapsibleAtom,
   paymentAmountTypeAtom,
   refetchOrderAtom,
   refetchUserAtom,
@@ -138,6 +139,11 @@ export const unPaidAmountAtom = atom(
   (get) => get(orderTotalAmountAtom) - get(getTotalPaidAmountAtom)
 )
 export const paidDateAtom = atom<string | null>(null)
+export const askSaveAtom = atom((get) =>
+  get(activeOrderIdAtom)
+    ? get(cartChangedAtom) === get(activeOrderIdAtom)
+    : get(cartChangedAtom) === "-"
+)
 
 // cashier
 export const orderUserAtom = atom<IOrderUser | null>(null)
@@ -148,6 +154,7 @@ export const setInitialAtom = atom(
   (get, set) => {
     set(mobileTabAtom, "products")
     set(cartAtom, [])
+    set(cartChangedAtom, false)
     set(customerAtom, null)
     set(customerTypeAtom, "")
     set(orderTypeAtom, (get(allowTypesAtom) || [])[0] || "eat")
@@ -170,6 +177,7 @@ export const setInitialAtom = atom(
     set(buttonTypeAtom, null)
     set(selectedTabAtom, "plan")
     set(directDiscountAtom, 0)
+    set(orderCollapsibleAtom, false)
   }
 )
 
@@ -217,7 +225,7 @@ export const setOrderStatesAtom = atom(
     }
 
     set(customerTypeAtom, customerType || "")
-    !get(cartChangedAtom) && set(cartAtom, items)
+    askSaveAtom && set(cartAtom, items)
     set(orderTypeAtom, type || "eat")
     set(billTypeAtom, billType || "1")
     set(registerNumberAtom, registerNumber || "")
