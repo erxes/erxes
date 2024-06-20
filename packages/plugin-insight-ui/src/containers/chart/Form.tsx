@@ -25,7 +25,7 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { queryParams, chart, type, item, closeDrawer } = props;
+  const { chart, type, item, closeDrawer } = props;
 
   const [serviceName, setServiceName] = useState(
     chart?.serviceName || undefined,

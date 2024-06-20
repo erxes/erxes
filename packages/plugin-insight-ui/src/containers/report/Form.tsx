@@ -24,7 +24,7 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { queryParams, reportId, closeDrawer } = props;
+  const { reportId, closeDrawer } = props;
   const navigate = useNavigate();
 
   const reportDetailQuery = useQuery<ReportDetailQueryResponse>(
