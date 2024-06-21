@@ -78,8 +78,10 @@ const Sidebar = (props: Props) => {
     clearable?: boolean;
     field: string | string[];
     children: React.ReactNode;
-  }) => (
-    <CommonFormGroup>
+    }) => {
+
+    return (
+      <CommonFormGroup>
       <ContainerBox $row={true} $spaceBetween={true}>
         <ControlLabel>{label}</ControlLabel>
         {clearable && (
@@ -90,9 +92,10 @@ const Sidebar = (props: Props) => {
           </Button>
         )}
       </ContainerBox>
-      {children}
-    </CommonFormGroup>
-  );
+        {children}
+      </CommonFormGroup>
+    )
+  };
 
   const extraButton = (
     <Button btnStyle="link" onClick={() => clearParams(fields)}>

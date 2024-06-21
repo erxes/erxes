@@ -75,7 +75,7 @@ function AssetForm({
       setParentId(asset ? asset.parentId : "");
       setCategoryId(asset ? asset.categoryId : "");
       setDescription(asset ? asset.description : "");
-      setCurrentTab(asset ? (asset.parentId ? "Parent" : "Category") : "");
+      setCurrentTab(asset?.parentId ? "Parent" : "Category" || '');
     }
   }, []);
 

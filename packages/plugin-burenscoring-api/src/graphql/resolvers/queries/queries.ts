@@ -61,12 +61,13 @@ const burenScoringQueries = {
       data: { _id: customerId },
       isRPC: true,
     });
-    if (config?.field?.includes("customFieldsData.")) {
-      const fieldKey = config?.field?.replace("customFieldsData.", "");
+
+    if (config?.fieldRegister?.includes("customFieldsData.")) {
+      const fieldKey = config?.fieldRegister?.replace("customFieldsData.", "");
       return a.customFieldsData?.find((el) => el.field == fieldKey)?.value;
     }
 
-    return a?.[config?.field];
+    return a?.[config?.fieldRegister];
   },
 };
 export default burenScoringQueries;
