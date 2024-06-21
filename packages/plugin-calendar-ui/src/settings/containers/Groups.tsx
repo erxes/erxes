@@ -61,7 +61,7 @@ class GroupsContainer extends React.Component<FinalProps> {
             .then(() => {
               groupsQuery.refetch({ boardId });
 
-              const msg = `${__(`You successfully deleted a`)} ${__(
+              const msg = `${__('You successfully deleted a')} ${__(
                 'calendar'
               )}.`;
 
@@ -132,7 +132,7 @@ class GroupsContainer extends React.Component<FinalProps> {
             .then(() => {
               getRefetchQueries(boardId, calendar.groupId);
 
-              const msg = `${__(`You successfully deleted a`)} ${__(
+              const msg = `${__('You successfully deleted a')} ${__(
                 'calendar'
               )}.`;
 
