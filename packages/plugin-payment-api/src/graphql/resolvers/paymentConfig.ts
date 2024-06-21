@@ -30,6 +30,6 @@ export default {
   },
 
   async payments(config: IPaymentConfig, {}, { models }: IContext) {
-    return models.Payments.find({ _id: { $in: config.paymentIds } }).lean();
-  },
+    return models.PaymentMethods.find({ _id: { $in: config.paymentIds } }).lean();
+  }
 };
