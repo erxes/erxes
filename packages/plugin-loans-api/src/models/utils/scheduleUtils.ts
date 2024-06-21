@@ -1106,13 +1106,8 @@ export const generatePendingSchedules = async (
     (await models.Schedules.bulkWrite(updatePrevSchedulesBulk));
 
   if (tr._id) {
-<<<<<<< HEAD
-    var transactionReaction: any = {
-      reactions: [...trReaction, ...updatePrevScheduleReactions],
-=======
     let transactionReaction: any = {
       reactions: [...trReaction, ...updatePrevScheduleReactions]
->>>>>>> 9daf4f045fa14a56fec807342f6675d8e7e17a49
     };
 
     if (updatedSchedule.balance === 0 && contract._id) {

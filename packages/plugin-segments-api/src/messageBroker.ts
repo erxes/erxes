@@ -15,8 +15,8 @@ import {
 
 const sendSuccessMessage = (data) => ({ data, status: 'success' });
 const sendErrorMessage = (message?) => ({
-  status: 'error'
-  message,
+  status: 'error',
+  message
 });
 
 export const setupMessageConsumers = async () => {

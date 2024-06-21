@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-import { IContext } from '../../connectionResolver';
-import {
-  getConfig,
-  sendCoreMessage,
-  sendMessageBroker,
-} from '../../messageBroker';
-import { SCHEDULE_STATUS } from '../../models/definitions/constants';
-import {
-  IContractDocument,
-  IContract,
-} from '../../models/definitions/contracts';
-import { getCalcedAmounts } from '../../models/utils/transactionUtils';
-import {
-  getDiffDay,
-  getFullDate,
-  getNextMonthDay,
-} from '../../models/utils/utils';
-=======
 import BigNumber from "bignumber.js";
 import { IContext } from "../../connectionResolver";
 import {
@@ -32,7 +13,6 @@ import {
   getFullDate,
   getNextMonthDay
 } from "../../models/utils/utils";
->>>>>>> 9daf4f045fa14a56fec807342f6675d8e7e17a49
 
 const Contracts = {
   async contractType(contract: IContract, _, { models }: IContext) {
@@ -271,22 +251,14 @@ const Contracts = {
       .sort({ payDate: 1 })
       .lean();
 
-<<<<<<< HEAD
-    const config = await getConfig('loansConfig', subdomain);
-=======
     const config = await getConfig("loansConfig", subdomain);
->>>>>>> 9daf4f045fa14a56fec807342f6675d8e7e17a49
 
     const calcedInfo = await getCalcedAmounts(
       models,
       subdomain,
       {
         contractId: contract._id,
-<<<<<<< HEAD
-        payDate: (nextSchedule?.payDate) || today
-=======
         payDate: (nextSchedule && nextSchedule.payDate) || today
->>>>>>> 9daf4f045fa14a56fec807342f6675d8e7e17a49
       },
       config
     );
