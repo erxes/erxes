@@ -3,6 +3,8 @@ import {
   SignatureDropdownWrapper,
   SignatureHiderButton,
   SignatureOptionWrapper,
+  SignatureContainer,
+  SignatureContentWrapper,
 } from "./styles";
 
 import EmptyState from "@erxes/ui/src/components/EmptyState";
@@ -11,7 +13,7 @@ import { IEmailSignature } from "@erxes/ui-settings/src/email/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Label } from "@erxes/ui/src/components/form/styles";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import React from "react";
+import React, { useState } from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import Popover from "@erxes/ui/src/components/Popover";
@@ -37,6 +39,8 @@ const SignatureChooser = ({
   onContentChange,
   onSignatureChange,
 }: Props) => {
+  const [showPreview, setShowPreview] = useState("");
+
   const removeSignature = ({
     openingTag = "<data>",
     closingTag = "</data>",
@@ -73,8 +77,10 @@ const SignatureChooser = ({
     onSignatureChange("");
   };
 
-  const handleSignatureSelection = (val: string) => {
+  const handleSignatureSelection = (val: string, close: any) => {
     /** If the current selection is same as previous, do nothing */
+    close();
+
     if (emailSignature === val) {
       return;
     }
@@ -97,27 +103,53 @@ const SignatureChooser = ({
     }
   };
 
-  const renderSignatureDropdownItem = (signature: IEmailSignature) => {
+  const renderSignatureDropdownItem = (
+    signature: IEmailSignature,
+    close: any
+  ) => {
     const brandName =
       brands.find((brand: IBrand) => brand._id === signature.brandId)?.name ||
       "";
 
+    if (brandName === "") {
+      return null;
+    }
+
     return (
       <React.Fragment key={`${signature.brandId}-${signature.signature}`}>
-        <SignatureDropdownWrapper>
-          <button
-            onClick={() => handleSignatureSelection(signature.brandId || "")}
-            // active={emailSignature === signature.brandId}
-          >
-            <SignatureOptionWrapper>{brandName}</SignatureOptionWrapper>
-          </button>
+        <SignatureDropdownWrapper
+          className={`${emailSignature === signature.brandId ? "active" : ""}`}
+        >
+          <SignatureOptionWrapper>
+            <button
+              onClick={() =>
+                handleSignatureSelection(signature.brandId || "", close)
+              }
+            >
+              <b>{brandName}</b>
+            </button>
+            <Icon
+              icon="eye"
+              onClick={() => setShowPreview(signature.brandId || "")}
+            />
+          </SignatureOptionWrapper>
+          <SignatureContentWrapper show={signature.brandId === showPreview}>
+            <div
+              onClick={() =>
+                handleSignatureSelection(signature.brandId || "", close)
+              }
+              dangerouslySetInnerHTML={{
+                __html: signature.signature || "",
+              }}
+            />
+          </SignatureContentWrapper>
         </SignatureDropdownWrapper>
       </React.Fragment>
     );
   };
 
-  const renderSignatures = () => {
-    if (brands.length === 0 || signatures.length === 0) {
+  const renderSignatures = (close) => {
+    if (signatures.length === 0) {
       return (
         <SignatureOptionWrapper>
           <EmptyState icon="clipboard-1" text="No signatures" />
@@ -126,7 +158,7 @@ const SignatureChooser = ({
     }
 
     return (signatures || []).map((signature: IEmailSignature) =>
-      renderSignatureDropdownItem(signature)
+      renderSignatureDropdownItem(signature, close)
     );
   };
 
@@ -167,13 +199,23 @@ const SignatureChooser = ({
     );
   };
 
+  const popoverContent = (close) => {
+    return (
+      <>
+        <div className="popover-header">{__("Signatures")}</div>
+        <SignatureContainer>{renderSignatures(close)}</SignatureContainer>
+        {renderSignatureFooter()}
+      </>
+    );
+  };
+
   return (
     <Popover
       trigger={renderIcon({ text: "Insert signature", icon: "edit-alt" })}
+      closeAfterSelect={true}
+      placement="top-end"
     >
-      <div className="popover-header">{__("Signatures")}</div>
-      {renderSignatures()}
-      {renderSignatureFooter()}
+      {popoverContent}
     </Popover>
   );
 };
