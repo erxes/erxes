@@ -205,6 +205,7 @@ export const repairIntegrations = async (
       });
     } catch (e) {
       console.log ('erorr message: ' , e);
+      throw e;
     }
   }
 
@@ -264,8 +265,8 @@ export const instagramCreateIntegration = async (
       facebookPageId
     });
   } catch (error) {
-    // You can also throw the error again or perform additional error handling here
     console.log ('erorr message: ' , error);
+    throw error;
     }
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
