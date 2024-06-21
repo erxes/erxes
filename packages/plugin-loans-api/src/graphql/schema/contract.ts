@@ -166,8 +166,8 @@ const queryParams = `
   endStartDate:Date
   startCloseDate:Date
   endCloseDate:Date
-  dealId:String
-  customerId:String
+  dealId: String
+  customerId: String
   leaseAmount: Float
   interestRate: Float
   tenor: Int

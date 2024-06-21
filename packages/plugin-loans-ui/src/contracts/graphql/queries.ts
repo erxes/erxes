@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from '@erxes/ui-cards/src/conformity';
+  conformityQueryFields
+} from "@erxes/ui-cards/src/conformity";
 
 const contractFields = `
   _id
@@ -235,6 +235,7 @@ export const contractDetailFields = `
   invoices
   storeInterest
   loanTransactionHistory
+  depositAccountId
   contractType {
     code
     name
@@ -390,5 +391,5 @@ export default {
   documents,
   contractsAlert,
   savingContracts,
-  getPolarisData,
+  getPolarisData
 };

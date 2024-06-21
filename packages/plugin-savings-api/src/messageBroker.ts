@@ -30,12 +30,13 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
 
     const deposit = await models.Contracts.findOne({
+      _id: data.depositAccountId,
       customerId: data.customerId,
       isDeposit: true
     });
 
     if (!deposit) {
-      throw new Error("contract not found");
+      throw new Error("Contract not found");
     }
 
     data.contractId = deposit._id;

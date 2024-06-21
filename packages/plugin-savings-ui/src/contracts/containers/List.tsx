@@ -3,9 +3,9 @@ import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables,
+  RemoveMutationVariables
 } from "../types";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { mutations, queries } from "../graphql";
 import { useMutation, useQuery } from "@apollo/client";
 
@@ -27,11 +27,12 @@ const generateQueryParams = (location) => {
 };
 
 const ContractListContainer = (props: Props) => {
-  const [loading, setLoading] = useState(false);
   const { queryParams } = props;
-  const [date, setDate] = useState(new Date());
+
   const location = useLocation();
   const navigate = useNavigate();
+
+  const date = useMemo(() => new Date(), []);
 
   const contractsMainQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
@@ -62,8 +63,9 @@ const ContractListContainer = (props: Props) => {
         sortDirection: queryParams.sortDirection
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
+        isDeposit: props.isDeposit
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     }
   );
 
@@ -71,16 +73,16 @@ const ContractListContainer = (props: Props) => {
     gql(queries.savingsContractsAlert),
     {
       variables: {
-        date,
+        date
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: "network-only"
     }
   );
 
   const [contractsRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.contractsRemove),
     {
-      refetchQueries: ["contractsMain"],
+      refetchQueries: ["contractsMain"]
     }
   );
 
@@ -121,7 +123,7 @@ const ContractListContainer = (props: Props) => {
 
   const removeContracts = ({ contractIds }, emptyBulk) => {
     contractsRemove({
-      variables: { contractIds },
+      variables: { contractIds }
     })
       .then(() => {
         emptyBulk();
@@ -144,13 +146,13 @@ const ContractListContainer = (props: Props) => {
     searchValue,
     contracts: list,
     alerts,
-    loading: contractsMainQuery.loading || loading,
+    loading: contractsMainQuery.loading,
     queryParams: queryParams,
     removeContracts,
     onSelect: onSelect,
     onSearch: onSearch,
     isFiltered: isFiltered(),
-    clearFilter: clearFilter,
+    clearFilter: clearFilter
   };
 
   const contractsList = (props) => {
