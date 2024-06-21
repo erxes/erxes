@@ -51,7 +51,7 @@ const generateEmails = (entry, key?) => {
     return entry
       .split(', ')
       .filter((value) =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        RegExp(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).exec(value),
       );
   }
 
@@ -324,7 +324,7 @@ export const getRecipientEmails = async ({
         continue;
       }
 
-      if (!!reciepentType.serviceName) {
+      if (reciepentType.serviceName) {
         const emails = await sendCommonMessage({
           subdomain,
           serviceName: reciepentType.serviceName,
@@ -524,7 +524,7 @@ const sendEmails = async ({
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
-        EmailDeliveryId: emailDelivery && emailDelivery._id,
+        EmailDeliveryId: emailDelivery?._id,
       };
     } else {
       headers['X-SES-CONFIGURATION-SET'] = 'erxes';

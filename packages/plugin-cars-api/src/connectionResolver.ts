@@ -7,7 +7,6 @@ import {
   ICarCategoryModel,
   ICarModel,
 } from './models/Cars';
-import { MongoClient } from 'mongodb';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {

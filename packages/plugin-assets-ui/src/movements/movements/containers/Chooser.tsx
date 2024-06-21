@@ -1,12 +1,9 @@
-import { Chooser, Spinner } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql, useQuery } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React, { useState } from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import AssetForm from '../../../asset/containers/AssetForm';
-import { queries } from '../graphql';
-import { IAsset, IAssetQueryResponse } from '../../../common/types';
+import { Chooser, Spinner } from "@erxes/ui/src";
+import { gql, useQuery } from "@apollo/client";
+import React, { useState } from "react";
+import AssetForm from "../../../asset/containers/AssetForm";
+import { queries } from "../graphql";
+import { IAsset, IAssetQueryResponse } from "../../../common/types";
 
 type Props = {
   closeModal: () => void;
@@ -25,10 +22,10 @@ const AssetChooser = (props: Props) => {
   const assetsQuery = useQuery<IAssetQueryResponse>(gql(queries.assets), {
     variables: {
       perPage: 20,
-      searchValue: '',
+      searchValue: "",
       ignoreIds: [...(ignoreIds || []), ...(selectedAssetIds || [])],
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const selectedAssetsQuery = useQuery<IAssetQueryResponse>(
@@ -39,8 +36,8 @@ const AssetChooser = (props: Props) => {
         perPage: (selectedAssetIds || []).length || undefined,
         ids: selectedAssetIds,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const assetAddForm = (props) => {
@@ -76,9 +73,9 @@ const AssetChooser = (props: Props) => {
     <Chooser
       title="Asset Chooser"
       datas={[...listAssets, ...selectedItems]}
-      data={{ name: 'Asset', datas: selectedItems }}
+      data={{ name: "Asset", datas: selectedItems }}
       search={search}
-      clearState={() => search('', true)}
+      clearState={() => search("", true)}
       renderForm={assetAddForm}
       onSelect={handleSelect}
       closeModal={() => closeModal()}

@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   FormGroup as CommonFormGroup,
   Sidebar as CommonSideBar,

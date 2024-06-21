@@ -32,24 +32,18 @@ const generateAssetsDocs = async (subdomain, result, properties) => {
       const value = (fieldValue[colIndex] || '').toString();
       switch (property.name) {
         case 'customProperty':
-          {
             doc.customFieldData.push({
               field: property.id,
               value: fieldValue[colIndex]
             });
-          }
           break;
         case 'categoryName':
-          {
             const category = await models.AssetCategories.findOne({
               name: { $regex: new RegExp(`^${value}$`, 'i') }
             });
             doc.categoryId = category ? category._id : '';
-          }
-
           break;
         case 'parentName':
-          {
             const code = (fieldValue[colIndex + 1] || '').toString();
             const parent = await models.Assets.findOne({
               $or: [
@@ -58,14 +52,12 @@ const generateAssetsDocs = async (subdomain, result, properties) => {
               ]
             });
             doc.parentId = parent ? parent._id : '';
-          }
           break;
-        default: {
+        default:
           doc[property.name] = value;
           if (property.name === 'createdAt' && value) {
             doc.createdAt = new Date(value);
           }
-        }
       }
 
       colIndex++;
@@ -104,9 +96,7 @@ const generateAssetsMovementsDocs = async (subdomain, result, properties) => {
           }
           break;
         case 'description':
-          {
             item.description = value || '';
-          }
           break;
         case 'assetName':
           {

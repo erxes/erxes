@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { IArticle } from '@erxes/ui-knowledgebase/src/types';
 import { IAsset } from '../../../common/types';
-import { generateTree } from '@erxes/ui/src/utils/core';
+import { generateTree, __ } from '@erxes/ui/src/utils/core';
 import { KbCategories, KbCategoriesContainer, KbTopics } from '../../../style';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import styled from 'styled-components';
-import { FlexRow, Row } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { FlexRow } from '@erxes/ui-settings/src/styles';
 
 const KbCat = styled(KbCategories)`
   &:before {
@@ -14,22 +13,21 @@ const KbCat = styled(KbCategories)`
 `;
 
 type Props = {
-  kbArticleIds: string[];
   articles: IArticle[];
   asset: IAsset;
 };
 
 const KbArticles = ({ articles, asset }: Props) => {
   const { knowledgeData = {} } = asset;
-  const [selectedCategoryIds, setCategoryIds] = useState([] as string[]);
-
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  
   const handleClick = (_id) => {
     if (selectedCategoryIds.includes(_id)) {
-      return setCategoryIds(
+      return setSelectedCategoryIds(
         selectedCategoryIds.filter((categoryId) => categoryId !== _id),
       );
     }
-    setCategoryIds([...selectedCategoryIds, _id]);
+    setSelectedCategoryIds([...selectedCategoryIds, _id]);
   };
 
   const onCellClick = (e) => {

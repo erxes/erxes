@@ -1,5 +1,4 @@
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { assetFields } from '../../../common/graphql/asset';
 import {
   commonFilterParams,
   commonFilterParamsDef,

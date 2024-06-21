@@ -9,9 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   queryParams: any;
   knowledgeBaseTopics: any[];
-  loadArticles: (categoryId: string[]) => void;
   loadedArticles: any[];
-
   //   selectedArticleIds?: string[];
   loading: boolean;
 };

@@ -1,6 +1,10 @@
-import { Route, Routes, useNavigate } from "react-router-dom";
-import { useLocation, useParams } from "react-router-dom";
-
+import {
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
@@ -33,8 +37,15 @@ const AssetDetail = asyncComponent(
 
 const Assets = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  return <AssetList queryParams={queryString.parse(location.search)} />;
+  return (
+    <AssetList
+      queryParams={queryString.parse(location.search)}
+      location={location}
+      navigate={navigate}
+    />
+  );
 };
 
 const Detail = () => {

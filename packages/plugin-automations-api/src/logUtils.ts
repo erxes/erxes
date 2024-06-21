@@ -1,13 +1,8 @@
-import { ILogDataParams } from '@erxes/api-utils/src/logUtils';
-
-import {
+import { ILogDataParams ,
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
-} from '@erxes/api-utils/src/logUtils';
-
-import { putActivityLog as commonPutActivityLog } from '@erxes/api-utils/src/logUtils';
-
+  putActivityLog as commonPutActivityLog } from '@erxes/api-utils/src/logUtils';
 import { generateModels } from './connectionResolver';
 
 export const putDeleteLog = async (

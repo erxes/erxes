@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   FormGroup as CommonFormGroup,
   Sidebar as CommonSideBar,
@@ -17,7 +16,7 @@ import {
   CustomRangeContainer,
   EndDateContainer,
 } from "../../../style";
-import React, { useState } from "react";
+import React from "react";
 
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
@@ -56,7 +55,6 @@ const Sidebar = (props: Props) => {
       value = moment(value).format(`YYYY/MM/DD hh:mm`);
     }
 
-    // this.setState({ [name]: value });
     router.setParams(navigate, location, { [name]: value });
     router.setParams(navigate, location, { page: 1 });
   };
@@ -70,11 +68,9 @@ const Sidebar = (props: Props) => {
   const clearParams = (field) => {
     if (Array.isArray(field)) {
       field.forEach((name) => {
-        // this.setState({ [name]: undefined });
         return router.removeParams(navigate, location, name);
       });
     }
-    // this.setState({ [field]: undefined });
     router.removeParams(navigate, location, field);
   };
 

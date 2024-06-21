@@ -22,12 +22,13 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 import MergeAssets from "./actions/Merge";
 import AssignArticles from "../containers/actions/Assign";
 import Sidebar from "../containers/Sidebar";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   assets: IAsset[];
   assetsCount: number;
   queryParams: any;
+  location: any;
+  navigate: any;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
@@ -64,12 +65,12 @@ const List = (props: Props) => {
     currentParent,
     mergeAssets,
     mergeAssetLoading,
+    location,
+    navigate
   } = props;
 
   const [search, setSearch] = useState(searchValue);
   const timerRef = useRef<number | null>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     emptyBulk();
@@ -261,9 +262,8 @@ const List = (props: Props) => {
   const sidebar = <Sidebar queryParams={queryParams} />;
 
   const leftActionBar = (
-    <Title>{`${
-      currentCategory.name || currentParent.name || "All Assets"
-    } (${assetsCount})`}</Title>
+    <Title>{`${currentCategory.name || currentParent.name || "All Assets"
+      } (${assetsCount})`}</Title>
   );
 
   return (

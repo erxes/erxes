@@ -20,11 +20,11 @@ export default {
     return (asset.parentId && dataLoaders.asset.load(asset.parentId)) || null;
   },
 
-  async isRoot(asset: IAssetDocument, {}) {
+  async isRoot(asset: IAssetDocument, _) {
     return !asset.parentId; 
   },
 
-  async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
+  async childAssetCount(asset: IAssetDocument, _, { models }: IContext) {
     const order = asset.order.slice(-1)
       ? asset.order.replace(/\\/g, '\\\\')
       : asset.order;

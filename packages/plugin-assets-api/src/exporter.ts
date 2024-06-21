@@ -195,7 +195,6 @@ export default {
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {
             const fieldId = column.split('.')[2];
-            const fieldName = column.split('.')[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
 

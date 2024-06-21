@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Box from "@erxes/ui/src/components/Box";
-import Icon from "@erxes/ui/src/components/Icon";
 import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
 import { router, __ } from "@erxes/ui/src/utils";
 import { assetStatusChoises } from "../../../common/utils";
@@ -36,22 +35,18 @@ const StatusFilter = (props: Props) => {
       isOpen={queryParams.status}
     >
       <SidebarList>
-        {assetStatusChoises().map(
-          ({ value, label }: { value: string; label: string }) => {
-            return (
-              <li key={Math.random()}>
-                <a
-                  href="#filter"
-                  tabIndex={0}
-                  className={queryParams.status === value ? "active" : ""}
-                  onClick={onClick.bind(this, value)}
-                >
-                  <FieldStyle>{label}</FieldStyle>
-                </a>
-              </li>
-            );
-          }
-        )}
+        {assetStatusChoises().map(({ value, label }) => (
+          <li key={value}>
+            <a
+              href="#filter"
+              tabIndex={0}
+              className={queryParams.status === value ? "active" : ""}
+              onClick={() => onClick(value)}
+            >
+              <FieldStyle>{label}</FieldStyle>
+            </a>
+          </li>
+        ))}
       </SidebarList>
     </Box>
   );
