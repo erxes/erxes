@@ -67,7 +67,7 @@ export const mutations = `
   generateInvoiceUrl(${mutationParams}): String
   invoiceCreate(${mutationParams}): Invoice
   invoiceUpdate(_id: String!, ${mutationParams}): Invoice
-  invoiceCheck(_id:String!): String
+  invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
 
   
