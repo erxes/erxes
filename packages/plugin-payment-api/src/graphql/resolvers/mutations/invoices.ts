@@ -22,7 +22,7 @@ const mutations = {
   async generateInvoiceUrl(
     _root,
     params: IInvoice,
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const domain = getEnv({ name: 'DOMAIN', subdomain })
       ? `${getEnv({ name: 'DOMAIN', subdomain })}/gateway`
