@@ -1,19 +1,13 @@
-import { __ } from "../utils/core";
-import React, {
-  Fragment,
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
-import styled from "styled-components";
+import { ControlLabel, FormControl } from "./form";
 import { colors, dimensions } from "../styles";
-import { rgba } from "../styles/ecolor";
+
 import Button from "./Button";
-import { ControlLabel } from "./form";
 import Icon from "./Icon";
-import { Dialog, Transition } from "@headlessui/react";
-import { DialogContent, DialogWrapper, ModalOverlay } from "../styles/main";
+import Modal from "react-bootstrap/Modal";
+import React from "react";
+import { __ } from "../utils/core";
+import { rgba } from "../styles/ecolor";
+import styled from "styled-components";
 
 const ModalBody = styled.div`
   text-align: center;
@@ -56,22 +50,6 @@ const Error = styled.span`
   }
 `;
 
-const Input = styled.input`
-  display: block;
-  border: none;
-  width: 100%;
-  height: 34px;
-  padding: 10px 0;
-  color: #444;
-  border-bottom: 1px solid;
-  border-color: #ddd;
-  background: none;
-  transition: all 0.3s ease;
-  &:focus-visible {
-    outline: none;
-  }
-`;
-
 type Props = {
   options?: {
     okLabel?: string;
@@ -86,133 +64,144 @@ type Props = {
   dismiss: () => void;
 };
 
-const ConfirmDialog = ({
-  options = {},
-  confirmation = "Are you sure?",
-  proceed,
-  dismiss,
-}: Props) => {
-  const [show, setShow] = useState(true);
-  const [confirm, setConfirm] = useState("");
-  const [errors, setErrors] = useState({} as any);
-  const inputRef = useRef<HTMLInputElement>(null);
+type State = {
+  show: boolean;
+  confirm: string;
+  errors: { [key: string]: React.ReactNode };
+};
 
-  const handleDismiss = useCallback(() => {
-    setShow(false);
-    dismiss();
-  }, [dismiss]);
+class ConfirmDialog extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
 
-  const invokeProceed = useCallback(() => {
+    this.state = {
+      show: true,
+      confirm: "",
+      errors: {},
+    };
+  }
+
+  dismiss = () => {
+    this.setState({ show: false }, () => {
+      this.props.dismiss();
+    });
+  };
+
+  invokeProceed() {
+    const { options = {} } = this.props;
     const { hasPasswordConfirm = false } = options;
-    setShow(false);
-    proceed(hasPasswordConfirm ? confirm : "");
-  }, [confirm, options, proceed]);
+    this.setState({ show: false }, () => {
+      this.props.proceed(hasPasswordConfirm ? this.state.confirm : "");
+    });
+  }
 
-  const handleProceed = useCallback(() => {
-
+  proceed = () => {
+    const { options = {} } = this.props;
     const { hasDeleteConfirm, hasUpdateConfirm, hasPasswordConfirm } = options;
 
     if (hasDeleteConfirm) {
-      if (confirm === "delete") {
-        return invokeProceed();
+      if (this.state.confirm === "delete") {
+        return this.invokeProceed();
       }
-      return setErrors({
-        confirm: (
-          <Error>
-            Enter <strong>delete</strong> to confirm
-          </Error>
-        ),
+
+      return this.setState({
+        errors: {
+          confirm: (
+            <Error>
+              Enter <strong>delete</strong> to confirm
+            </Error>
+          ),
+        },
       });
     }
 
     if (hasUpdateConfirm) {
-      if (confirm === "update") {
-        return invokeProceed();
+      if (this.state.confirm === "update") {
+        return this.invokeProceed();
       }
-      return setErrors({
-        confirm: (
-          <Error>
-            Enter <strong>update</strong> to confirm
-          </Error>
-        ),
+
+      return this.setState({
+        errors: {
+          confirm: (
+            <Error>
+              Enter <strong>update</strong> to confirm
+            </Error>
+          ),
+        },
       });
     }
 
     if (hasPasswordConfirm) {
-      if (confirm !== "") {
-        return invokeProceed();
+      if (this.state.confirm !== "") {
+        return this.invokeProceed();
       }
-      return setErrors({
-        confirm: (
-          <Error>
-            Enter <strong>password</strong> to confirm
-          </Error>
-        ),
+
+      return this.setState({
+        errors: {
+          confirm: (
+            <Error>
+              Enter <strong>password</strong> to confirm
+            </Error>
+          ),
+        },
       });
     }
-    
-    return invokeProceed();
-  }, [confirm, invokeProceed, options]);
 
-  const handleKeydown = useCallback(
-    (e) => {
-      if (e.key === "Enter") {
-        handleProceed();
-      }
-      if (e.key === "Escape") {
-        handleDismiss();
-      }
-    },
-    [handleProceed, handleDismiss]
-  );
+    return this.invokeProceed();
+  };
 
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeydown);
-    return () => {
-      document.removeEventListener("keydown", handleKeydown);
-    };
-  }, [handleKeydown]);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      setTimeout(() => {
-        document.getElementById("confirmation-dialog")?.click();
-        inputRef.current && inputRef.current.focus();
-      }, 10);
+  handleKeydown = (e) => {
+    if (e.key === "Enter") {
+      this.proceed();
     }
-  }, []);
+  };
 
-  const handleChange = useCallback((e) => {
-    setConfirm(e.target.value);
-  }, []);
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeydown);
+  }
 
-  const renderConfirmDelete = useCallback(() => {
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeydown);
+  }
+
+  handleChange = (e) => {
+    this.setState({ confirm: e.target.value });
+  };
+
+  renderConfirmDelete() {
+    const { errors, confirm } = this.state;
     const {
       hasDeleteConfirm = false,
       hasUpdateConfirm = false,
       hasPasswordConfirm = false,
-    } = options;
+    } = this.props.options || {};
 
     if (!hasDeleteConfirm && !hasUpdateConfirm && !hasPasswordConfirm) {
       return null;
     }
 
-    let label;
+    let label: any;
 
-    if (hasDeleteConfirm) {
-      label = (
-        <>
-          Type <strong>delete</strong> in the field below to confirm.
-        </>
-      );
-    } else if (hasUpdateConfirm) {
-      label = (
-        <>
-          Type <strong>update</strong> in the field below to confirm.
-        </>
-      );
-    } else if (hasPasswordConfirm) {
-      label = <>Enter your password in the field below to confirm.</>;
+    switch (true) {
+      case hasDeleteConfirm:
+        label = (
+          <>
+            Type <strong>delete</strong> in the field below to confirm.
+          </>
+        );
+        break;
+      case hasUpdateConfirm:
+        label = (
+          <>
+            Type <strong>update</strong> in the field below to confirm.
+          </>
+        );
+        break;
+      case hasPasswordConfirm:
+        label = <>Enter your password in the field below to confirm.</>;
+        break;
+      default:
+        break;
     }
 
     return (
@@ -220,78 +209,71 @@ const ConfirmDialog = ({
         <ControlLabel required={true} uppercase={false}>
           {label}
         </ControlLabel>
-        <Input
+        <FormControl
           name="confirm"
           type={hasPasswordConfirm ? "password" : "text"}
           required={true}
           value={confirm}
+          errors={errors}
           autoFocus={true}
-          onChange={handleChange}
-          ref={inputRef}
+          onChange={this.handleChange}
         />
-        {Object.keys(errors).length > 0 && errors.confirm}
       </>
     );
-  }, [confirm, errors, options, handleChange]);
+  }
 
-  return (
-    <Transition appear show={show} as={Fragment}>
-      <Dialog
-        open={true}
-        as="div"
-        onClose={handleDismiss}
-        className={`relative z-10`}
+  render() {
+    const { confirmation = "Are you sure?", options = {} } = this.props;
+    const { hasDeleteConfirm, hasUpdateConfirm, hasPasswordConfirm } = options;
+
+    const {
+      okLabel = "Yes, I am",
+      cancelLabel = "No, Cancel",
+      enableEscape = true,
+    } = options;
+
+    return (
+      <Modal
+        show={this.state.show}
+        onHide={this.dismiss}
+        backdrop={enableEscape ? true : "static"}
+        keyboard={enableEscape}
+        size="sm"
+        centered={true}
+        animation={
+          hasDeleteConfirm || hasUpdateConfirm || hasPasswordConfirm
+            ? false
+            : true
+        }
       >
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <ModalOverlay />
-        </Transition.Child>
-        <DialogWrapper>
-          <DialogContent>
-            <Dialog.Panel className={`dialog-size-xs`}>
-              <div id="confirmation-dialog">
-                <Transition.Child>
-                  <ModalBody>
-                    <IconWrapper>
-                      <Icon icon="exclamation-triangle" />
-                    </IconWrapper>
-                    {__(confirmation)}
-                    <br />
-                    {renderConfirmDelete()}
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      btnStyle="simple"
-                      onClick={handleDismiss}
-                      icon="times-circle"
-                      uppercase={false}
-                    >
-                      {options.cancelLabel || "No, Cancel"}
-                    </Button>
-                    <Button
-                      btnStyle="success"
-                      onClick={handleProceed}
-                      icon="check-circle"
-                      uppercase={false}
-                    >
-                      {options.okLabel || "Yes, I am"}
-                    </Button>
-                  </ModalFooter>
-                </Transition.Child>
-              </div>
-            </Dialog.Panel>
-          </DialogContent>
-        </DialogWrapper>
-      </Dialog>
-    </Transition>
-  );
-};
+        <ModalBody>
+          <IconWrapper>
+            <Icon icon="exclamation-triangle" />
+          </IconWrapper>
+          {__(confirmation)}
+          {this.renderConfirmDelete()}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            btnStyle="simple"
+            onClick={this.dismiss}
+            icon="times-circle"
+            uppercase={false}
+          >
+            {cancelLabel}
+          </Button>
+          <Button
+            btnStyle="success"
+            onClick={this.proceed}
+            icon="check-circle"
+            uppercase={false}
+          >
+            {okLabel}
+          </Button>
+        </ModalFooter>
+      </Modal>
+    );
+  }
+}
 
 export default ConfirmDialog;
