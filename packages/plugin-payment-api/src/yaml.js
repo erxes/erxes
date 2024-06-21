@@ -3,6 +3,6 @@ module.exports = {
   additionalBuildSteps: [
     'cd erxes/packages/plugin-payment-api',
     'yarn install',
-    'yarn build:webpack',
+    'yarn build:client',
   ],
 };
