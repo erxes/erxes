@@ -50,7 +50,16 @@ export interface IContractModel extends Model<IContractDocument> {
   closeContract(subdomain, doc: ICloseVariable);
   clientCreditLoanRequest(
     subdomain,
-    requestParams: { contractId: string; amount: number; customerId: string },
+    requestParams: {
+      contractId: string;
+      amount: number;
+      customerId: string;
+      dealtType?: "own" | "external";
+      dealtResponse?: any;
+      accountNumber?: string;
+      accountHolderName?: string;
+      externalBankName?: string;
+    },
     contract: IContractDocument
   );
   removeContracts(_ids);
@@ -270,13 +279,22 @@ export const loadContractClass = (models: IModels) => {
 
     public static async clientCreditLoanRequest(
       subdomain,
-      requestParams: { contractId: string; amount: number; customerId: string },
+      requestParams: {
+        contractId: string;
+        amount: number;
+        customerId: string;
+        dealtType?: "own" | "external";
+        dealtResponse?: any;
+        accountNumber?: string;
+        accountHolderName?: string;
+        externalBankName?: string;
+      },
       contract: IContractDocument
     ) {
       const config: IConfig = await getConfig("loansConfig", subdomain);
       const trDate = new Date();
       if (
-        new BigNumber(contract.leaseAmount).toNumber() <=
+        new BigNumber(contract.leaseAmount).toNumber() >
         new BigNumber(contract.loanBalanceAmount)
           .plus(requestParams.amount)
           .dp(config.calculationFixed)
@@ -314,6 +332,32 @@ export const loadContractClass = (models: IModels) => {
           },
           "savings"
         );
+        if (requestParams.dealtType == "external") {
+          const savingTr = {
+            contractId: contract.depositAccountId,
+            customerId: requestParams.customerId,
+            transactionType: "outcome",
+            description: "credit loan give",
+            payDate: trDate,
+            payment: requestParams.amount,
+            currency: contract.currency,
+            total: requestParams.amount,
+            dealtType: "external",
+            dealtResponse: loanTr,
+            accountNumber: requestParams.accountNumber,
+            accountHolderName: requestParams.accountHolderName,
+            externalBankName: requestParams.externalBankName
+          };
+
+          await sendMessageBroker(
+            {
+              action: "transactions.createTransaction",
+              subdomain,
+              data: savingTr
+            },
+            "savings"
+          );
+        }
       } else {
         throw new Error("Limit exceed!");
       }
