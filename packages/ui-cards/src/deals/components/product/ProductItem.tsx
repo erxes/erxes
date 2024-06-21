@@ -556,6 +556,7 @@ class ProductItem extends React.Component<Props, State> {
             }}
             initialValue={productData.assignUserId}
             onSelect={this.assignUserOnChange}
+            withCustomStyle={true}
           />
         </td>
         <td style={avStyle}>
