@@ -527,7 +527,7 @@ export const generatePostModel = (
       })();
 
       if (!post.translations?.some((t) => t.lang === lang)) {
-        throw new Error('Translation doesn't exist');
+        throw new Error("Translation doesn't exist");
       }
 
       const translationDoc = { ...translation, lang };
@@ -559,7 +559,7 @@ export const generatePostModel = (
       })();
 
       if (!post.translations?.some((t) => t.lang === lang)) {
-        throw new Error('Translation already doesn't exist');
+        throw new Error("Translation already doesn't exist");
       }
 
       await models.Post.updateOne(

@@ -1,4 +1,4 @@
-import { sendMessage } from '@erxes/api-utils/src/core;
+import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
   MessageArgsOmitService,

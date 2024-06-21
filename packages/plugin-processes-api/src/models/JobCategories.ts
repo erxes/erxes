@@ -35,7 +35,7 @@ export const loadJobCategoryClass = (models: IModels) => {
 
     static async checkCodeDuplication(code: string) {
       if (code.includes('/')) {
-        throw new Error('The '/' character is not allowed in the code');
+        throw new Error("The '/' character is not allowed in the code");
       }
 
       const category = await models.JobCategories.findOne({
