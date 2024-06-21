@@ -1,6 +1,60 @@
 # Changelog
 
+## [1.13.0-rc.5](https://github.com/erxes/erxes/compare/1.12.5...1.13.0-rc.5) (2024-06-19)
+## [1.12.6](https://github.com/erxes/erxes/compare/1.12.5...1.12.6) (2024-06-20)
+
+
+### Bug Fixes
+
+* **cards:** description edit height when edit card ([#5395](https://github.com/erxes/erxes/issues/5395)) ([efa3b4b](https://github.com/erxes/erxes/commit/efa3b4bee21307a241f4aac44f066c4a5612ba5f))
+* **cards:** stage pipeline form update ([#5409](https://github.com/erxes/erxes/issues/5409)) ([021904d](https://github.com/erxes/erxes/commit/021904d470ea1b70e67a01de33374bfe5bd6facc))
+* **coreui:** import, export properties ([#5363](https://github.com/erxes/erxes/issues/5363)) ([a127db6](https://github.com/erxes/erxes/commit/a127db6eab253d67eae6f37fc429d389077e8577))
+* **engage:** fix create broadcast ([#5380](https://github.com/erxes/erxes/issues/5380)) ([3cea391](https://github.com/erxes/erxes/commit/3cea3913ddd7882d61b919a09e8bb32e48043bba))
+* **product:** Advanced view ui ([#5417](https://github.com/erxes/erxes/issues/5417)) ([74ef3ce](https://github.com/erxes/erxes/commit/74ef3cef5d1c40532e1e3d5c934b3d6670ae9a71))
+* **syncerkhet:** sync erkhet filter, permission filter ([#5419](https://github.com/erxes/erxes/issues/5419)) ([9727760](https://github.com/erxes/erxes/commit/97277602d77f6f9882a4a41cfae417e3de6c3294))
+
+## [1.13.0-rc.4](https://github.com/erxes/erxes/compare/1.12.5...1.13.0-rc.5) (2024-06-18)
+
+
+### Bug Fixes
+
+* **calls:** fix websocket error ([a3a9a2e](https://github.com/erxes/erxes/commit/a3a9a2e7909019b8e32abb42b932e2d0d88e4dbc))
+* **calls:** improve record file and added report fields ([e535219](https://github.com/erxes/erxes/commit/e535219ec9f1b127e1b0d85b269d72f9639615ad))
+
+## [1.13.0-rc.2](https://github.com/erxes/erxes/compare/1.12.5...1.13.0-rc.5) (2024-06-17)
+
+## [1.13.0-rc.1](https://github.com/erxes/erxes/compare/1.12.5...1.13.0-rc.5) (2024-06-13)
+
+
+### Bug Fixes
+
+* fix insight table type ([efd64e3](https://github.com/erxes/erxes/commit/efd64e3109a2a335ae800f6c01ace02c22e0a8be))
+
+## [1.13.0-rc.0](https://github.com/erxes/erxes/compare/1.12.5...1.13.0-rc.5) (2024-06-12)
+
+
+### Bug Fixes
+
+* (broadcast) Update broadcast ([#5352](https://github.com/erxes/erxes/issues/5352)) ([bd7ad30](https://github.com/erxes/erxes/commit/bd7ad30e0744efa00e5d22c9df02e53a4707f1fe))
+* **burenscoring:** some fix ([127e4fa](https://github.com/erxes/erxes/commit/127e4fa755f5d9a2479566222e7e86dc7f15c836))
+* **clientportal:** fix sidebar filter of client portal user list ([2a686e2](https://github.com/erxes/erxes/commit/2a686e240c9b1c6ede72c3911ddb7f67f5cb5759))
+* **coreui:** added default chip text ([d326eaa](https://github.com/erxes/erxes/commit/d326eaa5807f15af8702d647bd0fa32bab35e7c9))
+* **facebook:** can't send message to automation trigger when message or comment added ([052c476](https://github.com/erxes/erxes/commit/052c476a7551bfaac2f63a2755b04d82d92474cc))
+* loans contract filter ([#5344](https://github.com/erxes/erxes/issues/5344)) ([019d73e](https://github.com/erxes/erxes/commit/019d73e4132603ff1c6bb8646aac151b0fd14c9b))
+* Loans some fix ([#5356](https://github.com/erxes/erxes/issues/5356)) ([6c462d4](https://github.com/erxes/erxes/commit/6c462d4b0316d17a064997d4a43c55dbc18ebc7c))
+* Loans transaction filter ([#5346](https://github.com/erxes/erxes/issues/5346)) ([a6143d3](https://github.com/erxes/erxes/commit/a6143d3be46d7ee804c96e7c2f3d6ff28026fef4)),save
+* savings and loans configs ([#5341](https://github.com/erxes/erxes/issues/5341)) ([0739a96](https://github.com/erxes/erxes/commit/0739a969d3c78a9ecfbc8d4e5a643e514422efcd))
+* syncerkhet check products shortName ([a0d424e](https://github.com/erxes/erxes/commit/a0d424ec2d5e22747cf01fd7846cca277d87f223))
+* **xyp:** some ui update ([#5333](https://github.com/erxes/erxes/issues/5333)) ([c63e9fe](https://github.com/erxes/erxes/commit/c63e9fecfd04ab7585a25eb8a823d5d26bfb781f))
+
+
+### Performance Improvements
+
+* Loans report ([#5321](https://github.com/erxes/erxes/issues/5321)) ([1ec890e](https://github.com/erxes/erxes/commit/1ec890ef233b515b60ca433985a46e473a498d32))
+
 ## [1.13.0-rc.4](https://github.com/erxes/erxes/compare/1.13.0-rc.2...1.13.0-rc.4) (2024-06-18)
+* **coreui:** update confirm modal ([29d01fe](https://github.com/erxes/erxes/commit/29d01fe829ed13ca5e49e30ffba5f78fedac5134))
+
 ## [1.12.5](https://github.com/erxes/erxes/compare/1.12.4...1.12.5) (2024-06-19)
 
 
