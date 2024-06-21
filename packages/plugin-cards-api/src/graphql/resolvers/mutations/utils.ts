@@ -266,17 +266,7 @@ export const changeItemStatus = async (
   });
 };
 
-export const itemsEdit = async ({
-  models,
-  subdomain,
-  _id,
-  type,
-  oldItem,
-  doc,
-  processId,
-  user,
-  modelUpdate,
-}: {
+export const itemsEdit = async (
   models: IModels,
   subdomain: string,
   _id: string,
@@ -285,8 +275,8 @@ export const itemsEdit = async ({
   doc: any,
   processId: string,
   user: IUserDocument,
-  modelUpdate: any 
-}) => {
+  modelUpate
+) => {
   const extendedDoc = {
     ...doc,
     modifiedAt: new Date(),
@@ -730,25 +720,16 @@ export const itemsRemove = async (
   return removed;
 };
 
-export const itemsCopy = async ({
-  models,
-  subdomain,
-  _id,
-  processId,
-  type,
-  user,
-  extraDocParam,
-  modelCreate
-}: {
+export const itemsCopy = async (
   models: IModels,
   subdomain: string,
   _id: string,
-  processId: string,
+  proccessId: string,
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
   modelCreate: any 
-}) => {
+) => {
   const { collection } = getCollection(models, type);
   const item = await collection.findOne({ _id }).lean();
 
