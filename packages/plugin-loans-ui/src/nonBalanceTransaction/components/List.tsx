@@ -5,7 +5,6 @@ import {
   Button,
   DataWithLoader,
   FormControl,
-  ModalTrigger,
   Pagination,
   SortHandler,
   Table,
@@ -155,42 +154,38 @@ class List extends React.Component<IProps> {
       return <Bulk content={content} />;
     };
 
+    const menuItems = [
+      {
+        title: "collateral",
+        trigger: <a href="#collateral">{__("Collateral")}</a>,
+        content: () => setType("collateral"),
+        additionalModalProps: { size: "lg" },
+      },
+      {
+        title: "Interest Change",
+        trigger: <a href="#InterestChange">{__("Interest Change")}</a>,
+        content: () => setType("interest"),
+        additionalModalProps: { size: "lg" },
+      },
+      {
+        title: "Loan",
+        trigger: <a href="#Loan">{__("Loan")}</a>,
+        content: () => setType("loan"),
+        additionalModalProps: { size: "lg" },
+      },
+    ];
+
     const actionBarRight = (
       <BarItems>
         {can("manageTransactions", currentUser) && (
           <Dropdown
-            unmount={false}
             toggleComponent={
               <Button btnStyle="success" size="medium" icon="add">
                 {__("Add Non Balance")}
               </Button>
             }
-          >
-            <li>
-              <ModalTrigger
-                title={__("collateral")}
-                trigger={<a href="#collateral">{__("Collateral")}</a>}
-                size="lg"
-                content={() => setType("collateral")}
-              />
-            </li>
-            <li>
-              <ModalTrigger
-                title={__("Interest Change")}
-                trigger={<a href="#Interest Change">{__("Interest Change")}</a>}
-                size="lg"
-                content={() => setType("interest")}
-              />
-            </li>
-            <li>
-              <ModalTrigger
-                title={__("Loan")}
-                trigger={<a href="#Loan">{__("Loan")}</a>}
-                size="lg"
-                content={() => setType("loan")}
-              />
-            </li>
-          </Dropdown>
+            modalMenuItems={menuItems}
+          />
         )}
       </BarItems>
     );

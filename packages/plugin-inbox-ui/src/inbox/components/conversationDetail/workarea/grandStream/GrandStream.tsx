@@ -1,20 +1,26 @@
-import { Audio, CallWrapper, StatusContent, StatusIcon } from './styles';
+import {
+  Audio,
+  CallWrapper,
+  Download,
+  StatusContent,
+  StatusIcon,
+} from './styles';
 import { ICallHistory, IConversation } from '@erxes/ui-inbox/src/inbox/types';
 import {
   MessageBody,
   MessageItem,
 } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
+import React, { useRef } from 'react';
 
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
-import { readFile } from '@erxes/ui/src/utils/core';
 import { AppConsumer } from 'coreui/appContext';
 import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
 import { can } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   conversation: IConversation;
@@ -22,14 +28,66 @@ type Props = {
 };
 
 const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
-  const { callDuration, callStatus, callType, createdAt, recordUrl } =
-    conversation.callHistory || ({} as ICallHistory);
+  const audioRef = useRef(null) as any;
+  const {
+    callDuration,
+    callStatus,
+    callType,
+    createdAt,
+    recordUrl,
+    customerPhone,
+    operatorPhone,
+  } = conversation.callHistory || ({} as ICallHistory);
+
+  const audioTitle =
+    `operatorPhone:${operatorPhone}-` +
+    `customerPhone:${customerPhone}-` +
+    `${callType}:${callStatus}` +
+    dayjs(createdAt).format('YYYY-MM-DD HH:mm');
+
+  const handleDownload = () => {
+    const audioSrc = audioRef?.current?.querySelector('source').src;
+
+    fetch(audioSrc)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', `${audioTitle}.wav`); // Set the desired file name here
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      })
+      .catch((error) =>
+        console.error('Error downloading the audio file:', error),
+      );
+  };
+
+  const renderDownloadAudio = () => {
+    if (!can('showCallRecord', currentUser) || !recordUrl) {
+      return null;
+    }
+    return (
+      <Tip text={__('Download audio')} placement="top">
+        <Download href="#" onClick={handleDownload} id="downloadButton">
+          <Icon icon="download-1" size={16} />
+        </Download>
+      </Tip>
+    );
+  };
+
   const renderAudio = () => {
     return (
       can('showCallRecord', currentUser) && (
         <Audio>
-          <audio controls={true}>
-            <source src={readFile(recordUrl)} type="audio/wav" />{' '}
+          <audio
+            controls={true}
+            preload="auto"
+            ref={audioRef}
+            controlsList="nodownload"
+          >
+            <source src={readFile(recordUrl)} type="audio/wav" />
           </audio>
         </Audio>
       )
@@ -69,15 +127,18 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
       <MessageBody>
         <CallWrapper>
           <StatusContent>
-            <StatusIcon type={callStatus}>
-              <Icon icon={renderIcon()} size={16} />
-            </StatusIcon>
             <div>
-              <h5>
-                {__(renderCallStatus())} ({callType})
-              </h5>
-              <span>Call duration: {callDuration}s</span>
+              <StatusIcon type={callStatus}>
+                <Icon icon={renderIcon()} size={16} />
+              </StatusIcon>
+              <div>
+                <h5>
+                  {__(renderCallStatus())} ({callType})
+                </h5>
+                <span>Call duration: {callDuration}s</span>
+              </div>
             </div>
+            <div>{renderDownloadAudio()}</div>
           </StatusContent>
           {recordUrl && renderAudio()}
         </CallWrapper>
@@ -89,7 +150,7 @@ const GrandStream: React.FC<Props> = ({ conversation, currentUser }) => {
   );
 };
 
-const WithConsumer = (props: Props) => {
+const WithConsumer = (props: { conversation: IConversation }) => {
   return (
     <AppConsumer>
       {({ currentUser }) => (

@@ -39,6 +39,8 @@ export const permissionSchema = new Schema({
 export interface IUserGroup {
   name?: string;
   description?: string;
+  branchIds?: string[]
+  departmentIds?: string[]
 }
 
 export interface IUserGroupDocument extends IUserGroup, Document {
@@ -48,5 +50,7 @@ export interface IUserGroupDocument extends IUserGroup, Document {
 export const userGroupSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, unique: true, label: 'Name' }),
-  description: field({ type: String, label: 'Description' })
+  description: field({ type: String, label: 'Description' }),
+  branchIds: field({type:[String],label:'Branches',optional:true}),
+  departmentIds: field({type:[String],label:'Departments',optional:true}),
 });

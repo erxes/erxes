@@ -129,11 +129,11 @@ const carQueries = {
     );
 
     return {
-      list: paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
+      list: await paginate(models.Cars.find(filter).sort(sortBuilder(params)), {
         page: params.page,
         perPage: params.perPage
       }),
-      totalCount: models.Cars.find(filter).countDocuments()
+      totalCount: await models.Cars.find(filter).countDocuments()
     };
   },
 

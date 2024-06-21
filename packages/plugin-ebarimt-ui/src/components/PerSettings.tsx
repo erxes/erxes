@@ -177,7 +177,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               <ControlLabel>Branch of Provice / District</ControlLabel>
               <FormControl
                 componentclass="select"
-                value={(state.config['districtCode'] as string).substring(0, 2) || ''}
+                value={(state.config['districtCode'] as string)?.substring(0, 2) || ''}
                 options={[
                   { value: '', label: '' },
                   ...DISTRICTS.map(d => ({ value: d.branchCode, label: d.branchName }))
@@ -192,11 +192,11 @@ const PerSettings: React.FC<Props> = (props: Props) => {
               <ControlLabel>SUB Provice / District</ControlLabel>
               <FormControl
                 componentclass="select"
-                value={(state.config['districtCode'] as string).substring(2, 4) || ''}
+                value={(state.config['districtCode'] as string)?.substring(2, 4) || ''}
                 options={[
                   { value: '', label: '' },
                   ...(DISTRICTS.find(d => (
-                    d.branchCode === (state.config['districtCode'] as string).substring(0, 2)
+                    d.branchCode === (state.config['districtCode'] as string)?.substring(0, 2)
                   ))?.subBranches || []).map(sd => (
                     { value: sd.subBranchCode, label: sd.subBranchName })
                   )
@@ -204,7 +204,7 @@ const PerSettings: React.FC<Props> = (props: Props) => {
                 onChange={(e) => {
                   onChangeConfig(
                     'districtCode',
-                    `${(state.config['districtCode'] as string).substring(0, 2)}${(e.target as any).value}`
+                    `${(state.config['districtCode'] as string)?.substring(0, 2)}${(e.target as any).value}`
                   )
                 }}
                 required={true}

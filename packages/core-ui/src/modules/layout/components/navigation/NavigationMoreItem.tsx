@@ -4,15 +4,15 @@ import {
   NavItem,
   NavMenuItem,
   RoundBox,
-} from '../../styles';
+} from "../../styles";
 
-import { NavLink } from 'react-router-dom';
-import { Plugin } from './types';
-import React from 'react';
-import Tip from 'modules/common/components/Tip';
-import WithPermission from 'modules/common/components/WithPermission';
-import { __ } from 'modules/common/utils';
-import { getLink } from './utils';
+import { NavLink } from "react-router-dom";
+import { Plugin } from "./types";
+import React from "react";
+import Tip from "modules/common/components/Tip";
+import WithPermission from "modules/common/components/WithPermission";
+import { __ } from "modules/common/utils";
+import { getLink } from "./utils";
 
 type Props = {
   plugin: Plugin;
@@ -36,7 +36,7 @@ export default function NavigationMoreItem(props: Props) {
   return (
     <WithPermission
       key={plugin.url}
-      action={plugin.permission ? plugin.permission : ''}
+      action={plugin.permission ? plugin.permission : ""}
       actions={plugin.permissions ? plugin.permissions : []}
     >
       <MoreItemRecent>
@@ -53,17 +53,14 @@ export default function NavigationMoreItem(props: Props) {
             </NavMenuItem>
           </Tip>
           {isPinnable && (
-            <Tip
-              placement="top"
-              text={isPinned ? __('Unpin plugin') : __('Pin plugin')}
-            >
-              <RoundBox
-                $pinned={isPinned}
-                onClick={() => handleOnClick(plugin)}
+            <RoundBox $pinned={isPinned} onClick={() => handleOnClick(plugin)}>
+              <Tip
+                placement="top"
+                text={isPinned ? __("Unpin plugin") : __("Pin plugin")}
               >
                 <img src="/images/pin.svg" alt="pin" />
-              </RoundBox>
-            </Tip>
+              </Tip>
+            </RoundBox>
           )}
         </NavItem>
       </MoreItemRecent>

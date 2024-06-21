@@ -41,7 +41,8 @@ const burenScoringQueries = {
   getCustomerScoring: async (
     _root,
     { keyword,
-      reportPurpose },
+      reportPurpose,
+    vendor },
     { subdomain }: IContext
   ) => {
     const config = await getBurenScoringConfig('burenScoringConfig', subdomain)
@@ -51,7 +52,8 @@ const burenScoringQueries = {
     const burenConfig = new BurenScoringApi(config);
     return burenConfig.getScoring({
       keyword,
-      reportPurpose
+      reportPurpose,
+      vendor
     });
   }
 };

@@ -13,20 +13,18 @@ const generateFilter = async (params, commonQuerySelector) => {
     ];
   }
 
-  // if (params.ids) {
-  //   filter._id = { $in: params.ids };
-  // }
+  if (params.productId) {
+    filter.productId = params.productId;
+  }
 
-  if(params.productId)
-    filter.productId = params.productId
-
-  if(params.productType)
-    filter.productType = params.productType
+  if (params.productType) {
+    filter.productType = params.productType;
+  }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -46,7 +44,7 @@ const contractTypeQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.ContractTypes.find(
         await generateFilter(params, commonQuerySelector)
       ),
@@ -69,14 +67,14 @@ const contractTypeQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
+      list: await paginate(
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: models.ContractTypes.find(filter).countDocuments()
+      totalCount: await models.ContractTypes.find(filter).countDocuments()
     };
   },
 

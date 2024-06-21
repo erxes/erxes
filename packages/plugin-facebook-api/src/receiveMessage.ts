@@ -3,10 +3,10 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
-import { putCreateLog } from './logUtils';
-import { sendInboxMessage } from './messageBroker';
+import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
+import { debugError } from './debuggers';
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   if (message?.payload) {
@@ -24,7 +24,7 @@ const checkIsBot = async (models: IModels, message, recipientId) => {
 const receiveMessage = async (
   models: IModels,
   subdomain: string,
-  activity: Activity,
+  activity: Activity
 ) => {
   let {
     recipient,
@@ -33,14 +33,14 @@ const receiveMessage = async (
     text,
     attachments = [],
     message,
-    postback,
+    postback
   } = activity.channelData as IChannelData;
 
   if (!text && !message && !!postback) {
     text = postback.title;
 
     message = {
-      mid: postback.mid,
+      mid: postback.mid
     };
 
     if (postback.payload) {
@@ -54,8 +54,8 @@ const receiveMessage = async (
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
-      { kind: INTEGRATION_KINDS.MESSENGER },
-    ],
+      { kind: INTEGRATION_KINDS.MESSENGER }
+    ]
   });
 
   const userId = sender.id;
@@ -68,13 +68,13 @@ const receiveMessage = async (
     subdomain,
     pageId,
     userId,
-    kind,
+    kind
   );
 
   // get conversation
   let conversation = await models.Conversations.findOne({
     senderId: userId,
-    recipientId: recipient.id,
+    recipientId: recipient.id
   });
 
   const botId = await checkIsBot(models, message, recipient.id);
@@ -91,13 +91,13 @@ const receiveMessage = async (
         content: text,
         integrationId: integration._id,
         isBot: !!botId,
-        botId,
+        botId
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e,
+          : e
       );
     }
   } else {
@@ -113,7 +113,7 @@ const receiveMessage = async (
     .filter((att) => att.type !== 'fallback')
     .map((att) => ({
       type: att.type,
-      url: att.payload ? att.payload.url : '',
+      url: att.payload ? att.payload.url : ''
     }));
 
   // save on api
@@ -129,10 +129,10 @@ const receiveMessage = async (
           content: text || '',
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
-          updatedAt: timestamp,
-        }),
+          updatedAt: timestamp
+        })
       },
-      isRPC: true,
+      isRPC: true
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -144,7 +144,7 @@ const receiveMessage = async (
   }
   // get conversation message
   let conversationMessage = await models.ConversationMessages.findOne({
-    mid: message.mid,
+    mid: message.mid
   });
 
   if (!conversationMessage) {
@@ -156,15 +156,15 @@ const receiveMessage = async (
         content: text,
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
-        botId,
+        botId
       });
       await sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           ...created.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
+          conversationId: conversation.erxesApiId
+        }
       });
 
       graphqlPubsub.publish(
@@ -172,30 +172,31 @@ const receiveMessage = async (
         {
           conversationMessageInserted: {
             ...created.toObject(),
-            conversationId: conversation.erxesApiId,
-          },
-        },
+            conversationId: conversation.erxesApiId
+          }
+        }
       );
-
       conversationMessage = created;
-      await putCreateLog(
-        models,
+
+      await sendAutomationsMessage({
         subdomain,
-        {
-          type: 'messages',
-          newData: message,
-          object: {
-            ...conversationMessage.toObject(),
-            payload: JSON.parse(message.payload || '{}'),
-          },
+        action: 'trigger',
+        data: {
+          type: `facebook:messages`,
+          targets: [
+            {
+              ...conversationMessage.toObject(),
+              payload: JSON.parse(message.payload || '{}')
+            }
+          ]
         },
-        customer._id,
-      );
+        defaultValue: null
+      }).catch((err) => debugError(err.message));
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation message duplication'
-          : e,
+          : e
       );
     }
   }

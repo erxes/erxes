@@ -54,7 +54,7 @@ type Props = {
 export default function MemberAvatars(props: Props) {
   const renderMember = (member) => {
     return (
-      <Tip key={member._id} text={member.details.fullName} placement="top">
+      <Tip key={member._id} text={member?.details?.fullName || ''} placement="top">
         <MemberImg key={member._id} src={getUserAvatar(member)} />
       </Tip>
     );

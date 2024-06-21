@@ -138,21 +138,14 @@ class CategoryForm extends React.Component<Props, State> {
   }
 
   renderParentCategories() {
-    const { queryParams, topics } = this.props;
+    const { topics } = this.props;
     const self = this;
     const topic = topics.find((t) => t._id === self.state.topicId);
     let categories = topic ? topic.parentCategories : [];
     const { category, currentTopicId } = self.props;
-    const isCurrentCategory = categories.find(
-      (cat) => cat._id === queryParams.id
-    );
 
     if (category && currentTopicId === this.state.topicId) {
       categories = categories.filter((cat) => cat._id !== category._id);
-    }
-
-    if (!self.state.parentCategoryId && isCurrentCategory) {
-      self.setState({ parentCategoryId: queryParams.id });
     }
 
     const onChange = (selectedCategory) => {
@@ -195,8 +188,13 @@ class CategoryForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Code</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
+          <ControlLabel required={true}>Code</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="code"
+            defaultValue={object.code}
+            required={true}
+          />
         </FormGroup>
 
         <FormGroup>

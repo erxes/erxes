@@ -101,6 +101,15 @@ const queries = {
     });
 
     return api.get(args._id);
+  },
+
+  async qpayGetDistricts(_root, args) {
+    const api = new QPayQuickQrAPI({
+      username: process.env.QUICK_QR_USERNAME || '',
+      password: process.env.QUICK_QR_PASSWORD || ''
+    });
+
+    return api.getDistricts(args.cityCode);
   }
 };
 

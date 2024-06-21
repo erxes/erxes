@@ -25,6 +25,8 @@ const TransferCall = (props: Props, context) => {
   });
 
   const transfer = (extensionNumber: string) => {
+    localStorage.setItem('transferedCallStatus', 'local');
+
     transferCall({
       variables: {
         extensionNumber,
@@ -32,13 +34,18 @@ const TransferCall = (props: Props, context) => {
         direction: direction || 'incoming',
       },
     })
-      .then(() => {
-        Alert.success('Successfully transfered');
+      .then(({ data }) => {
+        if (data?.callTransfer === 'failed') {
+          Alert.error('Failed transfer');
+        } else {
+          Alert.success('Successfully transfered');
+        }
         props.closeModal();
       })
       .catch((e) => {
         Alert.error(e.message);
         props.closeModal();
+        localStorage.removeItem('transferedCallStatus');
       });
   };
 

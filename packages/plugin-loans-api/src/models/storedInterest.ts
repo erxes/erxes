@@ -4,7 +4,7 @@ import { IModels } from '../connectionResolver';
 import {
   IStoredInterest,
   IStoredInterestDocument,
-  storedInterestSchema,
+  storedInterestSchema
 } from './definitions/storedInterest';
 import { getDiffDay, getFullDate } from './utils/utils';
 import { IContractDocument } from './definitions/contracts';
@@ -20,7 +20,7 @@ const getCommitmentInterest = (contract, storeInterestDate) => {
         100 /
         365) *
       getDiffDay(contract.lastStoredDate, storeInterestDate)
-    ).toFixed(0),
+    ).toFixed(0)
   );
 };
 
@@ -29,7 +29,7 @@ const getStoredInterest = (contract, storeInterestDate) => {
     (
       ((contract.balanceAmount * contract.interestRate) / 100 / 365) *
       getDiffDay(contract.lastStoredDate, storeInterestDate)
-    ).toFixed(0),
+    ).toFixed(0)
   );
 };
 
@@ -38,7 +38,7 @@ export const loanStoredInterestClass = (models: IModels) => {
     public static async createStoredInterest(
       payDate: Date,
       periodLockId: string,
-      subdomain?: string,
+      subdomain?: string
     ) {
       const storeInterestDate = getFullDate(payDate);
 
@@ -46,7 +46,7 @@ export const loanStoredInterestClass = (models: IModels) => {
         balanceAmount: number;
       })[] = await models.Contracts.find({
         lastStoredDate: { $lt: storeInterestDate },
-        status: CONTRACT_STATUS.NORMAL,
+        status: CONTRACT_STATUS.NORMAL
       }).lean();
 
       if (contracts.length > 0) {
@@ -54,7 +54,7 @@ export const loanStoredInterestClass = (models: IModels) => {
           const prevSchedule = await models.Schedules.findOne({
             contractId: contract._id,
             payDate: { $lte: storeInterestDate },
-            'transactionIds.0': { $exists: true },
+            'transactionIds.0': { $exists: true }
           }).sort({ payDate: -1 });
 
           if (!prevSchedule) contract.balanceAmount = contract.leaseAmount;
@@ -66,7 +66,7 @@ export const loanStoredInterestClass = (models: IModels) => {
 
           let commitmentInterest = getCommitmentInterest(
             contract,
-            storeInterestDate,
+            storeInterestDate
           );
 
           if (isEnabled('syncpolaris') && subdomain) {
@@ -77,10 +77,10 @@ export const loanStoredInterestClass = (models: IModels) => {
                 data: {
                   number: contract.number,
                   amount: storedInterest,
-                  description: `auto store interest ${contract.number}`,
-                },
+                  description: `auto store interest ${contract.number}`
+                }
               },
-              'syncpolaris',
+              'syncpolaris'
             );
           }
 
@@ -91,7 +91,7 @@ export const loanStoredInterestClass = (models: IModels) => {
             invDate: storeInterestDate,
             prevStoredDate: contract.lastStoredDate,
             periodLockId,
-            number: contract.number,
+            number: contract.number
           });
 
           await models.Contracts.updateOne(
@@ -99,34 +99,28 @@ export const loanStoredInterestClass = (models: IModels) => {
             {
               $inc: { storedInterest: storedInterest },
               $set: {
-                lastStoredDate: storeInterestDate,
-              },
-            },
+                lastStoredDate: storeInterestDate
+              }
+            }
           );
         }
       }
-
-      //var res = await models.StoredInterest.create(storedInterest);
 
       return {};
     }
 
     public static async getStoredInterest(_id: string) {
-      var res = await models.StoredInterest.findOne({ _id }).lean();
-
-      return res;
+      return await models.StoredInterest.findOne({ _id }).lean();
     }
 
     public static async updateStoredInterest(
       _id: string,
-      storedInterest: IStoredInterest,
+      storedInterest: IStoredInterest
     ) {
-      var res = await models.StoredInterest.updateOne(
+      return await models.StoredInterest.updateOne(
         { _id },
-        { $set: storedInterest },
+        { $set: storedInterest }
       );
-
-      return res;
     }
   }
   storedInterestSchema.loadClass(StoredInterest);

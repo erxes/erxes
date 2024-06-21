@@ -64,6 +64,8 @@ export default class SipProvider extends React.Component<
       callStatus: string,
       direction: string,
       customerPhone: string,
+      diversionHeader?: string,
+      endedBy?: string,
     ) => void;
     addHistory: (
       callStatus: string,
@@ -71,6 +73,7 @@ export default class SipProvider extends React.Component<
       direction: string,
       customerPhone: string,
       callStartTime: Date,
+      queueName: string | null,
     ) => void;
   },
   {
@@ -80,6 +83,7 @@ export default class SipProvider extends React.Component<
     callStatus: CallStatus;
     callDirection: CallDirection | null;
     callCounterpart: string | null;
+    groupName: string | null;
     callId: string | null;
     rtcSession;
   }
@@ -148,6 +152,7 @@ export default class SipProvider extends React.Component<
       callStatus: CALL_STATUS_IDLE,
       callDirection: null,
       callCounterpart: null,
+      groupName: '',
       callId: null,
     };
     this.ua = null;
@@ -170,6 +175,7 @@ export default class SipProvider extends React.Component<
         direction: this.state.callDirection,
         counterpart: this.state.callCounterpart,
         startTime: this.state.rtcSession?._start_time?.toString(),
+        groupName: this.state.groupName,
       },
       registerSip: this.registerSip,
       unregisterSip: this.unregisterSip,
@@ -380,7 +386,7 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
-      rtcOfferConstraints: { iceRestart: this.props.iceRestart },
+      // rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
@@ -439,6 +445,26 @@ export default class SipProvider extends React.Component<
       } as any;
 
       this.ua = new JsSIP.UA(options);
+
+      function reconnectWebSocket() {
+        console.log('Attempting to reconnect WebSocket...');
+        setTimeout(() => {
+          socket.connect();
+        }, 5000); // Retry after 5 seconds
+      }
+      socket.onconnect = () => {
+        console.log('WebSocket connected');
+      };
+
+      socket.ondisconnect = (error, code, reason) => {
+        console.log('error:', error);
+        console.log('Code:', code);
+        console.log('Reason:', reason);
+
+        if (code === 1006) {
+          reconnectWebSocket();
+        }
+      };
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
@@ -482,6 +508,11 @@ export default class SipProvider extends React.Component<
 
     ua.on('disconnected', (e) => {
       this.logger.debug('UA "disconnected" event');
+
+      if (e.code === 1006) {
+        // Retry connection after a delay
+        setTimeout(this.reinitializeJsSIP, 5000); // Retry after 5 seconds
+      }
       if (this.ua !== ua) {
         return;
       }
@@ -562,13 +593,19 @@ export default class SipProvider extends React.Component<
         } else if (originator === 'remote') {
           const foundUri = rtcRequest.from.toString();
           const delimiterPosition = foundUri.indexOf(';') || null;
+
+          const fromParameters = rtcRequest.from._parameters;
+          const groupName = fromParameters['x-gs-group-name'] || '';
+
           this.setState({
             callDirection: CALL_DIRECTION_INCOMING,
             callStatus: CALL_STATUS_STARTING,
             callCounterpart:
               foundUri.substring(0, delimiterPosition) || foundUri,
+            groupName,
           });
         }
+        const diversionHeader = rtcRequest.getHeader('Diversion');
 
         const { rtcSession: rtcSessionInState } = this.state;
 
@@ -613,6 +650,7 @@ export default class SipProvider extends React.Component<
               'cancelled',
               direction,
               customerPhone,
+              diversionHeader || '',
             );
           }
           this.setState({
@@ -656,6 +694,8 @@ export default class SipProvider extends React.Component<
               'connected',
               direction,
               customerPhone,
+              diversionHeader || '',
+              data.originator,
             );
           }
           this.setState({
@@ -663,6 +703,7 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
           rtcSession = null;
@@ -678,6 +719,7 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
           rtcSession = null;
@@ -705,6 +747,7 @@ export default class SipProvider extends React.Component<
             callStatus: CALL_STATUS_IDLE,
             callDirection: null,
             callCounterpart: null,
+            groupName: '',
           });
           this.ua?.terminateSessions();
         });
@@ -732,6 +775,7 @@ export default class SipProvider extends React.Component<
               direction,
               customerPhone,
               this.state.rtcSession.start_time,
+              this.state.groupName,
             );
           }
           [this.remoteAudio.srcObject] =

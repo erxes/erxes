@@ -46,6 +46,7 @@ function ChecklistsContainer(props: FinalProps) {
       listId={list._id}
       stageId={stageId}
       addItem={addItem}
+      refetch={checklistsQuery.refetch}
     />
   ));
 }

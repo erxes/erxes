@@ -23,6 +23,8 @@ export const PAYMENTS = {
       merchantList: 'merchant/list',
       checkInvoice: 'payment/check',
       invoice: 'invoice',
+      cities: 'aimaghot',
+      districts: 'sumduureg',
     },
   },
   socialpay: {

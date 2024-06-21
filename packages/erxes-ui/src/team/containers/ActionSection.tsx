@@ -1,14 +1,14 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations, queries } from '../graphql';
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import { mutations, queries } from "../graphql";
 
-import ActionSection from '../components/detail/ActionSection';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import ActionSection from "../components/detail/ActionSection";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   user: IUser;
@@ -30,29 +30,33 @@ const ActionSectionContainer = (props: FinalProps) => {
   const changeStatus = (id: string): void => {
     const { statusChangedMutation } = props;
 
-    statusChangedMutation({
-      variables: { _id: id },
-    })
-      .then(() => {
-        Alert.success('Congrats, Successfully updated.');
+    confirm().then(() => {
+      statusChangedMutation({
+        variables: { _id: id },
       })
-      .catch((error: Error) => {
-        Alert.error(error.message);
-      });
+        .then(() => {
+          Alert.success("Congrats, Successfully updated.");
+        })
+        .catch((error: Error) => {
+          Alert.error(error.message);
+        });
+    });
   };
 
   const resendInvitation = (email: string) => {
-    client
-      .mutate({
-        mutation: gql(mutations.usersResendInvitation),
-        variables: { email },
-      })
-      .then(() => {
-        Alert.success('Successfully resent the invitation');
-      })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
+    confirm().then(() => {
+      client
+        .mutate({
+          mutation: gql(mutations.usersResendInvitation),
+          variables: { email },
+        })
+        .then(() => {
+          Alert.success("Successfully resent the invitation");
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    });
   };
 
   const updatedProps = {
@@ -69,7 +73,7 @@ const ActionSectionContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<{ queryParams: any }>(gql(mutations.usersSetActiveStatus), {
-      name: 'statusChangedMutation',
+      name: "statusChangedMutation",
       options: ({ queryParams }) => ({
         refetchQueries: [
           {
@@ -77,6 +81,6 @@ export default withProps<Props>(
           },
         ],
       }),
-    }),
-  )(ActionSectionContainer),
+    })
+  )(ActionSectionContainer)
 );

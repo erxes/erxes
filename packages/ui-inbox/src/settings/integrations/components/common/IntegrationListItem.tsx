@@ -1,32 +1,32 @@
-import { Alert, getEnv } from '@erxes/ui/src/utils';
+import { Alert, getEnv } from "@erxes/ui/src/utils";
 import {
   IIntegration,
   IntegrationMutationVariables,
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+} from "@erxes/ui-inbox/src/settings/integrations/types";
 import {
   INTEGRATION_KINDS,
   WEBHOOK_DOC_URL,
-} from '@erxes/ui/src/constants/integrations';
+} from "@erxes/ui/src/constants/integrations";
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import CommonFieldForm from './CommonFieldForm';
-import { INTEGRATIONS_COLORS } from '../../integrationColors';
-import Icon from '@erxes/ui/src/components/Icon';
-import InstallCode from '../InstallCode';
-import Label from '@erxes/ui/src/components/Label';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import RefreshPermissionForm from '../facebook/RefreshPermission';
-import Tip from '@erxes/ui/src/components/Tip';
-import WithPermission from 'coreui/withPermission';
-import { __ } from '@erxes/ui/src/utils';
-import { cleanIntegrationKind } from '@erxes/ui/src/utils';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../../graphql/index';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import CommonFieldForm from "./CommonFieldForm";
+import { INTEGRATIONS_COLORS } from "../../integrationColors";
+import Icon from "@erxes/ui/src/components/Icon";
+import InstallCode from "../InstallCode";
+import Label from "@erxes/ui/src/components/Label";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import RefreshPermissionForm from "../facebook/RefreshPermission";
+import Tip from "@erxes/ui/src/components/Tip";
+import WithPermission from "coreui/withPermission";
+import { __ } from "@erxes/ui/src/utils";
+import { cleanIntegrationKind } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql/index";
+import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 type Props = {
   _id?: string;
@@ -68,7 +68,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Archive')} placement="top">
+        <Tip text={__("Archive")} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="archive-alt" />
         </Tip>
       </WithPermission>
@@ -86,7 +86,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     return (
       <WithPermission action="integrationsArchive">
-        <Tip text={__('Unarchive')} placement="top">
+        <Tip text={__("Unarchive")} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="redo" />
         </Tip>
       </WithPermission>
@@ -120,7 +120,7 @@ class IntegrationListItem extends React.Component<Props, State> {
             <b>Token</b>: {webhookData.token}
           </div>
           <p>
-            {'For more information, please review the '}
+            {"For more information, please review the "}
             <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
               documentaion.
             </a>
@@ -202,7 +202,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
       return (
         <ActionButtons>
-          <Tip text={__('Edit messenger integration')} placement="top">
+          <Tip text={__("Edit messenger integration")} placement="top">
             <Link
               to={`/settings/integrations/editMessenger/${integration._id}`}
             >
@@ -235,7 +235,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     return (
       <WithPermission action="integrationsRemove">
-        <Tip text={__('Delete')} placement="top">
+        <Tip text={__("Delete")} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </WithPermission>
@@ -246,8 +246,8 @@ class IntegrationListItem extends React.Component<Props, State> {
     const { repair, integration } = this.props;
 
     if (
-      !integration.kind.includes('facebook') &&
-      !integration.kind.includes('instagram')
+      !integration.kind.includes("facebook") &&
+      !integration.kind.includes("instagram")
     ) {
       return null;
     }
@@ -256,11 +256,11 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     if (
       integration.healthStatus &&
-      integration.healthStatus.status === 'account-token'
+      integration.healthStatus.status === "account-token"
     ) {
       const editTrigger = (
         <Button btnStyle="link">
-          <Tip text={__('Repair')} placement="top">
+          <Tip text={__("Repair")} placement="top">
             <Icon icon="refresh" />
           </Tip>
         </Button>
@@ -279,7 +279,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       );
     } else {
       return (
-        <Tip text={__('Repair')} placement="top">
+        <Tip text={__("Repair")} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="refresh" />
         </Tip>
       );
@@ -289,7 +289,7 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderExternalData(integration) {
     const { externalData } = this.state;
     const { kind } = integration;
-    let value = '';
+    let value = "";
 
     if (!this.props.showExternalInfo) {
       return null;
@@ -316,8 +316,8 @@ class IntegrationListItem extends React.Component<Props, State> {
   renderFetchAction(integration: IIntegration) {
     if (
       integration.kind === INTEGRATION_KINDS.MESSENGER ||
-      integration.kind.includes('facebook') ||
-      integration.kind.includes('instagram')
+      integration.kind.includes("facebook") ||
+      integration.kind.includes("instagram")
     ) {
       return null;
     }
@@ -335,7 +335,7 @@ class IntegrationListItem extends React.Component<Props, State> {
             externalData: data.integrationsGetIntegrationDetail,
           });
           this.props.showExternalInfoColumn();
-          Alert.success('success');
+          Alert.success("success");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -343,7 +343,7 @@ class IntegrationListItem extends React.Component<Props, State> {
     };
 
     return (
-      <Tip text={__('Fetch external data')} placement="top">
+      <Tip text={__("Fetch external data")} placement="top">
         <Button btnStyle="link" icon="download-1" onClick={onClick} />
       </Tip>
     );
@@ -355,17 +355,17 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     const healthStatus = integration.healthStatus
       ? integration.healthStatus.status
-      : '';
+      : "";
 
     const error = integration.healthStatus
       ? integration.healthStatus.error
-      : '';
+      : "";
 
-    const labelStyle = integration.isActive ? 'success' : 'danger';
-    const status = integration.isActive ? __('Active') : __('Archived');
-    const labelStyleHealthy = healthStatus === 'healthy' ? 'success' : 'danger';
+    const labelStyle = integration.isActive ? "success" : "danger";
+    const status = integration.isActive ? __("Active") : __("Archived");
+    const labelStyleHealthy = healthStatus === "healthy" ? "success" : "danger";
     const healthStatusText =
-      healthStatus === 'healthy' ? __('Healthy') : __('Unhealthy');
+      healthStatus === "healthy" ? __("Healthy") : __("Unhealthy");
 
     return (
       <tr key={integration._id}>
@@ -375,19 +375,23 @@ class IntegrationListItem extends React.Component<Props, State> {
             {integrationKind}
           </Label>
         </td>
-        <td>{integration.brand ? integration.brand.name : ''}</td>
+        <td>{integration.brand ? integration.brand.name : ""}</td>
         <td>
           <Label lblStyle={labelStyle}>{status}</Label>
         </td>
         <td>
-          <Tip text={error}>
+          {error ? (
+            <Tip text={error}>
+              <Label lblStyle={labelStyleHealthy}>{healthStatusText}</Label>
+            </Tip>
+          ) : (
             <Label lblStyle={labelStyleHealthy}>{healthStatusText}</Label>
-          </Tip>
+          )}
         </td>
         {this.renderExternalData(integration)}
         <td>
           <ActionButtons>
-            {loadDynamicComponent('integrationCustomActions', {
+            {loadDynamicComponent("integrationCustomActions", {
               ...this.props,
             })}
             {this.renderFetchAction(integration)}

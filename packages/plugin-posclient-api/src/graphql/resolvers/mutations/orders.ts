@@ -34,6 +34,7 @@ import {
 } from '../../utils/orderUtils';
 import { checkSlotStatus } from '../../utils/slots';
 import { prepareSettlePayment } from '../../../utils';
+import { IDoc } from '../../../models/PutData';
 
 interface IPaymentBase {
   billType: string;
@@ -153,7 +154,7 @@ const orderAdd = async (models: IModels, lastDoc, config) => {
   }
 };
 
-const ordersAdd = async (
+export const ordersAdd = async (
   doc: IOrderInput,
   {
     posUser,
@@ -161,7 +162,7 @@ const ordersAdd = async (
     models,
     subdomain,
   }: {
-    posUser: IPosUserDocument;
+    posUser?: IPosUserDocument;
     config: IConfigDocument;
     models: IModels;
     subdomain: string;
@@ -214,6 +215,7 @@ const ordersAdd = async (
       taxInfo: getTaxInfo(config),
       status,
       saleStatus,
+      subscriptionInfo: preparedDoc?.subscriptionInfo,
     };
 
     const order = await orderAdd(models, lastDoc, config);
@@ -234,6 +236,7 @@ const ordersAdd = async (
         manufacturedDate: item.manufacturedDate,
         description: item.description,
         attachment: item.attachment,
+        closeDate: item?.closeDate,
       });
     }
 
@@ -436,7 +439,7 @@ const orderMutations = {
           action: 'createOrUpdateOrders',
           data: { action: 'statusToDone', order, posToken: config.token },
         });
-      } catch (e) { }
+      } catch (e) {}
     }
     return await models.Orders.getOrder(_id);
   },
@@ -567,7 +570,7 @@ const orderMutations = {
     try {
       const ebarimtResponses: any[] = [];
 
-      const ebarimtData: any = await prepareEbarimtData(
+      const ebarimtData: IDoc = await prepareEbarimtData(
         models,
         order,
         ebarimtConfig,
@@ -580,7 +583,7 @@ const orderMutations = {
 
       response = await models.PutResponses.putData(
         { ...ebarimtData },
-        ebarimtConfig
+        ebarimtConfig,
       );
       ebarimtResponses.push(response);
 
@@ -839,8 +842,9 @@ const orderMutations = {
             lng: marker.longitude || marker.lng,
             description: 'location',
           },
-          stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
-            }`,
+          stringValue: `${marker.longitude || marker.lng},${
+            marker.latitude || marker.lat
+          }`,
         },
       ];
     }
@@ -903,10 +907,12 @@ const orderMutations = {
           '',
         content: `
           Pos order:
-            paid link: <a href="/pos-orders?posId=${config.posId}&search=${order.number
-          }">${order.number}</a> <br />
-            posclient link: <a href="${config.pdomain ?? '/'}?orderId=${order._id
-          }">${order.number}</a> <br />
+            paid link: <a href="/pos-orders?posId=${config.posId}&search=${
+              order.number
+            }">${order.number}</a> <br />
+            posclient link: <a href="${config.pdomain ?? '/'}?orderId=${
+              order._id
+            }">${order.number}</a> <br />
         `,
       },
       isRPC: true,
@@ -1093,7 +1099,7 @@ const orderMutations = {
       {
         contentId: _id,
         contentType: 'pos',
-        number: order.number ?? ''
+        number: order.number ?? '',
       },
       ebarimtConfig,
     )) as any;

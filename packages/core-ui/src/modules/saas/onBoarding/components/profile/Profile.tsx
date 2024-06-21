@@ -7,8 +7,10 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import Button from "modules/common/components/Button";
-import Form from "react-bootstrap/Form";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "modules/common/components/Icon";
 import { router } from "modules/common/utils";
@@ -76,37 +78,40 @@ function Profile(props: Props) {
           <AvatarUpload avatar={avatar} onAvatarUpload={onAvatarUpload} />
         </AvatarWrapper>
 
-        <Form.Group
-          className={activeFirst ? "active" : ""}
+        <FormGroup
+          className={`form-group ${activeFirst ? "active" : ""}`}
           controlId="firstName"
         >
-          <Form.Label>First Name</Form.Label>
-          <Form.Control
+          <FormLabel uppercase={false}>First Name</FormLabel>
+          <FormControl
             defaultValue={firstName}
             name="firstName"
             onFocus={() => setActiveFirst(true)}
             onBlur={() => !firstName && setActiveFirst(false)}
             onChange={(e) => setFirstName((e.target as HTMLInputElement).value)}
           />
-        </Form.Group>
+        </FormGroup>
 
-        <Form.Group className={activeLast ? "active" : ""} controlId="lastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control
+        <FormGroup
+          className={`form-group ${activeLast ? "active" : ""}`}
+          controlId="lastName"
+        >
+          <FormLabel uppercase={false}>Last Name</FormLabel>
+          <FormControl
             defaultValue={lastName}
             name="lastName"
             onFocus={() => setActiveLast(true)}
             onBlur={() => !lastName && setActiveLast(false)}
             onChange={(e) => setLastName((e.target as HTMLInputElement).value)}
           />
-        </Form.Group>
+        </FormGroup>
 
-        <Form.Group
-          className={`disabled ${activeEmail ? "active" : ""}`}
+        <FormGroup
+          className={`form-group disabled ${activeEmail ? "active" : ""}`}
           controlId="email"
         >
-          <Form.Label>Email</Form.Label>
-          <Form.Control
+          <FormLabel uppercase={false}>Email</FormLabel>
+          <FormControl
             defaultValue={email}
             name="name"
             onFocus={() => setActiveLastEmail(true)}
@@ -114,7 +119,7 @@ function Profile(props: Props) {
             onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
             disabled={true}
           />
-        </Form.Group>
+        </FormGroup>
       </SidebarContent>
 
       <ButtonContainer>

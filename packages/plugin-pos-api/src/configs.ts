@@ -16,22 +16,23 @@ import imports from './imports';
 import exporter from './exporter';
 import payment from './payment';
 import { exportFileRunner } from './exporterByUrl';
+import cronjobs from './cronjobs';
 
 export default {
   name: 'pos',
   permissions,
   getHandlers: [
     { path: `/pos-init`, method: posInit },
-    { path: `/file-export`, method: exportFileRunner },
+    { path: `/file-export`, method: exportFileRunner }
   ],
   postHandlers: [
     { path: `/api/unfetch-order-info`, method: unfetchOrderInfo },
-    { path: `/pos-sync-config`, method: posSyncConfig },
+    { path: `/pos-sync-config`, method: posSyncConfig }
   ],
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers: await resolvers(),
+      resolvers: await resolvers()
     };
   },
   apolloServerContext: async (context, req) => {
@@ -56,5 +57,6 @@ export default {
     imports,
     exporter,
     payment,
-  },
+    cronjobs
+  }
 };

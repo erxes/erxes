@@ -30,16 +30,35 @@ const contractMutations = {
   },
   clientSavingsContractsAdd: async (
     _root,
-    doc: IContract,
+    doc: IContract & { secondaryPassword: string },
     { user, models, subdomain }: IContext
   ) => {
     let savingAmount = doc.savingAmount;
     if (!doc.depositAccount) {
-      throw new Error('No deposit account linked. Please select a deposit account to proceed with your savings.');
+      throw new Error(
+        'No deposit account linked. Please select a deposit account to proceed with your savings.'
+      );
     }
-    
+
     doc.savingAmount = 0;
     const contract = await models.Contracts.createContract(doc);
+
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: 'clientPortalUsers.validatePassword',
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
+        }
+      },
+      'clientportal'
+    );
+
+    if (validate?.status === 'error') {
+      throw new Error(validate.errorMessage);
+    }
 
     const customer = await sendMessageBroker(
       {
@@ -58,7 +77,7 @@ const contractMutations = {
         _id: doc.depositAccount
       }).lean();
 
-      if(!deposit) {
+      if (!deposit) {
         throw new Error(`Contract ${doc.depositAccount} not found`);
       }
 

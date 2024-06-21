@@ -1,19 +1,20 @@
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { confirm } from "@erxes/ui/src/utils";
+import { Actions, Flex } from "@erxes/ui/src/styles/main";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
+
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";
-import { ModalTrigger } from "@erxes/ui/src/components";
-import Icon from "@erxes/ui/src/components/Icon";
-import Tip from "@erxes/ui/src/components/Tip";
-import { Actions, Flex } from "@erxes/ui/src/styles/main";
 import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
-import { IClientPortalUser } from "../../types";
-import React from "react";
-import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
-import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 // import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
 import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
+import { IClientPortalUser } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ModalTrigger } from "@erxes/ui/src/components";
+import React from "react";
+import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
+import Tip from "@erxes/ui/src/components/Tip";
+import { confirm } from "@erxes/ui/src/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -44,22 +45,21 @@ const BasicInfoSection: React.FC<Props> = ({
             type="action"
           />
         )}
-        <Tip text="Send SMS" placement="top-end">
-          <ModalTrigger
-            dialogClassName="middle"
-            title={`Send SMS to (${phone})`}
-            trigger={
-              <Button
-                disabled={phone ? false : true}
-                size="small"
-                btnStyle={phone ? "primary" : "simple"}
-              >
-                <Icon icon="message" />
-              </Button>
-            }
-            content={smsForm}
-          />
-        </Tip>
+        <ModalTrigger
+          dialogClassName="middle"
+          title={`Send SMS to (${phone})`}
+          trigger={
+            <Button
+              disabled={phone ? false : true}
+              size="small"
+              btnStyle={phone ? "primary" : "simple"}
+            >
+              <Icon icon="message" />
+            </Button>
+          }
+          content={smsForm}
+          tipText="Send SMS"
+        />
         <Tip text="Call" placement="top-end">
           <Flex>
             <Button
@@ -90,29 +90,6 @@ const BasicInfoSection: React.FC<Props> = ({
     );
   };
 
-  const renderEditButton = () => {
-    const customerForm = (props) => {
-      return (
-        <ClientPortalUserForm
-          {...props}
-          size="lg"
-          clientPortalUser={clientPortalUser}
-        />
-      );
-    };
-
-    return (
-      <li>
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<a href="#edit">{__("Edit")}</a>}
-          size="lg"
-          content={customerForm}
-        />
-      </li>
-    );
-  };
-
   const renderDropdown = () => {
     const onClick = () =>
       confirm()
@@ -132,25 +109,37 @@ const BasicInfoSection: React.FC<Props> = ({
       // );
     };
 
+    const customerForm = (props) => {
+      return (
+        <ClientPortalUserForm
+          {...props}
+          size="lg"
+          clientPortalUser={clientPortalUser}
+        />
+      );
+    };
+
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit")}</a>,
+        content: customerForm,
+        additionalModalProps: { size: "lg" },
+      },
+      isEnabled("forum") && {
+        title: "Extend Subscription",
+        trigger: <a href="#extend-subscription">{__("Extend Subscription")}</a>,
+        content: extendSubscription,
+        additionalModalProps: { size: "lg" },
+      },
+    ];
+
     return (
       <Dropdown
         as={DropdownToggle}
-        unmount={false}
         toggleComponent={renderButton()}
+        modalMenuItems={menuItems}
       >
-        {renderEditButton()}
-        {isEnabled("forum") && (
-          <ModalTrigger
-            title="Extend Subscription"
-            trigger={
-              <li>
-                <a href="#extend-subscription">{__("Extend Subscription")}</a>
-              </li>
-            }
-            size="lg"
-            content={extendSubscription}
-          />
-        )}
         <li>
           <a href="#delete" onClick={onClick}>
             {__("Delete")}

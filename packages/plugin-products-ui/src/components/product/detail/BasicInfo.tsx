@@ -1,29 +1,28 @@
-import Attachment from "@erxes/ui/src/components/Attachment";
-import Button from "@erxes/ui/src/components/Button";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import { Actions, InfoWrapper } from "@erxes/ui/src/styles/main";
-import { IAttachment } from "@erxes/ui/src/types";
-import { __, Alert, confirm } from "@erxes/ui/src/utils";
-
-import { Name } from "@erxes/ui-contacts/src/customers/styles";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { Alert, __, confirm } from "@erxes/ui/src/utils";
 import {
   FieldStyle,
   SidebarCounter,
   SidebarFlexRow,
   SidebarList,
 } from "@erxes/ui/src/layout/styles";
-import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
-import { IProduct } from "../../../types";
-import React from "react";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { Link, useNavigate } from "react-router-dom";
-import xss from "xss";
 import { ProductBarcodeContent, ProductContent } from "../../../styles";
-import { isValidBarcode } from "../../../utils";
+
+import Attachment from "@erxes/ui/src/components/Attachment";
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IProduct } from "../../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Name } from "@erxes/ui-contacts/src/customers/styles";
+import ProductForm from "@erxes/ui-products/src/containers/ProductForm";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { Tip } from "@erxes/ui/src";
+import { isValidBarcode } from "../../../utils";
+import xss from "xss";
 
 type Props = {
   product: IProduct;
@@ -92,22 +91,6 @@ const BasicInfo: React.FC<Props> = (props) => {
     );
   };
 
-  const renderEdit = () => {
-    const content = (props) => <ProductForm {...props} product={product} />;
-    return (
-      <ModalTrigger
-        title="Edit basic info"
-        trigger={
-          <li>
-            <a href="#edit">{__("Edit")}</a>
-          </li>
-        }
-        size="xl"
-        content={content}
-      />
-    );
-  };
-
   const renderAction = () => {
     const onDelete = () =>
       confirm()
@@ -115,6 +98,17 @@ const BasicInfo: React.FC<Props> = (props) => {
         .catch((error) => {
           Alert.error(error.message);
         });
+
+    const editForm = (props) => <ProductForm {...props} product={product} />;
+
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit")}</a>,
+        content: editForm,
+        additionalModalProps: { size: "xl" },
+      },
+    ];
 
     return (
       <Actions>
@@ -126,9 +120,8 @@ const BasicInfo: React.FC<Props> = (props) => {
               <Icon icon="angle-down" />
             </Button>
           }
-          unmount={false}
+          modalMenuItems={menuItems}
         >
-          {renderEdit()}
           <li>
             <a href="#delete" onClick={onDelete}>
               {__("Delete")}
