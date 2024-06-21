@@ -1,5 +1,4 @@
-import { sendMessage } from '@erxes/api-utils/src/core';
-import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { afterMutationHandlers } from './afterMutations';
 import {

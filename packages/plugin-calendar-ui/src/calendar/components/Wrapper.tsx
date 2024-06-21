@@ -1,11 +1,10 @@
-import { IBoard, IGroup } from '../types';
+import { IBoard, IGroup, IAccount } from '../types';
 import { extractDate, generateFilters } from '../utils';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import { CalendarController } from '../styles';
 import Event from '../containers/Event';
-import { IAccount } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';

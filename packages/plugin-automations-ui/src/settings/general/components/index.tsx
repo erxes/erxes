@@ -31,9 +31,8 @@ function GeneralSettings() {
   const actionButtons = <></>;
 
   const content = (
-    <>
-      <EmptyState text="Coming Soon" image="/images/actions/20.svg" />
-    </>
+
+    <EmptyState text="Coming Soon" image="/images/actions/20.svg" />
   );
 
   return (

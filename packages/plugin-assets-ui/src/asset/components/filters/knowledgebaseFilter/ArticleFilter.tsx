@@ -5,7 +5,6 @@ import {
   Box,
   FieldStyle,
   SidebarList,
-  DataWithLoader,
 } from "@erxes/ui/src";
 import { generateParamsIds } from "../../../../common/utils";
 import { useLocation, useNavigate } from "react-router-dom";

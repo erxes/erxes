@@ -84,15 +84,14 @@ class ActivityItem extends React.Component<Props> {
 
     const type = contentType.split(':')[1];
 
-    switch ((action && action) || type) {
-      case 'sendEmail':
+    if ((action && action) || type === 'sendEmail') {
         return this.renderDetail(
           'task',
           this.renderSendEmail(contentDetail, createdAt),
           'email'
         );
-
-      default:
+    }
+    else {
         return <div />;
     }
   }

@@ -5,7 +5,6 @@ import {
   ModalTrigger,
   SidebarList,
   Tip,
-  __,
 } from '@erxes/ui/src';
 import React from 'react';
 import { IAssetCategoryTypes } from '../../../common/types';

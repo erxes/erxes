@@ -2,8 +2,7 @@ import { __, isEnabled } from "@erxes/ui/src/utils/core";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import Button from "@erxes/ui/src/components/Button";
-import { DateWrapper } from "@erxes/ui/src/styles/main";
-import { FlexCenter } from "@erxes/ui/src/styles/main";
+import { DateWrapper, FlexCenter } from "@erxes/ui/src/styles/main";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IAutomation } from "../types";
 import Icon from "@erxes/ui/src/components/Icon";

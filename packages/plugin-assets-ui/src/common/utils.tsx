@@ -16,8 +16,7 @@ import {
 } from '@erxes/ui/src';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-import { queries as assetCategoryQueries } from '../asset/graphql';
-import { queries as assetQueries } from '../asset/graphql';
+import { queries as assetCategoryQueries, queries as assetQueries } from '../asset/graphql';
 import { ASSET_CATEGORY_STATUS_FILTER } from './constant';
 import { CommonFormGroupTypes, IAsset, IAssetCategoryTypes } from './types';
 import { queries as movementQueries } from '../movements/movements/graphql';

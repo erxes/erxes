@@ -1,5 +1,4 @@
-import { sendContactsMessage, sendFormsMessage } from './messageBroker';
-import { sendCoreMessage } from './messageBroker';
+import { sendContactsMessage, sendFormsMessage, sendCoreMessage } from './messageBroker';
 import fetch from 'node-fetch';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { queries as calendarQueries } from '../graphql';
+import { queries as calendarQueries, mutations, queries } from '../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
@@ -10,7 +10,6 @@ import { graphql } from '@apollo/client/react/hoc';
 import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
 import { INTEGRATIONS } from '../constants';
 import Groups from '../components/Groups';
-import { mutations, queries } from '../graphql';
 import {
   BoardDetailQueryResponse,
   GroupsQueryResponse,

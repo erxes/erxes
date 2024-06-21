@@ -1,4 +1,4 @@
-import { CustomerName, EllipsisContent } from "@erxes/ui/src/styles/main";
+import { CustomerName, EllipsisContent, ModalFooter } from "@erxes/ui/src/styles/main";
 import { __, renderUserFullName } from "coreui/utils";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -6,10 +6,8 @@ import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IAutomationNote } from "../../types";
 import { IFormProps } from "@erxes/ui/src/types";
-import { MainInfo } from "../../styles";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import { Notes } from "../../styles";
+import { Notes, MainInfo } from "../../styles";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import dayjs from "dayjs";

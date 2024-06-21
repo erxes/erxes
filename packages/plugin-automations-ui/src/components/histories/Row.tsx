@@ -138,7 +138,7 @@ class HistoryRow extends React.Component<Props, State> {
       this.setState({ isShowDetail: !isShowDetail });
     };
 
-    const isActive = status === 'active' ? true : false;
+    const isActive = status === 'active';
     const labelStyle = isActive ? 'success' : 'warning';
 
     return (

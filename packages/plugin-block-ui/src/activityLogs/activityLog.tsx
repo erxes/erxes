@@ -44,20 +44,19 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
 
   const amount = activity.content ? activity.content.amount : [];
 
-  switch ((action && action) || type) {
-    case 'invest':
-      return renderDetail(
-        'invest',
-        <BlockLog
-          contentId={contentId}
-          packageId={packageId}
-          amount={amount}
-          activity={activity}
-        />,
-      );
-
-    default:
-      return <div />;
+  if ((action && action) || type === 'invest') {
+    return renderDetail(
+      'invest',
+      <BlockLog
+        contentId={contentId}
+        packageId={packageId}
+        amount={amount}
+        activity={activity}
+      />,
+    );
+  }
+  else {
+    return <div />;
   }
 };
 

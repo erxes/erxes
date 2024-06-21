@@ -243,7 +243,7 @@ const automationQueries = {
           constants.actionsConst.push(action);
         }
 
-        if (!!pluginConstants?.emailRecipientTypes?.length) {
+        if (pluginConstants?.emailRecipientTypes?.length) {
           const updatedEmailRecipIentTypes =
             pluginConstants.emailRecipientTypes.map((eRT) => ({
               ...eRT,

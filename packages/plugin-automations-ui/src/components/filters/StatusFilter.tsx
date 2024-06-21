@@ -60,7 +60,7 @@ function StatusFilter({ counts, emptyText }: IProps) {
         data={data}
         loading={false}
         count={statusFilters.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText="Loading"
         emptyIcon="leaf"
         size="small"
         objective={true}

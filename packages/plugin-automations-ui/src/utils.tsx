@@ -269,7 +269,6 @@ export const getTriggerType = (
     return triggers[0].type;
   }
 
-  return;
 };
 
 export const getTriggerConfig = (
@@ -293,7 +292,6 @@ export const getTriggerConfig = (
     return triggers[0]?.config;
   }
 
-  return;
 };
 
 export const renderDynamicComponent = (props, type) => {
@@ -313,5 +311,4 @@ export const renderDynamicComponent = (props, type) => {
     }
   }
 
-  return;
 };
