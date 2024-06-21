@@ -143,7 +143,7 @@ const structureQueries = {
       models.Departments.find(filter).sort({ order: 1 }),
       params,
     );
-    const totalCount = models.Departments.find(filter).countDocuments();
+    const totalCount = await models.Departments.find(filter).countDocuments();
 
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
@@ -210,7 +210,7 @@ const structureQueries = {
       models.Units.find(filter).sort({ createdAt: -1 }),
       params,
     );
-    const totalCount = models.Units.find(filter).countDocuments();
+    const totalCount = await models.Units.find(filter).countDocuments();
 
     const unitUserIds = (await models.Units.find(filter))
       .map((user) => user.userIds)
@@ -265,7 +265,7 @@ const structureQueries = {
       models.Branches.find(filter).sort({ order: 1 }),
       params,
     );
-    const totalCount = models.Branches.find(filter).countDocuments();
+    const totalCount = await models.Branches.find(filter).countDocuments();
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
       'branchIds.0': { $exists: true },
@@ -349,7 +349,7 @@ const structureQueries = {
       params,
     );
 
-    const totalCount = models.Positions.find(filter).countDocuments();
+    const totalCount = await models.Positions.find(filter).countDocuments();
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
       'positionIds.0': { $exists: true },
