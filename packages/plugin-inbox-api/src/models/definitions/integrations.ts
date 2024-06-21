@@ -192,6 +192,7 @@ export interface IIntegrationDocument extends IIntegration, Document {
   _id: string;
   createdUserId: string;
   formData?: ILeadData;
+  // TODO: remove
   leadData?: ILeadDataDocument;
   messengerData?: IMessengerDataDocument;
   webhookData?: IWebhookData;
@@ -277,6 +278,8 @@ export const calloutSchema = new Schema(
 
 export const submissionSchema = new Schema(
   {
+    // TODO: remove
+    // schema for lead submission details
     customerId: field({ type: String }),
     submittedAt: field({ type: Date }),
   },
