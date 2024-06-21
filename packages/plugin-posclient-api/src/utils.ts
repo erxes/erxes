@@ -449,7 +449,7 @@ export const prepareSettlePayment = async (
       if (products.find((product) => product?.type === 'subscription')) {
         uoms = await sendProductsMessage({
           subdomain,
-          action: 'uoms.findOne',
+          action: 'uoms.find',
           data: {
             code: { $in: products.map((product) => product?.uom) },
           },
