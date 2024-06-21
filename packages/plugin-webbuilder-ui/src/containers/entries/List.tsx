@@ -53,7 +53,6 @@ function ListContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     entries: list,
-    loading: entriesMainQuery.loading,
     contentType,
     remove,
     entriesCount: totalCount,
