@@ -35,7 +35,7 @@ const transactionsMutations = {
    * @param {string} param2._id VatRow id
    * @param {Object} param2.doc VatRow info
    */
-  async transactionsEdit(
+  async transactionsUpdate(
     _root,
     { parentId, trDocs }: { parentId: string, trDocs: ITransaction[] },
     { user, models, subdomain }: IContext,

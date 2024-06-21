@@ -80,7 +80,10 @@ export const generateFilter = async (
       status: { $nin: [null, 'active'] },
     });
 
-    filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
+    if (notActiveCategories.length) {
+      filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
+    }
+
   }
 
   // search =========

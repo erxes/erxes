@@ -76,6 +76,7 @@ const getAccountIds = async (models: IModels, commonQuerySelector, params: IQuer
     journal: accountJournal,
   }, user);
 
+  console.log('zzzzzzzzzzzzz', accountFilter)
   const accounts = await models.Accounts.find({ ...accountFilter }, { _id: 1 }).lean();
   return accounts.map(a => a._id);
 }
@@ -100,7 +101,7 @@ const generateFilter = async (
   } = params;
   const filter = commonQuerySelector;
 
-  filter.accountId = { $in: await getAccountIds(models, commonQuerySelector, params, user) }
+  filter['details.accountId'] = { $in: await getAccountIds(models, commonQuerySelector, params, user) }
 
   if (journal) {
     filter.journal = journal
@@ -193,6 +194,7 @@ const transactionCommon = {
       sort = { [sortField]: sortDirection ?? 1 };
     }
 
+    console.log(filter)
     return await paginate(
       models.Transactions.find(filter).sort(sort).lean(),
       pagintationArgs,

@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { Link } from 'react-router-dom';
 import {
   ActionButtons,
   Button,
@@ -41,9 +42,7 @@ const Row: React.FC<Props> = (props) => {
     e.stopPropagation();
   };
 
-  // const content = (props) => <AccountFormContainer {...props} transactionId={transaction._id} />;
-
-  const { date, number, journal, sumDt, sumCt } = transaction;
+  const { date, number, journal, sumDt, sumCt, parentId } = transaction;
 
   return (
     <tr>
@@ -62,13 +61,13 @@ const Row: React.FC<Props> = (props) => {
 
       <td onClick={onClick}>
         <ActionButtons>
-          <ModalTrigger
-            title="Edit transaction"
-            trigger={trigger}
-            size="xl"
-            content={'content'}
-            // content={content}
-          />
+          <Link to={`/accountings/transaction/edit/${parentId}`}>
+            <Button btnStyle="link">
+              <Tip text={__('Manage')} placement="top">
+                <Icon icon="edit-3" />
+              </Tip>
+            </Button>
+          </Link>
         </ActionButtons>
       </td>
     </tr>

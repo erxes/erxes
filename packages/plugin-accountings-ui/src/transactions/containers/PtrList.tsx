@@ -75,19 +75,19 @@ const PtrListContainer = (props: Props) => {
     });
   };
 
-  const accounts = transactionsQuery.data?.transactions || [];
-  const accountsCount = transactionsCountQuery.data?.transactionsCount || 0;
+  const transactions = transactionsQuery.data?.transactions || [];
+  const transactionsCount = transactionsCountQuery.data?.transactionsCount || 0;
 
   const searchValue = props.queryParams.searchValue || "";
 
   const updatedProps = {
     ...props,
     queryParams,
-    accounts,
+    transactions,
     remove,
     loading: transactionsQuery.loading || transactionsCountQuery.loading,
     searchValue,
-    accountsCount,
+    transactionsCount,
   };
 
   const AccountList = (props) => {

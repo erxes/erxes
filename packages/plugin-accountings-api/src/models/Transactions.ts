@@ -15,6 +15,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   linkTransaction(_ids: string[], ptrId?: string): Promise<ITransactionDocument[]>;
   createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
   createPTransaction(docs: ITransaction[]): Promise<ITransactionDocument[]>;
+  updatePTransaction(_id: string, doc: ITransaction[]): Promise<ITransactionDocument[]>;
   updateTransaction(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;

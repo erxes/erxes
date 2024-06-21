@@ -154,7 +154,7 @@ export const queries = `
 
 export const mutations = `
   transactionsCreate(trDocs: [TransactionInput]): [CommonTransaction]
-  transactionsEdit(parentId: String, trDocs: [TransactionInput]): [CommonTransaction]
+  transactionsUpdate(parentId: String, trDocs: [TransactionInput]): [CommonTransaction]
   mainTrAdd(${mainTrParams}): [CommonTransaction]
   mainTrEdit(_id: String!, ${mainTrParams}): [CommonTransaction]
   mainTrRemove(_id: String!): String
