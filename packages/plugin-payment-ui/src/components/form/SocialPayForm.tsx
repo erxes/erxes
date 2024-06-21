@@ -1,22 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, getEnv } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { IPaymentDocument, ISocialPayConfig } from '../../types';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __, getEnv } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { IPaymentDocument, ISocialPayConfig } from "../../types";
 
-import { PAYMENT_KINDS } from '../constants';
-import { SettingsContent } from './styles';
+import { PAYMENT_KINDS } from "../constants";
+import { SettingsContent } from "./styles";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   payment?: IPaymentDocument;
-  metaData?: any;
 };
 
 type State = {
@@ -32,9 +31,9 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
     config || ({} as ISocialPayConfig);
 
   const [state, setState] = useState<State>({
-    paymentName: name || '',
-    inStoreSPTerminal: inStoreSPTerminal || '',
-    inStoreSPKey: inStoreSPKey || '',
+    paymentName: name || "",
+    inStoreSPTerminal: inStoreSPTerminal || "",
+    inStoreSPKey: inStoreSPKey || "",
   });
 
   const generateDoc = (values: {
@@ -46,7 +45,7 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.SOCIALPAY,
-      status: 'active',
+      status: "active",
       config: {
         inStoreSPTerminal: values.inStoreSPTerminal,
         inStoreSPKey: values.inStoreSPKey,
@@ -64,10 +63,10 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean,
+    isPassword?: boolean
   ) => {
     const value =
-      key === 'pushNotification'
+      key === "pushNotification"
         ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialpay`
         : state[key];
 
@@ -79,8 +78,8 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
           defaultValue={value}
           onChange={onChangeConfig.bind(this, key)}
           value={value}
-          disabled={key === 'pushNotification'}
-          type={isPassword ? 'password' : ''}
+          disabled={key === "pushNotification"}
+          type={isPassword ? "password" : ""}
         />
       </FormGroup>
     );
@@ -99,14 +98,14 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
 
     return (
       <>
-        <SettingsContent title={__('General settings')}>
-          {renderItem('paymentName', 'Name')}
-          {renderItem('inStoreSPTerminal', 'Terminal')}
-          {renderItem('inStoreSPKey', 'Key', '', true)}
+        <SettingsContent title={__("General settings")}>
+          {renderItem("paymentName", "Name")}
+          {renderItem("inStoreSPTerminal", "Terminal")}
+          {renderItem("inStoreSPKey", "Key", "", true)}
           {renderItem(
-            'pushNotification',
-            'Notification URL',
-            'Register following URL in Golomt Bank',
+            "pushNotification",
+            "Notification URL",
+            "Register following URL in Golomt Bank"
           )}
 
           <a
@@ -114,7 +113,7 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
             target="_blank"
             rel="noreferrer"
           >
-            {__('more about SocialPay')}
+            {__("more about SocialPay")}
           </a>
         </SettingsContent>
 
@@ -128,7 +127,7 @@ const SocialPayConfigForm: React.FC<Props> = (props) => {
             Cancel
           </Button>
           {renderButton({
-            passedName: 'socialpay',
+            passedName: "socialpay",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,

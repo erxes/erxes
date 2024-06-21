@@ -159,7 +159,7 @@ export class StorePayAPI extends BaseAPI {
       const data = {
         amount: invoice.amount,
         mobileNumber: invoice.phone,
-        description: invoice.description || 'transaction',
+        description: invoice.description ?? 'transaction',
         storeId: this.store_id,
         callbackUrl: `${this.domain}/pl:payment/callback/${PAYMENTS.storepay.kind}`,
       };

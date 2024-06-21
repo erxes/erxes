@@ -1,26 +1,25 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
+import { queries } from "../graphql";
 
 export const getRefetchQueries = () => {
   return [
     {
       query: queries.payments,
       variables: {
-        paymentIds: []
-      }
+        paymentIds: [],
+      },
     },
     {
-      query: queries.paymentsTotalCountQuery
-    }
+      query: queries.paymentsTotalCountQuery,
+    },
   ];
 };
 
-export const getGqlString = doc => {
+export const getGqlString = (doc) => {
   return doc.loc && doc.loc.source.body;
 };
 
 export const getSubMenu = () => {
-  const subMenu = [{ title: 'Payments', link: '/settings/payments' }];
+  const subMenu = [{ title: "Payments", link: "/settings/payments" }];
 
   // TODO: add this back when component changed for any plugins
   // if (

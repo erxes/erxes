@@ -121,7 +121,7 @@ export class WechatPayAPI extends BaseAPI {
         sender_invoice_no: invoice._id,
         sender_terminal_code: 'kktt_wechat_test',
         invoice_receiver_code: 'terminal',
-        invoice_description: invoice.description || 'test invoice',
+        invoice_description: invoice.description ?? 'test invoice',
         amount: invoice.amount,
         callback_url: `${this.domain}/pl:payment/callback/${PAYMENTS.wechatpay.kind}?identifier=${invoice.identifier}`,
       };

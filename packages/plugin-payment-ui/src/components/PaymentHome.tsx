@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Title } from '@erxes/ui-settings/src/styles';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { getSubMenu } from '../containers/utils';
-import { ByKindTotalCount } from '../types';
-import { PAYMENTCONFIGS } from './constants';
-import PaymentRow from './PaymentRow';
-import { Content, FullHeight, PaymentWrapper, SearchInput } from './styles';
+import React, { useEffect, useState } from "react";
+import { Title } from "@erxes/ui-settings/src/styles";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import { getSubMenu } from "../containers/utils";
+import { ByKindTotalCount } from "../types";
+import { PAYMENTCONFIGS } from "./constants";
+import PaymentRow from "./PaymentRow";
+import { Content, FullHeight, PaymentWrapper, SearchInput } from "./styles";
 
 type Props = {
   queryParams: any;
@@ -18,11 +17,11 @@ type Props = {
 };
 
 const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [payments, setPayments] = useState(
     PAYMENTCONFIGS.filter(
-      (payment) => payment.category.indexOf('Payment method') !== -1,
-    ),
+      (payment) => payment.category.indexOf("Payment method") !== -1
+    )
   );
 
   useEffect(() => {
@@ -30,8 +29,8 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
       PAYMENTCONFIGS.filter(
         (payment) =>
           payment.name.toLowerCase().indexOf(searchValue) !== -1 &&
-          payment.category.indexOf(queryParams.kind || 'Payment method') !== -1,
-      ),
+          payment.category.indexOf(queryParams.kind || "Payment method") !== -1
+      )
     );
   }, [searchValue, queryParams.kind]);
 
@@ -50,7 +49,7 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
           payments={rows.splice(0, 4)}
           paymentsCount={totalCount}
           queryParams={queryParams}
-        />,
+        />
       );
     }
 
@@ -74,7 +73,7 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an payments') + '...'}
+          placeholder={__("Type to search for an payments") + "..."}
           onChange={onSearch}
         />
       </SearchInput>
@@ -83,10 +82,10 @@ const Home: React.FC<Props> = ({ queryParams, totalCount }: Props) => {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={__('Payments')} submenu={getSubMenu()} />}
+      header={<Wrapper.Header title={__("Payments")} submenu={getSubMenu()} />}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title>{queryParams.kind || 'All Payments'}</Title>}
+          left={<Title>{queryParams.kind || "All Payments"}</Title>}
           right={renderSearch()}
           background="colorWhite"
         />

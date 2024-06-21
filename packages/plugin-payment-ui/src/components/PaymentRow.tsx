@@ -1,11 +1,11 @@
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React, { useState } from 'react';
-import Collapse from '@erxes/ui/src/components/Collapse';
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React, { useState } from "react";
+import Collapse from "@erxes/ui/src/components/Collapse";
 
-import PaymentList from '../containers/PaymentList';
-import { ByKindTotalCount } from '../types';
-import PaymentEntry from './PaymentEntry';
-import { CollapsibleContent, PaymentRow } from './styles';
+import PaymentList from "../containers/PaymentList";
+import { ByKindTotalCount } from "../types";
+import PaymentEntry from "./PaymentEntry";
+import { CollapsibleContent, PaymentRow } from "./styles";
 
 type Props = {
   payments: any[];
@@ -25,14 +25,14 @@ const Row: React.FC<Props> = (props) => {
     const { kind, isContentVisible } = state;
 
     if (!isContentVisible) {
-      return '';
+      return "";
     }
 
     if (type === kind) {
-      return 'active';
+      return "active";
     }
 
-    return '';
+    return "";
   };
 
   const toggleBox = (selectedKind: string, isAvailable?: boolean) => {
@@ -83,7 +83,7 @@ const Row: React.FC<Props> = (props) => {
 
   const renderList = () => {
     const { queryParams, paymentsCount } = props;
-    const kind = state.kind || '';
+    const kind = state.kind || "";
     const count = (paymentsCount && paymentsCount[kind]) || 0;
 
     return (
@@ -104,13 +104,10 @@ const Row: React.FC<Props> = (props) => {
     <>
       <PaymentRow>
         {payments.map((payment) =>
-          renderEntry(payment, paymentsCount, queryParams),
+          renderEntry(payment, paymentsCount, queryParams)
         )}
       </PaymentRow>
-      <Collapse
-        show={state.isContentVisible && selected ? true : false}
-        unmount={true}
-      >
+      <Collapse show={!!(state.isContentVisible && selected)} unmount={true}>
         <CollapsibleContent>{renderList()}</CollapsibleContent>
       </Collapse>
     </>

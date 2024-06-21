@@ -137,7 +137,7 @@ export class PocketAPI extends BaseAPI {
     try {
       const data: IPocketInvoice = {
         amount: invoice.amount,
-        info: invoice.description || invoice.contentTypeId,
+        info: invoice.description ?? invoice.contentTypeId,
       };
 
       const res = await this.request({

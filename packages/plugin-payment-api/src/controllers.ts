@@ -108,7 +108,7 @@ router.post('/gateway/storepay', async (req, res) => {
   const api = new StorePayAPI(payment.config, domain);
 
   try {
-    const apiRes = await api.createInvoice({ ...invoice, phone } as any);
+    const apiRes = await api.createInvoice({ ...invoice, phone });
     invoice.apiResponse = apiRes;
 
     await models.Invoices.updateOne(
@@ -233,9 +233,7 @@ router.get('/gateway', async (req, res) => {
   }
 
   const monpayCouponEnabled: boolean =
-    process.env.MONPAY_COUPON_USERNAME && process.env.MONPAY_COUPON_PASSWORD
-      ? true
-      : false;
+    !!(process.env.MONPAY_COUPON_USERNAME && process.env.MONPAY_COUPON_PASSWORD);
 
   res.render('index', {
     title: 'Payment gateway',
