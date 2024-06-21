@@ -75,8 +75,7 @@ export default {
           }
         }
 
-        // {{ pluginname.data.fieldname }}
-        const regex = /\{{ (\b\w+\.\b\w+\.\b\w+)\ }}/g;
+        const regex = /\{{ (\b\w+\.\b\w+\.\b\w+) }}/g;
         const matches = document?.content?.match(regex) || [];
         let replaceContentNormal = document?.content;
         for (const x of matches) {
