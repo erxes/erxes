@@ -54,15 +54,6 @@ const mutationParams = `
   data: JSON
 `;
 
-const invoiceCreateMutationParams = `
-  ${mutationParams}
-  selectedPaymentId: String
-  
-  couponCode: String
-  couponAmount: Int
-
-`;
-
 export const mutations = `
   generateInvoiceUrl(${mutationParams}): String
   invoiceCreate(${mutationParams}): Invoice
