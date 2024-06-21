@@ -11,6 +11,7 @@ export const field = options => {
     options.validate = /\S+/;
   }
 
+  // TODO: remove
   if (pkey) {
     options.type = String;
     options.default = () => nanoid();
