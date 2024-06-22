@@ -168,7 +168,7 @@ export const loadTransactionClass = (models: IModels) => {
             subdomain,
             data: {
               customerId: contract.customerId,
-              depositAccountId: contract.depositAccountId,
+              accountId: contract.depositAccountId,
               description: "interest payment",
               blockType: "scheduleTransaction",
               amount: tr.calcInterest,

@@ -45,7 +45,7 @@ export interface IContractModel extends Model<IContractDocument> {
   getContract(
     selector: FilterQuery<IContractDocument>
   ): Promise<IContractDocument>;
-  createContract(doc: IContract): Promise<IContractDocument>;
+  createContract(doc: IContract, subdomain: string): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
   closeContract(subdomain, doc: ICloseVariable);
   clientCreditLoanRequest(
@@ -87,10 +87,10 @@ export const loadContractClass = (models: IModels) => {
     /**
      * Create a contract
      */
-    public static async createContract({
-      schedule,
-      ...doc
-    }: IContract & { schedule: any }): Promise<IContractDocument> {
+    public static async createContract(
+      { schedule, ...doc }: IContract & { schedule: any },
+      subdomain: string
+    ): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
@@ -153,6 +153,23 @@ export const loadContractClass = (models: IModels) => {
             total: doc.leaseAmount
           }
         ];
+
+        await sendMessageBroker(
+          {
+            action: "block.create",
+            data: {
+              customerId: contract.customerId,
+              accountId: contract.savingContractId,
+              description: "saving collateral loan",
+              blockType: "scheduleTransaction",
+              amount: contract.leaseAmount,
+              scheduleDate: contract.endDate,
+              payDate: contract.startDate
+            },
+            subdomain
+          },
+          "savings"
+        );
 
         await models.FirstSchedules.insertMany(schedules);
       }

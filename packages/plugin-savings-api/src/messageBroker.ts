@@ -30,9 +30,8 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
 
     const deposit = await models.Contracts.findOne({
-      _id: data.depositAccountId,
-      customerId: data.customerId,
-      isDeposit: true
+      _id: data.accountId,
+      customerId: data.customerId
     });
 
     if (!deposit) {

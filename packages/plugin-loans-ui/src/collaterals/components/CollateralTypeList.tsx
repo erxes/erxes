@@ -100,7 +100,7 @@ const List = (props: IProps) => {
   const renderCategoryHeader = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
-        Add collateral type
+        {__("Add collateral type")}
       </Button>
     );
     return (

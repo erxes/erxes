@@ -1,36 +1,47 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
 
 import {
   IStoredInterest,
   IStoredInterestDocument,
   storedInterestSchema
-} from './definitions/storedInterest';
-import { getDiffDay, getFullDate } from './utils/utils';
-import { IContractDocument } from './definitions/contracts';
-import { CONTRACT_STATUS } from './definitions/constants';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { sendMessageBroker } from '../messageBroker';
+} from "./definitions/storedInterest";
+import { calcInterest, getDiffDay, getFullDate } from "./utils/utils";
+import { IContractDocument } from "./definitions/contracts";
+import { CONTRACT_STATUS } from "./definitions/constants";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { getConfig, sendMessageBroker } from "../messageBroker";
+import { IConfig } from "../interfaces/config";
+import BigNumber from "bignumber.js";
 
-const getCommitmentInterest = (contract, storeInterestDate) => {
-  return Number(
-    (
-      ((((contract.leaseAmount || 0) - (contract.balanceAmount || 0)) *
-        (contract.commitmentInterest || 0)) /
-        100 /
-        365) *
-      getDiffDay(contract.lastStoredDate, storeInterestDate)
-    ).toFixed(0)
-  );
+const getCommitmentInterest = (
+  contract,
+  storeInterestDate,
+  config: IConfig
+) => {
+  const diffDay = getDiffDay(contract.lastStoredDate, storeInterestDate);
+
+  const unUsedAmount = new BigNumber(contract.leaseAmount)
+    .minus(contract.balanceAmount)
+    .toNumber();
+
+  return calcInterest({
+    balance: unUsedAmount,
+    interestRate: contract.commitmentInterest,
+    dayOfMonth: diffDay,
+    fixed: config.calculationFixed
+  });
 };
 
-const getStoredInterest = (contract, storeInterestDate) => {
-  return Number(
-    (
-      ((contract.balanceAmount * contract.interestRate) / 100 / 365) *
-      getDiffDay(contract.lastStoredDate, storeInterestDate)
-    ).toFixed(0)
-  );
+const getStoredInterest = (contract, storeInterestDate, config: IConfig) => {
+  const diffDay = getDiffDay(contract.lastStoredDate, storeInterestDate);
+
+  return calcInterest({
+    balance: contract.balanceAmount,
+    interestRate: contract.interestRate,
+    dayOfMonth: diffDay,
+    fixed: config.calculationFixed
+  });
 };
 
 export const loanStoredInterestClass = (models: IModels) => {
@@ -41,6 +52,8 @@ export const loanStoredInterestClass = (models: IModels) => {
       subdomain?: string
     ) {
       const storeInterestDate = getFullDate(payDate);
+
+      const config: IConfig = await getConfig("loansConfig", subdomain || "");
 
       const contracts: (IContractDocument & {
         balanceAmount: number;
@@ -54,25 +67,30 @@ export const loanStoredInterestClass = (models: IModels) => {
           const prevSchedule = await models.Schedules.findOne({
             contractId: contract._id,
             payDate: { $lte: storeInterestDate },
-            'transactionIds.0': { $exists: true }
+            "transactionIds.0": { $exists: true }
           }).sort({ payDate: -1 });
 
           if (!prevSchedule) contract.balanceAmount = contract.leaseAmount;
           else contract.balanceAmount = prevSchedule?.balance || 0;
 
-          let storedInterest = getStoredInterest(contract, storeInterestDate);
+          let storedInterest = getStoredInterest(
+            contract,
+            storeInterestDate,
+            config
+          );
 
           if (Number.isNaN(storedInterest)) continue;
 
           let commitmentInterest = getCommitmentInterest(
             contract,
-            storeInterestDate
+            storeInterestDate,
+            config
           );
 
-          if (isEnabled('syncpolaris') && subdomain) {
+          if (isEnabled("syncpolaris") && subdomain) {
             sendMessageBroker(
               {
-                action: 'storeInterest',
+                action: "storeInterest",
                 subdomain: subdomain,
                 data: {
                   number: contract.number,
@@ -80,7 +98,7 @@ export const loanStoredInterestClass = (models: IModels) => {
                   description: `auto store interest ${contract.number}`
                 }
               },
-              'syncpolaris'
+              "syncpolaris"
             );
           }
 
