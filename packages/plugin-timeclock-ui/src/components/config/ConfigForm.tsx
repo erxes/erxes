@@ -1,7 +1,11 @@
+import Button from '@erxes/ui/src/components/Button';
+import Tip from '@erxes/ui/src/components/Tip';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
@@ -28,8 +32,6 @@ import {
 } from '../../types';
 import { compareStartAndEndTime } from '../../utils';
 import DateTimePicker from '../datepicker/DateTimePicker';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   history?: any;
@@ -43,6 +45,7 @@ type Props = {
   afterSave?: () => void;
   closeModal: () => void;
   renderButton: (props: IButtonMutateProps) => void;
+  onSubmit: (props: IButtonMutateProps) => void;
 };
 
 const requestToTypes = {
@@ -58,7 +61,7 @@ const requestToWhomTypes = {
 
 function ConfigForm(props: Props) {
   const { renderButton, scheduleConfig, deviceConfig } = props;
-  const { absenceType, holiday, payDate } = props;
+  const { absenceType, holiday, payDate, onSubmit } = props;
 
   const [requestTime, setRequestTime] = useState(
     absenceType?.requestTimeType || 'by day'
@@ -105,7 +108,6 @@ function ConfigForm(props: Props) {
   );
 
   const [numberOfLocations, setNumberOfLocations] = useState(0);
-  const [numberOfLocationsArr, setNumberOfLocationsArr] = useState<any[]>([]);
   const [locationsFormValues, setLocationsFormValues] = useState<any>({});
 
   const defaultStartTime = new Date(
@@ -145,6 +147,8 @@ function ConfigForm(props: Props) {
       shiftEnd: defaultEndTime
     }
   };
+
+  const [isSubmitted, setSubmitted] = useState(false);
 
   scheduleConfig?.configDays.forEach(configDay => {
     configDaysTime[configDay.configName].shiftStart = new Date(
@@ -216,7 +220,6 @@ function ConfigForm(props: Props) {
   const addLocationClick = () => {
     const nextNum = numberOfLocations + 1;
     setNumberOfLocations(nextNum);
-    setNumberOfLocationsArr([...numberOfLocationsArr, nextNum]);
 
     const newLocationsFormValues = {
       ...locationsFormValues
@@ -224,8 +227,8 @@ function ConfigForm(props: Props) {
 
     newLocationsFormValues[nextNum] = {
       name: '',
-      longitude: null,
-      latitude: null
+      longitude: '',
+      latitude: ''
     };
 
     setLocationsFormValues(newLocationsFormValues);
@@ -239,74 +242,97 @@ function ConfigForm(props: Props) {
     setIsHovered(false);
   };
 
-  const checkLocationsInput = (input: string) => {
-    const pattern = /[+-]?[0-9]*\.?[0-9]+/;
-
-    return input.match(pattern);
-  };
-
-  const removeLocationToggle = () => {};
-
-  const onCheckLocation = (locationNum: number) => {};
-
   const onLocationsFormValueChange = (
     locationNum: number,
     e: any,
     key: string
   ) => {
     locationsFormValues[locationNum][key] = e.target.value;
-    setLocationsFormValues(locationsFormValues);
+    setLocationsFormValues({ ...locationsFormValues });
   };
 
   const renderLocationsForm = () => {
+    const remove = (num: number) => {
+      delete locationsFormValues[num];
+      setLocationsFormValues({ ...locationsFormValues });
+    };
+
     return (
       <>
-        {numberOfLocationsArr.map(num => (
-          <FlexRow style={{ margin: '25px' }}>
-            <FormControl
-              name={`location${num}`}
-              componentClass='checkbox'
-              defaultChecked={scheduleStartFlexible}
-              onChange={() => setScheduleStartFlexible(!scheduleStartFlexible)}
-            />
-            <ControlLabel>{num} . </ControlLabel>
-            <ControlLabel>Location Name </ControlLabel>
-            <div style={{ marginLeft: '1rem' }}>
-              <FormControl
-                type='text'
-                onChange={e => onLocationsFormValueChange(num, e, 'name')}
-              />
-            </div>
-
-            <FlexColumn marginNum={25}>
-              <FlexColumn marginNum={10}>
-                <ControlLabel>Longitude:</ControlLabel>
-                <div style={{ marginLeft: '1rem' }}>
-                  <FormControl
-                    type='text'
-                    onChange={e =>
-                      onLocationsFormValueChange(num, e, 'longitude')
-                    }
-                  />
-                </div>
+        {Object.keys(locationsFormValues).map(num => {
+          const locationNum = parseInt(num, 10);
+          return (
+            <FlexRow style={{ margin: '25px' }}>
+              <Tip text={__('Remove')} placement='top'>
+                <Button
+                  btnStyle='link'
+                  onClick={() => remove(locationNum)}
+                  icon='times-circle'
+                />
+              </Tip>{' '}
+              <ControlLabel required={true}>Location Name </ControlLabel>
+              <div style={{ marginLeft: '1rem' }}>
+                <FormControl
+                  type='text'
+                  name={`location${num}Name`}
+                  value={locationsFormValues[num].name}
+                  required={true}
+                  onChange={e =>
+                    onLocationsFormValueChange(locationNum, e, 'name')
+                  }
+                />
+              </div>
+              <FlexColumn marginNum={25}>
+                <FlexColumn marginNum={10}>
+                  <ControlLabel required={true}>Longitude:</ControlLabel>
+                  <div style={{ marginLeft: '1rem' }}>
+                    <FormControl
+                      type='text'
+                      name={`location${num}Long`}
+                      value={locationsFormValues[num].longitude}
+                      required={true}
+                      onChange={e =>
+                        onLocationsFormValueChange(locationNum, e, 'longitude')
+                      }
+                    />
+                  </div>
+                </FlexColumn>
+                <FlexColumn marginNum={10}>
+                  <ControlLabel required={true}>Latitude:</ControlLabel>
+                  <div style={{ marginLeft: '1rem' }}>
+                    <FormControl
+                      type='text'
+                      name={`location${num}Lat`}
+                      value={locationsFormValues[num].latitude}
+                      required={true}
+                      onChange={e =>
+                        onLocationsFormValueChange(locationNum, e, 'latitude')
+                      }
+                    />
+                  </div>
+                </FlexColumn>
               </FlexColumn>
-              <FlexColumn marginNum={10}>
-                <ControlLabel>Latitude:</ControlLabel>
-                <div style={{ marginLeft: '1rem' }}>
-                  <FormControl
-                    type='text'
-                    onChange={e =>
-                      onLocationsFormValueChange(num, e, 'latitude')
-                    }
-                  />
-                </div>
-              </FlexColumn>
-            </FlexColumn>
-          </FlexRow>
-        ))}
+            </FlexRow>
+          );
+        })}
       </>
     );
   };
+
+  const checkLocationsFormValues = () => {
+    for (const num of Object.keys(locationsFormValues)) {
+      if (
+        locationsFormValues[num].name === '' ||
+        locationsFormValues[num].longitude === '' ||
+        locationsFormValues[num].latitude === ''
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const generateDoc = (
     values: {
       _id?: string;
@@ -384,6 +410,8 @@ function ConfigForm(props: Props) {
           configShiftStart?: string;
           configShiftEnd?: string;
           scheduleConfig: any[];
+          locations?: any[];
+          overtimeExists?: boolean;
         } = {
           scheduleName: values.scheduleName,
           scheduleConfig: []
@@ -437,6 +465,21 @@ function ConfigForm(props: Props) {
           overtime
         );
 
+        returnVariables.overtimeExists = scheduleOvertimeExists;
+
+        if (
+          Object.keys(locationsFormValues).length &&
+          !checkLocationsFormValues()
+        ) {
+          return null;
+        }
+
+        returnVariables.locations = [];
+
+        for (const location of Object.values(locationsFormValues)) {
+          returnVariables.locations.push(location);
+        }
+
         // Object.keys(configDays).forEach(day_key => {
         //   if (day_key.toLocaleLowerCase() !== 'configtime') {
         //     returnVariables.scheduleConfig.push({
@@ -461,6 +504,7 @@ function ConfigForm(props: Props) {
         if (deviceConfig) {
           values._id = deviceConfig._id;
         }
+
         return {
           _id: values._id,
           deviceName: values.deviceName,
@@ -487,6 +531,9 @@ function ConfigForm(props: Props) {
     }
   };
 
+  const beforeSubmit = () => {
+    setSubmitted(true);
+  };
   const renderDevicesContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
@@ -524,6 +571,7 @@ function ConfigForm(props: Props) {
             name: 'deviceConfig',
             values: generateDoc(values, 'deviceConfig'),
             isSubmitted,
+            beforeSubmit,
             callback: closeModal || afterSave,
             object: deviceConfig || null
           })}
@@ -970,7 +1018,6 @@ function ConfigForm(props: Props) {
               Add locations
             </div>
           </Trigger>
-          {/* <Button btnStyle='primary' onClick={addLocationClick}></Button> */}
         </FlexRow>
         {renderLocationsForm()}
       </>

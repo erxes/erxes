@@ -94,7 +94,7 @@ function ConfigList(props: Props) {
             <Select
               value={selectedType}
               onChange={onTypeSelect}
-              placeholder="Select type"
+              placeholder='Select type'
               multi={false}
               options={[
                 'Schedule Configs',
@@ -114,34 +114,33 @@ function ConfigList(props: Props) {
   };
 
   const scheduleConfigTrigger = (
-    <Button id="scheduleBtn" btnStyle="primary" icon="plus-circle">
+    <Button id='scheduleBtn' btnStyle='primary' icon='plus-circle'>
       Schedule
     </Button>
   );
 
   const absenceConfigTrigger = (
-    <Button id="configBtn" btnStyle="primary" icon="plus-circle">
+    <Button id='configBtn' btnStyle='primary' icon='plus-circle'>
       Requests
     </Button>
   );
   const payPeriodConfigTrigger = (
     <Button
-      id="configBtn"
-      btnStyle="primary"
-      icon="plus-circle"
-      disabled={payDates.length > 0}
-    >
+      id='configBtn'
+      btnStyle='primary'
+      icon='plus-circle'
+      disabled={payDates.length > 0}>
       Pay period
     </Button>
   );
   const holidayConfigTrigger = (
-    <Button id="configBtn" btnStyle="primary" icon="plus-circle">
+    <Button id='configBtn' btnStyle='primary' icon='plus-circle'>
       Holiday
     </Button>
   );
 
   const devicesConfigTrigger = (
-    <Button id="configBtn" btnStyle="primary" icon="plus-circle">
+    <Button id='configBtn' btnStyle='primary' icon='plus-circle'>
       Terminal devices
     </Button>
   );
@@ -151,7 +150,7 @@ function ConfigList(props: Props) {
       <ConfigForm
         {...props}
         scheduleConfig={scheduleConfig}
-        configType="Schedule"
+        configType='Schedule'
         closeModal={closeModal}
       />
     );
@@ -162,7 +161,7 @@ function ConfigList(props: Props) {
       <ConfigForm
         {...props}
         absenceType={absenceType}
-        configType="Absence"
+        configType='Absence'
         closeModal={closeModal}
       />
     );
@@ -174,7 +173,7 @@ function ConfigList(props: Props) {
         {...props}
         closeModal={closeModal}
         payDate={payDate}
-        configType="PayDate"
+        configType='PayDate'
       />
     );
   };
@@ -185,7 +184,7 @@ function ConfigList(props: Props) {
         {...props}
         closeModal={closeModal}
         holiday={holiday}
-        configType="Holiday"
+        configType='Holiday'
       />
     );
   };
@@ -196,7 +195,7 @@ function ConfigList(props: Props) {
         {...props}
         closeModal={closeModal}
         deviceConfig={deviceConfig}
-        configType="Devices"
+        configType='Devices'
       />
     );
   };
@@ -210,9 +209,9 @@ function ConfigList(props: Props) {
     <FlexRow>
       {selectedType === 'Terminal Devices' && (
         <SearchInput isInPopover={false}>
-          <Icon icon="search-1" />
+          <Icon icon='search-1' />
           <FormControl
-            type="text"
+            type='text'
             placeholder={__('Type to search for devices')}
             onChange={onSearchDeviceConfigs}
           />
@@ -221,7 +220,7 @@ function ConfigList(props: Props) {
 
       <div>
         <ModalTrigger
-          size="lg"
+          size='lg'
           title={__('Schedule Config')}
           trigger={scheduleConfigTrigger}
           content={contentProps => scheduleConfigContent(contentProps, null)}
@@ -259,8 +258,8 @@ function ConfigList(props: Props) {
     />
   );
   const editTrigger = (
-    <Button btnStyle="link">
-      <Icon icon="edit-3" />
+    <Button btnStyle='link'>
+      <Icon icon='edit-3' />
     </Button>
   );
 
@@ -281,11 +280,11 @@ function ConfigList(props: Props) {
   const removeTrigger = (_id, configType) => {
     const remove = getRemoveFunction(configType);
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__('Delete')} placement='top'>
         <Button
-          btnStyle="link"
+          btnStyle='link'
           onClick={() => remove(_id)}
-          icon="times-circle"
+          icon='times-circle'
         />
       </Tip>
     );
@@ -376,8 +375,8 @@ function ConfigList(props: Props) {
                   <td>
                     <TextAlignCenter>
                       <ModalTrigger
-                        size="lg"
-                        title="Edit Schedule Configs"
+                        size='lg'
+                        title='Edit Schedule Configs'
                         trigger={editTrigger}
                         content={contentProps =>
                           scheduleConfigContent(contentProps, scheduleConfig)
@@ -413,7 +412,7 @@ function ConfigList(props: Props) {
               <td>
                 <TextAlignCenter>
                   <ModalTrigger
-                    title="Edit Pay Dates"
+                    title='Edit Pay Dates'
                     trigger={editTrigger}
                     content={contentProps =>
                       payPeriodConfigContent(contentProps, payDates[0])
@@ -462,7 +461,7 @@ function ConfigList(props: Props) {
                   <td>
                     <TextAlignCenter>
                       <ModalTrigger
-                        title="Edit absence type"
+                        title='Edit absence type'
                         trigger={editTrigger}
                         content={contentProps =>
                           absenceConfigContent(contentProps, absenceType)
@@ -519,7 +518,7 @@ function ConfigList(props: Props) {
                   <td>
                     <TextAlignCenter>
                       <ModalTrigger
-                        title="Edit holiday"
+                        title='Edit holiday'
                         trigger={editTrigger}
                         content={contentProps =>
                           holidayConfigContent(contentProps, holiday)
@@ -558,7 +557,7 @@ function ConfigList(props: Props) {
               <td>
                 <TextAlignCenter>
                   <ModalTrigger
-                    title="Edit holiday"
+                    title='Edit holiday'
                     trigger={editTrigger}
                     content={contentProps =>
                       deviceConfigContent(contentProps, deviceConfig)

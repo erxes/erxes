@@ -372,6 +372,10 @@ export const scheduleSchema = new Schema({
   note: field({
     type: String,
     label: 'Note'
+  }),
+  overtimeExists: field({
+    type: Boolean,
+    label: 'Whether include overtime'
   })
 });
 
@@ -432,6 +436,7 @@ export const payDateSchema = new Schema({
 export const scheduleConfigSchema = new Schema({
   _id: field({ pkey: true }),
   scheduleName: field({
+    type: String,
     label: 'Name of the schedule',
     index: true
   }),
