@@ -1,15 +1,15 @@
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexRow } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import { __ } from "coreui/utils";
 
 type Props = {
   onChange: (
-    name: 'title' | 'location' | 'duration' | 'cancellationPolicy',
+    name: "title" | "location" | "duration" | "cancellationPolicy",
     value: string | number
   ) => void;
   title?: string;
@@ -32,18 +32,18 @@ class Event extends React.Component<Props, State> {
     const { duration } = props;
 
     this.state = {
-      title: '',
-      location: '',
-      duration: duration || 45
+      title: "",
+      location: "",
+      duration: duration || 45,
     };
   }
 
   onChangeInput = (
-    name: 'title' | 'location' | 'duration' | 'cancellationPolicy',
+    name: "title" | "location" | "duration" | "cancellationPolicy",
     e: React.FormEvent
   ) => {
     const val = (e.target as HTMLInputElement).value;
-    const value = name === 'duration' ? parseInt(val, 10) : val;
+    const value = name === "duration" ? parseInt(val, 10) : val;
 
     this.setState({ [name]: value }, () => this.props.onChange(name, value));
   };
@@ -58,10 +58,10 @@ class Event extends React.Component<Props, State> {
             <ControlLabel>Event title</ControlLabel>
 
             <FormControl
-              placeholder={__('Write here Event title') + '.'}
+              placeholder={__("Write here Event title") + "."}
               rows={3}
               value={title}
-              onChange={this.onChangeInput.bind(null, 'title')}
+              onChange={this.onChangeInput.bind(null, "title")}
             />
           </FormGroup>
 
@@ -69,10 +69,10 @@ class Event extends React.Component<Props, State> {
             <ControlLabel>Event location</ControlLabel>
 
             <FormControl
-              placeholder={__('Write here Event location') + '.'}
+              placeholder={__("Write here Event location") + "."}
               rows={3}
               value={location}
-              onChange={this.onChangeInput.bind(null, 'location')}
+              onChange={this.onChangeInput.bind(null, "location")}
             />
           </FormGroup>
 
@@ -83,8 +83,8 @@ class Event extends React.Component<Props, State> {
                 <FormControl
                   value={duration}
                   name="duration"
-                  onChange={this.onChangeInput.bind(null, 'duration')}
-                  componentClass="select"
+                  onChange={this.onChangeInput.bind(null, "duration")}
+                  componentclass="select"
                 >
                   <option value={15}>15</option>
                   <option value={30}>30</option>
@@ -103,10 +103,10 @@ class Event extends React.Component<Props, State> {
             <ControlLabel>Cancellation Policy</ControlLabel>
 
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               rows={3}
               value={cancellationPolicy}
-              onChange={this.onChangeInput.bind(null, 'cancellationPolicy')}
+              onChange={this.onChangeInput.bind(null, "cancellationPolicy")}
             />
           </FormGroup>
         </LeftItem>

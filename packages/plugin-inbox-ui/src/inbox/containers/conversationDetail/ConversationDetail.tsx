@@ -1,25 +1,27 @@
-import { AppConsumer } from 'coreui/appContext';
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import ConversationDetail from '../../components/conversationDetail/ConversationDetail';
+import {
+  ConversationDetailQueryResponse,
+  MarkAsReadMutationResponse,
+} from '@erxes/ui-inbox/src/inbox/types';
 import {
   mutations,
   queries,
-  subscriptions
+  subscriptions,
 } from '@erxes/ui-inbox/src/inbox/graphql';
+
+import { AppConsumer } from 'coreui/appContext';
+import ConversationDetail from '../../components/conversationDetail/ConversationDetail';
 import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import { IUser } from '@erxes/ui/src/auth/types';
-import {
-  ConversationDetailQueryResponse,
-  MarkAsReadMutationResponse
-} from '@erxes/ui-inbox/src/inbox/types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   currentId: string;
-  conversationFields: IField[];
+  conversationFields?: IField[];
 };
 
 type FinalProps = {
@@ -75,7 +77,7 @@ class DetailContainer extends React.Component<FinalProps> {
       variables: { _id: currentId },
       updateQuery: () => {
         this.props.detailQuery.refetch();
-      }
+      },
     });
 
     // listen for customer connection
@@ -97,18 +99,14 @@ class DetailContainer extends React.Component<FinalProps> {
           if (prevConv && prevConv.customer._id === customerConnection._id) {
             this.props.detailQuery.refetch();
           }
-        }
+        },
       });
     }
   }
 
   render() {
-    const {
-      currentId,
-      detailQuery,
-      markAsReadMutation,
-      currentUser
-    } = this.props;
+    const { currentId, detailQuery, markAsReadMutation, currentUser } =
+      this.props;
 
     const loading = detailQuery.loading;
     const conversation = detailQuery.conversationDetail;
@@ -119,8 +117,8 @@ class DetailContainer extends React.Component<FinalProps> {
 
       if (!readUserIds.includes(currentUser._id)) {
         markAsReadMutation({
-          variables: { _id: conversation._id }
-        }).catch(e => {
+          variables: { _id: conversation._id },
+        }).catch((e) => {
           Alert.error(e.message);
         });
       }
@@ -131,7 +129,7 @@ class DetailContainer extends React.Component<FinalProps> {
       currentConversationId: currentId,
       currentConversation: conversation,
       refetchDetail: detailQuery.refetch,
-      loading
+      loading,
     };
 
     return <ConversationDetail {...updatedProps} />;
@@ -146,9 +144,9 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
         name: 'detailQuery',
         options: ({ currentId }) => ({
           variables: { _id: currentId },
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, MarkAsReadMutationResponse, { _id: string }>(
       gql(mutations.markAsRead),
@@ -159,15 +157,15 @@ const WithQuery = withProps<Props & { currentUser: IUser }>(
             refetchQueries: [
               {
                 query: gql(queries.conversationDetailMarkAsRead),
-                variables: { _id: currentId }
+                variables: { _id: currentId },
               },
-              { query: gql(queries.unreadConversationsCount) }
-            ]
+              { query: gql(queries.unreadConversationsCount) },
+            ],
           };
-        }
-      }
-    )
-  )(DetailContainer)
+        },
+      },
+    ),
+  )(DetailContainer),
 );
 
 const WithConsumer = (props: Props) => {

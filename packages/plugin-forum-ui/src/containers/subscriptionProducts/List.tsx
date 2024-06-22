@@ -6,7 +6,6 @@ import { mutations, queries } from '../../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IProduct } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import ProductList from '../../components/subscriptionProducts/ProductList';
 import React from 'react';
 import { RemoveMutationResponse } from '../../types';
@@ -14,25 +13,22 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { useQuery } from '@apollo/client';
-import { withRouter } from 'react-router-dom';
 
 type FinalProps = {
   queryParams: any;
-  history?: any;
-} & RemoveMutationResponse &
-  IRouterProps;
+} & RemoveMutationResponse;
 
-function List({ removeMutation, queryParams, history }: FinalProps) {
+function List({ removeMutation, queryParams }: FinalProps) {
   const userType = queryParams.userType || null;
   const { loading, error, data } = useQuery(
     gql(queries.forumSubscriptionProductsQuery),
     {
       variables: {
         sort: { listOrder: -1 },
-        userType
+        userType,
       },
-      fetchPolicy: 'network-only'
-    }
+      fetchPolicy: 'network-only',
+    },
   );
 
   if (loading) {
@@ -46,11 +42,11 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
   const onDelete = (product: IProduct) => {
     confirm(`This will permanently delete ${product.name}, are you sure?`)
       .then(() => {
-        removeMutation({ variables: { _id: product._id } }).catch(e => {
+        removeMutation({ variables: { _id: product._id } }).catch((e) => {
           Alert.error(e.message);
         });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -60,7 +56,7 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -74,9 +70,9 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
             query: gql(queries.forumSubscriptionProductsQuery),
             variables: {
               sort: { listOrder: -1 },
-              userType
-            }
-          }
+              userType,
+            },
+          },
         ]}
         isSubmitted={isSubmitted}
         type="submit"
@@ -91,7 +87,6 @@ function List({ removeMutation, queryParams, history }: FinalProps) {
     <ProductList
       queryParams={queryParams}
       onDelete={onDelete}
-      history={history}
       renderButton={renderButton}
       products={data?.forumSubscriptionProducts}
     />
@@ -105,9 +100,9 @@ export default withProps<{}>(
       {
         name: 'removeMutation',
         options: () => ({
-          refetchQueries: ['ForumSubscriptionProducts']
-        })
-      }
-    )
-  )(withRouter<FinalProps>(List))
+          refetchQueries: ['ForumSubscriptionProducts'],
+        }),
+      },
+    ),
+  )(List),
 );

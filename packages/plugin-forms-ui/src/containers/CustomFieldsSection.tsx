@@ -12,10 +12,11 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 
-const GenerateCustomFields = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
-  )
+const GenerateCustomFields = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
+    )
 );
 
 type Props = {
@@ -49,7 +50,7 @@ const CustomFieldsSection = (props: FinalProps) => {
       .then(() => {
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         callback(e);
       });
   };
@@ -60,7 +61,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     customFieldsData: user.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
     isDetail,
-    doc: user
+    object: user
   };
 
   return <GenerateCustomFields {...updatedProps} />;

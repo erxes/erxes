@@ -18,7 +18,7 @@ const HeaderLayout = ({
   const { details, email } = currentUser || {}
   const { fullName, position } = details || {}
   return (
-    <header className="flex flex-none items-center border-b px-5 py-1.5 print:hidden h-14 ">
+    <header className="flex flex-none items-center justify-between border-b px-3 md:px-5 py-1.5 print:hidden h-14 ">
       <div className={cn("flex w-auto items-center", !hideUser && "sm:w-1/3")}>
         <HeaderMenu />
         <Logo />

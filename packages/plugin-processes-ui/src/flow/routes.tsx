@@ -1,29 +1,27 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
-const ProductList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - FlowService" */ './containers/flow/FlowList'
-  )
+const ProductList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - FlowService" */ "./containers/flow/FlowList"
+    )
 );
 
-const Details = asyncComponent(() =>
-  import(/* webpackChunkName: "FlowForm" */ './containers/forms/FlowForm')
+const Details = asyncComponent(
+  () => import(/* webpackChunkName: "FlowForm" */ "./containers/forms/FlowForm")
 );
 
-const productService = ({ location, history }) => {
-  return (
-    <ProductList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const ProductService = () => {
+  const location = useLocation();
+  return <ProductList queryParams={queryString.parse(location.search)} />;
 };
 
-const details = ({ match, location }) => {
-  const id = match.params.id;
+const Detail = () => {
+  const { id } = useParams();
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Details id={id} queryParams={queryParams} />;
@@ -31,20 +29,18 @@ const details = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         path="/processes/flows"
-        exact={true}
         key="/processes/flows"
-        component={productService}
+        element={<ProductService />}
       />
       <Route
         key="/processes/flows/details/:id"
-        exact={true}
         path="/processes/flows/details/:id"
-        component={details}
+        element={<Detail />}
       />
-    </>
+    </Routes>
   );
 };
 

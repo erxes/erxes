@@ -1,19 +1,20 @@
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Modal from 'react-bootstrap/Modal';
-import { __, readFile, renderFullName } from 'coreui/utils';
+import React from "react";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __, readFile, renderFullName } from "coreui/utils";
 import {
   SpaceFormsWrapper,
   CommentWrapper,
   TicketComment,
   CreatedUser,
-  CommentContent
-} from '@erxes/ui-settings/src/styles';
-import { ColorButton } from '../../boards/styles/common';
-import dayjs from 'dayjs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IClientPortalComment, ICommentCreatedUser } from '../types';
+  CommentContent,
+} from "@erxes/ui-settings/src/styles";
+import { ColorButton } from "../../boards/styles/common";
+import dayjs from "dayjs";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { IClientPortalComment, ICommentCreatedUser } from "../types";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
 
 type Props = {
   currentUser: IUser;
@@ -30,7 +31,7 @@ class Comment extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      show: false
+      show: false,
     };
   }
 
@@ -44,82 +45,73 @@ class Comment extends React.Component<Props, State> {
       <>
         <ColorButton onClick={() => handleShow()}>
           <Icon icon="comment-alt-message" />
-          {__('Comment')}
+          {__("Comment")}
         </ColorButton>
 
-        <Modal
-          centered={true}
+        <Dialog
           show={this.state.show}
-          onHide={() => handleClose()}
-          backdrop="static"
-          keyboard={false}
+          closeModal={() => handleClose()}
+          title={__("Comments")}
         >
-          <Modal.Header closeButton={true}>
-            <Modal.Title>{__('Comments')}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <SpaceFormsWrapper>
-              <CommentWrapper>
-                {clientPortalComments.map(comment => {
-                  const { createdUser = {} as ICommentCreatedUser } = comment;
+          <SpaceFormsWrapper>
+            <CommentWrapper>
+              {clientPortalComments.map((comment) => {
+                const { createdUser = {} as ICommentCreatedUser } = comment;
 
-                  return (
-                    <TicketComment key={comment._id}>
-                      <CreatedUser>
-                        <img
-                          src={readFile(
-                            createdUser && createdUser.avatar
-                              ? createdUser.avatar
-                              : '/images/avatar-colored.svg'
-                          )}
-                          alt="profile"
-                        />
-                        <div>
-                          <CommentContent>
-                            <h5>
-                              {createdUser.fullName
-                                ? createdUser.fullName
-                                : renderFullName(createdUser)}
-                            </h5>
-                            <div
-                              className="comment"
-                              dangerouslySetInnerHTML={{
-                                __html: comment.content
-                              }}
-                            />
-                          </CommentContent>
-                          <span>
-                            Created at{' '}
-                            {dayjs(comment.createdAt).format(
-                              'YYYY-MM-DD HH:mm'
-                            )}
+                return (
+                  <TicketComment key={comment._id}>
+                    <CreatedUser>
+                      <img
+                        src={readFile(
+                          createdUser && createdUser.avatar
+                            ? createdUser.avatar
+                            : "/images/avatar-colored.svg"
+                        )}
+                        alt="profile"
+                      />
+                      <div>
+                        <CommentContent>
+                          <h5>
+                            {createdUser.fullName
+                              ? createdUser.fullName
+                              : renderFullName(createdUser)}
+                          </h5>
+                          <div
+                            className="comment"
+                            dangerouslySetInnerHTML={{
+                              __html: comment.content,
+                            }}
+                          />
+                        </CommentContent>
+                        <span>
+                          Created at{" "}
+                          {dayjs(comment.createdAt).format("YYYY-MM-DD HH:mm")}
+                        </span>
+                      </div>
+                      {createdUser?._id === currentUser._id && (
+                        <div className="actions">
+                          <span onClick={() => remove(comment._id)}>
+                            Delete
                           </span>
                         </div>
-                        {createdUser?._id === currentUser._id && (
-                          <div className="actions">
-                            <span onClick={() => remove(comment._id)}>
-                              Delete
-                            </span>
-                          </div>
-                        )}
-                      </CreatedUser>
-                    </TicketComment>
-                  );
-                })}
-              </CommentWrapper>
-            </SpaceFormsWrapper>
-            <Modal.Footer>
-              <Button
-                btnStyle="simple"
-                size="small"
-                icon="times-circle"
-                onClick={() => handleClose()}
-              >
-                {__('Cancel')}
-              </Button>
-            </Modal.Footer>
-          </Modal.Body>
-        </Modal>
+                      )}
+                    </CreatedUser>
+                  </TicketComment>
+                );
+              })}
+            </CommentWrapper>
+          </SpaceFormsWrapper>
+          <ModalFooter>
+            <Button
+              btnStyle="simple"
+              size="small"
+              icon="times-circle"
+              onClick={() => handleClose()}
+            >
+              {__("Cancel")}
+            </Button>
+          </ModalFooter>
+        </Dialog>
       </>
     );
   }

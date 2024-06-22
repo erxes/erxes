@@ -247,7 +247,6 @@ export const getIntegrationIds = async (query, models) => {
 
 export const buildMatchFilter = async (filter, subdomain, models, field?) => {
     const {
-        userIds,
         assignedUserIds,
         closedUserIds,
         respondedUserIds,
@@ -255,20 +254,15 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
         branchIds,
         departmentIds,
         integrationTypes,
-        formIds,
         tagIds,
         status,
-        groupIds,
-        fieldIds,
-        portalIds,
-        channelIds,
         dateRange,
         closedDateRange
     } = filter;
 
     const matchfilter = {};
 
-    const userFieldType = field ? field : 'assignedUserId'
+    const userFieldType = field || 'assignedUserId'
 
     // STATUS FILTER
     if (status && status !== 'all') {

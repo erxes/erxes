@@ -1,19 +1,19 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import React from 'react';
+import React from "react";
 import {
   IPipeline,
   ActivityLogsByActionQueryResponse,
   IOptions,
   InternalNotesByActionQueryResponse,
-} from '../types';
-import { gql } from '@apollo/client';
-import { withProps } from '@erxes/ui/src/utils';
-import { graphql } from '@apollo/client/react/hoc';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { queries } from '../graphql';
-import ActivityLogs from '../components/activityLogs/ActivityLogs';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+} from "../types";
+import { gql } from "@apollo/client";
+import { withProps } from "@erxes/ui/src/utils";
+import { graphql } from "@apollo/client/react/hoc";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { queries } from "../graphql";
+import ActivityLogs from "../components/activityLogs/ActivityLogs";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   pipeline: IPipeline;
@@ -29,7 +29,7 @@ type WithStagesProps = {
 const buildListAndCount = (props: WithStagesProps) => {
   const { queryParams, activityLogsByActionQuery, internalNotesByActionQuery } =
     props;
-  const { action = '' } = queryParams;
+  const { action = "" } = queryParams;
 
   if (
     !activityLogsByActionQuery ||
@@ -44,10 +44,15 @@ const buildListAndCount = (props: WithStagesProps) => {
 
   let list = activityLogsByAction?.activityLogs || [];
   let totalCount = activityLogsByAction?.totalCount || 0;
-  const actionList = action.split(',');
+  const actionList = action.split(",");
 
-  if (actionList.includes('addNote')) {
-    list = list.concat(internalNotesByActionQuery.internalNotesByAction.list);
+  if (actionList.includes("addNote")) {
+    list = list.concat(
+      internalNotesByActionQuery &&
+        internalNotesByActionQuery.internalNotesByAction
+        ? internalNotesByActionQuery.internalNotesByAction.list
+        : []
+    );
     totalCount += internalNotesByActionQuery.internalNotesByAction.totalCount;
   }
 
@@ -71,7 +76,7 @@ const ActivityList = (props: WithStagesProps) => {
     refetchQueries: commonOptions(queryParams),
     activityLogsByAction: list,
     count: totalCount,
-    errorMessage: error || '',
+    errorMessage: error || "",
   };
 
   return <ActivityLogs {...updatedProps} />;
@@ -90,8 +95,8 @@ const commonOptions = (queryParams) => {
 const commonParams = (queryParams, options) => ({
   contentType: `cards:${options.type}`,
   pipelineId: queryParams.pipelineId,
-  page: parseInt(queryParams.page || '1', 10),
-  perPage: parseInt(queryParams.perPage || '10', 10),
+  page: parseInt(queryParams.page || "1", 10),
+  perPage: parseInt(queryParams.perPage || "10", 10),
 });
 
 export default withProps<Props>(
@@ -99,24 +104,24 @@ export default withProps<Props>(
     graphql<Props, ActivityLogsByActionQueryResponse>(
       gql(queries.activityLogsByAction),
       {
-        name: 'activityLogsByActionQuery',
+        name: "activityLogsByActionQuery",
         options: ({ queryParams, options }) => ({
           variables: {
             ...commonParams(queryParams, options),
             action: queryParams.action,
           },
         }),
-        skip: !isEnabled('logs') ? true : false,
-      },
+        skip: !isEnabled("logs"),
+      }
     ),
     graphql<Props>(gql(queries.internalNotesByAction), {
-      name: 'internalNotesByActionQuery',
+      name: "internalNotesByActionQuery",
       options: ({ queryParams, options }) => ({
         variables: {
           ...commonParams(queryParams, options),
         },
       }),
-      skip: !isEnabled('internalnotes') ? true : false,
-    }),
-  )(ActivityList),
+      skip: !isEnabled("internalnotes"),
+    })
+  )(ActivityList)
 );

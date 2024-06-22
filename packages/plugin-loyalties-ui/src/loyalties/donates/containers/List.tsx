@@ -1,31 +1,29 @@
-import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps, router } from '@erxes/ui/src/utils';
+
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import { queries as campaignQueries } from '../../../configs/donateCampaign/graphql';
-import { DonateCampaignDetailQueryResponse } from '../../../configs/donateCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
+  RemoveMutationVariables,
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import { DonateCampaignDetailQueryResponse } from '../../../configs/donateCampaign/types';
+import List from '../components/List';
+import React from 'react';
+import { queries as campaignQueries } from '../../../configs/donateCampaign/graphql';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
   donatesMainQuery: MainQueryResponse;
   donateCampaignDetailQuery: DonateCampaignDetailQueryResponse;
-} & Props &
-  IRouterProps &
+} & Props  &
   RemoveMutationResponse;
 
 type State = {
@@ -37,7 +35,7 @@ class DonateListContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,7 +44,6 @@ class DonateListContainer extends React.Component<FinalProps, State> {
       donatesMainQuery,
       donateCampaignDetailQuery,
       donatesRemove,
-      history
     } = this.props;
 
     if (
@@ -58,13 +55,13 @@ class DonateListContainer extends React.Component<FinalProps, State> {
 
     const removeDonates = ({ donateIds }, emptyBulk) => {
       donatesRemove({
-        variables: { _ids: donateIds }
+        variables: { _ids: donateIds },
       })
         .then(() => {
           emptyBulk();
           Alert.success('You successfully deleted a donate');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -81,10 +78,10 @@ class DonateListContainer extends React.Component<FinalProps, State> {
       searchValue,
       donates: list,
       currentCampaign,
-      removeDonates
+      removeDonates,
     };
 
-    const donatesList = props => {
+    const donatesList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -105,7 +102,7 @@ const generateParams = ({ queryParams }) => ({
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined
+  sortDirection: Number(queryParams.sortDirection) || undefined,
 });
 
 const generateOptions = () => ({
@@ -113,8 +110,8 @@ const generateOptions = () => ({
     'donatesMain',
     'donateCounts',
     'donateCategories',
-    'donateCategoriesTotalCount'
-  ]
+    'donateCategoriesTotalCount',
+  ],
 });
 
 export default withProps<Props>(
@@ -123,8 +120,8 @@ export default withProps<Props>(
       name: 'donatesMainQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props, DonateCampaignDetailQueryResponse>(
       gql(campaignQueries.donateCampaignDetail),
@@ -132,19 +129,19 @@ export default withProps<Props>(
         name: 'donateCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
-          }
+            _id: queryParams.campaignId,
+          },
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
+        skip: ({ queryParams }) => !queryParams.campaignId,
+      },
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.donatesRemove),
       {
         name: 'donatesRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<IRouterProps>(DonateListContainer))
+        options: generateOptions,
+      },
+    ),
+  )(DonateListContainer),
 );

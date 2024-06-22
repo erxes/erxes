@@ -1,13 +1,14 @@
-import React from 'react';
-import { SidebarCounter } from '@erxes/ui/src/layout/styles';
-import { IStructure } from '@erxes/ui/src/team/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { __, readFile } from 'modules/common/utils';
-import Icon from '@erxes/ui/src/components/Icon';
-import { StructureList, StructureEditButton } from '../../styles';
-import { Title } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import _ from 'lodash';
+import { StructureEditButton, StructureList } from "../../styles";
+import { __, readFile } from "modules/common/utils";
+
+import { IStructure } from "@erxes/ui/src/team/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import { SidebarCounter } from "@erxes/ui/src/layout/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import _ from "lodash";
 
 type Props = {
   structure: IStructure;
@@ -25,7 +26,7 @@ export default function View({ structure, showEdit }: Props) {
     return (
       <li>
         <div>{__(name)}</div>
-        <SidebarCounter nowrap={nowrap}>{value || '-'}</SidebarCounter>
+        <SidebarCounter $nowrap={nowrap}>{value || "-"}</SidebarCounter>
       </li>
     );
   };
@@ -43,23 +44,23 @@ export default function View({ structure, showEdit }: Props) {
     <>
       <Wrapper.ActionBar
         background="bgWhite"
-        left={<Title capitalize={true}>{__('Structure')}</Title>}
+        left={<Title $capitalize={true}>{__("Structure")}</Title>}
         right={edit}
         wideSpacing={true}
       />
       <StructureList className="no-link">
-        {renderRow('Name', title)}
-        {renderRow('Description', description, true)}
-        {renderRow('Supervisor', supervisorName)}
-        {renderRow('Code', code)}
-        {renderRow('Phone number', phoneNumber)}
-        {renderRow('Email', email)}
-        {renderRow('Longitude', coordinate.longitude)}
-        {renderRow('Latitude', coordinate.latitude)}
-        {renderRow('Website', links.website)}
-        {renderRow('Facebook', links.facebook)}
-        {renderRow('Twitter', links.twitter)}
-        {renderRow('Youtube', links.youtube)}
+        {renderRow("Name", title)}
+        {renderRow("Description", description, true)}
+        {renderRow("Supervisor", supervisorName)}
+        {renderRow("Code", code)}
+        {renderRow("Phone number", phoneNumber)}
+        {renderRow("Email", email)}
+        {renderRow("Longitude", coordinate.longitude)}
+        {renderRow("Latitude", coordinate.latitude)}
+        {renderRow("Website", links.website)}
+        {renderRow("Facebook", links.facebook)}
+        {renderRow("Twitter", links.twitter)}
+        {renderRow("Youtube", links.youtube)}
         {image && (
           <li>
             <img src={readFile(image.url)} alt={image.name} width="100%" />

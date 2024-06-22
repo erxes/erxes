@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Collapse from 'react-bootstrap/Collapse';
+import Collapse from '@erxes/ui/src/components/Collapse';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import colors from '@erxes/ui/src/styles/colors';
@@ -64,7 +64,7 @@ function CollapseContent(props: Props) {
         {React.cloneElement(props.children, { onClick })}
         <props.containerParent>
           <Container open={open} id={props.id} style={{ width: '100%' }}>
-            <Collapse in={open}>
+            <Collapse show={open}>
               <Content
                 full={hasImage || props.full || false}
                 style={{ padding: 10 }}
@@ -83,7 +83,7 @@ function CollapseContent(props: Props) {
       {React.cloneElement(props.children, { onClick })}
 
       <Container open={open} id={props.id} style={{ width: '100%' }}>
-        <Collapse in={open}>
+        <Collapse show={open}>
           <div>
             <Content full={hasImage || props.full || false}>
               {props.content || props.children}

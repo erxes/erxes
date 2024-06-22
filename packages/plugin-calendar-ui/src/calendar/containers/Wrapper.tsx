@@ -12,7 +12,6 @@ import { queries } from '../graphql';
 
 type Props = {
   currentGroup: IGroup;
-  history: any;
   queryParams: any;
   currentBoard?: IBoard;
   boards: IBoard[];

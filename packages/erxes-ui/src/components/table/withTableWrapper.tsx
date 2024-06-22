@@ -21,11 +21,11 @@ const ContactsTableWrapper = styled.div`
 `;
 
 const withTableWrapper = (attr, Component) => {
-  const Container = props => {
+  const Container = (props) => {
     const [isExpand, setExpand] = useState(
       localStorage.getItem(`isExpand${attr}Table`) === 'true'
         ? true
-        : false || false
+        : false || false,
     );
 
     const toggleExpand = () => {
@@ -42,7 +42,7 @@ const withTableWrapper = (attr, Component) => {
           text={isExpand ? 'Shrink table row' : 'Expand table row'}
           placement="bottom"
         >
-          <SimpleButton isActive={isExpand} onClick={toggleExpand}>
+          <SimpleButton $isActive={isExpand} onClick={toggleExpand}>
             <Icon icon={isExpand ? 'merge' : 'split'} size={14} />
           </SimpleButton>
         </Tip>
@@ -52,7 +52,7 @@ const withTableWrapper = (attr, Component) => {
     const updatedProps = {
       ...props,
       renderExpandButton,
-      isExpand
+      isExpand,
     };
 
     return <Component {...updatedProps} />;

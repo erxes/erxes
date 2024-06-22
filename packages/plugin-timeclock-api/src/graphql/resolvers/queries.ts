@@ -29,11 +29,11 @@ const timeclockQueries = {
     );
   },
 
-  absenceTypes(_root, {}, { models }: IContext) {
+  async absenceTypes(_root, {}, { models }: IContext) {
     return models.AbsenceTypes.find();
   },
 
-  holidays(_root, {}, { models }: IContext) {
+  async holidays(_root, {}, { models }: IContext) {
     return models.Absences.find({ status: 'Holiday' });
   },
 
@@ -64,7 +64,7 @@ const timeclockQueries = {
     });
   },
 
-  timeclocksPerUser(
+  async timeclocksPerUser(
     _root,
     { userId, startDate, endDate, shiftActive },
     { models, user }: IContext,
@@ -115,7 +115,7 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Timeclocks.count(selector);
+    const totalCount = models.Timeclocks.countDocuments(selector);
 
     const list = paginate(models.Timeclocks.find(selector), {
       perPage: queryParams.perPage,
@@ -155,7 +155,7 @@ const timeclockQueries = {
       'timelog',
       user,
     );
-    const totalCount = models.TimeLogs.count(selector);
+    const totalCount = models.TimeLogs.countDocuments(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
@@ -172,7 +172,7 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  timeLogsPerUser(_root, { userId, startDate, endDate }, { models }: IContext) {
+  async timeLogsPerUser(_root, { userId, startDate, endDate }, { models }: IContext) {
     const timeField = {
       timelog: {
         $gte: fixDate(startDate),
@@ -203,7 +203,7 @@ const timeclockQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = models.Schedules.count(selector);
+    const totalCount = models.Schedules.countDocuments(selector);
 
     const list = paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
@@ -213,17 +213,17 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  schedulesPerUser(_root, queryParams, { models, user }: IContext) {
+  async schedulesPerUser(_root, queryParams, { models, user }: IContext) {
     const getUserId = queryParams.userId || user._id;
     return models.Schedules.find({ userId: getUserId, status: 'Approved' });
   },
 
-  scheduleConfigs(_root, {}, { models }: IContext) {
+  async scheduleConfigs(_root, {}, { models }: IContext) {
     return models.ScheduleConfigs.find();
   },
 
-  deviceConfigs(_root, queryParams, { models }: IContext) {
-    const totalCount = models.DeviceConfigs.count({});
+  async deviceConfigs(_root, queryParams, { models }: IContext) {
+    const totalCount = models.DeviceConfigs.countDocuments({});
     const { searchValue } = queryParams;
     const query: any = {};
 
@@ -234,7 +234,7 @@ const timeclockQueries = {
       ];
     }
 
-    const list = paginate(models.DeviceConfigs.find(query), {
+    const list = await paginate(models.DeviceConfigs.find(query), {
       perPage: queryParams.perPage,
       page: queryParams.page,
     });
@@ -242,7 +242,7 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
+  async scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
     const getUserId = userId ? userId : user._id;
     return models.ScheduleConfigOrder.findOne({ userId: getUserId });
   },
@@ -259,14 +259,14 @@ const timeclockQueries = {
       'absence',
       user,
     );
-    const totalCount = models.Absences.count(selector);
+    const totalCount = await models.Absences.countDocuments(selector);
 
     // if there's no common user, return empty list
     if (!commonUserFound) {
       return { list: [], totalCount: 0 };
     }
 
-    const list = paginate(models.Absences.find(selector), {
+    const list = await paginate(models.Absences.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page,
     }).sort({ startTime: -1 });
@@ -274,23 +274,23 @@ const timeclockQueries = {
     return { list, totalCount };
   },
 
-  payDates(_root, {}, { models }: IContext) {
+  async payDates(_root, {}, { models }: IContext) {
     return models.PayDates.find();
   },
 
-  timeclockDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async timeclockDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Timeclocks.findOne({ _id });
   },
 
-  absenceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async absenceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Absences.findOne({ _id });
   },
 
-  scheduleDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async scheduleDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Schedules.findOne({ _id });
   },
 
-  checkedReportsPerUser(_root, doc, { models, user }: IContext) {
+  async checkedReportsPerUser(_root, doc, { models, user }: IContext) {
     const userId = doc.userId || user._id;
     return models.ReportChecks.find({ userId });
   },

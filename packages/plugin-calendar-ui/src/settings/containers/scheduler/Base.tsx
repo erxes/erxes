@@ -19,7 +19,6 @@ import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/inte
 type Props = {
   queryParams: { accountId?: string };
   currentUser?: IUser;
-  history: any;
 };
 
 type FinalProps = {
@@ -32,7 +31,6 @@ class BaseContainer extends React.Component<FinalProps> {
     const {
       fetchPagesQuery,
       queryParams,
-      history,
       calendarsQuery,
       removeMutation
     } = this.props;
@@ -74,7 +72,6 @@ class BaseContainer extends React.Component<FinalProps> {
       calendars: (calendarsQuery && calendarsQuery.calendars) || [],
       pages,
       queryParams,
-      history,
       remove
     };
 

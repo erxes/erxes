@@ -12,10 +12,12 @@ import Appearance from '../components/Appearance';
 import boardQueries from '@erxes/ui-cards/src/settings/boards/graphql/queries';
 import client from '@erxes/ui/src/apolloClient';
 import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   exm: IExm;
   edit: (variables: IExm) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function AppearanceContainer(props: Props) {
@@ -24,19 +26,19 @@ export default function AppearanceContainer(props: Props) {
   const [pipelines, setPipelines] = useState<IPipeline[]>([] as IPipeline[]);
 
   const kbQuery = useQuery(gql(queries.knowledgeBaseTopics), {
-    skip: !isEnabled('knowledgebase')
+    skip: !isEnabled('knowledgebase'),
   });
 
   const boardsQuery = useQuery(gql(boardQueries.boards), {
     variables: { type: 'ticket' },
-    skip: !isEnabled('cards')
+    skip: !isEnabled('cards'),
   });
 
   const fetchPipelines = (boardId: string) => {
     client
       .query({
         query: gql(boardQueries.pipelines),
-        variables: { boardId, type: 'ticket' }
+        variables: { boardId, type: 'ticket' },
       })
       .then(({ data = {} }) => {
         setPipelines(data.pipelines || []);

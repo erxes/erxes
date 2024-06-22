@@ -1,52 +1,49 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import queryString from 'query-string';
+import React from "react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import queryString from "query-string";
 
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { Authorization } from './containers/Authorization';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { Authorization } from "./containers/Authorization";
 
 const CreateInstagram = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings CreateInstagram" */ './containers/Form'
+      /* webpackChunkName: "Settings CreateInstagram" */ "./containers/Form"
     )
 );
 
-const createInstagram = ({ location, history }) => {
+const CreateInstagramComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const queryParams = queryString.parse(location.search);
 
   const callBack = () => {
-    history.push('/settings/integrations/');
+    navigate("/settings/integrations/");
   };
 
-  return (
-    <CreateInstagram
-      callBack={callBack}
-      kind={queryParams.kind}
-    />
-  );
+  return <CreateInstagram callBack={callBack} kind={queryParams.kind} />;
 };
 
-const auth = ({ location }) => (
-  <Authorization queryParams={queryString.parse(location.search)} />
-);
+const Auth = () => {
+  const location = useLocation();
+  return <Authorization queryParams={queryString.parse(location.search)} />;
+};
 
 const routes = () => (
-  <React.Fragment>
+  <Routes>
     <Route
-      key='/settings/integrations/createInstagram'
-      exact={true}
-      path='/settings/integrations/createInstagram'
-      component={createInstagram}
+      key="/settings/integrations/createInstagram"
+      path="/settings/integrations/createInstagram"
+      element={<CreateInstagramComponent />}
     />
 
     <Route
-      key='/settings/ig-authorization'
-      exact={true}
-      path='/settings/ig-authorization'
-      component={auth}
+      key="/settings/ig-authorization"
+      path="/settings/ig-authorization"
+      element={<Auth />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;

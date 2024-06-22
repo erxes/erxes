@@ -9,120 +9,115 @@ import {
   ModalTrigger,
   Sidebar,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src';
-import { __ } from 'coreui/utils';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Action, Name } from '../../contracts/styles';
-import React from 'react';
+  SidebarList,
+} from "@erxes/ui/src";
+import { __ } from "coreui/utils";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { Action, Name } from "../../contracts/styles";
+import React from "react";
 
-import { Description } from '../../contracts/styles';
-import ContractTypeForm from '../containers/ContractTypeForm';
-import { IContractTypeDetail } from '../types';
+import { Description } from "../../contracts/styles";
+import ContractTypeForm from "../containers/ContractTypeForm";
+import { IContractTypeDetail } from "../types";
 
 type Props = {
   contractType: IContractTypeDetail;
   remove?: () => void;
 };
 
-class DetailInfo extends React.Component<Props> {
-  renderRow = (label, value) => {
+const DetailInfo = (props: Props) => {
+  const renderRow = (label, value) => {
     return (
       <li>
         <FieldStyle>{__(`${label}`)}</FieldStyle>
-        <SidebarCounter>{value || '-'}</SidebarCounter>
+        <SidebarCounter>{value || "-"}</SidebarCounter>
       </li>
     );
   };
 
-  renderAction() {
-    const { remove } = this.props;
+  const renderAction = () => {
+    const { remove } = props;
 
     const onDelete = () =>
       confirm()
-        .then(() => remove())
-        .catch(error => {
+        .then(() => remove && remove())
+        .catch((error) => {
           Alert.error(error.message);
         });
 
     return (
       <Action>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <Button btnStyle="simple" size="medium">
-              {__('Action')}
+              {__("Action")}
               <Icon icon="angle-down" />
             </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a href="#delete" onClick={onDelete}>
-                {__('Delete')}
-              </a>
-            </li>
-          </Dropdown.Menu>
+          }
+        >
+          <li>
+            <a href="#delete" onClick={onDelete}>
+              {__("Delete")}
+            </a>
+          </li>
         </Dropdown>
       </Action>
     );
-  }
+  };
 
-  render() {
-    const { contractType } = this.props;
-    const { Section } = Sidebar;
+  const { contractType } = props;
+  const { Section } = Sidebar;
 
-    const content = props => (
-      <ContractTypeForm {...props} contractType={contractType} />
-    );
+  const content = (props) => (
+    <ContractTypeForm {...props} contractType={contractType} />
+  );
 
-    return (
-      <Sidebar wide={true}>
-        <Sidebar.Section>
-          <InfoWrapper>
-            <Name>{contractType.name}</Name>
-            <ModalTrigger
-              title={__('Edit basic info')}
-              trigger={<Icon icon="edit" />}
-              size="lg"
-              content={content}
+  return (
+    <Sidebar wide={true}>
+      <Sidebar.Section>
+        <InfoWrapper>
+          <Name>{contractType.name}</Name>
+          <ModalTrigger
+            title={__("Edit basic info")}
+            trigger={<Icon icon="edit" />}
+            size="lg"
+            content={content}
+          />
+        </InfoWrapper>
+
+        {renderAction()}
+
+        <Section>
+          <SidebarList className="no-link">
+            {renderRow("Code", contractType.code)}
+            {renderRow("Name", contractType.name || "")}
+            {renderRow("Start Number", contractType.number || "")}
+            {renderRow(
+              "After vacancy count",
+              (contractType.vacancy || 0).toLocaleString()
+            )}
+
+            {renderRow("Interest calc type", contractType.interestCalcType)}
+            {renderRow(
+              "Store interest interval",
+              contractType.storeInterestInterval
+            )}
+            {renderRow("Is allow income", contractType.isAllowIncome)}
+            {renderRow("Is allow outcome", contractType.isAllowOutcome)}
+            <li>
+              <FieldStyle>{__(`Description`)}</FieldStyle>
+            </li>
+            <Description
+              dangerouslySetInnerHTML={{
+                __html: contractType.description,
+              }}
             />
-          </InfoWrapper>
-
-          {this.renderAction()}
-
-          <Section>
-            <SidebarList className="no-link">
-              {this.renderRow('Code', contractType.code)}
-              {this.renderRow('Name', contractType.name || '')}
-              {this.renderRow('Start Number', contractType.number || '')}
-              {this.renderRow(
-                'After vacancy count',
-                (contractType.vacancy || 0).toLocaleString()
-              )}
-
-              {this.renderRow(
-                'Interest calc type',
-                contractType.interestCalcType
-              )}
-              {this.renderRow(
-                'Store interest interval',
-                contractType.storeInterestInterval
-              )}
-              {this.renderRow('Is allow income', contractType.isAllowIncome)}
-              {this.renderRow('Is allow outcome', contractType.isAllowOutcome)}
-              <li>
-                <FieldStyle>{__(`Description`)}</FieldStyle>
-              </li>
-              <Description
-                dangerouslySetInnerHTML={{
-                  __html: contractType.description
-                }}
-              />
-            </SidebarList>
-          </Section>
-        </Sidebar.Section>
-      </Sidebar>
-    );
-  }
-}
+          </SidebarList>
+        </Section>
+      </Sidebar.Section>
+    </Sidebar>
+  );
+};
 
 export default DetailInfo;

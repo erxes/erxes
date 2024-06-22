@@ -1,6 +1,6 @@
 import { keyframes } from 'styled-components';
 
-const rotate = keyframes`
+const rotate: any = keyframes`
 	from {
 		transform: rotate(0deg);
 	}
@@ -10,7 +10,7 @@ const rotate = keyframes`
 	}
 `;
 
-const wave = keyframes`
+const wave: any = keyframes`
   0%{
     transform:translateY(0px)
   }
@@ -22,7 +22,7 @@ const wave = keyframes`
   }
 `;
 
-const fadeIn = keyframes`
+const fadeIn: any = keyframes`
   0% {
     opacity: 0;
 	}
@@ -32,7 +32,7 @@ const fadeIn = keyframes`
   }
 `;
 
-const slideDown = keyframes`
+const slideDown: any = keyframes`
   0% {
     transform: translateY(-20px);
     opacity: 0.7;
@@ -44,7 +44,7 @@ const slideDown = keyframes`
   }
 `;
 
-const slideRight = keyframes`
+const slideRight: any = keyframes`
   0% {
     transform: translateX(20px);
     opacity: 0.7;
@@ -55,7 +55,7 @@ const slideRight = keyframes`
   }
 `;
 
-const slideLeft = keyframes`
+const slideLeft: any = keyframes`
   0% {
     transform: translateX(-20px);
     opacity: 0.7;
@@ -66,7 +66,7 @@ const slideLeft = keyframes`
   }
 `;
 
-const shake = keyframes`
+const shake: any = keyframes`
   0%{transform:rotate(-10deg)}
   28%{transform:rotate(10deg)}
   10%{transform:rotate(20deg)}
@@ -75,7 +75,7 @@ const shake = keyframes`
   30%,100%{transform:rotate(0deg)}
 `;
 
-const twinkling = keyframes`
+const twinkling: any = keyframes`
   from {
     background-position:0 0;
   }
@@ -85,7 +85,7 @@ const twinkling = keyframes`
   }
 `;
 
-const stripe = keyframes`
+const stripe: any = keyframes`
   from {
     background-position: 16px 0;
   }
@@ -94,14 +94,14 @@ const stripe = keyframes`
   }
 `;
 
-const highlight = keyframes`
+const highlight: any = keyframes`
   0% { box-shadow: 0 0 -5px 0 #63D2D6; }
   40% { box-shadow: 0 0 10px 0 #63D2D6; }
   60% { box-shadow: 0 0 10px 0 #63D2D6; }
   100% { box-shadow: 0 0 -5px 0 #63D2D6; }
 `;
 
-const robotAnimation = keyframes`
+const robotAnimation: any = keyframes`
   from {
     opacity: 0;
     -webkit-transform: scale(0.1) rotate(30deg);
@@ -127,7 +127,7 @@ const robotAnimation = keyframes`
   }
 }`;
 
-const pop = keyframes`
+const pop: any = keyframes`
   from {
     opacity: 0;
     transform: scale(0.5);
@@ -140,7 +140,7 @@ const pop = keyframes`
   }
 }`;
 
-const animationPulse = keyframes`
+const animationPulse: any = keyframes`
   0% {
     box-shadow: 0 0 0 0px rgba(60, 205, 56, 0.3);
   }

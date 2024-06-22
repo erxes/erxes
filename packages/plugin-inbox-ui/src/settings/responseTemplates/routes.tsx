@@ -1,18 +1,31 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Settings" */ './containers/List')
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "List - Settings" */ "./containers/List")
 );
 
-const responseTemplates = ({ location }) => {
-  return <List queryParams={queryString.parse(location.search)} />;
+const ResponseTemplates = () => {
+  const location = useLocation();
+
+  return (
+    <List
+      queryParams={queryString.parse(location.search)}
+      location={location}
+    />
+  );
 };
 
 const routes = () => (
-  <Route path='/settings/response-templates/' component={responseTemplates} />
+  <Routes>
+    <Route
+      path="/settings/response-templates/"
+      element={<ResponseTemplates />}
+    />
+  </Routes>
 );
 
 export default routes;

@@ -93,7 +93,7 @@ class PluginBox extends React.Component<Props, {}> {
                   alt={plugin.title}
                 />
               </div>
-              {this.renderPrice(plugin.prices)}
+              {this.renderPrice(plugin.price)}
             </PluginBoxHeader>
             <h5>{__(plugin.title)}</h5>
             <div

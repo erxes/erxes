@@ -1,10 +1,15 @@
-import React from 'react';
-import Alert from '@erxes/ui/src/utils/Alert';
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Alert from "@erxes/ui/src/utils/Alert";
 
 type Props = {
   when: boolean;
-  children: any;
-  history: any;
+  children: (
+    showModal: boolean,
+    onConfirm: () => void,
+    onCancel: () => void
+  ) => React.ReactNode;
   queryParams: any;
   id: string;
   name: string;
@@ -15,90 +20,68 @@ type Props = {
   ) => void;
 };
 
-type State = { nextLocation; showModal: boolean; isConfirm: boolean };
+const Confirmation: React.FC<Props> = ({
+  when,
+  children,
+  queryParams,
+  id,
+  name,
+  save,
+  removeAutomations,
+}) => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-class Confirmation extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+  const [nextLocation, setNextLocation] = useState<any>({});
+  const [showModal, setShowModal] = useState(false);
+  const [isConfirm, setIsConfirm] = useState(false);
 
-    this.state = {
-      nextLocation: {},
-      showModal: false,
-      isConfirm: false
-    };
-  }
-
-  componentDidUpdate() {
-    const { history, when } = this.props;
-
-    this.blockRoute = history.block(nextLocation => {
-      if (when && nextLocation.pathname !== history.location.pathname) {
-        this.setState({
-          showModal: true,
-          nextLocation
-        });
+  useEffect(() => {
+    const unblock = () => {
+      if (when && nextLocation.pathname !== location.pathname) {
+        setShowModal(true);
+        setNextLocation(nextLocation);
+        return false; // Guard against navigation
       }
+      return true; // Allow navigation
+    };
 
-      return !when;
-    });
-  }
+    return () => {
+      unblock();
+    };
+  }, [when, location, nextLocation]);
 
-  componentWillUnmount() {
-    this.blockRoute();
-  }
-
-  onCancel = () => {
-    const { removeAutomations, queryParams, id } = this.props;
-
+  const onCancel = () => {
     if (queryParams.isCreate) {
-      return removeAutomations(
-        { automationIds: [id] },
-        this.navigateToNextLocation
-      );
+      removeAutomations({ automationIds: [id] }, navigateToNextLocation);
+    } else {
+      navigateToNextLocation();
     }
-
-    return this.navigateToNextLocation();
   };
 
-  onConfirm = () => {
-    const { name } = this.props;
-
-    if (!name || name === 'Your automation title') {
-      Alert.error('Enter an Automation title');
-
-      return this.setState({ showModal: false });
+  const onConfirm = () => {
+    if (!name || name === "Your automation title") {
+      Alert.error("Enter an Automation title");
+      return setShowModal(false);
+    } else {
+      setIsConfirm(true);
+      return navigateToNextLocation();
     }
-
-    this.setState({ isConfirm: true }, () => {
-      return this.navigateToNextLocation();
-    });
   };
 
-  navigateToNextLocation = () => {
-    const { save, history, queryParams, name } = this.props;
-
-    if (queryParams.isCreate && this.state.isConfirm && name) {
+  const navigateToNextLocation = () => {
+    if (queryParams.isCreate && isConfirm && name) {
       save();
     }
 
-    if (!queryParams.isCreate && this.state.isConfirm) {
+    if (!queryParams.isCreate && isConfirm) {
       save();
     }
 
-    this.blockRoute();
-
-    history.push(this.state.nextLocation.pathname);
+    navigate(nextLocation.pathname);
   };
 
-  blockRoute = () => null;
-
-  render() {
-    return this.props.children(
-      this.state.showModal,
-      this.onConfirm,
-      this.onCancel
-    );
-  }
-}
+  return children(showModal, onConfirm, onCancel);
+};
 
 export default Confirmation;

@@ -1,17 +1,16 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   EmptyState,
   Icon,
   ModalTrigger,
   SectionBodyItem,
-  SidebarList
-} from '@erxes/ui/src';
-import _loadash from 'lodash';
-import { IMeeting } from '../../types';
-import Form from '../../containers/myCalendar/meeting/Form';
-import dayjs from 'dayjs';
-import { useHistory } from 'react-router-dom';
+  SidebarList,
+} from "@erxes/ui/src";
+import _loadash from "lodash";
+import { IMeeting } from "../../types";
+import Form from "../../containers/myCalendar/meeting/Form";
+import dayjs from "dayjs";
 
 type Props = {
   meetings: IMeeting[];
@@ -19,12 +18,10 @@ type Props = {
 };
 
 const meetingDealList = (props: Props) => {
-  const history = useHistory();
-
-  const ListItem = meeting => {
+  const ListItem = (meeting) => {
     const startTime =
-      meeting.startDate && dayjs(meeting.startDate).format('HH:mm');
-    const endTime = meeting.endDate && dayjs(meeting.endDate).format('HH:mm');
+      meeting.startDate && dayjs(meeting.startDate).format("HH:mm");
+    const endTime = meeting.endDate && dayjs(meeting.endDate).format("HH:mm");
 
     const link = `/meetings/myCalendar?meetingId=` + meeting._id;
 
@@ -32,12 +29,12 @@ const meetingDealList = (props: Props) => {
       <a href={link}>
         <div
           style={{
-            margin: '4px'
+            margin: "4px",
           }}
         >
           <h5 style={{ margin: 0 }}>
             {meeting.title}
-            {'    '}
+            {"    "}
             {startTime && endTime && (
               <span>
                 {startTime} - {endTime}
@@ -58,7 +55,7 @@ const meetingDealList = (props: Props) => {
 
     return (
       <SidebarList noTextColor noBackground id="SideBar">
-        {meetings.map(meeting => (
+        {meetings.map((meeting) => (
           <SectionBodyItem key={meeting._id}>
             {ListItem(meeting)}
           </SectionBodyItem>
@@ -72,17 +69,17 @@ const meetingDealList = (props: Props) => {
 
     const trigger = (
       <button>
-        <Icon icon={'plus-circle'} />
+        <Icon icon={"plus-circle"} />
       </button>
     );
 
     const updatedProps = {
       meetings,
-      refetch: ['meetings'],
-      dealId
+      refetch: ["meetings"],
+      dealId,
     };
 
-    const content = props => <Form {...props} {...updatedProps} />;
+    const content = (props) => <Form {...props} {...updatedProps} />;
 
     return (
       <ModalTrigger

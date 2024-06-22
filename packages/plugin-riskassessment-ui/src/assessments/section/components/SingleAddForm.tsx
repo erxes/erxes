@@ -3,16 +3,17 @@ import {
   FormGroup,
   SelectTeamMembers,
   Toggle,
-  __
-} from '@erxes/ui/src';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import React from 'react';
-import { SelectOperations } from '../../../common/utils';
-import { FormContainer } from '../../../styles';
-import { RiskAssessmentTypes } from '../../common/types';
-import BulkAddForm from '../containers/BulkAddForm';
-import Chooser from './Chooser';
+  __,
+} from "@erxes/ui/src";
+
+import BulkAddForm from "../containers/BulkAddForm";
+import Chooser from "./Chooser";
+import { FormContainer } from "../../../styles";
+import React from "react";
+import { RiskAssessmentTypes } from "../../common/types";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { SelectOperations } from "../../../common/utils";
 
 type Props = {
   riskAssessment: RiskAssessmentTypes;
@@ -40,12 +41,12 @@ class Form extends React.Component<Props, State> {
     this.state = {
       perPage: 10,
       page: 1,
-      branchId: riskAssessment?.branchId || '',
-      departmentId: riskAssessment?.departmentId || '',
-      operationId: riskAssessment?.operationId || '',
+      branchId: riskAssessment?.branchId || "",
+      departmentId: riskAssessment?.departmentId || "",
+      operationId: riskAssessment?.operationId || "",
       permittedUserIds: riskAssessment?.permittedUserIds || [],
       useBulkCreate: false,
-      usePrivateRA: riskAssessment?.permittedUserIds?.length || false
+      usePrivateRA: riskAssessment?.permittedUserIds?.length || false,
     };
   }
 
@@ -57,11 +58,11 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <FormContainer row gap flex>
+        <FormContainer $row $gap $flex>
           <FormGroup>
-            <ControlLabel>{__('Branch')}</ControlLabel>
+            <ControlLabel>{__("Branch")}</ControlLabel>
             <SelectBranches
-              name={'branchId'}
+              name={"branchId"}
               label={`Select Branch`}
               initialValue={branchId}
               onSelect={handleSelect}
@@ -69,9 +70,9 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Department')}</ControlLabel>
+            <ControlLabel>{__("Department")}</ControlLabel>
             <SelectDepartments
-              name={'departmentId'}
+              name={"departmentId"}
               label={`Select Department`}
               initialValue={departmentId}
               onSelect={handleSelect}
@@ -79,9 +80,9 @@ class Form extends React.Component<Props, State> {
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Operation')}</ControlLabel>
+            <ControlLabel>{__("Operation")}</ControlLabel>
             <SelectOperations
-              name={'operationId'}
+              name={"operationId"}
               label={`Select Operation`}
               initialValue={operationId}
               multi={false}
@@ -95,14 +96,10 @@ class Form extends React.Component<Props, State> {
 
   renderSingleAssessment() {
     const { riskAssessment, cardId, cardType, closeModal } = this.props;
-    const {
-      branchId,
-      departmentId,
-      operationId,
-      permittedUserIds
-    } = this.state;
+    const { branchId, departmentId, operationId, permittedUserIds } =
+      this.state;
 
-    const handleSelect = props => {
+    const handleSelect = (props) => {
       this.props.handleSelect({
         ...props,
         branchId,
@@ -110,7 +107,7 @@ class Form extends React.Component<Props, State> {
         operationId,
         permittedUserIds: !!permittedUserIds?.length
           ? permittedUserIds
-          : undefined
+          : undefined,
       });
     };
 
@@ -121,7 +118,7 @@ class Form extends React.Component<Props, State> {
       closeModal,
       refetchQueries: () => [],
       handleSelect,
-      filters: { branchId, departmentId, operationId }
+      filters: { branchId, departmentId, operationId },
     };
 
     return (
@@ -138,7 +135,7 @@ class Form extends React.Component<Props, State> {
     const updatedProps = {
       closeModal,
       cardId,
-      cardType
+      cardType,
     };
     return <BulkAddForm {...updatedProps} />;
   }
@@ -149,31 +146,31 @@ class Form extends React.Component<Props, State> {
     const toggleOneByOne = () => {
       if (!useBulkCreate) {
         this.setState({
-          branchId: '',
-          departmentId: '',
-          operationId: ''
+          branchId: "",
+          departmentId: "",
+          operationId: "",
         });
       }
 
       this.setState({ useBulkCreate: !useBulkCreate });
     };
 
-    const handleSelectUsers = ids => {
+    const handleSelectUsers = (ids) => {
       this.setState({ permittedUserIds: ids });
     };
 
     return (
-      <FormContainer column gap>
-        <FormContainer row gap align="center">
+      <FormContainer $column $gap>
+        <FormContainer $row $gap align="center">
           <Toggle onChange={toggleOneByOne} checked={useBulkCreate} />
           <ControlLabel>
-            {__('generate one-by-one assessment with selected structures')}
+            {__("generate one-by-one assessment with selected structures")}
           </ControlLabel>
           <Toggle
             onChange={() => this.setState({ usePrivateRA: !usePrivateRA })}
             checked={usePrivateRA}
           />
-          <ControlLabel>{__('Use private risk assessment')}</ControlLabel>
+          <ControlLabel>{__("Use private risk assessment")}</ControlLabel>
         </FormContainer>
 
         {usePrivateRA && (

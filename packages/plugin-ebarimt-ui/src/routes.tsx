@@ -1,7 +1,8 @@
 import queryString from 'query-string';
 import Settings from './containers/Settings';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
@@ -52,58 +53,61 @@ const ReturnStageSetting = () => {
   );
 };
 
-const PutResponsesComponent = ({ location, history }) => {
+const PutResponsesComponent = () => {
+  const location = useLocation();
+  
   return (
     <PutResponses
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const PutResponsesByDateComponent = ({ location, history }) => {
+const PutResponsesByDateComponent = () => {
+  const location = useLocation();
+  
   return (
     <PutResponsesByDate
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const PutResponsesDuplicatedComponent = ({ location, history }) => {
+const PutResponsesDuplicatedComponent = () => {
+  const location = useLocation();
+  
   return (
     <PutResponsesDuplicated
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         path="/erxes-plugin-ebarimt/settings/general"
-        component={GeneralSetting}
+        element={<GeneralSetting/>}
       />
       <Route
         path="/erxes-plugin-ebarimt/settings/stage"
-        component={StageSetting}
+        element={<StageSetting/>}
       />
       <Route
         path="/erxes-plugin-ebarimt/settings/return-stage"
-        component={ReturnStageSetting}
+        element={<ReturnStageSetting/>}
       />
-      <Route path="/put-responses" component={PutResponsesComponent} />
+      <Route path="/put-responses" element={<PutResponsesComponent/>} />
       <Route
         path="/put-responses-by-date"
-        component={PutResponsesByDateComponent}
+        element={<PutResponsesByDateComponent/>}
       />
       <Route
         path="/put-responses-duplicated"
-        component={PutResponsesDuplicatedComponent}
+        element={<PutResponsesDuplicatedComponent/>}
       />
-    </React.Fragment>
+    </Routes>
   );
   // response: returnResponse
 };

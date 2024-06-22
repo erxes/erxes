@@ -1,11 +1,12 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { IModels } from './connectionResolver';
 import {
   sendCardsMessage,
   sendCoreMessage,
   sendFormsMessage,
   sendTagsMessage,
 } from './messageBroker';
+
+import { IModels } from './connectionResolver';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const validRiskIndicators = async (models: IModels, params) => {
   if (isEnabled('tags') && !params?.tagIds?.length) {

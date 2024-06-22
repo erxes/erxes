@@ -1,19 +1,19 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import Label from '@erxes/ui/src/components/Label';
-import Table from '@erxes/ui/src/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_SEGMENT_CONTENT } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ISegment } from '@erxes/ui-segments/src/types';
-import Sidebar from './Sidebar';
-import Icon from '@erxes/ui/src/components/Icon';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { EMPTY_SEGMENT_CONTENT } from "@erxes/ui-settings/src/constants";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import { ISegment } from "@erxes/ui-segments/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import { Link } from "react-router-dom";
+import React from "react";
+import Sidebar from "./Sidebar";
+import Table from "@erxes/ui/src/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   contentType?: string;
@@ -32,7 +32,7 @@ class SegmentsList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      expandedParentIds: []
+      expandedParentIds: [],
     };
   }
 
@@ -45,14 +45,14 @@ class SegmentsList extends React.Component<Props, State> {
 
     return (
       <ActionButtons>
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Link
             to={`/segments/edit?contentType=${contentType}&id=${segment._id}`}
           >
             <Button btnStyle="link" icon="edit-3" />
           </Link>
         </Tip>
-        <Tip text={__('Delete')} placement="top">
+        <Tip text={__("Delete")} placement="top">
           <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </ActionButtons>
@@ -62,12 +62,12 @@ class SegmentsList extends React.Component<Props, State> {
   renderTree(segments) {
     const { expandedParentIds = [] } = this.state;
 
-    const handleExpand = parentId => {
+    const handleExpand = (parentId) => {
       if (expandedParentIds.includes(parentId)) {
         return this.setState({
           expandedParentIds: expandedParentIds.filter(
-            expandedParentId => expandedParentId !== parentId
-          )
+            (expandedParentId) => expandedParentId !== parentId
+          ),
         });
       }
 
@@ -76,22 +76,22 @@ class SegmentsList extends React.Component<Props, State> {
 
     return (
       <>
-        {segments.map(segment => (
-          <>
+        {segments.map((segment) => (
+          <React.Fragment key={segment._id}>
             <tr key={segment._id}>
               <td>
                 {!segment.subOf && !!segment?.getSubSegments?.length && (
                   <Icon
                     onClick={handleExpand.bind(this, segment._id)}
                     icon={
-                      expandedParentIds.includes(segment?._id || '')
-                        ? 'downarrow-2'
-                        : 'chevron'
+                      expandedParentIds.includes(segment?._id || "")
+                        ? "downarrow-2"
+                        : "chevron"
                     }
                     size={8}
                   />
                 )}
-                {segment.subOf ? '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0' : null}{' '}
+                {segment.subOf ? "\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0" : null}{" "}
                 {segment.name}
               </td>
               <td>{segment.description}</td>
@@ -102,7 +102,7 @@ class SegmentsList extends React.Component<Props, State> {
             </tr>
             {expandedParentIds.includes(segment._id) &&
               this.renderTree(segment.getSubSegments || [])}
-          </>
+          </React.Fragment>
         ))}
       </>
     );
@@ -113,13 +113,13 @@ class SegmentsList extends React.Component<Props, State> {
       <Table>
         <thead>
           <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Color')}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Description")}</th>
+            <th>{__("Color")}</th>
             <th style={{ width: 80 }} />
           </tr>
         </thead>
-        <tbody id={'SegmentShowing'}>{this.renderTree(segments)}</tbody>
+        <tbody id={"SegmentShowing"}>{this.renderTree(segments)}</tbody>
       </Table>
     );
   }
@@ -128,26 +128,26 @@ class SegmentsList extends React.Component<Props, State> {
     const { types, contentType, loading, segments } = this.props;
     const parentSegments: ISegment[] = [];
 
-    segments.forEach(segment => {
+    segments.forEach((segment) => {
       if (!segment.subOf) {
         parentSegments.push(segment);
       }
     });
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Segments') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Segments") },
     ];
 
     const title = (
-      <Title capitalize={true}>
-        {contentType} {__('segments')}
+      <Title $capitalize={true}>
+        {contentType} {__("segments")}
       </Title>
     );
 
     const actionBarRight = (
       <Link
-        id={'NewSegmentButton'}
+        id={"NewSegmentButton"}
         to={`/segments/new?contentType=${contentType}`}
       >
         <Button btnStyle="success" icon="plus-circle">
@@ -163,7 +163,7 @@ class SegmentsList extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Segments')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("Segments")} breadcrumb={breadcrumb} />
         }
         actionBar={actionBar}
         content={
@@ -179,7 +179,7 @@ class SegmentsList extends React.Component<Props, State> {
             }
           />
         }
-        leftSidebar={<Sidebar types={types} contentType={contentType || ''} />}
+        leftSidebar={<Sidebar types={types} contentType={contentType || ""} />}
         hasBorder
       />
     );

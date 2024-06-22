@@ -1,36 +1,34 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
 import {
   ResolveAllMutationResponse,
-  ResolveAllMutationVariables
-} from '@erxes/ui-inbox/src/inbox/types';
+  ResolveAllMutationVariables,
+} from "@erxes/ui-inbox/src/inbox/types";
 import {
   getConfig,
   refetchSidebarConversationsOptions,
-  setConfig
-} from '@erxes/ui-inbox/src/inbox/utils';
-import { mutations, queries } from '@erxes/ui-inbox/src/inbox/graphql';
+  setConfig,
+} from "@erxes/ui-inbox/src/inbox/utils";
+import { mutations, queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
-import { AppConsumer } from 'coreui/appContext';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import DumbSidebar from '../../components/leftSidebar/Sidebar';
-import { IBulkContentProps } from '@erxes/ui/src/components/Bulk';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { InboxManagementActionConsumer } from '../InboxCore';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
+import { AppConsumer } from "coreui/appContext";
+import Bulk from "@erxes/ui/src/components/Bulk";
+import DumbSidebar from "../../components/leftSidebar/Sidebar";
+import { IBulkContentProps } from "@erxes/ui/src/components/Bulk";
+import { InboxManagementActionConsumer } from "../InboxCore";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
   currentConversationId?: string;
-} & IRouterProps;
+};
 
 type FinalProps = Props & ResolveAllMutationResponse;
 
-const STORAGE_KEY = 'erxes_additional_sidebar_config';
+const STORAGE_KEY = "erxes_additional_sidebar_config";
 
 class Sidebar extends React.Component<FinalProps> {
   toggle = ({ isOpen }: { isOpen: boolean }) => {
@@ -42,8 +40,8 @@ class Sidebar extends React.Component<FinalProps> {
   };
 
   // resolve all conversation
-  resolveAll = notifyHandler => () => {
-    const message = 'Are you sure you want to resolve all conversations?';
+  resolveAll = (notifyHandler) => () => {
+    const message = "Are you sure you want to resolve all conversations?";
 
     confirm(message).then(() => {
       this.props
@@ -53,9 +51,9 @@ class Sidebar extends React.Component<FinalProps> {
             notifyHandler();
           }
 
-          Alert.success('The conversation has been resolved!');
+          Alert.success("The conversation has been resolved!");
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -69,11 +67,11 @@ class Sidebar extends React.Component<FinalProps> {
         showBrands: false,
         showIntegrations: false,
         showTags: false,
-        showSegments: false
+        showSegments: false,
       });
     }
 
-    const { currentConversationId, queryParams, history } = this.props;
+    const { currentConversationId, queryParams } = this.props;
     const content = ({ bulk, toggleBulk, emptyBulk }: IBulkContentProps) => {
       return (
         <AppConsumer>
@@ -84,7 +82,6 @@ class Sidebar extends React.Component<FinalProps> {
                   currentUser={currentUser}
                   currentConversationId={currentConversationId}
                   queryParams={queryParams}
-                  history={history}
                   bulk={bulk}
                   emptyBulk={emptyBulk}
                   toggleBulk={toggleBulk}
@@ -105,16 +102,14 @@ class Sidebar extends React.Component<FinalProps> {
   }
 }
 
-export default withRouter<Props>(
-  withProps<Props>(
-    compose(
-      graphql<Props, ResolveAllMutationResponse, ResolveAllMutationVariables>(
-        gql(mutations.resolveAll),
-        {
-          name: 'resolveAllMutation',
-          options: () => refetchSidebarConversationsOptions()
-        }
-      )
-    )(Sidebar)
-  )
+export default withProps<Props>(
+  compose(
+    graphql<Props, ResolveAllMutationResponse, ResolveAllMutationVariables>(
+      gql(mutations.resolveAll),
+      {
+        name: "resolveAllMutation",
+        options: () => refetchSidebarConversationsOptions(),
+      }
+    )
+  )(Sidebar)
 );

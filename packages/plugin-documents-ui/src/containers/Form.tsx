@@ -15,7 +15,6 @@ type Props = {
 type FinalProps = {
   detailQuery?;
   saveMutation;
-  history;
   getTypesQuery;
 } & Props;
 class Container extends React.Component<FinalProps> {

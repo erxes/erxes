@@ -7,12 +7,11 @@ import { mutations, queries } from "../graphql";
 import { BrandRemoveMutationResponse } from "../types";
 import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { IRouterProps } from "@erxes/ui/src/types";
 import { MutationVariables } from "@erxes/ui/src/types";
 import React from "react";
 import Sidebar from "../components/Sidebar";
 import { gql } from "@apollo/client";
-import { withRouter } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -23,11 +22,11 @@ type Props = {
 type FinalProps = {
   brandsQuery: BrandsQueryResponse;
 } & Props &
-  IRouterProps &
   BrandRemoveMutationResponse;
 
 const SidebarContainer = (props: ChildProps<FinalProps>) => {
-  const { brandsQuery, removeMutation, renderButton, history } = props;
+  const { brandsQuery, removeMutation, renderButton } = props;
+  const navigate = useNavigate();
 
   const brands = brandsQuery.brands || [];
 
@@ -41,7 +40,7 @@ const SidebarContainer = (props: ChildProps<FinalProps>) => {
       })
         .then(() => {
           Alert.success("You successfully deleted a brand.");
-          history.push("/settings/brands");
+          navigate("/settings/brands");
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -106,5 +105,5 @@ export default withProps<Props>(
         }),
       }
     )
-  )(withRouter<FinalProps>(SidebarContainer))
+  )(SidebarContainer)
 );

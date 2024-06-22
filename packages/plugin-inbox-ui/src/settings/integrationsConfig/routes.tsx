@@ -1,15 +1,22 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from "react-router-dom";
 
-const IntegrationsConfig = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "IntegrationConfigs - Settings" */ './containers/IntegrationConfigs'
-  )
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+
+const IntegrationsConfig = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "IntegrationConfigs - Settings" */ "./containers/IntegrationConfigs"
+    )
 );
 
 const routes = () => (
-  <Route path="/settings/integrations-config/" component={IntegrationsConfig} />
+  <Routes>
+    <Route
+      path="/settings/integrations-config/"
+      element={<IntegrationsConfig />}
+    />
+  </Routes>
 );
 
 export default routes;

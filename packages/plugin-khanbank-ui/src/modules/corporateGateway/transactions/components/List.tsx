@@ -1,35 +1,36 @@
-import { CustomRangeContainer } from '@erxes/ui-forms/src/forms/styles';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { BarItems, HeaderContent } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import dayjs from 'dayjs';
-import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { IKhanbankStatement } from '../types';
-import Row from './Row';
+import { BarItems, HeaderContent } from "@erxes/ui/src/layout/styles";
+import React, { useState } from "react";
+
+import { CustomRangeContainer } from "@erxes/ui-forms/src/forms/styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IKhanbankStatement } from "../types";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Row from "./Row";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   statement: IKhanbankStatement;
   queryParams: any;
-  history?: any;
   loading: boolean;
   showLatest?: boolean;
   // onChangeDate: (date: string, type: 'startDate' | 'endDate') => void;
   refetch?: () => void;
-} & IRouterProps;
+};
 
 const List = (props: Props) => {
-  const { queryParams, loading, statement, history } = props;
+  const { queryParams, loading, statement } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const [type, setType] = useState(queryParams.type || 'all');
+  const [type, setType] = useState(queryParams.type || "all");
   const [transactions, setTransactions] = useState(
     (statement && statement.transactions) || []
   );
@@ -39,15 +40,17 @@ const List = (props: Props) => {
 
   React.useEffect(() => {
     switch (type) {
-      case 'income':
+      case "income":
         const incomes =
-          (statement && statement.transactions.filter(t => t.amount > 0)) || [];
+          (statement && statement.transactions.filter((t) => t.amount > 0)) ||
+          [];
 
         setTransactions(incomes);
         break;
-      case 'outcome':
+      case "outcome":
         const outcomes =
-          (statement && statement.transactions.filter(t => t.amount < 0)) || [];
+          (statement && statement.transactions.filter((t) => t.amount < 0)) ||
+          [];
 
         setTransactions(outcomes);
         break;
@@ -60,10 +63,10 @@ const List = (props: Props) => {
   const headingText =
     totalCount > 0
       ? `${statement.endBalance.toLocaleString()} ${statement.currency}`
-      : __('No transactions');
+      : __("No transactions");
 
   const renderRow = () => {
-    return transactions.map(transaction => (
+    return transactions.map((transaction) => (
       <Row key={transaction.record} transaction={transaction} />
     ));
   };
@@ -71,15 +74,15 @@ const List = (props: Props) => {
   queryParams.loadingMainQuery = loading;
 
   const content = (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table $whiteSpace="nowrap" $hover={true}>
       <thead>
         <tr>
-          <th>{__('Date')}</th>
-          <th>{__('Description')}</th>
-          <th>{__('Begin balance')}</th>
-          <th>{__('End balance')}</th>
-          <th>{__('Amount')}</th>
-          <th>{__('Related account')}</th>
+          <th>{__("Date")}</th>
+          <th>{__("Description")}</th>
+          <th>{__("Begin balance")}</th>
+          <th>{__("End balance")}</th>
+          <th>{__("Amount")}</th>
+          <th>{__("Related account")}</th>
         </tr>
       </thead>
       <tbody>{renderRow()}</tbody>
@@ -93,15 +96,17 @@ const List = (props: Props) => {
           <FormControl
             id="type"
             name="type"
-            componentClass="select"
+            componentclass="select"
             required={true}
             defaultValue={type}
             onChange={(e: any) => {
               setType(e.currentTarget.value);
-              routerUtils.setParams(history, { type: e.currentTarget.value });
+              routerUtils.setParams(navigate, location, {
+                type: e.currentTarget.value,
+              });
             }}
           >
-            {['all', 'income', 'outcome'].map(t => (
+            {["all", "income", "outcome"].map((t) => (
               <option key={t} value={t}>
                 {__(t)}
               </option>
@@ -113,25 +118,25 @@ const List = (props: Props) => {
             required={false}
             name="startDate"
             onChange={(date: any) => {
-              routerUtils.setParams(history, {
-                startDate: dayjs(date).format('YYYY-MM-DD')
+              routerUtils.setParams(navigate, location, {
+                startDate: dayjs(date).format("YYYY-MM-DD"),
               });
             }}
-            placeholder={'Start date'}
-            dateFormat={'YYYY-MM-DD'}
+            placeholder={"Start date"}
+            dateFormat={"YYYY-MM-DD"}
           />
 
           <DateControl
             value={queryParams.endDate}
             required={false}
             name="endDate"
-            placeholder={'End date'}
+            placeholder={"End date"}
             onChange={(date: any) => {
-              routerUtils.setParams(history, {
-                endDate: dayjs(date).format('YYYY-MM-DD')
+              routerUtils.setParams(navigate, location, {
+                endDate: dayjs(date).format("YYYY-MM-DD"),
               });
             }}
-            dateFormat={'YYYY-MM-DD'}
+            dateFormat={"YYYY-MM-DD"}
           />
         </CustomRangeContainer>
       </BarItems>
@@ -155,9 +160,9 @@ const List = (props: Props) => {
         emptyContent={
           <EmptyContent
             content={{
-              title: __('No data found'),
-              description: __('No transactions found for this period'),
-              steps: []
+              title: __("No data found"),
+              description: __("No transactions found for this period"),
+              steps: [],
             }}
             maxItemWidth="360px"
           />
@@ -169,4 +174,4 @@ const List = (props: Props) => {
   );
 };
 
-export default withRouter<Props>(List);
+export default List;

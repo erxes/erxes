@@ -185,7 +185,9 @@ export const importProducts = async (
                 ),
                 [`isCheckRems.${token}`]: product.isCheckRem
               },
-              $addToSet: { tokens: token }
+              $addToSet: { tokens: token },
+              sameDefault: product.sameDefault || undefined,
+              sameMasks: product.sameMasks || undefined,
             },
             upsert: true
           }
@@ -238,13 +240,13 @@ export const extractConfig = async (subdomain, doc) => {
 
     uiOptions.kioskHeaderImage =
       uiOptions.kioskHeaderImage &&
-      uiOptions.kioskHeaderImage.indexOf('http') === -1
+        uiOptions.kioskHeaderImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
         : uiOptions.kioskHeaderImage;
 
     uiOptions.mobileAppImage =
       uiOptions.mobileAppImage &&
-      uiOptions.mobileAppImage.indexOf('http') === -1
+        uiOptions.mobileAppImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
         : uiOptions.mobileAppImage;
 
@@ -343,7 +345,9 @@ export const receiveProduct = async (models: IModels, data) => {
         ...info,
         [`prices.${token}`]: info.unitPrice,
         [`isCheckRems.${token}`]: info.isCheckRem,
-        tokens
+        tokens,
+        sameDefault: info.sameDefault || undefined,
+        sameMasks: info.sameMasks || undefined,
       },
       { upsert: true }
     );

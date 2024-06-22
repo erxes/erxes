@@ -14,20 +14,21 @@ import { commonListComposer } from "@erxes/ui/src/utils";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { useNavigate } from "react-router-dom";
 
 type Props = ICommonListProps &
   ICommonFormProps & {
     queryParams: any;
-    history: any;
+    location: any;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
     listQuery: any;
   };
 
-class ResponseListContainer extends React.Component<Props> {
-  render() {
-    return <List {...this.props} />;
-  }
-}
+const ResponseListContainer: React.FC<Props> = (props) => {
+  const navigate = useNavigate();
+
+  return <List {...props} navigate={navigate} />;
+};
 
 export default commonListComposer<Props>({
   text: "response template",

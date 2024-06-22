@@ -11,12 +11,12 @@ import {
   Indicator,
   LeftItem,
   Preview,
-  StepWrapper
+  StepWrapper,
 } from '@erxes/ui/src/components/step/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
@@ -25,7 +25,7 @@ import {
   Content,
   ImageWrapper,
   MessengerPreview,
-  TextWrapper
+  TextWrapper,
 } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Accounts from '../containers/Accounts';
 
@@ -33,42 +33,29 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-type State = {
-  channelIds: string[];
-  accountId: string;
-};
+const Zalo = (props: Props) => {
+  const [channelIds, setChannelIds] = useState([] as string[]);
+  const [accountId, setAccountId] = useState('');
 
-class Zalo extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      channelIds: [],
-      accountId: ''
-    };
-  }
-
-  generateDoc = (values: { name: string; brandId: string }) => {
-    const { channelIds, accountId } = this.state;
-
+  const generateDoc = (values: { name: string; brandId: string }) => {
     return {
       ...values,
       kind: 'zalo',
       channelIds,
-      accountId
+      accountId,
     };
   };
 
-  channelOnChange = (values: string[]) => {
-    this.setState({ channelIds: values } as Pick<State, keyof State>);
+  const channelOnChange = (values: string[]) => {
+    setChannelIds(values);
   };
 
-  onSelectAccount = (accountId: string) => {
-    this.setState({ accountId });
+  const onSelectAccount = (accountId: string) => {
+    setAccountId(accountId);
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton } = props;
     const { values, isSubmitted } = formProps;
 
     return (
@@ -89,9 +76,10 @@ class Zalo extends React.Component<Props, State> {
                 </FormGroup>
 
                 <Accounts
-                  formProps={formProps}
-                  onSelectAccount={this.onSelectAccount}
-                  accountId={this.state.accountId}
+                  // formProps={formProps}
+                  renderButton={renderButton}
+                  onSelectAccount={onSelectAccount}
+                  accountId={accountId}
                 />
               </LeftItem>
             </FlexItem>
@@ -121,14 +109,14 @@ class Zalo extends React.Component<Props, State> {
                   isRequired={true}
                   formProps={formProps}
                   description={__(
-                    'Which specific Brand does this integration belong to?'
+                    'Which specific Brand does this integration belong to?',
                   )}
                 />
 
                 <SelectChannels
-                  defaultValue={this.state.channelIds}
+                  defaultValue={channelIds}
                   isRequired={true}
-                  onChange={this.channelOnChange}
+                  onChange={channelOnChange}
                 />
               </LeftItem>
             </FlexItem>
@@ -146,8 +134,8 @@ class Zalo extends React.Component<Props, State> {
               </Button>
             </Link>
             {renderButton({
-              values: this.generateDoc(values),
-              isSubmitted
+              values: generateDoc(values),
+              isSubmitted,
             })}
           </Button.Group>
         </ControlWrapper>
@@ -155,46 +143,44 @@ class Zalo extends React.Component<Props, State> {
     );
   };
 
-  renderForm = () => {
-    return <Form renderContent={this.renderContent} />;
+  const renderForm = () => {
+    return <Form renderContent={renderContent} />;
   };
 
-  render() {
-    const title = __('Zalo');
+  const title = __('Zalo');
 
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Integrations'), link: '/settings/integrations' },
-      { title }
-    ];
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Integrations'), link: '/settings/integrations' },
+    { title },
+  ];
 
-    return (
-      <StepWrapper>
-        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
-        <Content>
-          {this.renderForm()}
+  return (
+    <StepWrapper>
+      <Wrapper.Header title={title} breadcrumb={breadcrumb} />
+      <Content>
+        {renderForm()}
 
-          <MessengerPreview>
-            <Preview fullHeight={true}>
-              <ImageWrapper>
-                <TextWrapper>
-                  <h1>
-                    {__('Connect your')} {title}
-                  </h1>
-                  <p>
-                    {__(
-                      'Connect your Zalo to start receiving emails in your team inbox'
-                    )}
-                  </p>
-                  <img alt={title} src="/images/previews/facebook.png" />
-                </TextWrapper>
-              </ImageWrapper>
-            </Preview>
-          </MessengerPreview>
-        </Content>
-      </StepWrapper>
-    );
-  }
-}
+        <MessengerPreview>
+          <Preview fullHeight={true}>
+            <ImageWrapper>
+              <TextWrapper>
+                <h1>
+                  {__('Connect your')} {title}
+                </h1>
+                <p>
+                  {__(
+                    'Connect your Zalo to start receiving emails in your team inbox',
+                  )}
+                </p>
+                <img alt={title} src="/images/previews/facebook.png" />
+              </TextWrapper>
+            </ImageWrapper>
+          </Preview>
+        </MessengerPreview>
+      </Content>
+    </StepWrapper>
+  );
+};
 
 export default Zalo;

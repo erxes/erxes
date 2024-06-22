@@ -11,12 +11,10 @@ import {
   PerformsCountQueryResponse,
   PerformRemoveMutationResponse
 } from '../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   performsQuery: PerformsQueryResponse;
@@ -25,10 +23,6 @@ type FinalProps = {
   PerformRemoveMutationResponse;
 
 class WorkListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       performsQuery,

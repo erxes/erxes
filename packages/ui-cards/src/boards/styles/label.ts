@@ -1,4 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -78,7 +79,7 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
   float: left;
   min-width: 40px;
   text-overflow: ellipsis;
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 5px 5px 0;
   color: ${colors.colorWhite};
   font-weight: 500;
@@ -101,19 +102,8 @@ const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
 
     span {
       display: block;
-    }
-
-    .erxes-label-enter-done {
       text-indent: 0px;
       line-height: 1.2em;
-      transition: all ${props.timeout}ms ease-in;
-    }
-
-    span,
-    .erxes-label-exit-done {
-      line-height: 0em;
-      text-indent: -699px;
-      transition: all ${props.timeout}ms ease-out;
     }`}
 `;
 

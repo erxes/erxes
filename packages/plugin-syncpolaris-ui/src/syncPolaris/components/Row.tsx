@@ -1,5 +1,5 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import React from 'react';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import React from "react";
 type Props = {
   item: any;
   toggleBulk: (target: any, toAdd: boolean) => void;
@@ -20,19 +20,19 @@ function CustomerRow({ item, toggleBulk, isChecked, type }: Props) {
 
   return (
     <tr key={item._id}>
-      <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
+      <td id="customersCheckBox" style={{ width: "50px" }} onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
-      <td>{type === 'contacts:customer' ? item?.code : item?.number}</td>
-      <td>{type === 'contacts:customer' ? item?.lastName : item?.status}</td>
+      <td>{type === "contacts:customer" ? item?.code : item?.number}</td>
+      <td>{type === "contacts:customer" ? item?.lastName : item?.status}</td>
       <td>
-        {type === 'contacts:customer' ? item?.firstName : item?.startDate}
+        {type === "contacts:customer" ? item?.firstName : item?.startDate}
       </td>
-      <td>{type === 'contacts:customer' ? item?.phones : item?.endDate}</td>
+      <td>{type === "contacts:customer" ? item?.phones : item?.endDate}</td>
     </tr>
   );
 }

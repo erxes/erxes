@@ -1,10 +1,10 @@
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IField } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import Select from 'react-select-plus';
-import Info from '@erxes/ui/src/components/Info';
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IField } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import Select from "react-select";
+import Info from "@erxes/ui/src/components/Info";
 
 type Props = {
   field?: IField;
@@ -18,8 +18,8 @@ const GroupedField = (props: Props) => {
     field?.subFieldIds || []
   );
 
-  const otherFields = props.fields.filter(f => {
-    if (f.type === 'parentField') {
+  const otherFields = props.fields.filter((f) => {
+    if (f.type === "parentField") {
       return false;
     }
 
@@ -40,27 +40,29 @@ const GroupedField = (props: Props) => {
     }
   }, [props.field]);
 
+  const options = otherFields.map((f) => ({ label: f.text, value: f._id }));
+
   return (
     <FormGroup>
       <ControlLabel>Fields</ControlLabel>
-      <p>{__('Please select a subfields')}</p>
+      <p>{__("Please select a subfields")}</p>
       <Info>
         {__(
-          'Note: If subfields have logics, they will be ignored. But main field logics will be applied.'
+          "Note: If subfields have logics, they will be ignored. But main field logics will be applied."
         )}
       </Info>
       <Select
-        placeholder={__('Choose')}
-        options={otherFields.map(f => ({ label: f.text, value: f._id }))}
+        placeholder={__("Choose")}
+        options={options}
         onChange={(values: any) => {
           props.onChange({
             ...field,
-            subFieldIds: values.map(v => v.value)
+            subFieldIds: values.map((v) => v.value),
           });
         }}
-        clearable={true}
-        value={subFieldIds}
-        multi={true}
+        isClearable={true}
+        value={options.filter((option) => subFieldIds.includes(option.value))}
+        isMulti={true}
       />
     </FormGroup>
   );

@@ -17,15 +17,15 @@ const Container = styled.div`
   transition: background-color 0.3s ease;
 `;
 
-const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
+const StageRoot = styledTS<{ $isDragging: boolean }>(styled.div)`
   display: flex;
   flex-direction: column;
   border-radius: 3px;
   transition: box-shadow 0.3s ease;
   background: ${stageGray};
   overflow: hidden;
-  ${props => css`
-    box-shadow: ${props.isDragging
+  ${(props) => css`
+    box-shadow: ${props.$isDragging
       ? 'rgba(0, 0, 0, 0.2) 0px 5px 20px 0px'
       : 'rgba(0, 0, 0, 0.15) 0px 1px 5px 0px'};
   `};
@@ -33,7 +33,7 @@ const StageRoot = styledTS<{ isDragging: boolean }>(styled.div)`
 
 const Content = styledTS<{ type?: string }>(styled.div)`
   h5 {
-    ${props => css`
+    ${(props) => css`
       margin: ${props.type === 'growthHack' ? '0 20px 10px 0' : '0 20px 8px 0'};
     `};
     word-break: break-word;
@@ -57,7 +57,7 @@ const ItemIndicator = styledTS<{ color: string }>(styled.span)`
   height: 8px;
   border-radius: 4px;
   margin: 6px 6px 0 0;
-  background-color: ${props => props.color};
+  background-color: ${(props) => props.color};
   word-break:break-word;
 `;
 
@@ -99,7 +99,7 @@ const HeaderAmount = styled.div`
   min-height: 28px;
 `;
 
-const Amount = styledTS<{ unUsed: boolean }>(styled.ul)`
+const Amount = styledTS<{ $unUsed: boolean }>(styled.ul)`
   list-style: none;
   margin: 5px 0 0;
   overflow: hidden;
@@ -110,7 +110,7 @@ const Amount = styledTS<{ unUsed: boolean }>(styled.ul)`
   display: inline-block;
   li {
     float: right;
-    ${props => props.unUsed && `text-decoration: line-through;`}
+    ${(props) => props.$unUsed && `text-decoration: line-through;`}
     padding-right: 5px;
     line-height: 22px;
     span {
@@ -168,9 +168,9 @@ const AddNew = styled.a`
   }
 `;
 
-const IndicatorItem = styledTS<{ isPass: boolean }>(styled.div)`
+const IndicatorItem = styledTS<{ $isPass: boolean }>(styled.div)`
   flex: 1;
-  background: ${props => (props.isPass ? colors.colorCoreBlue : hoverColor)};
+  background: ${(props) => (props.$isPass ? colors.colorCoreBlue : hoverColor)};
   height: 4px;
   border-radius: ${borderRadius};
 `;
@@ -240,7 +240,7 @@ export const ColumnLastChild = styled.th`
 `;
 
 export const ActionList = styled(PopoverList)`
-  min-width: 160px;
+  width: 230px;
   li a {
     color: ${colors.textPrimary};
     text-transform: capitalize;
@@ -266,6 +266,13 @@ export const Quantity = styled.div`
   margin-left: ${dimensions.unitSpacing - 5}px;
 `;
 
+export const Divider = styled.div`
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #e9ecef;
+`;
+
 export {
   AddNew,
   Container,
@@ -281,5 +288,5 @@ export {
   LoadingContent,
   StageRoot,
   ListContainer,
-  ItemBox
+  ItemBox,
 };

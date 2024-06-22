@@ -20,7 +20,6 @@ type Props = {
   timeclocks: ITimeclock[];
   searchValue: string;
   queryParams: any;
-  history: any;
   timeId: string;
   userId: string;
   shiftId: string;

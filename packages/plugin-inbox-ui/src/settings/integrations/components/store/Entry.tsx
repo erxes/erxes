@@ -2,16 +2,16 @@ import {
   Box,
   IntegrationItem,
   Ribbon,
-  Type
-} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
+  Type,
+} from "@erxes/ui-inbox/src/settings/integrations/components/store/styles";
 
-import Icon from '@erxes/ui/src/components/Icon';
-import IntegrationForm from '../../containers/common/IntegrationForm';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
+import Icon from "@erxes/ui/src/components/Icon";
+import IntegrationForm from "../../containers/common/IntegrationForm";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { __ } from "coreui/utils";
+import { formatText } from "@erxes/ui-log/src/activityLogs/utils";
 
 type TotalCount = {
   messenger: number;
@@ -47,7 +47,7 @@ type Props = {
 function getCount(kind: string, totalCount: TotalCount) {
   const countByKind = totalCount[kind];
 
-  if (typeof countByKind === 'undefined') {
+  if (typeof countByKind === "undefined") {
     return null;
   }
 
@@ -61,7 +61,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
+      <Icon icon="comment-alt-lines" /> {__("Works with messenger")}
     </Type>
   );
 }
@@ -71,17 +71,17 @@ function renderCreate(createUrl, kind, isAvailable) {
     return null;
   }
 
-  const trigger = <button>+ {__('Add')}</button>;
+  const trigger = <button>+ {__("Add")}</button>;
 
   if (createUrl && kind && isAvailable) {
-    return <Link to={`${createUrl}?kind=${kind}`}>+ {__('Add')}</Link>;
+    return <Link to={`${createUrl}?kind=${kind}`}>+ {__("Add")}</Link>;
   }
 
-  if ((createUrl || '').includes('create')) {
-    return <Link to={createUrl}>+ {__('Add')}</Link>;
+  if ((createUrl || "").includes("create")) {
+    return <Link to={createUrl}>+ {__("Add")}</Link>;
   }
 
-  const formContent = props => <IntegrationForm {...props} type={kind} />;
+  const formContent = (props) => <IntegrationForm {...props} type={kind} />;
 
   return (
     <ModalTrigger
@@ -99,7 +99,7 @@ function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
       <Box
         onClick={() => toggleBox(kind)}
-        isInMessenger={integration.inMessenger}
+        $isInMessenger={integration.inMessenger}
       >
         <img alt="logo" src={integration.logo} />
 
@@ -112,7 +112,7 @@ function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
         </p>
         {!isAvailable && (
           <Ribbon>
-            <span>{__('Coming soon')}</span>
+            <span>{__("Coming soon")}</span>
           </Ribbon>
         )}
       </Box>

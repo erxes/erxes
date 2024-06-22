@@ -1,8 +1,9 @@
 import { colors, dimensions } from 'modules/common/styles';
+
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { SidebarListItem } from '../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SidebarListItem } from '../styles';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 const StepItem = styled.div`
   box-shadow: rgba(0, 0, 0, 0.15) 0px 1px 5px 0;
@@ -14,7 +15,7 @@ const StepItem = styled.div`
   }
 `;
 
-const StepHeader = styledTS<{ isDone?: boolean; number: string }>(styled.div)`
+const StepHeader = styledTS<{ $isDone?: boolean; number: string }>(styled.div)`
   border-bottom: 1px solid ${colors.borderPrimary};
   padding: 15px 30px 15px 70px;
   position: relative;
@@ -28,12 +29,12 @@ const StepHeader = styledTS<{ isDone?: boolean; number: string }>(styled.div)`
     position: absolute;
     left: ${dimensions.coreSpacing}px;
     top: 10px;
-    content: '${props => (props.isDone ? '✓' : props.number)}';
+    content: '${props => (props.$isDone ? '✓' : props.number)}';
     width: 30px;
     height: 30px;
     border-radius: 15px;
     background-color: ${props =>
-      props.isDone ? colors.colorCoreGreen : colors.colorCoreTeal};
+      props.$isDone ? colors.colorCoreGreen : colors.colorCoreTeal};
     color: ${colors.colorWhite};
     line-height: 30px;
     text-align: center;

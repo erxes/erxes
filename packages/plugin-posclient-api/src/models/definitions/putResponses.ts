@@ -1,117 +1,204 @@
 import { Document, Schema } from 'mongoose';
-import { getDateFieldDefinition } from './utils';
 import { field, schemaHooksWrapper } from './utils';
 
-export interface IPutResponse {
-  contentType: string;
-  contentId: string;
-  number?: string;
-  success?: string;
-  billId?: string;
-  date?: string;
-  macAddress?: string;
-  internalCode?: string;
-  billType?: string;
-  lotteryWarningMsg?: string;
-  errorCode?: string;
-  message?: string;
-  getInformation?: string;
-  taxType?: string;
-  qrData?: string;
-  lottery?: string;
-  sendInfo?: any;
-  status?: string;
-  stocks?: object[];
-  amount?: string;
-  vat?: string;
-  cityTax?: string;
-  returnBillId?: string;
-  cashAmount?: string;
-  nonCashAmount?: string;
-  registerNo?: string;
-  customerNo?: string;
-  customerName?: string;
-  synced?: boolean;
+export interface IItem {
+  _id?: string;
+  id?: string;
+  name: string;
+  barCode?: string;
+  barCodeType?: string;
+  classificationCode?: string;
+  taxProductCode?: string;
+  measureUnit?: string;
+  qty: number;
+  unitPrice: number;
+  totalBonus?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  totalAmount: number;
+  data?: any;
+  recId: string;
 }
 
-export interface IPutResponseDocument extends Document, IPutResponse {
+export interface IReceipt {
+  _id?: string;
+  id?: string;
+  totalAmount: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  taxType: string;
+  merchantTin: string;
+  bankAccountNo?: string;
+  data?: any;
+  items: IItem[];
+}
+
+export interface IPayment {
+  _id?: string;
+  code: string;
+  exchangeCode?: string;
+  status: string;
+  paidAmount: number;
+  data?: any;
+}
+
+export interface IEbarimt {
+  number: string;
+
+  // Холбогдох обьект
+  contentType: string;
+  contentId: string;
+  posToken?: string;
+
+  totalAmount?: number;
+  totalVAT?: number;
+  totalCityTax?: number;
+  districtCode?: string;
+  branchNo?: string;
+  merchantTin?: string;
+  posNo?: string;
+  customerTin?: string;
+  customerName?: string;
+  consumerNo?: string;
+  type?: string;
+  inactiveId?: string;
+  invoiceId?: string;
+  reportMonth?: string;
+  data?: any;
+  receipts?: IReceipt[];
+  payments?: IPayment[];
+
+  easy?: boolean;
+
+  // billType == 1 and lottery is null or '' then save
+  getInformation?: string;
+  // Ебаримт руу илгээсэн мэдээлэл
+  sendInfo?: any
+  state?: string;
+}
+
+export interface IEbarimtFull extends IEbarimt {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
+
+  id: string;
+  posId: number;
+  status: string;
+  message: string;
+  qrData?: string;
+  lottery?: string;
+  date: string;
 }
 
-export const putResponseSchema = schemaHooksWrapper(
+export interface IEbarimtDocument extends Document, IEbarimtFull {
+  _id: string;
+  id: string;
+}
+
+export const itemsSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    createdAt: getDateFieldDefinition('Created at'),
+    id: field({ type: String, label: 'id' }),
+    name: field({ type: String, label: 'name' }),
+    barCode: field({ type: String, label: 'barCode' }),
+    barCodeType: field({ type: String, label: 'barCodeType' }),
+    classificationCode: field({ type: String, label: 'classificationCode' }),
+    taxProductCode: field({ type: String, label: 'taxProductCode' }),
+    measureUnit: field({ type: String, label: 'measureUnit' }),
+    qty: field({ type: Number, label: 'qty' }),
+    unitPrice: field({ type: Number, label: 'unitPrice' }),
+    totalBonus: field({ type: Number, label: 'totalBonus' }),
+    totalVAT: field({ type: Number, label: 'totalVAT' }),
+    totalCityTax: field({ type: Number, label: 'totalCityTax' }),
+    totalAmount: field({ type: Number, label: 'totalAmount' }),
+    data: field({ type: Object, label: 'data' }),
+    recId: field({ type: String, label: 'recid' }),
+  }),
+
+  'erxes_ebarimt'
+)
+
+export const receiptSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    id: field({ type: String, label: 'id' }),
+    totalAmount: field({ type: Number, label: 'totalAmount' }),
+    totalVAT: field({ type: Number, label: 'totalVAT' }),
+    totalCityTax: field({ type: Number, label: 'totalCityTax' }),
+    taxType: field({ type: String, label: 'taxType' }),
+    merchantTin: field({ type: String, label: 'merchantTin' }),
+    bankAccountNo: field({ type: String, label: 'bankAccountNo' }),
+    data: field({ type: Object, label: 'data' }),
+    items: field({ type: [itemsSchema], label: 'items' }),
+  }),
+
+  'erxes_ebarimt'
+)
+
+export const paymentSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    code: field({ type: String, label: 'code' }),
+    exchangeCode: field({ type: String, label: 'exchangeCode' }),
+    status: field({ type: String, label: 'status' }),
+    paidAmount: field({ type: Number, label: 'paidAmount' }),
+    data: field({ type: Object, label: 'data' })
+  }),
+  'erxes_ebarimt'
+)
+
+export const ebarimtSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    createdAt: field({ type: Date, label: 'Created at', index: true }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-    number: field({ type: String, label: 'Inner bill number' }),
+    number: field({ type: String, label: 'Inner bill number', index: true }),
+
+    // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),
-    contentId: field({ type: String, label: 'Pos order id' }),
+    contentId: field({ type: String, label: 'Content', index: true }),
+    oldTaxType: field({ type: String, label: 'Old Tax Type', index: true }),
+    posToken: field({ type: String, optional: true }),
 
-    // Баримтыг бүртгэх процесс амжилттай болсон тухай илтгэнэ
-    success: field({ type: String, label: 'Success status' }),
+    totalAmount: field({ type: Number, label: 'totalAmount' }),
+    totalVAT: field({ type: Number, label: 'totalVAT' }),
+    totalCityTax: field({ type: Number, label: 'totalCityTax' }),
+    districtCode: field({ type: String, label: 'districtCode' }),
+    branchNo: field({ type: String, label: 'branchNo' }),
+    merchantTin: field({ type: String, label: 'merchantTin' }),
+    posNo: field({ type: String, label: 'posNo' }),
+    customerTin: field({ type: String, label: 'customerTin' }),
+    customerName: field({ type: String, label: 'customerName' }),
+    consumerNo: field({ type: String, label: 'consumerNo' }),
+    type: field({ type: String, label: 'type' }),
+    inactiveId: field({ type: String, label: 'inactiveId' }),
+    invoiceId: field({ type: String, label: 'invoiceId' }),
+    reportMonth: field({ type: String, label: 'reportMonth' }),
+    data: field({ type: Object, label: 'data' }),
+    receipts: field({ type: [receiptSchema], label: 'receipts' }),
+    payments: field({ type: [paymentSchema], label: 'payments' }),
 
-    // Баримтын ДДТД
-    // 33 оронтой тоон утга / НӨАТ - ийн тухай хуулинд зааснаар/
-    billId: field({ type: String, label: 'Bill ID', index: true }),
+    id: field({ type: String, label: '' }),
+    posId: field({ type: Number, label: '' }),
+    status: field({ type: String, label: '' }),
+    message: field({ type: String, label: '' }),
+    qrData: field({ type: String, label: '' }),
+    lottery: field({ type: String, label: '' }),
+    date: field({ type: String, label: '' }),
 
-    // Баримт хэвлэсэн огноо
-    // Формат: yyyy - MM - dd hh: mm: ss
-    date: field({ type: String, label: 'Date' }),
-
-    // Баримтыг хэвлэсэн бүртгэлийн машиний MacAddress
-    macAddress: field({ type: String, label: 'macAddress' }),
-
-    // Баримтын дотоод код
-    internalCode: field({ type: String, label: 'internal Code' }),
-
-    // Баримтын төрөл
-    billType: field({ type: String, label: 'Bill Type' }),
-
-    // Сугалаа дуусаж буй эсвэл сугалаа хэвлэх боломжгүй болсон
-    // талаар мэдээлэл өгөх утга
-    lotteryWarningMsg: field({
-      type: String,
-      label: 'Lottery warning message'
-    }),
-
-    // Хэрэв алдаа илэрсэн бол уг алдааны код
-    errorCode: field({ type: String, label: 'Error code' }),
-
-    // Алдааны мэдээллийн текстэн утга
-    message: field({ type: String, label: 'Error message' }),
+    easy: field({ type: Boolean, label: '' }),
 
     // billType == 1 and lottery is null or '' then save
-    getInformation: field({ type: String, label: 'Other information' }),
-
-    // Татварын төрөл
-    taxType: field({ type: String }),
-
-    // Баримтын баталгаажуулах Qr кодонд орох нууцлагдсан тоон утга түр санах
-    qrData: field({ type: String }),
-
-    // Сугалааны дугаар түр санах
-    lottery: field({ type: String }),
-
-    // Э-баримт руу илгээсэн мэдээлэfield(л)
-    sendInfo: field({ type: Object, label: 'Ebarimt data' }),
-
-    stocks: { type: Object, label: 'Ebarimt stocks' },
-    // Мөнгөн дүнгүүд э-баримтаас string байдлаар ирдэг учраас тэр чигээр нь хадгалъя
-    amount: field({ type: String, label: 'Amount' }),
-    cityTax: field({ type: String, label: 'City tax amount' }),
-    vat: field({ type: String, label: 'Vat amount' }),
-    returnBillId: field({ type: String }),
-    cashAmount: field({ type: String, label: 'Cash amount' }),
-    nonCashAmount: field({ type: String, label: 'Non cash amount' }),
-    registerNo: field({ type: String, label: 'Company register number' }),
-    customerNo: field({ type: String }),
-    customerName: field({ type: String }),
-    status: field({ type: String, optional: true }),
+    getInformation: field({ type: String, label: '' }),
+    // Ебаримт руу илгээсэн мэдээлэл
+    sendInfo: field({ type: Object, label: '' }),
+    state: field({ type: String, optional: true, label: '' }),
     synced: field({ type: Boolean, default: false, label: 'synced on erxes' })
   }),
-  'erxes_putResponse'
+
+  'erxes_ebarimt'
 );
 
-putResponseSchema.index({ contentType: 1, contentId: 1, status: 1 });
+ebarimtSchema.index({ contentType: 1, contentId: 1, state: 1 });
+ebarimtSchema.index({ contentType: 1, contentId: 1, taxType: 1, state: 1 });

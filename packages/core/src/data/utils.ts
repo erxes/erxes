@@ -122,13 +122,30 @@ export const sendEmail = async (
       models,
     );
 
-    if (transportMethod === 'sendgrid' || (VERSION && VERSION === 'saas')) {
+    if (VERSION === 'saas') {
+      const serverId = getEnv({ name: 'SOCKETLABS_SERVER_ID' });
+      const password = getEnv({ name: 'SOCKETLABS_PASSWORD' });
+
+      transporter = nodemailer.createTransport({
+        host: 'smtp.socketlabs.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: `server${serverId}`,
+          pass: password,
+        },
+      });
+    }
+
+    if (transportMethod === 'sendgrid') {
       sendgridMail = require('@sendgrid/mail');
 
       const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
 
       sendgridMail.setApiKey(SENDGRID_API_KEY);
     }
+
+
   } catch (e) {
     return debugError(e.message);
   }
@@ -224,12 +241,20 @@ export const sendEmail = async (
     mailOptions.headers = headers;
 
     try {
-      if (sendgridMail) {
+      if (VERSION === 'saas' && mailOptions.subject === 'Reset password') {
+        const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
+  
+        sendgridMail.setApiKey(SENDGRID_API_KEY);
         return sendgridMail.send(mailOptions);
       }
 
       return transporter.sendMail(mailOptions, (error, info) => {
-        debugError(`Error sending email: ${error}`);
+        if (error) {
+          debugError(`Error sending email: ${error}`);
+        }
+        if (info) {
+          debugBase(`Email sent: ${info.response}`);
+        }
       });
     } catch (e) {
       debugError(e);
@@ -293,9 +318,11 @@ export const uploadsFolderPath = path.join(__dirname, '../private/uploads');
 export const initFirebase = async (
   models: IModels,
   customConfig?: string,
+  customName?: string,
 ): Promise<void> => {
   let codeString = 'value';
 
+  // get google application credentials JSON
   if (customConfig) {
     codeString = customConfig;
   } else {
@@ -304,7 +331,9 @@ export const initFirebase = async (
     });
 
     if (!config) {
-      return;
+      throw new Error(
+        'Cannot find google application credentials JSON configuration',
+      );
     }
     codeString = config.value;
   }
@@ -314,11 +343,14 @@ export const initFirebase = async (
 
     if (serviceAccount.private_key) {
       try {
-        await admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-        });
+        admin.initializeApp(
+          {
+            credential: admin.credential.cert(serviceAccount),
+          },
+          customName || '[DEFAULT]',
+        );
       } catch (e) {
-        console.log(`initFireBase error: ${e.message}`);
+        debugError(`initFireBase error: ${e.message}`);
       }
     }
   }
@@ -392,7 +424,7 @@ export const checkFile = async (models: IModels, file, source?: string) => {
     models,
   );
 
-  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.split(',')).includes(mime)) {
+  if (!(UPLOAD_FILE_TYPES && UPLOAD_FILE_TYPES.includes(mime))) {
     if (!defaultMimeTypes.includes(mime)) {
       return 'Invalid configured file type';
     }
@@ -545,7 +577,7 @@ const uploadToCFImages = async (
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'false', models);
 
-    const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: 'VERSION' });
 
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
   const headers = {
@@ -1158,7 +1190,11 @@ export const uploadFile = async (
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
-    nameOrLink = await uploadFileCloudflare(file, VERSION === 'saas' ? true : false, models);
+    nameOrLink = await uploadFileCloudflare(
+      file,
+      VERSION === 'saas' ? true : false,
+      models,
+    );
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
@@ -1382,17 +1418,29 @@ export const sendMobileNotification = async (
   if (!admin.apps.length) {
     await initFirebase(models, customConfig);
   }
+  const additionalConfigs = await models.Configs.findOne({
+    code: 'GOOGLE_APP_ADDITIONAL_CREDS_JSON',
+  });
 
-  const transporter = admin.messaging();
+  if (admin.apps.length === 1 && additionalConfigs) {
+    (additionalConfigs?.value || []).forEach(async (item, index) => {
+      await initFirebase(models, item, `app${index + 1}`);
+    });
+  }
+
   const tokens: string[] = [];
 
   if (receivers) {
-    tokens.push(
-      ...(await models.Users.find({
-        _id: { $in: receivers },
-        role: { $ne: USER_ROLES.SYSTEM },
-      }).distinct('deviceTokens')),
-    );
+    const xs = await models.Users.find({
+      _id: { $in: receivers },
+      role: { $ne: USER_ROLES.SYSTEM },
+    }).distinct('deviceTokens');
+
+    for (let x of xs) {
+      if (x) {
+        tokens.push(x);
+      }
+    }
   }
 
   if (deviceTokens && deviceTokens.length) {
@@ -1401,20 +1449,28 @@ export const sendMobileNotification = async (
 
   if (tokens.length > 0) {
     // send notification
-    for (const token of tokens) {
-      try {
-        await transporter.send({
-          token,
-          notification: { title, body },
-          data: data || {},
-        });
-      } catch (e) {
-        debugError(`Error occurred during firebase send: ${e.message}`);
+    for (const app of admin.apps) {
+      if (app) {
+        const transporter = app.messaging();
 
-        await models.Users.updateOne(
-          { deviceTokens: token },
-          { $pull: { deviceTokens: token } },
-        );
+        for (const token of tokens) {
+          await transporter
+            .send({
+              token,
+              notification: { title, body },
+              data: data || {},
+            })
+            .catch(async (e) => {
+              debugError(`Error occurred during firebase send: ${e.message}`);
+
+              if (!e.message.includes('SenderId mismatch')) {
+                await models.Users.updateOne(
+                  { deviceTokens: token },
+                  { $pull: { deviceTokens: token } },
+                );
+              }
+            });
+        }
       }
     }
   }

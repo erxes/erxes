@@ -33,7 +33,7 @@ class TicketBoard extends React.Component<Props> {
     return (
       <BoardContainer>
         <Header title={__('Ticket')} breadcrumb={breadcrumb} />
-        <BoardContent transparent={true}>
+        <BoardContent $transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}
         </BoardContent>

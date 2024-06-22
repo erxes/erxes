@@ -12,8 +12,8 @@ export interface IVideoCallData {
 }
 
 export interface ICallHistory {
-  receiverNumber: string;
-  callerNumber: string;
+  customerPhone: string;
+  operatorPhone: string;
   callDuration: number;
   callStartTime: Date;
   callEndTime: Date;
@@ -24,6 +24,7 @@ export interface ICallHistory {
   createdAt: Date;
   createdBy: string;
   updatedBy: string;
+  recordUrl: string;
 }
 
 export interface IConversation {

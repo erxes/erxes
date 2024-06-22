@@ -1,14 +1,14 @@
 import ArticleForm from '../containers/article/ArticleForm';
 import ArticleList from '../containers/article/ArticleList';
 import Button from '@erxes/ui/src/components/Button';
-import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
+import { ICategory } from '@erxes/ui-knowledgebase/src/types';
 import KnowledgeList from '../containers/knowledge/KnowledgeList';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
-import { Title } from '@erxes/ui/src/styles/main';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   queryParams: any;
@@ -16,51 +16,52 @@ type Props = {
   currentCategory: ICategory;
 };
 
-class KnowledgeBase extends React.Component<Props> {
-  breadcrumb() {
-    const currentCategory =
-      this.props.currentCategory ||
+const KnowledgeBase = (props: Props) => {
+  const { articlesCount, queryParams, currentCategory } = props;
+
+  const breadcrumb = () => {
+    const currentBreadcrumb =
+      currentCategory ||
       ({
         title: '',
-        firstTopic: { title: '' }
+        firstTopic: { title: '' },
       } as ICategory);
-    const currentKnowledgeBase = currentCategory.firstTopic || { title: '' };
+
+    const currentKnowledgeBase = currentBreadcrumb.firstTopic || { title: '' };
     const list = [{ title: __('Knowledge Base'), link: '/knowledgeBase' }];
-    const categoryLink = `/knowledgeBase?id=${currentCategory._id}`;
+    const categoryLink = `/knowledgeBase?id=${currentBreadcrumb._id}`;
 
     if (currentKnowledgeBase.title) {
       list.push({
         title: currentKnowledgeBase.title,
-        link: currentCategory ? categoryLink : ''
+        link: currentBreadcrumb ? categoryLink : '',
       });
     }
 
-    if (currentCategory.title) {
+    if (currentBreadcrumb.title) {
       list.push({
-        title: currentCategory.title,
-        link: categoryLink
+        title: currentBreadcrumb.title,
+        link: categoryLink,
       });
     }
 
     return list;
-  }
+  };
 
-  render() {
-    const { articlesCount, queryParams, currentCategory } = this.props;
+  const content = (props) => (
+    <ArticleForm
+      {...props}
+      queryParams={queryParams}
+      currentCategoryId={currentCategory._id}
+      topicId={currentCategory.firstTopic && currentCategory.firstTopic._id}
+    />
+  );
 
+  const renderActionBar = () => {
     const trigger = (
-      <Button btnStyle="primary" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle">
         Add Article
       </Button>
-    );
-
-    const content = props => (
-      <ArticleForm
-        {...props}
-        queryParams={queryParams}
-        currentCategoryId={currentCategory._id}
-        topicId={currentCategory.firstTopic && currentCategory.firstTopic._id}
-      />
     );
 
     const actionBarLeft = currentCategory._id && (
@@ -75,47 +76,40 @@ class KnowledgeBase extends React.Component<Props> {
     );
 
     const leftActionBar = (
-      <Title>
-        {currentCategory.title}
-        <span>
-          ({articlesCount} {articlesCount > 1 ? __('articles') : __('article')})
-        </span>
-      </Title>
+      <Title>{`${currentCategory.title || ''} (${articlesCount})`}</Title>
     );
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={`${currentCategory.title || ''}`}
-            breadcrumb={this.breadcrumb()}
-          />
-        }
-        leftSidebar={
-          <KnowledgeList
-            currentCategoryId={currentCategory._id}
-            articlesCount={articlesCount}
-            queryParams={queryParams}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar left={leftActionBar} right={actionBarLeft} />
-        }
-        footer={currentCategory._id && <Pagination count={articlesCount} />}
-        transparent={true}
-        content={
-          <ArticleList
-            queryParams={queryParams}
-            currentCategoryId={currentCategory._id}
-            topicId={
-              currentCategory.firstTopic && currentCategory.firstTopic._id
-            }
-          />
-        }
-        hasBorder={true}
-      />
-    );
-  }
-}
+    return <Wrapper.ActionBar left={leftActionBar} right={actionBarLeft} />;
+  };
+
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={`${currentCategory.title || ''}`}
+          breadcrumb={breadcrumb()}
+        />
+      }
+      leftSidebar={
+        <KnowledgeList
+          currentCategoryId={currentCategory._id}
+          articlesCount={articlesCount}
+          queryParams={queryParams}
+        />
+      }
+      actionBar={renderActionBar()}
+      footer={currentCategory._id && <Pagination count={articlesCount} />}
+      transparent={true}
+      content={
+        <ArticleList
+          queryParams={queryParams}
+          currentCategoryId={currentCategory._id}
+          topicId={currentCategory.firstTopic && currentCategory.firstTopic._id}
+        />
+      }
+      hasBorder={true}
+    />
+  );
+};
 
 export default KnowledgeBase;

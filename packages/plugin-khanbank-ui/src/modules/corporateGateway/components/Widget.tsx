@@ -1,29 +1,24 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useState } from 'react';
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
 
-import { WidgetButton } from '../../../styles';
-import RateList from '../containers/Rates';
+import { WidgetButton } from "../../../styles";
+import RateList from "../containers/Rates";
 
 const Widget = () => {
-  const popoverRates = (
-    <Popover id="chat-popover" className="notification-popover">
-      <RateList />
-    </Popover>
-  );
-
   return (
     <>
-      <OverlayTrigger
-        trigger="click"
-        rootClose={true}
+      <Popover
         placement="bottom"
-        overlay={popoverRates}
+        trigger={
+          <WidgetButton>
+            <Icon icon="dollar-sign" size={20} />
+          </WidgetButton>
+        }
+        className="notification-popover"
       >
-        <WidgetButton>
-          <Icon icon="dollar-sign" size={20} />
-        </WidgetButton>
-      </OverlayTrigger>
+        <RateList />
+      </Popover>
     </>
   );
 };

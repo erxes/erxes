@@ -87,8 +87,8 @@ export default `
       isEnabled('calls')
         ? `
   callHistory {
-    receiverNumber
-    callerNumber
+    customerPhone
+    operatorPhone
     callDuration
     callStartTime
     callEndTime
@@ -99,6 +99,7 @@ export default `
     createdAt
     createdBy
     modifiedBy
+    recordUrl
   }`
         : ''
     }

@@ -1,21 +1,20 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { SubItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import { __ } from "@erxes/ui/src/utils/core";
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import { SubItem } from "@erxes/ui-settings/src/styles";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
 
 type NameInput =
-  | 'companyName'
-  | 'slug'
-  | 'color'
-  | 'submitText'
-  | 'thankYouText';
+  | "companyName"
+  | "slug"
+  | "color"
+  | "submitText"
+  | "thankYouText";
 
 type Props = {
   onChange: (name: NameInput, value: string) => void;
@@ -41,7 +40,7 @@ class PageStyles extends React.Component<Props, State> {
     this.setState({ [name]: value }, () => this.props.onChange(name, value));
   };
 
-  onChangeColor = (name: 'color', e: any) => {
+  onChangeColor = (name: "color", e: any) => {
     const value = e.hex;
 
     this.setState({ [name]: value }, () => this.props.onChange(name, value));
@@ -63,38 +62,32 @@ class PageStyles extends React.Component<Props, State> {
   render() {
     const { color } = this.props;
 
-    const popoverContent = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          color={color}
-          onChange={this.onChangeColor.bind(null, 'color')}
-          triangle="hide"
-        />
-      </Popover>
-    );
-
     return (
       <FlexItem>
         <LeftItem>
-          {this.renderField('companyName', 'Company name')}
+          {this.renderField("companyName", "Company name")}
 
           <SubItem>
-            <ControlLabel>{__('Choose a background color')}</ControlLabel>
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
+            <ControlLabel>{__("Choose a background color")}</ControlLabel>
+            <Popover
+              trigger={
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: color }} />
+                </ColorPick>
+              }
               placement="bottom-start"
-              overlay={popoverContent}
             >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor: color }} />
-              </ColorPick>
-            </OverlayTrigger>
+              <TwitterPicker
+                color={color}
+                onChange={this.onChangeColor.bind(null, "color")}
+                triangle="hide"
+              />
+            </Popover>
           </SubItem>
 
-          {this.renderField('slug', 'Custom page slug')}
-          {this.renderField('submitText', 'Submit button label')}
-          {this.renderField('thankYouText', 'Thank you message')}
+          {this.renderField("slug", "Custom page slug")}
+          {this.renderField("submitText", "Submit button label")}
+          {this.renderField("thankYouText", "Thank you message")}
         </LeftItem>
       </FlexItem>
     );

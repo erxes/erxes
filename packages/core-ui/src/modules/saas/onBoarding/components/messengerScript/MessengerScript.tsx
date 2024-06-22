@@ -1,21 +1,25 @@
-import React from 'react';
-import Icon from 'modules/common/components/Icon';
-import Button from 'modules/common/components/Button';
 import {
   ButtonContainer,
   ScriptLoader,
   SidebarContent,
-} from 'modules/saas/onBoarding/styles';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { router } from 'modules/common/utils';
+} from "modules/saas/onBoarding/styles";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Button from "modules/common/components/Button";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import Icon from "modules/common/components/Icon";
+import React from "react";
+import { router } from "modules/common/utils";
 
 type Props = {
-  history: any;
   integration: IIntegration;
 };
 
 function MessengerScript(props: Props) {
   const { integration = {} as IIntegration } = props;
+  const navigate = useNavigate();
+  const location = useLocation();
+
   let next = true;
 
   if (
@@ -26,11 +30,11 @@ function MessengerScript(props: Props) {
   }
 
   const onChangeStep = () => {
-    router.setParams(props.history, { steps: 4 });
+    router.setParams(navigate, location, { steps: 4 });
   };
 
   const onChangeBack = () => {
-    router.setParams(props.history, { steps: 2 });
+    router.setParams(navigate, location, { steps: 2 });
   };
 
   return (

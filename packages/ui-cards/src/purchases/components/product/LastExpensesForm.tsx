@@ -1,18 +1,18 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
 
 function LastExpensesForm({ expenseAmountData }) {
   return (
-    <Table whiteSpace="nowrap" hover={true}>
+    <Table $whiteSpace="nowrap" $hover={true}>
       <thead>
         <tr>
-          <th>{__('PRODUCT / SERVICE')}</th>
-          <th>{__('QUANTITY')}</th>
-          <th>{__('AMOUNT')}</th>
-          <th>{__('UNIT PRICE')}</th>
-          <th>{__('EXPENSE')}</th>
-          <th>{__('AMOUNT WITH EXPENSE')}</th>
+          <th>{__("PRODUCT / SERVICE")}</th>
+          <th>{__("QUANTITY")}</th>
+          <th>{__("AMOUNT")}</th>
+          <th>{__("UNIT PRICE")}</th>
+          <th>{__("EXPENSE")}</th>
+          <th>{__("AMOUNT WITH EXPENSE")}</th>
         </tr>
       </thead>
       <tbody>

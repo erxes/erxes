@@ -1,8 +1,8 @@
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import { Popover } from '@headlessui/react';
 import React from 'react';
 import Tagger from '../containers/Tagger';
 import { __ } from '@erxes/ui/src/utils';
+import { PopoverButton, PopoverHeader } from '@erxes/ui/src/styles/main';
 
 type Props = {
   type: string;
@@ -28,10 +28,14 @@ function TaggerPopover(props: Props) {
     ...taggerProps
   } = props;
 
-  const popover = (
-    <Popover id="tags-popover">
-      <Popover.Title as="h3">{__('Choose your tags')}</Popover.Title>
-      <Popover.Content>
+  return (
+    <Popover style={{ position: 'relative' }}>
+      <Popover.Button>
+        <PopoverButton>{trigger}</PopoverButton>
+      </Popover.Button>
+
+      <Popover.Panel style={{ position: 'absolute', zIndex: 10 }}>
+        <PopoverHeader>{__('Choose your tags')}</PopoverHeader>
         <Tagger
           parentTagId={parentTagId}
           event="onExit"
@@ -40,20 +44,8 @@ function TaggerPopover(props: Props) {
           {...taggerProps}
           refetchQueries={refetchQueries}
         />
-      </Popover.Content>
+      </Popover.Panel>
     </Popover>
-  );
-
-  return (
-    <OverlayTrigger
-      trigger="click"
-      placement="bottom"
-      overlay={popover}
-      container={container}
-      rootClose={true}
-    >
-      {trigger}
-    </OverlayTrigger>
   );
 }
 

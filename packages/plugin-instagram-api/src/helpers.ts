@@ -169,7 +169,7 @@ export const repairIntegrations = async (
     // pageTokenResponse = await getPageAccessToken(pageId, account.token);
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
     await subscribePage(pageId, pageTokens[pageId]);
-    await models.Integrations.remove({
+    await models.Integrations.deleteMany({
       erxesApiId: { $ne: integrationId },
       facebookPageIds: pageId,
       kind: integration.kind

@@ -2,35 +2,45 @@ import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-const Calendar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-  )
+const Calendar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
+    ),
 );
 
-const PurchaseColumn = asyncComponent(() =>
-  import(/* webpackChunkName: "PurchaseColumn" */ './containers/CalendarColumn')
+const PurchaseColumn = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PurchaseColumn" */ './containers/CalendarColumn'
+    ),
 );
 
-const PurchaseMainActionBar = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PurchaseMainActionbar" */ './components/PurchaseMainActionBar'
-  )
+const PurchaseMainActionBar = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PurchaseMainActionbar" */ './components/PurchaseMainActionBar'
+    ),
 );
 
-const PurchaseBoard = asyncComponent(() =>
-  import(/* webpackChunkName: "PurchaseBoard" */ './components/PurchaseBoard')
+const PurchaseBoard = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PurchaseBoard" */ './components/PurchaseBoard'
+    ),
 );
 
-const Conversation = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
-  )
+const Conversation = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
+    ),
 );
 
-const purchases = () => {
+const Purchases = () => {
   let view = localStorage.getItem('purchaseView') || 'board';
   let purchasesLink = `/purchase/${view}`;
 
@@ -38,29 +48,32 @@ const purchases = () => {
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.purchase,
-    defaultPipelines.purchase
+    defaultPipelines.purchase,
   ];
 
   if (defaultBoardId && defaultPipelineId) {
     purchasesLink = `/purchase/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
-  return <Redirect to={purchasesLink} />;
+  return <Navigate replace to={purchasesLink} />;
 };
 
-const boards = ({ location }) => {
+const Boards = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PurchaseBoard viewType="board" queryParams={queryParams} />;
 };
 
-const activity = ({ location }) => {
+const Activity = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PurchaseBoard viewType="activity" queryParams={queryParams} />;
 };
 
-const calendar = ({ location }) => {
+const CalendarComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
@@ -74,31 +87,36 @@ const calendar = ({ location }) => {
   );
 };
 
-const list = ({ location }) => {
+const List = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PurchaseBoard viewType="list" queryParams={queryParams} />;
 };
 
-const chart = ({ location }) => {
+const Chart = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PurchaseBoard viewType="chart" queryParams={queryParams} />;
 };
 
-const gantt = ({ location }) => {
+const Gantt = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PurchaseBoard viewType="gantt" queryParams={queryParams} />;
 };
 
-const conversion = ({ location }) => {
+const Conversion = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <Conversation queryParams={queryParams} />;
 };
 
-const time = ({ location }) => {
+const Time = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <PurchaseBoard viewType="time" queryParams={queryParams} />;
@@ -106,65 +124,41 @@ const time = ({ location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route key="purchases" exact={true} path="/purchase" render={purchases} />
+    <Routes>
+      <Route key="purchases" path="/purchase" element={<Purchases />} />
 
       <Route
         key="purchases/board"
-        exact={true}
         path="/purchase/board"
-        component={boards}
+        element={<Boards />}
       />
 
       <Route
         key="purchases/calendar"
-        exact={true}
         path="/purchase/calendar"
-        component={calendar}
+        element={<CalendarComponent />}
       />
 
       <Route
         key="purchases/conversion"
-        exact={true}
         path="/purchase/conversion"
-        component={conversion}
+        element={<Conversion />}
       />
 
       <Route
         key="purchases/activity"
-        exact={true}
         path="/purchase/activity"
-        component={activity}
+        element={<Activity />}
       />
 
-      <Route
-        key="purchases/list"
-        exact={true}
-        path="/purchase/list"
-        component={list}
-      />
+      <Route key="purchases/list" path="/purchase/list" element={<List />} />
 
-      <Route
-        key="purchases/chart"
-        exact={true}
-        path="/purchase/chart"
-        component={chart}
-      />
+      <Route key="purchases/chart" path="/purchase/chart" element={<Chart />} />
 
-      <Route
-        key="purchases/gantt"
-        exact={true}
-        path="/purchase/gantt"
-        component={gantt}
-      />
+      <Route key="purchases/gantt" path="/purchase/gantt" element={<Gantt />} />
 
-      <Route
-        key="purchases/time"
-        exact={true}
-        path="/purchase/time"
-        component={time}
-      />
-    </React.Fragment>
+      <Route key="purchases/time" path="/purchase/time" element={<Time />} />
+    </Routes>
   );
 };
 

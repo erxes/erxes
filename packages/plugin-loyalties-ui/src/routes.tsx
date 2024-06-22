@@ -1,272 +1,257 @@
-import queryString from 'query-string';
-import React from 'react';
-import Settings from './configs/general/containers/Settings';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const VoucherCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/voucherCampaign/containers/List'
-  )
+import React from "react";
+import Settings from "./configs/general/containers/Settings";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+
+const VoucherCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/voucherCampaign/containers/List"
+    )
 );
 
-const LotteryCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/lotteryCampaign/containers/List'
-  )
+const LotteryCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/lotteryCampaign/containers/List"
+    )
 );
 
-const SpinCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/spinCampaign/containers/List'
-  )
+const SpinCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/spinCampaign/containers/List"
+    )
 );
 
-const DonateCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/donateCampaign/containers/List'
-  )
+const DonateCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/donateCampaign/containers/List"
+    )
 );
 
-const AssignmentCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/List'
-  )
+const AssignmentCampaigns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/assignmentCampaign/containers/List"
+    )
 );
 
-const AssignmentCampaignsCreate = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/CreateForm'
-  )
+const AssignmentCampaignsCreate = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/assignmentCampaign/containers/CreateForm"
+    )
 );
 
-const AssignmentCampaignsEdit = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/assignmentCampaign/containers/EditForm'
-  )
+const AssignmentCampaignsEdit = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./configs/assignmentCampaign/containers/EditForm"
+    )
 );
 
-const Vouchers = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/vouchers/containers/List'
-  )
+const Vouchers = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/vouchers/containers/List"
+    )
 );
 
-const Lotteries = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/List'
-  )
+const Lotteries = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/lotteries/containers/List"
+    )
 );
 
-const Spins = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/spins/containers/List'
-  )
+const Spins = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/spins/containers/List"
+    )
 );
 
-const Donates = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/donates/containers/List'
-  )
+const Donates = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/donates/containers/List"
+    )
 );
 
-const ScoreLogs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/scorelogs/containers/List'
-  )
+const ScoreLogs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/scorelogs/containers/List"
+    )
 );
 
-const Award = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award'
-  )
+const Award = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/lotteries/containers/Award"
+    )
 );
 
-const Assignments = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/assignments/containers/List'
-  )
+const Assignments = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "KnowledgeBase" */ "./loyalties/assignments/containers/List"
+    )
 );
 
-const voucherCampaignList = ({ location, history }) => {
+const VoucherCampaignList = () => {
+  const location = useLocation();
+
+  return <VoucherCampaigns queryParams={queryString.parse(location.search)} />;
+};
+
+const LotteryCampaignList = () => {
+  const location = useLocation();
+
+  return <LotteryCampaigns queryParams={queryString.parse(location.search)} />;
+};
+
+const SpinCampaignList = () => {
+  const location = useLocation();
+
+  return <SpinCampaigns queryParams={queryString.parse(location.search)} />;
+};
+
+const DonateCampaignList = () => {
+  const location = useLocation();
+
+  return <DonateCampaigns queryParams={queryString.parse(location.search)} />;
+};
+
+const AssignmentCampaignList = () => {
+  const location = useLocation();
+
   return (
-    <VoucherCampaigns
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
+    <AssignmentCampaigns queryParams={queryString.parse(location.search)} />
   );
 };
 
-const lotteryCampaignList = ({ location, history }) => {
-  return (
-    <LotteryCampaigns
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
+const AssignmentCampaignCreate = () => {
+  const location = useLocation();
 
-const spinCampaignList = ({ location, history }) => {
-  return (
-    <SpinCampaigns
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const donateCampaignList = ({ location, history }) => {
-  return (
-    <DonateCampaigns
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const assignmentCampaignList = ({ location, history }) => {
-  return (
-    <AssignmentCampaigns
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-
-const assignmentCampaignCreate = ({ location, history }) => {
   return (
     <AssignmentCampaignsCreate
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
-const assignmentCampaignEdit = ({ location, history }) => {
+const AssignmentCampaignEdit = () => {
+  const location = useLocation();
+
   return (
-    <AssignmentCampaignsEdit
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
+    <AssignmentCampaignsEdit queryParams={queryString.parse(location.search)} />
   );
 };
 
-const vouchers = ({ location, history }) => {
-  return (
-    <Vouchers
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const VouchersComponent = () => {
+  const location = useLocation();
+
+  return <Vouchers queryParams={queryString.parse(location.search)} />;
 };
 
-const lotteries = ({ location, history }) => {
-  return (
-    <Lotteries
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const LotteriesComponent = () => {
+  const location = useLocation();
+
+  return <Lotteries queryParams={queryString.parse(location.search)} />;
 };
 
-const spins = ({ location, history }) => {
-  return (
-    <Spins queryParams={queryString.parse(location.search)} history={history} />
-  );
+const SpinsComponent = () => {
+  const location = useLocation();
+
+  return <Spins queryParams={queryString.parse(location.search)} />;
 };
 
-const donates = ({ location, history }) => {
-  return (
-    <Donates
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const DonatesComponent = () => {
+  const location = useLocation();
+
+  return <Donates queryParams={queryString.parse(location.search)} />;
 };
 
-const award = ({ location, history }) => {
-  return (
-    <Award queryParams={queryString.parse(location.search)} history={history} />
-  );
+const AwardComponent = () => {
+  const location = useLocation();
+
+  return <Award queryParams={queryString.parse(location.search)} />;
 };
 
-const scorelogs = ({ history, location }) => {
-  return (
-    <ScoreLogs
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const Scorelogs = () => {
+  const location = useLocation();
+
+  return <ScoreLogs queryParams={queryString.parse(location.search)} />;
 };
 
-const assignments = ({ location, history }) => {
-  return (
-    <Assignments
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const AssignmentsComponent = () => {
+  const location = useLocation();
+
+  return <Assignments queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         path="/erxes-plugin-loyalty/settings/general"
-        component={Settings}
+        element={<Settings />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/voucher"
-        component={voucherCampaignList}
+        element={<VoucherCampaignList />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/lottery"
-        component={lotteryCampaignList}
+        element={<LotteryCampaignList />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/spin"
-        component={spinCampaignList}
+        element={<SpinCampaignList />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/donate"
-        component={donateCampaignList}
+        element={<DonateCampaignList />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/assignment"
-        exact={true}
-        component={assignmentCampaignList}
+        element={<AssignmentCampaignList />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/assignment/create"
-        exact={true}
-        component={assignmentCampaignCreate}
+        element={<AssignmentCampaignCreate />}
       />
 
       <Route
         path="/erxes-plugin-loyalty/settings/assignment/edit"
-        component={assignmentCampaignEdit}
+        element={<AssignmentCampaignEdit />}
       />
 
-      <Route path="/lotteryAward" component={award} />
+      <Route path="/lotteryAward" element={<AwardComponent />} />
 
-      <Route path="/vouchers" component={vouchers} />
+      <Route path="/vouchers" element={<VouchersComponent />} />
 
-      <Route path="/lotteries" component={lotteries} />
+      <Route path="/lotteries" element={<LotteriesComponent />} />
 
-      <Route path="/spins" component={spins} />
+      <Route path="/spins" element={<SpinsComponent />} />
 
-      <Route path="/donates" component={donates} />
+      <Route path="/donates" element={<DonatesComponent />} />
 
-      <Route path="/score" component={scorelogs} />
+      <Route path="/score" element={<Scorelogs />} />
 
-      <Route path="/assignments" component={assignments} />
-    </>
+      <Route path="/assignments" element={<AssignmentsComponent />} />
+    </Routes>
   );
 };
 

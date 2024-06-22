@@ -17,7 +17,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 
 import { ButtonRelated, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils/core';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import { IOperation } from '../types';
 import { Footer } from '@erxes/ui/src/styles/chooser';
 import Table from '@erxes/ui/src/components/table';
@@ -85,11 +85,12 @@ function Sidebar({
       <>
         <Select
           placeholder={__('Type to search...')}
-          value={operation.wsOperationName}
+          value={operationList.find(o=>o.value === operation.wsOperationName)}
           onChange={onChangeTag}
           isLoading={props.loading}
           options={operationList}
-          multi={false}
+          isClearable={true}
+          isMulti={false}
         />
         <div style={{ marginTop: 10 }} />
         <Box title="inputs">
@@ -195,7 +196,7 @@ function Sidebar({
     };
 
     return (
-      <Table striped bordered responsive>
+      <Table $striped $bordered $responsive>
         <tbody id="hurData"> {renderRows()}</tbody>
         {showConvertButton && (
           <div>
@@ -243,7 +244,7 @@ function Sidebar({
       };
 
       return (
-        <Table striped bordered responsive key={d?.serviceDescription}>
+        <Table $striped $bordered $responsive key={d?.serviceDescription}>
           <tbody id="hurData">
             {d.data.list.map((listItem, index: number) =>
               renderListItems(listItem, index)

@@ -1,56 +1,54 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { DetailQueryResponse, IOptions } from '../types';
-import { EditForm } from './editForm';
+import * as compose from "lodash.flowright";
+import * as routerUtils from "@erxes/ui/src/utils/router";
+
+import { DetailQueryResponse, IOptions } from "../types";
+
+import { EditForm } from "./editForm";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type WrapperProps = {
   itemId: string;
   options: IOptions;
 };
 
-type FinalProps = WrapperProps &
-  IRouterProps & {
-    detailQuery: DetailQueryResponse;
+type FinalProps = WrapperProps & {
+  detailQuery: DetailQueryResponse;
+};
+
+const InvisibleItemInUrl = (props: FinalProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const beforePopupClose = () => {
+    routerUtils.removeParams(navigate, location, "itemId");
   };
 
-class InvisibleItemInUrl extends React.PureComponent<FinalProps> {
-  beforePopupClose = () => {
-    const { history } = this.props;
+  const { options, itemId, detailQuery } = props;
 
-    routerUtils.removeParams(history, 'itemId');
-  };
-
-  render() {
-    const { options, itemId, detailQuery } = this.props;
-
-    if (detailQuery.loading) {
-      return null;
-    }
-
-    const item = detailQuery[options.queriesName.detailQuery];
-
-    if (!item) {
-      return null;
-    }
-
-    return (
-      <EditForm
-        itemId={itemId}
-        options={options}
-        isPopupVisible={true}
-        stageId={item.stageId}
-        hideHeader={true}
-        beforePopupClose={this.beforePopupClose}
-      />
-    );
+  if (detailQuery.loading) {
+    return null;
   }
-}
+
+  const item = detailQuery[options.queriesName.detailQuery];
+
+  if (!item) {
+    return null;
+  }
+
+  return (
+    <EditForm
+      itemId={itemId}
+      options={options}
+      isPopupVisible={true}
+      stageId={item.stageId}
+      hideHeader={true}
+      beforePopupClose={beforePopupClose}
+    />
+  );
+};
 
 const withQuery = (props: WrapperProps) => {
   const { options } = props;
@@ -60,18 +58,18 @@ const withQuery = (props: WrapperProps) => {
       graphql<WrapperProps, DetailQueryResponse, { _id: string }>(
         gql(options.queries.detailQuery),
         {
-          name: 'detailQuery',
+          name: "detailQuery",
           options: ({ itemId }: { itemId: string }) => {
             return {
               variables: {
-                _id: itemId
+                _id: itemId,
               },
-              fetchPolicy: 'network-only'
+              fetchPolicy: "network-only",
             };
-          }
+          },
         }
       )
-    )(withRouter(InvisibleItemInUrl))
+    )(InvisibleItemInUrl)
   );
 };
 

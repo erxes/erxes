@@ -42,7 +42,7 @@ export default {
         icon: 'messenger',
         label: 'Facebook Message',
         description:
-          'Start with a blank workflow that enralls and is triggered off facebook messages',
+          'Start with a blank workflow that enrolls and is triggered off facebook messages',
         isCustom: true,
         conditions: [
           {
@@ -71,7 +71,7 @@ export default {
         icon: 'comments',
         label: 'Facebook Comments',
         description:
-          'Start with a blank workflow that enralls and is triggered off facebook comments',
+          'Start with a blank workflow that enrolls and is triggered off facebook comments',
         isCustom: true,
       },
     ],

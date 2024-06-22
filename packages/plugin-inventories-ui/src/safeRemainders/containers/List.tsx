@@ -1,25 +1,24 @@
-import React from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import queryString from 'query-string';
 // erxes
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
-import Bulk from '@erxes/ui/src/components/Bulk';
+import { Alert, confirm, router } from "@erxes/ui/src/utils";
+import { mutations, queries } from "../graphql";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+
+import Bulk from "@erxes/ui/src/components/Bulk";
+import { ISafeRemainder } from "../types";
 // local
-import ListComponent from '../components/List';
-import { mutations, queries } from '../graphql';
-import { ISafeRemainder } from '../types';
+import ListComponent from "../components/List";
+import React from "react";
+import { gql } from "@apollo/client";
+import queryString from "query-string";
 
 function ListContainer() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   // Queries
   const safeRemaindersQuery = useQuery(gql(queries.safeRemainders), {
-    displayName: 'safeRemaindersQuery',
     variables: {
       ...router.generatePaginationParams(queryParams || {}),
       beginDate: queryParams.beginDate,
@@ -27,17 +26,17 @@ function ListContainer() {
       productId: queryParams.productId,
       branchId: queryParams.branchId,
       departmentId: queryParams.departmentId,
-      searchValue: queryParams.searchValue
+      searchValue: queryParams.searchValue,
     },
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true
+    fetchPolicy: "network-only",
+    notifyOnNetworkStatusChange: true,
   });
 
   // Mutations
   const [safeRemainderRemove] = useMutation(
     gql(mutations.safeRemainderRemove),
     {
-      refetchQueries: ['safeRemaindersQuery']
+      refetchQueries: ["safeRemaindersQuery"],
     }
   );
 
@@ -48,10 +47,10 @@ function ListContainer() {
     const searchValue = event.target.value;
 
     if (searchValue.length === 0) {
-      return router.removeParams(history, 'searchValue');
+      return router.removeParams(navigate, location, "searchValue");
     }
 
-    router.setParams(history, { searchValue });
+    router.setParams(navigate, location, { searchValue });
   };
 
   const removeItem = (remainder: ISafeRemainder) => {
@@ -59,14 +58,14 @@ function ListContainer() {
       .then(() => {
         safeRemainderRemove({ variables: { _id: remainder._id } })
           .then(() => {
-            Alert.success('You successfully deleted a census');
+            Alert.success("You successfully deleted a census");
             safeRemaindersQuery.refetch();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -82,7 +81,7 @@ function ListContainer() {
       safeRemaindersQuery.data.safeRemainders.totalCount) ||
     0;
 
-  const searchValue = queryParams.searchValue || '';
+  const searchValue = queryParams.searchValue || "";
 
   const componentProps = {
     remainders,
@@ -90,7 +89,7 @@ function ListContainer() {
     loading: safeRemaindersQuery.loading,
     handleSearch,
     searchValue,
-    removeItem
+    removeItem,
   };
 
   const renderContent = (bulkProps: any) => {
@@ -100,4 +99,4 @@ function ListContainer() {
   return <Bulk content={renderContent} refetch={refetch} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

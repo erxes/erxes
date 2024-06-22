@@ -9,9 +9,10 @@ import { SettingsContent } from './styles';
 import { __ } from '@erxes/ui/src/utils';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
-import { PAYMENT_KINDS, BANK_CODES, MCC_CODES } from '../constants';
+import { PAYMENT_KINDS, BANK_CODES, MCC_CODES, CITIES } from '../constants';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import Select from 'react-select-plus';
+import Select from 'react-select';
+import SelectDistrict from '../../containers/SelectDistrict';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -36,11 +37,11 @@ type State = {
   companyName: string;
   lastName: string;
   firstName: string;
-
+  businessName: string;
   bankCode: string;
   bankAccount: string;
   bankAccountName: string;
-
+  isFlat: boolean;
   merchantId: string;
 };
 
@@ -52,7 +53,8 @@ const QuickQrForm = (props: Props) => {
     type: config ? (config.isCompany ? 'company' : 'person') : undefined,
     ...config,
     name,
-    companyName: config ? config.name : ''
+    companyName: config?.name,
+    business_name: config?.businessName,
   });
 
   const generateDoc = () => {
@@ -63,7 +65,9 @@ const QuickQrForm = (props: Props) => {
       config: {
         isCompany: state.type === 'company',
         registerNumber: state.registerNumber,
-        name: state.companyName,
+        name: state.name,
+        companyName: state.companyName,
+        businessName: state.businessName,
         mccCode: state.mccCode,
         city: state.city,
         district: state.district,
@@ -72,12 +76,12 @@ const QuickQrForm = (props: Props) => {
         email: state.email,
         lastName: state.lastName,
         firstName: state.firstName,
-
+        isFlat: state.isFlat,
         bankCode: state.bankCode,
         bankAccount: state.bankAccount,
         bankAccountName: state.bankAccountName,
-        merchantId: state.merchantId
-      }
+        merchantId: state.merchantId,
+      },
     };
 
     return payment ? { id: payment._id, ...generatedValues } : generatedValues;
@@ -85,6 +89,10 @@ const QuickQrForm = (props: Props) => {
 
   const onChangeConfig = (code: string, e) => {
     setState({ ...state, [code]: e.target.value });
+  };
+
+  const onChangeDistrict = (district: string) => {
+    setState({ ...state, district });
   };
 
   const renderItem = (
@@ -110,7 +118,7 @@ const QuickQrForm = (props: Props) => {
     );
   };
 
-  const renderInputs = formProps => {
+  const renderInputs = (formProps) => {
     if (!state.type) {
       return null;
     }
@@ -120,7 +128,7 @@ const QuickQrForm = (props: Props) => {
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '20px'
+          gap: '20px',
         }}
       >
         {state.type === 'company' && renderItem('companyName', 'Company Name')}
@@ -128,10 +136,41 @@ const QuickQrForm = (props: Props) => {
         {state.type === 'person' && renderItem('lastName', 'Last Name')}
 
         {renderItem('registerNumber', 'Register Number')}
-        {/* {renderItem('mccCode', 'MCC Code')} */}
         {renderMccCode()}
-        {renderItem('city', 'City')}
-        {renderItem('district', 'District')}
+        <FormGroup>
+          <FormControl
+            className='toggle-message'
+            componentclass='checkbox'
+            checked={state.isFlat}
+            onChange={(e: any) => {
+              setState({ ...state, isFlat: e.target.checked });
+            }}
+          >
+            Flat
+          </FormControl>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>City</ControlLabel>
+          <FormControl
+            {...formProps}
+            id='city'
+            name='city'
+            componentclass='select'
+            required={true}
+            defaultValue={state.city}
+            onChange={onChangeConfig.bind(this, 'city')}
+            errors={formProps.errors}
+          >
+            <option value=''>{__('Select a city')}</option>
+            {CITIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.name}
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+        <SelectDistrict onChange={onChangeDistrict} cityCode={state.city} />
+        {renderItem('businessName', 'Business Name')}
         {renderItem('address', 'Address')}
         {renderItem('phone', 'Phone')}
         {renderItem('email', 'Email')}
@@ -146,16 +185,16 @@ const QuickQrForm = (props: Props) => {
           <p>{__('The bank of the account number to receive payments')}</p>
           <FormControl
             {...formProps}
-            id="toBank"
-            name="toBank"
-            componentClass="select"
+            id='toBank'
+            name='toBank'
+            componentclass='select'
             required={true}
             defaultValue={state.bankCode}
             onChange={onChangeConfig.bind(this, 'bankCode')}
             errors={formProps.errors}
           >
-            <option value="">{__('Select a bank')}</option>
-            {BANK_CODES.map(bank => (
+            <option value=''>{__('Select a bank')}</option>
+            {BANK_CODES.map((bank) => (
               <option key={bank.value} value={bank.value}>
                 {bank.label}
               </option>
@@ -168,7 +207,7 @@ const QuickQrForm = (props: Props) => {
   };
 
   const renderMccCode = () => {
-    const onChangeMccCode = e => {
+    const onChangeMccCode = (e) => {
       setState({ ...state, mccCode: e.value });
     };
 
@@ -177,10 +216,11 @@ const QuickQrForm = (props: Props) => {
         <ControlLabel required={true}>MCC Code</ControlLabel>
         <Select
           placeholder={__('Select MCC Code')}
-          value={state.mccCode}
+          value={MCC_CODES.find((o) => o.value === state.mccCode)}
           onChange={onChangeMccCode}
           options={MCC_CODES}
-          multi={false}
+          isClearable={true}
+          isMulti={false}
         />
       </FormGroup>
     );
@@ -197,7 +237,7 @@ const QuickQrForm = (props: Props) => {
           <FormGroup>
             <ControlLabel>{__('Type')}</ControlLabel>
             <FormControl
-              componentClass="select"
+              componentclass='select'
               required={true}
               defaultValue={state.type}
               onChange={onChangeConfig.bind(this, 'type')}
@@ -213,10 +253,10 @@ const QuickQrForm = (props: Props) => {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
+            btnStyle='simple'
+            type='button'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
           >
             Cancel
           </Button>
@@ -224,7 +264,7 @@ const QuickQrForm = (props: Props) => {
             passedName: 'payment',
             values: generateDoc(),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>

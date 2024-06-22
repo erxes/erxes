@@ -26,7 +26,6 @@ type Props = {
   showSideBar: (sideBar: boolean) => void;
   getPagination: (pagination: any) => void;
 
-  history: any;
   queryParams: any;
 
   absenceTypeId?: string;

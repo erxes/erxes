@@ -1,32 +1,34 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import Report from './containers/report/Report';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import Report from "./containers/report/Report";
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Reportss" */ './containers/List')
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "List - Reportss" */ "./containers/List")
 );
 
-const reports = ({ location, history }) => {
+const Reports = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
 
-  return <List typeId={type} history={history} queryParams={queryParams} />;
+  return <List typeId={type} queryParams={queryParams} />;
 };
 
-const ReportForm = asyncComponent(() =>
-  import('./containers/report/ReportForm')
+const ReportForm = asyncComponent(
+  () => import("./containers/report/ReportForm")
 );
 
-const reportsDetail = ({ match, location, history }) => {
-  const slug = match.params.slug;
+const ReportsDetail = () => {
+  const { slug } = useParams();
+  const location = useLocation();
 
   const queryParams = queryString.parse(location.search);
 
-  const props = { reportId: slug, queryParams, history };
+  const props = { reportId: slug || '', queryParams };
 
-  if (slug === 'create-report') {
+  if (slug === "create-report") {
     return <ReportForm {...props} />;
   }
 
@@ -35,16 +37,15 @@ const reportsDetail = ({ match, location, history }) => {
 
 const routes = () => {
   return (
-    <>
-      <Route path="/reports" exact={true} component={reports} />
+    <Routes>
+      <Route path="/reports" element={<Reports />} />
 
       <Route
         key="/reports/details/:slug"
-        exact={true}
         path="/reports/details/:slug"
-        component={reportsDetail}
+        element={<ReportsDetail />}
       />
-    </>
+    </Routes>
   );
 };
 

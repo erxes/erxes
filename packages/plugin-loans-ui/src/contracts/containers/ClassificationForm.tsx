@@ -1,18 +1,15 @@
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { mutations } from '../graphql';
 import { IContract } from '../types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 import ClassificationForm from '../components/list/ClassificationForm';
 import { queries } from '../../contractTypes/graphql';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   contracts: IContract[];
@@ -22,55 +19,59 @@ type Props = {
 };
 
 type FinalProps = {
-  usersQuery: UsersQueryResponse;
   currentUser: IUser;
-  contracts: IContract[];
 } & Props;
 
-class ContractFromContainer extends React.Component<FinalProps> {
-  render() {
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      object,
-      disabled
-    }: IButtonMutateProps & { disabled: boolean }) => {
-      const { closeModal } = this.props;
+const ContractFromContainer = (props: FinalProps) => {
+  const constractTypeIds = props.contracts.map((a) => a.contractTypeId);
+  const contractTypesMain = useQuery(gql(queries.contractTypesMain), {
+    variables: {
+      ids: constractTypeIds,
+    },
+    fetchPolicy: 'network-only',
+  });
 
-      const afterSave = () => {
-        closeModal();
-      };
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    object,
+    disabled,
+  }: IButtonMutateProps & { disabled: boolean }) => {
+    const { closeModal } = props;
 
-      return (
-        <ButtonMutate
-          mutation={mutations.changeClassification}
-          variables={{ classifications: values }}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          disabled={disabled}
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
+    const afterSave = () => {
+      closeModal();
     };
 
-    if (this.props.contractTypesMain?.contractTypesMain?.list?.length > 0) {
-      const updatedProps = {
-        ...this.props,
-        contractTypes: this.props.contractTypesMain?.contractTypesMain?.list,
-        renderButton
-      };
+    return (
+      <ButtonMutate
+        mutation={mutations.changeClassification}
+        variables={{ classifications: values }}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        disabled={disabled}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
 
-      return <ClassificationForm {...updatedProps} />;
-    } else return <div />;
-  }
-}
+  if (contractTypesMain?.data?.contractTypesMain?.list?.length > 0) {
+    const updatedProps = {
+      ...props,
+      contractTypes: contractTypesMain?.data?.contractTypesMain?.list,
+      renderButton,
+    };
+
+    return <ClassificationForm {...updatedProps} />;
+  } else return <div />;
+};
 
 const getRefetchQueries = () => {
   return [
@@ -79,25 +80,8 @@ const getRefetchQueries = () => {
     'contracts',
     'contractCounts',
     'activityLogs',
-    'schedules'
+    'schedules',
   ];
 };
 
-export default withCurrentUser(
-  withProps<Props>(
-    compose(
-      graphql<any, any, any>(gql(queries.contractTypesMain), {
-        name: 'contractTypesMain',
-        options: ({ queryParams, ...other }) => {
-          const constractTypeIds = other.contracts.map(a => a.contractTypeId);
-          return {
-            variables: {
-              ids: constractTypeIds
-            },
-            fetchPolicy: 'network-only'
-          };
-        }
-      })
-    )(ContractFromContainer)
-  )
-);
+export default withCurrentUser(ContractFromContainer);

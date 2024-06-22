@@ -15,6 +15,8 @@ export interface IBot {
   token: string;
   status: string;
   persistentMenus: IPersistentMenus[];
+  greetText?: string;
+  tag?: string;
 }
 
 export interface IBotDocument extends IBot, Document {
@@ -36,5 +38,7 @@ export const botSchema = new Schema({
   pageId: { type: String },
   token: { type: String },
   persistentMenus: { type: [persistentMenuSchema] },
+  greetText: { type: String, optional: true },
+  tag: { type: String, optional: true },
   createdAt: { type: Date, default: Date.now() },
 });

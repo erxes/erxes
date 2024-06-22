@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import {
   types as IntegrationTypes,
   queries as IntegrationQueries,
-  mutations as IntegrationMutations
+  mutations as IntegrationMutations,
 } from './integrationTypeDefs';
 
 const typeDefs = async () => {

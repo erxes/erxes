@@ -1,15 +1,15 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Counts, User } from './styles';
+import { Counts, User } from "./styles";
 
-import Date from './Date';
-import FacebookContent from './FacebookContent';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IFacebookPost } from '../../../types';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { PostContainer } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
-import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+import Date from "./Date";
+import FacebookContent from "./FacebookContent";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IFacebookPost } from "../../../types";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import { PostContainer } from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles";
+import UserName from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName";
 
 type Props = {
   post: IFacebookPost;
@@ -27,7 +27,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
         <span>{commentCount} Comments</span>
 
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={this.props.onToggleClick}
           checked={this.props.isResolved}
         >
@@ -50,7 +50,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
 
         <User isPost={true}>
           <UserName
-            username={`${customer.firstName} ${customer.lastName || ''}`}
+            username={`${customer.firstName} ${customer.lastName || ""}`}
             userId={post.senderId}
           />
           <span>

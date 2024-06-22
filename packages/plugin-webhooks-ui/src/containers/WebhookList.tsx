@@ -1,86 +1,78 @@
+import React from 'react';
+
 import { gql } from '@apollo/client';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { useQuery, useMutation } from '@apollo/client';
+
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   ICommonFormProps,
-  ICommonListProps
+  ICommonListProps,
 } from '@erxes/ui-settings/src/common/types';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
+import { Alert } from '@erxes/ui/src/utils';
 
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { commonListComposer } from '@erxes/ui/src/utils';
 import WebhookList from '../components/WebhookList';
 import { mutations, queries } from '../graphql';
 
-type Props = ICommonListProps &
-  ICommonFormProps & {
-    removeMutation: any;
-    listQuery: any;
-    editMutation: any;
-    renderButton: (props: IButtonMutateProps) => JSX.Element;
+type Props = {
+  queryParams: any;
+} & ICommonListProps &
+  ICommonFormProps;
+
+const WebhookListContainer = (props: Props) => {
+  const { queryParams } = props;
+
+  // Queries
+  const listQuery = useQuery(
+    gql(queries.webhooks),
+    options({ queryParams: queryParams || {} }),
+  );
+
+  const configsEnvQuery = useQuery(
+    gql(generalQueries.configsGetEnv),
+    options({ queryParams: queryParams || {} }),
+  );
+
+  const totalCountQuery = useQuery(
+    gql(queries.webhooksTotalCount),
+    options({ queryParams: queryParams || {} }),
+  );
+
+  // Mutations
+  const [webhooksRemove] = useMutation(gql(mutations.webhooksRemove), {
+    refetchQueries: ['webhooks', 'webhooksTotalCount'],
+  });
+
+  const removeWebhook = (_id: any) => {
+    webhooksRemove({ variables: { _id } })
+      .then(() => {
+        Alert.success('You successfully updated a census');
+      })
+      .catch((error: any) => Alert.error(error.message));
   };
 
-class WebhookListContainer extends React.Component<Props> {
-  render() {
-    return (
-      <WebhookList
-        {...this.props}
-        refetchQueries={getRefetchQueries()}
-        renderButton={this.props.renderButton}
-        objects={this.props.listQuery.webhooks || []}
-      />
-    );
-  }
-}
+  // Definition
+  const updatedProps = {
+    ...props,
+    objects: listQuery?.data?.webhooks || [],
+    configsEnvQuery: configsEnvQuery?.data?.configsGetEnv || {},
+    totalCount: totalCountQuery?.data?.webhooksTotalCount || 0,
+    loading: listQuery.loading || totalCountQuery.loading,
+    removeWebhook,
+  };
 
-const getRefetchQueries = () => {
-  return [
-    { query: gql(queries.webhooks), options },
-    { query: gql(queries.webhooksTotalCount), options }
-  ];
+  return <WebhookList {...updatedProps} />;
 };
 
 const options = ({ queryParams }: { queryParams: any }): any => {
   return {
     variables: {
       ...generatePaginationParams(queryParams),
-      _id: queryParams._id
+      _id: queryParams._id,
+      searchValue: queryParams.searchValue,
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   };
 };
 
-export default commonListComposer<{ queryParams: any; history: any }>({
-  text: 'webhook',
-  label: 'webhooks',
-  stringAddMutation: mutations.webhooksAdd,
-  stringEditMutation: mutations.webhooksEdit,
-
-  gqlListQuery: graphql(gql(queries.webhooks), {
-    name: 'listQuery',
-    options
-  }),
-  gqlGetActionsQuery: graphql(gql(queries.webhooksGetActions), {
-    name: 'webhooksGetActionsQuery'
-  }),
-  gqlAddMutation: graphql(gql(mutations.webhooksAdd), {
-    name: 'addMutation'
-  }),
-  gqlEditMutation: graphql(gql(mutations.webhooksEdit), {
-    name: 'editMutation'
-  }),
-  gqlRemoveMutation: graphql(gql(mutations.webhooksRemove), {
-    name: 'removeMutation'
-  }),
-  gqlTotalCountQuery: graphql(gql(queries.webhooksTotalCount), {
-    name: 'totalCountQuery',
-    options
-  }),
-
-  ListComponent: WebhookListContainer,
-  gqlConfigsQuery: graphql(gql(generalQueries.configsGetEnv), {
-    name: 'configsEnvQuery',
-    options: { fetchPolicy: 'network-only' }
-  })
-});
+export default WebhookListContainer;

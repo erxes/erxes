@@ -1,19 +1,20 @@
-import React from 'react';
 import {
+  IAttachment,
   IButtonMutateProps,
   IFormProps,
-  IAttachment
-} from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IQuestion, IChoice } from '../../types';
-import { readFile } from '@erxes/ui/src/utils';
+} from "@erxes/ui/src/types";
+import { IChoice, IQuestion } from "../../types";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import { __ } from "@erxes/ui/src/utils";
+import { readFile } from "@erxes/ui/src/utils";
 
 type Props = {
   question?: IQuestion;
@@ -32,21 +33,21 @@ const QuizQuestionForm: React.FC<Props> = ({
   quizId,
   type,
   choice,
-  questionId
+  questionId,
 }) => {
   const defaultFile = question
     ? {
         url: question.imageUrl,
-        name: 'Question image',
-        type: 'image'
+        name: "Question image",
+        type: "image",
       }
     : choice
-    ? {
-        url: choice.imageUrl,
-        name: 'Choice image',
-        type: 'image'
-      }
-    : ({} as IAttachment);
+      ? {
+          url: choice.imageUrl,
+          name: "Choice image",
+          type: "image",
+        }
+      : ({} as IAttachment);
   const [image, setImage] = React.useState(defaultFile);
   const [isMultipleChoice, setIsMultipleChoice] = React.useState(
     question?.isMultipleChoice || false
@@ -72,24 +73,24 @@ const QuizQuestionForm: React.FC<Props> = ({
     return {
       _id: finalValues._id,
       text: finalValues.text,
-      imageUrl: readFile(image.url) || '',
+      imageUrl: readFile(image.url) || "",
       isMultipleChoice,
       listOrder: parseInt(finalValues.listOrder, 10),
       quizId,
       isCorrect,
-      questionId
+      questionId,
     };
   };
 
-  const onChangeAttachment = attachment =>
+  const onChangeAttachment = (attachment) =>
     setImage(
       attachment && attachment.length !== 0
         ? attachment[0]
         : ({} as IAttachment)
     );
 
-  const checkboxOptions = props => {
-    if (type === 'choice') {
+  const checkboxOptions = (props) => {
+    if (type === "choice") {
       return (
         <FormGroup>
           <ControlLabel>Is correct</ControlLabel>
@@ -97,7 +98,7 @@ const QuizQuestionForm: React.FC<Props> = ({
             {...props}
             name="isMultipleChoice"
             className="toggle-message"
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={isCorrect}
             onChange={() => {
               setIsCorrect(!isCorrect);
@@ -114,7 +115,7 @@ const QuizQuestionForm: React.FC<Props> = ({
           {...props}
           name="isMultipleChoice"
           className="toggle-message"
-          componentClass="checkbox"
+          componentclass="checkbox"
           checked={isMultipleChoice}
           onChange={() => {
             setIsMultipleChoice(!isMultipleChoice);
@@ -129,7 +130,7 @@ const QuizQuestionForm: React.FC<Props> = ({
 
     let object = question || ({} as IQuestion);
 
-    if (type === 'choice') {
+    if (type === "choice") {
       object = choice || ({} as IChoice);
     }
 
@@ -142,7 +143,7 @@ const QuizQuestionForm: React.FC<Props> = ({
           <FormControl
             {...formProps}
             name="text"
-            defaultValue={object.text || ''}
+            defaultValue={object.text || ""}
           />
         </FormGroup>
 
@@ -158,7 +159,7 @@ const QuizQuestionForm: React.FC<Props> = ({
         {checkboxOptions({ ...formProps })}
 
         <FormGroup>
-          <ControlLabel>{__('List Order')}</ControlLabel>
+          <ControlLabel>{__("List Order")}</ControlLabel>
           <FormControl
             {...formProps}
             name="listOrder"
@@ -174,15 +175,15 @@ const QuizQuestionForm: React.FC<Props> = ({
             onClick={closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           {renderButton({
-            passedName: type === 'choice' ? 'choice' : 'question',
+            passedName: type === "choice" ? "choice" : "question",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: type === 'choice' ? choice : question
+            object: type === "choice" ? choice : question,
           })}
         </ModalFooter>
       </>

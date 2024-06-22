@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import Datetime from '@nateradebaugh/react-datetime';
-import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
-import Select from 'react-select-plus';
-import { CustomWidth, FlexRow } from '../../styles';
-import { timeFormat } from '../../constants';
-import { IScheduleDate } from '../../types';
-import { FormControl } from '@erxes/ui/src/components/form';
+import React, { useState } from "react";
+import Datetime from "@nateradebaugh/react-datetime";
+import Button from "@erxes/ui/src/components/Button";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
+import Select from "react-select";
+import { CustomWidth, FlexRow } from "../../styles";
+import { timeFormat } from "../../constants";
+import { IScheduleDate } from "../../types";
+import { FormControl } from "@erxes/ui/src/components/form";
 
 type Props = {
   scheduledDate: IScheduleDate;
@@ -40,15 +40,15 @@ const DatePicker = (props: Props) => {
     scheduledDate,
     onInputCheckedChange,
     changeScheduleTime,
-    changeScheduleBreak
+    changeScheduleBreak,
   } = props;
 
   const [shiftStartInput, setShiftStartInput] = useState(
-    scheduledDate.shiftStart || new Date(scheduledDate.shiftDate + ' 09:00')
+    scheduledDate.shiftStart || new Date(scheduledDate.shiftDate + " 09:00")
   );
 
   const [shiftEndInput, setShiftEndInput] = useState(
-    scheduledDate.shiftEnd || new Date(scheduledDate.shiftDate + ' 09:00')
+    scheduledDate.shiftEnd || new Date(scheduledDate.shiftDate + " 09:00")
   );
 
   const onTimeChange = (input: any, type: string) => {
@@ -57,13 +57,13 @@ const DatePicker = (props: Props) => {
     const getDate = startDate
       ? startDate.toLocaleDateString()
       : new Date().toLocaleDateString();
-    const validateInput = dayjs(getDate + ' ' + input).toDate();
+    const validateInput = dayjs(getDate + " " + input).toDate();
 
     if (
       input instanceof Date &&
       startDate?.getUTCFullYear() === input.getUTCFullYear()
     ) {
-      if (type === 'start') {
+      if (type === "start") {
         setShiftStartInput(input);
         changeScheduleTime(curr_day_key, type, input);
       } else {
@@ -73,7 +73,7 @@ const DatePicker = (props: Props) => {
     }
 
     if (!isNaN(validateInput.getTime())) {
-      if (type === 'start') {
+      if (type === "start") {
         setShiftStartInput(validateInput);
         changeScheduleTime(curr_day_key, type, validateInput);
       } else {
@@ -83,24 +83,19 @@ const DatePicker = (props: Props) => {
     }
   };
 
-  const onBreakChange = e => {
+  const onBreakChange = (e) => {
     const getBreakInMins = parseInt(e.currentTarget.value, 10);
     changeScheduleBreak(curr_day_key, getBreakInMins);
   };
 
-  const toggleInputChecked = e => {
+  const toggleInputChecked = (e) => {
     onInputCheckedChange(curr_day_key, e.target.checked);
   };
 
-  const {
-    shiftDate,
-    shiftStart,
-    shiftEnd,
-    lunchBreakInMins,
-    inputChecked
-  } = scheduledDate;
+  const { shiftDate, shiftStart, shiftEnd, lunchBreakInMins, inputChecked } =
+    scheduledDate;
 
-  const onDateChange = val => {
+  const onDateChange = (val) => {
     if (changeDate) {
       changeDate(curr_day_key, val);
     }
@@ -112,15 +107,15 @@ const DatePicker = (props: Props) => {
     }
   };
 
-  const onScheduleConfigSelect = el => {
+  const onScheduleConfigSelect = (el) => {
     changeScheduleConfig(curr_day_key, el.value);
   };
 
   return (
     <FlexRow>
-      <div style={{ width: '15%' }}>
+      <div style={{ width: "15%" }}>
         <Datetime
-          inputProps={{ style: { textAlign: 'center' } }}
+          inputProps={{ style: { textAlign: "center" } }}
           value={shiftDate}
           timeFormat={false}
           onChange={onDateChange}
@@ -131,19 +126,22 @@ const DatePicker = (props: Props) => {
           onChange={onScheduleConfigSelect}
           placeholder="Select Schedule"
           options={scheduleConfigOptions}
-          value={selectedScheduleConfigId}
-          multi={false}
+          value={scheduleConfigOptions.find(
+            (o) => o.value === selectedScheduleConfigId
+          )}
+          isClearable={true}
+          isMulti={false}
           // components={{ _Option: CustomOption }}
         />
       )}
-      <FlexRow style={{ width: '40%' }}>
+      <FlexRow style={{ width: "40%" }}>
         <CustomWidth widthPercent={15}>
           {inputChecked ? (
             <Datetime
               value={shiftStart}
               dateFormat={false}
-              timeFormat={'HH:mm'}
-              onChange={val => onTimeChange(val, 'start')}
+              timeFormat={"HH:mm"}
+              onChange={(val) => onTimeChange(val, "start")}
             />
           ) : (
             <>{dayjs(shiftStart).format(timeFormat)}</>
@@ -154,14 +152,14 @@ const DatePicker = (props: Props) => {
             <Datetime
               value={shiftEnd}
               dateFormat={false}
-              timeFormat={'HH:mm'}
-              onChange={val => onTimeChange(val, 'end')}
+              timeFormat={"HH:mm"}
+              onChange={(val) => onTimeChange(val, "end")}
               inputProps={{
-                onKeyPress: e => {
-                  if (e.key === 'Enter') {
-                    changeScheduleTime(curr_day_key, 'start', shiftStartInput);
+                onKeyPress: (e) => {
+                  if (e.key === "Enter") {
+                    changeScheduleTime(curr_day_key, "start", shiftStartInput);
                   }
-                }
+                },
               }}
             />
           ) : (
@@ -172,7 +170,7 @@ const DatePicker = (props: Props) => {
           {inputChecked ? (
             <FormControl
               name="lunchBreakInMins"
-              componentClass="number"
+              componentclass="number"
               defaultValue={lunchBreakInMins}
               onChange={onBreakChange}
             />
@@ -182,7 +180,7 @@ const DatePicker = (props: Props) => {
         </CustomWidth>
         <FormControl
           name="inputChecked"
-          componentClass="checkbox"
+          componentclass="checkbox"
           defaultChecked={inputChecked}
           onChange={toggleInputChecked}
         />

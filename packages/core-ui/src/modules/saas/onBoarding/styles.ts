@@ -53,7 +53,6 @@ const RightSidebarContent = styled.div`
 const CarouselWrapper = styled.div`
   width: 80%;
   height: 100%;
-  margin-top: 70px;
 
   .carousel-caption {
     position: relative;
@@ -101,16 +100,23 @@ const CarouselWrapper = styled.div`
     }
   }
 
-  .carousel-indicators li {
-    background-color: ${colors.colorPrimary};
-    width: 40px;
-    height: 4px;
-    border-radius: 7px;
-    opacity: 0.3;
-    border: none;
+  .carousel-indicators {
+    display: flex;
+    left: 65%;
+    gap: 5px;
 
-    &.active {
-      opacity: 1 !important;
+    span {
+      background-color: ${colors.colorPrimary};
+      width: 40px;
+      height: 4px;
+      border-radius: 7px;
+      opacity: 0.3;
+      border: none;
+      cursor: pointer;
+
+      &.active {
+        opacity: 1 !important;
+      }
     }
   }
 
@@ -273,29 +279,24 @@ const GeneralInformationForm = styled.div`
     line-height: 18px;
   }
 
-  .form-group {
-    height: 70px;
-    margin-bottom: 45px;
-    border-radius: 8px;
-
-    .form-control {
-      margin-top: 20px;
-      border-radius: 8px;
-      border: none;
-    }
-  }
-
   label {
     color: ${colors.colorBlack};
     font-size: 14px;
     margin-bottom: 20px;
+    display: inline;
+    text-transform: none;
+    font-weight: 400;
   }
 
-  .form-control {
+  input {
     background: #f5f5f5;
     height: 50px;
     font-size: 14px;
-    padding: ${dimensions.coreSpacing}px 20px ${dimensions.unitSpacing}px;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: none;
+    padding: ${dimensions.coreSpacing}px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 
     &:focus {
       outline: 0;
@@ -326,6 +327,10 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
   .color-accent {
     height: 135px !important;
 
+    input {
+      padding: 1px 0 1px 8px;
+    }
+
     label {
       font-size: 12px;
       font-weight: 600;
@@ -341,7 +346,7 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
     margin-bottom: 24px;
     border-radius: 8px;
 
-    .form-control {
+    input {
       border-radius: 8px;
       border: none;
     }
@@ -356,7 +361,7 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
         color: ${colors.colorPrimary};
       }
 
-      .form-control {
+      input {
         &:focus {
           border-color: inherit;
         }
@@ -367,7 +372,7 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
       background: ${rgba(colors.colorPrimary, 0.1)};
       border-color: ${rgba(colors.colorPrimary, 0.1)};
 
-      .form-control {
+      input {
         background: ${rgba(colors.colorPrimary, 0.1)};
       }
     }
@@ -387,8 +392,10 @@ const SidebarContent = styledTS<{ isCenter?: boolean }>(styled.div)`
       -webkit-transform 0.2s ease-out;
   }
 
-  .form-control {
-    background: ${colors.colorWhite};
+  input {
+    position: relative;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    z-index: 5;
     transition: all ease 0.3s;
     height: 50px;
     font-size: 14px;
@@ -590,11 +597,11 @@ const ContentBox = styled.div`
   .form-group {
     padding: 0 15px 15px 15px;
 
-    .form-control {
+    input {
       background: #f5f5f5;
       height: 50px;
       font-size: 14px;
-      padding: ${dimensions.coreSpacing}px 20px ${dimensions.unitSpacing}px;
+      padding: ${dimensions.coreSpacing}px;
       border-radius: 8px;
       border: none;
 

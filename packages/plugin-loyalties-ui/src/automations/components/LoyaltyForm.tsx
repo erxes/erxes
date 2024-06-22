@@ -1,9 +1,9 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
-import { IVoucherCampaign } from '../../configs/voucherCampaign/types';
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import React from "react";
+import Select from "react-select";
+import { __, ControlLabel, FormGroup } from "@erxes/ui/src";
+import { IVoucherCampaign } from "../../configs/voucherCampaign/types";
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import { DrawerDetail } from "@erxes/ui-automations/src/styles";
 
 type Props = {
   closeModal: () => void;
@@ -26,7 +26,7 @@ class LoyaltyForm extends React.Component<Props, State> {
     const fillConfig = config || {};
 
     this.state = {
-      config: fillConfig
+      config: fillConfig,
     };
   }
 
@@ -36,7 +36,7 @@ class LoyaltyForm extends React.Component<Props, State> {
     }
   }
 
-  onChangeField = option => {
+  onChangeField = (option) => {
     const { config } = this.state;
     config.voucherCampaignId = option.value;
 
@@ -44,19 +44,22 @@ class LoyaltyForm extends React.Component<Props, State> {
   };
 
   renderContent() {
+    const options = this.props.voucherCampaigns.map((v) => ({
+      label: v.title,
+      value: v._id,
+    }));
     return (
       <DrawerDetail>
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
-            isRequired={true}
-            value={this.state.config.voucherCampaignId}
-            options={this.props.voucherCampaigns.map(v => ({
-              label: v.title,
-              value: v._id
-            }))}
+            required={true}
+            value={options.find(
+              (o) => o.value === this.state.config.voucherCampaignId
+            )}
+            options={options}
             onChange={this.onChangeField}
-            placeholder={__('Choose type')}
+            placeholder={__("Choose type")}
           />
         </FormGroup>
       </DrawerDetail>

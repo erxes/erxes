@@ -57,7 +57,7 @@ const msdynamicCheckMutations = {
 
       const productCodes = (products || []).map((p) => p.code) || [];
 
-      const response = await fetch(itemApi, {
+      const response = await fetch(`${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
@@ -69,7 +69,7 @@ const msdynamicCheckMutations = {
       }).then((res) => res.json());
 
       const resultCodes =
-        response.value.map((r) => r.No.replace(/\s/g, '')) || [];
+        response.value.map((r) => r.No) || [];
 
       const productByCode = {};
       for (const product of products) {
@@ -81,8 +81,8 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (productCodes.includes(resProd.No.replace(/\s/g, ''))) {
-          const product = productByCode[resProd.No.replace(/\s/g, '')];
+        if (productCodes.includes(resProd.No)) {
+          const product = productByCode[resProd.No];
 
           if (
             resProd?.Description === product.name &&
@@ -156,8 +156,6 @@ const msdynamicCheckMutations = {
         isRPC: true,
       });
 
-      const categoryCodes = (categories || []).map((p) => p.code) || [];
-
       const response = await fetch(itemCategoryApi, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -171,8 +169,10 @@ const msdynamicCheckMutations = {
       const resultCodes = response.value.map((r) => r.Code) || [];
 
       const categoryByCode = {};
+      const categoryById = {};
       for (const category of categories) {
         categoryByCode[category.code] = category;
+        categoryById[category._id] = category;
 
         if (!resultCodes.includes(category.code)) {
           deleteCategories.push(category);
@@ -180,12 +180,12 @@ const msdynamicCheckMutations = {
       }
 
       for (const resProd of response.value) {
-        if (categoryCodes.includes(resProd.Code)) {
-          const category = categoryByCode[resProd.Code];
-
+        const category = categoryByCode[resProd.Code];
+        if (category) {
           if (
-            resProd?.Code === category.code &&
-            categoryId === category?.parentId
+            resProd.Code === category.code &&
+            (categoryId === category.parentId || categoryById[category.parentId]?.code === resProd.Parent_Category) &&
+            category.name === resProd.Description
           ) {
             matchedCount = matchedCount + 1;
           } else {

@@ -23,7 +23,7 @@ import exporter from './exporter';
 import cronjobs from './cronjobs/common';
 import dashboards from './dashboards';
 import payment from './payment';
-import reports from './reports';
+import reports from './reports/reports'
 import app from '@erxes/api-utils/src/app';
 
 import { NOTIFICATION_MODULES } from './constants';

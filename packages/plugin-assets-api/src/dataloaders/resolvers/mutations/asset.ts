@@ -7,7 +7,6 @@ import {
   putDeleteLog,
   putUpdateLog
 } from '../../../logUtils';
-import { generateCommonAssetFilter } from '../queries/asset';
 
 interface IAssetsEdit extends IAsset {
   _id: string;

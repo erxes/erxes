@@ -4,7 +4,7 @@ import React from 'react';
 import { queries } from '../graphql';
 import { ICar } from '../types';
 
-// get car options for react-select-plus
+// get car options for react-select
 export function generateCarOptions(array: ICar[] = []): IOption[] {
   return array.map(item => {
     const car = item || ({} as ICar);

@@ -90,7 +90,7 @@ const safeRemainderItemsQueries = {
     { models, subdomain }: IContext
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
-    return models.SafeRemainderItems.find(query).count();
+    return models.SafeRemainderItems.find(query).countDocuments();
   }
 };
 

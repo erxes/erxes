@@ -1,14 +1,11 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IAsset } from '../../../../common/types';
-import {
-  KbArticlesContainer,
-  KbCategories,
-  KbCategoriesContainer
-} from '../../../../style';
-import { ControlLabel, EmptyState, FormControl } from '@erxes/ui/src';
-import { ContainerBox } from '../../../../style';
-import Article from './Article';
+import { ControlLabel, EmptyState, FormControl } from "@erxes/ui/src";
+import { KbArticlesContainer, KbCategories } from "../../../../style";
+
+import Article from "./Article";
+import { ContainerBox } from "../../../../style";
+import { IAsset } from "../../../../common/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   objects?: IAsset[];
@@ -23,32 +20,28 @@ type Props = {
   setSelectedArticles: (selectedArticles: string[]) => void;
 };
 
-function Category(props: Props) {
-  const {
-    loadedArticles,
-    selectedArticles,
-    setSelectedArticles,
-    category
-  } = props;
+const Category = (props: Props) => {
+  const { loadedArticles, selectedArticles, setSelectedArticles, category } =
+    props;
 
   const [categoriesToShow, setCategoriesToShow] = React.useState<string[]>([]);
 
   const articleIds = loadedArticles
-    .filter(article => article.categoryId === category._id)
-    .map(article => article._id);
+    .filter((article) => article.categoryId === category._id)
+    .map((article) => article._id);
 
   const checked =
     !!articleIds?.length &&
-    articleIds.every(articleId => selectedArticles.includes(articleId));
+    articleIds.every((articleId) => selectedArticles.includes(articleId));
 
   const countArticles =
-    articleIds.filter(articleId => selectedArticles.includes(articleId))
+    articleIds.filter((articleId) => selectedArticles.includes(articleId))
       ?.length || 0;
 
   const handleCategorySelect = () => {
     if (categoriesToShow.includes(category._id)) {
       const updateCategoryIds = categoriesToShow.filter(
-        id => id !== category._id
+        (id) => id !== category._id
       );
       return setCategoriesToShow(updateCategoryIds);
     }
@@ -57,9 +50,9 @@ function Category(props: Props) {
   };
 
   const handleAllArticlesSelect = () => {
-    if (articleIds.every(articleId => selectedArticles.includes(articleId))) {
+    if (articleIds.every((articleId) => selectedArticles.includes(articleId))) {
       const updatedSelectedArticleIds = selectedArticles.filter(
-        articleId => !articleIds.includes(articleId)
+        (articleId) => !articleIds.includes(articleId)
       );
       return setSelectedArticles(updatedSelectedArticleIds);
     }
@@ -68,7 +61,7 @@ function Category(props: Props) {
 
   const renderArticles = () => {
     const articles = loadedArticles.filter(
-      article => article.categoryId === category._id
+      (article) => article.categoryId === category._id
     );
 
     if (!articles?.length) {
@@ -82,10 +75,10 @@ function Category(props: Props) {
 
     return (
       <KbArticlesContainer>
-        {articles.map(article => {
+        {articles.map((article) => {
           const updatedProps = {
             ...props,
-            article
+            article,
           };
           return <Article key={article._id} {...updatedProps} />;
         })}
@@ -96,10 +89,10 @@ function Category(props: Props) {
   return (
     <>
       <KbCategories onClick={() => handleCategorySelect()}>
-        <ContainerBox spaceBetween={true} align="center">
+        <ContainerBox $spaceBetween={true} align="center">
           <ContainerBox gap={5} align="center">
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={() => handleAllArticlesSelect()}
               checked={checked}
             />
@@ -113,6 +106,6 @@ function Category(props: Props) {
       {categoriesToShow.includes(category._id) && renderArticles()}
     </>
   );
-}
+};
 
 export default Category;

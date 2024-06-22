@@ -1,24 +1,26 @@
-import { gql } from '@apollo/client';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import * as React from 'react';
-import { useQuery } from '@apollo/client';
-import EmailDelivery from '../components/EmailDelivery';
-import queries from '../queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { gql } from "@apollo/client";
+import { router } from "@erxes/ui/src/utils";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import * as React from "react";
+import { useQuery } from "@apollo/client";
+import EmailDelivery from "../components/EmailDelivery";
+import queries from "../queries";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-} & IRouterProps;
+};
 
 export const EMAIL_TYPES = {
-  TRANSACTION: 'transaction',
-  ENGAGE: 'engage'
+  TRANSACTION: "transaction",
+  ENGAGE: "engage",
 };
 
 function EmailDeliveryContainer(props: Props) {
-  const { history, queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { queryParams } = props;
 
   const [emailType, setEmailType] = React.useState(
     queryParams.emailType || EMAIL_TYPES.TRANSACTION
@@ -29,18 +31,18 @@ function EmailDeliveryContainer(props: Props) {
   );
 
   React.useEffect(() => {
-    const qp = { emailType: emailType || '', status: status || '' };
+    const qp = { emailType: emailType || "", status: status || "" };
 
-    router.setParams(history, qp);
-  }, [history, emailType, status]);
+    router.setParams(navigate, location, qp);
+  }, [location, emailType, status]);
 
   const transactionResponse = useQuery(
     gql(queries.transactionEmailDeliveries),
     {
       variables: {
         searchValue: queryParams.searchValue,
-        ...generatePaginationParams(queryParams)
-      }
+        ...generatePaginationParams(queryParams),
+      },
     }
   );
 
@@ -49,32 +51,42 @@ function EmailDeliveryContainer(props: Props) {
       status: queryParams.status,
       customerId: queryParams.customerId,
       ...generatePaginationParams(queryParams),
-      searchValue: queryParams.searchValue
+      searchValue: queryParams.searchValue,
     },
-    skip: isEnabled('engages') ? false : true
+    skip: isEnabled("engages") ? false : true,
   });
 
   const handleSelectEmailType = (type: string) => {
     setEmailType(type);
-    setStatus('');
+    setStatus("");
 
     if (type === EMAIL_TYPES.TRANSACTION) {
       return router.removeParams(
-        history,
-        'page',
-        'perPage',
-        'searchValue',
-        'status'
+        navigate,
+        location,
+        "page",
+        "perPage",
+        "searchValue",
+        "status"
       );
     }
 
-    return router.removeParams(history, 'page', 'perPage', 'searchValue');
+    return router.removeParams(
+      navigate,
+      location,
+      "page",
+      "perPage",
+      "searchValue"
+    );
   };
 
   const handleSelectStatus = (emailStatus: string) => {
     setStatus(emailStatus);
 
-    return router.setParams(history, { status: emailStatus, emailType });
+    return router.setParams(navigate, location, {
+      status: emailStatus,
+      emailType,
+    });
   };
 
   const transactionData = transactionResponse.data || {};
@@ -106,10 +118,9 @@ function EmailDeliveryContainer(props: Props) {
     loading,
     emailType,
     handleSelectEmailType,
-    history,
-    searchValue: queryParams.searchValue || '',
+    searchValue: queryParams.searchValue || "",
     handleSelectStatus,
-    status
+    status,
   };
 
   return <EmailDelivery {...updatedProps} />;

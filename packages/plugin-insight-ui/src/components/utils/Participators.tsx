@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import styled from 'styled-components';
-
-import Tip from '@erxes/ui/src/components/Tip';
-import { getUserAvatar } from '@erxes/ui/src/utils/index';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from '@erxes/ui/src/utils/index';
-import { colors } from '@erxes/ui/src/styles';
+import { IUser } from "@erxes/ui/src/auth/types";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils/index";
+import { colors } from "@erxes/ui/src/styles";
+import { getUserAvatar } from "@erxes/ui/src/utils/index";
+import styled from "styled-components";
+import { Flex } from "@erxes/ui/src/styles/main";
 
 const spacing = 30;
 
 const ParticipatorWrapper = styled.div`
   margin-left: 10px;
+  display: flex;
 
   &:hover {
     cursor: pointer;
@@ -27,7 +28,9 @@ const ParticipatorImg = styled.img`
   margin-left: -10px;
 `;
 
-const More = styled(ParticipatorImg.withComponent('span'))`
+const More = styled(ParticipatorImg).attrs({
+  as: "span",
+})`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
@@ -47,13 +50,20 @@ const Participators = (props: Props) => {
   const length = participatedUsers.length;
 
   const Trigger = (user) => {
-    const name = (user.details && user.details.fullName) || user.username || '';
+    const name =
+      (user.details && user.details.fullName) || user.username || user.email;
 
-    return <ParticipatorImg key={user._id} src={getUserAvatar(user)} />;
+    return (
+      <Tip placement="top" text={name}>
+        <Flex>
+          <ParticipatorImg key={user._id} src={getUserAvatar(user)} />
+        </Flex>
+      </Tip>
+    );
   };
 
   const Tooltip = (
-    <Tip placement="top" text={__('View more')}>
+    <Tip placement="top" text={__("View more")}>
       <More>{`+${limit && length - limit}`}</More>
     </Tip>
   );

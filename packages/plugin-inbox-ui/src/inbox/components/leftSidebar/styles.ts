@@ -39,14 +39,14 @@ const CheckBox = styled.div`
   left: 0px;
 `;
 
-const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
+const RowContent = styledTS<{ $isChecked?: boolean }>(styled.div)`
   flex: 1;
   display: flex;
   flex-direction: row;
   max-width: 100%;
   transition: all ease 0.3s;
   position: relative;
-  padding-left: ${(props) => props.isChecked && '30px'};
+  padding-left: ${(props) => props.$isChecked && '30px'};
 
   &:hover {
     padding-left: 30px;
@@ -57,7 +57,7 @@ const RowContent = styledTS<{ isChecked?: boolean }>(styled.div)`
   }
 
   ${CheckBox} {
-    width: ${(props) => (props.isChecked ? '30px' : '0')};
+    width: ${(props) => (props.$isChecked ? '30px' : '0')};
     margin: 0;
     overflow: hidden;
     transition: all ease 0.3s;
@@ -115,8 +115,8 @@ const MessageContent = styled(FlexCenter)`
 `;
 
 const RowItem = styledTS<{
-  isActive?: boolean;
-  isRead?: boolean;
+  $isActive?: boolean;
+  $isRead?: boolean;
 }>(styled.li)`
   padding: ${dimensions.coreSpacing}px;
   display: flex;
@@ -124,10 +124,10 @@ const RowItem = styledTS<{
   flex-direction: row;
   border-bottom: 1px solid rgba(0,0,0,0.05);
   transition: all ease 0.3s;
-  background: ${(props) => (props.isActive ? 'rgba(242,245,245,0.8)' : null)};
+  background: ${(props) => (props.$isActive ? 'rgba(242,245,245,0.8)' : null)};
 
   ${(props) =>
-    !props.isRead &&
+    !props.$isRead &&
     css`
       background: ${colors.bgUnread};
       border-top: 1px solid rgba(0, 0, 0, 0.05);
@@ -140,7 +140,7 @@ const RowItem = styledTS<{
     `};
   &:hover {
     background: ${(props) =>
-      !props.isRead || props.isActive ? '' : colors.bgLight};
+      !props.$isRead || props.$isActive ? '' : colors.bgLight};
     cursor: pointer;
   }
 `;
@@ -182,7 +182,7 @@ const AssigneeImg = styled.img`
 `;
 
 const SidebarActions = styled.div`
-  #date-popover {
+  .date-popover {
     max-width: 470px;
     width: 500px;
   }
@@ -192,11 +192,11 @@ const SidebarActions = styled.div`
   }
 `;
 
-const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
+const LeftContent = styledTS<{ $isOpen?: boolean }>(styled.div)`
   display: flex;
   position: relative;
   flex-direction: row;
-  padding-left: ${(props) => props.isOpen && '200px'};
+  padding-left: ${(props) => props.$isOpen && '200px'};
   transition: padding 0.3s ease;
 
   > section {
@@ -248,6 +248,8 @@ const DropdownWrapper = styled.div`
 
   > div {
     padding-left: 20px;
+    display: inline-block;
+    position: relative;
   }
 `;
 

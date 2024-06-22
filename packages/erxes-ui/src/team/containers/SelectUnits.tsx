@@ -4,7 +4,7 @@ import React from 'react';
 import { queries } from '../graphql';
 import { IUnit } from '@erxes/ui/src/team/types';
 
-// get user options for react-select-plus
+// get user options for react-select
 export function generateUserOptions(array: IUnit[] = []): IOption[] {
   return array.map(item => {
     const unit = item || ({} as IUnit);

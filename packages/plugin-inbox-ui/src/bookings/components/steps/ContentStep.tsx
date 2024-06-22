@@ -1,21 +1,21 @@
-import React from "react";
 import { Description, SubHeading } from "@erxes/ui-settings/src/styles";
-import { FlexItem } from "@erxes/ui/src/layout/styles";
 import {
-  FlexHeight as FlexItemContainer,
   Flex,
+  FlexHeight as FlexItemContainer,
 } from "@erxes/ui/src/styles/main";
+import { __, extractAttachment } from "coreui/utils";
+
+import { BOOKING_DISPLAY_BLOCK } from "../../constants";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { FlexItem } from "@erxes/ui/src/layout/styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { IField } from "@erxes/ui/src/types";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
-import { extractAttachment, __ } from "coreui/utils";
-import Select from "react-select-plus";
+import React from "react";
+import Select from "react-select";
 import SelectProductCategory from "../../containers/SelectProductCategory";
 import Uploader from "@erxes/ui/src/components/Uploader";
-import { BOOKING_DISPLAY_BLOCK } from "../../constants";
-import { IField } from "@erxes/ui/src/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Name =
   | "name"
@@ -81,8 +81,15 @@ function ContentStep({
     }));
   };
 
-  const images =
-    (image && delete image.__typename && extractAttachment([image])) || [];
+  const images = [] as any;
+
+  if (image && typeof image === "object") {
+    const imageClone = { ...image }; // Create a shallow clone of the object
+    if (imageClone.__typename) {
+      delete imageClone.__typename;
+      images.push(...extractAttachment([imageClone]));
+    }
+  }
 
   const renderGeneralSettings = () => {
     return (
@@ -141,6 +148,7 @@ function ContentStep({
   };
 
   const renderDisplayBlock = () => {
+    const options = generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST);
     return (
       <>
         <Flex>
@@ -148,15 +156,16 @@ function ContentStep({
             <FormGroup>
               <ControlLabel>Display blocks</ControlLabel>
               <Select
-                options={generateSelectOptions(BOOKING_DISPLAY_BLOCK.ALL_LIST)}
+                options={options}
                 placeholder="Choose line"
-                value={line}
+                value={options.find((option) => option.value === line)}
+                isClearable={true}
                 onChange={(e: any) => onChangeBooking("line", e ? e.value : "")}
               />
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Columns</ControlLabel>
               <FormControl
@@ -170,7 +179,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Rows</ControlLabel>
               <FormControl
@@ -182,7 +191,7 @@ function ContentStep({
             </FormGroup>
           </FlexItem>
 
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Margin</ControlLabel>
               <FormControl
@@ -209,9 +218,7 @@ function ContentStep({
           <Description>
             Select the main Product Category of the products and services you
             want to display. If you haven't created one, please go to
-            <a href="/settings/product-service">
-                {__(" Product & Service ")}
-              </a>
+            <a href="/settings/product-service">{__(" Product & Service ")}</a>
             to organize your product first.
           </Description>
           <SelectProductCategory
@@ -251,8 +258,10 @@ function ContentStep({
                 e.map((field) => field.value)
               )
             }
-            value={productFieldIds}
-            multi={true}
+            value={generateSelectOptions(productFields).filter((option) =>
+              productFieldIds?.includes(option.value)
+            )}
+            isMulti={true}
             placeholder="Choose custom properties"
           />
         </FormGroup>

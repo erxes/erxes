@@ -1,14 +1,14 @@
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import Button from '@erxes/ui/src/components/Button';
-import CategoryForm from '../../containers/category/CategoryForm';
-import { CategoryItem } from './styles';
-import { ICategory } from '@erxes/ui-knowledgeBase/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryForm from "../../containers/category/CategoryForm";
+import { CategoryItem } from "./styles";
+import { ICategory } from "@erxes/ui-knowledgeBase/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   topicId: string;
@@ -37,13 +37,11 @@ class CategoryRow extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
+        <Icon icon="edit" />
       </Button>
     );
 
-    const content = props => {
+    const content = (props) => {
       return this.renderEditForm({ ...props, category, topicId });
     };
 
@@ -53,6 +51,7 @@ class CategoryRow extends React.Component<Props> {
         title="Edit"
         trigger={editTrigger}
         content={content}
+        tipText="Edit"
       />
     );
   };
@@ -61,7 +60,7 @@ class CategoryRow extends React.Component<Props> {
     const { category, isActive, isChild, isParent } = this.props;
 
     return (
-      <CategoryItem key={category._id} isActive={isActive} isChild={isChild}>
+      <CategoryItem key={category._id} $isActive={isActive} $isChild={isChild}>
         <Link to={`?id=${category._id}`}>
           <div>
             {category.title}
@@ -71,7 +70,7 @@ class CategoryRow extends React.Component<Props> {
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text={__('Delete')} placement="bottom">
+          <Tip text={__("Delete")} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

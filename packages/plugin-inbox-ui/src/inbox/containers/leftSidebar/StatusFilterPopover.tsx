@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { StatusFilterPopover } from '../../components/leftSidebar';
+
 import { InboxManagementActionConsumer } from '../InboxCore';
+import { StatusFilterPopover } from '../../components/leftSidebar';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 

@@ -1,30 +1,31 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import CategoryForm from '../../containers/category/Form';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __ } from 'coreui/utils';
-import { DURATION_TYPES, JOB_TYPE_CHOISES } from '../../../constants';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IJobCategory, IJobRefer } from '../../types';
+import { DURATION_TYPES, JOB_TYPE_CHOISES } from "../../../constants";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { TableOver } from '../../../styles';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { IProductsData } from '../../../types';
+  ModalFooter,
+} from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IJobCategory, IJobRefer } from "../../types";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import CategoryForm from "../../containers/category/Form";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { IProductsData } from "../../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ProductButton } from "@erxes/ui-cards/src/deals/styles";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import React from "react";
+import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import { TableOver } from "../../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -47,9 +48,9 @@ class Form extends React.Component<Props, State> {
     const { needProducts, resultProducts } = productRefer;
 
     this.state = {
-      jobType: productRefer.type || 'job',
+      jobType: productRefer.type || "job",
       needProducts: needProducts || [],
-      resultProducts: resultProducts || []
+      resultProducts: resultProducts || [],
     };
   }
 
@@ -66,49 +67,49 @@ class Form extends React.Component<Props, State> {
       finalValues._id = jobRefer._id;
     }
 
-    if (jobType === 'income') {
+    if (jobType === "income") {
       return {
         ...finalValues,
         needProducts: [],
-        resultProducts
+        resultProducts,
       };
     }
 
-    if (jobType === 'outlet') {
+    if (jobType === "outlet") {
       return {
         ...finalValues,
         needProducts,
-        resultProducts: []
+        resultProducts: [],
       };
     }
 
-    if (jobType === 'move') {
+    if (jobType === "move") {
       return {
         ...finalValues,
         needProducts,
-        resultProducts: needProducts
+        resultProducts: needProducts,
       };
     }
 
-    if (jobType === 'end') {
+    if (jobType === "end") {
       return {
         ...finalValues,
         needProducts,
         resultProducts:
-          resultProducts.length > 1 ? [resultProducts[0]] : resultProducts
+          resultProducts.length > 1 ? [resultProducts[0]] : resultProducts,
       };
     }
 
     return {
       ...finalValues,
       needProducts,
-      resultProducts
+      resultProducts,
     };
   };
 
   onClickRemoveButton = (id, type) => {
     const products = this.state[type];
-    const filteredUoms = products.filter(product => product._id !== id);
+    const filteredUoms = products.filter((product) => product._id !== id);
 
     this.setState({ [type]: filteredUoms } as any);
   };
@@ -120,7 +121,7 @@ class Form extends React.Component<Props, State> {
     const productEdited: any = [];
     for (const product of products) {
       if (product._id === id) {
-        if (formType !== 'uom') {
+        if (formType !== "uom") {
           product[formType] = Number(value);
         } else {
           product.uom = value;
@@ -134,7 +135,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
-    const content = props => (
+    const content = (props) => (
       <CategoryForm {...props} categories={this.props.jobCategories} />
     );
 
@@ -146,59 +147,59 @@ class Form extends React.Component<Props, State> {
   renderProductServiceTrigger() {
     let content = (
       <div>
-        {__('Choose Product & service ')} <Icon icon="plus-circle" />
+        {__("Choose Product & service ")} <Icon icon="plus-circle" />
       </div>
     );
 
     return <ProductButton>{content}</ProductButton>;
   }
 
-  renderProductModal = (type: 'needProducts' | 'resultProducts') => {
+  renderProductModal = (type: "needProducts" | "resultProducts") => {
     const productOnChange = (products: IProduct[]) => {
       const currentProducts = this.state[type];
-      const currentProductIds = currentProducts.map(p => p.productId);
-      const chosenProductIds = products.map(p => p._id);
+      const currentProductIds = currentProducts.map((p) => p.productId);
+      const chosenProductIds = products.map((p) => p._id);
 
       for (const product of products.filter(
-        p => !currentProductIds.includes(p._id)
+        (p) => !currentProductIds.includes(p._id)
       ) || []) {
-        const productId = product ? product._id : '';
-        const uom = product.uom || '';
+        const productId = product ? product._id : "";
+        const uom = product.uom || "";
 
         const inputData = {
           _id: Math.random().toString(),
           productId,
           quantity: 1,
           uom,
-          product
+          product,
         };
 
         currentProducts.push(inputData);
       }
 
       const chosenProducts =
-        currentProducts.filter(p => chosenProductIds.includes(p.productId)) ||
+        currentProducts.filter((p) => chosenProductIds.includes(p.productId)) ||
         [];
       this.setState({ [type]: chosenProducts } as any);
     };
 
     const currentProducts =
-      type === 'needProducts'
+      type === "needProducts"
         ? this.state.needProducts
         : this.state.resultProducts;
 
-    const content = props => (
+    const content = (props) => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
         data={{
-          name: 'Product',
+          name: "Product",
           products: (currentProducts || [])
-            .filter(p => p.product)
-            .map(p => p.product)
+            .filter((p) => p.product)
+            .map((p) => p.product),
         }}
         limit={
-          this.state.jobType === 'end' && type === 'resultProducts' ? 1 : 50
+          this.state.jobType === "end" && type === "resultProducts" ? 1 : 50
         }
       />
     );
@@ -213,9 +214,9 @@ class Form extends React.Component<Props, State> {
     );
   };
 
-  renderProducts = (type: 'needProducts' | 'resultProducts') => {
+  renderProducts = (type: "needProducts" | "resultProducts") => {
     const products =
-      type === 'needProducts'
+      type === "needProducts"
         ? this.state.needProducts
         : this.state.resultProducts;
 
@@ -226,39 +227,39 @@ class Form extends React.Component<Props, State> {
     return (
       <withTableWrapper.Wrapper>
         <TableOver
-          whiteSpace="nowrap"
-          hover={true}
-          bordered={true}
-          responsive={true}
-          wideHeader={true}
+          $whiteSpace="nowrap"
+          $hover={true}
+          $bordered={true}
+          $responsive={true}
+          $wideHeader={true}
         >
           <thead>
             <tr>
-              <th>{__('Product')}</th>
-              <th>{__('Quantity')}</th>
-              <th>{__('UOM')}</th>
-              {type === 'resultProducts' &&
-                jobType === 'job' &&
-                products.length > 1 && <th>{__('Proportion')}</th>}
+              <th>{__("Product")}</th>
+              <th>{__("Quantity")}</th>
+              <th>{__("UOM")}</th>
+              {type === "resultProducts" &&
+                jobType === "job" &&
+                products.length > 1 && <th>{__("Proportion")}</th>}
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {products.map(product => {
+            {products.map((product) => {
               const uoms = Array.from(
                 new Set([
                   product.uom,
                   product.product.uom,
-                  ...product.product.subUoms.map(su => su.uom)
+                  ...product.product.subUoms.map((su) => su.uom),
                 ])
-              ).filter(u => u);
+              ).filter((u) => u);
 
               return (
                 <tr>
                   <td>
                     <FormControl
                       value={
-                        product && product.product ? product.product.name : ''
+                        product && product.product ? product.product.name : ""
                       }
                       disabled={true}
                     />
@@ -272,30 +273,30 @@ class Form extends React.Component<Props, State> {
                         this,
                         product._id,
                         type,
-                        'quantity'
+                        "quantity"
                       )}
                     />
                   </td>
                   <td>
                     <FormControl
-                      componentClass="select"
+                      componentclass="select"
                       value={product.uom}
                       onChange={this.onChange.bind(
                         this,
                         product._id,
                         type,
-                        'uom'
+                        "uom"
                       )}
                     >
-                      {uoms.map(u => (
+                      {uoms.map((u) => (
                         <option key={u} value={u}>
                           {u}
                         </option>
                       ))}
                     </FormControl>
                   </td>
-                  {type === 'resultProducts' &&
-                    jobType === 'job' &&
+                  {type === "resultProducts" &&
+                    jobType === "job" &&
                     products.length > 1 && (
                       <td>
                         <FormControl
@@ -306,7 +307,7 @@ class Form extends React.Component<Props, State> {
                             this,
                             product._id,
                             type,
-                            'proportion'
+                            "proportion"
                           )}
                         />
                       </td>
@@ -338,32 +339,32 @@ class Form extends React.Component<Props, State> {
   renderProductsGroup = () => {
     const { jobType } = this.state;
 
-    if (jobType === 'income') {
+    if (jobType === "income") {
       return (
         <FormGroup>
           <ControlLabel required={true}>Result products:</ControlLabel>
-          {this.renderProductModal('resultProducts')}
-          {this.renderProducts('resultProducts')}
+          {this.renderProductModal("resultProducts")}
+          {this.renderProducts("resultProducts")}
         </FormGroup>
       );
     }
 
-    if (jobType === 'outlet') {
+    if (jobType === "outlet") {
       return (
         <FormGroup>
           <ControlLabel required={true}>Need products:</ControlLabel>
-          {this.renderProductModal('needProducts')}
-          {this.renderProducts('needProducts')}
+          {this.renderProductModal("needProducts")}
+          {this.renderProducts("needProducts")}
         </FormGroup>
       );
     }
 
-    if (jobType === 'move') {
+    if (jobType === "move") {
       return (
         <FormGroup>
           <ControlLabel required={true}>Move products:</ControlLabel>
-          {this.renderProductModal('needProducts')}
-          {this.renderProducts('needProducts')}
+          {this.renderProductModal("needProducts")}
+          {this.renderProducts("needProducts")}
         </FormGroup>
       );
     }
@@ -372,14 +373,14 @@ class Form extends React.Component<Props, State> {
       <>
         <FormGroup>
           <ControlLabel required={true}>Need products:</ControlLabel>
-          {this.renderProductModal('needProducts')}
-          {this.renderProducts('needProducts')}
+          {this.renderProductModal("needProducts")}
+          {this.renderProducts("needProducts")}
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Result products:</ControlLabel>
-          {this.renderProductModal('resultProducts')}
-          {this.renderProducts('resultProducts')}
+          {this.renderProductModal("resultProducts")}
+          {this.renderProducts("resultProducts")}
         </FormGroup>
       </>
     );
@@ -433,12 +434,12 @@ class Form extends React.Component<Props, State> {
                 <FormControl
                   {...formProps}
                   name="categoryId"
-                  componentClass="select"
+                  componentclass="select"
                   defaultValue={categoryId}
                   required={true}
                 >
                   <option value="" />
-                  {jobCategories.map(categoryMap => (
+                  {jobCategories.map((categoryMap) => (
                     <option key={categoryMap._id} value={categoryMap._id}>
                       {categoryMap.name}
                     </option>
@@ -456,16 +457,16 @@ class Form extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="type"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={type}
                 required={true}
-                onChange={e =>
+                onChange={(e) =>
                   this.setState({
-                    jobType: (e.currentTarget as HTMLInputElement).value
+                    jobType: (e.currentTarget as HTMLInputElement).value,
                   })
                 }
               >
-                {Object.keys(JOB_TYPE_CHOISES).map(value => (
+                {Object.keys(JOB_TYPE_CHOISES).map((value) => (
                   <option key={value} value={value}>
                     {JOB_TYPE_CHOISES[value]}
                   </option>
@@ -481,7 +482,7 @@ class Form extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="durationType"
-                componentClass="select"
+                componentclass="select"
                 defaultValue={durationType}
                 required={true}
               >
@@ -524,7 +525,7 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: jobRefer
+            object: jobRefer,
           })}
         </ModalFooter>
       </>

@@ -4,19 +4,19 @@ import {
   InfoBox,
   StatusBox,
   StatusTitle,
-} from '../styles';
-import { IOrganization, chargeItemWithCountResponse } from '../types';
-import { __, getEnv } from '@erxes/ui/src/utils';
+} from "../styles";
+import { IOrganization, chargeItemWithCountResponse } from "../types";
+import { __, getEnv } from "@erxes/ui/src/utils";
 
-import Button from '@erxes/ui/src/components/Button';
-import ChargeItem from './ChargeItem';
-import { IUser } from 'modules/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Table from 'modules/common/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import Title from './Title';
-import withChargeItems from '../containers/withChargeItems';
+import Button from "@erxes/ui/src/components/Button";
+import ChargeItem from "./ChargeItem";
+import { IUser } from "modules/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Table from "modules/common/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import Title from "./Title";
+import withChargeItems from "../containers/withChargeItems";
 
 type Props = {
   currentOrganization: IOrganization;
@@ -35,7 +35,7 @@ class PlanOverview extends React.Component<Props> {
 
     if (
       (remainingAmount === 0 && freeAmount === 0) ||
-      (promoCodes.length > 0 && chargeItem.type === 'brand')
+      (promoCodes.length > 0 && chargeItem.type === "brand")
     ) {
       return null;
     }
@@ -47,7 +47,7 @@ class PlanOverview extends React.Component<Props> {
         unit={chargeItem.unit}
         usage={chargeItem.usage}
         bottomSpace={10}
-        isBold={chargeItem.type === 'twitter-dm'}
+        isBold={chargeItem.type === "twitter-dm"}
         comingSoon={chargeItem.comingSoon}
         unLimited={chargeItem.unLimited}
       >
@@ -57,19 +57,19 @@ class PlanOverview extends React.Component<Props> {
   }
 
   renderInfo = (type: string) => {
-    let text = '';
+    let text = "";
 
     switch (type) {
-      case 'emailVerification':
-      case 'phoneVerification':
-      case 'emailSend':
-      case 'sms': {
-        text = 'Limit resets monthly';
+      case "emailVerification":
+      case "phoneVerification":
+      case "emailSend":
+      case "sms": {
+        text = "Limit resets monthly";
 
         break;
       }
-      case 'twitter-dm': {
-        text = 'Paid Integration';
+      case "twitter-dm": {
+        text = "Paid Integration";
 
         break;
       }
@@ -88,7 +88,6 @@ class PlanOverview extends React.Component<Props> {
   render() {
     const { chargeItems, currentOrganization } = this.props;
 
-    const { CORE_URL } = getEnv();
 
     return (
       <StatusBox largePadding={true} largeMargin={true}>
@@ -98,10 +97,10 @@ class PlanOverview extends React.Component<Props> {
         <FlexRow>
           <ControlWrapper>
             <Table
-              whiteSpace="nowrap"
-              hover={true}
-              bordered={true}
-              striped={true}
+              $whiteSpace="nowrap"
+              $hover={true}
+              $bordered={true}
+              $striped={true}
             >
               <thead>
                 <tr>
@@ -109,7 +108,7 @@ class PlanOverview extends React.Component<Props> {
                   <th>{__('Used')}</th>
                   <th>{__('Remaining')}</th>
                   <th>{__('Free')}</th>
-                  <th>{__('Promo Code')}</th>
+                  {/* <th>{__("Promo Code")}</th> */}
                   <th>{__('Purchased')}</th>
                   <th className="odd">{__('Total')}</th>
                 </tr>
@@ -128,7 +127,7 @@ class PlanOverview extends React.Component<Props> {
           </span>
           <a
             target="_blank"
-            href={`${CORE_URL}/signin`}
+            href={`https://erxes.io/organizations`}
             rel="noopener noreferrer"
           >
             <Button btnStyle="primary" icon="clipboard-notes" uppercase={false}>

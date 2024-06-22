@@ -91,7 +91,7 @@ class Row extends React.Component<Props, State> {
         <td>
           <{Name}Wrapper space={space}>
             <FormControl
-              componentClass='checkbox'
+              componentclass='checkbox'
               onChange={this.toggleCheck}
               color={colors.colorPrimary}
               defaultChecked={{name}.checked || false}

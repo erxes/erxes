@@ -1,14 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __, Alert } from 'coreui/utils';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { SaveResponseTemplateMutationVariables } from '../../../../../settings/responseTemplates/types';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IAttachment } from "@erxes/ui/src/types";
+import { __, Alert } from "coreui/utils";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { SaveResponseTemplateMutationVariables } from "../../../../../settings/responseTemplates/types";
+import React from "react";
 
 type Props = {
   saveResponseTemplate: (
@@ -29,18 +29,19 @@ class Modal extends React.Component<Props, {}> {
     const doc = {
       content,
       files,
-      brandId: (document.getElementById(
-        'template-brand-id'
-      ) as HTMLInputElement).value,
-      name: (document.getElementById('template-name') as HTMLInputElement).value
+      brandId: (
+        document.getElementById("template-brand-id") as HTMLInputElement
+      ).value,
+      name: (document.getElementById("template-name") as HTMLInputElement)
+        .value,
     };
 
-    this.props.saveResponseTemplate(doc, error => {
+    this.props.saveResponseTemplate(doc, (error) => {
       if (error) {
         return Alert.error(error.message);
       }
 
-      const element = document.querySelector('button.close') as HTMLElement;
+      const element = document.querySelector("button.close") as HTMLElement;
 
       return element.click();
     });
@@ -55,12 +56,12 @@ class Modal extends React.Component<Props, {}> {
           <ControlLabel>Brand</ControlLabel>
 
           <FormControl
-            id='template-brand-id'
-            componentClass='select'
-            placeholder={__('Select Brand') as string}
+            id="template-brand-id"
+            componentclass="select"
+            placeholder={__("Select Brand") as string}
             defaultValue={brandId}
           >
-            {brands.map(brand => (
+            {brands.map((brand) => (
               <option key={brand._id} value={brand._id}>
                 {brand.name}
               </option>
@@ -70,11 +71,11 @@ class Modal extends React.Component<Props, {}> {
 
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <FormControl id='template-name' type='text' required={true} />
+          <FormControl id="template-name" type="text" required={true} />
         </FormGroup>
 
         <ModalFooter>
-          <Button onClick={this.onSave} btnStyle='success' icon='check-circle'>
+          <Button onClick={this.onSave} btnStyle="success" icon="check-circle">
             Save
           </Button>
         </ModalFooter>
@@ -87,7 +88,7 @@ class Modal extends React.Component<Props, {}> {
 
     return (
       <ModalTrigger
-        title='Create response template'
+        title="Create response template"
         trigger={trigger}
         content={this.renderForm}
       />

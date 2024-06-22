@@ -1,7 +1,10 @@
-import { Document, Schema } from "mongoose";
+import { Document, Schema, HydratedDocument } from "mongoose";
 import { field, schemaWrapper } from "./utils";
 
 export interface IForm {
+  _id: string;
+  createdUserId: string;
+  createdDate: Date;
   title: string;
   code?: string;
   type: string;
@@ -16,11 +19,7 @@ export interface IFormSubmissionFilter {
   formFieldId: string;
 }
 
-export interface IFormDocument extends IForm, Document {
-  _id: string;
-  createdUserId: string;
-  createdDate: Date;
-}
+export type IFormDocument = HydratedDocument<IForm>;
 
 // schema for form document
 export const formSchema = schemaWrapper(

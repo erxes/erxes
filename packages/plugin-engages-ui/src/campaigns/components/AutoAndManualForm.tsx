@@ -16,7 +16,7 @@ import { IConfig } from '@erxes/ui-settings/src/general/types';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { METHODS } from '@erxes/ui-engage/src/constants';
+import { MESSAGE_KINDS, METHODS } from '@erxes/ui-engage/src/constants';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import {
   IEngageEmail,
@@ -58,6 +58,7 @@ type Props = {
   clientPortalGetConfigs: ClientPortalConfig[];
   businessPortalKind?: string;
   handleClientPortalKindChange: (kind: string) => void;
+  segmentsTypes?: any[];
 };
 
 type State = {
@@ -88,7 +89,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     let content = email.content || '';
 
     const rules = messenger.rules
-      ? messenger.rules.map((rule) => ({ ...rule }))
+      ? messenger.rules.map(rule => ({ ...rule }))
       : [];
 
     if (messenger.content && messenger.content !== '') {
@@ -142,6 +143,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (this.state.method === METHODS.EMAIL) {
       const email = this.state.email || ({} as IEngageEmail);
+      doc.kind = MESSAGE_KINDS.MANUAL;
 
       doc.email = {
         subject: email.subject || '',
@@ -164,6 +166,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
     if (this.state.method === METHODS.MESSENGER) {
       const messenger = this.state.messenger || ({} as IEngageMessenger);
+      doc.kind = MESSAGE_KINDS.VISITOR_AUTO;
 
       doc.messenger = {
         brandId: messenger.brandId || '',
@@ -208,6 +211,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     if (this.state.method === METHODS.NOTIFICATION) {
+      doc.kind = MESSAGE_KINDS.MANUAL;
       const notification = this.state?.notification || {
         title: '',
         content: '',
@@ -250,12 +254,12 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     const cancelButton = (
       <Link
-        to="/campaigns"
+        to='/campaigns'
         onClick={() => {
           this.setState({ isSaved: true });
         }}
       >
-        <Button btnStyle="simple" icon="times-circle">
+        <Button btnStyle='simple' icon='times-circle'>
           Cancel
         </Button>
       </Link>
@@ -267,7 +271,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <>
           <Button
             disabled={isActionLoading}
-            btnStyle="warning"
+            btnStyle='warning'
             icon={isActionLoading ? undefined : 'file-alt'}
             onClick={this.handleSubmit.bind(this, 'draft')}
           >
@@ -275,7 +279,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </Button>
           <Button
             disabled={isActionLoading}
-            btnStyle="success"
+            btnStyle='success'
             icon={isActionLoading ? undefined : 'check-circle'}
             onClick={this.handleSubmit.bind(this, 'live')}
           >
@@ -305,7 +309,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (method === METHODS.SMS) {
       return (
-        <Step noButton={true} title="Compose your SMS" img={imagePath}>
+        <Step noButton={true} title='Compose your SMS' img={imagePath}>
           <SmsForm
             onChange={this.changeState}
             messageKind={kind}
@@ -320,7 +324,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     if (method === METHODS.NOTIFICATION) {
       return (
-        <Step noButton={true} title="Compose your notification" img={imagePath}>
+        <Step noButton={true} title='Compose your notification' img={imagePath}>
           <NotificationForm
             onChange={this.changeState}
             messageKind={kind}
@@ -333,7 +337,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     return (
       <Step
         img={imagePath}
-        title="Compose your broadcast"
+        title='Compose your broadcast'
         message={message}
         noButton={method !== METHODS.EMAIL && true}
       >
@@ -362,7 +366,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
     }
 
     return (
-      <Step img="/images/icons/erxes-04.svg" title="Rule">
+      <Step img='/images/icons/erxes-04.svg' title='Rule'>
         <ConditionsRule
           rules={this.state.rules || []}
           onChange={this.changeState}
@@ -380,8 +384,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     return (
       <Step
-        img="/images/icons/erxes-19.svg"
-        title="Full Preview"
+        img='/images/icons/erxes-19.svg'
+        title='Full Preview'
         noButton={true}
       >
         <FullPreviewStep
@@ -397,7 +401,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
       this.props;
     const { segmentIds, brandIds, title, tagIds } = this.state;
 
-    const onChange = (e) =>
+    const onChange = e =>
       this.changeState('title', (e.target as HTMLInputElement).value);
 
     return (
@@ -414,7 +418,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
           {this.renderSaveButton()}
         </TitleContainer>
         <Steps maxStep={4} active={1}>
-          <Step img="/images/icons/erxes-05.svg" title="Choose channel">
+          <Step img='/images/icons/erxes-05.svg' title='Choose channel'>
             <ChannelStep
               onChange={this.changeState}
               method={this.state.method}
@@ -423,8 +427,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
           </Step>
 
           <Step
-            img="/images/icons/erxes-06.svg"
-            title="Who is this broadcast for?"
+            img='/images/icons/erxes-06.svg'
+            title='Who is this broadcast for?'
           >
             <MessageTypeStep
               method={this.state.method}
@@ -440,6 +444,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
                 this.props.handleClientPortalKindChange
               }
               selectedCpId={this.state.cpId}
+              segmentsTypes={this.props.segmentsTypes}
             />
           </Step>
 

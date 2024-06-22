@@ -15,7 +15,6 @@ import { mutations, queries } from '../../graphql';
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 

@@ -1,6 +1,8 @@
 import {
   fetchByQuery,
   fetchByQueryWithScroll,
+  generateElkIds,
+  getRealIdFromElk,
 } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherAssociatedTypes,
@@ -43,12 +45,14 @@ export default {
       associatedTypes.includes(propertyType) ||
       propertyType === 'contacts:lead'
     ) {
-      const mainTypeIds = await fetchByQueryWithScroll({
-        subdomain,
-        index: await getEsIndexByContentType(propertyType),
-        positiveQuery,
-        negativeQuery,
-      });
+      const mainTypeIds = (
+        await fetchByQueryWithScroll({
+          subdomain,
+          index: await getEsIndexByContentType(propertyType),
+          positiveQuery,
+          negativeQuery,
+        })
+      ).map((id) => getRealIdFromElk(id));
 
       ids = await sendCoreMessage({
         subdomain,

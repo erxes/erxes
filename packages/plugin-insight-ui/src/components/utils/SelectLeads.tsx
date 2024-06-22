@@ -2,7 +2,7 @@ import React from 'react';
 
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import { IIntegration } from '@erxes/ui-leads/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 const integrations = `
     query integrations($kind: String, $brandId: String, $searchValue: String) {
@@ -40,7 +40,7 @@ export default (props: {
     } = props;
     const defaultValue = queryParams ? queryParams[name] : initialValue;
 
-    // get user options for react-select-plus
+    // get user options for react-select
     function generateUserOptions(integrations: IIntegration[] = []): IOption[] {
 
         const options = integrations.map(integration => {

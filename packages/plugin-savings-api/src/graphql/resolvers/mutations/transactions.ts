@@ -13,7 +13,10 @@ const transactionMutations = {
     doc: ITransaction,
     { user, models, subdomain }: IContext
   ) => {
-    const transaction = await models.Transactions.createTransaction(doc,subdomain);
+    const transaction = await models.Transactions.createTransaction(
+      doc,
+      subdomain
+    );
 
     const logData = {
       type: 'transaction',
@@ -28,27 +31,30 @@ const transactionMutations = {
   },
   clientSavingsTransactionsAdd: async (
     _root,
-    doc: ITransaction & {secondaryPassword:string},
+    doc: ITransaction & { secondaryPassword: string },
     { user, models, subdomain }: IContext
   ) => {
-
     const validate = await sendMessageBroker(
       {
         subdomain,
-        action:'clientPortalUsers.validatePassword',
-        data:{
-          userId:doc.customerId,
-          password:doc.secondaryPassword,
-          secondary:true
+        action: 'clientPortalUsers.validatePassword',
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
         }
-      },'clientportal'
-    )
+      },
+      'clientportal'
+    );
 
-    if(validate.status === 'error'){
-      throw new Error(validate.errorMessage)
+    if (validate?.status === 'error') {
+      throw new Error(validate.errorMessage);
     }
 
-    const transaction = await models.Transactions.createTransaction(doc,subdomain);
+    const transaction = await models.Transactions.createTransaction(
+      doc,
+      subdomain
+    );
 
     const logData = {
       type: 'transaction',
@@ -144,19 +150,20 @@ const transactionMutations = {
         extraParams: { models }
       };
 
-      if (transaction.ebarimt && transaction.isManual)
-        await sendMessageBroker(
-          {
-            action: 'putresponses.returnBill',
-            data: {
-              contentType: 'savings:transaction',
-              contentId: transaction._id,
-              number: transaction.number
-            },
-            subdomain
-          },
-          'ebarimt'
-        );
+      // if (transaction.ebarimt && transaction.isManual){
+      //   await sendMessageBroker(
+      //     {
+      //       action: 'putresponses.returnBill',
+      //       data: {
+      //         contentType: 'savings:transaction',
+      //         contentId: transaction._id,
+      //         number: transaction.number
+      //       },
+      //       subdomain
+      //     },
+      //     'ebarimt'
+      //   );
+      // }
 
       await deleteLog(subdomain, user, logData);
     }

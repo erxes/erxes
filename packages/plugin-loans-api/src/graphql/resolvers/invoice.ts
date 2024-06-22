@@ -3,7 +3,7 @@ import { sendMessageBroker } from '../../messageBroker';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 
 const Invoices = {
-  company(invoice: IInvoiceDocument, _, { subdomain }: IContext) {
+  async company(invoice: IInvoiceDocument, _, { subdomain }: IContext) {
     if (!invoice.companyId) return null;
     return sendMessageBroker(
       {
@@ -16,7 +16,7 @@ const Invoices = {
     );
   },
 
-  customer(invoice: IInvoiceDocument, _, { subdomain }: IContext) {
+  async customer(invoice: IInvoiceDocument, _, { subdomain }: IContext) {
     if (!invoice.customerId) return null;
     return sendMessageBroker(
       {
@@ -29,11 +29,11 @@ const Invoices = {
     );
   },
 
-  contract(invoice: IInvoiceDocument, _, { models }: IContext) {
+  async contract(invoice: IInvoiceDocument, _, { models }: IContext) {
     return models.Contracts.findOne({ _id: invoice.contractId });
   },
 
-  transaction(invoice: IInvoiceDocument, _, { models }: IContext) {
+  async transaction(invoice: IInvoiceDocument, _, { models }: IContext) {
     return models.Transactions.findOne({ invoiceId: invoice._id });
   }
 };

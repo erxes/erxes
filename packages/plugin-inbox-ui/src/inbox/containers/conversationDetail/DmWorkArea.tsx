@@ -7,12 +7,12 @@ import {
   IConversation,
   IMessage,
   MessagesQueryResponse,
-  MessagesTotalCountQuery
+  MessagesTotalCountQuery,
 } from '@erxes/ui-inbox/src/inbox/types';
 import {
   mutations,
   queries,
-  subscriptions
+  subscriptions,
 } from '@erxes/ui-inbox/src/inbox/graphql';
 import { sendDesktopNotification, withProps } from '@erxes/ui/src/utils';
 
@@ -51,7 +51,7 @@ type State = {
 
 const getQueryString = (
   type: 'messagesQuery' | 'countQuery',
-  dmConfig?: DmConfig
+  dmConfig?: DmConfig,
 ): string => {
   const defaultQuery =
     type === 'messagesQuery'
@@ -109,12 +109,8 @@ class WorkArea extends React.Component<FinalProps, State> {
 
   componentWillReceiveProps(nextProps) {
     const { currentUser } = this.props;
-    const {
-      currentId,
-      currentConversation,
-      messagesQuery,
-      dmConfig
-    } = nextProps;
+    const { currentId, currentConversation, messagesQuery, dmConfig } =
+      nextProps;
 
     // It is first time or subsequent conversation change
     if (
@@ -164,7 +160,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
 
           // check whether or not already inserted
-          const prevEntry = messages.find(m => m._id === message._id);
+          const prevEntry = messages.find((m) => m._id === message._id);
 
           if (prevEntry) {
             return;
@@ -173,17 +169,17 @@ class WorkArea extends React.Component<FinalProps, State> {
           // add new message to messages list
           const next = {
             ...prev,
-            [getListQueryName(dmConfig)]: [...messages, message]
+            [getListQueryName(dmConfig)]: [...messages, message],
           };
 
           // send desktop notification
           sendDesktopNotification({
             title: NOTIFICATION_TYPE[kind] || `You have a new ${kind} message`,
-            content: strip(message.content) || ''
+            content: strip(message.content) || '',
           });
 
           return next;
-        }
+        },
       });
 
       this.prevTypingInfoSubscription = messagesQuery.subscribeToMore({
@@ -193,14 +189,14 @@ class WorkArea extends React.Component<FinalProps, State> {
           _prev,
           {
             subscriptionData: {
-              data: { conversationClientTypingStatusChanged }
-            }
-          }
+              data: { conversationClientTypingStatusChanged },
+            },
+          },
         ) => {
           this.setState({
-            typingInfo: conversationClientTypingStatusChanged.text
+            typingInfo: conversationClientTypingStatusChanged.text,
           });
-        }
+        },
       });
     }
   }
@@ -208,7 +204,7 @@ class WorkArea extends React.Component<FinalProps, State> {
   addMessage = ({
     variables,
     optimisticResponse,
-    callback
+    callback,
   }: {
     variables: any;
     optimisticResponse: any;
@@ -233,17 +229,17 @@ class WorkArea extends React.Component<FinalProps, State> {
           variables: {
             conversationId: currentId,
             limit: initialLimit,
-            skip: 0
-          }
+            skip: 0,
+          },
         };
 
         try {
-          cache.updateQuery(selector, data => {
+          cache.updateQuery(selector, (data) => {
             const key = getQueryResultKey(data || {});
             const messages = data ? data[key] : [];
 
             // check duplications
-            if (messages.find(m => m._id === message._id)) {
+            if (messages.find((m) => m._id === message._id)) {
               return {};
             }
 
@@ -265,7 +261,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           localStorage.removeItem(currentId || '');
         }
       })
-      .catch(e => {
+      .catch((e) => {
         if (callback) {
           callback(e);
         }
@@ -273,16 +269,12 @@ class WorkArea extends React.Component<FinalProps, State> {
   };
 
   loadMoreMessages = () => {
-    const {
-      currentId,
-      messagesTotalCountQuery,
-      messagesQuery,
-      dmConfig
-    } = this.props;
+    const { currentId, messagesTotalCountQuery, messagesQuery, dmConfig } =
+      this.props;
 
     const conversationMessagesTotalCount = getQueryResult(
       messagesTotalCountQuery,
-      true
+      true,
     );
 
     const conversationMessages = getQueryResult(messagesQuery);
@@ -298,7 +290,7 @@ class WorkArea extends React.Component<FinalProps, State> {
         variables: {
           conversationId: currentId,
           limit: 10,
-          skip: conversationMessages.length
+          skip: conversationMessages.length,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           this.setState({ loadingMessages: false });
@@ -308,7 +300,7 @@ class WorkArea extends React.Component<FinalProps, State> {
           }
 
           const prevConversationMessages = getQueryResult(prev);
-          const prevMessageIds = prevConversationMessages.map(m => m._id);
+          const prevMessageIds = prevConversationMessages.map((m) => m._id);
 
           const fetchedMessages: IMessage[] = [];
 
@@ -324,10 +316,10 @@ class WorkArea extends React.Component<FinalProps, State> {
             ...prev,
             [getListQueryName(dmConfig)]: [
               ...fetchedMessages,
-              ...prevConversationMessages
-            ]
+              ...prevConversationMessages,
+            ],
           };
-        }
+        },
       });
     }
   };
@@ -345,7 +337,7 @@ class WorkArea extends React.Component<FinalProps, State> {
       addMessage: this.addMessage,
       loading: messagesQuery.loading || loadingMessages,
       refetchMessages: messagesQuery.refetch,
-      typingInfo
+      typingInfo,
     };
 
     return <DmWorkArea {...updatedProps} />;
@@ -387,11 +379,11 @@ const generateWithQuery = (props: Props) => {
             variables: {
               conversationId: currentId,
               limit: isDm || isMail ? initialLimit : 0,
-              skip: 0
+              skip: 0,
             },
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           };
-        }
+        },
       }),
       graphql<Props, MessagesTotalCountQuery, { conversationId?: string }>(
         gql(countQuery),
@@ -399,17 +391,17 @@ const generateWithQuery = (props: Props) => {
           name: 'messagesTotalCountQuery',
           options: ({ currentId }) => ({
             variables: { conversationId: currentId },
-            fetchPolicy: 'network-only'
-          })
-        }
+            fetchPolicy: 'network-only',
+          }),
+        },
       ),
       graphql<Props, AddMessageMutationResponse, AddMessageMutationVariables>(
         gql(mutations.conversationMessageAdd),
         {
-          name: 'addMessageMutation'
-        }
-      )
-    )(WorkArea)
+          name: 'addMessageMutation',
+        },
+      ),
+    )(WorkArea),
   );
 };
 

@@ -22,7 +22,6 @@ type Props = {
   assignment: IAssignment;
   closeModal: () => void;
   queryParams: any;
-  history: any;
 };
 
 type State = {

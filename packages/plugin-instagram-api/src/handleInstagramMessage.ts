@@ -3,7 +3,7 @@ import * as strip from 'strip';
 import { IModels } from './connectionResolver';
 import { generateAttachmentMessages, sendReply } from './utils';
 import { sendInboxMessage } from './messageBroker';
-
+import { sendCoreMessage } from './messageBroker';
 /**
  * Handle requests from erxes api
  */
@@ -104,19 +104,31 @@ export const handleInstagramMessage = async (
         recipientId,
         inboxConversation && inboxConversation.integrationId
       );
-      sendInboxMessage({
-        action: 'sendNotifications',
-        isRPC: false,
+
+      const user = await sendCoreMessage({
         subdomain,
-        data: {
-          userId,
-          conversations: [inboxConversation],
-          type: 'conversationStateChange',
-          mobile: true,
-          messageContent: content
-        }
+        action: 'users.findOne',
+        data: { _id: userId },
+        isRPC: true
       });
-      return { status: 'success' };
+
+      if (user) {
+        sendInboxMessage({
+          action: 'sendNotifications',
+          isRPC: false,
+          subdomain,
+          data: {
+            user,
+            conversations: [inboxConversation],
+            type: 'conversationStateChange',
+            mobile: true,
+            messageContent: content
+          }
+        });
+        return { status: 'success' };
+      } else {
+        throw new Error('User not found');
+      }
     } catch (e) {
       throw new Error(e.message);
     }

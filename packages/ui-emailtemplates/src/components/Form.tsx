@@ -1,16 +1,18 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import RichTextEditor from '@erxes/ui/src/containers/RichTextEditor';
-import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IEmailTemplate } from '../types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IEmailTemplate } from "../types";
+import React from "react";
+import RichTextEditor from "@erxes/ui/src/containers/RichTextEditor";
 
 type Props = {
   object?: IEmailTemplate;
   contentType?: string;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
 type State = {
@@ -22,7 +24,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     super(props);
 
     this.state = {
-      content: (props.object && props.object.content) || '',
+      content: (props.object && props.object.content) || "",
     };
   }
 
@@ -70,7 +72,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             autoGrow={true}
             autoGrowMinHeight={300}
             isSubmitted={formProps.isSaved}
-            name={`emailTemplates_${object._id || 'create'}`}
+            name={`emailTemplates_${object._id || "create"}`}
             contentType={this?.props?.contentType}
           />
         </FormGroup>

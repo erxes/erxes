@@ -11,7 +11,7 @@ import {
   READ_CP_USER_LEVELS,
   TIME_DURATION_UNITS,
   USER_TYPES,
-  WRITE_CP_USER_LEVELS
+  WRITE_CP_USER_LEVELS,
 } from '../../consts';
 import ForumPermissionGroupCategoryPermit from './ForumPermissionGroupCategoryPermit';
 import ForumPermissionGroup from './ForumPermissionGroup';

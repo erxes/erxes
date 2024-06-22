@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import NotifierItem from './NotiferItem';
 
@@ -8,14 +8,11 @@ const NotifierContainer = styled.div`
   left: 15px;
 `;
 
-class Notifier extends React.Component<{}> {
-  constructor(props) {
-    super(props);
+const Notifier = () => {
+  const [show, setShow] = useState<boolean>(false);
+  const [activeRoute, setActiveRoute] = useState<string>('feature');
 
-    this.state = { show: false, activeRoute: 'feature' };
-  }
-
-  renderNotifications() {
+  const renderNotifications = () => {
     return (
       <>
         <NotifierItem>
@@ -44,11 +41,9 @@ class Notifier extends React.Component<{}> {
         </NotifierItem>
       </>
     );
-  }
+  };
 
-  render() {
-    return <NotifierContainer>{this.renderNotifications()}</NotifierContainer>;
-  }
-}
+  return <NotifierContainer>{renderNotifications()}</NotifierContainer>;
+};
 
 export default Notifier;

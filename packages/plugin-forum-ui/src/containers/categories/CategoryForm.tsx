@@ -5,7 +5,6 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CategoryFormComponent from '../../components/categories/CategoryForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICategory } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
@@ -14,7 +13,7 @@ import { useQuery } from '@apollo/client';
 type Props = {
   category?: ICategory;
   closeModal: () => void;
-} & IRouterProps;
+};
 
 function CategoryFormContainer({ closeModal, category }: Props) {
   const { data, loading, error } = useQuery(

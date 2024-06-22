@@ -1,22 +1,22 @@
+import { NodeViewProps, NodeViewWrapper } from "@tiptap/react";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
-} from 'react';
-import { NodeViewProps, NodeViewWrapper } from '@tiptap/react';
-import { SuggestionOptions, SuggestionProps } from '@tiptap/suggestion';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+} from "react";
+import { SuggestionOptions, SuggestionProps } from "@tiptap/suggestion";
 import {
   VariableLabel,
   VariableListBtn,
   VariableListWrapper,
   VariableWrapper,
-} from '../styles';
-import { FlexCenter } from '../../../styles/main';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
+} from "../styles";
+
+import { FlexCenter } from "../../../styles/main";
+import Popover from "@erxes/ui/src/components/Popover";
+import { useRichTextEditorContext } from "../RichTextEditor.context";
 
 export type SuggestionListRef = {
   // For convenience using this SuggestionList from within the
@@ -24,8 +24,8 @@ export type SuggestionListRef = {
   // `onKeyDown` returned in its `render` function
   onKeyDown: NonNullable<
     ReturnType<
-      NonNullable<SuggestionOptions<MentionNodeAttrs>['render']>
-    >['onKeyDown']
+      NonNullable<SuggestionOptions<MentionNodeAttrs>["render"]>
+    >["onKeyDown"]
   >;
 };
 
@@ -38,6 +38,7 @@ interface MentionNodeAttrs {
   label?: string | null;
   avatar?: string;
   username?: string;
+  email?: string;
   fullName?: string;
   title?: string;
 }
@@ -46,11 +47,11 @@ export type SuggestionListProps = SuggestionProps<MentionNodeAttrs>;
 
 export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
   ({ items = [], command }, ref) => {
-    const { showMention } = useRichTextEditorContext()
+    const { showMention } = useRichTextEditorContext();
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const selectItem = (index: number) => {
-      if(!showMention) return
+      if (!showMention) return;
 
       if (index >= items.length) {
         // Make sure we actually have enough items to select the given index. For
@@ -63,7 +64,12 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
 
       const mentionItem = {
         id: item.id,
-        label: (item.fullName || item.username || '').trim(),
+        label: (
+          item.fullName ||
+          item.username ||
+          item.email ||
+          "Username not found"
+        ).trim(),
       };
 
       if (item) {
@@ -84,27 +90,27 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     };
 
     useEffect(() => {
-      if(!showMention) return 
-      setSelectedIndex(0)
+      if (!showMention) return;
+      setSelectedIndex(0);
     }, [items]);
 
-    useImperativeHandle(ref, () => ({ 
+    useImperativeHandle(ref, () => ({
       onKeyDown: ({ event }) => {
-        if(!showMention) {
-          return false
+        if (!showMention) {
+          return false;
         }
 
-        if (event.key === 'ArrowUp') {
+        if (event.key === "ArrowUp") {
           upHandler();
           return true;
         }
 
-        if (event.key === 'ArrowDown') {
+        if (event.key === "ArrowDown") {
           downHandler();
           return true;
         }
 
-        if (event.key === 'Enter') {
+        if (event.key === "Enter") {
           enterHandler();
           return true;
         }
@@ -114,15 +120,21 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
     }));
 
     const renderList = () => {
-      if(!showMention) return null
+      if (!showMention) return null;
 
       if (!items?.length) {
         return <VariableListBtn>No result</VariableListBtn>;
       }
 
       return items.map((item: MentionNodeAttrs, index: number) => {
-        const { id, username = '', fullName = '', title = '' } = item || {};
-
+        const {
+          id,
+          username = "",
+          fullName = "",
+          title = "",
+          email = "",
+        } = item || {};
+        const displayName = (fullName || username || email).trim();
         return (
           <VariableListBtn
             key={id}
@@ -133,17 +145,15 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
             <FlexCenter>
               <div className="mentionSuggestionsEntryContainerLeft">
                 <img
-                  src={item.avatar || '/images/avatar-colored.svg'}
-                  alt={username}
-                  title={(fullName || username).trim()}
+                  src={item.avatar || "/images/avatar-colored.svg"}
+                  alt={displayName}
+                  title={displayName}
                   role="presentation"
                   className="mentionSuggestionsEntryAvatar"
                 />
               </div>
               <div className="mentionSuggestionsEntryContainerRight">
-                <div className="mentionSuggestionsEntryText">
-                  {(fullName || username).trim()}
-                </div>
+                <div className="mentionSuggestionsEntryText">{displayName}</div>
                 <div className="mentionSuggestionsEntryTitle">{title}</div>
               </div>
             </FlexCenter>
@@ -152,11 +162,15 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
       });
     };
 
-    return <VariableListWrapper $hide={!showMention}>{renderList()}</VariableListWrapper>;
-  },
+    return (
+      <VariableListWrapper $hide={!showMention}>
+        {renderList()}
+      </VariableListWrapper>
+    );
+  }
 );
 
-MentionList.displayName = 'MentionList';
+MentionList.displayName = "MentionList";
 
 export function VariableComponent(props: NodeViewProps) {
   const { node, selected, updateAttributes, editor, getPos } = props;
@@ -207,54 +221,45 @@ export function VariableComponent(props: NodeViewProps) {
     <NodeViewWrapper
       draggable="false"
       style={{
-        display: 'inline-block',
+        display: "inline-block",
         lineHeight: 1,
-        ...(selected ? { outline: '3px solid #555' } : {}),
+        ...(selected ? { outline: "3px solid #555" } : {}),
       }}
     >
-      <OverlayTrigger
-        ref={(overlayTrigger) => {
-          overLayRef = overlayTrigger;
-        }}
-        trigger="click"
-        rootClose={true}
-        placement="bottom"
-        overlay={
-          <Popover
-            id="variable-selecting-popover-key"
-            style={{ border: '1px solid #e5e7eb', padding: '1rem' }}
-          >
-            <VariableLabel>
-              <span>Variable Name</span>
-              <input
-                placeholder="Add Variable Name"
-                value={id}
-                onChange={(e) => {
-                  updateAttributes({
-                    id: e.target.value,
-                  });
-                }}
-              />
-            </VariableLabel>
-            <VariableLabel>
-              <span>Fallback Value</span>
-              <input
-                placeholder="Fallback Value"
-                value={fallback || ''}
-                onChange={(e) => {
-                  updateAttributes({
-                    fallback: e.target.value,
-                  });
-                }}
-              />
-            </VariableLabel>
-          </Popover>
+      <Popover
+        trigger={
+          <VariableWrapper ref={variableRef} tabIndex={-1} itemType="button">
+            {id}
+          </VariableWrapper>
         }
+        placement="bottom"
+        style={{ border: "1px solid #e5e7eb", padding: "1rem" }}
       >
-        <VariableWrapper innerRef={variableRef} tabIndex={-1} itemType="button">
-          {id}
-        </VariableWrapper>
-      </OverlayTrigger>
+        <VariableLabel>
+          <span>Variable Name</span>
+          <input
+            placeholder="Add Variable Name"
+            value={id}
+            onChange={(e) => {
+              updateAttributes({
+                id: e.target.value,
+              });
+            }}
+          />
+        </VariableLabel>
+        <VariableLabel>
+          <span>Fallback Value</span>
+          <input
+            placeholder="Fallback Value"
+            value={fallback || ""}
+            onChange={(e) => {
+              updateAttributes({
+                fallback: e.target.value,
+              });
+            }}
+          />
+        </VariableLabel>
+      </Popover>
     </NodeViewWrapper>
   );
 }

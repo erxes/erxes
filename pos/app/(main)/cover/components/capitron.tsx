@@ -6,7 +6,7 @@ import {
   method,
   objToString,
 } from "@/modules/checkout/hooks/useTDB"
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { capitronResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -18,13 +18,11 @@ import BankAmountUi from "./bank-amount-ui"
 const Capitron = () => {
   const [capitronResponse, setCapitronResponse] = useAtom(capitronResponseAtom)
   const [loading, setLoading] = useState(false)
-  const config = useAtomValue(coverConfigAtom)
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const { onError } = useToast()
   const { getLabel } = usePaymentLabel()
 
-  const bank = config?.paymentTypes.find(
-    (pt) => BANK_CARD_TYPES.CAPITRON === pt.type
-  )
+  const bank = paymentTypes.find((pt) => BANK_CARD_TYPES.CAPITRON === pt.type)
 
   const getCapitronCover = () => {
     setLoading(true)

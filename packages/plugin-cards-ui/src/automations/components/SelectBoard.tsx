@@ -1,14 +1,14 @@
-import client from '@erxes/ui/src/apolloClient';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Attributes } from '@erxes/ui-automations/src/components/forms/actions/styles';
-import { IStage } from '@erxes/ui-cards/src/boards/types';
-import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
-import { gql } from '@apollo/client';
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from "coreui/utils";
+
+import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
+import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { IStage } from "@erxes/ui-cards/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { queries as boardQueries } from "@erxes/ui-cards/src/boards/graphql";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 
 type Props = {
   config: any;
@@ -35,10 +35,10 @@ export default class SelectBoard extends React.Component<Props, State> {
     const { boardId, pipelineId } = config;
 
     this.state = {
-      boardId: boardId || '',
-      pipelineId: pipelineId || '',
-      stageId: config[inputName] || '',
-      stageName: config.stageName
+      boardId: boardId || "",
+      pipelineId: pipelineId || "",
+      stageId: config[inputName] || "",
+      stageName: config.stageName,
     };
   }
 
@@ -48,12 +48,12 @@ export default class SelectBoard extends React.Component<Props, State> {
       client
         .query({
           query: gql(boardQueries.stages),
-          variables: { pipelineId }
+          variables: { pipelineId },
         })
-        .then(data => {
+        .then((data) => {
           this.setState({ stages: data.data.stages });
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     }
@@ -64,10 +64,10 @@ export default class SelectBoard extends React.Component<Props, State> {
   };
 
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  onChange = stageId => {
+  onChange = (stageId) => {
     this.overlay.hide();
 
     const { config, setConfig, inputName } = this.props;
@@ -75,7 +75,7 @@ export default class SelectBoard extends React.Component<Props, State> {
 
     config[inputName] = `[[ ${stageId} ]]`;
 
-    const stage = stages.find(s => s._id === stageId);
+    const stage = stages.find((s) => s._id === stageId);
 
     config.boardId = this.state.boardId;
     config.pipelineId = this.state.pipelineId;
@@ -84,19 +84,27 @@ export default class SelectBoard extends React.Component<Props, State> {
     setConfig(config);
   };
 
-  renderContent() {
+  render() {
     const { type } = this.props;
 
     const plIdOnChange = (plId, stages) =>
       this.setState({ pipelineId: plId, stages });
-    const brIdOnChange = brId => this.setState({ boardId: brId });
+    const brIdOnChange = (brId) => this.setState({ boardId: brId });
 
     return (
-      <Popover id="select-stage-popover">
+      <Popover
+        trigger={
+          <span>
+            {__("Stages")} <Icon icon="angle-down" />
+          </span>
+        }
+        placement="top"
+        innerRef={this.overlay}
+      >
         <Attributes>
           <React.Fragment>
             <BoardSelect
-              type={type.includes('cards:') ? type.slice(6) : type}
+              type={type.includes("cards:") ? type.slice(6) : type}
               stageId={this.state.stageId}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}
@@ -108,25 +116,6 @@ export default class SelectBoard extends React.Component<Props, State> {
           </React.Fragment>
         </Attributes>
       </Popover>
-    );
-  }
-
-  render() {
-    return (
-      <OverlayTrigger
-        ref={overlay => {
-          this.overlay = overlay;
-        }}
-        trigger="click"
-        placement="top"
-        overlay={this.renderContent()}
-        rootClose={true}
-        container={this}
-      >
-        <span>
-          {__('Stages')} <Icon icon="angle-down" />
-        </span>
-      </OverlayTrigger>
     );
   }
 }

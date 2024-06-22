@@ -1,96 +1,68 @@
-import { Alert, confirm, withProps } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { Alert, confirm } from '@erxes/ui/src';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
 import List from '../../components/carCategory/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
   CarCategoriesCountQueryResponse,
   CarCategoriesQueryResponse,
-  CarCategoryRemoveMutationResponse
+  CarCategoryRemoveMutationResponse,
 } from '../../types';
 
 type Props = { history: any; queryParams: any };
 
-type FinalProps = {
-  carCategoriesQuery: CarCategoriesQueryResponse;
-  carCategoriesCountQuery: CarCategoriesCountQueryResponse;
-} & Props &
-  CarCategoryRemoveMutationResponse;
+const CategoryListContainer = (props: Props) => {
+  const carCategoriesQuery = useQuery<CarCategoriesQueryResponse>(
+    gql(queries.carCategories),
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
 
-class CarListContainer extends React.Component<FinalProps> {
-  render() {
-    const {
-      carCategoriesQuery,
-      carCategoriesCountQuery,
-      carCategoryRemove
-    } = this.props;
+  const carCategoriesCountQuery = useQuery<CarCategoriesCountQueryResponse>(
+    gql(queries.carCategoriesCount),
+  );
 
-    const remove = carId => {
-      confirm().then(() => {
-        carCategoryRemove({
-          variables: { _id: carId }
+  const [carCategoryRemove] = useMutation<CarCategoryRemoveMutationResponse>(
+    gql(mutations.carCategoryRemove),
+    {
+      refetchQueries: ['carCategories', 'carCategoriesTotalCount'],
+    },
+  );
+
+  const remove = (carId) => {
+    confirm().then(() => {
+      carCategoryRemove({
+        variables: { _id: carId },
+      })
+        .then(() => {
+          carCategoriesQuery.refetch();
+          carCategoriesCountQuery.refetch();
+
+          Alert.success(`You successfully deleted a car & service category`);
         })
-          .then(() => {
-            carCategoriesQuery.refetch();
-            carCategoriesCountQuery.refetch();
+        .catch((error) => {
+          Alert.error(error.message);
+        });
+    });
+  };
 
-            Alert.success(`You successfully deleted a car & service category`);
-          })
-          .catch(error => {
-            Alert.error(error.message);
-          });
-      });
-    };
+  const carCategories = carCategoriesQuery?.data?.carCategories || [];
+  const loading = carCategoriesQuery.loading || carCategoriesCountQuery.loading;
+  const totalCount =
+    carCategoriesCountQuery?.data?.carCategoriesTotalCount || 0;
 
-    const carCategories = carCategoriesQuery.carCategories || [];
+  const updatedProps = {
+    ...props,
+    remove,
+    refetch: carCategoriesQuery.refetch,
+    carCategories,
+    loading,
+    totalCount,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      remove,
-      refetch: carCategoriesQuery.refetch,
-      carCategories,
-      loading: carCategoriesQuery.loading,
-      carCategoriesCount: carCategoriesCountQuery.carCategoriesTotalCount || 0
-    };
-
-    return <List {...updatedProps} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['carCategories', 'carCategoriesTotalCount'];
+  return <List {...updatedProps} />;
 };
 
-const options = () => ({
-  refetchQueries: getRefetchQueries()
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, CarCategoriesQueryResponse, { parentId: string }>(
-      gql(queries.carCategories),
-      {
-        name: 'carCategoriesQuery',
-        options: {
-          fetchPolicy: 'network-only'
-        }
-      }
-    ),
-    graphql<Props, CarCategoriesCountQueryResponse>(
-      gql(queries.carCategoriesCount),
-      {
-        name: 'carCategoriesCountQuery'
-      }
-    ),
-    graphql<Props, CarCategoryRemoveMutationResponse, { _id: string }>(
-      gql(mutations.carCategoryRemove),
-      {
-        name: 'carCategoryRemove',
-        options
-      }
-    )
-  )(CarListContainer)
-);
+export default CategoryListContainer;

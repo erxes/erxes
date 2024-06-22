@@ -5,8 +5,8 @@ import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
-  overflow: hidden;
+const BoardItem = styledTS<{ $isActive: boolean, $withOverflow?: boolean }>(styled(SidebarListItem))`
+  ${props => !props.$withOverflow && `overflow: hidden;`}
   
   > button {
     padding: 10px 15px 10px 20px;
@@ -78,7 +78,6 @@ const StageItemContainer = styled.div`
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   position: relative;
-  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
 const PipelineCount = styled.div`
@@ -98,6 +97,8 @@ const Attributes = styled.ul`
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
+  display: flex;
+  flex-direction: column;
 
   > div {
     padding: 0;
@@ -108,12 +109,15 @@ const Attributes = styled.ul`
     color: black;
   }
 
-  li {
+  button {
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
     font-weight: 400;
     transition: all ease 0.3s;
+    border: none;
+    background: none;
+    text-align: left;
 
     &:hover {
       color: ${colors.textPrimary};
@@ -143,5 +147,5 @@ export {
   PipelineCount,
   Attributes,
   BoardHeader,
-  HeaderContent
+  HeaderContent,
 };

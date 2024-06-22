@@ -1,49 +1,48 @@
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
-const SitesListContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Websites - ListContainer" */ './containers/templates/List'
-  )
+const SitesListContainer = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Websites - ListContainer" */ "./containers/templates/List"
+    )
 );
 
-const SiteForm = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "SiteForm - XBuilders" */ './containers/sites/SiteForm'
-  )
+const SiteForm = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "SiteForm - XBuilders" */ "./containers/sites/SiteForm"
+    )
 );
 
-const WebBuilderContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PageForm - XBuilderContainer" */ './containers/Webbuilder'
-  )
+const WebBuilderContainer = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PageForm - XBuilderContainer" */ "./containers/Webbuilder"
+    )
 );
 
-const webBuilderSitesContainer = history => {
-  const { location, match } = history;
-
+const WebBuilderSitesContainer = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
-
-  const { step } = match.params;
+  const { step } = useParams();
 
   return <WebBuilderContainer step={step} queryParams={queryParams} />;
 };
 
-const webBuilderSitesCreate = history => {
-  const { location, match } = history;
-
+const WebBuilderSitesCreate = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
-
-  const { step } = match.params;
+  const { step } = useParams();
 
   return <SitesListContainer step={step} queryParams={queryParams} />;
 };
 
-const webBuilderSitesEdit = ({ match, location }) => {
-  const _id = match.params._id;
+const WebBuilderSitesEdit = () => {
+  const { _id } = useParams();
   const queryParams = queryString.parse(location.search);
 
   return <SiteForm _id={_id} queryParams={queryParams} />;
@@ -51,25 +50,19 @@ const webBuilderSitesEdit = ({ match, location }) => {
 
 const routes = () => {
   return (
-    <Switch>
-      <Route
-        path="/xbuilder"
-        exact={true}
-        component={webBuilderSitesContainer}
-      />
+    <Routes>
+      <Route path="/xbuilder" element={<WebBuilderSitesContainer />} />
 
       <Route
         path="/xbuilder/sites/create"
-        exact={true}
-        component={webBuilderSitesCreate}
+        element={<WebBuilderSitesCreate />}
       />
 
       <Route
         path="/xbuilder/sites/edit/:_id"
-        exact={true}
-        component={webBuilderSitesEdit}
+        element={<WebBuilderSitesEdit />}
       />
-    </Switch>
+    </Routes>
   );
 };
 

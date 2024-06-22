@@ -3,15 +3,16 @@ import {
   HeaderContentSmall,
   HeaderRow,
   TitleRow,
-} from '../../styles/item';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import React, { useEffect, useState } from 'react';
-import Move from '../../containers/editForm/Move';
-import { IItem, IOptions } from '../../types';
-import CloseDate from './CloseDate';
-import StartDate from './StartDate';
+} from "../../styles/item";
+import { IItem, IOptions } from "../../types";
+import React, { useEffect, useState } from "react";
+
+import CloseDate from "./CloseDate";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import Move from "../../containers/editForm/Move";
+import StartDate from "./StartDate";
 
 type Props = {
   item: IItem;
@@ -100,7 +101,7 @@ function Top(props: Props) {
           <TitleRow>
             <Icon icon="atm-card" />
             <FormControl
-              componentClass="textarea"
+              componentclass="textarea"
               value={name}
               required={true}
               onBlur={onNameBlur}

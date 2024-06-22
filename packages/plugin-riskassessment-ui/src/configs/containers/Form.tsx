@@ -1,5 +1,5 @@
 import { ButtonMutate } from '@erxes/ui/src';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -9,10 +9,9 @@ import { mutations } from '../graphql';
 
 type Props = {
   queryParams: any;
-  history: any;
   closeModal: () => void;
   config?: any;
-} & IRouterProps;
+};
 
 class Form extends React.Component<Props> {
   constructor(props) {

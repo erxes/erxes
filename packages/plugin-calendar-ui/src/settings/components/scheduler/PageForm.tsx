@@ -1,39 +1,39 @@
-import { Alert, __ } from 'coreui/utils';
+import { Alert, __ } from "coreui/utils";
 import {
   BookingFlow,
   CustomFields,
   Event,
   OpeningHours,
-  PageStyles
-} from './steps';
+  PageStyles,
+} from "./steps";
 import {
   Content,
-  LeftContent
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+  LeftContent,
+} from "@erxes/ui-inbox/src/settings/integrations/styles";
 import {
   ControlWrapper,
   Indicator,
-  StepWrapper
-} from '@erxes/ui/src/components/step/styles';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+  StepWrapper,
+} from "@erxes/ui/src/components/step/styles";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 import {
   IPage,
   SchedulePageMutationVariables,
   additionalField,
-  openingHour
-} from '../../types';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+  openingHour,
+} from "../../types";
+import { Step, Steps } from "@erxes/ui/src/components/step";
 
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICalendar as IAccountCalendar } from '../../../calendar/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import Select from 'react-select-plus';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { AppConsumer } from "@erxes/ui/src/appContext";
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICalendar as IAccountCalendar } from "../../../calendar/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import Select from "react-select";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 
 type Props = {
   page?: IPage;
@@ -82,24 +82,24 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
     this.state = {
       slug: page.slug,
 
-      title: event.title || '',
-      location: event.location || '',
+      title: event.title || "",
+      location: event.location || "",
       duration: event.duration || 45,
 
       calendarId: calendar._id,
-      timezone: config.timezone || 'Asia/Ulaanbaatar',
+      timezone: config.timezone || "Asia/Ulaanbaatar",
 
-      confirmationMethod: booking.confirmationMethod || 'automatic',
-      cancellationPolicy: booking.cancellationPolicy || '',
+      confirmationMethod: booking.confirmationMethod || "automatic",
+      cancellationPolicy: booking.cancellationPolicy || "",
 
-      color: appearance.color || '#9900ef',
-      companyName: appearance.companyName || '',
-      submitText: appearance.submitText || '',
-      thankYouText: appearance.thankYouText || ''
+      color: appearance.color || "#9900ef",
+      companyName: appearance.companyName || "",
+      submitText: appearance.submitText || "",
+      thankYouText: appearance.thankYouText || "",
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
 
     const {
@@ -115,17 +115,17 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
       cancellationPolicy,
       confirmationMethod,
       additionalFields,
-      openingHours
+      openingHours,
     } = this.state;
 
     let slug = this.state.slug;
 
     if (!title) {
-      return Alert.error('Write title');
+      return Alert.error("Write title");
     }
 
     if (!location) {
-      return Alert.error('Write location');
+      return Alert.error("Write location");
     }
 
     if (!slug) {
@@ -140,20 +140,20 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
       event: {
         title,
         location,
-        duration
+        duration,
       },
       appearance: {
         color,
         companyName,
         submitText,
-        thankYouText
+        thankYouText,
       },
       booking: {
         cancellationPolicy,
         confirmationMethod,
         additionalFields,
-        openingHours
-      }
+        openingHours,
+      },
     });
   };
 
@@ -164,11 +164,11 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
       ? (user.details && user.details.fullName) || title
       : title;
 
-    return `${text.toLocaleLowerCase().replace(/ /g, '-')}-${duration}`;
+    return `${text.toLocaleLowerCase().replace(/ /g, "-")}-${duration}`;
   };
 
   onChange = <T extends keyof State>(key: T, value: State[T]) => {
-    this.setState(({ [key]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [key]: value } as unknown as Pick<State, keyof State>);
   };
 
   renderButtons() {
@@ -190,10 +190,10 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
     );
   }
 
-  renderOptions = array => {
-    return array.map(obj => ({
+  renderOptions = (array) => {
+    return array.map((obj) => ({
       value: obj._id,
-      label: obj.name
+      label: obj.name,
     }));
   };
 
@@ -218,20 +218,21 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
       slug,
       color,
       submitText,
-      thankYouText
+      thankYouText,
     } = this.state;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Calendar'), link: '/settings/calendars' },
-      { title: __('Schedule'), link: `/settings/schedule` }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Calendar"), link: "/settings/calendars" },
+      { title: __("Schedule"), link: `/settings/schedule` },
     ];
 
-    const onChangeCalendar = item => this.setState({ calendarId: item.value });
+    const onChangeCalendar = (item) =>
+      this.setState({ calendarId: item.value });
 
     return (
       <StepWrapper>
-        <Wrapper.Header title={__('Schedule')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("Schedule")} breadcrumb={breadcrumb} />
         <Content>
           <LeftContent>
             <Steps>
@@ -254,11 +255,13 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
                       </ControlLabel>
 
                       <Select
-                        placeholder={__('Choose a calendar')}
-                        value={calendarId}
+                        placeholder={__("Choose a calendar")}
+                        value={this.renderOptions(calendars).find(
+                          (o) => o.value === calendarId
+                        )}
                         options={this.renderOptions(calendars)}
                         onChange={onChangeCalendar}
-                        clearable={false}
+                        isClearable={false}
                       />
                     </FormGroup>
                   </LeftItem>
@@ -296,8 +299,8 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
             </Steps>
             <ControlWrapper>
               <Indicator>
-                {__('You are')} {this.props.page ? 'editing' : 'creating'}{' '}
-                <strong /> {__('page')}
+                {__("You are")} {this.props.page ? "editing" : "creating"}{" "}
+                <strong /> {__("page")}
               </Indicator>
               {this.renderButtons()}
             </ControlWrapper>

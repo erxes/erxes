@@ -7,7 +7,7 @@ const configQueries = {
     if (!config) {
       const confCount = await models.Configs.find({
         status: { $ne: 'deleted' }
-      }).count();
+      }).countDocuments();
 
       if (!confCount) {
         return {};

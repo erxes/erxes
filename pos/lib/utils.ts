@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-import { IEbarimtConfig, IPaymentType } from "@/types/config.types"
+import { IPaymentType } from "@/types/config.types"
 import { Customer } from "@/types/customer.types"
 import { ALL_BANK_CARD_TYPES } from "@/lib/constants"
 
@@ -12,15 +12,20 @@ export function cn(...inputs: ClassValue[]) {
 }
 export const READ_FILE = "/read-file?key="
 
+export const ERXES_SASS = "erxes-saas/"
+
 export const readFile = (url: string = "") => {
+  const { NEXT_PUBLIC_MAIN_API_DOMAIN } = getEnv()
+
+  if (url.startsWith(ERXES_SASS)) {
+    return NEXT_PUBLIC_MAIN_API_DOMAIN + READ_FILE + url
+  }
+
   if (url.includes(READ_FILE)) {
     const apiUrl = url.split(READ_FILE)[0]
-    return url.replace(apiUrl, getEnv().NEXT_PUBLIC_SERVER_API_DOMAIN || "")
+
+    return url.replace(apiUrl, NEXT_PUBLIC_MAIN_API_DOMAIN || "")
   }
-  // if (url.startsWith("/") && typeof window !== "undefined") {
-  //   const { protocol, host } = window.location
-  //   return `${protocol}//${host}${url}`
-  // }
   return url
 }
 
@@ -28,6 +33,19 @@ export const getEnv = (): any => {
   const envs: any = {}
 
   if (typeof window !== "undefined") {
+    const appVersion = localStorage.getItem(`pos_env_NEXT_PUBLIC_APP_VERSION`) || 'OS';
+
+    if (appVersion === 'SAAS') {
+      const subdomain = window.location.hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
+
+      for (const envMap of (window as any).envMaps) {
+        const value = localStorage.getItem(`pos_env_${envMap.name}`) || '';
+        envs[envMap.name] = value.replace('<subdomain>', subdomain);
+      }
+
+      return envs;
+    }
+
     for (const envMap of (window as any).envMaps || []) {
       envs[envMap.name] = localStorage.getItem(`pos_env_${envMap.name}`)
     }
@@ -122,9 +140,9 @@ export const formatNum = (num: number | string, splitter?: string): string => {
   if (checked) {
     const options = splitter
       ? {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
       : undefined
 
     return checked.toLocaleString(undefined, options)
@@ -135,7 +153,7 @@ export const formatNum = (num: number | string, splitter?: string): string => {
 
 export const getSumsOfAmount = (
   paidAmounts: { type: string; amount: number }[],
-  paymentTypes?: IEbarimtConfig["paymentTypes"]
+  paymentTypes?: IPaymentType[]
 ) => {
   const result: any = {}
 

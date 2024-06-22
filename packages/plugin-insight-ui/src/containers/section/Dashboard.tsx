@@ -1,45 +1,46 @@
-import React from 'react';
+import React from "react";
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from "@apollo/client";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
 
-import DashboardSection from '../../components/section/Dashboard';
-import { queries, mutations } from '../../graphql';
+import DashboardSection from "../../components/section/Dashboard";
+import { queries, mutations } from "../../graphql";
 import {
   DashboardsListQueryResponse,
   SectionsListQueryResponse,
-} from '../../types';
+} from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
-const DashboardSectionContainer = (props: Props) => {
-  const { queryParams, history } = props;
-  const { goalId, dashboardId, reportId } = queryParams;
+const  DashboardSectionContainer = (props: Props) => {
+  const { queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const dashboardsQuery = useQuery<DashboardsListQueryResponse>(
-    gql(queries.dashboardList),
+    gql(queries.dashboardList)
   );
   const sectionsQuery = useQuery<SectionsListQueryResponse>(
     gql(queries.sectionList),
     {
       variables: {
-        type: 'dashboard',
+        type: "dashboard",
       },
-    },
+    }
   );
 
   const [dashboardRemove] = useMutation(gql(mutations.dashboardRemove), {
     refetchQueries: [
       {
         query: gql(queries.sectionList),
-        variables: { type: 'dashboard' },
+        variables: { type: "dashboard" },
       },
       {
         query: gql(queries.dashboardList),
@@ -48,15 +49,19 @@ const DashboardSectionContainer = (props: Props) => {
   });
 
   const removeDashboard = (id: string) => {
-    confirm(__('Are you sure to delete selected dashboard?')).then(() => {
+    confirm(__("Are you sure to delete selected dashboard?")).then(() => {
       dashboardRemove({
         variables: { id },
       })
         .then(() => {
           if (queryParams.dashboardId === id) {
-            router.removeParams(history, ...Object.keys(queryParams));
+            router.removeParams(
+              navigate,
+              location,
+              ...Object.keys(queryParams)
+            );
           }
-          Alert.success('You successfully deleted a dashboard');
+          Alert.success("You successfully deleted a dashboard");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -65,7 +70,8 @@ const DashboardSectionContainer = (props: Props) => {
   };
 
   const sections = sectionsQuery?.data?.sections || [];
-  const { list = [], totalCount = 0 } = dashboardsQuery?.data?.dashboardList || {};
+  const { list = [], totalCount = 0 } =
+    dashboardsQuery?.data?.dashboardList || {};
   const loading = dashboardsQuery.loading && sectionsQuery.loading;
 
   const updatedProps = {

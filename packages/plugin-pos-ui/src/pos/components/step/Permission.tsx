@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   __,
   ControlLabel,
   FormControl,
   FormGroup,
   SelectTeamMembers,
-  Toggle
+  Toggle,
 } from '@erxes/ui/src';
 import { IPos } from '../../../types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
@@ -17,29 +17,32 @@ type Props = {
   envs: any;
 };
 
-type State = {
-  config: any;
-};
+const Permission = (props: Props) => {
+  const { onChange, pos, envs } = props;
 
-class PermissionStep extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const [config, setConfig] = useState(pos.permissionConfig || {});
 
-    const { pos } = props;
+  let cashierIds: any = [];
+  let adminIds: any = [];
 
-    this.state = {
-      config: pos.permissionConfig || {}
-    };
+  if (pos) {
+    cashierIds = pos.cashierIds;
+    adminIds = pos.adminIds;
   }
 
-  onChangeFunction = (value: any) => {
-    this.props.onChange('pos', value);
+  const onChangeFunction = (value: any) => {
+    onChange('pos', value);
   };
 
-  onChangeValue = (e, valueType?: string) => {
-    const { pos } = this.props;
-    const { config } = this.state;
+  const onAdminSelect = (users) => {
+    onChangeFunction({ ...pos, adminIds: users });
+  };
 
+  const onCashierSelect = (users) => {
+    onChangeFunction({ ...pos, cashierIds: users });
+  };
+
+  const onChangeValue = (e, valueType?: string) => {
     const keys = e.target.name.split('.');
     const type = keys[0];
     const name = keys[1];
@@ -52,19 +55,17 @@ class PermissionStep extends React.Component<Props, State> {
         [name]: isNaN(numericValue)
           ? value
           : numericValue > 100
-          ? 100
-          : numericValue
-      }
+            ? 100
+            : numericValue,
+      },
     };
 
-    this.setState({ config: newConfig });
+    setConfig(newConfig);
 
-    this.props.onChange('pos', { ...pos, permissionConfig: newConfig });
+    onChange('pos', { ...pos, permissionConfig: newConfig });
   };
 
-  renderToggle(title: string, type: string, name: string) {
-    const { config } = this.state;
-
+  const renderToggle = (title: string, type: string, name: string) => {
     return (
       <FormGroup>
         <ControlLabel>{title}</ControlLabel>
@@ -72,19 +73,17 @@ class PermissionStep extends React.Component<Props, State> {
           id={`${type}${name}`}
           name={`${type}.${name}`}
           checked={config[type] && config[type][name] ? true : false}
-          onChange={this.onChangeValue}
+          onChange={onChangeValue}
           icons={{
             checked: <span>Yes</span>,
-            unchecked: <span>No</span>
+            unchecked: <span>No</span>,
           }}
         />
       </FormGroup>
     );
-  }
+  };
 
-  renderDiscountInput(title: string, type: string, name: string) {
-    const { config } = this.state;
-
+  const renderDiscountInput = (title: string, type: string, name: string) => {
     if (!(config[type] && config[type][name])) return null;
 
     return (
@@ -93,108 +92,72 @@ class PermissionStep extends React.Component<Props, State> {
         <FormControl
           id={`${type}${name}`}
           name={`${type}.${name}Limit`}
-          value={config[type] && config[type][`${name}Limit`]}
-          onChange={e => this.onChangeValue(e, 'value')}
+          defaultValue={config[type] && config[type][`${name}Limit`]}
+          onChange={(e) => onChangeValue(e, 'value')}
           max={100}
         />
       </FormGroup>
     );
-  }
+  };
 
-  render() {
-    const { pos } = this.props;
+  return (
+    <FlexItem>
+      <FlexColumn>
+        <LeftItem>
+          <Block>
+            <h4>{__('Admins')}</h4>
 
-    const onAdminSelect = users => {
-      this.onChangeFunction({ ...pos, adminIds: users });
-    };
+            <FormGroup>
+              <ControlLabel required={true}>POS admin</ControlLabel>
+              <SelectTeamMembers
+                label={__('Choose team member')}
+                name="adminIds"
+                initialValue={adminIds}
+                onSelect={onAdminSelect}
+              />
+            </FormGroup>
+            <BlockRow>
+              {renderToggle('Is Print Temp Bill', 'admins', 'isTempBill')}
+              {renderToggle('Direct discount', 'admins', 'directDiscount')}
+              {renderDiscountInput(
+                'Direct discount limit',
+                'admins',
+                'directDiscount',
+              )}
+              {/* {this.renderToggle('Set unit price', 'admins', 'setUnitPrice')} */}
+            </BlockRow>
+          </Block>
 
-    const onCashierSelect = users => {
-      this.onChangeFunction({ ...pos, cashierIds: users });
-    };
+          <Block>
+            <h4>{__('Cashiers')}</h4>
+            <FormGroup>
+              <ControlLabel required={true}>POS cashier</ControlLabel>
+              <SelectTeamMembers
+                label={__('Choose team member')}
+                name="cashierIds"
+                initialValue={cashierIds}
+                onSelect={onCashierSelect}
+              />
+            </FormGroup>
+            <BlockRow>
+              {renderToggle('Is Print Temp Bill', 'cashiers', 'isTempBill')}
+              {renderToggle('Direct Discount', 'cashiers', 'directDiscount')}
+              {renderDiscountInput(
+                'Direct discount limit',
+                'cashiers',
+                'directDiscount',
+              )}
+              {/* {this.renderToggle(
+              'Set unit price',
+              'cashiers',
+              'setUnitPrice'
+            )} */}
+            </BlockRow>
+          </Block>
+        </LeftItem>
+      </FlexColumn>
+    </FlexItem>
+  );
+};
 
-    let cashierIds: any = [];
-    let adminIds: any = [];
-
-    if (pos) {
-      cashierIds = pos.cashierIds;
-      adminIds = pos.adminIds;
-    }
-
-    return (
-      <FlexItem>
-        <FlexColumn>
-          <LeftItem>
-            <Block>
-              <h4>{__('Admins')}</h4>
-
-              <FormGroup>
-                <ControlLabel required={true}>POS admin</ControlLabel>
-                <SelectTeamMembers
-                  label={__('Choose team member')}
-                  name="adminIds"
-                  initialValue={adminIds}
-                  onSelect={onAdminSelect}
-                />
-              </FormGroup>
-              <BlockRow>
-                {this.renderToggle(
-                  'Is Print Temp Bill',
-                  'admins',
-                  'isTempBill'
-                )}
-                {this.renderToggle(
-                  'Direct discount',
-                  'admins',
-                  'directDiscount'
-                )}
-                {this.renderDiscountInput(
-                  'Direct discount limit',
-                  'admins',
-                  'directDiscount'
-                )}
-                {/* {this.renderToggle('Set unit price', 'admins', 'setUnitPrice')} */}
-              </BlockRow>
-            </Block>
-
-            <Block>
-              <h4>{__('Cashiers')}</h4>
-              <FormGroup>
-                <ControlLabel required={true}>POS cashier</ControlLabel>
-                <SelectTeamMembers
-                  label={__('Choose team member')}
-                  name="cashierIds"
-                  initialValue={cashierIds}
-                  onSelect={onCashierSelect}
-                />
-              </FormGroup>
-              <BlockRow>
-                {this.renderToggle(
-                  'Is Print Temp Bill',
-                  'cashiers',
-                  'isTempBill'
-                )}
-                {this.renderToggle(
-                  'Direct Discount',
-                  'cashiers',
-                  'directDiscount'
-                )}
-                {this.renderDiscountInput(
-                  'Direct discount limit',
-                  'cashiers',
-                  'directDiscount'
-                )}
-                {/* {this.renderToggle(
-                  'Set unit price',
-                  'cashiers',
-                  'setUnitPrice'
-                )} */}
-              </BlockRow>
-            </Block>
-          </LeftItem>
-        </FlexColumn>
-      </FlexItem>
-    );
-  }
-}
-
-export default PermissionStep;
+export default Permission;

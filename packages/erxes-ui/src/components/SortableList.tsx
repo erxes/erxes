@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragHandler, SortItem, SortableWrapper } from "../styles/sort";
+import React, { useEffect } from "react";
 
-import colors from '../styles/colors';
-import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
-import { reorder } from '../utils/core';
-import EmptyState from './EmptyState';
-import Icon from './Icon';
+import EmptyState from "./EmptyState";
+import Icon from "./Icon";
+import colors from "../styles/colors";
+import { reorder } from "../utils/core";
 
 type Props = {
   fields: any[];
@@ -24,15 +24,15 @@ const SortableList = (props: Props) => {
     fields,
     child,
     isDragDisabled,
-    droppableId = 'droppableId',
-    emptyMessage = 'There is no fields',
-    searchValue = ''
+    droppableId = "droppableId",
+    emptyMessage = "There is no fields",
+    searchValue = "",
   } = props;
 
   useEffect(() => {
     if (searchValue) {
-      const pattern = new RegExp(searchValue, 'i');
-      const index = fields.findIndex(field => pattern.test(field.label));
+      const pattern = new RegExp(searchValue, "i");
+      const index = fields.findIndex((field) => pattern.test(field.label));
 
       if (index !== -1) {
         const element = document.getElementById(fields[index]._id);
@@ -41,25 +41,26 @@ const SortableList = (props: Props) => {
           return;
         }
 
-        const parent = ((element.parentNode as HTMLElement)
-          .parentNode as HTMLElement).parentNode as HTMLElement;
+        const parent = (
+          (element.parentNode as HTMLElement).parentNode as HTMLElement
+        ).parentNode as HTMLElement;
 
         if (!parent) {
           return;
         }
 
-        parent.scrollIntoView({ block: 'start' });
+        parent.scrollIntoView({ block: "start" });
 
-        parent.style.filter = 'brightness(90%)';
+        parent.style.filter = "brightness(90%)";
 
         setTimeout(() => {
-          parent.style.filter = 'brightness(100%)';
+          parent.style.filter = "brightness(100%)";
         }, 1000);
       }
     }
   }, [fields, searchValue]);
 
-  const onDragEnd = result => {
+  const onDragEnd = (result) => {
     const { destination, source } = result; // dropped outside the list
 
     if (!destination) {
@@ -96,11 +97,8 @@ const SortableList = (props: Props) => {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId={droppableId.toString()} type="ITEMS">
-        {provided => (
-          <SortableWrapper
-            {...provided.droppableProps}
-            innerRef={provided.innerRef}
-          >
+        {(provided) => (
+          <SortableWrapper {...provided.droppableProps} ref={provided.innerRef}>
             {fields.map((field, index) => (
               <Draggable
                 id={field._id}
@@ -113,10 +111,10 @@ const SortableList = (props: Props) => {
               >
                 {(dragProvided, snapshot) => (
                   <SortItem
-                    innerRef={dragProvided.innerRef}
+                    ref={dragProvided.innerRef}
                     {...dragProvided.draggableProps}
                     {...dragProvided.dragHandleProps}
-                    isDragging={snapshot.isDragging}
+                    $isDragging={snapshot.isDragging}
                     column={field.column}
                   >
                     {renderDragHandler()}

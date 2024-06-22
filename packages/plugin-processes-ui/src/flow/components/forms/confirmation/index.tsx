@@ -4,7 +4,8 @@ import Alert from '@erxes/ui/src/utils/Alert';
 type Props = {
   when: boolean;
   children: any;
-  history: any;
+  navigate: any;
+  location: any;
   queryParams: any;
   id: string;
   name: string;
@@ -29,10 +30,10 @@ class Confirmation extends React.Component<Props, State> {
   }
 
   componentDidUpdate() {
-    const { history, when } = this.props;
+    const { navigate, location, when } = this.props;
 
-    this.blockRoute = history.block(nextLocation => {
-      if (when && nextLocation.pathname !== history.location.pathname) {
+    this.blockRoute = navigate(nextLocation => {
+      if (when && nextLocation.pathname !== location.pathname) {
         this.setState({
           showModal: true,
           nextLocation
@@ -72,7 +73,7 @@ class Confirmation extends React.Component<Props, State> {
   };
 
   navigateToNextLocation = () => {
-    const { save, history, queryParams, name } = this.props;
+    const { save, navigate, queryParams, name } = this.props;
 
     if (queryParams.isCreate && this.state.isConfirm && name) {
       save();
@@ -84,7 +85,7 @@ class Confirmation extends React.Component<Props, State> {
 
     this.blockRoute();
 
-    history.push(this.state.nextLocation.pathname);
+    navigate(this.state.nextLocation.pathname);
   };
 
   blockRoute = () => null;

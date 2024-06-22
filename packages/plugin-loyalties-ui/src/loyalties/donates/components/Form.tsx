@@ -3,22 +3,22 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IDonate, IDonateDoc } from '../types';
+  FormGroup,
+} from "@erxes/ui/src/components";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IDonate, IDonateDoc } from "../types";
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src/styles/eindex';
+  MainStyleScrollWrapper as ScrollWrapper,
+} from "@erxes/ui/src/styles/eindex";
 
-import React from 'react';
-import SelectCampaigns from '../../containers/SelectCampaigns';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from '@erxes/ui/src/utils';
-import { queries } from '../../../configs/donateCampaign/graphql';
+import React from "react";
+import SelectCampaigns from "../../containers/SelectCampaigns";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "@erxes/ui/src/utils";
+import { queries } from "../../../configs/donateCampaign/graphql";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -42,11 +42,11 @@ class DonateForm extends React.Component<Props, State> {
     }
 
     if (!donate.ownerType) {
-      donate.ownerType = 'customer';
+      donate.ownerType = "customer";
     }
 
     this.state = {
-      donate
+      donate,
     };
   }
 
@@ -61,14 +61,14 @@ class DonateForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state.donate
+      ...this.state.donate,
     };
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const name = e.target.name;
     let value = e.target.value;
-    if (e.target.type === 'number') {
+    if (e.target.type === "number") {
       value = Number(value);
     }
 
@@ -84,12 +84,12 @@ class DonateForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeCampaign = value => {
+  onChangeCampaign = (value) => {
     const { donate } = this.state;
     this.setState({ donate: { ...donate, campaignId: value } });
   };
 
-  onChangeSelect = e => {
+  onChangeSelect = (e) => {
     const { donate } = this.state;
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
@@ -98,14 +98,14 @@ class DonateForm extends React.Component<Props, State> {
     this.setState({ donate: { ...donate, [name]: value } });
   };
 
-  onChangeOwnerId = ownerId => {
+  onChangeOwnerId = (ownerId) => {
     const { donate } = this.state;
     this.setState({ donate: { ...donate, ownerId } });
   };
 
   renderOwner = () => {
     const { donate } = this.state;
-    if (donate.ownerType === 'customer') {
+    if (donate.ownerType === "customer") {
       return (
         <SelectCustomers
           label="Customer"
@@ -117,7 +117,7 @@ class DonateForm extends React.Component<Props, State> {
       );
     }
 
-    if (donate.ownerType === 'user') {
+    if (donate.ownerType === "user") {
       return (
         <SelectTeamMembers
           label="Team member"
@@ -168,22 +168,22 @@ class DonateForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="ownerType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={donate.ownerType}
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'customer'} value={'customer'}>
-                {' '}
-                {'customer'}{' '}
+              <option key={"customer"} value={"customer"}>
+                {" "}
+                {"customer"}{" "}
               </option>
-              <option key={'user'} value={'user'}>
-                {' '}
-                {'user'}{' '}
+              <option key={"user"} value={"user"}>
+                {" "}
+                {"user"}{" "}
               </option>
-              <option key={'company'} value={'company'}>
-                {' '}
-                {'company'}{' '}
+              <option key={"company"} value={"company"}>
+                {" "}
+                {"company"}{" "}
               </option>
             </FormControl>
           </FormGroup>
@@ -212,10 +212,10 @@ class DonateForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'donate',
+            name: "donate",
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.donate
+            object: this.props.donate,
           })}
         </ModalFooter>
       </>

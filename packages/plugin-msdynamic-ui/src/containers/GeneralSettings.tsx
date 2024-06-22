@@ -8,9 +8,7 @@ import { mutations, queries } from '../graphql';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
-type Props = {
-  history: any;
-};
+type Props = {};
 
 type FinalProps = {
   configsQuery: ConfigsQueryResponse;

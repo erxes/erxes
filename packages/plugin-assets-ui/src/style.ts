@@ -1,21 +1,22 @@
-import { Input } from '@erxes/ui/src/components/form/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { Input } from '@erxes/ui/src/components/form/styles';
+import { InputBar } from '@erxes/ui-settings/src/styles';
 import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { InputBar } from '@erxes/ui-settings/src/styles';
 
 interface ContainerBoxType {
-  row?: boolean;
-  column?: boolean;
+  $row?: boolean;
+  $column?: boolean;
   gap?: number;
-  justifyCenter?: boolean;
+  $justifyCenter?: boolean;
   justifyEnd?: boolean;
   align?: string;
-  spaceBetween?: boolean;
-  spaceAround?: boolean;
-  horizontal?: boolean;
-  vertical?: boolean;
+  $spaceBetween?: boolean;
+  $spaceAround?: boolean;
+  $horizontal?: boolean;
+  $vertical?: boolean;
   marginX?: number;
   marginY?: number;
   rightBorder?: boolean;
@@ -26,21 +27,21 @@ interface ContainerBoxType {
 export const ContainerBox = styledTS<ContainerBoxType>(styled.div)`
     display:flex;
     flex-wrap:${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
-    flex-direction:${({ row }) => (row ? 'row' : '')} ${({ column }) =>
-  column ? 'column' : ''};
+    flex-direction:${({ $row }) => ($row ? 'row' : '')} ${({ $column }) =>
+      $column ? 'column' : ''};
     gap: ${({ gap }) => (gap ? `${gap}px` : '')};
     place-items: ${({ align }) => (align ? `${align}` : '')};
     place-content:${({ placeContentEnd }) => (placeContentEnd ? 'end' : '')};
-    padding: ${({ horizontal, vertical }) =>
-      horizontal && vertical
+    padding: ${({ $horizontal, $vertical }) =>
+      $horizontal && $vertical
         ? '10px'
-        : `${vertical ? '10px' : '0px'} ${horizontal ? '10px' : '0px'}`};
-    justify-content: ${({ spaceBetween }) =>
-      spaceBetween ? 'space-between' : ''};
-    justify-content:${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
+        : `${$vertical ? '10px 20px' : '0px'} ${$horizontal ? '10px' : '0px'}`};
+    justify-content: ${({ $spaceBetween }) =>
+      $spaceBetween ? 'space-between' : ''};
+    justify-content:${({ $spaceAround }) => ($spaceAround ? 'space-around' : '')};
     justify-content: ${({ justifyEnd }) => (justifyEnd ? 'end' : '')};
-    justify-content: ${({ justifyCenter }) =>
-      justifyCenter ? 'center  ' : ''};
+    justify-content: ${({ $justifyCenter }) =>
+      $justifyCenter ? 'center  ' : ''};
     margin:${({ marginX, marginY }) =>
       `${marginX ? `${marginX}px` : '0px'} ${
         marginY ? `${marginY}px` : '0px'
@@ -253,9 +254,9 @@ export const MovementItemInfoContainer = styled.div`
 `;
 
 export const MovementItemConfigContainer = styledTS<{ flex?: string }>(
-  styled.div
+  styled.div,
 )`
-  flex: ${props => (props.flex ? props.flex : '1')};
+  flex: ${(props) => (props.flex ? props.flex : '1')};
   margin-right: 10px;
 
   &:last-of-type {
@@ -333,4 +334,8 @@ export const KbTreeViewItem = styled.div`
 export const SelectAssignType = styled(InputBar)`
   max-width: 150px;
   margin-top: 30px;
+`;
+
+export const FilterContainer = styled.div`
+  padding: 10px 20px 20px;
 `;

@@ -1,16 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __, readFile } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __, readFile } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
+import Popover from "@erxes/ui/src/components/Popover";
 import {
   CardContent,
   CardItem,
-} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';
-import { Row } from '@erxes/ui-settings/src/styles';
-import { AvatarImg } from '@erxes/ui/src/components/filterableList/styles';
-import styled from 'styled-components';
+} from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles";
+import { Row } from "@erxes/ui-settings/src/styles";
+import { AvatarImg } from "@erxes/ui/src/components/filterableList/styles";
+import styled from "styled-components";
 import {
   CarouselButtonLeft,
   CarouselButtonRight,
@@ -19,7 +18,7 @@ import {
   EmulatorWrapper,
   QuickReplies,
   QuickReply,
-} from '../../styles';
+} from "../../styles";
 
 const PopoverWrapper = (props) => {
   return <Popover {...props} />;
@@ -111,12 +110,12 @@ function Preview({ messages }) {
 
   const renderCard = (
     { buttons = [], text, title, subtitle, image },
-    isCarousel?: boolean,
+    isCarousel?: boolean
   ) => {
     const renderButton = (button) => {
       const { type, text, link } = button;
 
-      if (type === 'link') {
+      if (type === "link") {
         return (
           <MessageLinkButton target="_blank" href={link}>
             {text}
@@ -145,7 +144,7 @@ function Preview({ messages }) {
       <MesageRow>
         {!isCarousel && <AvatarImg src="/images/erxes-bot.svg" />}
         <Message>
-          {image && <img alt={image || ''} src={readFile(image)} />}
+          {image && <img alt={image || ""} src={readFile(image)} />}
           <CardContent>
             {text && <h4>{text}</h4>}
             {title && <h4>{title}</h4>}
@@ -167,7 +166,7 @@ function Preview({ messages }) {
     const handleNextClick = () => {
       const totalSlides = cards.length;
       setCurrentSlide((prevSlide) =>
-        prevSlide < totalSlides - 1 ? prevSlide + 1 : totalSlides - 1,
+        prevSlide < totalSlides - 1 ? prevSlide + 1 : totalSlides - 1
       );
     };
     ``;
@@ -194,13 +193,13 @@ function Preview({ messages }) {
 
   const renderMessage = (message) => {
     switch (message.type) {
-      case 'text':
+      case "text":
         return renderCard(message);
-      case 'card':
+      case "card":
         return renderCards(message.cards || []);
-      case 'image':
+      case "image":
         return renderCard(message);
-      case 'quickReplies':
+      case "quickReplies":
         return renderQuickReplies(message);
       default:
         return;
@@ -221,15 +220,15 @@ function Preview({ messages }) {
 
 function PreviewWidget({ messages }) {
   return (
-    <OverlayTrigger
-      trigger="click"
-      rootClose={true}
-      overlay={<Preview messages={messages} />}
+    <Popover
+      trigger={
+        <Button btnStyle="simple" icon="eye" block>
+          {__("Preview")}
+        </Button>
+      }
     >
-      <Button btnStyle="simple" icon="eye" block>
-        {__('Preview')}
-      </Button>
-    </OverlayTrigger>
+      <Preview messages={messages} />
+    </Popover>
   );
 }
 

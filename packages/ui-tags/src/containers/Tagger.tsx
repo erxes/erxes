@@ -1,19 +1,16 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, withProps } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import {
   ITag,
   ITagTypes,
+  TagsQueryResponse,
   TagMutationResponse,
-  TagMutationVariables,
-  TagsQueryResponse
 } from '../types';
 import { mutations, queries } from '../graphql';
 
 import React from 'react';
 import Tagger from '../components/Tagger';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
@@ -29,30 +26,40 @@ type Props = {
   disableTreeView?: boolean;
 };
 
-type FinalProps = {
-  tagsQuery: TagsQueryResponse;
-  tagsCountQuery: any;
-} & Props &
-  TagMutationResponse;
+const TaggerContainer = (props: Props) => {
+  const tagsQuery = useQuery<TagsQueryResponse>(query, {
+    variables: {
+      type: props.type,
+      parentId: props.parentTagId,
+      perPage: props.perPage || 20,
+    },
+  });
 
-const TaggerContainer = (props: FinalProps) => {
-  const {
-    type,
-    targets = [],
-    successCallback,
-    tagsQuery,
-    tagsCountQuery,
-    tagMutation
-  } = props;
+  const tagsCountQuery = useQuery(gql(queries.tagsQueryCount), {
+    variables: {
+      type: props.type,
+      parentId: props.parentTagId,
+    },
+  });
 
-  const tags = tagsQuery.tags || [];
-  const totalCount = tagsCountQuery.tagsQueryCount || 0;
+  const [tagMutation] = useMutation<TagMutationResponse>(
+    gql(mutations.tagsTag),
+    {
+      refetchQueries: props.refetchQueries,
+    },
+  );
 
-  const tag = selectedTagIds => {
+  const { type, targets = [], successCallback } = props;
+
+  const tags = (tagsQuery.data && tagsQuery.data.tags) || [];
+  const totalCount =
+    (tagsCountQuery.data && tagsCountQuery.data.tagsQueryCount) || 0;
+
+  const tag = (selectedTagIds) => {
     const variables = {
       type,
-      targetIds: targets.map(t => t._id),
-      tagIds: selectedTagIds
+      targetIds: targets.map((t) => t._id),
+      tagIds: selectedTagIds,
     };
 
     tagMutation({ variables })
@@ -69,7 +76,7 @@ const TaggerContainer = (props: FinalProps) => {
           successCallback();
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -80,7 +87,7 @@ const TaggerContainer = (props: FinalProps) => {
       tagsQuery.fetchMore({
         variables: {
           perPage: props.perPage || 20,
-          page
+          page,
         },
         updateQuery: (prevResult, { fetchMoreResult }) => {
           if (!fetchMoreResult || fetchMoreResult.tags.length === 0) {
@@ -100,9 +107,9 @@ const TaggerContainer = (props: FinalProps) => {
 
           return {
             ...prevResult,
-            tags: [...prevTags, ...fetchedTags]
+            tags: [...prevTags, ...fetchedTags],
           };
-        }
+        },
       })
     );
   };
@@ -113,14 +120,14 @@ const TaggerContainer = (props: FinalProps) => {
     tags,
     totalCount,
     onLoadMore,
-    tag
+    tag,
   };
 
   return <Tagger {...updatedProps} />;
 };
 
 const query = gql`
-  query(
+  query (
     $type: String!
     $tagIds: [String]
     $parentId: String
@@ -142,35 +149,4 @@ const query = gql`
   }
 `;
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, any, { type: string }>(gql(queries.tagsQueryCount), {
-      name: 'tagsCountQuery',
-      options: (props: Props) => ({
-        variables: {
-          type: props.type,
-          parentId: props.parentTagId
-        }
-      })
-    }),
-    graphql<Props, TagsQueryResponse, { type: string }>(query, {
-      name: 'tagsQuery',
-      options: (props: Props) => ({
-        variables: {
-          type: props.type,
-          parentId: props.parentTagId,
-          perPage: props.perPage || 20
-        }
-      })
-    }),
-    graphql<Props, TagMutationResponse, TagMutationVariables>(
-      gql(mutations.tagsTag),
-      {
-        name: 'tagMutation',
-        options: ({ refetchQueries }) => ({
-          refetchQueries
-        })
-      }
-    )
-  )(TaggerContainer)
-);
+export default TaggerContainer;

@@ -165,7 +165,7 @@ class ConditionsList extends React.Component<Props, State> {
 
     if (condition.type === 'property') {
       return (
-        <ConditionItem useMargin={useMargin} key={Math.random()}>
+        <ConditionItem $useMargin={useMargin} key={Math.random()}>
           <FilterRow>
             <PropertyDetail
               onClickProperty={this.props.onClickProperty}
@@ -186,7 +186,7 @@ class ConditionsList extends React.Component<Props, State> {
     }
 
     return (
-      <ConditionItem useMargin={useMargin} key={Math.random()}>
+      <ConditionItem $useMargin={useMargin} key={Math.random()}>
         <FilterRow>
           <EventDetail
             condition={condition}
@@ -225,7 +225,7 @@ class ConditionsList extends React.Component<Props, State> {
           })}
         </Condition>
 
-        <ButtonWrapper hasCondition={hasCondition}>
+        <ButtonWrapper $hasCondition={hasCondition}>
           <Button
             size="small"
             btnStyle="simple"

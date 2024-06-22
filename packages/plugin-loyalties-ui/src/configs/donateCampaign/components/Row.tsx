@@ -1,61 +1,55 @@
 import {
   FormControl,
-  TextInfo,
+  Icon,
   ModalTrigger,
-  Icon
-} from '@erxes/ui/src/components';
-import React from 'react';
-import Form from '../containers/Form';
-import { IDonateCampaign } from '../types';
-import { Link } from 'react-router-dom';
+  TextInfo,
+} from "@erxes/ui/src/components";
+
+import Form from "../containers/Form";
+import { IDonateCampaign } from "../types";
+import { Link } from "react-router-dom";
+import React from "react";
 
 type Props = {
   donateCampaign: IDonateCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (donateCampaign: IDonateCampaign, isChecked?: boolean) => void;
 };
 
 class Row extends React.Component<Props> {
-  modalContent = props => {
+  modalContent = (props) => {
     const { donateCampaign } = this.props;
 
     const updatedProps = {
       ...props,
-      donateCampaign
+      donateCampaign,
     };
 
     return <Form {...updatedProps} />;
   };
 
   render() {
-    const { donateCampaign, history, toggleBulk, isChecked } = this.props;
+    const { donateCampaign, toggleBulk, isChecked } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(donateCampaign, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
-    const {
-      _id,
-      title,
-      startDate,
-      endDate,
-      finishDateOfUse,
-      status
-    } = donateCampaign;
+    const { _id, title, startDate, endDate, finishDateOfUse, status } =
+      donateCampaign;
 
     const trigger = (
       <tr key={_id}>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -76,7 +70,7 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        size={'lg'}
+        size={"lg"}
         title="Edit donate campaign"
         trigger={trigger}
         autoOpenKey="showProductModal"

@@ -83,9 +83,9 @@ export const isTimeInBetween = (
 
 export interface IIntegrationModel extends Model<IIntegrationDocument> {
   getIntegration(doc: { [key: string]: any }): IIntegrationDocument;
-  findIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
-  findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[]>;
-  findLeadIntegrations(query: any, args: any): Query<IIntegrationDocument[]>;
+  findIntegrations(query: any, options?: any): Query<IIntegrationDocument[], IIntegrationDocument>;
+  findAllIntegrations(query: any, options?: any): Query<IIntegrationDocument[], IIntegrationDocument>;
+  findLeadIntegrations(query: any, args: any): Query<IIntegrationDocument[], IIntegrationDocument>;
   createIntegration(
     doc: IIntegration,
     userId: string
@@ -137,7 +137,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     formId: string,
     get?: boolean
   ): Promise<IIntegrationDocument>;
-  isOnline(integration: IIntegrationDocument, userTimezone?: string): boolean;
+  isOnline(integration: Pick<IIntegration, 'messengerData'>, userTimezone?: string): boolean;
   createBookingIntegration(
     doc: IIntegration,
     userId: string
@@ -478,7 +478,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     }
 
     public static isOnline(
-      integration: IIntegrationDocument,
+      integration: Pick<IIntegration, 'messengerData'>,
       userTimezone?: string
     ) {
       const now = new Date();

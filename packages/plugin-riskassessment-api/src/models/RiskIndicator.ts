@@ -234,7 +234,7 @@ export const loadRiskIndicators = (models: IModels, subdomain: string) => {
       const { _id, name, forms, ...indicatorDoc } = indicator;
 
       const newForms = await Promise.all(
-        forms.map(async (form) => {
+        (forms || []).map(async (form) => {
           const newForm = await sendFormsMessage({
             subdomain,
             action: 'duplicate',

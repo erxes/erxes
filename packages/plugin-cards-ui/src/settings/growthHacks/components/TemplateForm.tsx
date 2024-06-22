@@ -1,14 +1,14 @@
-import { IStage } from '@erxes/ui-cards/src/boards/types';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { Warning } from '../styles';
-import { IPipelineTemplate } from '../types';
-import Stages from './Stages';
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IFormProps } from "@erxes/ui/src/types";
+import { IPipelineTemplate } from "../types";
+import { IStage } from "@erxes/ui-cards/src/boards/types";
+import React from "react";
+import Stages from "./Stages";
+import { Warning } from "../styles";
 
 type Props = {
   object?: IPipelineTemplate;
@@ -30,13 +30,13 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       stages: stages.map((stage: IStage) => ({
         _id: stage._id,
         name: stage.name,
-        formId: stage.formId
+        formId: stage.formId,
       })),
-      content: (object && object.content) || ''
+      content: (object && object.content) || "",
     };
   }
 
-  onEditorChange = e => {
+  onEditorChange = (e) => {
     this.setState({ content: e.editor.getData() });
   };
 
@@ -57,12 +57,12 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       _id: finalValues._id,
       name: finalValues.name,
       description: finalValues.description,
-      type: 'growthHack',
-      stages: stages.filter(el => el.name && el.formId)
+      type: "growthHack",
+      stages: stages.filter((el) => el.name && el.formId),
     };
   };
 
-  onChangeStages = stages => {
+  onChangeStages = (stages) => {
     this.setState({ stages });
   };
 
@@ -102,7 +102,7 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             name="description"
             defaultValue={object.description}
-            componentClass="textarea"
+            componentclass="textarea"
             type="text"
             required={true}
           />

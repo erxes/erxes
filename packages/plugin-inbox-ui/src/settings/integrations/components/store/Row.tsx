@@ -4,7 +4,7 @@ import {
 } from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
 
 import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
-import Collapse from 'react-bootstrap/Collapse';
+import Collapse from '@erxes/ui/src/components/Collapse';
 import Entry from './Entry';
 import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -129,8 +129,8 @@ class Row extends React.Component<Props, State> {
           )}
         </IntegrationRow>
         <Collapse
-          in={this.state.isContentVisible && selected ? true : false}
-          unmountOnExit={true}
+          show={this.state.isContentVisible && selected ? true : false}
+          unmount={true}
         >
           <CollapsibleContent>{this.renderList()}</CollapsibleContent>
         </Collapse>

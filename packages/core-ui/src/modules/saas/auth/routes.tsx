@@ -1,59 +1,62 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import asyncComponent from "modules/common/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 const AuthLayout = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "AuthLayout" */ '@erxes/ui/src/layout/components/saas/AuthLayout'
-    ),
+      /* webpackChunkName: "AuthLayout" */ "@erxes/ui/src/layout/components/saas/AuthLayout"
+    )
 );
 
 const ForgotPassword = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ForgotPassword" */ './containers/ForgotPassword'
-    ),
+      /* webpackChunkName: "ForgotPassword" */ "./containers/ForgotPassword"
+    )
 );
 
 const ResetPassword = asyncComponent(
   () =>
-    import(
-      /* webpackChunkName: "ResetPassword" */ './containers/ResetPassword'
-    ),
+    import(/* webpackChunkName: "ResetPassword" */ "./containers/ResetPassword")
 );
 
 const SignIn = asyncComponent(
-  () => import(/* webpackChunkName: "SignIn" */ './containers/SignIn'),
+  () => import(/* webpackChunkName: "SignIn" */ "./containers/SignIn")
 );
 
 const SignInWithEmail = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "SignInWithEmail" */ './containers/SignInWithEmail'
-    ),
+      /* webpackChunkName: "SignInWithEmail" */ "./containers/SignInWithEmail"
+    )
 );
 
-const signIn = () => <AuthLayout content={<SignIn />} />;
+const SignInComponent = () => <AuthLayout content={<SignIn />} />;
 
-const signInWithEmail = () => <AuthLayout content={<SignInWithEmail />} />;
+const SignInWithEmailComponent = () => (
+  <AuthLayout content={<SignInWithEmail />} />
+);
 
-const forgotPassword = () => <AuthLayout content={<ForgotPassword />} />;
+const ForgotPasswordComponent = () => (
+  <AuthLayout content={<ForgotPassword />} />
+);
 
-const resetPassword = ({ location }) => {
+const ResetPasswordComponent = () => {
+  const location = useLocation();
   const parsed = queryString.parse(location.search);
-  return <AuthLayout content={<ResetPassword token={parsed.token || ''} />} />;
+  return <AuthLayout content={<ResetPassword token={parsed.token || ""} />} />;
 };
 
 const routes = () => {
   return (
-    <Switch>
-      <Route path="/forgot-password" exact={true} component={forgotPassword} />
-      <Route path="/reset-password" exact={true} component={resetPassword} />
-      <Route path="/sign-in" exact={true} component={signIn} />
-      <Route path="*" component={signInWithEmail} />
-    </Switch>
+    <Routes>
+      <Route path="/forgot-password" element={<ForgotPasswordComponent />} />
+      <Route path="/reset-password" element={<ResetPasswordComponent />} />
+      <Route path="/sign-in" element={<SignInComponent />} />
+      <Route path="*" element={<SignInWithEmailComponent />} />
+    </Routes>
   );
 };
 

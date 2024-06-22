@@ -1,5 +1,6 @@
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
@@ -19,74 +20,72 @@ const MessageList = asyncComponent(() => {
   return comp;
 });
 
-const EngageStats = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats'
-  )
+const EngageStats = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "EngageStats - Engage" */ './containers/EngageStats'
+    )
 );
 
-const EngageConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Engage configs" */ '../settings/campaigns/components/EngageConfigs'
-  )
+const EngageConfigs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Engage configs" */ '../settings/campaigns/components/EngageConfigs'
+    )
 );
 
-const engageList = history => {
-  return <MessageList history={history} />;
+const EngageList = () => {
+  return <MessageList />;
 };
 
-const createForm = ({ location }) => {
+const CreateForm = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <MessageForm kind={queryParams.kind} />;
+  return <MessageForm kind={'manual'} />;
 };
 
-const editForm = ({ match }) => {
-  return <MessageForm messageId={match.params._id} />;
+const EditForm = () => {
+  const { _id } = useParams();
+
+  return <MessageForm messageId={_id} />;
 };
 
-const statistic = ({ match }) => {
-  return <EngageStats messageId={match.params._id} />;
+const Statistic = () => {
+  const { _id } = useParams();
+
+  return <EngageStats messageId={_id} />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
+      <Route key='/campaigns' path='/campaigns' element={<EngageList />} />
+
       <Route
-        key="/campaigns"
-        exact={true}
-        path="/campaigns"
-        component={engageList}
+        key='/campaigns/create'
+        path='/campaigns/create'
+        element={<CreateForm />}
       />
 
       <Route
-        key="/campaigns/create"
-        exact={true}
-        path="/campaigns/create"
-        component={createForm}
+        key='/campaigns/edit'
+        path='/campaigns/edit/:_id'
+        element={<EditForm />}
       />
 
       <Route
-        key="/campaigns/edit"
-        exact={true}
-        path="/campaigns/edit/:_id"
-        component={editForm}
+        key='/campaigns/show'
+        path='/campaigns/show/:_id'
+        element={<Statistic />}
       />
 
       <Route
-        key="/campaigns/show"
-        exact={true}
-        path="/campaigns/show/:_id"
-        component={statistic}
+        key='/settings/campaign-configs/'
+        path='/settings/campaign-configs/'
+        element={<EngageConfigs />}
       />
-
-      <Route
-        key="/settings/campaign-configs/"
-        exact={true}
-        path="/settings/campaign-configs/"
-        component={EngageConfigs}
-      />
-    </React.Fragment>
+    </Routes>
   );
 };
 

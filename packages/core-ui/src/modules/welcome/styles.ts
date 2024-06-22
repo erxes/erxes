@@ -1,7 +1,8 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { SectionContainer } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { SectionContainer } from '@erxes/ui/src/layout/styles';
 
 const Header = styled.div`
   h1 {
@@ -33,7 +34,9 @@ const BoxedStep = styled.div`
   margin-bottom: ${dimensions.coreSpacing}px;
 `;
 
-const BoxHeader = styledTS<{ isOpen?: boolean; isSetup?: boolean }>(styled.div)`
+const BoxHeader = styledTS<{ $isOpen?: boolean; $isSetup?: boolean }>(
+  styled.div,
+)`
   h4 {
     color: ${colors.colorPrimary};
     font-weight: 700;
@@ -44,11 +47,11 @@ const BoxHeader = styledTS<{ isOpen?: boolean; isSetup?: boolean }>(styled.div)`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  ${props => !props.isSetup && `cursor: pointer;`}
+  ${(props) => !props.$isSetup && `cursor: pointer;`}
   padding: 17px 30px;
   position: relative;
-  ${props =>
-    props.isOpen &&
+  ${(props) =>
+    props.$isOpen &&
     `
     border-bottom: 1px solid #F0F0F0;
     margin-bottom: 23px;
@@ -173,7 +176,9 @@ const LinkedButton = styled.a`
     height: 40px;
     padding: 10px;
     background: ${colors.colorWhite};
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
     border-radius: 7px;
     display: flex;
     justify-content: center;
@@ -282,5 +287,5 @@ export {
   Setup,
   SetupContent,
   Card,
-  VideoFrame
+  VideoFrame,
 };

@@ -7,13 +7,12 @@ import {
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 
 import { __ } from 'coreui/utils';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { IContract } from '../../types';
 
@@ -31,11 +30,6 @@ type Props = {
   closeModal: () => void;
 };
 
-type State = {
-  invDate: Date;
-  classificationChangeList: any[];
-};
-
 function addClassification(
   classification,
   newClassification,
@@ -43,7 +37,7 @@ function addClassification(
   currentItem
 ) {
   const currentType = list.find(
-    a =>
+    (a) =>
       a.classification === classification &&
       a.newClassification === newClassification
   );
@@ -72,20 +66,32 @@ function addClassification(
 function generateList(contractTypes, contracts) {
   let dataClassifications: any = [];
 
-  contractTypes?.map(type => {
+  contractTypes?.map((type) => {
     const currentContracts = contracts?.filter(
-      a => a.contractTypeId === type._id
+      (a) => a.contractTypeId === type._id
     );
-    currentContracts.map(contract => {
+    currentContracts.map((contract) => {
       let newClassification = 'NORMAL';
 
-      if (type.config.badExpirationDay < (contract.expiredDays || 0))
+      if (
+        type.config &&
+        type.config.badExpirationDay < (contract.expiredDays || 0)
+      )
         newClassification = 'BAD';
-      else if (type.config.negativeExpirationDay < (contract.expiredDays || 0))
+      else if (
+        type.config &&
+        type.config.negativeExpirationDay < (contract.expiredDays || 0)
+      )
         newClassification = 'NEGATIVE';
-      else if (type.config.doubtExpirationDay < (contract.expiredDays || 0))
+      else if (
+        type.config &&
+        type.config.doubtExpirationDay < (contract.expiredDays || 0)
+      )
         newClassification = 'DOUBTFUL';
-      else if (type.config.expiredExpirationDay < (contract.expiredDays || 0))
+      else if (
+        type.config &&
+        type.config.expiredExpirationDay < (contract.expiredDays || 0)
+      )
         newClassification = 'EXPIRED';
 
       addClassification(
@@ -100,28 +106,22 @@ function generateList(contractTypes, contracts) {
   return dataClassifications;
 }
 
-class ClassificationForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+const ClassificationForm = (props: Props) => {
+  const { contractTypes, contracts } = props;
+  const [invDate, setInvDate] = useState(new Date());
+  const [classificationChangeList, setClassificationChangeList] = useState(
+    generateList(contractTypes, contracts)
+  );
 
-    this.state = {
-      invDate: new Date(),
-      classificationChangeList: generateList(
-        this.props.contractTypes,
-        this.props.contracts
-      )
-    };
-  }
-
-  generateDoc = () => {
+  const generateDoc = () => {
     return (
-      this.state.classificationChangeList?.map(mur => ({
+      classificationChangeList?.map((mur) => ({
         description: `${mur.classification}->${mur.newClassification}`,
-        invDate: this.state.invDate,
+        invDate: invDate,
         total: mur.list.reduce((a, b) => a + b.loanBalanceAmount, 0),
         classification: mur.classification,
         newClassification: mur.newClassification,
-        dtl: mur.list?.map(a => ({
+        dtl: mur.list?.map((a) => ({
           amount: a.loanBalanceAmount,
           contractId: a._id,
           currency: a.currency
@@ -130,38 +130,44 @@ class ClassificationForm extends React.Component<Props, State> {
     );
   };
 
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (
-      this.props.contractTypes?.length > 0 &&
-      this.props.contracts?.length > 0 &&
-      prevProps.contractTypes?.length !== this.props.contractTypes?.length &&
-      prevProps.contracts?.length !== this.props.contracts?.length
-    ) {
-    }
-  }
-
-  renderFormGroup = (label, props) => {
-    return (
-      <FormGroup>
-        <ControlLabel>{__(label)}</ControlLabel>
-        <FormControl {...props} />
-      </FormGroup>
-    );
-  };
-
-  onChangeField = e => {
-    const name = (e.target as HTMLInputElement).name;
-    const value = (e.target as HTMLInputElement).value;
-    this.setState({ [name]: value } as any);
-  };
-
-  checkValidation = (): any => {
+  const checkValidation = (): any => {
     const errors: any = {};
 
     return errors;
   };
 
-  renderClassificationList = () => {
+  const renderClassificationList = () => {
+    const onChangeClassification = (
+      value,
+      mur,
+      index,
+      classification,
+      cIndex
+    ) => {
+      let dataClassifications = classificationChangeList;
+      let insertDataType = dataClassifications.find(
+        (a) =>
+          a.classification === mur.classification &&
+          value === a.newClassification
+      );
+      if (insertDataType) {
+        insertDataType.list.push({
+          ...mur,
+          newClassification: value
+        });
+      } else {
+        addClassification(mur.classification, value, dataClassifications, {
+          ...mur,
+          newClassification: value
+        });
+      }
+      classification.list.splice(index, 1);
+      if (classification.list.length === 0){
+        dataClassifications.splice(cIndex, 1);
+      }
+
+      setClassificationChangeList(dataClassifications);
+    };
     return (
       <table style={{ width: '100%' }}>
         <thead>
@@ -173,9 +179,10 @@ class ClassificationForm extends React.Component<Props, State> {
             <th>{__('new classification')}</th>
           </tr>
         </thead>
-        {this.state.classificationChangeList.map((a, cIndex) => {
+        {classificationChangeList.map((classification, cIndex) => {
           return (
             <tbody
+              key={`${classification.classification}-->${classification.newClassification}`}
               style={{
                 boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
                 columnSpan: 'all'
@@ -183,12 +190,13 @@ class ClassificationForm extends React.Component<Props, State> {
             >
               <tr style={{ columnSpan: 'all' }}>
                 <label style={{ fontWeight: 700, marginLeft: 20 }}>
-                  {a.classification} {`-->`} {a.newClassification}
+                  {classification.classification} {`-->`}{' '}
+                  {classification.newClassification}
                 </label>
               </tr>
-              {a.list.map((mur, index) => {
+              {classification.list.map((mur, index) => {
                 return (
-                  <tr>
+                  <tr key={mur._id}>
                     <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                     <td>{mur.classification}</td>
                     <td>{mur.expiredDays}</td>
@@ -196,35 +204,15 @@ class ClassificationForm extends React.Component<Props, State> {
                     <td>
                       <select
                         style={{ border: 'none' }}
-                        value={a.newClassification}
-                        onChange={e => {
-                          let dataClassifications = this.state
-                            .classificationChangeList;
-                          let insertDataType = dataClassifications.find(
-                            a =>
-                              a.classification === mur.classification &&
-                              e.target.value === a.newClassification
+                        value={classification.newClassification}
+                        onChange={(e) => {
+                          onChangeClassification(
+                            e.target.value,
+                            mur,
+                            index,
+                            classification,
+                            cIndex
                           );
-                          if (insertDataType) {
-                            insertDataType.list.push({
-                              ...mur,
-                              newClassification: e.target.value
-                            });
-                          } else {
-                            addClassification(
-                              mur.classification,
-                              e.target.value,
-                              dataClassifications,
-                              { ...mur, newClassification: e.target.value }
-                            );
-                          }
-                          a.list.splice(index, 1);
-                          if (a.list.length === 0)
-                            dataClassifications.splice(cIndex, 1);
-
-                          this.setState({
-                            classificationChangeList: dataClassifications
-                          });
                         }}
                       >
                         <option>NORMAL</option>
@@ -245,7 +233,7 @@ class ClassificationForm extends React.Component<Props, State> {
                   Total:
                 </td>
                 <td>
-                  {a.list
+                  {classification.list
                     .reduce((a, b) => a + b.loanBalanceAmount, 0)
                     ?.toLocaleString()}
                 </td>
@@ -257,9 +245,9 @@ class ClassificationForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton } = this.props;
-    const { values, isSubmitted } = formProps;
+  const renderContent = (formProps: IFormProps) => {
+    const { closeModal, renderButton } = props;
+    const { isSubmitted } = formProps;
 
     return (
       <>
@@ -275,12 +263,13 @@ class ClassificationForm extends React.Component<Props, State> {
                   dateFormat="YYYY/MM/DD"
                   required={false}
                   name="startDate"
+                  onChange={(e: any) => setInvDate(e.target.value)}
                 />
               </DateContainer>
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        <ScrollWrapper>{this.renderClassificationList()}</ScrollWrapper>
+        <ScrollWrapper>{renderClassificationList()}</ScrollWrapper>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
@@ -289,19 +278,17 @@ class ClassificationForm extends React.Component<Props, State> {
 
           {renderButton({
             name: 'contract',
-            values: this.generateDoc(),
-            disabled: !!Object.keys(this.checkValidation())?.length,
+            values: generateDoc(),
+            disabled: !!Object.keys(checkValidation())?.length,
             isSubmitted,
-            object: this.props.contracts
+            object: props.contracts
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default ClassificationForm;

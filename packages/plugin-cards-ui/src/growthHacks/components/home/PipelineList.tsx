@@ -39,7 +39,7 @@ function PipelineList(props: Props) {
   return (
     <BoxContainer>
       <div>
-        <ProjectItem new={true} onClick={toggleVisibility}>
+        <ProjectItem $new={true} onClick={toggleVisibility}>
           <h5>
             {__('+ Create New Project')}
             <br />

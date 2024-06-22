@@ -2,13 +2,13 @@ module.exports = {
   srcDir: __dirname,
   name: "documents",
   scope: "documents",
-  port: 3020,
+  port: 3120,
   exposes: {
     "./routes": "./src/routes.tsx",
     "./printButton": "./src/containers/PrintButton.tsx",
   },
   routes: {
-    url: "http://localhost:3020/remoteEntry.js",
+    url: "http://localhost:3120/remoteEntry.js",
     scope: "documents",
     module: "./routes",
   },
@@ -20,8 +20,8 @@ module.exports = {
       image: "/images/icons/erxes-09.svg",
       location: "settings",
       scope: "documents",
-      action: 'documentsAll',
-      permissions: ['manageDocuments'],
+      action: "documentsAll",
+      permissions: ["manageDocuments"],
     },
   ],
 };

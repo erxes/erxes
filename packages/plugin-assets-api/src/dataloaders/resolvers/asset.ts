@@ -4,11 +4,11 @@ import { IContext } from '../../connectionResolver';
 import { sendKbMessage } from '../../messageBroker';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Assets.findOne({ _id });
   },
 
-  category(asset: IAssetDocument, _, { dataLoaders }: IContext) {
+  async category(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (
       (asset.categoryId &&
         dataLoaders.assetCategories.load(asset.categoryId)) ||
@@ -16,12 +16,12 @@ export default {
     );
   },
 
-  parent(asset: IAssetDocument, _, { dataLoaders }: IContext) {
+  async parent(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (asset.parentId && dataLoaders.asset.load(asset.parentId)) || null;
   },
 
-  isRoot(asset: IAssetDocument, {}) {
-    return asset.parentId ? false : true;
+  async isRoot(asset: IAssetDocument, {}) {
+    return !asset.parentId; 
   },
 
   async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
@@ -31,7 +31,7 @@ export default {
 
     let filter: string | object = { $regex: new RegExp(order) };
 
-    if (asset.order.match(/\\/)) {
+    if (/\\/.exec(asset.order)) {
       filter = asset.order;
     }
 
@@ -43,7 +43,7 @@ export default {
     });
   },
 
-  vendor(asset: IAssetDocument, _, { dataLoaders }: IContext) {
+  async vendor(asset: IAssetDocument, _, { dataLoaders }: IContext) {
     return (asset.vendorId && dataLoaders.company.load(asset.vendorId)) || null;
   },
 

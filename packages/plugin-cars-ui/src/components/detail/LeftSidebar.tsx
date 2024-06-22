@@ -9,17 +9,15 @@ type Props = {
   car: ICar;
 };
 
-class LeftSidebar extends React.Component<Props> {
-  render() {
-    const { car } = this.props;
+const LeftSidebar = (props: Props) => {
+  const { car } = props;
 
-    return (
-      <Sidebar wide={true}>
-        <BasicInfo car={car} />
-        <CustomFieldsSection id={car._id} isDetail />
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar wide={true}>
+      <BasicInfo car={car} />
+      <CustomFieldsSection id={car._id} isDetail />
+    </Sidebar>
+  );
+};
 
 export default LeftSidebar;

@@ -115,7 +115,7 @@ const usersGroupQueries = {
    * @param {Object} args - Search params
    * @return {Promise} sorted and filtered users objects
    */
-  usersGroups(_root, args: IListArgs, { models }: IContext) {
+  async usersGroups(_root, args: IListArgs, { models }: IContext) {
     const users = paginate(models.UsersGroups.find({}), {
       ...args,
       perPage: args.perPage || 50
@@ -128,7 +128,7 @@ const usersGroupQueries = {
    * Get all groups list. We will use it in pager
    * @return {Promise} total count
    */
-  usersGroupsTotalCount(_root, _args, { models }: IContext) {
+  async usersGroupsTotalCount(_root, _args, { models }: IContext) {
     return models.UsersGroups.find({}).countDocuments();
   }
 };

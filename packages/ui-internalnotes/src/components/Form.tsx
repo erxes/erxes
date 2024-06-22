@@ -142,6 +142,7 @@ class Form extends React.PureComponent<Prop, State> {
             '|',
             'image',
           ]}
+          onCtrlEnter={this.onSend}
         />
 
         {this.renderFooter()}

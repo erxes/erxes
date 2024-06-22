@@ -1,13 +1,13 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import Info from '@erxes/ui/src/components/Info';
-import { __ } from '@erxes/ui/src/utils';
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import React, { useEffect, useState } from 'react';
-import FieldLogic from './FieldLogic';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import Info from "@erxes/ui/src/components/Info";
+import { __ } from "@erxes/ui/src/utils";
+import { IField, IFieldLogic } from "@erxes/ui/src/types";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import React, { useEffect, useState } from "react";
+import FieldLogic from "./FieldLogic";
 
 type Props = {
   onFieldChange: (
@@ -19,19 +19,19 @@ type Props = {
 };
 
 const showOptions = [
-  { value: 'show', label: 'Show this field' },
-  { value: 'hide', label: 'Hide this field' }
+  { value: "show", label: "Show this field" },
+  { value: "hide", label: "Hide this field" },
 ];
 
 function FieldLogics(props: Props) {
   const { currentField, onFieldChange } = props;
   const subFieldIds = props.fields
-    .filter(f => f.subFieldIds)
-    .map(f => f.subFieldIds)
+    .filter((f) => f.subFieldIds)
+    .map((f) => f.subFieldIds)
     .flat();
 
   const fields = props.fields.filter(
-    f => f._id !== currentField._id && !subFieldIds.includes(f._id)
+    (f) => f._id !== currentField._id && !subFieldIds.includes(f._id)
   );
 
   const [logics, setLogics] = useState(
@@ -41,22 +41,22 @@ function FieldLogics(props: Props) {
           fieldId,
           tempFieldId,
           logicOperator,
-          logicValue
+          logicValue,
         };
       }
     )
   );
 
   useEffect(() => {
-    onFieldChange('logics', logics);
+    onFieldChange("logics", logics);
   }, [logics, onFieldChange]);
 
   const [isEnabled, toggleState] = useState(
     currentField.logics ? currentField.logics.length > 0 : false
   );
 
-  const onChangeLogicAction = e =>
-    onFieldChange('logicAction', e.currentTarget.value);
+  const onChangeLogicAction = (e) =>
+    onFieldChange("logicAction", e.currentTarget.value);
 
   const onChangeLogic = (name, value, index) => {
     // find current editing one
@@ -68,24 +68,24 @@ function FieldLogics(props: Props) {
     }
 
     setLogics(logics);
-    onFieldChange('logics', logics);
+    onFieldChange("logics", logics);
   };
 
   const addLogic = () => {
     setLogics([
       ...logics,
       {
-        fieldId: '',
-        tempFieldId: '',
-        logicOperator: 'is',
-        logicValue: ''
-      }
+        fieldId: "",
+        tempFieldId: "",
+        logicOperator: "is",
+        logicValue: "",
+      },
     ]);
   };
 
   const onEnableLogic = () => {
     toggleState(true);
-    onFieldChange('logicAction', 'show');
+    onFieldChange("logicAction", "show");
     addLogic();
   };
 
@@ -99,7 +99,7 @@ function FieldLogics(props: Props) {
         <>
           <FormGroup>
             <FormControl
-              componentClass="select"
+              componentclass="select"
               defaultValue={currentField.logicAction}
               name="logicAction"
               options={showOptions}
@@ -140,7 +140,7 @@ function FieldLogics(props: Props) {
     <>
       <Info>
         {__(
-          'Create rules to show or hide this element depending on the values of other fields'
+          "Create rules to show or hide this element depending on the values of other fields"
         )}
       </Info>
       {renderContent()}

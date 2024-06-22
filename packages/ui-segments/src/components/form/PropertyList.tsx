@@ -1,9 +1,9 @@
-import _ from 'lodash';
-import { IField } from '../../types';
-import React from 'react';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { OperatorList } from '../styles';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IField } from "../../types";
+import { OperatorList } from "../styles";
+import React from "react";
+import _ from "lodash";
 
 type Props = {
   contentType: string;
@@ -23,9 +23,9 @@ class PropertyList extends React.Component<Props, {}> {
         key = field.group;
       } else {
         key =
-          value && value.includes('.')
-            ? value.substr(0, value.indexOf('.'))
-            : 'general';
+          value && value.includes(".")
+            ? value.substr(0, value.indexOf("."))
+            : "general";
 
         key = _.startCase(key);
       }
@@ -40,16 +40,16 @@ class PropertyList extends React.Component<Props, {}> {
     }, {});
   };
 
-  onClickProperty = field => {
+  onClickProperty = (field) => {
     this.props.onClickProperty(field);
   };
 
-  renderFields = fields => {
-    return fields.map(field => {
+  renderFields = (fields) => {
+    return fields.map((field) => {
       return (
         <FormControl
           key={Math.random()}
-          componentClass="radio"
+          componentclass="radio"
           onChange={this.onClickProperty.bind(this, field)}
         >
           {field.label}
@@ -61,7 +61,7 @@ class PropertyList extends React.Component<Props, {}> {
   render() {
     const objects = this.groupByType();
 
-    return Object.keys(objects).map(key => {
+    return Object.keys(objects).map((key) => {
       return (
         <OperatorList key={Math.random()}>
           <FormGroup>

@@ -1,29 +1,31 @@
-import React from 'react';
 import {
-  DateControl,
+  Button,
   Sidebar as CommonSideBar,
   ControlLabel,
+  DateControl,
   FormGroup,
   Icon,
   SelectTeamMembers,
   Tip,
-  __,
   Toggle,
-  Button
-} from '@erxes/ui/src';
+  __,
+} from "@erxes/ui/src";
 import {
   ClearableBtn,
+  CustomRangeContainer,
+  EndDateContainer,
   Padding,
   SelectBox,
   SelectBoxContainer,
   SidebarHeader,
-  CustomRangeContainer,
-  EndDateContainer
-} from '../../styles';
-import { removeParams, setParams } from '@erxes/ui/src/utils/router';
-import { responseTypes } from '../../common/constants';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { Row } from '../../styles';
+} from "../../styles";
+import { removeParams, setParams } from "@erxes/ui/src/utils/router";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { Row } from "../../styles";
+import { responseTypes } from "../../common/constants";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -33,15 +35,18 @@ interface LayoutProps {
   type?: string;
 }
 
-export default function SideBar({ history, queryParams }) {
+export default function SideBar({ queryParams }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const CustomField = ({ children, label, field, clearable }: LayoutProps) => {
     const handleClearable = () => {
       if (Array.isArray(field)) {
-        field.forEach(name => {
-          return removeParams(history, name);
+        field.forEach((name) => {
+          return removeParams(navigate, location, name);
         });
       }
-      removeParams(history, field);
+      removeParams(navigate, location, field);
     };
 
     return (
@@ -60,17 +65,17 @@ export default function SideBar({ history, queryParams }) {
   };
 
   const handleSelect = (value, name) => {
-    removeParams(history, name);
-    setParams(history, { [name]: value });
+    removeParams(navigate, location, name);
+    setParams(navigate, location, { [name]: value });
   };
 
-  const generateQueryParamsDate = params => {
-    return params ? new Date(parseInt(params)).toString() : '';
+  const generateQueryParamsDate = (params) => {
+    return params ? new Date(parseInt(params)).toString() : "";
   };
   const dateOrder = (value, name) => {
-    removeParams(history, 'page');
-    setParams(history, {
-      [name]: new Date(value).valueOf()
+    removeParams(navigate, location, "page");
+    setParams(navigate, location, {
+      [name]: new Date(value).valueOf(),
     });
   };
 
@@ -79,7 +84,7 @@ export default function SideBar({ history, queryParams }) {
       full
       header={
         <Padding>
-          <SidebarHeader>{__('Filters')}</SidebarHeader>
+          <SidebarHeader>{__("Filters")}</SidebarHeader>
         </Padding>
       }
     >
@@ -112,7 +117,7 @@ export default function SideBar({ history, queryParams }) {
         </CustomField>
         <CustomField
           label="Created Date Range"
-          field={['createdAtFrom', 'createdAtTo']}
+          field={["createdAtFrom", "createdAtTo"]}
           clearable={queryParams?.createdAtFrom || queryParams?.createdAtTo}
         >
           <CustomRangeContainer>
@@ -121,7 +126,7 @@ export default function SideBar({ history, queryParams }) {
                 name="createdAtFrom"
                 value={generateQueryParamsDate(queryParams?.createdAtFrom)}
                 placeholder="select from date "
-                onChange={e => dateOrder(e, 'createdAtFrom')}
+                onChange={(e) => dateOrder(e, "createdAtFrom")}
               />
             </DateContainer>
             <EndDateContainer>
@@ -130,7 +135,7 @@ export default function SideBar({ history, queryParams }) {
                   name="createdAtTo"
                   value={generateQueryParamsDate(queryParams?.createdAtTo)}
                   placeholder="select to date "
-                  onChange={e => dateOrder(e, 'createdAtTo')}
+                  onChange={(e) => dateOrder(e, "createdAtTo")}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -138,7 +143,7 @@ export default function SideBar({ history, queryParams }) {
         </CustomField>
         <CustomField
           label="Closed Date Range"
-          field={['closedAtFrom', 'closedAtTo']}
+          field={["closedAtFrom", "closedAtTo"]}
           clearable={queryParams?.closedAtFrom || queryParams?.closedAtTo}
         >
           <CustomRangeContainer>
@@ -147,7 +152,7 @@ export default function SideBar({ history, queryParams }) {
                 name="closedAtFrom"
                 value={generateQueryParamsDate(queryParams?.closedAtFrom)}
                 placeholder="select from date "
-                onChange={e => dateOrder(e, 'closedAtFrom')}
+                onChange={(e) => dateOrder(e, "closedAtFrom")}
               />
             </DateContainer>
             <EndDateContainer>
@@ -156,7 +161,7 @@ export default function SideBar({ history, queryParams }) {
                   name="closedAtTo"
                   value={generateQueryParamsDate(queryParams?.closedAtTo)}
                   placeholder="select to date "
-                  onChange={e => dateOrder(e, 'closedAtTo')}
+                  onChange={(e) => dateOrder(e, "closedAtTo")}
                 />
               </DateContainer>
             </EndDateContainer>
@@ -167,14 +172,14 @@ export default function SideBar({ history, queryParams }) {
           field="onlyWaitingMe"
           clearable={queryParams?.onlyWaitingMe}
         >
-          <Row spaceBetween>
-            <ControlLabel>{__('Waiting Me')}</ControlLabel>
+          <Row $spaceBetween>
+            <ControlLabel>{__("Waiting Me")}</ControlLabel>
             <Toggle
-              checked={['true'].includes(queryParams?.onlyWaitingMe)}
+              checked={["true"].includes(queryParams?.onlyWaitingMe)}
               onChange={() =>
                 handleSelect(
-                  !['true'].includes(queryParams?.onlyWaitingMe),
-                  'onlyWaitingMe'
+                  !["true"].includes(queryParams?.onlyWaitingMe),
+                  "onlyWaitingMe"
                 )
               }
             />
@@ -186,11 +191,11 @@ export default function SideBar({ history, queryParams }) {
           clearable={queryParams?.type}
         >
           <SelectBoxContainer>
-            {responseTypes.map(type => (
+            {responseTypes.map((type) => (
               <SelectBox
                 key={type.value}
-                className={type.value === queryParams?.type ? 'active' : ''}
-                onClick={() => handleSelect(type.value, 'type')}
+                className={type.value === queryParams?.type ? "active" : ""}
+                onClick={() => handleSelect(type.value, "type")}
               >
                 <Icon icon={type.icon} color={type.color} />
                 {type.label}
@@ -199,7 +204,7 @@ export default function SideBar({ history, queryParams }) {
           </SelectBoxContainer>
         </CustomField>
         <CustomField
-          label={'Status'}
+          label={"Status"}
           field="archived"
           clearable={queryParams?.archived}
         >
@@ -207,17 +212,17 @@ export default function SideBar({ history, queryParams }) {
             <SelectBox
               onClick={() =>
                 handleSelect(
-                  ['false', undefined].includes(queryParams?.archived),
-                  'archived'
+                  ["false", undefined].includes(queryParams?.archived),
+                  "archived"
                 )
               }
             >
-              {queryParams?.archived === 'true' ? 'Archived' : 'Active'}
+              {queryParams?.archived === "true" ? "Archived" : "Active"}
               <Icon
                 icon={
-                  queryParams?.archived === 'true'
-                    ? 'calendar-alt'
-                    : 'archive-alt'
+                  queryParams?.archived === "true"
+                    ? "calendar-alt"
+                    : "archive-alt"
                 }
               />
             </SelectBox>

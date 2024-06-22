@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { __, dimensions, Button, Tip, Icon, ControlLabel } from '@erxes/ui/src';
@@ -16,7 +16,7 @@ const MainDescription = styledTS<{
   position: relative;
   cursor: pointer;
 
-  ${props => css`
+  ${(props) => css`
     height: ${props.expand === false && '0px'};
   `}
 
@@ -31,7 +31,7 @@ const MainDescription = styledTS<{
 const ActionBar = styledTS<{
   expand: boolean;
 }>(styled.div)`
-  margin-top: ${props => (props.expand ? '-72px' : '')};
+  margin-top: ${(props) => (props.expand ? '-72px' : '')};
   text-align: right;
 `;
 
@@ -89,31 +89,24 @@ type Props = {
   actionBar: React.ReactNode;
 };
 
-type State = {
-  expand: boolean;
-};
+const MainHead = (props: Props) => {
+  const { staticKeys, summary, icon, title, actionBar } = props;
+  const localExpand = localStorage.getItem('expand');
 
-class HeaderDescription extends React.PureComponent<Props, State> {
-  constructor(props) {
-    super(props);
+  const [expand, setExpand] = useState(
+    localExpand ? localExpand === 'true' : true,
+  );
 
-    const localExpand = localStorage.getItem('expand');
-    this.state = {
-      expand: localExpand ? localExpand === 'true' : true
-    };
-  }
-
-  onClick = () => {
-    this.setState({ expand: !this.state.expand }, () => {
-      localStorage.setItem('expand', this.state.expand.toString());
-    });
+  const onClick = () => {
+    setExpand(!expand);
+    localStorage.setItem('expand', expand.toString());
   };
 
-  onClickSkip = e => {
+  const onClickSkip = (e) => {
     e.stopPropagation();
   };
 
-  renderAmount = (summary, key) => {
+  const renderAmount = (summary, key) => {
     if (!Object.keys(summary).includes(key)) {
       return '';
     }
@@ -126,10 +119,8 @@ class HeaderDescription extends React.PureComponent<Props, State> {
     );
   };
 
-  renderSummary() {
-    const { staticKeys, summary } = this.props;
-
-    if (!this.state.expand) {
+  const renderSummary = () => {
+    if (!expand) {
       return '';
     }
 
@@ -139,42 +130,35 @@ class HeaderDescription extends React.PureComponent<Props, State> {
 
     return (
       <Amount>
-        {staticKeys.map(key => this.renderAmount(summary, key))}
+        {staticKeys.map((key) => renderAmount(summary, key))}
         {Object.keys(summary)
-          .filter(a => !['_id'].includes(a))
-          .filter(a => !staticKeys.includes(a))
-          .map(key => this.renderAmount(summary, key))}
+          .filter((a) => !['_id'].includes(a))
+          .filter((a) => !staticKeys.includes(a))
+          .map((key) => renderAmount(summary, key))}
       </Amount>
     );
-  }
+  };
 
-  render() {
-    const { icon, title, actionBar } = this.props;
+  return (
+    <>
+      <MainDescription expand={expand} onClick={onClick}>
+        <Description>
+          {expand && <DescImg src={icon} />}
 
-    return (
-      <>
-        <MainDescription expand={this.state.expand} onClick={this.onClick}>
-          <Description>
-            {this.state.expand && <DescImg src={icon} />}
+          <h4>{__(title)}</h4>
+          {renderSummary()}
+        </Description>
+        <Button btnStyle="link" onClick={onClick}>
+          <Tip text={__(expand ? 'Shrink' : 'Expand')} placement="top">
+            <Icon icon={expand ? 'uparrow' : 'downarrow-2'} />
+          </Tip>
+        </Button>
+        <ActionBar expand={expand} onClick={onClickSkip}>
+          {actionBar}
+        </ActionBar>
+      </MainDescription>
+    </>
+  );
+};
 
-            <h4>{__(title)}</h4>
-            {this.renderSummary()}
-          </Description>
-          <Button btnStyle="link" onClick={this.onClick}>
-            <Tip
-              text={__(this.state.expand ? 'Shrink' : 'Expand')}
-              placement="top"
-            >
-              <Icon icon={this.state.expand ? 'uparrow' : 'downarrow-2'} />
-            </Tip>
-          </Button>
-          <ActionBar expand={this.state.expand} onClick={this.onClickSkip}>
-            {actionBar}
-          </ActionBar>
-        </MainDescription>
-      </>
-    );
-  }
-}
-
-export default HeaderDescription;
+export default MainHead;

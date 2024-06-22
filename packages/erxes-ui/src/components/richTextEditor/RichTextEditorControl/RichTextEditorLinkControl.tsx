@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { BoxArrowUpRight } from 'react-bootstrap-icons';
-import { useRichTextEditorContext } from '../RichTextEditor.context';
 import {
   IRichTextEditorControlBaseProps,
   RichTextEditorControlBase,
 } from './RichTextEditorControl';
-import Tip from '../../Tip';
-import { InputAction, InputWrapper, LinkInput, LinkWrapper } from './styles';
+
+import {
+  InputAction,
+  InputWrapper,
+  LinkButton,
+  LinkInput,
+  LinkWrapper,
+} from './styles';
+import React, { useState } from 'react';
+import { usePopper } from 'react-popper';
+import { Popover } from '@headlessui/react';
+
+import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import Icon from '../../Icon';
+import Tip from '../../Tip';
+import { useRichTextEditorContext } from '../RichTextEditor.context';
 
 const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
   <Icon icon="link-alt" />
@@ -20,10 +29,8 @@ export type RichTextEditorLinkControlProps = {
 };
 
 export const RichTextEditorLinkControl = (
-  props: RichTextEditorLinkControlProps,
+  props: RichTextEditorLinkControlProps
 ) => {
-  let overLayRef;
-
   const { icon, initialExternal } = props;
 
   const ctx = useRichTextEditorContext();
@@ -31,6 +38,20 @@ export const RichTextEditorLinkControl = (
   const [url, setUrl] = useState('');
   const [external, setExternal] = useState(initialExternal);
   const [opened, setOpened] = useState(false);
+
+  let [referenceElement, setReferenceElement] = useState();
+  let [popperElement, setPopperElement] = useState();
+  let { styles, attributes } = usePopper(referenceElement, popperElement, {
+    placement: 'auto',
+    modifiers: [
+      {
+        name: 'flip',
+        options: {
+          allowedAutoPlacements: ['top', 'bottom'],
+        },
+      },
+    ],
+  });
 
   const open = () => {
     setOpened(true);
@@ -66,7 +87,6 @@ export const RichTextEditorLinkControl = (
 
   const handleSave = () => {
     setLink();
-    overLayRef.hide();
   };
 
   const handleInputKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -77,14 +97,22 @@ export const RichTextEditorLinkControl = (
   };
 
   return (
-    <OverlayTrigger
-      ref={(overlayTrigger) => {
-        overLayRef = overlayTrigger;
-      }}
-      trigger="click"
-      rootClose={true}
-      placement="top"
-      overlay={
+    <Popover className="relative">
+      <Popover.Button
+        ref={setReferenceElement}
+        as={RichTextEditorControlBase}
+        icon={icon || LinkIcon}
+        aria-label={ctx.labels.linkControlLabel}
+        title={ctx.labels.linkControlLabel}
+        onClick={handleOpen}
+        active={ctx.editor?.isActive('link')}
+      />
+      <Popover.Panel
+        className="absolute z-10"
+        ref={setPopperElement}
+        style={styles.popper}
+        {...attributes.popper}
+      >
         <LinkWrapper>
           <InputWrapper>
             <LinkInput
@@ -115,17 +143,11 @@ export const RichTextEditorLinkControl = (
               </Tip>
             </InputAction>
           </InputWrapper>
-          <button onClick={handleSave}>{ctx.labels.linkEditorSave}</button>
+          <LinkButton onClick={handleSave}>
+            {ctx.labels.linkEditorSave}
+          </LinkButton>
         </LinkWrapper>
-      }
-    >
-      <RichTextEditorControlBase
-        icon={icon || LinkIcon}
-        aria-label={ctx.labels.linkControlLabel}
-        title={ctx.labels.linkControlLabel}
-        onClick={handleOpen}
-        active={ctx.editor?.isActive('link')}
-      />
-    </OverlayTrigger>
+      </Popover.Panel>
+    </Popover>
   );
 };

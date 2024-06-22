@@ -6,12 +6,12 @@ import Box from './Box';
 import Button from './Button';
 import Tip from './Tip';
 
-const Container = styledTS<{ isComplete: boolean }>(styled.div)`
+const Container = styledTS<{ $isComplete: boolean }>(styled.div)`
   padding: 15px 20px 20px 20px;
   color: #243B53;
 
-  ${props =>
-    props.isComplete &&
+  ${(props) =>
+    props.$isComplete &&
     css`
       background-color: #e3f9e5;
       background-image: linear-gradient(
@@ -54,17 +54,22 @@ const Time = styled.h4`
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
 export const STATUS_TYPES = {
   COMPLETED: 'completed',
   STOPPED: 'stopped',
   STARTED: 'started',
-  PAUSED: 'paused'
+  PAUSED: 'paused',
 };
 
 function formatNumber(n: number) {
   return n.toLocaleString('en-US', {
     minimumIntegerDigits: 2,
-    useGrouping: false
+    useGrouping: false,
   });
 }
 
@@ -108,9 +113,9 @@ type Props = {
       _id,
       status,
       timeSpent,
-      startDate
+      startDate,
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
-    callback?: () => void
+    callback?: () => void,
   ) => void;
 };
 
@@ -138,7 +143,7 @@ class TaskTimer extends React.Component<Props, State> {
 
     this.state = {
       status,
-      timeSpent: absentTime ? timeSpent + absentTime : timeSpent
+      timeSpent: absentTime ? timeSpent + absentTime : timeSpent,
     };
   }
 
@@ -157,7 +162,7 @@ class TaskTimer extends React.Component<Props, State> {
     const doc: any = {
       _id: taskId,
       status,
-      timeSpent
+      timeSpent,
     };
 
     if (status === STATUS_TYPES.STARTED && timeSpent === 0) {
@@ -183,8 +188,8 @@ class TaskTimer extends React.Component<Props, State> {
 
   startTimer() {
     this.timer = setInterval(() => {
-      this.setState(prevState => ({
-        timeSpent: prevState.timeSpent + 1
+      this.setState((prevState) => ({
+        timeSpent: prevState.timeSpent + 1,
       }));
     }, 1000);
   }
@@ -242,11 +247,11 @@ class TaskTimer extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <ButtonContainer>
         {[
           STATUS_TYPES.COMPLETED,
           STATUS_TYPES.PAUSED,
-          STATUS_TYPES.STOPPED
+          STATUS_TYPES.STOPPED,
         ].includes(status) ? (
           <Tip text="Start" placement="top">
             <Button
@@ -266,7 +271,7 @@ class TaskTimer extends React.Component<Props, State> {
           <Button btnStyle="warning" icon="redo" onClick={this.handleReset} />
         </Tip>
         {this.renderButton()}
-      </>
+      </ButtonContainer>
     );
   }
 
@@ -289,7 +294,7 @@ class TaskTimer extends React.Component<Props, State> {
 
     return (
       <Box title="Time tracking" isOpen={true} name="showCustomers">
-        <Container isComplete={isComplete}>
+        <Container $isComplete={isComplete}>
           {this.renderTime()}
           {this.renderActions()}
         </Container>

@@ -1,115 +1,98 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
-const LabelConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './settings/containers/LabelsList'
-  )
+const LabelConfigs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ "./settings/containers/label/LabelsList"
+    )
 );
 
-const labelsList = ({ location, history }) => {
-  return (
-    <LabelConfigs
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const LabelsList = () => {
+  const location = useLocation();
+  return <LabelConfigs queryParams={queryString.parse(location.search)} />;
 };
 
-const TimeConfigs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './settings/containers/TimesList'
-  )
+const TimeConfigs = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ "./settings/containers/time/TimesList"
+    )
 );
 
-const timesList = ({ location, history }) => {
-  return (
-    <TimeConfigs
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const TimesList = () => {
+  const location = useLocation();
+  return <TimeConfigs queryParams={queryString.parse(location.search)} />;
 };
 
-const YearPlans = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './plans/containers/YearPlanList'
-  )
+const YearPlans = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ "./plans/containers/YearPlanList"
+    )
 );
 
-const DayPlans = asyncComponent(() =>
-  import(/* webpackChunkName: 'Sales Plans' */ './plans/containers/DayPlanList')
+const DayPlans = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ "./plans/containers/DayPlanList"
+    )
 );
 
-const DayLabels = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans' */ './dayLabels/containers/DayLabelList'
-  )
+const DayLabels = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'Sales Plans' */ "./dayLabels/containers/DayLabelList"
+    )
 );
 
-const yearPlanList = ({ location, history }) => {
-  return (
-    <YearPlans
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const YearPlanList = () => {
+  const location = useLocation();
+  return <YearPlans queryParams={queryString.parse(location.search)} />;
 };
 
-const dayPlanList = ({ location, history }) => {
-  return (
-    <DayPlans
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const DayPlanList = () => {
+  const location = useLocation();
+  return <DayPlans queryParams={queryString.parse(location.search)} />;
 };
 
-const dayLabelsList = ({ location, history }) => {
-  return (
-    <DayLabels
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const DayLabelsList = () => {
+  const location = useLocation();
+  return <DayLabels queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
-        exact={true}
         path="/salesplans/labels"
         key="/salesplans/labels"
-        component={labelsList}
+        element={<LabelsList />}
       />
       <Route
-        exact={true}
         path="/salesplans/timeframes"
         key="/salesplans/timeframes"
-        component={timesList}
+        element={<TimesList />}
       />
       <Route
-        exact={true}
         path="/sales-plans/year-plan"
         key="/sales-plans/year-plan"
-        component={yearPlanList}
+        element={<YearPlanList />}
       />
       <Route
-        exact={true}
         path="/sales-plans/day-plan"
         key="/sales-plans/day-plan"
-        component={dayPlanList}
+        element={<DayPlanList />}
       />
       <Route
-        exact={true}
         path="/sales-plans/day-labels"
         key="/sales-plans/day-labels"
-        component={dayLabelsList}
+        element={<DayLabelsList />}
       />
-    </>
+    </Routes>
   );
 };
 

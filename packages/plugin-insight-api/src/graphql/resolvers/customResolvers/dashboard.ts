@@ -15,7 +15,7 @@ export default {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
-  chartsCount(dashboard: IDashboardDocument, {}, { models }: IContext) {
+  async chartsCount(dashboard: IDashboardDocument, {}, { models }: IContext) {
     try {
       const { _id } = dashboard;
       return models.Charts.find({ contentId: _id }).countDocuments();

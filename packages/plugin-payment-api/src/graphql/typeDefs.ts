@@ -3,23 +3,28 @@ import gql from 'graphql-tag';
 import {
   queries as invoiceQueries,
   types as invoiceTypes,
-  mutations as invoiceMutations
+  mutations as invoiceMutations,
 } from './schema/invoices';
 
 import {
   queries as paymentQueries,
   types as paymentTypes,
-  mutations as paymentMutations
+  mutations as paymentMutations,
 } from './schema/payments';
 
 import {
   queries as configsQueries,
   mutations as configsMutations,
-  types as configsTypes
+  types as configsTypes,
 } from './schema/paymentConfigs';
 
-const typeDefs = async () => {
+import {
+  queries as transactionsQueries,
+  mutations as transactionsMutations,
+  types as transactionsTypes
+} from './schema/transactions';
 
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
@@ -38,18 +43,21 @@ const typeDefs = async () => {
     ${invoiceTypes}
     ${paymentTypes}
     ${configsTypes}
+    ${transactionsTypes}
 
     
     extend type Query {
       ${invoiceQueries}
       ${paymentQueries}
       ${configsQueries}
+      ${transactionsQueries}
     }
     
     extend type Mutation {
       ${paymentMutations}
       ${configsMutations}
       ${invoiceMutations}
+      ${transactionsMutations}
     }
   `;
 };

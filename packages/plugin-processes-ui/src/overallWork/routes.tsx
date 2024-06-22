@@ -1,49 +1,44 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "Processes OverallWorks" */ './containers/List')
+const List = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Processes OverallWorks" */ "./containers/List")
 );
 
-const Detail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Processes OverallWorkDetail" */ './containers/Detail'
-  )
+const Detail = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Processes OverallWorkDetail" */ "./containers/Detail"
+    )
 );
 
-const ListComponent = ({ location, history }) => {
-  return (
-    <List queryParams={queryString.parse(location.search)} history={history} />
-  );
+const ListComponent = () => {
+  const location = useLocation();
+  return <List queryParams={queryString.parse(location.search)} />;
 };
 
-const DetailComponent = ({ location, history }) => {
-  return (
-    <Detail
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const DetailComponent = () => {
+  const location = useLocation();
+  return <Detail queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         path="/processes/overallWorks"
-        exact={true}
         key="/processes/overallWorks"
-        component={ListComponent}
+        element={<ListComponent />}
       />
       <Route
         path="/processes/overallWorkDetail"
-        exact={true}
         key="/processes/overallWorkDetail"
-        component={DetailComponent}
+        element={<DetailComponent />}
       />
-    </>
+    </Routes>
   );
 };
 

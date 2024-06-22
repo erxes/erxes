@@ -6,30 +6,29 @@ import {
   StatusBox,
   StatusTitle,
   UpgradeButtons,
-} from '../styles';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+  Alert,
+} from "../styles";
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import {
   ControlLabel,
   FormControl,
   FormGroup,
-} from '@erxes/ui/src/components/form';
+} from "@erxes/ui/src/components/form";
 
-import Alert from 'react-bootstrap/Alert';
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import Button from '@erxes/ui/src/components/Button';
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
-import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
-import { IOrganization } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React from 'react';
-import Table from '@erxes/ui/src/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import TwitterPicker from 'react-color/lib/Twitter';
-import { __ } from '@erxes/ui/src/utils';
-import { colors } from '@erxes/ui/src/styles';
+import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import Button from "@erxes/ui/src/components/Button";
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import EmailConfigForm from "@erxes/ui-settings/src/general/components/EmailConfigForm";
+import { IConfigsMap } from "@erxes/ui-settings/src/general/types";
+import { IOrganization } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import Table from "@erxes/ui/src/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import TwitterPicker from "react-color/lib/Twitter";
+import { __ } from "@erxes/ui/src/utils";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   currentOrganization: IOrganization;
@@ -58,7 +57,7 @@ type Props = {
       description?: string;
       map?: IConfigsMap;
     },
-    callback?: () => void,
+    callback?: () => void
   ) => void;
   configsMap: IConfigsMap;
 };
@@ -84,7 +83,7 @@ class OrganizationProfile extends React.Component<Props, State> {
     super(props);
 
     const {
-      icon = '',
+      icon = "",
       subdomain,
       name,
       description,
@@ -92,7 +91,7 @@ class OrganizationProfile extends React.Component<Props, State> {
       textColor = colors.colorWhite,
       logo,
       dnsStatus,
-      favicon = '',
+      favicon = "",
       domain,
       backgroundColor = colors.colorPrimaryDark,
     } = props.currentOrganization;
@@ -104,8 +103,8 @@ class OrganizationProfile extends React.Component<Props, State> {
       name,
       favicon,
       dnsStatus,
-      domain: domain || '',
-      logo: logo || '/images/logo.png',
+      domain: domain || "",
+      logo: logo || "/images/logo.png",
       iconColor,
       textColor,
       description,
@@ -117,10 +116,10 @@ class OrganizationProfile extends React.Component<Props, State> {
   componentDidUpdate(prevProps) {
     if (this.props.currentOrganization !== prevProps.currentOrganization) {
       const {
-        icon = '',
+        icon = "",
         subdomain,
         name,
-        logo = '',
+        logo = "",
         iconColor,
         description,
         textColor = colors.colorWhite,
@@ -149,9 +148,9 @@ class OrganizationProfile extends React.Component<Props, State> {
   };
 
   onChangeEmailConfig = (emailConfig: any) => {
-    this.onChangeConfig('COMPANY_EMAIL_FROM', emailConfig.email);
-    this.onChangeConfig('COMPANY_EMAIL_TEMPLATE_TYPE', emailConfig.type);
-    this.onChangeConfig('COMPANY_EMAIL_TEMPLATE', emailConfig.template);
+    this.onChangeConfig("COMPANY_EMAIL_FROM", emailConfig.email);
+    this.onChangeConfig("COMPANY_EMAIL_TEMPLATE_TYPE", emailConfig.type);
+    this.onChangeConfig("COMPANY_EMAIL_TEMPLATE", emailConfig.template);
   };
 
   clearBackground = () => {
@@ -232,7 +231,7 @@ class OrganizationProfile extends React.Component<Props, State> {
   renderFavicon = () => {
     const { favicon } = this.state;
 
-    const handleAvatarUploader = (url) => this.onUpload('favicon', url);
+    const handleAvatarUploader = (url) => this.onUpload("favicon", url);
 
     return (
       <FormGroup>
@@ -242,7 +241,7 @@ class OrganizationProfile extends React.Component<Props, State> {
           avatar={favicon}
           onAvatarUpload={handleAvatarUploader}
           title="favicon"
-          extraFormData={[{ key: 'isPublic', value: 'true' }]}
+          extraFormData={[{ key: "isPublic", value: "true" }]}
           defaultAvatar={favicon}
           square={true}
         />
@@ -253,7 +252,7 @@ class OrganizationProfile extends React.Component<Props, State> {
   renderMainLogo = () => {
     const { logo } = this.state;
 
-    const handleAvatarUploader = (url) => this.onUpload('logo', url);
+    const handleAvatarUploader = (url) => this.onUpload("logo", url);
 
     return (
       <FormGroup>
@@ -263,7 +262,7 @@ class OrganizationProfile extends React.Component<Props, State> {
           avatar={logo}
           onAvatarUpload={handleAvatarUploader}
           title="logo"
-          extraFormData={[{ key: 'isPublic', value: 'true' }]}
+          extraFormData={[{ key: "isPublic", value: "true" }]}
           defaultAvatar={logo}
           square={true}
           width={300}
@@ -297,33 +296,31 @@ class OrganizationProfile extends React.Component<Props, State> {
 
     const colorPopover = (color, onChange, id: string) => {
       return (
-        <Popover id={id}>
-          <TwitterPicker
-            width="266px"
-            triangle="hide"
-            color={{ hex: color }}
-            onChange={onChange}
-            colors={COLORS}
-          />
-        </Popover>
+        <TwitterPicker
+          width="266px"
+          triangle="hide"
+          color={{ hex: color }}
+          onChange={onChange}
+          colors={COLORS}
+        />
       );
     };
 
     const textPopover = colorPopover(
       textColor,
       this.onTextColorChange,
-      'text-popover',
+      "text-popover"
     );
     const backgroundPopover = colorPopover(
       backgroundColor,
       this.onBackgroundColorChange,
-      'background-popover',
+      "background-popover"
     );
 
     const iconPopover = colorPopover(
       iconColor,
       this.onIconColorChange,
-      'icon-color-popover',
+      "icon-color-popover"
     );
 
     return (
@@ -332,56 +329,54 @@ class OrganizationProfile extends React.Component<Props, State> {
           <ControlLabel>Text color</ControlLabel>
           <p>Used on the login page text</p>
           <ColorPickerWrapper>
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
+            <Popover
               placement="bottom"
-              overlay={textPopover}
+              trigger={
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor: textColor }} />
+                </ColorPick>
+              }
             >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor: textColor }} />
-              </ColorPick>
-            </OverlayTrigger>
+              {textPopover}
+            </Popover>
           </ColorPickerWrapper>
         </FormGroup>
 
         <div className="hide">
           <FormGroup>
             <ControlLabel>Icon color</ControlLabel>
-            <div>
-              <OverlayTrigger
-                trigger="click"
-                rootClose={true}
-                placement="bottom"
-                overlay={iconPopover}
-              >
+            <Popover
+              placement="bottom"
+              trigger={
                 <ColorPick>
                   <ColorPicker style={{ backgroundColor: iconColor }} />
                 </ColorPick>
-              </OverlayTrigger>
-            </div>
+              }
+            >
+              {iconPopover}
+            </Popover>
           </FormGroup>
         </div>
 
         <FormGroup>
           <ControlLabel>Background</ControlLabel>
-          <Tip text={__('Clear background')} placement="top">
+          <Tip text={__("Clear background")} placement="top">
             <ClearButton>
               <Icon icon="history" onClick={this.clearBackground} />
             </ClearButton>
           </Tip>
           <p>Used on the login background</p>
           <ColorPickerWrapper>
-            <OverlayTrigger
-              trigger="click"
-              rootClose={true}
+            <Popover
               placement="bottom"
-              overlay={backgroundPopover}
+              trigger={
+                <ColorPick>
+                  <ColorPicker style={{ backgroundColor }} />
+                </ColorPick>
+              }
             >
-              <ColorPick>
-                <ColorPicker style={{ backgroundColor }} />
-              </ColorPick>
-            </OverlayTrigger>
+              {backgroundPopover}
+            </Popover>
           </ColorPickerWrapper>
         </FormGroup>
       </>
@@ -391,16 +386,16 @@ class OrganizationProfile extends React.Component<Props, State> {
   renderLoginPage() {
     const { description } = this.state;
     const descriptionOnChange = (e) =>
-      this.onChangeInput('description', (e.target as HTMLInputElement).value);
+      this.onChangeInput("description", (e.target as HTMLInputElement).value);
 
     return (
       <>
         <FormGroup>
           <ControlLabel>Login Page Description</ControlLabel>
           <FormControl
-            value={description || ''}
+            value={description || ""}
             type="text"
-            componentClass="textarea"
+            componentclass="textarea"
             onChange={descriptionOnChange}
             required={false}
           />
@@ -423,11 +418,11 @@ class OrganizationProfile extends React.Component<Props, State> {
     const { sslStatus, hostNameStatus } = currentOrganization;
 
     const domainOnChange = (e) =>
-      this.onChangeInput('domain', (e.target as HTMLInputElement).value);
+      this.onChangeInput("domain", (e.target as HTMLInputElement).value);
 
     return (
       <StatusBox>
-        <StatusTitle>{__('Custom Domain')}</StatusTitle>
+        <StatusTitle>{__("Custom Domain")}</StatusTitle>
         <FlexRow>
           <FormGroup>
             <ControlLabel>Custom domain</ControlLabel>
@@ -436,18 +431,18 @@ class OrganizationProfile extends React.Component<Props, State> {
                 name="domain"
                 value={domain}
                 type="text"
-                componentClass="text"
+                componentclass="text"
                 onChange={domainOnChange}
               />
             </Domain>
           </FormGroup>
           <FormGroup>
             <ControlLabel>DNS Record</ControlLabel>
-            <Alert variant="info">
-              <Alert.Heading>
+            <Alert>
+              <div>
                 Add the records below to your DNS settings for {subdomain}
                 .app.erxes.io
-              </Alert.Heading>
+              </div>
               <p>
                 You need to add both records below. The second record will only
                 be available once the first has been set and its status is
@@ -456,7 +451,7 @@ class OrganizationProfile extends React.Component<Props, State> {
                 are using Cloudflare, make sure you set the records to "DNS
                 only" (grey cloud). Unsure of how to change DNS records for your
                 domain? Get in touch and we can talk you through it. For
-                provider-specific information, please refer to{' '}
+                provider-specific information, please refer to{" "}
                 <a
                   rel="noopener noreferrer"
                   href="https://help.erxes.io/help/knowledge-base/article/detail?catId=ogZPWFSy78Anc5Ras&_id=dfggSKv8ZCKdkwK26"
@@ -471,7 +466,7 @@ class OrganizationProfile extends React.Component<Props, State> {
         </FlexRow>
         {this.props.currentOrganization.domain ? (
           <FormGroup>
-            <Table striped={true} condensed={true} bordered={true}>
+            <Table $striped={true} $condensed={true} $bordered={true}>
               <thead>
                 <tr>
                   <th>Type</th>
@@ -483,10 +478,10 @@ class OrganizationProfile extends React.Component<Props, State> {
               <tbody>
                 <tr>
                   <td>CNAME</td>
-                  <td>{domain || 'Your domain'}</td>
+                  <td>{domain || "Your domain"}</td>
                   <td>{subdomain}.app.erxes.io</td>
                   <td>
-                    <b>{(dnsStatus || 'Undefined').toUpperCase()}</b>
+                    <b>{(dnsStatus || "Undefined").toUpperCase()}</b>
                   </td>
                 </tr>
                 <tr>
@@ -494,7 +489,7 @@ class OrganizationProfile extends React.Component<Props, State> {
                   <td>{sslVerification.txt_name}</td>
                   <td>{sslVerification.txt_value}</td>
                   <td>
-                    <b>{(sslStatus || 'Undefined').toUpperCase()}</b>
+                    <b>{(sslStatus || "Undefined").toUpperCase()}</b>
                   </td>
                 </tr>
                 <tr>
@@ -502,7 +497,7 @@ class OrganizationProfile extends React.Component<Props, State> {
                   <td>{ownershipVerification.name}</td>
                   <td>{ownershipVerification.value}</td>
                   <td>
-                    <b>{(hostNameStatus || 'Undefined').toUpperCase()}</b>
+                    <b>{(hostNameStatus || "Undefined").toUpperCase()}</b>
                   </td>
                 </tr>
               </tbody>
@@ -514,14 +509,14 @@ class OrganizationProfile extends React.Component<Props, State> {
             <Button
               btnStyle="default"
               uppercase={false}
-              onClick={() => this.editDomain('refresh')}
+              onClick={() => this.editDomain("refresh")}
             >
               Refresh
             </Button>
             <Button
               btnStyle="danger"
               uppercase={false}
-              onClick={() => this.editDomain('reset')}
+              onClick={() => this.editDomain("reset")}
             >
               Reset Domain
             </Button>
@@ -530,7 +525,7 @@ class OrganizationProfile extends React.Component<Props, State> {
           <Button
             btnStyle="success"
             uppercase={false}
-            onClick={() => this.editDomain('save')}
+            onClick={() => this.editDomain("save")}
           >
             Save
           </Button>
@@ -541,18 +536,18 @@ class OrganizationProfile extends React.Component<Props, State> {
 
   render() {
     const { subdomain, name, icon } = this.state;
-    const avatar = icon || '/images/erxes.png';
-    const isWhiteLabel = localStorage.getItem('organizationInfo') !== null;
+    const avatar = icon || "/images/erxes.png";
+    const isWhiteLabel = localStorage.getItem("organizationInfo") !== null;
 
     const nameOnChange = (e) =>
-      this.onChangeInput('name', (e.target as HTMLInputElement).value);
+      this.onChangeInput("name", (e.target as HTMLInputElement).value);
     const subdomainOnChange = (e) =>
-      this.onChangeInput('subdomain', (e.target as HTMLInputElement).value);
-    const handleAvatarUploader = (url) => this.onUpload('icon', url);
+      this.onChangeInput("subdomain", (e.target as HTMLInputElement).value);
+    const handleAvatarUploader = (url) => this.onUpload("icon", url);
 
     return (
       <StatusBox largePadding={true} largeMargin={true}>
-        <StatusTitle>{__('Organization Profile')}</StatusTitle>
+        <StatusTitle>{__("Organization Profile")}</StatusTitle>
         <FlexRow>
           <FormGroup>
             <FormGroup>
@@ -587,7 +582,7 @@ class OrganizationProfile extends React.Component<Props, State> {
               avatar={icon}
               onAvatarUpload={handleAvatarUploader}
               title="icon"
-              extraFormData={[{ key: 'isPublic', value: 'true' }]}
+              extraFormData={[{ key: "isPublic", value: "true" }]}
               defaultAvatar={avatar}
               square={true}
             />
@@ -595,7 +590,7 @@ class OrganizationProfile extends React.Component<Props, State> {
         </FlexRow>
         {isWhiteLabel && (
           <>
-            <StatusTitle>{__('Company Branding')}</StatusTitle>
+            <StatusTitle>{__("Company Branding")}</StatusTitle>
             <FlexRow>
               {this.renderMainLogo()}
               {this.renderFavicon()}

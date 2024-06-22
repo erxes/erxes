@@ -1,6 +1,6 @@
 import {
   IActivityLog,
-  IActivityLogForMonth,
+  IActivityLogForMonth
 } from '@erxes/ui-log/src/activityLogs/types';
 
 import { IContractTypeDoc } from '../contractTypes/types';
@@ -50,6 +50,7 @@ export interface IContract {
   feeAmount: number;
   tenor: number;
   interestRate: number;
+  interestMonth: number;
   repayment: string;
   startDate: Date;
   scheduleDays: number[];
@@ -79,8 +80,31 @@ export interface IContract {
   hasTransaction?: boolean;
   currency: string;
   expiredDays?: number;
-  endDate?: number;
+  endDate?: any;
+  firstPayDate?: Date;
+  lastStoredDate?: Date;
+  interestNounce?: any;
+  contractDate?: Date;
+  loanPurpose?: any;
+  loanDestination?: any;
+  loanSubPurpose?: any;
+  debtTenor?: number;
+  debtLimit?: number;
+  skipInterestCalcMonth?: number;
+  useDebt?: any;
+  useMargin?: any;
+  useSkipInterest?: any;
+  relContractId?: string;
+  isPayFirstMonth?: boolean;
+  skipAmountCalcMonth?: any;
+  downPayment?: number;
+  customPayment?: number;
+  customInterest?: number;
+  useManualNumbering?: any;
+  useFee?: any;
+  savingContractId?: any;
   customFieldsData?: any;
+  holidayType: string;
 }
 
 export interface IContractGql {

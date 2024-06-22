@@ -1,13 +1,13 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import React from 'react';
-import Histories from '../../containers/Histories';
-import { IAutomation, ITrigger } from '../../types';
-import { HistoriesWrapper, FilterWrapper, FilterDateItem } from './styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import Icon from '@erxes/ui/src/components/Icon';
-import Select from 'react-select-plus';
+import Datetime from "@nateradebaugh/react-datetime";
+import dayjs from "dayjs";
+import Button from "@erxes/ui/src/components/Button";
+import React from "react";
+import Histories from "../../containers/Histories";
+import { IAutomation, ITrigger } from "../../types";
+import { HistoriesWrapper, FilterWrapper, FilterDateItem } from "./styles";
+import { __ } from "@erxes/ui/src/utils/core";
+import Icon from "@erxes/ui/src/components/Icon";
+import Select from "react-select";
 
 type Props = {
   automation: IAutomation;
@@ -33,7 +33,7 @@ class HistoriesHeader extends React.Component<Props, State> {
     this.state = {
       filterParams: {},
       page: 0,
-      perPage: 20
+      perPage: 20,
     };
   }
 
@@ -41,16 +41,16 @@ class HistoriesHeader extends React.Component<Props, State> {
     name: string,
     selectedItem: string & { value: string; label?: string }
   ) => {
-    const value = selectedItem ? selectedItem.value : '';
+    const value = selectedItem ? selectedItem.value : "";
 
-    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
   onDateChange = (type: string, date) => {
     const filter = { ...this.state };
 
     if (date) {
-      filter[type] = dayjs(date).format('YYYY-MM-DD HH:mm');
+      filter[type] = dayjs(date).format("YYYY-MM-DD HH:mm");
     } else {
       filter.beginDate = undefined;
       filter.endDate = undefined;
@@ -59,7 +59,7 @@ class HistoriesHeader extends React.Component<Props, State> {
     this.setState(filter);
   };
 
-  onFilter = e => {
+  onFilter = (e) => {
     const { status, triggerId, triggerType, beginDate, endDate } = this.state;
 
     this.setState({
@@ -68,8 +68,8 @@ class HistoriesHeader extends React.Component<Props, State> {
         triggerId,
         triggerType,
         beginDate,
-        endDate
-      }
+        endDate,
+      },
     });
   };
 
@@ -77,8 +77,8 @@ class HistoriesHeader extends React.Component<Props, State> {
     const props = {
       value: this.state[key],
       inputProps: {
-        placeholder: `${__(`Filter by ${__(name)}`)}`
-      }
+        placeholder: `${__(`Filter by ${__(name)}`)}`,
+      },
     };
 
     return (
@@ -101,25 +101,40 @@ class HistoriesHeader extends React.Component<Props, State> {
     const { automation, triggersConst } = this.props;
     const { status, triggerId, triggerType, filterParams } = this.state;
 
+    const triggerOptions = [
+      ...automation.triggers.map((t) => ({
+        value: t.id,
+        label: t.label,
+      })),
+    ];
+    const statusOptions = [
+      { value: "active", label: "Active" },
+      { value: "waiting", label: "Waiting" },
+      { value: "error", label: "Error" },
+      { value: "missed", label: "Missed" },
+      { value: "complete", label: "Complete" },
+    ];
+    const triggerTypeOptions = [
+      ...triggersConst.map((t) => ({
+        value: t.type,
+        label: t.label,
+      })),
+    ];
+
     return (
       <HistoriesWrapper>
         <FilterWrapper>
-          {this.renderDateFilter('beginDate', 'Begin Date')}
-          {this.renderDateFilter('endDate', 'End Date')}
+          {this.renderDateFilter("beginDate", "Begin Date")}
+          {this.renderDateFilter("endDate", "End Date")}
           <FilterDateItem>
             <div className="icon-option">
               <Icon icon="checked-1" />
               <Select
-                placeholder={__('Filter by Status')}
-                value={status}
-                options={[
-                  { value: 'active', label: 'Active' },
-                  { value: 'waiting', label: 'Waiting' },
-                  { value: 'error', label: 'Error' },
-                  { value: 'missed', label: 'Missed' },
-                  { value: 'complete', label: 'Complete' }
-                ]}
-                onChange={this.onSelect.bind(this, 'status')}
+                placeholder={__("Filter by Status")}
+                isClearable={true}
+                value={statusOptions.find((o) => o.value === status)}
+                options={statusOptions}
+                onChange={this.onSelect.bind(this, "status")}
               />
             </div>
           </FilterDateItem>
@@ -127,15 +142,11 @@ class HistoriesHeader extends React.Component<Props, State> {
             <div className="icon-option">
               <Icon icon="swatchbook" />
               <Select
-                placeholder={__('Filter by Trigger')}
-                value={triggerId}
-                options={[
-                  ...automation.triggers.map(t => ({
-                    value: t.id,
-                    label: t.label
-                  }))
-                ]}
-                onChange={this.onSelect.bind(this, 'triggerId')}
+                placeholder={__("Filter by Trigger")}
+                isClearable={true}
+                value={triggerOptions.find((o) => o.value === triggerId)}
+                options={triggerOptions}
+                onChange={this.onSelect.bind(this, "triggerId")}
               />
             </div>
           </FilterDateItem>
@@ -143,12 +154,11 @@ class HistoriesHeader extends React.Component<Props, State> {
             <div className="icon-option">
               <Icon icon="cell" />
               <Select
-                placeholder={__('Filter by Trigger Type')}
-                value={triggerType}
-                options={[
-                  ...triggersConst.map(t => ({ value: t.type, label: t.label }))
-                ]}
-                onChange={this.onSelect.bind(this, 'triggerType')}
+                placeholder={__("Filter by Trigger Type")}
+                isClearable={true}
+                value={triggerTypeOptions.find((o) => o.value === triggerType)}
+                options={triggerTypeOptions}
+                onChange={this.onSelect.bind(this, "triggerType")}
               />
             </div>
           </FilterDateItem>
@@ -158,7 +168,7 @@ class HistoriesHeader extends React.Component<Props, State> {
             onClick={this.onFilter}
             size="small"
           >
-            {'Filter'}
+            {"Filter"}
           </Button>
         </FilterWrapper>
         <Histories {...this.props} filterParams={filterParams} />

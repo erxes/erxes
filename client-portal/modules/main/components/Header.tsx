@@ -14,7 +14,7 @@ import {
   HeaderTop,
   LinkItem,
   NotificationsBadge,
-  SupportMenus
+  SupportMenus,
 } from '../../styles/main';
 import { Config, IUser } from '../../types';
 import React, { useState } from 'react';
@@ -53,7 +53,7 @@ function Header({
   headerHtml,
   headingSpacing,
   headerBottomComponent,
-  notificationsCount
+  notificationsCount,
 }: Props) {
   const [showlogin, setLogin] = useState(false);
   const [showregister, setRegister] = useState(false);
@@ -188,7 +188,7 @@ function Header({
               {config.publicTaskToggle
                 ? renderMenu(
                     '/publicTasks',
-                    config.taskPublicLabel || 'Public Task'
+                    config.taskPublicLabel || 'Public Task',
                   )
                 : null}
 
@@ -202,7 +202,7 @@ function Header({
               {config.purchaseToggle && currentUser
                 ? renderMenu(
                     '/purchases',
-                    config.purchaseLabel || 'Purchase pipeline'
+                    config.purchaseLabel || 'Purchase pipeline',
                   )
                 : null}
               {config.taskToggle && currentUser

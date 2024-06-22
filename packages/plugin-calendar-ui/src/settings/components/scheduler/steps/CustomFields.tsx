@@ -1,16 +1,16 @@
-import Button from '@erxes/ui/src/components/Button';
+import Button from "@erxes/ui/src/components/Button";
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import styled from 'styled-components';
-import { additionalField } from '../../../types';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+import Icon from "@erxes/ui/src/components/Icon";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import styled from "styled-components";
+import { additionalField } from "../../../types";
 
 const WebsiteItem = styled.div`
   padding: 12px 16px 0 16px;
@@ -49,7 +49,7 @@ const RequiredField = styled.div`
 `;
 
 type Props = {
-  onChange: (name: 'additionalFields', value: any) => void;
+  onChange: (name: "additionalFields", value: any) => void;
   additionalFields?: additionalField[];
 };
 
@@ -57,34 +57,34 @@ type State = {
   additionalFields: additionalField[];
 };
 
-const emptyField = { label: '', name: '', type: 'text', required: false };
+const emptyField = { label: "", name: "", type: "text", required: false };
 
 class CustomFields extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      additionalFields: [emptyField]
+      additionalFields: [emptyField],
     };
   }
 
   updateFieldValues = () => {
-    this.props.onChange('additionalFields', this.state.additionalFields);
+    this.props.onChange("additionalFields", this.state.additionalFields);
   };
 
   onChangeInput = (
     i: number,
-    type: 'label' | 'type' | 'required',
+    type: "label" | "type" | "required",
     e: React.FormEvent
   ) => {
     const element = e.target as HTMLInputElement;
-    const value = type === 'required' ? element.checked : element.value;
+    const value = type === "required" ? element.checked : element.value;
 
     const entries = [...this.state.additionalFields];
 
     entries[i] = { ...entries[i], [type]: value };
 
-    if (type === 'label') {
+    if (type === "label") {
       entries[i] = { ...entries[i], name: element.value };
     }
 
@@ -98,7 +98,7 @@ class CustomFields extends React.Component<Props, State> {
       {
         additionalFields: this.state.additionalFields.filter(
           (item, index) => index !== i
-        )
+        ),
       },
       () => this.updateFieldValues()
     );
@@ -106,7 +106,7 @@ class CustomFields extends React.Component<Props, State> {
 
   renderRemoveInput = (i: number) => {
     return (
-      <Tip text={__('Remove')} placement="top">
+      <Tip text={__("Remove")} placement="top">
         <RemoveButton onClick={this.handleRemoveWebsite.bind(null, i)}>
           <Icon icon="times" />
         </RemoveButton>
@@ -116,7 +116,7 @@ class CustomFields extends React.Component<Props, State> {
 
   onAddMoreInput = () => {
     this.setState({
-      additionalFields: [...this.state.additionalFields, emptyField]
+      additionalFields: [...this.state.additionalFields, emptyField],
     });
   };
 
@@ -140,8 +140,8 @@ class CustomFields extends React.Component<Props, State> {
         <LeftItem>
           <FormGroup>
             <ControlLabel>What info should guests provide?</ControlLabel>
-            {this.renderRequiredField('Name')}
-            {this.renderRequiredField('Email')}
+            {this.renderRequiredField("Name")}
+            {this.renderRequiredField("Email")}
           </FormGroup>
 
           {additionalFields.map((field, index) => (
@@ -151,7 +151,7 @@ class CustomFields extends React.Component<Props, State> {
                   <ControlLabel required={true}>Label</ControlLabel>
                   <FormControl
                     name="label"
-                    onChange={this.onChangeInput.bind(null, index, 'label')}
+                    onChange={this.onChangeInput.bind(null, index, "label")}
                     required={true}
                     value={field.label}
                   />
@@ -162,8 +162,8 @@ class CustomFields extends React.Component<Props, State> {
                   <FormControl
                     value={field.type}
                     name="type"
-                    onChange={this.onChangeInput.bind(null, index, 'type')}
-                    componentClass="select"
+                    onChange={this.onChangeInput.bind(null, index, "type")}
+                    componentclass="select"
                   >
                     <option value="text">text</option>
                     <option value="multi-line text">multi-line text</option>
@@ -179,8 +179,8 @@ class CustomFields extends React.Component<Props, State> {
                   <FormControl
                     name="required"
                     defaultChecked={field.required}
-                    componentClass="checkbox"
-                    onChange={this.onChangeInput.bind(null, index, 'required')}
+                    componentclass="checkbox"
+                    onChange={this.onChangeInput.bind(null, index, "required")}
                   />
                 </FormGroup>
               </WebsiteItem>

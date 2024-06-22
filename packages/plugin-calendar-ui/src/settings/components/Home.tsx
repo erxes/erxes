@@ -1,30 +1,31 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import Boards from '../containers/Boards';
-import Groups from '../containers/Groups';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
+import { __ } from "@erxes/ui/src/utils/core";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import React from "react";
+import Boards from "../containers/Boards";
+import Groups from "../containers/Groups";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   boardId: string;
   queryParams: any;
-  history: any;
 };
 
-class Home extends React.Component<Props, {}> {
-  render() {
-    const { boardId, queryParams, history } = this.props;
+const Home =(props:Props)=> {
+    const { boardId, queryParams } = props;
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Calendar'), link: `/settings/calendars` }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Calendar"), link: `/settings/calendars` },
     ];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Calendar')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("Calendar")} breadcrumb={breadcrumb} />
         }
         mainHead={
           <HeaderDescription
@@ -37,13 +38,14 @@ class Home extends React.Component<Props, {}> {
             )}`}
           />
         }
-        leftSidebar={<Boards currentBoardId={boardId} />}
+        leftSidebar={<Boards currentBoardId={boardId} navigate={navigate} location={location} />}
         content={
           boardId ? (
             <Groups
               boardId={boardId}
               queryParams={queryParams}
-              history={history}
+              navigate={navigate}
+              location={location}
             />
           ) : (
             <EmptyState
@@ -56,7 +58,7 @@ class Home extends React.Component<Props, {}> {
         transparent={true}
       />
     );
-  }
+  
 }
 
 export default Home;

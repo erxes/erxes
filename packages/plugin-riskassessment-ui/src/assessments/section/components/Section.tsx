@@ -4,13 +4,14 @@ import {
   EmptyState,
   Icon,
   ModalTrigger,
-  SectionBodyItem
-} from '@erxes/ui/src';
-import React from 'react';
-import { ColorBox, FormContainer, ProductName } from '../../../styles';
-import { RiskAssessmentTypes } from '../../common/types';
-import AssignedUsers from '../containers/AssignedUsers';
-import SinglAddForm from '../containers/SingkeAddForm';
+  SectionBodyItem,
+} from "@erxes/ui/src";
+import { ColorBox, FormContainer, ProductName } from "../../../styles";
+
+import AssignedUsers from "../containers/AssignedUsers";
+import React from "react";
+import { RiskAssessmentTypes } from "../../common/types";
+import SinglAddForm from "../containers/SingkeAddForm";
 
 type Props = {
   riskAssessments: RiskAssessmentTypes[];
@@ -33,7 +34,7 @@ class Section extends React.Component<Props> {
         riskAssessment,
         closeModal,
         cardId,
-        cardType
+        cardType,
       };
 
       return <SinglAddForm {...updateProps} />;
@@ -55,13 +56,13 @@ class Section extends React.Component<Props> {
     const updatedProps = {
       riskAssessments,
       cardId,
-      cardType
+      cardType,
     };
 
     return <AssignedUsers {...updatedProps} />;
   };
 
-  renderItem = riskAssessment => {
+  renderItem = (riskAssessment) => {
     const {
       status,
       statusColor,
@@ -69,26 +70,27 @@ class Section extends React.Component<Props> {
       branch,
       operation,
       group,
-      indicator
+      indicator,
     } = riskAssessment as RiskAssessmentTypes;
 
     const renderName = () => {
-      if ([department, branch, operation].some(x => x)) {
-        return `${branch?.title || ''} ${department?.title ||
-          ''} ${operation?.name || ''}`;
+      if ([department, branch, operation].some((x) => x)) {
+        return `${branch?.title || ""} ${
+          department?.title || ""
+        } ${operation?.name || ""}`;
       }
 
       if (group) {
-        return group?.name || '';
+        return group?.name || "";
       }
       if (indicator) {
-        return indicator?.name || '';
+        return indicator?.name || "";
       }
 
       if (status) {
         return status;
       }
-      return '';
+      return "";
     };
 
     return (
@@ -115,7 +117,7 @@ class Section extends React.Component<Props> {
   };
 
   renderBulkAssessment(riskAssessments: RiskAssessmentTypes[]) {
-    return riskAssessments.map(assessment => (
+    return riskAssessments.map((assessment) => (
       <SectionBodyItem key={assessment._id}>
         {this.renderSingleAssessment(assessment)}
       </SectionBodyItem>
@@ -154,7 +156,7 @@ class Section extends React.Component<Props> {
     );
 
     return (
-      <FormContainer column padding="0 0 10px 0">
+      <FormContainer $column padding="0 0 10px 0">
         <Box
           title="Risk Assessment"
           name="riskAssessments"

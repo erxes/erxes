@@ -29,7 +29,7 @@ import {
   loadProductCategoryClass,
   loadProductClass,
 } from './models/Products';
-import { IPutResponseDocument } from './models/definitions/putResponses';
+import { IEbarimtDocument } from './models/definitions/putResponses';
 import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
 import { ICoverModel, loadCoverClass } from './models/Covers';
 import { ICoverDocument } from './models/definitions/covers';
@@ -84,8 +84,8 @@ export const loadClasses = (
     IProductCategoryDocument,
     IProductCategoryModel
   >('posclient_product_categories', loadProductCategoryClass(models));
-  models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'posclient_put_responses',
+  models.PutResponses = db.model<IEbarimtDocument, IPutResponseModel>(
+    'posclient_putresponses',
     loadPutResponseClass(models),
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(

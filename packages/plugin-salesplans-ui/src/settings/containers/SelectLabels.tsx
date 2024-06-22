@@ -5,7 +5,7 @@ import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import { queries } from '../graphql';
 import { ISPLabel } from '../types';
 
-// get user options for react-select-plus
+// get user options for react-select
 export function generateUserOptions(array: ISPLabel[] = []): IOption[] {
   return array.map(item => {
     const spLabel = item || ({} as ISPLabel);

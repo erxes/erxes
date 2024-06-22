@@ -55,6 +55,7 @@ export interface IProduct extends IProductCommonFields {
   taxCode?: string;
   isCheckRems: { [token: string]: boolean };
   sameMasks?: string[];
+  sameDefault?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -162,7 +163,8 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'check remainder by token'
     }),
-    sameMasks: field({ type: [String] })
+    sameMasks: field({ type: [String] }),
+    sameDefault: field({ type: [String] })
   })
 );
 

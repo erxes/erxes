@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Button } from 'react-bootstrap';
+import Button from "@erxes/ui/src/components/Button";
+import React from "react";
+import styled from "styled-components";
 
 const WarningSign = styled.div`
   background: rgba(255, 232, 189, 1);

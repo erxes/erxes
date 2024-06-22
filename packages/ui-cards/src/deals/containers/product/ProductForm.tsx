@@ -1,14 +1,16 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import ProductForm from '../../components/product/ProductForm';
-import React from 'react';
-import { AppConsumer } from 'coreui/appContext';
-import { graphql } from '@apollo/client/react/hoc';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import { queries } from '../../graphql';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { IDeal, IPaymentsData, IProductData } from '../../types';
+import * as compose from "lodash.flowright";
+
+import { IDeal, IPaymentsData, IProductData } from "../../types";
+
+import { AppConsumer } from "coreui/appContext";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import ProductForm from "../../components/product/ProductForm";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../../graphql";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;
@@ -42,7 +44,7 @@ class ProductFormContainer extends React.Component<Props> {
             ...this.props,
             categories: categories,
             loading: productCategoriesQuery.loading,
-            currencies: configs.dealCurrency || []
+            currencies: configs.dealCurrency || [],
           };
 
           return <ProductForm {...extendedProps} />;
@@ -57,7 +59,7 @@ export default withProps<Props>(
     graphql<{}, ProductCategoriesQueryResponse, {}>(
       gql(queries.productCategories),
       {
-        name: 'productCategoriesQuery'
+        name: "productCategoriesQuery",
       }
     )
   )(ProductFormContainer)

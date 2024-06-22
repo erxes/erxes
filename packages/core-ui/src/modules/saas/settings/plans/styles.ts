@@ -129,6 +129,14 @@ const ClearButton = styled.span`
   cursor: pointer;
 `;
 
+const Alert = styled.div`
+  p {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+  }
+`
+
 export {
   FlexRow,
   StatusBox,
@@ -141,4 +149,5 @@ export {
   ClearButton,
   ColorPickerWrapper,
   CenterFlexRow,
+  Alert,
 };

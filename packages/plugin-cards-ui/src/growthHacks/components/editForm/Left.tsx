@@ -1,21 +1,21 @@
-import { IGrowthHack, IGrowthHackParams } from '../../types';
-import { __, extractAttachment } from 'coreui/utils';
+import { IGrowthHack, IGrowthHackParams } from "../../types";
+import { __, extractAttachment } from "coreui/utils";
 
-import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
-import Checklists from '@erxes/ui-cards/src/checklists/containers/Checklists';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IAttachment } from '@erxes/ui/src/types';
-import { IOptions } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Labels from '@erxes/ui-cards/src/boards/components/label/Labels';
-import React from 'react';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { TitleRow } from '@erxes/ui-cards/src/boards/styles/item';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import Votes from './Votes';
+import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
+import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
+import Checklists from "@erxes/ui-cards/src/checklists/containers/Checklists";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IOptions } from "@erxes/ui-cards/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Labels from "@erxes/ui-cards/src/boards/components/label/Labels";
+import React from "react";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { TitleRow } from "@erxes/ui-cards/src/boards/styles/item";
+import Uploader from "@erxes/ui/src/components/Uploader";
+import Votes from "./Votes";
 
 type Props = {
   item: IGrowthHack;
@@ -49,7 +49,7 @@ class Left extends React.Component<Props> {
   render() {
     const { item, saveItem, type, addItem } = this.props;
 
-    const onDescriptionBlur = e => {
+    const onDescriptionBlur = (e) => {
       const value = e.target.value;
 
       if (item.description !== value) {
@@ -57,8 +57,8 @@ class Left extends React.Component<Props> {
       }
     };
 
-    const onUserChange = usrs => saveItem({ assignedUserIds: usrs });
-    const assignedUserIds = item.assignedUsers.map(user => user._id);
+    const onUserChange = (usrs) => saveItem({ assignedUserIds: usrs });
+    const assignedUserIds = item.assignedUsers.map((user) => user._id);
 
     const onAttachmentChange = (files: IAttachment[]) =>
       saveItem({ attachments: files });
@@ -74,7 +74,7 @@ class Left extends React.Component<Props> {
             <TitleRow>
               <ControlLabel>
                 <Icon icon="label-alt" />
-                {__('Labels')}
+                {__("Labels")}
               </ControlLabel>
             </TitleRow>
 
@@ -106,7 +106,7 @@ class Left extends React.Component<Props> {
           </TitleRow>
 
           <FormControl
-            componentClass="textarea"
+            componentclass="textarea"
             name="description"
             defaultValue={item.description}
             onBlur={onDescriptionBlur}

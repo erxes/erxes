@@ -11,7 +11,7 @@ type FinalProps = {
 } & Props;
 
 const List = (props: FinalProps) => {
-  const { history, queryParams } = props;
+  const { queryParams } = props;
 
   const { data } = useQuery(gql(queries.permits), {
     variables: {
@@ -38,7 +38,6 @@ const List = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     queryParams,
-    history,
     permissions,
     refetchQueries: [
       {
@@ -58,7 +57,6 @@ const List = (props: FinalProps) => {
 };
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 

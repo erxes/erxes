@@ -4,18 +4,17 @@ import { useQuery, useMutation } from '@apollo/client';
 import { router } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // erxes
 import Alert from '@erxes/ui/src/utils/Alert';
 // local
 import { queries, mutations } from '../graphql';
 import ListComponent from '../components/List';
 
-export const generateParams = queryParams => {
+export const generateParams = (queryParams) => {
   return {
     status: queryParams.status,
     diffType: queryParams.diffType,
-    productCategoryIds: queryParams.productCategoryIds
+    productCategoryIds: queryParams.productCategoryIds,
   };
 };
 
@@ -31,7 +30,7 @@ function ListContainer() {
    */
   const safeRemainderDetailQuery = useQuery(gql(queries.safeRemainderDetail), {
     notifyOnNetworkStatusChange: true,
-    variables: { _id: id }
+    variables: { _id: id },
   });
 
   const safeRemainderItemsQuery = useQuery(gql(queries.safeRemainderItems), {
@@ -39,8 +38,8 @@ function ListContainer() {
     variables: {
       remainderId: id,
       ...generateParams(queryParams),
-      ...router.generatePaginationParams(queryParams || {})
-    }
+      ...router.generatePaginationParams(queryParams || {}),
+    },
   });
 
   const safeRemainderItemsCountQuery = useQuery(
@@ -49,9 +48,9 @@ function ListContainer() {
       fetchPolicy: 'network-only',
       variables: {
         remainderId: id,
-        ...generateParams(queryParams)
-      }
-    }
+        ...generateParams(queryParams),
+      },
+    },
   );
 
   /**
@@ -60,20 +59,20 @@ function ListContainer() {
   const [safeRemainderSubmit] = useMutation(
     gql(mutations.safeRemainderSubmit),
     {
-      refetchQueries: ['safeRemainderItemsQuery']
-    }
+      refetchQueries: ['safeRemainderItemsQuery'],
+    },
   );
   const [safeRemainderItemEdit] = useMutation(
     gql(mutations.safeRemainderItemEdit),
     {
-      refetchQueries: ['safeRemainderItemsQuery']
-    }
+      refetchQueries: ['safeRemainderItemsQuery'],
+    },
   );
   const [safeRemainderItemRemove] = useMutation(
     gql(mutations.safeRemainderItemRemove),
     {
-      refetchQueries: ['safeRemainderItemsQuery']
-    }
+      refetchQueries: ['safeRemainderItemsQuery'],
+    },
   );
 
   /**
@@ -100,8 +99,8 @@ function ListContainer() {
   const submitSafeRemainder = (_id: string) => {
     safeRemainderSubmit({
       variables: {
-        _id
-      }
+        _id,
+      },
     })
       .then(() => {
         Alert.success('Success!');
@@ -137,10 +136,10 @@ function ListContainer() {
     totalCount,
     submitSafeRemainder,
     updateItem,
-    removeItem
+    removeItem,
   };
 
   return <ListComponent {...componentProps} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 import {
   types as carTypes,
   queries as carQueries,
-  mutations as carMutations
+  mutations as carMutations,
 } from './schema/car';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -13,7 +13,7 @@ const typeDefs = async () => {
 
   const isEnabledTable = {
     contacts: isContactsEnabled,
-    tags: isTagEnabled
+    tags: isTagEnabled,
   };
 
   return gql`

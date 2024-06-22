@@ -1,22 +1,33 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 
-const List = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings - List EmailTemplate" */ './containers/List'
-  )
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+
+const List = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings - List EmailTemplate" */ "./containers/List"
+    )
 );
 
-const emailTemplates = ({ location, history }) => {
+const EmailTemplates = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   return (
-    <List queryParams={queryString.parse(location.search)} history={history} />
+    <List
+      queryParams={queryString.parse(location.search)}
+      location={location}
+      navigate={navigate}
+    />
   );
 };
 
 const routes = () => (
-  <Route path="/settings/email-templates/" component={emailTemplates} />
+  <Routes>
+    <Route path="/settings/email-templates/" element={<EmailTemplates />} />
+  </Routes>
 );
 
 export default routes;

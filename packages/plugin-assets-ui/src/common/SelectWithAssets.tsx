@@ -6,25 +6,19 @@ type Props = {
   value: string;
 };
 
-class SelectWithAssetOnProperties extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const SelectWithAssetOnProperties = (props: Props) => {
+  const { onSelect, value } = props;
 
-  render() {
-    const { onSelect, value } = this.props;
-
-    return (
-      <SelectWithAssets
-        label="Choose Asset"
-        name="assets"
-        multi={false}
-        initialValue={value}
-        onSelect={onSelect}
-        customOption={{ value: '', label: 'Choose Asset' }}
-      />
-    );
-  }
-}
+  return (
+    <SelectWithAssets
+      label="Choose Asset"
+      name="assets"
+      multi={false}
+      initialValue={value}
+      onSelect={onSelect}
+      customOption={{ value: '', label: 'Choose Asset' }}
+    />
+  );
+};
 
 export default SelectWithAssetOnProperties;

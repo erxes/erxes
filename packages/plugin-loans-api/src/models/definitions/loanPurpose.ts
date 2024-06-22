@@ -1,14 +1,13 @@
-import { Document, Schema } from 'mongoose';
+import { Document, Schema, HydratedDocument } from 'mongoose';
 import { field } from './utils';
 
 export interface IPurpose {
+  _id: string;
   name: string;
   typeId: string;
 }
 
-export interface IPurposeDocument extends IPurpose, Document {
-  _id: string;
-}
+export type IPurposeDocument = HydratedDocument<IPurpose>;
 
 export const purposeSchema = new Schema<IPurpose>({
   _id: field({ pkey: true }),

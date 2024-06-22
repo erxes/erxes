@@ -24,7 +24,8 @@ import {
 type Props = {
   boardId: string;
   queryParams: any;
-  history: any;
+  navigate: any;
+  location: any;
 };
 
 type FinalProps = {
@@ -157,7 +158,7 @@ class GroupsContainer extends React.Component<FinalProps> {
         getRefetchQueries(boardId);
 
         if (!object) {
-          return this.props.history.push('/settings/calendars');
+          return this.props.navigate('/settings/calendars');
         }
 
         if (callback) {

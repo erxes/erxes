@@ -37,7 +37,7 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       return models.Wishlist.findOne({ _id });
     }
     public static async removeWishlist(_id: string) {
-      return models.Wishlist.findOneAndRemove({ _id });
+      return models.Wishlist.findOneAndDelete({ _id });
     }
   }
   wishlistSchema.loadClass(Wishlist);

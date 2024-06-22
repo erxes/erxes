@@ -7,7 +7,7 @@ export default {
         icon: 'file-plus-alt',
         label: 'Exm Feed',
         description:
-          'Start with a blank workflow that enralls and is triggered off exm feed'
+          'Start with a blank workflow that enrolls and is triggered off exm feed'
       },
       {
         type: 'exmfeed:thanks',
@@ -15,7 +15,7 @@ export default {
         icon: 'file-plus-alt',
         label: 'Exm Thanks',
         description:
-          'Start with a blank workflow that enralls and is triggered off exm thanks'
+          'Start with a blank workflow that enrolls and is triggered off exm thanks'
       }
     ]
   }

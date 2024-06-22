@@ -1,14 +1,15 @@
 import Button from 'modules/common/components/Button';
-import FormControl from 'modules/common/components/form/Control';
-import Form from 'modules/common/components/form/Form';
-import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
-import { ModalFooter } from 'modules/common/styles/main';
-import { IFormProps } from 'modules/common/types';
+import Form from 'modules/common/components/form/Form';
+import FormControl from 'modules/common/components/form/Control';
+import FormGroup from 'modules/common/components/form/Group';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
+import { IFormProps } from 'modules/common/types';
 import { IUserGroupDocument } from '../types';
+import { ModalFooter } from 'modules/common/styles/main';
+import React, { useState } from 'react';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   closeModal: () => void;
@@ -17,25 +18,20 @@ type Props = {
   refetch: any;
 };
 
-type State = {
-  selectedMembers: string[];
-};
+const GroupForm = ({ object, renderButton, closeModal }: Props) => {
+  const [doc, setDoc] = useState({
+    memberIds: object?.memberIds || [],
+    branchIds: object?.branchIds || [],
+    departmentIds: object?.departmentIds || [],
+  });
 
-class GroupForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+  const { branchIds, departmentIds, memberIds } = doc;
 
-    this.state = {
-      selectedMembers: (props.object && props.object.memberIds) || []
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     _id?: string;
     name: string;
     description: string;
   }) => {
-    const { object } = this.props;
     const finalValues = values;
 
     if (object) {
@@ -44,21 +40,19 @@ class GroupForm extends React.Component<Props, State> {
 
     return {
       ...finalValues,
-      memberIds: this.state.selectedMembers
+      ...doc,
     };
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const object = this.props.object || ({} as IUserGroupDocument);
-    const self = this;
+  const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
 
     if (object) {
       values._id = object._id;
     }
 
-    const onChange = selectedMembers => {
-      self.setState({ selectedMembers });
+    const onSelect = (values: any, name: string) => {
+      setDoc({ ...doc, [name]: values });
     };
 
     return (
@@ -68,7 +62,7 @@ class GroupForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name}
+            defaultValue={object?.name}
             autoFocus={true}
             required={true}
           />
@@ -78,10 +72,29 @@ class GroupForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Description</ControlLabel>
           <FormControl
             {...formProps}
-            componentClass="textarea"
+            componentclass="textarea"
             name="description"
-            defaultValue={object.description}
+            defaultValue={object?.description}
             required={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Branches</ControlLabel>
+          <SelectBranches
+            label="Choose branches"
+            name="branchIds"
+            initialValue={branchIds}
+            onSelect={onSelect}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Departments</ControlLabel>
+          <SelectBranches
+            label="Choose departments"
+            name="departmentIds"
+            initialValue={departmentIds}
+            onSelect={onSelect}
           />
         </FormGroup>
 
@@ -90,37 +103,34 @@ class GroupForm extends React.Component<Props, State> {
 
           <SelectTeamMembers
             label="Choose members"
-            name="selectedMembers"
-            initialValue={self.state.selectedMembers}
-            onSelect={onChange}
+            name="memberIds"
+            initialValue={memberIds}
+            onSelect={onSelect}
           />
         </FormGroup>
-
         <ModalFooter>
           <Button
             btnStyle="simple"
             type="button"
-            onClick={this.props.closeModal}
+            onClick={closeModal}
             icon="cancel-1"
           >
             Cancel
           </Button>
 
-          {this.props.renderButton({
+          {renderButton({
             name: 'user group',
-            values: this.generateDoc(values),
+            values: generateDoc(values),
             isSubmitted,
-            callback: this.props.closeModal,
-            object: this.props.object
+            callback: closeModal,
+            object: object,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default GroupForm;

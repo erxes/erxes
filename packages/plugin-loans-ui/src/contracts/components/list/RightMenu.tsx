@@ -1,37 +1,37 @@
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
 import {
   CustomRangeContainer,
   FilterBox,
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
-} from '../../../styles';
+  TabContent,
+} from "../../../styles";
+import React, { useRef, useState } from "react";
 
-import RTG from 'react-transition-group';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import SelectContractType from '../../../contractTypes/containers/SelectContractType';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import Button from "@erxes/ui/src/components/Button";
+import { CSSTransition } from "react-transition-group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectContractType from "../../../contractTypes/containers/SelectContractType";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+      /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
 );
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+      /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
 );
 
@@ -47,49 +47,31 @@ type StringState = {
   currentTab: string;
 };
 
-type State = {
-  showMenu: boolean;
-} & StringState;
+export default function RightMenu(props: Props) {
+  const [showMenu, setShowMenu] = useState(false);
+  const wrapperRef = useRef(null);
 
-export default class RightMenu extends React.Component<Props, State> {
-  private wrapperRef;
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'Filter',
-      showMenu: false
-    };
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);
-  }
-
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
-
-  toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+  const setWrapperRef = (node) => {
+    wrapperRef.current = node;
   };
 
-  onSearch = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
-      const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || '');
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
+
+  const onSearch = (e) => {
+    if (e.key === "Enter") {
+      const target = e.currentTarget;
+      props.onSearch(target.value || "");
     }
   };
 
-  onChange = (name: string, value: string) => {
-    this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
-  };
-
-  renderLink(label: string, key: string, value: string) {
-    const { onSelect, queryParams } = this.props;
+  const renderLink = (label: string, key: string, value: string) => {
+    const { onSelect, queryParams } = props;
 
     const selected = queryParams[key] === value;
 
-    const onClick = _e => {
+    const onClick = (_e) => {
       onSelect(value, key);
     };
 
@@ -99,46 +81,38 @@ export default class RightMenu extends React.Component<Props, State> {
         {selected && <Icon icon="check-1" size={14} />}
       </FilterButton>
     );
-  }
-
-  onChangeRangeFilter = (kind, e) => {
-    this.props.onSelect(e.currentTarget.value, kind);
   };
 
-  renderDates() {
+  const onChangeRangeFilter = (kind, e) => {
+    props.onSelect(e.currentTarget.value, kind);
+  };
+
+  const renderDates = () => {
     return (
       <>
-        {this.renderLink('Today repayment', 'repaymentDate', 'today')}
-        {this.renderLink('Expired repayment', 'isExpired', 'true')}
-        {this.renderLink('Close contract today', 'closeDateType', 'today')}
-        {this.renderLink(
-          'Close contract this week',
-          'closeDateType',
-          'thisWeek'
-        )}
-        {this.renderLink(
-          'Close contract this month',
-          'closeDateType',
-          'thisMonth'
-        )}
+        {renderLink("Today repayment", "repaymentDate", "today")}
+        {renderLink("Expired repayment", "isExpired", "true")}
+        {renderLink("Close contract today", "closeDateType", "today")}
+        {renderLink("Close contract this week", "closeDateType", "thisWeek")}
+        {renderLink("Close contract this month", "closeDateType", "thisMonth")}
       </>
     );
-  }
+  };
 
-  renderFilter() {
-    const { queryParams, onSelect } = this.props;
+  const renderFilter = () => {
+    const { queryParams, onSelect } = props;
 
     return (
       <FilterBox>
         <FormControl
           defaultValue={queryParams.search}
-          placeholder={__('Contract Number') + ' ...'}
-          onKeyPress={this.onSearch}
+          placeholder={__("Contract Number") + " ..."}
+          onKeyPress={onSearch}
           autoFocus={true}
         />
 
         <SelectCustomers
-          label={__('Filter by customers')}
+          label={__("Filter by customers")}
           name="customerId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -146,7 +120,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         <SelectBranches
-          label={__('Filter by branch')}
+          label={__("Filter by branch")}
           name="branchId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -154,7 +128,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         <SelectCompanies
-          label={__('Filter by companies')}
+          label={__("Filter by companies")}
           name="companyId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -162,7 +136,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
 
         <SelectContractType
-          label={__('Filter by contract type')}
+          label={__("Filter by contract type")}
           name="contractTypeId"
           queryParams={queryParams}
           onSelect={onSelect}
@@ -173,37 +147,37 @@ export default class RightMenu extends React.Component<Props, State> {
           type="number"
           required={false}
           name="leaseAmount"
-          placeholder={__('Lease Amount')}
-          onChange={this.onChangeRangeFilter.bind(this, 'leaseAmount')}
+          placeholder={__("Lease Amount")}
+          onChange={onChangeRangeFilter.bind(this, "leaseAmount")}
         />
         <FormControl
           defaultValue={queryParams.interestRate}
           type="number"
           required={false}
           name="interestRate"
-          placeholder={__('Interest Rate')}
-          onChange={this.onChangeRangeFilter.bind(this, 'interestRate')}
+          placeholder={__("Interest Rate")}
+          onChange={onChangeRangeFilter.bind(this, "interestRate")}
         />
         <FormControl
           defaultValue={queryParams.tenor}
           type="number"
           required={false}
           name="tenor"
-          placeholder={__('Tenor')}
-          onChange={this.onChangeRangeFilter.bind(this, 'tenor')}
+          placeholder={__("Tenor")}
+          onChange={onChangeRangeFilter.bind(this, "tenor")}
         />
         <FormControl
           defaultValue={queryParams.repayment}
           type="select"
-          componentClass="select"
+          componentclass="select"
           required={false}
           name="repayment"
           options={[
-            { value: 'fixed', label: 'fixed' },
-            { value: 'equal', label: 'equal' }
+            { value: "fixed", label: "fixed" },
+            { value: "equal", label: "equal" },
           ]}
-          placeholder={'repayment'}
-          onChange={this.onChangeRangeFilter.bind(this, 'repayment')}
+          placeholder={"repayment"}
+          onChange={onChangeRangeFilter.bind(this, "repayment")}
         />
         <ControlLabel>Start Date range:</ControlLabel>
 
@@ -214,8 +188,8 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="startStartDate"
-              onChange={this.onChangeRangeFilter.bind(this, 'startStartDate')}
-              placeholder={__('Start date')}
+              onChange={onChangeRangeFilter.bind(this, "startStartDate")}
+              placeholder={__("Start date")}
             />
           </div>
 
@@ -225,8 +199,8 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="endStartDate"
-              placeholder={__('End date')}
-              onChange={this.onChangeRangeFilter.bind(this, 'endStartDate')}
+              placeholder={__("End date")}
+              onChange={onChangeRangeFilter.bind(this, "endStartDate")}
             />
           </div>
         </CustomRangeContainer>
@@ -239,8 +213,8 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="startCloseDate"
-              onChange={this.onChangeRangeFilter.bind(this, 'startCloseDate')}
-              placeholder={__('Start date')}
+              onChange={onChangeRangeFilter.bind(this, "startCloseDate")}
+              placeholder={__("Start date")}
             />
           </div>
 
@@ -250,23 +224,23 @@ export default class RightMenu extends React.Component<Props, State> {
               type="date"
               required={false}
               name="endCloseDate"
-              placeholder={__('End date')}
-              onChange={this.onChangeRangeFilter.bind(this, 'endCloseDate')}
+              placeholder={__("End date")}
+              onChange={onChangeRangeFilter.bind(this, "endCloseDate")}
             />
           </div>
         </CustomRangeContainer>
 
-        {this.renderDates()}
+        {renderDates()}
       </FilterBox>
     );
-  }
+  };
 
-  renderTabContent() {
-    const { isFiltered, clearFilter } = this.props;
+  const renderTabContent = () => {
+    const { isFiltered, clearFilter } = props;
 
     return (
       <>
-        <TabContent>{this.renderFilter()}</TabContent>
+        <TabContent>{renderFilter()}</TabContent>
         {isFiltered && (
           <MenuFooter>
             <Button
@@ -276,48 +250,45 @@ export default class RightMenu extends React.Component<Props, State> {
               onClick={clearFilter}
               icon="times-circle"
             >
-              {__('Clear Filter')}
+              {__("Clear Filter")}
             </Button>
           </MenuFooter>
         )}
       </>
     );
-  }
+  };
 
-  render() {
-    const { showMenu } = this.state;
-    const { isFiltered } = this.props;
+  const { isFiltered } = props;
 
-    return (
-      <div ref={this.setWrapperRef}>
-        {isFiltered && (
-          <Button
-            btnStyle="warning"
-            icon="times-circle"
-            uppercase={false}
-            onClick={this.props.clearFilter}
-          >
-            {__('Clear Filter')}
-          </Button>
-        )}
+  return (
+    <div ref={setWrapperRef}>
+      {isFiltered && (
         <Button
-          btnStyle="simple"
+          btnStyle="warning"
+          icon="times-circle"
           uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
+          onClick={props.clearFilter}
         >
-          {showMenu ? __('Hide Menu') : __('Show Menu')}
+          {__("Clear Filter")}
         </Button>
+      )}
+      <Button
+        btnStyle="simple"
+        uppercase={false}
+        icon="bars"
+        onClick={toggleMenu}
+      >
+        {showMenu ? __("Hide Menu") : __("Show Menu")}
+      </Button>
 
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
-          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
-        </RTG.CSSTransition>
-      </div>
-    );
-  }
+      <CSSTransition
+        in={showMenu}
+        timeout={300}
+        classNames="slide-in-right"
+        unmountOnExit={true}
+      >
+        <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
+      </CSSTransition>
+    </div>
+  );
 }

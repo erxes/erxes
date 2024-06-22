@@ -13,17 +13,24 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Step from '@erxes/ui/src/components/step/Step';
 import { Preview, StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { PageHeader } from '@erxes/ui/src/layout/styles';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { Flex, ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
 import Accounts from '../../../containers/Accounts';
 import ButtonsGenerator from '../../components/action/ButtonGenerator';
-import { Padding } from '../../styles';
+import { FieldInfo, Padding } from '../../styles';
 import { EmulatorWrapper, Features, MobileEmulator } from '../styles';
 import { SelectAccountPages, fetchPageDetail } from '../utils';
 import { Avatar } from '@erxes/ui-cards/src/boards/styles/item';
 import Icon from '@erxes/ui/src/components/Icon';
+import { FacebookTagText } from '../../../components/conversationDetail/workarea/styles';
+
+const tags = [
+  { label: 'Confirmed Event Update', value: 'CONFIRMED_EVENT_UPDATE' },
+  { label: 'Post-Purchase Update', value: 'POST_PURCHASE_UPDATE' },
+  { label: 'Account Update', value: 'ACCOUNT_UPDATE' },
+];
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -84,6 +91,19 @@ function Form({ renderButton, bot, returnToList }: Props) {
       setDoc({ ...doc, [name]: value });
     };
 
+    const onChangeGreetText = (e) => {
+      const { value } = e.currentTarget as HTMLInputElement;
+
+      if (doc.greetText > 160) {
+        return null;
+      }
+
+      setDoc({
+        ...doc,
+        greetText: value,
+      });
+    };
+
     return (
       <>
         <Steps>
@@ -141,8 +161,14 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 />
               </FormGroup>
               <ControlLabel>
-                {__('Persistent Menu')}
-                <HelpPopover title="A Persistent Menu is a quick-access toolbar in your chat. Customize it below for easy navigation to key bot features." />
+                <Flex>
+                  {__('Persistent Menu')}
+
+                  <HelpPopover title="">
+                    "A Persistent Menu is a quick-access toolbar in your chat.
+                    Customize it below for easy navigation to key bot features."
+                  </HelpPopover>
+                </Flex>
               </ControlLabel>
               <ButtonsGenerator
                 _id=""
@@ -151,7 +177,74 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 onChange={(_id, _name, values) =>
                   setDoc({ ...doc, persistentMenus: values })
                 }
+                limit={5}
               />
+            </Padding>
+          </Step>
+          <Step
+            title="Additional Bot Setup"
+            noButton
+            img="/images/icons/erxes-12.svg"
+            back={() => setLastStep(false)}
+          >
+            <Padding>
+              <FormGroup>
+                <ControlLabel>{__('Greet Message (Optional)')}</ControlLabel>
+                <FieldInfo
+                  error={doc?.greetText?.length > 160}
+                >{`${doc?.greetText?.length || 0}/160`}</FieldInfo>
+                <FormControl
+                  name="greetMessage"
+                  componentclass="textarea"
+                  placeholder="Type a greet message for your messenger"
+                  defaultValue={doc.greetText}
+                  onChange={onChangeGreetText}
+                />
+              </FormGroup>
+              <FormGroup>
+                <p>
+                  You are sending a message outside the 7 days messaging window.
+                  Facebook requires a tag to be added to this message. Select
+                  one of the following tags to send the message.
+                </p>
+                <ControlLabel>Tag</ControlLabel>
+                <FormControl
+                  id="facebook-message-tag"
+                  componentclass="select"
+                  placeholder={__('Select Facebook Tag') as string}
+                  defaultValue={doc.tag || ''}
+                  onChange={(e) =>
+                    setDoc({
+                      ...doc,
+                      tag: (e.currentTarget as HTMLInputElement)?.value,
+                    })
+                  }
+                >
+                  <option key={''} value={''}>
+                    {''}
+                  </option>
+                  {tags.map((tag) => (
+                    <option key={tag.value} value={tag.value}>
+                      {tag.label}
+                    </option>
+                  ))}
+                </FormControl>
+
+                <FacebookTagText>
+                  Message tags may not be used to send promotional content,
+                  including but not limited to deals,purchases offers, coupons,
+                  and discounts. Use of tags outside of the approved use cases
+                  may result in restrictions on the Page's ability to send
+                  messages.
+                  <a
+                    href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {__('Learn more')}
+                  </a>
+                </FacebookTagText>
+              </FormGroup>
             </Padding>
           </Step>
         </Steps>
@@ -209,6 +302,7 @@ function Form({ renderButton, bot, returnToList }: Props) {
                   {!isLastStep ? (
                     <>
                       <div className="getStarted">
+                        <p>{doc?.greetText || ''}</p>
                         <span>tap to send</span>
                         <button>Get Started</button>
                       </div>
@@ -243,14 +337,14 @@ function Form({ renderButton, bot, returnToList }: Props) {
                                 : '/images/erxes-bot.svg'
                             }
                           />
-                          <span>{'Get Started'}</span>
+                          <span>{doc?.greetText || 'Get Started'}</span>
                         </div>
                       </div>
                       <div className="persistentMenu">
                         <div className="dragger" />
                         <ul>
                           {(doc?.persistentMenus || []).map((menu) => (
-                            <li>{menu.text || ''}</li>
+                            <li key={menu._id}>{menu.text || ''}</li>
                           ))}
                         </ul>
                       </div>

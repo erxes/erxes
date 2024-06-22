@@ -4,7 +4,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import { ILeadIntegration } from '@erxes/ui-leads/src/types';
 import { ITrigger } from '../../../../types';
-import Select from 'react-select-plus';
+import Select from 'react-select';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 
@@ -82,8 +82,8 @@ class FormSubmit extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>{__('Select form')}</ControlLabel>
           <Select
-            isRequired={true}
-            value={value}
+            required={true}
+            value={selectOptions(formIntegrations).find((o) => o.value === value)}
             options={selectOptions(formIntegrations)}
             onChange={this.onChangeForm}
             placeholder={__('Select')}

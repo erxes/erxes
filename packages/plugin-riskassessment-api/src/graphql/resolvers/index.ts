@@ -11,7 +11,7 @@ const resolvers: any = async () => ({
   ...DataLoaders,
 
   Mutation,
-  Query
+  Query,
 });
 
 export default resolvers;

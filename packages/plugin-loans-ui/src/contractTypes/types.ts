@@ -45,6 +45,11 @@ export interface IContractConfig {
   badExpirationDay: number;
   minCommitmentInterest: number;
   maxCommitmentInterest: number;
+
+  districtName?: any;
+  isAmountUseEBarimt?: any;
+  isInterestUseEBarimt?: any;
+  isLossUseEBarimt?: any;
 }
 
 export interface IContractTypeDoc {
@@ -76,6 +81,8 @@ export interface IContractTypeDoc {
 
 export interface IContractType extends IContractTypeDoc {
   _id: string;
+  productType?: any;
+  productId?: string;
 }
 
 export interface IContractTypeDetail extends IContractType {

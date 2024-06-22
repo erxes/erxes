@@ -6,7 +6,7 @@ import { extractClientportalToken } from '@erxes/api-utils/src/clientportal';
 import { IModels, generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
-  req: Request & { cpUser?: any },
+  req: Request & { cpUser?: any; isPassed2FA: boolean },
   res: Response,
   next: NextFunction
 ) {
@@ -48,7 +48,7 @@ export default async function cpUserMiddleware(
       'clientPortalVerifyOTP',
       'clientPortalRefreshToken',
       'clientPortalGetConfigByDomain',
-      'clientPortalKnowledgeBaseTopicDetail'
+      'clientPortalKnowledgeBaseTopicDetail',
     ].includes(operationName)
   ) {
     return next();
@@ -67,7 +67,7 @@ export default async function cpUserMiddleware(
       process.env.JWT_TOKEN_SECRET || ''
     );
 
-    const { userId } = verifyResult;
+    const { userId, isPassed2FA, isEnableTwoFactor } = verifyResult;
 
     const userDoc = await models.ClientPortalUsers.findOne({ _id: userId });
 
@@ -79,6 +79,11 @@ export default async function cpUserMiddleware(
     req.cpUser = userDoc;
     req.cpUser.loginToken = token;
     req.cpUser.sessionCode = req.headers.sessioncode || '';
+    if (isEnableTwoFactor) {
+      req.isPassed2FA = isPassed2FA;
+    } else {
+      req.isPassed2FA = true;
+    }
   } catch (e) {
     if (e.name === 'TokenExpiredError') {
       const graphQLError = new GraphQLError('token expired');

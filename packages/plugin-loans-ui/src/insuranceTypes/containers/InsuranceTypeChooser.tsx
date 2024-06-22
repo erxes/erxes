@@ -1,17 +1,15 @@
-import { Chooser, withProps } from '@erxes/ui/src';
+import { Chooser } from '@erxes/ui/src';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useState } from 'react';
 
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import {
   AddMutationResponse,
   InsuranceTypesQueryResponse,
   IInsuranceType,
-  IInsuranceTypeDoc
 } from '../types';
 import InsuranceTypeForm from './InsuranceTypeForm';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -19,100 +17,66 @@ type Props = {
   searchValue: string;
 };
 
-type FinalProps = {
-  insuranceTypesQuery: InsuranceTypesQueryResponse;
-} & Props &
-  AddMutationResponse;
+const InsuranceTypeChooser = (props: Props & WrapperProps) => {
+  const [newInsuranceType, setNewInsuranceType] = useState(undefined as any);
+  const { data, search, searchValue, perPage } = props;
 
-class InsuranceTypeChooser extends React.Component<
-  WrapperProps & FinalProps,
-  { newInsuranceType?: IInsuranceType }
-> {
-  constructor(props) {
-    super(props);
+  const insuranceTypesQuery = useQuery<InsuranceTypesQueryResponse>(
+    gql(queries.insuranceTypes),
+    {
+      variables: {
+        searchValue,
+        perPage,
+        mainType: data.mainType,
+        mainTypeId: data.mainTypeId,
+        isRelated: data.isRelated,
+        sortField: 'createdAt',
+        sortDirection: -1,
+      },
+      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
+    },
+  );
 
-    this.state = {
-      newInsuranceType: undefined
-    };
-  }
-
-  resetAssociatedItem = () => {
-    return this.setState({ newInsuranceType: undefined });
+  const resetAssociatedItem = () => {
+    setNewInsuranceType(undefined);
   };
 
-  render() {
-    const { data, insuranceTypesQuery, search } = this.props;
+  const renderName = (insuranceType) => {
+    return `${insuranceType.code} - ${insuranceType.name} (${insuranceType.percent})`;
+  };
 
-    const renderName = insuranceType => {
-      return `${insuranceType.code} - ${insuranceType.name} (${insuranceType.percent})`;
-    };
+  const getAssociatedInsuranceType = (newInsuranceType: IInsuranceType) => {
+    setNewInsuranceType(newInsuranceType);
+  };
 
-    const getAssociatedInsuranceType = (newInsuranceType: IInsuranceType) => {
-      this.setState({ newInsuranceType });
-    };
+  const updatedProps = {
+    ...props,
+    data: {
+      _id: data._id,
+      name: renderName(data),
+      datas: data.insuranceTypes,
+      mainTypeId: data.mainTypeId,
+      mainType: data.mainType,
+      relType: 'insuranceType',
+    },
+    search,
+    clearState: () => search(''),
+    title: 'InsuranceType',
+    renderForm: (formProps) => (
+      <InsuranceTypeForm
+        {...formProps}
+        getAssociatedInsuranceType={getAssociatedInsuranceType}
+      />
+    ),
+    renderName,
+    newItem: newInsuranceType,
+    resetAssociatedItem: resetAssociatedItem,
+    datas: insuranceTypesQuery?.data?.insuranceTypes || [],
+    refetchQuery: queries.insuranceTypes,
+  };
 
-    const updatedProps = {
-      ...this.props,
-      data: {
-        _id: data._id,
-        name: renderName(data),
-        datas: data.insuranceTypes,
-        mainTypeId: data.mainTypeId,
-        mainType: data.mainType,
-        relType: 'insuranceType'
-      },
-      search,
-      clearState: () => search(''),
-      title: 'InsuranceType',
-      renderForm: formProps => (
-        <InsuranceTypeForm
-          {...formProps}
-          getAssociatedInsuranceType={getAssociatedInsuranceType}
-        />
-      ),
-      renderName,
-      newItem: this.state.newInsuranceType,
-      resetAssociatedItem: this.resetAssociatedItem,
-      datas: insuranceTypesQuery.insuranceTypes || [],
-      refetchQuery: queries.insuranceTypes
-    };
-
-    return <Chooser {...updatedProps} />;
-  }
-}
-
-const WithQuery = withProps<Props>(
-  compose(
-    graphql<
-      Props & WrapperProps,
-      InsuranceTypesQueryResponse,
-      { searchValue: string; perPage: number }
-    >(gql(queries.insuranceTypes), {
-      name: 'insuranceTypesQuery',
-      options: ({ searchValue, perPage, data }) => {
-        return {
-          variables: {
-            searchValue,
-            perPage,
-            mainType: data.mainType,
-            mainTypeId: data.mainTypeId,
-            isRelated: data.isRelated,
-            sortField: 'createdAt',
-            sortDirection: -1
-          },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
-        };
-      }
-    }),
-    // mutations
-    graphql<{}, AddMutationResponse, IInsuranceTypeDoc>(
-      gql(mutations.insuranceTypesAdd),
-      {
-        name: 'insuranceTypesAdd'
-      }
-    )
-  )(InsuranceTypeChooser)
-);
+  return <Chooser {...updatedProps} />;
+};
 
 type WrapperProps = {
   data: {
@@ -127,39 +91,26 @@ type WrapperProps = {
   closeModal: () => void;
 };
 
-export default class Wrapper extends React.Component<
-  WrapperProps,
-  {
-    perPage: number;
-    searchValue: string;
-  }
-> {
-  constructor(props) {
-    super(props);
+export default function Wrapper(props: WrapperProps) {
+  const [perPage, setPerPage] = useState(20);
+  const [searchValue, setSearchValue] = useState('');
 
-    this.state = { perPage: 20, searchValue: '' };
-  }
-
-  search = (value, loadmore) => {
+  const search = (value, loadmore) => {
     let perPage = 20;
 
     if (loadmore) {
-      perPage = this.state.perPage + 20;
+      perPage = perPage + 20;
     }
-
-    return this.setState({ perPage, searchValue: value });
+    setPerPage(perPage);
+    setSearchValue(value);
   };
 
-  render() {
-    const { searchValue, perPage } = this.state;
-
-    return (
-      <WithQuery
-        {...this.props}
-        search={this.search}
-        searchValue={searchValue}
-        perPage={perPage}
-      />
-    );
-  }
+  return (
+    <InsuranceTypeChooser
+      {...props}
+      search={search}
+      searchValue={searchValue}
+      perPage={perPage}
+    />
+  );
 }

@@ -1,13 +1,13 @@
-import { IClientPortalUser, IUserGroupDocument } from '../../types';
-import React, { useState } from 'react';
+import { IClientPortalUser, IUserGroupDocument } from "../../types";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '../../styles';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "../../styles";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   permissionGroup?: IUserGroupDocument;
@@ -20,39 +20,39 @@ function PermissionGroupForm({
   permissionGroup = { users: [] } as IUserGroupDocument,
   onSave,
   closeModal,
-  allUsers = [] as IClientPortalUser[]
+  allUsers = [] as IClientPortalUser[],
 }: Props) {
-  const usersIds = permissionGroup.users.map(user => user._id);
+  const usersIds = (permissionGroup.users || []).map((user) => user._id);
   const [selectedUsers, setSelectedMembers] = useState(usersIds || []);
-  const [name, setName] = useState(permissionGroup.name || '');
+  const [name, setName] = useState(permissionGroup.name || "");
 
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     onSave({
       _id: permissionGroup._id,
       name,
       ids: selectedUsers,
-      object: permissionGroup
+      object: permissionGroup,
     });
 
     closeModal();
   };
 
-  const handleName = e => {
+  const handleName = (e) => {
     setName(e.target.value);
   };
 
-  const onChange = members => {
-    const ids = members.map(m => m._id);
+  const onChange = (members) => {
+    const ids = members.map((m) => m._id);
     setSelectedMembers(ids);
   };
 
   const renderOptions = () => {
-    return allUsers.map(user => ({
+    return allUsers.map((user) => ({
       value: user._id,
       label: user.username || user.firstName || user.email,
-      _id: user._id
+      _id: user._id,
     }));
   };
 
@@ -74,16 +74,18 @@ function PermissionGroupForm({
           <ControlLabel>Users</ControlLabel>
 
           <Select
-            placeholder={__('Choose users')}
+            placeholder={__("Choose users")}
             options={renderOptions()}
-            value={selectedUsers}
+            value={renderOptions().filter((o) =>
+              selectedUsers.includes(o.value)
+            )}
             onChange={onChange}
-            multi={true}
+            isMulti={true}
           />
         </FormGroup>
       )}
 
-      <ModalFooter id={'AddPermissionButtons'}>
+      <ModalFooter id={"AddPermissionButtons"}>
         <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
           Cancel
         </Button>

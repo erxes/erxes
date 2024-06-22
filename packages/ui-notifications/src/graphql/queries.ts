@@ -50,7 +50,25 @@ const notificationCounts = `
   }
 `;
 
+const notificationsModules = `
+  query notificationsModules {
+    notificationsModules
+  }
+`;
+
+const notificationsGetConfigurations = `
+  query NotificationsGetConfigurations {
+    notificationsGetConfigurations {
+      _id
+      notifType
+      isAllowed
+    }
+  }
+`;
+
 export default {
   notifications,
-  notificationCounts
+  notificationCounts,
+  notificationsModules,
+  notificationsGetConfigurations,
 };

@@ -1,18 +1,19 @@
-import React from 'react';
-import { gql, useQuery, useMutation, useLazyQuery } from '@apollo/client';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Alert from '@erxes/ui/src/utils/Alert';
-import CustomerSidebar from '../components/CustomerSidebar';
-import { mutations, queries } from '../graphql';
-import { IOperation } from '../types';
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import CustomerSidebar from "../components/CustomerSidebar";
+import { IOperation } from "../types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 type Props = {
   id: string;
   mainType: string;
 };
-const getContentType = mainType => {
-  if (mainType === 'customer') return 'contacts:customer';
-  if (mainType.includes(':')) return mainType;
+const getContentType = (mainType) => {
+  if (mainType === "customer") return "contacts:customer";
+  if (mainType.includes(":")) return mainType;
   return `default:${mainType}`;
 };
 const CustomerSidebarContainer = (props: Props) => {
@@ -20,18 +21,18 @@ const CustomerSidebarContainer = (props: Props) => {
   const detail = useQuery(gql(queries.detail), {
     variables: {
       contentTypeId: props.id,
-      contentType
+      contentType,
     },
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   });
 
   const serviceChoosen = useQuery(gql(queries.serviceChoosen), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   });
 
   const xypServiceList = useQuery(gql(queries.xypServiceList), {});
   const [xypRequest] = useLazyQuery(gql(queries.xypRequest), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   });
 
   const [add] = useMutation(gql(mutations.add));
@@ -44,49 +45,49 @@ const CustomerSidebarContainer = (props: Props) => {
     xypRequest({
       variables: {
         wsOperationName: operation.wsOperationName,
-        params
-      }
+        params,
+      },
     }).then(({ data }) => {
       if (data?.xypRequest?.return?.resultCode === 0) {
         const xypData = [
           {
             serviceName: operation.wsOperationName,
             serviceDescription: operation.wsOperationDetail,
-            data: data?.xypRequest?.return?.response
-          }
+            data: data?.xypRequest?.return?.response,
+          },
         ];
         if (!detail?.data?.xypDataDetail) {
           add({
             variables: {
               contentType,
               contentTypeId: props.id,
-              data: xypData
-            }
+              data: xypData,
+            },
           }).then(({ data }) => {
             detail.refetch();
             if (data.xypDataAdd?._id) {
-              Alert.success('Successfully added an item');
+              Alert.success("Successfully added an item");
             } else {
-              Alert.error('error');
+              Alert.error("error");
             }
           });
         } else {
           const unique = detail?.data?.xypDataDetail.data.filter(
-            d => d.serviceName !== operation.wsOperationName
+            (d) => d.serviceName !== operation.wsOperationName
           );
           edit({
             variables: {
               _id: detail?.data?.xypDataDetail._id,
               contentType,
               contentTypeId: props.id,
-              data: [...unique, ...xypData]
-            }
+              data: [...unique, ...xypData],
+            },
           }).then(({ data }) => {
             detail.refetch();
             if (data.xypDataUpdate?._id) {
-              Alert.success('Successfully edited an item');
+              Alert.success("Successfully edited an item");
             } else {
-              Alert.error('error');
+              Alert.error("error");
             }
           });
         }
@@ -97,18 +98,18 @@ const CustomerSidebarContainer = (props: Props) => {
   };
   const convertToProperty = () => {
     xypConvertToCustomeFields({
-      variables: { id: props.id }
+      variables: { id: props.id },
     })
       .then(({ data }) => {
-        if (data?.xypConvertToCustomeFields === 'ok') {
-          Alert.success('Successful');
+        if (data?.xypConvertToCustomeFields === "ok") {
+          Alert.success("Successful");
         } else {
-          Alert.error('error');
+          Alert.error("error");
         }
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
-        Alert.error('error');
+        Alert.error("error");
       });
   };
 
@@ -119,16 +120,16 @@ const CustomerSidebarContainer = (props: Props) => {
   const updatedProps = {
     xypdata: detail?.data?.xypDataDetail,
     loading: detail.loading || xypServiceList.loading,
-    error: xypServiceList?.error?.name || '',
+    error: xypServiceList?.error?.name || "",
     refetch: detail.refetch,
     xypServiceList: xypServiceList?.data?.xypServiceList || [],
     serviceChoosenLoading: serviceChoosen.loading,
     list: serviceChoosen?.data?.xypServiceListChoosen,
     convertToProperty: convertToProperty,
-    showConvertButton: contentType === 'contacts:customer',
-    fetchData
+    showConvertButton: contentType === "contacts:customer",
+    fetchData,
   };
-
+  console.log("here custom config");
   return <CustomerSidebar {...updatedProps} />;
 };
 

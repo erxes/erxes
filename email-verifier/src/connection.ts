@@ -10,7 +10,7 @@ const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  family: 4
+  family: 4,
 };
 
 const { MONGO_URL } = process.env;
@@ -22,29 +22,14 @@ mongoose.connection
   .on('disconnected', () => {
     debugBase(`Disconnected from the database: ${MONGO_URL}`);
   })
-  .on('error', error => {
+  .on('error', (error) => {
     debugBase(`Database connection error: ${MONGO_URL}`, error);
   });
 
 export const connect = async (URL?: string, options?) => {
   return mongoose.connect(URL || MONGO_URL, {
     ...connectionOptions,
-    ...(options || { poolSize: 100 })
-  });
-};
-
-/**
- * Health check status
- */
-export const mongoStatus = () => {
-  return new Promise((resolve, reject) => {
-    mongoose.connection.db.admin().ping((err, result) => {
-      if (err) {
-        return reject(err);
-      }
-
-      return resolve(result);
-    });
+    ...(options || { poolSize: 100 }),
   });
 };
 

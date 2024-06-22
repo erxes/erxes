@@ -1,39 +1,35 @@
 import React from 'react';
-import { ControlLabel } from '@erxes/ui/src';
-import { TemplateWrapper } from '../styles';
-import EmailTemplate from './EmailTemplate';
 
-type EmailTemplatesProps = {
+import { ControlLabel } from '@erxes/ui/src';
+
+import EmailTemplate from './EmailTemplate';
+import { TemplateWrapper } from '../styles';
+
+type Props = {
   templates: any[];
   totalCount: number;
   handleSelect: (id: string) => void;
   selectedTemplateId?: string;
 };
 
-class EmailTemplates extends React.Component<EmailTemplatesProps> {
-  constructor(props) {
-    super(props);
-  }
+const SelectEmailTemplate = (props: Props) => {
+  const { templates, totalCount, handleSelect } = props;
 
-  render() {
-    const { templates, totalCount, handleSelect } = this.props;
+  return (
+    <>
+      <ControlLabel>{`Total:${totalCount}`}</ControlLabel>
+      <TemplateWrapper>
+        {templates.map((template) => (
+          <EmailTemplate
+            key={template._id}
+            template={template}
+            templateId={template._id}
+            handleSelect={handleSelect}
+          />
+        ))}
+      </TemplateWrapper>
+    </>
+  );
+};
 
-    return (
-      <>
-        <ControlLabel>{`Total:${totalCount}`}</ControlLabel>
-        <TemplateWrapper>
-          {templates.map(template => (
-            <EmailTemplate
-              key={template._id}
-              template={template}
-              templateId={template._id}
-              handleSelect={handleSelect}
-            />
-          ))}
-        </TemplateWrapper>
-      </>
-    );
-  }
-}
-
-export default EmailTemplates;
+export default SelectEmailTemplate;

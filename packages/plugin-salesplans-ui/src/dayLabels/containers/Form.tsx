@@ -1,5 +1,5 @@
 import * as compose from 'lodash.flowright';
-import From from '../components/Form';
+import Form from '../components/Form';
 import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -12,43 +12,33 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {} & Props;
+const FormContainer = (props: Props) => {
+  const renderButton = ({
+    values,
+    isSubmitted,
+    callback,
+    object,
+  }: IButtonMutateProps) => {
+    return (
+      <ButtonMutate
+        mutation={mutations.dayLabelsAdd}
+        variables={values}
+        callback={callback}
+        refetchQueries={['dayLabels', 'dayLabelsCount']}
+        isSubmitted={isSubmitted}
+        type="submit"
+        uppercase={false}
+        successMessage={`You successfully created a day labels`}
+      />
+    );
+  };
 
-class ProductFormContainer extends React.Component<FinalProps> {
-  render() {
-    const {} = this.props;
+  const updatedProps = {
+    ...props,
+    renderButton,
+  };
 
-    const renderButton = ({
-      values,
-      isSubmitted,
-      callback,
-      object
-    }: IButtonMutateProps) => {
-      return (
-        <ButtonMutate
-          mutation={mutations.dayLabelsAdd}
-          variables={values}
-          callback={callback}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          uppercase={false}
-          successMessage={`You successfully created a day labels}`}
-        />
-      );
-    };
-
-    const updatedProps = {
-      ...this.props,
-      renderButton
-    };
-
-    return <From {...updatedProps} />;
-  }
-}
-
-const getRefetchQueries = () => {
-  return ['dayLabels', 'dayLabelsCount'];
+  return <Form {...updatedProps} />;
 };
 
-export default withProps<Props>(compose()(ProductFormContainer));
+export default FormContainer;

@@ -1,37 +1,33 @@
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
-import CarList from './containers/CarsList';
-import CarDetails from './containers/detail/CarDetails';
-import CarSection from './components/common/CarSection';
+import CarDetails from "./containers/detail/CarDetails";
+import CarList from "./containers/CarsList";
+import React from "react";
+import queryString from "query-string";
 
-const details = ({ match }) => {
-  const id = match.params.id;
+const Details = () => {
+  const { id } = useParams();
 
-  return <CarDetails id={id} />;
+  return <CarDetails id={id || ""} />;
 };
 
-const list = ({ location, history }) => {
-  return (
-    <CarList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const List = () => {
+  const location = useLocation();
+
+  return <CarList queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
-    <>
+    <Routes>
       <Route
         key="/erxes-plugin-car/details/:id"
-        exact={true}
         path="/erxes-plugin-car/details/:id"
-        component={details}
+        element={<Details />}
       />
-      <Route path="/cars" exact={true} key="/cars" component={list} />
-    </>
+      <Route path="/cars" key="/cars" element={<List />} />
+    </Routes>
   );
 };
 

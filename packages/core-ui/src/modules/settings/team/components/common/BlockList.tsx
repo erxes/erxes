@@ -10,7 +10,7 @@ import React from 'react';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   allDatas: any[];
@@ -23,7 +23,8 @@ type Props = {
 
 export default function BlockList(props: Props) {
   const { allDatas, title, queryParams, queryType, removeItem } = props;
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const renderRemoveAction = item => {
     return (
@@ -100,8 +101,8 @@ export default function BlockList(props: Props) {
   const linkToText = title.toLocaleLowerCase();
 
   const onClick = (id: string) => {
-    routerUtils.removeParams(history, 'page');
-    routerUtils.setParams(history, { [`${linkToText}Id`]: id });
+    routerUtils.removeParams(navigate, location, 'page');
+    routerUtils.setParams(navigate, location, { [`${linkToText}Id`]: id });
   };
 
   return (
@@ -112,7 +113,7 @@ export default function BlockList(props: Props) {
       extraButtons={extraButtons}
       collapsible={allDatas.length > 6}
     >
-      <SidebarList noTextColor={true} noBackground={true}>
+      <SidebarList $noTextColor={true} $noBackground={true}>
         <CollapsibleList
           items={allDatas}
           onClick={onClick}

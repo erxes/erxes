@@ -1,19 +1,12 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import {
-  FilemanagerFilesQueryResponse,
-  IFile,
-  SaveFileMutationResponse
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+import { queries } from "../../graphql";
 
-import { Alert } from '@erxes/ui/src/utils';
-import FileDetail from '../../components/file/Detail';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+import FileDetail from "../../components/file/Detail";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
@@ -23,8 +16,7 @@ type Props = {
 type FinalProps = {
   filemanagerFolderDetailQuery: any;
   filemanagerLogsQuery: any;
-} & Props &
-  IRouterProps;
+} & Props;
 
 const FolderDetailContainer = (props: FinalProps) => {
   const { filemanagerFolderDetailQuery, filemanagerLogsQuery } = props;
@@ -43,7 +35,7 @@ const FolderDetailContainer = (props: FinalProps) => {
   const extendedProps = {
     ...props,
     item,
-    logs
+    logs,
   };
 
   return <FileDetail {...extendedProps} />;
@@ -51,19 +43,19 @@ const FolderDetailContainer = (props: FinalProps) => {
 
 export default compose(
   graphql<Props>(gql(queries.filemanagerFolderDetail), {
-    name: 'filemanagerFolderDetailQuery',
+    name: "filemanagerFolderDetailQuery",
     options: ({ fileId }: { fileId: string }) => ({
       variables: {
-        _id: fileId
-      }
-    })
+        _id: fileId,
+      },
+    }),
   }),
   graphql<Props>(gql(queries.filemanagerLogs), {
-    name: 'filemanagerLogsQuery',
+    name: "filemanagerLogsQuery",
     options: ({ fileId }: { fileId: string }) => ({
       variables: {
-        contentTypeId: fileId
-      }
-    })
+        contentTypeId: fileId,
+      },
+    }),
   })
 )(FolderDetailContainer);

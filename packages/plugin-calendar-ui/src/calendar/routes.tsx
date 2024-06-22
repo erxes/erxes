@@ -1,32 +1,31 @@
-import { IRouterProps } from '@erxes/ui/src/types';
-import Main from './containers/Main';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import Schedule from './components/scheduler/Index';
-import queryString from 'query-string';
+import Main from "./containers/Main";
+import React from "react";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
+import Schedule from "./components/scheduler/Index";
+import queryString from "query-string";
 
-const main = (props: IRouterProps) => {
-  return <Main queryParams={queryString.parse(props.location.search)} />;
+const MainComponent = () => {
+  const location = useLocation();
+  return <Main queryParams={queryString.parse(location.search)} />;
 };
 
-const schedule = ({ match }) => {
-  const slug = match.params.slug;
+const ScheduleComponent = () => {
+  const { slug } = useParams();
 
-  return <Schedule slug={slug} />;
+  return <Schedule slug={slug || ""} />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/calendar" exact={true} key="/calendar" render={main} />
+    <Routes>
+      <Route path="/calendar" key="/calendar" element={<MainComponent />} />
 
       <Route
         key="/schedule"
-        exact={true}
         path="/schedule/:slug"
-        component={schedule}
+        element={<ScheduleComponent />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

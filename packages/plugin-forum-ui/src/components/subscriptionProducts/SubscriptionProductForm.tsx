@@ -1,13 +1,14 @@
-import React from 'react';
-import { timeDuractionUnits } from '../../constants';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
-import { IProduct } from '../../types';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IProduct } from "../../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { timeDuractionUnits } from "../../constants";
 
 type Props = {
   subscriptionProduct?: IProduct;
@@ -18,7 +19,7 @@ type Props = {
 const SubscriptionProductForm: React.FC<Props> = ({
   subscriptionProduct = {} as IProduct,
   renderButton,
-  closeModal
+  closeModal,
 }) => {
   const generateDoc = (values: {
     _id?: string;
@@ -45,21 +46,14 @@ const SubscriptionProductForm: React.FC<Props> = ({
       unit: finalValues.unit,
       price: parseInt(finalValues.price, 10),
       userType: finalValues.userType,
-      listOrder: parseInt(finalValues.listOrder, 10)
+      listOrder: parseInt(finalValues.listOrder, 10),
     };
   };
 
   const renderContent = (formProps: IFormProps) => {
     const { values, isSubmitted } = formProps;
-    const {
-      name,
-      description,
-      multiplier,
-      unit,
-      price,
-      userType,
-      listOrder
-    } = subscriptionProduct;
+    const { name, description, multiplier, unit, price, userType, listOrder } =
+      subscriptionProduct;
 
     return (
       <>
@@ -94,10 +88,10 @@ const SubscriptionProductForm: React.FC<Props> = ({
           <FormControl
             {...formProps}
             name="unit"
-            componentClass="select"
+            componentclass="select"
             defaultValue={unit}
           >
-            {timeDuractionUnits.map(tdu => (
+            {timeDuractionUnits.map((tdu) => (
               <option value={tdu} key={tdu}>
                 {tdu}
               </option>
@@ -118,7 +112,7 @@ const SubscriptionProductForm: React.FC<Props> = ({
           <FormControl
             {...formProps}
             name="userType"
-            componentClass="select"
+            componentclass="select"
             defaultValue={userType}
           >
             <option value="">All</option>
@@ -135,17 +129,17 @@ const SubscriptionProductForm: React.FC<Props> = ({
             defaultValue={listOrder || 0}
           />
         </FormGroup>
-        <ModalFooter id={'AddProductButtons'}>
+        <ModalFooter id={"AddProductButtons"}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
 
           {renderButton({
-            name: 'subscription product',
+            name: "subscription product",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: subscriptionProduct
+            object: subscriptionProduct,
           })}
         </ModalFooter>
       </>

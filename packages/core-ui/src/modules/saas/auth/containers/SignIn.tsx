@@ -1,30 +1,32 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import React from "react";
 
-import apolloClient from 'apolloClient';
-import { __ } from 'modules/common/utils';
+import apolloClient from "apolloClient";
+import { __ } from "modules/common/utils";
 
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import SignIn from '../components/SignIn';
-import { mutations } from '../graphql';
-import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
-import ButtonMutate from '../../../common/components/ButtonMutate';
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import SignIn from "../components/SignIn";
+import { mutations } from "../graphql";
+import withCurrentOrganization from "@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization";
+import ButtonMutate from "../../../common/components/ButtonMutate";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type FinalProps = {
   currentOrganization: any;
-} & IRouterProps;
+};
 
 const SignInContainer = (props: FinalProps) => {
-  const { history, currentOrganization, location } = props;
+  const { currentOrganization } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
     const callbackResponse = () => {
       apolloClient.resetStore();
 
-      history.push(
-        (!location.pathname.includes('sign-in') &&
+      navigate(
+        (!location.pathname.includes("sign-in") &&
           `${location.pathname}${location.search}`) ||
-          '/?signedIn=true',
+          "/?signedIn=true"
       );
 
       window.location.reload();
@@ -42,7 +44,7 @@ const SignInContainer = (props: FinalProps) => {
         icon="none"
         style={{ background: `${currentOrganization.backgroundColor}` }}
       >
-        {__('Sign in')}
+        {__("Sign in")}
       </ButtonMutate>
     );
   };
@@ -55,6 +57,4 @@ const SignInContainer = (props: FinalProps) => {
   return <SignIn {...updatedProps} />;
 };
 
-export default withRouter<IRouterProps>(
-  withCurrentOrganization(SignInContainer),
-);
+export default withCurrentOrganization(SignInContainer);

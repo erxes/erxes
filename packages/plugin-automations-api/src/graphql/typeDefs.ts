@@ -4,7 +4,7 @@ import { types, queries, mutations } from './schema/automation';
 
 const typeDefs = async () => {
   const isEnabledTable = {
-    tags: isEnabled('tags')
+    tags: isEnabled('tags'),
   };
 
   return gql`

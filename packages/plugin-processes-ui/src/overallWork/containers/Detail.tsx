@@ -1,27 +1,26 @@
 import * as compose from 'lodash.flowright';
-import Detail from '../components/Detail';
-import { gql } from '@apollo/client';
-import React from 'react';
+
 import { Alert, Spinner, withProps } from '@erxes/ui/src';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { OverallWorkDetailQueryResponse } from '../types';
 import {
   PerformRemoveMutationResponse,
   PerformsCountQueryResponse,
-  PerformsQueryResponse
+  PerformsQueryResponse,
 } from '../../performs/types';
-import { queries } from '../graphql';
 import {
   mutations as performMutations,
-  queries as performQueries
+  queries as performQueries,
 } from '../../performs/graphql';
-import { withRouter } from 'react-router-dom';
+
+import Detail from '../components/Detail';
+import { OverallWorkDetailQueryResponse } from '../types';
+import React from 'react';
+import { gql } from '@apollo/client';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries } from '../graphql';
 import { router } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 type FinalProps = {
@@ -29,7 +28,6 @@ type FinalProps = {
   performsQuery: PerformsQueryResponse;
   performsCountQuery: PerformsCountQueryResponse;
 } & Props &
-  IRouterProps &
   PerformRemoveMutationResponse;
 
 class OverallWorkDetailContainer extends React.Component<FinalProps> {
@@ -37,7 +35,7 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -46,7 +44,7 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
       overallWorkDetailQuery,
       performsQuery,
       performsCountQuery,
-      performRemove
+      performRemove,
     } = this.props;
 
     if (
@@ -59,12 +57,12 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
 
     const removePerform = (_id: string) => {
       performRemove({
-        variables: { _id }
+        variables: { _id },
       })
         .then(() => {
           Alert.success('You successfully deleted a performance');
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -85,7 +83,7 @@ class OverallWorkDetailContainer extends React.Component<FinalProps> {
       overallWork,
       performs,
       performsCount,
-      removePerform
+      removePerform,
     };
 
     return <Detail {...updatedProps} />;
@@ -102,7 +100,7 @@ const generateParams = ({ queryParams }) => ({
   outDepartmentId: queryParams.outDepartmentId,
   productCategoryId: queryParams.productCategoryId,
   productIds: queryParams.productIds,
-  jobReferId: queryParams.jobReferId
+  jobReferId: queryParams.jobReferId,
 });
 
 export default withProps<Props>(
@@ -113,9 +111,9 @@ export default withProps<Props>(
         name: 'overallWorkDetailQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<{ queryParams }, PerformsQueryResponse, {}>(
       gql(performQueries.performs),
@@ -124,11 +122,11 @@ export default withProps<Props>(
         options: ({ queryParams }) => ({
           variables: {
             ...generateParams({ queryParams }),
-            ...router.generatePaginationParams(queryParams || {})
+            ...router.generatePaginationParams(queryParams || {}),
           },
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<{ queryParams }, PerformsCountQueryResponse, {}>(
       gql(performQueries.performsCount),
@@ -136,18 +134,18 @@ export default withProps<Props>(
         name: 'performsCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
+          fetchPolicy: 'network-only',
+        }),
+      },
     ),
     graphql<Props, PerformRemoveMutationResponse, { performId: string }>(
       gql(performMutations.performRemove),
       {
         name: 'performRemove',
         options: {
-          refetchQueries: ['performs', 'overallWorkDetail', 'performsCount']
-        }
-      }
-    )
-  )(withRouter<IRouterProps>(OverallWorkDetailContainer))
+          refetchQueries: ['performs', 'overallWorkDetail', 'performsCount'],
+        },
+      },
+    ),
+  )(OverallWorkDetailContainer),
 );

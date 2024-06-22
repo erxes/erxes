@@ -1,17 +1,17 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import DetailDuplicated from '../components/DetailDuplicated';
-import React from 'react';
-import { Spinner } from '@erxes/ui/src/components';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps } from '@erxes/ui/src/types';
+import * as compose from "lodash.flowright";
+
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   PutResponseReturnBillMutationResponse,
-  PutResponsesDuplicatedDetailQueryResponse
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { withRouter } from 'react-router-dom';
+  PutResponsesDuplicatedDetailQueryResponse,
+} from "../types";
+import { mutations, queries } from "../graphql";
+
+import DetailDuplicated from "../components/DetailDuplicated";
+import React from "react";
+import { Spinner } from "@erxes/ui/src/components";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   contentId: string;
@@ -21,8 +21,7 @@ type Props = {
 type FinalProps = {
   putResponsesQuery: PutResponsesDuplicatedDetailQueryResponse;
 } & Props &
-  IRouterProps &
-  PutResponseReturnBillMutationResponse;;
+  PutResponseReturnBillMutationResponse;
 
 type State = {
   loading: boolean;
@@ -33,7 +32,7 @@ class DetailDuplicatedContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
@@ -41,24 +40,20 @@ class DetailDuplicatedContainer extends React.Component<FinalProps, State> {
     const { putResponseReturnBill } = this.props;
 
     putResponseReturnBill({
-      variables: { _id }
+      variables: { _id },
     })
       .then(() => {
-        Alert.success('You successfully returned bill.');
+        Alert.success("You successfully returned bill.");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
-  }
+  };
 
   render() {
-    const {
-      putResponsesQuery,
-    } = this.props;
+    const { putResponsesQuery } = this.props;
 
-    if (
-      putResponsesQuery.loading
-    ) {
+    if (putResponsesQuery.loading) {
       return <Spinner />;
     }
 
@@ -68,7 +63,7 @@ class DetailDuplicatedContainer extends React.Component<FinalProps, State> {
       ...this.props,
       putResponses,
       loading: putResponsesQuery.loading,
-      onReturnBill: this.returnBill
+      onReturnBill: this.returnBill,
     };
 
     return <DetailDuplicated {...updatedProps} />;
@@ -78,21 +73,21 @@ class DetailDuplicatedContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<
-      { contentId: string, taxType: string },
+      { contentId: string; taxType: string },
       PutResponsesDuplicatedDetailQueryResponse,
       {}
     >(gql(queries.putResponsesDuplicatedDetail), {
-      name: 'putResponsesQuery',
+      name: "putResponsesQuery",
       options: ({ contentId, taxType }) => ({
         variables: { contentId, taxType },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<Props, PutResponseReturnBillMutationResponse, { _id: string }>(
       gql(mutations.putResponseReturnBill),
       {
-        name: 'putResponseReturnBill'
+        name: "putResponseReturnBill",
       }
     )
-  )(withRouter<IRouterProps>(DetailDuplicatedContainer))
+  )(DetailDuplicatedContainer)
 );

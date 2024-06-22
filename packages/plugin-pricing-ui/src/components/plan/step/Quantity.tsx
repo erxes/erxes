@@ -1,18 +1,19 @@
-import React from 'react';
+import { DISCOUNT_OPTIONS, RULE_OPTIONS } from "../../../constants";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+
 // erxes
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormLabel from '@erxes/ui/src/components/form/Label';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import Button from "@erxes/ui/src/components/Button";
 // local
-import DiscountInput from '../form/DiscountInput';
-import { Table } from '../../../styles';
-import { PricingPlan } from '../../../types';
-import { RULE_OPTIONS, DISCOUNT_OPTIONS } from '../../../constants';
+import DiscountInput from "../form/DiscountInput";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import { PricingPlan } from "../../../types";
+import React from "react";
+import { Table } from "../../../styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   formValues: PricingPlan;
@@ -27,32 +28,32 @@ export default function Quantity(props: Props) {
     const temp = [...formValues.quantityRules];
     temp[index][key] = value;
 
-    handleState('quantityRules', [...temp]);
+    handleState("quantityRules", [...temp]);
   };
 
   const handleAdd = () => {
     const temp = [...formValues.quantityRules];
-    temp.push({ type: 'exact', discountType: 'default' });
-    handleState('quantityRules', [...temp]);
+    temp.push({ type: "exact", discountType: "default" });
+    handleState("quantityRules", [...temp]);
   };
 
   const handleDelete = (index: number) => {
     const temp = [...formValues.quantityRules];
     if (temp.length >= 1) temp.splice(index, 1);
-    handleState('quantityRules', [...temp]);
+    handleState("quantityRules", [...temp]);
   };
 
   const renderRow = (item: any, index: number) => {
     return (
-      <tr key={'quantity' + item}>
+      <tr key={"quantity" + item}>
         <td>
           <FormGroup>
             <FormControl
               name="type"
-              componentClass="select"
+              componentclass="select"
               options={RULE_OPTIONS}
-              onChange={(e: any) => handleChange(index, 'type', e.target.value)}
-              value={item.type || 'exact'}
+              onChange={(e: any) => handleChange(index, "type", e.target.value)}
+              value={item.type || "exact"}
             />
           </FormGroup>
         </td>
@@ -60,12 +61,12 @@ export default function Quantity(props: Props) {
           <FormGroup>
             <FormControl
               name="value"
-              componentClass="number"
+              componentclass="number"
               placeholder="Quantity"
               onChange={(e: any) =>
-                handleChange(index, 'value', parseFloat(e.target.value))
+                handleChange(index, "value", parseFloat(e.target.value))
               }
-              value={item.value || ''}
+              value={item.value || ""}
             />
           </FormGroup>
         </td>
@@ -73,12 +74,12 @@ export default function Quantity(props: Props) {
           <FormGroup>
             <FormControl
               name="discountType"
-              componentClass="select"
+              componentclass="select"
               options={DISCOUNT_OPTIONS}
               onChange={(e: any) =>
-                handleChange(index, 'discountType', e.target.value)
+                handleChange(index, "discountType", e.target.value)
               }
-              value={item.discountType || 'default'}
+              value={item.discountType || "default"}
             />
           </FormGroup>
         </td>
@@ -87,11 +88,11 @@ export default function Quantity(props: Props) {
             type={item.discountType}
             value={item.discountValue}
             handleChange={(value: number) =>
-              handleChange(index, 'discountValue', value)
+              handleChange(index, "discountValue", value)
             }
             bonusValue={item.discountBonusProduct}
             handleBonusChange={(value: any) =>
-              handleChange(index, 'discountBonusProduct', value)
+              handleChange(index, "discountBonusProduct", value)
             }
           />
         </td>
@@ -99,35 +100,35 @@ export default function Quantity(props: Props) {
           <FormGroup>
             <FormControl
               name="priceAdjustType"
-              componentClass="select"
+              componentclass="select"
               options={[
                 {
-                  label: 'None',
-                  value: 'none'
+                  label: "None",
+                  value: "none",
                 },
                 {
-                  label: 'Default',
-                  value: 'default'
+                  label: "Default",
+                  value: "default",
                 },
                 {
-                  label: 'Round',
-                  value: 'round'
+                  label: "Round",
+                  value: "round",
                 },
                 {
-                  label: 'Floor',
-                  value: 'floor'
+                  label: "Floor",
+                  value: "floor",
                 },
                 {
-                  label: 'Ceil',
-                  value: 'ceil'
+                  label: "Ceil",
+                  value: "ceil",
                 },
                 {
-                  label: 'Ends With 9',
-                  value: 'endsWith9'
-                }
+                  label: "Ends With 9",
+                  value: "endsWith9",
+                },
               ]}
               onChange={(e: any) =>
-                handleChange(index, 'priceAdjustType', e.target.value)
+                handleChange(index, "priceAdjustType", e.target.value)
               }
               defaultValue={item.priceAdjustType}
             />
@@ -143,7 +144,7 @@ export default function Quantity(props: Props) {
               onChange={(e: any) =>
                 handleChange(
                   index,
-                  'priceAdjustFactor',
+                  "priceAdjustFactor",
                   parseFloat(e.target.value)
                 )
               }
@@ -152,7 +153,7 @@ export default function Quantity(props: Props) {
           </FormGroup>
         </td>
         <td>
-          <Tip text={__('Delete')} placement="bottom">
+          <Tip text={__("Delete")} placement="bottom">
             <Button
               btnStyle="danger"
               icon="trash"
@@ -172,29 +173,29 @@ export default function Quantity(props: Props) {
           <Table>
             <thead>
               <tr>
-                <th>{__('Rule type')}</th>
-                <th>{__('Rule value')}</th>
-                <th>{__('Discount type')}</th>
-                <th>{__('Discount value')}</th>
-                <th>{__('Price adjust type')}</th>
-                <th>{__('Price adjust factor')}</th>
-                <th>{__('Actions')}</th>
+                <th>{__("Rule type")}</th>
+                <th>{__("Rule value")}</th>
+                <th>{__("Discount type")}</th>
+                <th>{__("Discount value")}</th>
+                <th>{__("Price adjust type")}</th>
+                <th>{__("Price adjust factor")}</th>
+                <th>{__("Actions")}</th>
               </tr>
             </thead>
             <tbody>
-              {(
-                formValues.quantityRules || []
-              ).map((item: any, index: number) => renderRow(item, index))}
+              {(formValues.quantityRules || []).map(
+                (item: any, index: number) => renderRow(item, index)
+              )}
             </tbody>
           </Table>
-          <div style={{ display: 'block', textAlign: 'right' }}>
+          <div style={{ display: "block", textAlign: "right" }}>
             <Button
               btnStyle="success"
               icon="plus"
               size="small"
               onClick={handleAdd}
             >
-              {__('Add row')}
+              {__("Add row")}
             </Button>
           </div>
         </>
@@ -207,11 +208,11 @@ export default function Quantity(props: Props) {
     <FlexItem>
       <LeftItem>
         <FormGroup>
-          <FormLabel>{__('Enable quantity rule')}</FormLabel>
+          <FormLabel>{__("Enable quantity rule")}</FormLabel>
           <Toggle
             defaultChecked={formValues.isQuantityEnabled}
             onChange={(event: any) =>
-              handleState('isQuantityEnabled', event.target.checked)
+              handleState("isQuantityEnabled", event.target.checked)
             }
           />
         </FormGroup>

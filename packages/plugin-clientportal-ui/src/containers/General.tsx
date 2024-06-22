@@ -1,6 +1,6 @@
 import {
   BoardsQueryResponse,
-  IPipeline
+  IPipeline,
 } from '@erxes/ui-cards/src/boards/types';
 import React, { useEffect, useState } from 'react';
 
@@ -9,29 +9,37 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import boardQueries from '@erxes/ui-cards/src/settings/boards/graphql/queries';
 import client from '@erxes/ui/src/apolloClient';
-import compose from 'lodash.flowright';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   handleFormChange: (name: string, value: string | boolean) => void;
-  knowledgeBaseTopicsQuery: TopicsQueryResponse;
-  boardsQuery: BoardsQueryResponse;
   taskPublicPipelineId: string;
   taskPublicBoardId: string;
 };
 
 function GeneralContainer(props: Props) {
-  const { knowledgeBaseTopicsQuery, boardsQuery } = props;
   const [pipelines, setPipelines] = useState<IPipeline[]>([] as IPipeline[]);
+
+  const knowledgeBaseTopicsQuery = useQuery<TopicsQueryResponse>(
+    gql(knowledgeBaseQueries.knowledgeBaseTopics),
+    {
+      skip: isEnabled('knowledgebase') ? false : true,
+    },
+  );
+
+  const boardsQuery = useQuery<BoardsQueryResponse>(gql(boardQueries.boards), {
+    variables: { type: 'task' },
+    skip: isEnabled('cards') ? false : true,
+  });
 
   const fetchPipelines = (boardId: string) => {
     client
       .query({
         query: gql(boardQueries.pipelines),
-        variables: { boardId, type: 'task' }
+        variables: { boardId, type: 'task' },
       })
       .then(({ data = {} }) => {
         setPipelines(data.pipelines || []);
@@ -52,10 +60,10 @@ function GeneralContainer(props: Props) {
   }
 
   const topics =
-    (knowledgeBaseTopicsQuery &&
-      knowledgeBaseTopicsQuery.knowledgeBaseTopics) ||
+    (knowledgeBaseTopicsQuery.data &&
+      knowledgeBaseTopicsQuery.data.knowledgeBaseTopics) ||
     [];
-  const boards = (boardsQuery && boardsQuery.boards) || [];
+  const boards = (boardsQuery.data && boardsQuery.data.boards) || [];
 
   const updatedProps = {
     ...props,
@@ -63,22 +71,10 @@ function GeneralContainer(props: Props) {
     boards,
     pipelines,
     tokenPassMethod: 'cookie' as 'cookie',
-    fetchPipelines
+    fetchPipelines,
   };
 
   return <General {...updatedProps} />;
 }
 
-export default compose(
-  graphql(gql(knowledgeBaseQueries.knowledgeBaseTopics), {
-    name: 'knowledgeBaseTopicsQuery',
-    skip: isEnabled('knowledgebase') ? false : true
-  }),
-  graphql(gql(boardQueries.boards), {
-    name: 'boardsQuery',
-    options: () => ({
-      variables: { type: 'task' }
-    }),
-    skip: isEnabled('cards') ? false : true
-  })
-)(GeneralContainer);
+export default GeneralContainer;

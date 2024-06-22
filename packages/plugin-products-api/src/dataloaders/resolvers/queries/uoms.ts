@@ -5,7 +5,7 @@ const uomQueries = {
   /**
    * Uoms list
    */
-  uoms(_root, _args, { models }: IContext) {
+  async uoms(_root, _args, { models }: IContext) {
     return models.Uoms.find({})
       .sort({ order: 1 })
       .lean();
@@ -14,7 +14,7 @@ const uomQueries = {
   /**
    * Get all uoms count. We will use it in pager
    */
-  uomsTotalCount(_root, _args, { models }: IContext) {
+  async uomsTotalCount(_root, _args, { models }: IContext) {
     return models.Uoms.find({}).countDocuments();
   }
 };

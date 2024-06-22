@@ -1,5 +1,4 @@
 import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
@@ -15,7 +14,7 @@ import ListComponent from '../components/List';
 import { mutations, queries } from '../graphql';
 type Props = {
   queryParams: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   listQuery: OperationsQueryResponse;

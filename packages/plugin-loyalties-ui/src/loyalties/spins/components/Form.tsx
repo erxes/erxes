@@ -3,25 +3,25 @@ import {
   ControlLabel,
   Form,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ISpin, ISpinDoc } from '../types';
+  FormGroup,
+} from "@erxes/ui/src/components";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ISpin, ISpinDoc } from "../types";
 import {
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src/styles/eindex';
+  MainStyleScrollWrapper as ScrollWrapper,
+} from "@erxes/ui/src/styles/eindex";
 
-import React from 'react';
-import SelectCampaigns from '../../containers/SelectCampaigns';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __ } from '@erxes/ui/src/utils';
-import { queries } from '../../../configs/spinCampaign/graphql';
-import { queries as voucherCampaignQueries } from '../../../configs/voucherCampaign/graphql';
-import SelectClientPortalUser from '../../../common/SelectClientPortalUsers';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from "react";
+import SelectCampaigns from "../../containers/SelectCampaigns";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { __ } from "@erxes/ui/src/utils";
+import { queries } from "../../../configs/spinCampaign/graphql";
+import { queries as voucherCampaignQueries } from "../../../configs/voucherCampaign/graphql";
+import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -45,11 +45,11 @@ class SpinForm extends React.Component<Props, State> {
     }
 
     if (!spin.ownerType) {
-      spin.ownerType = 'customer';
+      spin.ownerType = "customer";
     }
 
     this.state = {
-      spin
+      spin,
     };
   }
 
@@ -64,14 +64,14 @@ class SpinForm extends React.Component<Props, State> {
 
     return {
       _id: finalValues._id,
-      ...this.state.spin
+      ...this.state.spin,
     };
   };
 
-  onChangeInput = e => {
+  onChangeInput = (e) => {
     const name = e.target.name;
     let value = e.target.value;
-    if (e.target.type === 'number') {
+    if (e.target.type === "number") {
       value = Number(value);
     }
 
@@ -87,12 +87,12 @@ class SpinForm extends React.Component<Props, State> {
     );
   };
 
-  onChangeCampaign = value => {
+  onChangeCampaign = (value) => {
     const { spin } = this.state;
     this.setState({ spin: { ...spin, campaignId: value } });
   };
 
-  onChangeSelect = e => {
+  onChangeSelect = (e) => {
     const { spin } = this.state;
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
@@ -101,14 +101,14 @@ class SpinForm extends React.Component<Props, State> {
     this.setState({ spin: { ...spin, [name]: value } });
   };
 
-  onChangeOwnerId = ownerId => {
+  onChangeOwnerId = (ownerId) => {
     const { spin } = this.state;
     this.setState({ spin: { ...spin, ownerId } });
   };
 
   renderOwner = () => {
     const { spin } = this.state;
-    if (spin.ownerType === 'customer') {
+    if (spin.ownerType === "customer") {
       return (
         <SelectCustomers
           label="Customer"
@@ -120,7 +120,7 @@ class SpinForm extends React.Component<Props, State> {
       );
     }
 
-    if (spin.ownerType === 'user') {
+    if (spin.ownerType === "user") {
       return (
         <SelectTeamMembers
           label="Team member"
@@ -132,7 +132,7 @@ class SpinForm extends React.Component<Props, State> {
       );
     }
 
-    if (spin.ownerType === 'company') {
+    if (spin.ownerType === "company") {
       return (
         <SelectCompanies
           label="Company"
@@ -144,9 +144,9 @@ class SpinForm extends React.Component<Props, State> {
       );
     }
 
-    if (spin.ownerType === 'cpUser') {
+    if (spin.ownerType === "cpUser") {
       return (
-        isEnabled('clientportal') && (
+        isEnabled("clientportal") && (
           <SelectClientPortalUser
             label="Client portal user"
             name="ownerId"
@@ -185,12 +185,12 @@ class SpinForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="ownerType"
-              componentClass="select"
+              componentclass="select"
               defaultValue={spin.ownerType}
               required={true}
               onChange={this.onChangeSelect}
             >
-              {['customer', 'user', 'company', 'cpUser'].map(ownerType => (
+              {["customer", "user", "company", "cpUser"].map((ownerType) => (
                 <option key={ownerType} value={ownerType}>
                   {ownerType}
                 </option>
@@ -208,22 +208,22 @@ class SpinForm extends React.Component<Props, State> {
             <FormControl
               {...formProps}
               name="status"
-              componentClass="select"
+              componentclass="select"
               defaultValue={spin.status}
               required={true}
               onChange={this.onChangeSelect}
             >
-              <option key={'new'} value={'new'}>
-                {' '}
-                {'new'}{' '}
+              <option key={"new"} value={"new"}>
+                {" "}
+                {"new"}{" "}
               </option>
-              <option key={'loss'} value={'loss'}>
-                {' '}
-                {'loss'}{' '}
+              <option key={"loss"} value={"loss"}>
+                {" "}
+                {"loss"}{" "}
               </option>
-              <option key={'won'} value={'won'}>
-                {' '}
-                {'won'}{' '}
+              <option key={"won"} value={"won"}>
+                {" "}
+                {"won"}{" "}
               </option>
             </FormControl>
           </FormGroup>
@@ -239,7 +239,7 @@ class SpinForm extends React.Component<Props, State> {
                 return;
               }}
               initialValue={spin.voucherCampaignId}
-              filterParams={{ voucherType: 'spin' }}
+              filterParams={{ voucherType: "spin" }}
             />
           </FormGroup>
         </ScrollWrapper>
@@ -250,10 +250,10 @@ class SpinForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'spin',
+            name: "spin",
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.spin
+            object: this.props.spin,
           })}
         </ModalFooter>
       </>

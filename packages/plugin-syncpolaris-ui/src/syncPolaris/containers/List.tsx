@@ -1,22 +1,20 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 import {
   SyncHistoriesQueryResponse,
   SyncHistoriesCountQueryResponse,
   ToCheckMutationResponse,
   ToSyncMutationResponse,
-} from '../../types';
-import { queries } from '../../graphql';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import { IRouterProps } from '@erxes/ui/src/types';
-import List from '../components/List';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import mutations from '../../graphql/mutations';
-import Alert from '@erxes/ui/src/utils/Alert';
+} from "../../types";
+import { queries } from "../../graphql";
+import { router, withProps } from "@erxes/ui/src/utils/core";
+import List from "../components/List";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import mutations from "../../graphql/mutations";
+import Alert from "@erxes/ui/src/utils/Alert";
 
 type Props = {
-  history: any;
   queryParams: any;
   contentType: string;
 };
@@ -29,8 +27,7 @@ type FinalProps = {
   syncHistoriesCountQuery: SyncHistoriesCountQueryResponse;
 } & Props &
   ToCheckMutationResponse &
-  ToSyncMutationResponse &
-  IRouterProps;
+  ToSyncMutationResponse;
 
 class CustomerContainer extends React.Component<FinalProps, State> {
   constructor(props) {
@@ -77,7 +74,7 @@ class CustomerContainer extends React.Component<FinalProps, State> {
         })
         .then(() => {
           this.setState({ loading: false });
-          Alert.success('Success. Please check again.');
+          Alert.success("Success. Please check again.");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -123,28 +120,31 @@ const generateParams = ({ queryParams }, { contentType }) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, SyncHistoriesQueryResponse, {}>(gql(queries.syncHistoriesPolaris), {
-      name: 'syncHistoriesQuery',
-      options: ({ queryParams, contentType }) => ({
-        variables: generateParams({ queryParams }, { contentType }),
-        fetchPolicy: 'network-only',
-      }),
-    }),
+    graphql<Props, SyncHistoriesQueryResponse, {}>(
+      gql(queries.syncHistoriesPolaris),
+      {
+        name: "syncHistoriesQuery",
+        options: ({ queryParams, contentType }) => ({
+          variables: generateParams({ queryParams }, { contentType }),
+          fetchPolicy: "network-only",
+        }),
+      }
+    ),
     graphql<Props, SyncHistoriesCountQueryResponse, {}>(
       gql(queries.syncHistoriesCountPolaris),
       {
-        name: 'syncHistoriesCountQuery',
+        name: "syncHistoriesCountQuery",
         options: ({ queryParams, contentType }) => ({
           variables: generateParams({ queryParams }, { contentType }),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, ToCheckMutationResponse, {}>(gql(mutations.toCheckPolaris), {
-      name: 'toCheckPolaris',
+      name: "toCheckPolaris",
     }),
     graphql<Props, ToSyncMutationResponse, {}>(gql(mutations.toSyncPolaris), {
-      name: 'toSyncPolaris',
-    }),
-  )(CustomerContainer),
+      name: "toSyncPolaris",
+    })
+  )(CustomerContainer)
 );

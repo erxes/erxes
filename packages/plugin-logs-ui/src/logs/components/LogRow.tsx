@@ -51,7 +51,7 @@ class LogRow extends React.Component<Props> {
         <td>{log.unicode}</td>
         <td>{logType}</td>
         <td>
-          <TextInfo textStyle={actionClass}>{log.action}</TextInfo>
+          <TextInfo $textStyle={actionClass}>{log.action}</TextInfo>
         </td>
         <td>{log.description}</td>
         <td>

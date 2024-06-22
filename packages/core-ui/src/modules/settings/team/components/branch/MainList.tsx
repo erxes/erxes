@@ -1,83 +1,67 @@
-import { BranchesMainQueryResponse, IBranch } from '@erxes/ui/src/team/types';
-import {
-  FilterContainer,
-  InputBar,
-  LeftActionBar,
-  Title,
-} from '@erxes/ui-settings/src/styles';
-import { __, router } from '@erxes/ui/src/utils';
+import { BranchesMainQueryResponse, IBranch } from "@erxes/ui/src/team/types";
+import { LeftActionBar, Title } from "@erxes/ui-settings/src/styles";
+import { __, router } from "@erxes/ui/src/utils";
 
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { BarItems } from 'modules/layout/styles';
-import Button from 'modules/common/components/Button';
-import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Form from '../../containers/common/BlockForm';
-import FormControl from 'modules/common/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Pagination from 'modules/common/components/pagination/Pagination';
-import React from 'react';
-import SettingsSideBar from '../../containers/common/SettingSideBar';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
-import Table from 'modules/common/components/table';
-import Tip from '@erxes/ui/src/components/Tip';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { generateTree } from '../../utils';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui/src/team/graphql';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import { BarItems } from "modules/layout/styles";
+import Button from "modules/common/components/Button";
+import DataWithLoader from "modules/common/components/DataWithLoader";
+import Form from "../../containers/common/BlockForm";
+import FormControl from "modules/common/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
+import ModalTrigger from "modules/common/components/ModalTrigger";
+import Pagination from "modules/common/components/pagination/Pagination";
+import React, { useState } from "react";
+import SettingsSideBar from "../../containers/common/SettingSideBar";
+import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
+import Table from "modules/common/components/table";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "modules/layout/components/Wrapper";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { generateTree } from "../../utils";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui/src/team/graphql";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   listQuery: BranchesMainQueryResponse;
   deleteBranches: (ids: string[], callback: () => void) => void;
   queryParams: any;
-  history: any;
 };
 
-type State = {
-  selectedItems: string[];
-  searchValue: string;
-};
+const MainList = (props: Props) => {
+  let timer;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState(
+    props.queryParams.searchValue || ""
+  );
 
-class MainList extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedItems: [],
-      searchValue: props.queryParams.searchValue || '',
-    };
-  }
-
-  refetchQueries = () => [
+  const refetchQueries = () => [
     {
       query: gql(queries.branchesMain),
       variables: {
         withoutUserFilter: true,
         searchValue: undefined,
-        ...generatePaginationParams(this.props.queryParams || {}),
+        ...generatePaginationParams(props.queryParams || {}),
       },
     },
   ];
 
-  remove = (_id?: string) => {
+  const remove = (_id?: string) => {
     if (_id) {
-      this.props.deleteBranches([_id], () =>
-        this.setState({ selectedItems: [] }),
-      );
+      props.deleteBranches([_id], () => setSelectedItems([]));
     } else {
-      this.props.deleteBranches(this.state.selectedItems, () =>
-        this.setState({ selectedItems: [] }),
-      );
+      props.deleteBranches(selectedItems, () => setSelectedItems([]));
     }
   };
 
-  renderForm() {
+  const renderForm = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add Branch')}
+        {__("Add Branch")}
       </Button>
     );
 
@@ -85,67 +69,59 @@ class MainList extends React.Component<Props, State> {
       <Form
         closeModal={closeModal}
         queryType="branches"
-        additionalRefetchQueries={this.refetchQueries()}
+        additionalRefetchQueries={refetchQueries()}
       />
     );
 
     return (
       <ModalTrigger title="Add Branch" content={content} trigger={trigger} />
     );
-  }
+  };
 
-  renderSearch() {
+  const renderSearch = () => {
     const search = (e) => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+      if (timer) {
+        clearTimeout(timer);
       }
 
-      const { history } = this.props;
       const searchValue = e.target.value;
 
-      this.setState({ searchValue });
+      setSearchValue(searchValue);
 
-      this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+      timer = setTimeout(() => {
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
 
     const moveCursorAtTheEnd = (e) => {
       const tmpValue = e.target.value;
 
-      e.target.value = '';
+      e.target.value = "";
       e.target.value = tmpValue;
     };
 
     return (
-      <FilterContainer marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={search}
-            value={this.state.searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </InputBar>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
     );
-  }
+  };
 
-  renderRow(branch: IBranch, level) {
-    const { selectedItems } = this.state;
-
+  const renderRow = (branch: IBranch, level) => {
     const handleSelect = () => {
       if (selectedItems.includes(branch._id)) {
         const removedSelectedItems = selectedItems.filter(
-          (selectItem) => selectItem !== branch._id,
+          (selectItem) => selectItem !== branch._id
         );
-        return this.setState({ selectedItems: removedSelectedItems });
+        return setSelectedItems(removedSelectedItems);
       }
-      this.setState({ selectedItems: [...selectedItems, branch._id] });
+      setSelectedItems([...selectedItems, branch._id]);
     };
 
     const onclick = (e) => {
@@ -154,7 +130,7 @@ class MainList extends React.Component<Props, State> {
 
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
@@ -164,15 +140,15 @@ class MainList extends React.Component<Props, State> {
       <tr key={branch._id}>
         <td onClick={onclick}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedItems.includes(branch._id)}
             onClick={handleSelect}
           />
         </td>
-        <td>{__(`${'\u00A0 \u00A0 '.repeat(level)}  ${branch.code}`)}</td>
+        <td>{__(`${"\u00A0 \u00A0 ".repeat(level)}  ${branch.code}`)}</td>
         <td>{__(branch.title)}</td>
-        <td>{branch?.parent?.title || ''}</td>
-        <td>{__(branch.address.replace(/\n/g, ''))}</td>
+        <td>{branch?.parent?.title || ""}</td>
+        <td>{__(branch.address.replace(/\n/g, ""))}</td>
         <td>{branch.userCount}</td>
         <td>
           <ActionButtons>
@@ -184,15 +160,15 @@ class MainList extends React.Component<Props, State> {
                   item={branch}
                   queryType="branches"
                   closeModal={closeModal}
-                  additionalRefetchQueries={this.refetchQueries()}
+                  additionalRefetchQueries={refetchQueries()}
                 />
               )}
               trigger={trigger}
             />
-            <Tip text={__('Delete')} placement="top">
+            <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
-                onClick={() => this.remove(branch._id)}
+                onClick={() => remove(branch._id)}
                 icon="times-circle"
               />
             </Tip>
@@ -200,21 +176,19 @@ class MainList extends React.Component<Props, State> {
         </td>
       </tr>
     );
-  }
+  };
 
-  renderContent() {
-    const { listQuery } = this.props;
+  const renderContent = () => {
+    const { listQuery } = props;
     const branches = listQuery?.branchesMain?.list || [];
-
-    const { selectedItems } = this.state;
 
     const handleSelectAll = () => {
       if (!selectedItems.length) {
         const branchIds = branches.map((branch) => branch._id);
-        return this.setState({ selectedItems: branchIds });
+        return setSelectedItems(branchIds);
       }
 
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
     return (
@@ -223,99 +197,94 @@ class MainList extends React.Component<Props, State> {
           <tr>
             <th>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={branches?.length === selectedItems.length}
                 onClick={handleSelectAll}
               />
             </th>
-            <th>{__('Code')}</th>
-            <th>{__('Title')}</th>
-            <th>{__('Parent')}</th>
-            <th>{__('Team member count')}</th>
-            <th>{__('Actions')}</th>
+            <th>{__("Code")}</th>
+            <th>{__("Title")}</th>
+            <th>{__("Parent")}</th>
+            <th>{__("Team member count")}</th>
+            <th>{__("Actions")}</th>
           </tr>
         </thead>
         <tbody>
           {generateTree(branches, null, (branch, level) =>
-            this.renderRow(branch, level),
+            renderRow(branch, level)
           )}
-          {generateTree(branches, '', (branch, level) =>
-            this.renderRow(branch, level),
+          {generateTree(branches, "", (branch, level) =>
+            renderRow(branch, level)
           )}
         </tbody>
       </Table>
     );
-  }
+  };
 
-  render() {
-    const { listQuery } = this.props;
+  const { listQuery } = props;
+  const { totalCount } = listQuery.branchesMain;
 
-    const { totalCount } = listQuery.branchesMain;
+  const rightActionBar = (
+    <BarItems>
+      {renderSearch()}
+      {renderForm()}
+    </BarItems>
+  );
 
-    const { selectedItems } = this.state;
+  const leftActionBar = selectedItems.length > 0 && (
+    <Button
+      btnStyle="danger"
+      size="small"
+      icon="times-circle"
+      onClick={() => remove()}
+    >
+      Remove
+    </Button>
+  );
 
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearch()}
-        {this.renderForm()}
-      </BarItems>
-    );
-
-    const leftActionBar = selectedItems.length > 0 && (
-      <Button
-        btnStyle="danger"
-        size="small"
-        icon="times-circle"
-        onClick={() => this.remove()}
-      >
-        Remove
-      </Button>
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title="Branches"
-            breadcrumb={[
-              { title: __('Settings'), link: '/settings' },
-              { title: __('Branches') },
-            ]}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={
-              <LeftActionBar>
-                <Title capitalize={true}>
-                  {__('Branches')}&nbsp;
-                  {`(${totalCount || 0})`}
-                </Title>
-                {leftActionBar}
-              </LeftActionBar>
-            }
-            right={rightActionBar}
-          />
-        }
-        content={
-          <DataWithLoader
-            loading={listQuery.loading}
-            count={totalCount || 0}
-            data={this.renderContent()}
-            emptyImage="/images/actions/5.svg"
-            emptyText="No Branches"
-          />
-        }
-        leftSidebar={
-          <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
-            <SettingsSideBar />
-          </LeftSidebar>
-        }
-        footer={<Pagination count={totalCount || 0} />}
-        hasBorder={true}
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title="Branches"
+          breadcrumb={[
+            { title: __("Settings"), link: "/settings" },
+            { title: __("Branches") },
+          ]}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={
+            <LeftActionBar>
+              <Title $capitalize={true}>
+                {__("Branches")}&nbsp;
+                {`(${totalCount || 0})`}
+              </Title>
+              {leftActionBar}
+            </LeftActionBar>
+          }
+          right={rightActionBar}
+        />
+      }
+      content={
+        <DataWithLoader
+          loading={listQuery.loading}
+          count={totalCount || 0}
+          data={renderContent()}
+          emptyImage="/images/actions/5.svg"
+          emptyText="No Branches"
+        />
+      }
+      leftSidebar={
+        <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+          <SettingsSideBar />
+        </LeftSidebar>
+      }
+      footer={<Pagination count={totalCount || 0} />}
+      hasBorder={true}
+    />
+  );
+};
 
 export default MainList;

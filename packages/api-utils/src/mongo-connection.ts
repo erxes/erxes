@@ -1,17 +1,12 @@
 import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
-import { debugInfo, debugError } from './debuggers';
 
 dotenv.config();
 
 const { MONGO_URL } = process.env;
 
-export const connectionOptions: mongoose.ConnectionOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
+export const connectionOptions: mongoose.ConnectOptions = {
   family: 4,
-  useFindAndModify: false,
-  useUnifiedTopology: true,
 };
 
 mongoose.connection

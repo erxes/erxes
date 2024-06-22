@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
-import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
+import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import Form from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
-import { IStructure } from '@erxes/ui/src/team/types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Button from '@erxes/ui/src/components/Button';
-import ContactInfoForm from '../common/ContactInfoForm';
-import { Title } from '@erxes/ui-settings/src/styles';
+  IFormProps,
+} from "@erxes/ui/src/types";
+import React, { useState } from "react";
+
+import Button from "@erxes/ui/src/components/Button";
+import ContactInfoForm from "../common/ContactInfoForm";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import { IStructure } from "@erxes/ui/src/team/types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { Title } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "modules/common/utils";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -28,7 +29,7 @@ export default function StructureForm(props: Props) {
 
   const dbImage = object.image || null;
 
-  const [supervisorId, setSupervisorId] = useState(object.supervisorId || '');
+  const [supervisorId, setSupervisorId] = useState(object.supervisorId || "");
   const [links, setLinks] = useState(object.links || {});
   const [image, setImage] = useState(
     dbImage
@@ -36,7 +37,7 @@ export default function StructureForm(props: Props) {
           name: dbImage.name,
           type: dbImage.type,
           url: dbImage.url,
-          size: dbImage.size
+          size: dbImage.size,
         } as IAttachment)
       : null
   );
@@ -44,11 +45,11 @@ export default function StructureForm(props: Props) {
   const coordinateObj = object.coordinate || {};
 
   const [coordinate, setCoordinate] = useState({
-    longitude: coordinateObj.longitude || '',
-    latitude: coordinateObj.latitude || ''
+    longitude: coordinateObj.longitude || "",
+    latitude: coordinateObj.latitude || "",
   });
 
-  const generateDoc = values => {
+  const generateDoc = (values) => {
     const finalValues = values;
 
     if (object) {
@@ -60,7 +61,7 @@ export default function StructureForm(props: Props) {
       links,
       coordinate,
       image,
-      ...finalValues
+      ...finalValues,
     };
   };
 
@@ -68,9 +69,9 @@ export default function StructureForm(props: Props) {
     const { values, isSubmitted } = formProps;
 
     return (
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: "20px" }}>
         <FormGroup>
-          <ControlLabel required={true}>{__('Name')}</ControlLabel>
+          <ControlLabel required={true}>{__("Name")}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -80,27 +81,27 @@ export default function StructureForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Description')}</ControlLabel>
+          <ControlLabel>{__("Description")}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
             defaultValue={object.description}
-            componentClass="textarea"
+            componentclass="textarea"
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Code')}</ControlLabel>
+          <ControlLabel>{__("Code")}</ControlLabel>
           <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Supervisor')}</ControlLabel>
+          <ControlLabel>{__("Supervisor")}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose supervisor"
             name="supervisorId"
             multi={false}
             initialValue={supervisorId}
-            onSelect={value => setSupervisorId(value.toString())}
+            onSelect={(value) => setSupervisorId(value.toString())}
           />
         </FormGroup>
 
@@ -117,19 +118,19 @@ export default function StructureForm(props: Props) {
 
         <ModalFooter>
           <Button
-            style={{ float: 'left' }}
+            style={{ float: "left" }}
             btnStyle="simple"
             type="button"
             onClick={showView}
             icon="arrow-left"
           >
-            {__('Back')}
+            {__("Back")}
           </Button>
           {renderButton({
             name: values.title,
             values: generateDoc(values),
             isSubmitted,
-            object
+            object,
           })}
         </ModalFooter>
       </div>
@@ -140,7 +141,7 @@ export default function StructureForm(props: Props) {
     <>
       <Wrapper.ActionBar
         background="bgWhite"
-        left={<Title capitalize={true}>{__('Structure')}</Title>}
+        left={<Title $capitalize={true}>{__("Structure")}</Title>}
         wideSpacing={true}
       />
       <Form renderContent={renderContent} />

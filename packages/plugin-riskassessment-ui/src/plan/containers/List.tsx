@@ -1,18 +1,17 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, EmptyState, Spinner, confirm } from '@erxes/ui/src';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import ListComponent from '../components/List';
-import { mutations, queries } from '../graphql';
-import client from '@erxes/ui/src/apolloClient';
-import { generateParamsIds } from '../../common/utils';
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
+import { QueryResponse } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import * as compose from "lodash.flowright";
+import React from "react";
+import ListComponent from "../components/List";
+import { mutations, queries } from "../graphql";
+import client from "@erxes/ui/src/apolloClient";
+import { generateParamsIds } from "../../common/utils";
 
 type Props = {
-  history: any;
   queryParams: string;
 };
 
@@ -38,7 +37,6 @@ class List extends React.Component<FinalProps> {
       changeStatusMutationsResponse,
       plansQueryResponse,
       queryParams,
-      history
     } = this.props;
 
     if (plansQueryResponse.loading) {
@@ -49,23 +47,23 @@ class List extends React.Component<FinalProps> {
       return <EmptyState text="Something went wrong" />;
     }
 
-    const removePlans = ids => {
+    const removePlans = (ids) => {
       removePlansMutationsResponse({ variables: { ids } })
         .then(() => {
-          Alert.success('Removed successfully');
+          Alert.success("Removed successfully");
         })
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err.message);
         });
     };
 
-    const duplicatePlan = id => {
+    const duplicatePlan = (id) => {
       confirm().then(() => {
         duplicatePlansMutationsResponse({ variables: { id } })
           .then(() => {
-            Alert.success('Duplicated successfully');
+            Alert.success("Duplicated successfully");
           })
-          .catch(err => {
+          .catch((err) => {
             Alert.error(err.message);
           });
       });
@@ -75,46 +73,45 @@ class List extends React.Component<FinalProps> {
       confirm().then(() => {
         changeStatusMutationsResponse({ variables: { _id, status } })
           .then(() => {
-            Alert.success('Status changed successfully');
+            Alert.success("Status changed successfully");
           })
-          .catch(err => {
+          .catch((err) => {
             Alert.error(err.message);
           });
       });
     };
 
     const updatedProps = {
-      history,
       queryParams,
       removePlans,
       duplicatePlan,
       changeStatus,
       list: plansQueryResponse?.riskAssessmentPlans || [],
-      totalCount: plansQueryResponse.riskAssessmentPlansTotalCount || 0
+      totalCount: plansQueryResponse.riskAssessmentPlansTotalCount || 0,
     };
 
     return <ListComponent {...updatedProps} />;
   }
 }
 
-const refetchQueries = queryParams => [
+const refetchQueries = (queryParams) => [
   {
     query: gql(queries.plans),
-    variables: generateParams(queryParams || {})
-  }
+    variables: generateParams(queryParams || {}),
+  },
 ];
 
-const generateDateParams = date => {
-  if (!date || date === 'NaN') {
+const generateDateParams = (date) => {
+  if (!date || date === "NaN") {
     return undefined;
   }
 
   return date;
 };
 
-const generateParams = queryParams => ({
+const generateParams = (queryParams) => ({
   ...generatePaginationParams(queryParams),
-  isArchived: queryParams.isArchived === 'true',
+  isArchived: queryParams.isArchived === "true",
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: queryParams.sortDirection
@@ -132,34 +129,34 @@ const generateParams = queryParams => ({
   createdAtFrom: generateDateParams(queryParams.createdAtFrom),
   createdAtTo: generateDateParams(queryParams.createdAtTo),
   modifiedAtFrom: generateDateParams(queryParams.modifiedAtFrom),
-  modifiedAtTo: generateDateParams(queryParams.modifiedAtTo)
+  modifiedAtTo: generateDateParams(queryParams.modifiedAtTo),
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.plans), {
-      name: 'plansQueryResponse',
+      name: "plansQueryResponse",
       options: ({ queryParams }) => ({
-        variables: generateParams(queryParams || {})
-      })
+        variables: generateParams(queryParams || {}),
+      }),
     }),
     graphql<Props>(gql(mutations.removePlan), {
-      name: 'removePlansMutationsResponse',
+      name: "removePlansMutationsResponse",
       options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
+        refetchQueries: refetchQueries(queryParams),
+      }),
     }),
     graphql<Props>(gql(mutations.duplicatePlan), {
-      name: 'duplicatePlansMutationsResponse',
+      name: "duplicatePlansMutationsResponse",
       options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
+        refetchQueries: refetchQueries(queryParams),
+      }),
     }),
     graphql<Props>(gql(mutations.changeStatus), {
-      name: 'changeStatusMutationsResponse',
+      name: "changeStatusMutationsResponse",
       options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
+        refetchQueries: refetchQueries(queryParams),
+      }),
     })
   )(List)
 );

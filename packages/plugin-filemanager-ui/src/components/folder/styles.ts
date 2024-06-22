@@ -5,12 +5,11 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const FolderItemRow = styledTS<{
-  isActive?: boolean;
+  $isActive?: boolean;
 }>(styled.li)`
   position: relative;
-  background: ${props => props.isActive && colors.colorSecondary};
+  background: ${props => props.$isActive && colors.colorSecondary};
   padding-right: 20px;
-  overflow: hidden;
   list-style: none;
 
   > div {
@@ -21,7 +20,7 @@ const FolderItemRow = styledTS<{
       white-space: normal;
       display: block;
       color: ${props =>
-        props.isActive ? colors.colorWhite : colors.textPrimary};
+        props.$isActive ? colors.colorWhite : colors.textPrimary};
       position: relative;
       flex: 1;
       display: flex;
@@ -40,7 +39,7 @@ const FolderItemRow = styledTS<{
       }
   
       &:focus {
-        color: ${props => (props.isActive ? colors.colorWhite : 'inherit')};
+        color: ${props => (props.$isActive ? colors.colorWhite : 'inherit')};
         text-decoration: none;
       }
     }
@@ -51,12 +50,12 @@ const FolderItemRow = styledTS<{
     display: flex;
     align-items: center;
     cursor: pointer;
-    
-    > i {
-      color: ${props =>
-        props.isActive ? colors.colorWhite : colors.colorCoreGray};
-      transition: all ease 0.3s;
-    }
+  }
+
+  i {
+    color: ${props =>
+      props.$isActive ? colors.colorWhite : colors.colorCoreGray};
+    transition: all ease 0.3s;
   }
 
   &:last-child {
@@ -65,13 +64,13 @@ const FolderItemRow = styledTS<{
 
   &:hover {
     background: ${props =>
-      props.isActive ? colors.colorSecondary : colors.bgActive};
+      props.$isActive ? colors.colorSecondary : colors.bgActive};
 
     ${ActionButtons} {
       width: 60px;
 
       > button {
-        color: ${props => props.isActive && colors.colorWhite} !important;
+        color: ${props => props.$isActive && colors.colorWhite} !important;
       }
     }
   }

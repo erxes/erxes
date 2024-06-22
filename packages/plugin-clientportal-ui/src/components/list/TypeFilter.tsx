@@ -1,36 +1,45 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IRouterProps, Counts } from '@erxes/ui/src/types';
-import { __, router } from '@erxes/ui/src/utils';
+import { Counts } from '@erxes/ui/src/types';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { __, router } from '@erxes/ui/src/utils';
+
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const TYPES = [
   { value: 'customer', label: 'Customer' },
-  { value: 'company', label: 'Company' }
+  { value: 'company', label: 'Company' },
 ];
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: Counts;
   emptyText?: string;
 }
 
-function TypeFilter({ history, counts, emptyText }: IProps) {
+function TypeFilter({ counts, emptyText }: IProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const onRemove = () => {
-    router.removeParams(history, 'type');
+    router.removeParams(navigate, location, 'type');
+  };
+
+  const onClickRow = (type) => {
+    router.removeParams(navigate, location, 'page');
+    router.setParams(navigate, location, { type });
   };
 
   const extraButtons = (
     <>
-      {router.getParam(history, 'type') && (
-        <a href="#" tabIndex={0} onClick={onRemove}>
-          <Icon icon="times-circle" />
+      {router.getParam(location, 'type') && (
+        <a href='#' tabIndex={0} onClick={onRemove}>
+          <Icon icon='times-circle' />
         </a>
       )}
     </>
@@ -39,20 +48,15 @@ function TypeFilter({ history, counts, emptyText }: IProps) {
   const data = (
     <SidebarList>
       {TYPES.map((type, index) => {
-        const onClick = () => {
-          router.setParams(history, { type: type.value });
-          router.removeParams(history, 'page');
-        };
-
         return (
           <li key={index}>
             <a
-              href="#filter"
+              href='#filter'
               tabIndex={0}
               className={
-                router.getParam(history, 'type') === type.value ? 'active' : ''
+                router.getParam(location, 'type') === type.value ? 'active' : ''
               }
-              onClick={onClick}
+              onClick={() => onClickRow(type.value)}
             >
               <FieldStyle>{__(type.label)}</FieldStyle>
               <SidebarCounter>{counts[type.value]}</SidebarCounter>
@@ -68,19 +72,19 @@ function TypeFilter({ history, counts, emptyText }: IProps) {
       title={__('Filter by type')}
       collapsible={false}
       extraButtons={extraButtons}
-      name="showFilterByType"
+      name='showFilterByType'
     >
       <DataWithLoader
         data={data}
         loading={false}
         count={TYPES.length}
         emptyText={emptyText ? emptyText : 'Loading'}
-        emptyIcon="leaf"
-        size="small"
+        emptyIcon='leaf'
+        size='small'
         objective={true}
       />
     </Box>
   );
 }
 
-export default withRouter<IProps>(TypeFilter);
+export default TypeFilter;

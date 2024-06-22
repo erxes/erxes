@@ -20,7 +20,7 @@ const RowArticle = styled.div`
 
   &:hover {
     ${ActionButtons} {
-      width: 35px;
+      width: 40px;
     }
   }
 `;
@@ -91,7 +91,7 @@ const ReactionItem = styled(ReactionCount)`
   margin-left: -8px;
 
   img {
-    marign-right: ${dimensions.unitSpacing}px;
+    margin-right: ${dimensions.unitSpacing}px;
     box-shadow: none;
     padding: 0;
   }
@@ -127,5 +127,5 @@ export {
   ReactionItem,
   FillContent,
   FlexRow,
-  Forms
+  Forms,
 };

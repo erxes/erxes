@@ -8,18 +8,18 @@ import {
   PopoverLoadMore,
   TemplateContent,
   TemplateTitle,
-} from '@erxes/ui-inbox/src/inbox/styles';
+} from "@erxes/ui-inbox/src/inbox/styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IAttachment } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
-import strip from 'strip';
+import Button from "@erxes/ui/src/components/Button";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IAttachment } from "@erxes/ui/src/types";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IResponseTemplate } from "../../../../../settings/responseTemplates/types";
+import { Link } from "react-router-dom";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
+import strip from "strip";
 
 type Props = {
   brandId?: string;
@@ -36,7 +36,7 @@ type Props = {
     content: string,
     brandId: string,
     page: number,
-    perPage: number,
+    perPage: number
   ) => void;
 };
 
@@ -64,7 +64,7 @@ class PopoverContent extends React.Component<Props, State> {
 
     // find response template using event key
     const responseTemplate = responseTemplates.find(
-      (t) => t._id === responseTemplateId,
+      (t) => t._id === responseTemplateId
     );
 
     // hide selector
@@ -81,7 +81,7 @@ class PopoverContent extends React.Component<Props, State> {
 
   filterByValue(array, value) {
     return array.filter((o) =>
-      o.name.toLowerCase().includes(value.toLowerCase()),
+      o.name.toLowerCase().includes(value.toLowerCase())
     );
   }
   filterByBrandId(array, value) {
@@ -117,7 +117,7 @@ class PopoverContent extends React.Component<Props, State> {
     return (
       <PopoverLoadMore>
         <Button btnStyle="simple" onClick={this.fetchTemplates}>
-          {__('Load more')}
+          {__("Load more")}
         </Button>
       </PopoverLoadMore>
     );
@@ -129,9 +129,9 @@ class PopoverContent extends React.Component<Props, State> {
     const perPage = 10;
     const page = Math.round((responseTemplates || []).length / perPage + 1);
 
-    const searchValue = this.state.searchValue || '';
+    const searchValue = this.state.searchValue || "";
     undefined;
-    const brandId = this.state.brandId || '';
+    const brandId = this.state.brandId || "";
 
     this.props.refetchResponseTemplates(searchValue, brandId, page, perPage);
   };
@@ -142,7 +142,7 @@ class PopoverContent extends React.Component<Props, State> {
     const onChangeSearchValue = (e) => {
       const searchValue = e.target.value;
 
-      const textContent = searchValue.toLowerCase().replace(/<[^>]+>/g, '');
+      const textContent = searchValue.toLowerCase().replace(/<[^>]+>/g, "");
       if (textContent) {
         const { timer } = this.state;
 
@@ -153,7 +153,7 @@ class PopoverContent extends React.Component<Props, State> {
 
         this.setState({
           timer: setTimeout(() => {
-            this.props.refetchResponseTemplates(textContent, '', 1, 20);
+            this.props.refetchResponseTemplates(textContent, "", 1, 20);
           }, 1000),
         });
       }
@@ -163,7 +163,7 @@ class PopoverContent extends React.Component<Props, State> {
     const onChangeBrand = (e) => {
       const brandId = e.target.value;
       this.setState({ brandId });
-      this.props.refetchResponseTemplates('', brandId, 1, 20);
+      this.props.refetchResponseTemplates("", brandId, 1, 20);
     };
     return (
       <>
@@ -172,7 +172,7 @@ class PopoverContent extends React.Component<Props, State> {
             <InlineColumn>
               <FormControl
                 type="text"
-                placeholder={__('Search') as string}
+                placeholder={__("Search") as string}
                 onChange={onChangeSearchValue}
                 defaultValue={this.state.searchValue}
                 autoFocus={true}
@@ -180,8 +180,8 @@ class PopoverContent extends React.Component<Props, State> {
             </InlineColumn>
             <InlineColumn>
               <FormControl
-                componentClass="select"
-                placeholder={__('Select Brand') as string}
+                componentclass="select"
+                placeholder={__("Select Brand") as string}
                 onChange={onChangeBrand}
                 defaultValue={this.state.brandId}
               >
@@ -205,7 +205,7 @@ class PopoverContent extends React.Component<Props, State> {
           <PopoverList center={true}>
             <li>
               <Link to="/settings/response-templates">
-                {__('Manage templates')}
+                {__("Manage templates")}
               </Link>
             </li>
           </PopoverList>

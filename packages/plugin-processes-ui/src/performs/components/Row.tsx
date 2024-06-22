@@ -12,7 +12,6 @@ import Form from '../containers/Form';
 
 type Props = {
   perform: IPerform;
-  history: any;
   removePerform: (_id: string) => void;
 };
 

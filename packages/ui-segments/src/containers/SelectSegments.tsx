@@ -5,7 +5,7 @@ import { IOption, IQueryParams } from '@erxes/ui/src/types';
 import { queries } from '../graphql';
 import { ISegment } from '../types';
 
-// get config options for react-select-plus
+// get config options for react-select
 export function generateSegmentOptions(array: ISegment[] = []): IOption[] {
   return array.map(item => {
     const segment = item || ({} as ISegment);

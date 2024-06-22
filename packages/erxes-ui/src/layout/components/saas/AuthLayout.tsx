@@ -1,18 +1,18 @@
-import Button from '@erxes/ui/src/components/Button';
-import { __, bustIframe } from '../../../utils';
-import React from 'react';
-import Container from 'react-bootstrap/Container';
-import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 import {
-  AuthWrapper,
   AuthBox,
-  AuthItem,
   AuthContent,
   AuthCustomDescription,
   AuthDescription,
+  AuthItem,
+  AuthWrapper,
   CenterContent,
   MobileRecommend,
 } from '../../styles';
+import { __, bustIframe } from '../../../utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import React from 'react';
+import withCurrentOrganization from '@erxes/ui-settings/src/general/saas/containers/withCurrentOrganization';
 
 type Props = {
   content: React.ReactNode;
@@ -90,7 +90,7 @@ class AuthLayout extends React.Component<Props, {}> {
 
     return (
       <AuthWrapper>
-        <Container>
+        <div className='container'>
           <AuthBox>
             <AuthItem order={1}>
               <AuthContent>{content}</AuthContent>
@@ -98,7 +98,7 @@ class AuthLayout extends React.Component<Props, {}> {
             <AuthItem order={0}>{this.renderDesciption()}</AuthItem>
           </AuthBox>
           {this.renderRecommendMobileVersion()}
-        </Container>
+        </div>
       </AuthWrapper>
     );
   }

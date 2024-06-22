@@ -247,7 +247,8 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         subdomain,
         action: 'fields.prepareCustomFieldsData',
         data: doc.customFieldsData,
-        isRPC: true
+        isRPC: true,
+        defaultValue: []
       });
 
       const company = await models.Companies.create({

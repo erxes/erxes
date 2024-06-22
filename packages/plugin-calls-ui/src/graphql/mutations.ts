@@ -123,17 +123,18 @@ const callDisconnect = `
 `;
 
 const callHistoryAdd = `
-  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $sessionId: String) {
-  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId) {
+  mutation CallHistoryAdd($inboxIntegrationId: String,$customerPhone: String, $callStartTime: Date ,$callStatus: String, $callType: String, $sessionId: String, $endedBy: String, $queueName: String) {
+  callHistoryAdd(inboxIntegrationId: $inboxIntegrationId,  customerPhone: $customerPhone, callStartTime: $callStartTime, callStatus: $callStatus, callType: $callType, sessionId: $sessionId, endedBy: $endedBy, queueName: $queueName) {
     _id
     sessionId
+    conversationId
   }
 }
 `;
 
 const callHistoryEdit = `
-  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String) {
-    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId) 
+  mutation CallHistoryEdit($id: String, $inboxIntegrationId: String, $customerPhone: String, $callDuration: Int, $callStartTime: Date, $callEndTime: Date, $callType: String, $callStatus: String, $sessionId: String, $transferedCallStatus: String, $endedBy: String) {
+    callHistoryEdit(_id: $id, inboxIntegrationId: $inboxIntegrationId, customerPhone: $customerPhone, callDuration: $callDuration, callStartTime: $callStartTime, callEndTime: $callEndTime, callType: $callType, callStatus: $callStatus, sessionId: $sessionId, transferedCallStatus: $transferedCallStatus, endedBy: $endedBy) 
 }`;
 
 const callHistoryEditStatus = ` 
@@ -151,6 +152,15 @@ const callsUpdateConfigs = `
     callsUpdateConfigs(configsMap: $configsMap)
   }
 `;
+const callPauseAgent = `
+  mutation callsPauseAgent($status: String!, $integrationId: String!) {
+    callsPauseAgent(status: $status, integrationId: $integrationId)
+}`;
+
+const callTransfer = `
+  mutation callTransfer($extensionNumber: String!, $integrationId: String!, $direction: String) {
+    callTransfer(extensionNumber: $extensionNumber, integrationId: $integrationId, direction: $direction)
+}`;
 
 export default {
   callsIntegrationUpdate,
@@ -164,4 +174,6 @@ export default {
   callHistoryRemove,
   callsUpdateConfigs,
   callHistoryEditStatus,
+  callPauseAgent,
+  callTransfer,
 };

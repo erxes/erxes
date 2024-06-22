@@ -85,7 +85,7 @@ const knowledgeBaseQueries = {
   /**
    * Article detail anc increase a view count
    */
-  knowledgeBaseArticleDetailAndIncViewCount(
+  async knowledgeBaseArticleDetailAndIncViewCount(
     _root,
     { _id }: { _id: string },
     { models }: IContext
@@ -165,7 +165,7 @@ const knowledgeBaseQueries = {
   /**
    * Get last category
    */
-  knowledgeBaseCategoriesGetLast(
+  async knowledgeBaseCategoriesGetLast(
     _root,
     _args,
     { commonQuerySelector, models }: IContext
@@ -178,7 +178,7 @@ const knowledgeBaseQueries = {
   /**
    * Topic list
    */
-  knowledgeBaseTopics(
+  async knowledgeBaseTopics(
     _root,
     args: { page: number; perPage: number; brandId: string; codes: string[] },
     { commonQuerySelector, models }: IContext
@@ -207,7 +207,7 @@ const knowledgeBaseQueries = {
   /**
    * Total topic count
    */
-  knowledgeBaseTopicsTotalCount(
+  async knowledgeBaseTopicsTotalCount(
     _root,
     _args,
     { commonQuerySelector, models }: IContext

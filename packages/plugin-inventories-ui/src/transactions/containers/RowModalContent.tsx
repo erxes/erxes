@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@apollo/client';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
 // local
 import { queries } from '../graphql';
 import RowModalContentComponent from '../components/RowModalContent';
@@ -16,7 +15,7 @@ const RowModalContentContainer = (props: Props) => {
   // Hooks
   const transactionDetail = useQuery(gql(queries.transactionDetail), {
     variables: { id: data._id },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
   });
 
   const transactionDetailData = transactionDetail.data
@@ -31,4 +30,4 @@ const RowModalContentContainer = (props: Props) => {
   );
 };
 
-export default compose()(RowModalContentContainer);
+export default RowModalContentContainer;

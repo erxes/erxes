@@ -46,7 +46,7 @@ class ChannelStep extends React.Component<Props> {
     const onClick = () => this.props.onChange('method', name);
 
     return (
-      <Box selected={this.props.method === name} onClick={onClick}>
+      <Box $selected={this.props.method === name} onClick={onClick}>
         <Icon icon={icon} />
         <span>{__(name)}</span>
         <p>{__(desc)}</p>
@@ -56,28 +56,27 @@ class ChannelStep extends React.Component<Props> {
 
   render() {
     return (
-      <FullContent center={true}>
+      <FullContent $center={true}>
         {this.renderBox(
           METHODS.EMAIL,
           'envelope-edit',
-          `Master email marketing with fully customized templates`,
+          `Master email marketing with fully customized templates`
         )}
         {this.renderBox(
           METHODS.MESSENGER,
           'comment-edit',
-          'Interact personally with direct in-app-messaging',
+          'Interact personally with direct in-app-messaging'
         )}
         {/* {isEnabled('integrations') && this.renderBox(
           METHODS.SMS,
           'comment-alt-message',
           `Send bulk SMS online with simple and direct texts`
         )} */}
-        {this.props.kind === 'manual' &&
-          isEnabled('clientportal') &&
+        {isEnabled('clientportal') &&
           this.renderBox(
             METHODS.NOTIFICATION,
             'message',
-            'Send automated notifications to your customers',
+            'Send automated notifications to your customers'
           )}
       </FullContent>
     );

@@ -8,7 +8,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 
 import { IPaypalConfig, IPaymentDocument } from '../../types';
 import { PAYMENT_KINDS } from '../constants';
@@ -28,29 +28,25 @@ type State = {
   paypalClientSecret: string;
 };
 
-class PaypalConfigForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const PaypalConfigForm: React.FC<Props> = (props) => {
+  const { payment } = props;
+  const { name = '', config } = payment || ({} as IPaymentDocument);
+  const paypal = config || ({} as IPaypalConfig);
 
-    const { payment } = this.props;
-    const { name = '', config } = payment || ({} as IPaymentDocument);
-    const paypal = config || ({} as IPaypalConfig);
+  const [state, setState] = useState<State>({
+    paymentName: name,
+    paypalMode: paypal.mode || 'sandbox',
+    paypalClientId: paypal.clientId || '',
+    paypalClientSecret: paypal.clientSecret || '',
+  });
 
-    this.state = {
-      paymentName: name,
-      paypalMode: paypal.mode || 'sandbox',
-      paypalClientId: paypal.clientId || '',
-      paypalClientSecret: paypal.clientSecret || ''
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     paymentName: string;
     paypalClientId: string;
     paypalClientSecret: string;
     paypalMode: 'sandbox' | 'live';
   }) => {
-    const { payment } = this.props;
+    const { payment } = props;
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.PAYPAL,
@@ -58,24 +54,24 @@ class PaypalConfigForm extends React.Component<Props, State> {
       config: {
         paypalClientId: values.paypalClientId,
         paypalClientSecret: values.paypalClientSecret,
-        paypalMode: values.paypalMode
-      }
+        paypalMode: values.paypalMode,
+      },
     };
 
     return payment ? { ...generatedValues, id: payment._id } : generatedValues;
   };
 
-  onChangeConfig = (code: string, e) => {
-    this.setState({ [code]: e.target.value } as any);
+  const onChangeConfig = (code: string, e) => {
+    setState((prevState) => ({ ...prevState, [code]: e.target.value }));
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean
+    isPassword?: boolean,
   ) => {
-    const value = this.state[key];
+    const value = state[key];
 
     return (
       <FormGroup>
@@ -83,7 +79,7 @@ class PaypalConfigForm extends React.Component<Props, State> {
         {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
-          onChange={this.onChangeConfig.bind(this, key)}
+          onChange={onChangeConfig.bind(this, key)}
           value={value}
           type={isPassword ? 'password' : ''}
         />
@@ -91,27 +87,23 @@ class PaypalConfigForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal } = props;
     const { isSubmitted } = formProps;
-    const {
-      paymentName,
-      paypalClientId,
-      paypalClientSecret,
-      paypalMode
-    } = this.state;
+    const { paymentName, paypalClientId, paypalClientSecret, paypalMode } =
+      state;
 
     const values = {
       paymentName,
       paypalClientId,
       paypalClientSecret,
-      paypalMode
+      paypalMode,
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {this.renderItem('paymentName', 'Name')}
+          {renderItem('paymentName', 'Name')}
           <Formgroup>
             <ControlLabel>Mode</ControlLabel>
             <ToggleWrapper>
@@ -125,8 +117,8 @@ class PaypalConfigForm extends React.Component<Props, State> {
             </ToggleWrapper>
           </Formgroup>
 
-          {this.renderItem('paypalClientId', 'Client ID')}
-          {this.renderItem('paypalClientSecret', 'Client Secret', '', true)}
+          {renderItem('paypalClientId', 'Client ID')}
+          {renderItem('paypalClientSecret', 'Client Secret', '', true)}
         </SettingsContent>
 
         <ModalFooter>
@@ -139,19 +131,17 @@ class PaypalConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'paypal',
-            values: this.generateDoc(values),
+            passedName: 'paypal',
+            values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default PaypalConfigForm;

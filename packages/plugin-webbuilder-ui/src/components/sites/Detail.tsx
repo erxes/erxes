@@ -1,26 +1,26 @@
-import 'grapesjs/dist/css/grapes.min.css';
+import "grapesjs/dist/css/grapes.min.css";
 
 import {
   CustomButtonWrapper,
   ItemDetailContainer,
   Loader,
-  SettingsContent
-} from './styles';
-import { IContentTypeDoc, IPageDoc } from '../../types';
-import { __, uploadHandler } from '@erxes/ui/src/utils';
+  SettingsContent,
+} from "./styles";
+import { IContentTypeDoc, IPageDoc } from "../../types";
+import { __, uploadHandler } from "@erxes/ui/src/utils";
 
-import Alert from '@erxes/ui/src/utils/Alert';
-import Button from '@erxes/ui/src/components/Button';
-import ContentTypeForm from '../../containers/contentTypes/ContentTypeForm';
-import EntryList from '../../containers/entries/List';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import GrapesJS from 'grapesjs';
-import PageForm from '../pages/PageForm';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import customPlugins from '../customPlugins';
-import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { readFile } from '@erxes/ui/src/utils/core';
+import Alert from "@erxes/ui/src/utils/Alert";
+import Button from "@erxes/ui/src/components/Button";
+import ContentTypeForm from "../../containers/contentTypes/ContentTypeForm";
+import EntryList from "../../containers/entries/List";
+import { FlexItem } from "@erxes/ui/src/components/step/styles";
+import GrapesJS from "grapesjs";
+import PageForm from "../pages/PageForm";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import customPlugins from "../customPlugins";
+import gjsPresetWebpage from "grapesjs-preset-webpage";
+import { readFile } from "@erxes/ui/src/utils/core";
 
 type Props = {
   page: IPageDoc;
@@ -60,8 +60,8 @@ class SiteDetail extends React.Component<Props, State> {
     const page = props.page ? props.page : props.pages[0] || ({} as IPageDoc);
 
     this.state = {
-      name: page.name || '',
-      description: page.description || ''
+      name: page.name || "",
+      description: page.description || "",
     };
   }
 
@@ -70,10 +70,10 @@ class SiteDetail extends React.Component<Props, State> {
     let { pages } = this.props;
 
     const page = this.props.page ? this.props.page : pages[0];
-    pages = pages.filter(p => p._id !== page?._id);
+    pages = pages.filter((p) => p._id !== page?._id);
 
     this.grapes = GrapesJS.init({
-      protectedCss: '',
+      protectedCss: "",
       container: `#editor`,
       fromElement: true,
       plugins: [gjsPresetWebpage, customPlugins],
@@ -81,12 +81,12 @@ class SiteDetail extends React.Component<Props, State> {
         [customPlugins as any]: {
           pages,
           contentTypes,
-          open: false
-        }
+          open: false,
+        },
       },
       storageManager: false,
       assetManager: {
-        uploadFile: e => {
+        uploadFile: (e) => {
           const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
 
           uploadHandler({
@@ -94,28 +94,28 @@ class SiteDetail extends React.Component<Props, State> {
 
             beforeUpload: () => {
               Alert.warning(
-                'Upload in progress. Please wait until response shows.'
+                "Upload in progress. Please wait until response shows."
               );
             },
 
             afterUpload: ({ status, response, fileInfo }) => {
-              if (status !== 'ok') {
+              if (status !== "ok") {
                 Alert.error(response.statusText);
               }
 
-              Alert.info('Success');
+              Alert.info("Success");
 
               editor.AssetManager.add({
                 type: fileInfo.type,
                 src: readFile(response),
                 height: 350,
                 width: 250,
-                name: fileInfo.name
+                name: fileInfo.name,
               });
-            }
+            },
           });
-        }
-      }
+        },
+      },
     });
 
     const editor = this.grapes;
@@ -123,14 +123,14 @@ class SiteDetail extends React.Component<Props, State> {
     const pfx = editor.getConfig().stylePrefix;
     const modal = editor.Modal;
     const cmdm = editor.Commands;
-    const htmlCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
-    const cssCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
+    const htmlCodeViewer = editor.CodeManager.getViewer("CodeMirror").clone();
+    const cssCodeViewer = editor.CodeManager.getViewer("CodeMirror").clone();
     const pnm = editor.Panels;
-    const container = document.createElement('div');
-    const btnEdit = document.createElement('button');
+    const container = document.createElement("div");
+    const btnEdit = document.createElement("button");
 
     const codeViewerOptions = {
-      theme: 'hopscotch',
+      theme: "hopscotch",
       autoBeautify: true,
       autoCloseTags: true,
       autoCloseBrackets: true,
@@ -138,27 +138,27 @@ class SiteDetail extends React.Component<Props, State> {
       styleActiveLine: true,
       smartIndent: true,
       indentWithTabs: true,
-      readOnly: 0
+      readOnly: 0,
     };
 
     htmlCodeViewer.set({
-      codeName: 'htmlmixed',
-      ...codeViewerOptions
+      codeName: "htmlmixed",
+      ...codeViewerOptions,
     });
 
     cssCodeViewer.set({
-      codeName: 'css',
-      ...codeViewerOptions
+      codeName: "css",
+      ...codeViewerOptions,
     });
 
     editor.getConfig().allowScripts = 1;
-    btnEdit.innerHTML = 'Edit';
-    btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
+    btnEdit.innerHTML = "Edit";
+    btnEdit.className = pfx + "btn-prim " + pfx + "btn-import";
     btnEdit.onclick = () => {
       const html = htmlCodeViewer.editor.getValue();
       const css = cssCodeViewer.editor.getValue();
 
-      editor.DomComponents.getWrapper().set('content', '');
+      editor.DomComponents.getWrapper().set("content", "");
 
       editor.setComponents(html.trim());
       editor.setStyle(css.trim());
@@ -174,23 +174,23 @@ class SiteDetail extends React.Component<Props, State> {
       editor.setStyle(css.trim());
     }
 
-    cmdm.add('html-edit', {
+    cmdm.add("html-edit", {
       run: (editr, sender) => {
         // tslint:disable-next-line:no-unused-expression
-        sender && sender.set('active', 0);
+        sender && sender.set("active", 0);
         let htmlViewer = htmlCodeViewer.editor;
         let cssViewer = cssCodeViewer.editor;
 
-        modal.setTitle('Edit code');
+        modal.setTitle("Edit code");
 
         if (!htmlViewer && !cssViewer) {
-          const htmlArea = document.createElement('textarea');
-          const htmlLabel = document.createElement('p');
-          htmlLabel.innerHTML = 'Html';
+          const htmlArea = document.createElement("textarea");
+          const htmlLabel = document.createElement("p");
+          htmlLabel.innerHTML = "Html";
 
-          const cssArea = document.createElement('textarea');
-          const cssLabel = document.createElement('p');
-          cssLabel.innerHTML = 'Css';
+          const cssArea = document.createElement("textarea");
+          const cssLabel = document.createElement("p");
+          cssLabel.innerHTML = "Css";
 
           container.appendChild(htmlLabel);
           container.appendChild(htmlArea);
@@ -210,7 +210,7 @@ class SiteDetail extends React.Component<Props, State> {
         const InnerHtml = editr.getHtml();
         const Css = editr.getCss({ keepUnusedStyles: true });
 
-        modal.setContent('');
+        modal.setContent("");
         modal.setContent(container);
 
         htmlCodeViewer.setContent(InnerHtml);
@@ -220,18 +220,18 @@ class SiteDetail extends React.Component<Props, State> {
 
         htmlViewer.refresh();
         cssViewer.refresh();
-      }
+      },
     });
 
-    pnm.addButton('options', [
+    pnm.addButton("options", [
       {
-        id: 'edit',
-        className: 'fa fa-edit',
-        command: 'html-edit',
+        id: "edit",
+        className: "fa fa-edit",
+        command: "html-edit",
         attributes: {
-          title: 'Edit'
-        }
-      }
+          title: "Edit",
+        },
+      },
     ]);
 
     onLoad(false);
@@ -256,10 +256,10 @@ class SiteDetail extends React.Component<Props, State> {
       pageName,
       pageDescription,
       this.props._id,
-      pageId ? e.getHtml() : '',
-      pageId ? e.getCss({ keepUnusedStyles: true }) : '',
+      pageId ? e.getHtml() : "",
+      pageId ? e.getCss({ keepUnusedStyles: true }) : "",
       pageId,
-      this.props.handleItemSettings(null, '')
+      this.props.handleItemSettings(null, "")
     );
   };
 
@@ -267,7 +267,7 @@ class SiteDetail extends React.Component<Props, State> {
     const { settingsObject, type } = this.props;
 
     switch (type) {
-      case 'page':
+      case "page":
         return (
           <PageForm
             page={settingsObject}
@@ -276,7 +276,7 @@ class SiteDetail extends React.Component<Props, State> {
             onCancel={this.props.handleItemSettings}
           />
         );
-      case 'contenttype':
+      case "contenttype":
         return (
           <ContentTypeForm
             contentType={settingsObject}
@@ -284,7 +284,7 @@ class SiteDetail extends React.Component<Props, State> {
             onCancel={this.props.handleItemSettings}
           />
         );
-      case 'entries':
+      case "entries":
         return (
           <EntryList
             contentType={settingsObject}
@@ -315,7 +315,7 @@ class SiteDetail extends React.Component<Props, State> {
           <CustomButtonWrapper>
             <Button
               btnStyle="success"
-              icon={'check-circle'}
+              icon={"check-circle"}
               size="small"
               uppercase={true}
               onClick={() => this.pageSave(name, description, pageId)}
@@ -324,7 +324,7 @@ class SiteDetail extends React.Component<Props, State> {
             </Button>
           </CustomButtonWrapper>
           {loading && (
-            <Loader showDarkMode={showDarkMode}>
+            <Loader $showDarkMode={showDarkMode}>
               <Spinner objective={true} />
             </Loader>
           )}

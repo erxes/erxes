@@ -1,9 +1,10 @@
-import debounce from 'lodash/debounce';
-import Icon from '@erxes/ui/src/components/Icon';
-import * as React from 'react';
-import RTG from 'react-transition-group';
-import styled from 'styled-components';
-import { Item } from '@erxes/ui-notifications/src/components/styles';
+import React, { useEffect, useState } from "react";
+
+import { CSSTransition } from "react-transition-group";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Item } from "@erxes/ui-notifications/src/components/styles";
+import debounce from "lodash/debounce";
+import styled from "styled-components";
 
 const Close = styled.div`
   position: absolute;
@@ -25,51 +26,37 @@ type Props = {
   delay?: number;
 };
 
-type State = {
-  show: boolean;
+const NotiferItem = (props: Props) => {
+  const { children, closable, background, delay = 1000 } = props;
+
+  const [show, setShow] = useState<boolean>(false);
+
+  useEffect(() => {
+    debounce(() => setShow(true), delay)();
+  }, []);
+
+  const handleClose = () => {
+    setShow(false);
+  };
+
+  return (
+    <CSSTransition
+      in={show}
+      appear={true}
+      timeout={500}
+      classNames="slide-in-small"
+      unmountOnExit={true}
+    >
+      <Item background={background}>
+        {closable && (
+          <Close onClick={handleClose}>
+            <Icon icon="times" />
+          </Close>
+        )}
+        {children}
+      </Item>
+    </CSSTransition>
+  );
 };
 
-class NotifierItem extends React.Component<Props, State> {
-  static defaultProps = {
-    delay: 1000
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.state = { show: false };
-  }
-
-  componentDidMount = () => {
-    debounce(() => this.setState({ show: true }), this.props.delay)();
-  };
-
-  close = () => {
-    this.setState({ show: false });
-  };
-
-  render() {
-    const { children, closable = true, background } = this.props;
-
-    return (
-      <RTG.CSSTransition
-        in={this.state.show}
-        appear={true}
-        timeout={500}
-        classNames="slide-in-small"
-        unmountOnExit={true}
-      >
-        <Item background={background}>
-          {closable && (
-            <Close onClick={this.close}>
-              <Icon icon="times" />
-            </Close>
-          )}
-          {children}
-        </Item>
-      </RTG.CSSTransition>
-    );
-  }
-}
-
-export default NotifierItem;
+export default NotiferItem;

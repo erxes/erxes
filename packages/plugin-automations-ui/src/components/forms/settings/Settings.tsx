@@ -1,20 +1,21 @@
-import React from 'react';
 import {
+  DateControlWrapper,
   LeftSidebar,
   SettingsContent,
   SettingsLayout,
   SpecificTimeContainer,
-  DateControlWrapper
-} from '../../../styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils/core';
-import OnlineHours from '../../OnlineHours';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import dayjs from 'dayjs';
-import UnEnrollment from '../../../containers/forms/settings/UnEnrollment';
+} from "../../../styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Icon from "@erxes/ui/src/components/Icon";
+import OnlineHours from "../../OnlineHours";
+import React from "react";
+import UnEnrollment from "../../../containers/forms/settings/UnEnrollment";
+import { __ } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
 
 type Props = {
   hours: any[];
@@ -35,13 +36,13 @@ class Settings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: 'general',
-      time: 'any',
-      hours: (props.hours || []).map(hour => ({ ...hour })),
+      currentTab: "general",
+      time: "any",
+      hours: (props.hours || []).map((hour) => ({ ...hour })),
       selectedOption: {},
-      date: dayjs(new Date()).format('YYYY-MM-DD'),
+      date: dayjs(new Date()).format("YYYY-MM-DD"),
       dates: [],
-      isAnnulay: false
+      isAnnulay: false,
     };
   }
 
@@ -49,19 +50,19 @@ class Settings extends React.Component<Props, State> {
     this.setState({ currentTab });
   };
 
-  onChangeTimeType = e => {
+  onChangeTimeType = (e) => {
     this.setState({ time: e.target.value });
   };
 
-  onChangeAnnually = e => {
+  onChangeAnnually = (e) => {
     this.setState({ isAnnulay: e.target.checked });
   };
 
-  onChangeHours = hours => {
+  onChangeHours = (hours) => {
     this.setState({ hours });
   };
 
-  onDateChange = date => {
+  onDateChange = (date) => {
     this.setState({ date });
   };
 
@@ -70,16 +71,16 @@ class Settings extends React.Component<Props, State> {
 
     dates.push({
       _id: Math.random().toString(),
-      name: ''
+      name: "",
     });
 
     this.setState({ dates });
   };
 
-  onRemove = dateId => {
+  onRemove = (dateId) => {
     let dates = this.state.dates;
 
-    dates = dates.filter(date => date._id !== dateId);
+    dates = dates.filter((date) => date._id !== dateId);
 
     this.setState({ dates });
   };
@@ -87,7 +88,7 @@ class Settings extends React.Component<Props, State> {
   renderSpecificTime() {
     const { time } = this.state;
 
-    if (time !== 'specific') {
+    if (time !== "specific") {
       return null;
     }
 
@@ -112,17 +113,17 @@ class Settings extends React.Component<Props, State> {
           value={this.state.date}
           required={false}
           name="date"
-          onChange={date => this.onDateChange(date)}
-          placeholder={'Start date'}
-          dateFormat={'YYYY-MM-DD'}
+          onChange={(date) => this.onDateChange(date)}
+          placeholder={"Start date"}
+          dateFormat={"YYYY-MM-DD"}
         />
 
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           value={this.state.isAnnulay}
           onChange={this.onChangeAnnually}
         >
-          {__('Annually')}
+          {__("Annually")}
         </FormControl>
 
         <Button size="small" btnStyle="danger" onClick={remove}>
@@ -135,29 +136,29 @@ class Settings extends React.Component<Props, State> {
   renderContent() {
     const { currentTab } = this.state;
 
-    if (currentTab === 'general') {
+    if (currentTab === "general") {
       return (
         <div>
           <h3>{currentTab}</h3>
           <div>
-            <p>{'What times do you want the actions to execute'}?</p>
+            <p>{"What times do you want the actions to execute"}?</p>
             <FormGroup>
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 value="any"
                 onChange={this.onChangeTimeType}
                 inline={true}
               >
-                {__('Any time')}
+                {__("Any time")}
               </FormControl>
 
               <FormControl
-                componentClass="checkbox"
+                componentclass="checkbox"
                 value="specific"
                 onChange={this.onChangeTimeType}
                 inline={true}
               >
-                {__('Specific times')}
+                {__("Specific times")}
               </FormControl>
             </FormGroup>
             {this.renderSpecificTime()}
@@ -166,7 +167,7 @@ class Settings extends React.Component<Props, State> {
           <div>
             <p>
               {
-                'What upcoming dates do you want to pause actions from executing?'
+                "What upcoming dates do you want to pause actions from executing?"
               }
               ?
             </p>
@@ -200,14 +201,14 @@ class Settings extends React.Component<Props, State> {
       <SettingsLayout>
         <LeftSidebar>
           <li
-            className={currentTab === 'general' ? 'active' : ''}
-            onClick={this.onClickTab.bind(this, 'general')}
+            className={currentTab === "general" ? "active" : ""}
+            onClick={this.onClickTab.bind(this, "general")}
           >
             General
           </li>
           <li
-            className={currentTab === 'suppression' ? 'active' : ''}
-            onClick={this.onClickTab.bind(this, 'suppression')}
+            className={currentTab === "suppression" ? "active" : ""}
+            onClick={this.onClickTab.bind(this, "suppression")}
           >
             Unenrollment and Suppression
           </li>

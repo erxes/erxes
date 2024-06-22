@@ -37,7 +37,6 @@ import { colors } from '@erxes/ui/src/styles';
 type Props = {
   integration?: IBookingIntegration;
   queryParams?: any;
-  history: any;
   configs: IConfig[];
   save: (params: {
     name: string;

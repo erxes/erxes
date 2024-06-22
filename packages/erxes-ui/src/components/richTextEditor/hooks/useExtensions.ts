@@ -49,7 +49,6 @@ import { generateJSON, generateHTML as generateHTMLTiptap } from '@tiptap/html';
 export type UseExtensionsOptions = {
   /** Placeholder hint to show in the text input area before a user types a message. */
   placeholder?: string;
-  showMentions?: boolean;
   mentionSuggestion?: MentionSuggestionParams;
   /** Character count limit. */
   limit?: number;
@@ -60,7 +59,6 @@ export type UseExtensionsOptions = {
  */
 export default function useExtensions({
   placeholder,
-  showMentions,
   mentionSuggestion,
   limit,
 }: UseExtensionsOptions = {}): EditorOptions['extensions'] {
@@ -82,6 +80,10 @@ export default function useExtensions({
           return {
             style: {
               parseHTML: (element) => element.getAttribute('style'),
+            },
+            level: {
+              default: 1,
+              rendered: false,
             },
           };
         },
@@ -130,16 +132,13 @@ export default function useExtensions({
       HorizontalRule,
       Dropcursor,
       History,
-      ...(showMentions && mentionSuggestion
-        ? [
-          Mention.configure({
-            HTMLAttributes: {
-              class: 'mention',
-            },
-            suggestion: getMentionSuggestions(mentionSuggestion),
-          }),
-        ]
-        : []),
+      Mention.configure({
+        HTMLAttributes: {
+          class: 'mention',
+        },
+        suggestion:
+          mentionSuggestion && getMentionSuggestions(mentionSuggestion),
+      }),
       CharacterCount.configure({
         limit,
       }),
@@ -148,7 +147,7 @@ export default function useExtensions({
       }),
       GlobalAttributes,
     ],
-    [showMentions]
+    [],
   );
 }
 export function useGenerateJSON(html: string) {
@@ -221,9 +220,7 @@ export function useGenerateJSON(html: string) {
       HTMLAttributes: {
         class: 'mention',
       },
-
-    })
-    ,
+    }),
     CharacterCount,
     Placeholder,
     GlobalAttributes,
@@ -300,11 +297,9 @@ export function generateHTML(json: JSONContent) {
       HTMLAttributes: {
         class: 'mention',
       },
-
-    })
-    ,
+    }),
     CharacterCount,
     Placeholder,
     GlobalAttributes,
-  ])
+  ]);
 }

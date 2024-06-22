@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { ButtonMutate } from '@erxes/ui/src/components';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -21,22 +21,11 @@ type Props = {
   removePayment: (payment: IPaymentDocument) => void;
 };
 
-type State = {
-  externalData: any;
-};
+const IntegrationListItem: React.FC<Props> = (props) => {
+  const [externalData, setExternalData] = useState(null);
+  const { payment, removePayment } = props;
 
-class IntegrationListItem extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      externalData: null
-    };
-  }
-
-  renderRemoveAction() {
-    const { payment, removePayment } = this.props;
-
+  const renderRemoveAction = () => {
     if (!removePayment) {
       return null;
     }
@@ -48,17 +37,16 @@ class IntegrationListItem extends React.Component<Props, State> {
         <Button btnStyle="link" onClick={onClick} icon="times-circle" />
       </Tip>
     );
-  }
+  };
 
-  renderEditAction() {
-    const { payment } = this.props;
+  const renderEditAction = () => {
     const { kind } = payment;
 
     const renderButton = ({
       passedName: name,
       values,
       isSubmitted,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -68,7 +56,7 @@ class IntegrationListItem extends React.Component<Props, State> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={__(`You successfully edited a`) + `${name}`}
+          successMessage={__(`You successfully edited a `) + `${name}`}
         />
       );
     };
@@ -81,7 +69,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       </Button>
     );
 
-    const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
+    const meta = PAYMENTCONFIGS.find((p) => p.kind === kind);
 
     if (!meta || !meta.isAvailable) {
       return null;
@@ -89,7 +77,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
     const Component = meta.createModal;
 
-    const formContent = props => (
+    const formContent = (props) => (
       <Component {...props} payment={payment} renderButton={renderButton} />
     );
 
@@ -102,29 +90,26 @@ class IntegrationListItem extends React.Component<Props, State> {
         />
       </ActionButtons>
     );
-  }
+  };
 
-  render() {
-    const { payment } = this.props;
-    const labelStyle = 'success';
-    const status = payment.status;
+  const labelStyle = 'success';
+  const status = payment.status;
 
-    return (
-      <tr key={payment._id}>
-        <td>{payment.name}</td>
-        <td>
-          <Label lblStyle={labelStyle}>{status}</Label>
-        </td>
+  return (
+    <tr key={payment._id}>
+      <td>{payment.name}</td>
+      <td>
+        <Label lblStyle={labelStyle}>{status}</Label>
+      </td>
 
-        <td>
-          <ActionButtons>
-            {this.renderEditAction()}
-            {this.renderRemoveAction()}
-          </ActionButtons>
-        </td>
-      </tr>
-    );
-  }
-}
+      <td>
+        <ActionButtons>
+          {renderEditAction()}
+          {renderRemoveAction()}
+        </ActionButtons>
+      </td>
+    </tr>
+  );
+};
 
 export default IntegrationListItem;

@@ -1,95 +1,82 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { __ } from 'coreui/utils';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import React, { useEffect, useState } from 'react';
 import CloseForm from '../../components/detail/CloseForm';
 import { mutations, queries } from '../../graphql';
-import {
-  CloseInfoQueryResponse,
-  CloseMutationResponse,
-  CloseMutationVariables,
-  IContract
-} from '../../types';
+import { CloseInfoQueryResponse, IContract } from '../../types';
+import { useQuery } from '@apollo/client';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   contract: IContract;
   closeModal: () => void;
 };
 
-type FinalProps = {
-  closeInfoQuery: CloseInfoQueryResponse;
-} & Props;
+const CloseFromContainer = (props: Props) => {
+  const { contract, closeModal } = props;
+  const [closeDate, setCloseDate] = useState(new Date());
+  const [date, setDate] = useState(new Date());
 
-type State = {
-  loading: boolean;
-  closeDate: Date;
+  const closeInfoQuery = useQuery<CloseInfoQueryResponse>(
+    gql(queries.closeInfo),
+    {
+      variables: {
+        contractId: contract._id,
+        date,
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  useEffect(() => {
+    closeInfoQuery.refetch({
+      closeDate,
+    });
+  }, [closeDate]);
+
+  const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
+    const afterSave = () => {
+      closeModal();
+    };
+
+    return (
+      <ButtonMutate
+        mutation={mutations.contractsClose}
+        variables={values}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={__(`You successfully closed this contract`)}
+      >
+        {__('Save')}
+      </ButtonMutate>
+    );
+  };
+
+  const onChangeDate = (date: Date) => {
+    setCloseDate(date);
+  };
+
+  if (closeInfoQuery.loading) {
+    return <Spinner />;
+  }
+
+  const closeInfo = closeInfoQuery?.data?.closeInfo || {};
+
+  const updatedProps = {
+    ...props,
+    contract,
+    renderButton,
+    closeInfo,
+    onChangeDate,
+    closeDate: closeDate,
+  };
+
+  return <CloseForm {...updatedProps} />;
 };
-
-class CloseFromContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      loading: false,
-      closeDate: new Date()
-    };
-  }
-
-  render() {
-    const { closeInfoQuery, contract } = this.props;
-
-    const renderButton = ({ values, isSubmitted }: IButtonMutateProps) => {
-      const { closeModal } = this.props;
-
-      const afterSave = () => {
-        closeModal();
-      };
-
-      return (
-        <ButtonMutate
-          mutation={mutations.contractsClose}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={__(`You successfully closed this contract`)}
-        >
-          {__('Save')}
-        </ButtonMutate>
-      );
-    };
-
-    const onChangeDate = (date: Date) => {
-      this.setState({ closeDate: date }, () =>
-        closeInfoQuery.refetch({
-          date
-        })
-      );
-    };
-
-    if (closeInfoQuery.loading) {
-      return null;
-    }
-
-    const closeInfo = closeInfoQuery.closeInfo || {};
-
-    const updatedProps = {
-      ...this.props,
-      contract,
-      renderButton,
-      closeInfo,
-      onChangeDate,
-      closeDate: this.state.closeDate
-    };
-
-    return <CloseForm {...updatedProps} />;
-  }
-}
 
 const getRefetchQueries = () => {
   return [
@@ -98,30 +85,8 @@ const getRefetchQueries = () => {
     'contracts',
     'contractCounts',
     'activityLogs',
-    'schedules'
+    'schedules',
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, CloseInfoQueryResponse, { contractId: string; date: Date }>(
-      gql(queries.closeInfo),
-      {
-        name: 'closeInfoQuery',
-        options: ({ contract }) => ({
-          variables: {
-            contractId: contract._id,
-            date: new Date()
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<{}, CloseMutationResponse, CloseMutationVariables>(
-      gql(mutations.contractsClose),
-      {
-        name: 'contractsClose'
-      }
-    )
-  )(CloseFromContainer)
-);
+export default CloseFromContainer;

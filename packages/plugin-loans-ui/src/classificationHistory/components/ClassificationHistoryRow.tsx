@@ -1,19 +1,14 @@
-import { formatValue } from '@erxes/ui/src/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import _ from 'lodash';
-import React from 'react';
+import { formatValue } from "@erxes/ui/src/utils";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import _ from "lodash";
+import React from "react";
 
-import { IPeriodLock } from '../types';
+import { IPeriodLock } from "../types";
 
 type Props = {
   periodLock: IPeriodLock;
-  history: any;
   isChecked: boolean;
   toggleBulk: (periodLock: IPeriodLock, isChecked?: boolean) => void;
-};
-
-type State = {
-  showModal: boolean;
 };
 
 function displayValue(periodLock, name, toFormatNumber?: boolean) {
@@ -25,13 +20,13 @@ function displayValue(periodLock, name, toFormatNumber?: boolean) {
 }
 
 function PeriodLockRow({ periodLock, isChecked, toggleBulk }: Props) {
-  const onChange = e => {
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(periodLock, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
@@ -40,15 +35,15 @@ function PeriodLockRow({ periodLock, isChecked, toggleBulk }: Props) {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
 
-      <td key={'code'}>{displayValue(periodLock, 'invDate')}</td>
-      <td key={'total'}>{displayValue(periodLock, 'total', true)}</td>
-      <td key={'total'}>{displayValue(periodLock, 'classification')}</td>
-      <td key={'total'}>{displayValue(periodLock, 'newClassification')}</td>
+      <td key={"code"}>{displayValue(periodLock, "invDate")}</td>
+      <td key={"total"}>{displayValue(periodLock, "total", true)}</td>
+      <td key={"total"}>{displayValue(periodLock, "classification")}</td>
+      <td key={"total"}>{displayValue(periodLock, "newClassification")}</td>
 
       <td onClick={onClick}>{}</td>
     </tr>

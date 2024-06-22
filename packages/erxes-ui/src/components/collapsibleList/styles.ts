@@ -59,7 +59,7 @@ const CollapsibleListWrapper = styled.div`
 `;
 
 const SidebarListItem = styledTS<{
-  isActive: boolean;
+  $isActive: boolean;
   backgroundColor?: string;
 }>(styled.li)`
   position: relative;

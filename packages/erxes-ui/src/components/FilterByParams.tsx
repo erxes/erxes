@@ -1,15 +1,15 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { getParam, removeParams, setParams } from '../utils/router';
-import { FieldStyle, SidebarCounter, SidebarList } from '../layout/styles';
-import { IRouterProps } from '../types';
-import DataWithLoader from './DataWithLoader';
-import EmptyState from './EmptyState';
-import Filter from './filterableList/Filter';
-import Icon from './Icon';
-import { PopoverContent, ChildList, ToggleIcon } from './filterableList/styles';
+import { ChildList, PopoverContent, ToggleIcon } from "./filterableList/styles";
+import { FieldStyle, SidebarCounter, SidebarList } from "../layout/styles";
+import React, { useState } from "react";
+import { getParam, removeParams, setParams } from "../utils/router";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-interface IProps extends IRouterProps {
+import DataWithLoader from "./DataWithLoader";
+import EmptyState from "./EmptyState";
+import Filter from "./filterableList/Filter";
+import Icon from "./Icon";
+
+interface IProps {
   fields: any[];
   counts: any;
   paramKey: string;
@@ -21,109 +21,87 @@ interface IProps extends IRouterProps {
   treeView?: boolean;
 }
 
-type State = {
-  key: string;
-  parentFieldIds: { [key: string]: boolean };
-};
+const FilterByParams: React.FC<IProps> = ({
+  fields,
+  counts,
+  paramKey,
+  icon,
+  loading,
+  searchable,
+  update,
+  multiple,
+  treeView,
+}) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [key, setKey] = useState<string>("");
+  const [parentFieldIds, setParentFieldIds] = useState<{
+    [key: string]: boolean;
+  }>({});
 
-class FilterByParams extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      key: '',
-      parentFieldIds: {}
-    };
-  }
-
-  filterItems = e => {
-    this.setState({ key: e.target.value });
-
-    const { update } = this.props;
+  const filterItems = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKey(e.target.value);
 
     if (update) {
       update();
     }
   };
 
-  onClick = (id: string) => {
-    const { history, paramKey, multiple } = this.props;
-
+  const onClick = (id: string) => {
     if (!multiple) {
-      setParams(history, { [paramKey]: id });
+      setParams(navigate, location, { [paramKey]: id });
     } else {
       // multi select
-      const value = getParam(history, [paramKey]);
-      const params = value ? value.split(',') : [];
+      const value = getParam(location, [paramKey]);
+      const params = value ? value.split(",") : [];
 
       if (params.includes(id)) {
         const index = params.indexOf(id);
-
         params.splice(index, 1);
       } else {
         params.push(id);
       }
 
-      setParams(history, { [paramKey]: params.toString() });
+      setParams(navigate, location, { [paramKey]: params.toString() });
     }
 
-    removeParams(history, 'page');
+    searchParams.delete("page");
   };
 
-  groupByParent = (array: any[]) => {
-    const key = 'parentId';
-
+  const groupByParent = (array: any[]) => {
+    const key = "parentId";
     return array.reduce((rv, x) => {
       (rv[x[key]] = rv[x[key]] || []).push(x);
-
       return rv;
     }, {});
   };
 
-  onToggle = (id: string, isOpen: boolean) => {
-    const parentFieldIds = this.state.parentFieldIds;
-    parentFieldIds[id] = !isOpen;
-
-    this.setState({ parentFieldIds });
+  const onToggle = (id: string, isOpen: boolean) => {
+    setParentFieldIds({ ...parentFieldIds, [id]: !isOpen });
   };
 
-  getCount(field: any, isOpen?: boolean) {
-    const counts = this.props.counts;
+  const getCount = (field: any, isOpen?: boolean) => {
     let count = counts[field._id];
-
-    if (!this.props.treeView || isOpen) {
+    if (!treeView || isOpen) {
       return count;
     }
 
     if (field.relatedIds) {
       const relatedIds = field.relatedIds || [];
-
       for (const id of relatedIds) {
         count += counts[id];
       }
     }
-
     return count;
-  }
+  };
 
-  renderItems() {
-    const {
-      history,
-      fields,
-      paramKey,
-      icon,
-      searchable,
-      multiple,
-      treeView
-    } = this.props;
-    const { key } = this.state;
-
+  const renderItems = () => {
     if (fields.length === 0) {
       return <EmptyState icon={icon} text="No templates" size="full" />;
     }
 
     const renderFieldItem = (field: any, isOpen?: boolean) => {
-      // filter items by key
       if (key && field.name.toLowerCase().indexOf(key) < 0) {
         return false;
       }
@@ -132,14 +110,14 @@ class FilterByParams extends React.Component<IProps, State> {
         return null;
       }
 
-      let className = '';
+      let className = "";
       const _id = field._id;
-      const value = getParam(history, [paramKey]);
+      const value = getParam(location, [paramKey]);
 
       if (value === _id) {
-        className = 'active';
+        className = "active";
       } else if (multiple && value && value.includes(_id)) {
-        className = 'active';
+        className = "active";
       }
 
       return (
@@ -148,13 +126,13 @@ class FilterByParams extends React.Component<IProps, State> {
             href="#param"
             tabIndex={0}
             className={className}
-            onClick={this.onClick.bind(this, _id)}
+            onClick={() => onClick(_id)}
           >
             {icon ? (
               <Icon icon={icon} style={{ color: field.colorCode }} />
-            ) : null}{' '}
+            ) : null}{" "}
             <FieldStyle>{field.name}</FieldStyle>
-            <SidebarCounter>{this.getCount(field, isOpen)}</SidebarCounter>
+            <SidebarCounter>{getCount(field, isOpen)}</SidebarCounter>
           </a>
         </li>
       );
@@ -162,37 +140,33 @@ class FilterByParams extends React.Component<IProps, State> {
 
     const renderContent = () => {
       if (!treeView) {
-        return fields.map(field => {
-          return renderFieldItem(field);
-        });
+        return fields.map((field) => renderFieldItem(field));
       }
 
-      const subFields = fields.filter(f => f.parentId);
-      const parents = fields.filter(f => !f.parentId);
+      const subFields = fields.filter((f) => f.parentId);
+      const parents = fields.filter((f) => !f.parentId);
 
-      const groupByParent = this.groupByParent(subFields);
+      const groupByParentObj = groupByParent(subFields);
 
-      const renderTree = field => {
-        const childrens = groupByParent[field._id];
+      const renderTree = (field: any) => {
+        const childrens = groupByParentObj[field._id];
 
         if (childrens) {
-          const isOpen = this.state.parentFieldIds[field._id];
+          const isOpen = parentFieldIds[field._id];
 
           return (
             <SidebarList key={`parent-${field._id}`}>
               <ChildList>
                 <ToggleIcon
-                  onClick={this.onToggle.bind(this, field._id, isOpen)}
+                  onClick={() => onToggle(field._id, isOpen)}
                   type="params"
                 >
-                  <Icon icon={isOpen ? 'angle-down' : 'angle-right'} />
+                  <Icon icon={isOpen ? "angle-down" : "angle-right"} />
                 </ToggleIcon>
 
                 {renderFieldItem(field, isOpen)}
                 {isOpen &&
-                  childrens.map(childField => {
-                    return renderTree(childField);
-                  })}
+                  childrens.map((childField) => renderTree(childField))}
               </ChildList>
             </SidebarList>
           );
@@ -201,35 +175,29 @@ class FilterByParams extends React.Component<IProps, State> {
         return renderFieldItem(field);
       };
 
-      return parents.map(field => {
-        return renderTree(field);
-      });
+      return parents.map((field) => renderTree(field));
     };
 
     return (
       <PopoverContent>
-        {searchable && <Filter onChange={this.filterItems} />}
+        {searchable && <Filter onChange={filterItems} />}
 
         <SidebarList>{renderContent()}</SidebarList>
       </PopoverContent>
     );
-  }
+  };
 
-  render() {
-    const { fields, loading } = this.props;
+  return (
+    <DataWithLoader
+      loading={loading}
+      count={fields.length}
+      data={renderItems()}
+      emptyText="Empty"
+      emptyIcon="folder-2"
+      size="small"
+      objective={true}
+    />
+  );
+};
 
-    return (
-      <DataWithLoader
-        loading={loading}
-        count={fields.length}
-        data={this.renderItems()}
-        emptyText="Empty"
-        emptyIcon="folder-2"
-        size="small"
-        objective={true}
-      />
-    );
-  }
-}
-
-export default withRouter<IProps>(FilterByParams);
+export default FilterByParams;

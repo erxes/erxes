@@ -2,7 +2,7 @@ import {
   FieldStyle,
   SectionContainer,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { __, renderFullName } from '@erxes/ui/src/utils/core';
 
@@ -19,30 +19,31 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import VerificationForm from '../../containers/details/VerificationForm';
 import CompanyAssignForm from '../../containers/details/CompanyAssignForm';
 import { Button } from '@erxes/ui/src/components';
+import { useNavigate } from 'react-router-dom';
+
 type Props = {
   clientPortalUser: IClientPortalUser;
-  history: any;
 
-  queryParams: any;
+  queryParams?: any;
 };
 
-class LeftSidebar extends React.Component<Props> {
-  renderCustomer() {
-    return renderFullName(this.props.clientPortalUser.customer);
-  }
+const LeftSidebar: React.FC<Props> = (props: Props) => {
+  const { clientPortalUser, queryParams } = props;
+  const navigate = useNavigate()
+  const renderCustomer = () => {
+    return renderFullName(clientPortalUser.customer);
+  };
 
-  renderCompany() {
-    return renderFullName(this.props.clientPortalUser.company);
-  }
+  const renderCompany = () => {
+    return renderFullName(clientPortalUser.company);
+  };
 
-  renderCompanyAssignSection() {
-    const { clientPortalUser } = this.props;
-
+  const renderCompanyAssignSection = () => {
     const content = ({ closeModal }) => {
       return (
         <CompanyAssignForm
           closeModal={closeModal}
-          {...this.props}
+          {...props}
           clientPortalUser={clientPortalUser}
         />
       );
@@ -77,12 +78,11 @@ class LeftSidebar extends React.Component<Props> {
         </SidebarList>
       </Box>
     );
-  }
+  };
 
-  renderVerificationSection() {
-    const { clientPortalUser } = this.props;
+  const renderVerificationSection = () => {
     const verificationRequest = clientPortalUser.verificationRequest || {
-      status: 'notVerified'
+      status: 'notVerified',
     };
 
     let verificationStatus = 'notVerified';
@@ -102,7 +102,7 @@ class LeftSidebar extends React.Component<Props> {
         break;
     }
 
-    const content = props => {
+    const content = (props) => {
       return (
         <VerificationForm {...props} clientPortalUser={clientPortalUser} />
       );
@@ -137,49 +137,45 @@ class LeftSidebar extends React.Component<Props> {
         </SidebarList>
       </Box>
     );
-  }
+  };
 
-  render() {
-    const { clientPortalUser, history } = this.props;
+  const onClick = () => {
+    if (clientPortalUser.type === 'customer') {
+      navigate(`/contacts/details/${clientPortalUser.erxesCustomerId}`);
+    }
+    if (clientPortalUser.type === 'company') {
+      navigate(`/companies/details/${clientPortalUser.erxesCompanyId}`);
+    }
+  };
 
-    const onClick = () => {
-      if (clientPortalUser.type === 'customer') {
-        history.push(`/contacts/details/${clientPortalUser.erxesCustomerId}`);
-      }
-      if (clientPortalUser.type === 'company') {
-        history.push(`/companies/details/${clientPortalUser.erxesCompanyId}`);
-      }
-    };
-
-    return (
-      <Sidebar wide={true}>
-        <SectionContainer>
-          <DetailInfo clientPortalUser={clientPortalUser} />
-        </SectionContainer>
-        {this.renderVerificationSection()}
-        {clientPortalUser.customer && this.renderCompanyAssignSection()}
-        {!clientPortalUser.customer && !clientPortalUser.company ? null : (
-          <Box
-            title={
-              clientPortalUser.type === 'customer'
-                ? 'Customer Detail'
-                : 'Company Detail'
-            }
-            name="showDetail"
-          >
-            <List>
-              <LinkButton onClick={onClick}>
-                {clientPortalUser.erxesCustomerId
-                  ? this.renderCustomer()
-                  : this.renderCompany()}
-              </LinkButton>
-            </List>
-          </Box>
-        )}
-        <CustomFieldsSection id={clientPortalUser._id} isDetail={true} />
-      </Sidebar>
-    );
-  }
-}
+  return (
+    <Sidebar wide={true} hasBorder={true}>
+      <SectionContainer>
+        <DetailInfo clientPortalUser={clientPortalUser} />
+      </SectionContainer>
+      {renderVerificationSection()}
+      {clientPortalUser.customer && renderCompanyAssignSection()}
+      {!clientPortalUser.customer && !clientPortalUser.company ? null : (
+        <Box
+          title={
+            clientPortalUser.type === 'customer'
+              ? 'Customer Detail'
+              : 'Company Detail'
+          }
+          name="showDetail"
+        >
+          <List>
+            <LinkButton onClick={onClick}>
+              {clientPortalUser.erxesCustomerId
+                ? renderCustomer()
+                : renderCompany()}
+            </LinkButton>
+          </List>
+        </Box>
+      )}
+      <CustomFieldsSection id={clientPortalUser._id} isDetail={true} />
+    </Sidebar>
+  );
+};
 
 export default LeftSidebar;

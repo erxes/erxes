@@ -1,12 +1,12 @@
-import DropdownToggle from 'modules/common/components/DropdownToggle';
-import Icon from 'modules/common/components/Icon';
-import { dimensions } from 'modules/common/styles';
-import colors from 'modules/common/styles/colors';
-import { IOption } from '@erxes/ui/src/types';
-import * as React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import styled from 'styled-components';
-import { __ } from 'modules/common/utils';
+import DropdownToggle from "modules/common/components/DropdownToggle";
+import Icon from "modules/common/components/Icon";
+import { dimensions } from "modules/common/styles";
+import colors from "modules/common/styles/colors";
+import { IOption } from "@erxes/ui/src/types";
+import * as React from "react";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import styled from "styled-components";
+import { __ } from "modules/common/utils";
 
 const Wrapper = styled.div`
   padding-right: ${dimensions.coreSpacing}px;
@@ -99,7 +99,7 @@ class BrandChooser extends React.Component<IProps> {
 
     return (
       <Trigger>
-        <Icon icon="postcard" /> {__('Brands')}
+        <Icon icon="postcard" /> {__("Brands")}
         <span>{this.props.selectedItems.length}</span>
       </Trigger>
     );
@@ -112,23 +112,18 @@ class BrandChooser extends React.Component<IProps> {
 
     return (
       <Wrapper>
-        <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-brand">
-            {this.renderTrigger()}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <h3 className="popover-header">{__('Choose a brand')}</h3>
-            <div className="dropdown-list">
-              {items.map((item: IOption) => (
-                <li key={item.value}>
-                  <ActionItem onClick={onChangeItem.bind(this, item.value)}>
-                    {item.label}
-                    {this.isChecked(item) && <Icon icon="check-1" />}
-                  </ActionItem>
-                </li>
-              ))}
-            </div>
-          </Dropdown.Menu>
+        <Dropdown toggleComponent={this.renderTrigger()} as={DropdownToggle}>
+          <h3 className="popover-header">{__("Choose a brand")}</h3>
+          <div className="dropdown-list">
+            {items.map((item: IOption) => (
+              <li key={item.value}>
+                <ActionItem onClick={onChangeItem.bind(this, item.value)}>
+                  {item.label}
+                  {this.isChecked(item) && <Icon icon="check-1" />}
+                </ActionItem>
+              </li>
+            ))}
+          </div>
         </Dropdown>
       </Wrapper>
     );

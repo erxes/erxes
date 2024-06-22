@@ -1,14 +1,14 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { IField, ISegmentCondition } from '../../types';
+import { IField, ISegmentCondition } from "../../types";
 
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import PropertyDetail from '../../components/preview/PropertyDetail';
-import React from 'react';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import { FieldsCombinedByTypeQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import PropertyDetail from "../../components/preview/PropertyDetail";
+import React from "react";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   condition: ISegmentCondition;
@@ -32,7 +32,7 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
 
     const fields = fieldsQuery.fieldsCombinedByContentType as any;
 
-    let chosenProperty = fields.find(field => {
+    let chosenProperty = (fields || []).find((field) => {
       return field.name === condition.propertyName;
     });
 
@@ -44,12 +44,12 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
     chosenProperty = {
       value: chosenProperty.name || chosenProperty._id,
       label: chosenProperty.label || chosenProperty.title,
-      type: (chosenProperty.type || '').toLowerCase(),
-      group: chosenProperty.group || '',
+      type: (chosenProperty.type || "").toLowerCase(),
+      group: chosenProperty.group || "",
       selectOptions: chosenProperty.selectOptions || [],
 
       choiceOptions: chosenProperty.options || [],
-      validation: chosenProperty.validation || ''
+      validation: chosenProperty.validation || "",
     };
 
     return (
@@ -65,14 +65,14 @@ class ConditionDetailContainer extends React.Component<FinalProps, {}> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
-      name: 'fieldsQuery',
+      name: "fieldsQuery",
       options: ({ condition, segmentId, config }) => ({
         variables: {
           contentType: condition.propertyType,
           segmentId,
-          config
-        }
-      })
+          config,
+        },
+      }),
     })
   )(ConditionDetailContainer)
 );

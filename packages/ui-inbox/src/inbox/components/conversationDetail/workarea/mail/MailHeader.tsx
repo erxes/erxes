@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import {
   ActionButton,
   AddressContainer,
@@ -9,63 +7,60 @@ import {
   From,
   Meta,
   RightSide,
-  Title
-} from './style';
-import { IMail, IMessage } from '../../../../types';
+  Title,
+} from "./style";
+import { IMail, IMessage } from "../../../../types";
+import React, { useState } from "react";
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Menu } from "@headlessui/react";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 
-type Props = {
+type MailHeaderProps = {
   message: IMessage;
   isContentCollapsed: boolean;
   onToggleContent: () => void;
-  onToggleMailForm: (event, replyToAll?: boolean, isForward?: boolean) => void;
+  onToggleMailForm: (
+    event: any,
+    replyToAll?: boolean,
+    isForward?: boolean
+  ) => void;
 };
 
-type State = {
-  dateFormat: string;
-  isDetailExpanded: boolean;
-};
+const MailHeader: React.FC<MailHeaderProps> = ({
+  message,
+  isContentCollapsed,
+  onToggleContent,
+  onToggleMailForm,
+}) => {
+  const [dateFormat, setDateFormat] = useState<string>("MMM D, h:mm A");
+  const [isDetailExpanded, setIsDetailExpanded] = useState<boolean>(false);
 
-class MailHeader extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      dateFormat: 'MMM D, h:mm A',
-      isDetailExpanded: false
-    };
-  }
-
-  toggleDateFormat = (e) => {
+  const toggleDateFormat = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    this.setState({
-      dateFormat: this.state.dateFormat === 'lll' ? 'MMM D, h:mm A' : 'lll'
-    });
+    setDateFormat(dateFormat === "lll" ? "MMM D, h:mm A" : "lll");
   };
 
-  toggleExpand = (e) => {
-    if (this.props.isContentCollapsed) {
+  const toggleExpand = (e: React.MouseEvent) => {
+    if (isContentCollapsed) {
       return;
     }
 
     e.stopPropagation();
-    this.setState({ isDetailExpanded: !this.state.isDetailExpanded });
+    setIsDetailExpanded(!isDetailExpanded);
   };
 
-  onToggleMailForm = ({
+  const onToggleMailFormFunction = ({
     event,
     replyToAll = false,
-    isForward = false
+    isForward = false,
   }: {
     event: any;
     replyToAll?: boolean;
@@ -73,76 +68,79 @@ class MailHeader extends React.Component<Props, State> {
   }) => {
     event.stopPropagation();
 
-    this.props.onToggleMailForm(event, replyToAll, isForward);
+    onToggleMailForm(event, replyToAll, isForward);
   };
 
-  renderTopButton = () => {
-    if (this.props.isContentCollapsed) {
+  const renderTopButton = () => {
+    if (isContentCollapsed) {
       return null;
     }
 
-    const onToggleReply = (event) => this.onToggleMailForm({ event });
-    const onToggleReplyAll = (event) =>
-      this.onToggleMailForm({ event, replyToAll: true });
-    const onToggleForward = (event) =>
-      this.onToggleMailForm({ event, isForward: true });
+    const onToggleReply = (event: React.MouseEvent) =>
+      onToggleMailFormFunction({ event });
+    const onToggleReplyAll = (event: React.MouseEvent) =>
+      onToggleMailFormFunction({ event, replyToAll: true });
+    const onToggleForward = (event: React.MouseEvent) =>
+      onToggleMailFormFunction({ event, isForward: true });
+
+    // const MenuButton = React.forwardRef(function (props, ref) {
+    //   return <ActionButton />;
+    // });
 
     return (
       <>
-        <Tip
-          text={__('Reply')}
-          placement='bottom'>
+        <Tip text={__("Reply")} placement="bottom">
           <ActionButton onClick={onToggleReply}>
-            <Icon icon='reply' />
+            <Icon icon="reply" />
           </ActionButton>
         </Tip>
-        <Dropdown alignRight={true}>
-          <Dropdown.Toggle
-            as={DropdownToggle}
-            id='dropdown-engage'>
-            <ActionButton>
-              <Icon icon='ellipsis-v' />
-            </ActionButton>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li>
-              <a onClick={onToggleReply}>Reply</a>
-            </li>
-            <li>
-              <a onClick={onToggleReplyAll}>Reply all</a>
-            </li>
-            <li>
-              <a onClick={onToggleForward}>Forward</a>
-            </li>
-          </Dropdown.Menu>
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
+            <Menu.Button>
+              <ActionButton>
+                <Icon icon="ellipsis-v" />
+              </ActionButton>
+            </Menu.Button>
+          }
+        >
+          <Menu.Item>
+            <a onClick={onToggleReply}>Reply</a>
+          </Menu.Item>
+          <Menu.Item>
+            <a onClick={onToggleReplyAll}>Reply all</a>
+          </Menu.Item>
+          <Menu.Item>
+            <a onClick={onToggleForward}>Forward</a>
+          </Menu.Item>
         </Dropdown>
       </>
     );
   };
 
-  renderRightSide(hasAttachments: boolean, createdAt: Date) {
+  const renderRightSide = (hasAttachments: boolean, createdAt: Date) => {
     return (
       <RightSide>
-        <Date onClick={this.toggleDateFormat}>
-          {dayjs(createdAt).format(this.state.dateFormat)}
+        <Date onClick={toggleDateFormat}>
+          {dayjs(createdAt).format(dateFormat)}
         </Date>
-        {hasAttachments && <Icon icon='paperclip' />}
-        {this.renderTopButton()}
+        {hasAttachments && <Icon icon="paperclip" />}
+        {renderTopButton()}
       </RightSide>
     );
-  }
+  };
 
-  renderAddress(title: string, values: any) {
+  const renderAddress = (title: string, values: any) => {
     if (!values || values.length === 0) {
       return null;
     }
 
     const { length } = values;
 
-    const emails = values.map((val, idx) => (
+    const emails = values.map((val: any, idx: number) => (
       <React.Fragment key={idx}>
         <span>{val.email}</span>
-        {length - 1 !== idx && `,${' '}`}
+        {length - 1 !== idx && `,${" "}`}
       </React.Fragment>
     ));
 
@@ -152,10 +150,10 @@ class MailHeader extends React.Component<Props, State> {
         <Addresses>{emails}</Addresses>
       </Flex>
     );
-  }
+  };
 
-  renderCustomer = (fromEmail: string) => {
-    const { customer = {} as ICustomer } = this.props.message;
+  const renderCustomer = (fromEmail: string) => {
+    const { customer = {} as ICustomer } = message;
 
     if (!customer) {
       return null;
@@ -171,70 +169,59 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <div>
-        <strong>{customer.firstName}</strong>{' '}
+        <strong>{customer.firstName}</strong>{" "}
         <From>
-          {'<'}
+          {"<"}
           {fromEmail}
-          {'>'}
+          {">"}
         </From>
       </div>
     );
   };
 
-  renderSecondaryContent = (mailData) => {
-    const { message, isContentCollapsed } = this.props;
-
+  const renderSecondaryContent = (mailData: IMail) => {
     if (isContentCollapsed) {
       // remove all tags and convert plain text
-      const plainContent = (message.content || '').trim();
+      const plainContent = (message.content || "").trim();
+
       return <div>{plainContent.substring(0, 100)}...</div>;
     }
 
     return (
-      <AddressContainer isExpanded={this.state.isDetailExpanded}>
-        {this.renderAddress('To:', mailData.to)}
-        {this.renderAddress('Cc:', mailData.cc)}
-        {this.renderAddress('Bcc:', mailData.bcc)}
+      <AddressContainer $isExpanded={isDetailExpanded}>
+        {renderAddress("To:", mailData.to)}
+        {renderAddress("Cc:", mailData.cc)}
+        {renderAddress("Bcc:", mailData.bcc)}
       </AddressContainer>
     );
   };
 
-  renderDetails(mailData) {
+  const renderDetails = (mailData: IMail) => {
     const [from] = mailData.from || [{}];
 
-    const modifiedEmail = from.email.replace('noreply@', '');
-    if (from.email)
+    const modifiedEmail = from.email.replace("noreply@", "");
+    if (from.email) {
       return (
-        <Details
-          onClick={this.toggleExpand}
-          clickable={!this.props.isContentCollapsed}>
-          {this.renderCustomer(modifiedEmail || '')}
-          {this.renderSecondaryContent(mailData)}
+        <Details onClick={toggleExpand} $clickable={!isContentCollapsed}>
+          {renderCustomer(modifiedEmail || "")}
+          {renderSecondaryContent(mailData)}
         </Details>
       );
-  }
+    }
+  };
 
-  render() {
-    const { message, isContentCollapsed, onToggleContent } = this.props;
-    const { customer, createdAt, mailData = {} as IMail } = message;
-    const hasAttachments = mailData
-      ? (mailData.attachments || []).length > 0
-      : false;
+  const { createdAt, mailData = {} as IMail } = message;
+  const hasAttachments = mailData
+    ? (mailData.attachments || []).length > 0
+    : false;
 
-    return (
-      <Meta
-        toggle={isContentCollapsed}
-        onClick={onToggleContent}>
-        <NameCard.Avatar
-          customer={customer}
-          size={32}
-          letterCount={1}
-        />
-        {this.renderDetails(mailData)}
-        {this.renderRightSide(hasAttachments, createdAt)}
-      </Meta>
-    );
-  }
-}
+  return (
+    <Meta $toggle={isContentCollapsed} onClick={onToggleContent}>
+      <NameCard.Avatar customer={message.customer} size={32} letterCount={1} />
+      {renderDetails(mailData)}
+      {renderRightSide(hasAttachments, createdAt)}
+    </Meta>
+  );
+};
 
 export default MailHeader;

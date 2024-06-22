@@ -1,25 +1,23 @@
-import React, { useState } from 'react';
-import { capitalize } from 'lodash';
+import { FormContent, FormFooter } from "../../styles";
+import { IDashboard, IReportTemplate } from "../../types";
+import React, { useState } from "react";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { __ } from '@erxes/ui/src/utils/index';
-import { IFormProps } from '@erxes/ui/src/types';
-import { Form as CommonForm } from '@erxes/ui/src/components/form';
-
-import SelectSections from '../../containers/utils/SelectSections';
-import SelectMembersForm from '../utils/SelectMembersForm';
-import ReportTemplate from '../template/Report';
-import { groupServiceTypesByServiceName } from '../../utils';
-import { IDashboard, IReportTemplate } from '../../types';
-import { FormContent, FormFooter } from '../../styles';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import Button from "@erxes/ui/src/components/Button";
+import { Form as CommonForm } from "@erxes/ui/src/components/form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IFormProps } from "@erxes/ui/src/types";
+import ReportTemplate from "../template/Report";
+import SelectMembersForm from "../utils/SelectMembersForm";
+import SelectSections from "../../containers/utils/SelectSections";
+import { __ } from "@erxes/ui/src/utils/index";
+import { capitalize } from "lodash";
+import { groupServiceTypesByServiceName } from "../../utils";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   dashboard?: IDashboard;
   reportTemplates: IReportTemplate[];
@@ -33,32 +31,32 @@ const Form = (props: Props) => {
 
   const servicesGroup = groupServiceTypesByServiceName(reportTemplates);
 
-  const [name, setName] = useState<string>(dashboard?.name || '');
+  const [name, setName] = useState<string>(dashboard?.name || "");
   const [sectionId, setSectionId] = useState<string>(
-    dashboard?.sectionId || '',
+    dashboard?.sectionId || ""
   );
 
   const [userIds, setUserIds] = useState(dashboard?.assignedUserIds || []);
   const [departmentIds, setDepartmentIds] = useState(
-    dashboard?.assignedDepartmentIds || [],
+    dashboard?.assignedDepartmentIds || []
   );
 
   const [visibility, setVisibility] = useState(
-    dashboard?.visibility || 'public',
+    dashboard?.visibility || "public"
   );
 
   const [serviceTypes, setServiceTypes] = useState<string[]>(
-    dashboard?.serviceTypes || [],
+    dashboard?.serviceTypes || []
   );
 
   const [templateCharts, setTemplateCharts] = useState<string[]>([]);
   const [serviceNames, setServiceNames] = useState<string[]>(
-    dashboard?.serviceNames || [],
+    dashboard?.serviceNames || []
   );
 
   const handleSubmit = () => {
     if (!name || serviceNames.length === 0 || !sectionId) {
-      return Alert.warning(__('Please fill the required fields'));
+      return Alert.warning(__("Please fill the required fields"));
     }
 
     handleMutation({
@@ -82,7 +80,7 @@ const Form = (props: Props) => {
   };
 
   const calculateName = () => {
-    return serviceNames.map((type) => capitalize(type)).join(' & ') + ' Charts';
+    return serviceNames.map((type) => capitalize(type)).join(" & ") + " Charts";
   };
 
   const handleTemplateClick = (template) => {
@@ -95,7 +93,7 @@ const Form = (props: Props) => {
       setServiceTypes([...serviceTypes, serviceType]);
     } else {
       const remainingServiceTypes = servicesGroup[serviceName].filter((type) =>
-        serviceTypes.includes(type),
+        serviceTypes.includes(type)
       );
 
       if (
@@ -108,7 +106,7 @@ const Form = (props: Props) => {
       setServiceTypes(serviceTypes.filter((type) => type !== serviceType));
 
       const updatedTemplateCharts = templateCharts.filter(
-        (chart) => !charts.includes(chart),
+        (chart) => !charts.includes(chart)
       );
       setTemplateCharts(updatedTemplateCharts);
     }
@@ -127,13 +125,13 @@ const Form = (props: Props) => {
               name="name"
               value={name}
               required={true}
-              placeholder={__('Dashboard Name')}
+              placeholder={__("Dashboard Name")}
               onChange={(e) => setName((e.target as any).value)}
             />
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel required={true}>{__('Choose Section')}</ControlLabel>
+            <ControlLabel required={true}>{__("Choose Section")}</ControlLabel>
             <SelectSections
               sectionId={sectionId}
               setSectionId={setSectionId}
@@ -146,26 +144,26 @@ const Form = (props: Props) => {
 
             <FormControl
               {...formProps}
-              componentClass="checkbox"
+              componentclass="checkbox"
               name="public"
-              checked={visibility === 'public'}
-              onChange={() => setVisibility('public')}
+              checked={visibility === "public"}
+              onChange={() => setVisibility("public")}
             >
-              {__('Public')}
+              {__("Public")}
             </FormControl>
 
             <FormControl
               {...formProps}
-              componentClass="checkbox"
+              componentclass="checkbox"
               name="private"
-              checked={visibility === 'private'}
-              onChange={() => setVisibility('private')}
+              checked={visibility === "private"}
+              onChange={() => setVisibility("private")}
             >
-              {__('Private')}
+              {__("Private")}
             </FormControl>
           </FormGroup>
 
-          {visibility === 'private' && (
+          {visibility === "private" && (
             <FormGroup>
               <SelectMembersForm
                 userIds={userIds}
@@ -199,7 +197,7 @@ const Form = (props: Props) => {
 
         <FormFooter>
           <Button btnStyle="simple" onClick={closeDrawer}>
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
           <Button btnStyle="success" onClick={handleSubmit}>
             Save

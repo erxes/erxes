@@ -1,11 +1,7 @@
 import * as compose from "lodash.flowright";
 
 import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
-import {
-  IButtonMutateProps,
-  IRouterProps,
-  MutationVariables,
-} from "@erxes/ui/src/types";
+import { IButtonMutateProps, MutationVariables } from "@erxes/ui/src/types";
 import { mutations, queries } from "../graphql";
 
 import { AppConsumer } from "coreui/appContext";
@@ -18,7 +14,7 @@ import Sidebar from "../components/Sidebar";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import inboxQueries from "@erxes/ui-inbox/src/inbox/graphql/queries";
-import { withRouter } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -30,7 +26,6 @@ type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
 } & Props &
-  IRouterProps &
   RemovePipelineLabelMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
@@ -39,11 +34,10 @@ const SidebarContainer = (props: FinalProps) => {
     channelsCountQuery,
     removeMutation,
     queryParams,
-    history,
     currentChannelId,
     currentUserId,
   } = props;
-
+  const navigate = useNavigate();
   const channels = channelsQuery.channels || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
@@ -58,7 +52,7 @@ const SidebarContainer = (props: FinalProps) => {
         .then(() => {
           Alert.success("You successfully deleted a channel.");
 
-          history.push("/settings/channels");
+          navigate("/settings/channels");
         })
         .catch((error) => {
           Alert.error(error.message);
@@ -166,7 +160,7 @@ const WithProps = withProps<Props>(
         }),
       }
     )
-  )(withRouter<FinalProps>(SidebarContainer))
+  )(SidebarContainer)
 );
 
 export default (props: Props) => (

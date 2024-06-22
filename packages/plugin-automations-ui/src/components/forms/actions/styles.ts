@@ -1,8 +1,9 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { dimensions, colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import { TriggerBox } from '../../../styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const ActionFooter = styled.div`
   padding: ${dimensions.unitSpacing}px;
@@ -42,51 +43,53 @@ export const Attributes = styled.ul`
 `;
 
 export const ActionBox = styledTS<{
-  isFavourite: boolean;
-  isAvailable: boolean;
+  $isFavourite: boolean;
+  $isAvailable: boolean;
 }>(styled(TriggerBox))`
     flex-direction: row;
+    justify-content: space-between;
     margin-top: ${dimensions.unitSpacing}px;
     margin-right: 0;
     position: relative;
-    pointer-events: ${props => !props.isAvailable && 'none'};
+    pointer-events: ${props => !props.$isAvailable && 'none'};
 
-    > i {
-      margin-right: ${dimensions.unitSpacing}px;
-      background: ${rgba(colors.colorPrimary, 0.12)};
-      border-radius: 4px;
-      width: 45px;
-      height: 45px;
-      line-height: 45px;
-      text-align: center;
-      font-size: 22px;
-      flex-shrink: 0;
-      color: ${colors.textPrimary};
-    }
-
-    > div {
-      b {
+    .action-row {
+      display: flex;
+      
+      > i {
+        margin-right: ${dimensions.unitSpacing}px;
+        background: ${rgba(colors.colorPrimary, 0.12)};
+        border-radius: 4px;
+        width: 45px;
+        height: 45px;
+        line-height: 45px;
+        text-align: center;
+        font-size: 22px;
+        flex-shrink: 0;
         color: ${colors.textPrimary};
       }
-      p {
-        margin: 0;
-        max-width: 350px;
-      }
-      span {
-        padding-left: ${dimensions.unitSpacing}px;
-        color: ${colors.colorCoreOrange};
-        font-weight: 500;
+  
+      > div {
+        b {
+          color: ${colors.textPrimary};
+        }
+        p {
+          margin: 0;
+          max-width: 350px;
+        }
+        span {
+          padding-left: ${dimensions.unitSpacing}px;
+          color: ${colors.colorCoreOrange};
+          font-weight: 500;
+        }
       }
     }
 
     .favourite-action {
-      position: absolute;
       width: 30px;
-      text-align: right;
-      right: ${dimensions.coreSpacing}px;
 
       > i {
-        color: ${props => props.isFavourite && colors.colorCoreOrange}
+        color: ${props => props.$isFavourite && colors.colorCoreOrange}
       }
     }
   `;

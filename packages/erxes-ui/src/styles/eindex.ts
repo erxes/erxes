@@ -1,9 +1,10 @@
 import * as chooser from './chooser';
-import colors from './colors';
-import dimensions from './dimensions';
 import * as color from './ecolor';
 import * as mainStyles from './main';
 import * as sort from './sort';
+
+import colors from './colors';
+import dimensions from './dimensions';
 import typography from './typography';
 
 const ChooserColumns = chooser.Columns;
@@ -13,10 +14,18 @@ const ChooserFooter = chooser.Footer;
 const ChooserSelect = chooser.Select;
 const ChooserActionTop = chooser.ActionTop;
 
-export { ChooserColumns, ChooserColumn, ChooserTitle, ChooserFooter, ChooserSelect, ChooserActionTop };
+export {
+  ChooserColumns,
+  ChooserColumn,
+  ChooserTitle,
+  ChooserFooter,
+  ChooserSelect,
+  ChooserActionTop,
+};
 
 const MainStyleActions = mainStyles.Actions;
 const PopoverButton = mainStyles.PopoverButton;
+const PopoverHeader = mainStyles.PopoverHeader;
 const MainStyleBoxRoot = mainStyles.BoxRoot;
 const MainStyleFullContent = mainStyles.FullContent;
 const MainStyleModalFooter = mainStyles.ModalFooter;
@@ -44,6 +53,7 @@ const MainStyleLimited = mainStyles.Limited;
 export {
   MainStyleActions,
   PopoverButton,
+  PopoverHeader,
   MainStyleBoxRoot,
   MainStyleFullContent,
   MainStyleModalFooter,
@@ -66,7 +76,7 @@ export {
   MainStyleTopHeader,
   MainStyleTitle,
   MainStyleCount,
-  MainStyleLimited
+  MainStyleLimited,
 };
 
 const SortItem = sort.SortItem;

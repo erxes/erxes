@@ -1,16 +1,16 @@
-import { gql } from '@apollo/client';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Select from 'react-select-plus';
-import React from 'react';
-import { withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql } from "@apollo/client";
+import { ControlLabel } from "@erxes/ui/src/components/form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Select from "react-select";
+import React from "react";
+import { withProps } from "@erxes/ui/src/utils";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
 
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { FormsQueryResponse } from '@erxes/ui-forms/src/forms/types';
-import { queries } from '@erxes/ui-leads/src/graphql';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { FormsQueryResponse } from "@erxes/ui-forms/src/forms/types";
+import { queries } from "@erxes/ui-leads/src/graphql";
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
 
 type Props = {
   type: string;
@@ -20,7 +20,7 @@ type Props = {
 
 class Form extends React.Component<any, any, any> {
   onChangeForm = (_key, e) => {
-    const formId = e ? e.value : '';
+    const formId = e ? e.value : "";
 
     const result = { formId };
 
@@ -41,14 +41,17 @@ class Form extends React.Component<any, any, any> {
       this.props.onChangeConfig({ formId: forms[0].formId });
     }
 
+    const options = forms.map((b) => ({ value: b.formId, label: b.name }));
+
     return (
       <>
         <FormGroup>
           <ControlLabel>Form</ControlLabel>
           <Select
-            value={formId}
-            options={forms.map(b => ({ value: b.formId, label: b.name }))}
-            onChange={this.onChangeForm.bind(this, 'formId')}
+            value={options.find((option) => option.value === formId)}
+            options={options}
+            isClearable={true}
+            onChange={this.onChangeForm.bind(this, "formId")}
           />
         </FormGroup>
       </>
@@ -59,15 +62,15 @@ class Form extends React.Component<any, any, any> {
 export default withProps<Props>(
   compose(
     graphql<Props, FormsQueryResponse, {}>(gql(queries.integrations), {
-      name: 'formsQuery',
+      name: "formsQuery",
       options: ({}) => {
         return {
           variables: {
             kind: INTEGRATION_KINDS.FORMS,
-            perPage: 1000
-          }
+            perPage: 1000,
+          },
         };
-      }
+      },
     })
   )(Form)
 );

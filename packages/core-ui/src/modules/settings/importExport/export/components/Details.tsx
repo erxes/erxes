@@ -1,14 +1,14 @@
-import React from 'react';
-
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { InputBar } from '@erxes/ui-settings/src/styles';
 import {
   ControlLabel,
   FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
-import { __ } from 'modules/common/utils';
-import { ImportHeader } from '../../styles';
+  FormGroup,
+} from "@erxes/ui/src/components/form";
+import { FlexItem, FlexPad } from "modules/common/components/step/styles";
+
+import { ImportHeader } from "../../styles";
+import { InputBar } from "@erxes/ui-settings/src/styles";
+import React from "react";
+import { __ } from "modules/common/utils";
 
 type Props = {
   disclaimer: boolean;
@@ -20,13 +20,13 @@ type Props = {
 };
 
 class Details extends React.Component<Props, {}> {
-  onChangeName = e => {
+  onChangeName = (e) => {
     const value = (e.currentTarget as HTMLInputElement).value;
 
     this.props.onChangeExportName(value);
   };
 
-  onChangeDisclaimer = e => {
+  onChangeDisclaimer = (e) => {
     const value = e.target.checked;
 
     this.props.onChangeDisclaimer(value);
@@ -40,7 +40,7 @@ class Details extends React.Component<Props, {}> {
           <FormGroup>
             <ImportHeader>
               {__(
-                'Giving it a name helps with identifying items in the export.'
+                "Giving it a name helps with identifying items in the export."
               )}
               .
             </ImportHeader>
@@ -50,20 +50,20 @@ class Details extends React.Component<Props, {}> {
                 name="title"
                 value={name}
                 onChange={this.onChangeName}
-                placeholder={__('Export Name')}
+                placeholder={__("Export Name")}
               />
             </InputBar>
           </FormGroup>
 
           <FormGroup>
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               required={true}
               name="title"
               checked={disclaimer}
               onChange={this.onChangeDisclaimer}
             />
-            <ControlLabel required={true}>{__('Disclaimer')}</ControlLabel>
+            <ControlLabel required={true}>{__("Disclaimer")}</ControlLabel>
 
             <p>
               {__(

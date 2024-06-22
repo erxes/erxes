@@ -1,9 +1,11 @@
+import * as _ from 'underscore';
+
 import {
   fetchByQuery,
   fetchByQueryWithScroll,
 } from '@erxes/api-utils/src/elasticsearch';
+
 import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
-import * as _ from 'underscore';
 
 export default {
   dependentServices: [{ name: 'contacts', twoWay: true }],

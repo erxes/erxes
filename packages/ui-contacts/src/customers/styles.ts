@@ -301,6 +301,10 @@ const CustomPadding = styled.div`
   padding: 6px 20px;
 `;
 
+const BoxPadding = styled.div`
+  padding: 6px 20px;
+`;
+
 export {
   InfoDetail,
   InfoAvatar,
@@ -316,5 +320,6 @@ export {
   BooleanStatus,
   UserHeader,
   MailBox,
-  CustomPadding
+  CustomPadding,
+  BoxPadding
 };

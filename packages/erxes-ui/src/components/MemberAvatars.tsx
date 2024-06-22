@@ -1,14 +1,24 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Tip from '@erxes/ui/src/components/Tip';
-import { getUserAvatar } from '@erxes/ui/src/utils';
-import React from 'react';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import styled from 'styled-components';
+import { colors, dimensions } from "@erxes/ui/src/styles";
+
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { getUserAvatar } from "@erxes/ui/src/utils";
+import styled from "styled-components";
 
 const imageSize = 30;
 
 const Members = styled.div`
   padding-top: ${dimensions.unitSpacing - 5}px;
+  display: flex;
+
+  > div {
+    margin-left: -8px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
 `;
 
 const MemberImg = styled.img`
@@ -17,6 +27,7 @@ const MemberImg = styled.img`
   border-radius: ${imageSize / 2}px;
   background: ${colors.bgActive};
   border: 2px solid ${colors.colorWhite};
+  object-fit: cover;
   margin-left: -8px;
 
   &:first-child {
@@ -24,7 +35,7 @@ const MemberImg = styled.img`
   }
 `;
 
-const More = styled(MemberImg.withComponent('span'))`
+const More = styled(MemberImg)`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
@@ -41,9 +52,9 @@ type Props = {
 };
 
 export default function MemberAvatars(props: Props) {
-  const renderMember = member => {
+  const renderMember = (member) => {
     return (
-      <Tip key={member._id} text={member.details.fullName} placement="top">
+      <Tip key={member._id} text={member?.details?.fullName || ''} placement="top">
         <MemberImg key={member._id} src={getUserAvatar(member)} />
       </Tip>
     );
@@ -54,7 +65,7 @@ export default function MemberAvatars(props: Props) {
 
     let selectedMembers: IUser[] = [];
     selectedMembers = allMembers.filter(
-      user => user.isActive && selectedMemberIds.includes(user._id)
+      (user) => user.isActive && selectedMemberIds.includes(user._id)
     );
 
     const length = selectedMembers.length;
@@ -62,13 +73,15 @@ export default function MemberAvatars(props: Props) {
 
     // render members ================
     const limitedMembers = selectedMembers.slice(0, limit);
-    const renderedMembers = limitedMembers.map(member => renderMember(member));
+    const renderedMembers = limitedMembers.map((member) =>
+      renderMember(member)
+    );
 
     // render readmore ===============
     let readMore: React.ReactNode;
 
     if (length - limit > 0) {
-      readMore = <More key="readmore">{`+${length - limit}`}</More>;
+      readMore = <More as="span" key="readmore">{`+${length - limit}`}</More>;
     }
 
     return [renderedMembers, readMore];

@@ -1,13 +1,13 @@
-import { Alert, __, getUserAvatar } from 'coreui/utils';
+import { Alert, __, getUserAvatar } from "coreui/utils";
 
-import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import client from '@erxes/ui/src/apolloClient';
-import debounce from 'lodash/debounce';
-import { gql } from '@apollo/client';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import FilterableList from "@erxes/ui/src/components/filterableList/FilterableList";
+import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import client from "@erxes/ui/src/apolloClient";
+import debounce from "lodash/debounce";
+import { gql } from "@apollo/client";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
 
 interface IAssignee {
   _id: string;
@@ -46,13 +46,13 @@ class AssignBox extends React.Component<Props, State> {
       verifiedUsers: [],
       loading: true,
       keysPressed: {},
-      cursor: 0
+      cursor: 0,
     };
   }
 
   componentDidMount() {
     this.fetchUsers();
-    document.addEventListener('keydown', this.handleArrowSelection);
+    document.addEventListener("keydown", this.handleArrowSelection);
   }
 
   componentDidUpdate(
@@ -64,13 +64,13 @@ class AssignBox extends React.Component<Props, State> {
         assigneesForList: this.generateAssignParams(
           this.state.verifiedUsers,
           this.props.targets
-        )
+        ),
       });
     }
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleArrowSelection);
+    document.removeEventListener("keydown", this.handleArrowSelection);
   }
 
   handleArrowSelection = (event: any) => {
@@ -79,7 +79,7 @@ class AssignBox extends React.Component<Props, State> {
     const maxCursor: number = this.state.assigneesForList.length;
 
     const element = document.getElementsByClassName(
-      'team-members-' + cursor
+      "team-members-" + cursor
     )[0] as HTMLElement;
 
     switch (event.keyCode) {
@@ -111,7 +111,7 @@ class AssignBox extends React.Component<Props, State> {
   };
 
   fetchUsers = (e?) => {
-    const searchValue = e ? e.target.value : '';
+    const searchValue = e ? e.target.value : "";
 
     debounce(() => {
       client
@@ -119,21 +119,21 @@ class AssignBox extends React.Component<Props, State> {
           query: gql(queries.userList),
           variables: {
             perPage: 20,
-            searchValue
-          }
+            searchValue,
+          },
         })
         .then((response: { loading: boolean; data: { users?: IUser[] } }) => {
-          this.setState({ verifiedUsers: response.data.users || [] });
-
-          this.setState({
-            loading: response.loading,
-            assigneesForList: this.generateAssignParams(
-              this.state.verifiedUsers,
-              this.props.targets
-            )
+          this.setState({ verifiedUsers: response.data.users || [] }, () => {
+            this.setState({
+              loading: response.loading,
+              assigneesForList: this.generateAssignParams(
+                this.state.verifiedUsers,
+                this.props.targets
+              ),
+            });
           });
         })
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     }, 500)();
@@ -154,11 +154,11 @@ class AssignBox extends React.Component<Props, State> {
         return memo + index;
       }, 0);
 
-      let state = 'none';
+      let state = "none";
       if (count === targets.length) {
-        state = 'all';
+        state = "all";
       } else if (count < targets.length && count > 0) {
-        state = 'some';
+        state = "some";
       }
 
       return {
@@ -168,20 +168,20 @@ class AssignBox extends React.Component<Props, State> {
         avatar: getUserAvatar(assignee, 60),
         selectedBy: state,
         itemClassName: `team-members-${i}`,
-        itemActiveClass: this.state.cursor === i && 'active'
+        itemActiveClass: this.state.cursor === i && "active",
       };
     });
   }
 
-  assign = (items: IAssignee[], id: string) => {
+  assignPopover = (items: IAssignee[], id: string) => {
     const { assign, targets, afterSave } = this.props;
 
     assign(
       {
-        conversationIds: targets.map(a => a._id),
-        assignedUserId: id
+        conversationIds: targets.map((a) => a._id),
+        assignedUserId: id,
       },
-      error => {
+      (error) => {
         if (error) {
           Alert.error(error.message);
         }
@@ -197,8 +197,8 @@ class AssignBox extends React.Component<Props, State> {
     const { clear, targets, afterSave } = this.props;
 
     clear(
-      targets.map(t => t._id),
-      error => {
+      targets.map((t) => t._id),
+      (error) => {
         if (error) {
           Alert.error(`Error: ${error.message}`);
         }
@@ -215,10 +215,10 @@ class AssignBox extends React.Component<Props, State> {
 
     const links = [
       {
-        title: __('Remove assignee'),
+        title: __("Remove assignee"),
         href: window.location.pathname + window.location.search,
-        onClick: this.removeAssignee
-      }
+        onClick: this.removeAssignee,
+      },
     ];
 
     const props = {
@@ -227,11 +227,11 @@ class AssignBox extends React.Component<Props, State> {
       selectable: true,
       loading: this.state.loading,
       items: this.state.assigneesForList,
-      onSearch: this.fetchUsers
+      onSearch: this.fetchUsers,
     };
 
     if (event) {
-      props[event] = this.assign;
+      props[event] = this.assignPopover;
     }
 
     return <FilterableList {...props} />;

@@ -1,10 +1,10 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { FinanceAmount } from '../../styles';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { FinanceAmount } from "../../styles";
 
 type Props = {
   item: any;
@@ -21,17 +21,17 @@ export default function Row(props: Props) {
   // states
   const [diff, setDiff] = useState<number>(count - preCount);
   const [remainder, setRemainder] = useState<number>(count);
-  const [statusDisplay, setStatusDisplay] = useState<string>(status || 'new');
+  const [statusDisplay, setStatusDisplay] = useState<string>(status || "new");
 
   const displayNumber = (value: number) => {
-    return (value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    return (value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
   };
 
   const renderDate = (date: Date) => {
     if (!date) {
       return null;
     }
-    return moment(date).format('YYYY/MM/DD HH:mm:ss');
+    return moment(date).format("YYYY/MM/DD HH:mm:ss");
   };
 
   const handleCheckChange = (event: any) => {
@@ -39,7 +39,7 @@ export default function Row(props: Props) {
       clearTimeout(timer.current);
     }
 
-    const checked = event.target.checked ? 'checked' : 'new';
+    const checked = event.target.checked ? "checked" : "new";
 
     setStatusDisplay(checked);
 
@@ -57,10 +57,10 @@ export default function Row(props: Props) {
 
     setDiff(value - preCount);
     setRemainder(value);
-    setStatusDisplay('checked');
+    setStatusDisplay("checked");
 
     timer.current = setTimeout(() => {
-      updateItem(item._id, value, 'checked');
+      updateItem(item._id, value, "checked");
     }, 300);
   };
 
@@ -72,10 +72,10 @@ export default function Row(props: Props) {
     const value = Number(event.target.value);
     setDiff(value);
     setRemainder(value + preCount);
-    setStatusDisplay('checked');
+    setStatusDisplay("checked");
 
     timer.current = setTimeout(() => {
-      updateItem(item._id, value + preCount, 'checked');
+      updateItem(item._id, value + preCount, "checked");
     }, 300);
   };
 
@@ -84,8 +84,8 @@ export default function Row(props: Props) {
     setDiff(count - preCount);
   }, [count, preCount]);
 
-  const onKeyDown = e => {
-    if (e.key === 'Enter') {
+  const onKeyDown = (e) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (e.shiftKey) {
         onEnter(-1);
@@ -107,8 +107,8 @@ export default function Row(props: Props) {
 
       <td>
         <FormControl
-          checked={statusDisplay === 'checked'}
-          componentClass="checkbox"
+          checked={statusDisplay === "checked"}
+          componentclass="checkbox"
           onChange={handleCheckChange}
         />
       </td>
@@ -119,9 +119,9 @@ export default function Row(props: Props) {
             type="number"
             value={remainder}
             onChange={handleRemainderChange}
-            align={'right'}
+            align={"right"}
             onKeyDown={onKeyDown}
-            onFocus={e => (e.target as any).select()}
+            onFocus={(e) => (e.target as any).select()}
           />
         </div>
       </td>
@@ -130,7 +130,7 @@ export default function Row(props: Props) {
           type="number"
           value={diff}
           onChange={handleDiffChange}
-          align={'right'}
+          align={"right"}
         />
       </td>
       <td>

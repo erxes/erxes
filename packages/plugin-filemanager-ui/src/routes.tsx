@@ -1,78 +1,70 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import { useLocation, useParams } from "react-router-dom";
 
-const FileManager = asyncComponent(() =>
-  import(/* webpackChunkName: "File Manager" */ './containers/FileManager')
+const FileManager = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "File Manager" */ "./containers/FileManager")
 );
 
-const FileDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "File Detail" */ './containers/file/Detail')
+const FileDetail = asyncComponent(
+  () => import(/* webpackChunkName: "File Detail" */ "./containers/file/Detail")
 );
 
-const FolderDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Folder Detail" */ './containers/folder/Detail')
+const FolderDetail = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "Folder Detail" */ "./containers/folder/Detail")
 );
 
-const filemanager = ({ location, history }) => {
-  return (
-    <FileManager
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const Filemanager = () => {
+  const location = useLocation();
+
+  return <FileManager queryParams={queryString.parse(location.search)} />;
 };
 
-const detail = ({ location, history, match }) => {
-  const fileId = match.params.id;
-  const folderId = match.params.folderId;
+const Detail = () => {
+  const { fileId, folderId } = useParams();
+  const location = useLocation();
 
   return (
     <FileDetail
       queryParams={queryString.parse(location.search)}
-      history={history}
       fileId={fileId}
       folderId={folderId}
     />
   );
 };
 
-const folderDetail = ({ location, history, match }) => {
-  const fileId = match.params.id;
+const FolderDetailComponent = () => {
+  const { fileId } = useParams();
+  const location = useLocation();
 
   return (
     <FolderDetail
       queryParams={queryString.parse(location.search)}
-      history={history}
       fileId={fileId}
     />
   );
 };
 
 const routes = () => (
-  <>
-    <Route
-      key="/filemanager"
-      path="/filemanager"
-      exact={true}
-      component={filemanager}
-    />
+  <Routes>
+    <Route key="/filemanager" path="/filemanager" element={<Filemanager />} />
 
     <Route
       key="/filemanager/details/:folderId/:id"
-      exact={true}
       path="/filemanager/details/:folderId/:id"
-      component={detail}
+      element={<Detail />}
     />
 
     <Route
       key="/filemanager/folder/details/:id"
-      exact={true}
       path="/filemanager/folder/details/:id"
-      component={folderDetail}
+      element={<FolderDetailComponent />}
     />
-  </>
+  </Routes>
 );
 
 export default routes;

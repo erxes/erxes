@@ -11,11 +11,11 @@ const resolvers = () => ({
   Automation,
   AutomationNote,
   Mutation: {
-    ...Mutations
+    ...Mutations,
   },
   Query: {
-    ...Queries
-  }
+    ...Queries,
+  },
 });
 
 export default resolvers;

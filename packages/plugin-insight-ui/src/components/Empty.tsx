@@ -8,7 +8,6 @@ import { Spinner } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;
-  history: any;
   loading: boolean;
 };
 

@@ -1,141 +1,147 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import {
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
 const UserDetail = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings - UserDetail" */ '@erxes/ui/src/team/containers/UserDetailForm'
-    ),
+      /* webpackChunkName: "Settings - UserDetail" */ "@erxes/ui/src/team/containers/UserDetailForm"
+    )
 );
 
 const Home = asyncComponent(
-  () => import(/* webpackChunkName: "Settings - Home" */ './containers/Home'),
+  () => import(/* webpackChunkName: "Settings - Home" */ "./containers/Home")
 );
 
 const Structure = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings - Structure" */ './components/structure/Settings'
-    ),
+      /* webpackChunkName: "Settings - Structure" */ "./components/structure/Settings"
+    )
 );
 
 const Branches = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings - Branches" */ './containers/branch/MainList'
-    ),
+      /* webpackChunkName: "Settings - Branches" */ "./containers/branch/MainList"
+    )
 );
 
 const Departments = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings - Departments" */ './containers/department/MainList'
-    ),
+      /* webpackChunkName: "Settings - Departments" */ "./containers/department/MainList"
+    )
 );
 
 const Units = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings - Units" */ './containers/unit/MainList'
-    ),
+      /* webpackChunkName: "Settings - Units" */ "./containers/unit/MainList"
+    )
 );
 
 const Positions = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Settings - Positions" */ './containers/position/MainList'
-    ),
+      /* webpackChunkName: "Settings - Positions" */ "./containers/position/MainList"
+    )
 );
 
-const team = ({ history, location }) => {
+const TeamComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <Home queryParams={queryParams} history={history} />;
+  return <Home queryParams={queryParams} />;
 };
 
-const structure = () => {
-  return <Structure />;
-};
-
-const branches = ({ history, location }) => {
+const BranchesComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Branches queryParams={queryParams} history={history} />;
+  return <Branches queryParams={queryParams} history={navigate} />;
 };
 
-const departments = ({ history, location }) => {
+const DepartmentsComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Departments queryParams={queryParams} history={history} />;
+  return <Departments queryParams={queryParams} history={navigate} />;
 };
 
-const units = ({ history, location }) => {
+const UnitsComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Units queryParams={queryParams} history={history} />;
+  return <Units queryParams={queryParams} history={navigate} />;
 };
 
-const positions = ({ history, location }) => {
+const UserDetailComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
-
-  return <Positions queryParams={queryParams} history={history} />;
-};
-const userDetail = ({ match, location }) => {
-  const queryParams = queryString.parse(location.search);
-  const id = match.params.id;
+  const { id } = useParams();
 
   return <UserDetail _id={id} queryParams={queryParams} />;
 };
 
+const PositionsComponent = () => {
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
+  return <Positions queryParams={queryParams} />;
+};
+
 const routes = () => (
-  <React.Fragment>
+  <Routes>
     <Route
       path="/settings/team/"
-      exact={true}
       key="/settings/team/"
-      component={team}
+      element={<TeamComponent />}
     />
 
     <Route
       key="/settings/team/details/:id"
-      exact={true}
       path="/settings/team/details/:id"
-      component={userDetail}
+      element={<UserDetailComponent />}
     />
 
     <Route
       path="/settings/structure"
-      exact={true}
       key="/settings/structure"
-      component={structure}
+      element={<Structure />}
     />
     <Route
       path="/settings/branches/"
-      exact={true}
       key="/settings/branches/"
-      component={branches}
+      element={<BranchesComponent />}
     />
     <Route
       path="/settings/departments/"
-      exact={true}
       key="/settings/departments/"
-      component={departments}
+      element={<DepartmentsComponent />}
     />
     <Route
       path="/settings/units/"
-      exact={true}
       key="/settings/units/"
-      component={units}
+      element={<UnitsComponent />}
     />
     <Route
       path="/settings/positions/"
-      exact={true}
       key="/settings/positions/"
-      component={positions}
+      element={<PositionsComponent />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;

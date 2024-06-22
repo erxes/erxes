@@ -15,19 +15,16 @@ type Props = {
   paymentsCount: number;
 };
 
-class IntegrationList extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
+const IntegrationList: React.FC<Props> = (props) => {
+  const {
+    payments,
+    queryParams: { _id },
+    removePayment,
+    paymentsCount,
+  } = props;
 
-  renderRows() {
-    const {
-      payments,
-      queryParams: { _id },
-      removePayment
-    } = this.props;
-
-    return payments.map(payment => (
+  const renderRows = () => {
+    return payments.map((payment) => (
       <PaymentListItem
         key={payment._id}
         _id={_id}
@@ -35,38 +32,34 @@ class IntegrationList extends React.Component<Props> {
         removePayment={removePayment}
       />
     ));
-  }
+  };
 
-  render() {
-    const { payments, paymentsCount } = this.props;
-
-    if (!payments || payments.length < 1) {
-      return (
-        <EmptyState
-          text="Start adding payments now!"
-          image="/images/actions/2.svg"
-        />
-      );
-    }
-
+  if (!payments || payments.length < 1) {
     return (
-      <>
-        <Count>
-          {paymentsCount} config{paymentsCount > 1 && 's'}
-        </Count>
-        <Table>
-          <thead>
-            <tr>
-              <th>{__('Name')}</th>
-              <th>{__('Status')}</th>
-              <th style={{ width: 130 }}>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRows()}</tbody>
-        </Table>
-      </>
+      <EmptyState
+        text="Start adding payments now!"
+        image="/images/actions/2.svg"
+      />
     );
   }
-}
+
+  return (
+    <>
+      <Count>
+        {paymentsCount} config{paymentsCount > 1 && 's'}
+      </Count>
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Name')}</th>
+            <th>{__('Status')}</th>
+            <th style={{ width: 130 }}>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{renderRows()}</tbody>
+      </Table>
+    </>
+  );
+};
 
 export default IntegrationList;

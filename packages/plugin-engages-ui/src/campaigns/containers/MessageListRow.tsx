@@ -1,12 +1,6 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import MessageListRow from '../components/MessageListRow';
-import { mutations, queries } from '@erxes/ui-engage/src/graphql';
+import * as compose from "lodash.flowright";
+
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
 import {
   CopyMutationResponse,
   IEngageMessage,
@@ -14,8 +8,16 @@ import {
   SetLiveManualMutationResponse,
   SetLiveMutationResponse,
   SetPauseMutationResponse,
-} from '@erxes/ui-engage/src/types';
-import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
+} from "@erxes/ui-engage/src/types";
+import { mutations, queries } from "@erxes/ui-engage/src/graphql";
+
+import MessageListRow from "../components/MessageListRow";
+import { MutationVariables } from "@erxes/ui/src/types";
+import React from "react";
+import { crudMutationsOptions } from "@erxes/ui-engage/src/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   isChecked: boolean;
@@ -30,13 +32,11 @@ type FinalProps = Props &
   SetPauseMutationResponse &
   SetLiveMutationResponse &
   SetLiveManualMutationResponse &
-  CopyMutationResponse &
-  IRouterProps;
+  CopyMutationResponse;
 
 const MessageRowContainer = (props: FinalProps) => {
   const {
     copyMutation,
-    history,
     message,
     removeMutation,
     setPauseMutation,
@@ -46,6 +46,7 @@ const MessageRowContainer = (props: FinalProps) => {
     toggleBulk,
     refetch,
   } = props;
+  const navigate = useNavigate();
 
   const doMutation = (mutation, msg: string) =>
     mutation({
@@ -59,18 +60,18 @@ const MessageRowContainer = (props: FinalProps) => {
       });
 
   const edit = () => {
-    history.push(`/campaigns/edit/${message._id}`);
+    navigate(`/campaigns/edit/${message._id}`);
   };
 
   const show = () => {
-    history.push(`/campaigns/show/${message._id}`);
+    navigate(`/campaigns/show/${message._id}`);
   };
 
   const remove = () => {
     confirm().then(() => {
       doMutation(removeMutation, `You just deleted a broadcast.`)
         .then(() => {
-          history.push('/campaigns');
+          navigate("/campaigns");
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -79,13 +80,13 @@ const MessageRowContainer = (props: FinalProps) => {
   };
 
   const setLiveManual = () =>
-    doMutation(setLiveManualMutation, 'Yay! Your broadcast is now live.');
+    doMutation(setLiveManualMutation, "Yay! Your broadcast is now live.");
   const setLive = () =>
-    doMutation(setLiveMutation, 'Yay! Your broadcast is now live.');
+    doMutation(setLiveMutation, "Yay! Your broadcast is now live.");
   const setPause = () =>
-    doMutation(setPauseMutation, 'Your broadcast is paused for now.');
+    doMutation(setPauseMutation, "Your broadcast is paused for now.");
   const copy = () => {
-    doMutation(copyMutation, 'broadcast has been duplicated.').then(() => {
+    doMutation(copyMutation, "broadcast has been duplicated.").then(() => {
       refetch();
     });
   };
@@ -112,7 +113,7 @@ const statusMutationsOptions = ({ queryParams, message }) => {
       {
         query: gql(queries.statusCounts),
         variables: {
-          kind: queryParams.kind || '',
+          kind: queryParams.kind || "",
         },
       },
       {
@@ -133,33 +134,33 @@ export default withProps<Props>(
     graphql<Props, RemoveMutationResponse, MutationVariables>(
       gql(mutations.messageRemove),
       {
-        name: 'removeMutation',
+        name: "removeMutation",
         options: crudMutationsOptions,
       }
     ),
     graphql<Props, SetPauseMutationResponse, MutationVariables>(
       gql(mutations.setPause),
       {
-        name: 'setPauseMutation',
+        name: "setPauseMutation",
         options: statusMutationsOptions,
       }
     ),
     graphql<Props, SetLiveMutationResponse, MutationVariables>(
       gql(mutations.setLive),
       {
-        name: 'setLiveMutation',
+        name: "setLiveMutation",
         options: statusMutationsOptions,
       }
     ),
     graphql<Props, SetLiveManualMutationResponse, MutationVariables>(
       gql(mutations.setLiveManual),
       {
-        name: 'setLiveManualMutation',
+        name: "setLiveManualMutation",
         options: statusMutationsOptions,
       }
     ),
     graphql(gql(mutations.engageMessageCopy), {
-      name: 'copyMutation',
+      name: "copyMutation",
     })
-  )(withRouter<FinalProps>(MessageRowContainer))
+  )(MessageRowContainer)
 );

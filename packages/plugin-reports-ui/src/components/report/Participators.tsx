@@ -1,8 +1,9 @@
+import { __, getUserAvatar } from '@erxes/ui/src/utils';
+
 import { IUser } from '@erxes/ui/src/auth/types';
+import React, { useState } from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { colors } from '@erxes/ui/src/styles';
-import { __, getUserAvatar } from '@erxes/ui/src/utils';
-import React from 'react';
 import styled from 'styled-components';
 
 const spacing = 30;
@@ -24,7 +25,7 @@ const ParticipatorImg = styled.img`
   margin-left: -10px;
 `;
 
-const More = styled(ParticipatorImg.withComponent('span'))`
+const More = styled(styled.span(ParticipatorImg as any))`
   color: ${colors.colorWhite};
   text-align: center;
   vertical-align: middle;
@@ -38,48 +39,44 @@ type Props = {
   limit?: number;
 };
 
-class Participators extends React.Component<Props, { toggle: boolean }> {
-  state = { toggle: true };
+const Participators: React.FC<Props> = (props) => {
+  const [toggle, setToggle] = useState(true);
 
-  toggleParticipator = () => {
-    this.setState({ toggle: !this.state.toggle });
+  const toggleParticipator = () => {
+    setToggle(!toggle);
   };
 
-  render() {
-    const { participatedUsers = [], limit } = this.props;
-    const { toggle } = this.state;
-    const length = participatedUsers.length;
+  const { participatedUsers = [], limit } = props;
+  const length = participatedUsers.length;
 
-    const Trigger = user => {
-      const name =
-        (user.details && user.details.fullName) || user.username || '';
-
-      return (
-        <Tip key={user._id} placement="bottom" text={name}>
-          <ParticipatorImg
-            title={`Participator: ${name}`}
-            key={user._id}
-            src={getUserAvatar(user)}
-          />
-        </Tip>
-      );
-    };
-
-    const Tooltip = (
-      <Tip placement="top" text={__('View more')}>
-        <More>{`+${limit && length - limit}`}</More>
-      </Tip>
-    );
+  const Trigger = (user) => {
+    const name = (user.details && user.details.fullName) || user.username || '';
 
     return (
-      <ParticipatorWrapper onClick={this.toggleParticipator}>
-        {participatedUsers
-          .slice(0, limit && toggle ? limit : length)
-          .map(user => Trigger(user))}
-        {limit && toggle && length - limit > 0 && Tooltip}
-      </ParticipatorWrapper>
+      <Tip key={user._id} placement="bottom" text={name}>
+        <ParticipatorImg
+          title={`Participator: ${name}`}
+          key={user._id}
+          src={getUserAvatar(user)}
+        />
+      </Tip>
     );
-  }
-}
+  };
+
+  const Tooltip = (
+    <Tip placement="top" text={__('View more')}>
+      <More>{`+${limit && length - limit}`}</More>
+    </Tip>
+  );
+
+  return (
+    <ParticipatorWrapper onClick={toggleParticipator}>
+      {participatedUsers
+        .slice(0, limit && toggle ? limit : length)
+        .map((user) => Trigger(user))}
+      {limit && toggle && length - limit > 0 && Tooltip}
+    </ParticipatorWrapper>
+  );
+};
 
 export default Participators;

@@ -3,7 +3,6 @@ import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
@@ -16,7 +15,7 @@ import { IKhanbankAccount } from '../types';
 type Props = {
   queryParams: any;
   account: IKhanbankAccount;
-} & IRouterProps;
+};
 
 const Detail = (props: Props) => {
   const { account, queryParams } = props;

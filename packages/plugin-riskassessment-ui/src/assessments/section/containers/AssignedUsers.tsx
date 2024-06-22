@@ -1,16 +1,18 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { EmptyState, Spinner, withCurrentUser } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
+import * as compose from "lodash.flowright";
+
+import { EmptyState, Spinner, withCurrentUser } from "@erxes/ui/src";
 import {
   RiskAssessmentAssignedMembersQueryResponse,
-  RiskAssessmentTypes
-} from '../../common/types';
-import AssignedMembersComponent from '../components/AssigneMembers';
-import { queries } from '../graphql';
+  RiskAssessmentTypes,
+} from "../../common/types";
+
+import AssignedMembersComponent from "../components/AssigneMembers";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   riskAssessments: RiskAssessmentTypes[];
@@ -34,7 +36,7 @@ class AssignedMembers extends React.Component<FinalProps> {
       currentUser,
       cardId,
       cardType,
-      riskAssessments
+      riskAssessments,
     } = this.props;
 
     if (assignedMembersQueryResponse.loading) {
@@ -42,8 +44,7 @@ class AssignedMembers extends React.Component<FinalProps> {
     }
 
     if (assignedMembersQueryResponse.error) {
-      const { error } = assignedMembersQueryResponse;
-      return <EmptyState text={error} />;
+      return <EmptyState text={"error"} />;
     }
 
     const { riskAssessmentAssignedMembers } = assignedMembersQueryResponse;
@@ -53,7 +54,7 @@ class AssignedMembers extends React.Component<FinalProps> {
       currentUser,
       cardId,
       cardType,
-      riskAssessments
+      riskAssessments,
     };
 
     return <AssignedMembersComponent {...updatedProps} />;
@@ -63,11 +64,11 @@ class AssignedMembers extends React.Component<FinalProps> {
 export default withProps(
   compose(
     graphql<Props>(gql(queries.riskAssessmentAssignedMembers), {
-      name: 'assignedMembersQueryResponse',
-      options: props => ({
-        fetchPolicy: 'network-only',
-        variables: { ...props }
-      })
+      name: "assignedMembersQueryResponse",
+      options: (props) => ({
+        fetchPolicy: "network-only",
+        variables: { ...props },
+      }),
     })
   )(withCurrentUser(AssignedMembers))
 );

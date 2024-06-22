@@ -1,13 +1,5 @@
-import React, { useState } from 'react';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils';
-import * as dayjs from 'dayjs';
-import {
-  COLORS,
-  dateOfTheMonthFormat,
-  dayOfTheWeekFormat,
-  timeFormat,
-} from '../../constants';
+import * as dayjs from "dayjs";
+
 import {
   BorderedTd,
   FlexRow,
@@ -16,25 +8,33 @@ import {
   TimeclockInfo,
   TimeclockTableWrapper,
   ToggleButton,
-} from '../../styles';
-import { IShift, IUserReport } from '../../types';
+} from "../../styles";
+import {
+  COLORS,
+  dateOfTheMonthFormat,
+  dayOfTheWeekFormat,
+  timeFormat,
+} from "../../constants";
+import { IShift, IUserReport } from "../../types";
+import React, { useState } from "react";
 
-import Tip from '@erxes/ui/src/components/Tip';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import TimeclockEditForm from './TimeclockEditForm';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import TimeForm from '../../containers/timeclock/TimeFormList';
-import TimeclockActionBar from './ActionBar';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
+import Button from "@erxes/ui/src/components/Button";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import Table from "@erxes/ui/src/components/table";
+import TimeForm from "../../containers/timeclock/TimeFormList";
+import TimeclockActionBar from "./ActionBar";
+import TimeclockEditForm from "./TimeclockEditForm";
+import Tip from "@erxes/ui/src/components/Tip";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   reportByUsers: [IUserReport] | [];
   totalCount: number;
   queryParams: any;
-  history?: any;
 
   currentUser: IUser;
   isCurrentUserAdmin: boolean;
@@ -65,7 +65,7 @@ const TimeclockList = (props: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [editTimeclock, setEditTimeclock] = useState({});
   const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem('isSideBarOpen') === 'true' ? true : false,
+    localStorage.getItem("isSideBarOpen") === "true" ? true : false
   );
 
   let lastColumnIdx = 1;
@@ -83,7 +83,7 @@ const TimeclockList = (props: Props) => {
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
     setIsOpen(toggleIsOpen);
-    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+    localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
   const prepareTableHeaders = () => {
@@ -109,7 +109,7 @@ const TimeclockList = (props: Props) => {
       };
 
       columnNo += 1;
-      startRange = startRange.add(1, 'day');
+      startRange = startRange.add(1, "day");
     }
 
     lastColumnIdx = columnNo;
@@ -120,21 +120,21 @@ const TimeclockList = (props: Props) => {
     return (
       <thead>
         <tr>
-          <th rowSpan={2} style={{ border: '1px solid #EEE' }}>
-            {''}
+          <th rowSpan={2} style={{ border: "1px solid #EEE" }}>
+            {""}
           </th>
           <th
             rowSpan={2}
-            style={{ textAlign: 'center', border: '1px solid #EEE' }}
+            style={{ textAlign: "center", border: "1px solid #EEE" }}
           >
-            {__('Employee Id')}
+            {__("Employee Id")}
           </th>
           <th
             rowSpan={2}
-            style={{ border: '1px solid #EEE' }}
+            style={{ border: "1px solid #EEE" }}
             className="fixed-column"
           >
-            {__('Team members')}
+            {__("Team members")}
           </th>
 
           {Object.keys(daysAndDatesHeaders).map((dateField) => {
@@ -144,13 +144,13 @@ const TimeclockList = (props: Props) => {
                 style={{
                   backgroundColor:
                     daysAndDatesHeaders[dateField].backgroundColor,
-                  border: '1px solid #EEE',
-                  width: '100%',
-                  textAlign: 'center',
+                  border: "1px solid #EEE",
+                  width: "100%",
+                  textAlign: "center",
                 }}
               >
                 {dayjs(daysAndDatesHeaders[dateField].date).format(
-                  dayOfTheWeekFormat,
+                  dayOfTheWeekFormat
                 )}
               </th>
             );
@@ -164,8 +164,8 @@ const TimeclockList = (props: Props) => {
                 style={{
                   backgroundColor:
                     daysAndDatesHeaders[dateField].backgroundColor,
-                  border: '1px solid #EEE',
-                  textAlign: 'center',
+                  border: "1px solid #EEE",
+                  textAlign: "center",
                 }}
               >
                 {daysAndDatesHeaders[dateField].text}
@@ -179,11 +179,11 @@ const TimeclockList = (props: Props) => {
 
   const getAbsenceDayColor = (absenceType: string) => {
     switch (absenceType) {
-      case 'paid absence':
+      case "paid absence":
         return COLORS.paidAbsence;
-      case 'shift request':
+      case "shift request":
         return COLORS.shiftRequest;
-      case 'unpaid absence':
+      case "unpaid absence":
         return COLORS.unpaidAbsence;
 
       default:
@@ -235,17 +235,17 @@ const TimeclockList = (props: Props) => {
     const renderUserInfo = (
       <>
         <td>{index}</td>
-        <td>{user.employeeId || '-'}</td>
+        <td>{user.employeeId || "-"}</td>
         <td
-          style={{ width: '10%', textAlign: 'left' }}
+          style={{ width: "10%", textAlign: "left" }}
           className="fixed-column"
         >
           <div>
             {`${
-              user.details?.lastName ? user.details?.lastName.charAt(0) : ''
-            }.${user.details?.firstName ? user.details?.firstName : ''}` || '-'}
+              user.details?.lastName ? user.details?.lastName.charAt(0) : ""
+            }.${user.details?.firstName ? user.details?.firstName : ""}` || "-"}
           </div>
-          <div style={{ color: '#9f9f9f', wordWrap: 'normal' }}>
+          <div style={{ color: "#9f9f9f", wordWrap: "normal" }}>
             {user.details?.position}
           </div>
         </td>
@@ -264,7 +264,7 @@ const TimeclockList = (props: Props) => {
 
       for (const scheduleShift of scheduleShifts) {
         const dateField = dayjs(scheduleShift.shiftStart).format(
-          dateOfTheMonthFormat,
+          dateOfTheMonthFormat
         );
 
         scheduleShiftsInfo[dateField] = { scheduled: true };
@@ -276,7 +276,7 @@ const TimeclockList = (props: Props) => {
         // prevent showing duplicate timeclocks created by shift request
         if (
           timeclock.deviceType &&
-          timeclock.deviceType.toLocaleLowerCase() === 'shift request'
+          timeclock.deviceType.toLocaleLowerCase() === "shift request"
         ) {
           continue;
         }
@@ -284,13 +284,13 @@ const TimeclockList = (props: Props) => {
         timeclocksObj[timeclock._id] = timeclock;
 
         const dateField = dayjs(timeclock.shiftStart).format(
-          dateOfTheMonthFormat,
+          dateOfTheMonthFormat
         );
 
         const shiftStart = dayjs(timeclock.shiftStart).format(timeFormat);
         const shiftEnd = timeclock.shiftEnd
           ? dayjs(timeclock.shiftEnd).format(timeFormat)
-          : '';
+          : "";
         // if multiple shifts on single day
         if (dateField in timeclocksInfo) {
           const prevTimeclock = timeclocksInfo[dateField];
@@ -328,29 +328,29 @@ const TimeclockList = (props: Props) => {
         const lowerCasedReason = reason.toLocaleLowerCase();
         // dont show check in | check out request
         if (
-          lowerCasedReason.includes('check in') ||
-          lowerCasedReason.includes('check out')
+          lowerCasedReason.includes("check in") ||
+          lowerCasedReason.includes("check out")
         ) {
           continue;
         }
 
-        if (absenceTimeType === 'by day') {
+        if (absenceTimeType === "by day") {
           const abseneDurationPerDay: string =
             (
               parseFloat(request.totalHoursOfAbsence) /
               request.requestDates.length
-            ).toFixed(1) + ' hours';
+            ).toFixed(1) + " hours";
 
           for (const requestDate of request.requestDates) {
             const date = dayjs(new Date(requestDate)).format(
-              dateOfTheMonthFormat,
+              dateOfTheMonthFormat
             );
 
             // if multiple requests per day
             if (date in requestsInfo) {
               requestsInfo[date].push({
                 reason: request.reason,
-                backgroundColor: getAbsenceDayColor(request.absenceType || ''),
+                backgroundColor: getAbsenceDayColor(request.absenceType || ""),
                 absenceDuration: abseneDurationPerDay,
               });
 
@@ -360,7 +360,7 @@ const TimeclockList = (props: Props) => {
             requestsInfo[date] = [
               {
                 reason: request.reason,
-                backgroundColor: getAbsenceDayColor(request.absenceType || ''),
+                backgroundColor: getAbsenceDayColor(request.absenceType || ""),
                 absenceDuration: abseneDurationPerDay,
               },
             ];
@@ -371,7 +371,7 @@ const TimeclockList = (props: Props) => {
 
         const absenceDuration: string =
           dayjs(request.startTime).format(timeFormat) +
-          '~' +
+          "~" +
           dayjs(request.endTime).format(timeFormat);
 
         // by hour
@@ -380,7 +380,7 @@ const TimeclockList = (props: Props) => {
         if (dateField in requestsInfo) {
           requestsInfo[dateField].push({
             reason: request.reason,
-            backgroundColor: getAbsenceDayColor(request.absenceType || ''),
+            backgroundColor: getAbsenceDayColor(request.absenceType || ""),
             absenceDuration,
           });
           continue;
@@ -389,7 +389,7 @@ const TimeclockList = (props: Props) => {
         requestsInfo[dateField] = [
           {
             reason: request.reason,
-            backgroundColor: getAbsenceDayColor(request.absenceType || ''),
+            backgroundColor: getAbsenceDayColor(request.absenceType || ""),
             absenceDuration,
           },
         ];
@@ -403,7 +403,7 @@ const TimeclockList = (props: Props) => {
       const shiftCell = (
         <td
           style={{
-            border: '1px solid #EEEEEE',
+            border: "1px solid #EEEEEE",
             backgroundColor: COLORS.blank,
           }}
         />
@@ -412,7 +412,7 @@ const TimeclockList = (props: Props) => {
       const contentInsideCell: any = [];
 
       const getDate = new Date(
-        new Date(dateField).setFullYear(new Date().getFullYear()),
+        new Date(dateField).setFullYear(new Date().getFullYear())
       );
       // absent day
       if (
@@ -428,7 +428,7 @@ const TimeclockList = (props: Props) => {
             textColor={COLORS.white}
           >
             Absent
-          </RequestInfo>,
+          </RequestInfo>
         );
 
         emptyCell = false;
@@ -460,7 +460,7 @@ const TimeclockList = (props: Props) => {
                 </TimeclockInfo>
               </Tip>
             );
-          }),
+          })
         );
         emptyCell = false;
       }
@@ -475,14 +475,14 @@ const TimeclockList = (props: Props) => {
               <RequestInfo backgroundColor={request.backgroundColor}>
                 {request.reason}
               </RequestInfo>
-            </Tip>,
+            </Tip>
           );
         });
         emptyCell = false;
       }
 
       listRowOnColumnOrder.push(
-        emptyCell ? shiftCell : <BorderedTd>{contentInsideCell}</BorderedTd>,
+        emptyCell ? shiftCell : <BorderedTd>{contentInsideCell}</BorderedTd>
       );
     }
 
@@ -498,7 +498,7 @@ const TimeclockList = (props: Props) => {
     <FlexRowLeft>
       <ToggleButton
         id="btn-inbox-channel-visible"
-        isActive={isSideBarOpen}
+        $isActive={isSideBarOpen}
         onClick={onToggleSidebar}
       >
         <Icon icon="subject" />
@@ -511,7 +511,7 @@ const TimeclockList = (props: Props) => {
   );
 
   const trigger = (
-    <Button btnStyle={'success'} icon="plus-circle">
+    <Button btnStyle={"success"} icon="plus-circle">
       Start Shift
     </Button>
   );
@@ -524,7 +524,7 @@ const TimeclockList = (props: Props) => {
         queryParams={queryParams}
       />
       <ModalTrigger
-        title={__('Start shift')}
+        title={__("Start shift")}
         trigger={trigger}
         content={modalContent}
       />
@@ -546,12 +546,12 @@ const TimeclockList = (props: Props) => {
 
   return (
     <TimeclockTableWrapper>
-      <Table bordered={true}>
+      <Table $bordered={true}>
         {renderTableHeaders()}
         {showModal && renderEditForm()}
         <tbody>
           {reportByUsers.map((r, i) =>
-            renderUserReportRow({ ...r, index: i + 1 }),
+            renderUserReportRow({ ...r, index: i + 1 })
           )}
         </tbody>
       </Table>

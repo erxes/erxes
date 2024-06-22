@@ -1,20 +1,21 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
 import {
   BoxContent,
   HelperButtons,
+  SideContent,
   SidebarBox,
   SidebarFooter,
   SidebarHeader,
   SidebarMainContent,
   SidebarTitle,
   SidebarToggle,
-  SideContent
 } from '../styles';
+
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 
 function Title({
   children,
-  onClick
+  onClick,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -24,19 +25,19 @@ function Title({
 
 function QuickButtons({
   children,
-  isSidebarOpen
+  isSidebarOpen,
 }: {
   children: React.ReactNode;
   isSidebarOpen?: boolean;
 }) {
   return (
-    <HelperButtons isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
+    <HelperButtons $isSidebarOpen={isSidebarOpen}>{children}</HelperButtons>
   );
 }
 
 type Props = {
   children: React.ReactNode;
-  collapsible?: boolean;
+  $collapsible?: boolean;
   className?: string;
   noShadow?: boolean;
   noBackground?: boolean;
@@ -52,7 +53,7 @@ type State = {
 
 class Section extends React.Component<Props, State> {
   static defaultProps = {
-    maxHeight: 255
+    maxHeight: 255,
   };
 
   static Title = Title;
@@ -66,7 +67,7 @@ class Section extends React.Component<Props, State> {
 
   toggleCollapse = () => {
     this.setState({
-      collapse: !this.state.collapse
+      collapse: !this.state.collapse,
     });
   };
 
@@ -83,32 +84,32 @@ class Section extends React.Component<Props, State> {
   render() {
     const {
       children,
-      collapsible,
+      $collapsible,
       noShadow,
       noBackground,
       full,
       maxHeight,
       noMargin,
-      noPadding
+      noPadding,
     } = this.props;
 
-    const style = collapsible
+    const style = $collapsible
       ? {
-          maxHeight: this.state.collapse ? undefined : maxHeight
+          maxHeight: this.state.collapse ? undefined : maxHeight,
         }
       : {};
 
     return (
       <SidebarBox
-        collapsible={collapsible}
+        $collapsible={$collapsible}
         style={style}
-        noShadow={noShadow}
+        $noShadow={noShadow}
         noBackground={noBackground}
         full={full}
-        noMargin={noMargin}
+        $noMargin={noMargin}
       >
         <BoxContent noPadding={noPadding}>{children}</BoxContent>
-        {collapsible ? this.renderCollapseButton() : null}
+        {$collapsible ? this.renderCollapseButton() : null}
       </SidebarBox>
     );
   }
@@ -123,7 +124,7 @@ type HeaderProps = {
 
 function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
   return (
-    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
+    <SidebarHeader spaceBottom={spaceBottom} $uppercase={uppercase} $bold={bold}>
       {children}
     </SidebarHeader>
   );
@@ -149,18 +150,16 @@ export default class Sidebar extends React.Component<SidebarProps> {
   static Footer = Footer;
 
   render() {
-    const {
-      children,
-      wide,
-      header,
-      footer,
-      half,
-      full,
-      hasBorder
-    } = this.props;
+    const { children, wide, header, footer, half, full, hasBorder } =
+      this.props;
 
     return (
-      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder}>
+      <SideContent
+        $half={half}
+        $wide={wide}
+        $full={full}
+        $hasBorder={hasBorder}
+      >
         {header}
         <SidebarMainContent>{children}</SidebarMainContent>
         {footer}

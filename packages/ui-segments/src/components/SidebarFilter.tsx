@@ -1,22 +1,22 @@
 import {
+  ChildList,
+  ToggleIcon,
+} from "@erxes/ui/src/components/filterableList/styles";
+import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
 
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { ISegment } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import {
-  ChildList,
-  ToggleIcon
-} from '@erxes/ui/src/components/filterableList/styles';
+import Box from "@erxes/ui/src/components/Box";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { ISegment } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   currentSegment?: string;
@@ -39,13 +39,13 @@ class Segments extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      key: '',
-      parentFieldIds: {}
+      key: "",
+      parentFieldIds: {},
     };
   }
 
   groupByParent = (array: any[]) => {
-    const key = 'subOf';
+    const key = "subOf";
 
     return array.reduce((rv, x) => {
       (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -80,24 +80,26 @@ class Segments extends React.Component<Props, State> {
 
     return (
       <>
-        <Dropdown alignRight={true} style={{ float: 'left' }}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-manage">
+        <Dropdown
+          as={DropdownToggle}
+          toggleComponent={
             <a id="contacts-segments-settings" href="#settings">
               <Icon icon="cog" />
             </a>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <li id={'SegmentsNewPage'}>
-              <Link to={`/segments/new?contentType=${contentType}`}>
-                {__('New segment')}
-              </Link>
-            </li>
-            <li>
-              <Link to={`/segments?contentType=${contentType}`}>
-                {__('Manage segments')}
-              </Link>
-            </li>
-          </Dropdown.Menu>
+          }
+          // alignRight={true}
+          // style={{ float: "left" }}
+        >
+          <li id={"SegmentsNewPage"}>
+            <Link to={`/segments/new?contentType=${contentType}`}>
+              {__("New segment")}
+            </Link>
+          </li>
+          <li>
+            <Link to={`/segments?contentType=${contentType}`}>
+              {__("Manage segments")}
+            </Link>
+          </li>
         </Dropdown>
 
         {this.renderCancelBtn()}
@@ -125,18 +127,18 @@ class Segments extends React.Component<Props, State> {
       }
 
       return (
-        <li key={segment._id} className={segment.subOf ? 'child-segment' : ''}>
+        <li key={segment._id} className={segment.subOf ? "child-segment" : ""}>
           <a
             href="#active"
             tabIndex={0}
-            className={currentSegment === segment._id ? 'active' : ''}
+            className={currentSegment === segment._id ? "active" : ""}
             onClick={this.onSegmentClick.bind(this, segment._id)}
           >
-            {segment.subOf ? '\u00a0\u00a0' : null}
+            {segment.subOf ? "\u00a0\u00a0" : null}
             <Icon
               icon="chart-pie"
-              style={{ color: segment.color, marginRight: '5px' }}
-            />{' '}
+              style={{ color: segment.color, marginRight: "5px" }}
+            />{" "}
             <FieldStyle>{segment.name}</FieldStyle>
             <SidebarCounter>{counts[segment._id]}</SidebarCounter>
           </a>
@@ -146,17 +148,17 @@ class Segments extends React.Component<Props, State> {
 
     const renderContent = () => {
       if (!treeView) {
-        return segments.map(field => {
+        return segments.map((field) => {
           return renderFieldItem(field);
         });
       }
 
-      const subFields = segments.filter(f => f.subOf);
-      const parents = segments.filter(f => !f.subOf);
+      const subFields = segments.filter((f) => f.subOf);
+      const parents = segments.filter((f) => !f.subOf);
 
       const groupByParent = this.groupByParent(subFields);
 
-      const renderTree = field => {
+      const renderTree = (field) => {
         const childrens = groupByParent[field._id];
 
         if (childrens) {
@@ -169,12 +171,12 @@ class Segments extends React.Component<Props, State> {
                   onClick={this.onToggle.bind(this, field._id, isOpen)}
                   type="params"
                 >
-                  <Icon icon={isOpen ? 'angle-down' : 'angle-right'} />
+                  <Icon icon={isOpen ? "angle-down" : "angle-right"} />
                 </ToggleIcon>
 
                 {renderFieldItem(field, isOpen)}
                 {isOpen &&
-                  childrens.map(childField => {
+                  childrens.map((childField) => {
                     return renderTree(childField);
                   })}
               </ChildList>
@@ -185,7 +187,7 @@ class Segments extends React.Component<Props, State> {
         return renderFieldItem(field);
       };
 
-      return parents.map(field => {
+      return parents.map((field) => {
         return renderTree(field);
       });
     };
@@ -199,15 +201,11 @@ class Segments extends React.Component<Props, State> {
 
     return (
       <Box
-        title={__('Filter by segments')}
+        title={__("Filter by segments")}
         extraButtons={extraButtons}
         collapsible={segments.length > 7}
         isOpen={true}
         name="showFilterBySegments"
-        noShadow={true}
-        noMarginBottom={true}
-        noBackground
-        noSpacing
       >
         <DataWithLoader
           data={this.renderData()}

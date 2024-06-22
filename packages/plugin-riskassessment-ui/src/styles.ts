@@ -1,10 +1,11 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { BoxRoot } from '@erxes/ui/src/styles/main';
-import { highlight } from '@erxes/ui/src/utils/animations';
+import { WhiteBoxRoot, colors, dimensions } from '@erxes/ui/src';
 import styled, { css } from 'styled-components';
+
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import { BoxRoot } from '@erxes/ui/src/styles/main';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { highlight } from '@erxes/ui/src/utils/animations';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
 
 export const GridContainer = styledTS<{
@@ -19,19 +20,19 @@ export const GridContainer = styledTS<{
 `;
 
 export const FormGroupRow = styledTS<{
-  horizontal?: boolean;
-  spaceBetween?: boolean;
+  $horizontal?: boolean;
+  $spaceBetween?: boolean;
 }>(styled.div)`
 margin-bottom: 20px;
 position: relative;
 
 ${props =>
-  props.horizontal &&
+  props.$horizontal &&
   css`
     display: flex;
     align-items: center;
     ${props =>
-      props.spaceBetween &&
+      props.$spaceBetween &&
       css`
         justify-content: space-between;
       `}
@@ -75,63 +76,63 @@ export const ContentWrapper = styled.div`
 `;
 
 export const Padding = styledTS<{
-  horizontal?: boolean;
-  vertical?: boolean;
+  $horizontal?: boolean;
+  $vertical?: boolean;
   padding?: string;
 }>(styled.div)`
-  padding: ${({ horizontal, vertical, padding }) =>
-    !horizontal && !vertical
+  padding: ${({ $horizontal, $vertical, padding }) =>
+    !$horizontal && !$vertical
       ? '10px'
-      : `${vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${
-          horizontal ? (padding ? `${padding}px` : '10px') : '0px'
+      : `${$vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${
+          $horizontal ? (padding ? `${padding}px` : '10px') : '0px'
         }`}
 `;
 
 export const FormContainer = styledTS<{
-  row?: boolean;
-  column?: boolean;
-  spaceBetween?: boolean;
-  spaceAround?: boolean;
-  gap?: boolean;
-  gapBetween?: number;
+  $row?: boolean;
+  $column?: boolean;
+  $spaceBetween?: boolean;
+  $spaceAround?: boolean;
+  $gap?: boolean;
+  $gapBetween?: number;
   align?: string;
-  justifyCenter?: boolean;
-  flex?: boolean;
-  maxItemsRow?: number;
+  $justifyCenter?: boolean;
+  $flex?: boolean;
+  $maxItemsRow?: number;
   justify?: string;
   padding?: string;
   placeContent?: string;
-  flexWrap?: boolean;
+  $flexWrap?: boolean;
   alignSelf?: string;
   width?: string;
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
   padding:${({ padding }) => (padding ? padding : '')};
-  flex-direction: ${({ row }) => row && 'row'} ${({ column }) =>
-  column && 'column'};
-  justify-content: ${({ spaceBetween }) =>
-    spaceBetween ? 'space-between' : ''} ${({ spaceAround }) =>
-  spaceAround ? 'space-around' : ''};
-  gap: ${({ gap }) => (gap ? '25px' : '')};
-  gap: ${({ gapBetween }) => (gapBetween ? `${gapBetween}px` : '')};
+  flex-direction: ${({ $row }) => $row && 'row'} ${({ $column }) =>
+  $column && 'column'};
+  justify-content: ${({ $spaceBetween }) =>
+    $spaceBetween ? 'space-between' : ''} ${({ $spaceAround }) =>
+  $spaceAround ? 'space-around' : ''};
+  gap: ${({ $gap }) => ($gap ? '25px' : '')};
+  gap: ${({ $gapBetween }) => ($gapBetween ? `${$gapBetween}px` : '')};
   place-items:${({ align }) => (align ? align : '')};
-  justify-content:${({ justifyCenter }) => (justifyCenter ? 'center' : '')}; 
+  justify-content:${({ $justifyCenter }) => ($justifyCenter ? 'center' : '')}; 
   justify-content:${({ justify }) => (justify ? justify : '')}; 
   place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
-  flex-wrap: ${({ flexWrap }) => (flexWrap ? 'wrap' : '')};
+  flex-wrap: ${({ $flexWrap }) => ($flexWrap ? 'wrap' : '')};
   align-self:${({ alignSelf }) => (alignSelf ? alignSelf : '')};
   width:${({ width }) => (width ? width : '')};
-  ${({ flex }) =>
-    flex
+  ${({ $flex }) =>
+    $flex
       ? `div {
         flex:  1
       }`
       : ''}
-      ${({ maxItemsRow }) =>
-        maxItemsRow
+      ${({ $maxItemsRow }) =>
+        $maxItemsRow
           ? `div {
-        flex:  1 0 ${100 / maxItemsRow}%
+        flex:  1 0 ${100 / $maxItemsRow}%
       }`
           : ''}
 `;

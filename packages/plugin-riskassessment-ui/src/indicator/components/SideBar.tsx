@@ -1,9 +1,8 @@
-import { Sidebar } from '@erxes/ui/src';
-import React from 'react';
-import { FilterByTags } from '../../common/utils';
+import { Sidebar } from "@erxes/ui/src";
+import React from "react";
+import { FilterByTags } from "../../common/utils";
 type Props = {
   queryParams: any;
-  history: any;
 };
 
 class SideBar extends React.Component<Props> {
@@ -12,11 +11,11 @@ class SideBar extends React.Component<Props> {
   }
 
   render() {
-    const { history, queryParams } = this.props;
+    const { queryParams } = this.props;
 
     return (
       <Sidebar>
-        <FilterByTags history={history} queryParams={queryParams} />
+        <FilterByTags queryParams={queryParams} />
       </Sidebar>
     );
   }

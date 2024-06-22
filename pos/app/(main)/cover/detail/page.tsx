@@ -1,7 +1,6 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import useConfig from "@/modules/auth/hooks/useConfig"
 import {
   isCoverAmountsFetchedAtom,
   setCoverDetailAtom,
@@ -25,8 +24,6 @@ const CoverDetail = () => {
   const setCover = useSetAtom(setCoverDetailAtom)
   const setIsFetched = useSetAtom(isCoverAmountsFetchedAtom)
 
-  const { loading: loadingConfig } = useConfig("cover")
-
   const { loading } = useQuery(queries.coverDetail, {
     variables: { id },
     fetchPolicy: "network-only",
@@ -39,9 +36,7 @@ const CoverDetail = () => {
     onError,
   })
 
-  if (loading || loadingConfig) {
-    return <Loader />
-  }
+  if (loading) return <Loader />
 
   return (
     <div className="flex-auto overflow-hidden ">

@@ -6,12 +6,14 @@ import { ICustomer } from '../types';
 import IncomingCall from '../components/IncomingCall';
 import { __ } from '@erxes/ui/src/utils/core';
 import { callPropType } from '../lib/types';
-import { mutations } from '../graphql';
 import { extractPhoneNumberFromCounterpart } from '../utils';
+import { mutations } from '../graphql';
 
 interface IProps {
   closeModal?: () => void;
   callUserIntegrations: any;
+  hideIncomingCall?: boolean;
+  currentCallConversationId: string;
 }
 
 const IncomingCallContainer = (props: IProps, context) => {
@@ -20,7 +22,7 @@ const IncomingCallContainer = (props: IProps, context) => {
 
   const [hasMicrophone, setHasMicrophone] = useState(false);
 
-  const { callUserIntegrations } = props;
+  const { callUserIntegrations, currentCallConversationId } = props;
   const { call } = context;
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
@@ -37,7 +39,7 @@ const IncomingCallContainer = (props: IProps, context) => {
 
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ audio: true })
+      ?.getUserMedia({ audio: true })
       .then(() => {
         setHasMicrophone(true);
       })
@@ -75,6 +77,9 @@ const IncomingCallContainer = (props: IProps, context) => {
       channels={channels}
       hasMicrophone={hasMicrophone}
       phoneNumber={phoneNumber}
+      hideIncomingCall={props.hideIncomingCall}
+      inboxId={inboxId}
+      currentCallConversationId={currentCallConversationId}
     />
   );
 };

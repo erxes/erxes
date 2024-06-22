@@ -127,7 +127,7 @@ const labelsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return await models.YearPlans.find(filter).count();
+    return await models.YearPlans.find(filter).countDocuments();
   },
 
   yearPlansSum: async (
@@ -144,7 +144,7 @@ const labelsQueries = {
 
     for (const plan of plans) {
       for (const month of MONTHS) {
-        result[month] += Number(plan.values[month]);
+        result[month] += Number(plan.values ? plan.values[month] : 0);
       }
     }
     return result;

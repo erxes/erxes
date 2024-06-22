@@ -3,9 +3,12 @@ import queryString from 'query-string';
 /**
  * @param {Object} query
  */
-const setParams = (history: any, query: any, replace: boolean = false) => {
-  const location = Object.assign({}, history.location);
-
+const setParams = (
+  navigate: any,
+  location: any,
+  query: any,
+  replace: boolean = false,
+) => {
   // convert to {param1: value1}
   const parsed = queryString.parse(location.search);
 
@@ -17,20 +20,18 @@ const setParams = (history: any, query: any, replace: boolean = false) => {
 
   // go to new url
   if (replace) {
-    return history.replace(
-      `${location.pathname}?${stringified}${location.hash}`
-    );
+    return navigate(`${location.pathname}?${stringified}${location.hash}`, {
+      replace: true,
+    });
   }
 
-  return history.push(`${location.pathname}?${stringified}${location.hash}`);
+  return navigate(`${location.pathname}?${stringified}${location.hash}`);
 };
 
 /**
  * @param {String} name
  */
-const getParam = (history: any, name: string | string[]) => {
-  const location = Object.assign({}, history.location);
-
+const getParam = (location: any, name: string | string[]) => {
   // convert to {param1: value1}
   const parsed = queryString.parse(location.search);
 
@@ -40,32 +41,34 @@ const getParam = (history: any, name: string | string[]) => {
 /**
  * @param {...String} queryNames
  */
-const removeParams = (history: any, ...queryNames: string[]) => {
-  const location = Object.assign({}, history.location);
-
+const removeParams = (
+  navigate: any,
+  location: any,
+  ...queryNames: string[]
+) => {
   // convert to {param1: value1}
   const parsed = queryString.parse(location.search);
 
   // remove given parameters
-  queryNames.forEach(q => delete parsed[q]);
+  queryNames.forEach((q) => delete parsed[q]);
 
   // convert back to param1=value1&param2=value2
   const stringified = queryString.stringify(parsed);
 
   // go to new url
-  history.push(`${location.pathname}?${stringified}`);
+  navigate(`${location.pathname}?${stringified}`);
 };
 
 /*
  * @param {Object} query
  */
-const refetchIfUpdated = (history: any, query: any) => {
-  if (history.location.search.includes('updated')) {
+const refetchIfUpdated = ( navigate: any, location: any, query: any) => {
+  if (location.search.includes('updated')) {
     // refetch query if path has refetch param
     query.refetch();
 
     // clear refetch param
-    removeParams(history, 'updated');
+    removeParams(navigate,location, 'updated');
   }
 };
 
@@ -75,12 +78,12 @@ const refetchIfUpdated = (history: any, query: any) => {
  * @param {Object} params - Updated params
  * @query {Object} query
  */
-const replaceParam = (history: any, params: any, query: any) => {
+const replaceParam = (navigate: any, params: any, query: any) => {
   Object.assign(params, query);
 
   const stringified = queryString.stringify(params);
 
-  return history.push(`${window.location.pathname}?${stringified}`);
+  return navigate(`${window.location.pathname}?${stringified}`);
 };
 
 export const generatePaginationParams = (queryParams: {
@@ -88,8 +91,18 @@ export const generatePaginationParams = (queryParams: {
   perPage?: string;
 }) => {
   return {
-    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
-    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
+    page:
+      Object.keys(queryParams || {}).length > 0
+        ? queryParams.page
+          ? parseInt(queryParams.page, 10)
+          : 1
+        : 1,
+    perPage:
+      Object.keys(queryParams || {}).length > 0
+        ? queryParams.perPage
+          ? parseInt(queryParams.perPage, 10)
+          : 20
+        : 20,
   };
 };
 
@@ -100,11 +113,12 @@ export const generatePaginationParams = (queryParams: {
  * @param {Object}  history
  */
 const onParamSelect = (
+  navigate: any,
+  location: any,
   name: string,
   values: string[] | string,
-  history: any
 ) => {
-  setParams(history, { [name]: values });
+  setParams(navigate, location, { [name]: values });
 };
 
 /**
@@ -128,9 +142,7 @@ const checkHashKeyInURL = ({ location }, hashKey?: string): boolean => {
  * @param {Object} history - location
  * @param {String} hashKey
  */
-const removeHash = (history: any, hashKey?: string) => {
-  const location = Object.assign({}, history.location);
-
+const removeHash = (navigate: any,location: any, hashKey?: string) => {
   // convert to {hashKey: value}
   const parsedHash = queryString.parse(location.hash);
 
@@ -140,7 +152,7 @@ const removeHash = (history: any, hashKey?: string) => {
   // convert back to hashKey=value
   const stringified = queryString.stringify(parsedHash);
 
-  history.push(`${location.pathname}?${stringified}`);
+  navigate(`${location.pathname}?${stringified}`);
 };
 
 export {
@@ -151,5 +163,5 @@ export {
   removeParams,
   removeHash,
   refetchIfUpdated,
-  checkHashKeyInURL
+  checkHashKeyInURL,
 };

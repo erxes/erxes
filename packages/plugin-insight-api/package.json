@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "migrateCharts": "../../node_modules/.bin/ts-node src/commands/migrateCharts.ts"
+    "migrateCharts": "../../node_modules/.bin/ts-node src/commands/migrateCharts.ts",
+    "migrateDimensions": "../../node_modules/.bin/ts-node src/commands/migrateChartDimensions.ts"
   },
   "dependencies": {
     "@erxes/api-utils": "*",

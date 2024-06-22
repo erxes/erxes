@@ -10,7 +10,14 @@ export interface IOTPConfig {
   loginWithOTP: boolean;
   expireAfter: number;
 }
-
+export interface TwoFactorConfig {
+  emailSubject?: any;
+  content: string;
+  codeLength: number;
+  smsTransporterType: string;
+  enableTwoFactor: boolean;
+  expireAfter: number;
+}
 export interface ISocialpayConfig {
   publicKey: string;
   certId: string;
@@ -58,6 +65,8 @@ export interface IClientPortal {
   tokenPassMethod?: 'cookie' | 'header';
 
   otpConfig?: IOTPConfig;
+  twoFactorConfig?: TwoFactorConfig;
+
   mailConfig?: IMailConfig;
   manualVerificationConfig?: IManualVerificationConfig;
   passwordVerificationConfig?: IPasswordVerificationConfig;
@@ -148,7 +157,7 @@ const stylesSchema = new Schema(
   },
   {
     _id: false,
-  },
+  }
 );
 
 const otpConfigSchema = new Schema(
@@ -161,8 +170,24 @@ const otpConfigSchema = new Schema(
       type: String,
       optional: true,
     }),
+    emailSubject: field({ type: String, optional: true }),
   },
-  { _id: false },
+  { _id: false }
+);
+
+const twoFactorSchema = new Schema(
+  {
+    content: field({ type: String, optional: true }),
+    codeLength: field({ type: Number, default: 4, min: 4 }),
+    enableTwoFactor: field({ type: Boolean, default: false }),
+    expireAfter: field({ type: Number, default: 1, min: 1, max: 10 }),
+    smsTransporterType: field({
+      type: String,
+      optional: true,
+    }),
+    emailSubject: field({ type: String, optional: true }),
+  },
+  { _id: false }
 );
 
 const mailConfigSchema = new Schema(
@@ -171,7 +196,7 @@ const mailConfigSchema = new Schema(
     invitationContent: field({ type: String, optional: true }),
     registrationContent: field({ type: String, optional: true }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const clientPortalSchema = new Schema({
@@ -194,6 +219,8 @@ export const clientPortalSchema = new Schema({
   styles: field({ type: stylesSchema, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
   otpConfig: field({ type: otpConfigSchema, optional: true }),
+  twoFactorConfig: field({ type: twoFactorSchema, optional: true }),
+
   mailConfig: field({ type: mailConfigSchema, optional: true }),
   manualVerificationConfig: field({
     type: {

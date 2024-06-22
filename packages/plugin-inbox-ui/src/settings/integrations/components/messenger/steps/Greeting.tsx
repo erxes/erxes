@@ -1,14 +1,14 @@
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IMessages } from '../../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
-import { __ } from 'coreui/utils';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IMessages } from "../../../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import { SubHeading } from "@erxes/ui-settings/src/styles";
+import { __ } from "coreui/utils";
 
 type Props = {
   onChange: (name: any, value: any) => void;
@@ -38,11 +38,11 @@ class Greeting extends React.Component<Props, State> {
     const { messages } = props;
 
     this.state = {
-      facebook: '',
-      instagram: '',
-      twitter: '',
-      youtube: '',
-      messages
+      facebook: "",
+      instagram: "",
+      twitter: "",
+      youtube: "",
+      messages,
     };
   }
 
@@ -58,7 +58,7 @@ class Greeting extends React.Component<Props, State> {
 
     this.setState({ messages });
 
-    this.props.onChange('messages', messages);
+    this.props.onChange("messages", messages);
   };
 
   render() {
@@ -68,35 +68,35 @@ class Greeting extends React.Component<Props, State> {
       twitter,
       youtube,
       languageCode,
-      supporterIds
+      supporterIds,
     } = this.props;
     const message = this.state.messages[languageCode] || {
       greetings: {
-        title: '',
-        message: ''
-      }
+        title: "",
+        message: "",
+      },
     };
 
-    const greetingTitle = e =>
-      this.onGreetingsChange('title', (e.target as HTMLInputElement).value);
+    const greetingTitle = (e) =>
+      this.onGreetingsChange("title", (e.target as HTMLInputElement).value);
 
-    const greetingMessage = e =>
-      this.onGreetingsChange('message', (e.target as HTMLInputElement).value);
+    const greetingMessage = (e) =>
+      this.onGreetingsChange("message", (e.target as HTMLInputElement).value);
 
-    const facebookChange = e =>
-      this.onInputChange('facebook', (e.target as HTMLInputElement).value);
+    const facebookChange = (e) =>
+      this.onInputChange("facebook", (e.target as HTMLInputElement).value);
 
-    const instagramChange = e => {
-      this.onInputChange('instagram', (e.target as HTMLInputElement).value);
+    const instagramChange = (e) => {
+      this.onInputChange("instagram", (e.target as HTMLInputElement).value);
     };
 
-    const twitterChange = e =>
-      this.onInputChange('twitter', (e.target as HTMLInputElement).value);
+    const twitterChange = (e) =>
+      this.onInputChange("twitter", (e.target as HTMLInputElement).value);
 
-    const youtubeChange = e =>
-      this.onInputChange('youtube', (e.target as HTMLInputElement).value);
+    const youtubeChange = (e) =>
+      this.onInputChange("youtube", (e.target as HTMLInputElement).value);
 
-    const usersOnChange = users => this.props.onChange('supporterIds', users);
+    const usersOnChange = (users) => this.props.onChange("supporterIds", users);
 
     return (
       <FlexItem>
@@ -105,7 +105,7 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Greeting title</ControlLabel>
 
             <FormControl
-              placeholder={__('Write here Greeting title') + '.'}
+              placeholder={__("Write here Greeting title") + "."}
               rows={3}
               value={message.greetings.title}
               onChange={greetingTitle}
@@ -116,8 +116,8 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Greeting message</ControlLabel>
 
             <FormControl
-              componentClass="textarea"
-              placeholder={__('Write here Greeting message') + '.'}
+              componentclass="textarea"
+              placeholder={__("Write here Greeting message") + "."}
               rows={3}
               value={message.greetings.message}
               onChange={greetingMessage}
@@ -135,14 +135,14 @@ class Greeting extends React.Component<Props, State> {
             />
           </FormGroup>
 
-          <SubHeading>{__('Links')}</SubHeading>
+          <SubHeading>{__("Links")}</SubHeading>
 
           <FormGroup>
             <ControlLabel>Facebook</ControlLabel>
 
             <FormControl
               rows={3}
-              value={facebook || ''}
+              value={facebook || ""}
               onChange={facebookChange}
             />
           </FormGroup>
@@ -152,7 +152,7 @@ class Greeting extends React.Component<Props, State> {
 
             <FormControl
               rows={3}
-              value={instagram || ''}
+              value={instagram || ""}
               onChange={instagramChange}
             />
           </FormGroup>
@@ -161,7 +161,7 @@ class Greeting extends React.Component<Props, State> {
 
             <FormControl
               rows={3}
-              value={twitter || ''}
+              value={twitter || ""}
               onChange={twitterChange}
             />
           </FormGroup>
@@ -171,7 +171,7 @@ class Greeting extends React.Component<Props, State> {
 
             <FormControl
               rows={3}
-              value={youtube || ''}
+              value={youtube || ""}
               onChange={youtubeChange}
             />
           </FormGroup>

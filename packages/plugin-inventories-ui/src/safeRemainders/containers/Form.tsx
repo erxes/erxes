@@ -1,36 +1,35 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import * as compose from 'lodash.flowright';
 // erxes
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 // local
-import FormComponent from '../components/Form';
-import { mutations } from '../graphql';
+import FormComponent from "../components/Form";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import { mutations } from "../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   closeModal: () => void;
 };
 
 function FormContainer(props: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const getRefetchQueries = () => {
-    return ['safeRemainders'];
+    return ["safeRemainders"];
   };
 
   const renderButton = ({
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     const _callback = (data: any) => {
       if (callback) {
         callback(data);
       }
 
-      history.push(
+      navigate(
         `/inventories/safe-remainders/details/${data.safeRemainderAdd._id}`
       );
     };
@@ -51,10 +50,10 @@ function FormContainer(props: Props) {
 
   const componentProps = {
     ...props,
-    renderButton
+    renderButton,
   };
 
   return <FormComponent {...componentProps} />;
 }
 
-export default compose()(FormContainer);
+export default FormContainer;

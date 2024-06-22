@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
-import Icon from 'modules/common/components/Icon';
-import Form from 'react-bootstrap/Form';
-import Button from 'modules/common/components/Button';
 import {
+  AvatarWrapper,
   ButtonContainer,
   SidebarContent,
-  AvatarWrapper,
-} from 'modules/saas/onBoarding/styles';
-import { IUser } from '@erxes/ui/src/auth/types';
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import { router } from 'modules/common/utils';
+} from "modules/saas/onBoarding/styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Button from "modules/common/components/Button";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "modules/common/components/Icon";
+import { router } from "modules/common/utils";
 
 type Props = {
-  history: any;
   userEdit: (_id: string, doc: any) => void;
   currentUser: IUser;
   firstName: string;
@@ -27,7 +30,6 @@ type Props = {
 
 function Profile(props: Props) {
   const {
-    history,
     userEdit,
     currentUser,
     firstName,
@@ -43,6 +45,8 @@ function Profile(props: Props) {
   const [activeFirst, setActiveFirst] = useState(firstName ? true : false);
   const [activeLast, setActiveLast] = useState(lastName ? true : false);
   const [activeEmail, setActiveLastEmail] = useState(email ? true : false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const onSubmit = () => {
     const details = {
@@ -60,7 +64,7 @@ function Profile(props: Props) {
   };
 
   const onChangeStep = () => {
-    router.setParams(history, { steps: 0 });
+    router.setParams(navigate, location, { steps: 0 });
   };
 
   const onAvatarUpload = (url) => {
@@ -74,37 +78,40 @@ function Profile(props: Props) {
           <AvatarUpload avatar={avatar} onAvatarUpload={onAvatarUpload} />
         </AvatarWrapper>
 
-        <Form.Group
-          className={activeFirst ? 'active' : ''}
+        <FormGroup
+          className={`form-group ${activeFirst ? "active" : ""}`}
           controlId="firstName"
         >
-          <Form.Label>First Name</Form.Label>
-          <Form.Control
+          <FormLabel uppercase={false}>First Name</FormLabel>
+          <FormControl
             defaultValue={firstName}
             name="firstName"
             onFocus={() => setActiveFirst(true)}
             onBlur={() => !firstName && setActiveFirst(false)}
             onChange={(e) => setFirstName((e.target as HTMLInputElement).value)}
           />
-        </Form.Group>
+        </FormGroup>
 
-        <Form.Group className={activeLast ? 'active' : ''} controlId="lastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control
+        <FormGroup
+          className={`form-group ${activeLast ? "active" : ""}`}
+          controlId="lastName"
+        >
+          <FormLabel uppercase={false}>Last Name</FormLabel>
+          <FormControl
             defaultValue={lastName}
             name="lastName"
             onFocus={() => setActiveLast(true)}
             onBlur={() => !lastName && setActiveLast(false)}
             onChange={(e) => setLastName((e.target as HTMLInputElement).value)}
           />
-        </Form.Group>
+        </FormGroup>
 
-        <Form.Group
-          className={`disabled ${activeEmail ? 'active' : ''}`}
+        <FormGroup
+          className={`form-group disabled ${activeEmail ? "active" : ""}`}
           controlId="email"
         >
-          <Form.Label>Email</Form.Label>
-          <Form.Control
+          <FormLabel uppercase={false}>Email</FormLabel>
+          <FormControl
             defaultValue={email}
             name="name"
             onFocus={() => setActiveLastEmail(true)}
@@ -112,7 +119,7 @@ function Profile(props: Props) {
             onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
             disabled={true}
           />
-        </Form.Group>
+        </FormGroup>
       </SidebarContent>
 
       <ButtonContainer>

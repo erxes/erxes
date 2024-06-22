@@ -1,18 +1,17 @@
-import React from 'react';
+import React from "react";
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery } from "@apollo/client";
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/index";
 
-import Form from '../../components/goal/Form';
-import { queries, mutations } from '../../graphql';
+import Form from "../../components/goal/Form";
+import { queries, mutations } from "../../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
 
   goalId?: string;
 
@@ -21,7 +20,8 @@ type Props = {
 };
 
 const FormContainer = (props: Props) => {
-  const { goalId, history, closeDrawer, getAssociatedGoalType } = props;
+  const { goalId, closeDrawer, getAssociatedGoalType } = props;
+  const navigate = useNavigate();
 
   const goalQuery = useQuery(gql(queries.goalTypesDetail), {
     skip: !goalId,
@@ -51,7 +51,7 @@ const FormContainer = (props: Props) => {
       const goalId = data[actionType]._id;
 
       if (goalId) {
-        history.push(`/insight?goalId=${goalId}`);
+        navigate(`/insight?goalId=${goalId}`);
       }
 
       if (getAssociatedGoalType) {
@@ -60,9 +60,9 @@ const FormContainer = (props: Props) => {
     };
 
     const mutation = object ? mutations.goalTypesEdit : mutations.goalTypesAdd;
-    const actionType = object ? 'goalsEdit' : 'goalsAdd';
+    const actionType = object ? "goalsEdit" : "goalsAdd";
     const successMessage = `You successfully ${
-      object ? 'updated' : 'added'
+      object ? "updated" : "added"
     } a ${name}`;
 
     return (
@@ -86,7 +86,7 @@ const FormContainer = (props: Props) => {
         type="submit"
         successMessage={successMessage}
       >
-        {__('Save')}
+        {__("Save")}
       </ButtonMutate>
     );
   };

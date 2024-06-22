@@ -1,9 +1,9 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IAsset } from '../../../../common/types';
-import { KbArticles } from '../../../../style';
-import { FormControl } from '@erxes/ui/src';
-import { ContainerBox } from '../../../../style';
+import { ContainerBox } from "../../../../style";
+import { FormControl } from "@erxes/ui/src";
+import { IAsset } from "../../../../common/types";
+import { KbArticles } from "../../../../style";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   objects?: IAsset[];
@@ -18,13 +18,10 @@ type Props = {
   setSelectedArticles: (articleIds: string[]) => void;
 };
 
-function Article({
-  objects,
-  article,
-  selectedArticles,
-  setSelectedArticles
-}: Props) {
-  const handleArticleSelect = articleId => {
+const Article = (props: Props) => {
+  const { article, selectedArticles, setSelectedArticles } = props;
+
+  const handleArticleSelect = (articleId) => {
     const newSelectedArticles = [...selectedArticles];
 
     if (newSelectedArticles.includes(articleId)) {
@@ -39,10 +36,10 @@ function Article({
 
   return (
     <KbArticles key={article._id}>
-      <ContainerBox spaceBetween={true} align="center">
+      <ContainerBox $spaceBetween={true} align="center">
         <ContainerBox gap={5}>
           <FormControl
-            componentClass="checkbox"
+            componentclass="checkbox"
             checked={selectedArticles.includes(article._id)}
             onClick={() => handleArticleSelect(article._id)}
           />
@@ -51,6 +48,6 @@ function Article({
       </ContainerBox>
     </KbArticles>
   );
-}
+};
 
 export default Article;

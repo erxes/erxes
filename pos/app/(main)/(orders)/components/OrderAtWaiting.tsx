@@ -1,24 +1,15 @@
 import { useEffect, useState } from "react"
 import { mutations } from "@/modules/orders/graphql"
+import { waitingScreenAtom } from "@/store/config.store"
 import { useMutation } from "@apollo/client"
 import { addSeconds, isBefore } from "date-fns"
+import { useAtomValue } from "jotai"
 
 import { IOrder } from "@/types/order.types"
 import { ORDER_STATUSES } from "@/lib/constants"
 
-const Order = ({
-  number,
-  modifiedAt,
-  status,
-  _id,
-  waitingScreen,
-}: IOrder & {
-  waitingScreen: {
-    type: string
-    value: string
-  }
-}) => {
-  const { type, value } = waitingScreen
+const Order = ({ number, modifiedAt, status, _id }: IOrder) => {
+  const { value } = useAtomValue(waitingScreenAtom) || {}
   const [expireDate, setExpireDate] = useState<any>()
   const waitingSec = parseInt(value || "3") * 60
 

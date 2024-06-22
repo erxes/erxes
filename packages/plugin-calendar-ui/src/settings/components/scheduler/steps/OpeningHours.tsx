@@ -1,14 +1,14 @@
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Datetime from '@nateradebaugh/react-datetime';
-import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import React from 'react';
-import dayjs from 'dayjs';
-import styled from 'styled-components';
-import timezones from '@erxes/ui/src/constants/timezones';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Datetime from "@nateradebaugh/react-datetime";
+import { FlexRow } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import React from "react";
+import dayjs from "dayjs";
+import styled from "styled-components";
+import timezones from "@erxes/ui/src/constants/timezones";
 
 const WeekContainers = styled.div`
   display: inline-block;
@@ -26,7 +26,7 @@ const WeekContainers = styled.div`
 `;
 
 type Props = {
-  onChange: (name: 'timezone' | 'openingHours', value: any) => void;
+  onChange: (name: "timezone" | "openingHours", value: any) => void;
   timezone?: string;
 };
 
@@ -43,20 +43,17 @@ class OpeningHours extends React.Component<Props, State> {
 
     const defaultTime = (time: number) => {
       return new Date(
-        dayjs()
-          .startOf('day')
-          .add(time, 'hour')
-          .format('YYYY-MM-DD HH:mm')
+        dayjs().startOf("day").add(time, "hour").format("YYYY-MM-DD HH:mm")
       );
     };
     this.state = {
-      days: ['M', 'T', 'W', 'R', 'F'],
+      days: ["M", "T", "W", "R", "F"],
       startDate: defaultTime(9),
-      endDate: defaultTime(17)
+      endDate: defaultTime(17),
     };
   }
 
-  onChangeInput = (name: 'timezone', e: React.FormEvent) => {
+  onChangeInput = (name: "timezone", e: React.FormEvent) => {
     const { value } = e.target as HTMLInputElement;
 
     this.setState({ [name]: value }, () => this.props.onChange(name, value));
@@ -68,14 +65,14 @@ class OpeningHours extends React.Component<Props, State> {
     return [
       {
         days,
-        start: dayjs(startDate).format('HH:mm'),
-        end: dayjs(endDate).format('HH:mm')
-      }
+        start: dayjs(startDate).format("HH:mm"),
+        end: dayjs(endDate).format("HH:mm"),
+      },
     ];
   };
 
   updateOpeningHours = () => {
-    this.props.onChange('openingHours', this.generateOpeningHours());
+    this.props.onChange("openingHours", this.generateOpeningHours());
   };
 
   onChangeDays = (value: string) => {
@@ -92,19 +89,19 @@ class OpeningHours extends React.Component<Props, State> {
     this.setState({ days }, () => this.updateOpeningHours());
   };
 
-  onChangeStartDate = time => {
+  onChangeStartDate = (time) => {
     this.setState({ startDate: time }, () => this.updateOpeningHours());
   };
 
-  onChangeEndDate = time => {
+  onChangeEndDate = (time) => {
     this.setState({ endDate: time }, () => this.updateOpeningHours());
   };
 
   render() {
     const { timezone } = this.props;
 
-    const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const weekValues = ['U', 'M', 'T', 'W', 'R', 'F', 'S'];
+    const weeks = ["S", "M", "T", "W", "T", "F", "S"];
+    const weekValues = ["U", "M", "T", "W", "R", "F", "S"];
 
     return (
       <FlexItem>
@@ -115,11 +112,11 @@ class OpeningHours extends React.Component<Props, State> {
             your availability in their local time zone.
             <br />
             <FormControl
-              componentClass="select"
+              componentclass="select"
               defaultValue={timezone}
               name="timezone"
               options={timezones}
-              onChange={this.onChangeInput.bind(null, 'timezone')}
+              onChange={this.onChangeInput.bind(null, "timezone")}
             />
           </FormGroup>
 
@@ -134,7 +131,7 @@ class OpeningHours extends React.Component<Props, State> {
                     <button
                       key={index}
                       value={weekValues[index]}
-                      className={isChecked ? 'checked' : ''}
+                      className={isChecked ? "checked" : ""}
                       onClick={this.onChangeDays.bind(this, value)}
                     >
                       {k}

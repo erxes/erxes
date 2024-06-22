@@ -1,39 +1,41 @@
-import React from 'react';
+import React from "react";
 
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation } from "@apollo/client";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
 
-import ReportSection from '../../components/section/Report';
-import { queries, mutations } from '../../graphql';
+import ReportSection from "../../components/section/Report";
+import { queries, mutations } from "../../graphql";
 import {
   ReportRemoveMutationResponse,
   ReportsListQueryResponse,
   SectionsListQueryResponse,
-} from '../../types';
+} from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 const ReportSectionContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
   const { goalId, dashboardId, reportId } = queryParams;
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const reportsQuery = useQuery<ReportsListQueryResponse>(
-    gql(queries.reportList),
+    gql(queries.reportList)
   );
   const sectionsQuery = useQuery<SectionsListQueryResponse>(
     gql(queries.sectionList),
     {
       variables: {
-        type: 'report',
+        type: "report",
       },
-    },
+    }
   );
 
   const [reportsRemoveManyMutation] = useMutation<ReportRemoveMutationResponse>(
@@ -42,23 +44,27 @@ const ReportSectionContainer = (props: Props) => {
       refetchQueries: [
         {
           query: gql(queries.sectionList),
-          variables: { type: 'report' },
+          variables: { type: "report" },
         },
         {
           query: gql(queries.reportList),
         },
       ],
-    },
+    }
   );
 
   const removeReports = (ids: string[]) => {
-    confirm(__('Are you sure to delete selected reports?')).then(() => {
+    confirm(__("Are you sure to delete selected reports?")).then(() => {
       reportsRemoveManyMutation({ variables: { ids } })
         .then(() => {
           if (ids.includes(queryParams.reportId)) {
-            router.removeParams(history, ...Object.keys(queryParams));
+            router.removeParams(
+              navigate,
+              location,
+              ...Object.keys(queryParams)
+            );
           }
-          Alert.success(__('Successfully deleted'));
+          Alert.success(__("Successfully deleted"));
         })
         .catch((e: Error) => Alert.error(e.message));
     });

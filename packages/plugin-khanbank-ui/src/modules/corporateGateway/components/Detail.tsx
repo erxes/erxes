@@ -1,5 +1,4 @@
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Content } from '../../../styles';
@@ -7,10 +6,9 @@ import DetailContainer from '../accounts/containers/Detail';
 import TransactionsContainer from '../transactions/containers/List';
 
 type Props = {
-  history?: any;
   loading?: boolean;
   queryParams: any;
-} & IRouterProps;
+};
 
 const Detail = (props: Props) => {
   const { queryParams } = props;

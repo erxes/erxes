@@ -27,7 +27,12 @@ type VerificationRequest {
   description: String
   verifiedBy: String
 }
-
+type TwoFactorDevice {
+  key: String
+  device: String
+  date: Date
+  
+}
   input ClientPortalUserUpdate {
     firstName: String
     lastName: String
@@ -44,7 +49,10 @@ type VerificationRequest {
     isOnline: Boolean
     avatar: String
   }
-
+  input TwoFactor {
+    key: String
+    device: String
+  }
   type ClientPortalUser @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -90,6 +98,7 @@ type VerificationRequest {
       `
         : ''
     }
+    twoFactorDevices:[TwoFactorDevice]
   }
 
   type clientPortalUsersListResponse {
@@ -188,13 +197,16 @@ export const mutations = () => `
   clientPortalRegister(${userParams}): String
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): JSON
   clientPortalUsersVerify(userIds: [String]!, type: String): JSON
-  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String,twoFactor: TwoFactor): JSON
   clientPortalLoginWithPhone(phone: String!, clientPortalId: String!, deviceToken: String): JSON
+  clientPortal2FAGetCode(byPhone: Boolean,byEmail:Boolean): JSON
+  clientPortal2FADeleteKey(key:String!): JSON
+  clientPortalVerify2FA(phoneOtp: String, emailOtp: String,twoFactor:TwoFactor): JSON
   clientPortalLoginWithMailOTP(email: String!, clientPortalId: String!, deviceToken: String): JSON
   clientPortalLoginWithSocialPay(clientPortalId: String!, token: String!) : JSON
   clientPortalRefreshToken: String
-  clientPortalGoogleAuthentication(clientPortalId: String, code: String): JSON
-  clientPortalFacebookAuthentication(accessToken: String, clientPortalId: String!): JSON
+  clientPortalGoogleAuthentication(clientPortalId: String!, code: String!): JSON
+  clientPortalFacebookAuthentication(accessToken: String!, clientPortalId: String!): JSON
   clientPortalLogout: String
   
   clientPortalUsersReplacePhone(clientPortalId: String!, phone: String!): String!

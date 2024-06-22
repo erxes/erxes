@@ -90,7 +90,7 @@ const Description = (props: DescProps) => {
 
   return (
     <FormGroup>
-      <ContentWrapper isEditing={edit}>
+      <ContentWrapper $isEditing={edit}>
         <TitleRow>
           <ControlLabel>
             <Icon icon="align-left-justify" />
@@ -112,7 +112,7 @@ const Description = (props: DescProps) => {
             <RichTextEditor
               content={description}
               onChange={onChangeDescription}
-              height={120}
+              height={"max-content"}
               isSubmitted={isSubmitted}
               autoFocus={true}
               name={`${contentType}_description_${item._id}`}
@@ -126,6 +126,7 @@ const Description = (props: DescProps) => {
                 '|',
                 'image',
               ]}
+              onCtrlEnter={onSend}
             />
 
             {renderFooter()}

@@ -39,7 +39,7 @@ const ResponseSuggestionItem = styled.li`
   text-overflow: ellipsis;
 
   :hover {
-    background-color: ${colors.bgUnread};
+    background-color: ${rgba(colors.bgUnread, 0.5)};
   }
 
   strong {
@@ -48,18 +48,23 @@ const ResponseSuggestionItem = styled.li`
 `;
 
 const RespondBoxStyled = styledTS<{
-  isInactive?: boolean;
-  isInternal?: boolean;
+  $isInactive?: boolean;
+  $isInternal?: boolean;
 }>(styled.div)`
   border-top: 1px solid ${colors.borderPrimary};
   position: relative;
   transition: background 0.3s ease;
   background: ${(props) =>
-    props.isInternal ? colors.bgInternal : colors.colorWhite};
-  filter: ${(props) => props.isInactive && 'blur(2px)'};
-  div[data-promise-mirror-editor]{
+    props.$isInternal ? colors.bgInternal : colors.colorWhite};
+  filter: ${(props) => props.$isInactive && 'blur(2px)'};
+  div[data-prose-mirror-editor]{
     background: ${(props) =>
-      props.isInternal ? colors.bgInternal : colors.colorWhite};
+    props.$isInternal ? colors.bgInternal : colors.colorWhite};
+    transition: background 0.3s ease;
+  }
+  .cm-editor{
+    background: ${(props) =>
+    props.$isInternal ? colors.bgInternal : colors.colorWhite};
     transition: background 0.3s ease;
   }
 `;
@@ -71,7 +76,7 @@ const MailRespondBox = styled(RespondBoxStyled)`
 `;
 
 const ResponseTemplateStyled = styled.div`
-  display: inline-block;
+  display: flex;
 
   button {
     margin-right: 10px;
@@ -103,7 +108,7 @@ const EditorActions = styled.div`
       color: ${darken(colors.colorCoreGray, 30)};
     }
     ${isEnabled('internalnotes') &&
-    `
+  `
       &:first-of-type {
         position: absolute;
         left: 20px;
@@ -364,10 +369,10 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${(props) => (props.type === 'answered' ? 'green' : 'red')};
 `;
 
-const ModalWrapper = styledTS<{ show?: boolean }>(styled.div)`
-${({ show }) =>
-  show
-    ? `
+const ModalWrapper = styledTS<{ $show?: boolean }>(styled.div)`
+${({ $show }) =>
+    $show
+      ? `
       position: fixed;
       top: 0;
       bottom: 0;
@@ -383,7 +388,7 @@ ${({ show }) =>
         min-height: 450px !important;
       }
   `
-    : `z-index: 3;`}`;
+      : `z-index: 3;`}`;
 
 export {
   PopoverButton,

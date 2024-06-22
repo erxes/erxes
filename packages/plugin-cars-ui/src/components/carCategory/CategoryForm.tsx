@@ -1,22 +1,23 @@
 import {
-  generateCategoryOptions,
-  MainStyleModalFooter as ModalFooter,
   Button,
   Form as CommonForm,
   ControlLabel,
   FormControl,
   FormGroup,
+  MainStyleModalFooter as ModalFooter,
   Uploader,
   extractAttachment,
-} from '@erxes/ui/src';
+  generateCategoryOptions,
+} from "@erxes/ui/src";
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
-} from '@erxes/ui/src/types';
-import React from 'react';
-import { ICarCategory } from '../../types';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+} from "@erxes/ui/src/types";
+
+import { ICarCategory } from "../../types";
+import React from "react";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
 
 type Props = {
   categories: ICarCategory[];
@@ -41,7 +42,7 @@ class CategoryForm extends React.Component<Props, State> {
     this.state = {
       image: image ? image : undefined,
       secondaryImages: secondaryImages || undefined,
-      productCategoryId: productCategoryId || '',
+      productCategoryId: productCategoryId || "",
     };
   }
 
@@ -124,7 +125,7 @@ class CategoryForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="description"
-            componentClass="textarea"
+            componentclass="textarea"
             rows={5}
             defaultValue={object.description}
           />
@@ -136,7 +137,7 @@ class CategoryForm extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="parentId"
-            componentClass="select"
+            componentclass="select"
             defaultValue={object.parentId}
           >
             <option value="" />
@@ -172,10 +173,10 @@ class CategoryForm extends React.Component<Props, State> {
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
-            initialValue={object.productCategoryId || ''}
+            initialValue={object.productCategoryId || ""}
             customOption={{
-              value: '',
-              label: '...Clear product category filter',
+              value: "",
+              label: "...Clear product category filter",
             }}
             onSelect={(categoryId) => this.onSelectChange(categoryId)}
             multi={false}
@@ -193,7 +194,7 @@ class CategoryForm extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'car category',
+            name: "car category",
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

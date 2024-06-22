@@ -3,7 +3,6 @@ import { queries, mutations } from '../../graphql';
 import { gql } from '@apollo/client';
 import GroupList from '../../components/permission/GroupList';
 import { RemoveMutationResponse } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import { graphql } from '@apollo/client/react/hoc';
@@ -14,7 +13,7 @@ type Props = {
   permissionGroups?: IUserGroupDocument[];
 };
 
-type FinalProps = Props & RemoveMutationResponse & IRouterProps;
+type FinalProps = Props & RemoveMutationResponse;
 
 function List({ queryParams, removeMutation, permissionGroups }: FinalProps) {
   const remove = id => {

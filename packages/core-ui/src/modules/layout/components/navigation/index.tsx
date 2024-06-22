@@ -1,5 +1,6 @@
 import { BottomMenu, FlexBox, LeftNavigation, NavImage } from '../../styles';
 import { __, readFile } from 'modules/common/utils';
+import { getThemeItem, getVersion } from '@erxes/ui/src/utils/core';
 
 import { NavLink } from 'react-router-dom';
 import NavigationGoto from './NavigationGoto';
@@ -7,7 +8,6 @@ import NavigationItem from './NavigationItem';
 import NavigationList from './NavigationList';
 import NavigationToggler from './NavigationToggler';
 import React from 'react';
-import { getThemeItem, getVersion } from '@erxes/ui/src/utils/core';
 
 type Props = {
   navCollapse: number;
@@ -31,13 +31,13 @@ export default class Navigation extends React.Component<Props> {
       <LeftNavigation>
         <NavLink to="/welcome">
           <NavImage
-            navCollapse={navCollapse}
+            $navCollapse={navCollapse}
             src={generateLogoSource()}
             alt="erxes"
           />
         </NavLink>
 
-        <FlexBox navCollapse={navCollapse}>
+        <FlexBox $navCollapse={navCollapse}>
           <NavigationToggler
             navCollapse={navCollapse}
             onClickHandleIcon={onClickHandleIcon}

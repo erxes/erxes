@@ -1,12 +1,22 @@
-import { ArchiveStatus } from '../../styles/item';
-import Icon from '@erxes/ui/src/components/Icon';
-import { CloseModal } from '@erxes/ui/src/styles/main';
-import { __, router as routerUtils } from '@erxes/ui/src/utils';
-import { withRouter } from 'react-router-dom';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import { IEditFormContent, IItem, IItemParams, IOptions } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
+import { __, router as routerUtils } from "@erxes/ui/src/utils";
+
+import { ArchiveStatus } from "../../styles/item";
+import { CloseModal } from "@erxes/ui/src/styles/main";
+import Icon from "@erxes/ui/src/components/Icon";
+import React, { useState, useEffect, Fragment } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Dialog, Transition } from "@headlessui/react";
+import {
+  DialogContent,
+  DialogWrapper,
+  ModalOverlay,
+} from "@erxes/ui/src/styles/main";
+import styled from "styled-components";
+
+const Relative = styled.div`
+  position: relative;
+`;
 
 type Props = {
   options: IOptions;
@@ -21,65 +31,66 @@ type Props = {
   isPopupVisible?: boolean;
   hideHeader?: boolean;
   refresh: boolean;
-} & IRouterProps;
-
-type State = {
-  stageId?: string;
-  updatedItem?: IItem;
-  prevStageId?: string;
 };
 
-class EditForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
+function EditForm(props: Props) {
+  const {
+    item,
+    saveItem,
+    onUpdate,
+    removeItem,
+    copyItem,
+    options,
+    beforePopupClose,
+    refresh,
+  } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [stageId, setStageId] = useState(item.stageId);
+  const [updatedItem, setUpdatedItem] = useState(item);
+  const [prevStageId, setPrevStageId] = useState<string>("");
 
-    const item = props.item;
+  useEffect(() => {
+    if (item.stageId !== stageId) {
+      setPrevStageId(item.stageId);
 
-    this.state = {
-      stageId: item.stageId,
-      updatedItem: item
-    };
-  }
+      saveItem({ stageId }, (updatedItem) => {
+        if (onUpdate) {
+          onUpdate(updatedItem, prevStageId);
+        }
+      });
+    }
+  }, [stageId]);
 
-  onChangeStage = (stageId: string) => {
-    this.setState({ stageId }, () => {
-      const { item, saveItem, onUpdate } = this.props;
+  const onChangeStage = (stageId: string) => {
+    setStageId(stageId)
+    const { item, saveItem, onUpdate } = props;
 
-      if (item.stageId !== this.state.stageId) {
-        this.setState({
-          prevStageId: item.stageId
-        });
+    if (item.stageId !== stageId) {
+      setPrevStageId(item.stageId)
+      saveItem({ stageId }, updatedItem => {
+        if (onUpdate) {
+          onUpdate(updatedItem, prevStageId);
+        }
+      });
+    }
+  };
 
-        saveItem({ stageId }, updatedItem => {
-          if (onUpdate) {
-            onUpdate(updatedItem, this.state.prevStageId);
-          }
-        });
-      }
+  const saveItemHandler = (doc: { [key: string]: any }) => {
+    saveItem(doc, (updatedItem) => {
+      setUpdatedItem(updatedItem);
     });
   };
 
-  saveItem = (doc: { [key: string]: any }) => {
-    this.props.saveItem(doc, updatedItem => {
-      this.setState({ updatedItem });
-    });
+  const remove = (id: string) => {
+    removeItem(id, closeModal);
   };
 
-  remove = (id: string) => {
-    const { removeItem } = this.props;
-
-    removeItem(id, this.closeModal);
+  const copy = () => {
+    copyItem(item._id, closeModal, options.texts.copySuccessText);
   };
 
-  copy = () => {
-    const { item, copyItem, options } = this.props;
-
-    copyItem(item._id, this.closeModal, options.texts.copySuccessText);
-  };
-
-  closeModal = (afterPopupClose?: () => void) => {
-    const { beforePopupClose } = this.props;
-
+  const closeModal = (afterPopupClose?: () => void) => {
     if (beforePopupClose) {
       beforePopupClose(afterPopupClose);
     } else if (afterPopupClose) {
@@ -87,85 +98,97 @@ class EditForm extends React.Component<Props, State> {
     }
   };
 
-  onHideModal = () => {
-    const { history, refresh } = this.props;
-
+  const onHideModal = () => {
     if (refresh) {
-      routerUtils.setParams(history, { key: Math.random() });
+      routerUtils.setParams(navigate, location, { key: Math.random() });
     }
 
-    this.closeModal(() => {
-      const { prevStageId, updatedItem } = this.state;
-
+    closeModal(() => {
       if (updatedItem) {
-        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || '';
+        const itemName = localStorage.getItem(`${updatedItem._id}Name`) || "";
 
         if (itemName && updatedItem.name !== itemName) {
-          this.saveItem({ itemName });
+          saveItemHandler({ itemName });
         }
 
         localStorage.removeItem(`${updatedItem._id}Name`);
       }
 
-      if (updatedItem && this.props.onUpdate) {
-        this.props.onUpdate(updatedItem, prevStageId);
+      if (updatedItem && props.onUpdate) {
+        props.onUpdate(updatedItem, prevStageId);
       }
     });
   };
 
-  renderArchiveStatus() {
-    if (this.props.item.status === 'archived') {
+  const renderArchiveStatus = () => {
+    if (item.status === "archived") {
       return (
         <ArchiveStatus>
           <Icon icon="archive-alt" />
-          <span>{__('This card is archived.')}</span>
+          <span>{__("This card is archived.")}</span>
         </ArchiveStatus>
       );
     }
 
     return null;
-  }
+  };
 
-  renderHeader() {
-    if (this.props.hideHeader) {
+  const renderHeader = () => {
+    if (props.hideHeader) {
       return (
-        <CloseModal onClick={this.onHideModal}>
+        <CloseModal onClick={onHideModal}>
           <Icon icon="times" />
         </CloseModal>
       );
     }
 
     return (
-      <Modal.Header closeButton={true}>
-        <Modal.Title>{__('Edit')}</Modal.Title>
-      </Modal.Header>
+      <Dialog.Title as="h3">
+        {__("Edit")}
+        <Icon icon="times" size={24} onClick={onHideModal} />
+      </Dialog.Title>
     );
-  }
+  };
 
-  render() {
-    return (
-      <Modal
-        dialogClassName="modal-1000w"
-        enforceFocus={false}
-        size="lg"
-        show={this.props.isPopupVisible}
-        onHide={this.onHideModal}
-        animation={false}
-      >
-        {this.renderArchiveStatus()}
-        {this.renderHeader()}
-        <Modal.Body>
-          {this.props.formContent({
-            state: this.state,
-            saveItem: this.saveItem,
-            onChangeStage: this.onChangeStage,
-            copy: this.copy,
-            remove: this.remove
-          })}
-        </Modal.Body>
-      </Modal>
-    );
-  }
+  return (
+    <Transition appear show={props.isPopupVisible} as={Fragment}>
+      <Dialog as="div" onClose={onHideModal} className={` relative z-10`}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <ModalOverlay />
+        </Transition.Child>
+        <DialogWrapper>
+          <DialogContent>
+            <Dialog.Panel className={` dialog-size-xl`}>
+              {renderArchiveStatus()}
+
+              <Transition.Child>
+                <Relative>
+                  {renderHeader()}
+                  <div className="dialog-description">
+                    {props.formContent({
+                      state: { stageId, updatedItem, prevStageId },
+                      saveItem: saveItemHandler,
+                      onChangeStage,
+                      copy,
+                      remove,
+                    })}
+                  </div>
+                </Relative>
+              </Transition.Child>
+            </Dialog.Panel>
+          </DialogContent>
+        </DialogWrapper>
+      </Dialog>
+    </Transition>
+  );
 }
 
-export default withRouter(EditForm);
+export default EditForm;

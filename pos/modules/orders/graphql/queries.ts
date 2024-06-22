@@ -50,23 +50,43 @@ const customerFields = `
 `
 
 const putResponseFields = `
-  date
-  vat
-  cityTax
-  registerNo
-  billId
-  lottery
-  qrData
-  success
-  lotteryWarningMsg
-  errorCode
+  number
+
+  contentType
+  contentId
+
+  totalAmount
+  totalVAT
+  totalCityTax
+  districtCode
+  branchNo
+  merchantTin
+  posNo
+  customerTin
+  customerName
+  consumerNo
+  type
+  inactiveId
+  invoiceId
+  reportMonth
+  data
+  receipts
+  payments
+
+  easy
+  state
+
+  _id
+  createdAt
+  modifiedAt
+
+  id
+  posId
+  status
   message
-  getInformation
-  returnBillId
-  billType
-  taxType
-  stocks
-  amount
+  qrData
+  lottery
+  date
 `
 
 const commonDetailFields = `

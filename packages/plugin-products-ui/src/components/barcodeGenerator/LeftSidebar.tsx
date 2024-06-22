@@ -1,19 +1,19 @@
-import React from 'react';
-import Datetime from '@nateradebaugh/react-datetime';
+import React from "react";
+import Datetime from "@nateradebaugh/react-datetime";
 
 //erxes
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Box from '@erxes/ui/src/components/Box';
-import { FormWrapper, DateContainer } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import Box from "@erxes/ui/src/components/Box";
+import { FormWrapper, DateContainer } from "@erxes/ui/src/styles/main";
+import { __ } from "@erxes/ui/src/utils";
 
 //local
-import { SidebarContent } from '../../styles';
-import { BarcodeConfig } from '../../types';
+import { SidebarContent } from "../../styles";
+import { BarcodeConfig } from "../../types";
 
 type Props = {
   config: BarcodeConfig;
@@ -25,81 +25,81 @@ const LeftSidebar = (props: Props) => {
   const { config, handleChangeConfig, handlePrint } = props;
 
   const renderGeneralSettings = () => (
-    <Box name="barcodeGeneralSettings" title={__('General settings')} isOpen>
+    <Box name="barcodeGeneralSettings" title={__("General settings")} isOpen>
       <SidebarContent>
         <FormWrapper>
           <FormGroup>
-            <FormLabel required={true}>{__('Row')}</FormLabel>
+            <FormLabel required={true}>{__("Row")}</FormLabel>
             <FormControl
               name="row"
               type="number"
               defaultValue={config.row}
               onChange={(e: any) =>
-                handleChangeConfig('row', parseInt(e.target.value))
+                handleChangeConfig("row", parseInt(e.target.value))
               }
             />
           </FormGroup>
           <FormGroup>
-            <FormLabel required={true}>{__('Column')}</FormLabel>
+            <FormLabel required={true}>{__("Column")}</FormLabel>
             <FormControl
               name="column"
               type="number"
               defaultValue={config.column}
               onChange={(e: any) =>
-                handleChangeConfig('column', parseInt(e.target.value))
+                handleChangeConfig("column", parseInt(e.target.value))
               }
             />
           </FormGroup>
         </FormWrapper>
         <FormWrapper>
           <FormGroup>
-            <FormLabel required={true}>{__('Width (mm)')}</FormLabel>
+            <FormLabel required={true}>{__("Width (mm)")}</FormLabel>
             <FormControl
               name="width"
               type="number"
               defaultValue={config.width}
               onChange={(e: any) =>
-                handleChangeConfig('width', parseInt(e.target.value))
+                handleChangeConfig("width", parseInt(e.target.value))
               }
             />
           </FormGroup>
           <FormGroup>
-            <FormLabel required={true}>{__('Height (mm)')}</FormLabel>
+            <FormLabel required={true}>{__("Height (mm)")}</FormLabel>
             <FormControl
               name="height"
               type="number"
               defaultValue={config.height}
               onChange={(e: any) =>
-                handleChangeConfig('height', parseInt(e.target.value))
+                handleChangeConfig("height", parseInt(e.target.value))
               }
             />
           </FormGroup>
         </FormWrapper>
         <FormGroup>
-          <FormLabel required={true}>{__('Margin (mm)')}</FormLabel>
+          <FormLabel required={true}>{__("Margin (mm)")}</FormLabel>
           <FormControl
             name="margin"
             type="number"
             defaultValue={config.margin}
             onChange={(e: any) =>
-              handleChangeConfig('margin', parseInt(e.target.value))
+              handleChangeConfig("margin", parseInt(e.target.value))
             }
           />
         </FormGroup>
         <FormGroup>
           <FormControl
             name="addDate"
-            componentClass="checkbox"
+            componentclass="checkbox"
             defaultChecked={config.isDate}
             onChange={(e: any) =>
-              handleChangeConfig('isDate', e.target.checked)
+              handleChangeConfig("isDate", e.target.checked)
             }
           >
-            {__('Add date')}
+            {__("Add date")}
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <FormLabel>{__('Date')}</FormLabel>
+          <FormLabel>{__("Date")}</FormLabel>
           <DateContainer>
             <Datetime
               dateFormat="MM/DD/YYYY"
@@ -107,56 +107,56 @@ const LeftSidebar = (props: Props) => {
               utc={true}
               timeFormat={true}
               defaultValue={new Date(config.date)}
-              onChange={(e: any) => handleChangeConfig('date', e.getTime())}
+              onChange={(e: any) => handleChangeConfig("date", e.getTime())}
             />
           </DateContainer>
         </FormGroup>
         <FormGroup>
           <FormControl
             name="productName"
-            componentClass="checkbox"
+            componentclass="checkbox"
             defaultChecked={config.isProductName}
             onChange={(e: any) =>
-              handleChangeConfig('isProductName', e.target.checked)
+              handleChangeConfig("isProductName", e.target.checked)
             }
           >
-            {__('Show product name')}
+            {__("Show product name")}
           </FormControl>
         </FormGroup>
         <FormGroup>
           <FormControl
             name="price"
-            componentClass="checkbox"
+            componentclass="checkbox"
             defaultChecked={config.isPrice}
             onChange={(e: any) =>
-              handleChangeConfig('isPrice', e.target.checked)
+              handleChangeConfig("isPrice", e.target.checked)
             }
           >
-            {__('Show price')}
+            {__("Show price")}
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <FormLabel required={true}>{__('Product name font size')}</FormLabel>
+          <FormLabel required={true}>{__("Product name font size")}</FormLabel>
           <FormControl
             name="productNameFontSize"
             type="number"
             defaultValue={config.productNameFontSize}
             onChange={(e: any) =>
               handleChangeConfig(
-                'productNameFontSize',
+                "productNameFontSize",
                 parseInt(e.target.value)
               )
             }
           />
         </FormGroup>
         <FormGroup>
-          <FormLabel required={true}>{__('Price font size')}</FormLabel>
+          <FormLabel required={true}>{__("Price font size")}</FormLabel>
           <FormControl
             name="priceFontSize"
             type="number"
             defaultValue={config.priceFontSize}
             onChange={(e: any) =>
-              handleChangeConfig('priceFontSize', parseInt(e.target.value))
+              handleChangeConfig("priceFontSize", parseInt(e.target.value))
             }
           />
         </FormGroup>
@@ -165,70 +165,70 @@ const LeftSidebar = (props: Props) => {
   );
 
   const renderBarcodeSettings = () => (
-    <Box title={__('Barcode settings')}>
+    <Box title={__("Barcode settings")}>
       <SidebarContent>
         <FormGroup>
           <FormControl
             name="barcode"
-            componentClass="checkbox"
+            componentclass="checkbox"
             defaultChecked={config.isBarcode}
             onChange={(e: any) =>
-              handleChangeConfig('isBarcode', e.target.checked)
+              handleChangeConfig("isBarcode", e.target.checked)
             }
           >
-            {__('Show barcode')}
+            {__("Show barcode")}
           </FormControl>
         </FormGroup>
         <FormGroup>
           <FormControl
             name="barcodeDescription"
-            componentClass="checkbox"
+            componentclass="checkbox"
             defaultChecked={config.isBarcodeDescription}
             onChange={(e: any) =>
-              handleChangeConfig('isBarcodeDescription', e.target.checked)
+              handleChangeConfig("isBarcodeDescription", e.target.checked)
             }
           >
-            {__('Show barcode description')}
+            {__("Show barcode description")}
           </FormControl>
         </FormGroup>
         <FormWrapper>
           <FormGroup>
-            <FormLabel required={true}>{__('Bar Width')}</FormLabel>
+            <FormLabel required={true}>{__("Bar Width")}</FormLabel>
             <FormControl
               name="barWidth"
               type="number"
               defaultValue={config.barWidth}
               onChange={(e: any) =>
-                handleChangeConfig('barWidth', parseInt(e.target.value))
+                handleChangeConfig("barWidth", parseInt(e.target.value))
               }
             />
           </FormGroup>
           <FormGroup>
-            <FormLabel required={true}>{__('Bar Height')}</FormLabel>
+            <FormLabel required={true}>{__("Bar Height")}</FormLabel>
             <FormControl
               name="barHeight"
               type="number"
               defaultValue={config.barHeight}
               onChange={(e: any) =>
-                handleChangeConfig('barHeight', parseInt(e.target.value))
+                handleChangeConfig("barHeight", parseInt(e.target.value))
               }
             />
           </FormGroup>
         </FormWrapper>
         <FormGroup>
-          <FormLabel required={true}>{__('Barcode Font Size (px)')}</FormLabel>
+          <FormLabel required={true}>{__("Barcode Font Size (px)")}</FormLabel>
           <FormControl
             name="barcodeFontSize"
             type="number"
             defaultValue={config.barcodeFontSize}
             onChange={(e: any) =>
-              handleChangeConfig('barcodeFontSize', parseInt(e.target.value))
+              handleChangeConfig("barcodeFontSize", parseInt(e.target.value))
             }
           />
         </FormGroup>
         <FormGroup>
           <FormLabel required={true}>
-            {__('Barcode Description Font Size (px)')}
+            {__("Barcode Description Font Size (px)")}
           </FormLabel>
           <FormControl
             name="barcodeDescriptionFontSize"
@@ -236,7 +236,7 @@ const LeftSidebar = (props: Props) => {
             defaultValue={config.barcodeDescriptionFontSize}
             onChange={(e: any) =>
               handleChangeConfig(
-                'barcodeDescriptionFontSize',
+                "barcodeDescriptionFontSize",
                 parseInt(e.target.value)
               )
             }
@@ -247,30 +247,30 @@ const LeftSidebar = (props: Props) => {
   );
 
   const renderQrcodeSettings = () => (
-    <Box title={__('QRCode Settings')}>
+    <Box title={__("QRCode Settings")}>
       <SidebarContent>
         <FormWrapper>
           <FormGroup>
             <FormControl
               name="qrcode"
-              componentClass="checkbox"
+              componentclass="checkbox"
               defaultChecked={config.isQrcode}
               onChange={(e: any) =>
-                handleChangeConfig('isQrcode', e.target.checked)
+                handleChangeConfig("isQrcode", e.target.checked)
               }
             >
-              {__('Show QRCode')}
+              {__("Show QRCode")}
             </FormControl>
           </FormGroup>
         </FormWrapper>
         <FormGroup>
-          <FormLabel required={true}>{__('QR Size')}</FormLabel>
+          <FormLabel required={true}>{__("QR Size")}</FormLabel>
           <FormControl
             name="qrsize"
             type="number"
             defaultValue={config.qrSize}
             onChange={(e: any) =>
-              handleChangeConfig('qrSize', parseInt(e.target.value))
+              handleChangeConfig("qrSize", parseInt(e.target.value))
             }
           />
         </FormGroup>
@@ -285,7 +285,7 @@ const LeftSidebar = (props: Props) => {
       {renderQrcodeSettings()}
 
       <Button btnStyle="primary" onClick={handlePrint} block>
-        {__('Print')}
+        {__("Print")}
       </Button>
     </Wrapper.Sidebar>
   );

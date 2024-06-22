@@ -1,14 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import Select from 'react-select-plus';
-import React from 'react';
-import { WEBHOOK_ACTIONS } from '@erxes/ui-settings/src/constants';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Select from "react-select";
+import React from "react";
+import { WEBHOOK_ACTIONS } from "@erxes/ui-settings/src/constants";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -29,7 +30,7 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
 
     if (webhook.actions) {
       webhookActions =
-        webhook.actions.map(item => {
+        webhook.actions.map((item) => {
           return { label: item.label, value: item.label };
         }) || [];
     }
@@ -37,7 +38,7 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
     const selectedActions = webhookActions;
 
     this.state = {
-      selectedActions
+      selectedActions,
     };
   }
 
@@ -45,7 +46,7 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<State, keyof State>);
   };
 
-  onChange = e => {
+  onChange = (e) => {
     const index = (e.currentTarget as HTMLInputElement).value;
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
 
@@ -56,17 +57,18 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
       type: selected.type,
       action: selected.action,
       label: selected.label,
-      checked: isChecked
+      checked: isChecked,
     };
 
     this.setState({ selectedActions });
   };
 
-  collectValues = selectedActions =>
+  collectValues = (selectedActions) =>
     selectedActions.map(
-      selectedAction =>
-        WEBHOOK_ACTIONS.find(action => action.label === selectedAction.label) ||
-        {}
+      (selectedAction) =>
+        WEBHOOK_ACTIONS.find(
+          (action) => action.label === selectedAction.label
+        ) || {}
     );
 
   generateDoc = (values: { _id?: string; url: string }) => {
@@ -74,12 +76,12 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
 
     return {
       url: values.url,
-      actions: this.collectValues(selectedActions)
+      actions: this.collectValues(selectedActions),
     };
   };
 
   generateActions = () => {
-    return WEBHOOK_ACTIONS.map(action => {
+    return WEBHOOK_ACTIONS.map((action) => {
       return { label: action.label, value: action.label };
     });
   };
@@ -103,11 +105,13 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>Actions</ControlLabel>
           <Select
-            placeholder={__('Choose actions')}
+            placeholder={__("Choose actions")}
             options={this.generateActions()}
-            value={this.state.selectedActions}
-            onChange={this.select.bind(this, 'selectedActions')}
-            multi={true}
+            value={this.generateActions().filter((o) =>
+              this.state.selectedActions.includes(o.value)
+            )}
+            onChange={this.select.bind(this, "selectedActions")}
+            isMulti={true}
           />
         </FormGroup>
 
@@ -122,10 +126,10 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'integration',
+            name: "integration",
             values: this.generateDoc(values),
             isSubmitted,
-            callback
+            callback,
           })}
         </ModalFooter>
       </>

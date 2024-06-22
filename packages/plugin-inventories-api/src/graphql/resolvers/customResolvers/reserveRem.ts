@@ -3,7 +3,7 @@ import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { IReserveRemDocument } from '../../../models/definitions/reserveRems';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.ReserveRems.findOne({ _id });
   },
 

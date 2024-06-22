@@ -1,4 +1,5 @@
-import {ControlLabel,
+import {
+  ControlLabel,
   MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
@@ -11,7 +12,6 @@ import { ITransaction } from '../types';
 import Button from '@erxes/ui/src/components/Button';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Form from '@erxes/ui/src/components/form/Form';
-
 
 import { Amount } from '../../contracts/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
@@ -26,6 +26,7 @@ import { queries } from '../graphql';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   transaction: ITransaction;
+  contractId?: string;
   type: string;
   closeModal: () => void;
 };
@@ -55,8 +56,10 @@ const getValue = (mustPay, value) => {
 
 function TransactionFormNew(props: Props) {
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | undefined>();
-  
-  const [contractId, setContractId] = useState<string>();
+
+  const [contractId, setContractId] = useState<string | undefined>(
+    props.contractId
+  );
   const [isPrePayment, setIsPrePayment] = useState<boolean>();
   const [payDate, setPayDate] = useState(new Date());
   const [calcDate, setCalcDate] = useState(new Date());
@@ -72,8 +75,8 @@ function TransactionFormNew(props: Props) {
   useEffect(() => {
     contractId &&
       client
-        .mutate({
-          mutation: gql(queries.getPaymentInfo),
+        .query({
+          query: gql(queries.getPaymentInfo),
           variables: {
             id: contractId,
             payDate: dayjs(calcDate).format('YYYY-MM-DD')
@@ -95,7 +98,9 @@ function TransactionFormNew(props: Props) {
 
           const storedInterest = getValue(paymentInfo.storedInterest, total);
           total = storedInterest.change;
-          if (storedInterest.value >= 0) setStoredInterest(storedInterest.value);
+          if (storedInterest.value >= 0) {
+            setStoredInterest(storedInterest.value);
+          }
 
           const calcInterest = getValue(paymentInfo.calcInterest, total);
           total = calcInterest.change;
@@ -119,14 +124,10 @@ function TransactionFormNew(props: Props) {
         );
         break;
       case 'storedInterest':
-        setTotal(
-          payment + value + calcInterest + loss + commitmentInterest
-        );
+        setTotal(payment + value + calcInterest + loss + commitmentInterest);
         break;
       case 'calcInterest':
-        setTotal(
-          payment + storedInterest + value + loss + commitmentInterest
-        );
+        setTotal(payment + storedInterest + value + loss + commitmentInterest);
         break;
       case 'loss':
         setTotal(
@@ -134,9 +135,7 @@ function TransactionFormNew(props: Props) {
         );
         break;
       case 'commitmentInterest':
-        setTotal(
-          payment + storedInterest + calcInterest + loss + value
-        );
+        setTotal(payment + storedInterest + calcInterest + loss + value);
         break;
       default:
         break;
@@ -170,7 +169,7 @@ function TransactionFormNew(props: Props) {
     payDate
   ]);
 
-  const renderRowTr = (label, key, value, onChange, main,max?:number) => {
+  const renderRowTr = (label, key, value, onChange, main, max?: number) => {
     if (!paymentInfo || !key || !paymentInfo?.[key]) return '';
 
     return (
@@ -192,7 +191,7 @@ function TransactionFormNew(props: Props) {
             onChange={(e: any) =>
               onChangeValue(key, Number(e.target.value), onChange)
             }
-            onDoubleClick={()=> onChangeValue(key, main, onChange)}
+            onDoubleClick={() => onChangeValue(key, main, onChange)}
           />
         </FormColumn>
       </FormWrapper>
@@ -208,54 +207,71 @@ function TransactionFormNew(props: Props) {
               <FormColumn>
                 <FormGroup>
                   <ControlLabel>{__('Pay Date')}</ControlLabel>
-                  <DateContainer>
-                    <DateControl
-                      required={false}
-                      name="payDate"
-                      dateFormat="YYYY/MM/DD"
-                      value={payDate}
-                      onChange={(value:any)=>setPayDate(value)}
-                    />
-                  </DateContainer>
+                  <DateControl
+                    required={true}
+                    name="payDate"
+                    dateFormat="YYYY/MM/DD"
+                    value={payDate}
+                    onChange={(value: any) => {
+                      if (isPrePayment) {
+                        setPayDate(value);
+                      } else {
+                        setPayDate(value);
+                        setCalcDate(value);
+                      }
+                    }}
+                  />
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>{__('Is Pre Payment')}</ControlLabel>
                   <FormControl
                     type={'checkbox'}
-                    componentClass="checkbox"
+                    componentclass="checkbox"
                     useNumberFormat
                     fixed={0}
                     name="isPrePayment"
-                    value={isPrePayment}
-                    onChange={(e:any)=>setIsPrePayment(e.target.checked)}
-                  />
-                </FormGroup>
-                {isPrePayment && <FormGroup>
-                  <ControlLabel>{__('Calc Date')}</ControlLabel>
-                  <DateContainer>
-                    <DateControl
-                      required={false}
-                      name="payDate"
-                      dateFormat="YYYY/MM/DD"
-                      value={calcDate}
-                      onChange={(value:any)=>setCalcDate(value)}
-                    />
-                  </DateContainer>
-                </FormGroup>}
-                <FormGroup>
-                  <ControlLabel>{__('Contract')}</ControlLabel>
-                  <SelectContracts
-                    label={__('Choose an contract')}
-                    name="contractId"
-                    initialValue={contractId}
-                    onSelect={(v) => {
-                      if (typeof v === 'string') {
-                        setContractId(v);
+                    checked={isPrePayment}
+                    onChange={(e: any) => {
+                      setIsPrePayment(e.target.checked);
+                      if (!e.target.checked) {
+                        setCalcDate(payDate);
                       }
                     }}
-                    multi={false}
                   />
                 </FormGroup>
+                {isPrePayment && (
+                  <FormGroup>
+                    <ControlLabel>{__('Calc Date')}</ControlLabel>
+                    <DateContainer>
+                      <DateControl
+                        required={false}
+                        name="payDate"
+                        dateFormat="YYYY/MM/DD"
+                        value={calcDate}
+                        onChange={(value: any) => {
+                          console.log('value', value);
+                          setCalcDate(value);
+                        }}
+                      />
+                    </DateContainer>
+                  </FormGroup>
+                )}
+                {!props.contractId && (
+                  <FormGroup>
+                    <ControlLabel>{__('Contract')}</ControlLabel>
+                    <SelectContracts
+                      label={__('Choose an contract')}
+                      name="contractId"
+                      initialValue={contractId}
+                      onSelect={(v) => {
+                        if (typeof v === 'string') {
+                          setContractId(v);
+                        }
+                      }}
+                      multi={false}
+                    />
+                  </FormGroup>
+                )}
                 <FormGroup>
                   <ControlLabel>{__('Description')}</ControlLabel>
                   <DateContainer>

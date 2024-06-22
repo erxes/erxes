@@ -1,14 +1,14 @@
-import { colors, dimensions, typography } from '../styles';
-import { lighten, rgba } from '../styles/ecolor';
-import styled, { css } from 'styled-components';
+import { colors, dimensions, typography } from "../styles";
+import { lighten, rgba } from "../styles/ecolor";
+import styled, { css } from "styled-components";
 
-import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
-import { getThemeItem } from '../utils/core';
-import styledTS from 'styled-components-ts';
-import { twinkling } from '../utils/animations';
+import { TabContainer } from "@erxes/ui/src/components/tabs/styles";
+import { getThemeItem } from "../utils/core";
+import styledTS from "styled-components-ts";
+import { twinkling } from "../utils/animations";
 
-const thBackground = getThemeItem('background');
-const thColor = getThemeItem('text_color');
+const thBackground = getThemeItem("background");
+const thColor = getThemeItem("text_color");
 
 const FlexContent = styled.div`
   display: flex;
@@ -38,7 +38,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
+const Contents = styledTS<{ $hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
   max-height: 100%;
@@ -48,9 +48,9 @@ const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   bottom: 0;
   top: 0;
   overflow-x: auto;
-  border: ${(props) => props.hasBorder && `1px solid ${colors.borderPrimary}`};
-  border-radius: ${(props) => props.hasBorder && `${dimensions.unitSpacing}px`};
-  margin: ${(props) => props.hasBorder && dimensions.unitSpacing * 2}px;
+  border: ${(props) => props.$hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${(props) => props.$hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${(props) => props.$hasBorder && dimensions.unitSpacing * 2}px;
 
   @-moz-document url-prefix() {
     overflow: hidden;
@@ -73,39 +73,42 @@ const MainHead = styled.div`
   padding: 0 ${dimensions.coreSpacing}px;
   background: ${colors.colorWhite};
   box-shadow: 0 0 6px 1px ${colors.shadowPrimary};
+  z-index: 2;
 `;
 
 const MainContent = styledTS<{
-  transparent?: boolean;
-  center?: boolean;
+  $transparent?: boolean;
+  $center?: boolean;
 }>(styled.section)`
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 480px;
+  box-shadow: ${(props) =>
+    !props.$transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
+  height: ${(props) => props.$center && "100%"};
   border-right: 1px solid ${colors.borderPrimary};
-  height: ${(props) => props.center && '100%'};
 `;
 
 const ContentBox = styledTS<{
-  transparent?: boolean;
-  initialOverflow?: boolean;
+  $transparent?: boolean;
+  $initialOverflow?: boolean;
 }>(styled.div)`
   flex: 1;
-  overflow: ${(props) => (props.initialOverflow ? 'initial' : 'auto')};
+  overflow: ${(props) => (props.$initialOverflow ? "initial" : "auto")};
   position: relative;
-  background-color: ${(props) => !props.transparent && colors.colorWhite};
+  background-color: ${(props) => !props.$transparent && colors.colorWhite};
 `;
 
 const ContentHeader = styledTS<{
   background: string;
   zIndex?: number;
-  wideSpacing?: boolean;
+  $wideSpacing?: boolean;
 }>(styled.div)`
   background: ${(props) =>
-    props.background === 'transparent' ? 'none' : colors[props.background]};
-  padding: ${(props) => (props.wideSpacing ? '0 0 12px 0' : 0)};
-  margin: ${(props) => (props.wideSpacing ? '12px 20px 0 20px' : '10px 20px')};
+    props.background === "transparent" ? "none" : colors[props.background]};
+  padding: ${(props) => (props.$wideSpacing ? "0 0 12px 0" : 0)};
+  margin: ${(props) => (props.$wideSpacing ? "12px 20px 0 20px" : "10px 20px")};
   z-index: ${(props) => props.zIndex || 2};
 `;
 
@@ -122,35 +125,35 @@ const ContenFooter = styled.div`
 `;
 
 const HeaderItems = styledTS<{
-  rightAligned?: boolean;
-  hasFlex?: boolean;
+  $rightAligned?: boolean;
+  $hasFlex?: boolean;
 }>(styled.div)`
   align-self: center;
-  flex: ${(props) => props.hasFlex && 1};
-  margin-left: ${(props) => props.rightAligned && 'auto'};
-  flex-shrink: ${(props) => props.rightAligned && '0'};
+  flex: ${(props) => props.$hasFlex && 1};
+  margin-left: ${(props) => props.$rightAligned && "auto"};
+  flex-shrink: ${(props) => props.$rightAligned && "0"};
   > * + * {
     margin-left: ${dimensions.unitSpacing}px;
   }
 `;
 
 const SideContent = styledTS<{
-  wide?: boolean;
-  half?: boolean;
-  full?: boolean;
-  hasBorder?: boolean;
+  $wide?: boolean;
+  $half?: boolean;
+  $full?: boolean;
+  $hasBorder?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
   position: relative;
   flex-direction: column;
   flex-shrink: 0;
-  width: ${(props) => (props.wide ? '340px' : '290px')};
-  flex: ${(props) => (props.half ? '1' : 'none')};
-  background: ${(props) => (props.full ? colors.colorWhite : 'none')};
-  margin: ${(props) => props.hasBorder && 0};
+  width: ${(props) => (props.$wide ? "340px" : "290px")};
+  flex: ${(props) => (props.$half ? "1" : "none")};
+  background: ${(props) => (props.$full ? colors.colorWhite : "none")};
+  margin: ${(props) => props.$hasBorder && 0};
   border-right: ${(props) =>
-    props.hasBorder && `1px solid ${colors.borderPrimary}`};
+    props.$hasBorder && `1px solid ${colors.borderPrimary}`};
 
   ${TabContainer} {
     position: sticky;
@@ -161,14 +164,14 @@ const SideContent = styledTS<{
 
 const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
-  uppercase?: boolean;
-  bold?: boolean;
+  $uppercase?: boolean;
+  $bold?: boolean;
 }>(styled.div)`
   height: ${dimensions.headerSpacing}px;
   align-items: center;
   border-bottom: 1px solid ${colors.borderPrimary};
-  text-transform: ${(props) => props.uppercase && 'uppercase'};
-  font-weight: ${(props) => (props.bold ? 'bold' : '500')};
+  text-transform: ${(props) => props.$uppercase && "uppercase"};
+  font-weight: ${(props) => (props.$bold ? "bold" : "500")};
   display: flex;
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
@@ -178,7 +181,11 @@ const SidebarHeader = styledTS<{
 
 const SidebarTitle = styledTS<{
   children: any;
-}>(styled(SidebarHeader.withComponent('h3')))`
+}>(
+  styled(SidebarHeader).attrs({
+    as: "h3",
+  })
+)`
   padding: 0;
   margin: 0px ${dimensions.coreSpacing}px;
   text-transform: uppercase;
@@ -199,22 +206,22 @@ const SidebarFooter = styledTS<{ children: any }>(styled(SidebarHeader))`
 
 const SidebarBox = styledTS<{
   noBackground?: boolean;
-  noShadow?: boolean;
-  collapsible?: boolean;
-  full?: boolean;
-  noMargin?: boolean;
+  $noShadow?: boolean;
+  $collapsible?: boolean;
+  $full?: boolean;
+  $noMargin?: boolean;
 }>(styled.div)`
-  background-color: ${(props) => (props.noBackground ? '' : colors.colorWhite)};
-  margin-bottom: ${(props) => !props.noMargin && dimensions.unitSpacing}px;
+  background-color: ${(props) => (props.noBackground ? "" : colors.colorWhite)};
+  margin-bottom: ${(props) => !props.$noMargin && dimensions.unitSpacing}px;
   box-shadow: ${(props) =>
-    props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
+    props.$noShadow ? "none" : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${(props) =>
-    props.collapsible ? `${dimensions.unitSpacing}px` : '0'};
-  position: ${(props) => (props.full ? 'initial' : 'relative')};
+    props.$collapsible ? `${dimensions.unitSpacing}px` : "0"};
+  position: ${(props) => (props.$full ? "initial" : "relative")};
   justify-content: center;
   transition: max-height 0.4s;
-  overflow: ${(props) => (props.collapsible ? 'hidden' : 'initial')};
-  display: ${(props) => props.full && 'flex'};
+  overflow: ${(props) => (props.$collapsible ? "hidden" : "initial")};
+  display: ${(props) => props.$full && "flex"};
   &:last-child {
     margin-bottom: 0;
   }
@@ -255,13 +262,13 @@ const SidebarToggle = styledTS<{ inverse?: boolean }>(styled.a)`
   }
 `;
 
-const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
+const HelperButtons = styledTS<{ $isSidebarOpen?: boolean }>(styled.div)`
   position: absolute;
   right: ${dimensions.coreSpacing}px;
   top: ${(props) =>
-    props.isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : '15px'};
+    props.$isSidebarOpen ? `${dimensions.unitSpacing - 2}px` : "15px"};
   color: ${colors.colorCoreLightGray};
-  padding-right: ${(props) => (props.isSidebarOpen ? '20px' : '0')};
+  padding-right: ${(props) => (props.$isSidebarOpen ? "20px" : "0")};
   a, button {
     color: ${colors.colorCoreLightGray};
     text-transform: none;
@@ -280,17 +287,25 @@ const HelperButtons = styledTS<{ isSidebarOpen?: boolean }>(styled.div)`
       }
     }
   }
+  [id^="headlessui-menu-items-"] {
+    a {
+      padding: 7px;
+      margin: 0;
+      color: ${colors.colorCoreBlack};
+    }
+}
+
 `;
 
-const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
-  styled.div,
+const SidebarCounter = styledTS<{ $nowrap?: boolean; $fullLength?: boolean }>(
+  styled.div
 )`
   font-size: ${typography.fontSizeHeading8}px;
-  text-align: ${(props) => (props.nowrap ? 'right' : 'left')};
+  text-align: ${(props) => (props.$nowrap ? "right" : "left")};
   color: ${colors.colorCoreGray};
   margin-top: 2px;
   overflow: hidden;
-  text-overflow: ${(props) => !props.fullLength && 'ellipsis'};
+  text-overflow: ${(props) => !props.$fullLength && "ellipsis"};
   padding-left: 5px;
   a {
     padding: 0 !important;
@@ -301,7 +316,7 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
     margin-left: 5px;
   }
   ${(props) =>
-    props.nowrap &&
+    props.$nowrap &&
     css`
       display: block;
       white-space: normal;
@@ -309,9 +324,9 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
 `;
 
 const SidebarList = styledTS<{
-  capitalize?: boolean;
-  noTextColor?: boolean;
-  noBackground?: boolean;
+  $capitalize?: boolean;
+  $noTextColor?: boolean;
+  $noBackground?: boolean;
 }>(styled.ul)`
   margin: 0;
   padding: 0;
@@ -333,7 +348,7 @@ const SidebarList = styledTS<{
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
-    text-transform: ${(props) => (props.capitalize ? 'capitalize' : 'normal')};
+    text-transform: ${(props) => (props.$capitalize ? "capitalize" : "normal")};
     outline: 0;
     border-left: 2px solid transparent;
     transition: background 0.3s ease;
@@ -343,11 +358,11 @@ const SidebarList = styledTS<{
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${(props) => !props.noBackground && colors.bgActive};
+      background: ${(props) => !props.$noBackground && colors.bgActive};
       text-decoration: none;
       outline: 0;
       color: ${(props) =>
-        !props.noTextColor && lighten(colors.textPrimary, 40)};
+        !props.$noTextColor && lighten(colors.textPrimary, 40)};
     }
     &.active {
       background: ${rgba(colors.colorPrimary, 0.2)};
@@ -375,7 +390,7 @@ const SidebarList = styledTS<{
 
 const FieldStyle = styledTS<{ overflow?: string }>(styled.div)`
   white-space: nowrap;
-  overflow: ${(props) => (props.overflow ? props.overflow : 'hidden')};
+  overflow: ${(props) => (props.overflow ? props.overflow : "hidden")};
   text-overflow: ellipsis;
   flex: 1;
 `;
@@ -390,11 +405,11 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
+const SectionContainer = styledTS<{ $hasShadow?: boolean }>(styled.div)`
   position: relative;
   margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${(props) =>
-    props.hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
+    props.$hasShadow && "rgb(0 0 0 / 8%) 0px 0px 6px 0px"};
 
   > div {
     margin-bottom: 0;
@@ -436,7 +451,7 @@ const BarItems = styled.div`
   align-items: center;
   flex-wrap: wrap;
   justify-content: space-evenly;
-  .dropdown-menu {
+  [id^="headlessui-listbox-options-"] {
     min-width: 200px;
   }
   > * + * {
@@ -445,7 +460,7 @@ const BarItems = styled.div`
   .Select {
     min-width: 200px;
   }
-  input[type='text'] {
+  input[type="text"] {
     width: auto;
     display: inline-block;
   }
@@ -469,11 +484,11 @@ const SidebarFlexRow = styled.li`
   }
 `;
 
-const FlexItem = styledTS<{ count?: number; hasSpace?: boolean }>(styled.div)`
+const FlexItem = styledTS<{ count?: number; $hasSpace?: boolean }>(styled.div)`
   flex: ${(props) => (props.count ? props.count : 1)};
   position: relative;
   ${(props) =>
-    props.hasSpace &&
+    props.$hasSpace &&
     css`
       margin-left: ${dimensions.coreSpacing}px;
     `};
@@ -564,7 +579,7 @@ const AuthContent = styled.div`
 const AuthCustomDescription = styled.div`
   width: 100%;
   height: 100%;
-  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
+  background: ${colors.colorPrimaryDark} url("/images/stars.png") repeat top
     center;
   position: relative;
   overflow: hidden;
@@ -574,11 +589,11 @@ const AuthCustomDescription = styled.div`
   padding: 70px;
 
   &:before {
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     height: 100%;
-    background: transparent url('/images/twinkling.png') repeat top center;
+    background: transparent url("/images/twinkling.png") repeat top center;
     animation: ${twinkling} 200s linear infinite;
   }
 

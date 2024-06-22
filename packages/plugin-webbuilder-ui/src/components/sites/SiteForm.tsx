@@ -1,22 +1,22 @@
-import 'grapesjs/dist/css/grapes.min.css';
+import "grapesjs/dist/css/grapes.min.css";
 
 import {
   CollapseLeftMenu,
   LeftSidebar,
   LeftSidebarContent,
   SiteFormContainer,
-  SubTitle
-} from './styles';
+  SubTitle,
+} from "./styles";
 
-import ContentTypeList from '../../containers/contentTypes/List';
-import Detail from '../../containers/sites/Detail';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import { IPageDoc } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import PageList from '../pages/List';
-import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
+import ContentTypeList from "../../containers/contentTypes/List";
+import Detail from "../../containers/sites/Detail";
+import { FlexItem } from "@erxes/ui/src/components/step/styles";
+import { IPageDoc } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import PageList from "../pages/List";
+import React from "react";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   pages: IPageDoc[];
@@ -43,15 +43,15 @@ class SiteForm extends React.Component<Props, State> {
     const page = props.pages[0] || ({} as IPageDoc);
 
     this.state = {
-      name: page.name || '',
-      description: page.description || '',
+      name: page.name || "",
+      description: page.description || "",
       siteId: page.siteId,
       settingsObject: null,
       showPage: false,
       showContentType: false,
       loading: false,
       showDarkMode:
-        localStorage.getItem('showDarkMode') === 'true' ? true : false || false
+        localStorage.getItem("showDarkMode") === "true" ? true : false || false,
     };
   }
 
@@ -65,7 +65,7 @@ class SiteForm extends React.Component<Props, State> {
 
   handleDarkMode = () => {
     this.setState({ showDarkMode: !this.state.showDarkMode }, () => {
-      localStorage.setItem('showDarkMode', this.state.showDarkMode.toString());
+      localStorage.setItem("showDarkMode", this.state.showDarkMode.toString());
     });
   };
 
@@ -83,12 +83,12 @@ class SiteForm extends React.Component<Props, State> {
 
     return (
       <LeftSidebar
-        className={`${!showDarkMode ? 'gjs-one-bg gjs-two-color' : 'darkmode'}`}
+        className={`${!showDarkMode ? "gjs-one-bg gjs-two-color" : "darkmode"}`}
       >
         <CollapseLeftMenu>
-          <div>{__('Navigator')}</div>
+          <div>{__("Navigator")}</div>
           <Icon
-            icon={showDarkMode ? 'sun-1' : `moon-1`}
+            icon={showDarkMode ? "sun-1" : `moon-1`}
             size={15}
             onClick={() => this.handleDarkMode()}
           />
@@ -96,14 +96,14 @@ class SiteForm extends React.Component<Props, State> {
 
         <SubTitle
           className="collapses"
-          onClick={() => this.toggleSubTitle('showPage', !showPage)}
+          onClick={() => this.toggleSubTitle("showPage", !showPage)}
         >
           <i
             className={`gjs-caret-icon fa fa-caret-${
-              showPage ? 'right' : 'down'
+              showPage ? "right" : "down"
             }`}
           />
-          &emsp;{__('Pages')}
+          &emsp;{__("Pages")}
         </SubTitle>
         {!showPage && (
           <LeftSidebarContent>
@@ -121,16 +121,16 @@ class SiteForm extends React.Component<Props, State> {
         <SubTitle
           className="collapses"
           onClick={() =>
-            this.toggleSubTitle('showContentType', !showContentType)
+            this.toggleSubTitle("showContentType", !showContentType)
           }
         >
           <i
             className={`gjs-caret-icon fa fa-caret-${
-              showContentType ? 'right' : 'down'
+              showContentType ? "right" : "down"
             }`}
-          />{' '}
+          />{" "}
           &emsp;
-          {__('Content Type Builder')}
+          {__("Content Type Builder")}
         </SubTitle>
         {!showContentType && (
           <LeftSidebarContent>
@@ -147,13 +147,13 @@ class SiteForm extends React.Component<Props, State> {
   render() {
     const { _id, queryParams, pages } = this.props;
     const { name, settingsObject, showDarkMode, type, loading } = this.state;
-    const breadcrumb = [{ title: 'Sites', link: '/xbuilder' }, { title: name }];
+    const breadcrumb = [{ title: "Sites", link: "/xbuilder" }, { title: name }];
 
     return (
       <>
-        <Wrapper.Header title={'Site Edit Form'} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={"Site Edit Form"} breadcrumb={breadcrumb} />
 
-        <SiteFormContainer showDarkMode={showDarkMode}>
+        <SiteFormContainer $showDarkMode={showDarkMode}>
           <FlexItem>
             {this.renderLeftSidebar()}
             <Detail

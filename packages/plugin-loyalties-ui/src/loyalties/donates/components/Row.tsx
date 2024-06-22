@@ -1,23 +1,22 @@
-import * as dayjs from 'dayjs';
-import _ from 'lodash';
-import Form from '../containers/Form';
-import React from 'react';
-import { FlexItem } from '../../common/styles';
+import * as dayjs from "dayjs";
+import _ from "lodash";
+import Form from "../containers/Form";
+import React from "react";
+import { FlexItem } from "../../common/styles";
 import {
   formatValue,
   renderFullName,
-  renderUserFullName
-} from '@erxes/ui/src/utils';
-import { IDonate } from '../types';
-import { IDonateCampaign } from '../../../configs/donateCampaign/types';
-import { IQueryParams } from '@erxes/ui/src/types';
-import { Link } from 'react-router-dom';
-import { FormControl, ModalTrigger } from '@erxes/ui/src/components';
+  renderUserFullName,
+} from "@erxes/ui/src/utils";
+import { IDonate } from "../types";
+import { IDonateCampaign } from "../../../configs/donateCampaign/types";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { Link } from "react-router-dom";
+import { FormControl, ModalTrigger } from "@erxes/ui/src/components";
 
 type Props = {
   donate: IDonate;
   currentCampaign?: IDonateCampaign;
-  history: any;
   isChecked: boolean;
   toggleBulk: (donate: IDonate, isChecked?: boolean) => void;
   queryParams: IQueryParams;
@@ -27,14 +26,14 @@ class DonateRow extends React.Component<Props> {
   displayValue(donate, name) {
     const value = _.get(donate, name);
 
-    if (name === 'primaryName') {
+    if (name === "primaryName") {
       return <FlexItem>{formatValue(donate.primaryName)}</FlexItem>;
     }
 
     return formatValue(value);
   }
 
-  onChange = e => {
+  onChange = (e) => {
     const { toggleBulk, donate } = this.props;
     if (toggleBulk) {
       toggleBulk(donate, e.target.checked);
@@ -44,10 +43,10 @@ class DonateRow extends React.Component<Props> {
   renderOwner = () => {
     const { donate } = this.props;
     if (!donate.owner || !donate.owner._id) {
-      return '-';
+      return "-";
     }
 
-    if (donate.ownerType === 'customer') {
+    if (donate.ownerType === "customer") {
       return (
         <FlexItem>
           <Link to={`/contacts/details/${donate.ownerId}`}>
@@ -57,7 +56,7 @@ class DonateRow extends React.Component<Props> {
       );
     }
 
-    if (donate.ownerType === 'user') {
+    if (donate.ownerType === "user") {
       return (
         <FlexItem>
           <Link to={`/settings/team/details/${donate.ownerId}`}>
@@ -67,25 +66,25 @@ class DonateRow extends React.Component<Props> {
       );
     }
 
-    if (donate.ownerType === 'company') {
+    if (donate.ownerType === "company") {
       return (
         <FlexItem>
           <Link to={`/companies/details/${donate.ownerId}`}>
-            {formatValue(this.displayValue(donate.owner, 'name'))}
+            {formatValue(this.displayValue(donate.owner, "name"))}
           </Link>
         </FlexItem>
       );
     }
 
-    return '';
+    return "";
   };
 
-  modalContent = props => {
+  modalContent = (props) => {
     const { donate } = this.props;
 
     const updatedProps = {
       ...props,
-      donate
+      donate,
     };
 
     return <Form {...updatedProps} />;
@@ -94,7 +93,7 @@ class DonateRow extends React.Component<Props> {
   render() {
     const { donate, isChecked, currentCampaign } = this.props;
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -103,17 +102,17 @@ class DonateRow extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={this.onChange}
           />
         </td>
-        <td key={'createdAt'}>{dayjs(donate.createdAt).format('lll')} </td>
-        <td key={'ownerType'}>{this.displayValue(donate, 'ownerType')}</td>
-        <td key={'ownerId'} onClick={onClick}>
+        <td key={"createdAt"}>{dayjs(donate.createdAt).format("lll")} </td>
+        <td key={"ownerType"}>{this.displayValue(donate, "ownerType")}</td>
+        <td key={"ownerId"} onClick={onClick}>
           {this.renderOwner()}
         </td>
-        <td key={'status'}>{this.displayValue(donate, 'donateScore')}</td>
-        <td key={'actions'} onClick={onClick}>
+        <td key={"status"}>{this.displayValue(donate, "donateScore")}</td>
+        <td key={"actions"} onClick={onClick}>
           .
         </td>
       </tr>

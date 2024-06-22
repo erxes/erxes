@@ -12,7 +12,8 @@ export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
   UNIQUE: 'unique',
-  ALL: ['product', 'service', 'unique']
+  SUBSCRIPTION: 'subscription',
+  ALL: ['product', 'service', 'unique', 'subscription']
 };
 
 export const PRODUCT_STATUSES = {
@@ -54,7 +55,6 @@ export interface IProduct {
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
-  productId?: string;
   tagIds?: string[];
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];
@@ -69,6 +69,7 @@ export interface IProduct {
   taxType?: string;
   taxCode?: string;
   sameMasks?: string[];
+  sameDefault?: string[];
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -177,7 +178,8 @@ export const productSchema = schemaWrapper(
     }),
     taxType: field({ type: String, optional: true, label: 'TAX type' }),
     taxCode: field({ type: String, optional: true, label: 'tax type code' }),
-    sameMasks: field({ type: [String] })
+    sameMasks: field({ type: [String] }),
+    sameDefault: field({ type: [String] })
   })
 );
 

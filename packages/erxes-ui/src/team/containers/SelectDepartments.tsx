@@ -8,7 +8,7 @@ import {
   commonStructureParamsValue
 } from '../graphql/queries';
 
-// get user options for react-select-plus
+// get user options for react-select
 export function generateUserOptions(array: IDepartment[] = []): IOption[] {
   const generateList = () => {
     const list = array.map(item => {

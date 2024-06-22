@@ -1,25 +1,23 @@
-import React, { useState } from 'react';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
-
-import Button from '@erxes/ui/src/components/Button';
-import styled from 'styled-components';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import RTG from 'react-transition-group';
 
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
+import React, { useState } from 'react';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 import { mutations, queries } from '../../graphql';
 
-import SegmentsForm from '../../containers/form/SegmentsForm';
 import { Alert } from '@erxes/ui/src/utils';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import SegmentsForm from '../../containers/form/SegmentsForm';
+import client from '@erxes/ui/src/apolloClient';
+import { gql } from '@apollo/client';
+import styled from 'styled-components';
+import { Transition } from '@headlessui/react';
+import queryString from 'query-string';
 
 export const RightMenuContainer = styled.div`
   position: fixed;
@@ -33,7 +31,8 @@ export const RightMenuContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
+  box-shadow:
+    0 12px 24px -6px rgba(9, 30, 66, 0.25),
     0 0 0 1px rgba(9, 30, 66, 0.08);
 `;
 
@@ -47,6 +46,10 @@ export const RightDrawerContainer = styled(RightMenuContainer)`
 export const ScrolledContent = styled.div`
   flex: 1;
   overflow: auto;
+
+  input[type='text'] {
+    width: 100%;
+  }
 `;
 
 type Props = {
@@ -54,9 +57,20 @@ type Props = {
   refetchQueries?: any;
   btnSize?: string;
   afterSave?: (response: any) => void;
-} & IRouterProps;
+  serviceConfig?:any;
+  hideSaveButton?: boolean;
+};
 
-function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
+function TemporarySegment({
+  contentType,
+  btnSize,
+  afterSave,
+  serviceConfig,
+  hideSaveButton
+}: Props) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [showDrawer, setShowDrawer] = useState(false);
   const [name, setName] = useState('');
 
@@ -76,7 +90,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
           }
         ]
       })
-      .then(response => {
+      .then((response) => {
         Alert.success('Successfully added a segment');
         afterSave?.(response);
         toggleDrawer();
@@ -91,7 +105,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
       </Button>
     );
 
-    const modalContent = props => (
+    const modalContent = (props) => (
       <>
         <form>
           <FormGroup>
@@ -99,7 +113,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
             <FormControl
               required={true}
               autoFocus={true}
-              onChange={e =>
+              onChange={(e) =>
                 setName((e.currentTarget as HTMLInputElement).value)
               }
             />
@@ -156,7 +170,7 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
 
             delete data.conditionSegments;
 
-            routerUtils.setParams(history, {
+            routerUtils.setParams(navigate, location, {
               segmentData: JSON.stringify(data)
             });
           }}
@@ -165,19 +179,16 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
           {'Filter'}
         </Button>
 
-        {renderSaveContent(values)}
+        {!hideSaveButton&&renderSaveContent(values)}
       </>
     );
   };
 
+    const queryParams = queryString.parse(location.search);
+
   const content = (
     <>
-      <RTG.CSSTransition
-        in={showDrawer}
-        timeout={400}
-        classNames="slide-in-right"
-        unmountOnExit={true}
-      >
+      <Transition show={showDrawer} className="slide-in-right">
         <RightDrawerContainer>
           <ScrolledContent>
             <SegmentsForm
@@ -185,10 +196,16 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
               closeModal={toggleDrawer}
               hideDetailForm={true}
               filterContent={filterContent}
+              serviceConfig={serviceConfig}
+              segmentData={
+                queryParams?.segmentData
+                  ? JSON.parse(queryParams.segmentData)
+                  : undefined
+              }
             />
           </ScrolledContent>
         </RightDrawerContainer>
-      </RTG.CSSTransition>
+      </Transition>
     </>
   );
 
@@ -197,10 +214,10 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
       <Button
         btnStyle="primary"
         size={btnSize || 'small'}
-        icon="plus-circle"
+        icon={showDrawer ? 'times-circle' : 'plus-circle'}
         onClick={toggleDrawer}
       >
-        Add filter
+        {showDrawer ? 'Close Filter' : `Add filter`}
       </Button>
 
       {showDrawer && content}
@@ -208,4 +225,4 @@ function TemporarySegment({ history, contentType, btnSize, afterSave }: Props) {
   );
 }
 
-export default withRouter<Props>(TemporarySegment);
+export default TemporarySegment;

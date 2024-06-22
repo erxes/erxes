@@ -1,11 +1,11 @@
-import * as React from 'react';
+import * as React from "react";
 
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IIntegration } from '../../types';
-import Select from 'react-select-plus';
-import { __ } from '@erxes/ui/src/utils';
-import styled from 'styled-components';
-import { dealFields } from '@erxes/ui-cards/src/deals/graphql/queries';
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IIntegration } from "../../types";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
+import { dealFields } from "@erxes/ui-cards/src/deals/graphql/queries";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   flex: 1;
@@ -13,8 +13,10 @@ const Wrapper = styled.div`
   > div {
     margin-bottom: 5px;
 
-    .Select-control {
+    .css-13cymwt-control, .css-t3ipsp-control {
       border: 0;
+      height: 27px;
+      min-height: unset;
     }
   }
 `;
@@ -34,8 +36,8 @@ class MailChooser extends React.Component<Props> {
       detailQuery = [],
       verifiedImapEmails = [],
       verifiedEngageEmails = [],
-      selectedItem = '',
-      onChange
+      selectedItem = "",
+      onChange,
     } = this.props;
 
     const onSelectChange = (val) => {
@@ -44,16 +46,16 @@ class MailChooser extends React.Component<Props> {
 
     const options = [
       {
-        label: 'Shared Emails (IMAP)',
-        options: verifiedImapEmails.map((e) => ({ value: e, label: e }))
+        label: "Shared Emails (IMAP)",
+        options: verifiedImapEmails.map((e) => ({ value: e, label: e })),
       },
       {
-        label: 'Broadcast (Campaign)',
-        options: verifiedEngageEmails.map((e) => ({ value: e, label: e }))
-      }
+        label: "Broadcast (Campaign)",
+        options: verifiedEngageEmails.map((e) => ({ value: e, label: e })),
+      },
     ];
 
-    let defaultEmail = '';
+    let defaultEmail = "";
 
     if (
       detailQuery.imapConversationDetail?.length > 0 &&
@@ -61,7 +63,7 @@ class MailChooser extends React.Component<Props> {
     ) {
       defaultEmail = detailQuery.imapConversationDetail[0].mailData.to[0].email;
     }
-    let email = '';
+    let email = "";
     if (selectedItem) {
       email = selectedItem;
     } else {
@@ -71,9 +73,12 @@ class MailChooser extends React.Component<Props> {
       <Wrapper>
         <FormGroup>
           <Select
-            placeholder={__('Choose email to send from')}
-            value={email}
+            placeholder={__("Choose email to send from")}
+            value={options.map((item) =>
+              item.options.find((option) => option.value === email)
+            )}
             onChange={onSelectChange}
+            isClearable={true}
             options={options}
           />
         </FormGroup>

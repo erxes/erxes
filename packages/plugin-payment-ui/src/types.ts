@@ -1,7 +1,10 @@
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 
 import { Counts, QueryResponse } from '@erxes/ui/src/types';
+
+export type District = {
+  name: string;
+  code: string;
+};
 
 export interface IPayment {
   name: string;

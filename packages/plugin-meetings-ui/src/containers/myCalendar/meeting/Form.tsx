@@ -1,21 +1,21 @@
-import React from 'react';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { graphql } from '@apollo/client/react/hoc';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
-import { queries as dealQueries } from '@erxes/ui-cards/src/deals/graphql';
+import React from "react";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { graphql } from "@apollo/client/react/hoc";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { queries as companyQueries } from "@erxes/ui-contacts/src/companies/graphql";
+import { queries as dealQueries } from "@erxes/ui-cards/src/deals/graphql";
 
-import { IMeeting, RemoveMutationResponse } from '../../../types';
-import { mutations } from '../../../graphql';
-import { MeetingForm } from '../../../components/myCalendar/meeting/Form';
-import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
-import { DealsQueryResponse } from '@erxes/ui-cards/src/deals/types';
+import { IMeeting, RemoveMutationResponse } from "../../../types";
+import { mutations } from "../../../graphql";
+import { MeetingForm } from "../../../components/myCalendar/meeting/Form";
+import { CompaniesQueryResponse } from "@erxes/ui-contacts/src/companies/types";
+import { DealsQueryResponse } from "@erxes/ui-cards/src/deals/types";
 
 type Props = {
   queryParams: any;
@@ -43,13 +43,15 @@ const MeetingFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object
+    object,
   }: IButtonMutateProps) => {
     values.title =
       values?.title ||
-      companiesQuery.companies.find(c => c._id === values?.companyId)
-        ?.primaryName ||
-      '';
+      (companiesQuery &&
+        companiesQuery.companies &&
+        companiesQuery.companies.find((c) => c._id === values?.companyId)
+          ?.primaryName) ||
+      "";
     return (
       <ButtonMutate
         mutation={object ? mutations.editMeeting : mutations.addMeeting}
@@ -58,7 +60,7 @@ const MeetingFormContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${passedName}`}
         refetchQueries={refetch}
       />
@@ -67,7 +69,7 @@ const MeetingFormContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    renderButton
+    renderButton,
   };
 
   if (
@@ -82,14 +84,14 @@ const MeetingFormContainer = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql(gql(companyQueries.companies), {
-      name: 'companiesQuery',
-      options: () => ({})
+      name: "companiesQuery",
+      options: () => ({}),
     }),
     graphql(gql(dealQueries.deals), {
-      name: 'dealsQuery',
+      name: "dealsQuery",
       options: () => ({
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     })
   )(withCurrentUser(MeetingFormContainer))
 );

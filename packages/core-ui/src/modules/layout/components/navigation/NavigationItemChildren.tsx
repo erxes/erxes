@@ -1,18 +1,17 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { ChildPlugin, Plugin } from './types';
 import {
-  SubNav,
-  SubNavTitle,
-  SubNavItem,
   DropSubNav,
-  DropSubNavItem
+  DropSubNavItem,
+  SubNav,
+  SubNavItem,
+  SubNavTitle,
 } from '../../styles';
 
+import { NavLink } from 'react-router-dom';
+import React from 'react';
 import WithPermission from 'modules/common/components/WithPermission';
 import { __ } from 'modules/common/utils';
-
 import { getLink } from './utils';
-import { Plugin, ChildPlugin } from './types';
 
 type Props = {
   plugin: Plugin;
@@ -53,7 +52,7 @@ export default function NavigationItemChildren(props: Props) {
     return <DropSubNav>{renderChildren('vertical')}</DropSubNav>;
 
   return (
-    <SubNav navCollapse={navCollapse}>
+    <SubNav $navCollapse={navCollapse}>
       <SubNavTitle>{__(plugin.text)}</SubNavTitle>
       {renderChildren('horizontal')}
     </SubNav>

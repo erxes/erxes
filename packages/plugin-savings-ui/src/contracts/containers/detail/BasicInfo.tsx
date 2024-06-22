@@ -1,63 +1,54 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src';
-import { mutations } from '../../graphql';
-import BasicInfoSection from '../../components/common/BasicInfoSection';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import {
-  IContract,
-  RemoveMutationResponse,
-  RemoveMutationVariables
-} from '../../types';
+import { IContract, RemoveMutationResponse } from "../../types";
+import { gql, useMutation } from "@apollo/client";
+
+import { Alert } from "@erxes/ui/src";
+import BasicInfoSection from "../../components/common/BasicInfoSection";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../../graphql";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   contract: IContract;
 };
 
-type FinalProps = { currentUser: IUser } & Props &
-  IRouterProps &
-  RemoveMutationResponse;
+type FinalProps = { currentUser: IUser } & Props;
 
 const BasicInfoContainer = (props: FinalProps) => {
-  const { contract, contractsRemove, history, currentUser } = props;
+  const { contract } = props;
+  const navigate = useNavigate();
+
+  const [contractsRemove] = useMutation<RemoveMutationResponse>(
+    gql(mutations.contractsRemove),
+    {
+      refetchQueries: [
+        "contractsMain",
+        "contractCounts",
+        "contractCategoriesCount",
+      ],
+    }
+  );
 
   const { _id } = contract;
 
   const remove = () => {
     contractsRemove({ variables: { contractIds: [_id] } })
       .then(() => {
-        Alert.success('You successfully deleted a contract');
-        history.push('/erxes-plugin-saving/contract-list');
+        Alert.success("You successfully deleted a contract");
+        navigate("/erxes-plugin-saving/contract-list");
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
   const updatedProps = {
     ...props,
-    remove
+    remove,
   };
 
   return <BasicInfoSection {...updatedProps} />;
 };
 
-const generateOptions = () => ({
-  refetchQueries: ['contractsMain', 'contractCounts', 'contractCategoriesCount']
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
-      gql(mutations.contractsRemove),
-      {
-        name: 'contractsRemove',
-        options: generateOptions
-      }
-    )
-  )(withRouter<FinalProps>(BasicInfoContainer))
-);
+export default BasicInfoContainer;

@@ -1,14 +1,14 @@
-import * as dayjs from 'dayjs';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Detail from '../../containers/PosOrderDetail';
+import * as dayjs from "dayjs";
+
+import Button from "@erxes/ui/src/components/Button";
+import Detail from "../../containers/PosOrderDetail";
+import { FormControl } from "@erxes/ui/src/components/form";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   order: any;
-  history: any;
   isChecked: boolean;
   isUnsynced: boolean;
   toggleBulk: (order: any, isChecked?: boolean) => void;
@@ -61,20 +61,20 @@ const Row = (props: Props) => {
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>
       <td>{number}</td>
       <td>{totalAmount.toLocaleString()}</td>
-      <td>{dayjs(createdAt).format('lll')}</td>
-      <td>{dayjs(paidDate).format('lll')}</td>
+      <td>{dayjs(createdAt).format("lll")}</td>
+      <td>{dayjs(paidDate).format("lll")}</td>
       <td>
         {syncedInfo?.syncedDate &&
-          dayjs(syncedInfo?.syncedDate || '').format('ll')}
+          dayjs(syncedInfo?.syncedDate || "").format("ll")}
       </td>
-      <td>{syncedInfo?.syncedBillNumber || ''}</td>
-      <td>{syncedInfo?.syncedCustomer || ''}</td>
+      <td>{syncedInfo?.syncedBillNumber || ""}</td>
+      <td>{syncedInfo?.syncedCustomer || ""}</td>
       <td>
         {isUnsynced && (
           <Tip text="Sync">
@@ -109,7 +109,7 @@ const Row = (props: Props) => {
       trigger={trigger}
       autoOpenKey="showProductModal"
       content={modalContent}
-      size={'lg'}
+      size={"lg"}
     />
   );
 };

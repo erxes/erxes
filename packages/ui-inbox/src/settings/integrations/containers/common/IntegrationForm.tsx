@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CallPro from '../../components/callpro/Form';
@@ -12,7 +12,6 @@ import WebHookForm from '../../components/webhook/Form';
 import Whatsapp from '../../components/whatsapp/Whatsapp';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   type: string;
@@ -23,7 +22,7 @@ type State = {
   channelIds: string[];
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type FinalProps = {} & Props;
 
 const INTEGRATION_FORM = {
   callpro: CallPro,
@@ -33,7 +32,7 @@ const INTEGRATION_FORM = {
   whatsapp: Whatsapp,
   telnyx: TelnyxForm,
   webhook: WebHookForm,
-  'outgoing-webhook': OutgoingWebHookFrom
+  'outgoing-webhook': OutgoingWebHookFrom,
 };
 
 class IntegrationFormContainer extends React.Component<FinalProps, State> {
@@ -51,7 +50,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     const { type } = this.props;
 
@@ -76,7 +75,7 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
       callback: closeModal,
       renderButton: this.renderButton,
       channelIds,
-      onChannelChange: this.onChannelChange
+      onChannelChange: this.onChannelChange,
     };
 
     const Component = INTEGRATION_FORM[type];
@@ -85,4 +84,4 @@ class IntegrationFormContainer extends React.Component<FinalProps, State> {
   }
 }
 
-export default withRouter<FinalProps>(IntegrationFormContainer);
+export default IntegrationFormContainer;

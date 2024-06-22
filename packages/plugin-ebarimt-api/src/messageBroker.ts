@@ -7,9 +7,7 @@ import type {
 
 import { afterMutationHandlers } from './afterMutations';
 import { beforeResolverHandlers } from './beforeResolvers';
-import { getCompany, getConfig } from './utils';
-import { getPostDataCommon } from './commonUtils';
-import { PutData } from './models/utils';
+import { getCompanyInfo, getConfig } from './utils';
 import {
   consumeQueue,
   consumeRPCQueue,
@@ -46,140 +44,23 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    'ebarimt:putresponses.putData',
-    async ({
-      subdomain,
-      data: { contentType, contentId, productsById, orderInfo, config },
-    }) => {
-      const models = await generateModels(subdomain);
-      // orderInfo = {
-      //   number: string /unique in day/,
-      //   date:
-      //     date.toISOString().split('T')[0] +
-      //     ' ' +
-      //     date.toTimeString().split(' ')[0],
-      //   orderId: =contentId,
-      //   hasVat: boolean,
-      //   hasCitytax: boolean,
-      //   billType: 1 | 3,
-      //   customerCode: string [7],
-      //   customerName: string,
-      //   description: string,
-      //   details: [{
-      //     productId: string
-      //     amount: number,
-      //     count: number,
-      //     inventoryCode: string,
-      //     discount?: number
-      //   }],
-      //   cashAmount: number,
-      //   nonCashAmount: number
-      // };
-
-      // config = {
-      //   districtName: string,
-      //   vatPercent?: number,
-      //   cityTaxPercent?: number
-      //   defaultGSCode?: string *
-      //   companyRD: string
-      // }
-
-      return {
-        status: 'success',
-        data: await models.PutResponses.putData(
-          {
-            ...orderInfo,
-            productsById,
-            contentType,
-            contentId,
-          },
-          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
-        ),
-      };
-    },
-  );
-
-  consumeRPCQueue(
     'ebarimt:putresponses.putDatas',
     async ({
       subdomain,
       data: { contentType, contentId, orderInfo, config },
     }) => {
       const models = await generateModels(subdomain);
-      // orderInfo = {
-      //   number: string /unique in day/,
-      //   date:
-      //     date.toISOString().split('T')[0] +
-      //     ' ' +
-      //     date.toTimeString().split(' ')[0],
-      //   orderId: =contentId,
-      //   billType: '1' | '3',
-      //   customerCode?: string [7],
-      //   customerName?: string,
-      //   description: string,
-      //   details: [{
-      //     productId: string
-      //     amount: number,
-      //     count: number,
-      //     discount?: number
-      //   }],
-      //   cashAmount: number,
-      //   nonCashAmount: number
-      // };
-
-      // config = {
-      //   districtName: string,
-      //   hasVat: boolean;
-      //   vatPercent?: number,
-      //   hasCitytax: boolean
-      //   cityTaxPercent?: number
-      //   defaultGSCode?: string *
-      //   companyRD: string
-      // }
-      const mainConfig = {
-        ...config,
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
-      };
-
-      const ebarimtDatas = await getPostDataCommon(
-        subdomain,
-        mainConfig,
-        contentType,
-        contentId,
-        orderInfo,
-      );
-      const ebarimtResponses: any[] = [];
-
-      for (const ebarimtData of ebarimtDatas) {
-        let ebarimtResponse;
-
-        if (config.skipPutData || ebarimtData.inner) {
-          const putData = new PutData({
-            ...mainConfig,
-            ...ebarimtData,
-            config,
-            models,
-          });
-          ebarimtResponse = {
-            _id: Math.random(),
-            billId: 'Түр баримт',
-            ...(await putData.generateTransactionInfo()),
-            registerNo: mainConfig.companyRD || '',
-          };
-        } else {
-          ebarimtResponse = await models.PutResponses.putData(
-            ebarimtData,
-            mainConfig,
-          );
-        }
-        if (ebarimtResponse._id) {
-          ebarimtResponses.push(ebarimtResponse);
-        }
-      }
 
       return {
         status: 'success',
-        data: ebarimtResponses,
+        data: await models.PutResponses.putData(
+          {
+            ...orderInfo,
+            contentType,
+            contentId,
+          },
+          { ...(await getConfig(subdomain, 'EBARIMT', {})), ...config },
+        ),
       };
     },
   );
@@ -228,8 +109,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.PutResponses.putHistory({
           contentType,
-          contentId,
-          taxType,
+          contentId
         }),
       };
     },
@@ -266,9 +146,11 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'ebarimt:putresponses.getCompany',
     async ({ subdomain, data: { companyRD } }) => {
+      const config = await getConfig(subdomain, 'EBARIMT', {}) || {};
+      const response = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: companyRD })
       return {
         status: 'success',
-        data: await getCompany(subdomain, companyRD),
+        data: response.result?.data,
       };
     },
   );

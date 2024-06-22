@@ -1,47 +1,72 @@
-import * as compose from 'lodash.flowright';
-
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   AddBalanceMutationResponse,
-  AddBalanceMutationVariables,
   UpdateVerifyMutationResponse,
-  UpdateVerifyMutationVariables,
   BalanceQueryResponse,
-  VerifyQueryResponse
+  VerifyQueryResponse,
 } from '../types';
 import { mutations, queries } from '../graphql';
 
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import CustomerSideBar from '../components/CustomerSideBar';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   id: string;
 };
 
-type FinalProps = {
-  getBalanceQuery: BalanceQueryResponse;
-  isVerifiedQuery: VerifyQueryResponse;
-} & Props &
-  AddBalanceMutationResponse &
-  UpdateVerifyMutationResponse;
+const CustomerSideBarContainer = (props: Props) => {
+  const { id } = props;
 
-const CustomerSideBarContainer = (props: FinalProps) => {
-  const {
-    getBalanceQuery,
-    isVerifiedQuery,
-    addBalanceMutation,
-    updateVerifyMutation
-  } = props;
+  const getBalanceQuery = useQuery<BalanceQueryResponse>(
+    gql(queries.getBalance),
+    {
+      fetchPolicy: 'network-only',
+      variables: { erxesCustomerId: id },
+    },
+  );
+  const isVerifiedQuery = useQuery<VerifyQueryResponse>(
+    gql(queries.isVerified),
+    {
+      fetchPolicy: 'network-only',
+      variables: { erxesCustomerId: id },
+    },
+  );
+  const [addBalanceMutation] = useMutation<AddBalanceMutationResponse>(
+    gql(mutations.addBalance),
+    {
+      refetchQueries: [
+        'totalInvestment',
+        'getBalance',
+        'isVerified',
+        'investments',
+        'totalInvestmentCount',
+      ],
+    },
+  );
+  const [updateVerifyMutation] = useMutation<UpdateVerifyMutationResponse>(
+    gql(mutations.updateVerify),
+    {
+      refetchQueries: [
+        'totalInvestment',
+        'getBalance',
+        'isVerified',
+        'investments',
+        'totalInvestmentCount',
+      ],
+    },
+  );
 
   if (getBalanceQuery.loading || isVerifiedQuery.loading) {
     return <Spinner />;
   }
 
-  const getBalance = getBalanceQuery.getBalance || 0;
-  const verified = isVerifiedQuery.isVerified || 'false';
+  const getBalance =
+    (getBalanceQuery.data && getBalanceQuery.data.getBalance) || 0;
+  const verified =
+    (isVerifiedQuery.data && isVerifiedQuery.data.isVerified) || 'false';
 
   const addBalance = (erxesCustomerId: string, amount: number) => {
     confirm(`Are you sure?`)
@@ -51,11 +76,11 @@ const CustomerSideBarContainer = (props: FinalProps) => {
             getBalanceQuery.refetch();
             Alert.success('You successfully add a balance');
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -67,11 +92,11 @@ const CustomerSideBarContainer = (props: FinalProps) => {
           .then(() => {
             Alert.success('You successfully update a verify');
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -82,57 +107,10 @@ const CustomerSideBarContainer = (props: FinalProps) => {
     getBalance,
     verified,
     addBalance,
-    updateVerify
+    updateVerify,
   };
 
   return <CustomerSideBar {...updatedProps} />;
 };
 
-const getRefetchQueries = () => ({
-  refetchQueries: [
-    'totalInvestment',
-    'getBalance',
-    'isVerified',
-    'investments',
-    'totalInvestmentCount'
-  ]
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, BalanceQueryResponse, { erxesCustomerId: string }>(
-      gql(queries.getBalance),
-      {
-        name: 'getBalanceQuery',
-        options: ({ id }) => ({
-          fetchPolicy: 'network-only',
-          variables: { erxesCustomerId: id }
-        })
-      }
-    ),
-    graphql<Props, VerifyQueryResponse, { erxesCustomerId: string }>(
-      gql(queries.isVerified),
-      {
-        name: 'isVerifiedQuery',
-        options: ({ id }) => ({
-          fetchPolicy: 'network-only',
-          variables: { erxesCustomerId: id }
-        })
-      }
-    ),
-    graphql<{}, AddBalanceMutationResponse, AddBalanceMutationVariables>(
-      gql(mutations.addBalance),
-      {
-        name: 'addBalanceMutation',
-        options: getRefetchQueries
-      }
-    ),
-    graphql<{}, UpdateVerifyMutationResponse, UpdateVerifyMutationVariables>(
-      gql(mutations.updateVerify),
-      {
-        name: 'updateVerifyMutation',
-        options: getRefetchQueries
-      }
-    )
-  )(CustomerSideBarContainer)
-);
+export default CustomerSideBarContainer;

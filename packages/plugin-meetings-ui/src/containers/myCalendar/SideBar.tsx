@@ -8,7 +8,6 @@ import { queries } from '../../graphql';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
-  history: any;
   currentTypeId?: string;
   queryParams: any;
   meetings: IMeeting[];

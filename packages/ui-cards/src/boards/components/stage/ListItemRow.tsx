@@ -155,7 +155,7 @@ class ListItemRow extends React.PureComponent<Props> {
           {options.type === 'deal' && (
             <td>
               {this.checkNull(
-                products > 0,
+                products && products.length > 0,
                 <Details color="#63D2D6" items={products || []} />
               )}
             </td>

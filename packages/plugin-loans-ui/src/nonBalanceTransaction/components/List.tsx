@@ -1,33 +1,28 @@
 import {
   Alert,
+  BarItems,
   Button,
-  confirm,
   DataWithLoader,
-  FormControl,
   ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
-  DropdownToggle,
   __,
-  Bulk,
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import {menuContracts } from '../../constants';
-import Dropdown from 'react-bootstrap/Dropdown';
-import NonBalanceTransactionForm from '../containers/Form';
-import { INonBalanceTransaction } from '../types';
-import NonBalanceTransactionRow from './NonBalanceTransactionRow';
-import { can } from '@erxes/ui/src/utils/core';
-import withConsumer from '../../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { TableWrapper } from '@erxes/ui/src/components/table/styles';
+  confirm,
+} from "@erxes/ui/src";
 
-interface IProps extends IRouterProps {
+import { INonBalanceTransaction } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import NonBalanceTransactionForm from "../containers/Form";
+import NonBalanceTransactionRow from "./NonBalanceTransactionRow";
+import React from "react";
+import { TableWrapper } from "@erxes/ui/src/components/table/styles";
+import { can } from "@erxes/ui/src/utils/core";
+import { menuContracts } from "../../constants";
+import withConsumer from "../../withConsumer";
+
+interface IProps {
   nonBalanceTransactions: INonBalanceTransaction[];
   loading: boolean;
   totalCount: number;
@@ -43,24 +38,26 @@ interface IProps extends IRouterProps {
   queryParams: any;
   currentUser: IUser;
   closeModal: () => void;
-  tableHeadName: any[]
+  tableHeadName: any[];
 }
 
 class List extends React.Component<IProps> {
-  
   onChange = () => {
     const { toggleAll, nonBalanceTransactions } = this.props;
-    toggleAll(nonBalanceTransactions, 'nonBalanceTransactions');
+    toggleAll(nonBalanceTransactions, "nonBalanceTransactions");
   };
 
-  removeNonBalanceTransactions = nonBaltransactions => {
+  removeNonBalanceTransactions = (nonBaltransactions) => {
     const nonBalanceTransactionIds: string[] = [];
 
-    nonBaltransactions.forEach(nonBaltransaction => {
+    nonBaltransactions.forEach((nonBaltransaction) => {
       nonBalanceTransactionIds.push(nonBaltransaction._id);
     });
 
-    this.props.removeNonBalanceTransactions({ nonBalanceTransactionIds }, this.props.emptyBulk);
+    this.props.removeNonBalanceTransactions(
+      { nonBalanceTransactionIds },
+      this.props.emptyBulk
+    );
   };
   render() {
     const {
@@ -73,36 +70,29 @@ class List extends React.Component<IProps> {
       queryParams,
       currentUser,
       closeModal,
-      tableHeadName
+      tableHeadName,
     } = this.props;
-   
+
     const mainContent = (
       <TableWrapper>
-        <Table whiteSpace="nowrap" bordered={true} hover={true} striped>
+        <Table $whiteSpace="nowrap" $bordered={true} $hover={true} $striped>
           <thead>
             
           <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
                 {tableHeadName.map((head) => (
                   <th key={head}>{head || ''}</th>
                  ))}
               <th>
                 <SortHandler
-                  sortField={'nonBalanceTransaction.createdAt'}
-                  label={__('Create Date')}
+                  sortField={"nonBalanceTransaction.createdAt"}
+                  label={__("Create Date")}
                 />
               </th>
               <th>Detail</th>
-          </tr>
+            </tr>
           </thead>
           <tbody id="nonBalanceTransactions">
-            {nonBalanceTransactions.map(nonBalanceTransaction => (
+            {nonBalanceTransactions.map((nonBalanceTransaction) => (
               <NonBalanceTransactionRow
                 nonBalanceTransaction={nonBalanceTransaction}
                 isChecked={bulk.includes(nonBalanceTransaction)}
@@ -117,21 +107,19 @@ class List extends React.Component<IProps> {
 
     let actionBarLeft: React.ReactNode;
     if (bulk.length > 0) {
-
       const onClick = () =>
         confirm()
           .then(() => {
             this.removeNonBalanceTransactions(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
       actionBarLeft = (
         <BarItems>
-          {
-            can('nonBalanceTransactionsRemove', currentUser) && (
-              <Button
+          {can("nonBalanceTransactionsRemove", currentUser) && (
+            <Button
               btnStyle="danger"
               size="medium"
               icon="times-circle"
@@ -139,69 +127,41 @@ class List extends React.Component<IProps> {
             >
               Remove
             </Button>
-            )}
+          )}
         </BarItems>
       );
-    };
+    }
 
-  const setType = type => {
+ 
     const content = props => {
       return (
         <NonBalanceTransactionForm
           {...props}
-          closeModal= {closeModal}
-          transactionType={type}
           queryParams={queryParams}
         />
       );
     };
-    return <Bulk content={content} />;
-};
+
+const addTrigger = (
+  <Button btnStyle="success" icon="plus-circle">
+    {__('Add Non Balance')}
+  </Button>
+);
 
     const actionBarRight = (
       <BarItems>
-        {can('manageTransactions', currentUser) && (
-          <Dropdown>
-            <Dropdown.Toggle as={DropdownToggle} id="dropdown-info">
-              <Button btnStyle="success" size="medium" icon="add">
-                {__('Add Non Balance')}
-              </Button>
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu >
-              <li>
-                <ModalTrigger
-                  title={__('collateral')}
-                  trigger={ <a href="#collateral">{__('Collateral')}</a>}
-                  size="lg"
-                  content={() =>setType('collateral')}
-                />
-              </li>
-              <li>
-              <ModalTrigger
-                  title={__('Interest Change')}
-                  trigger={ <a href="#Interest Change">{__('Interest Change')}</a>}
-                  size="lg"
-                  content={() =>setType('interest')}
-                />
-              </li>
-              <li>
-              <ModalTrigger
-                  title={__('Loan')}
-                  trigger={ <a href="#Loan">{__('Loan')}</a>}
-                  size="lg"
-                  content={() =>setType('loan')}
-                />
-              </li>
-            </Dropdown.Menu>
-          </Dropdown>
-        )}
+        
+       
+          <ModalTrigger
+            title={`${__('New Non Balance')}`}
+            trigger={addTrigger}
+            size="xl"
+            content={content}
+            backDrop="static"
+          />
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
+    const actionBar = (<Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />);
 
     return (
       <Wrapper
@@ -209,7 +169,7 @@ class List extends React.Component<IProps> {
           <Wrapper.Header
             title={__(`Non Balance Transactions`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuContracts.filter(row =>
+            submenu={menuContracts.filter((row) =>
               can(row.permission, currentUser)
             )}
           />
@@ -231,4 +191,4 @@ class List extends React.Component<IProps> {
   }
 }
 
-export default withRouter<IRouterProps>(withConsumer(List));
+export default withConsumer(List);

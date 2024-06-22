@@ -1,61 +1,65 @@
-import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
+import { Alert, Bulk, router, withProps } from "@erxes/ui/src";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import List from "../components/List";
+import { mutations, queries } from "../graphql";
 import {
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables
-} from '../types';
+  RemoveMutationVariables,
+} from "../types";
 
 type Props = {
   queryParams: any;
   history: any;
-  closeModal: () => void;
 };
 
 type FinalProps = {
   nonBalanceTransactionsMainQuery: MainQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {
   loading: boolean;
 };
 
-class NonBalanceTransactionListContainer extends React.Component<FinalProps, State> {
+class NonBalanceTransactionListContainer extends React.Component<
+  FinalProps,
+  State
+> {
   constructor(props) {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
   render() {
-    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove, closeModal } = this.props;
+    const { nonBalanceTransactionsMainQuery, nonBalanceTransactionsRemove } =
+      this.props;
 
-    const removeNonBalanceTransactions = ({ nonBalanceTransactionIds }, emptyBulk) => {
+    const removeNonBalanceTransactions = (
+      { nonBalanceTransactionIds },
+      emptyBulk
+    ) => {
       nonBalanceTransactionsRemove({
-        variables: { nonBalanceTransactionIds }
+        variables: { nonBalanceTransactionIds },
       })
         .then(() => {
           emptyBulk();
-          Alert.success('You successfully deleted a non balance transaction');
+          Alert.success("You successfully deleted a non balance transaction");
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
     const { list = [], totalCount = 0 } =
-    nonBalanceTransactionsMainQuery.nonBalanceTransactionsMain || {};
-    const tableHeadName = ['number','description','customer','type']
+      nonBalanceTransactionsMainQuery.nonBalanceTransactionsMain || {};
+    const tableHeadName = ["number", "description", "customer", "type"];
     const updatedProps = {
       ...this.props,
       totalCount,
@@ -63,10 +67,9 @@ class NonBalanceTransactionListContainer extends React.Component<FinalProps, Sta
       loading: nonBalanceTransactionsMainQuery.loading || this.state.loading,
       removeNonBalanceTransactions,
       tableHeadName: tableHeadName,
-      closeModal: closeModal
     };
 
-    const nonBalanceTransactionsList = props => {
+    const nonBalanceTransactionsList = (props) => {
       return <List {...updatedProps} {...props} />;
     };
 
@@ -90,12 +93,12 @@ const generateParams = ({ queryParams }) => ({
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
-  }
+      : undefined,
+  },
 });
 
 const generateOptions = () => ({
-  refetchQueries: ['nonBalanceTransactionsMain']
+  refetchQueries: ["nonBalanceTransactionsMain"],
 });
 
 export default withProps<Props>(
@@ -103,17 +106,17 @@ export default withProps<Props>(
     graphql<Props, MainQueryResponse, ListQueryVariables>(
       gql(queries.nonBalanceTransactionsMain),
       {
-        name: 'nonBalanceTransactionsMainQuery',
-        options: generateParams
+        name: "nonBalanceTransactionsMainQuery",
+        options: generateParams,
       }
     ),
     // mutations
     graphql<{}, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.nonBalanceTransactionsRemove),
       {
-        name: 'nonBalanceTransactionsRemove',
-        options: generateOptions
+        name: "nonBalanceTransactionsRemove",
+        options: generateOptions,
       }
     )
-    )(NonBalanceTransactionListContainer)
+  )(NonBalanceTransactionListContainer)
 );

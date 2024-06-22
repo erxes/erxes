@@ -7,18 +7,16 @@ import {
   PagesAddMutationResponse,
   PagesEditMutationResponse,
   PagesRemoveMutationResponse,
-  TypesQueryResponse
+  TypesQueryResponse,
 } from '../../types';
 import { mutations, queries } from '../../graphql';
 
 import Detail from '../../components/sites/Detail';
-import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   _id: string;
@@ -30,7 +28,7 @@ type Props = {
   type: string;
   showDarkMode: boolean;
   handleItemSettings: (item: any, type: string) => void;
-} & IRouterProps;
+};
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
@@ -53,7 +51,7 @@ const SitesDetailContainer = (props: FinalProps) => {
     html: string,
     css: string,
     pageId?: string,
-    afterSave?: any
+    afterSave?: any,
   ) => {
     let method: any = props.pagesAdd;
 
@@ -62,7 +60,7 @@ const SitesDetailContainer = (props: FinalProps) => {
       description,
       siteId,
       html,
-      css
+      css,
     };
 
     if (pageId) {
@@ -78,7 +76,7 @@ const SitesDetailContainer = (props: FinalProps) => {
           afterSave();
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -94,7 +92,7 @@ const SitesDetailContainer = (props: FinalProps) => {
             afterSave();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     });
@@ -113,7 +111,7 @@ const SitesDetailContainer = (props: FinalProps) => {
     contentTypes,
     page,
     pageSave,
-    pageRemove
+    pageRemove,
   };
 
   return <Detail {...updatedProps} />;
@@ -124,9 +122,9 @@ const refetchPageQueries = ({ _id, queryParams }) => [
     query: gql(queries.pagesMain),
     variables: {
       ...generatePaginationParams(queryParams),
-      siteId: _id || ''
-    }
-  }
+      siteId: _id || '',
+    },
+  },
 ];
 
 export default compose(
@@ -136,15 +134,15 @@ export default compose(
       name: 'pageDetailQuery',
       skip: ({ queryParams }) => !queryParams.pageId,
       options: ({ queryParams }) => ({
-        variables: { _id: queryParams.pageId || '' }
-      })
-    }
+        variables: { _id: queryParams.pageId || '' },
+      }),
+    },
   ),
   graphql<Props, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
     options: ({ _id, queryParams }) => ({
-      refetchQueries: refetchPageQueries({ _id, queryParams })
-    })
+      refetchQueries: refetchPageQueries({ _id, queryParams }),
+    }),
   }),
   graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
@@ -153,18 +151,18 @@ export default compose(
         ...refetchPageQueries({ _id, queryParams }),
         {
           query: gql(queries.pageDetail),
-          variables: { _id: queryParams.pageId || '' }
-        }
-      ]
-    })
+          variables: { _id: queryParams.pageId || '' },
+        },
+      ],
+    }),
   }),
   graphql<Props, PagesRemoveMutationResponse>(gql(mutations.remove), {
     name: 'pagesRemoveMutation',
     options: ({ _id, queryParams }) => ({
-      refetchQueries: refetchPageQueries({ _id, queryParams })
-    })
+      refetchQueries: refetchPageQueries({ _id, queryParams }),
+    }),
   }),
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
-    name: 'typesQuery'
-  })
-)(withRouter(SitesDetailContainer));
+    name: 'typesQuery',
+  }),
+)(SitesDetailContainer);

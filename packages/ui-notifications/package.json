@@ -2,7 +2,7 @@
   "name": "@erxes/ui-notifications",
   "version": "1.0.0",
   "dependencies": {
-    "@apollo/client": "~3.7.14",
+    "@apollo/client": "^3.9.5",
     "dayjs": "1.8.15",
     "lodash": "4.17.15",
     "lodash.flowright": "3.5.0",

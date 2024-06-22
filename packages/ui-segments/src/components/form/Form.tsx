@@ -1,17 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
 
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import CommonForm from "@erxes/ui/src/components/form/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
 
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __, generateRandomColorCode } from '@erxes/ui/src/utils';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { __, generateRandomColorCode } from "@erxes/ui/src/utils";
+import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
 import {
   IConditionsForPreview,
   IEvent,
@@ -20,19 +20,18 @@ import {
   ISegmentCondition,
   ISegmentMap,
   ISegmentWithConditionDoc,
-  ISubSegment
-} from '../../types';
-import ConditionsList from '../preview/ConditionsList';
+  ISubSegment,
+} from "../../types";
+import ConditionsList from "../preview/ConditionsList";
 
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { FilterBox, SegmentBackIcon, SegmentWrapper, Count } from '../styles';
-import PropertyCondition from '../../containers/form/PropertyCondition';
-import { Link } from 'react-router-dom';
-import PropertyForm from './PropertyForm';
-import EventForm from './EventForm';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import React from "react";
+import { FilterBox, SegmentBackIcon, SegmentWrapper, Count } from "../styles";
+import PropertyCondition from "../../containers/form/PropertyCondition";
+import { Link } from "react-router-dom";
+import PropertyForm from "./PropertyForm";
+import EventForm from "./EventForm";
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 
 type Props = {
   contentType: string;
@@ -58,6 +57,7 @@ type Props = {
   isModal?: boolean;
   hideDetailForm?: boolean;
   count: number;
+  serviceConfig?:any;
 };
 
 type State = {
@@ -84,7 +84,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    let state = 'propertyForm';
+    let state = "propertyForm";
     let showAddGroup = true;
 
     const segment: ISegment = props.segment || {
@@ -100,36 +100,36 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           conditionsConjunction: 'and'
         }
       ],
-      config: {}
+      config: { ...props?.serviceConfig || {} }
     };
 
     if (
       !props.segment ||
-      (props.segment && props.segment.subSegmentConditions.length === 0)
+      (props.segment && props.segment?.subSegmentConditions?.length === 0)
     ) {
-      state = 'list';
+      state = "list";
       showAddGroup = false;
     }
 
     if (
       props.segment ||
-      (props.segment && props.segment.subSegmentConditions.length > 0)
+      (props.segment && props.segment?.subSegmentConditions?.length > 0)
     ) {
-      state = 'list';
+      state = "list";
     }
 
-    const segments = segment.subSegmentConditions.map((item: ISegment) => ({
+    const segments = (segment?.subSegmentConditions || []).map((item: ISegment) => ({
       _id: item._id,
       key: Math.random().toString(),
-      contentType: item.contentType || 'customer',
+      contentType: item.contentType || "customer",
       config: item.config,
       conditionsConjunction: item.conditionsConjunction,
       conditions: item.conditions
         ? item.conditions.map((cond: ISegmentCondition) => ({
             key: Math.random().toString(),
-            ...cond
+            ...cond,
           }))
-        : []
+        : [],
     }));
 
     this.state = {
@@ -137,7 +137,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       showAddGroup,
       segments,
       state,
-      chosenSegment: undefined
+      chosenSegment: undefined,
     };
   }
 
@@ -149,8 +149,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     segments.forEach((segment: ISegmentMap) => {
       conditionsForPreview.push({
-        type: 'subSegment',
-        subSegmentForPreview: segment
+        type: "subSegment",
+        subSegmentForPreview: segment,
       });
     });
 
@@ -159,14 +159,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         conditions: conditionsForPreview,
         config,
         subOf,
-        conditionsConjunction
+        conditionsConjunction,
       });
     }
   }
 
   renderSubOf(formProps: IFormProps) {
     const onChange = (e: React.FormEvent) =>
-      this.handleChange('subOf', (e.currentTarget as HTMLInputElement).value);
+      this.handleChange("subOf", (e.currentTarget as HTMLInputElement).value);
 
     return (
       <FormGroup>
@@ -174,12 +174,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         <FormControl
           {...formProps}
           name="subOf"
-          componentClass="select"
-          value={this.state.subOf || ''}
+          componentclass="select"
+          value={this.state.subOf || ""}
           onChange={onChange}
         >
-          <option value="">{__('Not selected')}</option>
-          {this.props.headSegments.map(segment => (
+          <option value="">{__("Not selected")}</option>
+          {this.props.headSegments.map((segment) => (
             <option value={segment._id} key={segment._id}>
               {segment.name}
             </option>
@@ -190,10 +190,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   }
 
   handleChange = <T extends keyof State>(name: T, value: State[T]) => {
-    this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
+    this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  onChangeConfig = config => {
+  onChangeConfig = (config) => {
     this.setState({ config });
   };
 
@@ -214,7 +214,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               type: contentType,
               onChangeConfig: this.onChangeConfig,
               hideDetailForm,
-              component: 'form'
+              component: "form",
             }}
           />
         );
@@ -233,28 +233,22 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     }
 
     const nameOnChange = (e: React.FormEvent) =>
-      this.handleChange('name', (e.currentTarget as HTMLInputElement).value);
+      this.handleChange("name", (e.currentTarget as HTMLInputElement).value);
 
     const descOnChange = (e: React.FormEvent) =>
       this.handleChange(
-        'description',
+        "description",
         (e.currentTarget as HTMLInputElement).value
       );
 
-    const colorOnChange = e => this.handleChange('color', e.hex);
+    const colorOnChange = (e) => this.handleChange("color", e.hex);
 
     const onShouldWriteActivityLogChange = (e: React.FormEvent) => {
       this.handleChange(
-        'shouldWriteActivityLog',
+        "shouldWriteActivityLog",
         (e.currentTarget as HTMLInputElement).checked
       );
     };
-
-    const popoverTop = (
-      <Popover id="color-picker">
-        <TwitterPicker triangle="hide" color={color} onChange={colorOnChange} />
-      </Popover>
-    );
 
     return (
       <>
@@ -272,7 +266,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={3} hasSpace={true}>
+          <FlexItem count={3} $hasSpace={true}>
             {this.renderSubOf(formProps)}
           </FlexItem>
         </FlexContent>
@@ -288,20 +282,24 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem hasSpace={true}>
+          <FlexItem $hasSpace={true}>
             <FormGroup>
               <ControlLabel>Color</ControlLabel>
               <div id="segment-color">
-                <OverlayTrigger
-                  trigger="click"
-                  rootClose={true}
+                <Popover
                   placement="bottom"
-                  overlay={popoverTop}
+                  trigger={
+                    <ColorPick>
+                      <ColorPicker style={{ backgroundColor: color }} />
+                    </ColorPick>
+                  }
                 >
-                  <ColorPick>
-                    <ColorPicker style={{ backgroundColor: color }} />
-                  </ColorPick>
-                </OverlayTrigger>
+                  <TwitterPicker
+                    triangle="hide"
+                    color={color}
+                    onChange={colorOnChange}
+                  />
+                </Popover>
               </div>
             </FormGroup>
           </FlexItem>
@@ -310,7 +308,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           <FlexItem>
             <FormControl
               name="shouldWriteActivityLogChange"
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onShouldWriteActivityLogChange}
               checked={shouldWriteActivityLog}
             >
@@ -326,15 +324,17 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   addCondition = (condition: ISegmentCondition, segmentKey?: string) => {
     const segments = [...this.state.segments];
 
-    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegment = segments.find(
+      (segment) => segment.key === segmentKey
+    );
     const segmentIndex = segments.findIndex(
-      segment => segment.key === segmentKey
+      (segment) => segment.key === segmentKey
     );
 
     if (foundedSegment) {
       if (condition.key) {
         const foundedConditionIndex = foundedSegment.conditions.findIndex(
-          value => value.key === condition.key
+          (value) => value.key === condition.key
         );
 
         foundedSegment.conditions[foundedConditionIndex] = condition;
@@ -348,10 +348,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       this.setState({
         segments,
-        state: 'list',
+        state: "list",
         showAddGroup: true,
         chosenProperty: undefined,
-        chosenCondition: undefined
+        chosenCondition: undefined,
       });
     }
   };
@@ -359,14 +359,16 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   removeCondition = (key: string, segmentKey?: string) => {
     const segments = [...this.state.segments];
 
-    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegment = segments.find(
+      (segment) => segment.key === segmentKey
+    );
     const segmentIndex = segments.findIndex(
-      segment => segment.key === segmentKey
+      (segment) => segment.key === segmentKey
     );
 
     if (foundedSegment) {
       const conditionsIndex = foundedSegment.conditions.findIndex(
-        condition => condition.key === key
+        (condition) => condition.key === key
       );
 
       if (conditionsIndex === 0 && foundedSegment.conditions.length === 1) {
@@ -386,9 +388,9 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   onClickBackToList = () => {
     this.setState({
       chosenSegment: undefined,
-      state: 'list',
+      state: "list",
       chosenProperty: undefined,
-      chosenCondition: undefined
+      chosenCondition: undefined,
     });
   };
 
@@ -396,7 +398,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const segments = [...this.state.segments];
 
     const segmentIndex = segments.findIndex(
-      segment => segment.key === segmentKey
+      (segment) => segment.key === segmentKey
     );
 
     segments.splice(segmentIndex, 1);
@@ -406,17 +408,21 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   addNewProperty = (segmentKey: string) => {
     const segments = [...this.state.segments];
 
-    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegment = segments.find(
+      (segment) => segment.key === segmentKey
+    );
 
-    this.setState({ chosenSegment: foundedSegment, state: 'propertyForm' });
+    this.setState({ chosenSegment: foundedSegment, state: "propertyForm" });
   };
 
   addNewEvent = (segmentKey: string) => {
     const segments = [...this.state.segments];
 
-    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegment = segments.find(
+      (segment) => segment.key === segmentKey
+    );
 
-    this.setState({ chosenSegment: foundedSegment, state: 'eventForm' });
+    this.setState({ chosenSegment: foundedSegment, state: "eventForm" });
   };
 
   addSegment = () => {
@@ -425,14 +431,14 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     const newSegment = {
       key: Math.random().toString(),
       conditions: [],
-      conditionsConjunction: 'and',
-      contentType: contentType || 'customer'
+      conditionsConjunction: "and",
+      contentType: contentType || "customer",
     };
 
     this.setState({
-      state: 'propertyForm',
+      state: "propertyForm",
       segments: [...this.state.segments, newSegment],
-      chosenSegment: newSegment
+      chosenSegment: newSegment,
     });
   };
 
@@ -443,9 +449,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
   changeSubSegmentConjunction = (segmentKey: string, conjunction: string) => {
     const segments = [...this.state.segments];
 
-    const foundedSegment = segments.find(segment => segment.key === segmentKey);
+    const foundedSegment = segments.find(
+      (segment) => segment.key === segmentKey
+    );
     const segmentIndex = segments.findIndex(
-      segment => segment.key === segmentKey
+      (segment) => segment.key === segmentKey
     );
 
     if (foundedSegment) {
@@ -467,7 +475,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       chosenProperty,
       chosenCondition,
       chosenSegmentKey,
-      config
+      config,
     } = this.state;
 
     if (chosenProperty && chosenCondition && chosenSegmentKey) {
@@ -486,7 +494,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       );
     }
 
-    if (state === 'list') {
+    if (state === "list") {
       return segments.map((segment, index) => {
         return (
           <ConditionsList
@@ -515,7 +523,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       });
     }
 
-    if (chosenSegment && state === 'propertyForm') {
+    if (chosenSegment && state === "propertyForm") {
       return (
         <PropertyCondition
           key={Math.random()}
@@ -532,13 +540,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       );
     }
 
-    if ((chosenSegment || chosenSegmentKey) && state === 'eventForm') {
+    if ((chosenSegment || chosenSegmentKey) && state === "eventForm") {
       return (
         <EventForm
           condition={chosenCondition}
           key={Math.random()}
           segmentKey={
-            chosenSegment ? chosenSegment.key : chosenSegmentKey || ''
+            chosenSegment ? chosenSegment.key : chosenSegmentKey || ""
           }
           onClickBackToList={this.onClickBackToList}
           addCondition={this.addCondition}
@@ -556,7 +564,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       chosenCondition: condition,
       showAddGroup: false,
       chosenSegmentKey: segmentKey,
-      state: 'propertyForm'
+      state: "propertyForm",
     });
   };
 
@@ -565,7 +573,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       chosenCondition: condition,
       showAddGroup: false,
       chosenSegmentKey: segmentKey,
-      state: 'eventForm'
+      state: "eventForm",
     });
   };
 
@@ -574,7 +582,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
     let show = false;
 
-    if (state === 'list') {
+    if (state === "list") {
       show = true;
     }
 
@@ -614,7 +622,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       conditionsConjunction,
       color,
       config,
-      shouldWriteActivityLog
+      shouldWriteActivityLog,
     } = this.state;
 
     const finalValues = values;
@@ -638,18 +646,13 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       contentType,
       conditionSegments,
       config,
-      shouldWriteActivityLog
+      shouldWriteActivityLog,
     };
   };
 
   renderSaveButton = (formProps: IFormProps) => {
-    const {
-      segments,
-      state,
-      subOf,
-      conditionsConjunction,
-      config
-    } = this.state;
+    const { segments, state, subOf, conditionsConjunction, config } =
+      this.state;
     const { values, isSubmitted } = formProps;
     const {
       renderButton,
@@ -658,7 +661,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       closeModal,
       previewCount,
       isModal,
-      filterContent
+      filterContent,
     } = this.props;
 
     const onPreviewCount = () => {
@@ -666,8 +669,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
 
       segments.forEach((seg: ISegmentMap) => {
         conditionsForPreview.push({
-          type: 'subSegment',
-          subSegmentForPreview: seg
+          type: "subSegment",
+          subSegmentForPreview: seg,
         });
       });
 
@@ -676,7 +679,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           conditions: conditionsForPreview,
           config,
           subOf,
-          conditionsConjunction
+          conditionsConjunction,
         });
       }
     };
@@ -684,7 +687,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     if (
       segments.length > 0 &&
       segments[0].conditions.length > 0 &&
-      state === 'list'
+      state === "list"
     ) {
       if (filterContent) {
         return (
@@ -694,7 +697,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               onClick={onPreviewCount}
               icon="refresh-1"
             >
-              {__('Count')}
+              {__("Count")}
             </Button>
 
             {filterContent(this.generateDoc(values))}
@@ -710,7 +713,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
               onClick={onPreviewCount}
               icon="refresh-1"
             >
-              {__('Refresh count')}
+              {__("Refresh count")}
             </Button>
           ) : (
             <Button
@@ -723,11 +726,11 @@ class SegmentFormAutomations extends React.Component<Props, State> {
           )}
 
           {renderButton({
-            name: 'segment',
+            name: "segment",
             values: this.generateDoc(values),
             callback: closeModal || afterSave,
             isSubmitted,
-            object: segment
+            object: segment,
           })}
         </>
       );
@@ -743,12 +746,12 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     if (
       segments.length > 0 &&
       segments[0].conditions.length > 0 &&
-      state === 'list' &&
+      state === "list" &&
       isModal
     ) {
       return (
         <Count>
-          {__('Items Found')}: <span>{count}</span>
+          {__("Items Found")}: <span>{count}</span>
         </Count>
       );
     }

@@ -1,55 +1,55 @@
-import Button from '@erxes/ui/src/components/Button';
-import Chooser from '@erxes/ui/src/components/Chooser';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import dimensions from '@erxes/ui/src/styles/dimensions';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { JOURNALS_KEY_LABELS, LEASE_TYPES } from "../constants";
+import React, { useState } from "react";
 
-import styled from 'styled-components';
-import React from 'react';
-import { JOURNALS_KEY_LABELS, LEASE_TYPES } from '../constants';
-import { IContractTypeDetail } from '../types';
-import { __ } from 'coreui/utils';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { CollateralButton } from '../../contracts/styles';
-import { ScrollWrapper } from '@erxes/ui/src/styles/main';
+import Button from "@erxes/ui/src/components/Button";
+import Chooser from "@erxes/ui/src/components/Chooser";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import { CollateralButton } from "../../contracts/styles";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IContractTypeDetail } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
+import { ScrollWrapper } from "@erxes/ui/src/styles/main";
+import { MainStyleTitle as Title } from "@erxes/ui/src/styles/eindex";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import dimensions from "@erxes/ui/src/styles/dimensions";
+import styled from "styled-components";
 
 export const DISTRICTS = [
-  { value: 'Архангай', label: 'Архангай' },
-  { value: 'Баян-Өлгий', label: 'Баян-Өлгий' },
-  { value: 'Баянхонгор', label: 'Баянхонгор' },
-  { value: 'Булган', label: 'Булган' },
-  { value: 'Говь-Алтай', label: 'Говь-Алтай' },
-  { value: 'Дорноговь', label: 'Дорноговь' },
-  { value: 'Дорнод', label: 'Дорнод' },
-  { value: 'Дундговь', label: 'Дундговь' },
-  { value: 'Завхан', label: 'Завхан' },
-  { value: 'Өвөрхангай', label: 'Өвөрхангай' },
-  { value: 'Өмнөговь', label: 'Өмнөговь' },
-  { value: 'Сүхбаатар аймаг', label: 'Сүхбаатар аймаг' },
-  { value: 'Сэлэнгэ', label: 'Сэлэнгэ' },
-  { value: 'Төв', label: 'Төв' },
-  { value: 'Увс', label: 'Увс' },
-  { value: 'Ховд', label: 'Ховд' },
-  { value: 'Хөвсгөл', label: 'Хөвсгөл' },
-  { value: 'Хэнтий', label: 'Хэнтий' },
-  { value: 'Дархан-Уул', label: 'Дархан-Уул' },
-  { value: 'Орхон', label: 'Орхон' },
-  { value: 'Говьсүмбэр', label: 'Говьсүмбэр' },
-  { value: 'Хан-Уул', label: 'Хан-Уул' },
-  { value: 'Баянзүрх', label: 'Баянзүрх' },
-  { value: 'Сүхбаатар', label: 'Сүхбаатар' },
-  { value: 'Баянгол', label: 'Баянгол' },
-  { value: 'Багануур', label: 'Багануур' },
-  { value: 'Багахангай', label: 'Багахангай' },
-  { value: 'Налайх', label: 'Налайх' },
-  { value: 'Сонгинохайрхан', label: 'Сонгинохайрхан' },
-  { value: 'Чингэлтэй', label: 'Чингэлтэй' }
+  { value: "Архангай", label: "Архангай" },
+  { value: "Баян-Өлгий", label: "Баян-Өлгий" },
+  { value: "Баянхонгор", label: "Баянхонгор" },
+  { value: "Булган", label: "Булган" },
+  { value: "Говь-Алтай", label: "Говь-Алтай" },
+  { value: "Дорноговь", label: "Дорноговь" },
+  { value: "Дорнод", label: "Дорнод" },
+  { value: "Дундговь", label: "Дундговь" },
+  { value: "Завхан", label: "Завхан" },
+  { value: "Өвөрхангай", label: "Өвөрхангай" },
+  { value: "Өмнөговь", label: "Өмнөговь" },
+  { value: "Сүхбаатар аймаг", label: "Сүхбаатар аймаг" },
+  { value: "Сэлэнгэ", label: "Сэлэнгэ" },
+  { value: "Төв", label: "Төв" },
+  { value: "Увс", label: "Увс" },
+  { value: "Ховд", label: "Ховд" },
+  { value: "Хөвсгөл", label: "Хөвсгөл" },
+  { value: "Хэнтий", label: "Хэнтий" },
+  { value: "Дархан-Уул", label: "Дархан-Уул" },
+  { value: "Орхон", label: "Орхон" },
+  { value: "Говьсүмбэр", label: "Говьсүмбэр" },
+  { value: "Хан-Уул", label: "Хан-Уул" },
+  { value: "Баянзүрх", label: "Баянзүрх" },
+  { value: "Сүхбаатар", label: "Сүхбаатар" },
+  { value: "Баянгол", label: "Баянгол" },
+  { value: "Багануур", label: "Багануур" },
+  { value: "Багахангай", label: "Багахангай" },
+  { value: "Налайх", label: "Налайх" },
+  { value: "Сонгинохайрхан", label: "Сонгинохайрхан" },
+  { value: "Чингэлтэй", label: "Чингэлтэй" },
 ];
 
 const ContentBox = styled.div`
@@ -67,46 +67,35 @@ type Props = {
   saveItem: (doc: IContractTypeDetail, callback?: (item) => void) => void;
 };
 
-type State = {
-  currentMap: any;
-};
+const GeneralSettings = (props: Props) => {
+  const [currentMap, setCurrentMap] = useState(props.contractType.config || {});
+  const { contractType } = props;
 
-class GeneralSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      currentMap: this.props.contractType.config || {}
-    };
-  }
-
-  save = e => {
+  const save = (e) => {
     e.preventDefault();
-    const { contractType } = this.props;
-    const { currentMap } = this.state;
 
-    this.props.saveItem({ ...contractType, config: currentMap });
+    props.saveItem({ ...contractType, config: currentMap });
   };
 
-  onChangeConfig = (code: string, value) => {
-    const { currentMap } = this.state;
-
+  const onChangeConfig = (code: string, value) => {
     currentMap[code] = value;
 
-    this.setState({ currentMap });
+    setCurrentMap(currentMap);
   };
 
-  onChangeInput = (code: string, e) => {
-    this.onChangeConfig(code, e.target.value);
+  const onChangeInput = (code: string, e) => {
+    onChangeConfig(code, e.target.value);
   };
 
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
+  const onChangeCheckbox = (code: string, e) => {
+    onChangeConfig(code, e.target.checked);
   };
 
-  renderItem = (key: string, description?: string, controlProps?: any) => {
-    const { currentMap } = this.state;
-
+  const renderItem = (
+    key: string,
+    description?: string,
+    controlProps?: any
+  ) => {
     return (
       <FormGroup>
         <ControlLabel>{__(JOURNALS_KEY_LABELS[key])}</ControlLabel>
@@ -114,19 +103,21 @@ class GeneralSettings extends React.Component<Props, State> {
         <FormControl
           {...controlProps}
           value={currentMap[key]}
-          onChange={this.onChangeInput.bind(this, key)}
+          onChange={onChangeInput.bind(this, key)}
         />
       </FormGroup>
     );
   };
 
-  renderCheckbox = (key: string, description?: string, backElement?: any) => {
-    const { currentMap } = this.state;
-
+  const renderCheckbox = (
+    key: string,
+    description?: string,
+    backElement?: any
+  ) => {
     return (
       <FormGroup>
         {backElement && (
-          <div style={{ display: 'inline-block', marginRight: '5px' }}>
+          <div style={{ display: "inline-block", marginRight: "5px" }}>
             {backElement}
           </div>
         )}
@@ -134,17 +125,17 @@ class GeneralSettings extends React.Component<Props, State> {
         {description && <p>{__(description)}</p>}
         <FormControl
           checked={currentMap[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
+          onChange={onChangeCheckbox.bind(this, key)}
+          componentclass="checkbox"
         />
       </FormGroup>
     );
   };
 
-  renderProductTrigger(collateral?: any) {
+  const renderProductTrigger = (collateral?: any) => {
     let content = (
       <div>
-        {__('Choose E-Barimt Product')} <Icon icon="plus-circle" />
+        {__("Choose E-Barimt Product")} <Icon icon="plus-circle" />
       </div>
     );
 
@@ -158,27 +149,26 @@ class GeneralSettings extends React.Component<Props, State> {
     }
 
     return <CollateralButton>{content}</CollateralButton>;
-  }
+  };
 
-  renderProductModal(key: string) {
-    const { currentMap } = this.state;
+  const renderProductModal = (key: string) => {
     const product = currentMap[key];
 
     const productOnChange = (products: any[]) => {
       const product = products && products.length === 1 ? products[0] : null;
 
       if (product) {
-        this.onChangeConfig(key, product);
+        onChangeConfig(key, product);
       }
     };
 
-    const content = props => (
+    const content = (props) => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
         data={{
-          name: 'Product',
-          products: product ? [product] : []
+          name: "Product",
+          products: product ? [product] : [],
         }}
         limit={1}
         chooserComponent={Chooser}
@@ -188,209 +178,174 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title="Choose product"
-        trigger={this.renderProductTrigger(product)}
+        trigger={renderProductTrigger(product)}
         size="lg"
         content={content}
       />
     );
-  }
+  };
 
-  render() {
-    const actionButtons = (
-      <Button
-        btnStyle="primary"
-        onClick={this.save}
-        icon="check-circle"
-        uppercase={false}
-      >
-        {__('Save')}
-      </Button>
-    );
+  const actionButtons = (
+    <Button
+      btnStyle="primary"
+      onClick={save}
+      icon="check-circle"
+      uppercase={false}
+    >
+      {__("Save")}
+    </Button>
+  );
 
-    const content = (
-      <ScrollWrapper>
-        <ContentBox>
-          <CollapseContent title={__('Loan payment')}>
-            {this.renderItem('transAccount')}
-            {this.renderItem('normalAccount')}
-            {this.renderItem('expiredAccount')}
-            {this.renderItem('doubtfulAccount')}
-            {this.renderItem('negativeAccount')}
-            {this.renderItem('badAccount')}
-            {this.renderCheckbox('amountHasEBarimt')}
-          </CollapseContent>
+  const content = (
+    <ScrollWrapper>
+      <ContentBox>
+        <CollapseContent title={__("Loan payment")}>
+          {renderItem("transAccount")}
+          {renderItem("normalAccount")}
+          {renderItem("expiredAccount")}
+          {renderItem("doubtfulAccount")}
+          {renderItem("negativeAccount")}
+          {renderItem("badAccount")}
+          {renderCheckbox("amountHasEBarimt")}
+        </CollapseContent>
 
-          <CollapseContent title={__('Interest')}>
-            {this.renderItem('interestAccount')}
-            {this.renderCheckbox('interestHasEBarimt')}
-          </CollapseContent>
+        <CollapseContent title={__("Interest")}>
+          {renderItem("interestAccount")}
+          {renderCheckbox("interestHasEBarimt")}
+        </CollapseContent>
 
-          <CollapseContent title={__('Insurance')}>
-            {this.renderItem('insuranceAccount')}
-          </CollapseContent>
+        <CollapseContent title={__("Insurance")}>
+          {renderItem("insuranceAccount")}
+        </CollapseContent>
 
-          <CollapseContent title={__('Loss')}>
-            {this.renderItem('lossAccount')}
-            {this.renderCheckbox('lossHasEBarimt')}
-          </CollapseContent>
+        <CollapseContent title={__("Loss")}>
+          {renderItem("lossAccount")}
+          {renderCheckbox("lossHasEBarimt")}
+        </CollapseContent>
 
-          <CollapseContent title={__('Other')}>
-            {this.renderItem('debtAccount')}
-            {this.renderItem('otherReceivable')}
-            {this.renderItem('feeIncomeAccount')}
-          </CollapseContent>
+        <CollapseContent title={__("Other")}>
+          {renderItem("debtAccount")}
+          {renderItem("otherReceivable")}
+          {renderItem("feeIncomeAccount")}
+        </CollapseContent>
 
-          <CollapseContent title={__('EBarimt')}>
-            {this.renderItem('eBarimtAccount')}
-            {this.renderCheckbox('isAutoSendEBarimt')}
-            {this.renderCheckbox('isHasVat')}
-            <FormGroup>
-              <ControlLabel>{__('Provice/District')}</ControlLabel>
-              <FormControl
-                componentClass="select"
-                defaultValue={this.state.currentMap.districtName}
-                options={DISTRICTS}
-                onChange={this.onChangeInput.bind(this, 'districtName')}
-                required={true}
-              />
-            </FormGroup>
-            {this.renderItem('organizationRegister')}
-            {this.renderItem('defaultGSCode')}
-            <div
-              style={{
-                boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                padding: 20,
-                paddingBottom: 10,
-                borderRadius: 10
-              }}
-            >
-              {this.renderCheckbox('isAmountUseEBarimt')}
-              {this.state?.currentMap?.isAmountUseEBarimt && (
-                <FormGroup>
-                  <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('amountEBarimtProduct')}
-                </FormGroup>
-              )}
-            </div>
-            <div
-              style={{
-                boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                padding: 20,
-                paddingBottom: 10,
-                borderRadius: 10,
-                marginTop: 10
-              }}
-            >
-              {this.renderCheckbox('isInterestUseEBarimt')}
-              {this.state?.currentMap?.isInterestUseEBarimt && (
-                <FormGroup>
-                  <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('interestEBarimtProduct')}
-                </FormGroup>
-              )}
-            </div>
-            <div
-              style={{
-                boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                padding: 20,
-                paddingBottom: 10,
-                borderRadius: 10,
-                marginTop: 10
-              }}
-            >
-              {this.renderCheckbox('isLossUseEBarimt')}
-              {this.state?.currentMap?.isLossUseEBarimt && (
-                <FormGroup>
-                  <ControlLabel>{__('Product')}</ControlLabel>
-                  {this.renderProductModal('lossEBarimtProduct')}
-                </FormGroup>
-              )}
-            </div>
-          </CollapseContent>
-
-          <CollapseContent title={__('Classification')}>
-            {this.renderItem('normalExpirationDay', 'Normal /Expiration Day/', {
-              type: 'number'
-            })}
-            {this.renderItem(
-              'expiredExpirationDay',
-              'Expired /Expiration Day/',
-              {
-                type: 'number'
-              }
+        <CollapseContent title={__("EBarimt")}>
+          {renderItem("eBarimtAccount")}
+          {renderCheckbox("isAutoSendEBarimt")}
+          {renderCheckbox("isHasVat")}
+          <FormGroup>
+            <ControlLabel>{__("Provice/District")}</ControlLabel>
+            <FormControl
+              componentclass="select"
+              defaultValue={currentMap.districtName}
+              options={DISTRICTS}
+              onChange={onChangeInput.bind(this, "districtName")}
+              required={true}
+            />
+          </FormGroup>
+          {renderItem("organizationRegister")}
+          {renderItem("defaultGSCode")}
+          <div
+            style={{
+              boxShadow: "1px 0px 5px rgba(0,0,0,0.1)",
+              padding: 20,
+              paddingBottom: 10,
+              borderRadius: 10,
+            }}
+          >
+            {renderCheckbox("isAmountUseEBarimt")}
+            {currentMap?.isAmountUseEBarimt && (
+              <FormGroup>
+                <ControlLabel>{__("Product")}</ControlLabel>
+                {renderProductModal("amountEBarimtProduct")}
+              </FormGroup>
             )}
-            {this.renderItem('doubtExpirationDay', 'Doubt /Expiration Day/', {
-              type: 'number'
-            })}
-            {this.renderItem(
-              'negativeExpirationDay',
-              'Negative /Expiration Day/',
-              {
-                type: 'number'
-              }
+          </div>
+          <div
+            style={{
+              boxShadow: "1px 0px 5px rgba(0,0,0,0.1)",
+              padding: 20,
+              paddingBottom: 10,
+              borderRadius: 10,
+              marginTop: 10,
+            }}
+          >
+            {renderCheckbox("isLossUseEBarimt")}
+            {currentMap?.isLossUseEBarimt && (
+              <FormGroup>
+                <ControlLabel>{__("Product")}</ControlLabel>
+                {renderProductModal("lossEBarimtProduct")}
+              </FormGroup>
             )}
-            {this.renderItem('badExpirationDay', 'Bad /Expiration Day/', {
-              type: 'number'
-            })}
-          </CollapseContent>
+          </div>
+        </CollapseContent>
 
-          <CollapseContent title={__('Range config')}>
-            {this.renderItem('minInterest', 'Min interest', {
-              type: 'number'
-            })}
-            {this.renderItem('maxInterest', 'Max interest', {
-              type: 'number'
-            })}
-            {this.renderItem('defaultInterest', 'Default interest', {
-              type: 'number'
-            })}
-            {this.renderItem('minTenor', 'Min tenor /Month/', {
-              type: 'number'
-            })}
-            {this.renderItem('maxTenor', 'Max tenor /Month/', {
-              type: 'number'
-            })}
-            {this.renderItem('minAmount', 'Min amount', {
-              type: 'number',
-              useNumberFormat: true
-            })}
-            {this.renderItem('maxAmount', 'Max amount', {
-              type: 'number',
-              useNumberFormat: true
-            })}
-            {this.props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
-              this.renderItem(
-                'minCommitmentInterest',
-                'Min Commitment Interest',
-                {
-                  type: 'number',
-                  useNumberFormat: true
-                }
-              )}
-            {this.props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
-              this.renderItem(
-                'maxCommitmentInterest',
-                'Max Commitment Interest',
-                {
-                  type: 'number',
-                  useNumberFormat: true
-                }
-              )}
-          </CollapseContent>
-        </ContentBox>
-      </ScrollWrapper>
-    );
+        <CollapseContent title={__("Classification")}>
+          {renderItem("normalExpirationDay", "Normal /Expiration Day/", {
+            type: "number",
+          })}
+          {renderItem("expiredExpirationDay", "Expired /Expiration Day/", {
+            type: "number",
+          })}
+          {renderItem("doubtExpirationDay", "Doubt /Expiration Day/", {
+            type: "number",
+          })}
+          {renderItem("negativeExpirationDay", "Negative /Expiration Day/", {
+            type: "number",
+          })}
+          {renderItem("badExpirationDay", "Bad /Expiration Day/", {
+            type: "number",
+          })}
+        </CollapseContent>
 
-    return (
-      <ContentWrapper>
-        <Wrapper.ActionBar
-          left={<Title>{__('Journals configs')}</Title>}
-          right={actionButtons}
-        />
-        {content}
-      </ContentWrapper>
-    );
-  }
-}
+        <CollapseContent title={__("Range config")}>
+          {renderItem("minInterest", "Min interest", {
+            type: "number",
+          })}
+          {renderItem("maxInterest", "Max interest", {
+            type: "number",
+          })}
+          {renderItem("defaultInterest", "Default interest", {
+            type: "number",
+          })}
+          {renderItem("minTenor", "Min tenor /Month/", {
+            type: "number",
+          })}
+          {renderItem("maxTenor", "Max tenor /Month/", {
+            type: "number",
+          })}
+          {renderItem("minAmount", "Min amount", {
+            type: "number",
+            useNumberFormat: true,
+          })}
+          {renderItem("maxAmount", "Max amount", {
+            type: "number",
+            useNumberFormat: true,
+          })}
+          {props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
+            renderItem("minCommitmentInterest", "Min Commitment Interest", {
+              type: "number",
+              useNumberFormat: true,
+            })}
+          {props.contractType?.leaseType === LEASE_TYPES.LINEAR &&
+            renderItem("maxCommitmentInterest", "Max Commitment Interest", {
+              type: "number",
+              useNumberFormat: true,
+            })}
+        </CollapseContent>
+      </ContentBox>
+    </ScrollWrapper>
+  );
+
+  return (
+    <ContentWrapper>
+      <Wrapper.ActionBar
+        left={<Title>{__("Journals configs")}</Title>}
+        right={actionButtons}
+      />
+      {content}
+    </ContentWrapper>
+  );
+};
 
 export default GeneralSettings;

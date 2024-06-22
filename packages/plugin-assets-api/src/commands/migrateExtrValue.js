@@ -67,6 +67,10 @@ const command = async () => {
 
         const asset = assets.find(asset => asset._id === field.value);
 
+        if(!asset) {
+          throw new Error(`Asset with _id = ${field.value} not found`);
+        }
+
         return {
           updateOne: {
             filter: { _id: item._id, 'customFieldsData.field': field.field },

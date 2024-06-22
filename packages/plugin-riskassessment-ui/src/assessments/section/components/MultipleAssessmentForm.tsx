@@ -1,12 +1,12 @@
-import { EmptyState } from '@erxes/ui/src';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import __ from 'lodash';
-import React from 'react';
-import { SelectOperations } from '../../../common/utils';
-import { FormContainer } from '../../../styles';
-import { RiskAssessmentTypes } from '../../common/types';
-import RiskAssessmentForm from '../containers/RiskAssessmentForm';
+import { EmptyState } from "@erxes/ui/src";
+import { FormContainer } from "../../../styles";
+import React from "react";
+import RiskAssessmentForm from "../containers/RiskAssessmentForm";
+import { RiskAssessmentTypes } from "../../common/types";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import { SelectOperations } from "../../../common/utils";
+import __ from "lodash";
 
 type Props = {
   riskAssessments: RiskAssessmentTypes[];
@@ -28,7 +28,7 @@ class MultipleAssessment extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selected: {}
+      selected: {},
     };
   }
 
@@ -39,13 +39,13 @@ class MultipleAssessment extends React.Component<Props, State> {
       let riskAssessment: any = {};
       if (
         riskAssessments.every(
-          riskAssessment => riskAssessment.status !== 'In Progress'
+          (riskAssessment) => riskAssessment.status !== "In Progress"
         )
       ) {
         riskAssessment = riskAssessments[0];
       } else {
         riskAssessment = riskAssessments.find(
-          riskAssessment => riskAssessment.status === 'In Progress'
+          (riskAssessment) => riskAssessment.status === "In Progress"
         );
       }
 
@@ -54,7 +54,7 @@ class MultipleAssessment extends React.Component<Props, State> {
           branchId: riskAssessment?.branchId,
           departmentId: riskAssessment?.departmentId,
           operationId: riskAssessment?.operationId,
-          indicatorId: riskAssessment?.indicatorId
+          indicatorId: riskAssessment?.indicatorId,
         }).filter(([_, property]) => property)
       );
 
@@ -64,9 +64,9 @@ class MultipleAssessment extends React.Component<Props, State> {
 
   renderSelection(list: RiskAssessmentTypes[], Component: any, type: string) {
     const { selected } = this.state;
-    const fieldName = type.toLowerCase() + 'Id';
+    const fieldName = type.toLowerCase() + "Id";
 
-    const ids = list.map(item => item[fieldName]).filter(item => item);
+    const ids = list.map((item) => item[fieldName]).filter((item) => item);
     if (!ids?.length) {
       return;
     }
@@ -80,7 +80,7 @@ class MultipleAssessment extends React.Component<Props, State> {
         key={Math.random()}
         name={fieldName}
         label={`Choose ${type}`}
-        initialValue={selected[fieldName] || ''}
+        initialValue={selected[fieldName] || ""}
         onSelect={handleSelect}
         filterParams={{ ids }}
         multi={false}
@@ -99,7 +99,7 @@ class MultipleAssessment extends React.Component<Props, State> {
     const [key, value] = Object.entries(selected)[0];
 
     const riskAssessment =
-      riskAssessments.find(riskAssessment => riskAssessment[key] === value) ||
+      riskAssessments.find((riskAssessment) => riskAssessment[key] === value) ||
       ({} as RiskAssessmentTypes);
     if (!riskAssessment) {
       return <EmptyState text="Something went wrong" />;
@@ -107,7 +107,7 @@ class MultipleAssessment extends React.Component<Props, State> {
 
     const handleClose = () => {
       const riskAssessment = riskAssessments.find(
-        riskAssessment => riskAssessment.status === 'In Progress'
+        (riskAssessment) => riskAssessment.status === "In Progress"
       );
       if (!riskAssessment) {
         closeModal();
@@ -119,9 +119,9 @@ class MultipleAssessment extends React.Component<Props, State> {
             branchId: riskAssessment?.branchId,
             departmentId: riskAssessment?.departmentId,
             operationId: riskAssessment?.operationId,
-            indicatorId: riskAssessment?.indicatorId
+            indicatorId: riskAssessment?.indicatorId,
           }).filter(([_, property]) => property)
-        )
+        ),
       });
     };
 
@@ -132,10 +132,10 @@ class MultipleAssessment extends React.Component<Props, State> {
         riskAssessmentId: _id,
         branchId,
         departmentId,
-        operationId
+        operationId,
       },
       onlyPreview,
-      closeModal: handleClose
+      closeModal: handleClose,
     };
 
     return <RiskAssessmentForm {...updateProps} />;
@@ -146,23 +146,23 @@ class MultipleAssessment extends React.Component<Props, State> {
 
     const selections = [
       {
-        type: 'Branch',
-        component: SelectBranches
+        type: "Branch",
+        component: SelectBranches,
       },
       {
-        type: 'Department',
-        component: SelectDepartments
+        type: "Department",
+        component: SelectDepartments,
       },
       {
-        type: 'Operation',
-        component: SelectOperations
-      }
+        type: "Operation",
+        component: SelectOperations,
+      },
     ];
 
     return (
       <>
-        <FormContainer row maxItemsRow={4} flexWrap gap>
-          {selections.map(selection =>
+        <FormContainer $row $maxItemsRow={4} $flexWrap $gap>
+          {selections.map((selection) =>
             this.renderSelection(
               riskAssessments,
               selection.component,

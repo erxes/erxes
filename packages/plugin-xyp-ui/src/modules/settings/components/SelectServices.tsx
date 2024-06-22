@@ -1,8 +1,6 @@
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-
-import { ICategory } from '@erxes/ui/src/utils/categories';
+import Select from 'react-select';
 
 type Props = {
   loading?: boolean;
@@ -35,19 +33,21 @@ const SelectServices: React.FC<Props> = props => {
     setSearchValue(value);
   };
 
-  const onChangeTag = (value: string[]) => {
-    props.onChange(value);
+  const onChangeTag = options => {
+    props.onChange(options);
   };
+
+  const flat = filtered.map(d => d.options).flat();
 
   return (
     <Select
       placeholder={__('Type to search...')}
-      value={value}
+      value={value.map(o => flat.find(x => x.value === o))}
       onChange={onChangeTag}
       isLoading={props.loading}
       onInputChange={onInputChange}
       options={filtered}
-      multi={true}
+      isMulti={true}
     />
   );
 };

@@ -24,7 +24,7 @@ const getAllChildrenIds = async (models: IModels, parentId: string) => {
 };
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.Branches.findOne({ _id });
   },
 
@@ -37,15 +37,15 @@ export default {
     });
   },
 
-  parent(branch: IBranchDocument, _args, { models }: IContext) {
+  async parent(branch: IBranchDocument, _args, { models }: IContext) {
     return models.Branches.findOne({ _id: branch.parentId });
   },
 
-  children(branch: IBranchDocument, _args, { models }: IContext) {
+  async children(branch: IBranchDocument, _args, { models }: IContext) {
     return models.Branches.find({ parentId: branch._id });
   },
 
-  supervisor(branch: IBranchDocument, _args, { models }: IContext) {
+  async supervisor(branch: IBranchDocument, _args, { models }: IContext) {
     return models.Users.findOne({ _id: branch.supervisorId, isActive: true });
   },
 
@@ -66,6 +66,6 @@ export default {
     return await models.Users.find({
       branchIds: { $in: [branch._id, ...allChildrenIds] },
       isActive: true
-    }).count();
+    }).countDocuments();
   }
 };

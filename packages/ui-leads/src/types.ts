@@ -8,7 +8,7 @@ import {
 
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
-// import { IIntegration } from '../../../settings/integrations/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
@@ -61,10 +61,6 @@ export interface IWebhookData {
   token: string;
 }
 
-export interface IIntegration {
-  _id: string;
-  name: string;
-}
 export interface ILeadIntegration extends IIntegration {
   brand: IBrand;
   tags: ITag[];

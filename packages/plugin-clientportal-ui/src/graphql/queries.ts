@@ -75,6 +75,15 @@ export const commonFields = `
     codeLength
     loginWithOTP
     expireAfter
+    emailSubject
+  }
+  twoFactorConfig {
+    smsTransporterType
+    content
+    codeLength
+    enableTwoFactor
+    expireAfter
+    emailSubject
   }
 
   mailConfig {

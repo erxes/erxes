@@ -1,19 +1,20 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import KnowledgeBaseComponent from '../components/KnowledgeBase';
-import { queries } from '@erxes/ui-knowledgebase/src/graphql';
+import * as compose from "lodash.flowright";
+
 import {
   ArticlesTotalCountQueryResponse,
   CategoryDetailQueryResponse,
   ICategory,
-  LastCategoryQueryResponse
-} from '@erxes/ui-knowledgebase/src/types';
+  LastCategoryQueryResponse,
+} from "@erxes/ui-knowledgebase/src/types";
+import { router as routerUtils, withProps } from "@erxes/ui/src/utils";
+
+import { IRouterProps } from "@erxes/ui/src/types";
+import KnowledgeBaseComponent from "../components/KnowledgeBase";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-knowledgebase/src/graphql";
+import queryString from "query-string";
 
 type Props = {
   queryParams: any;
@@ -38,7 +39,7 @@ const KnowledgeBase = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     articlesCount: articlesCount || 0,
-    currentCategory: currentCategory || ({} as ICategory)
+    currentCategory: currentCategory || ({} as ICategory),
   };
 
   return <KnowledgeBaseComponent {...updatedProps} />;
@@ -49,29 +50,30 @@ const KnowledgeBaseContainer = withProps<Props>(
     graphql<Props, CategoryDetailQueryResponse, { _id: string }>(
       gql(queries.knowledgeBaseCategoryDetail),
       {
-        name: 'categoryDetailQuery',
+        name: "categoryDetailQuery",
         options: ({ currentCategoryId }) => ({
           variables: { _id: currentCategoryId },
-          fetchPolicy: 'network-only'
+          fetchPolicy: "network-only",
         }),
-        skip: ({ currentCategoryId }) => !currentCategoryId
+        skip: ({ currentCategoryId }) => !currentCategoryId,
       }
     ),
     graphql<Props, ArticlesTotalCountQueryResponse, { categoryIds: string[] }>(
       gql(queries.knowledgeBaseArticlesTotalCount),
       {
-        name: 'articlesCountQuery',
+        name: "articlesCountQuery",
         options: ({ currentCategoryId }) => ({
-          variables: { categoryIds: [currentCategoryId] }
+          variables: { categoryIds: [currentCategoryId] },
         }),
-        skip: ({ currentCategoryId }) => !currentCategoryId
+        skip: ({ currentCategoryId }) => !currentCategoryId,
       }
     )
   )(KnowledgeBase)
 );
 
 type WithCurrentIdProps = {
-  history: any;
+  location: any;
+  navigate: any;
   queryParams: any;
 };
 
@@ -83,8 +85,9 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
   componentWillReceiveProps(nextProps: WithCurrentIdFinalProps) {
     const {
       lastCategoryQuery,
-      history,
-      queryParams: { _id }
+      location,
+      navigate,
+      queryParams: { _id },
     } = nextProps;
 
     if (!lastCategoryQuery) {
@@ -95,9 +98,10 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
     if (!_id && knowledgeBaseCategoriesGetLast && !loading) {
       routerUtils.setParams(
-        history,
+        navigate,
+        location,
         {
-          id: knowledgeBaseCategoriesGetLast._id
+          id: knowledgeBaseCategoriesGetLast._id,
         },
         true
       );
@@ -106,12 +110,12 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
 
   render() {
     const {
-      queryParams: { id }
+      queryParams: { id },
     } = this.props;
 
     const updatedProps = {
       ...this.props,
-      currentCategoryId: id || ''
+      currentCategoryId: id || "",
     };
 
     return <KnowledgeBaseContainer {...updatedProps} />;
@@ -123,9 +127,9 @@ const WithLastCategory = withProps<WithCurrentIdProps>(
     graphql<WithCurrentIdProps, LastCategoryQueryResponse>(
       gql(queries.categoriesGetLast),
       {
-        name: 'lastCategoryQuery',
+        name: "lastCategoryQuery",
         skip: ({ queryParams }: { queryParams: any }) => queryParams.id,
-        options: () => ({ fetchPolicy: 'network-only' })
+        options: () => ({ fetchPolicy: "network-only" }),
       }
     )
   )(WithCurrentId)
@@ -140,4 +144,4 @@ const WithQueryParams = (props: IRouterProps) => {
   return <WithLastCategory {...extendedProps} />;
 };
 
-export default withProps<{}>(withRouter<IRouterProps>(WithQueryParams));
+export default WithQueryParams;

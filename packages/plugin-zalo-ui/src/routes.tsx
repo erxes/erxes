@@ -1,25 +1,24 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 const CreateZalo = asyncComponent(() =>
   import(/* webpackChunkName: "Settings CreateZalo" */ './containers/Form')
 );
 
-const createZalo = () => {
+const CreateZaloComponent = () => {
   return <CreateZalo />;
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/settings/integrations/createZalo"
-        exact={true}
         path="/settings/integrations/createZalo"
-        component={createZalo}
+        element={<CreateZaloComponent/>}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

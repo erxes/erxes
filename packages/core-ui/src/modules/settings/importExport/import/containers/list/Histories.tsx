@@ -1,22 +1,23 @@
-import { AppConsumer } from 'appContext';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, router, withProps } from 'modules/common/utils';
-import { generatePaginationParams } from 'modules/common/utils/router';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withRouter } from 'react-router-dom';
-import Histories from '../../components/list/Histories';
-import { mutations, queries } from '../../graphql';
+import * as compose from "lodash.flowright";
+
+import { Alert, router, withProps } from "modules/common/utils";
 import {
   ImportHistoriesQueryResponse,
-  RemoveMutationResponse
-} from '../../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+  RemoveMutationResponse,
+} from "../../../types";
+import { mutations, queries } from "../../graphql";
+
+import { AppConsumer } from "appContext";
+import Histories from "../../components/list/Histories";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { generatePaginationParams } from "modules/common/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   queryParams: any;
+  location: any;
   showLoadingBar: (isRemovingImport: boolean) => void;
   closeLoadingBar: () => void;
   isDoneIndicatorAction: boolean;
@@ -25,7 +26,6 @@ type Props = {
 type FinalProps = {
   historiesQuery: ImportHistoriesQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {
@@ -37,12 +37,12 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
   }
 
   render() {
-    const { historiesQuery, importHistoriesRemove, history } = this.props;
+    const { historiesQuery, importHistoriesRemove } = this.props;
 
     const histories = historiesQuery.importHistories || {};
     const list = histories.list || [];
@@ -59,19 +59,19 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       historiesQuery.stopPolling();
     }
 
-    const currentType = router.getParam(history, 'type');
+    const currentType = router.getParam(location, "type");
 
     const removeHistory = (historyId: string, contentType: string) => {
       importHistoriesRemove({
-        variables: { _id: historyId, contentType }
+        variables: { _id: historyId, contentType },
       })
         .then(() => {
           if (historiesQuery) {
             historiesQuery.refetch();
-            Alert.success('success');
+            Alert.success("success");
           }
         })
-        .catch(e => {
+        .catch((e) => {
           Alert.error(e.message);
         });
     };
@@ -82,16 +82,16 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       loading: historiesQuery.loading || this.state.loading,
       totalCount: histories.count || 0,
       removeHistory,
-      currentType
+      currentType,
     };
 
     return <Histories {...updatedProps} />;
   }
 }
 
-const historiesListParams = queryParams => ({
+const historiesListParams = (queryParams) => ({
   ...generatePaginationParams(queryParams),
-  type: queryParams.type || 'customer'
+  type: queryParams.type || "customer",
 });
 
 const HistoriesWithProps = withProps<Props>(
@@ -99,12 +99,12 @@ const HistoriesWithProps = withProps<Props>(
     graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
       gql(queries.importHistories),
       {
-        name: 'historiesQuery',
+        name: "historiesQuery",
         options: ({ queryParams }) => ({
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: historiesListParams(queryParams),
-          pollInterval: 3000
-        })
+          pollInterval: 3000,
+        }),
       }
     ),
     graphql<
@@ -112,12 +112,12 @@ const HistoriesWithProps = withProps<Props>(
       RemoveMutationResponse,
       { _id: string; contentType: string }
     >(gql(mutations.importHistoriesRemove), {
-      name: 'importHistoriesRemove'
+      name: "importHistoriesRemove",
     })
-  )(withRouter<FinalProps>(HistoriesContainer))
+  )(HistoriesContainer)
 );
 
-const WithConsumer = props => {
+const WithConsumer = (props) => {
   return (
     <AppConsumer>
       {({ showLoadingBar, closeLoadingBar }) => (

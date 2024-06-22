@@ -12,7 +12,6 @@ import { queries as voucherCampaignQueries } from '../../voucherCampaign/graphql
 import EditForm from '../components/EditForm';
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 

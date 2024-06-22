@@ -1,11 +1,11 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import * as compose from 'lodash.flowright';
 import React from 'react';
-import { graphql, ChildProps } from '@apollo/client/react/hoc';
+import { ChildProps } from '@apollo/client/react/hoc';
 
 import SelectPayments from '../components/SelectPayments';
 import { queries } from '../graphql';
 import { PaymentsQueryResponse } from '../types';
+import { useQuery } from '@apollo/client';
 
 type Props = {
   defaultValue: string[];
@@ -14,34 +14,25 @@ type Props = {
   onChange: (value: string[]) => void;
 };
 
-type FinalProps = {
-  paymentsQuery: PaymentsQueryResponse;
-} & Props;
-
-const SelectPaymentsContainer = (props: ChildProps<FinalProps>) => {
+const SelectPaymentsContainer = (props: ChildProps<Props>) => {
   const [paymentIds, setPaymentIds] = React.useState<string[]>([]);
 
-  const { paymentsQuery } = props;
+  const paymentsQuery = useQuery<PaymentsQueryResponse>(queries.payments, {
+    variables: { status: 'active' },
+  });
 
   if (paymentsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const payments = paymentsQuery.payments || [];
+  const payments = (paymentsQuery.data && paymentsQuery.data.payments) || [];
 
   const updatedProps = {
     ...props,
-    payments
+    payments,
   };
 
   return <SelectPayments {...updatedProps} />;
 };
 
-export default compose(
-  graphql<PaymentsQueryResponse>(queries.payments, {
-    name: 'paymentsQuery',
-    options: () => ({
-      variables: { status: 'active' }
-    })
-  })
-)(SelectPaymentsContainer);
+export default SelectPaymentsContainer;

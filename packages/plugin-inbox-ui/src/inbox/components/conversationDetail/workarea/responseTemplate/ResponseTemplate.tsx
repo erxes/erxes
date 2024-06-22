@@ -1,11 +1,10 @@
 import Button from '@erxes/ui/src/components/Button';
+import Popover from '@erxes/ui/src/components/Popover';
 import { IAttachment } from '@erxes/ui/src/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IResponseTemplate } from '../../../../../settings/responseTemplates/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
 import React from 'react';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
@@ -21,61 +20,47 @@ type Props = {
   content?: string;
 };
 
-class ResponseTemplate extends React.Component<Props> {
-  private overlayRef;
+const ResponseTemplate = (props: Props) => {
+  const { brands, content, brandId, attachments } = props;
 
-  hidePopover = () => {
-    this.overlayRef.hide();
-  };
+  const saveTrigger = (
+    <Button id="response-template-handler" btnStyle="link">
+      <Tip placement="top" text={__('Save as template')}>
+        <Icon icon="file-upload-alt" />
+      </Tip>
+    </Button>
+  );
 
-  render() {
-    const { brands, content, brandId, attachments } = this.props;
+  const popover = (close) => (
+    <div className="popover-template" id="templates-popover">
+      <div className='popover-header'>{__('Response Templates')}</div>
+      <PopoverContent {...props} onSelectTemplate={close} />
+    </div>
+  );
 
-    const saveTrigger = (
-      <Button id="response-template-handler" btnStyle="link">
-        <Tip text={__('Save as template')}>
-          <Icon icon="file-upload-alt" />
-        </Tip>
-      </Button>
-    );
-
-    const popover = (
-      <Popover className="popover-template" id="templates-popover">
-        <Popover.Title as="h3">{__('Response Templates')}</Popover.Title>
-        <Popover.Content>
-          <PopoverContent {...this.props} onSelectTemplate={this.hidePopover} />
-        </Popover.Content>
+  return (
+    <ResponseTemplateStyled>
+      <Popover
+        placement="left-end"
+        closeAfterSelect={true}
+        trigger={
+          <Tip placement="top" text={__('Response template')}>
+            <Icon icon="file-bookmark-alt" />
+          </Tip>
+        }
+      >
+        {popover}
       </Popover>
-    );
 
-    return (
-      <ResponseTemplateStyled>
-        <OverlayTrigger
-          trigger="click"
-          placement="top"
-          overlay={popover}
-          rootClose={true}
-          ref={overlayTrigger => {
-            this.overlayRef = overlayTrigger;
-          }}
-        >
-          <Button btnStyle="link" id="overlay-trigger-button">
-            <Tip text={__('Response template')}>
-              <Icon icon="file-bookmark-alt" />
-            </Tip>
-          </Button>
-        </OverlayTrigger>
-
-        <Modal
-          trigger={strip(content) ? saveTrigger : <span />}
-          content={content}
-          files={attachments}
-          brands={brands}
-          brandId={brandId}
-        />
-      </ResponseTemplateStyled>
-    );
-  }
-}
+      <Modal
+        trigger={strip(content) ? saveTrigger : <span />}
+        content={content}
+        files={attachments}
+        brands={brands}
+        brandId={brandId}
+      />
+    </ResponseTemplateStyled>
+  );
+};
 
 export default ResponseTemplate;

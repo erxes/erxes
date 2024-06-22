@@ -110,8 +110,8 @@ const FormTop = styled.div`
 `;
 
 const FieldItem = styledTS<{
-  selectType?: boolean;
-  hasLogic?: boolean;
+  $selectType?: boolean;
+  $hasLogic?: boolean;
 }>(styled.div)`
 
   padding: 10px 10px 0 10px;
@@ -119,7 +119,7 @@ const FieldItem = styledTS<{
   border-radius: 4px;
 
   ${props =>
-    props.hasLogic &&
+    props.$hasLogic &&
     css`
       border: 2px solid ${colors.colorCoreTeal};
       margin-bottom: 10px;
@@ -139,7 +139,7 @@ const FieldItem = styledTS<{
     font-size: 14px;
     height: 36px;
     line-height: 1.42857143;
-    margin-top: ${props => !props.selectType && `${dimensions.unitSpacing}px`};
+    margin-top: ${props => !props.$selectType && `${dimensions.unitSpacing}px`};
     outline: 0;
     padding: 6px 15px;
     width: 100%;

@@ -1,18 +1,18 @@
-import Button from '@erxes/ui/src/components/Button';
-import { __, bustIframe } from '../../utils';
-import React from 'react';
-import Container from 'react-bootstrap/Container';
 import {
-  AuthWrapper,
   AuthBox,
-  AuthItem,
   AuthContent,
   AuthCustomDescription,
   AuthDescription,
+  AuthItem,
+  AuthWrapper,
   CenterContent,
-  MobileRecommend
-} from '../styles';
-import { getThemeItem } from '../../utils/core';
+  MobileRecommend,
+} from "../styles";
+import { __, bustIframe } from "../../utils";
+
+import Button from "@erxes/ui/src/components/Button";
+import React from "react";
+import { getThemeItem } from "../../utils/core";
 
 type Props = {
   content: React.ReactNode;
@@ -26,11 +26,11 @@ class AuthLayout extends React.Component<Props, {}> {
       <MobileRecommend>
         <CenterContent>
           <div>
-            <b>{__('erxes Inc')}</b>
+            <b>{__("erxes Inc")}</b>
             <div>{__(desciption)}</div>
           </div>
           <Button btnStyle="link" size="small" href={link}>
-            {__('Get')}
+            {__("Get")}
           </Button>
         </CenterContent>
       </MobileRecommend>
@@ -40,11 +40,11 @@ class AuthLayout extends React.Component<Props, {}> {
   renderRecommendMobileVersion() {
     const { userAgent } = navigator;
 
-    if (userAgent.indexOf('Mobile') !== -1) {
+    if (userAgent.indexOf("Mobile") !== -1) {
       if (userAgent.match(/Android/i)) {
         return this.renderContent(
-          'Download android app for free on the Google play',
-          'https://play.google.com/store/apps/details?id=io.erxes.erxes_android&fbclid=IwAR1bVPBSE0pC_KUNNjOJQA4upb1AuTUfqFcDaHTHTptyke7rNvuvb2mgwb0'
+          "Download android app for free on the Google play",
+          "https://play.google.com/store/apps/details?id=io.erxes.erxes_android&fbclid=IwAR1bVPBSE0pC_KUNNjOJQA4upb1AuTUfqFcDaHTHTptyke7rNvuvb2mgwb0"
         );
       }
     }
@@ -67,14 +67,14 @@ class AuthLayout extends React.Component<Props, {}> {
     return (
       <AuthDescription>
         <h1>
-          {getThemeItem('motto') || __('Grow your business better and faster')}
+          {getThemeItem("motto") || __("Grow your business better and faster")}
         </h1>
         <h2>
-          {getThemeItem('login_page_description') || (
+          {getThemeItem("login_page_description") || (
             <>
-              {__('Single ')}
-              <b>{__('experience operating system (XOS)')}</b>
-              {__(' to align your entire business')}
+              {__("Single ")}
+              <b>{__("experience operating system (XOS)")}</b>
+              {__(" to align your entire business")}
             </>
           )}
         </h2>
@@ -92,7 +92,7 @@ class AuthLayout extends React.Component<Props, {}> {
 
     return (
       <AuthWrapper>
-        <Container>
+        <div className="container">
           <AuthBox>
             <AuthItem order={1}>
               <AuthContent>{content}</AuthContent>
@@ -100,7 +100,7 @@ class AuthLayout extends React.Component<Props, {}> {
             <AuthItem order={0}>{this.renderDesciption()}</AuthItem>
           </AuthBox>
           {this.renderRecommendMobileVersion()}
-        </Container>
+        </div>
       </AuthWrapper>
     );
   }

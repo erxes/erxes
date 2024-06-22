@@ -1,9 +1,10 @@
-import React from 'react';
-import Form from '@erxes/ui/src/components/form/Form';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Button from '@erxes/ui/src/components/Button';
-import Row from './Row';
-import { Table, Wrapper } from '@erxes/ui/src';
+import { Table, Wrapper } from "@erxes/ui/src";
+
+import Button from "@erxes/ui/src/components/Button";
+import Form from "@erxes/ui/src/components/form/Form";
+import { FormControl } from "@erxes/ui/src/components/form";
+import React from "react";
+import Row from "./Row";
 
 type Props = {
   toSyncPolaris: (type: string, items: any[]) => void;
@@ -23,7 +24,7 @@ const TypeForm = (props: Props) => {
   const renderContent = () => {
     const onChange = () => {
       const { toggleAll, items } = props;
-      toggleAll(items, 'customers');
+      toggleAll(items, "customers");
     };
     const onClickSync = (e) => {
       const { toSyncPolaris, toCheckPolaris, emptyBulk, type } = props;
@@ -47,18 +48,18 @@ const TypeForm = (props: Props) => {
     return (
       <>
         {actionBar}
-        <Table whiteSpace="nowrap" bordered={true} hover={true}>
+        <Table $whiteSpace="nowrap" $bordered={true} hover={true}>
           <thead>
             <tr>
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
+                  componentclass="checkbox"
                   onChange={onChange}
                 />
               </th>
               {tablehead.map((head) => (
-                <th key={head}>{head || ''}</th>
+                <th key={head}>{head || ""}</th>
               ))}
             </tr>
           </thead>

@@ -9,6 +9,7 @@ const RowActions = styled.div`
   font-size: 12px;
   color: ${colors.colorCoreGray};
   padding-right: ${dimensions.coreSpacing}px;
+  display: flex;
 
   i {
     padding: ${dimensions.unitSpacing}px 0;

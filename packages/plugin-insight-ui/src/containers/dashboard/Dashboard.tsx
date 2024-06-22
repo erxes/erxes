@@ -1,27 +1,30 @@
-import React from 'react';
+import React from "react";
 
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import confirm from '@erxes/ui/src/utils/confirmation/confirm';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { __ } from '@erxes/ui/src/utils/index';
-import { router } from '@erxes/ui/src/utils';
+import Alert from "@erxes/ui/src/utils/Alert/index";
+import confirm from "@erxes/ui/src/utils/confirmation/confirm";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { __ } from "@erxes/ui/src/utils/index";
+import { router } from "@erxes/ui/src/utils";
 
-import Dashboard from '../../components/dashboard/Dashboard';
-import { queries, mutations } from '../../graphql';
+import Dashboard from "../../components/dashboard/Dashboard";
+import { queries, mutations } from "../../graphql";
 import {
   DashboardDetailQueryResponse,
   DashboardRemoveMutationResponse,
   IDashboard,
   IReport,
-} from '../../types';
+} from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
 const DashboardContainer = (props: Props) => {
-  const { queryParams, history } = props;
+  const { queryParams } = props;
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const dashboardDetailQuery = useQuery<DashboardDetailQueryResponse>(
     gql(queries.dashboardDetail),
@@ -30,8 +33,8 @@ const DashboardContainer = (props: Props) => {
       variables: {
         id: queryParams.dashboardId,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [dashboardDuplicateMutation] = useMutation(
@@ -40,13 +43,13 @@ const DashboardContainer = (props: Props) => {
       refetchQueries: [
         {
           query: gql(queries.sectionList),
-          variables: { type: 'dashboard' },
+          variables: { type: "dashboard" },
         },
         {
           query: gql(queries.dashboardList),
         },
       ],
-    },
+    }
   );
 
   const [dashboardRemoveMutation] =
@@ -58,16 +61,16 @@ const DashboardContainer = (props: Props) => {
             query: gql(queries.dashboardList),
           },
         ],
-      },
+      }
     );
 
   const dashboardDuplicate = (_id: string) => {
     dashboardDuplicateMutation({ variables: { _id } })
       .then((res) => {
-        Alert.success('Successfully duplicated a dashboard');
+        Alert.success("Successfully duplicated a dashboard");
         const { _id } = res.data.dashboardDuplicate;
         if (_id) {
-          history.push(`/insight?dashboardId=${_id}`);
+          navigate(`/insight?dashboardId=${_id}`);
         }
       })
       .catch((err) => {
@@ -76,27 +79,29 @@ const DashboardContainer = (props: Props) => {
   };
 
   const dashboardRemove = (id: string) => {
-    confirm(__('Are you sure to delete selected dashboard?')).then(() => {
+    confirm(__("Are you sure to delete selected dashboard?")).then(() => {
       dashboardRemoveMutation({ variables: { id } })
         .then(() => {
           if (queryParams.dashboardId === id) {
-            router.removeParams(history, ...Object.keys(queryParams));
+            router.removeParams(
+              navigate,
+              location,
+              ...Object.keys(queryParams)
+            );
           }
-          Alert.success(__('Successfully deleted a dashboard'));
+          Alert.success(__("Successfully deleted a dashboard"));
         })
         .catch((e: Error) => Alert.error(e.message));
     });
   };
 
-  const [dashboardChartsEditMutation] = useMutation(
-    gql(mutations.chartsEdit),
-  );
+  const [dashboardChartsEditMutation] = useMutation(gql(mutations.chartsEdit));
 
   const [dashboardChartsRemoveMutation] = useMutation(
     gql(mutations.chartsRemove),
     {
-      refetchQueries: ['dashboards', 'dashboardDetail'],
-    },
+      refetchQueries: ["dashboards", "dashboardDetail"],
+    }
   );
 
   const dashboardChartsEdit = (_id: string, values: any) => {
@@ -106,7 +111,7 @@ const DashboardContainer = (props: Props) => {
   const dashboardChartsRemove = (_id: string) => {
     dashboardChartsRemoveMutation({ variables: { _id } })
       .then(() => {
-        Alert.success('Successfully removed chart');
+        Alert.success("Successfully removed chart");
       })
       .catch((err) => Alert.error(err.message));
   };

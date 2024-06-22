@@ -19,7 +19,7 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.Forms.validate(formId, submissions),
+        data: await models.Forms.validateForm(formId, submissions),
       };
     },
   );

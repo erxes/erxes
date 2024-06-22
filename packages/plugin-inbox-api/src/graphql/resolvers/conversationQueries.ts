@@ -98,7 +98,7 @@ const conversationQueries: any = {
     let messages: IMessageDocument[] = [];
 
     if (limit) {
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
       messages = await models.ConversationMessages.find(query)
         .sort(sort)
@@ -204,7 +204,7 @@ const conversationQueries: any = {
   /**
    * Get one conversation
    */
-  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Conversations.findOne({ _id });
   },
 

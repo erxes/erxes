@@ -1,47 +1,42 @@
-import React from 'react';
-import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
-const plans = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings List - Pricing" */ './page/Plans')
+const Plans = asyncComponent(
+  () => import(/* webpackChunkName: "Settings List - Pricing" */ "./page/Plans")
 );
 
-const planCreate = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - Pricing - Create Discount" */ './page/PlanCreate'
-  )
+const PlanCreate = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - Pricing - Create Discount" */ "./page/PlanCreate"
+    )
 );
 
-const planEdit = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - Pricing - Edit Discount" */ './page/PlanEdit'
-  )
+const PlanEdit = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - Pricing - Edit Discount" */ "./page/PlanEdit"
+    )
 );
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route
-        exact={true}
-        path="/pricing/plans"
-        key="/pricing/plans"
-        component={plans}
-      />
+    <Routes>
+      <Route path="/pricing/plans" key="/pricing/plans" element={<Plans />} />
 
       <Route
-        exact={true}
         path="/pricing/plans/create"
         key="/pricing/plans/create"
-        component={planCreate}
+        element={<PlanCreate />}
       />
 
       <Route
-        exact={true}
         path="/pricing/plans/edit/:id"
         key="/pricing/plans/edit/"
-        component={planEdit}
+        element={<PlanEdit />}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

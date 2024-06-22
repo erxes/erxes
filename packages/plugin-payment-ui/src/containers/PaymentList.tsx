@@ -1,16 +1,15 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 
 import PaymentList from '../components/PaymentList';
 import { mutations, queries } from '../graphql';
 import {
   IPaymentDocument,
   PaymentRemoveMutationResponse,
-  PaymentsQueryResponse
+  PaymentsQueryResponse,
 } from '../types';
+import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: any;
@@ -18,19 +17,39 @@ type Props = {
   kind: string | null;
 };
 
-type FinalProps = {
-  paymentsQuery: PaymentsQueryResponse;
-} & Props &
-  PaymentRemoveMutationResponse;
+const IntegrationListContainer = (props: Props) => {
+  const { kind } = props;
 
-const IntegrationListContainer = (props: FinalProps) => {
-  const { paymentsQuery, kind, paymentsRemove } = props;
+  const paymentsQuery = useQuery<PaymentsQueryResponse>(queries.payments, {
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      paymentIds: [],
+    },
+    fetchPolicy: 'network-only',
+  });
+
+  const [paymentsRemove] = useMutation<PaymentRemoveMutationResponse>(
+    mutations.paymentRemove,
+    {
+      refetchQueries: [
+        {
+          query: queries.payments,
+          variables: {
+            paymentIds: [],
+          },
+        },
+        {
+          query: queries.paymentsTotalCountQuery,
+        },
+      ],
+    },
+  );
 
   if (paymentsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const payments = paymentsQuery.payments || [];
+  const payments = (paymentsQuery.data && paymentsQuery.data.payments) || [];
 
   const removePayment = (payment: IPaymentDocument) => {
     const message = 'Are you sure?';
@@ -41,57 +60,24 @@ const IntegrationListContainer = (props: FinalProps) => {
           Alert.success('You successfully deleted a payment method');
         })
 
-        .catch(error => {
+        .catch((error) => {
           Alert.error(error.message);
         });
     });
   };
 
   const filteredConfigs = kind
-    ? payments.filter(pc => pc.kind === kind)
+    ? payments.filter((pc) => pc.kind === kind)
     : payments;
 
   const updatedProps = {
     ...props,
     payments: filteredConfigs,
     loading: paymentsQuery.loading,
-    removePayment
+    removePayment,
   };
 
   return <PaymentList {...updatedProps} />;
 };
 
-const mutationOptions = () => ({
-  refetchQueries: [
-    {
-      query: queries.payments,
-      variables: {
-        paymentIds: []
-      }
-    },
-    {
-      query: queries.paymentsTotalCountQuery
-    }
-  ]
-});
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, PaymentRemoveMutationResponse>(mutations.paymentRemove, {
-      name: 'paymentsRemove',
-      options: mutationOptions
-    }),
-    graphql<Props, PaymentsQueryResponse>(queries.payments, {
-      name: 'paymentsQuery',
-      options: () => {
-        return {
-          notifyOnNetworkStatusChange: true,
-          variables: {
-            paymentIds: []
-          },
-          fetchPolicy: 'network-only'
-        };
-      }
-    })
-  )(IntegrationListContainer)
-);
+export default IntegrationListContainer;

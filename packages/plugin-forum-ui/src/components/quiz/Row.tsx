@@ -1,14 +1,14 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { IQuiz } from '../../types';
-import QuizForm from '../../containers/quiz/QuizForm';
-import { PostTitle } from '../../styles';
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IQuiz } from "../../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { PostTitle } from "../../styles";
+import QuizForm from "../../containers/quiz/QuizForm";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   quiz: IQuiz;
@@ -22,13 +22,13 @@ class Row extends React.Component<Props> {
   renderEditAction(quiz) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
+        <Tip text={__("Edit")} placement="top">
           <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
 
-    const content = props => <QuizForm {...props} quiz={quiz} />;
+    const content = (props) => <QuizForm {...props} quiz={quiz} />;
 
     return (
       <ModalTrigger
@@ -46,7 +46,7 @@ class Row extends React.Component<Props> {
     const onClick = () => remove(quiz._id);
 
     return (
-      <Tip text={__('Delete')} placement="top">
+      <Tip text={__("Delete")} placement="top">
         <Button
           id="quizDelete"
           btnStyle="link"
@@ -60,13 +60,13 @@ class Row extends React.Component<Props> {
   render() {
     const { quiz, isChecked, toggleBulk } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(quiz, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
@@ -75,7 +75,7 @@ class Row extends React.Component<Props> {
         <td id="quizCheckBox" onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -84,10 +84,10 @@ class Row extends React.Component<Props> {
         <td>
           {quiz.company && quiz.company.primaryName
             ? quiz.company.primaryName
-            : ''}
+            : ""}
         </td>
         <td>{quiz.state}</td>
-        <td>{quiz.category ? quiz.category.name : ''}</td>
+        <td>{quiz.category ? quiz.category.name : ""}</td>
         <td>
           <ActionButtons>
             {this.renderEditAction(quiz)}

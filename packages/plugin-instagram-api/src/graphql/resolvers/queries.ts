@@ -54,7 +54,7 @@ const instagramQueries = {
     return models.Integrations.find({ kind });
   },
 
-  instagramGetIntegrationDetail(
+  async instagramGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext,
@@ -62,7 +62,7 @@ const instagramQueries = {
     return models.Integrations.findOne({ erxesApiId });
   },
 
-  instagramGetConfigs(_root, _args, { models }: IContext) {
+  async instagramGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
   },
 
@@ -211,16 +211,16 @@ const instagramQueries = {
     return pages;
   },
 
-  instagramConversationDetail(
+  async instagramConversationDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext,
   ) {
-    let conversation = models.Conversations.findOne({ _id }) as any;
-    if (!conversation) {
-      conversation = models.CommentConversation.findOne({ _id });
+    const conversation = await models.Conversations.findOne({ _id });
+    if (conversation) {
+      return conversation;
     }
-    return conversation;
+    return models.CommentConversation.findOne({ _id });
   },
 
   async instagramConversationMessages(
@@ -237,7 +237,7 @@ const instagramQueries = {
     const query = await buildSelector(conversationId, models.Conversations);
     if (conversation) {
       if (limit) {
-        const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+        const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
         messages = await models.ConversationMessages.find(query)
           .sort(sort)
@@ -254,7 +254,7 @@ const instagramQueries = {
       return messages.reverse();
     } else {
       let comment: any[] = [];
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
       comment = await models.CommentConversation.find({
         erxesApiId: conversationId,
       })
@@ -362,7 +362,7 @@ const instagramQueries = {
     const query = await buildSelector(conversationId, models.PostConversations);
 
     if (limit) {
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
       messages = await models.CommentConversation.find(query)
         .sort(sort)

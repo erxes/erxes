@@ -18,7 +18,7 @@ class SettingsForm extends React.Component<Props> {
 
     return (
       <Box
-        selected={selectedType === type}
+        $selected={selectedType === type}
         onClick={() => this.props.onChangeType(selectedType)}
       >
         <Icon icon={icon} />

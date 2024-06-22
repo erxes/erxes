@@ -15,14 +15,14 @@ type Props = {
 
 const labels = {
   url: 'Url',
-  token: 'Token'
+  token: 'Token',
 };
 
 const XypConfigs = (props: Props) => {
   const configs = props.configsMap.XYP_CONFIGS || {
     url: '',
     token: '',
-    servicelist: []
+    servicelist: [],
   };
 
   React.useEffect(() => {
@@ -34,13 +34,13 @@ const XypConfigs = (props: Props) => {
 
     props.onChangeConfig('XYP_CONFIGS', {
       ...configs,
-      [name]: value
+      [name]: value,
     });
   };
   const onChangeService = value => {
     props.onChangeConfig('XYP_CONFIGS', {
       ...configs,
-      servicelist: value
+      servicelist: value,
     });
   };
 
@@ -57,7 +57,7 @@ const XypConfigs = (props: Props) => {
         <FormControl
           id={key}
           name={key}
-          componentClass={componentClass}
+          componentclass={componentClass}
           defaultValue={configs[key]}
           onChange={onChange}
           type={type}
@@ -71,7 +71,7 @@ const XypConfigs = (props: Props) => {
       <CollapseContent
         transparent={true}
         title={__('Xypdan')}
-        beforeTitle={<Icon icon="favorite" />}
+        beforeTitle={<Icon icon='favorite' />}
       >
         {renderItem('url')}
         {renderItem('token')}
@@ -83,6 +83,7 @@ const XypConfigs = (props: Props) => {
             value={configs.servicelist}
             onChange={value => {
               const list = value.map(d => d.value);
+              console.log('this works', list);
               onChangeService(list);
             }}
           />

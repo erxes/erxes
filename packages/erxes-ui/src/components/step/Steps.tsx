@@ -1,20 +1,21 @@
-import React from 'react';
 import {
-  StepContainer,
   ShortStep,
-  StepCount,
+  StepContainer,
   StepContent,
+  StepCount,
   StepHeaderHorizontalContainer,
   StepHeaderTitle,
-  StepItem
-} from './styles';
-import { __ } from '../../utils/core';
+  StepItem,
+} from "./styles";
+
+import React from "react";
+import { __ } from "../../utils/core";
 
 type Props = {
   children: any;
   active?: number;
   maxStep?: number;
-  direction?: 'vertical' | 'horizontal';
+  direction?: "vertical" | "horizontal";
 };
 
 type State = {
@@ -28,7 +29,7 @@ class Steps extends React.Component<Props, State> {
 
     this.state = {
       activeStep: props.active ? props.active : 1,
-      maxStep: props.maxStep ? props.maxStep : 6
+      maxStep: props.maxStep ? props.maxStep : 6,
     };
   }
 
@@ -54,7 +55,7 @@ class Steps extends React.Component<Props, State> {
 
     let index: number = 0;
 
-    if (direction === 'horizontal') {
+    if (direction === "horizontal") {
       let headerElements: any = [];
 
       let childrenElements = React.Children.map(children, (child: any) => {
@@ -65,15 +66,16 @@ class Steps extends React.Component<Props, State> {
 
         headerElements.push(
           <ShortStep
-            show={true}
-            active={activeStep >= index}
+            key={index}
+            $show={true}
+            $active={activeStep >= index}
             direction={direction}
             onClick={() => this.next(_index + 1)}
           >
-            <StepCount direction={direction} active={activeStep >= index}>
+            <StepCount direction={direction} $active={activeStep >= index}>
               {index}
             </StepCount>
-            <StepHeaderTitle>{__(child.props.title || '')}</StepHeaderTitle>
+            <StepHeaderTitle>{__(child.props.title || "")}</StepHeaderTitle>
           </ShortStep>
         );
 
@@ -83,12 +85,12 @@ class Steps extends React.Component<Props, State> {
           next: this.next,
           back: this.back,
           direction,
-          maxStep
+          maxStep,
         });
       });
 
       return (
-        <StepItem direction={direction} show={true}>
+        <StepItem direction={direction} $show={true}>
           <StepHeaderHorizontalContainer>
             {headerElements}
           </StepHeaderHorizontalContainer>
@@ -103,13 +105,14 @@ class Steps extends React.Component<Props, State> {
       index++;
 
       return React.cloneElement(child, {
+        key: index,
         stepNumber: index,
         active: activeStep,
         progress: this.props.active,
         next: this.next,
         back: this.back,
         direction,
-        maxStep
+        maxStep,
       });
     });
   };

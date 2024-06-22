@@ -1,26 +1,25 @@
 import {
-  __,
   DataWithLoader,
+  FormControl,
+  ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  ModalTrigger,
-  FormControl
-} from '@erxes/ui/src';
-import dayjs from 'dayjs';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuSyncerkhet } from '../../constants';
-import SyncHistorySidebar from './syncHistorySidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
+  __,
+} from "@erxes/ui/src";
 
-interface IProps extends IRouterProps {
+import { IQueryParams } from "@erxes/ui/src/types";
+import React from "react";
+import SyncHistorySidebar from "./syncHistorySidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import dayjs from "dayjs";
+import { menuSyncerkhet } from "../../constants";
+
+interface IProps {
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string) => void;
@@ -37,9 +36,9 @@ class SyncHistoryList extends React.Component<IProps, {}> {
     super(props);
   }
 
-  moveCursorAtTheEnd = e => {
+  moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
@@ -48,55 +47,52 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   };
 
   render() {
-    const {
-      history,
-      syncHistories,
-      totalCount,
-      loading,
-      queryParams
-    } = this.props;
+    const { syncHistories, totalCount, loading, queryParams } = this.props;
 
-    const tablehead = ['Date', 'User', 'Content Type', 'Content', 'Error'];
+    const tablehead = ["Date", "User", "Content Type", "Content", "Error"];
 
     const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            {tablehead.map(p => (
-              <th key={p}>{p || ''}</th>
+            {tablehead.map((p, i) => (
+              <th key={i}>{p || ""}</th>
             ))}
           </tr>
         </thead>
         <tbody id="orders">
-          {(syncHistories || []).map(item => (
+          {(syncHistories || []).map((item, i) => (
             // tslint:disable-next-line:jsx-key
             <ModalTrigger
+              key={i}
               title="Sync erkhet information"
               trigger={
                 <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
+                  <td>{dayjs(item.createdAt).format("lll")}</td>
                   <td>{item.createdUser?.email}</td>
                   <td>{item.contentType}</td>
                   <td>{item.content}</td>
                   <td>
-                    {(item.responseStr || '').includes('timedout')
+                    {(item.responseStr || "").includes("timedout")
                       ? item.responseStr
-                      : '' ||
+                      : "" ||
                         `
-                      ${item.responseData?.extra_info?.warnings || ''}
-                      ${item.responseData?.message || ''}
-                      ${item.error || ''}
-                      ${typeof (item.responseData?.error || '') === 'string' &&
-                        typeof (item.responseData?.error || '').replace(
-                          'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                          ''
-                        )}
+                      ${item.responseData?.extra_info?.warnings || ""}
+                      ${item.responseData?.message || ""}
+                      ${item.error || ""}
+                      ${
+                        typeof (item.responseData?.error || "") === "string" &&
+                        typeof (item.responseData?.error || "").replace(
+                          "ЕБаримт руу илгээгдээгүй түр баримт болно.",
+                          ""
+                        )
+                      }
                       `}
                   </td>
                 </tr>
               }
               size="xl"
-              content={props => this.rowContent(props, item)}
+              content={(props) => this.rowContent(props, item)}
             />
           ))}
         </tbody>
@@ -113,11 +109,7 @@ class SyncHistoryList extends React.Component<IProps, {}> {
           />
         }
         leftSidebar={
-          <SyncHistorySidebar
-            queryParams={queryParams}
-            history={history}
-            loading={loading}
-          />
+          <SyncHistorySidebar queryParams={queryParams} loading={loading} />
         }
         actionBar={
           <Wrapper.ActionBar
@@ -143,4 +135,4 @@ class SyncHistoryList extends React.Component<IProps, {}> {
   }
 }
 
-export default withRouter<IRouterProps>(SyncHistoryList);
+export default SyncHistoryList;

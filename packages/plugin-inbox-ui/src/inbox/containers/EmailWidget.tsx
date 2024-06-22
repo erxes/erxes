@@ -3,5 +3,5 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 export default function EmailWidget() {
-  return isEnabled('engages') || isEnabled('imap') ? <Widget /> : null;
+  return isEnabled('engages') || isEnabled('imap') ? <Widget type='widget' /> : null;
 }

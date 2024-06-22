@@ -1,4 +1,4 @@
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
@@ -6,21 +6,20 @@ import React from 'react';
 import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import { getRefetchQueries } from '../utils';
 import { mutations } from '../../graphql';
-import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;
   closeModal: () => void;
 };
 
-type FinalProps = {} & IRouterProps & Props;
+type FinalProps = {} & Props;
 
 class TelnyxContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
     values,
     isSubmitted,
-    callback
+    callback,
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -39,11 +38,11 @@ class TelnyxContainer extends React.Component<FinalProps> {
     const { closeModal } = this.props;
     const updatedProps = {
       closeModal,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
     };
 
     return <TelnyxForm {...updatedProps} />;
   }
 }
 
-export default withRouter<FinalProps>(TelnyxContainer);
+export default TelnyxContainer;

@@ -1,4 +1,4 @@
-import { readFileUrl } from '@erxes/api-utils/src/commonUtils';
+import { getEnv } from '../commonUtils';
 
 export const generatePayloadString = (conversation, btn, customerId) => {
   return JSON.stringify({
@@ -8,14 +8,10 @@ export const generatePayloadString = (conversation, btn, customerId) => {
   });
 };
 
-export const generateBotData = ({
-  type,
-  buttons,
-  text,
-  cards,
-  quickReplies,
-  image,
-}) => {
+export const generateBotData = (
+  subdomain,
+  { type, buttons, text, cards, quickReplies, image },
+) => {
   let botData: any[] = [];
 
   const generateButtons = (buttons: any[]) => {
@@ -36,7 +32,7 @@ export const generateBotData = ({
           image = '',
           buttons: cardButtons = [],
         }) => ({
-          picture: readFileUrl(image),
+          picture: getUrl(subdomain, image),
           title,
           subtitle,
           buttons: generateButtons(cardButtons),
@@ -58,7 +54,7 @@ export const generateBotData = ({
   if (type === 'image') {
     botData.push({
       type: 'file',
-      url: readFileUrl(image),
+      url: getUrl(subdomain, image),
     });
   }
 
@@ -104,4 +100,24 @@ export const checkContentConditions = (content: string, conditions: any[]) => {
         return;
     }
   }
+};
+
+export const getUrl = (subdomain, key) => {
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+  });
+
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  if (NODE_ENV !== 'production') {
+    return `${DOMAIN}/read-file?key=${key}`;
+  }
+
+  if (VERSION === 'saas') {
+    return `${DOMAIN}/api/read-file?key=${key}`;
+  }
+
+  return `${DOMAIN}/gateway/read-file?key=${key}`;
 };

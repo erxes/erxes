@@ -5,7 +5,7 @@ import React from 'react';
 import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import { queries } from '../graphql';
 
-// get company options for react-select-plus
+// get company options for react-select
 export function generateCompanyOptions(array: ICompany[] = []): IOption[] {
   return array.map(item => {
     const company = item || ({} as ICompany);

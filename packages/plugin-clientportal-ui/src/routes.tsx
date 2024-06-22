@@ -1,158 +1,165 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-const BusinessPortalMenu = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "BusinessPortalMenu - Settings" */ './components/Menu'
-  )
+const BusinessPortalMenu = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "BusinessPortalMenu - Settings" */ "./components/Menu"
+    )
 );
 
-const ClientPortalDetail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ClientPortalDetail - Settings" */ './containers/ClientPortalDetail'
-  )
+const ClientPortalDetail = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ClientPortalDetail - Settings" */ "./containers/ClientPortalDetail"
+    )
 );
 
-const ClientPortal = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ClientPortalDetail - Settings" */ './components/ClientPortal'
-  )
+const ClientPortal = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ClientPortalDetail - Settings" */ "./components/ClientPortal"
+    )
 );
 
-const ClientPortalUserDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ClientPortalDetails" */ './containers/details/ClientPortalUserDetails'
-  )
+const ClientPortalUserDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ClientPortalDetails" */ "./containers/details/ClientPortalUserDetails"
+    )
 );
 
-const ClientPortalCompanyDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ClientPortalDetails" */ './containers/details/ClientPortalCompanyDetails'
-  )
+const ClientPortalCompanyDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ClientPortalDetails" */ "./containers/details/ClientPortalCompanyDetails"
+    )
 );
 
-const ClientPortalUserList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ClientPortalUserList - Settings" */ './containers/ClientPortalUserList'
-  )
+const ClientPortalUserList = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ClientPortalUserList - Settings" */ "./containers/ClientPortalUserList"
+    )
 );
 
-const businessPortal = ({ location, history }) => {
+const BusinessPortal = () => {
+  const location = useLocation();
+
   const queryParams = queryString.parse(location.search);
 
-  return <BusinessPortalMenu queryParams={queryParams} history={history} />;
+  return <BusinessPortalMenu queryParams={queryParams}  />;
 };
 
-const clientPortal = ({ location, history }) => {
+const ClientPortalComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
-    <ClientPortal queryParams={queryParams} history={history} kind="client" />
+    <ClientPortal queryParams={queryParams}  kind="client" />
   );
 };
 
-const vendorPortal = ({ location, history }) => {
+const VendorPortal = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return (
-    <ClientPortal queryParams={queryParams} history={history} kind="vendor" />
+    <ClientPortal queryParams={queryParams}  kind="vendor" />
   );
 };
 
-const configsForm = ({ location, history }) => {
+const ConfigsForm = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <ClientPortalDetail queryParams={queryParams} history={history} />;
+  return <ClientPortalDetail queryParams={queryParams}  />;
 };
 
-const userDetail = ({ match, location, history }) => {
-  const id = match.params.id;
+const UserDetail = () => {
+  const location = useLocation();
+  const { id } = useParams();
 
   const queryParams = queryString.parse(location.search);
   return (
     <ClientPortalUserDetails
       id={id}
-      history={history}
       queryParams={queryParams}
     />
   );
 };
 
-const companyDetail = ({ match, history }) => {
-  const id = match.params.id;
+const CompanyDetail = () => {
+  const { id } = useParams();
 
-  return <ClientPortalCompanyDetails id={id} history={history} />;
+  return <ClientPortalCompanyDetails id={id}  />;
 };
 
-const list = ({ match, location, history }) => {
+const List = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  let kind = 'client';
+  let kind = "client";
 
-  if (match.path === '/settings/vendor-portal/user') {
-    kind = 'vendor';
+  if (location.pathname === "/settings/vendor-portal/user") {
+    kind = "vendor";
   }
 
   return (
     <ClientPortalUserList
       queryParams={queryParams}
-      history={history}
       kind={kind}
     />
   );
 };
 
 const routes = () => (
-  <>
+  <Routes>
     <Route
       key="/settings/business-portal/"
       path="/settings/business-portal"
-      exact={true}
-      component={businessPortal}
+      element={<BusinessPortal />}
     />
     <Route
       key="/settings/business-portal/client"
       path="/settings/business-portal/client"
-      exact={true}
-      component={clientPortal}
+      element={<ClientPortalComponent />}
     />
     <Route
       key="/settings/business-portal/vendor"
       path="/settings/business-portal/vendor"
-      exact={true}
-      component={vendorPortal}
+      element={<VendorPortal />}
     />
     <Route
       key="/settings/client-portal/form"
       path="/settings/client-portal/form"
-      component={configsForm}
+      element={<ConfigsForm />}
     />
     <Route
       key="/settings/client-portal/users/details/:id"
-      exact={true}
       path="/settings/client-portal/users/details/:id"
-      component={userDetail}
+      element={<UserDetail />}
     />
     <Route
       key="/settings/client-portal/companies/details/:id"
-      exact={true}
       path="/settings/client-portal/companies/details/:id"
-      component={companyDetail}
+      element={<CompanyDetail />}
     />
     <Route
       key="/settings/client-portal/user"
       path="/settings/client-portal/user"
-      component={list}
+      element={<List />}
     />
 
     <Route
       key="/settings/vendor-portal/user"
       path="/settings/vendor-portal/user"
-      component={list}
+      element={<List />}
     />
-  </>
+  </Routes>
 );
 
 export default routes;

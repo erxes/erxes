@@ -1,17 +1,15 @@
-import { Alert } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { refetchQueries } from '../common';
-import ListComponents from '../components/List';
-import { mutations, queries } from '../graphql';
+import { Alert } from "@erxes/ui/src";
+import { router, withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { refetchQueries } from "../common";
+import ListComponents from "../components/List";
+import { mutations, queries } from "../graphql";
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
 type FinalProps = {
   configs: any;
@@ -26,13 +24,13 @@ class List extends React.Component<FinalProps> {
   render() {
     const { configs, configsTotalCount } = this.props;
 
-    const remove = configIds => {
+    const remove = (configIds) => {
       this.props
         .removeConfigs({ variables: { configIds } })
         .then(() => {
-          Alert.success('Config removed successfully');
+          Alert.success("Config removed successfully");
         })
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err.message);
         });
     };
@@ -41,7 +39,7 @@ class List extends React.Component<FinalProps> {
       ...this.props,
       configs: configs?.riskAssessmentsConfigs || [],
       totalCount: configsTotalCount.riskAssessmentsConfigsTotalCount || 0,
-      remove
+      remove,
     };
 
     return <ListComponents {...updatedProps} />;
@@ -56,28 +54,28 @@ export const generateParams = ({ queryParams }) => ({
   boardId: queryParams?.boardId,
   pipelineId: queryParams?.pipelineId,
   stageId: queryParams?.stageId,
-  customFieldId: queryParams?.customFieldId
+  customFieldId: queryParams?.customFieldId,
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.configs), {
-      name: 'configs',
+      name: "configs",
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
+        variables: generateParams({ queryParams }),
+      }),
     }),
     graphql<Props>(gql(queries.totalCount), {
-      name: 'configsTotalCount',
+      name: "configsTotalCount",
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
+        variables: generateParams({ queryParams }),
+      }),
     }),
     graphql<Props>(gql(mutations.removeConfigs), {
-      name: 'removeConfigs',
+      name: "removeConfigs",
       options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries(queryParams)
-      })
+        refetchQueries: refetchQueries(queryParams),
+      }),
     })
   )(List)
 );

@@ -1,5 +1,6 @@
-import React from 'react';
-import { TextArea } from './styles';
+import React, { useEffect, useRef } from "react";
+
+import { TextArea } from "./styles";
 
 type Props = {
   onChange?: (e: React.FormEvent<HTMLTextAreaElement>) => void;
@@ -7,48 +8,47 @@ type Props = {
   maxHeight?: number;
 };
 
-class Textarea extends React.Component<Props> {
-  private area;
+const Textarea: React.FC<Props> = ({
+  maxHeight,
+  hasError,
+  onChange,
+  ...props
+}) => {
+  const areaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  componentDidMount() {
-    this.setHeight();
-  }
+  useEffect(() => {
+    setHeight();
+  }, []);
 
-  setHeight() {
-    const textarea = this.area;
+  const setHeight = () => {
+    const textarea = areaRef.current;
 
-    // for reset element's scrollHeight
-    textarea.style.height = 0;
-    // add border 1px height
-    textarea.style.height = `${textarea.scrollHeight + 1}px`;
-  }
+    if (textarea) {
+      // Reset element's scrollHeight
+      textarea.style.height = "0";
+      // Add 1px for border height
+      textarea.style.height = `${textarea.scrollHeight + 1}px`;
+    }
+  };
 
-  onChange = e => {
-    const { onChange } = this.props;
-
-    this.setHeight();
+  const handleChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    setHeight();
 
     if (onChange) {
       onChange(e);
     }
   };
 
-  setArea = area => {
-    this.area = area;
-  };
-
-  render() {
-    const { maxHeight, ...props } = this.props;
-
-    return (
-      <TextArea
-        {...props}
-        innerRef={this.setArea}
-        maxHeight={maxHeight}
-        onChange={this.onChange}
-      />
-    );
-  }
-}
+  return (
+    <TextArea
+      {...props}
+      as="textarea"
+      $hasError={hasError}
+      ref={(area) => (areaRef.current = area)}
+      maxHeight={maxHeight}
+      onChange={handleChange}
+    />
+  );
+};
 
 export default Textarea;

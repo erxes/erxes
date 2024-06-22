@@ -1,32 +1,33 @@
-import Form from '../containers/DayPlanForm';
-import moment from 'moment';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Row from './DayPlanRow';
-import Sidebar from './DayPlanSidebar';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import { BarItems, Wrapper } from '@erxes/ui/src/layout';
+import Form from "../containers/DayPlanForm";
+import moment from "moment";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import React, { useState, useRef } from "react";
+import Row from "./DayPlanRow";
+import Sidebar from "./DayPlanSidebar";
+import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
+import { BarItems, Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
   FormControl,
   ModalTrigger,
-  Table
-} from '@erxes/ui/src/components';
-import { IDayPlan, IDayPlanConfirmParams } from '../types';
-import { ITimeframe } from '../../settings/types';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
-import { menuSalesplans } from '../../constants';
-import { TableWrapper } from '../../styles';
+  Table,
+} from "@erxes/ui/src/components";
+import { IDayPlan, IDayPlanConfirmParams } from "../types";
+import { ITimeframe } from "../../settings/types";
+import { menuSalesplans } from "../../constants";
+import { TableWrapper } from "../../styles";
+import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   dayPlans: IDayPlan[];
   totalCount: number;
+  loading: boolean;
   totalSum: any;
   timeFrames: ITimeframe[];
   isAllSelected: boolean;
   toggleAll: (targets: IDayPlan[], containerId: string) => void;
-  history: any;
   queryParams: any;
   bulk: any[];
   emptyBulk: () => void;
@@ -37,63 +38,63 @@ type Props = {
   toConfirm: (doc: IDayPlanConfirmParams, callback: () => void) => void;
 };
 
-type State = {
-  searchValue: string;
-};
+const DayPlanList = (props: Props) => {
+  const {
+    dayPlans,
+    totalCount,
+    loading,
+    totalSum,
+    timeFrames,
+    isAllSelected,
+    toggleAll,
+    queryParams,
+    bulk,
+    emptyBulk,
+    toggleBulk,
+    remove,
+    edit,
+    searchValue,
+    toConfirm,
+  } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-class DayPlans extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
+  const { date, branchId, departmentId, productCategoryId, productId } =
+    queryParams;
 
-  constructor(props: Props) {
-    super(props);
+  const [search, setSearch] = useState<string>(searchValue || "");
+  const timerRef = useRef<number | null>(null);
 
-    this.state = {
-      searchValue: this.props.searchValue || ''
-    };
-  }
-
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
+  const handleSearch = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    const { history } = this.props;
-    const searchValue = e.target.value;
+    const value = e.target.value;
 
-    this.setState({ searchValue });
+    setSearch(value);
 
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
+    timerRef.current = window.setTimeout(() => {
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
-  }
-
-  onChange = () => {
-    const { toggleAll, dayPlans } = this.props;
-    toggleAll(dayPlans, 'dayPlans');
   };
 
-  renderRow = () => {
-    const {
-      dayPlans,
-      history,
-      toggleBulk,
-      bulk,
-      edit,
-      timeFrames
-    } = this.props;
+  const onChange = () => {
+    toggleAll(dayPlans, "dayPlans");
+  };
 
-    return dayPlans.map(dayPlan => (
+  const renderRow = () => {
+    return dayPlans.map((dayPlan) => (
       <Row
         key={dayPlan._id}
-        history={history}
         dayPlan={dayPlan}
         timeFrames={timeFrames}
         toggleBulk={toggleBulk}
@@ -103,48 +104,35 @@ class DayPlans extends React.Component<Props, State> {
     ));
   };
 
-  modalContent = props => {
-    return <Form {...props} history={this.props.history} />;
+  const modalContent = (props) => {
+    return <Form {...props} />;
   };
 
-  removeDayPlans = dayPlans => {
+  const removeDayPlans = (dayPlans) => {
     const dayPlanIds: string[] = [];
 
-    dayPlans.forEach(dayPlan => {
+    dayPlans.forEach((dayPlan) => {
       dayPlanIds.push(dayPlan._id);
     });
 
-    this.props.remove({ dayPlanIds }, this.props.emptyBulk);
+    remove({ dayPlanIds }, emptyBulk);
   };
 
-  actionBarRight() {
-    const { bulk, queryParams, emptyBulk, toConfirm } = this.props;
-    const {
-      date,
-      branchId,
-      departmentId,
-      productCategoryId,
-      productId
-    } = queryParams;
-    const _date = new Date(moment(date).format('YYYY/MM/DD'));
+  const actionBarRight = () => {
+    const _date = new Date(moment(date).format("YYYY/MM/DD"));
 
     if (bulk.length) {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeDayPlans(bulk);
+            removeDayPlans(bulk);
           })
-          .catch(error => {
+          .catch((error) => {
             Alert.error(error.message);
           });
 
       return (
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="cancel-1"
-          onClick={onClick}
-        >
+        <Button btnStyle="danger" icon="cancel-1" onClick={onClick}>
           Remove
         </Button>
       );
@@ -157,21 +145,20 @@ class DayPlans extends React.Component<Props, State> {
     );
 
     return (
-      <BarItems>
+      <FlexRow>
         <FormControl
           type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          value={this.state.searchValue}
+          placeholder={__("Type to search")}
+          onChange={handleSearch}
+          value={search}
           autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
+          onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger
-          size={'lg'}
           title="Add label"
           trigger={trigger}
           autoOpenKey="showProductModal"
-          content={this.modalContent}
+          content={modalContent}
         />
         <Button
           btnStyle="primary"
@@ -182,111 +169,103 @@ class DayPlans extends React.Component<Props, State> {
             toConfirm(
               {
                 date: _date,
-                departmentId: (departmentId || '').toString(),
-                branchId: (branchId || '').toString(),
-                productCategoryId: (productCategoryId || '').toString(),
-                productId: (productId || '').toString(),
-                ids: bulk.map(b => b._id)
+                departmentId: (departmentId || "").toString(),
+                branchId: (branchId || "").toString(),
+                productCategoryId: (productCategoryId || "").toString(),
+                productId: (productId || "").toString(),
+                ids: bulk.map((b) => b._id),
               },
               emptyBulk
             )
           }
         >
-          {__('To Confirm')}
+          {__("To Confirm")}
         </Button>
-      </BarItems>
+      </FlexRow>
     );
-  }
+  };
 
-  render() {
-    const {
-      isAllSelected,
-      totalCount,
-      totalSum,
-      queryParams,
-      history,
-      timeFrames
-    } = this.props;
-
-    const timeIds = Object.keys(totalSum).filter(k => k !== 'planCount');
+  const renderContent = () => {
+    const timeIds = Object.keys(totalSum).filter((k) => k !== "planCount");
     const totalSumValue = timeIds.reduce(
       (sum, i) => Number(sum) + Number(totalSum[i]),
       0
     );
     const totalDiff = totalSumValue - totalSum.planCount;
-    const content = (
+
+    return (
       <TableWrapper>
-        <Table hover={true} responsive={true}>
+        <Table $hover={true} $responsive={true}>
           <thead>
             <tr>
               <th rowSpan={2} style={{ width: 60 }}>
                 <FormControl
                   checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
+                  componentclass="checkbox"
+                  onChange={onChange}
                 />
               </th>
-              <th rowSpan={2}>{__('Date')}</th>
-              <th rowSpan={2}>{__('Branch')}</th>
-              <th rowSpan={2}>{__('Department')}</th>
-              <th rowSpan={2}>{__('Product')}</th>
-              <th>{__('Uom')}</th>
-              <th>{__('Plan')}</th>
-              {timeFrames.map(tf => (
+              <th rowSpan={2}>{__("Date")}</th>
+              <th rowSpan={2}>{__("Branch")}</th>
+              <th rowSpan={2}>{__("Department")}</th>
+              <th rowSpan={2}>{__("Product")}</th>
+              <th>{__("Uom")}</th>
+              <th>{__("Plan")}</th>
+              {timeFrames.map((tf) => (
                 <th key={tf._id}>{tf.name}</th>
               ))}
 
-              <th>{__('Sum')}</th>
-              <th>{__('Diff')}</th>
-              <th>{__('')}</th>
+              <th>{__("Sum")}</th>
+              <th>{__("Diff")}</th>
+              <th>{__("")}</th>
             </tr>
             <tr>
-              <th>{__('Sum')}:</th>
+              <th>{__("Sum")}:</th>
               <th>{(totalSum.planCount || 0).toLocaleString()}</th>
-              {timeFrames.map(tf => (
-                <th key={tf._id}>{totalSum[tf._id || '']}</th>
+              {timeFrames.map((tf) => (
+                <th key={tf._id}>{totalSum[tf._id || ""]}</th>
               ))}
 
               <th>{(totalSumValue || 0).toLocaleString()}</th>
               <th>{(totalDiff || 0).toLocaleString()}</th>
-              <th>{__('')}</th>
+              <th>{__("")}</th>
             </tr>
           </thead>
-          <tbody>{this.renderRow()}</tbody>
+          <tbody>{renderRow()}</tbody>
         </Table>
       </TableWrapper>
     );
+  };
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Sales Day plans')}
-            submenu={menuSalesplans}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={<Title>{__('Sales Day plans')}</Title>}
-            right={this.actionBarRight()}
-          />
-        }
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
-        content={
-          <DataWithLoader
-            data={content}
-            loading={false}
-            count={totalCount}
-            emptyText="There is no data"
-            emptyImage="/images/actions/5.svg"
-          />
-        }
-        footer={<Pagination count={totalCount} />}
-        transparent={true}
-        hasBorder
-      />
-    );
-  }
-}
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__("Sales Day plans")}
+          submenu={menuSalesplans}
+        />
+      }
+      actionBar={
+        <Wrapper.ActionBar
+          left={<Title>{__("Sales Day plans")}</Title>}
+          right={actionBarRight()}
+        />
+      }
+      leftSidebar={<Sidebar queryParams={queryParams} />}
+      content={
+        <DataWithLoader
+          data={renderContent()}
+          loading={loading}
+          count={totalCount}
+          emptyText="There is no data"
+          emptyImage="/images/actions/5.svg"
+        />
+      }
+      footer={<Pagination count={totalCount} />}
+      transparent={true}
+      hasBorder
+    />
+  );
+};
 
-export default DayPlans;
+export default DayPlanList;

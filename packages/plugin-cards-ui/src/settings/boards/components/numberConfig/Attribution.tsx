@@ -1,9 +1,8 @@
-import { Attributes } from '@erxes/ui-cards/src/settings/boards/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import { Attributes } from "@erxes/ui-cards/src/settings/boards/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import Popover from "@erxes/ui/src/components/Popover";
+import React from "react";
+import { __ } from "coreui/utils";
 
 type Props = {
   config: string;
@@ -11,71 +10,55 @@ type Props = {
   attributions: any[];
 };
 
-export default class Attribution extends React.Component<Props> {
-  private overlay: any;
+export default function Attribution(props: Props) {
+  const onClickAttribute = (item, close) => {
+    const { setConfig, config } = props;
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
-  onClickAttribute = item => {
-    this.overlay.hide();
-    const { setConfig } = this.props;
-    let { config } = this.props;
-
-    const characters = ['_', '-', '/', ' '];
+    const characters = ["_", "-", "/", " "];
 
     const value = item.value;
+    let changedConfig;
 
     if (characters.includes(value)) {
-      config = `${config}${value}`;
+      changedConfig = `${config}${value}`;
     } else {
-      config = `${config}{${value}}`;
+      changedConfig = `${config}{${value}}`;
     }
 
-    setConfig(config);
+    setConfig(changedConfig);
+    close();
   };
 
-  renderContent() {
-    const { attributions } = this.props;
+  const { attributions } = props;
 
+  const content = (close) => {
     return (
-      <Popover id="attribute-popover">
-        <Attributes>
-          <React.Fragment>
-            <li>
-              <b>{__('Attributions')}</b>
-            </li>
-            {attributions.map(item => (
-              <li
-                key={item.value}
-                onClick={this.onClickAttribute.bind(this, item)}
-              >
-                {__(item.label)}
-              </li>
-            ))}
-          </React.Fragment>
-        </Attributes>
-      </Popover>
+      <Attributes>
+        <React.Fragment>
+          <li>
+            <b>{__("Attributions")}</b>
+          </li>
+          {attributions.map((item) => (
+            <button key={item.value} onClick={() => onClickAttribute(item, close)}>
+              {__(item.label)}
+            </button>
+          ))}
+        </React.Fragment>
+      </Attributes>
     );
-  }
+  };
 
-  render() {
-    return (
-      <OverlayTrigger
-        ref={overlay => {
-          this.overlay = overlay;
-        }}
-        trigger="click"
-        placement="top"
-        overlay={this.renderContent()}
-        rootClose={true}
-        container={this}
-      >
+  return (
+    <Popover
+      trigger={
         <span>
-          {__('Attribution')} <Icon icon="angle-down" />
+          {__("Attribution")} <Icon icon="angle-down" />
         </span>
-      </OverlayTrigger>
-    );
-  }
+      }
+      placement="top"
+      closeAfterSelect
+    >
+      {content}
+    </Popover>
+  );
 }

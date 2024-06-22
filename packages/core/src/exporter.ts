@@ -65,7 +65,7 @@ const prepareDataCount = async (
     contactsFilter._id = { $in: itemIds };
   }
 
-  data = await models.Users.find(contactsFilter).count();
+  data = await models.Users.find(contactsFilter).countDocuments();
 
   return data;
 };

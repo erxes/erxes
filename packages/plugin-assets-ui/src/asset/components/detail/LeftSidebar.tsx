@@ -8,28 +8,25 @@ import CustomFieldsSection from '../../containers/detail/CustomFieldSection';
 
 type Props = {
   asset: IAsset;
-  history: any;
   refetchDetail: () => void;
 };
 
-function LeftSidebar({ asset, history }: Props) {
+const LeftSidebar = (props: Props) => {
+  const { asset } = props;
+
   const refetchQueries = [
     {
       query: gql(queries.assetDetail),
-      variables: { _id: asset._id }
-    }
+      variables: { _id: asset._id },
+    },
   ];
 
   return (
     <Sidebar wide={true}>
-      <BasicInfo
-        asset={asset}
-        refetchQueries={refetchQueries}
-        history={history}
-      />
+      <BasicInfo asset={asset} refetchQueries={refetchQueries} />
       <CustomFieldsSection asset={asset} />
     </Sidebar>
   );
-}
+};
 
 export default LeftSidebar;

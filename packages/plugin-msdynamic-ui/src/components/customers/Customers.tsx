@@ -1,20 +1,19 @@
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { Wrapper } from '@erxes/ui/src/layout';
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { Wrapper } from "@erxes/ui/src/layout";
 import {
   CollapseContent,
   DataWithLoader,
   Pagination,
-  Table
-} from '@erxes/ui/src/components';
-import Button from '@erxes/ui/src/components/Button';
-import { menuDynamic } from '../../constants';
-import Row from './CustomersRow';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+  Table,
+} from "@erxes/ui/src/components";
+import Button from "@erxes/ui/src/components/Button";
+import { menuDynamic } from "../../constants";
+import Row from "./CustomersRow";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   setBrand: (brandId: string) => void;
@@ -29,20 +28,20 @@ const Customers = ({
   queryParams,
   setBrand,
   toCheckCustomers,
-  toSyncCustomers
+  toSyncCustomers,
 }: Props) => {
   const checkButton = (
     <BarItems>
       <span>{items && items.matched && `Matched: ${items.matched.count}`}</span>
       <SelectBrands
-        label={__('Choose brands')}
-        onSelect={brand => setBrand(brand as string)}
+        label={__("Choose brands")}
+        onSelect={(brand) => setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
         name="selectedBrands"
         customOption={{
-          label: 'No Brand (noBrand)',
-          value: ''
+          label: "No Brand (noBrand)",
+          value: "",
         }}
       />
       <Button
@@ -89,7 +88,7 @@ const Customers = ({
     data = calculatePagination(data);
 
     const excludeSyncTrue = (syncData: any) => {
-      return syncData.filter(d => d.syncStatus === false);
+      return syncData.filter((d) => d.syncStatus === false);
     };
 
     const onClickSync = () => {
@@ -124,14 +123,14 @@ const Customers = ({
     return (
       <>
         {subHeader}
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
-              <th>{__('Code')}</th>
-              <th>{__('Name')}</th>
-              {action === 'UPDATE' ? <th>{__('Update Status')}</th> : <></>}
-              {action === 'CREATE' ? <th>{__('Create Status')}</th> : <></>}
-              {action === 'DELETE' ? <th>{__('Delete Status')}</th> : <></>}
+              <th>{__("Code")}</th>
+              <th>{__("Name")}</th>
+              {action === "UPDATE" ? <th>{__("Update Status")}</th> : <></>}
+              {action === "CREATE" ? <th>{__("Create Status")}</th> : <></>}
+              {action === "DELETE" ? <th>{__("Delete Status")}</th> : <></>}
             </tr>
           </thead>
           <tbody>{renderRow(data, action)}</tbody>
@@ -146,16 +145,16 @@ const Customers = ({
       <br />
       <CollapseContent
         title={__(
-          'Create customers' + (items.create ? ':  ' + items.create.count : '')
+          "Create customers" + (items.create ? ":  " + items.create.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.create ? renderTable(items.create?.items, 'CREATE') : []
+              items.create ? renderTable(items.create?.items, "CREATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -165,16 +164,16 @@ const Customers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update customers' + (items.update ? ':  ' + items.update.count : '')
+          "Update customers" + (items.update ? ":  " + items.update.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.update ? renderTable(items.update?.items, 'UPDATE') : []
+              items.update ? renderTable(items.update?.items, "UPDATE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -184,16 +183,16 @@ const Customers = ({
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete customers' + (items.delete ? ':  ' + items.delete.count : '')
+          "Delete customers" + (items.delete ? ":  " + items.delete.count : "")
         )}
       >
         <>
           <DataWithLoader
             data={
-              items.delete ? renderTable(items.delete?.items, 'DELETE') : []
+              items.delete ? renderTable(items.delete?.items, "DELETE") : []
             }
             loading={false}
-            emptyText={'Please check first.'}
+            emptyText={"Please check first."}
             emptyIcon="leaf"
             size="large"
             objective={true}
@@ -208,7 +207,7 @@ const Customers = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Check customers')}
+          title={__("Check customers")}
           queryParams={queryParams}
           submenu={menuDynamic}
         />

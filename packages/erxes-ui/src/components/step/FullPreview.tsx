@@ -5,7 +5,7 @@ import {
   FlexItem,
   FullPreview,
   MobilePreview,
-  TabletPreview
+  TabletPreview,
 } from './style';
 import { TabTitle, Tabs } from '../tabs';
 import { isEnabled, loadDynamicComponent } from '../../utils/core';
@@ -57,7 +57,7 @@ class FullPreviewStep extends React.Component<Props, State> {
       currentMode: undefined,
       currentField: undefined,
       fields: (props.formData && props.formData.fields) || [],
-      currentPage: 1
+      currentPage: 1,
     };
   }
 
@@ -98,27 +98,28 @@ class FullPreviewStep extends React.Component<Props, State> {
     if (currentMode === 'create') {
       selector = {
         fields: [...fields, field],
-        currentField: undefined
+        currentField: undefined,
       };
     } else if (currentMode === 'update') {
-      const index = fields.map(e => e._id).indexOf(field._id);
+      const index = fields.map((e) => e._id).indexOf(field._id);
+      let newFields = [...fields];
       if (index !== -1) {
-        fields[index] = field;
+        newFields.splice(index,1,field);
       }
       selector = {
-        fields,
-        currentField: undefined
+        fields: newFields,
+        currentField: undefined,
       };
     }
 
     this.setState(selector, () => {
-      this.renderReturnValues(fields);
+      this.renderReturnValues(selector.fields);
     });
   };
 
   onFieldDelete = (field: IField) => {
     // remove field from state
-    const fields = this.state.fields.filter(f => f._id !== field._id);
+    const fields = this.state.fields.filter((f) => f._id !== field._id);
 
     this.setState({ fields, currentField: undefined }, () => {
       this.renderReturnValues(fields);
@@ -129,11 +130,11 @@ class FullPreviewStep extends React.Component<Props, State> {
     this.setState({ currentField: undefined });
   };
 
-  onChangeFieldsOrder = fields => {
+  onChangeFieldsOrder = (fields) => {
     let allFields = this.state.fields;
 
     for (const field of fields) {
-      const index = allFields.map(e => e._id).indexOf(field._id);
+      const index = allFields.map((e) => e._id).indexOf(field._id);
 
       if (index !== -1) {
         allFields[index] = field;
@@ -161,7 +162,7 @@ class FullPreviewStep extends React.Component<Props, State> {
         description: formData.description,
         buttonText: formData.buttonText,
         type: formData.type,
-        numberOfPages: formData.numberOfPages
+        numberOfPages: formData.numberOfPages,
       });
     }
   }
@@ -182,7 +183,7 @@ class FullPreviewStep extends React.Component<Props, State> {
           onFieldClick: this.onFieldClick,
           onChangeFieldsOrder: this.onChangeFieldsOrder,
           currentPage: this.state.currentPage,
-          configs
+          configs,
         });
 
       return (
@@ -204,7 +205,7 @@ class FullPreviewStep extends React.Component<Props, State> {
               numberOfPages: formData.numberOfPages || 1,
               onSubmit: this.onFieldSubmit,
               onDelete: this.onFieldDelete,
-              onCancel: this.onFieldFormCancel
+              onCancel: this.onFieldFormCancel,
             })}
         </>
       );
@@ -233,7 +234,7 @@ class FullPreviewStep extends React.Component<Props, State> {
     return (
       <FlexItem>
         <FullPreview>
-          <Tabs full={true}>
+          <Tabs $full={true}>
             <TabTitle
               className={currentTab === 'desktop' ? 'active' : ''}
               onClick={this.onChangeTab.bind(this, 'desktop')}

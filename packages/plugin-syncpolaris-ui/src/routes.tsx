@@ -1,75 +1,77 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route } from 'react-router-dom';
-import GeneralSettings from './settings/components/GeneralSettings';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import GeneralSettings from "./settings/components/GeneralSettings";
 
 const SyncHistoryList = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "CheckSyncedDeals" */ './syncPolarisHistories/containers/SyncHistoryList'
-    ),
+      /* webpackChunkName: "CheckSyncedDeals" */ "./syncPolarisHistories/containers/SyncHistoryList"
+    )
 );
 const Settings = asyncComponent(
   () =>
-    import(/* webpackChunkName: "Settings" */ './settings/containers/Settings'),
+    import(/* webpackChunkName: "Settings" */ "./settings/containers/Settings")
 );
 
 const List = asyncComponent(
   () =>
-    import(/* webpackChunkName: "customer" */ './syncPolaris/containers/List'),
+    import(/* webpackChunkName: "customer" */ "./syncPolaris/containers/List")
 );
-const syncHistoryList = ({ location, history }) => {
-  return (
-    <SyncHistoryList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
+const SyncHistoryListComponent = () => {
+  const location = useLocation();
+
+  return <SyncHistoryList queryParams={queryString.parse(location.search)} />;
 };
 
-const customerList = ({ location, history }) => {
+const CustomerList = () => {
+  const location = useLocation();
+
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      history={history}
       contentType="contacts:customer"
     />
   );
 };
-const transactionSavingList = ({ location, history }) => {
+const TransactionSavingList = () => {
+  const location = useLocation();
+
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      history={history}
       contentType="savings:transaction"
     />
   );
 };
-const transactionLoanList = ({ location, history }) => {
+const TransactionLoanList = () => {
+  const location = useLocation();
+
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      history={history}
       contentType="loans:transaction"
     />
   );
 };
 
-const savingAcntList = ({ location, history }) => {
+const SavingAcntList = () => {
+  const location = useLocation();
+
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      history={history}
       contentType="savings:contract"
     />
   );
 };
-const loanAcntList = ({ location, history }) => {
+const LoanAcntList = () => {
+  const location = useLocation();
+
   return (
     <List
       queryParams={queryString.parse(location.search)}
-      history={history}
       contentType="loans:contract"
     />
   );
@@ -81,50 +83,35 @@ const GeneralSetting = () => {
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/erxes-plugin-polaris-polaris/settings/general"
-        exact={true}
         path="/erxes-plugin-sync-polaris/settings/general"
-        component={GeneralSetting}
+        element={<GeneralSetting />}
       />
       <Route
         key="/sync-polaris-history"
-        exact={true}
         path="/sync-polaris-history"
-        component={syncHistoryList}
+        element={<SyncHistoryListComponent />}
       />
-      <Route
-        key="/customer"
-        exact={true}
-        path="/customer"
-        component={customerList}
-      />
+      <Route key="/customer" path="/customer" element={<CustomerList />} />
       <Route
         key="/transaction-loan"
-        exact={true}
         path="/transaction-loan"
-        component={transactionLoanList}
+        element={<TransactionLoanList />}
       />
       <Route
         key="/transaction-saving"
-        exact={true}
         path="/transaction-saving"
-        component={transactionSavingList}
+        element={<TransactionSavingList />}
       />
       <Route
         key="/saving-account"
-        exact={true}
         path="/saving-acnt"
-        component={savingAcntList}
+        element={<SavingAcntList />}
       />
-      <Route
-        key="/loan-account"
-        exact={true}
-        path="/loan-acnt"
-        component={loanAcntList}
-      />
-    </React.Fragment>
+      <Route key="/loan-account" path="/loan-acnt" element={<LoanAcntList />} />
+    </Routes>
   );
 };
 

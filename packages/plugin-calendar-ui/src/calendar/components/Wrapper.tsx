@@ -17,7 +17,6 @@ import { capitalize } from '@erxes/ui-log/src/activityLogs/utils';
 import dayjs from 'dayjs';
 
 type Props = {
-  history: any;
   queryParams: any;
   accounts: IAccount[];
   currentUser?: IUser;

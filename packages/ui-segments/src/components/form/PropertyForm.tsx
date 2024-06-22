@@ -1,14 +1,15 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import { __ } from '@erxes/ui/src/utils';
-import { IField, ISegmentCondition } from '../../types';
-import React from 'react';
-import Select from 'react-select-plus';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { DEFAULT_OPERATORS, OPERATORS } from '../constants';
-import { OperatorList } from '../styles';
-import { Formgroup } from '@erxes/ui/src/components/form/styles';
-import { CenterContent } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
+import { DEFAULT_OPERATORS, OPERATORS } from "../constants";
+import { IField, ISegmentCondition } from "../../types";
+
+import Button from "@erxes/ui/src/components/Button";
+import { CenterContent } from "@erxes/ui/src/styles/main";
+import Datetime from "@nateradebaugh/react-datetime";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { Formgroup } from "@erxes/ui/src/components/form/styles";
+import { OperatorList } from "../styles";
+import React from "react";
+import Select, { OnChangeValue } from "react-select";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   field: IField;
@@ -34,38 +35,38 @@ class PropertyForm extends React.Component<Props, State> {
 
     let chosenOperator;
 
-    let currentValue = '';
+    let currentValue = "";
 
     if (field && condition) {
-      const operators = OPERATORS[field.type || ''] || OPERATORS.string;
+      const operators = OPERATORS[field.type || ""] || OPERATORS.string;
 
       chosenOperator = operators.find(
-        operator => operator.value === condition.propertyOperator
+        (operator) => operator.value === condition.propertyOperator
       );
 
-      currentValue = condition.propertyValue || '';
+      currentValue = condition.propertyValue || "";
     }
 
     this.state = {
       chosenOperator,
       currentValue,
       propertyType: condition ? condition.propertyType : propertyType,
-      config: condition ? condition.config : config
+      config: condition ? condition.config : config,
     };
   }
 
-  onClickOperator = operator => {
-    if (['is', 'ins', 'it', 'if'].indexOf(operator.value) >= 0) {
+  onClickOperator = (operator) => {
+    if (["is", "ins", "it", "if"].indexOf(operator.value) >= 0) {
       this.setState({
         chosenOperator: operator,
-        currentValue: operator.value
+        currentValue: operator.value,
       });
     } else {
-      this.setState({ chosenOperator: operator, currentValue: '' });
+      this.setState({ chosenOperator: operator, currentValue: "" });
     }
   };
 
-  renderInput = operator => {
+  renderInput = (operator) => {
     const { chosenOperator } = this.state;
 
     if (
@@ -85,11 +86,11 @@ class PropertyForm extends React.Component<Props, State> {
   ) {
     return (
       <Select
-        placeholder={__('Select value')}
-        value={value}
+        placeholder={__("Select value")}
+        value={options.find((option) => option.value === value)}
         options={options}
-        isRequired={true}
-        clearable={false}
+        required={true}
+        isClearable={false}
         onChange={this.onChangeSelect}
       />
     );
@@ -110,21 +111,23 @@ class PropertyForm extends React.Component<Props, State> {
     );
   }
 
-  onChangeSelect = (option: { value: string }) => {
-    const value = !option ? '' : option.value.toString();
+  onChangeSelect = (
+    option: OnChangeValue<{ value: string | number; label: string }, false>
+  ) => {
+    const value = !option ? "" : option.value.toString();
 
     this.setState({ currentValue: value });
   };
 
   onChangeValue = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
-      currentValue: (e.currentTarget as HTMLInputElement).value
+      currentValue: (e.currentTarget as HTMLInputElement).value,
     });
   };
 
-  onChangeDate = date => {
+  onChangeDate = (date) => {
     this.setState({
-      currentValue: new Date(date).toISOString()
+      currentValue: new Date(date).toISOString(),
     });
   };
 
@@ -136,11 +139,11 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { selectOptions = [], choiceOptions = [], type } = field;
 
-    if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
+    if (["is", "ins", "it", "if"].indexOf(value) >= 0) {
       return null;
     }
 
-    if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
+    if (["dateigt", "dateilt", "drlt", "drgt"].includes(value)) {
       return this.renderDate(currentValue);
     }
 
@@ -149,8 +152,8 @@ class PropertyForm extends React.Component<Props, State> {
     }
 
     // if custom field is of type radio, then show options as select
-    if (type === 'radio' && choiceOptions.length > 0) {
-      const options = choiceOptions.map(opt => ({ value: opt, label: opt }));
+    if (type === "radio" && choiceOptions.length > 0) {
+      const options = choiceOptions.map((opt) => ({ value: opt, label: opt }));
 
       return this.renderSelect(currentValue, options);
     }
@@ -158,7 +161,7 @@ class PropertyForm extends React.Component<Props, State> {
     return <FormControl value={currentValue} onChange={this.onChangeValue} />;
   };
 
-  isChecked = operator => {
+  isChecked = (operator) => {
     const { chosenOperator } = this.state;
 
     if (chosenOperator) {
@@ -173,13 +176,13 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { type, validation } = field;
 
-    const operators = OPERATORS[validation || type || ' '] || DEFAULT_OPERATORS;
+    const operators = OPERATORS[validation || type || " "] || DEFAULT_OPERATORS;
 
     return operators.map((operator, index) => {
       return (
         <div key={index}>
           <FormControl
-            componentClass="radio"
+            componentclass="radio"
             onChange={this.onClickOperator.bind(this, operator)}
             value={operator.value}
             checked={this.isChecked(operator)}
@@ -198,13 +201,13 @@ class PropertyForm extends React.Component<Props, State> {
 
     return addCondition(
       {
-        type: 'property',
-        key: condition ? condition.key : '',
+        type: "property",
+        key: condition ? condition.key : "",
         propertyType,
         propertyName: field.value,
         propertyOperator: chosenOperator.value,
         propertyValue: currentValue,
-        config
+        config,
       },
       segmentKey
     );

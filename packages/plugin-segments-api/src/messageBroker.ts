@@ -41,7 +41,7 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.Segments.find(selector).count(),
+        data: await models.Segments.find(selector).countDocuments(),
         status: 'success',
       };
     },

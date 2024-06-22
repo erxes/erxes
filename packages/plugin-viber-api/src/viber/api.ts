@@ -1,5 +1,5 @@
 import { getEnv } from '@erxes/api-utils/src';
-import { Conversations, IConversation } from '../models';
+import { Conversations, IConversation, IConversationDocument } from '../models';
 import { sendInboxMessage } from '../messageBroker';
 import { ConversationMessages } from '../models';
 import fetch from 'node-fetch';
@@ -79,7 +79,7 @@ export class ViberAPI {
   }
 
   async sendMessage(message: IMessage): Promise<any> {
-    const conversation: IConversation | null = await Conversations.findOne(
+    const conversation = await Conversations.findOne(
       { erxesApiId: message.conversationId },
       { senderId: 1 },
     );
@@ -194,7 +194,7 @@ export class ViberAPI {
   }
 
   async savetoDatabase(
-    conversation: IConversation,
+    conversation: IConversationDocument,
     plainText: string,
     message: any,
   ): Promise<void> {

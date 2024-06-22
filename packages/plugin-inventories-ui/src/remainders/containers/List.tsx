@@ -1,20 +1,20 @@
-import React from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { useQuery, useMutation } from '@apollo/client';
-import queryString from 'query-string';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { mutations, queries } from "../graphql";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+
+import Alert from "@erxes/ui/src/utils/Alert";
 // erxes
-import Bulk from '@erxes/ui/src/components/Bulk';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { router } from '@erxes/ui/src/utils';
+import Bulk from "@erxes/ui/src/components/Bulk";
 // local
-import ListComponent from '../components/List';
-import { queries, mutations } from '../graphql';
+import ListComponent from "../components/List";
+import React from "react";
+import { gql } from "@apollo/client";
+import queryString from "query-string";
+import { router } from "@erxes/ui/src/utils";
 
 function ListContainer() {
-  const history = useHistory();
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
   // graphql
@@ -25,14 +25,14 @@ function ListContainer() {
       searchValue: queryParams.searchValue,
       search: queryParams.search,
       departmentId: queryParams.departmentId,
-      branchId: queryParams.branchId
+      branchId: queryParams.branchId,
     },
     notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'network-only'
+    fetchPolicy: "network-only",
   });
 
   const [remaindersUpdate] = useMutation(gql(mutations.remaindersUpdate), {
-    refetchQueries: ['remainderProductsQuery']
+    refetchQueries: ["remainderProductsQuery"],
   });
 
   const refetch = () => remainderProductsQuery.refetch();
@@ -41,18 +41,18 @@ function ListContainer() {
     const searchValue = event.target.value;
 
     if (searchValue.length === 0) {
-      return router.removeParams(history, 'searchValue');
+      return router.removeParams(navigate, location, "searchValue");
     }
 
-    router.setParams(history, { searchValue });
+    router.setParams(navigate, location, { searchValue });
   };
 
   const handleFilter = (key: string, value: any) => {
-    router.setParams(history, { [key]: value });
+    router.setParams(navigate, location, { [key]: value });
   };
 
   const clearFilter = () => {
-    router.removeParams(history, ...Object.keys(queryParams));
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
   const recalculate = (
@@ -68,27 +68,27 @@ function ListContainer() {
     });
 
     if (products.length === 0) {
-      Alert.error('Select products!');
+      Alert.error("Select products!");
       return;
     }
 
     if (departmentId.length === 0) {
-      Alert.error('Department is required!');
+      Alert.error("Department is required!");
       return;
     }
 
     if (branchId.length === 0) {
-      Alert.error('Branch is required!');
+      Alert.error("Branch is required!");
       return;
     }
 
     remaindersUpdate({
-      variables: { productIds, departmentId, branchId }
+      variables: { productIds, departmentId, branchId },
     })
       .then(() => {
         emptyBulk();
         refetch();
-        Alert.success('Request successful!');
+        Alert.success("Request successful!");
       })
       .catch((error: any) => Alert.error(error.message));
   };
@@ -103,9 +103,9 @@ function ListContainer() {
       remainderProductsQuery.data.remainderProducts.totalCount) ||
     0;
 
-  const searchValue = queryParams.searchValue || '';
-  const departmentId = queryParams.departmentId || '';
-  const branchId = queryParams.branchId || '';
+  const searchValue = queryParams.searchValue || "";
+  const departmentId = queryParams.departmentId || "";
+  const branchId = queryParams.branchId || "";
 
   const componentProps = {
     products,
@@ -117,7 +117,7 @@ function ListContainer() {
     recalculate,
     handleSearch,
     handleFilter,
-    clearFilter
+    clearFilter,
   };
 
   const renderContent = (bulkProps: any) => (
@@ -127,4 +127,4 @@ function ListContainer() {
   return <Bulk content={renderContent} refetch={refetch} />;
 }
 
-export default compose()(ListContainer);
+export default ListContainer;

@@ -1,13 +1,13 @@
-import client from 'coreui/apolloClient';
-import { gql } from '@apollo/client';
-import { colors } from '../styles';
-import { __ } from '../utils/core';
 import Alert from '../utils/Alert';
-import confirm from '../utils/confirmation/confirm';
-import { rotate } from '../utils/animations';
-import React from 'react';
-import styled from 'styled-components';
 import Button from '../components/Button';
+import React from 'react';
+import { __ } from '../utils/core';
+import client from 'coreui/apolloClient';
+import { colors } from '../styles';
+import confirm from '../utils/confirmation/confirm';
+import { gql } from '@apollo/client';
+import { rotate } from '../utils/animations';
+import styled from 'styled-components';
 
 export const SmallLoader = styled.i`
   width: 13px;

@@ -1,19 +1,20 @@
-import { __ } from '@erxes/ui/src';
-import React from 'react';
-import { Divider, FormContainer, ScheduleCard } from '../../styles';
-import PortableCard from '../common/PortableCard';
-import { IPLan } from '../common/types';
+import { Divider, FormContainer, ScheduleCard } from "../../styles";
+
+import { IPLan } from "../common/types";
+import PortableCard from "../common/PortableCard";
+import React from "react";
+import { __ } from "@erxes/ui/src";
 
 type Props = {
   plan: { cardIds?: string[]; dashboard?: any } & IPLan;
 };
 
 const commonStyles = {
-  minWidth: '250px',
-  maxWidth: '350px'
+  minWidth: "250px",
+  maxWidth: "350px",
 };
 
-const handleNaN = value => {
+const handleNaN = (value) => {
   return isNaN(value) ? 0 : value;
 };
 
@@ -32,19 +33,19 @@ class Performance extends React.Component<Props> {
       submittedAssessmentCount = 0,
       totalCards = 0,
       averangeAssessment = 0,
-      resolvedCardsCount = 0
+      resolvedCardsCount = 0,
     } = dashboard || {};
 
     return (
-      <FormContainer column padding="25px">
-        <FormContainer row gap padding="25px">
+      <FormContainer $column padding="25px">
+        <FormContainer $row $gap padding="25px">
           <ScheduleCard {...commonStyles}>
             <h3>{totalCards}</h3>
-            <span>{__('Total Cards')}</span>
+            <span>{__("Total Cards")}</span>
           </ScheduleCard>
           <ScheduleCard {...commonStyles}>
             <h3>{averangeAssessment}</h3>
-            <span>{__('Avarange Assessment')}</span>
+            <span>{__("Avarange Assessment")}</span>
           </ScheduleCard>
           <ScheduleCard {...commonStyles}>
             <h3>
@@ -53,7 +54,7 @@ class Performance extends React.Component<Props> {
             <h4>
               ({generatePercentage(submittedAssessmentCount, totalCards)}%)
             </h4>
-            <span>{__('Performance')}</span>
+            <span>{__("Performance")}</span>
           </ScheduleCard>
           <ScheduleCard {...commonStyles}>
             <h3>
@@ -64,12 +65,12 @@ class Performance extends React.Component<Props> {
               {generatePercentage(resolvedCardsCount, submittedAssessmentCount)}
               %)
             </h4>
-            <span>{__('Resolved')}</span>
+            <span>{__("Resolved")}</span>
           </ScheduleCard>
         </FormContainer>
         <>
           <Divider />
-          {(plan?.cardIds || []).map(cardId => (
+          {(plan?.cardIds || []).map((cardId) => (
             <PortableCard key={cardId} id={cardId} type={configs.cardType} />
           ))}
         </>

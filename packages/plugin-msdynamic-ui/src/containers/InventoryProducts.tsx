@@ -1,21 +1,21 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
 import {
   ToCheckProductsMutationResponse,
   ToSyncProductsMutationResponse,
-} from '../types';
-import { router } from '@erxes/ui/src';
-import { Bulk } from '@erxes/ui/src/components';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { mutations } from '../graphql';
-import React, { useState } from 'react';
-import InventoryProducts from '../components/product/InventoryProducts';
-import Spinner from '@erxes/ui/src/components/Spinner';
+} from "../types";
+import { router } from "@erxes/ui/src";
+import { Bulk } from "@erxes/ui/src/components";
+import Alert from "@erxes/ui/src/utils/Alert";
+import { mutations } from "../graphql";
+import React, { useState } from "react";
+import InventoryProducts from "../components/product/InventoryProducts";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
@@ -26,10 +26,12 @@ type FinalProps = {} & Props &
 const InventoryProductsContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
-  const brandId = props.queryParams.brandId || 'noBrand';
+  const brandId = props.queryParams.brandId || "noBrand";
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const setBrand = (brandId: string) => {
-    router.setParams(props.history, { brandId: brandId });
+    router.setParams(navigate, location, { brandId: brandId });
     return router;
   };
 
@@ -67,9 +69,9 @@ const InventoryProductsContainer = (props: FinalProps) => {
       .then((response) => {
         const data = response.data.toCheckMsdProducts;
 
-        setSyncStatus(data, 'create');
-        setSyncStatus(data, 'update');
-        setSyncStatus(data, 'delete');
+        setSyncStatus(data, "create");
+        setSyncStatus(data, "update");
+        setSyncStatus(data, "delete");
 
         setItems(response.data.toCheckMsdProducts);
         setLoading(false);
@@ -92,7 +94,7 @@ const InventoryProductsContainer = (props: FinalProps) => {
       })
       .then(() => {
         setLoading(false);
-        Alert.success('Success. Please check again.');
+        Alert.success("Success. Please check again.");
       })
       .finally(() => {
         const data = items;
@@ -125,14 +127,14 @@ export default withProps<Props>(
     graphql<Props, ToCheckProductsMutationResponse, {}>(
       gql(mutations.toCheckProducts),
       {
-        name: 'toCheckMsdProducts',
-      },
+        name: "toCheckMsdProducts",
+      }
     ),
     graphql<Props, ToSyncProductsMutationResponse, {}>(
       gql(mutations.toSyncProducts),
       {
-        name: 'toSyncMsdProducts',
-      },
-    ),
-  )(InventoryProductsContainer),
+        name: "toSyncMsdProducts",
+      }
+    )
+  )(InventoryProductsContainer)
 );

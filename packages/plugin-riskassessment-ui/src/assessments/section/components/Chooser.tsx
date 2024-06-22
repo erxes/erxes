@@ -1,3 +1,5 @@
+import * as compose from "lodash.flowright";
+
 import {
   ButtonMutate,
   Chooser,
@@ -6,22 +8,22 @@ import {
   FormGroup,
   Spinner,
   Toggle,
-  __
-} from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
-import { DetailPopOver } from '../../../assessments/common/utils';
-import RiskIndicatorForm from '../../../indicator/containers/Form';
-import { mutations as riskIndicatorMutattions } from '../../../indicator/graphql';
-import RiskGroupsForm from '../../../indicator/groups/containers/Form';
-import { queries as groupsQueries } from '../../../indicator/groups/graphql';
-import { SelectGroupsAssignedUsers } from '../common/utils';
-import { queries } from '../graphql';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
+  __,
+} from "@erxes/ui/src";
+import React, { useEffect, useState } from "react";
+
+import { DetailPopOver } from "../../../assessments/common/utils";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import RiskGroupsForm from "../../../indicator/groups/containers/Form";
+import RiskIndicatorForm from "../../../indicator/containers/Form";
+import { SelectGroupsAssignedUsers } from "../common/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries as groupsQueries } from "../../../indicator/groups/graphql";
+import { queries } from "../graphql";
+import { mutations as riskIndicatorMutattions } from "../../../indicator/graphql";
+import { useQuery } from "@apollo/client";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   detail: any;
@@ -32,7 +34,7 @@ type Props = {
   handleSelect: ({
     indicatorId,
     groupId,
-    groupsAssignedUsers
+    groupsAssignedUsers,
   }: {
     indicatorId?: string;
     groupId?: string;
@@ -52,7 +54,7 @@ type FinalProps = {
 
 function SelectIndicators(props: FinalProps) {
   const [perPage, setPerPage] = useState(10);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [useGroups, setUseGroups] = useState(false);
   const [groupsAssignedUsers, setGroupsAssignedUsers] = useState<any[]>([]);
   const [isSplittedUsers, setSplitUsers] = useState(false);
@@ -60,18 +62,16 @@ function SelectIndicators(props: FinalProps) {
   const { data, error, loading } = useQuery(
     gql(useGroups ? groupsQueries.list : queries.riskIndicators),
     {
-      variables: { searchValue, perPage, ...props.filters }
+      variables: { searchValue, perPage, ...props.filters },
     }
   );
   useEffect(() => {
     if (props.selectedItemsQuery) {
-      const {
-        riskIndicatorsGroups,
-        riskIndicators
-      } = props.selectedItemsQuery as {
-        riskIndicators: any;
-        riskIndicatorsGroups: any;
-      };
+      const { riskIndicatorsGroups, riskIndicators } =
+        props.selectedItemsQuery as {
+          riskIndicators: any;
+          riskIndicatorsGroups: any;
+        };
       if (riskIndicatorsGroups) {
         setUseGroups(true);
         if (props.detail.isSplittedUsers) {
@@ -86,29 +86,25 @@ function SelectIndicators(props: FinalProps) {
     }
   }, [props.selectedItemsQuery]);
 
-  if (error) {
-    return <EmptyState text="Something went wrong" extra={error.message} />;
-  }
-
   if (loading) {
     return <Spinner />;
   }
 
-  const list = data[useGroups ? 'riskIndicatorsGroups' : 'riskIndicators'];
+  const list = data[useGroups ? "riskIndicatorsGroups" : "riskIndicators"];
 
-  const renderAddForm = props => {
+  const renderAddForm = (props) => {
     if (useGroups) {
       return <RiskGroupsForm {...props} />;
     }
 
-    const generateDoc = values => {
+    const generateDoc = (values) => {
       return { ...values };
     };
 
     const renderButton = ({
       values,
       isSubmitted,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
@@ -134,25 +130,25 @@ function SelectIndicators(props: FinalProps) {
 
   const renderFilters = () => {
     const toggleGrouping = () => {
-      setUseGroups(useGroups => !useGroups);
+      setUseGroups((useGroups) => !useGroups);
       setSplitUsers(false);
       setSelectedItems([]);
     };
 
     const toggleSplitAssignedUsers = () => {
-      setSplitUsers(isSplittedUsers => !isSplittedUsers);
+      setSplitUsers((isSplittedUsers) => !isSplittedUsers);
     };
 
     return (
       <DetailPopOver title="Filters" icon="downarrow-2">
         <FormGroup>
-          <ControlLabel>{__('Use groups of indicators')}</ControlLabel>
+          <ControlLabel>{__("Use groups of indicators")}</ControlLabel>
           <Toggle onChange={toggleGrouping} checked={useGroups} />
         </FormGroup>
         {useGroups && (
           <FormGroup>
             <ControlLabel>
-              {__('Split assigned team members to groups of indicators')}
+              {__("Split assigned team members to groups of indicators")}
             </ControlLabel>
             <Toggle
               onChange={toggleSplitAssignedUsers}
@@ -173,16 +169,16 @@ function SelectIndicators(props: FinalProps) {
 
   const { closeModal, handleSelect } = props;
 
-  const onSelect = value => {
-    const selectedItemIds = value.map(item => item._id);
+  const onSelect = (value) => {
+    const selectedItemIds = value.map((item) => item._id);
     setSelectedItems(selectedItemIds);
 
-    const fieldName = useGroups ? 'groupId' : 'indicatorId';
+    const fieldName = useGroups ? "groupId" : "indicatorId";
 
     handleSelect({ [fieldName]: selectedItemIds[0], groupsAssignedUsers });
   };
 
-  const hadleExtraField = data => {
+  const hadleExtraField = (data) => {
     setSelectedItems([data]);
   };
 
@@ -213,12 +209,12 @@ function SelectIndicators(props: FinalProps) {
   };
 
   const updateProps = {
-    title: `${useGroups ? 'Indicators Groups' : `Indicators`}`,
+    title: `${useGroups ? "Indicators Groups" : `Indicators`}`,
     datas: list || [],
-    data: { name: 'Risk Assessment', datas: selectedItems },
+    data: { name: "Risk Assessment", datas: selectedItems },
     search: search,
-    clearState: () => search('', true),
-    renderName: indicator => indicator.name,
+    clearState: () => search("", true),
+    renderName: (indicator) => indicator.name,
     renderForm: renderAddForm,
     onSelect,
     closeModal: () => closeModal(),
@@ -226,7 +222,7 @@ function SelectIndicators(props: FinalProps) {
     renderFilter: renderFilters,
     limit: 1,
     renderExtra: renderExtraField,
-    handleExtra: hadleExtraField
+    handleExtra: hadleExtraField,
   };
 
   return <Chooser {...updateProps} />;
@@ -235,22 +231,22 @@ function SelectIndicators(props: FinalProps) {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(groupsQueries.list), {
-      name: 'selectedItemsQuery',
+      name: "selectedItemsQuery",
       skip: ({ detail }) => !detail?.groupId,
       options: ({ detail }) => ({
         variables: {
-          ids: [detail.groupId]
-        }
-      })
+          ids: [detail.groupId],
+        },
+      }),
     }),
     graphql<Props>(gql(queries.riskIndicators), {
-      name: 'selectedItemsQuery',
+      name: "selectedItemsQuery",
       skip: ({ detail }) => !detail?.indicatorId,
       options: ({ detail }) => ({
         variables: {
-          ids: [detail.indicatorId]
-        }
-      })
+          ids: [detail.indicatorId],
+        },
+      }),
     })
   )(SelectIndicators)
 );

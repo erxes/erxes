@@ -1,11 +1,11 @@
-import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import * as React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import { IPurchase } from '@erxes/ui-cards/src/purchases/types';
-import { BodyRow, StageName } from '../style';
-import PurchaseList from './PurchaseList';
+import { IConversionStagePurchase } from "@erxes/ui-cards/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import * as React from "react";
+import Collapse from '@erxes/ui/src/components/Collapse';
+import { IPurchase } from "@erxes/ui-cards/src/purchases/types";
+import { BodyRow, StageName } from "../style";
+import PurchaseList from "./PurchaseList";
 
 type Props = {
   stage: IConversionStagePurchase;
@@ -24,13 +24,13 @@ export default class Stage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      showCollapse: false
+      showCollapse: false,
     };
   }
 
   toggleCollapse = () => {
     this.setState({
-      showCollapse: !this.state.showCollapse
+      showCollapse: !this.state.showCollapse,
     });
   };
 
@@ -98,7 +98,7 @@ export default class Stage extends React.Component<Props, State> {
     }
 
     return (
-      <Collapse in={this.state.showCollapse}>
+      <Collapse show={this.state.showCollapse}>
         <div>{this.renderPurchaseList()}</div>
       </Collapse>
     );

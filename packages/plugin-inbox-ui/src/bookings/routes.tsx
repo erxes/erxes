@@ -1,34 +1,35 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { Route } from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from 'react-router-dom';
+
 import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "Bookings" */ './containers/BookingList')
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "Bookings" */ './containers/BookingList'),
 );
 
-const CreateBooking = asyncComponent(() =>
-  import(/* webpackChunkName: "CreateBooking" */ './containers/CreateBooking')
+const CreateBooking = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "CreateBooking" */ './containers/CreateBooking'
+    ),
 );
 
-const EditBooking = asyncComponent(() =>
-  import(/* webpackChunkName: "EditBooking" */ './containers/EditBooking')
+const EditBooking = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "EditBooking" */ './containers/EditBooking'),
 );
 
-const bookings = history => {
-  const { location } = history;
-
+const Bookings = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <List queryParams={queryParams} history={history} />;
+  return <List queryParams={queryParams} />;
 };
 
-const createBooking = () => {
-  return <CreateBooking />;
-};
-
-const editBooking = ({ match, location }) => {
-  const { contentTypeId } = match.params;
+const EditBookingComponent = () => {
+  const location = useLocation();
+  const { contentTypeId } = useParams();
 
   const queryParams = queryString.parse(location.search);
 
@@ -38,21 +39,19 @@ const editBooking = ({ match, location }) => {
 };
 
 const routes = () => (
-  <React.Fragment>
-    <Route exact={true} key='/bookings' path='/bookings' component={bookings} />
+  <Routes>
+    <Route key="/bookings" path="/bookings" element={<Bookings />} />
     <Route
-      exact={true}
-      key='/bookings/create'
-      path='/bookings/create'
-      component={createBooking}
+      key="/bookings/create"
+      path="/bookings/create"
+      element={<CreateBooking />}
     />
     <Route
-      exact={true}
-      key='/bookings/edit/:contentTypeId'
-      path='/bookings/edit/:contentTypeId'
-      component={editBooking}
+      key="/bookings/edit/:contentTypeId"
+      path="/bookings/edit/:contentTypeId"
+      element={<EditBookingComponent />}
     />
-  </React.Fragment>
+  </Routes>
 );
 
 export default routes;

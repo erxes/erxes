@@ -1,22 +1,20 @@
-import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
-import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { formatValue } from '@erxes/ui/src/utils';
-
-import _ from 'lodash';
-import React from 'react';
-
-import { ICompany } from '../../types';
-import { displayObjectListItem } from '../../../customers/utils';
+import { ClickableRow } from "@erxes/ui-contacts/src/customers/styles";
+import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { ICompany } from "../../types";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import React from "react";
+import Tags from "@erxes/ui/src/components/Tags";
+import TextInfo from "@erxes/ui/src/components/TextInfo";
+import _ from "lodash";
+import { displayObjectListItem } from "../../../customers/utils";
+import { formatValue } from "@erxes/ui/src/utils";
 
 type Props = {
   index: number;
   company: ICompany;
   columnsConfig: any[];
-  history: any;
+  navigate: any;
   isChecked: boolean;
   toggleBulk: (company: ICompany, isChecked?: boolean) => void;
 };
@@ -24,7 +22,7 @@ type Props = {
 function displayValue(company, name, group, index) {
   const value = _.get(company, name);
 
-  if (name === 'primaryName') {
+  if (name === "primaryName") {
     return (
       <FlexContent>
         <NameCard.Avatar company={company} size={30} /> &emsp;
@@ -33,16 +31,16 @@ function displayValue(company, name, group, index) {
     );
   }
 
-  if (name === 'code') {
+  if (name === "code") {
     return <TextInfo>{value}</TextInfo>;
   }
 
-  if (name === '#') {
+  if (name === "#") {
     return <TextInfo>{index.toString()}</TextInfo>;
   }
 
-  if (name.includes('customFieldsData')) {
-    return displayObjectListItem(company, 'customFieldsData', name, group);
+  if (name.includes("customFieldsData")) {
+    return displayObjectListItem(company, "customFieldsData", name, group);
   }
 
   return formatValue(value);
@@ -51,7 +49,7 @@ function displayValue(company, name, group, index) {
 function CompanyRow({
   company,
   columnsConfig,
-  history,
+  navigate,
   isChecked,
   toggleBulk,
   index,
@@ -69,7 +67,7 @@ function CompanyRow({
   };
 
   const onTrClick = () => {
-    history.push(`/companies/details/${company._id}`);
+    navigate(`/companies/details/${company._id}`);
   };
 
   return (
@@ -77,7 +75,7 @@ function CompanyRow({
       <td id="companiesCheckBox" onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>

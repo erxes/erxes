@@ -44,7 +44,7 @@ function GeneralSettings() {
       mainHead={header}
       actionBar={
         <Wrapper.ActionBar
-          left={<Title capitalize={true}>{__('Automations config')}</Title>}
+          left={<Title $capitalize={true}>{__('Automations config')}</Title>}
           right={actionButtons}
           wideSpacing={true}
         />

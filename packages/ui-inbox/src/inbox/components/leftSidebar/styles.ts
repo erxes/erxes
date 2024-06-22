@@ -1,12 +1,12 @@
-import { colors} from '@erxes/ui/src/styles';
-import styled  from 'styled-components';
+import { colors } from '@erxes/ui/src/styles';
+import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
+const GroupTitle = styledTS<{ $isOpen?: boolean }>(styled.div)`
   font-weight: bold;
   line-height: 32px;
   padding: 0 20px;
-  color: ${props => props.isOpen && colors.colorSecondary};
+  color: ${(props) => props.$isOpen && colors.colorSecondary};
   user-select: none;
   transition: color ease 0.3s;
   display: flex;
@@ -25,7 +25,7 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
     margin-right: 0;
     display: inline-block;
     transition: all ease 0.3s;
-    transform: ${props => props.isOpen && 'rotate(180deg)'};
+    transform: ${(props) => props.$isOpen && 'rotate(180deg)'};
   }
 
   > span:hover {
@@ -33,6 +33,4 @@ const GroupTitle = styledTS<{ isOpen?: boolean }>(styled.div)`
   }
 `;
 
-export {
-  GroupTitle,
-};
+export { GroupTitle };

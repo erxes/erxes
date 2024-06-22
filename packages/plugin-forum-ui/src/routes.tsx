@@ -1,92 +1,111 @@
-import { Redirect, Route } from 'react-router-dom';
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
 
-const Categories = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "List - Categories" */ './containers/categories/CategoriesList'
-  )
+const Categories = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "List - Categories" */ "./containers/categories/CategoriesList"
+    )
 );
 
-const PageList = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Page" */ './containers/pages/List')
+const PageList = asyncComponent(
+  () => import(/* webpackChunkName: "List - Page" */ "./containers/pages/List")
 );
 
-const PageDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "PageDetails" */ './containers/pages/Detail')
+const PageDetails = asyncComponent(
+  () =>
+    import(/* webpackChunkName: "PageDetails" */ "./containers/pages/Detail")
 );
 
-const PostList = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Post" */ './containers/posts/List')
+const PostList = asyncComponent(
+  () => import(/* webpackChunkName: "List - Post" */ "./containers/posts/List")
 );
 
-const PostDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "PostDetails" */ './containers/posts/PostDetail')
+const PostDetails = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PostDetails" */ "./containers/posts/PostDetail"
+    )
 );
 
-const PermissionGroups = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Setting - Permission Groups" */ './containers/permission/PermissionList'
-  )
+const PermissionGroups = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Setting - Permission Groups" */ "./containers/permission/PermissionList"
+    )
 );
 
-const SubscriptionProducts = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - Subscription Product" */ './containers/subscriptionProducts/List'
-  )
+const SubscriptionProducts = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Settings List - Subscription Product" */ "./containers/subscriptionProducts/List"
+    )
 );
 
-const QuizList = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Quiz" */ './containers/quiz/List')
+const QuizList = asyncComponent(
+  () => import(/* webpackChunkName: "List - Quiz" */ "./containers/quiz/List")
 );
 
-const layout = () => {
-  return <Redirect to={`/forums/posts`} />;
+const Layout = () => {
+  return <Navigate to={`/forums/posts`} />;
 };
 
-const pageList = ({ location, history }) => {
+const PageListComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <PageList queryParams={queryParams} history={history} />;
+  return <PageList queryParams={queryParams}  />;
 };
 
-const pageDetail = ({ match }) => {
-  const id = match.params.id;
+const PageDetail = () => {
+  const { id } = useParams();
 
   return <PageDetails id={id} />;
 };
 
-const postList = ({ location, history }) => {
+const PostListComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <PostList queryParams={queryParams} history={history} />;
+  return <PostList queryParams={queryParams} />;
 };
 
-const postDetail = ({ match }) => {
-  const id = match.params.id;
+const PostDetail = () => {
+  const { id } = useParams();
 
   return <PostDetails _id={id} />;
 };
 
-const permissionGroups = ({ location, history }) => {
+const PermissionGroupsComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <PermissionGroups queryParams={queryParams} history={history} />;
+  return <PermissionGroups queryParams={queryParams}  />;
 };
 
-const categories = () => {
+const CategoriesComponent = () => {
   return <Categories />;
 };
 
-const subscriptionProducts = ({ location, history }) => {
+const SubscriptionProductsComponent = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <SubscriptionProducts queryParams={queryParams} history={history} />;
+  return <SubscriptionProducts queryParams={queryParams} />;
 };
 
-const quiz = ({ location }) => {
+const Quiz = () => {
+  const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
   return <QuizList queryParams={queryParams} />;
@@ -94,65 +113,53 @@ const quiz = ({ location }) => {
 
 const routes = () => {
   return (
-    <React.Fragment>
-      <Route path="/forums" exact={true} component={layout} />
+    <Routes>
+      <Route path="/forums" element={<Layout />} />
 
       <Route
         key="/forums/pages"
-        exact={true}
         path="/forums/pages"
-        component={pageList}
+        element={<PageListComponent />}
       />
 
       <Route
         key="/forum/pages/:id"
-        exact={true}
         path="/forum/pages/:id"
-        component={pageDetail}
+        element={<PageDetail />}
       />
 
       <Route
         key="/forums/posts"
-        exact={true}
         path="/forums/posts"
-        component={postList}
+        element={<PostListComponent />}
       />
 
       <Route
         key="/forums/posts/:id"
-        exact={true}
         path="/forums/posts/:id"
-        component={postDetail}
+        element={<PostDetail />}
       />
 
       <Route
         key="/forums/categories"
-        exact={true}
         path="/forums/categories"
-        component={categories}
+        element={<CategoriesComponent />}
       />
 
       <Route
         key="/forums/permission-groups"
-        exact={true}
         path="/forums/permission-groups"
-        component={permissionGroups}
+        element={<PermissionGroupsComponent />}
       />
 
       <Route
         key="/forums/subscription-products"
-        exact={true}
         path="/forums/subscription-products"
-        component={subscriptionProducts}
+        element={<SubscriptionProductsComponent />}
       />
 
-      <Route
-        key="/forums/quizzes"
-        exact={true}
-        path="/forums/quizzes"
-        component={quiz}
-      />
-    </React.Fragment>
+      <Route key="/forums/quizzes" path="/forums/quizzes" element={<Quiz />} />
+    </Routes>
   );
 };
 

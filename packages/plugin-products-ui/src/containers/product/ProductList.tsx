@@ -1,12 +1,6 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import List from '../../components/product/ProductList';
-import { mutations, queries } from '../../graphql';
+import * as compose from "lodash.flowright";
+
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   CategoryDetailQueryResponse,
   MergeMutationResponse,
@@ -14,11 +8,19 @@ import {
   ProductRemoveMutationResponse,
   ProductsCountQueryResponse,
   ProductsQueryResponse,
-} from '../../types';
+} from "../../types";
+import { mutations, queries } from "../../graphql";
+
+import Bulk from "@erxes/ui/src/components/Bulk";
+import List from "../../components/product/ProductList";
+import React, { useState } from "react";
+import { generatePaginationParams } from "@erxes/ui/src/utils/router";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 
@@ -30,103 +32,95 @@ type FinalProps = {
   ProductRemoveMutationResponse &
   MergeMutationResponse;
 
-class ProductListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+const ProductListContainer = (props: FinalProps) => {
+  const [mergeProductLoading, setMergeProductLoading] = useState(false);
+  const navigate = useNavigate();
 
-    this.state = {
-      mergeProductLoading: false,
-    };
-  }
+  const {
+    productsQuery,
+    productsCountQuery,
+    productsRemove,
+    productsMerge,
+    queryParams,
+    productCategoryDetailQuery,
+  } = props;
 
-  render() {
-    const {
-      productsQuery,
-      productsCountQuery,
-      productsRemove,
-      productsMerge,
-      queryParams,
-      productCategoryDetailQuery,
-      history,
-    } = this.props;
+  const products = productsQuery.products || [];
 
-    const products = productsQuery.products || [];
+  // remove action
+  const remove = ({ productIds }, emptyBulk) => {
+    productsRemove({
+      variables: { productIds },
+    })
+      .then((removeStatus) => {
+        emptyBulk();
 
-    // remove action
-    const remove = ({ productIds }, emptyBulk) => {
-      productsRemove({
-        variables: { productIds },
+        const status = removeStatus.data.productsRemove;
+
+        status === "deleted"
+          ? Alert.success("You successfully deleted a product")
+          : Alert.warning("Product status deleted");
       })
-        .then((removeStatus) => {
-          emptyBulk();
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
 
-          const status = removeStatus.data.productsRemove;
+  const mergeProducts = ({ ids, data, callback }) => {
+    setMergeProductLoading(true);
 
-          status === 'deleted'
-            ? Alert.success('You successfully deleted a product')
-            : Alert.warning('Product status deleted');
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    };
-
-    const mergeProducts = ({ ids, data, callback }) => {
-      this.setState({ mergeProductLoading: true });
-
-      productsMerge({
-        variables: {
-          productIds: ids,
-          productFields: data,
-        },
+    productsMerge({
+      variables: {
+        productIds: ids,
+        productFields: data,
+      },
+    })
+      .then((result: any) => {
+        callback();
+        setMergeProductLoading(false);
+        Alert.success("You successfully merged a product");
+        navigate(
+          `/settings/product-service/details/${result.data.productsMerge._id}`
+        );
       })
-        .then((result: any) => {
-          callback();
-          this.setState({ mergeProductLoading: false });
-          Alert.success('You successfully merged a product');
-          history.push(
-            `/settings/product-service/details/${result.data.productsMerge._id}`,
-          );
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-          this.setState({ mergeProductLoading: false });
-        });
-    };
+      .catch((e) => {
+        Alert.error(e.message);
+        setMergeProductLoading(false);
+      });
+  };
 
-    const searchValue = this.props.queryParams.searchValue || '';
+  const searchValue = props.queryParams.searchValue || "";
 
-    const updatedProps = {
-      ...this.props,
-      queryParams,
-      products,
-      remove,
-      loading: productsQuery.loading || productsCountQuery.loading,
-      searchValue,
-      productsCount: productsCountQuery.productsTotalCount || 0,
-      currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
-      mergeProducts,
-    };
+  const updatedProps = {
+    ...props,
+    queryParams,
+    products,
+    remove,
+    loading: productsQuery.loading || productsCountQuery.loading,
+    searchValue,
+    productsCount: productsCountQuery.productsTotalCount || 0,
+    currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
+    mergeProducts,
+  };
 
-    const productList = (props) => {
-      return <List {...updatedProps} {...props} />;
-    };
+  const productList = (props) => {
+    return <List {...updatedProps} {...props} />;
+  };
 
-    const refetch = () => {
-      this.props.productsQuery.refetch();
-    };
+  const refetch = () => {
+    props.productsQuery.refetch();
+  };
 
-    return <Bulk content={productList} refetch={refetch} />;
-  }
-}
+  return <Bulk content={productList} refetch={refetch} />;
+};
 
 const getRefetchQueries = () => {
   return [
-    'products',
-    'productCategories',
-    'productCategoriesCount',
-    'productsTotalCount',
-    'productCountByTags',
+    "products",
+    "productCategories",
+    "productCategoriesCount",
+    "productsTotalCount",
+    "productCountByTags",
   ];
 };
 
@@ -139,7 +133,7 @@ export default withProps<Props>(
     graphql<Props, ProductsQueryResponse, { page: number; perPage: number }>(
       gql(queries.products),
       {
-        name: 'productsQuery',
+        name: "productsQuery",
         options: ({ queryParams }) => ({
           variables: {
             categoryId: queryParams.categoryId,
@@ -150,15 +144,15 @@ export default withProps<Props>(
             type: queryParams.type,
             segment: queryParams.segment,
             segmentData: queryParams.segmentData,
-            ids: queryParams.ids && queryParams.ids.split(','),
+            ids: queryParams.ids && queryParams.ids.split(","),
             ...generatePaginationParams(queryParams),
           },
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
         }),
-      },
+      }
     ),
     graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
-      name: 'productsCountQuery',
+      name: "productsCountQuery",
       options: ({ queryParams }) => ({
         variables: {
           categoryId: queryParams.categoryId,
@@ -168,34 +162,34 @@ export default withProps<Props>(
           type: queryParams.type,
           segment: queryParams.segment,
           segmentData: queryParams.segmentData,
-          ids: queryParams.ids && queryParams.ids.split(','),
+          ids: queryParams.ids && queryParams.ids.split(","),
         },
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
       }),
     }),
     graphql<Props, ProductRemoveMutationResponse, { productIds: string[] }>(
       gql(mutations.productsRemove),
       {
-        name: 'productsRemove',
+        name: "productsRemove",
         options,
-      },
+      }
     ),
     graphql<Props, CategoryDetailQueryResponse>(
       gql(queries.productCategoryDetail),
       {
-        name: 'productCategoryDetailQuery',
+        name: "productCategoryDetailQuery",
         options: ({ queryParams }) => ({
           variables: {
             _id: queryParams.categoryId,
           },
         }),
-      },
+      }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
       gql(mutations.productsMerge),
       {
-        name: 'productsMerge',
-      },
-    ),
-  )(ProductListContainer),
+        name: "productsMerge",
+      }
+    )
+  )(ProductListContainer)
 );

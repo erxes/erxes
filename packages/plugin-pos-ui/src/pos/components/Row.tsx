@@ -8,7 +8,7 @@ import {
   Button,
   Icon,
   Tip,
-  WithPermission
+  WithPermission,
 } from '@erxes/ui/src';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
@@ -24,8 +24,18 @@ type Props = {
   showCode?: boolean;
 };
 
-class Row extends React.Component<Props> {
-  manageAction(pos) {
+const Row = (props: Props) => {
+  const { pos, remove } = props;
+
+  const isOnline = pos.isOnline ? 'online' : 'offline pos';
+  const onServer = pos.onServer ? 'On server' : 'Without main server';
+
+  const createdUser = pos.user || {
+    _id: '',
+    details: { fullName: '' },
+  };
+
+  const manageAction = (pos) => {
     return (
       <Link to={`/pos/edit/${pos._id}`}>
         <Button btnStyle="link">
@@ -35,11 +45,9 @@ class Row extends React.Component<Props> {
         </Button>
       </Link>
     );
-  }
+  };
 
-  renderRemoveAction() {
-    const { pos, remove } = this.props;
-
+  const renderRemoveAction = () => {
     const onClick = () => remove(pos._id);
 
     return (
@@ -52,9 +60,9 @@ class Row extends React.Component<Props> {
         />
       </Tip>
     );
-  }
+  };
 
-  renderCopyAction = object => {
+  const renderCopyAction = (object) => {
     const onCopy = () => {
       Alert.success('Copied');
     };
@@ -70,58 +78,47 @@ class Row extends React.Component<Props> {
     );
   };
 
-  render() {
-    const { pos } = this.props;
-    const isOnline = pos.isOnline ? 'online' : 'offline pos';
-    const onServer = pos.onServer ? 'On server' : 'Without main server';
+  return (
+    <tr>
+      <td>
+        <RowTitle>
+          <Link to={`/pos/edit/${pos._id}`}>{pos.name}</Link>
+        </RowTitle>
+      </td>
 
-    const createdUser = pos.user || {
-      _id: '',
-      details: { fullName: '' }
-    };
+      <td>
+        <strong>{isOnline}</strong>
+      </td>
+      <td>
+        <strong>{onServer}</strong>
+      </td>
+      <td>
+        <strong>{pos.branchTitle || ''}</strong>
+      </td>
+      <td>
+        <strong>{pos.departmentTitle || ''}</strong>
+      </td>
+      <td>
+        <div key={createdUser._id}>
+          <Capitalize>
+            {createdUser.details && createdUser.details.fullName}
+          </Capitalize>
+        </div>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(pos.createdAt).format('ll')}</DateWrapper>
+      </td>
 
-    return (
-      <tr>
-        <td>
-          <RowTitle>
-            <Link to={`/pos/edit/${pos._id}`}>{pos.name}</Link>
-          </RowTitle>
-        </td>
-
-        <td>
-          <strong>{isOnline}</strong>
-        </td>
-        <td>
-          <strong>{onServer}</strong>
-        </td>
-        <td>
-          <strong>{pos.branchTitle || ''}</strong>
-        </td>
-        <td>
-          <strong>{pos.departmentTitle || ''}</strong>
-        </td>
-        <td>
-          <div key={createdUser._id}>
-            <Capitalize>
-              {createdUser.details && createdUser.details.fullName}
-            </Capitalize>
-          </div>
-        </td>
-        <td>
-          <Icon icon="calender" />{' '}
-          <DateWrapper>{dayjs(pos.createdAt).format('ll')}</DateWrapper>
-        </td>
-
-        <td>
-          <ActionButtons>
-            {this.manageAction(pos)}
-            {this.renderCopyAction(pos)}
-            {this.renderRemoveAction()}
-          </ActionButtons>
-        </td>
-      </tr>
-    );
-  }
-}
+      <td>
+        <ActionButtons>
+          {manageAction(pos)}
+          {renderCopyAction(pos)}
+          {renderRemoveAction()}
+        </ActionButtons>
+      </td>
+    </tr>
+  );
+};
 
 export default Row;

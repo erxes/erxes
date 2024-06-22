@@ -1,31 +1,32 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import queryString from 'query-string';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { useLocation } from 'react-router-dom';
 
 const PackageList = asyncComponent(() =>
   import(/* webpackChunkName: "PackageList" */ './containers/PackageList')
 );
 
-const list = ({ location, history }) => {
+const List = () => {
+  const location = useLocation()
+  
   return (
     <PackageList
       queryParams={queryString.parse(location.search)}
-      history={history}
     />
   );
 };
 
 const routes = () => {
   return (
-    <React.Fragment>
+    <Routes>
       <Route
         key="/block/list"
-        exact={true}
         path="/block/list"
-        component={list}
+        element={<List/>}
       />
-    </React.Fragment>
+    </Routes>
   );
 };
 

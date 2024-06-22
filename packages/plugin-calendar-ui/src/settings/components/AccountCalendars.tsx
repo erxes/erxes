@@ -1,18 +1,17 @@
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import { ICalendar as IAccountCalendar } from '../../calendar/types';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { colors } from '@erxes/ui/src/styles';
-import { ColorPick } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
-import styled from 'styled-components';
-import { EditAccountCalendarMutationVariables } from '../types';
+import { COLORS } from "@erxes/ui/src/constants/colors";
+import { ICalendar as IAccountCalendar } from "../../calendar/types";
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import { colors } from "@erxes/ui/src/styles";
+import { ColorPick } from "@erxes/ui/src/styles/main";
+import React from "react";
+import Popover from "@erxes/ui/src/components/Popover";
+import TwitterPicker from "react-color/lib/Twitter";
+import styled from "styled-components";
+import { EditAccountCalendarMutationVariables } from "../types";
 
 type Props = {
   calendars: IAccountCalendar[];
@@ -39,7 +38,7 @@ class AccountCalendars extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      calendarNames: {}
+      calendarNames: {},
     };
   }
 
@@ -59,7 +58,7 @@ class AccountCalendars extends React.Component<Props, State> {
   }
 
   renderExtraLinks(calendar: IAccountCalendar) {
-    const onColorChange = e => {
+    const onColorChange = (e) => {
       this.props.editCalendar({ _id: calendar._id, color: e.hex });
     };
 
@@ -69,41 +68,35 @@ class AccountCalendars extends React.Component<Props, State> {
 
     const color = calendar.color || colors.colorPrimaryDark;
 
-    const popoverBottom = (
-      <Popover id="color-picker">
-        <TwitterPicker
-          width="266px"
-          triangle="hide"
-          color={color}
-          onChange={onColorChange}
-          colors={COLORS}
-        />
-      </Popover>
-    );
-
     return (
       <>
         <Tip text="Color" placement="top">
-          <OverlayTrigger
-            trigger="click"
-            rootClose={true}
+          <Popover
+            trigger={
+              <ColorPick>
+                <ColorPicker
+                  style={{
+                    backgroundColor: color,
+                  }}
+                />
+              </ColorPick>
+            }
             placement="bottom"
-            overlay={popoverBottom}
           >
-            <ColorPick>
-              <ColorPicker
-                style={{
-                  backgroundColor: color
-                }}
-              />
-            </ColorPick>
-          </OverlayTrigger>
+            <TwitterPicker
+              width="266px"
+              triangle="hide"
+              color={color}
+              onChange={onColorChange}
+              colors={COLORS}
+            />
+          </Popover>
         </Tip>
         <Tip text="View" placement="top">
           <Button
             btnStyle="link"
             onClick={edit}
-            icon={calendar.show ? 'eye' : 'eye-slash'}
+            icon={calendar.show ? "eye" : "eye-slash"}
           />
         </Tip>
       </>
@@ -121,8 +114,8 @@ class AccountCalendars extends React.Component<Props, State> {
       return (
         <tr key={calendarId}>
           <td>
-            &nbsp; &nbsp; &nbsp;{' '}
-            <Icon icon={'circle'} style={{ color: calendar.color }} />{' '}
+            &nbsp; &nbsp; &nbsp;{" "}
+            <Icon icon={"circle"} style={{ color: calendar.color }} />{" "}
             <InputContainer>
               <FormControl
                 value={calendarNames[calendarId] || calendarName}

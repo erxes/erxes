@@ -1,12 +1,11 @@
-import * as dayjs from 'dayjs';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
+import * as dayjs from "dayjs";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Tip from "@erxes/ui/src/components/Tip";
+import React from "react";
+import Button from "@erxes/ui/src/components/Button";
 
 type Props = {
   deal: any;
-  history: any;
   isChecked: boolean;
   isUnsynced: boolean;
   toggleBulk: (deal: any, isChecked?: boolean) => void;
@@ -18,64 +17,58 @@ class Row extends React.Component<Props> {
   render() {
     const { deal, toggleBulk, isChecked, isUnsynced, syncedInfo } = this.props;
 
-    const onChange = e => {
+    const onChange = (e) => {
       if (toggleBulk) {
         toggleBulk(deal, e.target.checked);
       }
     };
 
-    const onClick = e => {
+    const onClick = (e) => {
       e.stopPropagation();
     };
 
-    const onClickSync = e => {
+    const onClickSync = (e) => {
       e.stopPropagation();
       this.props.toSync([deal._id]);
     };
 
     const onTrClick = () => {};
 
-    const {
-      name,
-      amount,
-      createdAt,
-      stageChangedDate,
-      modifiedAt,
-      number
-    } = deal;
+    const { name, amount, createdAt, stageChangedDate, modifiedAt, number } =
+      deal;
 
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass="checkbox"
+            componentclass="checkbox"
             onChange={onChange}
           />
         </td>
         <td>{name}</td>
         <td>{number}</td>
         <td>
-          {Object.keys(amount).map(a => `${amount[a].toLocaleString()} ${a}`)}
+          {Object.keys(amount).map((a) => `${amount[a].toLocaleString()} ${a}`)}
         </td>
-        <td>{dayjs(createdAt).format('lll')}</td>
-        <td>{dayjs(modifiedAt).format('lll')}</td>
-        <td>{dayjs(stageChangedDate).format('lll')}</td>
+        <td>{dayjs(createdAt).format("lll")}</td>
+        <td>{dayjs(modifiedAt).format("lll")}</td>
+        <td>{dayjs(stageChangedDate).format("lll")}</td>
         <td onClick={onClick}>
           {isUnsynced && (
             <FormControl
               checked={isUnsynced}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={onChange}
             />
           )}
         </td>
         <td>
           {syncedInfo.syncedDate &&
-            dayjs(syncedInfo.syncedDate || '').format('ll')}
+            dayjs(syncedInfo.syncedDate || "").format("ll")}
         </td>
-        <td>{syncedInfo.syncedBillNumber || ''}</td>
-        <td>{syncedInfo.syncedCustomer || ''}</td>
+        <td>{syncedInfo.syncedBillNumber || ""}</td>
+        <td>{syncedInfo.syncedCustomer || ""}</td>
         <td>
           {isUnsynced && (
             <Tip text="Sync">

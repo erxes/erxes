@@ -3,7 +3,6 @@ import * as compose from 'lodash.flowright';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { router, withProps } from '@erxes/ui/src/utils';
 
-import { IRouterProps } from '@erxes/ui/src/types';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import React from 'react';
 import { RemoveMutationResponse } from '../types';
@@ -11,15 +10,14 @@ import VoucherAward from '../components/Award';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries } from '../../../configs/lotteryCampaign/graphql';
-import { withRouter } from 'react-router-dom';
 
-type Props = { history: any; queryParams: any; voucherCampaignId: string };
+
+type Props = {  queryParams: any; voucherCampaignId: string };
 type FinalProps = {
   doLottery: any;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
   multipledoLottery: any;
 } & Props &
-  IRouterProps &
   RemoveMutationResponse;
 
 type State = {
@@ -30,7 +28,7 @@ class AwardContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false
+      loading: false,
     };
     this.doLotteries = this.doLotteries.bind(this);
   }
@@ -45,16 +43,16 @@ class AwardContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      lotteryCampaign: this.props.lotteryCampaignDetailQuery
-        .lotteryCampaignDetail,
-      doLotteries: this.doLotteries
+      lotteryCampaign:
+        this.props.lotteryCampaignDetailQuery.lotteryCampaignDetail,
+      doLotteries: this.doLotteries,
     };
 
     const refetch = () => {
       this.props.lotteryCampaignDetailQuery.refetch();
     };
 
-    const list = props => {
+    const list = (props) => {
       return <VoucherAward {...updatedProps} {...props} />;
     };
 
@@ -72,7 +70,7 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 export default withProps<Props>(
@@ -83,11 +81,11 @@ export default withProps<Props>(
         name: 'lotteryCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
-          }
+            _id: queryParams.campaignId,
+          },
         }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
-    )
-  )(withRouter<IRouterProps>(AwardContainer))
+        skip: ({ queryParams }) => !queryParams.campaignId,
+      },
+    ),
+  )(AwardContainer),
 );

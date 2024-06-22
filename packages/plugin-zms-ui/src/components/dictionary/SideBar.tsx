@@ -59,7 +59,7 @@ class SideBar extends React.Component<Props, State> {
       return <TypeForm {...props} type={type} renderButton={renderButton} />;
     };
     return (
-      <SidebarListItem isActive={className === 'active'} key={type._id}>
+      <SidebarListItem $isActive={className === 'active'} key={type._id}>
         <Link to={`/plugin-zms/zmss?parentId=${type._id}`}>
           {__(type.name)}
         </Link>

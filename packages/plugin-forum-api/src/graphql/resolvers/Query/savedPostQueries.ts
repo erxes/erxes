@@ -3,7 +3,7 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { LoginRequiredError } from '../../../customErrors';
 
 const savedPostQueries: IObjectTypeResolver<any, IContext> = {
-  forumCpMySavedPosts(
+  async forumCpMySavedPosts(
     _,
     { limit = 0, offset = 0 },
     { models: { SavedPost }, cpUser }
@@ -16,7 +16,7 @@ const savedPostQueries: IObjectTypeResolver<any, IContext> = {
       .limit(limit);
   },
 
-  forumCpMySavedPostsCount(_, __, { models: { SavedPost }, cpUser }) {
+  async forumCpMySavedPostsCount(_, __, { models: { SavedPost }, cpUser }) {
     if (!cpUser) throw new LoginRequiredError();
 
     return SavedPost.countDocuments({ cpUserId: cpUser.userId });

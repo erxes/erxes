@@ -1,74 +1,77 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, confirm, EmptyState, Spinner } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { generateParamsIds } from '../../common/utils';
-import ListComponent from '../components/List';
-import { mutations, queries } from '../graphql';
-import { generateCardFiltersQueryParams } from '../common/utils';
+import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
+import React, { useEffect } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { mutations, queries } from "../graphql";
+
+import ListComponent from "../components/List";
+import { generateCardFiltersQueryParams } from "../common/utils";
+import { generateParamsIds } from "../../common/utils";
+import { router } from "@erxes/ui/src/utils/core";
 
 type Props = {
   queryParams: any;
-  history: any;
-} & IRouterProps;
+};
 
-type FinalProps = {
-  listQuery: any;
-  totalCount: any;
-  removeAssessments: any;
-} & Props;
-
-type State = {};
-
-class List extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    const {
-      listQuery,
-      totalCount,
-      queryParams,
-      history,
-      removeAssessments
-    } = this.props;
-
-    if (listQuery.loading) {
-      return <Spinner />;
+const List = ({ queryParams }: Props) => {
+  const { loading: listLoading, data: listData } = useQuery(
+    gql(queries.riskAssessments),
+    {
+      variables: generateParams({ queryParams }),
     }
+  );
 
-    if (listQuery.error) {
-      return <EmptyState text={listQuery.error} icon="info-circle" />;
+  const { data: totalCountData, refetch: refetchTotalCount } = useQuery(
+    gql(queries.totalCount),
+    {
+      variables: generateParams({ queryParams }),
     }
+  );
 
-    const remove = (ids: string[]) => {
-      confirm(
-        'this action will erase every data of assessments.Are you sure?'
-      ).then(() => {
-        removeAssessments({ variables: { ids } })
-          .then(() => {
-            Alert.success('Removed successfully');
-          })
-          .catch(err => {
-            Alert.error(err.message);
-          });
-      });
-    };
+  const [removeAssessments] = useMutation(gql(mutations.removeAssessments), {
+    refetchQueries: [
+      {
+        query: gql(queries.riskAssessments),
+        variables: { ...generateParams({ queryParams }) },
+      },
+      {
+        query: gql(queries.totalCount),
+        variables: { ...generateParams({ queryParams }) },
+      },
+    ],
+  });
 
-    const updatedProps = {
-      list: listQuery?.riskAssessments || [],
-      totalCount: totalCount?.riskAssessmentsTotalCount,
-      queryParams,
-      history,
-      remove
-    };
+  useEffect(() => {
+    refetchTotalCount();
+  }, [queryParams]);
 
-    return <ListComponent {...updatedProps} />;
+  const remove = (ids) => {
+    confirm(
+      "This action will erase every data of assessments. Are you sure?"
+    ).then(() => {
+      removeAssessments({ variables: { ids } })
+        .then(() => {
+          Alert.success("Removed successfully");
+          refetchTotalCount();
+        })
+        .catch((err) => {
+          Alert.error(err.message);
+        });
+    });
+  };
+
+  if (listLoading) {
+    return <Spinner />;
   }
-}
+
+  const updatedProps = {
+    list: listData?.riskAssessments || [],
+    totalCount: totalCountData?.riskAssessmentsTotalCount,
+    queryParams,
+    remove,
+  };
+
+  return <ListComponent {...updatedProps} />;
+};
 
 export const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
@@ -87,41 +90,7 @@ export const generateParams = ({ queryParams }) => ({
   operationIds: generateParamsIds(queryParams.operationIds),
   tagIds: generateParamsIds(queryParams.tagIds),
   groupIds: generateParamsIds(queryParams.groupIds),
-  cardFilter: generateCardFiltersQueryParams(queryParams)
+  cardFilter: generateCardFiltersQueryParams(queryParams),
 });
 
-const refetchQueries = ({ queryParams }) => {
-  return [
-    {
-      query: gql(queries.riskAssessments),
-      variables: { ...generateParams({ queryParams }) }
-    },
-    {
-      query: gql(queries.totalCount),
-      variables: { ...generateParams({ queryParams }) }
-    }
-  ];
-};
-
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.riskAssessments), {
-      name: 'listQuery',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
-    }),
-    graphql<Props>(gql(queries.totalCount), {
-      name: 'totalCount',
-      options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams })
-      })
-    }),
-    graphql<Props>(gql(mutations.removeAssessments), {
-      name: 'removeAssessments',
-      options: ({ queryParams }) => ({
-        refetchQueries: refetchQueries({ queryParams })
-      })
-    })
-  )(List)
-);
+export default List;

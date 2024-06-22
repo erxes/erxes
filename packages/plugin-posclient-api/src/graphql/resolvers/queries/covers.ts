@@ -62,11 +62,8 @@ const coverQueries = {
     let lastCover = await models.Covers.findOne(filter)
       .sort({ endDate: -1 })
       .lean();
-    if (!lastCover) {
-      lastCover = {};
-    }
 
-    const startDate = lastCover.endDate;
+    const startDate = lastCover?.endDate;
     const orderFilter: any = { posToken: config.token, userId: posUser._id };
     if (startDate) {
       orderFilter.paidDate = { $gte: startDate, $lte: endDate };

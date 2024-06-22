@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { timeDuractionUnits } from '../constants';
-import { IFormProps } from '@erxes/ui/src/types';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
+import React, { useState } from "react";
+import { timeDuractionUnits } from "../constants";
+import { IFormProps } from "@erxes/ui/src/types";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import Button from "@erxes/ui/src/components/Button";
 
 const ExtendSubscriptionForm = ({
   user = {} as any,
   renderButton,
-  closeModal
+  closeModal,
 }) => {
   const generateDoc = (values: {
     multiplier?: string;
@@ -26,7 +26,7 @@ const ExtendSubscriptionForm = ({
       multiplier: parseInt(finalValues.multiplier, 10),
       unit: finalValues.unit,
       price: parseInt(finalValues.price, 10),
-      userType: user.type
+      userType: user.type,
     };
   };
 
@@ -46,8 +46,8 @@ const ExtendSubscriptionForm = ({
         </FormGroup>
         <FormGroup>
           <ControlLabel>Unit</ControlLabel>
-          <FormControl {...formProps} name="unit" componentClass="select">
-            {timeDuractionUnits.map(tdu => (
+          <FormControl {...formProps} name="unit" componentclass="select">
+            {timeDuractionUnits.map((tdu) => (
               <option value={tdu} key={tdu}>
                 {tdu}
               </option>
@@ -64,7 +64,7 @@ const ExtendSubscriptionForm = ({
           />
         </FormGroup>
 
-        <ModalFooter id={'ExtendSubscriptionButtons'}>
+        <ModalFooter id={"ExtendSubscriptionButtons"}>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
@@ -72,7 +72,7 @@ const ExtendSubscriptionForm = ({
           {renderButton({
             values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>

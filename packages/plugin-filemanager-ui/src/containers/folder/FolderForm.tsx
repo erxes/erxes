@@ -3,7 +3,7 @@ import {
   IFolder,
   RemoveFilemanagerFolderMutationResponse
 } from '../../types';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../../graphql';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -21,7 +21,6 @@ type Props = {
 type FinalProps = {
   filemanagerFoldersQuery: FilemanagerFoldersQueryResponse;
 } & Props &
-  IRouterProps &
   RemoveFilemanagerFolderMutationResponse;
 
 const FolderFormContainer = (props: FinalProps) => {

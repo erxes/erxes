@@ -44,7 +44,7 @@ export const loadDocumentClass = models => {
      */
     public static async saveDocument({ _id, doc }) {
       if (_id) {
-        await models.Documents.update({ _id }, { $set: doc });
+        await models.Documents.updateOne({ _id }, { $set: doc });
         return models.Documents.findOne({ _id });
       }
 

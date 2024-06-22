@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-// erxes
-import { __ } from '@erxes/ui/src/utils';
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Table from '@erxes/ui/src/components/table';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { BarItems, FlexRightItem } from '@erxes/ui/src/layout/styles';
-import { Flex, ModalFooter } from '@erxes/ui/src/styles/main';
+import { BarItems, FlexRightItem } from "@erxes/ui/src/layout/styles";
+import { Flex, ModalFooter } from "@erxes/ui/src/styles/main";
+import React, { useState } from "react";
 
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import Table from "@erxes/ui/src/components/table";
 // local
-import { TableTransactionAdd } from '../../styles';
+import { TableTransactionAdd } from "../../styles";
+// erxes
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   submit: (
@@ -28,8 +28,8 @@ type Props = {
 export default function ActionBarContent(props: Props) {
   const { submit } = props;
 
-  const [branchId, setBranchId] = useState<string>('');
-  const [departmentId, setDepartmentId] = useState<string>('');
+  const [branchId, setBranchId] = useState<string>("");
+  const [departmentId, setDepartmentId] = useState<string>("");
   const [data, setData] = useState<any>([]);
 
   const handleDataChange = (index: number, key: string, value: any) => {
@@ -42,11 +42,11 @@ export default function ActionBarContent(props: Props) {
     setData([
       ...data,
       {
-        productId: '',
+        productId: "",
         count: 0,
         isDebit: true,
-        uom: '465'
-      }
+        uom: "465",
+      },
     ]);
   };
 
@@ -65,8 +65,8 @@ export default function ActionBarContent(props: Props) {
               label="Choose product"
               name={`selectedProductId` + index}
               initialValue={item.productId}
-              onSelect={productId =>
-                handleDataChange(index, 'productId', productId)
+              onSelect={(productId) =>
+                handleDataChange(index, "productId", productId)
               }
               multi={false}
             />
@@ -77,7 +77,7 @@ export default function ActionBarContent(props: Props) {
               type="number"
               value={item.count}
               onChange={(event: any) =>
-                handleDataChange(index, 'count', Number(event.target.value))
+                handleDataChange(index, "count", Number(event.target.value))
               }
               required
             />
@@ -85,9 +85,9 @@ export default function ActionBarContent(props: Props) {
           <td>
             <FormControl
               checked={item.isDebit}
-              componentClass="checkbox"
+              componentclass="checkbox"
               onChange={(event: any) =>
-                handleDataChange(index, 'isDebit', event.target.checked)
+                handleDataChange(index, "isDebit", event.target.checked)
               }
             />
           </td>
@@ -102,18 +102,18 @@ export default function ActionBarContent(props: Props) {
     return (
       <div>
         <FormGroup>
-          <ControlLabel>{__('Branch')}</ControlLabel>
+          <ControlLabel>{__("Branch")}</ControlLabel>
           <SelectBranches
             label="Choose branch"
             name="selectedBranchIds"
             initialValue={branchId}
             onSelect={(branchId: any) => setBranchId(String(branchId))}
             multi={false}
-            customOption={{ value: '', label: 'All branches' }}
+            customOption={{ value: "", label: "All branches" }}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Department')}</ControlLabel>
+          <ControlLabel>{__("Department")}</ControlLabel>
           <SelectDepartments
             label="Choose department"
             name="selectedDepartmentIds"
@@ -122,18 +122,18 @@ export default function ActionBarContent(props: Props) {
               setDepartmentId(String(departmentId))
             }
             multi={false}
-            customOption={{ value: '', label: 'All departments' }}
+            customOption={{ value: "", label: "All departments" }}
           />
         </FormGroup>
 
-        <ControlLabel>{__('Products')}</ControlLabel>
+        <ControlLabel>{__("Products")}</ControlLabel>
 
         <TableTransactionAdd>
           <thead>
             <tr>
-              <th>{__('PRODUCT')}</th>
-              <th>{__('COUNT')}</th>
-              <th>{__('DEBIT')}</th>
+              <th>{__("PRODUCT")}</th>
+              <th>{__("COUNT")}</th>
+              <th>{__("DEBIT")}</th>
             </tr>
           </thead>
           <tbody>{renderForm()}</tbody>
@@ -163,7 +163,7 @@ export default function ActionBarContent(props: Props) {
             icon="times-circle"
             uppercase={false}
           >
-            {__('Close')}
+            {__("Close")}
           </Button>
           <Button
             btnStyle="success"
@@ -171,7 +171,7 @@ export default function ActionBarContent(props: Props) {
             icon="check-circle"
             uppercase={false}
           >
-            {__('Submit')}
+            {__("Submit")}
           </Button>
         </ModalFooter>
       </div>

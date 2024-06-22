@@ -1,15 +1,14 @@
-import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
-import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
+import { IUser, IUserDetails } from "@erxes/ui/src/auth/types";
+import { __, loadDynamicComponent } from "@erxes/ui/src/utils";
 
-import { Actions } from '@erxes/ui/src/styles/main';
-import Button from '@erxes/ui/src/components/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
+import { Actions } from "@erxes/ui/src/styles/main";
+import Button from "@erxes/ui/src/components/Button";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import UserResetPasswordForm from "../../containers/UserResetPasswordForm";
 
 type Props = {
   user: IUser;
@@ -18,7 +17,7 @@ type Props = {
   changeStatus: (id: string) => void;
   renderEditForm: ({
     closeModal,
-    user
+    user,
   }: {
     closeModal: () => void;
     user: IUser;
@@ -32,11 +31,11 @@ class ActionSection extends React.Component<Props> {
 
     return (
       <>
-        {loadDynamicComponent('actionForms', { user }, true)}
+        {loadDynamicComponent("actionForms", { user }, true)}
         <Button
           href={operatorPhone && `tel:${operatorPhone}`}
           size="small"
-          btnStyle={operatorPhone ? 'primary' : 'simple'}
+          btnStyle={operatorPhone ? "primary" : "simple"}
           disabled={operatorPhone ? false : true}
         >
           <Tip text="Call" placement="top-end">
@@ -56,29 +55,10 @@ class ActionSection extends React.Component<Props> {
           <Icon icon="ellipsis-h" />
         ) : (
           <>
-            {__('Action')} <Icon icon="angle-down" />
+            {__("Action")} <Icon icon="angle-down" />
           </>
         )}
       </Button>
-    );
-  }
-
-  renderEditButton() {
-    const { user, renderEditForm } = this.props;
-
-    const userForm = props => {
-      return renderEditForm({ ...props, user });
-    };
-
-    return (
-      <li>
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<a href="#edit">{__('Edit Profile')}</a>}
-          size="lg"
-          content={userForm}
-        />
-      </li>
     );
   }
 
@@ -89,14 +69,14 @@ class ActionSection extends React.Component<Props> {
       resendInvitation(user.email);
     };
 
-    if (user.status !== 'Not verified') {
+    if (user.status !== "Not verified") {
       return null;
     }
 
     return (
       <li>
         <a href="#resend" onClick={onClick}>
-          {__('Resend Invitation')}
+          {__("Resend Invitation")}
         </a>
       </li>
     );
@@ -112,42 +92,45 @@ class ActionSection extends React.Component<Props> {
     return (
       <li>
         <a href="#deactivate" onClick={onClick}>
-          {user.isActive ? __('Deactivate') : __('Activate')}
+          {user.isActive ? __("Deactivate") : __("Activate")}
         </a>
       </li>
     );
   };
 
-  renderResetPassword = () => {
-    const content = props => {
+  renderDropdown() {
+    const { user, renderEditForm } = this.props;
+
+    const userEditForm = (props) => {
+      return renderEditForm({ ...props, user });
+    };
+
+    const userResetPasswordForm = (props) => {
       return <UserResetPasswordForm {...props} object={this.props.user} />;
     };
 
-    return (
-      <ModalTrigger
-        title="Reset member password"
-        trigger={
-          <li>
-            <a href="#reset">{__('Reset Password')}</a>
-          </li>
-        }
-        content={content}
-      />
-    );
-  };
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit Profile")}</a>,
+        content: userEditForm,
+        additionalModalProps: { size: "lg" },
+      },
+      {
+        title: "Reset member password",
+        trigger: <a href="#reset">{__("Reset Password")}</a>,
+        content: userResetPasswordForm,
+      },
+    ];
 
-  renderDropdown() {
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
-          {this.renderButton()}
-        </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {this.renderEditButton()}
-          {this.renderResendInvitation()}
-          {this.renderResetPassword()}
-          {this.renderDeActivate()}
-        </Dropdown.Menu>
+      <Dropdown
+        as={DropdownToggle}
+        toggleComponent={this.renderButton()}
+        modalMenuItems={menuItems}
+      >
+        {this.renderResendInvitation()}
+        {this.renderDeActivate()}
       </Dropdown>
     );
   }

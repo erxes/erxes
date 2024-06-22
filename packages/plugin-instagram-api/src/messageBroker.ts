@@ -1,11 +1,12 @@
 import * as dotenv from 'dotenv';
+import { sendMessage } from '@erxes/api-utils/src/core';
 
 import {
   instagramCreateIntegration,
   removeAccount,
   removeCustomers,
   removeIntegration,
-  repairIntegrations,
+  repairIntegrations
 } from './helpers';
 import { handleInstagramMessage } from './handleInstagramMessage';
 import { userIds } from './middlewares/userMiddleware';
@@ -13,7 +14,7 @@ import { userIds } from './middlewares/userMiddleware';
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
-  MessageArgsOmitService,
+  MessageArgsOmitService
 } from '@erxes/api-utils/src/core';
 
 import { generateModels } from './connectionResolver';
@@ -21,7 +22,7 @@ import {
   consumeQueue,
   consumeRPCQueue,
   sendRPCMessage as RPC,
-  RPResult,
+  RPResult
 } from '@erxes/api-utils/src/messageBroker';
 
 dotenv.config();
@@ -40,9 +41,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.Accounts.find(selector).lean(),
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -53,7 +54,7 @@ export const setupMessageConsumers = async () => {
       const { action, type } = data;
 
       let response: RPResult = {
-        status: 'success',
+        status: 'success'
       };
 
       try {
@@ -75,12 +76,12 @@ export const setupMessageConsumers = async () => {
       } catch (e) {
         response = {
           status: 'error',
-          errorMessage: e.message,
+          errorMessage: e.message
         };
       }
 
       return response;
-    },
+    }
   );
 
   // /instagram/get-status'
@@ -90,25 +91,25 @@ export const setupMessageConsumers = async () => {
       const models = await generateModels(subdomain);
 
       const integration = await models.Integrations.findOne({
-        erxesApiId: integrationId,
+        erxesApiId: integrationId
       });
 
       let result = {
-        status: 'healthy',
+        status: 'healthy'
       } as any;
 
       if (integration) {
         result = {
           status: integration.healthStatus || 'healthy',
-          error: integration.error,
+          error: integration.error
         };
       }
 
       return {
         data: result,
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -121,9 +122,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'error',
-        errorMessage: 'Wrong kind',
+        errorMessage: 'Wrong kind'
       };
-    },
+    }
   );
 
   // '/integrations/remove',
@@ -135,7 +136,7 @@ export const setupMessageConsumers = async () => {
       await removeIntegration(subdomain, models, integrationId);
 
       return { status: 'success' };
-    },
+    }
   );
 
   consumeQueue('instagram:notification', async ({ subdomain, data }) => {
@@ -161,15 +162,23 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.ConversationMessages.find(data).lean(),
+        data: await models.ConversationMessages.find(data).lean()
       };
-    },
+    }
   );
 };
 
+export const sendCoreMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'core',
+    ...args
+  });
+};
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
   return sendCommonMessage({
     serviceName: 'inbox',
-    ...args,
+    ...args
   });
 };

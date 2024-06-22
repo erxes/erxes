@@ -1,18 +1,20 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import { ToSyncPricesMutationResponse } from '../types';
-import { router } from '@erxes/ui/src';
-import { Bulk } from '@erxes/ui/src/components';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { mutations } from '../graphql';
-import React, { useState } from 'react';
-import InventoryPrices from '../components/price/InventoryPrice';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import * as compose from "lodash.flowright";
+
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import Alert from "@erxes/ui/src/utils/Alert";
+import { Bulk } from "@erxes/ui/src/components";
+import InventoryPrices from "../components/price/InventoryPrice";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { ToSyncPricesMutationResponse } from "../types";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
+import { router } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
-  history: any;
   queryParams: any;
 };
 
@@ -21,10 +23,12 @@ type FinalProps = {} & Props & ToSyncPricesMutationResponse;
 const InventoryPriceContainer = (props: FinalProps) => {
   const [items, setItems] = useState({});
   const [loading, setLoading] = useState(false);
-  const brandId = props.queryParams.brandId || 'noBrand';
+  const brandId = props.queryParams.brandId || "noBrand";
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const setBrand = (brandId: string) => {
-    router.setParams(props.history, { brandId: brandId });
+    router.setParams(navigate, location, { brandId: brandId });
     return router;
   };
 
@@ -51,10 +55,11 @@ const InventoryPriceContainer = (props: FinalProps) => {
       .then((response) => {
         const data = response.data.toSyncMsdPrices;
 
-        setSyncStatus(data, 'create');
-        setSyncStatus(data, 'update');
-        setSyncStatus(data, 'match');
-        setSyncStatus(data, 'delete');
+        setSyncStatus(data, "create");
+        setSyncStatus(data, "update");
+        setSyncStatus(data, "match");
+        setSyncStatus(data, "delete");
+        setSyncStatus(data, "error");
 
         setItems(response.data.toSyncMsdPrices);
         setLoading(false);
@@ -83,7 +88,7 @@ export default withProps<Props>(
     graphql<Props, ToSyncPricesMutationResponse, {}>(
       gql(mutations.toSyncPrices),
       {
-        name: 'toSyncMsdPrices',
+        name: "toSyncMsdPrices",
       }
     )
   )(InventoryPriceContainer)

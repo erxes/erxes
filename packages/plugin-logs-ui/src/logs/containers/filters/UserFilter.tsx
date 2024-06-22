@@ -9,12 +9,12 @@ import { withProps } from '@erxes/ui/src/utils';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import UserFilter from '../../components/filters/UserFilter';
 import uniqBy from 'lodash/unionBy';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   usersQuery?: UsersQueryResponse;
   usersTotalCountQuery: any;
   queryParams: any;
-  history: any;
 };
 
 function UserFilterContainer(props: Props) {
@@ -69,7 +69,6 @@ function UserFilterContainer(props: Props) {
 
 type WrapperProps = {
   queryParams?: any;
-  history?: any;
   abortController?: any;
 };
 

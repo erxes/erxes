@@ -5,7 +5,7 @@ const pipelineLabelQueries = {
   /**
    *  Pipeline label list
    */
-  pipelineLabels(
+  async pipelineLabels(
     _root,
     { pipelineId, pipelineIds }: { pipelineId: string; pipelineIds: string[] },
     { models: { PipelineLabels } }: IContext,
@@ -24,7 +24,7 @@ const pipelineLabelQueries = {
   /**
    *  Pipeline label detail
    */
-  pipelineLabelDetail(
+  async pipelineLabelDetail(
     _root,
     { _id }: { _id: string },
     { models: { PipelineLabels } }: IContext,

@@ -1,14 +1,10 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { withProps, ButtonMutate } from '@erxes/ui/src';
+import { gql, useQuery } from '@apollo/client';
+import { ButtonMutate, Spinner } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
 import CarForm from '../components/list/CarForm';
 import { mutations, queries } from '../graphql';
 import { CarCategoriesQueryResponse, ICar } from '../types';
-import { UsersQueryResponse } from '@erxes/ui/src/team/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   car: ICar;
@@ -16,61 +12,55 @@ type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  usersQuery: UsersQueryResponse;
-  currentUser: IUser;
-  carCategoriesQuery: CarCategoriesQueryResponse;
-} & Props;
+const CarFormContainer = (props: Props) => {
+  const { closeModal, getAssociatedCar } = props;
 
-class CarFromContainer extends React.Component<FinalProps> {
-  render() {
-    const { carCategoriesQuery } = this.props;
+  const carCategoriesQuery = useQuery<CarCategoriesQueryResponse>(
+    gql(queries.carCategories),
+  );
 
-    if (carCategoriesQuery.loading) {
-      return null;
-    }
-
-    const renderButton = ({
-      name,
-      values,
-      isSubmitted,
-      object
-    }: IButtonMutateProps) => {
-      const { closeModal, getAssociatedCar } = this.props;
-
-      const afterSave = data => {
-        closeModal();
-
-        if (getAssociatedCar) {
-          getAssociatedCar(data.carsAdd);
-        }
-      };
-
-      return (
-        <ButtonMutate
-          mutation={object ? mutations.carsEdit : mutations.carsAdd}
-          variables={values}
-          callback={afterSave}
-          refetchQueries={getRefetchQueries()}
-          isSubmitted={isSubmitted}
-          type="submit"
-          successMessage={`You successfully ${
-            object ? 'updated' : 'added'
-          } a ${name}`}
-        />
-      );
-    };
-
-    const carCategories = carCategoriesQuery.carCategories || [];
-
-    const updatedProps = {
-      ...this.props,
-      renderButton,
-      carCategories
-    };
-    return <CarForm {...updatedProps} />;
+  if (carCategoriesQuery.loading) {
+    return <Spinner />;
   }
-}
+
+  const renderButton = ({
+    name,
+    values,
+    isSubmitted,
+    object,
+  }: IButtonMutateProps) => {
+    const afterSave = (data) => {
+      closeModal();
+
+      if (getAssociatedCar) {
+        getAssociatedCar(data.carsAdd);
+      }
+    };
+
+    return (
+      <ButtonMutate
+        mutation={object ? mutations.carsEdit : mutations.carsAdd}
+        variables={values}
+        callback={afterSave}
+        refetchQueries={getRefetchQueries()}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${name}`}
+      />
+    );
+  };
+
+  const carCategories = carCategoriesQuery?.data?.carCategories || [];
+
+  const updatedProps = {
+    ...props,
+    renderButton,
+    carCategories,
+  };
+  return <CarForm {...updatedProps} />;
+};
 
 const getRefetchQueries = () => {
   return [
@@ -80,14 +70,8 @@ const getRefetchQueries = () => {
     'cars',
     'carCounts',
     'carCategories',
-    'carCategoriesTotalCount'
+    'carCategoriesTotalCount',
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, CarCategoriesQueryResponse>(gql(queries.carCategories), {
-      name: 'carCategoriesQuery'
-    })
-  )(CarFromContainer)
-);
+export default CarFormContainer;

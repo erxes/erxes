@@ -1,24 +1,24 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
-import { DefaultColumnsConfigQueryResponse, IConfigColumn } from '../types';
+import { Alert, getEnv, withProps } from "@erxes/ui/src/utils";
+import { DefaultColumnsConfigQueryResponse, IConfigColumn } from "../types";
 
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
-import { FieldsCombinedByTypeQueryResponse } from '../types';
-import ManageColumns from '../components/ManageColumns';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '@erxes/ui-forms/src/forms/graphql';
-import queryString from 'query-string';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from "@erxes/ui-settings/src/constants";
+import { FieldsCombinedByTypeQueryResponse } from "../types";
+import ManageColumns from "../components/ManageColumns";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries } from "@erxes/ui-forms/src/forms/graphql";
+import queryString from "query-string";
 
 type Props = {
   contentType: string;
   isImport?: boolean;
   type: string;
   location?: any;
-  history?: any;
+  navigate?: any;
   excludedNames?: string[];
   closeModal: () => void;
 };
@@ -36,7 +36,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     fieldsQuery = {} as FieldsCombinedByTypeQueryResponse,
     contentType,
     location,
-    history,
+    navigate,
     type,
     isImport,
   } = props;
@@ -53,28 +53,28 @@ const ManageColumnsContainer = (props: FinalProps) => {
   let save = (config: any, importType?: string) => {
     localStorage.setItem(storageKey, JSON.stringify(config));
 
-    Alert.success('Success');
+    Alert.success("Success");
 
-    if (history && location) {
-      history.push(location.pathname);
+    if (navigate && location) {
+      navigate(location.pathname);
     }
   };
 
-  if (type && (type === 'import' || type === 'export')) {
+  if (type && (type === "import" || type === "export")) {
     save = (configs, importType) => {
       const checkedConfigsForImport: string[] = [];
       const checkedConfigsForExport: any[] = [];
 
-      let reqUrl = '/template-export';
+      let reqUrl = "/template-export";
 
-      if (type === 'export') {
-        reqUrl = '/file-export';
+      if (type === "export") {
+        reqUrl = "/file-export";
       }
 
       configs
         .filter((conf) => conf.checked)
         .forEach((checked) => {
-          if (checked.name.startsWith('customFieldsData')) {
+          if (checked.name.startsWith("customFieldsData")) {
             checkedConfigsForExport.push(checked);
             checkedConfigsForImport.push(checked.label);
           } else {
@@ -85,15 +85,15 @@ const ManageColumnsContainer = (props: FinalProps) => {
 
       const stringified = queryString.stringify({
         configs:
-          type === 'export'
+          type === "export"
             ? JSON.stringify(checkedConfigsForExport)
             : checkedConfigsForImport,
-        type: contentType.split(':')[0],
+        type: contentType.split(":")[0],
         importType,
         unlimited: true,
       });
 
-      window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, '_blank');
+      window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, "_blank");
     };
   }
 
@@ -149,12 +149,12 @@ export default withProps<Props>(
       FieldsCombinedByTypeQueryResponse,
       { contentType: string; isImport?: boolean; excludedNames?: string[] }
     >(gql(queries.fieldsCombinedByContentType), {
-      name: 'fieldsQuery',
+      name: "fieldsQuery",
       options: ({ contentType, type, isImport, excludedNames }) => {
         return {
           variables: {
-            contentType: ['lead', 'visitor'].includes(contentType)
-              ? 'contacts:customer'
+            contentType: ["lead", "visitor"].includes(contentType)
+              ? "contacts:customer"
               : contentType,
             usageType: type,
             excludedNames: excludedNames
@@ -163,23 +163,23 @@ export default withProps<Props>(
           },
         };
       },
-      skip: !isEnabled('forms'),
+      skip: !isEnabled("forms"),
     }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
       {
-        name: 'fieldsDefaultColumnsConfigQuery',
+        name: "fieldsDefaultColumnsConfigQuery",
         options: ({ contentType }) => {
           return {
             variables: {
-              contentType: ['lead', 'visitor'].includes(contentType)
-                ? 'contacts:customer'
+              contentType: ["lead", "visitor"].includes(contentType)
+                ? "contacts:customer"
                 : contentType,
             },
           };
         },
-        skip: !isEnabled('forms'),
-      },
-    ),
-  )(ManageColumnsContainer),
+        skip: !isEnabled("forms"),
+      }
+    )
+  )(ManageColumnsContainer)
 );

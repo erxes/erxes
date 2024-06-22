@@ -1,15 +1,15 @@
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import ReportFormModal from '../../containers/report/ReportFormModal';
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import Dialog from "@erxes/ui/src/components/Dialog";
+import ReportFormModal from "../../containers/report/ReportFormModal";
 import {
   BoxContainer,
   FlexColumn,
   FormContentWrapper,
   ReportsTemplatesSection,
-} from '../../styles';
+} from "../../styles";
 
 type Props = {
   history: any;
@@ -27,11 +27,11 @@ const ReportForm = (props: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [charts, setCharts] = useState<string[]>([]);
   const [emptyReport, setEmptyReport] = useState(false);
-  const [serviceName, setServiceName] = useState('');
-  const [reportName, setReportName] = useState('');
+  const [serviceName, setServiceName] = useState("");
+  const [reportName, setReportName] = useState("");
   const [reportTemplateType, setReportTemplateType] = useState(null);
   const [reportTemplateDescription, setReportTemplateDescription] =
-    useState('');
+    useState("");
 
   const onModalTrigger = (template: any) => {
     setShowModal(true);
@@ -46,31 +46,30 @@ const ReportForm = (props: Props) => {
     <>
       <Wrapper.Header
         breadcrumb={[
-          { title: __('Reports'), link: '/reports' },
-          { title: __('Create a report') },
+          { title: __("Reports"), link: "/reports" },
+          { title: __("Create a report") },
         ]}
-        title={__('Create a report')}
+        title={__("Create a report")}
       />
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header>
-          <Modal.Title>{reportTemplateDescription}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ReportFormModal
-            {...props}
-            reportName={reportName}
-            reportTemplateType={reportTemplateType}
-            emptyReport={emptyReport}
-            charts={charts}
-            serviceName={serviceName}
-            setShowModal={setShowModal}
-          />
-        </Modal.Body>
-      </Modal>
+      <Dialog
+        show={showModal}
+        closeModal={() => setShowModal(false)}
+        title={reportTemplateDescription}
+      >
+        <ReportFormModal
+          {...props}
+          reportName={reportName}
+          reportTemplateType={reportTemplateType}
+          emptyReport={emptyReport}
+          charts={charts}
+          serviceName={serviceName}
+          setShowModal={setShowModal}
+        />
+      </Dialog>
 
       <FormContentWrapper>
         <ReportsTemplatesSection>
-          <FlexColumn style={{ gap: '20px' }}>
+          <FlexColumn style={{ gap: "20px" }}>
             <BoxContainer
               onClick={() => {
                 setEmptyReport(true);

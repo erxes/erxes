@@ -35,7 +35,7 @@ const useGolomt = () => {
 }
 
 export const useGolomtTransaction = (options: {
-  onCompleted: (data: any) => void
+  onCompleted: (data?: any) => void
   onError: (data: any) => void
 }) => {
   const { onCompleted, onError } = options
@@ -69,7 +69,7 @@ export const useGolomtTransaction = (options: {
             description: "Transaction was successful",
           })
           return (
-            !!onCompleted && onCompleted(decodeURIComponent(atob(posResult)))
+            !!onCompleted && onCompleted(posResult)
           )
         }
         toast({ description: posResult.responseDesc, variant: "destructive" })

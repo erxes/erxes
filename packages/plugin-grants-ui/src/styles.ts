@@ -1,4 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src';
+
 import { Column as CommonColumn } from '@erxes/ui/src/styles/main';
 import { highlight } from '@erxes/ui/src/utils/animations';
 import styled from 'styled-components';
@@ -93,7 +94,7 @@ export const EndDateContainer = styled.div`
   }
 `;
 
-export const Row = styledTS<{ gap?: number; spaceBetween?: boolean }>(
+export const Row = styledTS<{ gap?: number; $spaceBetween?: boolean }>(
   styled.div
 )`
   display: flex;
@@ -101,8 +102,8 @@ export const Row = styledTS<{ gap?: number; spaceBetween?: boolean }>(
   flex-direction: row;
   align-items: center;
   gap: ${({ gap }) => (gap ? `${gap}px` : '')};
-  justify-content: ${({ spaceBetween }) =>
-    spaceBetween ? `space-between` : ''};
+  justify-content: ${({ $spaceBetween }) =>
+    $spaceBetween ? `space-between` : ''};
   margin-right: ${dimensions.coreSpacing}px;
 `;
 

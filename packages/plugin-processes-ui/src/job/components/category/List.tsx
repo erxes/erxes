@@ -1,24 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-import { router } from '@erxes/ui/src/utils';
-import { __ } from 'coreui/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CategoryForm from '../../containers/category/Form';
-import { IJobCategory } from '../../types';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Tip from "@erxes/ui/src/components/Tip";
+import { TopHeader } from "@erxes/ui/src/styles/main";
+import { router } from "@erxes/ui/src/utils";
+import { __ } from "coreui/utils";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { ActionButtons, SidebarListItem } from "@erxes/ui-settings/src/styles";
+import React from "react";
+import { Link } from "react-router-dom";
+import CategoryForm from "../../containers/category/Form";
+import { IJobCategory } from "../../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
-  history: any;
   queryParams: any;
   remove: (jobCategoryId: string) => void;
   jobCategories: IJobCategory[];
@@ -26,70 +26,76 @@ interface IProps {
   jobCategoriesCount: number;
 }
 
-class List extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, category?: IJobCategory) {
-    const content = props => (
+const List = (props: IProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const renderFormTrigger = (
+    trigger: React.ReactNode,
+    category?: IJobCategory
+  ) => {
+    const content = (props) => (
       <CategoryForm
         {...props}
         category={category}
-        categories={this.props.jobCategories}
+        categories={props.jobCategories}
       />
     );
 
     return (
       <ModalTrigger title="Add category" trigger={trigger} content={content} />
     );
-  }
-
-  clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
   };
 
-  isActive = (id: string) => {
-    const { queryParams } = this.props;
-    const currentGroup = queryParams.categoryId || '';
+  const clearCategoryFilter = () => {
+    router.setParams(navigate, location, { categoryId: null });
+  };
+
+  const isActive = (id: string) => {
+    const { queryParams } = props;
+    const currentGroup = queryParams.categoryId || "";
 
     return currentGroup === id;
   };
 
-  renderEditAction(category: IJobCategory) {
+  const renderEditAction = (category: IJobCategory) => {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
+        <Tip text={__("Edit")} placement="bottom">
           <Icon icon="edit" />
         </Tip>
       </Button>
     );
 
-    return this.renderFormTrigger(trigger, category);
-  }
+    return renderFormTrigger(trigger, category);
+  };
 
-  renderRemoveAction(category: IJobCategory) {
-    const { remove } = this.props;
+  const renderRemoveAction = (category: IJobCategory) => {
+    const { remove } = props;
 
     return (
       <Button btnStyle="link" onClick={remove.bind(null, category._id)}>
-        <Tip text={__('Remove')} placement="bottom">
+        <Tip text={__("Remove")} placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>
       </Button>
     );
-  }
+  };
 
-  renderContent() {
-    const { jobCategories } = this.props;
+  const renderContent = () => {
+    const { jobCategories } = props;
 
     const result: React.ReactNode[] = [];
 
     for (const category of jobCategories) {
-      const order = category.order || '';
+      const order = category.order || "";
 
       const m = order.match(/[/]/gi);
 
-      let space = '';
+      let space = "";
 
       if (m) {
-        space = '\u00a0\u00a0'.repeat(m.length);
+        space = "\u00a0\u00a0".repeat(m.length);
       }
 
       const name = category.isRoot ? (
@@ -101,26 +107,23 @@ class List extends React.Component<IProps> {
       );
 
       result.push(
-        <SidebarListItem
-          key={category._id}
-          isActive={this.isActive(category._id)}
-        >
+        <SidebarListItem key={category._id} $isActive={isActive(category._id)}>
           <Link to={`?categoryId=${category._id}`}>
             {space}
             {name}
           </Link>
           <ActionButtons>
-            {this.renderEditAction(category)}
-            {this.renderRemoveAction(category)}
+            {renderEditAction(category)}
+            {renderRemoveAction(category)}
           </ActionButtons>
         </SidebarListItem>
       );
     }
 
     return result;
-  }
+  };
 
-  renderCategoryHeader() {
+  const renderCategoryHeader = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle" block={true}>
         Add category
@@ -129,14 +132,14 @@ class List extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <TopHeader>{renderFormTrigger(trigger)}</TopHeader>
         <Section.Title>
-          {__('Categories')}
+          {__("Categories")}
 
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'categoryId') && (
-              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
-                <Tip text={__('Clear filter')} placement="bottom">
+            {router.getParam(location, "categoryId") && (
+              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+                <Tip text={__("Clear filter")} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>
@@ -145,15 +148,15 @@ class List extends React.Component<IProps> {
         </Section.Title>
       </>
     );
-  }
+  };
 
-  renderCategoryList() {
-    const { jobCategoriesCount, loading } = this.props;
+  const renderCategoryList = () => {
+    const { jobCategoriesCount, loading } = props;
 
     return (
       <SidebarList>
         <DataWithLoader
-          data={this.renderContent()}
+          data={renderContent()}
           loading={loading}
           count={jobCategoriesCount}
           emptyText="There is no job & service category"
@@ -162,24 +165,19 @@ class List extends React.Component<IProps> {
         />
       </SidebarList>
     );
-  }
+  };
 
-  render() {
-    return (
-      <Sidebar wide={true} hasBorder={true}>
-        <Section
-          maxHeight={488}
-          collapsible={this.props.jobCategoriesCount > 9}
-        >
-          {this.renderCategoryHeader()}
-          {this.renderCategoryList()}
-        </Section>
-        {/* <CategoryStatusFilter /> */}
-        {/* <ProductTypeFilter />
+  return (
+    <Sidebar wide={true} hasBorder={true}>
+      <Section maxHeight={488} $collapsible={props.jobCategoriesCount > 9}>
+        {renderCategoryHeader()}
+        {renderCategoryList()}
+      </Section>
+      {/* <CategoryStatusFilter /> */}
+      {/* <ProductTypeFilter />
         {isEnabled('tags') && <TagFilter />} */}
-      </Sidebar>
-    );
-  }
-}
+    </Sidebar>
+  );
+};
 
 export default List;

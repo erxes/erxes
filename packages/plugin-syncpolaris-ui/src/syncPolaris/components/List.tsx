@@ -1,5 +1,4 @@
-import React from 'react';
-import { IRouterProps } from '@erxes/ui/src/types';
+import React from "react";
 import {
   __,
   Wrapper,
@@ -9,18 +8,17 @@ import {
   Button,
   ModalTrigger,
   Bulk,
-} from '@erxes/ui/src';
-import Sidebar from '../../syncPolarisHistories/components/syncHistorySidebar';
-import { menuSyncpolaris } from '../../constants';
-import { Title } from '@erxes/ui-settings/src/styles';
-import dayjs from 'dayjs';
-import Form from './Form';
-interface IProps extends IRouterProps {
+} from "@erxes/ui/src";
+import Sidebar from "../../syncPolarisHistories/components/syncHistorySidebar";
+import { menuSyncpolaris } from "../../constants";
+import { Title } from "@erxes/ui-settings/src/styles";
+import dayjs from "dayjs";
+import Form from "./Form";
+interface IProps {
   toSyncPolaris: (type: string, items: any[]) => void;
   syncHistoriesPolaris: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
   toCheckPolaris: (type: string) => void;
   items: any;
@@ -30,7 +28,6 @@ interface IProps extends IRouterProps {
 class List extends React.Component<IProps> {
   render() {
     const {
-      history,
       syncHistoriesPolaris,
       totalCount,
       loading,
@@ -41,18 +38,18 @@ class List extends React.Component<IProps> {
       contentType,
     } = this.props;
     const formHead: any[] = [];
-    const tablehead = ['Date', 'code', 'Action', 'content', 'error'];
-    contentType === 'contacts:customer'
-      ? formHead.push('Code', 'Last name', 'Firs Name', 'Phones')
-      : formHead.push('Number', 'Status', 'Start Date', 'End Date');
+    const tablehead = ["Date", "code", "Action", "content", "error"];
+    contentType === "contacts:customer"
+      ? formHead.push("Code", "Last name", "Firs Name", "Phones")
+      : formHead.push("Number", "Status", "Start Date", "End Date");
     const onClickCheck = () => {
       toCheckPolaris(contentType);
     };
     let checkButton: React.ReactNode;
     if (
-      contentType === 'contacts:customer' ||
-      contentType === 'savings:contract' ||
-      contentType === 'loans:contract'
+      contentType === "contacts:customer" ||
+      contentType === "savings:contract" ||
+      contentType === "loans:contract"
     ) {
       checkButton = (
         <Button
@@ -66,18 +63,18 @@ class List extends React.Component<IProps> {
     }
 
     const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
             {tablehead.map((head) => (
-              <th key={head}>{head || ''}</th>
+              <th key={head}>{head || ""}</th>
             ))}
           </tr>
         </thead>
         <tbody id="syncPolaris">
           {(syncHistoriesPolaris || []).map((syncHistory) => (
             <tr key={syncHistory._id}>
-              <td>{dayjs(syncHistory.createdAt).format('lll')}</td>
+              <td>{dayjs(syncHistory.createdAt).format("lll")}</td>
               <td>
                 {syncHistory.consumeData?.object?.code ||
                   syncHistory.consumeData?.object?.number}
@@ -85,12 +82,12 @@ class List extends React.Component<IProps> {
               <td>{syncHistory.consumeData?.action}</td>
               <td>{syncHistory.content}</td>
               <td>
-                {(syncHistory.responseStr || '').includes('timedout')
+                {(syncHistory.responseStr || "").includes("timedout")
                   ? syncHistory.responseStr
                   : `
-                        ${syncHistory.responseData?.extra_info?.warnings || ''}
-                        ${syncHistory.responseData?.message || ''}
-                        ${syncHistory.error || ''}
+                        ${syncHistory.responseData?.extra_info?.warnings || ""}
+                        ${syncHistory.responseData?.message || ""}
+                        ${syncHistory.error || ""}
                         `}
               </td>
             </tr>
@@ -143,7 +140,7 @@ class List extends React.Component<IProps> {
           />
         }
         actionBar={actionBar}
-        leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
+        leftSidebar={<Sidebar queryParams={queryParams} />}
         footer={<Pagination count={totalCount || 0} />}
         content={
           <DataWithLoader

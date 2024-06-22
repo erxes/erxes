@@ -8,52 +8,44 @@ type Props = {
   remove: (variables: { _id: string }) => void;
 };
 
-class Row extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+const Row: React.FC<Props> = (props) => {
+  const { config, remove } = props;
 
-  render() {
-    const { config, remove } = this.props;
+  const onClick = (e) => {
+    e.stopPropagation();
+  };
 
-    const onClick = e => {
-      e.stopPropagation();
-    };
+  const handleRemove = () => {
+    remove({ _id: config._id });
+  };
 
-    const handleRemove = () => {
-      remove({ _id: config._id });
-    };
+  const content = (props) => <Form {...props} config={config} />;
+  const trigger = (
+    <tr>
+      <td>{config.name || ''}</td>
+      <td>{config.action || ''}</td>
+      <td>
+        {config?.createdAt ? moment(config?.createdAt).format('ll hh:mm') : '-'}
+      </td>
+      <td>
+        {config?.modifiedAt
+          ? moment(config?.modifiedAt).format('ll hh:mm')
+          : '-'}
+      </td>
+      <td onClick={onClick}>
+        <Button btnStyle="link" icon="trash-alt" onClick={handleRemove} />
+      </td>
+    </tr>
+  );
 
-    const content = props => <Form {...props} config={config} />;
-    const trigger = (
-      <tr>
-        <td>{config.name || ''}</td>
-        <td>{config.action || ''}</td>
-        <td>
-          {config?.createdAt
-            ? moment(config?.createdAt).format('ll hh:mm')
-            : '-'}
-        </td>
-        <td>
-          {config?.modifiedAt
-            ? moment(config?.modifiedAt).format('ll hh:mm')
-            : '-'}
-        </td>
-        <td onClick={onClick}>
-          <Button btnStyle="link" icon="trash-alt" onClick={handleRemove} />
-        </td>
-      </tr>
-    );
-
-    return (
-      <ModalTrigger
-        title="Config Detail"
-        trigger={trigger}
-        content={content}
-        size="xl"
-      />
-    );
-  }
-}
+  return (
+    <ModalTrigger
+      title="Config Detail"
+      trigger={trigger}
+      content={content}
+      size="xl"
+    />
+  );
+};
 
 export default Row;

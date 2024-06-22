@@ -1,10 +1,11 @@
-import { ControlLabel, FormGroup, Spinner } from '@erxes/ui/src/components';
-import { IField, IOption } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import React, { useState } from 'react';
-import Select from 'react-select-plus';
-import { useQuery } from '@apollo/client';
-import { queries } from '../../graphql';
+import { ControlLabel, FormGroup, Spinner } from "@erxes/ui/src/components";
+import { IField, IOption } from "@erxes/ui/src/types";
+import React, { useState } from "react";
+
+import Select, { OnChangeValue } from "react-select";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
+import { useQuery } from "@apollo/client";
 
 type Props = {
   pipelineId: string;
@@ -18,26 +19,26 @@ const GenerateAddFormFields = (props: Props) => {
 
   const { data, loading } = useQuery(gql(queries.pipelineLabels), {
     variables: {
-      pipelineId: props.pipelineId
-    }
+      pipelineId: props.pipelineId,
+    },
   });
 
   if (loading) {
     return <Spinner />;
   }
 
-  const onChange = (ops: IOption[]) => {
+  const onChange = (ops: OnChangeValue<IOption, true>) => {
     props.onChangeField(
       field.field,
-      ops.map(option => option.value)
+      ops.map((option) => option.value)
     );
 
-    setLabelIds(ops.map(option => option.value));
+    setLabelIds(ops.map((option) => option.value));
   };
 
-  const options: IOption[] = (data.pipelineLabels || []).map(d => ({
+  const options: IOption[] = (data.pipelineLabels || []).map((d) => ({
     value: d._id,
-    label: d.name
+    label: d.name,
   }));
 
   return (
@@ -46,11 +47,10 @@ const GenerateAddFormFields = (props: Props) => {
         {field.text}
       </ControlLabel>
       <Select
-        value={labelIds}
+        value={options.filter((o) => labelIds.includes(o.value))}
         name="labelIds"
-        multi={true}
+        isMulti={true}
         options={options}
-        componentClass="select"
         onChange={onChange}
       />
     </FormGroup>

@@ -1,26 +1,26 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import React from 'react';
-import RTG from 'react-transition-group';
 import {
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
-  Icon
-} from '@erxes/ui/src/components';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from '@erxes/ui/src/utils';
+  Icon,
+} from "@erxes/ui/src/components";
 import {
   CustomRangeContainer,
   FilterBox,
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent
-} from '../styles';
-import { IQueryParams } from '@erxes/ui/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+  TabContent,
+} from "../styles";
+import React, { useRef, useState } from "react";
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { CSSTransition } from "react-transition-group";
+import Datetime from "@nateradebaugh/react-datetime";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   onSearch: (search: string, key?: string) => void;
@@ -32,70 +32,56 @@ type Props = {
   showMenu?: boolean;
 };
 
-type StringState = {
-  currentTab: string;
-};
-
 type State = {
   showMenu: boolean;
+  currentTab: string;
   filterParams: IQueryParams;
-} & StringState;
+};
 
-export default class RightMenu extends React.Component<Props, State> {
-  private wrapperRef;
+const RightMenu: React.FC<Props> = (props) => {
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [state, setState] = useState<State>({
+    currentTab: "Filter",
+    showMenu: props.showMenu || false,
+    filterParams: props.queryParams,
+  });
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'Filter',
-      showMenu: this.props.showMenu || false,
-
-      filterParams: this.props.queryParams
-    };
-
-    this.setWrapperRef = this.setWrapperRef.bind(this);
-  }
-
-  setFilter = () => {
-    const { filterParams } = this.state;
-    this.props.onFilter({ ...filterParams, page: '1' });
+  const setFilter = () => {
+    const { filterParams } = state;
+    props.onFilter({ ...filterParams, page: "1" });
   };
 
-  setWrapperRef(node) {
-    this.wrapperRef = node;
-  }
-
-  toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
-  };
-
-  onSearch = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
-      const target = e.currentTarget as HTMLInputElement;
-      this.props.onSearch(target.value || '', target.name || 'search');
+  const setWrapperRef = (node: HTMLDivElement | null) => {
+    if (node) {
+      wrapperRef.current = node;
     }
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
+  const toggleMenu = () => {
+    setState((prevState) => ({ ...prevState, showMenu: !prevState.showMenu }));
   };
 
-  onChangeInput = e => {
+  const onSearch = (e) => {
+    if (e.key === "Enter") {
+      const target = e.currentTarget as HTMLInputElement;
+      props.onSearch(target.value || "", target.name || "search");
+    }
+  };
+
+  const onChangeInput = (e) => {
     const { target } = e;
     const { name, value } = target;
 
-    const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [name]: value } });
+    const { filterParams } = state;
+    setState({ ...state, filterParams: { ...filterParams, [name]: value } });
   };
 
-  renderLink(label: string, key: string, value: string) {
-    const { onSelect, queryParams } = this.props;
+  const renderLink = (label: string, key: string, value: string) => {
+    const { onSelect, queryParams } = props;
 
     const selected = queryParams[key] === value;
 
-    const onClick = _e => {
+    const onClick = (_e) => {
       onSelect(value, key);
     };
 
@@ -105,20 +91,20 @@ export default class RightMenu extends React.Component<Props, State> {
         {selected && <Icon icon="check-1" size={14} />}
       </FilterButton>
     );
-  }
-
-  onChangeRangeFilter = (kind, date) => {
-    const { filterParams } = this.state;
-    const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    this.setState({ filterParams: { ...filterParams, [kind]: cDate } });
   };
 
-  renderSpecials() {
-    return <>{this.renderLink('Only Today', 'paidDate', 'today')}</>;
-  }
+  const onChangeRangeFilter = (kind: string, date: Date) => {
+    const { filterParams } = state;
+    const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
+    setState({ ...state, filterParams: { ...filterParams, [kind]: cDate } });
+  };
 
-  renderRange(dateType: string) {
-    const { filterParams } = this.state;
+  const renderSpecials = () => {
+    return <>{renderLink("Only Today", "paidDate", "today")}</>;
+  };
+
+  const renderRange = (dateType: string) => {
+    const { filterParams } = state;
 
     const lblStart = `${dateType}StartDate`;
     const lblEnd = `${dateType}EndDate`;
@@ -130,74 +116,77 @@ export default class RightMenu extends React.Component<Props, State> {
         <CustomRangeContainer>
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams[lblStart]}
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblStart)}
-              viewMode={'days'}
-              className={'filterDate'}
+              onChange={onChangeRangeFilter.bind(null, lblStart)}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </div>
 
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{ placeholder: __("Click to select a date") }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams[lblEnd]}
               closeOnSelect={true}
               utc={true}
               input={true}
-              onChange={this.onChangeRangeFilter.bind(this, lblEnd)}
-              viewMode={'days'}
-              className={'filterDate'}
+              onChange={onChangeRangeFilter.bind(null, lblEnd)}
+              viewMode={"days"}
+              className={"filterDate"}
             />
           </div>
         </CustomRangeContainer>
       </>
     );
-  }
+  };
 
-  renderContentType() {
-    const { filterParams } = this.state;
-    const { contentType = '' } = filterParams;
+  const renderContentType = () => {
+    const { filterParams } = state;
+    const { contentType = "" } = filterParams;
 
-    if (contentType === 'pos') {
+    if (contentType === "pos") {
       return (
         <FormGroup>
           <ControlLabel>{`Order number`}</ControlLabel>
           <FormControl
-            name={'orderNumber'}
+            name={"orderNumber"}
             defaultValue={filterParams.orderNumber}
-            placeholder={__('Search value')}
-            onKeyPress={this.onSearch}
+            placeholder={__("Search value")}
+            onKeyPress={onSearch}
             autoFocus={true}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           />
         </FormGroup>
       );
     }
 
-    if (contentType === 'deal') {
+    if (contentType === "deal") {
       const onChangeBoard = (boardId: string) => {
-        this.setState({
-          filterParams: { ...this.state.filterParams, boardId }
+        setState({
+          ...state,
+          filterParams: { ...state.filterParams, boardId },
         });
       };
 
       const onChangePipeline = (pipelineId: string) => {
-        this.setState({
-          filterParams: { ...this.state.filterParams, pipelineId }
+        setState({
+          ...state,
+          filterParams: { ...state.filterParams, pipelineId },
         });
       };
 
       const onChangeStage = (stageId: string) => {
-        this.setState({
-          filterParams: { ...this.state.filterParams, stageId }
+        setState({
+          ...state,
+          filterParams: { ...state.filterParams, stageId },
         });
       };
 
@@ -206,12 +195,12 @@ export default class RightMenu extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>{`Deal name`}</ControlLabel>
             <FormControl
-              name={'dealName'}
+              name={"dealName"}
               defaultValue={filterParams.dealName}
-              placeholder={__('Search value')}
-              onKeyPress={this.onSearch}
+              placeholder={__("Search value")}
+              onKeyPress={onSearch}
               autoFocus={true}
-              onChange={this.onChangeInput}
+              onChange={onChangeInput}
             />
           </FormGroup>
           <FormGroup>
@@ -231,192 +220,192 @@ export default class RightMenu extends React.Component<Props, State> {
       );
     }
 
-    if (contentType === 'loans:transaction') {
+    if (contentType === "loans:transaction") {
       return (
         <>
           <FormGroup>
             <ControlLabel>{`Contract number`}</ControlLabel>
             <FormControl
-              name={'contractNumber'}
+              name={"contractNumber"}
               defaultValue={filterParams.contractNumber}
-              placeholder={__('Search value')}
-              onKeyPress={this.onSearch}
+              placeholder={__("Search value")}
+              onKeyPress={onSearch}
               autoFocus={true}
-              onChange={this.onChangeInput}
+              onChange={onChangeInput}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{`Transaction number`}</ControlLabel>
             <FormControl
-              name={'transactionNumber'}
+              name={"transactionNumber"}
               defaultValue={filterParams.transactionNumber}
-              placeholder={__('Search value')}
-              onKeyPress={this.onSearch}
+              placeholder={__("Search value")}
+              onKeyPress={onSearch}
               autoFocus={true}
-              onChange={this.onChangeInput}
+              onChange={onChangeInput}
             />
           </FormGroup>
         </>
       );
     }
-    return '';
-  }
+    return null;
+  };
 
-  renderFilter() {
-    const { filterParams } = this.state;
+  const renderFilter = () => {
+    const { filterParams } = state;
 
     return (
       <FilterBox>
         <FormGroup>
           <ControlLabel>{`Bill ID`}</ControlLabel>
           <FormControl
-            name={'search'}
+            name={"search"}
             defaultValue={filterParams.search}
-            placeholder={__('Number ...')}
-            onKeyPress={this.onSearch}
+            placeholder={__("Number ...")}
+            onKeyPress={onSearch}
             autoFocus={true}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>{`Content Type`}</ControlLabel>
           <FormControl
-            name={'contentType'}
-            componentClass="select"
+            name={"contentType"}
+            componentclass="select"
             defaultValue={filterParams.contentType}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           >
-            <option value="">{__('All')}</option>
-            {isEnabled('cards') && <option value="deal">{__('Deal')}</option>}
-            {isEnabled('pos') && <option value="pos">{__('Pos')}</option>}
-            {isEnabled('loans') && (
+            <option value="">{__("All")}</option>
+            {isEnabled("cards") && <option value="deal">{__("Deal")}</option>}
+            {isEnabled("pos") && <option value="pos">{__("Pos")}</option>}
+            {isEnabled("loans") && (
               <option value="loans:transaction">
-                {__('Loan Transaction')}
+                {__("Loan Transaction")}
               </option>
             )}
           </FormControl>
         </FormGroup>
 
-        {this.renderContentType()}
+        {renderContentType()}
 
         <FormGroup>
-          <ControlLabel>{`Success`}</ControlLabel>
+          <ControlLabel>{`Status`}</ControlLabel>
           <FormControl
-            name={'success'}
-            componentClass="select"
+            name={"success"}
+            componentclass="select"
             defaultValue={filterParams.success}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           >
             <option value="">{__('All')}</option>
-            <option value="true">{__('true')}</option>
-            <option value="false">{__('false')}</option>
+            <option value="SUCCESS">{__('SUCCESS')}</option>
+            <option value="ERROR">{__('ERROR')}</option>
           </FormControl>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>{`Bill Type`}</ControlLabel>
           <FormControl
-            name={'billType'}
-            componentClass="select"
+            name={"billType"}
+            componentclass="select"
             defaultValue={filterParams.billType}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           >
             <option value="">{__('All')}</option>
-            <option value="1">{__('1')}</option>
-            <option value="3">{__('3')}</option>
+            <option value="B2C_RECEIPT">{__('B2C_RECEIPT')}</option>
+            <option value="B2B_RECEIPT">{__('B2B_RECEIPT')}</option>
           </FormControl>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>{`Bill ID Rule`}</ControlLabel>
           <FormControl
-            name={'billIdRule'}
-            componentClass="select"
+            name={"billIdRule"}
+            componentclass="select"
             defaultValue={filterParams.billIdRule}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           >
-            <option value="">{__('All')}</option>
-            <option value="10">{__('Only has bill Id')}</option>
-            <option value="01">{__('Only has return bill Id')}</option>
-            <option value="11">{__('Both')}</option>
-            <option value="00">{__('Both not')}</option>
+            <option value="">{__("All")}</option>
+            <option value="10">{__("Only has bill Id")}</option>
+            <option value="01">{__("Only has return bill Id")}</option>
+            <option value="11">{__("Both")}</option>
+            <option value="00">{__("Both not")}</option>
           </FormControl>
         </FormGroup>
 
         <FormGroup>
           <ControlLabel>{`On Last`}</ControlLabel>
           <FormControl
-            name={'isLast'}
-            componentClass="select"
+            name={"isLast"}
+            componentclass="select"
             defaultValue={filterParams.isLast}
-            onChange={this.onChangeInput}
+            onChange={onChangeInput}
           >
-            <option value="">{__('All')}</option>
-            <option value="1">{__('on last')}</option>
+            <option value="">{__("All")}</option>
+            <option value="1">{__("on last")}</option>
           </FormControl>
         </FormGroup>
 
-        <FormGroup>{this.renderRange('created')}</FormGroup>
+        <FormGroup>{renderRange("created")}</FormGroup>
 
-        <FormGroup>{this.renderSpecials()}</FormGroup>
+        <FormGroup>{renderSpecials()}</FormGroup>
       </FilterBox>
     );
-  }
+  };
 
-  renderTabContent() {
+  const renderTabContent = () => {
     return (
       <>
-        <TabContent>{this.renderFilter()}</TabContent>
+        <TabContent>{renderFilter()}</TabContent>
         <MenuFooter>
           <Button
             block={true}
             btnStyle="success"
             uppercase={false}
-            onClick={this.setFilter}
+            onClick={setFilter}
             icon="filter"
           >
-            {__('Filter')}
+            {__("Filter")}
           </Button>
         </MenuFooter>
       </>
     );
-  }
+  };
 
-  render() {
-    const { showMenu } = this.state;
-    const { isFiltered } = this.props;
+  const { showMenu } = state;
+  const { isFiltered } = props;
 
-    return (
-      <div ref={this.setWrapperRef}>
-        {isFiltered && (
-          <Button
-            btnStyle="warning"
-            icon="times-circle"
-            uppercase={false}
-            onClick={this.props.clearFilter}
-          >
-            {__('Clear Filter')}
-          </Button>
-        )}
+  return (
+    <div ref={setWrapperRef}>
+      {isFiltered && (
         <Button
-          btnStyle="simple"
+          btnStyle="warning"
+          icon="times-circle"
           uppercase={false}
-          icon="bars"
-          onClick={this.toggleMenu}
+          onClick={props.clearFilter}
         >
-          {showMenu ? __('Hide Filter') : __('Show Filter')}
+          {__("Clear Filter")}
         </Button>
+      )}
+      <Button
+        btnStyle="simple"
+        uppercase={false}
+        icon="bars"
+        onClick={toggleMenu}
+      >
+        {showMenu ? __("Hide Filter") : __("Show Filter")}
+      </Button>
 
-        <RTG.CSSTransition
-          in={this.state.showMenu}
-          timeout={300}
-          classNames="slide-in-right"
-          unmountOnExit={true}
-        >
-          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
-        </RTG.CSSTransition>
-      </div>
-    );
-  }
-}
+      <CSSTransition
+        in={showMenu}
+        timeout={300}
+        classNames="slide-in-right"
+        unmountOnExit={true}
+      >
+        <RightMenuContainer>{renderTabContent()}</RightMenuContainer>
+      </CSSTransition>
+    </div>
+  );
+};
+
+export default RightMenu;

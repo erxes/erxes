@@ -40,13 +40,13 @@ const AuthBox = styledTS<{ backgroundColor?: string }>(styled.div)`
     font-size: 14px;
     outline: 0;
     border-radius: 8px;
-    background-color: ${colors.bgLight}
-    border: 1.1px solid ${colors.bgLight}
+    background-color: ${colors.bgLight};
+    border: 1.1px solid ${colors.bgLight};
 
     &:focus {
       outline: 0;
       box-shadow: none;
-      border: 1.1px solid ${colors.borderDarker}
+      border: 1.1px solid ${colors.borderDarker};
     }
   }
 
@@ -66,7 +66,7 @@ const AuthBox = styledTS<{ backgroundColor?: string }>(styled.div)`
   > a {
     display: block;
     text-align: center;
-    color: ${colors.colorCoreSunYellow}
+    color: ${colors.colorCoreSunYellow};
     font-size: 13px;
     transition: all ease .3s;
 

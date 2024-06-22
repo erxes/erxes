@@ -33,7 +33,7 @@ const BoxContainer = styled.div`
   }
 `;
 
-const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
+const ProjectItem = styledTS<{ $new?: boolean }>(styled(BoxItem))`
   padding: 0;
   overflow: hidden;
   padding: 30px;
@@ -68,7 +68,7 @@ const ProjectItem = styledTS<{ new?: boolean }>(styled(BoxItem))`
   }
 
   ${props =>
-    props.new &&
+    props.$new &&
     css`
       display: flex;
       justify-content: flex-end;

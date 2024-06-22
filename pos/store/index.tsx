@@ -51,15 +51,20 @@ export const invoiceIdAtom = atom<null | string>(null)
 
 // dialog
 
-export const kioskModalView = atom<string>("")
+export const checkoutModalViewAtom = atom<string>("")
 
-export const kioskDialogOpenAtom = atom<boolean>(false)
+export const checkoutDialogOpenAtom = atom<boolean>(false)
 
 export const ebarimtMainDialogOpenAtom = atom<boolean>(false)
 
 export const orderCollapsibleAtom = atom<boolean>(false)
 
 export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
+
+export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
+  "mobileTab",
+  "products"
+)
 
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
   return (

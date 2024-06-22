@@ -1,6 +1,5 @@
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import React from 'react';
 import { useQuery } from '@apollo/client';
@@ -11,7 +10,7 @@ import { AccountDetailQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
-} & IRouterProps;
+} ;
 
 const DetailContainer = (props: Props) => {
   const { _id, account } = props.queryParams;

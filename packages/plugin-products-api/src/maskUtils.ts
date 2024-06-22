@@ -128,17 +128,16 @@ export const initCustomField = async (
 
 export const checkSameMaskConfig = async (
   models: IModels,
-  subdomain: string,
   doc: IProduct,
 ) => {
+  if (!doc.customFieldsData) {
+    return undefined;
+  }
+
   const similarityGroups =
     await models.ProductsConfigs.getConfig('similarityGroup');
 
   if (!similarityGroups) {
-    return undefined;
-  }
-
-  if (!doc.customFieldsData) {
     return undefined;
   }
 
@@ -151,9 +150,14 @@ export const checkSameMaskConfig = async (
     const maskValue = similarityGroups[mask];
     const filterFieldDef = maskValue.filterField || 'code';
 
-    const codeRegex = new RegExp(
-      `^${mask.replace(/\./g, '\\.').replace(/\*/g, '.').replace(/_/g, '.')}${(filterFieldDef.type === 'code' && '$') || '.*'
-      }`,
+    const codeRegex = ['*', '.', '_'].includes(mask) ? new RegExp(
+      `^${mask
+        .replace(/\./g, '\\.')
+        .replace(/\*/g, '.')
+        .replace(/_/g, '.')}.*`,
+      'igu',
+    ) : new RegExp(
+      `.*${mask}.*`,
       'igu',
     );
 

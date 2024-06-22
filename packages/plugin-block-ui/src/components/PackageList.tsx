@@ -1,14 +1,14 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import PackageForm from './PackageForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Row from './Row';
-import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import { IPackage } from '../types';
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IPackage } from "../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import PackageForm from "./PackageForm";
+import React from "react";
+import Row from "./Row";
+import Table from "@erxes/ui/src/components/table";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
 
 type Props = {
   packages: IPackage[];
@@ -19,18 +19,18 @@ type Props = {
 
 function List({ packages, remove, loading, renderButton }: Props) {
   const trigger = (
-    <Button id={'AddPackage'} btnStyle="success" icon="plus-circle">
+    <Button id={"AddPackage"} btnStyle="success" icon="plus-circle">
       Add package
     </Button>
   );
 
-  const modalContent = props => (
+  const modalContent = (props) => (
     <PackageForm {...props} renderButton={renderButton} />
   );
 
   const actionBarRight = (
     <ModalTrigger
-      title={__('Add package')}
+      title={__("Add package")}
       autoOpenKey={`showModal`}
       trigger={trigger}
       content={modalContent}
@@ -40,7 +40,7 @@ function List({ packages, remove, loading, renderButton }: Props) {
 
   const actionBar = (
     <Wrapper.ActionBar
-      left={'Packages'}
+      left={"Packages"}
       right={actionBarRight}
       wideSpacing={true}
     />
@@ -50,13 +50,13 @@ function List({ packages, remove, loading, renderButton }: Props) {
     <Table>
       <thead>
         <tr>
-          <th>{__('Name')}</th>
-          <th>{__('Description')}</th>
-          <th>{__('Actions')}</th>
+          <th>{__("Name")}</th>
+          <th>{__("Description")}</th>
+          <th>{__("Actions")}</th>
         </tr>
       </thead>
-      <tbody id={'TagsShowing'}>
-        {packages.map(item => {
+      <tbody id={"TagsShowing"}>
+        {packages.map((item) => {
           return (
             <Row
               key={item._id}
@@ -72,14 +72,14 @@ function List({ packages, remove, loading, renderButton }: Props) {
 
   return (
     <Wrapper
-      header={<Wrapper.Header title={'Packages'} />}
+      header={<Wrapper.Header title={"Packages"} />}
       actionBar={actionBar}
       content={
         <DataWithLoader
           data={content}
           loading={loading}
           count={packages.length}
-          emptyText={__('There is no tag') + '.'}
+          emptyText={__("There is no block") + "."}
           emptyImage="/images/actions/8.svg"
         />
       }

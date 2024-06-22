@@ -12,7 +12,7 @@ import {
   VoucherCampaignQueryResponse
 } from '../../../configs/voucherCampaign/types';
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 type FinalProps = {
   voucherCampaignQuery: VoucherCampaignQueryResponse;

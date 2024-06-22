@@ -25,7 +25,6 @@ type Props = {
 
   scheduleOfMember?: any;
   queryParams: any;
-  history: any;
   modalContentType: string;
 
   checkDuplicateScheduleShifts: (values: any) => any;

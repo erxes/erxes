@@ -21,6 +21,18 @@ import { generatePaginationParams } from "modules/common/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
+type Props = {
+  navigate: any;
+  queryParams: any;
+  permissionsQuery: PermissionsQueryResponse;
+  modulesQuery: PermissionModulesQueryResponse;
+  actionsQuery: PermissionActionsQueryResponse;
+  usersGroupsQuery: UsersGroupsQueryResponse;
+  totalCountQuery: PermissionTotalCountQueryResponse;
+  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+  fixPermissionsMutation: PermissionsFixMutationResponse;
+};
+
 type FinalProps = {
   can: (action: string) => boolean;
 } & Props;
@@ -28,7 +40,6 @@ type FinalProps = {
 const List = (props: FinalProps) => {
   const {
     fixPermissionsMutation,
-    history,
     queryParams,
     permissionsQuery,
     modulesQuery,
@@ -70,7 +81,6 @@ const List = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     queryParams,
-    history,
     remove,
     totalCount: totalCountQuery.permissionsTotalCount || 0,
     modules: modulesQuery.permissionModules || [],
@@ -84,18 +94,6 @@ const List = (props: FinalProps) => {
   };
 
   return <PermissionList {...updatedProps} />;
-};
-
-type Props = {
-  history: any;
-  queryParams: any;
-  permissionsQuery: PermissionsQueryResponse;
-  modulesQuery: PermissionModulesQueryResponse;
-  actionsQuery: PermissionActionsQueryResponse;
-  usersGroupsQuery: UsersGroupsQueryResponse;
-  totalCountQuery: PermissionTotalCountQueryResponse;
-  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
-  fixPermissionsMutation: PermissionsFixMutationResponse;
 };
 
 const commonOptions = (queryParams) => {

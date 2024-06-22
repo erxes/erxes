@@ -23,11 +23,13 @@ const ChooseType = () => {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          {(types || []).map((tp) => (
-            <SelectItem value={tp} key={tp}>
-              {typeTextDef[tp]}
-            </SelectItem>
-          ))}
+          {(types || [])
+            .filter((tp) => !!tp)
+            .map((tp) => (
+              <SelectItem value={tp} key={tp}>
+                {typeTextDef[tp]}
+              </SelectItem>
+            ))}
         </SelectGroup>
       </SelectContent>
     </Select>

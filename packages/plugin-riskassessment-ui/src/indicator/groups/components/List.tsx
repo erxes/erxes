@@ -6,48 +6,42 @@ import {
   ModalTrigger,
   Table,
   __,
-  router
-} from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { subMenu } from '../../../common/constants';
-import { DefaultWrapper } from '../../../common/utils';
-import { FlexRow, HeaderContent } from '../../../styles';
-import Sidebar from '../../components/SideBar';
-import { IIndicatorsGroups } from '../common/types';
-import Form from '../containers/Form';
-import Row from './Row';
+  router,
+} from "@erxes/ui/src";
+import { FlexRow, HeaderContent } from "../../../styles";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { DefaultWrapper } from "../../../common/utils";
+import Form from "../containers/Form";
+import { IIndicatorsGroups } from "../common/types";
+import Row from "./Row";
+import Sidebar from "../../components/SideBar";
+import { subMenu } from "../../../common/constants";
 
 type Props = {
   queryParams: any;
   list: IIndicatorsGroups[];
   totalCount: number;
   remove: (ids: string[]) => void;
-} & IRouterProps;
-
-type State = {
-  searchValue: string;
-  selectedItems: string[];
 };
 
-class List extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
+const List = (props: Props) => {
+  let timer;
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState(
+    props.queryParams.searchValue || ""
+  );
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-    this.state = {
-      searchValue: props.queryParams.searchValue || '',
-      selectedItems: []
-    };
-  }
-
-  addIndicatorGroups() {
+  const addIndicatorGroups = () => {
     const trigger = (
-      <Button btnStyle="success">{__('Add Grouping Indicators')}</Button>
+      <Button btnStyle="success">{__("Add Grouping Indicators")}</Button>
     );
 
-    const content = props => (
-      <Form queryParams={this.props.queryParams} {...props} />
+    const content = (props) => (
+      <Form queryParams={props.queryParams} {...props} />
     );
 
     return (
@@ -59,64 +53,62 @@ class List extends React.Component<Props, State> {
         size="xl"
       />
     );
-  }
+  };
 
-  renderSearchField = () => {
-    const handleSearch = e => {
-      if (this.timer) {
-        clearTimeout(this.timer);
+  const renderSearchField = () => {
+    const handleSearch = (e) => {
+      if (timer) {
+        clearTimeout(timer);
       }
-      const { history } = this.props;
       const searchValue = e.target.value;
-      this.setState({ searchValue });
-      this.timer = setTimeout(() => {
-        router.removeParams(history, 'page');
-        router.setParams(history, { searchValue });
+      setSearchValue(searchValue);
+      timer = setTimeout(() => {
+        router.removeParams(navigate, location, "page");
+        router.setParams(navigate, location, { searchValue });
       }, 500);
     };
 
     return (
       <FormControl
         type="text"
-        placeholder="type a search"
+        placeholder="Type to search"
         onChange={handleSearch}
-        value={this.state.searchValue}
+        value={searchValue}
       />
     );
   };
 
-  renderRemove = () => {
+  const renderRemove = () => {
     const handleRemove = () => {
-      this.props.remove(this.state.selectedItems);
-      this.setState({ selectedItems: [] });
+      props.remove(selectedItems);
+      setSearchValue([]);
     };
 
     return (
       <Button btnStyle="danger" onClick={handleRemove}>
-        {__('Remove')}
+        {__("Remove")}
       </Button>
     );
   };
 
-  renderContent() {
-    const { list, queryParams } = this.props;
-    const { selectedItems } = this.state;
+  const renderContent = () => {
+    const { list, queryParams } = props;
 
     const selectAll = () => {
       if (!selectedItems.length) {
-        const ids = list.map(item => item._id);
-        return this.setState({ selectedItems: ids });
+        const ids = (list || []).map((item) => item._id);
+        return setSelectedItems(ids);
       }
 
-      this.setState({ selectedItems: [] });
+      setSelectedItems([]);
     };
 
-    const selectItem = id => {
+    const selectItem = (id) => {
       if (selectedItems.includes(id)) {
-        const newselectedItems = selectedItems.filter(p => p !== id);
-        return this.setState({ selectedItems: newselectedItems });
+        const newselectedItems = selectedItems.filter((p) => p !== id);
+        return setSelectedItems(newselectedItems);
       }
-      this.setState({ selectedItems: [...selectedItems, id] });
+      setSelectedItems([...selectedItems, id]);
     };
 
     return (
@@ -124,17 +116,17 @@ class List extends React.Component<Props, State> {
         <thead>
           <tr>
             <th>
-              <FormControl componentClass="checkbox" onClick={selectAll} />
+              <FormControl componentclass="checkbox" onClick={selectAll} />
             </th>
-            <th>{__('Name')}</th>
-            <th>{__('Tags')}</th>
-            <th>{__('Created At')}</th>
-            <th>{__('Modified At')}</th>
-            <th>{__('')}</th>
+            <th>{__("Name")}</th>
+            <th>{__("Tags")}</th>
+            <th>{__("Created At")}</th>
+            <th>{__("Modified At")}</th>
+            <th>{__("")}</th>
           </tr>
         </thead>
         <tbody>
-          {list.map(item => (
+          {(list || []).map((item) => (
             <Row
               key={item._id}
               indicatorsGroups={item}
@@ -146,46 +138,43 @@ class List extends React.Component<Props, State> {
         </tbody>
       </Table>
     );
-  }
+  };
 
-  render() {
-    const { selectedItems } = this.state;
-    const { totalCount, history, queryParams } = this.props;
-    const rightActionBar = (
-      <BarItems>
-        {this.renderSearchField()}
-        {!!selectedItems.length && this.renderRemove()}
-        {this.addIndicatorGroups()}
-      </BarItems>
-    );
+  const { totalCount, queryParams } = props;
+  const rightActionBar = (
+    <BarItems>
+      {renderSearchField()}
+      {!!selectedItems.length && renderRemove()}
+      {addIndicatorGroups()}
+    </BarItems>
+  );
 
-    const leftActionBar = (
-      <HeaderDescription
-        title="Indicators Groups"
-        icon="/images/actions/24.svg"
-        description=""
-        renderExtra={
-          <FlexRow>
-            <HeaderContent>
-              {__(`Total count`)}
-              <h4>{totalCount || 0}</h4>
-            </HeaderContent>
-          </FlexRow>
-        }
-      />
-    );
+  const leftActionBar = (
+    <HeaderDescription
+      title="Indicators Groups"
+      icon="/images/actions/24.svg"
+      description=""
+      renderExtra={
+        <FlexRow>
+          <HeaderContent>
+            {__(`Total count`)}
+            <h4>{totalCount || 0}</h4>
+          </HeaderContent>
+        </FlexRow>
+      }
+    />
+  );
 
-    const updatedProps = {
-      title: 'Indicators Groups',
-      rightActionBar,
-      leftActionBar,
-      sidebar: <Sidebar queryParams={queryParams} history={history} />,
-      content: this.renderContent(),
-      totalCount,
-      subMenu
-    };
+  const updatedProps = {
+    title: "Indicators Groups",
+    rightActionBar,
+    leftActionBar,
+    sidebar: <Sidebar queryParams={queryParams} />,
+    content: renderContent(),
+    totalCount,
+    subMenu,
+  };
 
-    return <DefaultWrapper {...updatedProps} />;
-  }
-}
+  return <DefaultWrapper {...updatedProps} />;
+};
 export default List;

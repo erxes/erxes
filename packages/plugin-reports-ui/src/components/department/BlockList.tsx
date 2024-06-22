@@ -1,8 +1,7 @@
-import React from 'react';
-
-import Box from '@erxes/ui/src/components/Box';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import Box from "@erxes/ui/src/components/Box";
+import React from "react";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   allDatas: any[];
@@ -20,7 +19,7 @@ export default function BlockList(props: Props) {
       isOpen={true}
       collapsible={allDatas.length > 6}
     >
-      <SidebarList noTextColor noBackground className="no-link">
+      <SidebarList $noTextColor $noBackground className="no-link">
         {renderItems}
       </SidebarList>
     </Box>

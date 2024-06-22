@@ -1,9 +1,8 @@
+import React, { useState } from 'react';
 import { colors } from '../styles';
-import { IRouterProps } from '../types';
 import { router } from '../utils/core';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const SortWrapper = styled.div`
   display: flex;
@@ -37,79 +36,69 @@ const SortWrapper = styled.div`
   }
 `;
 
-interface IProps extends IRouterProps {
+interface IProps {
   sortField?: string;
   label?: string;
 }
 
-type State = {
-  sortValue: string | number;
-};
+const SortHandler: React.FC<IProps> = (props) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [sortValue, setSortValue] = useState<string | number>(
+    router.getParam(location, 'sortDirection'),
+  );
+  const { sortField, label } = props;
 
-class SortHandler extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
-    const { history } = props;
-    const sortValue = router.getParam(history, 'sortDirection');
+  const sortHandle = (field, direction) => {
+    router.setParams(navigate, location, {
+      sortField: field,
+      sortDirection: direction,
+    });
+  };
 
-    this.state = { sortValue };
-  }
-
-  sortHandle(field, direction) {
-    const { history } = this.props;
-
-    router.setParams(history, { sortField: field, sortDirection: direction });
-  }
-
-  checkSortActive(name, direction) {
-    const { history } = this.props;
-
+  const checkSortActive = (name, direction) => {
     if (
-      router.getParam(history, 'sortField') === name &&
-      router.getParam(history, 'sortDirection') === direction.toString()
+      router.getParam(location, 'sortField') === name &&
+      router.getParam(location, 'sortDirection') === direction.toString()
     ) {
       return 'active';
     }
 
     return '';
-  }
+  };
 
-  onClickSort = () => {
-    const { sortField, history } = this.props;
-    const { sortValue } = this.state;
-
+  const onClickSort = () => {
     if (!sortValue) {
-      this.setState({ sortValue: -1 });
+      setSortValue(-1);
 
-      return this.sortHandle(sortField, -1);
+      return sortHandle(sortField, -1);
     }
 
     if (sortValue < 0) {
-      this.setState({ sortValue: 1 });
+      setSortValue(1);
 
-      return this.sortHandle(sortField, 1);
+      return sortHandle(sortField, 1);
     }
 
-    this.setState({ sortValue: '' });
+    setSortValue('');
 
-    return router.removeParams(history, 'sortDirection', 'sortField');
+    return router.removeParams(
+      navigate,
+      location,
+      'sortDirection',
+      'sortField',
+    );
   };
 
-  render() {
-    const { sortField, label } = this.props;
+  return (
+    <SortWrapper onClick={onClickSort}>
+      <div>
+        <span className={`arrow up ${checkSortActive(sortField, -1)}`} />
+        <span className={`arrow down ${checkSortActive(sortField, 1)}`} />
+      </div>
+      {label}
+    </SortWrapper>
+  );
+};
 
-    return (
-      <SortWrapper onClick={this.onClickSort}>
-        <div>
-          <span className={`arrow up ${this.checkSortActive(sortField, -1)}`} />
-          <span
-            className={`arrow down ${this.checkSortActive(sortField, 1)}`}
-          />
-        </div>
-        {label}
-      </SortWrapper>
-    );
-  }
-}
-
-export default withRouter<IProps>(SortHandler);
+export default SortHandler;

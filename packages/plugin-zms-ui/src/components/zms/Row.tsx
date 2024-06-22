@@ -1,17 +1,17 @@
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { ILog } from '../../types';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import dayjs from 'dayjs';
+import React from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { ILog } from "../../types";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { colors, dimensions } from "@erxes/ui/src/styles";
+import dayjs from "dayjs";
 const ZmsNameStyled = styledTS<{ checked: boolean }>(styled.div).attrs({})`
     color: ${colors.colorCoreBlack};
-    text-decoration: ${(props) => (props.checked ? 'line-through' : 'none')}
+    text-decoration: ${(props) => (props.checked ? "line-through" : "none")}
     `;
 
 export const ZmsWrapper = styledTS<{ space: number }>(
-  styled.div,
+  styled.div
 )`padding-left: ${(props) => props.space * 20}px;
   display:inline-flex;
   justify-content:flex-start;
@@ -43,7 +43,7 @@ class Row extends React.Component<Props, State> {
         <td>
           <ZmsWrapper space={space}>
             <FormControl
-              componentClass="checkbox"
+              componentclass="checkbox"
               color={colors.colorPrimary}
               defaultChecked={log.checked || false}
             ></FormControl>
@@ -54,7 +54,7 @@ class Row extends React.Component<Props, State> {
         </td>
         <td>
           <ZmsNameStyled checked={false}>
-            {dayjs(log.createdAt).format('lll')}
+            {dayjs(log.createdAt).format("lll")}
           </ZmsNameStyled>
         </td>
         <td>

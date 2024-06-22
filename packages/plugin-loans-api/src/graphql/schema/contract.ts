@@ -113,6 +113,9 @@ export const types = () => `
     customFieldsData: JSON
     savingContractId: String
     holidayType: String
+    mustPayDate: Date
+    depositAccountId: String
+    unUsedBalance: Float
   }
 
 
@@ -174,6 +177,7 @@ const queryParams = `
   closeDateType: String
   branchId: String
   status: String
+  leaseType: String
 `;
 
 export const queries = `
@@ -246,6 +250,7 @@ const commonFields = `
   savingContractId: String
   customFieldsData: JSON
   holidayType: String
+  depositAccountId: String
 `;
 
 const interestCorrectionFields = `
@@ -256,8 +261,24 @@ const interestCorrectionFields = `
   lossAmount: Float
 `;
 
+const clientFields = `
+  secondaryPassword: String
+`;
+
+const clientCreditLoanRequestFields = `
+  contractId: String
+  amount: Float
+  customerId: String
+  secondaryPassword: String
+  dealtType: String
+  accountNumber: String
+  accountHolderName: String
+  externalBankName: String
+`;
+
 export const mutations = `
   contractsAdd(${commonFields}): LoanContract
+  clientLoanContractsAdd(${commonFields}${clientFields}): LoanContract
   contractsEdit(_id: String!, ${commonFields}): LoanContract
   contractsDealEdit(_id: String!, ${commonFields}): LoanContract
   contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): LoanContract
@@ -266,4 +287,6 @@ export const mutations = `
   stopInterest(${interestCorrectionFields}): LoanContract
   interestChange(${interestCorrectionFields}): LoanContract
   interestReturn(${interestCorrectionFields}): LoanContract
+  clientCreditLoanRequest(${clientCreditLoanRequestFields}): LoanContract
+  clientCreditLoanCalculate(customerId: String): JSON
 `;

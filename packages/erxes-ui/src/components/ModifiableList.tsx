@@ -36,6 +36,7 @@ const List = styled.ul`
   input.editInput {
     border: none;
     outline: none;
+    width: 100%;
   }
 
   input.editInput:focus {

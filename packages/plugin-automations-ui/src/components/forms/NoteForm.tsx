@@ -1,17 +1,18 @@
-import React from 'react';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { Notes } from '../../styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IFormProps } from '@erxes/ui/src/types';
-import Button from '@erxes/ui/src/components/Button';
-import { __, renderUserFullName } from 'coreui/utils';
-import { IAutomationNote } from '../../types';
-import { CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
-import { MainInfo } from '../../styles';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import dayjs from 'dayjs';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Tip from '@erxes/ui/src/components/Tip';
+import { CustomerName, EllipsisContent } from "@erxes/ui/src/styles/main";
+import { __, renderUserFullName } from "coreui/utils";
+
+import ActionButtons from "@erxes/ui/src/components/ActionButtons";
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IAutomationNote } from "../../types";
+import { IFormProps } from "@erxes/ui/src/types";
+import { MainInfo } from "../../styles";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import { Notes } from "../../styles";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
 
 type Props = {
   formProps: IFormProps;
@@ -36,13 +37,13 @@ class NoteForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      description: '',
+      description: "",
       isEditNote: false,
-      currentNote: {} as IAutomationNote
+      currentNote: {} as IAutomationNote,
     };
   }
 
-  onEdit = currentNote => {
+  onEdit = (currentNote) => {
     this.setState({ isEditNote: !this.state.isEditNote, currentNote });
   };
 
@@ -54,7 +55,7 @@ class NoteForm extends React.Component<Props, State> {
   generateDoc = (values: { _id?: string }) => {
     const { automationId, itemId } = this.props;
 
-    const splitItem = itemId.split('-');
+    const splitItem = itemId.split("-");
     const type = splitItem[0];
 
     if (this.state.currentNote) {
@@ -65,8 +66,8 @@ class NoteForm extends React.Component<Props, State> {
       ...values,
       automationId,
       description: this.state.description,
-      actionId: type === 'action' ? splitItem[1] : '',
-      triggerId: type === 'trigger' ? splitItem[1] : ''
+      actionId: type === "action" ? splitItem[1] : "",
+      triggerId: type === "trigger" ? splitItem[1] : "",
     };
   };
 
@@ -78,7 +79,7 @@ class NoteForm extends React.Component<Props, State> {
       return null;
     }
 
-    return notes.map(note => (
+    return notes.map((note) => (
       <div className="column" key={note._id}>
         <MainInfo>
           <div>
@@ -118,7 +119,7 @@ class NoteForm extends React.Component<Props, State> {
           <>
             <FormControl
               name="description"
-              componentClass="textarea"
+              componentclass="textarea"
               onChange={this.onChange}
               rows={5}
               defaultValue={note.description}
@@ -131,7 +132,7 @@ class NoteForm extends React.Component<Props, State> {
               icon="check-circle"
               size="small"
             >
-              {__('Save')}
+              {__("Save")}
             </Button>
           </>
         ) : (
@@ -150,10 +151,10 @@ class NoteForm extends React.Component<Props, State> {
         <Notes>{this.renderNotes()}</Notes>
         <FormControl
           name="description"
-          componentClass="textarea"
+          componentclass="textarea"
           rows={5}
           onChange={this.onChange}
-          placeholder={`${__('Leave a note')}...`}
+          placeholder={`${__("Leave a note")}...`}
         />
         <ModalFooter>
           <Button
@@ -162,7 +163,7 @@ class NoteForm extends React.Component<Props, State> {
             onClick={closeModal}
             icon="times-circle"
           >
-            {__('Cancel')}
+            {__("Cancel")}
           </Button>
 
           <Button
@@ -171,7 +172,7 @@ class NoteForm extends React.Component<Props, State> {
             onClick={() => save(this.generateDoc(values))}
             icon="check-circle"
           >
-            {__('Save')}
+            {__("Save")}
           </Button>
         </ModalFooter>
       </div>

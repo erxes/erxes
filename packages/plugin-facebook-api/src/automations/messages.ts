@@ -1,6 +1,7 @@
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
+import { IIntegrationDocument } from '../models/Integrations';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
 import { sendReply } from '../utils';
@@ -8,15 +9,15 @@ import {
   generateBotData,
   generatePayloadString,
   checkContentConditions,
+  getUrl,
 } from './utils';
 import * as moment from 'moment';
-import { getEnv } from '../commonUtils';
 
 const generateMessages = async (
   subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer
+  customer: ICustomer,
 ) => {
   let { messages = [] } = config || {};
 
@@ -46,26 +47,6 @@ const generateMessages = async (
     return generatedButtons;
   };
 
-  const getUrl = (key) => {
-    const DOMAIN = getEnv({
-      name: 'DOMAIN',
-      subdomain
-    });
-
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (NODE_ENV !== 'production') {
-      return `${DOMAIN}/read-file?key=${key}`;
-    }
-
-    if (VERSION === 'saas') {
-      return `${DOMAIN}/api/read-file?key=${key}`;
-    }
-
-    return `${DOMAIN}/gateway/read-file?key=${key}`;
-  };
-
   const quickRepliesIndex = messages.findIndex(
     ({ type }) => type === 'quickReplies',
   );
@@ -87,7 +68,7 @@ const generateMessages = async (
     audio = '',
     input,
   } of messages) {
-    const botData = generateBotData({
+    const botData = generateBotData(subdomain, {
       type,
       buttons,
       text,
@@ -129,7 +110,7 @@ const generateMessages = async (
               ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
                 title,
                 subtitle,
-                image_url: getUrl(image),
+                image_url: getUrl(subdomain, image),
                 buttons: generateButtons(buttons),
               }),
             ),
@@ -163,7 +144,7 @@ const generateMessages = async (
           attachment: {
             type,
             payload: {
-              url: getUrl(url),
+              url: getUrl(subdomain, url),
             },
           },
           botData,
@@ -258,6 +239,9 @@ const generateObjectToWait = ({
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
+  } else {
+    obj.startWaitingDate = moment().add(24, 'hours').toDate();
+    obj.waitingActionId = null;
   }
 
   return {
@@ -267,6 +251,56 @@ const generateObjectToWait = ({
       general,
     },
   };
+};
+
+const sendMessage = async (
+  models,
+  {
+    senderId,
+    recipientId,
+    integration,
+    message,
+    tag,
+  }: {
+    senderId: string;
+    recipientId: string;
+    integration: IIntegrationDocument;
+    message: any;
+    tag?: string;
+  },
+) => {
+  await sendReply(
+    models,
+    'me/messages',
+    {
+      recipient: { id: senderId },
+      sender_action: 'typing_on',
+      tag,
+    },
+    recipientId,
+    integration.erxesApiId,
+  ).catch((error) => {
+    throw new Error(error.message);
+  });
+
+  const resp = await sendReply(
+    models,
+    'me/messages',
+    {
+      recipient: { id: senderId },
+      message,
+      tag,
+    },
+    recipientId,
+    integration.erxesApiId,
+  ).catch((error) => {
+    throw new Error(error);
+  });
+
+  if (!resp) {
+    return;
+  }
+  return resp;
 };
 
 export const actionCreateMessage = async (
@@ -301,6 +335,8 @@ export const actionCreateMessage = async (
     return;
   }
 
+  const bot = await models.Bots.findOne({ _id: botId }, { tag: 1 }).lean();
+
   let result: any[] = [];
 
   try {
@@ -308,7 +344,7 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-      customer
+      customer,
     );
 
     if (!messages?.length) {
@@ -316,30 +352,32 @@ export const actionCreateMessage = async (
     }
 
     for (const { botData, inputData, ...message } of messages) {
-      await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          sender_action: 'typing_on',
-        },
+      let resp = await sendMessage(models, {
+        senderId,
         recipientId,
-        integration.erxesApiId,
-      );
-
-      const resp = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          message,
-        },
-        recipientId,
-        integration.erxesApiId,
-      );
+        integration,
+        message,
+      }).catch(async (error) => {
+        if (
+          error.message.includes(
+            'This message is sent outside of allowed window',
+          ) &&
+          bot?.tag
+        ) {
+          resp = await sendMessage(models, {
+            senderId,
+            recipientId,
+            integration,
+            message,
+            tag: bot?.tag,
+          });
+        }
+        debugError(error.message);
+        throw new Error(error.message);
+      });
 
       if (!resp) {
-        return;
+        throw new Error('Something went wrong to send this message');
       }
 
       const conversationMessage = await models.ConversationMessages.addMessage({
@@ -352,13 +390,15 @@ export const actionCreateMessage = async (
         fromBot: true,
       });
 
-      await sendInboxMessage({
+      sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId,
         },
+      }).catch((error) => {
+        debugError(error.message);
       });
 
       result.push(conversationMessage);
@@ -380,5 +420,6 @@ export const actionCreateMessage = async (
     };
   } catch (error) {
     debugError(error.message);
+    throw new Error(error.message);
   }
 };

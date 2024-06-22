@@ -1,24 +1,23 @@
 import {
-  __,
   DataWithLoader,
+  ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  ModalTrigger
-} from '@erxes/ui/src';
-import dayjs from 'dayjs';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { menuMultierkhet } from '../constants';
-import SyncHistorySidebar from './syncHistorySidebar';
+} from "@erxes/ui/src";
+import { IQueryParams } from "@erxes/ui/src/types";
 
-interface IProps extends IRouterProps {
+import React from "react";
+import SyncHistorySidebar from "./syncHistorySidebar";
+import { __ } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
+import { menuMultierkhet } from "../constants";
+
+interface IProps {
   syncHistories: any[];
   loading: boolean;
   totalCount: number;
-  history: any;
   queryParams: any;
 
   onSearch: (search: string) => void;
@@ -28,114 +27,96 @@ interface IProps extends IRouterProps {
   clearFilter: () => void;
 }
 
-class SyncHistoryList extends React.Component<IProps, {}> {
-  private timer?: NodeJS.Timer = undefined;
+const SyncHistoryList = (props: IProps) => {
+  let timer: undefined;
+  const { syncHistories, totalCount, loading, queryParams } = props;
 
-  constructor(props) {
-    super(props);
-  }
-
-  moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
-  rowContent = (props, item) => {
+  const rowContent = (props, item) => {
     return <>{item.responseStr}</>;
   };
 
-  render() {
-    const {
-      history,
-      syncHistories,
-      totalCount,
-      loading,
-      queryParams
-    } = this.props;
-
-    const mainContent = (
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
-        <thead>
-          <tr>
-            <th>
-              <SortHandler sortField={'createdAt'} label={__('Date')} />
-            </th>
-            <th>
-              <SortHandler sortField={'createdBy'} label={__('User')} />
-            </th>
-            <th>
-              <SortHandler
-                sortField={'contentType'}
-                label={__('Content Type')}
-              />
-            </th>
-            <th>
-              <SortHandler sortField={'content'} label={__('Content')} />
-            </th>
-            <th>
-              <SortHandler sortField={'error'} label={__('Error')} />
-            </th>
-          </tr>
-        </thead>
-        <tbody id="orders">
-          {(syncHistories || []).map(item => (
-            <ModalTrigger
-              title="Sync erkhet information"
-              trigger={
-                <tr key={item._id}>
-                  <td>{dayjs(item.createdAt).format('lll')}</td>
-                  <td>{item.createdUser?.email}</td>
-                  <td>{item.contentType}</td>
-                  <td>{item.content}</td>
-                  <td>
-                    {(item.responseStr || '').includes('timedout')
-                      ? item.responseStr
-                      : '' ||
-                        `
-                      ${item.responseData?.extra_info?.warnings || ''}
-                      ${item.responseData?.message || ''}
-                      ${item.error || ''}
-                      ${(item.responseData?.error || '').replace(
-                        'ЕБаримт руу илгээгдээгүй түр баримт болно.',
-                        ''
+  const mainContent = (
+    <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
+      <thead>
+        <tr>
+          <th>
+            <SortHandler sortField={"createdAt"} label={__("Date")} />
+          </th>
+          <th>
+            <SortHandler sortField={"createdBy"} label={__("User")} />
+          </th>
+          <th>
+            <SortHandler sortField={"contentType"} label={__("Content Type")} />
+          </th>
+          <th>
+            <SortHandler sortField={"content"} label={__("Content")} />
+          </th>
+          <th>
+            <SortHandler sortField={"error"} label={__("Error")} />
+          </th>
+        </tr>
+      </thead>
+      <tbody id="orders">
+        {(syncHistories || []).map((item) => (
+          <ModalTrigger
+            title="Sync erkhet information"
+            trigger={
+              <tr key={item._id}>
+                <td>{dayjs(item.createdAt).format("lll")}</td>
+                <td>{item.createdUser?.email}</td>
+                <td>{item.contentType}</td>
+                <td>{item.content}</td>
+                <td>
+                  {(item.responseStr || "").includes("timedout")
+                    ? item.responseStr
+                    : "" ||
+                      `
+                      ${item.responseData?.extra_info?.warnings || ""}
+                      ${item.responseData?.message || ""}
+                      ${item.error || ""}
+                      ${(item.responseData?.error || "").replace(
+                        "ЕБаримт руу илгээгдээгүй түр баримт болно.",
+                        ""
                       )}
                       `}
-                  </td>
-                </tr>
-              }
-              size="xl"
-              content={props => this.rowContent(props, item)}
-            />
-          ))}
-        </tbody>
-      </Table>
-    );
-
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__(`Sync Histories`)}
-            queryParams={queryParams}
-            submenu={menuMultierkhet}
+                </td>
+              </tr>
+            }
+            size="xl"
+            content={(props) => rowContent(props, item)}
           />
-        }
-        leftSidebar={
-          <SyncHistorySidebar queryParams={queryParams} history={history} />
-        }
-        footer={<Pagination count={totalCount || 0} />}
-        content={
-          <DataWithLoader
-            data={mainContent}
-            loading={loading}
-            count={totalCount || 0}
-            emptyImage="/images/actions/1.svg"
-          />
-        }
-      />
-    );
-  }
-}
+        ))}
+      </tbody>
+    </Table>
+  );
 
-export default withRouter<IRouterProps>(SyncHistoryList);
+  return (
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__(`Sync Histories`)}
+          queryParams={queryParams}
+          submenu={menuMultierkhet}
+        />
+      }
+      leftSidebar={<SyncHistorySidebar queryParams={queryParams} />}
+      footer={<Pagination count={totalCount || 0} />}
+      content={
+        <DataWithLoader
+          data={mainContent}
+          loading={loading}
+          count={totalCount || 0}
+          emptyImage="/images/actions/1.svg"
+        />
+      }
+    />
+  );
+};
+
+export default SyncHistoryList;

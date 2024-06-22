@@ -1,21 +1,20 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import { __, router } from 'coreui/utils';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
+import React, { useEffect, useState } from "react";
+import { __, router } from "coreui/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import Box from '@erxes/ui/src/components/Box';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { CustomPadding } from '@erxes/ui-contacts/src/customers/styles';
+import Box from "@erxes/ui/src/components/Box";
+import Button from "@erxes/ui/src/components/Button";
+import { CustomPadding } from "@erxes/ui-contacts/src/customers/styles";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { FormControl } from "@erxes/ui/src/components/form";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 
-interface IProps extends IRouterProps {
+interface IProps {
   counts: { [key: string]: number };
   integrations: IIntegration[];
   loading: boolean;
@@ -23,27 +22,25 @@ interface IProps extends IRouterProps {
   all: number;
 }
 
-function Leads({
-  history,
-  counts,
-  integrations = [],
-  loading,
-  loadMore,
-  all
-}: IProps) {
+function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
   let timer;
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchValue, setSearchValue] = useState(
-    router.getParam(history, 'searchTarget') || ''
+    router.getParam(location, "searchTarget") || ""
   );
 
   const [disableLoadMoreBtn, setDisableLoadMoreBtn] = useState(false);
 
-  const onClick = formId => {
-    router.setParams(history, { form: formId });
-    router.removeParams(history, 'page');
+  // useEffect(() => {
+  //   router.removeParams(navigate, location, 'page');
+  // }, [location.search]);
+
+  const onClick = (formId) => {
+    router.setParams(navigate, location, { form: formId });
   };
 
-  const search = e => {
+  const search = (e) => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -53,23 +50,23 @@ function Leads({
     setSearchValue(inputValue);
     setDisableLoadMoreBtn(true);
 
-    if (inputValue === '') {
+    if (inputValue === "") {
       setDisableLoadMoreBtn(false);
     }
     timer = setTimeout(() => {
-      router.setParams(history, { searchTarget: inputValue });
+      router.setParams(navigate, location, { searchTarget: inputValue });
     }, 1000);
   };
 
-  const moveCursorAtTheEnd = e => {
+  const moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;
 
-    e.target.value = '';
+    e.target.value = "";
     e.target.value = tmpValue;
   };
 
   const renderIntegrations = () => {
-    return integrations.map(integration => {
+    return integrations.map((integration) => {
       const form = integration.form || ({} as any);
 
       return (
@@ -78,12 +75,14 @@ function Leads({
             href="#filter"
             tabIndex={0}
             className={
-              router.getParam(history, 'form') === form._id ? 'active' : ''
+              router.getParam(location, "form") === integration.formId
+                ? "active"
+                : ""
             }
-            onClick={onClick.bind(null, form._id)}
+            onClick={onClick.bind(null, integration.formId)}
           >
             <FieldStyle>{integration.name}</FieldStyle>
-            <SidebarCounter>{counts[form._id]}</SidebarCounter>
+            <SidebarCounter>{counts[integration.formId]}</SidebarCounter>
           </a>
         </li>
       );
@@ -108,12 +107,12 @@ function Leads({
   );
 
   return (
-    <Box title={__('Filter by Forms')} name="showFilterByPopUps">
+    <Box title={__("Filter by Forms")} name="showFilterByPopUps">
       <CustomPadding>
         <FormControl
           type="text"
           onChange={search}
-          placeholder={__('Type to search')}
+          placeholder={__("Type to search")}
           value={searchValue}
           onFocus={moveCursorAtTheEnd}
         />
@@ -131,4 +130,4 @@ function Leads({
   );
 }
 
-export default withRouter<IProps>(Leads);
+export default Leads;

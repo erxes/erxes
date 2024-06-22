@@ -1,5 +1,4 @@
 import { router, Spinner } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { gql } from '@apollo/client';
 import React from 'react';
 import { useQuery } from '@apollo/client';
@@ -11,11 +10,10 @@ import { AccountsListQueryResponse } from '../types';
 
 type Props = {
   refetch?: () => void;
-  history?: any;
   configId?: string;
   queryParams: any;
   fetchPolicy?: any;
-} & IRouterProps;
+};
 
 export default function ListContainer(props: Props) {
   const { data, loading, error } = useQuery<AccountsListQueryResponse>(

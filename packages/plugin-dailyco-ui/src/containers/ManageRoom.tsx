@@ -1,13 +1,13 @@
-import { gql } from '@apollo/client';
-import { IVideoCallData } from '@erxes/ui-inbox/src/inbox/types';
-import client from '@erxes/ui/src/apolloClient';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __, Alert } from 'coreui/utils';
-import React, { useState } from 'react';
-import { mutations } from '../graphql';
-import { openWindow } from '../utils';
+import { gql } from "@apollo/client";
+import { IVideoCallData } from "@erxes/ui-inbox/src/inbox/types";
+import client from "@erxes/ui/src/apolloClient";
+import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
+import Icon from "@erxes/ui/src/components/Icon";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __, Alert } from "coreui/utils";
+import React, { useState } from "react";
+import { mutations } from "../graphql";
+import { openWindow } from "../utils";
 
 type Props = {
   activeVideo?: IVideoCallData;
@@ -25,7 +25,7 @@ function ManageRoom(props: Props) {
     const conversationId = conversation._id;
 
     if (activeVideo && activeVideo.url) {
-      openWindow(conversationId, activeVideo.url, activeVideo.name || '');
+      openWindow(conversationId, activeVideo.url, activeVideo.name || "");
     } else {
       setLoading(true);
 
@@ -34,8 +34,8 @@ function ManageRoom(props: Props) {
           mutation: gql(mutations.createRoom),
           variables: {
             contentTypeId: conversationId,
-            contentType: 'inbox:conversations'
-          }
+            contentType: "inbox:conversations",
+          },
         })
         .then(({ data }: any) => {
           setLoading(false);
@@ -47,7 +47,7 @@ function ManageRoom(props: Props) {
 
           openWindow(conversationId, url, name);
         })
-        .catch(error => {
+        .catch((error) => {
           setLoading(false);
 
           Alert.error(error.message);
@@ -56,19 +56,19 @@ function ManageRoom(props: Props) {
   };
 
   return (
-    <Tip text={__('Invite to video call')}>
-      <label
-        onClick={createVideoRoom}
-        onKeyDown={e => {
-          if (e.key === 'Enter') {
-            createVideoRoom();
-          }
-        }}
-        tabIndex={0} // This makes the element focusable
-      >
+    <label
+      onClick={createVideoRoom}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          createVideoRoom();
+        }
+      }}
+      tabIndex={0} // This makes the element focusable
+    >
+      <Tip text={__("Invite to video call")}>
         {loading ? <SmallLoader /> : <Icon icon="video" />}
-      </label>
-    </Tip>
+      </Tip>
+    </label>
   );
 }
 

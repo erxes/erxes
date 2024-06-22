@@ -1,6 +1,5 @@
 import { router } from '@erxes/ui/src';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import { gql } from '@apollo/client';
 import React from 'react';
@@ -14,12 +13,11 @@ import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 type Props = {
   queryParams: any;
   showLatest?: boolean;
-  history?: any;
   refetch?: () => void;
-} & IRouterProps;
+};
 
 export default function ListContainer(props: Props) {
-  const { queryParams, showLatest, history } = props;
+  const { queryParams, showLatest } = props;
 
   let { page, perPage } = router.generatePaginationParams(queryParams || {});
   let startDate = queryParams.startDate;

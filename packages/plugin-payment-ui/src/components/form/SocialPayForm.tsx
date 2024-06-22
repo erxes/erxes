@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, getEnv } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import { IPaymentDocument, ISocialPayConfig } from '../../types';
 
 import { PAYMENT_KINDS } from '../constants';
@@ -25,55 +25,51 @@ type State = {
   inStoreSPKey: string;
 };
 
-class SocialPayConfigForm extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const SocialPayConfigForm: React.FC<Props> = (props) => {
+  const { payment } = props;
+  const { name, config } = payment || ({} as IPaymentDocument);
+  const { inStoreSPTerminal, inStoreSPKey } =
+    config || ({} as ISocialPayConfig);
 
-    const { payment } = this.props;
-    const { name, config } = payment || ({} as IPaymentDocument);
-    const { inStoreSPTerminal, inStoreSPKey } =
-      config || ({} as ISocialPayConfig);
+  const [state, setState] = useState<State>({
+    paymentName: name || '',
+    inStoreSPTerminal: inStoreSPTerminal || '',
+    inStoreSPKey: inStoreSPKey || '',
+  });
 
-    this.state = {
-      paymentName: name || '',
-      inStoreSPTerminal: inStoreSPTerminal || '',
-      inStoreSPKey: inStoreSPKey || ''
-    };
-  }
-
-  generateDoc = (values: {
+  const generateDoc = (values: {
     paymentName: string;
     inStoreSPTerminal: string;
     inStoreSPKey: string;
   }) => {
-    const { payment } = this.props;
+    const { payment } = props;
     const generatedValues = {
       name: values.paymentName,
       kind: PAYMENT_KINDS.SOCIALPAY,
       status: 'active',
       config: {
         inStoreSPTerminal: values.inStoreSPTerminal,
-        inStoreSPKey: values.inStoreSPKey
-      }
+        inStoreSPKey: values.inStoreSPKey,
+      },
     };
 
     return payment ? { ...generatedValues, id: payment._id } : generatedValues;
   };
 
-  onChangeConfig = (code: string, e) => {
-    this.setState({ [code]: e.target.value } as any);
+  const onChangeConfig = (code: string, e) => {
+    setState((prevState) => ({ ...prevState, [code]: e.target.value }));
   };
 
-  renderItem = (
+  const renderItem = (
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean
+    isPassword?: boolean,
   ) => {
     const value =
       key === 'pushNotification'
         ? `${getEnv().REACT_APP_API_URL}/pl:payment/callback/socialpay`
-        : this.state[key];
+        : state[key];
 
     return (
       <FormGroup>
@@ -81,7 +77,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
         {description && <p>{description}</p>}
         <FormControl
           defaultValue={value}
-          onChange={this.onChangeConfig.bind(this, key)}
+          onChange={onChangeConfig.bind(this, key)}
           value={value}
           disabled={key === 'pushNotification'}
           type={isPassword ? 'password' : ''}
@@ -90,27 +86,27 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     );
   };
 
-  renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal } = this.props;
+  const renderContent = (formProps: IFormProps) => {
+    const { renderButton, closeModal } = props;
     const { isSubmitted } = formProps;
-    const { paymentName, inStoreSPTerminal, inStoreSPKey } = this.state;
+    const { paymentName, inStoreSPTerminal, inStoreSPKey } = state;
 
     const values = {
       paymentName,
       inStoreSPTerminal,
-      inStoreSPKey
+      inStoreSPKey,
     };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
-          {this.renderItem('paymentName', 'Name')}
-          {this.renderItem('inStoreSPTerminal', 'Terminal')}
-          {this.renderItem('inStoreSPKey', 'Key', '', true)}
-          {this.renderItem(
+          {renderItem('paymentName', 'Name')}
+          {renderItem('inStoreSPTerminal', 'Terminal')}
+          {renderItem('inStoreSPKey', 'Key', '', true)}
+          {renderItem(
             'pushNotification',
             'Notification URL',
-            'Register following URL in Golomt Bank'
+            'Register following URL in Golomt Bank',
           )}
 
           <a
@@ -132,19 +128,17 @@ class SocialPayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'socialpay',
-            values: this.generateDoc(values),
+            passedName: 'socialpay',
+            values: generateDoc(values),
             isSubmitted,
-            callback: closeModal
+            callback: closeModal,
           })}
         </ModalFooter>
       </>
     );
   };
 
-  render() {
-    return <Form renderContent={this.renderContent} />;
-  }
-}
+  return <Form renderContent={renderContent} />;
+};
 
 export default SocialPayConfigForm;

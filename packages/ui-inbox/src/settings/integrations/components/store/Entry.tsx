@@ -1,17 +1,17 @@
-import { Box, IntegrationItem, Ribbon, Type } from './styles';
+import { Box, IntegrationItem, Ribbon, Type } from "./styles";
 
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import Icon from '@erxes/ui/src/components/Icon';
-import IntegrationForm from '../../containers/common/IntegrationForm';
-import LineForm from '../../containers/line/Form';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import NylasForm from '../../containers/mail/Form';
-import React from 'react';
-import TelnyxForm from '../../containers/telnyx/TelnyxForm';
-import Twitter from '../../containers/twitter/Twitter';
-import { __ } from 'coreui/utils';
-import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
+import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
+import Icon from "@erxes/ui/src/components/Icon";
+import IntegrationForm from "../../containers/common/IntegrationForm";
+import LineForm from "../../containers/line/Form";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import NylasForm from "../../containers/mail/Form";
+import React from "react";
+import TelnyxForm from "../../containers/telnyx/TelnyxForm";
+import Twitter from "../../containers/twitter/Twitter";
+import { __ } from "coreui/utils";
+import { formatText } from "@erxes/ui-log/src/activityLogs/utils";
 
 type TotalCount = {
   messenger: number;
@@ -46,7 +46,7 @@ type Props = {
 function getCount(kind: string, totalCount: TotalCount) {
   const countByKind = totalCount[kind];
 
-  if (typeof countByKind === 'undefined') {
+  if (typeof countByKind === "undefined") {
     return null;
   }
 
@@ -60,7 +60,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
+      <Icon icon="comment-alt-lines" /> {__("Works with messenger")}
     </Type>
   );
 }
@@ -70,12 +70,12 @@ function renderCreate(createUrl, kind, isAvailable) {
     return null;
   }
 
-  const trigger = <button>+ {__('Add')}</button>;
+  const trigger = <button>+ {__("Add")}</button>;
 
   if (kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
     return (
       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_MESSENGER}`}>
-        + {__('Add')}
+        + {__("Add")}
       </Link>
     );
   }
@@ -83,27 +83,27 @@ function renderCreate(createUrl, kind, isAvailable) {
   if (kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
     return (
       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_MESSENGER}`}>
-        + {__('Add')}
+        + {__("Add")}
       </Link>
     );
   }
   if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
     return (
       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_POST}`}>
-        + {__('Add')}
+        + {__("Add")}
       </Link>
     );
   }
   if (kind === INTEGRATION_KINDS.INSTAGRAM_MESSENGER) {
     return (
       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.INSTAGRAM_MESSENGER}`}>
-        + {__('Add')}
+        + {__("Add")}
       </Link>
     );
   }
 
   if (kind === INTEGRATION_KINDS.MESSENGER) {
-    return <Link to={createUrl}>+ {__('Add')}</Link>;
+    return <Link to={createUrl}>+ {__("Add")}</Link>;
   }
 
   if (
@@ -140,10 +140,10 @@ function renderCreate(createUrl, kind, isAvailable) {
   }
 
   if (kind === INTEGRATION_KINDS.GMAIL) {
-    return <Link to={createUrl}>+ {__('Add')}</Link>;
+    return <Link to={createUrl}>+ {__("Add")}</Link>;
   }
 
-  if (kind === 'twitter') {
+  if (kind === "twitter") {
     const content = (props) => <Twitter {...props} />;
 
     return (
@@ -202,14 +202,14 @@ function Entry({
       return null;
     }
 
-    return <button onClick={handleLink}>+{__('Add')}</button>;
+    return <button onClick={handleLink}>+{__("Add")}</button>;
   }
 
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
       <Box
         onClick={() => toggleBox(kind)}
-        isInMessenger={integration.inMessenger}
+        $isInMessenger={integration.inMessenger}
       >
         <img alt="logo" src={integration.logo} />
         <h5>
@@ -221,7 +221,7 @@ function Entry({
         </p>
         {!isAvailable && (
           <Ribbon>
-            <span>{__('Coming soon')}</span>
+            <span>{__("Coming soon")}</span>
           </Ribbon>
         )}
       </Box>

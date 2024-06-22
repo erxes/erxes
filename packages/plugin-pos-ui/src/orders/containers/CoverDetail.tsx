@@ -1,17 +1,17 @@
 import * as compose from 'lodash.flowright';
 import Detail from '../components/CoverDetail';
-import { gql } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import React from 'react';
 import { Alert } from '@erxes/ui/src/utils';
 import { graphql } from '@apollo/client/react/hoc';
 import {
   ICover,
   PosCoverEditNoteMutationResponse,
-  PosOrderChangePaymentsMutationResponse
+  PosOrderChangePaymentsMutationResponse,
 } from '../types';
 import { mutations, queries } from '../graphql';
 import { CoverDetailQueryResponse } from '../types';
-import { PosDetailQueryResponse } from '../../types';
+import { IPos, PosDetailQueryResponse } from '../../types';
 import { queries as posQueries } from '../../pos/graphql';
 import { Spinner, withProps } from '@erxes/ui/src';
 
@@ -19,96 +19,65 @@ type Props = {
   cover: ICover;
 };
 
-type FinalProps = {
-  coverDetailQuery: CoverDetailQueryResponse;
-  posDetailQuery: PosDetailQueryResponse;
-} & Props &
-  PosCoverEditNoteMutationResponse;
+const CoverDetailContainer = (props: Props) => {
+  const { cover } = props;
 
-class OrdersDetailContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+  const coverDetailQuery = useQuery<CoverDetailQueryResponse>(
+    gql(queries.coverDetail),
+    {
+      variables: {
+        _id: cover._id || '',
+      },
+      fetchPolicy: 'network-only',
+    },
+  );
 
-    this.state = {
-      loading: false
-    };
+  const posDetailQuery = useQuery<PosDetailQueryResponse>(
+    gql(posQueries.posDetail),
+    {
+      variables: {
+        _id: props.cover.posToken,
+      },
+    },
+  );
+
+  const [coversEdit] = useMutation<PosOrderChangePaymentsMutationResponse>(
+    gql(mutations.coversEdit),
+    {
+      refetchQueries: ['posOrders', 'posOrdersSummary', 'posCoverDetail'],
+    },
+  );
+
+  if (coverDetailQuery.loading || posDetailQuery.loading) {
+    return <Spinner />;
   }
 
-  onChangeNote = (coverId, note) => {
-    const { coversEdit } = this.props;
-
+  const onChangeNote = (coverId, note) => {
     coversEdit({
       variables: {
         _id: coverId,
-        note
-      }
+        note,
+      },
     })
       .then(() => {
         Alert.success('You successfully noted.');
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
 
-  render() {
-    const { coverDetailQuery, posDetailQuery } = this.props;
+  const coverDetail = coverDetailQuery?.data?.posCoverDetail || ({} as ICover);
+  const pos = posDetailQuery?.data?.posDetail || ({} as IPos);
 
-    if (coverDetailQuery.loading || posDetailQuery.loading) {
-      return <Spinner />;
-    }
+  const updatedProps = {
+    ...props,
+    onChangeNote,
+    pos,
+    cover: coverDetail,
+  };
 
-    const cover = coverDetailQuery.posCoverDetail;
+  return <Detail {...updatedProps} />;
+};
 
-    const pos = posDetailQuery.posDetail;
-
-    const updatedProps = {
-      ...this.props,
-      onChangeNote: this.onChangeNote,
-      pos,
-      cover
-    };
-
-    return <Detail {...updatedProps} />;
-  }
-}
-
-export default withProps<Props>(
-  compose(
-    graphql<Props, CoverDetailQueryResponse, { _id: string }>(
-      gql(queries.coverDetail),
-      {
-        name: 'coverDetailQuery',
-        options: ({ cover }) => ({
-          variables: {
-            _id: cover._id || ''
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
-    graphql<Props, PosDetailQueryResponse, {}>(gql(posQueries.posDetail), {
-      name: 'posDetailQuery',
-      options: props => ({
-        variables: {
-          _id: props.cover.posToken
-        }
-      })
-    }),
-    graphql<
-      Props,
-      PosOrderChangePaymentsMutationResponse,
-      {
-        _id: string;
-        cashAmount: number;
-        mobileAmount: number;
-        paidAmounts: any;
-      }
-    >(gql(mutations.coversEdit), {
-      name: 'coversEdit',
-      options: () => ({
-        refetchQueries: ['posOrders', 'posOrdersSummary', 'posCoverDetail']
-      })
-    })
-  )(OrdersDetailContainer)
-);
+export default CoverDetailContainer;

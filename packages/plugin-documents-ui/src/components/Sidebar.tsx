@@ -19,14 +19,14 @@ export default function Sidebar({ queryParams, contentTypes }: Props) {
   return (
     <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
       <SidebarList
-        noTextColor={true}
-        noBackground={true}
+        $noTextColor={true}
+        $noBackground={true}
         id={'DocumentsSidebar'}
       >
         {contentTypes.map(({ label, contentType }) => (
           <SidebarListItem
             key={contentType}
-            isActive={queryParams?.contentType === contentType}
+            $isActive={queryParams?.contentType === contentType}
           >
             <Link to={`/settings/documents/?contentType=${contentType}`}>
               {__(label)}

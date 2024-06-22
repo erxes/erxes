@@ -1,76 +1,61 @@
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import List from '../components/ProductList';
-import React from 'react';
-import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
-import { graphql } from '@apollo/client/react/hoc';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { PosProductsQueryResponse } from '../types';
-import { queries } from '../graphql';
-import { FILTER_PARAMS } from '../../constants';
-import queryString from 'query-string';
-import { generateParams } from './List';
+import { gql, useQuery } from "@apollo/client";
+import List from "../components/ProductList";
+import React from "react";
+import { Bulk, router, Spinner } from "@erxes/ui/src";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { queries } from "../graphql";
+import { FILTER_PARAMS } from "../../constants";
+import { generateParams } from "./List";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
-  history: any;
   type?: string;
 };
 
-type FinalProps = {
-  posProductsQuery: PosProductsQueryResponse;
-} & Props &
-  IRouterProps;
+const ProductList = (props: Props) => {
+  const { type, queryParams } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-const generateQueryParams = ({ location }) => {
-  return queryString.parse(location.search);
-};
+  const posProductsQuery = useQuery(gql(queries.posProducts), {
+    variables: genParams({ queryParams } || {}),
+    fetchPolicy: "network-only",
+  });
 
-class ProductListContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      mergeProductLoading: false
-    };
-  }
-
-  onSearch = (search: string) => {
+  const onSearch = (search: string) => {
     if (!search) {
-      return router.removeParams(this.props.history, 'search');
+      return router.removeParams(navigate, location, "search");
     }
-    router.removeParams(this.props.history, 'page');
-    router.setParams(this.props.history, { search });
+    router.removeParams(navigate, location, "page");
+    router.setParams(navigate, location, { search });
   };
 
-  onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, 'page');
-    if (params[key] === values) {
-      return router.removeParams(this.props.history, key);
+  const onSelect = (values: string[] | string, key: string) => {
+    router.removeParams(navigate, location, "page");
+    if (queryParams[key] === values) {
+      return router.removeParams(navigate, location, key);
     }
 
-    return router.setParams(this.props.history, { [key]: values });
+    return router.setParams(navigate, location, { [key]: values });
   };
 
-  onFilter = (filterParams: IQueryParams) => {
-    router.removeParams(this.props.history, 'page');
+  const onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(navigate, location, "page");
 
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
-        router.setParams(this.props.history, { [key]: filterParams[key] });
+        router.setParams(navigate, location, { [key]: filterParams[key] });
       } else {
-        router.removeParams(this.props.history, key);
+        router.removeParams(navigate, location, key);
       }
     }
 
     return router;
   };
 
-  isFiltered = (): boolean => {
-    const params = generateQueryParams(this.props.history);
-
-    for (const param in params) {
+  const isFiltered = (): boolean => {
+    for (const param in queryParams) {
       if (FILTER_PARAMS.includes(param)) {
         return true;
       }
@@ -79,71 +64,51 @@ class ProductListContainer extends React.Component<FinalProps> {
     return false;
   };
 
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    router.removeParams(this.props.history, ...Object.keys(params));
+  const clearFilter = () => {
+    router.removeParams(navigate, location, ...Object.keys(queryParams));
   };
 
-  render() {
-    const { posProductsQuery, queryParams } = this.props;
+  if (posProductsQuery.loading) {
+    return <Spinner />;
+  }
 
-    if (posProductsQuery.loading) {
-      return <Spinner />;
-    }
+  const productList = (bulkProps) => {
     const products =
-      (posProductsQuery.posProducts && posProductsQuery.posProducts.products) ||
-      [];
+      (posProductsQuery && posProductsQuery?.data?.posProducts.products) || [];
     const totalCount =
-      (posProductsQuery.posProducts &&
-        posProductsQuery.posProducts.totalCount) ||
-      0;
+      (posProductsQuery && posProductsQuery?.data?.posProducts.totalCount) || 0;
 
-    const searchValue = this.props.queryParams.searchValue || '';
+    const searchValue = queryParams.searchValue || "";
 
     const updatedProps = {
-      ...this.props,
+      ...props,
       queryParams,
       products,
       totalCount,
       loading: posProductsQuery.loading,
       searchValue,
 
-      onFilter: this.onFilter,
-      onSelect: this.onSelect,
-      onSearch: this.onSearch,
-      isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered: isFiltered(),
+      clearFilter,
     };
 
-    const productList = props => {
-      return <List {...updatedProps} {...props} />;
-    };
+    return <List {...updatedProps} {...bulkProps} />;
+  };
 
-    const refetch = () => {
-      this.props.posProductsQuery.refetch();
-    };
+  const refetch = () => {
+    posProductsQuery.refetch();
+  };
 
-    return <Bulk content={productList} refetch={refetch} />;
-  }
-}
+  return <Bulk content={productList} refetch={refetch} />;
+};
 
 export const genParams = ({ queryParams }) => ({
   ...generateParams({ queryParams }),
   searchValue: queryParams.searchValue,
-  categoryId: queryParams.categoryId
+  categoryId: queryParams.categoryId,
 });
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, PosProductsQueryResponse, { page: number; perPage: number }>(
-      gql(queries.posProducts),
-      {
-        name: 'posProductsQuery',
-        options: ({ queryParams }) => ({
-          variables: genParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(ProductListContainer)
-);
+export default ProductList;

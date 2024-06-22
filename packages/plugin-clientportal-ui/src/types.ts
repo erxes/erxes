@@ -11,6 +11,14 @@ export type OTPConfig = {
   loginWithOTP: boolean;
   expireAfter: number;
 };
+export type TwoFactorConfig = {
+  emailSubject?: string;
+  content: string;
+  smsTransporterType?: '' | 'messagePro';
+  codeLength: number;
+  enableTwoFactor: boolean;
+  expireAfter: number;
+};
 
 export type MailConfig = {
   subject: string;
@@ -76,6 +84,8 @@ export interface IClientPortalUser extends IClientPortalUserDoc {
   modifiedAt: Date;
   forumSubscriptionEndsAfter?: string;
   clientPortal: ClientPortalConfig;
+  isSubscribed?: string;
+  hasAuthority?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -177,14 +187,15 @@ export type ClientPortalConfig = {
   purchaseToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
+  twoFactorConfig?: TwoFactorConfig;
   mailConfig?: MailConfig;
   manualVerificationConfig?: ManualVerificationConfig;
   passwordVerificationConfig?: PasswordVerificationConfig;
 
-  testUserEmail: string;
-  testUserPhone: string;
-  testUserPassword: string;
-  testUserOTP: number;
+  testUserEmail?: string;
+  testUserPhone?: string;
+  testUserPassword?: string;
+  testUserOTP?: number;
 
   tokenExpiration?: number;
   refreshTokenExpiration?: number;

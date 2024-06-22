@@ -1,12 +1,12 @@
 import React from 'react';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
+
+import { gql, useQuery } from '@apollo/client';
+
 import { QueryResponse } from '@erxes/ui/src/types';
-import queries from '../graphql/queries';
 import { EmptyState, Spinner } from '@erxes/ui/src';
+
 import EmailTemplateComponent from '../components/EmailTemplate';
+import queries from '../graphql/queries';
 
 type Props = {
   templateId: string;
@@ -14,42 +14,30 @@ type Props = {
   handleSelect?: (_id: string) => void;
 };
 
-type FinalProps = {
-  emailTemplateQuery: { emailTemplate: any } & QueryResponse;
-} & Props;
+const EmailTemplate = (props: Props) => {
+  const { templateId } = props;
 
-class EmailTemplate extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
+  const emailTemplateQuery = useQuery<{ emailTemplate: any } & QueryResponse>(
+    gql(queries.emailTemplate),
+    {
+      variables: { _id: templateId },
+    },
+  );
+
+  if (emailTemplateQuery.loading) {
+    return <Spinner objective />;
   }
 
-  render() {
-    const { emailTemplateQuery } = this.props;
-
-    if (emailTemplateQuery.loading) {
-      return <Spinner objective />;
-    }
-
-    if (emailTemplateQuery.error) {
-      return <EmptyState text="Not Found" icon="info-circle" />;
-    }
-
-    const updatedProps = {
-      ...this.props,
-      template: emailTemplateQuery.emailTemplate || {}
-    };
-
-    return <EmailTemplateComponent {...updatedProps} />;
+  if (emailTemplateQuery.error) {
+    return <EmptyState text="Not Found" icon="info-circle" />;
   }
-}
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.emailTemplate), {
-      name: 'emailTemplateQuery',
-      options: ({ templateId }) => ({
-        variables: { _id: templateId }
-      })
-    })
-  )(EmailTemplate)
-);
+  const updatedProps = {
+    ...props,
+    template: emailTemplateQuery?.data?.emailTemplate || {},
+  };
+
+  return <EmailTemplateComponent {...updatedProps} />;
+};
+
+export default EmailTemplate;

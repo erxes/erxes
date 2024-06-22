@@ -52,7 +52,7 @@ const ActivityDate = styled.div`
   margin-left: ${dimensions.unitSpacing}px;
 `;
 
-const IMapActivityContent = styledTS<{ shrink: boolean }>(styled.div)`
+const IMapActivityContent = styledTS<{ $shrink: boolean }>(styled.div)`
   position: relative;
   overflow: hidden;
   border-radius: 5px;
@@ -66,7 +66,7 @@ const IMapActivityContent = styledTS<{ shrink: boolean }>(styled.div)`
   }
 
   ${props =>
-    props.shrink &&
+    props.$shrink &&
     `
     max-height: 200px;
 

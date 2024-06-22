@@ -1,23 +1,24 @@
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
   DateContainer,
   FormColumn,
-  FormWrapper
-} from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import Datetime from '@nateradebaugh/react-datetime';
-import React from 'react';
-import { PricingPlan } from '../../../types';
-import DiscountInput from '../form/DiscountInput';
-import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+  FormWrapper,
+} from "@erxes/ui/src/styles/main";
+import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
+
+import Button from "@erxes/ui/src/components/Button";
+import Datetime from "@nateradebaugh/react-datetime";
+import DiscountInput from "../form/DiscountInput";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import { PricingPlan } from "../../../types";
+import React from "react";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
+import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
+import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
+import SelectTags from "@erxes/ui-tags/src/containers/SelectTags";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   formValues: PricingPlan;
@@ -30,130 +31,134 @@ export default function General(props: Props) {
   // Functions
   const renderProductForm = () => {
     switch (formValues.applyType) {
-      case 'category':
+      case "category":
         return (
           <>
             <FormGroup>
-              <FormLabel>{__('Product categories')}</FormLabel>
+              <FormLabel>{__("Product categories")}</FormLabel>
               <SelectProductCategory
                 name="categories"
                 label="Choose categories"
                 initialValue={formValues.categories}
-                onSelect={categories => handleState('categories', categories)}
+                onSelect={(categories) => handleState("categories", categories)}
                 multi={true}
               />
             </FormGroup>
             <FormGroup>
-              <FormLabel>{__('Exclude categories')}</FormLabel>
+              <FormLabel>{__("Exclude categories")}</FormLabel>
               <SelectProductCategory
                 name="categoriesExcluded"
                 label="Choose categories to exclude"
                 initialValue={formValues.categoriesExcluded}
-                onSelect={categories =>
-                  handleState('categoriesExcluded', categories)
+                onSelect={(categories) =>
+                  handleState("categoriesExcluded", categories)
                 }
                 multi={true}
               />
             </FormGroup>
             <FormGroup>
-              <FormLabel>{__('Exclude products')}</FormLabel>
+              <FormLabel>{__("Exclude products")}</FormLabel>
               <SelectProducts
                 name="productsExcluded"
                 label="Choose products to exclude"
                 initialValue={formValues.productsExcluded}
-                onSelect={products => handleState('productsExcluded', products)}
+                onSelect={(products) =>
+                  handleState("productsExcluded", products)
+                }
                 multi={true}
               />
             </FormGroup>
           </>
         );
-      case 'product':
+      case "product":
         return (
           <FormGroup>
-            <FormLabel>{__('Products')}</FormLabel>
+            <FormLabel>{__("Products")}</FormLabel>
             <SelectProducts
               name="products"
               label="Choose products"
               initialValue={formValues.products}
-              onSelect={products => handleState('products', products)}
+              onSelect={(products) => handleState("products", products)}
               multi={true}
             />
           </FormGroup>
         );
-      case 'segment':
+      case "segment":
         return (
           <FormGroup>
-            <FormLabel>{__('Segment')}</FormLabel>
+            <FormLabel>{__("Segment")}</FormLabel>
             <SelectSegments
               name="segments"
               label="Choose segments"
-              contentTypes={['products:product']}
+              contentTypes={["products:product"]}
               initialValue={formValues.segments}
               multi={true}
-              onSelect={segmentIds => handleState('segments', segmentIds)}
+              onSelect={(segmentIds) => handleState("segments", segmentIds)}
             />
           </FormGroup>
         );
-      case 'vendor':
+      case "vendor":
         return (
           <FormGroup>
-            <FormLabel>{__('Vendors')}</FormLabel>
+            <FormLabel>{__("Vendors")}</FormLabel>
             <SelectCompanies
               label="Choose companies"
               name="vendors"
               initialValue={formValues.vendors}
               multi={true}
-              onSelect={companyIds => handleState('vendors', companyIds)}
+              onSelect={(companyIds) => handleState("vendors", companyIds)}
               showAvatar={false}
             />
           </FormGroup>
         );
-      case 'tag':
+      case "tag":
         return (
           <>
             <FormGroup>
-              <FormLabel>{__('Product tags')}</FormLabel>
+              <FormLabel>{__("Product tags")}</FormLabel>
               <SelectTags
                 tagsType="products:product"
                 name="tags"
                 label="Choose tags"
                 initialValue={formValues.tags}
-                onSelect={tags => handleState('tags', tags)}
+                onSelect={(tags) => handleState("tags", tags)}
                 multi={true}
               />
             </FormGroup>
             <FormGroup>
-              <FormLabel>{__('Exclude tags')}</FormLabel>
+              <FormLabel>{__("Exclude tags")}</FormLabel>
               <SelectTags
                 tagsType="products:product"
                 name="tagsExcluded"
                 label="Choose tags to exclude"
                 initialValue={formValues.tagsExcluded}
-                onSelect={tags => handleState('tagsExcluded', tags)}
+                onSelect={(tags) => handleState("tagsExcluded", tags)}
                 multi={true}
               />
             </FormGroup>
             <FormGroup>
-              <FormLabel>{__('Exclude products')}</FormLabel>
+              <FormLabel>{__("Exclude products")}</FormLabel>
               <SelectProducts
                 name="productsExcluded"
                 label="Choose products to exclude"
                 initialValue={formValues.productsExcluded}
-                onSelect={products => handleState('productsExcluded', products)}
+                onSelect={(products) =>
+                  handleState("productsExcluded", products)
+                }
                 multi={true}
               />
             </FormGroup>
           </>
         );
-      case 'bundle':
+      case "bundle":
         return (
           <FormWrapper>
             <FormGroup>
-              <FormLabel>{__('Products to bundle')}</FormLabel>
+              <FormLabel>{__("Products to bundle")}</FormLabel>
               {(formValues.productsBundle || []).map((bundles, index) => {
-                const onChange = productIds => {
+                const onChange = (productIds) => {
                   (formValues.productsBundle || [])[index] = productIds;
-                  handleState('productsBundle', formValues.productsBundle);
+                  handleState("productsBundle", formValues.productsBundle);
                 };
                 return (
                   <SelectProducts
@@ -167,9 +172,9 @@ export default function General(props: Props) {
               })}
               <Button
                 onClick={() =>
-                  handleState('productsBundle', [
+                  handleState("productsBundle", [
                     ...(formValues.productsBundle || []),
-                    []
+                    [],
                   ])
                 }
               >
@@ -185,92 +190,92 @@ export default function General(props: Props) {
 
   const renderTypeOptions = () => (
     <FormGroup>
-      <FormLabel>{__('Discount Type')}</FormLabel>
+      <FormLabel>{__("Discount Type")}</FormLabel>
       <FormControl
-        componentClass="radio"
+        componentclass="radio"
         name="type"
-        onChange={() => handleState('type', 'fixed')}
-        defaultChecked={formValues.type === 'fixed'}
+        onChange={() => handleState("type", "fixed")}
+        defaultChecked={formValues.type === "fixed"}
       >
-        {__('Fixed')}
+        {__("Fixed")}
       </FormControl>
       <FormControl
-        componentClass="radio"
+        componentclass="radio"
         name="type"
-        onChange={() => handleState('type', 'subtraction')}
-        defaultChecked={formValues.type === 'subtraction'}
+        onChange={() => handleState("type", "subtraction")}
+        defaultChecked={formValues.type === "subtraction"}
       >
-        {__('Subtraction')}
+        {__("Subtraction")}
       </FormControl>
       <FormControl
-        componentClass="radio"
+        componentclass="radio"
         name="type"
-        onChange={() => handleState('type', 'percentage')}
-        defaultChecked={formValues.type === 'percentage'}
+        onChange={() => handleState("type", "percentage")}
+        defaultChecked={formValues.type === "percentage"}
       >
-        {__('Percentage')}
+        {__("Percentage")}
       </FormControl>
       <FormControl
-        componentClass="radio"
+        componentclass="radio"
         name="type"
-        onChange={() => handleState('type', 'bonus')}
-        defaultChecked={formValues.type === 'bonus'}
+        onChange={() => handleState("type", "bonus")}
+        defaultChecked={formValues.type === "bonus"}
       >
-        {__('Bonus')}
+        {__("Bonus")}
       </FormControl>
     </FormGroup>
   );
 
   const renderPriceAdjust = () => {
-    if (formValues.type !== 'bonus')
+    if (formValues.type !== "bonus")
       return (
         <>
           <FormGroup>
-            <FormLabel>{__('Price adjust type')}</FormLabel>
+            <FormLabel>{__("Price adjust type")}</FormLabel>
             <FormControl
               name="priceAdjustType"
-              componentClass="select"
+              componentclass="select"
               options={[
                 {
-                  label: 'None',
-                  value: 'none'
+                  label: "None",
+                  value: "none",
                 },
                 {
-                  label: 'Round',
-                  value: 'round'
+                  label: "Round",
+                  value: "round",
                 },
                 {
-                  label: 'Floor',
-                  value: 'floor'
+                  label: "Floor",
+                  value: "floor",
                 },
                 {
-                  label: 'Ceil',
-                  value: 'ceil'
+                  label: "Ceil",
+                  value: "ceil",
                 },
                 {
-                  label: 'Truncate',
-                  value: 'truncate'
+                  label: "Truncate",
+                  value: "truncate",
                 },
                 {
-                  label: 'Ends With 9',
-                  value: 'endsWith9'
-                }
+                  label: "Ends With 9",
+                  value: "endsWith9",
+                },
               ]}
               onChange={(e: any) =>
-                handleState('priceAdjustType', e.target.value)
+                handleState("priceAdjustType", e.target.value)
               }
               defaultValue={formValues.priceAdjustType}
             />
           </FormGroup>
           <FormGroup>
-            <FormLabel>{__('Price adjust factor')}</FormLabel>
+            <FormLabel>{__("Price adjust factor")}</FormLabel>
             <FormControl
               type="number"
               name="value"
               placeholder="0"
               required={true}
               onChange={(e: any) =>
-                handleState('priceAdjustFactor', parseFloat(e.target.value))
+                handleState("priceAdjustFactor", parseFloat(e.target.value))
               }
               defaultValue={formValues.priceAdjustFactor}
             />
@@ -284,45 +289,45 @@ export default function General(props: Props) {
     <>
       <FormGroup>
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           name="startDate"
           checked={formValues.isStartDateEnabled}
           onChange={(event: any) =>
-            handleState('isStartDateEnabled', event.target.checked)
+            handleState("isStartDateEnabled", event.target.checked)
           }
         />
-        <FormLabel>{__('Start Date')}</FormLabel>
+        <FormLabel>{__("Start Date")}</FormLabel>
         <DateContainer>
           <Datetime
-            inputProps={{ placeholder: __('Select Date') }}
+            inputProps={{ placeholder: __("Select Date") }}
             dateFormat="MM/DD/YYYY"
             closeOnSelect={true}
             timeFormat={true}
             utc={true}
             value={formValues.startDate || undefined}
-            onChange={(date: any) => handleState('startDate', date)}
+            onChange={(date: any) => handleState("startDate", date)}
           />
         </DateContainer>
       </FormGroup>
       <FormGroup>
         <FormControl
-          componentClass="checkbox"
+          componentclass="checkbox"
           name="endDate"
           checked={formValues.isEndDateEnabled}
           onChange={(event: any) =>
-            handleState('isEndDateEnabled', event.target.checked)
+            handleState("isEndDateEnabled", event.target.checked)
           }
         />
-        <FormLabel>{__('End Date')}</FormLabel>
+        <FormLabel>{__("End Date")}</FormLabel>
         <DateContainer>
           <Datetime
-            inputProps={{ placeholder: __('Select Date') }}
+            inputProps={{ placeholder: __("Select Date") }}
             dateFormat="MM/DD/YYYY"
             closeOnSelect={true}
             timeFormat={true}
             utc={true}
             value={formValues.endDate || undefined}
-            onChange={(date: any) => handleState('endDate', date)}
+            onChange={(date: any) => handleState("endDate", date)}
           />
         </DateContainer>
       </FormGroup>
@@ -335,53 +340,53 @@ export default function General(props: Props) {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <FormLabel required={true}>{__('Name')}</FormLabel>
+              <FormLabel required={true}>{__("Name")}</FormLabel>
               <FormControl
                 type="text"
                 name="name"
-                placeholder={__('Name')}
+                placeholder={__("Name")}
                 value={formValues.name}
                 required={true}
                 onChange={(event: any) =>
-                  handleState('name', (event.target as HTMLInputElement).value)
+                  handleState("name", (event.target as HTMLInputElement).value)
                 }
               />
             </FormGroup>
             <FormGroup>
-              <FormLabel>{__('Status')}</FormLabel>
+              <FormLabel>{__("Status")}</FormLabel>
               <FormControl
                 name="status"
-                componentClass="select"
+                componentclass="select"
                 options={[
                   {
-                    label: 'Active',
-                    value: 'active'
+                    label: "Active",
+                    value: "active",
                   },
                   {
-                    label: 'Archived',
-                    value: 'archived'
+                    label: "Archived",
+                    value: "archived",
                   },
                   {
-                    label: 'Draft',
-                    value: 'draft'
+                    label: "Draft",
+                    value: "draft",
                   },
                   {
-                    label: 'Completed',
-                    value: 'completed'
-                  }
+                    label: "Completed",
+                    value: "completed",
+                  },
                 ]}
-                onChange={(e: any) => handleState('status', e.target.value)}
+                onChange={(e: any) => handleState("status", e.target.value)}
                 defaultValue={formValues.status}
               />
             </FormGroup>
             <FormGroup>
-              <FormLabel>{__('Prioritize')}</FormLabel>
+              <FormLabel>{__("Prioritize")}</FormLabel>
               <FormControl
                 name="isPriority"
-                componentClass="checkbox"
+                componentclass="checkbox"
                 checked={formValues.isPriority}
                 onChange={(e: any) =>
-                  handleState('isPriority', e.target.checked)
+                  handleState("isPriority", e.target.checked)
                 }
               />
             </FormGroup>
@@ -389,10 +394,10 @@ export default function General(props: Props) {
             <DiscountInput
               type={formValues.type}
               value={formValues.value}
-              handleChange={(value: number) => handleState('value', value)}
+              handleChange={(value: number) => handleState("value", value)}
               bonusValue={formValues.bonusProduct}
               handleBonusChange={(value: any) =>
-                handleState('bonusProduct', value)
+                handleState("bonusProduct", value)
               }
               isLabelOn={true}
             />
@@ -401,52 +406,52 @@ export default function General(props: Props) {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <FormLabel>{__('Applies to')}</FormLabel>
+              <FormLabel>{__("Applies to")}</FormLabel>
               <FormControl
-                componentClass="radio"
+                componentclass="radio"
                 name="applyType"
-                onChange={() => handleState('applyType', 'category')}
-                defaultChecked={formValues.applyType === 'category'}
+                onChange={() => handleState("applyType", "category")}
+                defaultChecked={formValues.applyType === "category"}
               >
                 Specific Category
               </FormControl>
               <FormControl
-                componentClass="radio"
+                componentclass="radio"
                 name="applyType"
-                onChange={() => handleState('applyType', 'product')}
-                defaultChecked={formValues.applyType === 'product'}
+                onChange={() => handleState("applyType", "product")}
+                defaultChecked={formValues.applyType === "product"}
               >
                 Specific Product
               </FormControl>
               <FormControl
-                componentClass="radio"
+                componentclass="radio"
                 name="applyType"
-                onChange={() => handleState('applyType', 'segment')}
-                defaultChecked={formValues.applyType === 'segment'}
+                onChange={() => handleState("applyType", "segment")}
+                defaultChecked={formValues.applyType === "segment"}
               >
                 Specific Segment
               </FormControl>
               <FormControl
-                componentClass="radio"
+                componentclass="radio"
                 name="applyType"
-                onChange={() => handleState('applyType', 'vendor')}
-                defaultChecked={formValues.applyType === 'vendor'}
+                onChange={() => handleState("applyType", "vendor")}
+                defaultChecked={formValues.applyType === "vendor"}
               >
                 Specific Vendor
               </FormControl>
               <FormControl
-                componentClass="radio"
+                componentclass="radio"
                 name="applyType"
-                onChange={() => handleState('applyType', 'tag')}
-                defaultChecked={formValues.applyType === 'tag'}
+                onChange={() => handleState("applyType", "tag")}
+                defaultChecked={formValues.applyType === "tag"}
               >
                 Specific Tag
               </FormControl>
               <FormControl
-                componentClass="radio"
+                componentclass="radio"
                 name="applyType"
-                onChange={() => handleState('applyType', 'bundle')}
-                defaultChecked={formValues.applyType === 'bundle'}
+                onChange={() => handleState("applyType", "bundle")}
+                defaultChecked={formValues.applyType === "bundle"}
               >
                 Specific Bundle
               </FormControl>

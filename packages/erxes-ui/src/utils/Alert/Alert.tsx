@@ -1,31 +1,32 @@
-import Icon from '../../components/Icon';
 import { colors, dimensions, typography } from '../../styles';
+
+import Icon from '../../components/Icon';
+import React from 'react';
 import { darken } from '../../styles/ecolor';
 import { slideDown } from '../../utils/animations';
-import React from 'react';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 const types = {
   info: {
     background: colors.colorCoreBlue,
-    icon: 'info-circle'
+    icon: 'info-circle',
   },
 
   warning: {
     background: darken(colors.colorCoreYellow, 10),
-    icon: 'exclamation-triangle'
+    icon: 'exclamation-triangle',
   },
 
   error: {
     background: colors.colorCoreRed,
-    icon: 'times-circle'
+    icon: 'times-circle',
   },
 
   success: {
     background: colors.colorCoreGreen,
-    icon: 'check-circle'
-  }
+    icon: 'check-circle',
+  },
 };
 
 export const AlertItem = styledTS<{ type: string }>(styled.div)`
@@ -42,8 +43,8 @@ export const AlertItem = styledTS<{ type: string }>(styled.div)`
   background-color: ${colors.colorWhite};
   animation-name: ${slideDown};
   border-radius: 4px;
-  border-left: ${dimensions.unitSpacing - 4}px solid ${props =>
-  types[props.type].background};
+  border-left: ${dimensions.unitSpacing - 4}px solid ${(props) =>
+    types[props.type].background};
   animation-duration: 0.3s;
   animation-timing-function: ease;
   box-shadow: -1px 0 5px rgba(0, 0, 0, 0.3);
@@ -61,7 +62,7 @@ export const AlertItem = styledTS<{ type: string }>(styled.div)`
   i {
     margin-right: 5px;
     font-size: 25px;
-    color: ${props => types[props.type].background};
+    color: ${(props) => types[props.type].background};
   }
 
   button {
@@ -84,28 +85,28 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default class AlertStyled extends React.Component<Props> {
-  static defaultProps = {
-    type: 'information'
-  };
+const AlertStyled = (props: Props) => {
+  const { type, deleteNode, index, children } = props;
 
-  handleClose = () => {
-    const { deleteNode, index } = this.props;
-
+  const handleClose = () => {
     deleteNode(index);
   };
 
-  render() {
-    return (
-      <AlertItem {...this.props}>
-        <div>
-          <Icon icon={types[this.props.type].icon} />
-          {this.props.children}
-        </div>
-        <button type="button" onClick={this.handleClose}>
-          <Icon icon="times" />
-        </button>
-      </AlertItem>
-    );
-  }
-}
+  return (
+    <AlertItem type={type}>
+      <div>
+        <Icon icon={types[type].icon} />
+        {children}
+      </div>
+      <button type="button" onClick={handleClose}>
+        <Icon icon="times" />
+      </button>
+    </AlertItem>
+  );
+};
+
+AlertStyled.defaultProps = {
+  type: 'information',
+};
+
+export default AlertStyled;

@@ -1,14 +1,14 @@
-import React from "react";
-import InboxRoutes from "./inbox/routes";
-import ChannelSettings from "./settings/channels/routes";
-import IntegrationSettings from "./settings/integrations/routes";
-import ResponseTemplates from "./settings/responseTemplates/routes";
-import SkillSettings from "./settings/skills/routes";
-import BookingSettings from "./bookings/routes";
-import FormsSettings from "./forms/routes";
-import IntegrationConfigs from "./settings/integrationsConfig/routes";
-import VideoCallRoutes from "./videoCall/routes";
+import BookingSettings from './bookings/routes';
+import ChannelSettings from './settings/channels/routes';
+import FormsSettings from './forms/routes';
+import InboxRoutes from './inbox/routes';
+import IntegrationConfigs from './settings/integrationsConfig/routes';
+import IntegrationSettings from './settings/integrations/routes';
+import React from 'react';
+import ResponseTemplates from './settings/responseTemplates/routes';
 import ScriptRoutes from './scripts/routes';
+import SkillSettings from './settings/skills/routes';
+import VideoCallRoutes from './videoCall/routes';
 
 const routes = () => {
   return (
@@ -22,7 +22,7 @@ const routes = () => {
       <BookingSettings />
       <FormsSettings />
       <VideoCallRoutes />
-      <ScriptRoutes/>
+      <ScriptRoutes />
     </>
   );
 };

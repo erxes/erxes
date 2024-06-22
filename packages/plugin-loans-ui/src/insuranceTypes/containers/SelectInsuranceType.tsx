@@ -5,7 +5,7 @@ import React from 'react';
 import { queries } from '../graphql';
 import { IInsuranceType } from '../types';
 
-// get insuranceType options for react-select-plus
+// get insuranceType options for react-select
 export function generateInsuranceTypeOptions(
   array: IInsuranceType[] = []
 ): IOption[] {

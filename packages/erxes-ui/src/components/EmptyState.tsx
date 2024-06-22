@@ -5,7 +5,7 @@ import styledTS from 'styled-components-ts';
 import { colors } from '../styles';
 import Icon from './Icon';
 
-const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
+const EmptyStateStyled = styledTS<{ hugeness: string; $light?: boolean }>(
   styled.div
 )`
   display: flex;
@@ -28,7 +28,7 @@ const EmptyStateStyled = styledTS<{ hugeness: string; light?: boolean }>(
 
   span {
     max-width: 600px;
-    color: ${props => props.light && colors.colorWhite};
+    color: ${props => props.$light && colors.colorWhite};
   }
 
   ${props => {
@@ -90,7 +90,7 @@ function EmptyState({
   light
 }: Props) {
   return (
-    <EmptyStateStyled hugeness={size} light={light}>
+    <EmptyStateStyled hugeness={size} $light={light}>
       {icon ? <Icon icon={icon} /> : <img src={image} alt={text} />}
 
       <span>{__(text)}</span>

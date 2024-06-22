@@ -25,7 +25,7 @@ const generateFilter = (params: ICommonParams) => {
 };
 
 const voucherQueries = {
-  vouchers(_root, params: ICommonParams, { models }: IContext) {
+  async vouchers(_root, params: ICommonParams, { models }: IContext) {
     const filter: any = generateFilter(params);
     return paginate(models.Vouchers.find(filter), params);
   },

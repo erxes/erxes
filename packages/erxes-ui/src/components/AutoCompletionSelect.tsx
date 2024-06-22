@@ -1,12 +1,12 @@
-import client from '../apolloClient';
-import { gql } from '@apollo/client';
-import debounce from 'lodash/debounce';
-import React, { useCallback, useEffect, useState } from 'react';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
-import { __, Alert } from '../utils';
-import Button from './Button';
-import Icon from './Icon';
+import { Alert, __ } from "../utils";
+import React, { useCallback, useEffect, useState } from "react";
+
+import Icon from "./Icon";
+import client from "../apolloClient";
+import debounce from "lodash/debounce";
+import { gql } from "@apollo/client";
+import CreatableSelect from "react-select/creatable";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: flex;
@@ -49,11 +49,11 @@ function Option(props: {
   const { option, onSelect } = props;
   const { onRemove } = option;
 
-  const onClick = e => {
+  const onClick = (e) => {
     onSelect(option, e);
   };
 
-  const onRemoveClick = e => {
+  const onRemoveClick = (e) => {
     e.stopPropagation();
 
     onRemove(option.value);
@@ -63,7 +63,7 @@ function Option(props: {
     return (
       <OptionWrapper>
         <FillContent>{option.label}</FillContent>
-        <small>({__('Already exist')})</small>
+        <small>({__("Already exist")})</small>
       </OptionWrapper>
     );
   }
@@ -72,7 +72,7 @@ function Option(props: {
     <OptionWrapper onClick={onClick}>
       <FillContent>{option.label}</FillContent>
       <Icon
-        style={{ float: 'right' }}
+        style={{ float: "right" }}
         icon="times-circle"
         onClick={onRemoveClick}
       />
@@ -112,7 +112,7 @@ function AutoCompletionSelect({
   defaultValue,
   required,
   checkFormat,
-  onChange
+  onChange,
 }: Props) {
   const selectRef = React.useRef<{ handleInputBlur: () => void }>(null);
 
@@ -121,64 +121,81 @@ function AutoCompletionSelect({
     const addedOptions = currentFields.added.options;
 
     const filteredOptions = addedOptions.filter(
-      option => option.value !== value
+      (option) => option.value !== value
     );
 
     currentFields.added.options = filteredOptions;
 
-    setSearchValue('');
+    setSearchValue("");
     setSelectedValue(null);
     setFields(currentFields);
 
     onChange({
-      options: currentFields.added.options.map(item => item.label),
-      selectedOption: null
+      options: currentFields.added.options.map((item) => item.label),
+      selectedOption: null,
     });
   };
 
   const [fields, setFields] = useState<Field>({
     added: {
       label: __(`Possible ${autoCompletionType}`),
-      options: defaultOptions.map(item => ({
+      options: defaultOptions.map((item) => ({
         label: item,
         value: item,
-        onRemove: handleRemove
-      }))
+        onRemove: handleRemove,
+      })),
     },
     search: {
-      label: __('Search result'),
-      options: []
-    }
+      label: __("Search result"),
+      options: [],
+    },
   });
+
+  useEffect(() => {
+    setFields({
+      added: {
+        label: __(`Possible ${autoCompletionType}`),
+        options: defaultOptions.map((item) => ({
+          label: item,
+          value: item,
+          onRemove: handleRemove,
+        })),
+      },
+      search: {
+        label: __("Search result"),
+        options: [],
+      },
+    });
+  }, [defaultOptions]);
 
   const [selectedValue, setSelectedValue] = useState<Option | null>(
     defaultValue ? { label: defaultValue, value: defaultValue } : null
   );
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   const generateOptions = useCallback(
-    list => {
+    (list) => {
       if (list.length === 0) {
         return [];
       }
 
       const options: string[] = [];
 
-      list.map(item => options.push(...item[autoCompletionType]));
+      list.map((item) => options.push(...item[autoCompletionType]));
 
-      return options.map(item => ({
+      return options.map((item) => ({
         label: item,
-        value: item
+        value: item,
       }));
     },
     [autoCompletionType]
   );
 
   const setFetchResult = useCallback(
-    list => {
+    (list) => {
       const options = generateOptions(list).filter(
-        item => item.label !== defaultValue
+        (item) => item.label !== defaultValue
       );
 
       const currentFields = { ...fields };
@@ -200,8 +217,8 @@ function AutoCompletionSelect({
         variables: {
           searchValue,
           autoCompletionType,
-          autoCompletion: true
-        }
+          autoCompletion: true,
+        },
       })
       .then(({ data }) => {
         setFetchResult(data[queryName]);
@@ -216,16 +233,16 @@ function AutoCompletionSelect({
     debounce(() => fetch(), 400)();
   }, [searchValue, fetch]);
 
-  const handleChange = option => {
-    setSearchValue('');
+  const handleChange = (option) => {
+    setSearchValue("");
     setSelectedValue(option);
 
     if (option) {
-      const values = fields.added.options.map(item => item.label);
+      const values = fields.added.options.map((item) => item.label);
 
       onChange({
         options: values,
-        selectedOption: option.value
+        selectedOption: option.value,
       });
     }
   };
@@ -235,12 +252,12 @@ function AutoCompletionSelect({
   };
 
   const handleSave = () => {
-    setSearchValue('');
+    setSearchValue("");
 
     const newItem = {
       label: searchValue,
       value: searchValue,
-      onRemove: handleRemove
+      onRemove: handleRemove,
     };
 
     const currentFields = { ...fields };
@@ -256,8 +273,8 @@ function AutoCompletionSelect({
     }
 
     onChange({
-      options: addedOptions.map(item => item.label),
-      selectedOption: searchValue
+      options: addedOptions.map((item) => item.label),
+      selectedOption: searchValue,
     });
   };
 
@@ -265,7 +282,7 @@ function AutoCompletionSelect({
     const { added, search } = fields;
 
     const hasSearchResult = search.options.length > 0;
-    const currentPossibleValues = added.options.map(item => item.label);
+    const currentPossibleValues = added.options.map((item) => item.label);
 
     const isDuplicated = currentPossibleValues.includes(searchValue);
 
@@ -278,7 +295,7 @@ function AutoCompletionSelect({
         return handleSave();
       }
 
-      return Alert.error('Invalid format');
+      return Alert.error("Invalid format");
     }
 
     return handleSave();
@@ -292,7 +309,7 @@ function AutoCompletionSelect({
     setFields(currentFields);
   };
 
-  const handleKeyDown = event => {
+  const handleKeyDown = (event) => {
     // enter key
     if (event.keyCode === 13 && searchValue.length !== 0) {
       event.preventDefault();
@@ -301,47 +318,21 @@ function AutoCompletionSelect({
     }
   };
 
-  function renderNoResult() {
-    if (searchValue.length === 0) {
-      return 'Type to search';
-    }
-
-    return (
-      <Button
-        btnStyle="link"
-        uppercase={false}
-        onClick={handleAdd}
-        block={true}
-        icon="plus-circle"
-      >
-        Add {autoCompletionType}
-      </Button>
-    );
-  }
-
-  const inputRenderer = props => {
-    return <input {...props} value={searchValue} />;
-  };
-
   return (
     <Wrapper>
       <FillContent>
-        <Select
-          ref={selectRef}
-          isLoading={loading}
+        <CreatableSelect
+          // ref={selectRef}
+          // isLoading={loading}
+          isClearable={true}
           required={required}
           placeholder={placeholder}
-          inputRenderer={inputRenderer}
           value={selectedValue}
           options={[fields.added, fields.search]}
-          onSelectResetsInput={true}
-          onBlurResetsInput={true}
           onBlur={handleOnBlur}
           onChange={handleChange}
-          onInputKeyDown={handleKeyDown}
+          onKeyDown={handleKeyDown}
           onInputChange={handleInput}
-          optionComponent={Option}
-          noResultsText={renderNoResult()}
         />
       </FillContent>
     </Wrapper>

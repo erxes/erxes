@@ -6,10 +6,10 @@ import {
   FormGroup,
 } from '@erxes/ui/src/components';
 
-import RichTextEditor from '../containers/RichTextEditor';
 import { IFormProps } from '@erxes/ui/src/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
+import RichTextEditor from '../containers/RichTextEditor';
 import { __ } from 'coreui/utils';
 import styled from 'styled-components';
 
@@ -35,7 +35,12 @@ class Form extends React.Component<Props, State> {
 
     const { obj } = props;
 
-    this.state = { name: obj.name, content: obj.content, subType: obj.subType, code: obj.code};
+    this.state = {
+      name: obj.name,
+      content: obj.content,
+      subType: obj.subType,
+      code: obj.code,
+    };
   }
 
   onContentChange = (content: string) => {
@@ -97,7 +102,6 @@ class Form extends React.Component<Props, State> {
               content={obj.content}
               onChange={this.onContentChange}
               height={200}
-              name="document-form"
             />
           </div>
 
@@ -108,7 +112,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Replacer</ControlLabel>
 
           <FormControl
-            componentClass="textarea"
+            componentclass="textarea"
             name="name"
             required={true}
             defaultValue={obj.replacer}
@@ -120,7 +124,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Sub Type</ControlLabel>
 
           <FormControl
-            componentClass="select"
+            componentclass="select"
             name="subType"
             value={subType}
             onChange={this.onChangeField.bind(this, 'subType')}

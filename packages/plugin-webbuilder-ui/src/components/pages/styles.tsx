@@ -1,10 +1,10 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { FlexItem } from "@erxes/ui/src/components/step/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
-export const List = styledTS<{ showDarkMode: boolean }>(styled.ul)`
+export const List = styledTS<{ $showDarkMode: boolean }>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
@@ -18,8 +18,8 @@ export const List = styledTS<{ showDarkMode: boolean }>(styled.ul)`
     line-height: 15px;
     transition: all ease 0.3s;
     cursor: pointer;
-    border-bottom: 1px solid ${props =>
-      props.showDarkMode ? '#666' : colors.borderPrimary};
+    border-bottom: 1px solid ${(props) =>
+      props.$showDarkMode ? "#666" : colors.borderPrimary};
 
     > i {
       visibility: hidden;
@@ -62,7 +62,7 @@ export const List = styledTS<{ showDarkMode: boolean }>(styled.ul)`
 
       &.link {
         background: none;
-        color: ${props => props.showDarkMode && colors.colorShadowGray};
+        color: ${(props) => props.$showDarkMode && colors.colorShadowGray};
       }
 
       > i {

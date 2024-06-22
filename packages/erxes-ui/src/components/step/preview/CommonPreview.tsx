@@ -10,15 +10,15 @@ import {
   PreviewContainer,
   PreviewTitle,
   SlideLeftContent,
-  SlideRightContent
-} from './styles';
-import { LauncherContainer, WebPreview, WidgetPreview } from '../styles';
+  SlideRightContent,
+} from "./styles";
+import { LauncherContainer, WebPreview, WidgetPreview } from "../styles";
 
-import Button from '../../Button';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { readFile } from '../../../utils';
-import styled from 'styled-components';
+import Button from "../../Button";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import React from "react";
+import { readFile } from "../../../utils";
+import styled from "styled-components";
 
 export const ShoutBox = styled(WebPreview)`
   height: 100%;
@@ -51,7 +51,7 @@ class CommonPreview extends React.Component<Props, {}> {
     }
 
     return (
-      <CallOutBody imgSize={imgSize}>
+      <CallOutBody $imgSize={imgSize}>
         {image && <img src={readFile(image)} alt={image} />}
 
         {bodyValue && bodyValue}
@@ -64,9 +64,9 @@ class CommonPreview extends React.Component<Props, {}> {
       btnStyle,
       theme,
       color,
-      btnText = 'Send',
+      btnText = "Send",
       numberOfPages = 1,
-      currentPage = 1
+      currentPage = 1,
     } = this.props;
 
     const button = (
@@ -77,7 +77,7 @@ class CommonPreview extends React.Component<Props, {}> {
         <Button
           ignoreTrans={true}
           btnStyle={btnStyle}
-          style={{ backgroundColor: theme ? theme : color, margin: '5px' }}
+          style={{ backgroundColor: theme ? theme : color, margin: "5px" }}
           onClick={action}
         >
           {title}
@@ -102,21 +102,21 @@ class CommonPreview extends React.Component<Props, {}> {
     }
 
     if (currentPage === 1 && numberOfPages > 1) {
-      return button('Next', onNextClick);
+      return button("Next", onNextClick);
     }
 
     if (numberOfPages > currentPage) {
       return (
         <FlexRow>
-          {button('Back', onbackClick)}
-          {button('Next', onNextClick)}
+          {button("Back", onbackClick)}
+          {button("Next", onNextClick)}
         </FlexRow>
       );
     }
 
     return (
       <FlexRow>
-        {button('Back', onbackClick)}
+        {button("Back", onbackClick)}
         {button(btnText)}
       </FlexRow>
     );
@@ -137,12 +137,12 @@ class CommonPreview extends React.Component<Props, {}> {
         style={{
           background: theme ? theme : color,
           opacity: 0.7,
-          height: '13px',
-          width: `${percentage}%`
+          height: "13px",
+          width: `${percentage}%`,
         }}
       >
         <div
-          style={{ textAlign: 'center', color: 'white', fontSize: 10 }}
+          style={{ textAlign: "center", color: "white", fontSize: 10 }}
         >{`${percentage}%`}</div>
       </div>
     );
@@ -174,7 +174,7 @@ class CommonPreview extends React.Component<Props, {}> {
   render() {
     const { type, theme, color } = this.props;
 
-    if (type === 'shoutbox') {
+    if (type === "shoutbox") {
       return (
         <ShoutBox>
           <WidgetPreview className="type-default">
@@ -187,7 +187,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === 'popup') {
+    if (type === "popup") {
       return (
         <CenterContainer>
           <OverlayTrigger />
@@ -196,7 +196,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === 'dropdown') {
+    if (type === "dropdown") {
       return (
         <PreviewContainer>
           <DropdownContent style={{ borderColor: theme ? theme : color }}>
@@ -206,7 +206,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === 'slideInLeft') {
+    if (type === "slideInLeft") {
       return (
         <PreviewContainer>
           <SlideLeftContent>{this.renderContent()}</SlideLeftContent>
@@ -214,7 +214,7 @@ class CommonPreview extends React.Component<Props, {}> {
       );
     }
 
-    if (type === 'slideInRight') {
+    if (type === "slideInRight") {
       return (
         <PreviewContainer>
           <SlideRightContent>{this.renderContent()}</SlideRightContent>

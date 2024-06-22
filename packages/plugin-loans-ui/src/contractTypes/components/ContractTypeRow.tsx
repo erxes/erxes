@@ -1,23 +1,18 @@
-import { formatValue } from '@erxes/ui/src/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import _ from 'lodash';
-import React from 'react';
-
-import ContractTypeForm from '../containers/ContractTypeForm';
-import { IContractType } from '../types';
 import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
+import ContractTypeForm from '../containers/ContractTypeForm';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IContractType } from '../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import _ from 'lodash';
+import { formatValue } from '@erxes/ui/src/utils';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   contractType: IContractType;
-  history: any;
   isChecked: boolean;
   toggleBulk: (contractType: IContractType, isChecked?: boolean) => void;
-};
-
-type State = {
-  showModal: boolean;
 };
 
 function displayValue(contractType, name) {
@@ -30,7 +25,7 @@ function renderFormTrigger(
   trigger: React.ReactNode,
   contractType: IContractType
 ) {
-  const content = props => (
+  const content = (props) => (
     <ContractTypeForm {...props} contractType={contractType} />
   );
 
@@ -46,33 +41,28 @@ function renderFormTrigger(
 
 function renderEditAction(contractType: IContractType) {
   const trigger = (
-    <ActionButton
-      style={{ cursor: 'pointer' }}
-      children={<Icon icon="edit-1" />}
-    />
+    <ActionButton style={{ cursor: 'pointer' }}>
+      <Icon icon="edit-1" />
+    </ActionButton>
   );
 
   return renderFormTrigger(trigger, contractType);
 }
 
-function ContractTypeRow(
-  { contractType, history, isChecked, toggleBulk }: Props,
-  { showModal }: State
-) {
-  const onChange = e => {
+function ContractTypeRow({ contractType, isChecked, toggleBulk }: Props) {
+  const navigate = useNavigate();
+  const onChange = (e) => {
     if (toggleBulk) {
       toggleBulk(contractType, e.target.checked);
     }
   };
 
-  const onClick = e => {
+  const onClick = (e) => {
     e.stopPropagation();
   };
 
   const onTrClick = () => {
-    history.push(
-      `/erxes-plugin-loan/contract-type-details/${contractType._id}`
-    );
+    navigate(`/erxes-plugin-loan/contract-type-details/${contractType._id}`);
   };
 
   return (
@@ -80,7 +70,7 @@ function ContractTypeRow(
       <td onClick={onClick}>
         <FormControl
           checked={isChecked}
-          componentClass="checkbox"
+          componentclass="checkbox"
           onChange={onChange}
         />
       </td>

@@ -20,9 +20,9 @@ export const types = `
 }`;
 
 export const queries = `
-  webhooks: [Webhook]
+  webhooks(page: Int, perPage: Int, searchValue: String): [Webhook]
   webhookDetail(_id: String!): Webhook
-  webhooksTotalCount: Int
+  webhooksTotalCount(searchValue: String): Int
   webhooksGetActions: JSON
 `;
 

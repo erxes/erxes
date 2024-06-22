@@ -2,20 +2,21 @@ import {
   SignatureChooserFooter,
   SignatureDropdownWrapper,
   SignatureHiderButton,
-  SignatureOptionWrapper
-} from './styles';
+  SignatureOptionWrapper,
+  SignatureContainer,
+  SignatureContentWrapper,
+} from "./styles";
 
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IEmailSignature } from '@erxes/ui-settings/src/email/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IBrand } from "@erxes/ui/src/brands/types";
+import { IEmailSignature } from "@erxes/ui-settings/src/email/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Label } from "@erxes/ui/src/components/form/styles";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React, { useState } from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
+import Popover from "@erxes/ui/src/components/Popover";
 
 type Props = {
   signatureContent: any;
@@ -36,17 +37,19 @@ const SignatureChooser = ({
   brands,
   emailContent,
   onContentChange,
-  onSignatureChange
+  onSignatureChange,
 }: Props) => {
+  const [showPreview, setShowPreview] = useState("");
+
   const removeSignature = ({
-    openingTag = '<data>',
-    closingTag = '</data>',
-    content
+    openingTag = "<data>",
+    closingTag = "</data>",
+    content,
   }) => {
     const closingTagLength = closingTag.length + 1;
     const firstIndexOfSignature = content.indexOf(openingTag);
     const lastIndexOfSignature = content.indexOf(closingTag) + closingTagLength;
-    let contentWithoutSignature = '';
+    let contentWithoutSignature = "";
     // If tag is found removing it and appending new signature value to the editor content /
     if (firstIndexOfSignature > -1) {
       contentWithoutSignature = content
@@ -71,11 +74,13 @@ const SignatureChooser = ({
 
   const handleSignatureHide = () => {
     onContentChange(removeSignature({ content: emailContent }));
-    onSignatureChange('');
+    onSignatureChange("");
   };
 
-  const handleSignatureSelection = (val: string) => {
+  const handleSignatureSelection = (val: string, close: any) => {
     /** If the current selection is same as previous, do nothing */
+    close();
+
     if (emailSignature === val) {
       return;
     }
@@ -86,7 +91,7 @@ const SignatureChooser = ({
 
     /** If selected brand exists */
     if (brandSignature) {
-      const signatureString = brandSignature.signature || '';
+      const signatureString = brandSignature.signature || "";
 
       onContentChange(
         removeSignature({ content: emailContent }).concat(
@@ -98,28 +103,53 @@ const SignatureChooser = ({
     }
   };
 
-  const renderSignatureDropdownItem = (signature: IEmailSignature) => {
+  const renderSignatureDropdownItem = (
+    signature: IEmailSignature,
+    close: any
+  ) => {
     const brandName =
       brands.find((brand: IBrand) => brand._id === signature.brandId)?.name ||
-      '';
+      "";
+
+    if (brandName === "") {
+      return null;
+    }
 
     return (
       <React.Fragment key={`${signature.brandId}-${signature.signature}`}>
-        <SignatureDropdownWrapper>
-          <Dropdown.Item
-            as="button"
-            onClick={() => handleSignatureSelection(signature.brandId || '')}
-            active={emailSignature === signature.brandId}
-          >
-            <SignatureOptionWrapper>{brandName}</SignatureOptionWrapper>
-          </Dropdown.Item>
+        <SignatureDropdownWrapper
+          className={`${emailSignature === signature.brandId ? "active" : ""}`}
+        >
+          <SignatureOptionWrapper>
+            <button
+              onClick={() =>
+                handleSignatureSelection(signature.brandId || "", close)
+              }
+            >
+              <b>{brandName}</b>
+            </button>
+            <Icon
+              icon="eye"
+              onClick={() => setShowPreview(signature.brandId || "")}
+            />
+          </SignatureOptionWrapper>
+          <SignatureContentWrapper show={signature.brandId === showPreview}>
+            <div
+              onClick={() =>
+                handleSignatureSelection(signature.brandId || "", close)
+              }
+              dangerouslySetInnerHTML={{
+                __html: signature.signature || "",
+              }}
+            />
+          </SignatureContentWrapper>
         </SignatureDropdownWrapper>
       </React.Fragment>
     );
   };
 
-  const renderSignatures = () => {
-    if (brands.length === 0 || signatures.length === 0) {
+  const renderSignatures = (close) => {
+    if (signatures.length === 0) {
       return (
         <SignatureOptionWrapper>
           <EmptyState icon="clipboard-1" text="No signatures" />
@@ -128,7 +158,7 @@ const SignatureChooser = ({
     }
 
     return (signatures || []).map((signature: IEmailSignature) =>
-      renderSignatureDropdownItem(signature)
+      renderSignatureDropdownItem(signature, close)
     );
   };
 
@@ -146,19 +176,19 @@ const SignatureChooser = ({
     const noSignatures = !signatures?.length;
 
     return (
-      <SignatureChooserFooter noSignatures={noSignatures}>
+      <SignatureChooserFooter $noSignatures={noSignatures}>
         {!noSignatures && (
           <SignatureHiderButton onClick={() => handleSignatureHide()}>
             Hide Signature
           </SignatureHiderButton>
         )}
         <ModalTrigger
-          title={__('Email signatures')}
+          title={__("Email signatures")}
           trigger={
-            <div role="button" aria-label={__('Signature settings')}>
-              <Tip text={__('Signature settings')} placement="top">
+            <div role="button" aria-label={__("Signature settings")}>
+              <Tip text={__("Signature settings")} placement="top">
                 <Label>
-                  <Icon icon={'settings'} />
+                  <Icon icon={"settings"} />
                 </Label>
               </Tip>
             </div>
@@ -169,17 +199,24 @@ const SignatureChooser = ({
     );
   };
 
-  return (
-    <Dropdown>
-      <Dropdown.Toggle as={DropdownToggle} id="signature-dropdown">
-        {renderIcon({ text: 'Insert signature', icon: 'edit-alt' })}
-      </Dropdown.Toggle>
-
-      <Dropdown.Menu style={{ overflow: 'auto', maxHeight: 500 }}>
-        {renderSignatures()}
+  const popoverContent = (close) => {
+    return (
+      <>
+        <div className="popover-header">{__("Signatures")}</div>
+        <SignatureContainer>{renderSignatures(close)}</SignatureContainer>
         {renderSignatureFooter()}
-      </Dropdown.Menu>
-    </Dropdown>
+      </>
+    );
+  };
+
+  return (
+    <Popover
+      trigger={renderIcon({ text: "Insert signature", icon: "edit-alt" })}
+      closeAfterSelect={true}
+      placement="top-end"
+    >
+      {popoverContent}
+    </Popover>
   );
 };
 

@@ -12,7 +12,7 @@ import {
   SpinCampaignQueryResponse
 } from '../../../configs/spinCampaign/types';
 
-type Props = { history: any; queryParams: any };
+type Props = { queryParams: any };
 
 type FinalProps = {
   spinCampaignQuery: SpinCampaignQueryResponse;

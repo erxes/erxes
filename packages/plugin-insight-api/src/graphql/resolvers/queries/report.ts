@@ -77,11 +77,11 @@ const generateFilter = async (
 const reportsQueries = {
     async reportList(_root, params, { models, subdomain, user }: IContext) {
 
-        const totalCount = models.Reports.count({});
+        const totalCount = await models.Reports.countDocuments({});
 
         const filter = await generateFilter(params, user, subdomain);
 
-        const list = models.Reports.find(filter).sort({
+        const list = await models.Reports.find(filter).sort({
             createdAt: 1,
             name: 1,
         });
@@ -89,7 +89,7 @@ const reportsQueries = {
         return { list, totalCount };
     },
 
-    reportDetail(_root, { reportId }, { models }: IContext) {
+    async reportDetail(_root, { reportId }, { models }: IContext) {
         return models.Reports.getReport(reportId);
     },
 

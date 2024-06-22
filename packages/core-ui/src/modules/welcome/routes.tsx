@@ -1,10 +1,17 @@
+import { Route, Routes } from 'react-router-dom';
+
 import React from 'react';
-import { Route } from 'react-router-dom';
 import Welcome from './container/Welcome';
 
-const routes = () => {
+const routes = (currentUser) => {
   return (
-    <Route key="/welcome" exact={true} path="/welcome" component={Welcome} />
+    <Routes>
+      <Route
+        key="/welcome"
+        path="/welcome"
+        element={<Welcome currentUser={currentUser} />}
+      />
+    </Routes>
   );
 };
 
