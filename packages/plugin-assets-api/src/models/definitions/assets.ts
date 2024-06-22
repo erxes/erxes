@@ -5,7 +5,8 @@ import {
 import { Schema } from 'mongoose';
 import {
   ASSET_CATEGORY_STATUSES,
-  ASSET_STATUSES
+  ASSET_STATUSES,
+  ASSET_KB_ARTICLE_HISTORY_ACTIONS
 } from '../../common/constant/asset';
 import { field, schemaWrapper } from './utils';
 
@@ -32,6 +33,21 @@ export const assetCategoriesSchema = schemaWrapper(
       default: new Date(),
       label: 'Created at'
     })
+  })
+);
+
+export const assetKbArticlesHistoriesSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    assetId: field({ type: String, label: 'Asset Id' }),
+    kbArticleId: field({ type: String, label: 'Knowledgebase Article Id' }),
+    action: field({
+      type: String,
+      enum: ASSET_KB_ARTICLE_HISTORY_ACTIONS.ALL,
+      required: true
+    }),
+    userId: field({ type: String, label: 'User Id', required: true }),
+    createdAt: field({ type: Date, label: 'Created At', default: new Date() })
   })
 );
 
