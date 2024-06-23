@@ -882,8 +882,8 @@ interface o_c_loan_transactions {
   o_c_loan_schedule_type: string; //хавсрал Й
   o_c_loan_schedule_status: boolean;
   o_c_loan_schedule_change_reason: string;
-  o_c_loan_schedule: [Ocloanschedule];
-  o_c_loan_payment: [OcloanPayment];
+  o_c_loan_schedule: [o_c_loan_schedule];
+  o_c_loan_payment: [o_c_loanp_ayment];
 }
 
 interface o_c_loan_schedule {
@@ -976,7 +976,7 @@ interface o_shareholder_orgs {
   o_shareholder_org_phone: string;
   o_shareholder_org_email: string;
 }
-interface o_shareholder_customers {
+interface o_shareholdercustomers {
   '-action': string;
   o_shareholder_customer_civil_id: string;
   o_shareholder_customer_regnum: string;
@@ -1000,7 +1000,7 @@ export interface IZms {
     c_familyname: string;
     o_c_isforeign: boolean;
     o_c_birthdate: Date;
-    o_c_address: Io_c_address;
+    o_c_address: io_c_Address;
     o_c_phone: number;
     o_c_email: string;
     c_tax_number: string;
@@ -1022,7 +1022,7 @@ export interface IZms {
     o_numof_shareholder_orgs: number;
     o_shareholder_orgs: [o_shareholder_orgs];
     o_numof_shareholder_customers: number;
-    o_shareholder_customers: [o_shareholder_customers];
+    o_shareholder_customers: [o_c_loan_information];
   };
 
   o_c_loan_information: [
