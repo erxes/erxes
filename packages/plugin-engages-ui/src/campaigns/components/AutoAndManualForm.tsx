@@ -326,7 +326,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <Step noButton={true} title='Compose your notification' img={imagePath}>
           <NotificationForm
             onChange={this.changeState}
-            messageKind={kind}
             notification={notification}
           />
         </Step>
