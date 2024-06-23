@@ -25,7 +25,6 @@ const Base = (props: Props) => {
   useEffect(() => {
     if (props.calendars.length > 0 && !props.queryParams.accountId) {
       routerUtils.setParams(navigate, location, {
-        accountId: props.calendars[0].accountId,
       });
     }
   }, []);

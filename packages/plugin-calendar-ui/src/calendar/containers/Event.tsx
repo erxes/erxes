@@ -15,7 +15,6 @@ import { queries as integrationsQueries } from '@erxes/ui-inbox/src/settings/int
 type Props = {
   type: string;
   currentDate: Date;
-  queryParams: any;
   startTime: Date;
   endTime: Date;
   calendarIds: string[];
@@ -55,7 +54,6 @@ class EventContainer extends React.Component<FinalProps, {}> {
       removeEventMutation,
       startTime,
       endTime,
-      queryParams
     } = this.props;
 
     if (integrationsGetNylasEventsQuery.loading) {
@@ -80,7 +78,6 @@ class EventContainer extends React.Component<FinalProps, {}> {
               integrationsGetNylasEventsQuery.refetch({
                 startTime,
                 endTime,
-                queryParams
               });
 
               const msg = `${__('You successfully deleted a')} ${__('event')}.`;

@@ -138,10 +138,9 @@ export default withProps<Props>(
   compose(
     graphql<Props, DealsQueryResponse>(gql(queries.deals), {
       name: 'dealsQuery',
-      options: ({ pipelineId, stage, queryParams }) => ({
+      options: ({ stage, queryParams }) => ({
         variables: {
           initialStageId: stage._id,
-          pipelineId,
           ...getFilterParams(queryParams)
         }
       })

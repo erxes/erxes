@@ -186,7 +186,6 @@ class GroupsContainer extends React.Component<FinalProps> {
     const extendedProps = {
       ...this.props,
       groups,
-      refetch: groupsQuery.refetch,
       loading: groupsQuery.loading,
       remove,
       renderButton,
