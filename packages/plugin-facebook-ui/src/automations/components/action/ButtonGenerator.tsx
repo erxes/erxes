@@ -1,17 +1,17 @@
-import { ButtonRow, Container, Row } from "../../styles";
-import React, { useEffect, useState } from "react";
+import { ButtonRow, Container, Row } from '../../styles';
+import React, { useEffect, useState } from 'react';
 
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import Alert from "@erxes/ui/src/utils/Alert/index";
-import Button from "@erxes/ui/src/components/Button";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-import { FormContainer } from "@erxes/ui-cards/src/boards/styles/common";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
-import LinkAction from "./LinkAction";
-import { Menu } from "@headlessui/react";
-import { __ } from "@erxes/ui/src/utils/core";
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import Button from '@erxes/ui/src/components/Button';
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { FormContainer } from '@erxes/ui-cards/src/boards/styles/common';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import LinkAction from './LinkAction';
+import { Menu } from '@headlessui/react';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id: string;
@@ -19,7 +19,7 @@ type Props = {
   onChange: (_id: string, name: string, value: any) => void;
   hideMenu?: boolean;
   addButtonLabel?: string;
-  limit?:number
+  limit?: number;
 };
 
 type Buttons = {
@@ -36,9 +36,10 @@ function ButtonsGenerator({
   onChange,
   hideMenu,
   addButtonLabel,
-  limit,
+  limit
 }: Props) {
   const [btns, setButtons] = useState(buttons as Buttons[]);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     setButtons(buttons);
@@ -64,7 +65,7 @@ function ButtonsGenerator({
           _id,
           text,
           type,
-          link,
+          link
         }))
       );
     };
@@ -80,8 +81,16 @@ function ButtonsGenerator({
     const handleEdit = (e) => {
       const { value } = e.currentTarget as HTMLInputElement;
 
-      if(value.length > 20){
-        return
+      if (value.length > 20) {
+        if (value.length > 21) {
+          Alert.warning('You cannot set text more than 20 characters');
+          setError(true);
+        }
+        return;
+      }
+
+      if (error) {
+        setError(false);
       }
 
       const updateButtons = btns.map((btn) =>
@@ -185,12 +194,9 @@ function ButtonsGenerator({
             <Container>
               {[
                 { type: 'btn', text: 'Button' },
-                { type: 'link', text: 'Link' },
+                { type: 'link', text: 'Link' }
               ].map(({ text, type }) => (
-                <Menu.Item
-                  // className="dropdown-item"
-                  key={type}
-                >
+                <Menu.Item key={type}>
                   <a onClick={(e) => handleBtnTypeChange(e, type)}>{text}</a>
                 </Menu.Item>
               ))}
@@ -216,22 +222,28 @@ function ButtonsGenerator({
         _id: Math.random().toString(),
         text: `New Button #${newBtnCount + 1}`,
         type: 'button',
-        isEditing: true,
-      },
+        isEditing: true
+      }
     ]);
   };
 
-  const renderAddButton = () =>{
-    if(limit && btns.length +1  >limit){
-      return null
+  const renderAddButton = () => {
+    if (limit && btns.length + 1 > limit) {
+      return null;
     }
 
     return (
-      <Button block btnStyle="link" icon="plus-1" onClick={addButton}>
+      <Button
+        block
+        disabled={error}
+        btnStyle="link"
+        icon="plus-1"
+        onClick={addButton}
+      >
         {__(addButtonLabel || 'Add Button')}
       </Button>
     );
-  }
+  };
 
   return (
     <>
