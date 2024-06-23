@@ -26,12 +26,11 @@ type FinalProps = {
 };
 
 const SidebarContainer = (props: FinalProps) => {
-  const { kindCountsQuery, statusCountsQuery, tagsQuery, tagCountsQuery } =
+  const { statusCountsQuery, tagsQuery, tagCountsQuery } =
     props;
 
   const updatedProps = {
     ...props,
-    kindCounts: kindCountsQuery.engageMessageCounts || {},
     statusCounts: statusCountsQuery.engageMessageCounts || {},
     tags: (tagsQuery && tagsQuery.tags) || [],
     tagCounts: (tagCountsQuery && tagCountsQuery.engageMessageCounts) || {},
@@ -42,9 +41,6 @@ const SidebarContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, CountQueryResponse>(gql(queries.kindCounts), {
-      name: 'kindCountsQuery',
-    }),
     graphql<Props, CountQueryResponse, { kind: string }>(
       gql(queries.statusCounts),
       {
