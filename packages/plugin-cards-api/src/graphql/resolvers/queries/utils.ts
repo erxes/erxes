@@ -509,7 +509,6 @@ export const generateCommonFilters = async (
           pipelineDepartmentIds.filter(departmentId =>
             userDepartmentIds.includes(departmentId)
           ).length
-
         ) {
           includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
         }
@@ -1148,7 +1147,6 @@ export const getItemList = async (
         'mainTypeId',
         'relTypeId'
       );
-      continue;
     }
     if (conf.relType === 'company') {
       perConformity(
@@ -1158,7 +1156,6 @@ export const getItemList = async (
         'relTypeId',
         'mainTypeId'
       );
-      continue;
     }
     if (conf.mainType === 'customer') {
       perConformity(
@@ -1168,7 +1165,6 @@ export const getItemList = async (
         'mainTypeId',
         'relTypeId'
       );
-      continue;
     }
     if (conf.relType === 'customer') {
       perConformity(
@@ -1327,7 +1323,7 @@ export const getItemList = async (
       ...item,
       order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: notification > false || true,
+      hasNotified: !notification,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
       companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? await getExtraFields(item) : {}),

@@ -19,6 +19,8 @@ type Props = {
 };
 
 const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
+  const { contentType, action, _id, contentId } = activity;
+
   const renderDetail = (contentType: string, children: React.ReactNode) => {
     const type = contentType.split(':')[1];
 
@@ -36,7 +38,6 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
     );
   };
   /* check content type */
-  const { contentType, action, _id, contentId } = activity;
 
   const type = contentType.split(':')[1];
 

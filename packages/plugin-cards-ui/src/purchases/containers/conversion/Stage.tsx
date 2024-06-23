@@ -17,6 +17,7 @@ import { graphql } from '@apollo/client/react/hoc';
 type Props = {
   stage: IConversionStagePurchase;
   queryParams: IQueryParams;
+  pipelineId: string;
 };
 
 type FinalStageProps = {
@@ -40,7 +41,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const { stage, purchasesQuery, queryParams } = this.props;
 
     const purchases = purchasesQuery.purchases || [];
-    const loading = !purchasesQuery.loading;
+    const loading = purchasesQuery.loading;
     const hasMore = stage.initialPurchasesTotalCount > purchases.length;
 
     if (purchases.length === stage.initialPurchasesTotalCount) {
@@ -140,9 +141,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, PurchasesQueryResponse>(gql(queries.purchases), {
       name: 'purchasesQuery',
-      options: ({stage, queryParams }) => ({
+      options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
           initialStageId: stage._id,
+          pipelineId,
           ...getFilterParams(queryParams)
         }
       })

@@ -1,6 +1,5 @@
 import { IContext } from '../../../connectionResolver';
 
-
 const transactionQueries = {
   async transaction(
     _root,
@@ -21,6 +20,6 @@ const transactionQueries = {
   }
 };
 
-
+// requireLogin(transactionQueries, 'transaction');
 
 export default transactionQueries;

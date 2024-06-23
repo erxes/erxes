@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { sendMessage, MessageArgs, MessageArgsOmitService, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
+import { sendMessage, MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import {
   facebookCreateIntegration,
   facebookGetCustomerPosts,
@@ -238,14 +238,14 @@ export const sendCoreMessage = async (
 };
 
 export const sendInboxMessage = (args: MessageArgsOmitService) => {
-  return sendCommonMessage({
+  return sendMessage({
     serviceName: 'inbox',
     ...args
   });
 };
 
 export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
-  return sendCommonMessage({
+  return sendMessage({
     serviceName: 'automations',
     ...args
   });

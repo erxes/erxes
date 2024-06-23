@@ -11,7 +11,7 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { queries as integrationQueries,queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { mutations } from '../../graphql';
 type Props = {
   accountId: string;
@@ -79,7 +79,7 @@ const getRefetchQueries = (accountId: string) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(queries.integrationsNylasGetCalendars), {
+    graphql<Props, any>(gql(integrationQueries.integrationsNylasGetCalendars), {
       name: 'fetchCalendarQuery',
       options: ({ accountId }) => {
         return {

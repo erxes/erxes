@@ -25,6 +25,7 @@ const Base = (props: Props) => {
   useEffect(() => {
     if (props.calendars.length > 0 && !props.queryParams.accountId) {
       routerUtils.setParams(navigate, location, {
+        accountId: props.calendars[0].accountId,
       });
     }
   }, []);
@@ -81,7 +82,6 @@ const Base = (props: Props) => {
               <PageRow
                 key={page._id}
                 page={page}
-                accountId={accountId}
                 remove={remove}
               />
             ))}

@@ -9,10 +9,10 @@ class CreatedLog extends React.Component<IActivityLogItemProps> {
     const { contentType } = activity;
 
     if (contentType === 'cards:checklist') { 
-              return <CheckListLog activity={activity} />;
-    }else {
-        return <BoardItemCreatedLog activity={activity} />;
+      return <CheckListLog activity={activity} />;
     }
+
+    return <BoardItemCreatedLog activity={activity} />;
   }
 }
 

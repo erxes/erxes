@@ -24,13 +24,10 @@ const ActivityInputs = asyncComponent(
 
 type Props = {
   clientPortalUser: IClientPortalUser;
-  currentUser: IUser;
-
-  queryParams?: any;
 };
 
 const ClientPortalUserDetails: React.FC<Props> = (props: Props) => {
-  const clientPortalUser = props;
+  const { clientPortalUser } = props;
 
   const renderContent = (content) => {
     if (isEnabled('logs')) {

@@ -136,8 +136,7 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
-        console.log('Error message: ', e)
-        throw e
+        throw new Error(`Error occured: ${e}`)
       }
     }
   }
@@ -204,8 +203,7 @@ export const repairIntegrations = async (
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
-      console.log ('erorr message: ' , e);
-      throw e;
+      throw new Error(`Error occured: ${e}`)
     }
   }
 
@@ -265,8 +263,7 @@ export const instagramCreateIntegration = async (
       facebookPageId
     });
   } catch (error) {
-    console.log ('erorr message: ' , error);
-    throw error;
+    throw new Error(`Error occured: ${error}`)
     }
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });

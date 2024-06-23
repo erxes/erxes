@@ -181,7 +181,6 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
   const extendedProps = {
     ...props,
     pipelines,
-    refetch: refetchPipelines,
     loading: pipelinesLoading,
     remove,
     archive,

@@ -17,6 +17,7 @@ import { graphql } from '@apollo/client/react/hoc';
 type Props = {
   stage: IConversionStage;
   queryParams: IQueryParams;
+  pipelineId: string;
 };
 
 type FinalStageProps = {
@@ -138,9 +139,10 @@ export default withProps<Props>(
   compose(
     graphql<Props, DealsQueryResponse>(gql(queries.deals), {
       name: 'dealsQuery',
-      options: ({ stage, queryParams }) => ({
+      options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
           initialStageId: stage._id,
+          pipelineId,
           ...getFilterParams(queryParams)
         }
       })

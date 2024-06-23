@@ -277,8 +277,8 @@ export const sendNotification = async (
 
   for (const recipient of recipients) {
     if (
-      recipient.notificationSettings.receiveByEmail &&
-      recipient.email
+      recipient?.notificationSettings?.receiveByEmail &&
+      recipient?.email
     ) {
       toEmails.push(recipient.email);
     }
@@ -415,7 +415,7 @@ export const sendNotification = async (
 
 export const customFieldsDataByFieldCode = async (object, subdomain) => {
   const customFieldsData =
-     object.customFieldsData.toObject
+    object?.customFieldsData?.toObject
       ? object.customFieldsData.toObject()
       : object.customFieldsData || [];
 
@@ -463,7 +463,7 @@ export const sendAfterMutation = async (
   const afterMutations = JSON.parse(value || '{}');
 
   if (
-    afterMutations[type][action].length
+    afterMutations?.[type]?.[action]?.length
   ) {
     for (const service of afterMutations[type][action]) {
       sendCommonMessage({

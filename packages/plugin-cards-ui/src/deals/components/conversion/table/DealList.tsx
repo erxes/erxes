@@ -13,7 +13,6 @@ type Props = {
 
 export default class DealList extends React.Component<Props> {
 
-
   render() {
     const { deals } = this.props;
     const contents = deals.map((deal, index) => (

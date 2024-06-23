@@ -54,10 +54,10 @@ class CheckListItem extends React.Component<
       <ActivityRow>
         <FlexCenterContent>
           <FlexBody>
-                          <span>
-                {userName} <strong>{contentAction}</strong> {name}
-              </span>
-                      </FlexBody>
+            <span>
+              {userName} <strong>{contentAction}</strong> {name}
+            </span>
+          </FlexBody>
           <Tip text={dayjs(createdAt).format('llll')}>
             <ActivityDate>
               {dayjs(createdAt).format('MMM D, h:mm A')}

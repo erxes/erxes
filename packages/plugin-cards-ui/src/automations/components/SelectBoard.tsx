@@ -101,7 +101,6 @@ export default class SelectBoard extends React.Component<Props, State> {
         innerRef={this.overlay}
       >
         <Attributes>
-          
             <BoardSelect
               type={type.includes("cards:") ? type.slice(6) : type}
               stageId={this.state.stageId}
@@ -111,8 +110,7 @@ export default class SelectBoard extends React.Component<Props, State> {
               onChangePipeline={plIdOnChange}
               onChangeBoard={brIdOnChange}
               autoSelectStage={false}
-            />
-          
+          />
         </Attributes>
       </Popover>
     );

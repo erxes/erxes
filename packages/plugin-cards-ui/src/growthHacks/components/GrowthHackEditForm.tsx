@@ -167,7 +167,6 @@ export default class GrowthHackEditForm extends React.Component<Props, State> {
               type={options.type}
               item={item}
               saveItem={saveItem}
-              options={options}
               addItem={addItem}
             />
           </LeftContainer>

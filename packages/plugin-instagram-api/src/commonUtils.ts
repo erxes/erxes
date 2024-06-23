@@ -24,7 +24,7 @@ interface IRequestParams {
       | {
           [key: string]:  any;
         }
-      
+    | any
       | any[]
       | {
           [key: string]: {

@@ -9,6 +9,7 @@ import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 type Props = {
   contentType: string;
   fields: IField[];
+  onChange: (ids: string[], relationType: string) => void;
 };
 
 const RelationForm = (props: Props) => {

@@ -12,8 +12,6 @@ type Props = {
 };
 
 export default class PurchaseList extends React.Component<Props> {
-  static readonly defaultProps = {
-  };
 
   render() {
     const { purchases } = this.props;

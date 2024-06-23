@@ -73,9 +73,7 @@ class CalendarWrapper extends React.Component<Props, State> {
 
     this.props.accounts.map(acc => {
       return acc.calendars.map(calendar => {
-
-        const value = color[calendar.providerCalendarId] = acc.color
-        return value;
+        return (color[calendar.providerCalendarId] = acc.color);
       });
     });
 
