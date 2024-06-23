@@ -7,14 +7,16 @@ import { ScrollTableColls } from '../../styles';
 import withConsumer from '../../../withConsumer';
 
 type Props = {
+  contractId: string;
   isFirst: boolean;
 };
 
-function ScheduleSection({ isFirst }: Props) {
+function ScheduleSection({ contractId, isFirst }: Props) {
   return (
     <Box title={__('Transactions')} name="showSchedules" isOpen={!isFirst}>
       <ScrollTableColls>
         <SchedulesList
+          contractId={contractId}
           isFirst={isFirst}
         ></SchedulesList>
       </ScrollTableColls>

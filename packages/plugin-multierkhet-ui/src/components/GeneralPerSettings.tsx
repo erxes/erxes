@@ -135,7 +135,7 @@ const PerSettings = (props: Props) => {
                 'customerDefaultName',
                 'Customer default name on erkhet'
               )}
-              {renderItem('debtAccounts', 'Split ',' account fullcode')}
+              {renderItem('debtAccounts', 'Split "," account fullcode')}
             </FormColumn>
             <FormColumn>
               {renderItem(

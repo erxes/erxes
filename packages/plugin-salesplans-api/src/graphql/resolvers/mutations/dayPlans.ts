@@ -197,8 +197,7 @@ const dayPlansMutations = {
     doc: IDayPlanConfirmParams,
     { models, subdomain }: IContext
   ) => {
-    const { date, branchId, departmentId, productCategoryId, productId, ids } =
-      doc;
+    const { date, branchId, departmentId, productCategoryId, productId, ids } = doc;
 
     const filter: any = { date, branchId, departmentId };
 

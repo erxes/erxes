@@ -30,7 +30,6 @@ class CarListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      refetch: voucherCampaignQuery.refetch,
       voucherCampaigns,
       loading: voucherCampaignQuery.loading,
       voucherCampaignsCount:

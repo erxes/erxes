@@ -2,7 +2,6 @@ import {
   Customers,
   Conversations,
   ConversationMessages,
-  IConversation,
 } from '../models';
 import { sendInboxMessage } from '../messageBroker';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';

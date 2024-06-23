@@ -24,7 +24,7 @@ function ContentTypesContainer(props: FinalProps) {
     return null;
   }
 
-  const { list = [], totalCount } =
+  const { list = [] } =
     typesMainQuery.webbuilderContentTypesMain || {};
 
   const updatedProps = {

@@ -106,11 +106,11 @@ export const generatePermissionGroupUserModel = (
       permissionGroupId: string,
       cpUserIds: string[] | undefined | null,
     ): Promise<boolean> {
-
       // await models.PermissionGroupUser.deleteMany({
       //   userId: { $nin: cpUserIds || [] },
       //   permissionGroupId,
       // });
+
       const ops: any[] = (cpUserIds || []).map((userId) => ({
         updateOne: {
           filter: { userId, permissionGroupId },

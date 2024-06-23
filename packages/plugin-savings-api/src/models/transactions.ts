@@ -201,7 +201,7 @@ export const loadTransactionClass = (models: IModels) => {
       for await (const oldTr of transactions) {
         if (oldTr) {
           const periodLock = await models.PeriodLocks.findOne({
-            date: { $gte: oldTr.payDate },
+            date: { $gte: oldTr.payDate }
           })
             .sort({ date: -1 })
             .lean();

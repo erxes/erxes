@@ -47,7 +47,7 @@ const prepareHeader = async (sheet: any, title: string) => {
 };
 
 const isArrayPrimitive = (arr) => {
-  for (let i of arr) {
+  for (const i of arr) {
     if (typeof i !== 'object' && typeof i !== 'function') {
       return true; // If a non-object element is found, return true (primitive type)
     }

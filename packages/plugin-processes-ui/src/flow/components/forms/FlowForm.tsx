@@ -153,7 +153,7 @@ class FlowForm extends React.Component<Props, State> {
         transformOrigin[0] * 100 + '% ' + transformOrigin[1] * 100 + '%';
 
       // tslint:disable-next-line:prefer-for-of
-      for (let i of p) {
+      for (const i of p) {
         el.style[i + 'Transform'] = s;
         el.style[i + 'TransformOrigin'] = oString;
       }

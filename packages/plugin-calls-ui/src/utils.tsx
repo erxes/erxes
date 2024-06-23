@@ -93,7 +93,7 @@ export const callActions = (
           <div>
             <CallAction
               key={isMuted() ? "UnMute" : "Mute"}
-              $active={isMuted()}
+              $active={!!isMuted()}
               onClick={handleAudioToggle}
             >
               <Icon size={20} icon={"phone-times"} />
@@ -102,7 +102,6 @@ export const callActions = (
           </div>
           <div>
             <DialogComponent
-              title="Transfer call"
               inboxId={inboxId}
               disabled={disableTransferCall}
               direction={direction}

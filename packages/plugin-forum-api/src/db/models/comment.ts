@@ -39,7 +39,7 @@ const OMIT_FROM_INPUT = [
   'updatedByCpId'
 ] as const;
 
-type CommentCreateInput = Omit<IComment, (typeof OMIT_FROM_INPUT)[number]>;
+type CommentCreateInput = Omit<IComment, typeof OMIT_FROM_INPUT[number]>;
 
 export type CommentDocument = HydratedDocument<IComment>;
 export interface ICommentModel extends Model<IComment> {

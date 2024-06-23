@@ -99,9 +99,7 @@ export const generatePermissionGroupCategoryPermitModel = (
 
       return count > 0;
 
-      
-    }
-    /*
+      /*
       const result = await models.PermissionGroupUser.aggregate()
         .match({ userId: cpUserId })
         .lookup({
@@ -120,9 +118,10 @@ export const generatePermissionGroupCategoryPermitModel = (
         })
         .limit(1)
         .project({ _id: 1 });
+
       return result.length > 0;
       */
-
+    }
 
     public static async userPermittedCategoryIds(
       userId: string

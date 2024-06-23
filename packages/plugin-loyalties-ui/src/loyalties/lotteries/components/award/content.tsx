@@ -67,13 +67,13 @@ class AwardContentComponent extends React.Component<IProps, State> {
           {CheckBox("Use Next Character", isOpenNextChar, () =>
             this.setState({
               isOpenNextChar: !isOpenNextChar,
-              isOpenInput: false,
+              isOpenInput: !isOpenInput,
             })
           )}
           {CheckBox("Use  MultiDoLottery", isOpenInput, () =>
             this.setState({
               isOpenInput: !isOpenInput,
-              isOpenNextChar: false,
+              isOpenNextChar: !isOpenNextChar,
               multiple: 0,
             })
           )}

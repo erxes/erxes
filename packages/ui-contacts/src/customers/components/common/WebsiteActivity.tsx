@@ -51,17 +51,16 @@ class WebsiteActivity extends React.Component<Props> {
       <SidebarList className="no-link">
         <Description>{__('Most visited pages on your website')}</Description>
         {this.props.urlVisits.map((data) => (
-        <li key={data.id || data.url}>
-        <FieldStyle>
-        <Bolder>{data.url}</Bolder>
-        </FieldStyle>
-        <SidebarCounter>
-        <Count>{data.count}</Count>(
-        {calculatePercentage(this.totalVisits, data.count)}%)
-        </SidebarCounter>
-        </li>
+          <li key={data.url}>
+            <FieldStyle>
+              <Bolder>{data.url}</Bolder>
+            </FieldStyle>
+            <SidebarCounter>
+              <Count>{data.count}</Count>(
+              {calculatePercentage(this.totalVisits, data.count)}%)
+            </SidebarCounter>
+          </li>
         ))}
-
       </SidebarList>
     );
   }

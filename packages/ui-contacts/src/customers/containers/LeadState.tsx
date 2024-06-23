@@ -18,14 +18,10 @@ import { mutations } from '@erxes/ui-contacts/src/customers/graphql';
 
 type Props = {
   customer: ICustomer;
-};
+} & EditMutationResponse & ChangeStateMutationResponse;
 
-type FinalProps = {
-} & Props &
-  EditMutationResponse &
-  ChangeStateMutationResponse;
 
-class CustomerChooser extends React.Component<FinalProps> {
+class CustomerChooser extends React.Component<Props> {
   render() {
     const { customersEdit, customer, customersChangeState } = this.props;
 

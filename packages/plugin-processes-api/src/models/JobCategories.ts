@@ -131,7 +131,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       count += await models.JobCategories.countDocuments({ parentId: _id });
 
       if (count > 0) {
-        throw new Error('Cant remove a job category');
+        throw new Error("Can't remove a job category");
       }
       return models.JobCategories.deleteOne({ _id });
     }

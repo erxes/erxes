@@ -36,7 +36,7 @@ export const getPostData = async (subdomain, config, deal, dateType = '') => {
       defaultValue: []
     });
 
-    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
+    const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/gui;
     for (const company of companies) {
       if (re.test(company.code)) {
         const checkCompanyRes = await fetch(

@@ -84,7 +84,7 @@ class ActionSection extends React.Component<
             href={primaryPhone && `tel:${primaryPhone}`}
             size="small"
             btnStyle={primaryPhone ? "primary" : "simple"}
-            disabled={! primaryPhone}
+            disabled={!primaryPhone}
           >
             <Icon icon="phone" />
           </Button>

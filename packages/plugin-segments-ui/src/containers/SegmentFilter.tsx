@@ -30,6 +30,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
 };
 
 type WrapperProps = {
+  type: string;
   loadingMainQuery: boolean;
 };
 

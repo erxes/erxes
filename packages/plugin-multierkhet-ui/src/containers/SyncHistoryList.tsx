@@ -43,7 +43,8 @@ const SyncHistoryListContainer = (props: Props) => {
     ...props,
     queryParams,
     syncHistories,
-    totalCount
+    totalCount,
+    loading: syncHistoriesQuery.loading || syncHistoriesCountQuery.loading
   };
 
   return <SyncHistoryList {...updatedProps} />;

@@ -23,7 +23,7 @@ function PermissionGroupForm({
   allUsers = [] as IClientPortalUser[],
 }: Props) {
   const usersIds = (permissionGroup.users || []).map((user) => user._id);
-  const [selectedUsers, setSelectUsers] = useState(usersIds || []);
+  const [selectedUsers, setSelectedUsers] = useState(usersIds || []);
   const [name, setName] = useState(permissionGroup.name || "");
 
   const handleSubmit = (e) => {
@@ -45,7 +45,7 @@ function PermissionGroupForm({
 
   const onChange = (members) => {
     const ids = members.map((m) => m._id);
-    setSelectUsers(ids);
+    setSelectedUsers(ids);
   };
 
   const renderOptions = () => {

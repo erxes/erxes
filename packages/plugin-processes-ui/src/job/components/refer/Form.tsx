@@ -18,7 +18,6 @@ import { IProduct } from "@erxes/ui-products/src/types";
 import { IProductsData } from "../../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-
 import { ProductButton } from "@erxes/ui-cards/src/deals/styles";
 import ProductChooser from "@erxes/ui-products/src/containers/ProductChooser";
 import React from "react";

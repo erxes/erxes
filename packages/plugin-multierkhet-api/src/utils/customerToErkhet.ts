@@ -66,7 +66,7 @@ export const validCompanyCode = async (config, companyCode) => {
     return result;
   }
 
-  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/giu;
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
 
   if (re.test(companyCode)) {
     const response = await getCompanyInfo({

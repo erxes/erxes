@@ -100,12 +100,6 @@ const ActivityItem = (props: Props) => {
         <Audio>
           <audio controls={true}>
             <source src={readFile(recordUrl)} type="audio/wav" />{" "}
-            <track
-              kind="captions"
-              src="captions.vtt"
-              srcLang="en"
-              label="English"
-            ></track>
           </audio>
         </Audio>
       )

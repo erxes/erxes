@@ -66,7 +66,7 @@ const InventoryProducts = (props: Props) => {
   };
 
   const excludeSyncTrue = (data: any) => {
-    return data.filter((d) => !d.syncStatus);
+    return data.filter((d) => d.syncStatus === false);
   };
 
   const renderTable = (data: any, action: string) => {

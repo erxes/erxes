@@ -40,7 +40,6 @@ class ActivityItem extends React.Component<Props> {
       </ActivityRow>
     );
   }
-  
 
   renderSendEmail(doc: any, createdAt) {
     const { automationId, result } = doc;
@@ -61,7 +60,7 @@ class ActivityItem extends React.Component<Props> {
       <FlexCenterContent>
         <span>
           <Link to={`/automations/details/${automationId}`}>
-            this
+            <a>{'this '}</a>
           </Link>
           {`automation sent email to `}
           {(result || []).map(item => (
@@ -84,15 +83,15 @@ class ActivityItem extends React.Component<Props> {
 
     const type = contentType.split(':')[1];
 
-    if ((action && action) || type === 'sendEmail') {
+    if (action === 'sendEmail' || type === 'sendEmail') {
         return this.renderDetail(
           'task',
           this.renderSendEmail(contentDetail, createdAt),
           'email'
         );
-      }else{ 
-        return <div />;
     }
+
+    return <div />;
   }
 }
 

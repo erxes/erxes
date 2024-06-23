@@ -133,8 +133,7 @@ export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
 
   const latestJob = latestJobs[0];
   if (latestJob.type === JOB_TYPES.FLOW && latestJob.config.subFlowId) {
-    const subFlow: IFlowDocument | undefined | null =
-      await models.Flows.findOne({
+    const subFlow: IFlowDocument | undefined | null = await models.Flows.findOne({
         _id: latestJob.config.subFlowId,
       }).lean();
     if (!subFlow || subFlow === null) {
@@ -209,8 +208,7 @@ export const getBeginJobs = async (models: IModels, jobs: IJob[]) => {
   for (const beginJob of beginJobs) {
     if (beginJob.type === JOB_TYPES.FLOW) {
       if (beginJob.config.subFlowId) {
-        const subFlow: IFlowDocument | undefined | null =
-          await models.Flows.findOne({
+        const subFlow: IFlowDocument | undefined | null = await models.Flows.findOne({
             _id: beginJob.config.subFlowId,
           }).lean();
         if (!subFlow || subFlow === null) {

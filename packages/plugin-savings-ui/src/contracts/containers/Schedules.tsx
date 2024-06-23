@@ -6,17 +6,20 @@ import { queries } from '../graphql';
 import { SchedulesQueryResponse } from '../types';
 
 type Props = {
+  contractId: string;
   isFirst: boolean;
 };
 
 const SchedulesListContainer = (props: Props) => {
   const [loading, setLoading] = useState(false);
-  const { isFirst } = props;
+  const { contractId, isFirst } = props;
 
   const schedulesQuery = useQuery<SchedulesQueryResponse>(
     gql(queries.schedules),
     {
+      skip: !contractId,
       variables: {
+        contractId,
         isFirst,
         year: new Date().getFullYear()
       },

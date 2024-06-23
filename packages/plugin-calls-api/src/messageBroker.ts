@@ -151,8 +151,6 @@ export const setupMessageConsumers = async () => {
 
     if (type === 'removeCustomers') {
       await removeCustomers(models, data);
-    } else {
-      console.log(`Unhandled type: ${type}`);
     }
   });
   consumeRPCQueue(

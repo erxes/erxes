@@ -16,7 +16,8 @@ export default {
           total: data.amount,
           contractId: contract._id,
           customerId: contract?.customerId,
-          description: `Харилцагчид ${data.paymentKind} гэрээний хувьд төлбөр хүлээгдэх. ${moment(data.resolvedAt).format('YYYY-MM-DD HH:mm:ss')}-д`
+          description: `Payment received from customer via ${data.paymentKind
+            } at ${moment(data.resolvedAt).format('YYYY-MM-DD HH:mm:ss')}`
         });
       }
     }

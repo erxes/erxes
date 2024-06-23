@@ -13,8 +13,8 @@ export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
 export const ADMIN_APPROVAL_STATES = ['PENDING', 'APPROVED', 'DENIED'] as const;
 
-export type PostStates = (typeof POST_STATES)[number];
-export type AdminApprovalStates = (typeof ADMIN_APPROVAL_STATES)[number];
+export type PostStates = typeof POST_STATES[number];
+export type AdminApprovalStates = typeof ADMIN_APPROVAL_STATES[number];
 
 interface CommonPostFields {
   title?: string | null;
@@ -599,8 +599,7 @@ export const generatePostModel = (
 
       await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
 
-      const categoryApprovalState: AdminApprovalStates =
-        category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
+      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
 
       const lastPublishedAt = post.state === 'PUBLISHED' ? new Date() : null;
 
@@ -653,8 +652,7 @@ export const generatePostModel = (
 
       await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
 
-      const categoryApprovalState: AdminApprovalStates =
-        category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
+      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
 
       const update: Partial<Omit<IPost, '_id'>> = {
         ...patch,
@@ -705,12 +703,7 @@ export const generatePostModel = (
       if (!cpUser) throw new LoginRequiredError();
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
       await post.deleteOne();
-      await cleanupAfterDelete(
-        models,
-        post._id.toString(),
-        'CP',
-        cpUser.userId
-      );
+      await cleanupAfterDelete(models, post._id.toString(), 'CP', cpUser.userId);
       return post;
     }
 

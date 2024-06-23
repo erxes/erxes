@@ -37,7 +37,7 @@ export const TriggerTabs = styled.div`
       flex-shrink: 0;
       text-align: center;
       font-weight: 500;
-      padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing}px
+      padding: ${dimensions.unitSpacing - 4}px ${dimensions.coreSpacing}px;
       border-radius: ${dimensions.unitSpacing - 5}px;
 
       &.active {
@@ -120,7 +120,7 @@ export const ClearBtnContainer = styled.a`
 `;
 export const FilterRowContainer = styled.div`
 display:grid;
-grid-template-columns: 90% 10%
+grid-template-columns: 90% 10%;
 align-items:center
 `;
 export const Divider = styled.div`
@@ -134,7 +134,7 @@ export const Divider = styled.div`
   > span {
     margin: 0 20px;
     >footer {
-      color ${colors.colorCoreBlack}
+      color: ${colors.colorCoreBlack};
     }
   }
 
