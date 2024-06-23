@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.8](https://github.com/erxes/erxes/compare/1.12.7...1.12.8) (2024-06-23)
+
+
+### Bug Fixes
+
+* **automation:** can't send facebook message in chatbot ([cbe546a](https://github.com/erxes/erxes/commit/cbe546afee65fa3b587b21dd4cc67645a5a1ed7e))
+* **facebook:** display link inpuy in chatbot message action ([0c4a969](https://github.com/erxes/erxes/commit/0c4a969c929d551b9128d65891f88465365b0146))
+
 ## [1.12.7](https://github.com/erxes/erxes/compare/1.12.6...1.12.7) (2024-06-22)
 
 
