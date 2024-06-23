@@ -14,7 +14,6 @@ import {
   IFieldGroupDocument,
 } from './definitions/fields';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
-import { AnyRecord } from 'dns';
 
 export interface ITypedListItem {
   field: string;
