@@ -67,14 +67,14 @@ class JobForm extends React.Component<Props, State> {
 
     let content = (
       <div onClick={onClick}>
-        {__('Choose Sub Flow')} <Icon icon="plus-circle" />
+        {__('Choose Sub Flow')} <Icon icon='plus-circle' />
       </div>
     );
 
     if (flow) {
       content = (
         <div onClick={onClick}>
-          {flow.name} <Icon icon="pen-1" />
+          {flow.name} <Icon icon='pen-1' />
         </div>
       );
     }
@@ -128,16 +128,16 @@ class JobForm extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel>Sub Flows</ControlLabel>
           <ModalTrigger
-            title="Choose a FLOW"
+            title='Choose a FLOW'
             trigger={this.renderSubFlowTrigger(subFlow)}
-            size="lg"
+            size='lg'
             content={content}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Description</ControlLabel>
           <FormControl
-            name="description"
+            name='description'
             value={description}
             onChange={onChangeValue.bind(this, 'description')}
           />

@@ -11,9 +11,9 @@ export async function generateFinance(
   periodLockId: string,
   subdomain: string
 ) {
-  const contract = await models.Contracts.findOne({ _id: tr.contractId }).lean<
-    IContractDocument
-  >();
+  const contract = await models.Contracts.findOne({
+    _id: tr.contractId,
+  }).lean<IContractDocument>();
 
   let customerCode = '';
 
@@ -43,7 +43,7 @@ export async function generateFinance(
   }
 
   const contractType = await models.ContractTypes.findOne({
-    _id: contract?.contractTypeId
+    _id: contract?.contractTypeId,
   }).lean<IContractTypeDocument>();
   if (!contract)
     throw new Error('there is not connected transaction with contract');
@@ -125,7 +125,7 @@ function fillTransaction(
       side: 'credit'
     });
   }
-  const interest = (tr.interestEve || 0) + (tr.interestNonce || 0);
+  const interest = (tr.interestEve ?? 0) + (tr.interestNonce ?? 0);
   if (interest > 0) {
     dtl.push({
       amount: interest,

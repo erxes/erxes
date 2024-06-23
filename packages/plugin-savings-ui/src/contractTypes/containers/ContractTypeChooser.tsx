@@ -1,11 +1,10 @@
 import { Chooser } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
 import React, { useState } from 'react';
 
 import { queries } from '../graphql';
 import { ContractTypesQueryResponse, IContractType } from '../types';
 import ContractTypeForm from './ContractTypeForm';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -27,10 +26,10 @@ const ContractTypeChooser: React.FC<WrapperProps & Props> = (props) => {
         mainTypeId: data.mainTypeId,
         isRelated: data.isRelated,
         sortField: 'createdAt',
-        sortDirection: -1,
+        sortDirection: -1
       },
-      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
-    },
+      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
+    }
   );
 
   const resetAssociatedItem = () => {
@@ -53,7 +52,7 @@ const ContractTypeChooser: React.FC<WrapperProps & Props> = (props) => {
       datas: data.contractTypes,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: 'contractType',
+      relType: 'contractType'
     },
     search,
     clearState: () => search(''),
@@ -68,7 +67,7 @@ const ContractTypeChooser: React.FC<WrapperProps & Props> = (props) => {
     newItem: newContractType,
     resetAssociatedItem: resetAssociatedItem,
     datas: contractTypesQuery?.data?.contractTypes || [],
-    refetchQuery: queries.contractTypes,
+    refetchQuery: queries.contractTypes
   };
 
   return <Chooser {...updatedProps} />;

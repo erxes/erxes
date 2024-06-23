@@ -1,12 +1,10 @@
 import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import { Alert, withProps } from "@erxes/ui/src/utils";
-import { confirm } from "@erxes/ui/src/utils";
+import { Alert, withProps, confirm, router } from "@erxes/ui/src/utils";
 import React from "react";
 import { graphql } from "@apollo/client/react/hoc";
 import SegmentsList from "../components/SegmentsList";
 import { mutations, queries } from "@erxes/ui-segments/src/graphql";
-import { router } from "@erxes/ui/src/utils";
 import {
   RemoveMutationResponse,
   SegmentsQueryResponse,

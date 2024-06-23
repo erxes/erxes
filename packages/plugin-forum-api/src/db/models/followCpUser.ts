@@ -1,5 +1,4 @@
-import { Document, Schema, Model, Connection, HydratedDocument, Types } from 'mongoose';
-import { sendClientPortalMessage } from '../../messageBroker';
+import { Schema, Model, Connection, HydratedDocument, Types } from 'mongoose';
 import { IModels } from './index';
 import { notifyFollowedYou } from './utils';
 

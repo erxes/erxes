@@ -39,7 +39,6 @@ export const getIncomeData = async (
     for (const company of companies) {
       if (company.code) {
         customerCode = company.code;
-        continue;
       }
     }
   }
@@ -63,12 +62,13 @@ export const getIncomeData = async (
         action: 'customers.findActiveCustomers',
         data: {
           selector: { _id: { $in: customerIds } },
-          fields: { _id: 1, code: 1 }
+          fields: { _id: 1, code: 1 },
         },
         isRPC: true,
         defaultValue: []
       });
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = customers.find(c => c?.code)?.code || '';
+
     }
   }
 
@@ -76,7 +76,7 @@ export const getIncomeData = async (
     customerCode = config.defaultCustomer;
   }
 
-  const productsIds = purchase.productsData.map(item => item.productId);
+  const productsIds = purchase.productsData.map((item) => item.productId);
 
   const products = await sendProductsMessage({
     subdomain,
@@ -96,8 +96,9 @@ export const getIncomeData = async (
 
   const details: any = [];
 
-  const branchIds = purchase.productsData.map(pd => pd.branchId) || [];
-  const departmentIds = purchase.productsData.map(pd => pd.departmentId) || [];
+  const branchIds = purchase.productsData.map((pd) => pd.branchId) || [];
+  const departmentIds =
+    purchase.productsData.map((pd) => pd.departmentId) || [];
 
   const branchesById = {};
   const departmentsById = {};
@@ -195,7 +196,6 @@ export const getIncomeData = async (
       for (const key of Object.keys(payments)) {
         if (payments[key] > 0.005) {
           payments[key] = payments[key] + sumSaleAmount;
-          continue;
         }
       }
     }
@@ -245,15 +245,15 @@ export const getIncomeData = async (
       details,
       payments,
       expenses: purchase.expensesData
-    }
+    },
   ];
 
   const sendConfig = {
     defaultCustomer: config.defaultCustomer,
-    catAccLocMap: (config.catAccLocMap || []).map(item => ({
+    catAccLocMap: (config.catAccLocMap || []).map((item) => ({
       ...item,
       otherCode: `${item.branch || ''}_${item.department || ''}`
-    }))
+    })),
   };
 
   const postData = {

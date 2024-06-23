@@ -4,7 +4,6 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import { IQuiz } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import { PostTitle } from "../../styles";
 import QuizForm from "../../containers/quiz/QuizForm";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";

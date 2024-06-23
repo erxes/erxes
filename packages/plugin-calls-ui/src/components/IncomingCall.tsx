@@ -79,12 +79,10 @@ const IncomingCall = (props: Props, context) => {
 
   const navigate = useNavigate();
 
-  const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false,
-  );
+  const [haveIncomingCall, setHaveIncomingCall] = useState(!!primaryPhone);
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState(
-    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending'
   );
 
   let direction = context.call?.direction?.split('/')[1];
@@ -177,7 +175,7 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const renderUserInfo = (type?: string) => {
-    const inCall = type === 'incall' ? true : false;
+    const inCall = type === 'incall';
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
     const fullName = renderFullName(customer || '', false);
@@ -218,14 +216,14 @@ const IncomingCall = (props: Props, context) => {
               {renderUserInfo()}
               <IncomingButtonContainer>
                 <div>
-                  <IncomingActionButton onClick={onAcceptCall} type="accepted">
-                    <Icon icon="phone-alt" size={20} />
+                  <IncomingActionButton onClick={onAcceptCall} type='accepted'>
+                    <Icon icon='phone-alt' size={20} />
                   </IncomingActionButton>
                   <b>{__('Accept')}</b>
                 </div>
                 <div>
-                  <IncomingActionButton onClick={onDeclineCall} type="decline">
-                    <Icon icon="phone-slash" size={20} />
+                  <IncomingActionButton onClick={onDeclineCall} type='decline'>
+                    <Icon icon='phone-slash' size={20} />
                   </IncomingActionButton>
                   <b>{__('Decline')}</b>
                 </div>
@@ -255,13 +253,11 @@ const IncomingCall = (props: Props, context) => {
               handleAudioToggle,
               endCall,
               inboxId,
-              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              Sip.call?.status !== CALL_STATUS_ACTIVE,
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true,
+              !currentCallConversationId ||
+                currentCallConversationId.length === 0
             )}
           </IncomingContent>
         </IncomingContainer>

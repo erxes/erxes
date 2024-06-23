@@ -10,7 +10,7 @@ export function generateContractTypeOptions(
   array: IContractType[] = [],
   useFields?: string[]
 ): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const contractType = item || ({} as IContractType);
 
     ContractTypeById[contractType._id] = contractType;
@@ -37,7 +37,6 @@ export default ({
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
-  customOption?: IOption;
   value?: string | string[];
   name: string;
   disabled?: boolean;
@@ -47,7 +46,7 @@ export default ({
   return (
     <SelectWithSearch
       label={label}
-      queryName="savingsContractTypes"
+      queryName='savingsContractTypes'
       name={name}
       disabled={disabled}
       initialValue={defaultValue}

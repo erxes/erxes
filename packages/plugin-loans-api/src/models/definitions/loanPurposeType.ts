@@ -1,5 +1,5 @@
-import { Document, Schema, HydratedDocument } from 'mongoose';
-import { schemaHooksWrapper, field } from './utils';
+import { Schema, HydratedDocument } from "mongoose";
+import { field } from "./utils";
 
 export interface IPurposeType {
   _id: string;

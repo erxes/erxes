@@ -72,9 +72,9 @@ const callsQueries = {
   async callExtensionList(
     _root,
     { integrationId },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -93,12 +93,12 @@ const callsQueries = {
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: false,
+        isAddExtention: false
       },
       user,
-    )) as any;
+    );
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { account } = queueData?.response;
 
       if (account) {

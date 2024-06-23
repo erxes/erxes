@@ -20,10 +20,6 @@ type State = {
 };
 
 class ScoreLogsListContainer extends React.Component<FinalProps, State> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { scoreLogs } = this.props;
 
@@ -37,7 +33,7 @@ class ScoreLogsListContainer extends React.Component<FinalProps, State> {
       total: scoreLogs.scoreLogList?.total,
       loading: scoreLogs.loading,
       error: scoreLogs.error,
-      refetch: handlerefetch,
+      refetch: handlerefetch
     };
     const content = (props) => (
       <ScoreLogsListComponent {...props} {...updatedProps} />
@@ -60,7 +56,7 @@ const generateParams = ({ queryParams }) => ({
   ownerType: queryParams.ownerType,
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
-  sortDirection: Number(queryParams.sortDirection) || undefined,
+  sortDirection: Number(queryParams.sortDirection) || undefined
 });
 
 export default withProps<Props>(
@@ -68,8 +64,8 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.getScoreLogs), {
       name: 'scoreLogs',
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
+        variables: generateParams({ queryParams })
       }),
-    }),
-  )(ScoreLogsListContainer),
+    })
+  )(ScoreLogsListContainer)
 );

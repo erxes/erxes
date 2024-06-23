@@ -1,8 +1,7 @@
 import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
 import { queries } from "@erxes/ui-products/src/graphql";
-import { gql } from "@apollo/client";
 import React from "react";
-import { useQuery } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client";
 
 import List from "../components/CategoryList";
 

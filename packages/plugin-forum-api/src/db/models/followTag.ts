@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Connection, HydratedDocument, Types } from 'mongoose';
+import { Schema, Model, Connection, HydratedDocument, Types } from 'mongoose';
 import { IModels } from './index';
 
 export interface IFollowTag {

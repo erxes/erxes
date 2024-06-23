@@ -1,6 +1,5 @@
 import React, { useEffect, FC } from 'react';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 const CURRENT_USER = gql`
   query ClientPortalCurrentUser {

@@ -5,7 +5,7 @@ import {
   putActivityLog as commonPutActivityLog,
   LogDesc,
   IDescriptions,
-  getSchemaLabels,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
 import { IModels, generateModels } from './connectionResolver';
 import { ITagDocument, tagSchema } from './models/definitions/tags';
@@ -13,15 +13,15 @@ import { ITagDocument, tagSchema } from './models/definitions/tags';
 export const LOG_ACTIONS = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete',
+  DELETE: 'delete'
 };
 
 const gatherTagNames = async (
   models: IModels,
   doc: ITagDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ) => {
-  const options: LogDesc[] = prevList ? prevList : [];
+  const options: LogDesc[] = prevList || [];
 
   if (doc.parentId) {
     const parent = await models.Tags.findOne({ _id: doc.parentId });
@@ -37,7 +37,7 @@ const gatherTagNames = async (
     if (children.length > 0) {
       options.push({
         relatedIds: doc.relatedIds,
-        name: children.map((c) => c.name),
+        name: children.map((c) => c.name)
       });
     }
   }
@@ -47,11 +47,11 @@ const gatherTagNames = async (
 
 const gatherDescriptions = async (
   models: IModels,
-  params: any,
+  params: any
 ): Promise<IDescriptions> => {
   const { action, object, updatedDocument } = params;
 
-  const description = `"${object.name}" has been ${action}d`;
+  const description = `'${object.name}' has been ${action}d`;
   let extraDesc: LogDesc[] = await gatherTagNames(models, object);
 
   if (updatedDocument) {
@@ -64,45 +64,45 @@ const gatherDescriptions = async (
 export const putDeleteLog = async (models, subdomain, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
-    action: LOG_ACTIONS.DELETE,
+    action: LOG_ACTIONS.DELETE
   });
 
   await commonPutDeleteLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export const putUpdateLog = async (models, subdomain, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
-    action: LOG_ACTIONS.UPDATE,
+    action: LOG_ACTIONS.UPDATE
   });
 
   await commonPutUpdateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export const putCreateLog = async (models, subdomain, logDoc, user) => {
   const { description, extraDesc } = await gatherDescriptions(models, {
     ...logDoc,
-    action: LOG_ACTIONS.CREATE,
+    action: LOG_ACTIONS.CREATE
   });
 
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export const putActivityLog = async (
   subdomain: string,
-  params: { action: string; data: any },
+  params: { action: string; data: any }
 ) => {
   const { data } = params;
 
@@ -112,13 +112,13 @@ export const putActivityLog = async (
       ...data,
       contentType: `tags:${data.contentType}`,
       automations: {
-        type: data.contentType,
+        type: data.contentType
       },
     },
   };
 
   return commonPutActivityLog(subdomain, {
-    ...updatedParams,
+    ...updatedParams
   });
 };
 
@@ -140,13 +140,13 @@ export default {
 
       return {
         data: tags,
-        status: 'success',
+        status: 'success'
       };
     }
 
     return {
       status: 'error',
-      data: 'wrong action',
+      data: 'wrong action'
     };
   },
 };

@@ -1,5 +1,4 @@
-import { commonDefs, commonVariables } from '../../common/graphq';
-import { commonFields } from '../../common/graphq';
+import { commonDefs, commonVariables,commonFields } from '../../common/graphq';
 
 const assignmentsAdd = `
   mutation assignmentsAdd(${commonDefs}, $segmentIds: [String]) {

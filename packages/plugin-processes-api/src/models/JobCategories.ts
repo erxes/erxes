@@ -1,11 +1,10 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { JOB_STATUSES } from './definitions/constants';
 import {
   IJobCategory,
   IJobCategoryDocument,
-  jobCategorySchema,
+  jobCategorySchema
 } from './definitions/jobCategories';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 
@@ -14,7 +13,7 @@ export interface IJobCategoryModel extends Model<IJobCategoryDocument> {
   createJobCategory(doc: IJobCategory): Promise<IJobCategoryDocument>;
   updateJobCategory(
     _id: string,
-    doc: IJobCategory,
+    doc: IJobCategory
   ): Promise<IJobCategoryDocument>;
   removeJobCategory(_id: string): void;
 }
@@ -36,11 +35,11 @@ export const loadJobCategoryClass = (models: IModels) => {
 
     static async checkCodeDuplication(code: string) {
       if (code.includes('/')) {
-        throw new Error('The "/" character is not allowed in the code');
+        throw new Error("The '/' character is not allowed in the code");
       }
 
       const category = await models.JobCategories.findOne({
-        code,
+        code
       });
 
       if (category) {
@@ -55,7 +54,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       await this.checkCodeDuplication(doc.code);
 
       const parentCategory = await models.JobCategories.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
 
       // Generatingg order
@@ -63,7 +62,7 @@ export const loadJobCategoryClass = (models: IModels) => {
 
       const job = await models.JobCategories.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return job;
@@ -80,7 +79,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       }
 
       const parentCategory = await models.JobCategories.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
@@ -96,10 +95,10 @@ export const loadJobCategoryClass = (models: IModels) => {
         $and: [
           {
             order: {
-              $regex: new RegExp(`^${escapeRegExp(jobCategory.order)}`),
-            },
+              $regex: new RegExp(`^${escapeRegExp(jobCategory.order)}`)
+            }
           },
-          { _id: { $ne: _id } },
+          { _id: { $ne: _id } }
         ],
       });
 
@@ -113,7 +112,7 @@ export const loadJobCategoryClass = (models: IModels) => {
 
         await models.JobCategories.updateOne(
           { _id: childCategory._id },
-          { $set: { order } },
+          { $set: { order } }
         );
       });
 
@@ -127,7 +126,7 @@ export const loadJobCategoryClass = (models: IModels) => {
       await models.JobCategories.getJobCategory(_id);
       let count = await models.JobRefers.countDocuments({
         categoryId: _id,
-        status: { $ne: JOB_STATUSES.ARCHIVED },
+        status: { $ne: JOB_STATUSES.ARCHIVED }
       });
       count += await models.JobCategories.countDocuments({ parentId: _id });
 
@@ -141,8 +140,8 @@ export const loadJobCategoryClass = (models: IModels) => {
      * Generating order
      */
     public static async generateOrder(
-      parentCategory: IJobCategory | null |undefined,
-      doc: IJobCategory,
+      parentCategory: IJobCategory | null | undefined,
+      doc: IJobCategory
     ) {
       const order = parentCategory
         ? `${parentCategory.order}${doc.code}/`

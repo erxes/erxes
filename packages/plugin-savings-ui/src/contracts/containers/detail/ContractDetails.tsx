@@ -1,6 +1,5 @@
 import { Alert, EmptyState, Spinner } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { gql } from '@apollo/client';
 import React from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
@@ -8,9 +7,9 @@ import {
   DetailQueryResponse,
   EditMutationResponse,
   IContractDoc,
-  RegenSchedulesMutationResponse,
+  RegenSchedulesMutationResponse
 } from '../../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   id: string;
@@ -27,30 +26,30 @@ const ContractDetailsContainer = (props: FinalProps) => {
     gql(queries.contractDetail),
     {
       variables: {
-        _id: id,
+        _id: id
       },
-    },
+    }
   );
 
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),
     {
       refetchQueries: ['contractDetail'],
-    },
+    }
   );
 
   const [regenSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.regenSchedules),
     {
       refetchQueries: ['schedules', 'scheduleYears'],
-    },
+    }
   );
 
   const [fixSchedules] = useMutation<RegenSchedulesMutationResponse>(
     gql(mutations.fixSchedules),
     {
       refetchQueries: ['schedules', 'scheduleYears'],
-    },
+    }
   );
 
   const saveItem = (doc: IContractDoc, callback: (item) => void) => {
@@ -83,7 +82,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
 
   if (!contractDetailQuery?.data?.savingsContractDetail) {
     return (
-      <EmptyState text="Contract not found" image="/images/actions/24.svg" />
+      <EmptyState text='Contract not found' image='/images/actions/24.svg' />
     );
   }
 
@@ -96,7 +95,7 @@ const ContractDetailsContainer = (props: FinalProps) => {
     currentUser,
     saveItem,
     regenSchedules: regenSchedulesHandler,
-    fixSchedules: fixSchedulesHandler,
+    fixSchedules: fixSchedulesHandler
   };
 
   return <ContractDetails {...updatedProps} />;

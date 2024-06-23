@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import { queries } from '../../../graphql';
-import { gql } from '@apollo/client';
 
 type Props = {
   value: string;

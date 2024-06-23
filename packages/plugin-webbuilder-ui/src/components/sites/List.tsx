@@ -12,7 +12,6 @@ import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import { ISiteDoc } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Menu } from "@headlessui/react";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import TemplateForm from "../../containers/templates/TemplateForm";
@@ -20,12 +19,8 @@ import { getEnv } from "@erxes/ui/src/utils/core";
 
 type Props = {
   sites: ISiteDoc[];
-  getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
   duplicate: (_id: string) => void;
-  setCount: (count: number) => void;
-  sitesCount: number;
-  queryParams: any;
 };
 
 type State = {

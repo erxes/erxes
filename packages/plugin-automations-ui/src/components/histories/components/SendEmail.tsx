@@ -75,13 +75,11 @@ class SendEmail extends React.Component<Props> {
           <LabelContainer>
             <strong>{`To:`}</strong>
             {responses.map((response, i) => (
-              <>
                 <Tip text={getLabelText(response)}>
                   <Label key={i} lblStyle={getLabelColor(response)}>
                     {response?.toEmail || ''}
                   </Label>
                 </Tip>
-              </>
             ))}
           </LabelContainer>
         </ul>

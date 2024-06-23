@@ -1,8 +1,7 @@
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Route, Routes } from "react-router-dom";
 
 const SegmentsList = asyncComponent(
   () =>
@@ -23,12 +22,7 @@ const Segments = () => {
 
   const { contentType } = queryParams;
 
-  return (
-    <SegmentsList
-      queryParams={queryParams}
-      contentType={contentType}
-    />
-  );
+  return <SegmentsList queryParams={queryParams} contentType={contentType} />;
 };
 
 const SegmentsFormComponent = () => {

@@ -5,7 +5,7 @@ import {
   ModalTrigger,
   MainStyleButtonRelated as ButtonRelated,
   SectionBodyItem,
-  Alert,
+  Alert
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -15,14 +15,13 @@ import {
   EditMutationResponse,
   IContract,
   IContractDoc,
-  MainQueryResponse,
+  MainQueryResponse
 } from '../../types';
 import { can } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
 import withConsumer from '../../../withConsumer';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   name: string;
@@ -44,8 +43,8 @@ function Component(
     mainTypeId = '',
     collapseCallback,
     title,
-    currentUser,
-  }: Props,
+    currentUser
+  }: Props
 ) {
   const contractsQuery = useQuery<MainQueryResponse>(
     gql(queries.contractsMain),
@@ -54,13 +53,13 @@ function Component(
       variables:
         mainType === 'customer' || mainType === 'company'
           ? { customerId: mainTypeId }
-          : { dealId: mainTypeId },
-    },
+          : { dealId: mainTypeId }
+    }
   );
 
   const [contractsDealEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsDealEdit),
-    { refetchQueries: ['contractsMain'] },
+    { refetchQueries: ['contractsMain'] }
   );
 
   const renderContractChooser = (props) => {
@@ -71,7 +70,7 @@ function Component(
           name,
           contracts: contractsQuery?.data?.savingsContractsMain?.list,
           mainType,
-          mainTypeId,
+          mainTypeId
         }}
         onSelect={(contracts: IContractDoc[]) => {
           contractsDealEdit({
@@ -116,7 +115,7 @@ function Component(
 
   const contractTrigger = (
     <button>
-      <Icon icon="plus-circle" />
+      <Icon icon='plus-circle' />
     </button>
   );
 
@@ -128,18 +127,18 @@ function Component(
 
   const quickButtons = can('contractsDealEdit', currentUser) && (
     <ModalTrigger
-      title="Associate"
+      title='Associate'
       trigger={contractTrigger}
-      size="lg"
+      size='lg'
       content={renderContractChooser}
     />
   );
 
   const relQuickButtons = (
     <ModalTrigger
-      title="Related Associate"
+      title='Related Associate'
       trigger={relContractTrigger}
-      size="lg"
+      size='lg'
       content={renderRelatedContractChooser}
     />
   );
@@ -150,14 +149,14 @@ function Component(
         (contract, index) => (
           <SectionBodyItem key={index}>
             <Link to={`/erxes-plugin-saving/contract-details/${contract._id}`}>
-              <Icon icon="arrow-to-right" style={{ marginRight: 5 }} />
+              <Icon icon='arrow-to-right' style={{ marginRight: 5 }} />
               <span>{contract.number || 'Unknown'}</span>
             </Link>
           </SectionBodyItem>
-        ),
+        )
       )}
       {contractsQuery?.data?.savingsContractsMain?.list.length === 0 && (
-        <EmptyState icon="building" text="No contract" />
+        <EmptyState icon='building' text='No contract' />
       )}
       {mainTypeId && mainType && relQuickButtons}
     </>
@@ -166,7 +165,7 @@ function Component(
   return (
     <Box
       title={__('Saving contracts')}
-      name="showContracts"
+      name='showContracts'
       extraButtons={quickButtons}
       isOpen={true}
       callback={collapseCallback}

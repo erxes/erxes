@@ -5,14 +5,12 @@ import { mutations, queries } from '../../graphql';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IProduct } from '../../types';
 import ProductList from '../../components/subscriptionProducts/ProductList';
 import React from 'react';
-import { RemoveMutationResponse } from '../../types';
+import { RemoveMutationResponse, IProduct } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 type FinalProps = {
   queryParams: any;

@@ -5,7 +5,6 @@ import { IWebhook } from '../types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ButtonMutate } from '@erxes/ui/src';
 import { mutations, queries } from '../graphql';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import WebhookForm from '../components/WebhookForm';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 
@@ -31,7 +30,7 @@ const WebhookFormContainer = (props: Props) => {
         callback={callback}
         isSubmitted={isSubmitted}
         refetchQueries={['webhooks', 'webhooksTotalCount']}
-        type="submit"
+        type='submit'
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}

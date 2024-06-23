@@ -5,9 +5,8 @@ import { ButtonMutate } from "@erxes/ui/src/components";
 import { withProps } from "@erxes/ui/src/utils";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IAssignment } from "../types";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { mutations, queries } from "../graphql";
-import { UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import { mutations } from "../graphql";
+import { UsersQueryResponse,IUser } from "@erxes/ui/src/auth/types";
 
 type Props = {
   assignment: IAssignment;

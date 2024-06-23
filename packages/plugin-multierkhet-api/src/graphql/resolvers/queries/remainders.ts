@@ -4,7 +4,7 @@ import {
   sendCardsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
+  sendProductsMessage
 } from '../../../messageBroker';
 import { getPureDate } from '@erxes/api-utils/src';
 
@@ -12,7 +12,7 @@ const erkhetQueries = {
   async multiErkhetRemainders(
     _root,
     { productIds, stageId, pipelineId },
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     if (!pipelineId && stageId) {
       const pipeline = await sendCardsMessage({
@@ -20,7 +20,7 @@ const erkhetQueries = {
         action: 'pipelines.findOne',
         data: { stageId },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       });
       pipelineId = pipeline._id;
     }
@@ -49,7 +49,7 @@ const erkhetQueries = {
         action: 'find',
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       for (const product of products) {
@@ -71,7 +71,6 @@ const erkhetQueries = {
             }
 
             codesByBrandId[brandId].push(product.code);
-            continue;
           }
         }
       }
@@ -95,11 +94,11 @@ const erkhetQueries = {
               check_relate: codesByBrandId[brandId].length < 4 ? '1' : '',
               accounts: remainderConfig.account,
               locations: remainderConfig.location,
-              inventories: codesByBrandId[brandId].join(','),
+              inventories: codesByBrandId[brandId].join(',')
             }),
           {
-            timeout: 8000,
-          },
+            timeout: 8000
+          }
         );
 
         const jsonRes = await response.json();
@@ -115,9 +114,12 @@ const erkhetQueries = {
                 if (!Object.keys(responseByCode).includes(invCode)) {
                   responseByCode[invCode] = '';
                 }
-                const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
-                  locations.length > 1 ? `${loc}:` : ''
-                } ${resp[invCode]}`;
+                const remainder =
+                (accounts.length > 1 ? acc + '/' : '') +
+                (locations.length > 1 ? loc + ':' : '') +
+                ' ' +
+                resp[invCode];
+
                 responseByCode[invCode] = responseByCode[invCode]
                   ? `${responseByCode[invCode]}, ${remainder}`
                   : `${remainder}`;
@@ -149,7 +151,7 @@ const erkhetQueries = {
       startDate,
       endDate,
       isMore,
-      brandId,
+      brandId
     }: {
       contentType: string;
       contentId: string;
@@ -158,7 +160,7 @@ const erkhetQueries = {
       isMore: boolean;
       brandId?: string;
     },
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     const result: any = {};
 
@@ -183,7 +185,7 @@ const erkhetQueries = {
           '',
         endDate:
           (endDate && getPureDate(endDate).toISOString().slice(0, 10)) || '',
-        isMore: (isMore && 'True') || '',
+        isMore: (isMore && 'True') || ''
       };
 
       switch (contentType) {
@@ -193,7 +195,7 @@ const erkhetQueries = {
             action: 'companies.findOne',
             data: { _id: contentId },
             isRPC: true,
-            defaultValue: {},
+            defaultValue: {}
           });
 
           sendParams.customerCode = company && company.code;
@@ -204,7 +206,7 @@ const erkhetQueries = {
             action: 'users.findOne',
             data: { _id: contentId },
             isRPC: true,
-            defaultValue: {},
+            defaultValue: {}
           });
 
           sendParams.workerEmail = user && user.email;
@@ -215,7 +217,7 @@ const erkhetQueries = {
             action: 'customers.findOne',
             data: { _id: contentId },
             isRPC: true,
-            defaultValue: {},
+            defaultValue: {}
           });
 
           sendParams.customerCode = customer && customer.code;
@@ -229,8 +231,8 @@ const erkhetQueries = {
         `${process.env.ERKHET_URL || 'https://erkhet.biz'}/get-api/?` +
           new URLSearchParams({ ...sendParams, kind: 'remainder' }),
         {
-          timeout: 8000,
-        },
+          timeout: 8000
+        }
       );
 
       const jsonRes = await response.json();

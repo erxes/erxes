@@ -17,7 +17,7 @@ const configQueries = {
   async multierkhetConfigsGetValue(
     _root,
     { code }: { code: string },
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Configs.findOne({ code }).lean();
   },
@@ -25,13 +25,13 @@ const configQueries = {
   async dealPayAmountByBrand(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const deal = await sendCardsMessage({
       subdomain,
       action: 'deals.findOne',
       data: { _id },
-      isRPC: true,
+      isRPC: true
     });
 
     if (!deal || !deal.productsData || !deal.productsData.length) {
@@ -49,7 +49,7 @@ const configQueries = {
           name: '',
           amount: deal.productsData.reduce(
             (sum, pd) => Number(sum) + Number(pd.amount),
-            0,
+            0
           ),
         },
       ];
@@ -65,7 +65,7 @@ const configQueries = {
         limit: deal.productsData.length,
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const productById = {};
@@ -106,7 +106,6 @@ const configQueries = {
           }
 
           amountByBrandId[brandId] += productData.amount;
-          continue;
         }
       }
     }
@@ -115,7 +114,7 @@ const configQueries = {
       _id: brandId,
       name: mainConfigs[brandId].title,
       amount: amountByBrandId[brandId],
-      paymentIds: mainConfigs[brandId].paymentIds || [],
+      paymentIds: mainConfigs[brandId].paymentIds || []
     }));
   },
 };

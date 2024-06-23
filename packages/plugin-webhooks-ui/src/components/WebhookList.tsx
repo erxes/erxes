@@ -1,8 +1,8 @@
 import {
-  FlexItem,
   FlexRow,
   InputBar,
   Title,
+  FilterContainer,
 } from "@erxes/ui-settings/src/styles";
 import {
   ICommonFormProps,
@@ -11,19 +11,15 @@ import {
 import React, { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { AppConsumer } from "@erxes/ui/src";
-import { FilterContainer } from "@erxes/ui-settings/src/styles";
-import { FormControl } from "@erxes/ui/src";
+import { AppConsumer, FormControl } from "@erxes/ui/src";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import { IUser } from "@erxes/ui/src/auth/types";
-import Icon from "@erxes/ui/src/components/Icon";
 import List from "@erxes/ui-settings/src/common/components/List";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import Table from "@erxes/ui/src/components/table";
 import WebhookForm from "../containers/WebhookForm";
 import WebhookRow from "./WebhookRow";
-import { __ } from "@erxes/ui/src/utils";
-import { router } from "@erxes/ui/src/utils";
+import { router, __ } from "@erxes/ui/src/utils";
 
 type Props = {
   queryParams?: any;
@@ -64,13 +60,13 @@ const WebhookList = (props: FinalProps) => {
 
   const renderSearch = () => {
     return (
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={handleSearch}
-            autoFocus={true}
-            value={searchValue}
-          />
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={handleSearch}
+        autoFocus={true}
+        value={searchValue}
+      />
     );
   };
 

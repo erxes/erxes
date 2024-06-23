@@ -1,10 +1,9 @@
-import * as _ from 'underscore';
 import {
   assignmentSchema,
   IAssignment,
   IAssignmentDocument
 } from './definitions/assignments';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IAssignmentModel extends Model<IAssignmentDocument> {

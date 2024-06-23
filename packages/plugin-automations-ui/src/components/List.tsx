@@ -39,10 +39,8 @@ interface IProps {
     emptyBulk: () => void
   ) => void;
   queryParams: any;
-  exportAutomations: (bulk: string[]) => void;
   duplicate: (_id: string) => void;
   refetch?: () => void;
-  renderExpandButton?: any;
   isExpand?: boolean;
   counts: AutomationsCount;
 }

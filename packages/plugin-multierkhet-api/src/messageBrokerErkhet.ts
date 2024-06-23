@@ -20,10 +20,10 @@ export const initBrokerErkhet = async () => {
     const models = await generateModels(subdomain);
 
     const configs = await models.Configs.getConfig('erkhetConfig', {});
-    const allConfigs = (Object.values(configs) || []) as any[];
+    const allConfigs: any[] = Object.values(configs) || [];
 
     const config = allConfigs.find(
-      c =>
+      (c) =>
         c.apiKey === api_key &&
         c.apiSecret === api_secret &&
         c.apiToken === subdomain
@@ -54,8 +54,6 @@ export const initBrokerErkhet = async () => {
         await consumeCustomer(subdomain, config, doc, old_code, action);
         break;
     }
-
-    return;
   });
 };
 
@@ -101,6 +99,6 @@ export const erkhetBroker = async () => {
   });
 };
 
-export default function() {
+export default function () {
   return clientErkhet;
 }

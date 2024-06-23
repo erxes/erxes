@@ -18,10 +18,6 @@ type Props = {
 };
 
 class IntegrationForm extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   generateDoc = (values: { name: string; brandId: string; token: string }) => {
     return {
       name: values.name,
@@ -29,7 +25,7 @@ class IntegrationForm extends React.Component<Props> {
       kind: 'viber',
       data: {
         token: values.token
-      }
+      },
     };
   };
 
@@ -80,19 +76,19 @@ class IntegrationForm extends React.Component<Props> {
         />
 
         <a
-          href="https://partners.viber.com/login"
-          target="_blank"
-          rel="noreferrer"
+          href='https://partners.viber.com/login'
+          target='_blank'
+          rel='noreferrer'
         >
           {__('Get your viber token')}
         </a>
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
+            btnStyle='simple'
+            type='button'
             onClick={callback}
-            icon="times-circle"
+            icon='times-circle'
           >
             Cancel
           </Button>

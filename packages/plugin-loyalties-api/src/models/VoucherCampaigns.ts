@@ -1,11 +1,9 @@
-import * as _ from 'underscore';
-
 import {
   IVoucherCampaign,
   IVoucherCampaignDocument,
   voucherCampaignSchema
 } from './definitions/voucherCampaigns';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 
 import { CAMPAIGN_STATUS } from './definitions/constants';
 import { IModels } from '../connectionResolver';

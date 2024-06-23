@@ -26,7 +26,7 @@ export const customerToErkhet = async (models, params, action) => {
 
   for (const brandId of configBrandIds) {
     const config = configs[brandId];
-    name = name ? name : config.customerDefaultName;
+    name = name || config.customerDefaultName;
 
     if (!(config.apiKey && config.apiSecret && config.apiToken)) {
       continue;
@@ -42,7 +42,7 @@ export const customerToErkhet = async (models, params, action) => {
           name,
           defaultCategory: (config.customerCategoryCode || '').toString(),
           email: customer.primaryEmail || '',
-          phone: customer.primaryPhone || '',
+          phone: customer.primaryPhone || ''
         },
       };
 
@@ -50,7 +50,7 @@ export const customerToErkhet = async (models, params, action) => {
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
     }
   }
@@ -69,7 +69,10 @@ export const validCompanyCode = async (config, companyCode) => {
   const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
 
   if (re.test(companyCode)) {
-    const response = await getCompanyInfo({checkTaxpayerUrl: config.checkCompanyUrl, no: companyCode})
+    const response = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkCompanyUrl,
+      no: companyCode
+    });
 
     if (response.status === 'checked' && response.tin) {
       result = response.result?.data?.name;
@@ -107,7 +110,7 @@ export const companyToErkhet = async (models, params, action) => {
           name: company.primaryName,
           defaultCategory: config.companyCategoryCode,
           email: company.primaryEmail || '',
-          phone: company.primaryPhone || '',
+          phone: company.primaryPhone || ''
         },
       };
 
@@ -115,7 +118,7 @@ export const companyToErkhet = async (models, params, action) => {
     } catch (e) {
       await models.SyncLogs.updateOne(
         { _id: syncLog._id },
-        { $set: { error: e.message } },
+        { $set: { error: e.message } }
       );
     }
   }

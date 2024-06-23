@@ -1,17 +1,11 @@
 import { Alert, Bulk, router } from "@erxes/ui/src";
-import {
-  ListQueryVariables,
-  MainQueryResponse,
-  RemoveMutationResponse,
-  RemoveMutationVariables,
-} from "../types";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
 import React, { useState } from "react";
 import { mutations, queries } from "../graphql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, gql } from "@apollo/client";
 
 import ContractList from "../components/list/ContractsList";
 import { FILTER_PARAMS_CONTRACT } from "../../constants";
-import { gql } from "@apollo/client";
 import queryString from "query-string";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -50,13 +44,11 @@ const ContractListContainer = (props: Props) => {
         customerId: queryParams.customerId,
         branchId: queryParams.branchId,
 
-        savingAmount: !!queryParams.savingAmount
-          ? parseFloat(queryParams.savingAmount)
-          : undefined,
-        interestRate: !!queryParams.interestRate
-          ? parseFloat(queryParams.interestRate)
-          : undefined,
-        tenor: !!queryParams.tenor ? parseInt(queryParams.tenor) : undefined,
+        savingAmount: parseFloat(queryParams.savingAmount) || undefined,
+
+        interestRate: parseFloat(queryParams.interestRate) || undefined,
+
+        tenor: parseInt(queryParams.tenor) || undefined,
 
         sortField: queryParams.sortField,
         sortDirection: queryParams.sortDirection

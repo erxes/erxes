@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin,
+  requireLogin
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
@@ -26,7 +26,7 @@ const tagQueries = {
         for (const type of types) {
           fieldTypes.push({
             description: type.description,
-            contentType: `${serviceName}:${type.type}`,
+            contentType: `${serviceName}:${type.type}`
           });
         }
       }
@@ -39,12 +39,12 @@ const tagQueries = {
     _root,
     {
       type,
-      searchValue,
+      searchValue
     }: {
       type: string;
       searchValue?: string;
     },
-    { models, commonQuerySelector }: IContext,
+    { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -71,7 +71,7 @@ const tagQueries = {
       ids,
       excludeIds,
       page,
-      perPage,
+      perPage
     }: {
       type: string;
       searchValue?: string;
@@ -82,16 +82,16 @@ const tagQueries = {
       page: any;
       perPage: any;
     },
-    { models, commonQuerySelector, serverTiming }: IContext,
+    { models, commonQuerySelector, serverTiming }: IContext
   ) {
     serverTiming.startTime('query');
 
     const selector: any = { ...commonQuerySelector };
 
     if (type) {
-      const [serviceName, contentType] = type.split(":")
+      const [serviceName, contentType] = type.split(':');
 
-      if (contentType === "all") {
+      if (contentType === 'all') {
         const contentTypes: Array<string> = await getContentTypes(serviceName);
         selector.type = { $in: contentTypes };
       } else {
@@ -130,8 +130,6 @@ const tagQueries = {
           ids = [...ids, ...childTag];
           await getChildTags(childTag);
         }
-
-        return;
       };
 
       await getChildTags(parentTag);
@@ -143,7 +141,7 @@ const tagQueries = {
       models.Tags.find(selector).sort({
         order: 1,
       }),
-      pagintationArgs,
+      pagintationArgs
     );
 
     serverTiming.endTime('query');

@@ -1,4 +1,3 @@
-import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { sendMessageBroker } from '../../../messageBroker';
 import {
@@ -92,7 +91,7 @@ const periodLockMutations = {
     }
 
     return periodLockIds;
-  }
+  },
 };
 
 // checkPermission(periodLockMutations, 'periodLocksAdd', 'managePeriodLocks');

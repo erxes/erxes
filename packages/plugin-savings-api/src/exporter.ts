@@ -45,13 +45,8 @@ export const fillValue = async (
 ): Promise<string> => {
   let value = item[column];
 
-  switch (column) {
-    case 'createdAt':
-      value = moment(value).format('YYYY-MM-DD');
-      break;
-
-    default:
-      break;
+  if (column === 'createdAt') {
+    value = moment(value).format('YYYY-MM-DD');
   }
 
   return value || '-';
@@ -117,5 +112,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  }
+  },
 };

@@ -1,9 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import {
-  TypesMainQueryResponse,
-  TypesRemoveMutationResponse
-} from '../../types';
+import { TypesMainQueryResponse } from '../../types';
 
 import List from '../../components/contentTypes/List';
 import React from 'react';
@@ -27,13 +24,12 @@ function ContentTypesContainer(props: FinalProps) {
     return null;
   }
 
-  const { list = [], totalCount } =
+  const { list = [] } =
     typesMainQuery.webbuilderContentTypesMain || {};
 
   const updatedProps = {
     ...props,
-    contentTypes: list,
-    contentTypesCount: totalCount
+    contentTypes: list
   };
 
   return <List {...updatedProps} />;
@@ -44,9 +40,9 @@ export default compose(
     name: 'typesMainQuery',
     options: ({ siteId }) => ({
       variables: {
-        siteId
+        siteId,
       },
-      fetchPolicy: 'network-only'
-    })
+      fetchPolicy: 'network-only',
+    }),
   })
 )(ContentTypesContainer);

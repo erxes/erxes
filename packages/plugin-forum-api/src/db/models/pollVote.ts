@@ -1,10 +1,7 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
-import * as _ from 'lodash';
 import { LoginRequiredError } from '../../customErrors';
-import { UserTypes } from '../../consts';
 
 export interface PollVote {
   pollOptionId: Types.ObjectId;

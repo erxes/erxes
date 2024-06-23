@@ -22,7 +22,6 @@ const assignmentsMutations = {
       { type: MODULE_NAMES.ASSINGNMENT, newData: create, object: create },
       user
     );
-    return;
   },
 
   async assignmentCampaignsEdit(

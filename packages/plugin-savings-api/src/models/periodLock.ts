@@ -3,15 +3,11 @@ import {
   IPeriodLockDocument,
   periodLockSchema
 } from './definitions/periodLocks';
-import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IStoredInterestDocument } from './definitions/storedInterest';
-import { getDaysInMonth, getDiffDay, getFullDate } from './utils/utils';
-import {
-  CONTRACT_STATUS,
-  STORE_INTEREST_INTERVAL
-} from './definitions/constants';
+import { getDiffDay, getFullDate } from './utils/utils';
+import { CONTRACT_STATUS } from './definitions/constants';
 import storeInterest from './utils/storeInterestUtils';
 
 export const loadPeriodLockClass = (models: IModels) => {
@@ -81,7 +77,7 @@ export const loadPeriodLockClass = (models: IModels) => {
       const transactions = await models.Transactions.find({
         payDate: {
           $lte: doc.date,
-          ...(prevLock?.date ? { $gt: prevLock?.date } : {})
+          ...(prevLock?.date ? { $gt: prevLock?.date } : {}),
         },
         contractId: { $nin: doc.excludeContracts || [], $exists: true }
       });
@@ -93,9 +89,10 @@ export const loadPeriodLockClass = (models: IModels) => {
      * Remove PeriodLock
      */
     public static async removePeriodLocks(_ids: string[]) {
-      const storedInterestList: IStoredInterestDocument[] = await models.StoredInterest.find(
-        { periodLockId: { $in: _ids } }
-      ).lean();
+      const storedInterestList: IStoredInterestDocument[] =
+        await models.StoredInterest.find({
+          periodLockId: { $in: _ids },
+        }).lean();
       for (const storedInterst of storedInterestList) {
         await models.Contracts.updateOne(
           { _id: storedInterst.contractId },
@@ -103,13 +100,13 @@ export const loadPeriodLockClass = (models: IModels) => {
             $set: {
               storedInterst: { $inc: storedInterst.amount * -1 },
               lastStoredDate: storedInterst.prevStoredDate
-            }
+            },
           }
         );
       }
 
       await models.StoredInterest.deleteMany({
-        _id: storedInterestList.map(a => a._id)
+        _id: storedInterestList.map((a) => a._id)
       });
       return models.PeriodLocks.deleteMany({ _id: { $in: _ids } });
     }

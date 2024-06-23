@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   IPerform,

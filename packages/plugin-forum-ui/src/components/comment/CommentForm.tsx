@@ -16,11 +16,11 @@ const CommentForm: React.FC<{
     return {
       postId,
       replyToId,
-      content: finalValues.comment
+      content: finalValues.comment,
     };
   };
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     e.preventDefault();
 
     setComment(e.target.value);
@@ -30,11 +30,11 @@ const CommentForm: React.FC<{
     const { isSubmitted, values } = formProps;
 
     return (
-      <Comment isReply={replyToId ? true : false}>
+      <Comment isReply={!!replyToId}>
         <FormControl
           {...formProps}
-          placeholder="Write a comment"
-          name="comment"
+          placeholder='Write a comment'
+          name='comment'
           value={comment}
           onChange={handleChange}
         />
@@ -42,7 +42,7 @@ const CommentForm: React.FC<{
         {renderButton({
           values: generateDoc(values),
           isSubmitted,
-          callback: () => setComment('')
+          callback: () => setComment(''),
         })}
       </Comment>
     );

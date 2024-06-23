@@ -50,8 +50,8 @@ class WebsiteActivity extends React.Component<Props> {
     return (
       <SidebarList className="no-link">
         <Description>{__('Most visited pages on your website')}</Description>
-        {this.props.urlVisits.map((data, index) => (
-          <li key={index}>
+        {this.props.urlVisits.map((data) => (
+          <li key={data.url}>
             <FieldStyle>
               <Bolder>{data.url}</Bolder>
             </FieldStyle>

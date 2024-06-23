@@ -1,13 +1,12 @@
 import Alert from '@erxes/ui/src/utils/Alert';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { router } from '@erxes/ui/src/utils';
-import { gql } from '@apollo/client';
 import React, { useState } from 'react';
 
 import ClassificationHistoryList from '../components/ClassificationHistoryList';
 import { mutations, queries } from '../graphql';
 import { MainQueryResponse, RemoveMutationResponse } from '../types';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, gql } from '@apollo/client';
 
 type Props = {
   queryParams: any;
@@ -28,15 +27,15 @@ const ClassificationListContainer = (props: Props) => {
           ? parseInt(queryParams.sortDirection, 10)
           : undefined,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: 'network-only'
+    }
   );
 
   const [classificationRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.classificationRemove),
     {
-      refetchQueries: ['classifications'],
-    },
+      refetchQueries: ['classifications']
+    }
   );
 
   const removeClassificationHistory = ({ classificationIds }, emptyBulk) => {

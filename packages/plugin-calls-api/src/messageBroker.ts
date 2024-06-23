@@ -37,7 +37,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -69,7 +69,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -91,7 +91,7 @@ export const setupMessageConsumers = async () => {
 
       await models.Integrations.updateOne(
         { inboxId: integrationId },
-        { $set: details },
+        { $set: details }
       );
 
       const updatedIntegration = await models.Integrations.findOne({
@@ -108,7 +108,7 @@ export const setupMessageConsumers = async () => {
           errorMessage: 'Integration not found.',
         };
       }
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -122,7 +122,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -135,27 +135,22 @@ export const setupMessageConsumers = async () => {
 
       const callIntegration = await models.Integrations.findOne(
         { inboxId },
-        'token',
+        'token'
       );
 
       return {
         status: 'success',
         data: { token: callIntegration?.token },
       };
-    },
+    }
   );
   consumeQueue('calls:notification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { type } = data;
 
-    switch (type) {
-      case 'removeCustomers':
-        await removeCustomers(models, data);
-        break;
-
-      default:
-        break;
+    if (type === 'removeCustomers') {
+      await removeCustomers(models, data);
     }
   });
   consumeRPCQueue(
@@ -186,7 +181,7 @@ export const setupMessageConsumers = async () => {
           errorMessage: 'Error processing call history:' + error,
         };
       }
-    },
+    }
   );
 };
 
@@ -204,7 +199,7 @@ export const sendInboxMessage = (args: MessageArgsOmitService) => {
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',

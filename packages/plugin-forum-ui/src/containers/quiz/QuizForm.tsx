@@ -1,7 +1,6 @@
 import React from 'react';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 import { queries, mutations } from '../../graphql';
-import { gql } from '@apollo/client';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IQuiz } from '../../types';

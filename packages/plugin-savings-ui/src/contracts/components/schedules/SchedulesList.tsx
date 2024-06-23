@@ -7,11 +7,8 @@ import ScheduleRow from './ScheduleRow';
 import { __ } from 'coreui/utils';
 
 interface IProps {
-  contractId: string;
   transactions: ITransaction[];
   loading: boolean;
-  currentYear: number;
-  onClickYear: (year: number) => void;
 }
 
 const SchedulesList = (props: IProps) => {
@@ -34,7 +31,7 @@ const SchedulesList = (props: IProps) => {
             <th>{__('Total')}</th>
           </tr>
         </thead>
-        <tbody id="schedules">
+        <tbody id='schedules'>
           {transactions.map((transaction) => (
             <ScheduleRow
               transaction={transaction}

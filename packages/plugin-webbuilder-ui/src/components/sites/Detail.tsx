@@ -7,7 +7,7 @@ import {
   SettingsContent,
 } from "./styles";
 import { IContentTypeDoc, IPageDoc } from "../../types";
-import { __, uploadHandler } from "@erxes/ui/src/utils";
+import { uploadHandler } from "@erxes/ui/src/utils";
 
 import Alert from "@erxes/ui/src/utils/Alert";
 import Button from "@erxes/ui/src/components/Button";

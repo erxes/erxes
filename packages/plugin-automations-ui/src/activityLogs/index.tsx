@@ -18,7 +18,6 @@ import dayjs from 'dayjs';
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 class ActivityItem extends React.Component<Props> {
@@ -84,17 +83,15 @@ class ActivityItem extends React.Component<Props> {
 
     const type = contentType.split(':')[1];
 
-    switch ((action && action) || type) {
-      case 'sendEmail':
+    if (action === 'sendEmail' || type === 'sendEmail') {
         return this.renderDetail(
           'task',
           this.renderSendEmail(contentDetail, createdAt),
           'email'
         );
-
-      default:
-        return <div />;
     }
+
+    return <div />;
   }
 }
 

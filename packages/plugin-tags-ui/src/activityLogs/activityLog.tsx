@@ -15,7 +15,6 @@ import TaggedLog from './containers/TaggedLog';
 type Props = {
   contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
@@ -25,7 +24,7 @@ const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
 
     return (
       <ActivityRow key={Math.random()}>
-        <Tip text={formatText(type || contentType)} placement="top">
+        <Tip text={formatText(type || contentType)} placement='top'>
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
@@ -39,12 +38,11 @@ const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
   const type = activity.contentType.split(':')[1];
   const tagIds = activity.content ? activity.content.tagIds : [];
 
-  switch ((action && action) || type) {
-    case 'tagged':
-      return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
-    default:
-      return <div />;
+  if (action === 'tagged' || type === 'tagged') {
+    return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
   }
+
+  return <div />;
 };
 
 export default ActivityItem;

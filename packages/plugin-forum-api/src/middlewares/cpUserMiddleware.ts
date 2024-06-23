@@ -19,7 +19,6 @@ export default async function cpUserMiddleware(
 
     if (!cpUser) {
       throw new Error(`Cannot verify client portal user in forum-api`);
-      // return next();
     }
 
     // save user in request

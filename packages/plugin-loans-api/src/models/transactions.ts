@@ -1,4 +1,4 @@
-import { ITransaction, transactionSchema } from './definitions/transactions';
+import { ITransaction, transactionSchema,ITransactionDocument } from './definitions/transactions';
 import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
 import {
@@ -7,10 +7,8 @@ import {
   trAfterSchedule,
   transactionRule
 } from './utils/transactionUtils';
-import { Model } from 'mongoose';
-import { ITransactionDocument } from './definitions/transactions';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
 import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
@@ -264,7 +262,7 @@ export const loadTransactionClass = (models: IModels) => {
         await models.Invoices.updateInvoice(doc.invoiceId, invoiceData);
       }
 
-      const trInfo = await transactionRule(models, subdomain, { ...doc });
+      const trInfo = await transactionRule(models, subdomain, { ...doc } as any);
 
       await models.Transactions.updateOne(
         { _id },

@@ -20,8 +20,8 @@ type HolidayType = "before" | "exact" | "after";
 
 export interface ICollateralData {
   collateralId: string;
-  certificate?: String;
-  vinNumber?: String;
+  certificate?: string;
+  vinNumber?: string;
   cost: number;
   percent: number;
   marginAmount: number;

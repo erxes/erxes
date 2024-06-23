@@ -53,12 +53,12 @@ export interface ICommonParams {
 }
 
 export interface IScoreParams {
-  ownerType: String;
-  ownerId: String;
+  ownerType: string;
+  ownerId: string;
   orderType: string;
-  order: String;
-  fromDate: String;
-  toDate: String;
+  order: string;
+  fromDate: string;
+  toDate: string;
   page?: number;
   perPage?: number;
 }

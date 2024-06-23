@@ -1,5 +1,4 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   IChart,
@@ -8,7 +7,7 @@ import {
   IReportDocument,
   reportSchema,
   chartSchema,
-  IChartEdit,
+  IChartEdit
 } from './definitions/reports';
 
 export interface IReportModel extends Model<IReportDocument> {

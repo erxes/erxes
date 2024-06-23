@@ -14,7 +14,6 @@ import {
 import React from 'react';
 import SelectCampaigns from '../../containers/SelectCampaigns';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { __, router } from '@erxes/ui/src/utils';
 import { queries } from '../../../configs/assignmentCampaign/graphql';
 
 type Props = {

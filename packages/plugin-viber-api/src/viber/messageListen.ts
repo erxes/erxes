@@ -2,8 +2,6 @@ import {
   Customers,
   Conversations,
   ConversationMessages,
-  IConversation,
-  Integrations,
 } from '../models';
 import { sendInboxMessage } from '../messageBroker';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
@@ -34,20 +32,20 @@ interface ICustomer {
 const messageListen = async (
   message: IWebhookMessage,
   integrationId: string,
-  subdomain: string,
+  subdomain: string
 ): Promise<void> => {
   const createData: ICustomer = {
     inboxIntegrationId: integrationId,
     contactsId: null,
     viberId: message.sender.id,
     name: message.sender.name,
-    country: message.sender.country,
+    country: message.sender.country
   };
   const customer = await Customers.getOrCreate(createData, subdomain);
 
-  let conversation  = await Conversations.findOne({
+  let conversation = await Conversations.findOne({
     senderId: message.sender.id,
-    integrationId,
+    integrationId
   });
 
   if (!conversation) {
@@ -56,13 +54,13 @@ const messageListen = async (
         timestamp: message.timestamp,
         senderId: message.sender.id,
         recipientId: null,
-        integrationId,
+        integrationId
       });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')
           ? 'Concurrent request: conversation duplication'
-          : e,
+          : e
       );
     }
   }
@@ -78,11 +76,11 @@ const messageListen = async (
           integrationId,
           content: message.message.text || '',
           conversationId: conversation.erxesApiId,
-          createdAt: message.timestamp,
+          createdAt: message.timestamp
         }),
       },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     conversation.erxesApiId = apiConversationResponse._id;
@@ -98,7 +96,7 @@ const messageListen = async (
       userId: null,
       customerId: customer.contactsId,
       content: message.message.text,
-      messageType: message.message.type,
+      messageType: message.message.type
     };
 
     if (['sticker', 'picture'].includes(message.message.type)) {
@@ -112,7 +110,7 @@ const messageListen = async (
       action: 'conversationClientMessageInserted',
       data: {
         ...conversationMessage.toObject(),
-        conversationId: conversation.erxesApiId,
+        conversationId: conversation.erxesApiId
       },
     });
 
@@ -121,9 +119,9 @@ const messageListen = async (
       {
         conversationMessageInserted: {
           ...conversationMessage.toObject(),
-          conversationId: conversation.erxesApiId,
+          conversationId: conversation.erxesApiId
         },
-      },
+      }
     );
   } catch (e) {
     throw new Error(e);

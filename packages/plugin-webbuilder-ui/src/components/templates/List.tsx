@@ -8,7 +8,7 @@ import {
   SitePreview,
   Tag,
 } from '../sites/styles';
-import { ModalFooter, Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
 import { __, getEnv, router } from '@erxes/ui/src/utils/core';
 
@@ -25,10 +25,8 @@ import { Label } from '@erxes/ui/src/components/form/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import TemplateForm from '../../containers/templates/TemplateForm';
-import Uploader from '@erxes/ui/src/components/Uploader';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { useNavigate, useLocation } from "react-router-dom";
-
+import { useNavigate, useLocation } from 'react-router-dom';
 
 type Props = {
   templates: ITemplateDoc[];
@@ -42,9 +40,8 @@ function List(props: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [name, setName] = useState('');
   const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
-    undefined,
+    undefined
   );
   const [category, setCategory] = useState('');
 
@@ -60,7 +57,7 @@ function List(props: Props) {
     const onClick = () => window.open(`${url}`, '_blank');
 
     return (
-      <Button btnStyle="white" onClick={onClick}>
+      <Button btnStyle='white' onClick={onClick}>
         Preview
       </Button>
     );
@@ -72,7 +69,7 @@ function List(props: Props) {
     }
 
     return templates.filter((template) =>
-      (template.categories || '').includes(category),
+      (template.categories || '').includes(category)
     );
   };
 
@@ -104,7 +101,7 @@ function List(props: Props) {
   };
 
   const renderUseAction = (template) => {
-    const trigger = <Button btnStyle="white">{__('Use')}</Button>;
+    const trigger = <Button btnStyle='white'>{__('Use')}</Button>;
     const site = localStorage.getItem('webbuilderSiteId') || '';
 
     const content = ({ closeModal }) => (
@@ -117,7 +114,7 @@ function List(props: Props) {
 
     return (
       <ModalTrigger
-        title="Name your site"
+        title='Name your site'
         trigger={trigger}
         content={content}
       />
@@ -128,7 +125,7 @@ function List(props: Props) {
     return (
       <SiteBox key={index}>
         <SitePreview>
-          <img src={template.image} alt="template-img" />
+          <img src={template.image} alt='template-img' />
           <PreviewContent>
             {template.name !== 'Blank' && renderDemoAction(template)}
             {renderUseAction(template)}
@@ -159,21 +156,20 @@ function List(props: Props) {
       clearTimeout(timer);
     }
 
-
     const value = e.target.value;
 
     setSearch(value);
 
     timer = setTimeout(() => {
-      router.removeParams(navigate,location, 'page');
-      router.setParams(navigate,location, { searchValue: value });
+      router.removeParams(navigate, location, 'page');
+      router.setParams(navigate, location, { searchValue: value });
     }, 500);
   };
 
   const actionBarRight = (
     <BarItems>
       <FormControl
-        type="text"
+        type='text'
         placeholder={__('Search templates')}
         autoFocus={true}
         onChange={onSearchTemplate}
@@ -206,7 +202,7 @@ function List(props: Props) {
                     isActive={!category}
                     onClick={() => onClickCategory(null)}
                   >
-                    <Icon icon="menu-2" />
+                    <Icon icon='menu-2' />
                     &nbsp; {__('All')}
                   </Tag>
                   {CATEGORIES.map((cat, index) => renderCategories(cat, index))}
@@ -221,20 +217,20 @@ function List(props: Props) {
                     image: '/images/previews/blank.png',
                     categories: '',
                   },
-                  0,
+                  0
                 )}
                 {/* {templates.map((template, index) =>
                   renderRow(template, index + 1) */}
                 {filterTemplates().map((template, index) =>
-                  renderRow(template, index),
+                  renderRow(template, index)
                 )}
               </FlexWrap>
             </>
           }
           count={templates.length || templatesCount}
           loading={false}
-          emptyText="No templates"
-          emptyImage="/images/actions/8.svg"
+          emptyText='No templates'
+          emptyImage='/images/actions/8.svg'
         />
       }
       footer={<Pagination count={templatesCount} />}

@@ -5,9 +5,8 @@ import { withProps } from '@erxes/ui/src/utils';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
 import { ISpin } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { mutations } from '../graphql';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {
   spin: ISpin;
@@ -31,7 +30,7 @@ class SpinFromContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedSpin } = this.props;
 
-      const afterSave = data => {
+      const afterSave = (data) => {
         closeModal();
 
         if (getAssociatedSpin) {
@@ -46,7 +45,7 @@ class SpinFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -56,7 +55,7 @@ class SpinFromContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
     };
     return <Form {...updatedProps} />;
   }

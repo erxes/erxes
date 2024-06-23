@@ -1,4 +1,4 @@
-import { Alert, confirm } from "@erxes/ui/src/utils";
+import { Alert, confirm, __ } from "@erxes/ui/src/utils";
 
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
@@ -14,7 +14,6 @@ import Row from "./Row";
 import SortHandler from "@erxes/ui/src/components/SortHandler";
 import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   quizzes: IQuiz[];

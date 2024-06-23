@@ -48,7 +48,7 @@ class PerSettings extends React.Component<Props, State> {
     this.setState({ config: { ...this.state.config, stageId } });
   };
 
-  onSave = e => {
+  onSave = (e) => {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
@@ -59,7 +59,7 @@ class PerSettings extends React.Component<Props, State> {
     this.props.save(configsMap);
   };
 
-  onDelete = e => {
+  onDelete = (e) => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
@@ -96,11 +96,9 @@ class PerSettings extends React.Component<Props, State> {
     return (
       <CollapseContent
         title={__(config.title)}
-        beforeTitle={<Icon icon="settings" />}
+        beforeTitle={<Icon icon='settings' />}
         transparent={true}
-        open={
-          this.props.currentConfigKey === 'newremainderConfig' ? true : false
-        }
+        open={this.props.currentConfigKey === 'newremainderConfig'}
       >
         <FormGroup>
           <ControlLabel>{'Title'}</ControlLabel>
@@ -115,7 +113,7 @@ class PerSettings extends React.Component<Props, State> {
           <FormColumn>
             <FormGroup>
               <BoardSelectContainer
-                type="deal"
+                type='deal'
                 autoSelectStage={false}
                 boardId={config.boardId}
                 pipelineId={config.pipelineId}
@@ -133,8 +131,8 @@ class PerSettings extends React.Component<Props, State> {
         </FormWrapper>
         <ModalFooter>
           <Button
-            btnStyle="danger"
-            icon="cancel-1"
+            btnStyle='danger'
+            icon='cancel-1'
             onClick={this.onDelete}
             uppercase={false}
           >
@@ -142,11 +140,11 @@ class PerSettings extends React.Component<Props, State> {
           </Button>
 
           <Button
-            btnStyle="success"
-            icon="check-circle"
+            btnStyle='success'
+            icon='check-circle'
             onClick={this.onSave}
             uppercase={false}
-            disabled={config.pipelineId ? false : true}
+            disabled={!config.pipelineId}
           >
             Save
           </Button>

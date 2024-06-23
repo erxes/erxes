@@ -1,6 +1,4 @@
 import { colors, dimensions } from "@erxes/ui/src/styles";
-
-import { FlexItem } from "@erxes/ui/src/components/step/styles";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
 

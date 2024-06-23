@@ -1,6 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { schemaHooksWrapper, field } from './utils';
-import { INTEREST_CORRECTION_TYPE } from './constants';
+import { Document, Schema } from "mongoose";
+import { schemaHooksWrapper, field } from "./utils";
 export interface IInterestCorrection {
   description: string;
   invDate: Date;
@@ -25,13 +24,13 @@ export const InterestCorrectionSchema = schemaHooksWrapper(
     number: field({
       type: String,
       label: 'Number',
-      index: true
+      index: true,
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
     invDate: field({
       type: Date,
       default: new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
     interestAmount: field({ type: Number, min: 0, label: 'Interest Amount' }),
     lossAmount: field({ type: Number, min: 0, label: 'Loss Amount' }),
@@ -41,9 +40,9 @@ export const InterestCorrectionSchema = schemaHooksWrapper(
     createdAt: field({
       type: Date,
       default: () => new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
-    createdBy: { type: String, optional: true, label: 'created member' }
+    createdBy: { type: String, optional: true, label: 'created member' },
   }),
   'erxes_interestCorrectionSchema'
 );

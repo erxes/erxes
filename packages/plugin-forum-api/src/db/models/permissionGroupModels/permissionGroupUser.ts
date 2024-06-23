@@ -1,5 +1,4 @@
 import {
-  Document,
   Schema,
   Model,
   Connection,
@@ -7,7 +6,6 @@ import {
   HydratedDocument,
 } from 'mongoose';
 import { IModels } from '../index';
-import * as _ from 'lodash';
 import { PermissionGroupDocument } from './permissionGroup';
 
 export interface IPermissionGroupUser {

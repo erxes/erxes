@@ -12,7 +12,6 @@ import { mutations, queries } from "../../graphql";
 import List from "../../components/entries/List";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
@@ -54,7 +53,6 @@ function ListContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     entries: list,
-    loading: entriesMainQuery.loading,
     contentType,
     remove,
     entriesCount: totalCount,

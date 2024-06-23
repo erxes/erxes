@@ -10,7 +10,6 @@ import {
   calcInterest,
   calcPerMonthEqual,
   calcPerMonthFixed,
-  checkNextDay,
   getChanged,
   getDatesDiffMonth,
   getDiffDay,
@@ -22,8 +21,8 @@ import {
   nextOffWeekend,
   preOffWeekend
 } from './utils';
-import * as moment from 'moment'
-import {BigNumber} from 'bignumber.js'
+import * as moment from 'moment';
+import { BigNumber } from 'bignumber.js';
 import { IConfig } from '../../interfaces/config';
 //#endregion
 
@@ -97,7 +96,7 @@ const fillAmounts = async (
 
   if (doc.balance < 0) {
     doc.surplus = -1 * doc.balance;
-    doc.didPayment = (tr?.payment || 0) + doc.balance;
+    doc.didPayment = (tr?.payment ?? 0) + doc.balance;
     await models.Transactions.updateOne(
       { _id: tr._id },
       { $set: { surplus: doc.surplus, payment: doc.didPayment } }
@@ -107,8 +106,8 @@ const fillAmounts = async (
   return doc;
 };
 
-export const generateDates = (contract:IContractDocument,) => {
-  let mainDate = contract.firstPayDate
+export const generateDates = (contract: IContractDocument) => {
+  let mainDate = contract.firstPayDate;
 
   var dateRanges: Date[] = [];
 
@@ -118,21 +117,22 @@ export const generateDates = (contract:IContractDocument,) => {
     dateRange.forEach((day, i) => {
       const ndate = getFullDate(new Date(mainDate));
       const year = ndate.getFullYear();
-      const month = i === 0 && index !== 0 ? ndate.getMonth() + 1 : ndate.getMonth();
+      const month =
+        i === 0 && index !== 0 ? ndate.getMonth() + 1 : ndate.getMonth();
 
       if (day > 28 && new Date(year, month, day).getDate() !== day)
         mainDate = new Date(year, month + 1, 0);
       else mainDate = new Date(year, month, day);
-      
-      if(isWeekend(mainDate)){
+
+      if (isWeekend(mainDate)) {
         switch (contract.holidayType) {
           case 'before':
-            mainDate = preOffWeekend(mainDate)
+            mainDate = preOffWeekend(mainDate);
             break;
           case 'after':
-            mainDate = nextOffWeekend(mainDate)
+            mainDate = nextOffWeekend(mainDate);
             break;
-        
+
           default:
             break;
         }
@@ -142,8 +142,8 @@ export const generateDates = (contract:IContractDocument,) => {
     });
   }
 
-  return dateRanges
-}
+  return dateRanges;
+};
 
 export const scheduleHelper = async (
   contract: IContractDocument,
@@ -160,30 +160,29 @@ export const scheduleHelper = async (
   if (tenor === 0) {
     return bulkEntries;
   }
-  let currentDate = getFullDate(moment(startDate).add(-1,'day').toDate());
+  let currentDate = getFullDate(moment(startDate).add(-1, 'day').toDate());
 
   let skipInterestCalcDate = addMonths(
     new Date(currentDate),
-    contract.skipInterestCalcMonth || 0
+    contract.skipInterestCalcMonth ?? 0
   );
 
   let endDate = addMonths(new Date(startDate), contract.tenor);
 
-  let dateRanges: Date[] = generateDates(contract)
+  let dateRanges: Date[] = generateDates(contract);
 
-  const paymentDates = dateRanges.filter(date => {
-    if (
-      date < startDate || date >= endDate
-    )
-      return false;
+  const paymentDates = dateRanges.filter((date) => {
+    if (date < startDate || date >= endDate) return false;
     return true;
   });
 
   if (contract.repayment === 'equal') {
-    const payment = new BigNumber(balance - (salvageAmount || 0)).div(paymentDates.length).dp(calculationFixed,BigNumber.ROUND_HALF_UP).toNumber()
+    const payment = new BigNumber(balance - (salvageAmount || 0))
+      .div(paymentDates.length)
+      .dp(calculationFixed, BigNumber.ROUND_HALF_UP)
+      .toNumber();
 
     for (let i = 0; i < paymentDates.length; i++) {
-
       const perMonth = await calcPerMonthEqual(
         contract,
         balance,
@@ -268,7 +267,7 @@ export const reGenerateSchedules = async (
   models: IModels,
   contract: IContractDocument,
   perHolidays: IPerHoliday[],
-  loansConfig:IConfig
+  loansConfig: IConfig
 ) => {
   if (!contract.collateralsData) {
     return;
@@ -292,15 +291,14 @@ export const reGenerateSchedules = async (
   // diff from startDate to nextDate valid: max 42 min 10 day, IsValid then undefined or equal nextMonthDay
   let nextDate: any = contract.firstPayDate;
 
-
   bulkEntries = await scheduleHelper(
     contract,
     bulkEntries,
     startDate,
     balance,
     tenor,
-    contract.salvageAmount || 0,
-    contract.salvageTenor || 0,
+    contract.salvageAmount ?? 0,
+    contract.salvageTenor ?? 0,
     nextDate,
     perHolidays,
     loansConfig.calculationFixed
@@ -314,8 +312,8 @@ export const reGenerateSchedules = async (
     contract,
     bulkEntries,
     startDate,
-    contract.salvageAmount || 0,
-    contract.salvageTenor || 0,
+    contract.salvageAmount ?? 0,
+    contract.salvageTenor ?? 0,
     0,
     0,
     nextDate,
@@ -324,10 +322,10 @@ export const reGenerateSchedules = async (
 
   // insurance schedule
   const insuranceTypeIds = contract.collateralsData.map(
-    coll => coll.insuranceTypeId
+    (coll) => coll.insuranceTypeId
   );
   const insuranceTypes = await models.InsuranceTypes.find({
-    _id: { $in: insuranceTypeIds }
+    _id: { $in: insuranceTypeIds },
   });
   const insuranceTypeRulesById = {};
   for (const insType of insuranceTypes) {
@@ -366,7 +364,7 @@ export const reGenerateSchedules = async (
 
   if (contract.debt) {
     const debtTenor =
-      Math.min(contract.debtTenor || 0, bulkEntries.length) || 1;
+      Math.min(contract.debtTenor ?? 0, bulkEntries.length) || 1;
 
     const perDebt = Math.round(contract.debt / debtTenor);
     const firstDebt = contract.debt - perDebt * (debtTenor - 1);
@@ -475,11 +473,11 @@ export const fixSchedules = async (
     contractId: contractId,
     payDate: {
       $lte: new Date(today.getTime() + 1000 * 3600 * 24),
-      ...(periodLock?.date ? { $gt: periodLock?.date } : {})
+      ...(periodLock?.date ? { $gt: periodLock?.date } : {}),
     },
     status: SCHEDULE_STATUS.PENDING,
     balance: { $gt: 0 },
-    isDefault: true
+    isDefault: true,
   }).sort({ payDate: 1 });
 
   let prevSchedule: any = null;
@@ -490,7 +488,7 @@ export const fixSchedules = async (
         payDate: {
           $lte: scheduleRow.payDate,
           $gt: prevSchedule?.payDate || contract?.startDate
-        }
+        },
       })
         .sort({ payDate: 1 })
         .lean();
@@ -498,17 +496,20 @@ export const fixSchedules = async (
       prevSchedule = scheduleRow;
 
       for await (let { _id, ...transaction } of transactions) {
-        const trInfo = await transactionRule(models, subdomain, transaction);
+        const trInfo = await transactionRule(models, subdomain, transaction as any);
 
         await models.Transactions.updateOne(
           { _id },
           { $set: { ...transaction, ...trInfo } }
         );
         //now resolve schedules
-        await trAfterSchedule(models, { ...transaction, ...trInfo } as any);
+        await trAfterSchedule(models, {
+          ...transaction,
+          ...trInfo
+        } as ITransactionDocument);
       }
 
-      if (transactions.find(a => a.payDate === scheduleRow.payDate)) continue;
+      if (transactions.find((a) => a.payDate === scheduleRow.payDate)) continue;
 
       //create empty row transaction to the schedule
       let doc = {
@@ -529,20 +530,23 @@ export const fixSchedules = async (
     contractId,
     payDate: {
       $gt: prevSchedule?.payDate || contract?.startDate
-    }
+    },
   })
     .sort({ payDate: 1 })
     .lean();
 
   if (transactions.length > 0)
     for await (let { _id, ...transaction } of transactions) {
-      const trInfo = await transactionRule(models, subdomain, transaction);
+      const trInfo = await transactionRule(models, subdomain, transaction as any);
       await models.Transactions.updateOne(
         { _id },
         { $set: { ...transaction, ...trInfo } }
       );
       //now resolve schedules
-      await trAfterSchedule(models, { ...transaction, ...trInfo } as any);
+      await trAfterSchedule(models, {
+        ...transaction,
+        ...trInfo,
+      } as ITransactionDocument);
     }
 };
 
@@ -585,7 +589,7 @@ export const generatePendingSchedules = async (
             preMainSchedule === null
               ? SCHEDULE_STATUS.PRE
               : SCHEDULE_STATUS.LESS
-        }
+        },
       }
     );
     tr._id &&
@@ -618,7 +622,7 @@ export const generatePendingSchedules = async (
             preMainSchedule === null
               ? SCHEDULE_STATUS.PRE
               : SCHEDULE_STATUS.LESS
-        }
+        },
       }
     );
     tr._id &&
@@ -633,12 +637,12 @@ export const generatePendingSchedules = async (
 
   //this diff is payment diff payed greater is less
   let diff =
-    (updatedSchedule.didPayment || 0) +
-    (updatedSchedule.didInterestEve || 0) +
-    (updatedSchedule.didInterestNonce || 0) -
-    (updatedSchedule.payment || 0) -
-    (updatedSchedule.interestEve || 0) -
-    (updatedSchedule.interestNonce || 0);
+    (updatedSchedule.didPayment ?? 0) +
+    (updatedSchedule.didInterestEve ?? 0) +
+    (updatedSchedule.didInterestNonce ?? 0) -
+    (updatedSchedule.payment ?? 0) -
+    (updatedSchedule.interestEve ?? 0) -
+    (updatedSchedule.interestNonce ?? 0);
 
   let preSchedule = updatedSchedule; //current schedule
   let schedule = pendingSchedules[0]; //feature schedule
@@ -651,7 +655,7 @@ export const generatePendingSchedules = async (
 
   //must pay payment paid greater than or less than payed
   let paymentBalance =
-    (updatedSchedule.payment || 0) - (updatedSchedule.didPayment || 0);
+    (updatedSchedule.payment ?? 0) - (updatedSchedule.didPayment ?? 0);
 
   let interestEve = 0; //this is for calculate interestEve for between schedules
   let interestNonce = 0; //this is for calculate interestNonce for between schedules
@@ -660,7 +664,7 @@ export const generatePendingSchedules = async (
 
   const skipInterestCalcDate = addMonths(
     new Date(getFullDate(contract.startDate)),
-    contract.skipInterestCalcMonth || 0
+    contract.skipInterestCalcMonth ?? 0
   );
 
   const isSkipInterestCalc =
@@ -682,16 +686,16 @@ export const generatePendingSchedules = async (
   if (undoneSchedules.length > 0) {
     undoneSchedules.map((schedule: IScheduleDocument) => {
       let changeDoc = {
-        scheduleDidPayment: schedule.scheduleDidPayment || 0,
-        scheduleDidInterest: schedule.scheduleDidInterest || 0,
+        scheduleDidPayment: schedule.scheduleDidPayment ?? 0,
+        scheduleDidInterest: schedule.scheduleDidInterest ?? 0,
         scheduleDidStatus: SCHEDULE_STATUS.PENDING
       };
 
       let sumPayment =
-        (updatedSchedule.didPayment || 0) + (changeDoc.scheduleDidPayment || 0);
+        (updatedSchedule.didPayment ?? 0) + (changeDoc.scheduleDidPayment || 0);
 
       if (updatedSchedule.didPayment && sumPayment >= (schedule.payment || 0)) {
-        changeDoc.scheduleDidPayment = schedule.payment || 0;
+        changeDoc.scheduleDidPayment = schedule.payment ?? 0;
         changeDoc.scheduleDidStatus = SCHEDULE_STATUS.DONE;
       } else {
         changeDoc.scheduleDidPayment = sumPayment;
@@ -699,8 +703,8 @@ export const generatePendingSchedules = async (
       }
 
       let sumInterest =
-        (updatedSchedule.didInterestEve || 0) +
-        (updatedSchedule.didInterestNonce || 0) +
+        (updatedSchedule.didInterestEve ?? 0) +
+        (updatedSchedule.didInterestNonce ?? 0) +
         (changeDoc.scheduleDidInterest || 0);
 
       if (
@@ -711,7 +715,7 @@ export const generatePendingSchedules = async (
           (schedule.didInterestEve || 0) + (schedule.didInterestNonce || 0)
       ) {
         changeDoc.scheduleDidInterest =
-          (schedule.interestEve || 0) + (schedule.interestNonce || 0);
+          (schedule.interestEve ?? 0) + (schedule.interestNonce ?? 0);
       } else {
         changeDoc.scheduleDidInterest = sumInterest;
       }
@@ -725,7 +729,7 @@ export const generatePendingSchedules = async (
         updateOne: {
           filter: { _id: schedule._id },
           update: { $set: { ...changeDoc } }
-        }
+        },
       });
     });
   }
@@ -735,7 +739,7 @@ export const generatePendingSchedules = async (
     (tr.payment || 0) > 0 &&
     paymentBalance < (tr.payment || 0) * -1
   )
-    paymentBalance = (tr.payment || 0) * -1;
+    paymentBalance = (tr.payment ?? 0) * -1;
   // less pay then pendingSchedules not change current schedule status to less
   if (diff < 0) {
     // TODO debt (limit) check
@@ -753,14 +757,16 @@ export const generatePendingSchedules = async (
               preMainSchedule === null
                 ? SCHEDULE_STATUS.PRE
                 : SCHEDULE_STATUS.LESS
-          }
+          },
         }
       );
       tr._id &&
         (await models.Transactions.updateOne(
           { _id: tr._id },
           {
-            $set: { reactions: [...trReaction, ...updatePrevScheduleReactions] }
+            $set: {
+              reactions: [...trReaction, ...updatePrevScheduleReactions]
+            },
           }
         ));
     }
@@ -786,7 +792,7 @@ export const generatePendingSchedules = async (
       });
     }
 
-    payment = schedule.payment || 0;
+    payment = schedule.payment ?? 0;
 
     if (paymentBalance < 0) {
       payment = payment + paymentBalance;
@@ -833,7 +839,7 @@ export const generatePendingSchedules = async (
   ) {
     const insurance = updatedSchedule.insurance - updatedSchedule.didInsurance;
     changeDoc = {
-      insurance: (schedule.insurance || 0) + insurance,
+      insurance: (schedule.insurance ?? 0) + insurance,
       total: schedule.total + insurance
     };
 
@@ -923,13 +929,13 @@ export const generatePendingSchedules = async (
       });
     }
 
-    diff = diff - (schedule.payment || 0);
+    diff = diff - (schedule.payment ?? 0);
 
-    payment = schedule.payment || 0;
+    payment = schedule.payment ?? 0;
     if (paymentBalance < 0 && payment > 0) {
       payment += paymentBalance;
       if (payment < 0) {
-        paymentBalance = paymentBalance + (schedule.payment || 0);
+        paymentBalance = paymentBalance + (schedule.payment ?? 0);
         payment = 0;
       } else paymentBalance = 0;
     }
@@ -939,7 +945,7 @@ export const generatePendingSchedules = async (
       interestEve,
       interestNonce,
       balance,
-      total: payment + interestEve + interestNonce + (schedule.insurance || 0)
+      total: payment + interestEve + interestNonce + (schedule.insurance ?? 0)
     };
     trReaction.push({
       scheduleId: schedule._id,
@@ -950,7 +956,7 @@ export const generatePendingSchedules = async (
       updateOne: {
         filter: { _id: schedule._id },
         update: { $set: { ...changeDoc } }
-      }
+      },
     });
 
     index = index + 1;
@@ -983,7 +989,7 @@ export const generatePendingSchedules = async (
       });
     }
 
-    diff = diff - (schedule.payment || 0);
+    diff = diff - (schedule.payment ?? 0);
 
     changeDoc = {
       debt: 0,
@@ -992,18 +998,18 @@ export const generatePendingSchedules = async (
       interestNonce,
       balance: 0,
       surplus: diff,
-      total: interestEve + interestNonce + diff + (schedule.insurance || 0)
+      total: interestEve + interestNonce + diff + (schedule.insurance ?? 0)
     };
     trReaction.push({
       scheduleId: schedule._id,
-      preData: { ...getChanged(schedule, changeDoc) }
+      preData: { ...getChanged(schedule, changeDoc) },
     });
 
     bulkOps.push({
       updateOne: {
         filter: { _id: schedule._id },
-        update: { $set: { ...changeDoc } }
-      }
+        update: { $set: { ...changeDoc } },
+      },
     });
   } else {
     if (
@@ -1028,7 +1034,7 @@ export const generatePendingSchedules = async (
         dayOfMonth: diffNonce
       });
     }
-    payment = schedule.payment || 0;
+    payment = schedule.payment ?? 0;
     if (paymentBalance < 0) {
       payment = payment + paymentBalance;
       balance = balance - payment;
@@ -1040,7 +1046,7 @@ export const generatePendingSchedules = async (
       interestEve,
       interestNonce,
       balance,
-      total: interestEve + interestNonce + payment - (schedule.insurance || 0)
+      total: interestEve + interestNonce + payment - (schedule.insurance ?? 0)
     };
 
     trReaction.push({
@@ -1052,7 +1058,7 @@ export const generatePendingSchedules = async (
       updateOne: {
         filter: { _id: schedule._id },
         update: { $set: { ...changeDoc } }
-      }
+      },
     });
   }
 
@@ -1091,7 +1097,7 @@ export const generatePendingSchedules = async (
       updateOne: {
         filter: { _id: schedule._id },
         update: { $set: { ...changeDoc } }
-      }
+      },
     });
   }
 
@@ -1145,20 +1151,28 @@ export const onPreScheduled = async (
   const trReaction: any[] = [];
 
   // multi pay on day
+  // const doc = await fillAmounts(
+  //   models,
+  //   Object.assign({}, preSchedule),
+  //   tr,
+  //   preSchedule,
+  //   false
+  // );
   const doc = await fillAmounts(
     models,
-    Object.assign({}, preSchedule),
+    { ...preSchedule } as IScheduleDocument,
     tr,
     preSchedule,
     false
   );
+
   doc.status = 'done';
 
   let updatedSchedule: any = undefined;
   if (preSchedule._id) {
     trReaction.push({
       scheduleId: preSchedule._id,
-      preData: { ...getChanged(preSchedule, doc) }
+      preData: { ...getChanged(preSchedule, doc) },
     });
     await models.Schedules.updateOne(
       { _id: preSchedule._id },
@@ -1206,16 +1220,16 @@ export const betweenScheduled = async (
   const preMainSchedule: any = await models.Schedules.findOne({
     contractId: contract._id,
     isDefault: true,
-    payDate: { $lt: tr.payDate }
+    payDate: { $lt: tr.payDate },
   }).sort({ dayDate: -1 });
 
   const diff =
-    (doc.payment || 0) -
-    (doc.didPayment || 0) +
-    (doc.interestEve || 0) -
-    (doc.didInterestEve || 0) +
-    (doc.interestNonce || 0) -
-    (doc.didInterestNonce || 0);
+    (doc.payment ?? 0) -
+    (doc.didPayment ?? 0) +
+    (doc.interestEve ?? 0) -
+    (doc.didInterestEve ?? 0) +
+    (doc.interestNonce ?? 0) -
+    (doc.didInterestNonce ?? 0);
 
   doc.contractId = contract._id;
   doc.payDate = tr.payDate;
@@ -1229,7 +1243,7 @@ export const betweenScheduled = async (
 
   const updatedSchedule: any = await models.Schedules.create({
     ...doc,
-    isDefault: false
+    isDefault: false,
   });
 
   trReaction.push({ scheduleId: updatedSchedule._id, preData: undefined });
@@ -1257,7 +1271,7 @@ export const onNextScheduled = async (
 
   const doc = await fillAmounts(
     models,
-    Object.assign({}, nextSchedule),
+    { ...nextSchedule } as IScheduleDocument,
     tr,
     preSchedule,
     true
@@ -1266,14 +1280,14 @@ export const onNextScheduled = async (
 
   trReaction.push({
     scheduleId: nextSchedule._id,
-    preData: { ...getChanged(nextSchedule, doc) }
+    preData: { ...getChanged(nextSchedule, doc) },
   });
   await models.Schedules.updateOne({ _id: nextSchedule._id }, { $set: doc });
   const updatedSchedule = await models.Schedules.findOne({
-    _id: nextSchedule._id
+    _id: nextSchedule._id,
   }).lean();
 
-  if(!updatedSchedule) {
+  if (!updatedSchedule) {
     throw new Error(`Schedule ${nextSchedule._id} not found`);
   }
 
@@ -1281,7 +1295,7 @@ export const onNextScheduled = async (
     models,
     contract,
     { ...updatedSchedule },
-    pendingSchedules.filter(s => s._id !== nextSchedule._id),
+    pendingSchedules.filter((s) => s._id !== nextSchedule._id),
     tr,
     trReaction
   );
@@ -1302,7 +1316,7 @@ export const afterNextScheduled = async (
   const trReaction: ITrReaction[] = [];
   const doc = await fillAmounts(
     models,
-    Object.assign({}, nextSchedule),
+    { ...nextSchedule } as IScheduleDocument,
     tr,
     preSchedule,
     true
@@ -1324,7 +1338,7 @@ export const afterNextScheduled = async (
         { payDate: { $lte: updatedSchedule.payDate } },
         { _id: { $ne: updatedSchedule._id } }
       ],
-      contractId: preSchedule.contractId
+      contractId: preSchedule.contractId,
     },
     { _id: 1 }
   ).lean();
@@ -1352,7 +1366,7 @@ export const afterNextScheduled = async (
     models,
     contract,
     updatedSchedule,
-    pendingSchedules.filter(s => s.payDate > updatedSchedule.payDate),
+    pendingSchedules.filter((s) => s.payDate > updatedSchedule.payDate),
     tr,
     trReaction
   );

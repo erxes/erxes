@@ -1,9 +1,4 @@
-import { IContext } from '..';
-import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { IPost } from '../../db/models/post';
-import { IComment } from '../../db/models/comment';
-
-const ForumComment  = {
+const ForumComment = {
   async post({ postId }, _, { models: { Post } }) {
     return Post.findById(postId).lean();
   },
@@ -31,18 +26,18 @@ const ForumComment  = {
 
   async upVotes({ _id }, _, { models: { CommentUpVote } }) {
     const upVotes = await CommentUpVote.find({ contentId: _id }).lean();
-    return upVotes.map(v => ({
+    return upVotes.map((v) => ({
       __typename: 'ClientPortalUser',
-      _id: v.userId
+      _id: v.userId,
     }));
   },
   async downVotes({ _id }, _, { models: { CommentDownVote } }) {
     const downVotes = await CommentDownVote.find({ contentId: _id }).lean();
-    return downVotes.map(v => ({
+    return downVotes.map((v) => ({
       __typename: 'ClientPortalUser',
-      _id: v.userId
+      _id: v.userId,
     }));
-  }
+  },
 };
 
 export default ForumComment;

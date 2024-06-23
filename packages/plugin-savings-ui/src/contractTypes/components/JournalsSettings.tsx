@@ -6,8 +6,8 @@ import {
   FormGroup,
   MainStyleTitle as Title,
   Wrapper,
+  dimensions
 } from '@erxes/ui/src';
-import { dimensions } from '@erxes/ui/src';
 import styled from 'styled-components';
 
 import React, { useState } from 'react';
@@ -33,7 +33,7 @@ type Props = {
 
 const GeneralSettings = (props: Props) => {
   const [currentMap, setCurrentMap] = useState(
-    props.contractType.config || ({} as any),
+    props.contractType.config || ({} as any)
   );
   const { contractType } = props;
 
@@ -56,7 +56,7 @@ const GeneralSettings = (props: Props) => {
   const renderItem = (
     key: string,
     description?: string,
-    controlProps?: any,
+    controlProps?: any
   ) => {
     return (
       <FormGroup>
@@ -73,9 +73,9 @@ const GeneralSettings = (props: Props) => {
 
   const actionButtons = (
     <Button
-      btnStyle="primary"
+      btnStyle='primary'
       onClick={save}
-      icon="check-circle"
+      icon='check-circle'
       uppercase={false}
     >
       {__('Save')}
@@ -109,16 +109,16 @@ const GeneralSettings = (props: Props) => {
           })}
           {renderItem('minAmount', 'Min amount /Month/', {
             type: 'number',
-            useNumberFormat: true,
+            useNumberFormat: true
           })}
           {renderItem('maxAmount', 'Max amount /Month/', {
             type: 'number',
-            useNumberFormat: true,
+            useNumberFormat: true
           })}
         </CollapseContent>
         <CollapseContent title={__('Store interest config')}>
           {renderItem('Store interest time', 'Store interest time', {
-            type: 'time',
+            type: 'time'
           })}
         </CollapseContent>
       </ContentBox>

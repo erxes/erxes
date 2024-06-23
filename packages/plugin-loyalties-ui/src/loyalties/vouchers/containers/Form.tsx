@@ -4,10 +4,9 @@ import React from 'react';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { withProps } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { IVoucher } from '../types';
 import { mutations } from '../graphql';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 
 type Props = {
   voucher: IVoucher;
@@ -31,7 +30,7 @@ class VoucherFromContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedVoucher } = this.props;
 
-      const afterSave = data => {
+      const afterSave = (data) => {
         closeModal();
 
         if (getAssociatedVoucher) {
@@ -46,7 +45,7 @@ class VoucherFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

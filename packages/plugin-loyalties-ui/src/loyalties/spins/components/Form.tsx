@@ -17,7 +17,6 @@ import SelectCampaigns from "../../containers/SelectCampaigns";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { __ } from "@erxes/ui/src/utils";
 import { queries } from "../../../configs/spinCampaign/graphql";
 import { queries as voucherCampaignQueries } from "../../../configs/voucherCampaign/graphql";
 import SelectClientPortalUser from "../../../common/SelectClientPortalUsers";

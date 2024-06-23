@@ -12,10 +12,11 @@ type Props = {
   userCountsQuery?: CountQueryResponse;
 };
 
-const Segments = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "SegmentFilter" */ '@erxes/ui-segments/src/containers/Filter'
-  )
+const Segments = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: 'SegmentFilter' */ '@erxes/ui-segments/src/containers/Filter'
+    )
 );
 
 const SegmentFilterContainer = (props: Props & WrapperProps) => {
@@ -25,7 +26,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
     bySegment: {}
   };
 
-  return <Segments contentType="core:user" counts={counts.bySegment || {}} />;
+  return <Segments contentType='core:user' counts={counts.bySegment || {}} />;
 };
 
 type WrapperProps = {
@@ -44,7 +45,7 @@ export default withProps<{ loadingMainQuery: boolean }>(
       skip: ({ loadingMainQuery }) => loadingMainQuery,
       options: {
         variables: { only: 'bySegment' }
-      }
+      },
     })
   )(SegmentFilterContainer)
 );

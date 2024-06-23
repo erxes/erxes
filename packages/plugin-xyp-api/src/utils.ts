@@ -1,7 +1,4 @@
-import fetch from 'node-fetch';
 import { sendCommonMessage } from './messageBroker';
-import { xypServiceData } from './models/definitions/xypdata';
-
 import { nanoid } from 'nanoid';
 import { IModels } from './connectionResolver';
 
@@ -37,7 +34,7 @@ export const schemaHooksWrapper = (schema, _cacheKey: string) => {
 export const convertToPropertyData = async (
   models: IModels,
   subdomain: string,
-  doc: any,
+  doc: any
 ) => {
   const customerId = doc.customerId;
 
@@ -89,7 +86,7 @@ export const convertToPropertyData = async (
 
     const serviceNames = data.map((x) => x.serviceName);
     const citizen = data.find(
-      (x) => x.serviceName === 'WS100101_getCitizenIDCardInfo',
+      (x) => x.serviceName === 'WS100101_getCitizenIDCardInfo'
     );
     let customerMainFields = {};
     if (citizen) {
@@ -126,7 +123,7 @@ export const convertToPropertyData = async (
 
     for (const f of fields) {
       const existingIndex = customFieldsData.findIndex(
-        (c) => c.field === f._id,
+        (c) => c.field === f._id
       );
       if (dataRow[f.code]) {
         if (existingIndex !== -1) {

@@ -1,7 +1,10 @@
 import { getEnv } from '@erxes/api-utils/src';
-import { Conversations, IConversation, IConversationDocument } from '../models';
+import {
+  Conversations,
+  IConversationDocument,
+  ConversationMessages
+} from '../models';
 import { sendInboxMessage } from '../messageBroker';
-import { ConversationMessages } from '../models';
 import fetch from 'node-fetch';
 import type { RequestInit, HeaderInit } from 'node-fetch';
 interface IAttachment {
@@ -30,7 +33,7 @@ export class ViberAPI {
     this.subdomain = config.subdomain;
     this.integrationId = config.integrationId;
     this.headers = {
-      'X-Viber-Auth-Token': config.token,
+      'X-Viber-Auth-Token': config.token
     };
   }
 
@@ -60,10 +63,10 @@ export class ViberAPI {
             'subscribed',
             'unsubscribed',
             'conversation_started',
-            'message',
+            'message'
           ],
           send_name: true,
-          send_photo: true,
+          send_photo: true
         }),
       }).then((res) => res.json());
       if (response.status === 0) {
@@ -81,7 +84,7 @@ export class ViberAPI {
   async sendMessage(message: IMessage): Promise<any> {
     const conversation = await Conversations.findOne(
       { erxesApiId: message.conversationId },
-      { senderId: 1 },
+      { senderId: 1 }
     );
 
     if (!conversation) {
@@ -94,7 +97,7 @@ export class ViberAPI {
       method: 'POST',
       headers: {
         ...this.headers,
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
     };
     const url = 'https://chatapi.viber.com/pa/send_message';
@@ -103,9 +106,9 @@ export class ViberAPI {
       min_api_version: 1,
       sender: {
         name,
-        avatar: null,
+        avatar: null
       },
-      tracking_data: 'tracking data',
+      tracking_data: 'tracking data'
     };
 
     const messagePayload: RequestInit = {
@@ -113,7 +116,7 @@ export class ViberAPI {
       body: JSON.stringify({
         ...commonBodyParams,
         type: 'text',
-        text: plainText.slice(0, 512),
+        text: plainText.slice(0, 512)
       }),
     };
 
@@ -141,11 +144,11 @@ export class ViberAPI {
               type: 'picture',
               text: null,
               media: this.generateAttachmentUrl(attachment.url),
-              thumbnail: this.generateAttachmentUrl(attachment.url),
+              thumbnail: this.generateAttachmentUrl(attachment.url)
             }),
           };
           attachmentResponse = await fetch(url, attachmentPayload).then((res) =>
-            res.json(),
+            res.json()
           );
         } else {
           const attachmentPayload: RequestInit = {
@@ -155,11 +158,11 @@ export class ViberAPI {
               type: 'document',
               size: attachment.size,
               media: this.generateAttachmentUrl(attachment.url),
-              file_name: attachment.url,
+              file_name: attachment.url
             }),
           };
           attachmentResponse = await fetch(url, attachmentPayload).then((res) =>
-            res.json(),
+            res.json()
           );
         }
 
@@ -183,7 +186,7 @@ export class ViberAPI {
       action: 'integrations.findOne',
       data: { _id: integrationId },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (inboxIntegration) {
@@ -196,7 +199,7 @@ export class ViberAPI {
   async savetoDatabase(
     conversation: IConversationDocument,
     plainText: string,
-    message: any,
+    message: any
   ): Promise<void> {
     await ConversationMessages.create({
       conversationId: conversation._id,
@@ -205,7 +208,7 @@ export class ViberAPI {
       customerId: null,
       content: plainText,
       messageType: 'text',
-      attachments: message.attachments,
+      attachments: message.attachments
     });
   }
 

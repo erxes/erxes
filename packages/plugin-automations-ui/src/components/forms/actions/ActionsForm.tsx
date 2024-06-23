@@ -36,8 +36,7 @@ class ActionsForm extends React.Component<Props, State> {
 
   onFavourite = (action, e) => {
     e.stopPropagation();
-
-    this.setState({ isFavourite: !this.state.isFavourite });
+    this.setState((prevState) => ({ isFavourite: !prevState.isFavourite }));
 
     const actionsLocalStorage =
       localStorage.getItem("automations_favourite_actions") || "[]";

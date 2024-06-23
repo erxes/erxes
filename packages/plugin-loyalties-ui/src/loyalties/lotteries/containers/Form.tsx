@@ -5,9 +5,8 @@ import { withProps } from '@erxes/ui/src/utils';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
 import { ILottery } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
 import { mutations } from '../graphql';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { UsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   lottery: ILottery;
@@ -27,11 +26,11 @@ class LotteryFromContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      object
+      object,
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedLottery } = this.props;
 
-      const afterSave = data => {
+      const afterSave = (data) => {
         closeModal();
 
         if (getAssociatedLottery) {
@@ -46,7 +45,7 @@ class LotteryFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -56,7 +55,7 @@ class LotteryFromContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
     };
     return <Form {...updatedProps} />;
   }
@@ -70,7 +69,7 @@ const getRefetchQueries = () => {
     'lotteries',
     'lotteryCounts',
     'lotteryCampaigns',
-    'lotteryCampaignsTotalCount'
+    'lotteryCampaignsTotalCount',
   ];
 };
 

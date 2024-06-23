@@ -1,6 +1,5 @@
-import * as _ from 'underscore';
 import { donateSchema, IDonate, IDonateDocument } from './definitions/donates';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IDonateModel extends Model<IDonateDocument> {

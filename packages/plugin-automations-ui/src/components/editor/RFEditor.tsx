@@ -12,7 +12,6 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import {
   AutomationConstants,
   IAutomation,
@@ -198,7 +197,6 @@ function AutomationEditor({
   };
 
   return (
-    <>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -223,7 +221,6 @@ function AutomationEditor({
         <Controls />
         <Background />
       </ReactFlow>
-    </>
   );
 }
 

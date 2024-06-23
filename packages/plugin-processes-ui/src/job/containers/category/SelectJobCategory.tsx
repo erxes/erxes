@@ -7,7 +7,7 @@ import { queries } from '../../graphql';
 
 // get config options for react-select
 export function generateProductOptions(array: IJobCategory[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const category = item || ({} as IJobCategory);
 
     const foundedString = category.order.match(/[/]/gi);
@@ -40,7 +40,6 @@ export default ({
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
-  setParam?: boolean;
   name: string;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
@@ -49,7 +48,7 @@ export default ({
     <SelectWithSearch
       showAvatar={false}
       label={label}
-      queryName="jobCategories"
+      queryName='jobCategories'
       customOption={customOption}
       name={name}
       customQuery={queries.jobCategories}

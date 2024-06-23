@@ -8,7 +8,7 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
   margin-bottom: 10px;
   box-shadow: 0 0 6px 1px rgba(0,0,0,0.08);
   border-radius: 4px;
-  background: ${props => (props.open ? colors.bgLight : colors.colorWhite)};
+  background: ${(props) => (props.open ? colors.bgLight : colors.colorWhite)};
 
   &:last-child {
     margin-bottom: 0;
@@ -16,7 +16,7 @@ const Container = styledTS<{ open: boolean }>(styled.div)`
 `;
 
 const Content = styledTS<{ full: boolean }>(styled.div)`
-  padding: ${props => (props.full ? '0' : '20px')};
+  padding: ${(props) => (props.full ? '0' : '20px')};
   border-top: 1px solid ${colors.borderPrimary};
   background: ${colors.colorWhite};
   border-bottom-left-radius: 4px;
@@ -32,16 +32,10 @@ const Content = styledTS<{ full: boolean }>(styled.div)`
 `;
 
 type Props = {
-  contendId?: string;
-  title?: string;
   children: React.ReactNode;
-  description?: React.ReactNode;
   open?: boolean;
-  compact?: boolean;
   image?: string;
-  beforeTitle?: React.ReactNode;
   onClick?: () => void;
-  imageBackground?: string;
   id?: string;
   full?: boolean;
   content?: React.ReactNode;
@@ -49,15 +43,15 @@ type Props = {
 };
 
 function CollapseContent(props: Props) {
-  const [open, toggleCollapse] = useState<boolean>(props.open || false);
+  const [open, setOpen] = useState<boolean>(props.open || false);
 
   const onClick = () => {
-    toggleCollapse(!open);
+    setOpen(!open);
     if (props.onClick) {
       props.onClick();
     }
   };
-  const hasImage = props.image ? true : false;
+  const hasImage = !!props.image;
   if (props.containerParent) {
     return (
       <React.Fragment>

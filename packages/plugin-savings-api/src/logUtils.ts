@@ -6,7 +6,6 @@ import { periodLockSchema } from './models/definitions/periodLocks';
 import { contractTypeSchema } from './models/definitions/contractTypes';
 
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src';
-import * as _ from 'underscore';
 
 const gatherContractFieldNames = async (_models, _doc, prevList = null) => {
   let options = [];
@@ -60,9 +59,9 @@ export async function createLog(subdomain, user, logData) {
     {
       ...logData,
       ...descriptions,
-      type: `savings:${logData.type}`,
+      type: `savings:${logData.type}`
     },
-    user,
+    user
   );
 }
 
@@ -74,9 +73,9 @@ export async function updateLog(subdomain, user, logData) {
     {
       ...logData,
       ...descriptions,
-      type: `savings:${logData.type}`,
+      type: `savings:${logData.type}`
     },
-    user,
+    user
   );
 }
 
@@ -85,7 +84,7 @@ export async function deleteLog(subdomain, user, logData) {
   await putDeleteLog(
     subdomain,
     { ...logData, ...descriptions, type: `savings:${logData.type}` },
-    user,
+    user
   );
 }
 
@@ -96,7 +95,7 @@ export default {
       { name: 'contract', schemas: [contractSchema] },
       { name: 'transaction', schemas: [transactionSchema] },
       { name: 'periodLock', schemas: [periodLockSchema] },
-      { name: 'contractType', schemas: [contractTypeSchema] },
+      { name: 'contractType', schemas: [contractTypeSchema] }
     ]),
   }),
 };

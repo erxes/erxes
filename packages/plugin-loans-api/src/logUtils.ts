@@ -7,7 +7,6 @@ import { periodLockSchema } from './models/definitions/periodLocks';
 import { contractTypeSchema } from './models/definitions/contractTypes';
 
 import { putCreateLog, putDeleteLog, putUpdateLog } from '@erxes/api-utils/src';
-import * as _ from 'underscore';
 
 const gatherContractFieldNames = async (_models, _doc, prevList = null) => {
   let options = [];
@@ -72,7 +71,7 @@ export async function createLog(subdomain, user, logData) {
       ...descriptions,
       type: `loans:${logData.type}`,
     },
-    user,
+    user
   );
 }
 

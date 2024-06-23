@@ -1,7 +1,9 @@
 import { IContext } from '../../connectionResolver';
 import { sendMessageBroker } from '../../messageBroker';
-import { IContractDocument } from '../../models/definitions/contracts';
-import { IContract } from '../../models/definitions/contracts';
+import {
+  IContractDocument,
+  IContract
+} from '../../models/definitions/contracts';
 
 const Contracts = {
   async contractType(contract: IContract, _, { models }: IContext) {
@@ -54,7 +56,7 @@ const Contracts = {
     { models }: IContext
   ) {
     const transactions = await models.Transactions.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -63,7 +65,7 @@ const Contracts = {
   },
   async storeInterest(contract: IContractDocument, _, { models }: IContext) {
     const transactions = await models.Transactions.find({
-      contractId: contract._id
+      contractId: contract._id,
     })
       .sort({ createdAt: -1 })
       .lean();
@@ -80,13 +82,13 @@ const Contracts = {
         subdomain,
         action: 'contracts.find',
         data: { savingContractId: contract._id, status: { $ne: 'closed' } },
-        isRPC: true
+        isRPC: true,
       },
       'loans'
     );
 
     return loans;
-  }
+  },
 };
 
 export default Contracts;

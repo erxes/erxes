@@ -2,7 +2,6 @@ import * as dayjs from 'dayjs';
 
 import {
   DataWithLoader,
-  FormControl,
   Info,
   Pagination,
   Spinner,
@@ -19,7 +18,7 @@ import { Title } from '@erxes/ui/src/styles/main';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { menuLoyalties } from '../../common/constants';
 
-interface IProps  {
+interface IProps {
   loading: boolean;
   error: any;
   queryParams: any;
@@ -29,10 +28,6 @@ interface IProps  {
 }
 
 class ScoreLogsListComponent extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { loading, queryParams, scoreLogs, total, error, refetch } =
       this.props;

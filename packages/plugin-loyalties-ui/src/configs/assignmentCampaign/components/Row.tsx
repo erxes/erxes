@@ -3,9 +3,8 @@ import * as routerUtils from "@erxes/ui/src/utils/router";
 import { FormControl, Icon, TextInfo } from "@erxes/ui/src/components";
 
 import { IAssignmentCampaign } from "../types";
-import { Link } from "react-router-dom";
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,Link } from "react-router-dom";
 
 type Props = {
   assignmentCampaign: IAssignmentCampaign;

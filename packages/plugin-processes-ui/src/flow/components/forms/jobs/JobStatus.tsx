@@ -1,6 +1,5 @@
 import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
-import { __ } from 'coreui/utils';
 import { DisabledSpan } from '../../../styles';
 import { FLOWJOB_TYPES } from '../../../../flow/constants';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
@@ -9,10 +8,8 @@ import { IJobRefer } from '../../../../job/types';
 import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
-  closeModal: () => void;
   activeFlowJob: IJob;
   flowJobs: IJob[];
-  setUsedPopup: (check: boolean) => void;
   jobRefers: IJobRefer[];
   subFlows: IFlowDocument[];
   products: IProduct[];
@@ -54,29 +51,32 @@ class JobStatus extends React.Component<Props, State> {
 
   renderProducts = (products, matchProducts: any[]) => {
     const matchProductIds = matchProducts.length
-      ? matchProducts.map(p => p.productId)
+      ? matchProducts.map((p) => p.productId)
       : [];
 
-    return ((products || []).filter(p => p.product && p.product._id) || []).map(
-      product => {
-        if (!product.product) {
-          return <li>Unknown product</li>;
-        }
-
-        const productId = product.product._id;
-        const name = `${product.product.code} - ${product.product.name}` || '';
-
-        if (matchProducts.length && !matchProductIds.includes(productId)) {
-          return (
-            <DisabledSpan>
-              <li>{name}</li>
-            </DisabledSpan>
-          );
-        }
-
-        return <li>{name}</li>;
+    return (
+    (products || []).filter((p) => p.product?._id) || []
+    ).map((product) => {
+      if (!product.product) {
+        return <li>Unknown product</li>;
       }
-    );
+
+      const productId = product.product._id;
+      const name = (product.product.code && product.product.name) 
+            ? `${product.product.code} - ${product.product.name}` 
+            : '';
+
+
+      if (matchProducts.length && !matchProductIds.includes(productId)) {
+        return (
+          <DisabledSpan>
+            <li>{name}</li>
+          </DisabledSpan>
+        );
+      }
+
+      return <li>{name}</li>;
+    });
   };
 
   renderBlock(
@@ -162,7 +162,7 @@ class JobStatus extends React.Component<Props, State> {
         if ([FLOWJOB_TYPES.OUTLET, FLOWJOB_TYPES.MOVE].includes(job.type)) {
           products =
             (productById[jobConfig.productId] && [
-              { product: productById[jobConfig.productId] }
+              { product: productById[jobConfig.productId] },
             ]) ||
             [];
         }
@@ -173,7 +173,7 @@ class JobStatus extends React.Component<Props, State> {
         if ([FLOWJOB_TYPES.INCOME, FLOWJOB_TYPES.MOVE].includes(job.type)) {
           products =
             (productById[jobConfig.productId] && [
-              { product: productById[jobConfig.productId] }
+              { product: productById[jobConfig.productId] },
             ]) ||
             [];
         }
@@ -198,17 +198,17 @@ class JobStatus extends React.Component<Props, State> {
       return <>Not found active job</>;
     }
 
-    const activeFlowJobId =
-      activeFlowJob && activeFlowJob.id ? activeFlowJob.id : '';
-    const beforeFlowJobs = flowJobs.filter(e =>
+    const activeFlowJobId = activeFlowJob?.id || '';
+
+    const beforeFlowJobs = flowJobs.filter((e) =>
       (e.nextJobIds || []).includes(activeFlowJobId)
     );
 
     return (
       <FormWrapper>
         <FormColumn>
-          <Label lblColor="#673FBD">Өмнөх дамжлагаас бэлэн болох:</Label>
-          {(beforeFlowJobs || []).map(b =>
+          <Label lblColor='#673FBD'>Өмнөх дамжлагаас бэлэн болох:</Label>
+          {(beforeFlowJobs || []).map((b) =>
             this.renderBlock(`${b.label}`, b, {
               jobs: [activeFlowJob],
               type: 'need'
@@ -217,7 +217,7 @@ class JobStatus extends React.Component<Props, State> {
         </FormColumn>
 
         <FormColumn>
-          <Label lblColor="#3CCC38">Уг дамжлагад хэрэгцээт:</Label>
+          <Label lblColor='#3CCC38'>Уг дамжлагад хэрэгцээт:</Label>
           {this.renderBlock(
             '',
             activeFlowJob,
@@ -225,7 +225,7 @@ class JobStatus extends React.Component<Props, State> {
             'need'
           )}
 
-          <Label lblColor="#F7CE53">Уг дамжлагаас гарц:</Label>
+          <Label lblColor='#F7CE53'>Уг дамжлагаас гарц:</Label>
           {this.renderBlock('', activeFlowJob)}
         </FormColumn>
       </FormWrapper>

@@ -21,20 +21,10 @@ interface IProps {
   loading: boolean;
   totalCount: number;
   queryParams: any;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
 }
 
 class SyncHistoryList extends React.Component<IProps, {}> {
   private timer?: NodeJS.Timer = undefined;
-
-  constructor(props) {
-    super(props);
-  }
 
   moveCursorAtTheEnd = (e) => {
     const tmpValue = e.target.value;

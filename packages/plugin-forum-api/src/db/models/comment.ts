@@ -1,6 +1,11 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
-import { cpus } from 'os';
+import {
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { UserTypes, USER_TYPES } from '../../consts';
 import { LoginRequiredError } from '../../customErrors';
 import { ICpUser } from '../../graphql';
@@ -93,7 +98,7 @@ export const generateCommentModel = (
     public static async findByIdOrThrow(_id: string): Promise<CommentDocument> {
       const comment = await models.Comment.findById(_id);
       if (!comment) {
-        throw new Error(`Comment with \`{ "_id" : "${_id}"}\` doesn't exist`);
+        throw new Error(`Comment with \`{ '_id' : '${_id}'}\` doesn't exist`);
       }
       return comment;
     }
@@ -228,7 +233,7 @@ async function deleteCommentCommon(
     })
       .select('_id')
       .lean();
-    const replyIds = replies.map(reply => reply._id);
+    const replyIds = replies.map((reply) => reply._id);
     idsToDelete.push(...replyIds);
     findRepliesOf = replyIds;
   }

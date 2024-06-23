@@ -1,4 +1,3 @@
-import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import {
   IContractType,
@@ -77,7 +76,7 @@ const contractTypeMutations = {
     }
 
     return contractTypeIds;
-  }
+  },
 };
 
 // checkPermission(contractTypeMutations, 'contractTypesAdd', 'manageContracts');

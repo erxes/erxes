@@ -29,7 +29,7 @@ const XypConfigs = (props: Props) => {
     props.onChangeConfig('XYP_CONFIGS', props.configsMap.XYP_CONFIGS);
   }, [props.configsMap]);
 
-  const onChange = e => {
+  const onChange = (e) => {
     const { name, value } = e.target;
 
     props.onChangeConfig('XYP_CONFIGS', {
@@ -37,7 +37,7 @@ const XypConfigs = (props: Props) => {
       [name]: value,
     });
   };
-  const onChangeService = value => {
+  const onChangeService = (value) => {
     props.onChangeConfig('XYP_CONFIGS', {
       ...configs,
       servicelist: value,
@@ -67,29 +67,27 @@ const XypConfigs = (props: Props) => {
   };
 
   return (
-    <>
-      <CollapseContent
-        transparent={true}
-        title={__('Xypdan')}
-        beforeTitle={<Icon icon='favorite' />}
-      >
-        {renderItem('url')}
-        {renderItem('token')}
-        <FormGroup>
-          <ControlLabel>Operation</ControlLabel>
-          <SelectServices
-            url={configs.url}
-            token={configs.token}
-            value={configs.servicelist}
-            onChange={value => {
-              const list = value.map(d => d.value);
-              console.log('this works', list);
-              onChangeService(list);
-            }}
-          />
-        </FormGroup>
-      </CollapseContent>
-    </>
+    <CollapseContent
+      transparent={true}
+      title={__('Xypdan')}
+      beforeTitle={<Icon icon='favorite' />}
+    >
+      {renderItem('url')}
+      {renderItem('token')}
+      <FormGroup>
+        <ControlLabel>Operation</ControlLabel>
+        <SelectServices
+          url={configs.url}
+          token={configs.token}
+          value={configs.servicelist}
+          onChange={(value) => {
+            const list = value.map(d => d.value);
+            console.log('this works', list);
+            onChangeService(list);
+          }}
+        />
+      </FormGroup>
+    </CollapseContent>
   );
 };
 

@@ -7,7 +7,6 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { router } from "@erxes/ui/src/utils";
 import { __ } from "coreui/utils";
 import { IFlowCategory } from "../../types";
-import { Link } from "react-router-dom";
 import { SidebarList } from "@erxes/ui/src/layout/styles";
 import { SidebarListItem } from "@erxes/ui-settings/src/styles";
 import FormGroup from "@erxes/ui/src/components/form/Group";
@@ -15,7 +14,7 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 const { Section } = Wrapper.Sidebar;
 

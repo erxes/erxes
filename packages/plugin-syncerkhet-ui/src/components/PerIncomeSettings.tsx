@@ -310,7 +310,7 @@ class PerSettings extends React.Component<Props, State> {
         title={__(config.title)}
         beforeTitle={<Icon icon="settings" />}
         transparent={true}
-        open={this.props.currentConfigKey === "newIncomeConfig" ? true : false}
+        open={this.props.currentConfigKey === "newIncomeConfig"}
       >
         <FormWrapper>
           <FormColumn>
@@ -388,7 +388,7 @@ class PerSettings extends React.Component<Props, State> {
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
-            disabled={config.stageId ? false : true}
+            disabled={!config.stageId}
           >
             Save
           </Button>

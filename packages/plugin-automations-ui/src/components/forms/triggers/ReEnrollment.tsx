@@ -19,8 +19,6 @@ type Props = {
   trigger: ITrigger;
   segment?: ISegment;
   fields: FieldsCombinedByType[];
-  closeModal?: () => void;
-  afterSave?: () => void;
   addConfig: (trigger: ITrigger, id?: string, config?: any) => void;
 };
 
@@ -37,7 +35,7 @@ class ReEnrollment extends React.Component<Props, State> {
     const { config = {} } = trigger;
 
     this.state = {
-      reEnroll: config.reEnrollment ? true : false,
+      reEnroll : !!config.reEnrollment,
       checked: config.reEnrollmentRules || [],
     };
   }
@@ -97,7 +95,8 @@ class ReEnrollment extends React.Component<Props, State> {
         onChange={this.onChangeCheckbox}
         checked={reEnroll ? checked.includes(propertyName) : false}
         value={`${propertyName}`}
-        disabled={reEnroll ? false : true}
+        disabled={!reEnroll}
+
       >
         {`${labelByName[propertyName]}`}
       </FormControl>

@@ -51,7 +51,7 @@ function StateFilter({ emptyText }: IProps) {
         data={data}
         loading={false}
         count={stateFilters.length}
-        emptyText={emptyText ? emptyText : "Loading"}
+        emptyText={emptyText || "Loading"}
         emptyIcon="leaf"
         size="small"
         objective={true}

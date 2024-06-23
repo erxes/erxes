@@ -3,7 +3,7 @@ import {
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup,
+  FormGroup
 } from '@erxes/ui/src/components';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import { __ } from '@erxes/ui/src/utils';
@@ -15,7 +15,7 @@ import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter,
+  ModalFooter
 } from '@erxes/ui/src/styles/main';
 
 type Props = {
@@ -80,10 +80,10 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newBrand' ? true : false}
+      open={props.currentConfigKey === 'newBrand'}
     >
       <ContentBox id={'GeneralSettingsMenu'}>
-        <CollapseContent title="General settings">
+        <CollapseContent title='General settings'>
           {renderItem('title')}
           <FormWrapper>
             <FormColumn>
@@ -94,10 +94,10 @@ const PerSettings = (props: Props) => {
                   onSelect={(brand) => onChangeBrand(brand as string)}
                   initialValue={config.brandId}
                   multi={false}
-                  name="selectedBrands"
+                  name='selectedBrands'
                   customOption={{
                     label: 'No Brand (noBrand)',
-                    value: 'noBrand',
+                    value: 'noBrand'
                   }}
                 />
               </FormGroup>
@@ -109,7 +109,7 @@ const PerSettings = (props: Props) => {
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
-        <CollapseContent title="Product to erkhet">
+        <CollapseContent title='Product to erkhet'>
           <FormWrapper>
             <FormColumn>
               {renderItem('costAccount', 'Cost Account fullCode on erkhet')}
@@ -118,45 +118,45 @@ const PerSettings = (props: Props) => {
             <FormColumn>
               {renderItem(
                 'productCategoryCode',
-                'Default Category Code on erkhet inventory',
+                'Default Category Code on erkhet inventory'
               )}
               {renderItem(
                 'consumeDescription',
-                'Set description when incoming erkhet inventory',
+                'Set description when incoming erkhet inventory'
               )}
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
-        <CollapseContent title="Customer to erkhet">
+        <CollapseContent title='Customer to erkhet'>
           <FormWrapper>
             <FormColumn>
               {renderItem('checkCompanyUrl')}
               {renderItem(
                 'customerDefaultName',
-                'Customer default name on erkhet',
+                'Customer default name on erkhet'
               )}
               {renderItem('debtAccounts', 'Split "," account fullcode')}
             </FormColumn>
             <FormColumn>
               {renderItem(
                 'customerCategoryCode',
-                'Customer default category code on erkhet',
+                'Customer default category code on erkhet'
               )}
               {renderItem(
                 'companyCategoryCode',
-                'Company default category code on erkhet',
+                'Company default category code on erkhet'
               )}
             </FormColumn>
           </FormWrapper>
         </CollapseContent>
         {isEnabled('loans') && (
-          <CollapseContent title="Loan transaction to erkhet">
+          <CollapseContent title='Loan transaction to erkhet'>
             {renderItem('userEmail', 'user email')}
             {renderItem('defaultCustomer', 'Customer default code on erkhet')}
           </CollapseContent>
         )}
         {isEnabled('payment') && (
-          <CollapseContent title="Allow online payments">
+          <CollapseContent title='Allow online payments'>
             <FormWrapper>
               <FormColumn>
                 {loadDynamicComponent('selectPayments', {
@@ -170,8 +170,8 @@ const PerSettings = (props: Props) => {
       </ContentBox>
       <ModalFooter>
         <Button
-          btnStyle="simple"
-          icon="cancel-1"
+          btnStyle='simple'
+          icon='cancel-1'
           onClick={onDelete}
           uppercase={false}
         >
@@ -179,11 +179,11 @@ const PerSettings = (props: Props) => {
         </Button>
 
         <Button
-          btnStyle="primary"
-          icon="check-circle"
+          btnStyle='primary'
+          icon='check-circle'
           onClick={onSave}
           uppercase={false}
-          disabled={config.brandId ? false : true}
+          disabled={!config.brandId}
         >
           Save
         </Button>

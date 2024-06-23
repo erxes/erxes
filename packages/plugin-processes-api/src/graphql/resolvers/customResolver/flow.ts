@@ -13,7 +13,7 @@ export default {
       (await sendProductsMessage({
         subdomain,
         action: 'findOne',
-        data: { _id: flow.productId || '' },
+        data: { _id: flow.productId ?? '' },
         isRPC: true
       })) || undefined
     );
@@ -81,5 +81,5 @@ export default {
     }
 
     return latestResultProducts;
-  }
+  },
 };

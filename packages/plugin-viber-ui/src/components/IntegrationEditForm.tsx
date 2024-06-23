@@ -20,18 +20,16 @@ const IntegrationEditForm = (props: IProps) => {
   };
 
   return (
-    <>
-      <FormGroup>
-        <ControlLabel required={false}>Token</ControlLabel>
-        <FormControl
-          name="token"
-          required={false}
-          autoFocus={false}
-          defaultValue={props.details.token || ''}
-          onChange={onChange}
-        />
-      </FormGroup>
-    </>
+    <FormGroup>
+      <ControlLabel required={false}>Token</ControlLabel>
+      <FormControl
+        name='token'
+        required={false}
+        autoFocus={false}
+        defaultValue={props.details.token || ''}
+        onChange={onChange}
+      />
+    </FormGroup>
   );
 };
 

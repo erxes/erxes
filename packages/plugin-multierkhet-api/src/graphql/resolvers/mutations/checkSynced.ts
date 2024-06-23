@@ -34,8 +34,8 @@ const checkSyncedMutations = {
           isRPC: true
         });
 
-        trs.forEach(tr => {
-          (tr.productsData || []).forEach(pd => {
+        trs.forEach((tr) => {
+          (tr.productsData || []).forEach((pd) => {
             productIds.push(pd.productId);
           });
         });
@@ -48,8 +48,8 @@ const checkSyncedMutations = {
           isRPC: true
         });
 
-        trs.forEach(tr => {
-          (tr.items || []).forEach(item => {
+        trs.forEach((tr) => {
+          (tr.items || []).forEach((item) => {
             productIds.push(item.productId);
           });
         });
@@ -131,7 +131,6 @@ const checkSyncedMutations = {
             if (!idsByBrandId[brandId].includes(tr._id)) {
               idsByBrandId[brandId].push(tr._id);
             }
-            continue;
           }
         }
       }
@@ -150,7 +149,7 @@ const checkSyncedMutations = {
         continue;
       }
 
-      orderIds.forEach(id => {
+      orderIds.forEach((id) => {
         results[id].mustBrands.push(brand);
       });
 
@@ -178,7 +177,7 @@ const checkSyncedMutations = {
 
       const perData = result.data || {};
 
-      (Object.keys(perData) || []).forEach(_id => {
+      (Object.keys(perData) || []).forEach((_id) => {
         const res: any = perData[_id] || {};
         if (res.isSynced) {
           results[_id][brand] = {
@@ -193,7 +192,7 @@ const checkSyncedMutations = {
       });
     }
 
-    return Object.keys(results).map(r => ({ ...results[r], _id: r }));
+    return Object.keys(results).map((r) => ({ ...results[r], _id: r }));
   },
 
   async toMultiSyncDeals(
@@ -201,7 +200,7 @@ const checkSyncedMutations = {
     {
       dealIds,
       configStageId,
-      dateType
+      dateType,
     }: { dealIds: string[]; configStageId: string; dateType: string },
     { subdomain, user, models }: IContext
   ) {
@@ -212,7 +211,6 @@ const checkSyncedMutations = {
     };
 
     const configs = await models.Configs.getConfig('ebarimtConfig', {});
-    const moveConfigs = await models.Configs.getConfig('stageInMoveConfig', {});
     const mainConfig = await models.Configs.getConfig('ERKHET', {});
 
     const deals = await sendCardsMessage({
@@ -267,7 +265,7 @@ const checkSyncedMutations = {
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
-              error: response.error
+              error: response.error,
             });
             if (config.responseField) {
               await sendCardInfo(subdomain, deal, config, txt);
@@ -316,7 +314,7 @@ const checkSyncedMutations = {
       defaultValue: []
     });
 
-    const posTokens = [...new Set((orders || []).map(o => o.posToken))];
+    const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
     const models = await generateModels(subdomain);
     const poss = await sendPosMessage({
       subdomain,
@@ -375,9 +373,9 @@ const checkSyncedMutations = {
               selector: { _id: order._id },
               modifier: {
                 $set: { multiErkhetInfo: txt }
-              }
+              },
             },
-            isRPC: true
+            isRPC: true,
           });
         }
 
@@ -396,7 +394,7 @@ const checkSyncedMutations = {
     }
 
     return result;
-  }
+  },
 };
 
 export default checkSyncedMutations;

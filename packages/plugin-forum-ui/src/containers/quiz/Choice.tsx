@@ -1,6 +1,5 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import ChoiceDetail from '../../components/quiz/ChoiceDetail';
 import { mutations } from '../../graphql';
 import { confirm } from '@erxes/ui/src/utils';

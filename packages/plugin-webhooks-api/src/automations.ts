@@ -25,7 +25,7 @@ export default {
 
     const { url, method, specifiedFields } = config || {};
 
-    if (!!Object.keys(specifiedFields || {}).length) {
+    if (Object.keys(specifiedFields || {}).length) {
       const replacedContent = await sendCommonMessage({
         subdomain,
         serviceName,

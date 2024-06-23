@@ -1,7 +1,5 @@
 import React from 'react';
-
-import { gql } from '@apollo/client';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
@@ -25,17 +23,17 @@ const WebhookListContainer = (props: Props) => {
   // Queries
   const listQuery = useQuery(
     gql(queries.webhooks),
-    options({ queryParams: queryParams || {} }),
+    options({ queryParams: queryParams || {} })
   );
 
   const configsEnvQuery = useQuery(
     gql(generalQueries.configsGetEnv),
-    options({ queryParams: queryParams || {} }),
+    options({ queryParams: queryParams || {} })
   );
 
   const totalCountQuery = useQuery(
     gql(queries.webhooksTotalCount),
-    options({ queryParams: queryParams || {} }),
+    options({ queryParams: queryParams || {} })
   );
 
   // Mutations

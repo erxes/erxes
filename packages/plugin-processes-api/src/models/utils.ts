@@ -16,14 +16,14 @@ const getProductIds = (
   if (jobConfig.jobReferId && JOB_TYPES.JOBS.includes(job.type)) {
     productIds =
       ((jobReferById[jobConfig.jobReferId] || {})[key] || []).map(
-        p => p.productId
+        (p) => p.productId
       ) || [];
   }
 
   if (jobConfig.subFlowId && JOB_TYPES.FLOW === job.type) {
     productIds =
       ((subFlowById[jobConfig.subFlowId] || {})[fkey] || []).map(
-        p => p.productId
+        (p) => p.productId
       ) || [];
     console.log(productIds);
   }
@@ -81,7 +81,7 @@ const checkBeforeJobs = (
   }
 
   const lessNeedProductIds = jobNeedProductIds.filter(
-    np => !beforeResultProductIds.includes(np)
+    (np) => !beforeResultProductIds.includes(np)
   );
 
   if ((lessNeedProductIds || []).length) {
@@ -97,7 +97,7 @@ export const recursiveChecker = (
   jobReferById,
   subFlowById
 ) => {
-  const beforeJobs = jobs.filter(j => (j.nextJobIds || []).includes(job.id));
+  const beforeJobs = jobs.filter((j) => (j.nextJobIds || []).includes(job.id));
   const result = checkBeforeJobs(job, beforeJobs, jobReferById, subFlowById);
 
   if (result) {
@@ -125,7 +125,7 @@ export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
     return;
   }
 
-  const latestJobs = jobs.filter(j => !(j.nextJobIds || []).length) || [];
+  const latestJobs = jobs.filter((j) => !(j.nextJobIds || []).length) || [];
 
   if (latestJobs.length !== 1) {
     return;
@@ -133,12 +133,9 @@ export const getLatestJob = async (models: IModels, jobs: IJob[]) => {
 
   const latestJob = latestJobs[0];
   if (latestJob.type === JOB_TYPES.FLOW && latestJob.config.subFlowId) {
-    const subFlow:
-      | IFlowDocument
-      | undefined
-      | null = await models.Flows.findOne({
-      _id: latestJob.config.subFlowId
-    }).lean();
+    const subFlow: IFlowDocument | undefined | null = await models.Flows.findOne({
+        _id: latestJob.config.subFlowId,
+      }).lean();
     if (!subFlow || subFlow === null) {
       return;
     }
@@ -189,9 +186,9 @@ export const getResultProductsFromFlow = async (
         {
           _id: Math.random().toString(),
           productId: config.productId,
-          quantity: config.quantity || 1,
-          uom: config.uom || ''
-        }
+          quantity: config.quantity ?? 1,
+          uom: config.uom ?? ''
+        },
       ];
     }
   }
@@ -204,19 +201,16 @@ export const getBeginJobs = async (models: IModels, jobs: IJob[]) => {
   for (const job of jobs) {
     calledJobIds = calledJobIds.concat(job.nextJobIds);
   }
-  const beginJobs = jobs.filter(j => !calledJobIds.includes(j.id));
+  const beginJobs = jobs.filter((j) => !calledJobIds.includes(j.id));
 
   let filteredJobs: IJob[] = [];
 
   for (const beginJob of beginJobs) {
     if (beginJob.type === JOB_TYPES.FLOW) {
       if (beginJob.config.subFlowId) {
-        const subFlow:
-          | IFlowDocument
-          | undefined
-          | null = await models.Flows.findOne({
-          _id: beginJob.config.subFlowId
-        }).lean();
+        const subFlow: IFlowDocument | undefined | null = await models.Flows.findOne({
+            _id: beginJob.config.subFlowId,
+          }).lean();
         if (!subFlow || subFlow === null) {
           return [];
         }
@@ -240,8 +234,8 @@ export const getNeedProductsFromFlow = async (
 
   let needProducts: IProductsData[] = [];
   const jobReferIds = beginJobs
-    .filter(bj => bj.config && bj.config.jobReferId)
-    .map(bj => bj.config.jobReferId);
+    .filter((bj) => bj.config?.jobReferId)
+    .map((bj) => bj.config.jobReferId);
   const jobRefers = await models.JobRefers.find({
     _id: { $in: jobReferIds }
   }).lean();
@@ -267,8 +261,8 @@ export const getNeedProductsFromFlow = async (
         needProducts.push({
           _id: Math.random().toString(),
           productId: config.productId,
-          quantity: config.quantity || 1,
-          uom: config.uom || ''
+          quantity: config.quantity ?? 1,
+          uom: config.uom ?? ''
         });
       }
     }

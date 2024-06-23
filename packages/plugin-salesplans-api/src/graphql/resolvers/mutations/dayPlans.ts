@@ -35,19 +35,15 @@ const dayPlansMutations = {
       throw new Error('Must fill product category or product');
     }
 
-    const {
-      products,
-      productIds,
-      parentIdsByProductId,
-      timePercentsByProdId
-    } = await getProductsAndParents(
-      subdomain,
-      models,
-      productId,
-      productCategoryId,
-      branchId,
-      departmentId
-    );
+    const { products, productIds, parentIdsByProductId, timePercentsByProdId } =
+      await getProductsAndParents(
+        subdomain,
+        models,
+        productId,
+        productCategoryId,
+        branchId,
+        departmentId
+      );
 
     const oldDayPlans = await models.DayPlans.find({
       date,
@@ -70,11 +66,11 @@ const dayPlansMutations = {
 
     const yearPlanByProductId = {};
     for (const yearPlan of yearPlans) {
-      yearPlanByProductId[yearPlan.productId || ''] = yearPlan;
+      yearPlanByProductId[yearPlan.productId ?? ''] = yearPlan;
     }
 
     const timeFrames = await models.Timeframes.find({
-      status: { $ne: 'deleted' }
+      status: { $ne: 'deleted' },
     })
       .sort({ startTime: 1 })
       .lean();
@@ -115,7 +111,7 @@ const dayPlansMutations = {
         timeFrames
       });
 
-      const dayPlanDoc: IDayPlan & any = {
+      const dayPlanDoc: IDayPlan = {
         date,
         departmentId,
         branchId,
@@ -127,7 +123,7 @@ const dayPlansMutations = {
         modifiedAt: now,
         createdBy: user._id,
         modifiedBy: user._id
-      };
+      } as any;
 
       docs.push(dayPlanDoc);
       counter += 1;
@@ -169,9 +165,11 @@ const dayPlansMutations = {
     { models, subdomain }: IContext
   ) => {
     const dayPlans = await models.DayPlans.find({ _id: { $in: _ids } }).lean();
-    const newDayPlans = dayPlans.filter(dp => dp.status === DAYPLAN_STATUS.NEW);
+    const newDayPlans = dayPlans.filter(
+      (dp) => dp.status === DAYPLAN_STATUS.NEW
+    );
     const otherDayPlans = dayPlans.filter(
-      dp => dp.status !== DAYPLAN_STATUS.NEW
+      (dp) => dp.status !== DAYPLAN_STATUS.NEW
     );
     const removeResponse = await sendProcessesMessage({
       subdomain,
@@ -183,10 +181,10 @@ const dayPlansMutations = {
 
     const removeIds = [
       ...removeResponse.removedIds,
-      ...newDayPlans.map(ndp => ndp._id)
+      ...newDayPlans.map((ndp) => ndp._id),
     ];
     const result = await models.DayPlans.dayPlansRemove(removeIds);
-    const notRemovedIds = _ids.filter(id => !removeIds.includes(id));
+    const notRemovedIds = _ids.filter((id) => !removeIds.includes(id));
     if (notRemovedIds.length) {
       throw new Error(`count of not removed: ${notRemovedIds.length}`);
     }
@@ -199,14 +197,7 @@ const dayPlansMutations = {
     doc: IDayPlanConfirmParams,
     { models, subdomain }: IContext
   ) => {
-    const {
-      date,
-      branchId,
-      departmentId,
-      productCategoryId,
-      productId,
-      ids
-    } = doc;
+    const { date, branchId, departmentId, productCategoryId, productId, ids } = doc;
 
     const filter: any = { date, branchId, departmentId };
 
@@ -234,12 +225,12 @@ const dayPlansMutations = {
     });
 
     await models.DayPlans.updateMany(
-      { _id: { $in: dayPlans.map(d => d._id) } },
+      { _id: { $in: dayPlans.map((d) => d._id) } },
       { $set: { status: DAYPLAN_STATUS.SENT } }
     );
 
     return await models.DayPlans.find(filter).lean();
-  }
+  },
 };
 
 moduleRequireLogin(dayPlansMutations);

@@ -1,22 +1,30 @@
 import {
   customFieldToObject,
   fetchPolaris,
-  getCustomer,
-  getContract,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
 
 export const outcomeDeposit = async (subdomain, params) => {
   const transaction = params.object;
 
-  const savingContract = await sendMessageBrokerData(subdomain,'savings','contracts.findOne',{_id:transaction.contractId})
+  const savingContract = await sendMessageBrokerData(
+    subdomain,
+    'savings',
+    'contracts.findOne',
+    { _id: transaction.contractId }
+  );
 
-  const customer = await sendMessageBrokerData(subdomain,'contacts','customers.findOne',{_id:savingContract.customerId})
+  const customer = await sendMessageBrokerData(
+    subdomain,
+    'contacts',
+    'customers.findOne',
+    { _id: savingContract.customerId }
+  );
 
   const customerData = await customFieldToObject(
     subdomain,
     'contacts:customer',
-    customer,
+    customer
   );
 
   const sendData = {
@@ -42,7 +50,7 @@ export const outcomeDeposit = async (subdomain, params) => {
       [
         {
           acntCode: savingContract.number,
-          acntType: 'EXPENSE',
+          acntType: 'EXPENSE'
         },
       ],
     ],
@@ -51,6 +59,6 @@ export const outcomeDeposit = async (subdomain, params) => {
   return await fetchPolaris({
     op: '13610010',
     data: [sendData],
-    subdomain,
+    subdomain
   });
 };

@@ -1,9 +1,8 @@
-import { gql } from '@apollo/client';
+import { gql, useSubscription } from '@apollo/client';
 import React from 'react';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { subscriptions } from '../graphql';
-import { useSubscription } from '@apollo/client';
 
 type Props = {
   currentUser: IUser;

@@ -5,9 +5,8 @@ import { __ } from 'coreui/utils';
 import { CustomSideContent } from '../../styles';
 import { IOverallWorkDet } from '../types';
 import { IQueryParams } from '@erxes/ui/src/types';
-import { SidebarList as List } from '@erxes/ui/src/layout';
+import { SidebarList as List, Wrapper } from '@erxes/ui/src/layout';
 import { SidebarMainContent } from '@erxes/ui/src/layout/styles';
-import { Wrapper } from '@erxes/ui/src/layout';
 import { ScrolledContent } from '../../flow/styles';
 
 interface Props {
@@ -27,7 +26,7 @@ class DetailRightSidebar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      filterParams: this.props.queryParams
+      filterParams: this.props.queryParams,
     };
   }
 
@@ -49,7 +48,7 @@ class DetailRightSidebar extends React.Component<Props, State> {
             <Section.QuickButtons>.</Section.QuickButtons>
           </Section.Title>
           <SidebarMainContent>
-            <List id="OverallWorkRightSidebar">
+            <List id='OverallWorkRightSidebar'>
               <CollapseContent
                 title={__(
                   `Need side ( ${counts.minPotentialCount.toLocaleString()} )`
@@ -70,8 +69,8 @@ class DetailRightSidebar extends React.Component<Props, State> {
                       <th>{__('DEF Count')}</th>
                     </tr>
                   </thead>
-                  <tbody id="overallWorks">
-                    {(overallWork.needProductsData || []).map(data => (
+                  <tbody id='overallWorks'>
+                    {(overallWork.needProductsData || []).map((data) => (
                       <tr key={Math.random()}>
                         <td>
                           {data.product
@@ -110,8 +109,8 @@ class DetailRightSidebar extends React.Component<Props, State> {
                       <th>{__('DEF Count')}</th>
                     </tr>
                   </thead>
-                  <tbody id="overallWorks">
-                    {(overallWork.resultProductsData || []).map(data => (
+                  <tbody id='overallWorks'>
+                    {(overallWork.resultProductsData || []).map((data) => (
                       <tr key={Math.random()}>
                         <td>
                           {data.product

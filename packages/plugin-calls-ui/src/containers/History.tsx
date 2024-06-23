@@ -1,5 +1,5 @@
 import { Alert, confirm } from "@erxes/ui/src/utils";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";
 

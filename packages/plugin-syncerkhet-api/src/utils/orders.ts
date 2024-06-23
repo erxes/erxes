@@ -44,12 +44,12 @@ export const getPostData = async (subdomain, pos, order) => {
           action: 'users.findOne',
           data: { _id: order.userId },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         })
       ).email) ||
     '';
 
-  const productsIds = order.items.map(item => item.productId);
+  const productsIds = order.items.map((item) => item.productId);
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
@@ -119,7 +119,7 @@ export const getPostData = async (subdomain, pos, order) => {
             _id: order.customerId
           },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         })) || {}
       ).code;
     } else {
@@ -128,10 +128,10 @@ export const getPostData = async (subdomain, pos, order) => {
           subdomain,
           action: 'customers.findOne',
           data: {
-            _id: order.customerId
+            _id: order.customerId,
           },
           isRPC: true,
-          defaultValue: {}
+          defaultValue: {},
         })) || {}
       ).code;
     }
@@ -139,27 +139,23 @@ export const getPostData = async (subdomain, pos, order) => {
 
   const orderInfos = [
     {
-      date: getPureDate(order.paidDate)
-        .toISOString()
-        .slice(0, 10),
+      date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
-        ? true
-        : false,
+    
+      hasVat: order.taxInfo?.hasVat ?? !!(pos.ebarimtConfig?.hasVat),
+
       hasCitytax: order.taxInfo
         ? order.taxInfo.hasCitytax
         : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
-        ? true
-        : false,
+          ? true
+          : false,
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
       number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
       details,
       ...payments
-    }
+    },
   ];
 
   let userEmail = pos.erkhetConfig.userEmail;
@@ -199,7 +195,7 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
         date: order.paidDate,
         orderId: order._id,
         returnKind: 'hard'
-      }
+      },
     ];
 
     let userEmail = pos.erkhetConfig.userEmail;

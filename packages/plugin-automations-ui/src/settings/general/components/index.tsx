@@ -1,10 +1,5 @@
 import { Title } from '@erxes/ui-settings/src/styles';
-import {
-  Button,
-  EmptyContent,
-  EmptyState,
-  HeaderDescription,
-} from '@erxes/ui/src/components';
+import { EmptyState, HeaderDescription } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
@@ -31,15 +26,13 @@ function GeneralSettings() {
   const actionButtons = <></>;
 
   const content = (
-    <>
-      <EmptyState text="Coming Soon" image="/images/actions/20.svg" />
-    </>
+    <EmptyState text="Coming Soon" image="/images/actions/20.svg" />
   );
 
   return (
     <Wrapper
       header={
-        <Wrapper.Header title={__('General Config')} breadcrumb={breadcrumb} />
+        <Wrapper.Header title={__("General Config")} breadcrumb={breadcrumb} />
       }
       mainHead={header}
       actionBar={

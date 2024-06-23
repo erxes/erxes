@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
@@ -35,7 +34,7 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   return commonPutCreateLog(
     subdomain,
@@ -43,7 +42,7 @@ export const putCreateLog = async (
       ...params,
       type: `multierkhet:${params.type}`,
     },
-    user,
+    user
   );
 };
 
@@ -56,7 +55,7 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   return commonPutUpdateLog(
     subdomain,
@@ -64,7 +63,7 @@ export const putUpdateLog = async (
       ...params,
       type: `multierkhet:${params.type}`,
     },
-    user,
+    user
   );
 };
 
@@ -77,11 +76,11 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   params: ILogDataParams,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   return commonPutDeleteLog(
     subdomain,
     { ...params, type: `multierkhet:${params.type}` },
-    user,
+    user
   );
 };

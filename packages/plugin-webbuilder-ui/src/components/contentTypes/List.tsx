@@ -10,7 +10,6 @@ import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentTypes: IContentTypeDoc[];
-  contentTypesCount: number;
   handleItemSettings: (item: any, type: string) => void;
 };
 
@@ -20,11 +19,11 @@ class ContentTypesList extends React.Component<Props> {
 
     return (
       <List>
-        {contentTypes.map(type => (
+        {contentTypes.map((type) => (
           <li key={type._id}>
             <a>
               <FlexCenter>
-                <Icon icon="layers" />
+                <Icon icon='layers' />
                 <ContentTypeItem
                   onClick={() => handleItemSettings(type, 'entries')}
                 >
@@ -36,13 +35,13 @@ class ContentTypesList extends React.Component<Props> {
               </FlexCenter>
             </a>
             <Icon
-              icon="settings"
+              icon='settings'
               onClick={() => handleItemSettings(type, 'contenttype')}
             />
           </li>
         ))}
         <li
-          className="link"
+          className='link'
           onClick={() =>
             handleItemSettings(
               { displayName: '', code: '', fields: [] },
@@ -51,7 +50,7 @@ class ContentTypesList extends React.Component<Props> {
           }
         >
           <div>
-            <Icon icon="plus-1" /> &nbsp;
+            <Icon icon='plus-1' /> &nbsp;
             {__('Create content type')}
           </div>
         </li>

@@ -38,7 +38,7 @@ export async function createEbarimt(
   }
 
   const interest =
-    (transaction?.interestEve || 0) + (transaction?.interestNonce || 0);
+    (transaction?.interestEve ?? 0) + (transaction?.interestNonce ?? 0);
   //interest config check
   if (interest && interest > 0 && ebarimtConfig.isInterestUseEBarimt) {
     if (ebarimtConfig.interestEBarimtProduct)
@@ -150,8 +150,8 @@ export async function createEbarimt(
             _id: ebarimt[0]?._id,
             taxType: ebarimt[0]?.taxType,
             vat: ebarimt[0]?.vat
-          }
-        }
+          },
+        },
       }
     );
 }

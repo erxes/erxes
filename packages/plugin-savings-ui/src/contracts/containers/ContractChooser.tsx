@@ -1,11 +1,10 @@
 import { Chooser } from '@erxes/ui/src';
-import { gql } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import React, { useState } from 'react';
 
 import { queries } from '../graphql';
 import { ContractsQueryResponse, IContract } from '../types';
 import ContractForm from './ContractForm';
-import { useQuery } from '@apollo/client';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -29,10 +28,10 @@ const ContractChooser = (props: Props & WrapperProps) => {
         mainTypeId: data.mainTypeId,
         isRelated: data.isRelated,
         sortField: 'createdAt',
-        sortDirection: -1,
+        sortDirection: -1
       },
       fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
-    },
+    }
   );
 
   const resetAssociatedItem = () => {
@@ -55,7 +54,7 @@ const ContractChooser = (props: Props & WrapperProps) => {
       datas: data.contracts,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: 'contract',
+      relType: 'contract'
     },
     search,
     clearState: () => search(''),
@@ -70,7 +69,7 @@ const ContractChooser = (props: Props & WrapperProps) => {
     newItem: newContract,
     resetAssociatedItem: resetAssociatedItem,
     datas: contractsQuery?.data?.contracts || [],
-    refetchQuery: queries.contracts,
+    refetchQuery: queries.contracts
   };
 
   return <Chooser limit={1} {...updatedProps} />;

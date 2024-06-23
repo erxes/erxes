@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { FLOW_STATUSES } from './definitions/constants';
 import {
   processSchema,
@@ -56,7 +55,7 @@ export const loadProcessClass = (models: IModels) => {
           $set: {
             ...doc,
             status
-          }
+          },
         }
       );
 

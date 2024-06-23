@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { FLOW_STATUSES, JOB_TYPES } from './definitions/constants';
 import { flowSchema, IFlow, IFlowDocument, IJob } from './definitions/flows';
 import {
@@ -17,7 +16,7 @@ export interface IFlowModel extends Model<IFlowDocument> {
   updateFlow(_id: string, doc: IFlow): Promise<IFlowDocument>;
   removeFlow(_id: string): void;
   removeFlows(flowIds: string[]): void;
-  checkValidation(jobs?: IJob[]): Promise<String>;
+  checkValidation(jobs?: IJob[]): Promise<string>;
 }
 
 export const loadFlowClass = (models: IModels) => {
@@ -40,7 +39,7 @@ export const loadFlowClass = (models: IModels) => {
         return 'Has not jobs';
       }
 
-      const endJobs = jobs.filter(j => j.type === JOB_TYPES.ENDPOINT);
+      const endJobs = jobs.filter((j) => j.type === JOB_TYPES.ENDPOINT);
       if (!endJobs || !(endJobs || []).length) {
         return 'Has not endPoint job';
       }
@@ -50,7 +49,7 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const latestJobs = jobs.filter(
-        j => !j.nextJobIds || !(j.nextJobIds || []).length
+        (j) => !j.nextJobIds || !(j.nextJobIds || []).length
       );
 
       if (!latestJobs || !latestJobs.length) {
@@ -62,7 +61,7 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const jobRefers = await models.JobRefers.find({
-        _id: { $in: jobs.map(j => j.config && j.config.jobReferId) }
+        _id: { $in: jobs.map((j) => j.config?.jobReferId) },
       }).lean();
       const jobReferById = {};
       for (const jobRefer of jobRefers) {
@@ -70,7 +69,7 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const subFlows = await models.Flows.find({
-        _id: { $in: jobs.map(j => j.config && j.config.subFlowId) }
+        _id: { $in: jobs.map((j) => j.config?.subFlowId) },
       }).lean();
       const subFlowById = {};
       for (const subFlow of subFlows) {
@@ -99,9 +98,8 @@ export const loadFlowClass = (models: IModels) => {
       const flowValidation = await models.Flows.checkValidation(doc.jobs);
 
       const latestJob = await getLatestJob(models, doc.jobs || []);
-      const { latestBranchId, latestDepartmentId } = getLatestLocations(
-        latestJob
-      );
+      const { latestBranchId, latestDepartmentId } =
+        getLatestLocations(latestJob);
       const latestResultProducts = await getResultProductsFromFlow(
         models,
         latestJob
@@ -137,9 +135,8 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const latestJob = await getLatestJob(models, doc.jobs || []);
-      const { latestBranchId, latestDepartmentId } = getLatestLocations(
-        latestJob
-      );
+      const { latestBranchId, latestDepartmentId } =
+        getLatestLocations(latestJob);
       const latestResultProducts = await getResultProductsFromFlow(
         models,
         latestJob
@@ -160,7 +157,7 @@ export const loadFlowClass = (models: IModels) => {
             latestDepartmentId,
             latestResultProducts,
             latestNeedProducts
-          }
+          },
         }
       );
 

@@ -13,7 +13,7 @@ export default {
   },
 
   isRoot(category: any, {}) {
-    return category.parentId ? false : true;
+    return !category.parentId;
   },
 
   async flowCount(category: any, {}, { models, subdomain }: IContext) {
@@ -30,11 +30,11 @@ export default {
       defaultValue: []
     });
 
-    const productIds = products.map(p => p._id);
+    const productIds = products.map((p) => p._id);
 
     return await models.Flows.find({
       productId: { $in: productIds },
       status: { $ne: FLOW_STATUSES.ARCHIVED }
     }).countDocuments();
-  }
+  },
 };

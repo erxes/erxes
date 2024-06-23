@@ -14,6 +14,7 @@ type Props = {
 class CategoryFormContainer extends React.Component<Props> {
   render() {
     const renderButton = ({
+      name,
       values,
       isSubmitted,
       callback,
@@ -34,7 +35,7 @@ class CategoryFormContainer extends React.Component<Props> {
           callback={callback}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'

@@ -19,12 +19,6 @@ interface IProps {
   loading: boolean;
   totalCount: number;
   queryParams: any;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
 }
 
 const SyncHistoryList = (props: IProps) => {

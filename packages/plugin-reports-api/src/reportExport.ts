@@ -1,5 +1,4 @@
 import * as xlsxPopulate from 'xlsx-populate';
-import { IModels } from './connectionResolver';
 import { reportChartGetResult } from './graphql/resolvers/utils';
 
 /**
@@ -24,7 +23,7 @@ const addIntoSheet = async (
   startRowIdx: string,
   endRowIdx: string,
   sheet: any,
-  customStyles?: any,
+  customStyles?: any
 ) => {
   let r;
 
@@ -48,18 +47,18 @@ const prepareHeader = async (sheet: any, title: string) => {
 };
 
 const isArrayPrimitive = (arr) => {
-  for (let i = 0; i < arr.length; i++) {
-    if (typeof arr[i] !== 'object' && typeof arr[i] !== 'function') {
+  for (const i of arr) {
+    if (typeof i !== 'object' && typeof i !== 'function') {
       return true; // If a non-object element is found, return true (primitive type)
     }
   }
-  return false; // If no non-object element is found, return false (array of objects)
+  return false; // If no non-object elements are found, return false
 };
 
 const extractAndAddIntoSheet = async (
   sheet: any,
   data: any,
-  labels: string[],
+  labels: string[]
 ) => {
   const extractValuesIntoArr: any[][] = [];
   const startRowIdx = 2;
@@ -90,6 +89,6 @@ export const buildFile = async (subdomain: string, params: any) => {
 
   return {
     name: `${toCamelCase(title)}`,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };

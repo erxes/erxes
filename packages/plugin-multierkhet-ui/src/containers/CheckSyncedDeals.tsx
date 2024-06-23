@@ -1,6 +1,5 @@
 import Alert from "@erxes/ui/src/utils/Alert";
 import CheckSyncedDeals from "../components/syncedDeals/CheckSyncedDeals";
-import { gql } from "@apollo/client";
 import React, { useState } from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { Bulk } from "@erxes/ui/src/components";
@@ -11,7 +10,7 @@ import {
 } from "../types";
 import { mutations, queries } from "../graphql";
 import { router } from "@erxes/ui/src/utils/core";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 
 type Props = {
   queryParams: any;

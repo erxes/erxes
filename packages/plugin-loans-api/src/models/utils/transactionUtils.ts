@@ -5,16 +5,21 @@ import { IModels } from '../../connectionResolver';
 import {
   INVOICE_STATUS,
   LEASE_TYPES,
-  SCHEDULE_STATUS
+  SCHEDULE_STATUS,
 } from '../definitions/constants';
 import { IContractDocument } from '../definitions/contracts';
 import { ISchedule, IScheduleDocument } from '../definitions/schedules';
 import {
   ICalcDivideParams,
   ICalcTrParams,
-  ITransactionDocument
+  ITransactionDocument,
 } from '../definitions/transactions';
-import { getDiffDay, getFullDate, getDatesDiffMonth,calcInterest } from './utils';
+import {
+  getDiffDay,
+  getFullDate,
+  getDatesDiffMonth,
+  calcInterest,
+} from './utils';
 import { IConfig } from '../../interfaces/config';
 import { getConfig } from '../../messageBroker';
 import { scheduleFixAfterCurrent } from './scheduleFixUtils';
@@ -31,8 +36,8 @@ export const getAOESchedules = async (
   contract,
   trDate
 ): Promise<{
-  preSchedule: IScheduleDocument & any;
-  nextSchedule: IScheduleDocument & any;
+  preSchedule: IScheduleDocument;
+  nextSchedule: IScheduleDocument;
 }> => {
   // with skipped of done
   const preSchedule: any = await models.Schedules.findOne({
@@ -46,15 +51,15 @@ export const getAOESchedules = async (
     }
   })
     .sort({ payDate: -1 })
-    .lean<IScheduleDocument & any>();
+    .lean<IScheduleDocument>();
 
-  const nextSchedule = await models.Schedules.findOne({
+  const nextSchedule: any = await models.Schedules.findOne({
     contractId: contract._id,
     status: { $in: [SCHEDULE_STATUS.PENDING] },
     payDate: { $gte: trDate }
   })
     .sort({ payDate: 1 })
-    .lean<IScheduleDocument & any>();
+    .lean<IScheduleDocument>();
 
   return { preSchedule, nextSchedule };
 };
@@ -74,7 +79,7 @@ async function fillCommitmentInterest(
 ) {
   const schedules = await models.Schedules.find({
     contractId: contract._id,
-    status: SCHEDULE_STATUS.PENDING
+    status: SCHEDULE_STATUS.PENDING,
   }).sort({ payDate: 1 });
 
   let beginDate = contract.startDate;
@@ -167,7 +172,7 @@ export const getCalcedAmounts = async (
 
   let schedules = await models.Schedules.find({
     contractId: contract._id,
-    status:{$ne:'give'},
+    status: { $ne: 'give' },
     payDate: {
       $lte: trDate
     }
@@ -181,9 +186,11 @@ export const getCalcedAmounts = async (
       .toNumber();
   });
 
-  result.payment = Math.max(0, result.payment)
+  result.payment = Math.max(0, result.payment);
 
-  const diffDay = contract.lastStoredDate ? getDiffDay(contract.lastStoredDate, trDate) : 0;  
+  const diffDay = contract.lastStoredDate
+    ? getDiffDay(contract.lastStoredDate, trDate)
+    : 0;
 
   result.calcInterest = calcInterest({
     balance: contract.loanBalanceAmount,
@@ -208,7 +215,7 @@ export const getCalcedAmounts = async (
 export const transactionRule = async (
   models: IModels,
   subdomain: string,
-  doc: ICalcTrParams | any,
+  doc: ICalcTrParams,
   result?: {
     payment: number;
     insurance: number;
@@ -223,19 +230,21 @@ export const transactionRule = async (
     commitmentInterest: number;
   }
 ) => {
-  result = {
-    payment: 0,
-    loss: 0,
-    interestEve: 0,
-    interestNonce: 0,
-    insurance: 0,
-    debt: 0,
-    surplus: 0,
-    storedInterest: 0,
-    calcInterest: 0,
-    calcedInfo: undefined,
-    commitmentInterest: 0
-  };
+  if (!result) {
+    result = {
+      payment: 0,
+      loss: 0,
+      interestEve: 0,
+      interestNonce: 0,
+      insurance: 0,
+      debt: 0,
+      surplus: 0,
+      storedInterest: 0,
+      calcInterest: 0,
+      calcedInfo: undefined,
+      commitmentInterest: 0
+    };
+  }
 
   if (!doc.contractId) {
     return result;
@@ -261,7 +270,7 @@ export const transactionRule = async (
     insurance = 0,
     debt = 0,
     preSchedule,
-    commitmentInterest
+    commitmentInterest,
   } = result.calcedInfo;
   result.calcedInfo.total =
     payment +
@@ -371,7 +380,7 @@ export const trAfterSchedule = async (
           didDebt: tr.debt ?? 0,
           didCommitmentInterest: tr.commitmentInterest ?? 0,
           didTotal: tr.total ?? 0
-        }
+        },
       }
     );
   } else {
@@ -396,8 +405,6 @@ export const trAfterSchedule = async (
 
     await models.Schedules.create(schedule);
   }
-
-  return;
 };
 
 /**
@@ -410,7 +417,7 @@ export const trAfterSchedule = async (
 export const removeTrAfterSchedule = async (
   models: IModels,
   tr: ITransactionDocument,
-  config:IConfig,
+  config: IConfig,
   noDeleteSchIds: any[] = []
 ) => {
   if (!Object.keys(tr.reactions || {}).length) {
@@ -452,12 +459,10 @@ export const removeTrAfterSchedule = async (
     }
   }
 
- 
-
   if (bulkOps && bulkOps.length) {
     await models.Schedules.bulkWrite(bulkOps);
   }
-  
+
   if (delIds.length) {
     await models.Schedules.deleteMany({
       _id: { $in: delIds },
@@ -468,6 +473,11 @@ export const removeTrAfterSchedule = async (
   if (tr.contractReaction) {
     const { _id, ...otherData } = tr.contractReaction;
     await models.Contracts.updateOne({ _id: _id }, { $set: otherData });
-    await scheduleFixAfterCurrent(tr.contractReaction,tr.payDate,models,config)
+    await scheduleFixAfterCurrent(
+      tr.contractReaction,
+      tr.payDate,
+      models,
+      config
+    );
   }
 };

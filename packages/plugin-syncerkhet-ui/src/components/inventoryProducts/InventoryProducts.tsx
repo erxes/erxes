@@ -32,7 +32,7 @@ class InventoryProducts extends React.Component<Props, State> {
 
     this.state = {
       openCollapse: 0,
-      loading: false
+      loading: false,
     };
   }
 
@@ -40,7 +40,7 @@ class InventoryProducts extends React.Component<Props, State> {
     if (data.length > 100) {
       data = data.slice(0, 100);
     }
-    return data.map(p => <Row key={p.code} product={p} action={action} />);
+    return data.map((p) => <Row key={p.code} product={p} action={action} />);
   };
   calculatePagination = (data: any) => {
     const { queryParams } = this.props;
@@ -72,7 +72,7 @@ class InventoryProducts extends React.Component<Props, State> {
   };
 
   excludeSyncTrue = (data: any) => {
-    return data.filter(d => d.syncStatus === false);
+    return data.filter((d) => d.syncStatus === false);
   };
 
   renderTable = (data: any, action: string) => {
@@ -83,18 +83,16 @@ class InventoryProducts extends React.Component<Props, State> {
       this.props.toSyncProducts(action, data);
     };
     const syncButton = (
-      <>
-        <Button btnStyle="success" icon="check-circle" onClick={onClickSync}>
-          Sync
-        </Button>
-      </>
+      <Button btnStyle='success' icon='check-circle' onClick={onClickSync}>
+        Sync
+      </Button>
     );
 
     const header = (
       <Wrapper.ActionBar
         left={<Title>{__(`Products`)}</Title>}
         right={syncButton}
-        background="colorWhite"
+        background='colorWhite'
         wideSpacing={true}
       />
     );
@@ -124,8 +122,8 @@ class InventoryProducts extends React.Component<Props, State> {
           loading={false}
           count={data.length}
           emptyText={'Please sync again.'}
-          emptyIcon="leaf"
-          size="large"
+          emptyIcon='leaf'
+          size='large'
           objective={true}
         />
       </>
@@ -141,7 +139,7 @@ class InventoryProducts extends React.Component<Props, State> {
     };
 
     const checkOpenCollapse = (num: number): boolean => {
-      return openCollapse === num ? true : false;
+      return openCollapse === num;
     };
 
     const onChangeCollapse = (num: number): void => {
@@ -162,7 +160,7 @@ class InventoryProducts extends React.Component<Props, State> {
             items.matched.count &&
             `Matched: ${items.matched.count}`}
         </span>
-        <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
+        <Button btnStyle='success' icon='check-circle' onClick={onClickCheck}>
           Check
         </Button>
       </>
@@ -190,8 +188,8 @@ class InventoryProducts extends React.Component<Props, State> {
               loading={false}
               count={3}
               emptyText={'Please check first.'}
-              emptyIcon="leaf"
-              size="large"
+              emptyIcon='leaf'
+              size='large'
               objective={true}
             />
             <Pagination count={items.create?.count || 0} />
@@ -215,8 +213,8 @@ class InventoryProducts extends React.Component<Props, State> {
               }
               loading={false}
               emptyText={'Please check first.'}
-              emptyIcon="leaf"
-              size="large"
+              emptyIcon='leaf'
+              size='large'
               objective={true}
             />
             <Pagination count={items.update?.count || 0} />
@@ -240,8 +238,8 @@ class InventoryProducts extends React.Component<Props, State> {
               }
               loading={false}
               emptyText={'Please check first.'}
-              emptyIcon="leaf"
-              size="large"
+              emptyIcon='leaf'
+              size='large'
               objective={true}
             />
             <Pagination count={items.delete?.count || 0} />
@@ -271,7 +269,7 @@ class InventoryProducts extends React.Component<Props, State> {
             right={checkButton}
             // withMargin
             // wide
-            background="colorWhite"
+            background='colorWhite'
             wideSpacing={true}
           />
         }

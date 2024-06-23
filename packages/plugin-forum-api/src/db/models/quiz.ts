@@ -8,8 +8,6 @@ import {
 } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
-import { ICpUser } from '../../graphql';
-import { LoginRequiredError } from '../../customErrors';
 
 export const QUIZ_STATES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const;
 export type QuizState = (typeof QUIZ_STATES)[number];

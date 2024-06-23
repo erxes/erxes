@@ -1,9 +1,8 @@
-import { gql } from '@apollo/client';
 import { Spinner, Alert } from '@erxes/ui/src';
 import React from 'react';
 import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   components: any;

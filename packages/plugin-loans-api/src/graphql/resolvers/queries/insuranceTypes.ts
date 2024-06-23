@@ -1,4 +1,4 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
@@ -67,7 +67,7 @@ const insuranceTypeQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.InsuranceTypes.find(filter).countDocuments()
+      totalCount: await models.InsuranceTypes.find(filter).countDocuments(),
     };
   },
 
@@ -77,7 +77,7 @@ const insuranceTypeQueries = {
 
   insuranceTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.InsuranceTypes.getInsuranceType({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(insuranceTypeQueries);

@@ -10,10 +10,6 @@ type Props = {};
 type FinalProps = {} & Props;
 
 class ScoreFormContainer extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const renderButton = ({ values, isSubmitted, callback }) => {
       return (
@@ -23,7 +19,7 @@ class ScoreFormContainer extends React.Component<FinalProps> {
           callback={callback}
           refetchQueries={['scoreLogList']}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully`}
         />
       );

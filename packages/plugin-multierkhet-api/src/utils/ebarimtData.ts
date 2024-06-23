@@ -5,7 +5,7 @@ import {
 } from '../messageBroker';
 import { getCompanyInfo, getCoreConfig, getSyncLogDoc } from './utils';
 
-export const validConfigMsg = async config => {
+export const validConfigMsg = async (config) => {
   if (!config.url) {
     return 'required url';
   }
@@ -26,27 +26,43 @@ export const getPostData = async (
 
   const syncLogDoc = getSyncLogDoc({ type: 'cards:deal', user, object: deal });
 
-  const ebarimtConfig = await getCoreConfig(subdomain, 'EBARIMT', {})
+  const ebarimtConfig = await getCoreConfig(subdomain, 'EBARIMT', {});
 
   if (
     ebarimtConfig.dealBillType?.billType &&
     ebarimtConfig.dealBillType?.regNo &&
     deal.customFieldsData?.length
   ) {
-    const checkCompanyStrs = ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'];
-    const customDataBillType = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.billType && checkCompanyStrs.includes(cfd.value));
-    const customDataRegNo = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.regNo && cfd.value);
-    const customDataComName = deal.customFieldsData.find(cfd => cfd.field === ebarimtConfig.dealBillType.companyName && cfd.value);
+    const checkCompanyStrs = [
+      'Байгууллага',
+      'Company',
+      'B2B',
+      'B2B_RECEIPT',
+      '3'
+    ];
+    const customDataBillType = deal.customFieldsData.find(
+      (cfd) =>
+        cfd.field === ebarimtConfig.dealBillType.billType &&
+        checkCompanyStrs.includes(cfd.value)
+    );
+    const customDataRegNo = deal.customFieldsData.find(
+      (cfd) => cfd.field === ebarimtConfig.dealBillType.regNo && cfd.value
+    );
+    const customDataComName = deal.customFieldsData.find(
+      (cfd) => cfd.field === ebarimtConfig.dealBillType.companyName && cfd.value
+    );
 
     if (customDataBillType && customDataRegNo && customDataComName) {
-      const resp = await getCompanyInfo({ checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl, no: customDataRegNo.value })
+      const resp = await getCompanyInfo({
+        checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl,
+        no: customDataRegNo.value
+      });
 
       if (resp.status === 'checked' && resp.tin) {
         billType = '3';
-        ebarimtTIN = resp.tin
+        ebarimtTIN = resp.tin;
       }
     }
-
   }
 
   const companyIds = await sendCoreMessage({
@@ -66,7 +82,7 @@ export const getPostData = async (
         fields: { _id: 1, code: 1, primaryName: 1 },
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
@@ -74,7 +90,10 @@ export const getPostData = async (
       customerCode = company.code;
 
       if (billType === '1' && re.test(company.code)) {
-        const checkCompanyRes = await getCompanyInfo({ checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl, no: company.code });
+        const checkCompanyRes = await getCompanyInfo({
+          checkTaxpayerUrl: ebarimtConfig.checkTaxpayerUrl,
+          no: company.code
+        });
 
         if (checkCompanyRes.status === 'checked' && checkCompanyRes.tin) {
           billType = '3';
@@ -104,8 +123,7 @@ export const getPostData = async (
         isRPC: true,
         defaultValue: []
       });
-
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code || '';
     }
   }
 
@@ -132,14 +150,14 @@ export const getPostData = async (
     userEmailById[user._id] = user.email;
   }
 
-  const productsIds = deal.productsData.map(item => item.productId);
+  const productsIds = deal.productsData.map((item) => item.productId);
 
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
     data: {
       query: { _id: { $in: productsIds } },
-      limit: deal.productsData.length
+      limit: deal.productsData.length,
     },
     isRPC: true,
     defaultValue: []
@@ -150,8 +168,8 @@ export const getPostData = async (
     productById[product._id] = product;
   }
 
-  const branchIds = deal.productsData.map(pd => pd.branchId) || [];
-  const departmentIds = deal.productsData.map(pd => pd.departmentId) || [];
+  const branchIds = deal.productsData.map((pd) => pd.branchId) || [];
+  const departmentIds = deal.productsData.map((pd) => pd.departmentId) || [];
 
   const branchesById = {};
   const departmentsById = {};
@@ -242,7 +260,6 @@ export const getPostData = async (
           workerEmail:
             productData.assignUserId && userEmailById[productData.assignUserId]
         });
-        continue;
       }
     }
   }
@@ -323,7 +340,6 @@ export const getPostData = async (
           for (const key of Object.keys(payments)) {
             if (payments[key] > 0.005) {
               payments[key] = payments[key] + sumSaleAmount;
-              continue;
             }
           }
         }
@@ -348,7 +364,7 @@ export const getPostData = async (
           undefined,
         details,
         ...payments
-      }
+      },
     ];
 
     const syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
@@ -361,7 +377,7 @@ export const getPostData = async (
         apiKey: config.apiKey,
         apiSecret: config.apiSecret,
         orderInfos: JSON.stringify(orderInfos)
-      }
+      },
     });
   }
 

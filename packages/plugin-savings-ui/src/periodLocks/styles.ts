@@ -1,4 +1,3 @@
-import { colors } from '@erxes/ui/src';
 import styled from 'styled-components';
 
 const PeriodLocksTableWrapper = styled.div`

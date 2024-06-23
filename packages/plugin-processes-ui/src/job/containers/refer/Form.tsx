@@ -29,6 +29,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
     }
 
     const renderButton = ({
+      name,
       values,
       isSubmitted,
       callback,
@@ -40,7 +41,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
       values.quantity = Number(quantity);
 
       values.needProducts = needProducts.map(
-        e =>
+        (e) =>
           ({
             _id: e._id,
             productId: e.productId,
@@ -48,11 +49,11 @@ class ProductFormContainer extends React.Component<FinalProps> {
             uom: e.uom,
             branchId: e.branchId,
             departmentId: e.departmentId
-          } as IProductsData)
+          }) as IProductsData
       );
 
       values.resultProducts = resultProducts.map(
-        e =>
+        (e) =>
           ({
             _id: e._id,
             productId: e.productId,
@@ -61,7 +62,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
             branchId: e.branchId,
             departmentId: e.departmentId,
             proportion: e.proportion
-          } as IProductsData)
+          }) as IProductsData
       );
 
       return (
@@ -71,7 +72,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
           callback={callback}
           refetchQueries={getRefetchQueries('test refetch')}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           uppercase={false}
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
@@ -92,7 +93,7 @@ class ProductFormContainer extends React.Component<FinalProps> {
   }
 }
 
-const getRefetchQueries = test => {
+const getRefetchQueries = (test) => {
   return ['jobRefers', 'jobReferTotalCount', 'jobCategories'];
 };
 

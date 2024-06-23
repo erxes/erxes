@@ -1,11 +1,10 @@
-import * as _ from 'underscore';
 import {
   ILoyaltyConfig,
   ILoyaltyConfigDocument,
   loyaltyConfigSchema
 } from './definitions/config';
 import { IModels } from '../connectionResolver';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 
 export interface ILoyaltyConfigModel extends Model<ILoyaltyConfigDocument> {
   getConfig(code: string): Promise<ILoyaltyConfigDocument>;

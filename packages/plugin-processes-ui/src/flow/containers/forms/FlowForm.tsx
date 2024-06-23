@@ -39,7 +39,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
   const { flowDetailQuery, currentUser, flowsEdit, flowsAdd } = props;
   let flowDetail: IFlowDocument;
 
-  const [saveLoading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   const copyFlow = (params: IFlowDocument) => {
     const variables: IFlow = { ...params };
@@ -63,7 +63,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
   };
 
   const save = (doc: IFlowDocument) => {
-    setLoading(true);
+    setSaveLoading(true);
 
     flowsEdit({
       variables: {
@@ -74,7 +74,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
         router.removeParams(history, 'isCreate');
 
         setTimeout(() => {
-          setLoading(false);
+          setSaveLoading(false);
         }, 300);
 
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
@@ -117,7 +117,7 @@ export default withProps<Props>(
             _id: id,
           },
         }),
-      },
+      }
     ),
     graphql<{}, FlowsEditMutationResponse, IFlowDocument>(
       gql(flowMutations.flowsEdit),
@@ -126,7 +126,7 @@ export default withProps<Props>(
         options: () => ({
           refetchQueries,
         }),
-      },
+      }
     ),
     graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
       gql(flowMutations.flowsAdd),
@@ -135,7 +135,7 @@ export default withProps<Props>(
         options: () => ({
           refetchQueries: ['flows', 'flowDetail'],
         }),
-      },
-    ),
-  )(FlowDetailsContainer),
+      }
+    )
+  )(FlowDetailsContainer)
 );

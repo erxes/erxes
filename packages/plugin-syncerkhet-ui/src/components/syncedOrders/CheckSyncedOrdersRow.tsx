@@ -16,10 +16,6 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   modalContent = (_props) => {
     const { order } = this.props;
 

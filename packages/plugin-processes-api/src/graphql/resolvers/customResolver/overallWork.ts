@@ -2,11 +2,7 @@ import { getProductsData } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { IOverallWork } from './../../../models/definitions/overallWorks';
 import { JOB_TYPES } from '../../../models/definitions/constants';
-import {
-  sendCoreMessage,
-  sendInventoriesMessage,
-  sendProductsMessage
-} from '../../../messageBroker';
+import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -124,5 +120,5 @@ export default {
     }
 
     return getProductsData(resultProducts);
-  }
+  },
 };

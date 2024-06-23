@@ -5,7 +5,6 @@ import FieldForm from '../FieldForm';
 import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
 import FormPreview from '@erxes/ui/src/components/step/preview/FormPreview';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   type: string;
@@ -26,7 +25,7 @@ class FullPreviewStep extends React.Component<Props, State> {
 
     this.state = {
       currentMode: undefined,
-      currentField: undefined
+      currentField: undefined,
     };
   }
 
@@ -39,7 +38,7 @@ class FullPreviewStep extends React.Component<Props, State> {
 
     let duplicated: boolean = false;
 
-    fields.forEach(fld => {
+    fields.forEach((fld) => {
       if (fld._id !== field._id && fld.code === field.code) {
         duplicated = true;
       }
@@ -58,10 +57,10 @@ class FullPreviewStep extends React.Component<Props, State> {
     const { onChange } = this.props;
 
     // remove field from state
-    const fields = this.props.fields.filter(f => f._id !== field._id);
+    const fields = this.props.fields.filter((f) => f._id !== field._id);
 
     this.setState({
-      currentField: undefined
+      currentField: undefined,
     });
 
     onChange('fields', fields);
@@ -76,13 +75,11 @@ class FullPreviewStep extends React.Component<Props, State> {
     const { fields } = this.props;
 
     const previewRenderer = () => (
-      <>
-        <FieldsPreview
-          fields={fields || []}
-          onFieldClick={this.onFieldClick}
-          currentPage={1}
-        />
-      </>
+      <FieldsPreview
+        fields={fields || []}
+        onFieldClick={this.onFieldClick}
+        currentPage={1}
+      />
     );
 
     return (

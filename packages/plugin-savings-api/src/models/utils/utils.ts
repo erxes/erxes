@@ -1,8 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
 
-
-
 export const calcInterest = ({
   balance,
   interestRate,
@@ -11,11 +9,15 @@ export const calcInterest = ({
 }: {
   balance: number;
   interestRate: number;
-  fixed?:number;
+  fixed?: number;
   dayOfMonth?: number;
 }): number => {
-  const interest = new BigNumber(interestRate).div(100).div(365)
-  return new BigNumber(balance).multipliedBy(interest).multipliedBy(dayOfMonth).dp(fixed,BigNumber.ROUND_HALF_UP).toNumber()
+  const interest = new BigNumber(interestRate).div(100).div(365);
+  return new BigNumber(balance)
+    .multipliedBy(interest)
+    .multipliedBy(dayOfMonth)
+    .dp(fixed, BigNumber.ROUND_HALF_UP)
+    .toNumber();
 };
 
 export const getDaysInMonth = (date: Date) => {
@@ -103,7 +105,7 @@ export const generateRandomString = (len: number = 10) => {
 export const getRandomNumber = () => {
   const today = new Date();
   const random = generateRandomString(6);
-  const yy = String(today.getFullYear()).substr(2, 2);
+  const yy = String(today.getFullYear()).substring(2, 2);
   const m = today.getMonth() + 1;
   const mm = m > 9 ? m : `0${m}`;
   const dd = today.getDate();

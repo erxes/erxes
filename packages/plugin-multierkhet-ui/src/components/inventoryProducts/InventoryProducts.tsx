@@ -49,12 +49,12 @@ const InventoryProducts = (props: Props) => {
           data = data.slice(
             Number(queryParams.page - 1) * queryParams.perPage,
             Number((queryParams.page - 1) * queryParams.perPage) +
-              Number(queryParams.perPage),
+              Number(queryParams.perPage)
           );
         } else {
           data = data.slice(
             (queryParams.page - 1) * 20,
-            (queryParams.page - 1) * 20 + 20,
+            (queryParams.page - 1) * 20 + 20
           );
         }
       }
@@ -66,7 +66,7 @@ const InventoryProducts = (props: Props) => {
   };
 
   const excludeSyncTrue = (data: any) => {
-    return data.filter((d) => d.syncStatus == false);
+    return data.filter((d) => d.syncStatus === false);
   };
 
   const renderTable = (data: any, action: string) => {
@@ -77,16 +77,14 @@ const InventoryProducts = (props: Props) => {
       props.toSyncProducts(action, data);
     };
     const syncButton = (
-      <>
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="check-1"
-          onClick={onClickSync}
-        >
-          Sync
-        </Button>
-      </>
+      <Button
+        btnStyle='primary'
+        size='small'
+        icon='check-1'
+        onClick={onClickSync}
+      >
+        Sync
+      </Button>
     );
 
     const header = <Wrapper.ActionBar right={syncButton} />;
@@ -116,7 +114,7 @@ const InventoryProducts = (props: Props) => {
   };
 
   const checkOpenCollapse = (num: number): boolean => {
-    return openCollapse == num ? true : false;
+    return openCollapse == num;
   };
 
   const onChangeCollapse = (num: number): void => {
@@ -133,10 +131,10 @@ const InventoryProducts = (props: Props) => {
         onSelect={(brand) => props.setBrand(brand as string)}
         initialValue={queryParams.brandId}
         multi={false}
-        name="selectedBrands"
+        name='selectedBrands'
         customOption={{
           label: 'No Brand (noBrand)',
-          value: '',
+          value: ''
         }}
       />
       <span>
@@ -146,9 +144,9 @@ const InventoryProducts = (props: Props) => {
           `Matched: ${items.matched.count}`}
       </span>
       <Button
-        btnStyle="warning"
-        size="small"
-        icon="check-1"
+        btnStyle='warning'
+        size='small'
+        icon='check-1'
         onClick={onClickCheck}
       >
         Check
@@ -164,7 +162,7 @@ const InventoryProducts = (props: Props) => {
       <br />
       <CollapseContent
         title={__(
-          'Create products' + (items.create ? ':  ' + items.create.count : ''),
+          'Create products' + (items.create ? ':  ' + items.create.count : '')
         )}
         onClick={() => {
           onChangeCollapse(1);
@@ -179,8 +177,8 @@ const InventoryProducts = (props: Props) => {
             loading={false}
             count={3}
             emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
+            emptyIcon='leaf'
+            size='large'
             objective={true}
           />
           <Pagination count={items.create?.count || 0} />
@@ -188,7 +186,7 @@ const InventoryProducts = (props: Props) => {
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Update products' + (items.update ? ':  ' + items.update.count : ''),
+          'Update products' + (items.update ? ':  ' + items.update.count : '')
         )}
         onClick={() => {
           onChangeCollapse(2);
@@ -200,8 +198,8 @@ const InventoryProducts = (props: Props) => {
             data={items.update ? renderTable(items.update.items, 'UPDATE') : []}
             loading={false}
             emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
+            emptyIcon='leaf'
+            size='large'
             objective={true}
           />
           <Pagination count={items.update?.count || 0} />
@@ -209,7 +207,7 @@ const InventoryProducts = (props: Props) => {
       </CollapseContent>
       <CollapseContent
         title={__(
-          'Delete products' + (items.delete ? ':  ' + items.delete.count : ''),
+          'Delete products' + (items.delete ? ':  ' + items.delete.count : '')
         )}
         onClick={() => {
           onChangeCollapse(3);
@@ -221,8 +219,8 @@ const InventoryProducts = (props: Props) => {
             data={items.delete ? renderTable(items.delete.items, 'DELETE') : []}
             loading={false}
             emptyText={'Please check first.'}
-            emptyIcon="leaf"
-            size="large"
+            emptyIcon='leaf'
+            size='large'
             objective={true}
           />
           <Pagination count={items.delete?.count || 0} />

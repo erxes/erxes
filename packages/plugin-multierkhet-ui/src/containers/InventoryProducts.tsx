@@ -2,14 +2,12 @@ import {
   ToCheckProductsMutationResponse,
   ToSyncProductsMutationResponse,
 } from "../types";
-import { useMutation } from "@apollo/client";
-
 import Alert from "@erxes/ui/src/utils/Alert";
 import { Bulk } from "@erxes/ui/src/components";
 import InventoryProducts from "../components/inventoryProducts/InventoryProducts";
 import React, { useState } from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { mutations } from "../graphql";
 import { router } from "@erxes/ui/src";
 import { useLocation, useNavigate } from "react-router-dom";

@@ -14,10 +14,10 @@ const scheduleQueries = {
       { contractId: params.contractId },
       { payDate: 1 }
     ).sort({ payDate: 1 });
-    const years = dates.map(item => getFullDate(item.payDate).getFullYear());
+    const years = dates.map((item) => getFullDate(item.payDate).getFullYear());
     const uniqueYears = [...new Set(years)];
 
-    return uniqueYears.map(item => ({ year: item }));
+    return uniqueYears.map((item) => ({ year: item }));
   },
 
   schedules: async (
@@ -41,12 +41,12 @@ const scheduleQueries = {
 
     const lastTransaction = await models.Transactions.findOne({
       contractId: params.contractId,
-      transactionType:{$ne:'give'}
+      transactionType: { $ne: 'give' },
     })
       .sort({ payDate: -1 })
       .lean();
-    
-    if (!!lastTransaction) {
+
+    if (lastTransaction) {
       filter.payDate = { $lte: lastTransaction.payDate };
     } else filter.payDate = { $lte: new Date() };
 
@@ -55,11 +55,11 @@ const scheduleQueries = {
 
   virtualSchedules: async (_root, doc: IDefaultScheduleParam, {}) => {
     const result: {
-      index: Number;
-      loanBalance: Number;
-      loanPayment: Number;
-      calcedInterest: Number;
-      totalPayment: Number;
+      index: number;
+      loanBalance: number;
+      loanPayment: number;
+      calcedInterest: number;
+      totalPayment: number;
     }[] = [];
     if (doc.repayment === 'equal') {
       let balance = doc.leaseAmount;
@@ -79,7 +79,7 @@ const scheduleQueries = {
         data: {
           query: {
             code: 'holidayConfig'
-          }
+          },
         },
         isRPC: true
       },
@@ -88,13 +88,13 @@ const scheduleQueries = {
 
     const perHolidays = !holidayConfig?.value
       ? []
-      : Object.keys(holidayConfig.value).map(key => ({
+      : Object.keys(holidayConfig.value).map((key) => ({
           month: Number(holidayConfig.value[key].month) - 1,
           day: Number(holidayConfig.value[key].day)
         }));
 
     getGraphicValue(contract, perHolidays);
-  }
+  },
 };
 
 export default scheduleQueries;

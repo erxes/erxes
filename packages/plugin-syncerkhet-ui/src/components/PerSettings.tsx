@@ -159,7 +159,7 @@ class PerSettings extends React.Component<Props, State> {
         title={__(config.title)}
         beforeTitle={<Icon icon="settings" />}
         transparent={true}
-        open={this.props.currentConfigKey === "newEbarimtConfig" ? true : false}
+        open={this.props.currentConfigKey === "newEbarimtConfig"}
       >
         <FormGroup>
           <ControlLabel>{"Title"}</ControlLabel>
@@ -229,7 +229,7 @@ class PerSettings extends React.Component<Props, State> {
             icon="check-circle"
             onClick={this.onSave}
             uppercase={false}
-            disabled={config.stageId ? false : true}
+            disabled={!config.stageId}
           >
             Save
           </Button>

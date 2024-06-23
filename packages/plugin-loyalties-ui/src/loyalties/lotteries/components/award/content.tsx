@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   ControlLabel,
   FormControl,
@@ -68,13 +67,13 @@ class AwardContentComponent extends React.Component<IProps, State> {
           {CheckBox("Use Next Character", isOpenNextChar, () =>
             this.setState({
               isOpenNextChar: !isOpenNextChar,
-              isOpenInput: isOpenInput && false,
+              isOpenInput: !isOpenInput,
             })
           )}
           {CheckBox("Use  MultiDoLottery", isOpenInput, () =>
             this.setState({
               isOpenInput: !isOpenInput,
-              isOpenNextChar: isOpenNextChar && false,
+              isOpenNextChar: !isOpenNextChar,
               multiple: 0,
             })
           )}
@@ -83,21 +82,15 @@ class AwardContentComponent extends React.Component<IProps, State> {
     };
     const List = (
       data: any,
-      totalCount: number,
-      loading: boolean,
-      isWinnerList: boolean
     ) => {
       const updatedProps = {
-        lotteries: data,
-        totalCount: totalCount,
-        loading: loading,
-        isWinnerList,
+        lotteries: data
       };
       return <AwardList {...updatedProps} />;
     };
     const NextChar = () => {
       const numberFormat = lotteryCampaign.numberFormat
-        .match(/ \* [0-9]* /g)[0]
+        .match(/ \* \d* /g)[0]
         .substring(3);
 
       return (
@@ -197,13 +190,8 @@ class AwardContentComponent extends React.Component<IProps, State> {
             justifyContent: "space-between",
           }}
         >
-          {List(list, totalCount, lotteriesCampaignCustomerList.loading, true)}
-          {List(
-            winners,
-            winnersTotalCount,
-            lotteryCampaignWinnerList.loading,
-            true
-          )}
+          {List(list)}
+          {List(winners)}
         </div>
       </>
     );

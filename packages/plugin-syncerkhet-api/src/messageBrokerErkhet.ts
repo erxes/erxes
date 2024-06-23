@@ -2,7 +2,7 @@ import { init } from './messageBrokerErkhetHelper';
 import { consumeCustomer } from './utils/consumeCustomer';
 import {
   consumeInventory,
-  consumeInventoryCategory,
+  consumeInventoryCategory
 } from './utils/consumeInventory';
 import redis from '@erxes/api-utils/src/redis';
 import { IModels } from './connectionResolver';
@@ -39,8 +39,6 @@ export const initBrokerErkhet = async () => {
         await consumeCustomer(subdomain, doc, old_code, action);
         break;
     }
-
-    return;
   });
 };
 
@@ -48,24 +46,24 @@ export const sendRPCMessage = async (
   models: IModels,
   syncLog: ISyncLogDocument,
   channel: string,
-  message: any,
+  message: any
 ): Promise<any> => {
   await models.SyncLogs.updateOne(
     { _id: syncLog._id },
-    { $set: { sendData: message, sendStr: JSON.stringify(message) } },
+    { $set: { sendData: message, sendStr: JSON.stringify(message) } }
   );
   const response = await clientErkhet.sendRPCMessage(channel, message);
   if (typeof response === 'string') {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { responseStr: JSON.stringify(response), error: response } },
+      { $set: { responseStr: JSON.stringify(response), error: response } }
     );
   } else {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       {
-        $set: { responseData: response, responseStr: JSON.stringify(response) },
-      },
+        $set: { responseData: response, responseStr: JSON.stringify(response) }
+      }
     );
   }
   return response;
@@ -82,7 +80,7 @@ export const erkhetBroker = async () => {
   return await init({
     RABBITMQ_HOST: ERKHET_RABBITMQ_HOST,
     MESSAGE_BROKER_PREFIX: ERKHET_MESSAGE_BROKER_PREFIX,
-    redis,
+    redis
   });
 };
 

@@ -2,7 +2,6 @@ import ActivityItem from './ActivityItem';
 import { IContractDoc } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import LeftSidebar from './LeftSidebar';
-import PolarisData from '../polaris';
 import React from 'react';
 import RightSidebar from './RightSidebar';
 import ScheduleSection from '../schedules/ScheduleSection';
@@ -15,16 +14,16 @@ const ActivityInputs = asyncComponent(
   () =>
     isEnabled('logs') &&
     import(
-      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    ),
+      /* webpackChunkName: 'ActivityInputs' */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
+    )
 );
 
 const ActivityLogs = asyncComponent(
   () =>
     isEnabled('logs') &&
     import(
-      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    ),
+      /* webpackChunkName: 'ActivityLogs' */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
+    )
 );
 
 type Props = {
@@ -43,7 +42,7 @@ const ContractDetails = (props: Props) => {
 
   const breadcrumb = [
     { title: __('Contracts'), link: '/erxes-plugin-saving/contract-list' },
-    { title },
+    { title }
   ];
 
   const content = (
@@ -55,14 +54,14 @@ const ContractDetails = (props: Props) => {
 
       <ActivityInputs
         contentTypeId={contract._id}
-        contentType="savingContract"
+        contentType='savingContract'
         showEmail={false}
       />
 
       <ActivityLogs
         target={contract.number || ''}
         contentId={contract._id}
-        contentType="savingContract"
+        contentType='savingContract'
         extraTabs={[{ name: 'savings:interestStore', label: 'Interest store' }]}
         activityRenderItem={ActivityItem}
       />

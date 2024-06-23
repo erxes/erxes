@@ -7,10 +7,6 @@ interface IProps {
 }
 
 class WinnersAwardList extends React.Component<IProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { lists } = this.props;
 
@@ -28,7 +24,7 @@ class WinnersAwardList extends React.Component<IProps> {
               <tr>
                 <td>{list?.owner.email}</td>
                 <td>
-                  <Button btnStyle="white" icon="ellipsis-h" />
+                  <Button btnStyle='white' icon='ellipsis-h' />
                 </td>
               </tr>
             ))}

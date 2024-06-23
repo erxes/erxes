@@ -15,19 +15,15 @@ type FinalProps = {
   voucherCampaigns: any;
 };
 class AwardDetail extends React.Component<FinalProps, Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { voucherCampaigns, lotteryCampaign } = this.props;
     const updatedProps = {
       loading: voucherCampaigns.loading,
       data: voucherCampaigns.voucherCampaigns,
-      lotteryCampaign: lotteryCampaign
+      lotteryCampaign: lotteryCampaign,
     };
 
-    const content = props => {
+    const content = (props) => {
       return <LotteryDetail {...updatedProps} {...props} />;
     };
 
@@ -46,7 +42,7 @@ const generateParams = ({ queryParams }) => ({
   searchValue: queryParams.searchValue,
   sortField: queryParams.sortField,
   sortDirection: Number(queryParams.sortDirection) || undefined,
-  voucherCampaignId: queryParams.voucherCampaignId
+  voucherCampaignId: queryParams.voucherCampaignId,
 });
 
 export default withProps<Props>(
@@ -55,8 +51,8 @@ export default withProps<Props>(
       name: 'voucherCampaigns',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     })
   )(AwardDetail)
 );

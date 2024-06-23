@@ -48,7 +48,7 @@ const contractMutations = {
           userId: doc.customerId,
           password: doc.secondaryPassword,
           secondary: true
-        }
+        },
       },
       "clientportal"
     );
@@ -101,7 +101,7 @@ const contractMutations = {
         coc: contract,
         contentType: `loans:${logData.type}`,
         contentId: contract._id
-      }
+      },
     });
 
     return updated;
@@ -117,7 +117,7 @@ const contractMutations = {
       _id: { $ne: _id }
     });
 
-    if (!!checkOtherDeals) {
+    if (checkOtherDeals) {
       await models.Contracts.updateMany(
         { dealId: doc.dealId, _id: { $ne: _id } },
         { $set: { dealId: undefined } }
@@ -210,7 +210,7 @@ const contractMutations = {
       data: {
         mainType: "contract",
         relTypes: ["deal"],
-        mainTypeId: contract._id
+        mainTypeId: contract._id,
       },
       isRPC: true
     });
@@ -263,7 +263,7 @@ const contractMutations = {
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
-        _id: data.insuranceTypeId
+        _id: data.insuranceTypeId,
       });
 
       collaterals.push({

@@ -23,7 +23,7 @@ const TagFilterContainer = (props: {
     <CountsByTag
       tags={(tagsQuery ? tagsQuery.tags : null) || []}
       counts={counts}
-      manageUrl="/tags/product"
+      manageUrl='/tags/product'
       loading={(tagsQuery ? tagsQuery.loading : null) || false}
     />
   );
@@ -38,8 +38,8 @@ export default compose(
     options: () => ({
       variables: {
         type: TAG_TYPES.PRODUCT
-      }
+      },
     }),
-    skip: !isEnabled('tags') ? true : false
+    skip: !isEnabled('tags'),
   })
 )(TagFilterContainer);

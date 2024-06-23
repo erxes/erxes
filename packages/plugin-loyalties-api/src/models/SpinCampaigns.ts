@@ -1,11 +1,10 @@
-import * as _ from 'underscore';
 import { CAMPAIGN_STATUS } from './definitions/constants';
 import {
   spinCampaignSchema,
   ISpinCampaign,
   ISpinCampaignDocument
 } from './definitions/spinCampaigns';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
 

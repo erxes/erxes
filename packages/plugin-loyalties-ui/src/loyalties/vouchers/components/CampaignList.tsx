@@ -1,10 +1,9 @@
 import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
 import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
 import { __, router } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { IVoucherCampaign } from "../../../configs/voucherCampaign/types";
-import { Link } from "react-router-dom";
 import React from "react";
 import { SidebarListItem } from "../../common/styles";
 import queryString from "query-string";
@@ -13,7 +12,6 @@ const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   queryParams: any;
-  refetch: any;
   voucherCampaigns: IVoucherCampaign[];
   voucherCampaignsCount: number;
   loading: boolean;
@@ -75,23 +73,21 @@ const List = (props: IProps) => {
 
   const renderCategoryHeader = () => {
     return (
-      <>
-        <Section.Title>
-          <Link to={`/erxes-plugin-loyalty/settings/voucher`}>
-            <Icon icon="cog" />
-            {__("Manage Voucher Campaigns")}
-          </Link>
-          <Section.QuickButtons>
-            {router.getParam(location, "campaignId") && (
-              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__("Clear filter")} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
-      </>
+      <Section.Title>
+        <Link to={`/erxes-plugin-loyalty/settings/voucher`}>
+          <Icon icon="cog" />
+          {__("Manage Voucher Campaigns")}
+        </Link>
+        <Section.QuickButtons>
+          {router.getParam(location, "campaignId") && (
+            <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+              <Tip text={__("Clear filter")} placement="bottom">
+                <Icon icon="cancel-1" />
+              </Tip>
+            </a>
+          )}
+        </Section.QuickButtons>
+      </Section.Title>
     );
   };
 

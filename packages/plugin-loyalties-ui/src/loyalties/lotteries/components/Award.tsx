@@ -103,9 +103,7 @@ const VouchersAward = (props: IProps) => {
         </Tabs>
       </TriggerTabs>
       {queryParams.awardId && currentTab._id === queryParams.awardId && (
-        <>
-          <AwardContent {...updatedProps} />
-        </>
+        <AwardContent {...updatedProps} />
       )}
     </div>
   );

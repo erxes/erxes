@@ -73,7 +73,7 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newremainderConfig' ? true : false}
+      open={props.currentConfigKey === 'newremainderConfig'}
     >
       <FormGroup>
         <ControlLabel>{'Title'}</ControlLabel>
@@ -88,7 +88,7 @@ const PerSettings = (props: Props) => {
         <FormColumn>
           <FormGroup>
             <BoardSelectContainer
-              type="deal"
+              type='deal'
               autoSelectStage={false}
               boardId={config.boardId}
               pipelineId={config.pipelineId}
@@ -105,8 +105,8 @@ const PerSettings = (props: Props) => {
       </FormWrapper>
       <ModalFooter>
         <Button
-          btnStyle="simple"
-          icon="cancel-1"
+          btnStyle='simple'
+          icon='cancel-1'
           onClick={onDelete}
           uppercase={false}
         >
@@ -114,11 +114,11 @@ const PerSettings = (props: Props) => {
         </Button>
 
         <Button
-          btnStyle="primary"
-          icon="check-circle"
+          btnStyle='primary'
+          icon='check-circle'
           onClick={onSave}
           uppercase={false}
-          disabled={config.pipelineId ? false : true}
+          disabled={!config.pipelineId}
         >
           Save
         </Button>

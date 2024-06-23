@@ -1,11 +1,11 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
   gatherDependentServicesType,
-  ISegmentContentType,
+  ISegmentContentType
 } from '@erxes/api-utils/src/segments';
 import {
   checkPermission,
-  requireLogin,
+  requireLogin
 } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../../connectionResolver';
@@ -13,7 +13,7 @@ import { fetchSegment } from './queryBuilder';
 import {
   getService,
   getServices,
-  isEnabled,
+  isEnabled
 } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IPreviewParams {
@@ -50,7 +50,7 @@ const segmentQueries = {
               contentType: `${serviceName}:${ct.type}`,
               description: ct.description,
             };
-          },
+          }
         );
 
         types = [...types, ...serviceTypes];
@@ -76,8 +76,8 @@ const segmentQueries = {
     const associatedTypes: IAssociatedType[] = serviceCts.map(
       (ct: ISegmentContentType) => ({
         type: `${serviceName}:${ct.type}`,
-        description: ct.description,
-      }),
+        description: ct.description
+      })
     );
 
     // gather dependent services contentTypes
@@ -97,7 +97,7 @@ const segmentQueries = {
         contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({
             type: `${dService.name}:${ct.type}`,
-            description: ct.description,
+            description: ct.description
           });
         });
       }
@@ -109,14 +109,14 @@ const segmentQueries = {
       (ct: ISegmentContentType, sName: string) => {
         associatedTypes.push({
           type: `${sName}:${ct.type}`,
-          description: ct.description,
+          description: ct.description
         });
-      },
+      }
     );
 
     return associatedTypes.map((atype) => ({
       value: atype.type,
-      description: atype.description,
+      description: atype.description
     }));
   },
 
@@ -130,12 +130,12 @@ const segmentQueries = {
       config,
       ids,
     }: { contentTypes: string[]; config?: any; ids: string[] },
-    { models, commonQuerySelector }: IContext,
+    { models, commonQuerySelector }: IContext
   ) {
     const selector: any = {
       ...commonQuerySelector,
       contentType: { $in: contentTypes },
-      name: { $exists: true },
+      name: { $exists: true }
     };
 
     if (ids) {
@@ -157,7 +157,7 @@ const segmentQueries = {
   async segmentsGetHeads(
     _root,
     { contentType },
-    { models, commonQuerySelector }: IContext,
+    { models, commonQuerySelector }: IContext
   ) {
     let selector: any = {};
 
@@ -168,7 +168,7 @@ const segmentQueries = {
       ...commonQuerySelector,
       ...selector,
       name: { $exists: true },
-      $or: [{ subOf: { $exists: false } }, { subOf: '' }],
+      $or: [{ subOf: { $exists: false } }, { subOf: '' }]
     });
   },
 
@@ -185,7 +185,7 @@ const segmentQueries = {
   async segmentsEvents(
     _root,
     { contentType }: { contentType: string },
-    { subdomain }: IContext,
+    { subdomain }: IContext
   ) {
     const aggs = {
       names: {
@@ -196,7 +196,7 @@ const segmentQueries = {
           hits: {
             top_hits: {
               _source: ['attributes'],
-              size: 1,
+              size: 1
             },
           },
         },
@@ -205,7 +205,7 @@ const segmentQueries = {
 
     const query = {
       exists: {
-        field: contentType === 'company' ? 'companyId' : 'customerId',
+        field: contentType === 'company' ? 'companyId' : 'customerId'
       },
     };
 
@@ -215,7 +215,7 @@ const segmentQueries = {
       index: 'events',
       body: {
         aggs,
-        query,
+        query
       },
     });
 
@@ -243,9 +243,9 @@ const segmentQueries = {
       conditions,
       subOf,
       config,
-      conditionsConjunction,
+      conditionsConjunction
     }: IPreviewParams,
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     return fetchSegment(
       models,
@@ -253,13 +253,13 @@ const segmentQueries = {
       {
         name: 'preview',
         color: '#fff',
-        subOf: subOf || '',
+        subOf: subOf ?? '',
         config,
         contentType,
         conditions,
-        conditionsConjunction,
+        conditionsConjunction
       },
-      { returnCount: true },
+      { returnCount: true }
     );
   },
 };

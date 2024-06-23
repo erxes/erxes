@@ -76,11 +76,9 @@ class InventoryCategory extends React.Component<Props, State> {
     };
 
     const syncButton = (
-      <>
-        <Button btnStyle="success" icon="check-circle" onClick={onClickSync}>
-          Sync
-        </Button>
-      </>
+      <Button btnStyle="success" icon="check-circle" onClick={onClickSync}>
+        Sync
+      </Button>
     );
 
     const header = (
@@ -132,7 +130,7 @@ class InventoryCategory extends React.Component<Props, State> {
     };
 
     const checkOpenCollapse = (num: number): boolean => {
-      return openCollapse === num ? true : false;
+      return openCollapse === num;
     };
 
     const onChangeCollapse = (num: number): void => {

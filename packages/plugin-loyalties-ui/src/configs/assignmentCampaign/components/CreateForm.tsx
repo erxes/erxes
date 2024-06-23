@@ -29,9 +29,8 @@ import { Wrapper } from "@erxes/ui/src/layout";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Sidebar from "../../general/components/Sidebar";
 import { FormFooter, SettingsContent } from "../../../styles";
-import { Link } from "react-router-dom";
 import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 type Props = {
   assignmentCampaign?: IAssignmentCampaign;
@@ -193,7 +192,6 @@ const CreateForm = (props: Props) => {
           </FormColumn>
         </FormWrapper>
         {isEnabled("segments") && isEnabled("contacts") && (
-          <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments
@@ -205,7 +203,6 @@ const CreateForm = (props: Props) => {
                 onSelect={onChangeSegments}
               />
             </FormGroup>
-          </>
         )}
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>

@@ -1,9 +1,7 @@
 import * as compose from 'lodash.flowright';
 
-import { FlowDetailQueryResponse, IFlow } from '../../../../types';
+import { FlowDetailQueryResponse, IFlow, IJob } from '../../../../types';
 import React, { useState } from 'react';
-
-import { IJob } from '../../../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import SubFlowForm from '../../../../components/forms/jobs/subForms/SubFlowForm';
@@ -64,6 +62,6 @@ export default withProps<Props>(
           _id: activeFlowJob.config.subFlowId,
         },
       }),
-    }),
-  )(SubFlowFormContainer),
+    })
+  )(SubFlowFormContainer)
 );

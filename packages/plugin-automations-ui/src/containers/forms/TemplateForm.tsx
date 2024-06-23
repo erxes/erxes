@@ -1,10 +1,9 @@
 import React from 'react';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { gql } from '@apollo/client';
 import TemplateForm from '../../components/forms/TemplateForm';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { queries } from '../../graphql';
 
 type Props = {
   formProps: IFormProps;
@@ -31,8 +30,8 @@ const TemplateFormContainer = (props: FinalProps) => {
             query: gql(queries.automations),
             variables: {
               status: 'template'
-            }
-          }
+            },
+          },
         ]}
         isSubmitted={isSubmitted}
         type="submit"

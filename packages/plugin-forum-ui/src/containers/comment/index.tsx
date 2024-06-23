@@ -4,8 +4,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import CommentComponent from '../../components/comment';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 const Comments: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, loading, error, refetch } = useQuery(

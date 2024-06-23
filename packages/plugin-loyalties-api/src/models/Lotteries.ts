@@ -1,11 +1,10 @@
-import * as _ from 'underscore';
 import { getRandomNumber } from './utils';
 import {
   lotterySchema,
   ILottery,
   ILotteryDocument
 } from './definitions/lotteries';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IBuyParams } from './definitions/common';
 import { LOTTERY_STATUS } from './definitions/constants';

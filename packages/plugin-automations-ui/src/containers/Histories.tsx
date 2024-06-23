@@ -1,16 +1,12 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Histories from '../components/histories/Histories';
-import { queries } from '../graphql';
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
+import Histories from "../components/histories/Histories";
+import { queries } from "../graphql";
 import {
   AutomationHistoriesQueryResponse,
   IAutomation,
   ITrigger,
-  RemoveMutationResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   automation: IAutomation;
@@ -27,19 +23,25 @@ type Props = {
   actionsConst: any[];
 };
 
-type FinalProps = {
-  automationHistoriesQuery: AutomationHistoriesQueryResponse;
-} & Props &
-  RemoveMutationResponse;
+function HistoriesContainer(props: Props) {
+  const { automation, filterParams, triggersConst, actionsConst } = props;
 
-function HistoriesContainer(props: FinalProps) {
-  const { automationHistoriesQuery, triggersConst, actionsConst } = props;
+  const automationHistoriesQuery = useQuery<AutomationHistoriesQueryResponse>(
+    gql(queries.automationHistories),
+    {
+      variables: {
+        automationId: automation._id,
+        ...filterParams,
+      },
+      fetchPolicy: "network-only",
+    }
+  );
 
   if (automationHistoriesQuery.loading) {
     return null;
   }
 
-  const histories = automationHistoriesQuery.automationHistories || [];
+  const histories = automationHistoriesQuery?.data?.automationHistories || [];
 
   return (
     <Histories
@@ -50,17 +52,4 @@ function HistoriesContainer(props: FinalProps) {
   );
 }
 
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.automationHistories), {
-      name: 'automationHistoriesQuery',
-      options: ({ automation, filterParams }) => ({
-        variables: {
-          automationId: automation._id,
-          ...filterParams
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(HistoriesContainer)
-);
+export default HistoriesContainer;

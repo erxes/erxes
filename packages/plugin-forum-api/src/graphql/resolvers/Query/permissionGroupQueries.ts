@@ -1,6 +1,5 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { PermissionGroupCategoryPermitSchema } from '../../../db/models/permissionGroupModels/permissionGroupCategoryPermit';
 
 const permissionGroupQueries: IObjectTypeResolver<any, IContext> = {
   forumPermissionGroup: async (_, { _id }, { models: { PermissionGroup } }) => {

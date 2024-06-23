@@ -2,8 +2,6 @@ import {
   customFieldToObject,
   fetchPolaris,
   getBranch,
-  getCustomer,
-  getProduct,
   sendMessageBrokerData,
   updateContract
 } from '../utils';
@@ -34,7 +32,7 @@ export const createDeposit = async (subdomain: string, params) => {
     'customers.findOne',
     { _id: deposit.customerId }
   );
-  
+
   let sendData: IPolarisDeposit = {
     acntType: 'CA',
     prodCode: savingProduct.code,
@@ -63,7 +61,7 @@ export const createDeposit = async (subdomain: string, params) => {
   const depositCode = await fetchPolaris({
     subdomain,
     op: '13610020',
-    data: [sendData]
+    data: [sendData],
   });
 
   console.log('depositCode', depositCode);

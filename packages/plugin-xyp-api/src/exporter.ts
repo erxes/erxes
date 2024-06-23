@@ -1,18 +1,11 @@
 import { generateModels, IModels } from './connectionResolver';
-import {
-  sendCoreMessage,
-  fetchSegment,
-  sendContactsMessage,
-  sendCommonMessage,
-} from './messageBroker';
-import * as moment from 'moment';
-import { IUserDocument } from '@erxes/api-utils/src/types';
+import { fetchSegment } from './messageBroker';
 import { getServiceToFields } from './forms';
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -38,7 +31,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -50,7 +43,7 @@ const prepareDataCount = async (
       subdomain,
       '',
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData,
+      segmentData
     );
 
     filter._id = { $in: itemIds };
@@ -69,7 +62,7 @@ const getExcelHeader = async (subdomain, columnsConfig) => {
     if (column.startsWith('service.')) {
       const serviceName = column.replace('service.', '');
       const oneServiceFields = fieldsForExcel.filter((x) =>
-        x.startsWith(serviceName),
+        x.startsWith(serviceName)
       );
       headers = [...headers, ...oneServiceFields];
     } else {
@@ -133,12 +126,14 @@ export default {
             const data = item.data.find((one) => one.serviceName === splits[0]);
 
             if (data) {
-              const columnValue =
-                splits[1] in data?.data ? data.data[splits[1]] : '';
+              let columnValue = '';
+              if (data.data && splits[1] !== undefined && splits[1] in data.data) {
+                columnValue = data.data[splits[1]];
+              }
               result[column] = columnValue;
-            }
-          } else {
-            result[column] = item[column];
+            } else {
+              result[column] = item[column];
+            }            
           }
         }
         docs.push(result);

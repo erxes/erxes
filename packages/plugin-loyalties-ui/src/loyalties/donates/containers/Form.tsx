@@ -5,9 +5,8 @@ import { ButtonMutate } from '@erxes/ui/src/components';
 import { withProps } from '@erxes/ui/src/utils';
 import { IButtonMutateProps, IQueryParams } from '@erxes/ui/src/types';
 import { IDonate } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
 import { mutations } from '../graphql';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { UsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   donate: IDonate;
@@ -31,7 +30,7 @@ class DonateFromContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedDonate } = this.props;
 
-      const afterSave = data => {
+      const afterSave = (data) => {
         closeModal();
 
         if (getAssociatedDonate) {
@@ -46,7 +45,7 @@ class DonateFromContainer extends React.Component<FinalProps> {
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}

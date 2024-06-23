@@ -13,10 +13,8 @@ import {
 } from "@erxes/ui/src";
 import { __ } from "coreui/utils";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
-import { Action, Name } from "../../contracts/styles";
+import { Action, Name, Description } from "../../contracts/styles";
 import React from "react";
-
-import { Description } from "../../contracts/styles";
 import ContractTypeForm from "../containers/ContractTypeForm";
 import { IContractTypeDetail } from "../types";
 

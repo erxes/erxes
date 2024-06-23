@@ -1,12 +1,11 @@
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { mutations, queries } from '../../graphql';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 import { ICategory } from '../../types';
 import React from 'react';
 import Row from '../../components/categories/Row';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
 
 type Props = {
   category: ICategory;

@@ -1,6 +1,6 @@
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import * as mongoose from 'mongoose';
-import { IXypData, IXypconfigDocument } from './models/definitions/xypdata';
+import { IXypconfigDocument } from './models/definitions/xypdata';
 import { IXypDataModel, loadxypConfigClass } from './models/xypdata';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
@@ -16,13 +16,13 @@ export interface IContext extends IMainContext {
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string,
+  subdomain: string
 ): IModels => {
   const models = {} as IModels;
 
   models.XypData = db.model<IXypconfigDocument, IXypDataModel>(
     'xyp_data',
-    loadxypConfigClass(models),
+    loadxypConfigClass(models)
   );
 
   return models;

@@ -1,12 +1,11 @@
 import { Alert, router } from "@erxes/ui/src/utils";
 import { Bulk, Spinner } from "@erxes/ui/src/components";
 import { mutations, queries } from "../graphql";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, gql } from "@apollo/client";
 
 import List from "../components/List";
 import React from "react";
 import { queries as campaignQueries } from "../../../configs/voucherCampaign/graphql";
-import { gql } from "@apollo/client";
 
 type Props = {
   queryParams: any;

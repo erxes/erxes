@@ -1,6 +1,5 @@
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from '../index';
-import * as _ from 'lodash';
 import { TimeDurationUnit, TIME_DURATION_UNITS } from '../../../consts';
 import { ICpUser } from '../../../graphql';
 import { LoginRequiredError } from '../../../customErrors';

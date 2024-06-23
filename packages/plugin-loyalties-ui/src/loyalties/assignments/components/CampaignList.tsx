@@ -1,10 +1,9 @@
 import { DataWithLoader, Icon, Tip } from "@erxes/ui/src/components";
 import { Sidebar, Wrapper } from "@erxes/ui/src/layout";
 import { __, router } from "@erxes/ui/src/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { IAssignmentCampaign } from "../../../configs/assignmentCampaign/types";
-import { Link } from "react-router-dom";
 import React from "react";
 import { SidebarListItem } from "../../common/styles";
 import queryString from "query-string";
@@ -13,7 +12,6 @@ const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   queryParams: any;
-  refetch: any;
   assignmentCampaigns: IAssignmentCampaign[];
   assignmentCampaignsCount: number;
   loading: boolean;
@@ -61,7 +59,6 @@ const List = (props: IProps) => {
 
   const renderCategoryHeader = () => {
     return (
-      <>
         <Section.Title>
           <Link to={`/erxes-plugin-loyalty/settings/assignment`}>
             <Icon icon="cog" />
@@ -77,7 +74,6 @@ const List = (props: IProps) => {
             )}
           </Section.QuickButtons>
         </Section.Title>
-      </>
     );
   };
 

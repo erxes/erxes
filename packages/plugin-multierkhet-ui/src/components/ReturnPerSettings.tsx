@@ -76,7 +76,7 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={props.currentConfigKey === 'newStageInReturnConfig' ? true : false}
+      open={props.currentConfigKey === 'newStageInReturnConfig'}
     >
       <FormGroup>
         <ControlLabel>{'Title'}</ControlLabel>
@@ -91,7 +91,7 @@ const PerSettings = (props: Props) => {
       <FormGroup>
         <ControlLabel>Destination Stage</ControlLabel>
         <BoardSelectContainer
-          type="deal"
+          type='deal'
           autoSelectStage={false}
           boardId={config.boardId}
           pipelineId={config.pipelineId}
@@ -106,8 +106,8 @@ const PerSettings = (props: Props) => {
 
       <ModalFooter>
         <Button
-          btnStyle="simple"
-          icon="cancel-1"
+          btnStyle='simple'
+          icon='cancel-1'
           onClick={onDelete}
           uppercase={false}
         >
@@ -115,11 +115,11 @@ const PerSettings = (props: Props) => {
         </Button>
 
         <Button
-          btnStyle="primary"
-          icon="check-circle"
+          btnStyle='primary'
+          icon='check-circle'
           onClick={onSave}
           uppercase={false}
-          disabled={config.stageId ? false : true}
+          disabled={!config.stageId}
         >
           Save
         </Button>

@@ -40,7 +40,6 @@ class DateSettings extends React.Component<Props, State> {
 
   renderRangeTypeComponent(dateConfig, onChangeDate) {
     return (
-      <>
         <CustomRangeContainer>
           <DateContainer>
             <DateControl
@@ -59,7 +58,6 @@ class DateSettings extends React.Component<Props, State> {
             </DateContainer>
           </EndDateContainer>
         </CustomRangeContainer>
-      </>
     );
   }
 

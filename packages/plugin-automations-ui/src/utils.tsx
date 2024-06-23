@@ -218,7 +218,9 @@ export const connection = (
 
         if (
           !info?.optionalConnectId &&
-          optionalConnects.some(optConnect => optConnect.sourceId === sourceId)
+          optionalConnects.some(
+            (optConnect) => optConnect.sourceId === sourceId
+          )
         ) {
           updatedOptionalConnects = updatedOptionalConnects.filter(
             optConnect => optConnect.sourceId !== sourceId
@@ -268,8 +270,6 @@ export const getTriggerType = (
   if (triggers && triggers.length > 0) {
     return triggers[0].type;
   }
-
-  return;
 };
 
 export const getTriggerConfig = (
@@ -292,8 +292,6 @@ export const getTriggerConfig = (
   if (triggers && triggers.length > 0) {
     return triggers[0]?.config;
   }
-
-  return;
 };
 
 export const renderDynamicComponent = (props, type) => {
@@ -312,6 +310,4 @@ export const renderDynamicComponent = (props, type) => {
       );
     }
   }
-
-  return;
 };

@@ -197,7 +197,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        <ControlLabel required={props.required && true}>{label}</ControlLabel>
+        <ControlLabel required={props.required}>{label}</ControlLabel>
         <FormControl {...props} />
       </FormGroup>
     );

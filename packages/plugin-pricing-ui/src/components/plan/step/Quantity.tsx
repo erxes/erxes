@@ -200,8 +200,6 @@ export default function Quantity(props: Props) {
           </div>
         </>
       );
-
-    return;
   };
 
   return (

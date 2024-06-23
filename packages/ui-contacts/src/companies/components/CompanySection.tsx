@@ -110,14 +110,15 @@ function Component(
 
   const content = (
     <div>
-      {items.map((company, index) => (
-        <SectionBodyItem key={index}>
-          <Link to={`/companies/details/${company._id}`}>
-            {company.primaryName || 'Unknown'}
-          </Link>
-          {renderExternaleWebsite(company.links)}
-        </SectionBodyItem>
+      {items.map((company) => (
+      <SectionBodyItem key={company._id}>
+      <Link to={`/companies/details/${company._id}`}>
+      {company.primaryName || 'Unknown'}
+      </Link>
+      {renderExternaleWebsite(company.links)}
+      </SectionBodyItem>
       ))}
+
       {items.length === 0 && <EmptyState icon="building" text="No company" />}
       {mainTypeId && mainType && relQuickButtons}
     </div>

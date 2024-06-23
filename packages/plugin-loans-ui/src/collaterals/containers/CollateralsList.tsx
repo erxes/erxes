@@ -1,10 +1,9 @@
-import { gql } from '@apollo/client';
 import { router } from '@erxes/ui/src';
 import React, { useState } from 'react';
 import CollateralsList from '../components/CollateralsList';
 import { queries } from '../graphql';
 import { MainQueryResponse } from '../types';
-import { useQuery } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 type Props = {
   queryParams: any;

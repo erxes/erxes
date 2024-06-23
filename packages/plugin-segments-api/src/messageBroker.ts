@@ -1,22 +1,22 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage as sendMessageCore,
+  sendMessage as sendMessageCore
 } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import {
   fetchSegment,
-  isInSegment,
+  isInSegment
 } from './graphql/resolvers/queries/queryBuilder';
 import {
   consumeQueue,
-  consumeRPCQueue,
+  consumeRPCQueue
 } from '@erxes/api-utils/src/messageBroker';
 
 const sendSuccessMessage = (data) => ({ data, status: 'success' });
 const sendErrorMessage = (message?) => ({
   status: 'error',
-  message,
+  message
 });
 
 export const setupMessageConsumers = async () => {
@@ -25,7 +25,7 @@ export const setupMessageConsumers = async () => {
 
     return {
       data: await models.Segments.findOne(data).lean(),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -42,9 +42,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await models.Segments.find(selector).countDocuments(),
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -52,15 +52,15 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { segmentId, options, segmentData } }) => {
       const models = await generateModels(subdomain);
 
-      const segment = segmentData
-        ? segmentData
-        : await models.Segments.findOne({ _id: segmentId }).lean();
+      const segment =
+        segmentData ??
+        (await models.Segments.findOne({ _id: segmentId }).lean());
 
       return {
         data: await fetchSegment(models, subdomain, segment, options),
-        status: 'success',
+        status: 'success'
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -73,11 +73,11 @@ export const setupMessageConsumers = async () => {
         subdomain,
         segmentId,
         idToCheck,
-        options,
+        options
       );
 
       return { data, status: 'success' };
-    },
+    }
   );
 
   consumeQueue(
@@ -87,9 +87,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.Segments.removeSegment(segmentId),
+        data: await models.Segments.removeSegment(segmentId)
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -102,7 +102,7 @@ export const setupMessageConsumers = async () => {
       if (!segments?.length) {
         return {
           status: 'error',
-          errorMessage: 'Segments not found',
+          errorMessage: 'Segments not found'
         };
       }
 
@@ -120,11 +120,11 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Segments.find({
           _id: {
-            $in: subSegmentIds,
+            $in: subSegmentIds
           },
         }),
       };
-    },
+    }
   );
 };
 
@@ -135,6 +135,6 @@ export const sendMessage = async (args: MessageArgs): Promise<any> => {
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessageCore({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };

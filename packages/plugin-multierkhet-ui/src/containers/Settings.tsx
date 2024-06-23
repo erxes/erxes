@@ -1,10 +1,9 @@
-import { gql } from '@apollo/client';
 import { Alert } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
 import React from 'react';
 import { mutations, queries } from '../graphql';
 import { ConfigsQueryResponse, IConfigsMap } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 type Props = {
   component: any;
@@ -14,9 +13,9 @@ type Props = {
 const SettingsContainer = (props: Props) => {
   const configsQuery = useQuery<ConfigsQueryResponse>(gql(queries.configs), {
     variables: {
-      code: props.configCode,
+      code: props.configCode
     },
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'network-only'
   });
 
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));
@@ -28,7 +27,7 @@ const SettingsContainer = (props: Props) => {
   // create or update action
   const save = (map: IConfigsMap) => {
     updateConfigs({
-      variables: { configsMap: map },
+      variables: { configsMap: map }
     })
       .then(() => {
         configsQuery.refetch();

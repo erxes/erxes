@@ -1,13 +1,11 @@
 import {
   getBranch,
-  getCustomer,
   getUser,
   fetchPolaris,
   customFieldToObject,
   getFullDate,
   updateContract,
-  getProduct,
-  sendMessageBrokerData,
+  sendMessageBrokerData
 } from '../utils';
 import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
@@ -20,14 +18,24 @@ export const createLoan = async (subdomain, params) => {
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
-  const customer = await sendMessageBrokerData(subdomain,'contacts','customers.findOne', {_id:loan.customerId});
+  const customer = await sendMessageBrokerData(
+    subdomain,
+    'contacts',
+    'customers.findOne',
+    { _id: loan.customerId }
+  );
 
-  const loanProduct = await sendMessageBrokerData(subdomain,'loans','contractType.findOne', {_id:loan.contractTypeId});
+  const loanProduct = await sendMessageBrokerData(
+    subdomain,
+    'loans',
+    'contractType.findOne',
+    { _id: loan.contractTypeId }
+  );
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
-  
+
   let sendData: any = {
     custCode: customer.code,
     name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
@@ -62,7 +70,7 @@ export const createLoan = async (subdomain, params) => {
     notSendToCib: 0,
     losMultiAcnt: 0,
     validLosAcnt: 1,
-    secType: 0,
+    secType: 0
   };
 
   const result = await fetchPolaris({
@@ -76,7 +84,7 @@ export const createLoan = async (subdomain, params) => {
       subdomain,
       { _id: loan._id },
       { $set: { number: result } },
-      'loans',
+      'loans'
     );
     await activeLoan(subdomain, [result, 'данс нээв', null]);
   }

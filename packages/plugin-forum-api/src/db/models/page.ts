@@ -1,6 +1,5 @@
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from './index';
-import * as _ from 'lodash';
 
 export interface IPage {
   _id: Types.ObjectId;

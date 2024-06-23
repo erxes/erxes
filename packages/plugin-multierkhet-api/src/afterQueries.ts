@@ -3,7 +3,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 
 export default {
-  products: ['products'],
+  products: ['products']
 };
 
 export const afterQueryHandlers = async (subdomain, data) => {
@@ -51,7 +51,6 @@ export const afterQueryHandlers = async (subdomain, data) => {
           }
 
           codesByBrandId[brandId].push(product.code);
-          continue;
         }
       }
     }
@@ -79,7 +78,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
           }),
         {
           timeout: 8000,
-        },
+        }
       );
 
       const jsonRes = await response.json();
@@ -95,9 +94,10 @@ export const afterQueryHandlers = async (subdomain, data) => {
               if (!Object.keys(responseByCode).includes(invCode)) {
                 responseByCode[invCode] = '';
               }
-              const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
-                locations.length > 1 ? `${loc}:` : ''
-              } ${resp[invCode]}`;
+              const remainder = (accounts.length > 1 ? acc + '/' : '') +
+              (locations.length > 1 ? loc + ':' : '') +
+              resp[invCode];
+
               responseByCode[invCode] = responseByCode[invCode]
                 ? `${responseByCode[invCode]}, ${remainder}`
                 : `${remainder}`;

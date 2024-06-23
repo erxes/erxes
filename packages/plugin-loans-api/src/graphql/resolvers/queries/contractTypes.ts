@@ -1,4 +1,4 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
@@ -74,7 +74,7 @@ const contractTypeQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.ContractTypes.find(filter).countDocuments()
+      totalCount: await models.ContractTypes.find(filter).countDocuments(),
     };
   },
 
@@ -84,7 +84,7 @@ const contractTypeQueries = {
 
   contractTypeDetail: async (_root, { _id }, { models }: IContext) => {
     return models.ContractTypes.getContractType({ _id });
-  }
+  },
 };
 
 moduleRequireLogin(contractTypeQueries);

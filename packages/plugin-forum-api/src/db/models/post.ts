@@ -1,17 +1,10 @@
-import { IUser, IUserDocument } from '@erxes/api-utils/src/types';
-import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
-import {
-  USER_TYPES,
-  UserTypes,
-  ALL_CP_USER_LEVEL_REQUIREMENT_ERROR_MESSAGES
-} from '../../consts';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
+import { USER_TYPES, UserTypes } from '../../consts';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
-import * as _ from 'lodash';
-import { assert } from 'console';
 import {
-  InsufficientUserLevelError,
-  LoginRequiredError
+  LoginRequiredError,
 } from '../../customErrors';
 import { notifyUsersPublishedPost } from './utils';
 import * as strip from 'strip';
@@ -100,7 +93,7 @@ const OMIT_FROM_INPUT = [
 
   'requiredLevel',
   'isPermissionRequired',
-  'commentCount'
+  'commentCount',
 ] as const;
 
 interface PollOptionInput {
@@ -109,7 +102,7 @@ interface PollOptionInput {
   order: number;
 }
 
-export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]> & {
+export type PostCreateInput = Omit<IPost, (typeof OMIT_FROM_INPUT)[number]> & {
   pollOptions?: PollOptionInput[] | null;
 };
 
@@ -202,7 +195,7 @@ const common = {
   description: { type: String },
   thumbnail: String,
   custom: Schema.Types.Mixed,
-  thumbnailAlt: String
+  thumbnailAlt: String,
 };
 
 export const postSchema = new Schema<IPost>({
@@ -210,14 +203,14 @@ export const postSchema = new Schema<IPost>({
   categoryApprovalState: {
     type: String,
     required: true,
-    enum: ADMIN_APPROVAL_STATES
+    enum: ADMIN_APPROVAL_STATES,
   },
   state: {
     type: String,
     required: true,
     enum: POST_STATES,
     index: true,
-    default: POST_STATES[0]
+    default: POST_STATES[0],
   },
   ...common,
   lang: String,
@@ -226,8 +219,8 @@ export const postSchema = new Schema<IPost>({
     {
       _id: false,
       lang: { type: String, required: true },
-      ...common
-    }
+      ...common,
+    },
   ],
 
   viewCount: { type: Number, default: 0 },
@@ -254,7 +247,7 @@ export const postSchema = new Schema<IPost>({
 
   isFeaturedByAdmin: { type: Boolean, index: true, sparse: true },
   isFeaturedByUser: { type: Boolean, index: true, sparse: true },
-  commentCount: { type: Number, default: 0, index: true }
+  commentCount: { type: Number, default: 0, index: true },
 });
 // used by client portal front-end
 postSchema.index({ state: 1, categoryApprovalState: 1, categoryId: 1 });
@@ -267,7 +260,7 @@ postSchema.index({ lastPublishedAt: -1 });
 
 postSchema.index({
   title: 'text',
-  'translations.title': 'text'
+  'translations.title': 'text',
 });
 
 // for displaying posts in category page
@@ -275,7 +268,7 @@ postSchema.index(
   {
     categoryId: 1,
     categoryApprovalState: 1,
-    state: 1
+    state: 1,
   },
   { sparse: true }
 );
@@ -284,7 +277,7 @@ postSchema.index(
   {
     createdByCpId: 1,
     state: 1,
-    categoryApprovalState: 1
+    categoryApprovalState: 1,
   },
   { sparse: true }
 );
@@ -316,7 +309,7 @@ export const generatePostModel = (
     public static async findByIdOrThrow(_id: string): Promise<PostDocument> {
       const post = await models.Post.findById(_id);
       if (!post) {
-        throw new Error(`Post with \`{ "_id" : "${_id}"}\` doesn't exist`);
+        throw new Error(`Post with \`{ '_id' : '${_id}'}\` doesn't exist`);
       }
       return post;
     }
@@ -332,7 +325,7 @@ export const generatePostModel = (
         update = { $unset: { isFeaturedByAdmin: 1 } };
       }
       const post = await models.Post.findByIdAndUpdate(_id, update, {
-        new: true
+        new: true,
       });
       return !!post;
     }
@@ -377,13 +370,13 @@ export const generatePostModel = (
         categoryApprovalState,
 
         createdUserType: USER_TYPES[0],
-        createdById: input.createdById || user._id,
+        createdById: input.createdById ?? user._id,
 
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
 
         lastPublishedAt,
-        wordCount: wordCountHtml(input.content)
+        wordCount: wordCountHtml(input.content),
       });
 
       if (pollOptions?.length) {
@@ -415,7 +408,7 @@ export const generatePostModel = (
         ...patch,
         updatedUserType: USER_TYPES[0],
         updatedById: user._id,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       if (update.content) {
@@ -434,7 +427,7 @@ export const generatePostModel = (
       );
 
       if (!updatedPost) {
-        throw new Error(`Post with \`{ "_id" : "${_id}"}\` doesn't exist`);
+        throw new Error(`Post with \`{ '_id' : '${_id}'}\` doesn't exist`);
       }
 
       if (pollOptions !== undefined) {
@@ -508,7 +501,7 @@ export const generatePostModel = (
           { $set: { translations: [translationDoc] } }
         );
       } else {
-        const exists = post.translations.some(t => t.lang === lang);
+        const exists = post.translations.some((t) => t.lang === lang);
         if (exists) {
           throw new Error(`Translation already exists`);
         }
@@ -533,7 +526,7 @@ export const generatePostModel = (
         return models.Post.findByIdOrThrowCp(_id, cpUser);
       })();
 
-      if (!post.translations?.some(t => t.lang === lang)) {
+      if (!post.translations?.some((t) => t.lang === lang)) {
         throw new Error("Translation doesn't exist");
       }
 
@@ -543,11 +536,11 @@ export const generatePostModel = (
         { _id },
         {
           $set: {
-            'translations.$[elem]': translationDoc
-          }
+            'translations.$[elem]': translationDoc,
+          },
         },
         {
-          arrayFilters: [{ 'elem.lang': lang }]
+          arrayFilters: [{ 'elem.lang': lang }],
         }
       );
     }
@@ -565,7 +558,7 @@ export const generatePostModel = (
         return models.Post.findByIdOrThrowCp(_id, cpUser);
       })();
 
-      if (!post.translations?.some(t => t.lang === lang)) {
+      if (!post.translations?.some((t) => t.lang === lang)) {
         throw new Error("Translation already doesn't exist");
       }
 
@@ -574,9 +567,9 @@ export const generatePostModel = (
         {
           $pull: {
             translations: {
-              lang
-            }
-          }
+              lang,
+            },
+          },
         }
       );
     }
@@ -606,9 +599,7 @@ export const generatePostModel = (
 
       await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
 
-      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval
-        ? 'PENDING'
-        : 'APPROVED';
+      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
 
       const lastPublishedAt = post.state === 'PUBLISHED' ? new Date() : null;
 
@@ -624,7 +615,7 @@ export const generatePostModel = (
 
         lastPublishedAt,
 
-        wordCount: wordCountHtml(input.content)
+        wordCount: wordCountHtml(input.content),
       });
 
       if (pollOptions?.length) {
@@ -661,16 +652,14 @@ export const generatePostModel = (
 
       await models.Category.ensureUserIsAllowed('WRITE_POST', category, cpUser);
 
-      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval
-        ? 'PENDING'
-        : 'APPROVED';
+      const categoryApprovalState: AdminApprovalStates = category?.postsReqCrmApproval ? 'PENDING' : 'APPROVED';
 
       const update: Partial<Omit<IPost, '_id'>> = {
         ...patch,
         categoryApprovalState,
         updatedUserType: USER_TYPES[1],
         updatedByCpId: cpUser.userId,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       if (update.content) {

@@ -8,7 +8,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   closeModal: () => void;
@@ -27,23 +26,19 @@ class TemplateForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      name: props.selectedSite.name
+      name: props.selectedSite.name,
     };
   }
 
   onClick = () => {
     const { name } = this.state;
-    const {
-      useTemplate,
-      saveSite,
-      selectedSite,
-      currentTemplateId
-    } = this.props;
+    const { useTemplate, saveSite, selectedSite, currentTemplateId } =
+      this.props;
 
     if (selectedSite._id) {
       return saveSite(selectedSite._id, {
         name,
-        domain: selectedSite.domain || ''
+        domain: selectedSite.domain || '',
       });
     }
 
@@ -57,7 +52,7 @@ class TemplateForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Your WebSite Name</ControlLabel>
 
           <FormControl
-            name="name"
+            name='name'
             autoFocus={true}
             defaultValue={this.state.name}
             required={true}
@@ -67,17 +62,17 @@ class TemplateForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
+            btnStyle='simple'
             onClick={this.props.closeModal}
-            icon="times-circle"
+            icon='times-circle'
             uppercase={false}
           >
             Cancel
           </Button>
 
           <Button
-            btnStyle="success"
-            icon="check-circle"
+            btnStyle='success'
+            icon='check-circle'
             onClick={this.onClick}
             uppercase={false}
           >

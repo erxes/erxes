@@ -7,7 +7,7 @@ import { IJobRefer } from '../../types';
 
 // get config options for react-select
 export function generateProductOptions(array: IJobRefer[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const jobRefer = item || ({} as IJobRefer);
 
     return {
@@ -33,7 +33,6 @@ export default ({
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
-  setParam?: boolean;
   name: string;
   filterParams?: any;
 }) => {
@@ -43,7 +42,7 @@ export default ({
     <SelectWithSearch
       showAvatar={false}
       label={label}
-      queryName="jobRefers"
+      queryName='jobRefers'
       name={name}
       customOption={customOption}
       customQuery={queries.jobRefers}
