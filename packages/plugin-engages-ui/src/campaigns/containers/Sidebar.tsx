@@ -19,7 +19,6 @@ type Props = {
 };
 
 type FinalProps = {
-  kindCountsQuery: CountQueryResponse;
   statusCountsQuery: CountQueryResponse;
   tagsQuery: TagsQueryResponse;
   tagCountsQuery: Counts;

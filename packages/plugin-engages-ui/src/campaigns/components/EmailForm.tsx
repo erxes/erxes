@@ -64,13 +64,14 @@ class EmailForm extends React.Component<Props, State> {
   }
 
   changeContent = (key, value) => {
-    this.setState((prevState) => {
-      const updatedEmail = { ...prevState.email, [key]: value };
-      this.props.onChange("email", updatedEmail); 
-      return { email: updatedEmail }; 
-    });
+    this.setState(prevState => {
+      const email = { ...prevState.email, [key]: value }
+
+      return { email }
+    }, () => {
+      this.props.onChange("email", this.state.email)
+    })
   };
-  
 
   changeUser = (fromUserId: string) => {
     this.setState({ fromUserId });
@@ -78,15 +79,17 @@ class EmailForm extends React.Component<Props, State> {
   };
 
   templateChange = (value) => {
-    this.setState((prevState) => {
-      const email = { ...prevState.email, templateId: value };
-  
-      return { content: this.findTemplate(value), email };
+
+    const content = this.findTemplate(value)
+
+    this.setState(prevState => {
+      const email = { ...prevState.email, templateId: value }
+
+      return { content, email }
     }, () => {
-      this.props.onChange("email", this.state.email);
-    });
+      this.props.onChange("email", this.state.email)
+    })
   };
-  
 
   findTemplate = (id) => {
     const template = this.props.templates.find((t) => t._id === id);

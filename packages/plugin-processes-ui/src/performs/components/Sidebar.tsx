@@ -68,13 +68,6 @@ const PerformSidebar = (props: Props) => {
     return false;
   };
 
-  const gotoBack = () => {
-    navigate(
-      `/processes/overallWorks?${queryString.stringify({
-        ...props.queryParams,
-      })}`
-    );
-  };
   const clearFilter = () => {
     const params = generateQueryParams();
     router.removeParams(navigate, location, ...Object.keys(params));

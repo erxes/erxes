@@ -16,7 +16,6 @@ import { statusFilters } from "@erxes/ui-engage/src/constants";
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-
   statusCounts: any;
   tagCounts: any;
   tags: ITag[];

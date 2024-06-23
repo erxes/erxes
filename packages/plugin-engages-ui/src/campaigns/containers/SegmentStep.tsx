@@ -3,7 +3,6 @@ import SegmentStep from "../components/step/SegmentStep";
 import { gql, useQuery } from "@apollo/client";
 import { queries } from "@erxes/ui-engage/src/graphql";
 import { sumCounts } from "@erxes/ui-engage/src/utils";
-
 import { SegmentsQueryResponse } from "@erxes/ui-segments/src/types";
 import { CountQueryResponse } from "@erxes/ui-contacts/src/customers/types";
 

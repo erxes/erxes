@@ -152,7 +152,7 @@ export const awsRequests = {
         if (error) {
           return reject(new Error(`Error occured: ${error}`));
         }
-        resolve(data); 
+
         return resolve(data.VerifiedEmailAddresses);
       });
     });

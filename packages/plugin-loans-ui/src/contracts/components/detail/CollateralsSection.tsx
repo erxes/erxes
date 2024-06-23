@@ -1,5 +1,5 @@
-import { Box, EmptyState } from '@erxes/ui/src/components/Box';
-
+import Box from '@erxes/ui/src/components/Box';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 

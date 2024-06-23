@@ -41,7 +41,6 @@ const Sidebar = (props: Props) => {
   const [filterParams, setFilterParams] = useState<IQueryParams>(
     props.queryParams
   );
-  let timer;
 
   const isFiltered = (): boolean => {
     const params = generateQueryParams();
@@ -78,19 +77,6 @@ const Sidebar = (props: Props) => {
     setFilterParams({ ...filterParams, [name]: value });
   };
 
-  const onInputChange = (e) => {
-    e.preventDefault();
-
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const value = e.target.value;
-    const name = e.target.name;
-    timer = setTimeout(() => {
-      setFilter(name, value);
-    }, 500);
-  };
 
   const onSelectDate = (value, name) => {
     const strVal = moment(value).format("YYYY-MM-DD HH:mm");

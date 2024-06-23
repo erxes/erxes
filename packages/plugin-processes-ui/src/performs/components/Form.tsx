@@ -890,6 +890,7 @@ class Form extends React.Component<Props, State> {
       );
     }
 
+    return <></>
   }
 
   renderDocuments() {

@@ -1,4 +1,4 @@
-import { ITransaction, transactionSchema } from './definitions/transactions';
+import { ITransaction, transactionSchema, ITransactionDocument } from './definitions/transactions';
 import { INVOICE_STATUS, SCHEDULE_STATUS } from './definitions/constants';
 import { findContractOfTr } from './utils/findUtils';
 import {
@@ -8,9 +8,7 @@ import {
   transactionRule
 } from './utils/transactionUtils';
 import { Model, FilterQuery } from 'mongoose';
-import { ITransactionDocument } from './definitions/transactions';
 import { IModels } from '../connectionResolver';
-
 import { IContractDocument } from './definitions/contracts';
 import { getPureDate } from '@erxes/api-utils/src';
 import { createEbarimt } from './utils/ebarimtUtils';
