@@ -1,6 +1,29 @@
 # Changelog
 
 ## [1.13.0-rc.5](https://github.com/erxes/erxes/compare/1.12.5...1.13.0-rc.5) (2024-06-19)
+## [1.12.8](https://github.com/erxes/erxes/compare/1.12.7...1.12.8) (2024-06-23)
+
+
+### Bug Fixes
+
+* **automation:** can't send facebook message in chatbot ([cbe546a](https://github.com/erxes/erxes/commit/cbe546afee65fa3b587b21dd4cc67645a5a1ed7e))
+* **facebook:** display link inpuy in chatbot message action ([0c4a969](https://github.com/erxes/erxes/commit/0c4a969c929d551b9128d65891f88465365b0146))
+
+## [1.12.7](https://github.com/erxes/erxes/compare/1.12.6...1.12.7) (2024-06-22)
+
+
+### Features
+
+* **payment:** new ui in payment, introduce golomt ecommerce and minupay as new payment methods([#5392](https://github.com/erxes/erxes/issues/5392)) ([8ef2237](https://github.com/erxes/erxes/commit/8ef22371b96237aec6769a83f1039b091be64de1))
+
+
+### Bug Fixes
+
+* **coreui:** Label filter ([#5434](https://github.com/erxes/erxes/issues/5434)) ([78f6474](https://github.com/erxes/erxes/commit/78f647420eeb72cbe37edea91ba5345e4425e8ff))
+* **posclient:** can't generate closeDate of subscription item of order ([4755886](https://github.com/erxes/erxes/commit/4755886962ee6a1d2cbe17ec4f775fb3f02c6fde))
+* **posclient:** can't get uoms when subscription type product in order ([f77e088](https://github.com/erxes/erxes/commit/f77e088eef6858e98c10298687258b6d2b8a734d))
+* **products:** can't popover DaySelector ([44dbee3](https://github.com/erxes/erxes/commit/44dbee36b2bea65048797147df9e911719061b28))
+
 ## [1.12.6](https://github.com/erxes/erxes/compare/1.12.5...1.12.6) (2024-06-20)
 
 
