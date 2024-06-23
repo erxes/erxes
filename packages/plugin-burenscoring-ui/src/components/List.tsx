@@ -16,11 +16,11 @@ function List({ burenCustomerScorings, loading, totalCount }: Props) {
     <Table $whiteSpace="nowrap" $bordered={true} $hover={true} $striped>
       <thead>
         <tr>
-          <th>{__("Register")}</th>
-          <th>{__("Score")}</th>
-          <th>{__("Purpose")}</th>
-          <th>{__("date")}</th>
-          <th>{__("detail")}</th>
+          <th>{__("Регистер")}</th>
+          <th>{__("Оноо")}</th>
+          <th>{__("Зорилго")}</th>
+          <th>{__("Өдөр")}</th>
+          <th>{__("Дэлгэрэнгүй")}</th>
         </tr>
       </thead>
       <tbody id={"BurenscoringsShowing"}>

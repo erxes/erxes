@@ -10,7 +10,10 @@ import {
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
-import { consumeQueue, consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import {
+  consumeQueue,
+  consumeRPCQueue,
+} from '@erxes/api-utils/src/messageBroker';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const setupMessageConsumers = async () => {
