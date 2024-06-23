@@ -416,10 +416,7 @@ class Lead extends React.Component<Props, State> {
               >
                 <OptionStep
                   title={title}
-                  type={type}
-                  color={color}
                   brand={brand}
-                  theme={theme}
                   language={language}
                   formData={this.state.formData}
                   isRequireOnce={isRequireOnce}

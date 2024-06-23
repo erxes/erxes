@@ -16,7 +16,6 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 
 type Props = {
-  activity: any;
   noteId: string;
   currentUser: IUser;
 };

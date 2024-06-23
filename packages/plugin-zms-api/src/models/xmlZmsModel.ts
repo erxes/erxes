@@ -1,28 +1,28 @@
 import { Schema } from 'mongoose';
 import { Zmss } from '.';
 
-interface Oorgrate {
+interface o_orgrate {
   o_fitchrating: string; // attachment П
   o_sandp_rating: string; // attachment Р
   o_moodysrating: string; // attachment С
 }
-interface Oshareholderorg {
+interface o_shareholderorg {
   action: string;
   o_shareholder_orgname: string;
   o_shareholderorg_isforeign: boolean;
   o_shareholderorg_registerno: string;
   o_shareholder_stateregisterno: string;
   o_shareholder_sectorcode: string;
-  o_shareholdercustomer: [Oshareholdercustomer];
+  o_shareholdercustomer: [o_shareholdercustomer];
 }
-interface Oshareholdercustomer {
+interface o_shareholdercustomer {
   action: string;
   o_shareholder_firstname: string;
   o_shareholder_lastname: string;
   o_shareholdercus_isforeign: string;
   o_shareholdercus_registerno: string;
 }
-interface Ocrelationorg {
+interface o_c_relationorg {
   action: string;
   o_c_relationorg_orgname: string;
   o_c_relationorg_isforeign: boolean;
@@ -32,9 +32,9 @@ interface Ocrelationorg {
   o_c_relationorg_orgrelation: string;
   o_c_relationorg_isfinancialonus: boolean;
   o_c_relationorg_relno: string;
-  o_c_relationcustomer: [Ocrelationcustomer];
+  o_c_relationcustomer: [o_c_relationcustomer];
 }
-interface Ocrelationcustomer {
+interface o_c_relationcustomer {
   action: string;
   o_c_relationcustomer_firstName: string;
   o_c_relationcustomer_lastName: string;
@@ -44,7 +44,7 @@ interface Ocrelationcustomer {
   o_c_relationcustomer_isfinancialonus: boolean;
   o_c_relationcustomer_relno: string;
 }
-interface Ocloanline {
+interface o_c_loanline {
   action: string;
   o_c_loanline_type: string;
   o_c_loanline_cardno: number;
@@ -63,7 +63,7 @@ interface Ocloanline {
   o_c_loanline_balance: number;
   o_c_loanline_isapproved: boolean;
 }
-interface Ocloanmrtno {
+interface o_c_loanmrtno {
   action: string;
   o_c_loan_balance: number;
   o_c_loan_loanProvenance: string;
@@ -78,11 +78,11 @@ interface Ocloanmrtno {
   o_c_loan_updatedexpdate: Date;
   o_c_loan_loanclasscode: string;
   o_c_loan_isapproved: boolean;
-  o_c_loanrelnos: [Ocloanrelno];
+  o_c_loanrelnos: [o_c_loanrelno];
   o_c_loan_loanintype: string;
   o_c_loantransactions: [o_c_loantransaction];
 }
-interface Ocloanrelno {
+interface o_c_loanrelno {
   c_loan_orgmeasure: string;
   c_loan_measuredate: Date;
   c_loan_measuredescription: string;
@@ -106,33 +106,33 @@ interface Ocloanrelno {
   o_c_loan_ignoreddate: Date;
   o_c_loan_courtorderno: string;
 }
-interface Ocloantransaction {
+interface o_c_loantransaction {
   o_c_loan_loancharttype: string;
-  o_c_loandetails: [Ocloandetail];
+  o_c_loandetails: [o_c_loandetail];
   o_c_loanperformances: [o_c_loanperformance];
   o_c_loan_interestcharttype: string;
   o_c_loaninterestdetails: [o_c_loaninterestdetail];
 }
-interface Ocloandetail {
+interface o_c_loandetail {
   o_c_loandetail_datetopay: Date;
   o_c_loandetail_amounttopay: number;
 }
-interface ocloanperformance {
+interface o_c_loanperformance {
   o_c_loanperformance_datetopay: Date;
   o_c_loanperformance_amounttopay: number;
 }
-interface Ocloaninterestdetail {
+interface o_c_loaninterestdetail {
   action: string;
   o_c_loaninterestdetail_datetopay: Date;
   o_c_loaninterestdetail_amounttopay: number;
   o_c_loaninterestperformances: [o_c_loaninterestperformance];
 }
-interface Ocloaninterestperformance {
+interface o_c_loaninterestperformance {
   action: string;
   o_c_loaninterestperformance_datetopay: Date;
   o_c_loaninterestperformance_amounttopay: number;
 }
-interface Ocleasing {
+interface o_c_leasing {
   action: string;
   o_c_leasing_advamount: number;
   o_c_leasing_balance: number;
@@ -147,27 +147,27 @@ interface Ocleasing {
   o_c_leasing_updatedexpdate: Date;
   o_c_leasing_loanclasscode: string;
   o_c_leasingrelnos: string;
-  o_c_leasingtransactions: [Ocleasingtransaction];
+  o_c_leasingtransactions: [o_c_leasingtransaction];
   leasing_neoinfo: leasing_neoinfo;
 }
-interface Ocleasingtransaction {
+interface o_c_leasingtransaction {
   o_c_leasing_loancharttype: string;
-  o_c_leasingdetails: [Ocleasingdetail];
+  o_c_leasingdetails: [o_c_leasingdetail];
   o_c_leasingperformances: [o_c_leasingperformance];
   o_c_leasing_nterestcharttype: string;
   o_c_leasinginterestdetails: [o_c_leasinginterestdetail];
 }
-interface Ocleasingdetail {
+interface o_c_leasingdetail {
   action: string;
   o_c_leasingdetail_datetopay: Date;
   o_c_leasingdetail_amounttopay: number;
 }
-interface Ocleasingperformance {
+interface o_c_leasingperformance {
   action: string;
   o_c_leasingperformance_datetopay: Date;
   o_c_leasingperformance_amounttopay: number;
 }
-interface Ocleasinginterestdetail {
+interface o_c_leasinginterestdetail {
   o_c_leasinginterestdetail_datetopay: Date;
   o_c_leasinginterestdetail_amounttopay: number;
   o_c_leasinginterestperformances: [OCleasinginterestperformance];
@@ -201,7 +201,7 @@ interface leasing_neoinfo {
   o_c_leasing_ignoreddate: Date;
   o_c_leasing_courtorderno: string;
 }
-interface Ocaccreditmrtno {
+interface o_c_accreditmrtno {
   action: string;
   o_c_accredit_advamount: number;
   o_c_accredit_starteddate: Date;
@@ -217,14 +217,14 @@ interface Ocaccreditmrtno {
   o_c_accredit_balance: number;
   o_c_accredit_isapproved: boolean;
 }
-interface OconusInformation {
+interface o_c_onusInformation {
   action: string;
   o_c_loan_provideLoanSize: number;
-  o_c_loanline: [Ocloanline];
-  o_c_loanmrtnos: [Ocloanmrtno];
-  o_c_leasing: [Ocleasing];
-  o_c_accredit: [Ocaccreditmrtno];
-  o_c_loanrelnos: [Ocloanrelno];
+  o_c_loanline: [o_c_loanline];
+  o_c_loanmrtnos: [o_c_loanmrtno];
+  o_c_leasing: [o_c_leasing];
+  o_c_accredit: [o_c_accreditmrtno];
+  o_c_loanrelnos: [o_c_loanrelno];
 }
 interface o_c_mortgage_information {
   o_c_mortgage: {
@@ -248,7 +248,7 @@ interface Ocregisteredtoauthority {
   o_c_mrtcertificateno: string;
   o_c_mrtconfirmeddate: Date;
 }
-interface Oocustomer {
+interface o_c_customer {
   o_c_customer_firstname: string;
   o_c_customer_lastname: string;
   o_c_customer_isforeign: string;

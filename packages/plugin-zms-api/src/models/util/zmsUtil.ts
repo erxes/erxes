@@ -844,7 +844,7 @@ export const validationFields = [
 
 //#region interface
 
-interface IoCAddress {
+interface io_c_Address {
   o_c_address_full: string;
   o_c_address_aimag_city_name: string;
   o_c_address_aimag_city_code: string;
@@ -859,7 +859,7 @@ interface IoCAddress {
   o_c_address_zipcode: number;
 }
 
-interface Cjob {
+interface c_job {
   c_job_position: string;
   c_job_name: string;
   c_job_address: string;
@@ -867,7 +867,7 @@ interface Cjob {
   c_job_mail: string;
 }
 
-interface Ocrelatedorgs {
+interface o_c_related_orgs {
   '-action': string;
   o_c_related_org_index: number;
   o_c_related_org_name: string;
@@ -878,7 +878,7 @@ interface Ocrelatedorgs {
   o_c_related_org_isfinancial_onus: boolean;
 }
 
-interface Ocloantransactions {
+interface o_c_loan_transactions {
   o_c_loan_schedule_type: string; //хавсрал Й
   o_c_loan_schedule_status: boolean;
   o_c_loan_schedule_change_reason: string;
@@ -886,7 +886,7 @@ interface Ocloantransactions {
   o_c_loan_payment: [OcloanPayment];
 }
 
-interface Ocloanschedule {
+interface o_c_loan_schedule {
   '-action': string;
   o_c_schedule_due_date: Date;
   o_c_schedule_principal: number;
@@ -895,7 +895,7 @@ interface Ocloanschedule {
   o_c_schedule_balance: number;
 }
 
-interface OcloanPayment {
+interface o_c_loanp_ayment {
   '-action': string;
   o_c_payment_due_date: Date;
   o_c_payment_date: Date;
@@ -904,7 +904,7 @@ interface OcloanPayment {
   o_c_payment_additional: number;
 }
 
-interface OcrelatedCustomers {
+interface o_c_related_customers {
   '-action': string;
   o_c_related_customer_index: number;
   o_c_related_customer_firstname: string;
@@ -917,21 +917,21 @@ interface OcrelatedCustomers {
   o_c_related_customer_isfinancial_onus: boolean;
 }
 
-interface OccollStateRegistration {
+interface o_c_coll_state_registration {
   o_c_coll_certificateno: string;
   o_c_coll_state_regnum: string;
   o_c_coll_registered_date: Date;
   o_c_coll_confirmed_date: Date;
 }
 
-interface OccollOtherRegistration {
+interface o_c_collo_therr_registration {
   o_c_coll_other_certificateno: string;
   o_c_coll_other_regnum: string;
   o_c_coll_other_name: string;
   o_c_coll_other_registered_date: Date;
 }
 
-interface OccollCustomer {
+interface o_c_coll_customer {
   o_c_coll_customer_firstname: string;
   o_c_coll_customer_lastname: string;
   o_c_coll_customer_isforeign: boolean;
@@ -939,7 +939,7 @@ interface OccollCustomer {
   o_c_coll_customer_regnum: string;
 }
 
-interface Occollorg {
+interface o_c_coll_org {
   o_c_coll_org_name: string;
   o_c_coll_org_islocal: boolean;
   o_c_coll_org_regnum: string;
@@ -948,13 +948,13 @@ interface Occollorg {
 
 //Begin legal
 
-interface Oorgrate {
+interface o_orgrate {
   o_fitch_rating: string; // attachment П
   o_sandp_rating: string; // attachment Р
   o_moodys_rating: string; // attachment С
 }
 
-interface Oceo {
+interface o_ceo {
   o_ceo_civil_id: string;
   o_ceo_regnum: string;
   o_ceo_firstname: string;
@@ -966,7 +966,7 @@ interface Oceo {
   o_ceo_email: string;
 }
 
-interface Oshareholderorgs {
+interface o_shareholder_orgs {
   '-action': string;
   o_shareholder_org_name: string;
   o_shareholder_org_isforeign: string;
@@ -976,7 +976,7 @@ interface Oshareholderorgs {
   o_shareholder_org_phone: string;
   o_shareholder_org_email: string;
 }
-interface OshareholderCustomers {
+interface o_shareholder_customers {
   '-action': string;
   o_shareholder_customer_civil_id: string;
   o_shareholder_customer_regnum: string;

@@ -12,16 +12,6 @@ import {
 } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
 import React, { useRef } from 'react';
 
-<<<<<<< HEAD
-import { AppConsumer } from "coreui/appContext";
-import { IUser } from "@erxes/ui/src/auth/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils";
-import { can } from "@erxes/ui/src/utils/core";
-import dayjs from "dayjs";
-=======
 import { AppConsumer } from 'coreui/appContext';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -31,7 +21,6 @@ import { __ } from '@erxes/ui/src/utils';
 import { can } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import { readFile } from '@erxes/ui/src/utils/core';
->>>>>>> 1327982ddd8f3b31edfd5498a70a856ea917ff00
 
 type Props = {
   conversation: IConversation;

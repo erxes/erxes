@@ -42,9 +42,6 @@ const PopoverContentContainer = (props: FinalProps) => {
     return null;
   }
 
-  const onSearchChange = (name: string, value: string) => {
-    search(name, value);
-  };
 
   const responseTemplates = responseTemplatesQuery.responseTemplates;
   const count = responseTemplatesTotalCountQuery.responseTemplatesTotalCount;
@@ -59,7 +56,6 @@ const PopoverContentContainer = (props: FinalProps) => {
   };
   const updatedProps = {
     ...props,
-    onSearchChange,
     brands,
     hasMore,
     responseTemplates: responseTemplatesQuery.responseTemplates,
