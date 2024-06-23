@@ -185,7 +185,7 @@ const timeclockQueries = {
     }).sort({ timelog: 1 });
   },
 
-  async schedulesMain(
+  async  schedulesMain(
     _root,
     queryParams,
     { models, subdomain, user }: IContext,
@@ -205,7 +205,7 @@ const timeclockQueries = {
 
     const totalCount = await models.Schedules.countDocuments(selector);
 
-    const list = paginate(models.Schedules.find(selector), {
+    const list = await paginate(models.Schedules.find(selector), {
       perPage: queryParams.perPage,
       page: queryParams.page,
     });
