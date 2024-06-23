@@ -14,6 +14,7 @@ import {
   IFieldGroupDocument,
 } from './definitions/fields';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { AnyRecord } from 'dns';
 
 export interface ITypedListItem {
   field: string;
@@ -289,11 +290,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      */
     public static async clean(
       _id: string,
-      _value: string | Date | number,
+      _value: string | Date | number | any,
     ) {
       const field = await models.Fields.findOne({ _id });
 
-      let value: any = _value;
+      let value = _value;
 
       if (!field) {
         throw new Error(`Field not found with the _id of ${_id}`);
