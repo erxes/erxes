@@ -122,7 +122,7 @@ const KeyPad = (props: Props, context) => {
 
   useEffect(() => {
     setNumber(phoneNumber);
-    setIsPaused(agentStatus === 'pause' ? true : false);
+    setIsPaused(agentStatus === 'pause');
   }, [phoneNumber, loading]);
 
   // useEffect(() => {

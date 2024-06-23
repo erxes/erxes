@@ -760,10 +760,10 @@ class FlowForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <FlowFormContainer>
             <Wrapper.Header
-              title={`${(flow && flow.name) || 'Flow detail'}`}
+              title={`${flow?.name || 'Flow detail'}`}
               breadcrumb={[
                 { title: __('Flows'), link: '/processes/Flows' },
-                { title: `${(flow && flow.name) || 'New Form'}` }
+                { title: `${flow?.name || 'New Form'}` }
               ]}
             />
             <PageContent
