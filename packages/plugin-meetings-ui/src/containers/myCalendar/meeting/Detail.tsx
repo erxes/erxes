@@ -36,14 +36,18 @@ const MeetingDetailContainer = (props: FinalProps) => {
   });
 
   const changeStatus = (meetingId: string, status: string) => {
-    const confirmLabel =
-      status === 'canceled'
-        ? 'Cancel meeting?'
-        : status === 'draft'
-        ? 'Draft meeting?'
-        : status === 'ongoing'
-        ? 'Start meeting?'
-        : 'End meeting?';
+    let confirmLabel;
+
+    if (status === 'canceled') {
+      confirmLabel = 'Cancel meeting?';
+    } else if (status === 'draft') {
+      confirmLabel = 'Draft meeting?';
+    } else if (status === 'ongoing') {
+      confirmLabel = 'Start meeting?';
+    } else {
+      confirmLabel = 'End meeting?';
+    }
+
 
     confirm(confirmLabel).then(() =>
       editMeetingStatus({ variables: { _id: meetingId, status } })
@@ -73,7 +77,7 @@ export default withProps<Props>(
       options: (props: Props) => ({
         variables: {
           _id: props.meetingId,
-          status: props.status && props.status
+          status: props.status
         }
       })
     })
