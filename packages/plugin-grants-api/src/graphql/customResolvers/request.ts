@@ -74,7 +74,8 @@ export default {
       defaultValue: null,
     });
 
-    return detail ? detail : null;
+    return detail || null
+
   },
   async responses(
     { _id }: { _id: string } & IGrantRequest,
