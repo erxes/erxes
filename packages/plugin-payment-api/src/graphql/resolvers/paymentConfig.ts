@@ -29,7 +29,7 @@ export default {
     return config.contentTypeId;
   },
 
-  async payments(config: IPaymentConfig, _, { models }: IContext) {
-    return models.Payments.find({ _id: { $in: config.paymentIds } }).lean();
-  },
+  async payments(config: IPaymentConfig, {}, { models }: IContext) {
+    return models.PaymentMethods.find({ _id: { $in: config.paymentIds } }).lean();
+  }
 };

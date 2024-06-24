@@ -59,7 +59,7 @@ const queries = {
     { models }: IContext
   ) {
     const selector = generateFilterQuery(params);
-
+    
     return paginate(models.Invoices.find(selector).sort({ createdAt: -1 }), {
       ...params,
     });
