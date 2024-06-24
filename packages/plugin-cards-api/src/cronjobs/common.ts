@@ -1,41 +1,38 @@
-import * as moment from 'moment';
-import { generateModels } from '../connectionResolver';
-import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
+import * as moment from "moment";
+import { generateModels } from "../connectionResolver";
+import { sendCoreMessage, sendNotificationsMessage } from "../messageBroker";
 
 /**
- * Send notification Deals, Tasks and Tickets dueDate
+ * Send notification Tasks and Tickets dueDate
  */
 export const sendNotifications = async (subdomain: string) => {
   const models = await generateModels(subdomain);
 
   const now = new Date();
   const collections = {
-    deal: models.Deals,
     task: models.Tasks,
     ticket: models.Tickets,
-    purchase: models.Purchases,
-    all: ['deal', 'task', 'ticket', 'purchase']
+
+    all: ["task", "ticket"]
   };
 
   for (const type of collections.all) {
     const objects = await collections[type].find({
       closeDate: {
         $gte: now,
-        $lte: moment()
-          .add(2, 'days')
-          .toDate()
+        $lte: moment().add(2, "days").toDate()
       }
     });
 
     for (const object of objects) {
-      const stage = await models.Stages.getStage(object.stageId || '');
+      const stage = await models.Stages.getStage(object.stageId || "");
       const pipeline = await models.Pipelines.getPipeline(
-        stage.pipelineId || ''
+        stage.pipelineId || ""
       );
 
       const user = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: object.modifiedBy
         },
@@ -55,7 +52,7 @@ export const sendNotifications = async (subdomain: string) => {
 
         await sendNotificationsMessage({
           subdomain,
-          action: 'send',
+          action: "send",
           data: {
             notifType: `${type}DueDate`,
             title: content,

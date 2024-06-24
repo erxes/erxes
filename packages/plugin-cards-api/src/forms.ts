@@ -1,37 +1,27 @@
-import { generateFields } from './fieldUtils';
-import { generateSystemFields, getBoardsAndPipelines } from './utils';
+import { generateFields } from "./fieldUtils";
+import { generateSystemFields, getBoardsAndPipelines } from "./utils";
 
 const relations = type => {
   return [
     {
-      name: 'companyIds',
-      label: 'Companies',
-      relationType: 'contacts:company'
+      name: "companyIds",
+      label: "Companies",
+      relationType: "contacts:company"
     },
     {
-      name: 'customerIds',
-      label: 'Customers',
-      relationType: 'contacts:customer'
+      name: "customerIds",
+      label: "Customers",
+      relationType: "contacts:customer"
     },
     {
-      name: 'ticketIds',
-      label: 'Tickets',
-      relationType: 'cards:ticket'
+      name: "ticketIds",
+      label: "Tickets",
+      relationType: "cards:ticket"
     },
     {
-      name: 'taskIds',
-      label: 'Tasks',
-      relationType: 'cards:task'
-    },
-    {
-      name: 'purchaseIds',
-      label: 'Purchases',
-      relationType: 'cards:purchase'
-    },
-    {
-      name: 'dealIds',
-      label: 'Deals',
-      relationType: 'cards:deal'
+      name: "taskIds",
+      label: "Tasks",
+      relationType: "cards:task"
     }
   ].filter(r => r.relationType !== type);
 };
@@ -39,30 +29,14 @@ const relations = type => {
 export default {
   types: [
     {
-      description: 'Tickets',
-      type: 'ticket',
-      relations: relations('cards:ticket')
+      description: "Tickets",
+      type: "ticket",
+      relations: relations("cards:ticket")
     },
     {
-      description: 'Tasks',
-      type: 'task',
-      relations: relations('cards:task')
-    },
-    {
-      description: 'Purchases',
-      type: 'purchase',
-      relations: [
-        ...relations('cards:purchase'),
-        { name: 'carIds', label: 'Cars', relationType: 'cars:car' }
-      ]
-    },
-    {
-      description: 'Sales pipelines',
-      type: 'deal',
-      relations: [
-        ...relations('cards:deal'),
-        { name: 'carIds', label: 'Cars', relationType: 'cars:car' }
-      ]
+      description: "Tasks",
+      type: "task",
+      relations: relations("cards:task")
     }
   ],
   fields: generateFields,
@@ -80,10 +54,10 @@ export default {
         {
           $or: [
             {
-              'config.boardIds': boardId
+              "config.boardIds": boardId
             },
             {
-              'config.boardIds': {
+              "config.boardIds": {
                 $size: 0
               }
             }
@@ -92,10 +66,10 @@ export default {
         {
           $or: [
             {
-              'config.pipelineIds': pipelineId
+              "config.pipelineIds": pipelineId
             },
             {
-              'config.pipelineIds': {
+              "config.pipelineIds": {
                 $size: 0
               }
             }

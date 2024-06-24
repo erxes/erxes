@@ -1,17 +1,17 @@
-import { validSearchText } from '@erxes/api-utils/src';
-import { IItemCommonFields } from './definitions/boards';
-import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
+import { validSearchText } from "@erxes/api-utils/src";
+import { IItemCommonFields } from "./definitions/boards";
+import { BOARD_STATUSES, BOARD_TYPES } from "./definitions/constants";
 
-import { configReplacer } from '../utils';
-import { putActivityLog } from '../logUtils';
-import { itemsAdd } from '../graphql/resolvers/mutations/utils';
-import { IModels } from '../connectionResolver';
+import { configReplacer } from "../utils";
+import { putActivityLog } from "../logUtils";
+import { itemsAdd } from "../graphql/resolvers/mutations/utils";
+import { IModels } from "../connectionResolver";
 import {
   sendCoreMessage,
   sendInboxMessage,
   sendInternalNotesMessage,
-  sendProductsMessage,
-} from '../messageBroker';
+  sendProductsMessage
+} from "../messageBroker";
 
 interface ISetOrderParam {
   collection: any;
@@ -24,7 +24,7 @@ export const bulkUpdateOrders = async ({
   stageId,
   sort = { order: 1 },
   additionFilter = {},
-  startOrder = 100,
+  startOrder = 100
 }: {
   collection: any;
   stageId: string;
@@ -46,9 +46,9 @@ export const bulkUpdateOrders = async ({
       {
         stageId,
         status: { $ne: BOARD_STATUSES.ARCHIVED },
-        ...additionFilter,
+        ...additionFilter
       },
-      { _id: 1, order: 1 },
+      { _id: 1, order: 1 }
     )
     .sort(sort);
 
@@ -56,19 +56,19 @@ export const bulkUpdateOrders = async ({
     bulkOps.push({
       updateOne: {
         filter: { _id: item._id },
-        update: { order: ord },
-      },
+        update: { order: ord }
+      }
     });
 
     ord = ord + 10;
   }
 
   if (!bulkOps.length) {
-    return '';
+    return "";
   }
 
   await collection.bulkWrite(bulkOps);
-  return 'ok';
+  return "ok";
 };
 
 const randomBetween = (min: number, max: number) => {
@@ -98,7 +98,7 @@ const orderHeler = (aboveOrder, belowOrder) => {
 export const getNewOrder = async ({
   collection,
   stageId,
-  aboveItemId,
+  aboveItemId
 }: ISetOrderParam) => {
   const aboveItem = await collection.findOne({ _id: aboveItemId });
 
@@ -108,7 +108,7 @@ export const getNewOrder = async ({
     .find({
       stageId,
       order: { $gt: aboveOrder },
-      status: { $ne: BOARD_STATUSES.ARCHIVED },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
     })
     .sort({ order: 1 })
     .limit(1);
@@ -131,7 +131,7 @@ export const watchItem = async (
   collection: any,
   _id: string,
   isAdd: boolean,
-  userId: string,
+  userId: string
 ) => {
   const item = await collection.findOne({ _id });
 
@@ -152,12 +152,12 @@ export const watchItem = async (
 
 export const fillSearchTextItem = (
   doc: IItemCommonFields,
-  item?: IItemCommonFields,
+  item?: IItemCommonFields
 ) => {
-  const document = item || { name: '', description: '' };
+  const document = item || { name: "", description: "" };
   Object.assign(document, doc);
 
-  return validSearchText([document.name || '', document.description || '']);
+  return validSearchText([document.name || "", document.description || ""]);
 };
 
 export const getCollection = (models: IModels, type: string) => {
@@ -166,23 +166,9 @@ export const getCollection = (models: IModels, type: string) => {
   let update;
   let remove;
 
-  const { Deals, GrowthHacks, Tasks, Tickets, Purchases } = models;
+  const { GrowthHacks, Tasks, Tickets } = models;
 
   switch (type) {
-    case BOARD_TYPES.DEAL: {
-      collection = Deals;
-      create = Deals.createDeal;
-      update = Deals.updateDeal;
-      remove = Deals.removeDeals;
-      break;
-    }
-    case BOARD_TYPES.PURCHASE: {
-      collection = Purchases;
-      create = Purchases.createPurchase;
-      update = Purchases.updatePurchase;
-      remove = Purchases.removePurchases;
-      break;
-    }
     case BOARD_TYPES.GROWTH_HACK: {
       collection = GrowthHacks;
       create = GrowthHacks.createGrowthHack;
@@ -223,57 +209,57 @@ export const getItem = async (models: IModels, type: string, doc: any) => {
 export const getCompanyIds = async (
   subdomain: string,
   mainType: string,
-  mainTypeId: string,
+  mainTypeId: string
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: 'conformities.findConformities',
+    action: "conformities.findConformities",
     data: {
       mainType,
       mainTypeId,
-      relType: 'company',
+      relType: "company"
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
-  return conformities.map((c) => c.relTypeId);
+  return conformities.map(c => c.relTypeId);
 };
 
 export const getCustomerIds = async (
   subdomain: string,
   mainType: string,
-  mainTypeId: string,
+  mainTypeId: string
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
-    action: 'conformities.findConformities',
+    action: "conformities.findConformities",
     data: {
       mainType,
       mainTypeId,
-      relType: 'customer',
+      relType: "customer"
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
-  return conformities.map((c) => c.relTypeId);
+  return conformities.map(c => c.relTypeId);
 };
 
 export const getInternalNoteIds = async (
   subdomain: string,
   contentType: string,
-  contentTypeId: string,
+  contentTypeId: string
 ): Promise<string[]> => {
   const internalNotes = await sendInternalNotesMessage({
     subdomain,
-    action: 'findInternalNotes',
+    action: "findInternalNotes",
     data: {
       contentType,
-      contentTypeId,
+      contentTypeId
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   return internalNotes;
@@ -284,28 +270,31 @@ export const destroyBoardItemRelations = async (
   models: IModels,
   subdomain: string,
   contentTypeId: string,
-  contentType: string,
+  contentType: string
 ) => {
   await putActivityLog(subdomain, {
-    action: 'removeActivityLog',
-    data: { contentTypeId },
+    action: "removeActivityLog",
+    data: { contentTypeId }
   });
 
   await models.Checklists.removeChecklists(contentType, [contentTypeId]);
 
   await sendCoreMessage({
     subdomain,
-    action: 'conformities.removeConformity',
+    action: "conformities.removeConformity",
     data: {
       mainType: contentType,
-      mainTypeId: contentTypeId,
-    },
+      mainTypeId: contentTypeId
+    }
   });
 
   await sendInternalNotesMessage({
     subdomain,
-    action: 'removeInternalNotes',
-    data: { contentType: `cards:${contentType}`, contentTypeIds: [contentTypeId] },
+    action: "removeInternalNotes",
+    data: {
+      contentType: `cards:${contentType}`,
+      contentTypeIds: [contentTypeId]
+    }
   });
 };
 
@@ -313,7 +302,7 @@ export const destroyBoardItemRelations = async (
 export const getBoardItemLink = async (
   models: IModels,
   stageId: string,
-  itemId: string,
+  itemId: string
 ) => {
   const stage = await models.Stages.getStage(stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
@@ -335,7 +324,7 @@ const numberCalculator = (size: number, num?: any, skip?: boolean) => {
   num = num.toString();
 
   while (num.length < size) {
-    num = '0' + num;
+    num = "0" + num;
   }
 
   return num;
@@ -346,17 +335,17 @@ export const boardNumberGenerator = async (
   config: string,
   size: string,
   skip: boolean,
-  type?: string,
+  type?: string
 ) => {
   const replacedConfig = await configReplacer(config);
-  const re = replacedConfig + '[0-9]+$';
+  const re = replacedConfig + "[0-9]+$";
 
   let number;
 
   if (!skip) {
     const pipeline = await models.Pipelines.findOne({
       lastNum: new RegExp(re),
-      type,
+      type
     });
 
     if (pipeline?.lastNum) {
@@ -373,27 +362,27 @@ export const boardNumberGenerator = async (
   }
 
   number =
-    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
+    replacedConfig + (await numberCalculator(parseInt(size, 10), "", skip));
 
   return number;
 };
 
 export const generateBoardNumber = async (
   models: IModels,
-  doc: IItemCommonFields,
+  doc: IItemCommonFields
 ) => {
   const stage = await models.Stages.getStage(doc.stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
   if (pipeline.numberSize) {
-    const { numberSize, numberConfig = '' } = pipeline;
+    const { numberSize, numberConfig = "" } = pipeline;
 
     const number = await boardNumberGenerator(
       models,
       numberConfig,
       numberSize,
       false,
-      pipeline.type,
+      pipeline.type
     );
 
     doc.number = number;
@@ -406,7 +395,7 @@ export const createBoardItem = async (
   models: IModels,
   subdomain: string,
   doc: IItemCommonFields,
-  type: string,
+  type: string
 ) => {
   const { collection } = await getCollection(models, type);
 
@@ -422,7 +411,7 @@ export const createBoardItem = async (
       createdAt: new Date(),
       modifiedAt: new Date(),
       stageChangedDate: new Date(),
-      searchText: fillSearchTextItem(doc),
+      searchText: fillSearchTextItem(doc)
     });
   } catch (e) {
     if (e.message.includes(`E11000 duplicate key error`)) {
@@ -437,120 +426,47 @@ export const createBoardItem = async (
     await models.Pipelines.updateMany(
       {
         numberConfig: pipeline.numberConfig,
-        type: pipeline.type,
+        type: pipeline.type
       },
-      { $set: { lastNum: doc.number } },
+      { $set: { lastNum: doc.number } }
     );
   }
 
-  let action = 'create';
-  let content = '';
+  let action = "create";
+  let content = "";
 
   if (doc.sourceConversationIds && doc.sourceConversationIds.length > 0) {
-    action = 'convert';
+    action = "convert";
     content = item.sourceConversationIds.slice(-1)[0];
   }
 
   // create log
   await putActivityLog(subdomain, {
-    action: 'createBoardItem',
+    action: "createBoardItem",
     data: {
       item,
       contentType: type,
       action,
       content,
-      createdBy: item.userId || '',
-      contentId: item._id,
-    },
+      createdBy: item.userId || "",
+      contentId: item._id
+    }
   });
 
   return item;
 };
 
-// check booking convert
-const checkBookingConvert = async (subdomain: string, productId: string) => {
-  const product = await sendProductsMessage({
-    subdomain,
-    action: 'findOne',
-    data: { _id: productId },
-    isRPC: true,
-  });
-
-  let dealUOM = await sendCoreMessage({
-    subdomain,
-    action: 'configs.getValues',
-    data: {
-      code: 'dealUOM',
-    },
-    isRPC: true,
-    defaultValue: [],
-  });
-
-  let dealCurrency = await sendCoreMessage({
-    subdomain,
-    action: 'configs.getValues',
-    data: {
-      code: 'dealCurrency',
-    },
-    isRPC: true,
-    defaultValue: [],
-  });
-
-  if (dealUOM.length > 0) {
-    dealUOM = dealUOM[0];
-  } else {
-    throw new Error('Please choose UNIT OF MEASUREMENT from general settings!');
-  }
-
-  if (dealCurrency.length > 0) {
-    dealCurrency = dealCurrency[0];
-  } else {
-    throw new Error('Please choose currency from general settings!');
-  }
-
-  return {
-    product,
-    dealUOM,
-    dealCurrency,
-  };
-};
-
 export const conversationConvertToCard = async (
   models: IModels,
   subdomain: string,
-  args,
+  args
 ) => {
-  const {
-    _id,
-    type,
-    itemId,
-    itemName,
-    stageId,
-    bookingProductId,
-    conversation,
-    user,
-  } = args;
+  const { _id, type, itemId, itemName, stageId, conversation, user } = args;
 
   const { collection, create, update } = getCollection(models, type);
 
   if (itemId) {
     const oldItem = await collection.findOne({ _id: itemId }).lean();
-
-    if (bookingProductId) {
-      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-        subdomain,
-        bookingProductId,
-      );
-
-      oldItem.productsData.push({
-        _id: product._id,
-        productId: product._id,
-        unitPrice: product.unitPrice,
-        uom: dealUOM,
-        currency: dealCurrency,
-        quantity: product.productCount,
-      });
-    }
 
     const doc = { ...oldItem, ...args };
 
@@ -559,7 +475,7 @@ export const conversationConvertToCard = async (
       assignedUserIds.push(conversation.assignedUserId);
 
       doc.assignedUserIds = [
-        ...new Set([...assignedUserIds, ...args.assignedUserIds]),
+        ...new Set([...assignedUserIds, ...args.assignedUserIds])
       ];
     }
 
@@ -575,28 +491,28 @@ export const conversationConvertToCard = async (
     item.userId = user._id;
 
     await putActivityLog(subdomain, {
-      action: 'createBoardItem',
+      action: "createBoardItem",
       data: {
         item,
         contentType: type,
-        action: 'convert',
+        action: "convert",
         content: conversation._id,
-        createdBy: item.userId || '',
-        contentId: item._id,
-      },
+        createdBy: item.userId || "",
+        contentId: item._id
+      }
     });
 
     const relTypeIds: string[] = [];
 
-    sourceConversationIds.forEach(async (conversationId) => {
+    sourceConversationIds.forEach(async conversationId => {
       const con = await sendInboxMessage({
         subdomain,
-        action: 'getConversation',
+        action: "getConversation",
         data: {
-          conversationId,
+          conversationId
         },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       });
 
       if (con.customerId) {
@@ -607,14 +523,14 @@ export const conversationConvertToCard = async (
     if (conversation.customerId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
           mainType: type,
           mainTypeId: item._id,
-          relType: 'customer',
-          relTypeId: conversation.customerId,
+          relType: "customer",
+          relTypeId: conversation.customerId
         },
-        isRPC: true,
+        isRPC: true
       });
     }
 
@@ -626,24 +542,6 @@ export const conversationConvertToCard = async (
     doc.stageId = stageId;
     doc.sourceConversationIds = [_id];
     doc.customerIds = [conversation.customerId];
-
-    if (bookingProductId) {
-      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-        subdomain,
-        bookingProductId,
-      );
-
-      doc.productsData = [
-        {
-          _id: product._id,
-          productId: product._id,
-          unitPrice: product.unitPrice,
-          uom: dealUOM,
-          currency: dealCurrency,
-          quantity: product.productCount,
-        },
-      ];
-    }
 
     const item = await itemsAdd(models, subdomain, doc, type, create, user);
 

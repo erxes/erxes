@@ -1,25 +1,25 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import { IColumnLabel } from '@erxes/api-utils/src';
+import * as xlsxPopulate from "xlsx-populate";
+import { IColumnLabel } from "@erxes/api-utils/src";
 import {
   findSchemaLabels,
   getCustomFieldsData
-} from '@erxes/api-utils/src/exporter';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import * as moment from 'moment';
-import { IModels } from './connectionResolver';
-import { BOARD_BASIC_INFOS, MODULE_NAMES } from './constants';
+} from "@erxes/api-utils/src/exporter";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import * as moment from "moment";
+import { IModels } from "./connectionResolver";
+import { BOARD_BASIC_INFOS, MODULE_NAMES } from "./constants";
 import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
   sendProductsMessage
-} from './messageBroker';
+} from "./messageBroker";
 import {
   commonItemFieldsSchema,
   IStageDocument
-} from './models/definitions/boards';
-import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
-import { ticketSchema } from './models/definitions/tickets';
+} from "./models/definitions/boards";
+import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
+import { ticketSchema } from "./models/definitions/tickets";
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -40,7 +40,7 @@ const filterHeaders = headers => {
   const others = [] as any;
 
   for (const column of headers) {
-    if (column.name.startsWith('productsData')) {
+    if (column.name.startsWith("productsData")) {
       first.push(column);
     } else {
       others.push(column);
@@ -54,15 +54,13 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
 
   switch (itemType) {
-    case MODULE_NAMES.DEAL:
-    case MODULE_NAMES.PURCHASE:
     case MODULE_NAMES.TASK:
       columnNames = findSchemaLabels(commonItemFieldsSchema, BOARD_BASIC_INFOS);
       break;
     case MODULE_NAMES.TICKET:
       columnNames = findSchemaLabels(ticketSchema, [
         ...BOARD_BASIC_INFOS,
-        'source'
+        "source"
       ]);
       break;
 
@@ -74,14 +72,14 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
 };
 
 const getCellValue = (item, colName) => {
-  const names = colName.split('.');
+  const names = colName.split(".");
 
   if (names.length === 1) {
     return item[colName];
   } else {
     const value = item[names[0]];
 
-    return value ? value[names[1]] : '';
+    return value ? value[names[1]] : "";
   }
 };
 
@@ -91,7 +89,7 @@ const fillCellValue = async (
   colName: string,
   item: any
 ): Promise<string> => {
-  const emptyMsg = '-';
+  const emptyMsg = "-";
 
   if (!item) {
     return emptyMsg;
@@ -99,35 +97,35 @@ const fillCellValue = async (
 
   let cellValue: any = getCellValue(item, colName);
 
-  if (typeof item[colName] === 'boolean') {
-    cellValue = item[colName] ? 'Yes' : 'No';
+  if (typeof item[colName] === "boolean") {
+    cellValue = item[colName] ? "Yes" : "No";
   }
 
   switch (colName) {
-    case 'createdAt':
-    case 'closeDate':
-    case 'modifiedAt':
-      cellValue = moment(cellValue).format('YYYY-MM-DD HH:mm');
+    case "createdAt":
+    case "closeDate":
+    case "modifiedAt":
+      cellValue = moment(cellValue).format("YYYY-MM-DD HH:mm");
 
       break;
-    case 'userId':
+    case "userId":
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: item.userId
         },
         isRPC: true
       });
 
-      cellValue = createdUser ? createdUser.username : 'user not found';
+      cellValue = createdUser ? createdUser.username : "user not found";
 
       break;
-    // deal, purchase ,task, ticket fields
-    case 'assignedUserIds':
+    // task, ticket fields
+    case "assignedUserIds":
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
             _id: { $in: item.assignedUserIds }
@@ -139,14 +137,14 @@ const fillCellValue = async (
 
       cellValue = assignedUsers
         .map(user => user.username || user.email)
-        .join(', ');
+        .join(", ");
 
       break;
 
-    case 'watchedUserIds':
+    case "watchedUserIds":
       const watchedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
             _id: { $in: item.watchedUserIds }
@@ -158,21 +156,21 @@ const fillCellValue = async (
 
       cellValue = watchedUsers
         .map(user => user.username || user.email)
-        .join(', ');
+        .join(", ");
 
       break;
 
-    case 'labelIds':
+    case "labelIds":
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
           _id: { $in: item.labelIds }
         }
       );
 
-      cellValue = labels.map(label => label.name).join(', ');
+      cellValue = labels.map(label => label.name).join(", ");
 
       break;
-    case 'stageId':
+    case "stageId":
       const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -181,7 +179,7 @@ const fillCellValue = async (
 
       break;
 
-    case 'boardId':
+    case "boardId":
       const stageForBoard = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -202,7 +200,7 @@ const fillCellValue = async (
 
       break;
 
-    case 'pipelineId':
+    case "pipelineId":
       const stageForPipeline = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -219,7 +217,7 @@ const fillCellValue = async (
 
       break;
 
-    case 'initialStageId':
+    case "initialStageId":
       const initialStage: IStageDocument | null = await models.Stages.findOne({
         _id: item.initialStageId
       });
@@ -228,10 +226,10 @@ const fillCellValue = async (
 
       break;
 
-    case 'modifiedBy':
+    case "modifiedBy":
       const modifiedBy: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: item.modifiedBy
         },
@@ -261,20 +259,12 @@ const prepareData = async (
   const boardItemsFilter: any = {};
 
   if (segmentData) {
-    const itemIds = await fetchSegment(subdomain, '', {}, segmentData);
+    const itemIds = await fetchSegment(subdomain, "", {}, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
   }
 
   switch (type) {
-    case MODULE_NAMES.DEAL:
-      data = await models.Deals.find(boardItemsFilter);
-
-      break;
-    case MODULE_NAMES.PURCHASE:
-      data = await models.Purchases.find(boardItemsFilter);
-
-      break;
     case MODULE_NAMES.TASK:
       data = await models.Tasks.find(boardItemsFilter);
 
@@ -308,100 +298,6 @@ const addCell = (
   }
 };
 
-const fillDealProductValue = async (
-  subdomain,
-  column,
-  item,
-  sheet,
-  columnNames,
-  rowIndex,
-  dealIds,
-  dealRowIndex
-) => {
-  const productsData = item.productsData;
-
-  if (productsData.length === 0) {
-    rowIndex++;
-    dealRowIndex++;
-
-    addCell(column, '-', sheet, columnNames, dealRowIndex);
-
-    return { rowIndex, dealRowIndex };
-  }
-
-  if (dealIds.length === 0) {
-    dealIds.push(item._id);
-  } else if (!dealIds.includes(item._id)) {
-    dealIds.push(item._id);
-    rowIndex = dealRowIndex;
-  }
-
-  dealRowIndex = rowIndex;
-
-  for (const productData of productsData) {
-    let cellValue = '';
-    let product;
-
-    switch (column.name) {
-      case 'productsData.amount':
-        cellValue = productData.amount;
-        break;
-
-      case 'productsData.name':
-        product =
-          (await sendProductsMessage({
-            subdomain,
-            action: 'findOne',
-            data: { _id: productData.productId },
-            isRPC: true
-          })) || {};
-
-        cellValue = product.name;
-        break;
-
-      case 'productsData.code':
-        product =
-          (await sendProductsMessage({
-            subdomain,
-            action: 'findOne',
-            data: { _id: productData.productId },
-            isRPC: true
-          })) || {};
-
-        cellValue = product.code;
-        break;
-
-      case 'productsData.discount':
-        cellValue = productData.discount;
-        break;
-
-      case 'productsData.discountPercent':
-        cellValue = productData.discountPercent;
-        break;
-
-      case 'productsData.currency':
-        cellValue = productData.amount;
-        break;
-
-      case 'productsData.tax':
-        cellValue = productData.tax;
-        break;
-
-      case 'productsData.taxPercent':
-        cellValue = productData.taxPercent;
-        break;
-    }
-
-    if (cellValue) {
-      addCell(column, cellValue, sheet, columnNames, dealRowIndex);
-
-      dealRowIndex++;
-    }
-  }
-
-  return { rowIndex, dealRowIndex };
-};
-
 export const buildFile = async (
   models: IModels,
   subdomain: string,
@@ -416,8 +312,6 @@ export const buildFile = async (
 
   const columnNames: string[] = [];
   let rowIndex: number = 1;
-  const dealIds: string[] = [];
-  let dealRowIndex: number = 0;
 
   let headers: IColumnLabel[] = fillHeaders(type);
 
@@ -427,21 +321,17 @@ export const buildFile = async (
     });
   }
 
-  if (type === MODULE_NAMES.DEAL) {
-    headers = filterHeaders(headers);
-  }
-
   for (const item of data) {
     rowIndex++;
     // Iterating through basic info columns
     for (const column of headers) {
-      if (column.name.startsWith('customFieldsData')) {
-        const fieldId = column.name.split('.')[1];
+      if (column.name.startsWith("customFieldsData")) {
+        const fieldId = column.name.split(".")[1];
         const { field, value } = await getCustomFieldsData(
           () =>
             sendFormsMessage({
               subdomain,
-              action: 'fields.findOne',
+              action: "fields.findOne",
               data: {
                 query: { _id: fieldId }
               },
@@ -461,25 +351,8 @@ export const buildFile = async (
             rowIndex
           );
         }
-      } else if (column.name.startsWith('productsData')) {
-        const indexes = await fillDealProductValue(
-          subdomain,
-          column,
-          item,
-          sheet,
-          columnNames,
-          rowIndex,
-          dealIds,
-          dealRowIndex
-        );
-
-        rowIndex = indexes?.rowIndex;
-        dealRowIndex = indexes?.dealRowIndex;
       } else {
         let index = rowIndex;
-        if (type === MODULE_NAMES.DEAL) {
-          index = dealRowIndex === 0 ? rowIndex : dealRowIndex;
-        }
 
         const cellValue = await fillCellValue(
           models,
@@ -496,7 +369,7 @@ export const buildFile = async (
   } // end items for loop
 
   return {
-    name: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
+    name: `${type} - ${moment().format("YYYY-MM-DD HH:mm")}`,
     response: await generateXlsx(workbook)
   };
 };

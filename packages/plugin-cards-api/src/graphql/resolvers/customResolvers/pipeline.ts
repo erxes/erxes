@@ -1,16 +1,14 @@
-import { IContext } from '../../../connectionResolver';
-import { IPipelineDocument } from '../../../models/definitions/boards';
+import { IContext } from "../../../connectionResolver";
+import { IPipelineDocument } from "../../../models/definitions/boards";
 import {
   BOARD_TYPES,
   VISIBLITIES
-} from '../../../models/definitions/constants';
+} from "../../../models/definitions/constants";
 import {
-  generateDealCommonFilters,
-  generatePurchaseCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters
-} from '../queries/utils';
+} from "../queries/utils";
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
@@ -18,13 +16,13 @@ export default {
       return;
     }
 
-    return { __typename: 'User', _id: pipeline.userId };
+    return { __typename: "User", _id: pipeline.userId };
   },
 
   members(pipeline: IPipelineDocument, {}) {
     if (pipeline.visibility === VISIBLITIES.PRIVATE && pipeline.memberIds) {
       return pipeline.memberIds.map(memberId => ({
-        __typename: 'User',
+        __typename: "User",
         _id: memberId
       }));
     }
@@ -50,15 +48,15 @@ export default {
       const endDate = new Date(pipeline.endDate).getTime();
 
       if (now > endDate) {
-        return 'Completed';
+        return "Completed";
       } else if (now < endDate && now > startDate) {
-        return 'In progress';
+        return "In progress";
       } else {
-        return 'Not started';
+        return "Not started";
       }
     }
 
-    return '';
+    return "";
   },
 
   async itemsTotalCount(
@@ -67,32 +65,6 @@ export default {
     { user, models, subdomain }: IContext
   ) {
     switch (pipeline.type) {
-      case BOARD_TYPES.DEAL: {
-        const filter = await generateDealCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          {
-            pipelineId: pipeline._id
-          }
-        );
-
-        return models.Deals.find(filter).countDocuments();
-      }
-
-      case BOARD_TYPES.PURCHASE: {
-        const filter = await generatePurchaseCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          {
-            pipelineId: pipeline._id
-          }
-        );
-
-        return models.Purchases.find(filter).countDocuments();
-      }
-
       case BOARD_TYPES.TICKET: {
         const filter = await generateTicketCommonFilters(
           models,
@@ -135,7 +107,7 @@ export default {
   async tag(pipeline: IPipelineDocument) {
     if (pipeline.tagId) {
       return {
-        __typename: 'Tag',
+        __typename: "Tag",
         _id: pipeline.tagId
       };
     }

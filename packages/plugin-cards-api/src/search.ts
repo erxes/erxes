@@ -1,5 +1,5 @@
-import { doSearch } from '@erxes/api-utils/src/elasticsearch';
-import { generateModels, IModels } from './connectionResolver';
+import { doSearch } from "@erxes/api-utils/src/elasticsearch";
+import { generateModels, IModels } from "./connectionResolver";
 
 const searchBoardItems = async (
   models: IModels,
@@ -11,7 +11,7 @@ const searchBoardItems = async (
     subdomain,
     index,
     value,
-    fields: ['name', 'description', 'number']
+    fields: ["name", "description", "number"]
   });
 
   const updatedItems: any = [];
@@ -20,12 +20,12 @@ const searchBoardItems = async (
     const stage = (await models.Stages.findOne({
       _id: item.source.stageId
     })) || {
-      pipelineId: ''
+      pipelineId: ""
     };
 
     const pipeline = (await models.Pipelines.findOne({
       _id: stage.pipelineId
-    })) || { boardId: '' };
+    })) || { boardId: "" };
 
     item.source.pipelineId = stage.pipelineId;
     item.source.boardId = pipeline.boardId;
@@ -41,37 +41,29 @@ const search = async ({ subdomain, data: { value } }) => {
 
   return [
     {
-      module: 'tasks',
-      items: await searchBoardItems(models, subdomain, 'tasks', value)
+      module: "tasks",
+      items: await searchBoardItems(models, subdomain, "tasks", value)
     },
     {
-      module: 'tickets',
-      items: await searchBoardItems(models, subdomain, 'tickets', value)
+      module: "tickets",
+      items: await searchBoardItems(models, subdomain, "tickets", value)
     },
     {
-      module: 'deals',
-      items: await searchBoardItems(models, subdomain, 'deals', value)
-    },
-    {
-      module: 'purchases',
-      items: await searchBoardItems(models, subdomain, 'purchases', value)
-    },
-    {
-      module: 'stages',
+      module: "stages",
       items: await doSearch({
         subdomain,
-        index: 'stages',
+        index: "stages",
         value,
-        fields: ['name']
+        fields: ["name"]
       })
     },
     {
-      module: 'pipelines',
+      module: "pipelines",
       items: await doSearch({
         subdomain,
-        index: 'pipelines',
+        index: "pipelines",
         value,
-        fields: ['name']
+        fields: ["name"]
       })
     }
   ];

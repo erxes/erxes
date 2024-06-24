@@ -1,15 +1,15 @@
 import {
   replacePlaceHolders,
   setProperty
-} from '@erxes/api-utils/src/automations';
-import { generateModels, IModels } from './connectionResolver';
-import { itemsAdd } from './graphql/resolvers/mutations/utils';
+} from "@erxes/api-utils/src/automations";
+import { generateModels, IModels } from "./connectionResolver";
+import { itemsAdd } from "./graphql/resolvers/mutations/utils";
 import {
   sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage
-} from './messageBroker';
-import { getCollection } from './models/utils';
+} from "./messageBroker";
+import { getCollection } from "./models/utils";
 
 const getRelatedValue = async (
   models: IModels,
@@ -20,16 +20,16 @@ const getRelatedValue = async (
 ) => {
   if (
     [
-      'userId',
-      'assignedUserId',
-      'closedUserId',
-      'ownerId',
-      'createdBy'
+      "userId",
+      "assignedUserId",
+      "closedUserId",
+      "ownerId",
+      "createdBy"
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: target[targetKey] },
       isRPC: true
     });
@@ -40,18 +40,18 @@ const getRelatedValue = async (
     }
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
+      (user && ((user.detail && user.detail.fullName) || user.email)) || ""
     );
   }
 
   if (
-    ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
+    ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
       targetKey
     )
   ) {
     const users = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: {
           _id: { $in: target[targetKey] }
@@ -65,64 +65,64 @@ const getRelatedValue = async (
       return users
         .filter(user => (filter ? user[filter.key] === filter.value : user))
         .map(user => user[key])
-        .join(', ');
+        .join(", ");
     }
 
     return (
       users.map(user => (user.detail && user.detail.fullName) || user.email) ||
       []
-    ).join(', ');
+    ).join(", ");
   }
 
-  if (targetKey === 'tagIds') {
+  if (targetKey === "tagIds") {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: 'tags',
-      action: 'find',
+      serviceName: "tags",
+      action: "find",
       data: { _id: { $in: target[targetKey] } },
       isRPC: true
     });
 
-    return (tags.map(tag => tag.name) || []).join(', ');
+    return (tags.map(tag => tag.name) || []).join(", ");
   }
 
-  if (targetKey === 'labelIds') {
+  if (targetKey === "labelIds") {
     const labels = await models.PipelineLabels.find({
       _id: { $in: target[targetKey] }
     });
 
-    return (labels.map(label => label.name) || []).join(', ');
+    return (labels.map(label => label.name) || []).join(", ");
   }
 
-  if (['initialStageId', 'stageId'].includes(targetKey)) {
+  if (["initialStageId", "stageId"].includes(targetKey)) {
     const stage = await models.Stages.findOne({
       _id: target[targetKey]
     });
 
-    return (stage && stage.name) || '';
+    return (stage && stage.name) || "";
   }
 
-  if (['sourceConversationIds'].includes(targetKey)) {
+  if (["sourceConversationIds"].includes(targetKey)) {
     const conversations = await sendCommonMessage({
       subdomain,
-      serviceName: 'inbox',
-      action: 'conversations.find',
+      serviceName: "inbox",
+      action: "conversations.find",
       data: { _id: { $in: target[targetKey] } },
       isRPC: true
     });
 
-    return (conversations.map(c => c.content) || []).join(', ');
+    return (conversations.map(c => c.content) || []).join(", ");
   }
 
-  if (['customers', 'companies'].includes(targetKey)) {
+  if (["customers", "companies"].includes(targetKey)) {
     const relTypeConst = {
-      companies: 'company',
-      customers: 'customer'
+      companies: "company",
+      customers: "customer"
     };
 
     const contactIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
         mainType: target.type,
         mainTypeId: target._id,
@@ -150,17 +150,17 @@ const getRelatedValue = async (
           filter ? contacts[filter.key] === filter.value : contacts
         )
         .map(contacts => contacts[key])
-        .join(', ');
+        .join(", ");
     }
 
-    const result = activeContacts.map(contact => contact?._id).join(', ');
+    const result = activeContacts.map(contact => contact?._id).join(", ");
     return result;
   }
 
-  if (targetKey.includes('productsData')) {
-    const [_parentFieldName, childFieldName] = targetKey.split('.');
+  if (targetKey.includes("productsData")) {
+    const [_parentFieldName, childFieldName] = targetKey.split(".");
 
-    if (childFieldName === 'amount') {
+    if (childFieldName === "amount") {
       return generateTotalAmount(target.productsData);
     }
   }
@@ -190,7 +190,7 @@ const relatedServices = (
   target: any
 ) => [
   {
-    name: 'contacts',
+    name: "contacts",
     filter: async () => {
       if (target.isFormSubmission) {
         return { sourceConversationIds: { $in: [target.conversationId] } };
@@ -198,8 +198,8 @@ const relatedServices = (
 
       const relTypeIds = await sendCommonMessage({
         subdomain,
-        serviceName: 'core',
-        action: 'conformities.savedConformity',
+        serviceName: "core",
+        action: "conformities.savedConformity",
         data: {
           mainType: triggerCollectionType,
           mainTypeId: target._id,
@@ -217,7 +217,7 @@ const relatedServices = (
     }
   },
   {
-    name: 'inbox',
+    name: "inbox",
     filter: async () => ({
       sourceConversationIds: { $in: [target._id] }
     })
@@ -237,32 +237,27 @@ const getItems = async (
     return [target];
   }
 
-  const [moduleService, moduleCollectionType] = module.split(':');
-  const [triggerService, triggerCollectionType] = triggerType.split(':');
+  const [moduleService, moduleCollectionType] = module.split(":");
+  const [triggerService, triggerCollectionType] = triggerType.split(":");
 
   const models = await generateModels(subdomain);
 
   let model: any;
 
   switch (moduleCollectionType) {
-    case 'task':
+    case "task":
       model = models.Tasks;
       break;
-    case 'purchase':
-      model = models.Purchases;
-      break;
-    case 'ticket':
+    case "ticket":
       model = models.Tickets;
       break;
-    default:
-      model = models.Deals;
   }
 
   if (moduleService === triggerService) {
     const relTypeIds = await sendCommonMessage({
       subdomain,
-      serviceName: 'core',
-      action: 'conformities.savedConformity',
+      serviceName: "core",
+      action: "conformities.savedConformity",
       data: {
         mainType: triggerCollectionType,
         mainTypeId: target._id,
@@ -289,7 +284,7 @@ const getItems = async (
     filter = await sendCommonMessage({
       subdomain,
       serviceName: triggerService,
-      action: 'getModuleRelation',
+      action: "getModuleRelation",
       data: {
         module,
         triggerType,
@@ -310,7 +305,7 @@ export default {
   }) => {
     const models = await generateModels(subdomain);
 
-    if (actionType === 'create') {
+    if (actionType === "create") {
       return actionCreate({
         models,
         subdomain,
@@ -354,71 +349,41 @@ export default {
       actionData: config,
       target,
       relatedValueProps,
-      complexFields: ['productsData']
+      complexFields: ["productsData"]
     });
   },
   constants: {
     triggers: [
       {
-        type: 'cards:task',
-        img: 'automation3.svg',
-        icon: 'file-plus-alt',
-        label: 'Task',
+        type: "cards:task",
+        img: "automation3.svg",
+        icon: "file-plus-alt",
+        label: "Task",
         description:
-          'Start with a blank workflow that enrolls and is triggered off task'
+          "Start with a blank workflow that enrolls and is triggered off task"
       },
       {
-        type: 'cards:purchase',
-        img: 'automation3.svg',
-        icon: 'file-plus-alt',
-        label: 'Purchase',
+        type: "cards:ticket",
+        img: "automation3.svg",
+        icon: "file-plus",
+        label: "Ticket",
         description:
-          'Start with a blank workflow that enrolls and is triggered off purchase'
-      },
-      {
-        type: 'cards:ticket',
-        img: 'automation3.svg',
-        icon: 'file-plus',
-        label: 'Ticket',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off ticket'
-      },
-      {
-        type: 'cards:deal',
-        img: 'automation3.svg',
-        icon: 'piggy-bank',
-        label: 'Sales pipeline',
-        description:
-          'Start with a blank workflow that enrolls and is triggered off sales pipeline item'
+          "Start with a blank workflow that enrolls and is triggered off ticket"
       }
     ],
     actions: [
       {
-        type: 'cards:task.create',
-        icon: 'file-plus-alt',
-        label: 'Create task',
-        description: 'Create task',
+        type: "cards:task.create",
+        icon: "file-plus-alt",
+        label: "Create task",
+        description: "Create task",
         isAvailable: true
       },
       {
-        type: 'cards:purchase.create',
-        icon: 'file-plus-alt',
-        label: 'Create purchase',
-        description: 'Create purchase',
-        isAvailable: true
-      },
-      {
-        type: 'cards:deal.create',
-        icon: 'piggy-bank',
-        label: 'Create deal',
-        description: 'Create deal',
-        isAvailable: true
-      },
-      {
-        type: 'cards:ticket.create',
-        icon: 'file-plus',
-        label: 'Create ticket',
-        description: 'Create ticket',
+        type: "cards:ticket.create",
+        icon: "file-plus",
+        label: "Create ticket",
+        description: "Create ticket",
         isAvailable: true
       }
     ]
@@ -426,7 +391,7 @@ export default {
 };
 
 const generateIds = value => {
-  const arr = value.split(', ');
+  const arr = value.split(", ");
 
   if (Array.isArray(arr)) {
     return arr;
@@ -456,7 +421,7 @@ const actionCreate = async ({
         subdomain,
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: (triggerType || '').replace('cards:', '') },
+        target: { ...target, type: (triggerType || "").replace("cards:", "") },
         isRelated: false
       })
     : {};
@@ -464,11 +429,11 @@ const actionCreate = async ({
   delete action.config.assignedTo;
 
   if (!!config.customers) {
-    relatedValueProps['customers'] = { key: '_id' };
+    relatedValueProps["customers"] = { key: "_id" };
     target.customers = config.customers;
   }
   if (!!config.companies) {
-    relatedValueProps['companies'] = { key: '_id' };
+    relatedValueProps["companies"] = { key: "_id" };
     target.companies = config.companies;
   }
 
@@ -479,7 +444,7 @@ const actionCreate = async ({
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: { ...target, type: (triggerType || '').replace('cards:', '') },
+      target: { ...target, type: (triggerType || "").replace("cards:", "") },
       relatedValueProps
     }))
   };
@@ -488,30 +453,30 @@ const actionCreate = async ({
     newData.userId = execution.target.userId;
   }
 
-  if (execution.triggerType === 'inbox:conversation') {
+  if (execution.triggerType === "inbox:conversation") {
     newData.sourceConversationIds = [execution.targetId];
   }
 
   if (
-    ['contacts:customer', 'contacts:lead'].includes(execution.triggerType) &&
+    ["contacts:customer", "contacts:lead"].includes(execution.triggerType) &&
     execution.target.isFormSubmission
   ) {
     newData.sourceConversationIds = [execution.target.conversationId];
   }
 
-  if (newData.hasOwnProperty('assignedTo')) {
-    newData.assignedUserIds = newData.assignedTo.trim().split(', ');
+  if (newData.hasOwnProperty("assignedTo")) {
+    newData.assignedUserIds = newData.assignedTo.trim().split(", ");
   }
 
-  if (newData.hasOwnProperty('labelIds')) {
-    newData.labelIds = newData.labelIds.trim().split(', ');
+  if (newData.hasOwnProperty("labelIds")) {
+    newData.labelIds = newData.labelIds.trim().split(", ");
   }
 
-  if (newData.hasOwnProperty('cardName')) {
+  if (newData.hasOwnProperty("cardName")) {
     newData.name = newData.cardName;
   }
 
-  if (config.hasOwnProperty('stageId')) {
+  if (config.hasOwnProperty("stageId")) {
     newData.stageId = config.stageId;
   }
 
@@ -522,15 +487,15 @@ const actionCreate = async ({
     newData.companyIds = generateIds(newData.companies);
   }
 
-  if (Object.keys(newData).some(key => key.startsWith('customFieldsData'))) {
+  if (Object.keys(newData).some(key => key.startsWith("customFieldsData"))) {
     const customFieldsData: Array<{ field: string; value: string }> = [];
 
     const fieldKeys = Object.keys(newData).filter(key =>
-      key.startsWith('customFieldsData')
+      key.startsWith("customFieldsData")
     );
 
     for (const fieldKey of fieldKeys) {
-      const [, fieldId] = fieldKey.split('.');
+      const [, fieldId] = fieldKey.split(".");
 
       customFieldsData.push({
         field: fieldId,
@@ -540,14 +505,12 @@ const actionCreate = async ({
     newData.customFieldsData = customFieldsData;
   }
 
-  if (newData.hasOwnProperty('attachments')) {
-    const [serviceName, itemType] = triggerType.split(':');
-    if (serviceName === 'cards') {
+  if (newData.hasOwnProperty("attachments")) {
+    const [serviceName, itemType] = triggerType.split(":");
+    if (serviceName === "cards") {
       const modelsMap = {
         ticket: models.Tickets,
-        task: models.Tasks,
-        deal: models.Deals,
-        purchase: models.Purchases
+        task: models.Tasks
       };
 
       const item = await modelsMap[itemType].findOne({ _id: target._id });
@@ -566,25 +529,25 @@ const actionCreate = async ({
       create
     );
 
-    if (execution.triggerType === 'inbox:conversation') {
+    if (execution.triggerType === "inbox:conversation") {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
-          mainType: 'customer',
+          mainType: "customer",
           mainTypeId: execution.target.customerId,
           relType: `${collectionType}`,
           relTypeId: item._id
         }
       });
     } else {
-      const mainType = execution.triggerType.split(':')[1];
+      const mainType = execution.triggerType.split(":")[1];
 
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
-          mainType: mainType.replace('lead', 'customer'),
+          mainType: mainType.replace("lead", "customer"),
           mainTypeId: execution.targetId,
           relType: `${collectionType}`,
           relTypeId: item._id

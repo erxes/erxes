@@ -19,7 +19,7 @@ export const types = ({ tags }) => `
     status: String
     boardId: String!
     tagId: String
-    ${tags ? `tag: Tag` : ''}
+    ${tags ? `tag: Tag` : ""}
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
@@ -61,13 +61,7 @@ export const types = ({ tags }) => `
     amount: JSON
     itemsTotalCount: Int
     compareNextStage: JSON
-    compareNextStagePurchase: JSON
-    stayedDealsTotalCount: Int
-    initialDealsTotalCount: Int
-    inProcessDealsTotalCount: Int
-    stayedPurchasesTotalCount: Int
-    initialPurchasesTotalCount: Int
-    inProcessPurchasesTotalCount: Int
+
     formId: String
     age: Int
     defaultTick: Boolean
@@ -90,9 +84,7 @@ export const types = ({ tags }) => `
 
   type ConvertTo {
     ticketUrl: String,
-    dealUrl: String,
     taskUrl: String,
-    purchaseUrl:String,
   }
 
   type BoardCount {

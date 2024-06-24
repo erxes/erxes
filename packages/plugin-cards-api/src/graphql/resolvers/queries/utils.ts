@@ -1,13 +1,13 @@
-import * as moment from 'moment';
-import { getCollection } from '../../../models/utils';
+import * as moment from "moment";
+import { getCollection } from "../../../models/utils";
 import {
   IItemCommonFields,
-  IStageDocument,
-} from '../../../models/definitions/boards';
-import { BOARD_STATUSES } from '../../../models/definitions/constants';
-import { CLOSE_DATE_TYPES } from '../../../constants';
-import { getNextMonth, getToday, regexSearchText } from '@erxes/api-utils/src';
-import { IListParams } from './boards';
+  IStageDocument
+} from "../../../models/definitions/boards";
+import { BOARD_STATUSES } from "../../../models/definitions/constants";
+import { CLOSE_DATE_TYPES } from "../../../constants";
+import { getNextMonth, getToday, regexSearchText } from "@erxes/api-utils/src";
+import { IListParams } from "./boards";
 import {
   fetchSegment,
   sendCommonMessage,
@@ -15,11 +15,11 @@ import {
   sendCoreMessage,
   sendFormsMessage,
   sendNotificationsMessage,
-  sendSegmentsMessage,
-} from '../../../messageBroker';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IModels } from '../../../connectionResolver';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
+  sendSegmentsMessage
+} from "../../../messageBroker";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { IModels } from "../../../connectionResolver";
+import { USER_ROLES } from "@erxes/api-utils/src/constants";
 
 export interface IArchiveArgs {
   pipelineId: string;
@@ -45,25 +45,25 @@ const contains = (values: string[]) => {
 
 export const getCloseDateByType = (closeDateType: string) => {
   if (closeDateType === CLOSE_DATE_TYPES.NEXT_DAY) {
-    const tommorrow = moment().add(1, 'days');
+    const tommorrow = moment().add(1, "days");
 
     return {
-      $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString()),
+      $gte: new Date(tommorrow.startOf("day").toISOString()),
+      $lte: new Date(tommorrow.endOf("day").toISOString())
     };
   }
 
   if (closeDateType === CLOSE_DATE_TYPES.NEXT_WEEK) {
     const monday = moment()
       .day(1 + 7)
-      .format('YYYY-MM-DD');
+      .format("YYYY-MM-DD");
     const nextSunday = moment()
       .day(7 + 7)
-      .format('YYYY-MM-DD');
+      .format("YYYY-MM-DD");
 
     return {
       $gte: new Date(monday),
-      $lte: new Date(nextSunday),
+      $lte: new Date(nextSunday)
     };
   }
 
@@ -73,7 +73,7 @@ export const getCloseDateByType = (closeDateType: string) => {
 
     return {
       $gte: new Date(start),
-      $lte: new Date(end),
+      $lte: new Date(end)
     };
   }
 
@@ -103,7 +103,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
     startDateStartDate,
     startDateEndDate,
     closeDateStartDate,
-    closeDateEndDate,
+    closeDateEndDate
   } = extraParams;
 
   const isListEmpty = value => {
@@ -126,7 +126,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
 
   if (startDate) {
     filter.closeDate = {
-      $gte: new Date(startDate),
+      $gte: new Date(startDate)
     };
   }
 
@@ -135,7 +135,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
       filter.closeDate.$lte = new Date(endDate);
     } else {
       filter.closeDate = {
-        $lte: new Date(endDate),
+        $lte: new Date(endDate)
       };
     }
   }
@@ -143,28 +143,28 @@ export const generateExtraFilters = async (filter, extraParams) => {
   if (createdStartDate || createdEndDate) {
     filter.createdAt = {
       $gte: new Date(createdStartDate),
-      $lte: new Date(createdEndDate),
+      $lte: new Date(createdEndDate)
     };
   }
 
   if (stateChangedStartDate || stateChangedEndDate) {
     filter.stageChangedDate = {
       $gte: new Date(stateChangedStartDate),
-      $lte: new Date(stateChangedEndDate),
+      $lte: new Date(stateChangedEndDate)
     };
   }
 
   if (startDateStartDate || startDateEndDate) {
     filter.startDate = {
       $gte: new Date(startDateStartDate),
-      $lte: new Date(startDateEndDate),
+      $lte: new Date(startDateEndDate)
     };
   }
 
   if (closeDateStartDate || closeDateEndDate) {
     filter.closeDate = {
       $gte: new Date(closeDateStartDate),
-      $lte: new Date(closeDateEndDate),
+      $lte: new Date(closeDateEndDate)
     };
   }
 
@@ -214,7 +214,7 @@ export const generateCommonFilters = async (
     departmentIds,
     dateRangeFilters,
     customFieldsDataFilters,
-    vendorCustomerIds,
+    vendorCustomerIds
   } = args;
 
   const isListEmpty = value => {
@@ -244,10 +244,10 @@ export const generateCommonFilters = async (
       action: `branches.findWithChild`,
       data: {
         query: { _id: { $in: branchIds } },
-        fields: { _id: 1 },
+        fields: { _id: 1 }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     filter.branchIds = { $in: branches.map(item => item._id) };
@@ -259,10 +259,10 @@ export const generateCommonFilters = async (
       action: `departments.findWithChild`,
       data: {
         query: { _id: { $in: departmentIds } },
-        fields: { _id: 1 },
+        fields: { _id: 1 }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     filter.departmentIds = { $in: departments.map(item => item._id) };
@@ -271,14 +271,14 @@ export const generateCommonFilters = async (
   if (customerIds && type) {
     const relIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.filterConformity',
+      action: "conformities.filterConformity",
       data: {
-        mainType: 'customer',
+        mainType: "customer",
         mainTypeIds: customerIds,
-        relType: type,
+        relType: type
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     filterIds = relIds;
@@ -287,14 +287,14 @@ export const generateCommonFilters = async (
   if (companyIds && type) {
     const relIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.filterConformity',
+      action: "conformities.filterConformity",
       data: {
-        mainType: 'company',
+        mainType: "company",
         mainTypeIds: companyIds,
-        relType: type,
+        relType: type
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     filterIds = filterIds.length
@@ -314,14 +314,14 @@ export const generateCommonFilters = async (
     if (conformityIsSaved) {
       const relIds = await sendCoreMessage({
         subdomain,
-        action: 'conformities.savedConformity',
+        action: "conformities.savedConformity",
         data: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
-          relTypes: [type],
+          relTypes: [type]
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       filter._id = contains(relIds || []);
@@ -330,14 +330,14 @@ export const generateCommonFilters = async (
     if (conformityIsRelated) {
       const relIds = await sendCoreMessage({
         subdomain,
-        action: 'conformities.relatedConformity',
+        action: "conformities.relatedConformity",
         data: {
           mainType: conformityMainType,
           mainTypeId: conformityMainTypeId,
-          relType: type,
+          relType: type
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       filter._id = contains(relIds);
@@ -354,7 +354,7 @@ export const generateCommonFilters = async (
 
   if (startDate) {
     filter.closeDate = {
-      $gte: new Date(startDate),
+      $gte: new Date(startDate)
     };
   }
 
@@ -363,7 +363,7 @@ export const generateCommonFilters = async (
       filter.closeDate.$lte = new Date(endDate);
     } else {
       filter.closeDate = {
-        $lte: new Date(endDate),
+        $lte: new Date(endDate)
       };
     }
   }
@@ -418,8 +418,8 @@ export const generateCommonFilters = async (
 
     const stageIds = await models.Stages.find({
       pipelineId: filterPipeline,
-      status: { $ne: BOARD_STATUSES.ARCHIVED },
-    }).distinct('_id');
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct("_id");
 
     filter.stageId = { $in: stageIds };
   }
@@ -427,19 +427,19 @@ export const generateCommonFilters = async (
   if (boardIds) {
     const pipelineIds = await models.Pipelines.find({
       boardId: { $in: boardIds },
-      status: { $ne: BOARD_STATUSES.ARCHIVED },
-    }).distinct('_id');
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
+    }).distinct("_id");
 
     const filterStages: any = {
       pipelineId: { $in: pipelineIds },
-      status: { $ne: BOARD_STATUSES.ARCHIVED },
+      status: { $ne: BOARD_STATUSES.ARCHIVED }
     };
 
     if (filter?.stageId?.$in) {
       filterStages._id = { $in: filter?.stageId?.$in };
     }
 
-    const stageIds = await models.Stages.find(filterStages).distinct('_id');
+    const stageIds = await models.Stages.find(filterStages).distinct("_id");
 
     filter.stageId = { $in: stageIds };
   }
@@ -451,7 +451,7 @@ export const generateCommonFilters = async (
       filterStages._id = { $in: filter?.stageId?.$in };
     }
 
-    const stageIds = await models.Stages.find(filterStages).distinct('_id');
+    const stageIds = await models.Stages.find(filterStages).distinct("_id");
 
     filter.stageId = { $in: stageIds };
   }
@@ -481,11 +481,11 @@ export const generateCommonFilters = async (
       if (pipeline.isCheckDepartment) {
         const user = await sendCoreMessage({
           subdomain,
-          action: 'users.findOne',
+          action: "users.findOne",
           data: {
-            _id: currentUserId,
+            _id: currentUserId
           },
-          isRPC: true,
+          isRPC: true
         });
 
         const userDepartmentIds = user?.departmentIds || [];
@@ -493,12 +493,12 @@ export const generateCommonFilters = async (
 
         const otherDepartmentUsers = await sendCoreMessage({
           subdomain,
-          action: 'users.find',
+          action: "users.find",
           data: {
-            query: { departmentIds: { $in: userDepartmentIds } },
+            query: { departmentIds: { $in: userDepartmentIds } }
           },
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         });
 
         for (const departmentUser of otherDepartmentUsers) {
@@ -515,14 +515,14 @@ export const generateCommonFilters = async (
       }
 
       const uqinueCheckUserIds = [
-        ...new Set(includeCheckUserIds.concat(currentUserId)),
+        ...new Set(includeCheckUserIds.concat(currentUserId))
       ];
 
       Object.assign(filter, {
         $or: [
           { assignedUserIds: { $in: uqinueCheckUserIds } },
-          { userId: { $in: uqinueCheckUserIds } },
-        ],
+          { userId: { $in: uqinueCheckUserIds } }
+        ]
       });
     }
   }
@@ -539,16 +539,16 @@ export const generateCommonFilters = async (
 
   if (segmentData) {
     const segment = JSON.parse(segmentData);
-    const itemIds = await fetchSegment(subdomain, '', {}, segment);
+    const itemIds = await fetchSegment(subdomain, "", {}, segment);
     filter._id = { $in: itemIds };
   }
 
   if (segment) {
     const segmentObj = await sendSegmentsMessage({
       subdomain,
-      action: 'findOne',
+      action: "findOne",
       data: { _id: segment },
-      isRPC: true,
+      isRPC: true
     });
     const itemIds = await fetchSegment(subdomain, segmentObj);
 
@@ -561,19 +561,19 @@ export const generateCommonFilters = async (
   }
 
   if (number) {
-    filter.number = { $regex: `${number}`, $options: 'mui' };
+    filter.number = { $regex: `${number}`, $options: "mui" };
   }
   if (vendorCustomerIds?.length > 0) {
     const cards = await sendCommonMessage({
       subdomain,
-      serviceName: 'clientportal',
-      action: 'clientPortalUserCards.find',
+      serviceName: "clientportal",
+      action: "clientPortalUserCards.find",
       data: {
-        contentType: 'ticket',
-        cpUserId: { $in: vendorCustomerIds },
+        contentType: "ticket",
+        cpUserId: { $in: vendorCustomerIds }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
     const cardIds = cards.map(d => d.contentTypeId);
     if (filter._id) {
@@ -598,11 +598,11 @@ export const calendarFilters = async (models: IModels, filter, args) => {
     startDateStartDate,
     startDateEndDate,
     closeDateStartDate,
-    closeDateEndDate,
+    closeDateEndDate
   } = args;
 
   if (date) {
-    const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
+    const stageIds = await models.Stages.find({ pipelineId }).distinct("_id");
 
     filter.closeDate = dateSelector(date);
     filter.stageId = { $in: stageIds };
@@ -611,88 +611,27 @@ export const calendarFilters = async (models: IModels, filter, args) => {
   if (createdStartDate || createdEndDate) {
     filter.createdAt = {
       $gte: new Date(createdStartDate),
-      $lte: new Date(createdEndDate),
+      $lte: new Date(createdEndDate)
     };
   }
   if (stateChangedStartDate || stateChangedEndDate) {
     filter.stageChangedDate = {
       $gte: new Date(stateChangedStartDate),
-      $lte: new Date(stateChangedEndDate),
+      $lte: new Date(stateChangedEndDate)
     };
   }
   if (startDateStartDate || startDateEndDate) {
     filter.startDate = {
       $gte: new Date(startDateStartDate),
-      $lte: new Date(startDateEndDate),
+      $lte: new Date(startDateEndDate)
     };
   }
   if (closeDateStartDate || closeDateEndDate) {
     filter.closeDate = {
       $gte: new Date(closeDateStartDate),
-      $lte: new Date(closeDateEndDate),
+      $lte: new Date(closeDateEndDate)
     };
   }
-
-  return filter;
-};
-
-export const generateDealCommonFilters = async (
-  models: IModels,
-  subdomain: string,
-  currentUserId: string,
-  args = {} as any,
-  extraParams?: any
-) => {
-  args.type = 'deal';
-  const { productIds } = extraParams || args;
-  let filter = await generateCommonFilters(
-    models,
-    subdomain,
-    currentUserId,
-    args
-  );
-
-  if (extraParams) {
-    filter = await generateExtraFilters(filter, extraParams);
-  }
-
-  if (productIds) {
-    filter['productsData.productId'] = contains(productIds);
-  }
-
-  // Calendar monthly date
-  await calendarFilters(models, filter, args);
-
-  return filter;
-};
-
-export const generatePurchaseCommonFilters = async (
-  models: IModels,
-  subdomain: string,
-  currentUserId: string,
-  args = {} as any,
-  extraParams?: any
-) => {
-  args.type = 'purchase';
-  const { productIds } = extraParams || args;
-
-  let filter = await generateCommonFilters(
-    models,
-    subdomain,
-    currentUserId,
-    args
-  );
-
-  if (extraParams) {
-    filter = await generateExtraFilters(filter, extraParams);
-  }
-
-  if (productIds) {
-    filter['productsData.productId'] = contains(productIds);
-  }
-
-  // Calendar monthly date
-  await calendarFilters(models, filter, args);
 
   return filter;
 };
@@ -704,7 +643,7 @@ export const generateTicketCommonFilters = async (
   args = {} as any,
   extraParams?: any
 ) => {
-  args.type = 'ticket';
+  args.type = "ticket";
 
   let filter = await generateCommonFilters(
     models,
@@ -730,7 +669,7 @@ export const generateTaskCommonFilters = async (
   args = {} as any,
   extraParams?: any
 ) => {
-  args.type = 'task';
+  args.type = "task";
 
   let filter = await generateCommonFilters(
     models,
@@ -768,7 +707,7 @@ export const generateGrowthHackCommonFilters = async (
   args = {} as any,
   extraParams?: any
 ) => {
-  args.type = 'growthHack';
+  args.type = "growthHack";
 
   const { hackStage, pipelineId, stageId } = extraParams || args;
 
@@ -788,7 +727,7 @@ export const generateGrowthHackCommonFilters = async (
   }
 
   if (!stageId && pipelineId) {
-    const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
+    const stageIds = await models.Stages.find({ pipelineId }).distinct("_id");
 
     filter.stageId = { $in: stageIds };
   }
@@ -809,7 +748,7 @@ const dateSelector = (date: IDate) => {
 
   return {
     $gte: start,
-    $lte: end,
+    $lte: end
   };
 };
 
@@ -843,7 +782,7 @@ export const checkItemPermByUser = async (
     memberIds,
     departmentIds = [],
     isCheckUser,
-    excludeCheckUserIds,
+    excludeCheckUserIds
   } = await models.Pipelines.getPipeline(stage.pipelineId);
 
   const userDepartmentIds = user.departmentIds || [];
@@ -855,12 +794,12 @@ export const checkItemPermByUser = async (
   );
 
   if (
-    visibility === 'private' &&
+    visibility === "private" &&
     !(memberIds || []).includes(user._id) &&
     !hasUserInDepartment &&
     user?.role !== USER_ROLES.SYSTEM
   ) {
-    throw new Error('You do not have permission to view.');
+    throw new Error("You do not have permission to view.");
   }
 
   // pipeline is Show only the users assigned(created) cards checked
@@ -874,7 +813,7 @@ export const checkItemPermByUser = async (
       item.userId === user._id
     )
   ) {
-    throw new Error('You do not have permission to view.');
+    throw new Error("You do not have permission to view.");
   }
 
   return item;
@@ -897,7 +836,7 @@ export const archivedItems = async (
     return collection
       .find(filter)
       .sort({
-        modifiedAt: -1,
+        modifiedAt: -1
       })
       .skip(page || 0)
       .limit(perPage || 20)
@@ -939,7 +878,7 @@ const generateArhivedItemsFilter = (
     startDate,
     endDate,
     sources,
-    hackStages,
+    hackStages
   } = params;
 
   const filter: any = { status: BOARD_STATUSES.ARCHIVED };
@@ -947,7 +886,7 @@ const generateArhivedItemsFilter = (
   filter.stageId = { $in: stages.map(stage => stage._id) };
 
   if (search) {
-    Object.assign(filter, regexSearchText(search, 'name'));
+    Object.assign(filter, regexSearchText(search, "name"));
   }
 
   if (userIds && userIds.length) {
@@ -967,12 +906,12 @@ const generateArhivedItemsFilter = (
   }
 
   if (productIds && productIds.length) {
-    filter['productsData.productId'] = { $in: productIds };
+    filter["productsData.productId"] = { $in: productIds };
   }
 
   if (startDate) {
     filter.closeDate = {
-      $gte: new Date(startDate),
+      $gte: new Date(startDate)
     };
   }
 
@@ -981,7 +920,7 @@ const generateArhivedItemsFilter = (
       filter.closeDate.$lte = new Date(endDate);
     } else {
       filter.closeDate = {
-        $lte: new Date(endDate),
+        $lte: new Date(endDate)
       };
     }
   }
@@ -1015,43 +954,43 @@ export const getItemList = async (
 
   const pipelines: any[] = [
     {
-      $match: filter,
+      $match: filter
     },
     {
-      $sort: sort,
+      $sort: sort
     },
     {
-      $skip: args.skip || 0,
-    },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'assignedUserIds',
-        foreignField: '_id',
-        as: 'users_doc',
-      },
+      $skip: args.skip || 0
     },
     {
       $lookup: {
-        from: 'stages',
-        localField: 'stageId',
-        foreignField: '_id',
-        as: 'stages_doc',
-      },
+        from: "users",
+        localField: "assignedUserIds",
+        foreignField: "_id",
+        as: "users_doc"
+      }
     },
     {
       $lookup: {
-        from: 'pipeline_labels',
-        localField: 'labelIds',
-        foreignField: '_id',
-        as: 'labels_doc',
-      },
+        from: "stages",
+        localField: "stageId",
+        foreignField: "_id",
+        as: "stages_doc"
+      }
+    },
+    {
+      $lookup: {
+        from: "pipeline_labels",
+        localField: "labelIds",
+        foreignField: "_id",
+        as: "labels_doc"
+      }
     },
     {
       $project: {
-        assignedUsers: '$users_doc',
-        labels: '$labels_doc',
-        stage: { $arrayElemAt: ['$stages_doc', 0] },
+        assignedUsers: "$users_doc",
+        labels: "$labels_doc",
+        stage: { $arrayElemAt: ["$stages_doc", 0] },
         name: 1,
         isComplete: 1,
         startDate: 1,
@@ -1069,14 +1008,14 @@ export const getItemList = async (
         branchIds: 1,
         departmentIds: 1,
         userId: 1,
-        ...(extraFields || {}),
-      },
-    },
+        ...(extraFields || {})
+      }
+    }
   ];
 
   if (page && perPage) {
     pipelines[2] = {
-      $skip: (page - 1) * perPage,
+      $skip: (page - 1) * perPage
     };
     limit = perPage;
   }
@@ -1086,35 +1025,35 @@ export const getItemList = async (
   }
 
   if (serverTiming) {
-    serverTiming.startTime('getItemsPipelineAggregate');
+    serverTiming.startTime("getItemsPipelineAggregate");
   }
 
   const list = await collection.aggregate(pipelines);
 
   if (serverTiming) {
-    serverTiming.endTime('getItemsPipelineAggregate');
+    serverTiming.endTime("getItemsPipelineAggregate");
   }
 
   const ids = list.map(item => item._id);
 
   if (serverTiming) {
-    serverTiming.startTime('conformities');
+    serverTiming.startTime("conformities");
   }
 
   const conformities = await sendCoreMessage({
     subdomain,
-    action: 'conformities.getConformities',
+    action: "conformities.getConformities",
     data: {
       mainType: type,
       mainTypeIds: ids,
-      relTypes: ['company', 'customer'],
+      relTypes: ["company", "customer"]
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (serverTiming) {
-    serverTiming.endTime('conformities');
+    serverTiming.endTime("conformities");
   }
 
   const companyIds: string[] = [];
@@ -1139,58 +1078,58 @@ export const getItemList = async (
   };
 
   for (const conf of conformities) {
-    if (conf.mainType === 'company') {
+    if (conf.mainType === "company") {
       perConformity(
         conf,
         companyIdsByItemId,
         companyIds,
-        'mainTypeId',
-        'relTypeId'
+        "mainTypeId",
+        "relTypeId"
       );
       continue;
     }
-    if (conf.relType === 'company') {
+    if (conf.relType === "company") {
       perConformity(
         conf,
         companyIdsByItemId,
         companyIds,
-        'relTypeId',
-        'mainTypeId'
+        "relTypeId",
+        "mainTypeId"
       );
       continue;
     }
-    if (conf.mainType === 'customer') {
+    if (conf.mainType === "customer") {
       perConformity(
         conf,
         customerIdsByItemId,
         customerIds,
-        'mainTypeId',
-        'relTypeId'
+        "mainTypeId",
+        "relTypeId"
       );
       continue;
     }
-    if (conf.relType === 'customer') {
+    if (conf.relType === "customer") {
       perConformity(
         conf,
         customerIdsByItemId,
         customerIds,
-        'relTypeId',
-        'mainTypeId'
+        "relTypeId",
+        "mainTypeId"
       );
       continue;
     }
   }
 
   if (serverTiming) {
-    serverTiming.startTime('getItemsCompanies');
+    serverTiming.startTime("getItemsCompanies");
   }
 
   const companies = await sendContactsMessage({
     subdomain,
-    action: 'companies.findActiveCompanies',
+    action: "companies.findActiveCompanies",
     data: {
       selector: {
-        _id: { $in: [...new Set(companyIds)] },
+        _id: { $in: [...new Set(companyIds)] }
       },
 
       fields: {
@@ -1198,26 +1137,26 @@ export const getItemList = async (
         primaryEmail: 1,
         primaryPhone: 1,
         emails: 1,
-        phones: 1,
-      },
+        phones: 1
+      }
     },
-    isRPC: true,
+    isRPC: true
   });
 
   if (serverTiming) {
-    serverTiming.endTime('getItemsCompanies');
+    serverTiming.endTime("getItemsCompanies");
   }
 
   if (serverTiming) {
-    serverTiming.startTime('getItemsCustomers');
+    serverTiming.startTime("getItemsCustomers");
   }
 
   const customers = await sendContactsMessage({
     subdomain,
-    action: 'customers.findActiveCustomers',
+    action: "customers.findActiveCustomers",
     data: {
       selector: {
-        _id: { $in: [...new Set(customerIds)] },
+        _id: { $in: [...new Set(customerIds)] }
       },
       fields: {
         firstName: 1,
@@ -1227,15 +1166,15 @@ export const getItemList = async (
         primaryEmail: 1,
         primaryPhone: 1,
         emails: 1,
-        phones: 1,
-      },
+        phones: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (serverTiming) {
-    serverTiming.endTime('getItemsCustomers');
+    serverTiming.endTime("getItemsCustomers");
   }
 
   const getCocsByItemId = (
@@ -1255,47 +1194,47 @@ export const getItemList = async (
   const updatedList: any[] = [];
 
   if (serverTiming) {
-    serverTiming.startTime('getItemsNotifications');
+    serverTiming.startTime("getItemsNotifications");
   }
 
   const notifications = await sendNotificationsMessage({
     subdomain,
-    action: 'find',
+    action: "find",
     data: {
       selector: {
         contentTypeId: { $in: ids },
         isRead: false,
-        receiver: user._id,
+        receiver: user._id
       },
-      fields: { contentTypeId: 1 },
+      fields: { contentTypeId: 1 }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (serverTiming) {
-    serverTiming.endTime('getItemsNotifications');
+    serverTiming.endTime("getItemsNotifications");
   }
 
   if (serverTiming) {
-    serverTiming.startTime('getItemsFields');
+    serverTiming.startTime("getItemsFields");
   }
 
   const fields = await sendFormsMessage({
     subdomain,
-    action: 'fields.find',
+    action: "fields.find",
     data: {
       query: {
         showInCard: true,
-        contentType: `cards:${type}`,
-      },
+        contentType: `cards:${type}`
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (serverTiming) {
-    serverTiming.endTime('getItemsFields');
+    serverTiming.endTime("getItemsFields");
   }
 
   // add just incremented order to each item in list, not from db
@@ -1315,7 +1254,7 @@ export const getItemList = async (
 
         if (fieldData) {
           item.customProperties.push({
-            name: `${field.text} - ${fieldData.value}`,
+            name: `${field.text} - ${fieldData.value}`
           });
         }
       });
@@ -1330,7 +1269,7 @@ export const getItemList = async (
       hasNotified: notification ? false : true,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
       companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
-      ...(getExtraFields ? await getExtraFields(item) : {}),
+      ...(getExtraFields ? await getExtraFields(item) : {})
     });
   }
 

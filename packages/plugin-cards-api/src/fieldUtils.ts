@@ -1,15 +1,15 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
-import { generateModels, IModels } from './connectionResolver';
+import { generateFieldsFromSchema } from "@erxes/api-utils/src/fieldUtils";
+import { generateModels, IModels } from "./connectionResolver";
 import {
   BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
   BOARD_ITEM_EXTENDED_FIELDS
-} from './constants';
+} from "./constants";
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
   sendSegmentsMessage
-} from './messageBroker';
+} from "./messageBroker";
 
 const generateProductsOptions = async (
   subdomain: string,
@@ -19,7 +19,7 @@ const generateProductsOptions = async (
 ) => {
   const products = await sendProductsMessage({
     subdomain,
-    action: 'find',
+    action: "find",
     data: {
       query: {}
     },
@@ -51,7 +51,7 @@ const generateProductsCategoriesOptions = async (
 ) => {
   const productCategories = await sendProductsMessage({
     subdomain,
-    action: 'categories.find',
+    action: "categories.find",
     data: {
       query: {}
     },
@@ -85,7 +85,7 @@ const generateContactsOptions = async (
   const contacts = await sendContactsMessage({
     subdomain,
     action: `${name}.find`,
-    data: { ...params, status: { $ne: 'deleted' } },
+    data: { ...params, status: { $ne: "deleted" } },
     isRPC: true,
     defaultValue: []
   });
@@ -93,7 +93,7 @@ const generateContactsOptions = async (
   const options: Array<{ label: string; value: any }> = contacts.map(
     contact => ({
       value: contact._id,
-      label: `${contact?.primaryEmail || contact?.primaryName || ''}`
+      label: `${contact?.primaryEmail || contact?.primaryName || ""}`
     })
   );
 
@@ -114,7 +114,7 @@ const generateUsersOptions = async (
 ) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {}
     },
@@ -124,7 +124,7 @@ const generateUsersOptions = async (
 
   const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,
-    label: user.username || user.email || ''
+    label: user.username || user.email || ""
   }));
 
   return {
@@ -158,15 +158,15 @@ const getStageOptions = async (models: IModels, pipelineId) => {
   for (const stage of stages) {
     options.push({
       value: stage._id,
-      label: stage.name || ''
+      label: stage.name || ""
     });
   }
 
   return {
     _id: Math.random(),
-    name: 'stageId',
-    label: 'Stage',
-    type: 'stage',
+    name: "stageId",
+    label: "Stage",
+    type: "stage",
     selectOptions: options
   };
 };
@@ -184,9 +184,9 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
 
   return {
     _id: Math.random(),
-    name: 'labelIds',
-    label: 'Labels',
-    type: 'label',
+    name: "labelIds",
+    label: "Labels",
+    type: "label",
     selectOptions: options
   };
 };
@@ -210,32 +210,26 @@ export const generateFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (type) {
-    case 'deal':
-      schema = models.Deals.schema;
-      break;
-    case 'purchase':
-      schema = models.Purchases.schema;
-      break;
-    case 'task':
+    case "task":
       schema = models.Tasks.schema;
       break;
 
-    case 'ticket':
+    case "ticket":
       schema = models.Tickets.schema;
       break;
   }
 
-  if (usageType && usageType === 'import') {
+  if (usageType && usageType === "import") {
     fields = BOARD_ITEM_EXTENDED_FIELDS;
   }
 
-  if (usageType && usageType === 'export') {
+  if (usageType && usageType === "export") {
     fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
   }
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...(await generateFieldsFromSchema(schema, '')), ...fields];
+    fields = [...(await generateFieldsFromSchema(schema, "")), ...fields];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -252,59 +246,59 @@ export const generateFields = async ({ subdomain, data }) => {
 
   const createdByOptions = await generateUsersOptions(
     subdomain,
-    'userId',
-    'Created by',
-    'user'
+    "userId",
+    "Created by",
+    "user"
   );
 
   const modifiedByOptions = await generateUsersOptions(
     subdomain,
-    'modifiedBy',
-    'Modified by',
-    'user'
+    "modifiedBy",
+    "Modified by",
+    "user"
   );
 
   const assignedUserOptions = await generateUsersOptions(
     subdomain,
-    'assignedUserIds',
-    'Assigned to',
-    'user'
+    "assignedUserIds",
+    "Assigned to",
+    "user"
   );
 
   const watchedUserOptions = await generateUsersOptions(
     subdomain,
-    'watchedUserIds',
-    'Watched users',
-    'user'
+    "watchedUserIds",
+    "Watched users",
+    "user"
   );
 
   const customersOptions = await generateContactsOptions(
     subdomain,
-    'customers',
-    'Customers',
-    'contact',
-    { state: 'customer' }
+    "customers",
+    "Customers",
+    "contact",
+    { state: "customer" }
   );
 
   const companiesOptions = await generateContactsOptions(
     subdomain,
-    'companies',
-    'Companies',
-    'contact'
+    "companies",
+    "Companies",
+    "contact"
   );
 
   const branchesOptions = await generateStructuresOptions(
     subdomain,
-    'branchIds',
-    'Branches',
-    'structure'
+    "branchIds",
+    "Branches",
+    "structure"
   );
 
   const departmentsOptions = await generateStructuresOptions(
     subdomain,
-    'departmentIds',
-    'Departments',
-    'structure'
+    "departmentIds",
+    "Departments",
+    "structure"
   );
 
   fields = [
@@ -321,49 +315,13 @@ export const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
-  if (type === 'deal' || (type === 'purchase' && usageType !== 'export')) {
-    const productOptions = await generateProductsOptions(
-      subdomain,
-      'productsData.productId',
-      'Product',
-      'product'
-    );
-
-    const productsCategoriesOptions = await generateProductsCategoriesOptions(
-      subdomain,
-      'productsData.categoryId',
-      'Product Categories',
-      'select'
-    );
-
-    fields = [
-      ...fields,
-      ...[productOptions, productsCategoriesOptions, assignedUserOptions]
-    ];
-  }
-
-  if (type === 'deal' || (type === 'purchase' && usageType === 'export')) {
-    const extendFieldsExport = [
-      { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
-      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
-      { _id: Math.random(), name: 'productsData.branch', label: 'Branch' },
-      {
-        _id: Math.random(),
-        name: 'productsData.department',
-        label: 'Department'
-      }
-    ];
-
-    fields = [...fields, ...extendFieldsExport];
-  }
-
-  if (usageType === 'export') {
+  if (usageType === "export") {
     const extendExport = [
-      { _id: Math.random(), name: 'boardId', label: 'Board' },
-      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' },
-      { _id: Math.random(), name: 'labelIds', label: 'Label' },
-      { _id: Math.random(), name: 'branchIds', label: 'Branch' },
-      { _id: Math.random(), name: 'departmentIds', label: 'Department' }
+      { _id: Math.random(), name: "boardId", label: "Board" },
+      { _id: Math.random(), name: "pipelineId", label: "Pipeline" },
+      { _id: Math.random(), name: "labelIds", label: "Label" },
+      { _id: Math.random(), name: "branchIds", label: "Branch" },
+      { _id: Math.random(), name: "departmentIds", label: "Department" }
     ];
 
     fields = [...fields, ...extendExport];
@@ -373,7 +331,7 @@ export const generateFields = async ({ subdomain, data }) => {
     const segment = segmentId
       ? await sendSegmentsMessage({
           subdomain,
-          action: 'findOne',
+          action: "findOne",
           data: { _id: segmentId },
           isRPC: true
         })
@@ -393,9 +351,9 @@ export const generateFields = async ({ subdomain, data }) => {
   } else {
     const stageOptions = {
       _id: Math.random(),
-      name: 'stageId',
-      label: 'Stage',
-      type: 'stage'
+      name: "stageId",
+      label: "Stage",
+      type: "stage"
     };
 
     fields = [...fields, stageOptions];

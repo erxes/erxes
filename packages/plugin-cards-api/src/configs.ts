@@ -21,8 +21,6 @@ import documents from "./documents";
 import tags from "./tags";
 import exporter from "./exporter";
 import cronjobs from "./cronjobs/common";
-import dashboards from "./dashboards";
-import payment from "./payment";
 import reports from "./reports/reports";
 import app from "@erxes/api-utils/src/app";
 
@@ -59,9 +57,7 @@ export default {
     tags,
     permissions,
     documents,
-    dashboards,
-    notificationModules: NOTIFICATION_MODULES,
-    payment
+    notificationModules: NOTIFICATION_MODULES
   },
 
   apolloServerContext: async (context, req, res) => {

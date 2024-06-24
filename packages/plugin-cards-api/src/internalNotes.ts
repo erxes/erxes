@@ -1,4 +1,4 @@
-import { generateModels } from './connectionResolver';
+import { generateModels } from "./connectionResolver";
 
 export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
@@ -8,7 +8,7 @@ export default {
 
     const { contentTypeId, notifDoc, type } = data;
 
-    if (type === 'growthHack') {
+    if (type === "growthHack") {
       const hack = await model.getGrowthHack(contentTypeId);
 
       notifDoc.content = `${hack.name}`;
@@ -17,15 +17,10 @@ export default {
     }
 
     switch (type) {
-      case 'deal':
-        model = models.Deals;
-        break;
-      case 'task':
+      case "task":
         model = models.Tasks;
         break;
-      case 'purchase':
-        model = models.Purchases;
-        break;
+
       default:
         model = models.Tickets;
         break;
@@ -42,7 +37,7 @@ export default {
     notifDoc.contentType = `${type}`;
     notifDoc.item = card;
 
-    // sendNotificationOfItems on ticket, task, purchase and deal
+    // sendNotificationOfItems on ticket, task
     notifDoc.notifOfItems = true;
 
     return notifDoc;
