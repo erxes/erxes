@@ -631,13 +631,21 @@ export default class Field extends React.Component<Props, State> {
     }
 
     switch (field.type) {
-      case 'internationalPhone':
+      case 'phone':
         const updatedProps = {
           value: value || '',
           onChange: this.onChange,
           id: field._id,
         };
         return <PhoneInput {...updatedProps} />;
+
+      case 'company_primaryPhone': 
+        const updatedPropsCompany = {
+          value: value,
+          onChange: this.onChange,
+          id: field._id,
+        };
+        return <PhoneInput {...updatedPropsCompany} />;
 
       case 'select':
         return Field.renderSelect(options, {

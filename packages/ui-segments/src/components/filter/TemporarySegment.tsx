@@ -17,7 +17,6 @@ import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import styled from 'styled-components';
 import { Transition } from '@headlessui/react';
-import queryString from 'query-string';
 
 export const RightMenuContainer = styled.div`
   position: fixed;
@@ -57,17 +56,9 @@ type Props = {
   refetchQueries?: any;
   btnSize?: string;
   afterSave?: (response: any) => void;
-  serviceConfig?:any;
-  hideSaveButton?: boolean;
 };
 
-function TemporarySegment({
-  contentType,
-  btnSize,
-  afterSave,
-  serviceConfig,
-  hideSaveButton
-}: Props) {
+function TemporarySegment({ contentType, btnSize, afterSave }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -86,9 +77,9 @@ function TemporarySegment({
         refetchQueries: [
           {
             query: gql(queries.segments),
-            variables: { contentTypes: [contentType] }
-          }
-        ]
+            variables: { contentTypes: [contentType] },
+          },
+        ],
       })
       .then((response) => {
         Alert.success('Successfully added a segment');
@@ -136,7 +127,7 @@ function TemporarySegment({
               onClick={() => {
                 save({
                   values: { ...doc, name },
-                  closeModal: props.closeModal
+                  closeModal: props.closeModal,
                 });
               }}
               icon="check-circle"
@@ -165,13 +156,13 @@ function TemporarySegment({
           onClick={() => {
             const data = {
               ...values,
-              conditions: values.conditionSegments[0].conditions
+              conditions: values.conditionSegments[0].conditions,
             };
 
             delete data.conditionSegments;
 
             routerUtils.setParams(navigate, location, {
-              segmentData: JSON.stringify(data)
+              segmentData: JSON.stringify(data),
             });
           }}
           icon="filter"
@@ -179,16 +170,17 @@ function TemporarySegment({
           {'Filter'}
         </Button>
 
-        {!hideSaveButton&&renderSaveContent(values)}
+        {renderSaveContent(values)}
       </>
     );
   };
 
-    const queryParams = queryString.parse(location.search);
-
   const content = (
     <>
-      <Transition show={showDrawer} className="slide-in-right">
+      <Transition
+        show={showDrawer}
+        className="slide-in-right"
+      >
         <RightDrawerContainer>
           <ScrolledContent>
             <SegmentsForm
@@ -196,12 +188,6 @@ function TemporarySegment({
               closeModal={toggleDrawer}
               hideDetailForm={true}
               filterContent={filterContent}
-              serviceConfig={serviceConfig}
-              segmentData={
-                queryParams?.segmentData
-                  ? JSON.parse(queryParams.segmentData)
-                  : undefined
-              }
             />
           </ScrolledContent>
         </RightDrawerContainer>
@@ -214,10 +200,10 @@ function TemporarySegment({
       <Button
         btnStyle="primary"
         size={btnSize || 'small'}
-        icon={showDrawer ? 'times-circle' : 'plus-circle'}
+        icon="plus-circle"
         onClick={toggleDrawer}
       >
-        {showDrawer ? 'Close Filter' : `Add filter`}
+        Add filter
       </Button>
 
       {showDrawer && content}

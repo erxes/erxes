@@ -31,7 +31,6 @@ type Props = {
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
-  serviceConfig?:any;
 };
 
 const SegmentsForm = (props: Props) => {
@@ -52,8 +51,7 @@ const SegmentsForm = (props: Props) => {
     segments,
     previewCount,
     count,
-    filterContent,
-    serviceConfig
+    filterContent
   } = props;
 
   const renderSidebar = () => {
@@ -102,7 +100,6 @@ const SegmentsForm = (props: Props) => {
       previewCount={previewCount}
       count={count}
       filterContent={filterContent}
-      serviceConfig={serviceConfig}
     />
   );
 

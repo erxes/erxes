@@ -122,12 +122,12 @@ function PerInvoice(props: Props) {
 
   if (content.status === 'empty') {
     return (
-      <ActivityRow key={Math.random()}>{renderAddInvoice(content)}</ActivityRow>
+      <ActivityRow key={activity._id}>{renderAddInvoice(content)}</ActivityRow>
     );
   }
 
   return (
-    <ActivityRow key={Math.random()}>
+    <ActivityRow key={activity._id}>
       {renderStatus(content.status)}
       {renderCol('Pay Date', dayjs(content.payDate).format('ll'))}
       {renderCol(

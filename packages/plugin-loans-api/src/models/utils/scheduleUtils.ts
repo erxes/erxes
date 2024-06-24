@@ -112,7 +112,7 @@ export const generateDates = (contract:IContractDocument,) => {
 
   var dateRanges: Date[] = [];
 
-  const dateRange = contract.scheduleDays.sort((a, b) => a - b);
+  const dateRange = [...contract.scheduleDays].sort((a, b) => a - b);
 
   for (let index = 0; index < contract.tenor + 2; index++) {
     dateRange.forEach((day, i) => {

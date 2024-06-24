@@ -18,7 +18,7 @@ type Props = {
 const InterestChangeContainer = (props: Props) => {
   const [invDate, setInvDate] = useState(new Date());
   const { contract, closeModal } = props;
-  const [date, setDate] = useState(new Date());
+  const [date] = useState(new Date());
 
   const closeInfoQuery = useQuery<CloseInfoQueryResponse>(
     gql(queries.closeInfo),

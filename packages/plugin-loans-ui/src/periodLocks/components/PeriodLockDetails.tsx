@@ -22,7 +22,7 @@ type Props = {
 };
 
 const ContractDetails = (props: Props) => {
-  const { periodLock, saveItem } = props;
+  const { periodLock} = props;
 
   const title = dayjs(periodLock.date).format('ll').toString() || 'Unknown';
 
