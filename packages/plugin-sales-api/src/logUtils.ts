@@ -23,7 +23,6 @@ import {
 } from "./messageBroker";
 import { IModels, generateModels } from "./connectionResolver";
 import {
-  collectItems,
   getCardContentIds,
   getContentItem,
   getContentTypeDetail
@@ -675,12 +674,6 @@ export default {
 
   getContentTypeDetail: async ({ subdomain, data }) => {
     return getContentTypeDetail(subdomain, data);
-  },
-
-  collectItems: async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return sendSuccess(await collectItems(models, subdomain, data));
   },
 
   getContentIds: async ({ subdomain, data }) => {
