@@ -2,7 +2,7 @@ import { IContext } from '../../../messageBroker';
 import { IMeeting } from '../../../models/definitions/meeting';
 
 export default {
-  async topics({ id }, {}, { models }: IContext) {
+  async topics({ id }, _, { models }: IContext) {
     if (!id) {
       return null;
     }
