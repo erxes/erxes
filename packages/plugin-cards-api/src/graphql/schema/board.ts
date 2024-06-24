@@ -57,10 +57,7 @@ export const types = ({ tags }) => `
     departmentIds: [String]
     probability: String
     status: String
-    unUsedAmount: JSON
-    amount: JSON
     itemsTotalCount: Int
-    compareNextStage: JSON
 
     formId: String
     age: Int
