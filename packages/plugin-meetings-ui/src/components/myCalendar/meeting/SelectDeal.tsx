@@ -38,7 +38,6 @@ const SelectDeal = (props: Props) => {
     filterParams
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
-  const abortController = new AbortController();
 
   const [filter, setFilter] = useState(filterParams);
 
