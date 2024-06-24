@@ -15,23 +15,6 @@ type Props = {
 const CoverRow = (props: Props) => {
   const { cover, remove } = props;
 
-  const displayValue = (cover, name) => {
-    const value = _.get(cover, name);
-    return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  };
-
-  const displayPaid = (cover, key) => {
-    const { paidAmounts } = cover;
-    const value = (
-      (paidAmounts || []).filter((pa) => pa.title === key || pa.type === key) ||
-      []
-    ).reduce((sum, pa) => sum + pa.amount, 0);
-    return (
-      <FinanceAmount key={Math.random()}>
-        {(value || 0).toLocaleString()}
-      </FinanceAmount>
-    );
-  };
 
   const modalContent = (_props) => {
     return <Detail cover={cover} />;
