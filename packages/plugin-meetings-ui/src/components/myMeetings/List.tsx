@@ -28,11 +28,11 @@ export const ListComponent = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-          {meetings?.map((meeting: IMeeting, index: number) => {
+          {meetings?.map((meeting: IMeeting) => {
             return (
               <Row
                 meeting={meeting}
-                key={index}
+                key={meeting._id}
                 remove={() => remove(meeting._id)}
               />
             );
