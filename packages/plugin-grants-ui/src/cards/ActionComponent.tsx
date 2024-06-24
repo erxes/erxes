@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Attribution from "@erxes/ui-automations/src/containers/forms/actions/Attribution";
 import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import { CollapseContent, Icon } from "@erxes/ui/src";
