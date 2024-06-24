@@ -25,7 +25,7 @@ const meetingMutations = {
       }
     }
     const allParticipantIds =
-      participantIds && participantIds.includes(user._id)
+      participantIds?.includes(user._id)
         ? participantIds
         : (participantIds || []).concat(user._id);
 
