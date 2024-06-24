@@ -25,7 +25,6 @@ const PerConfigs = (props: Props) => {
   const { configKey, fieldsCombined, save } = props;
 
   const [config, setConfig] = useState<any>(props.config);
-  const [hasOpen, setHasOpen] = useState<boolean>(false);
 
   const onChangeBranch = (branchId) => {
     setConfig((prevConfig) => ({ ...prevConfig, branchId }));
