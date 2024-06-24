@@ -39,16 +39,6 @@ const relations = type => {
 export default {
   types: [
     {
-      description: "Tickets",
-      type: "ticket",
-      relations: relations("sales:ticket")
-    },
-    {
-      description: "Tasks",
-      type: "task",
-      relations: relations("sales:task")
-    },
-    {
       description: "Purchases",
       type: "purchase",
       relations: [

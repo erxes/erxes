@@ -1,33 +1,19 @@
-import { generateModels } from './connectionResolver';
+import { generateModels } from "./connectionResolver";
 
 export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    let model: any = models.GrowthHacks;
+    let model: any = models.Deals;
 
     const { contentTypeId, notifDoc, type } = data;
 
-    if (type === 'growthHack') {
-      const hack = await model.getGrowthHack(contentTypeId);
-
-      notifDoc.content = `${hack.name}`;
-
-      return notifDoc;
-    }
-
     switch (type) {
-      case 'deal':
-        model = models.Deals;
-        break;
-      case 'task':
-        model = models.Tasks;
-        break;
-      case 'purchase':
+      case "purchase":
         model = models.Purchases;
         break;
       default:
-        model = models.Tickets;
+        model = models.Deals;
         break;
     }
 

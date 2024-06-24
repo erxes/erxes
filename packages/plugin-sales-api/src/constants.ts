@@ -18,10 +18,7 @@ import {
   stageSchema
 } from "./models/definitions/pipelineTemplates";
 
-import { growthHackSchema } from "./models/definitions/growthHacks";
 import { pipelineLabelSchema } from "./models/definitions/pipelineLabels";
-import { taskSchema } from "./models/definitions/tasks";
-import { ticketSchema } from "./models/definitions/tickets";
 
 export const IMPORT_EXPORT_TYPES = [
   {
@@ -265,18 +262,6 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.PIPELINE_TEMPLATE,
     schemas: [pipelineTemplateSchema, stageSchema]
-  },
-  {
-    name: MODULE_NAMES.TASK,
-    schemas: [taskSchema, attachmentSchema]
-  },
-  {
-    name: MODULE_NAMES.GROWTH_HACK,
-    schemas: [growthHackSchema, attachmentSchema]
-  },
-  {
-    name: MODULE_NAMES.TICKET,
-    schemas: [ticketSchema, attachmentSchema]
   },
   {
     name: MODULE_NAMES.STAGE_DEAL,

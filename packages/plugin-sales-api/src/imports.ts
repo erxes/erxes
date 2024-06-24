@@ -1,6 +1,6 @@
-import { generateModels } from './connectionResolver';
-import { IMPORT_EXPORT_TYPES } from './constants';
-import { sendCoreMessage, sendFormsMessage } from './messageBroker';
+import { generateModels } from "./connectionResolver";
+import { IMPORT_EXPORT_TYPES } from "./constants";
+import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
 
 export default {
   importExportTypes: IMPORT_EXPORT_TYPES,
@@ -14,16 +14,12 @@ export default {
       let model;
 
       switch (contentType) {
-        case 'deal':
+        case "deal":
           model = models.Deals;
           break;
-        case 'purchase':
+        case "purchase":
           model = models.Purchases;
           break;
-        case 'task':
-          model = models.Tasks;
-        case 'ticket':
-          model = models.Tickets;
       }
 
       objects = await model.insertMany(docs);
@@ -46,16 +42,16 @@ export default {
       };
 
       let colIndex: number = 0;
-      let boardName: string = '';
-      let pipelineName: string = '';
-      let stageName: string = '';
+      let boardName: string = "";
+      let pipelineName: string = "";
+      let stageName: string = "";
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || '').toString();
+        const value = (fieldValue[colIndex] || "").toString();
 
         switch (property.name) {
-          case 'customProperty':
+          case "customProperty":
             {
               doc.customFieldsData.push({
                 field: property.id,
@@ -64,7 +60,7 @@ export default {
 
               doc.customFieldsData = await sendFormsMessage({
                 subdomain,
-                action: 'fields.prepareCustomFieldsData',
+                action: "fields.prepareCustomFieldsData",
                 data: doc.customFieldsData,
                 isRPC: true,
                 defaultValue: doc.customFieldsData,
@@ -73,32 +69,32 @@ export default {
             }
             break;
 
-          case 'boardName':
+          case "boardName":
             boardName = value;
             break;
 
-          case 'pipelineName':
+          case "pipelineName":
             pipelineName = value;
             break;
 
-          case 'stageName':
+          case "stageName":
             stageName = value;
             break;
 
-          case 'labels':
+          case "labels":
             const label = await models.PipelineLabels.findOne({
               name: value
             });
 
-            doc.labelIds = label ? [label._id] : '';
+            doc.labelIds = label ? [label._id] : "";
 
             break;
 
-          case 'assignedUserEmail':
+          case "assignedUserEmail":
             {
               const assignedUser = await sendCoreMessage({
                 subdomain,
-                action: 'users.findOne',
+                action: "users.findOne",
                 data: { email: value },
                 isRPC: true
               });
@@ -112,15 +108,15 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === 'createdAt' && value) {
+              if (property.name === "createdAt" && value) {
                 doc.createdAt = new Date(value);
               }
 
-              if (property.name === 'modifiedAt' && value) {
+              if (property.name === "modifiedAt" && value) {
                 doc.modifiedAt = new Date(value);
               }
 
-              if (property.name === 'isComplete') {
+              if (property.name === "isComplete") {
                 doc.isComplete = Boolean(value);
               }
             }
@@ -173,7 +169,7 @@ export default {
           });
         }
 
-        doc.stageId = stage ? stage._id : '';
+        doc.stageId = stage ? stage._id : "";
       }
 
       bulkDoc.push(doc);

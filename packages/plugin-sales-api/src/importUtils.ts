@@ -1,4 +1,4 @@
-import { IModels } from './connectionResolver';
+import { IModels } from "./connectionResolver";
 
 export const insertImportItems = async (models: IModels, args) => {
   const { docs, contentType } = args;
@@ -8,14 +8,10 @@ export const insertImportItems = async (models: IModels, args) => {
     let model;
 
     switch (contentType) {
-      case 'deal':
+      case "deal":
         model = models.Deals;
         break;
-      case 'task':
-        model = models.Tasks;
-      case 'ticket':
-        model = models.Tickets;
-      case 'purchase':
+      case "purchase":
         model = models.Purchases;
     }
 
@@ -38,32 +34,32 @@ export const prepareImportDocs = async (models: IModels, args) => {
     };
 
     let colIndex: number = 0;
-    let boardName: string = '';
-    let pipelineName: string = '';
-    let stageName: string = '';
+    let boardName: string = "";
+    let pipelineName: string = "";
+    let stageName: string = "";
 
     // Iterating through detailed properties
     for (const property of properties) {
-      const value = (fieldValue[colIndex] || '').toString();
+      const value = (fieldValue[colIndex] || "").toString();
 
       switch (property.type) {
-        case 'boardName':
+        case "boardName":
           boardName = value;
           break;
 
-        case 'pipelineName':
+        case "pipelineName":
           pipelineName = value;
           break;
 
-        case 'stageName':
+        case "stageName":
           stageName = value;
           break;
 
-        case 'basic':
+        case "basic":
           {
             doc[property.name] = value;
 
-            if (property.name === 'isComplete') {
+            if (property.name === "isComplete") {
               doc.isComplete = Boolean(value);
             }
           }
@@ -91,7 +87,7 @@ export const prepareImportDocs = async (models: IModels, args) => {
         name: stageName
       });
 
-      doc.stageId = stage ? stage._id : '123';
+      doc.stageId = stage ? stage._id : "123";
     }
 
     bulkDoc.push(doc);
