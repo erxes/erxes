@@ -58,9 +58,9 @@ const Form = (props: Props) => {
     goal.segmentIds || []
   );
 
-  const [stageId, setstageId] = useState<string>(goal.stageId);
-  const [pipelineId, setpipelineId] = useState<string>(goal.pipelineId);
-  const [boardId, setboardId] = useState<string>(goal.boardId);
+  const [stageId, setStageId] = useState<string>(goal.stageId);
+  const [pipelineId, setPipelineId] = useState<string>(goal.pipelineId);
+  const [boardId, setBoardId] = useState<string>(goal.boardId);
 
   const [periodGoal, setPeriodGoal] = useState<string>(
     goal.periodGoal || SPECIFIC_PERIOD_GOAL[0].value
@@ -87,7 +87,7 @@ const Form = (props: Props) => {
   const [metric, setMetric] = useState<string>(goal.metric || METRIC[0].value);
   const [target, setTarget] = useState<number>(goal.target || 0);
 
-  const [specificPeriodGoals, setspecificPeriodGoals] = useState<
+  const [specificPeriodGoals, setSpecificPeriodGoals] = useState<
     Array<{
       _id: string;
       addMonthly: string;
@@ -164,7 +164,7 @@ const Form = (props: Props) => {
         (periodGoal === "Weekly" && goal.addMonthly.includes("Week"))
     );
 
-    setspecificPeriodGoals(filteredGoals);
+    setSpecificPeriodGoals(filteredGoals);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -234,9 +234,9 @@ const Form = (props: Props) => {
                 stageId={stageId}
                 pipelineId={pipelineId}
                 boardId={boardId}
-                onChangeStage={(id) => setstageId(id)}
-                onChangePipeline={(id) => setpipelineId(id)}
-                onChangeBoard={(id) => setboardId(id)}
+                onChangeStage={(id) => setStageId(id)}
+                onChangePipeline={(id) => setPipelineId(id)}
+                onChangeBoard={(id) => setBoardId(id)}
               />
             </FormGroup>
           )}
