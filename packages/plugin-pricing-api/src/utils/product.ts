@@ -134,7 +134,7 @@ export const getAllowedProducts = async (
         return [];
       }
 
-      if (!(plan.categories && plan.categories.length)) {
+      if (!(plan.categories?.length)) {
         return [];
       }
 
@@ -176,7 +176,7 @@ export const getAllowedProducts = async (
         return [];
       }
 
-      if (!(plan.tags && plan.tags.length)) {
+      if (!(plan.tags?.length)) {
         return [];
       }
 

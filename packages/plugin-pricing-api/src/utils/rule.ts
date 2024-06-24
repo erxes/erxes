@@ -89,7 +89,7 @@ export const checkRepeatRule = (plan: any): boolean => {
 
   // If repeat rule is disabled, rule passes
   if (!plan.isRepeatEnabled) repeatPassed = true;
-  if (plan.isRepeatEnabled && plan.repeatRules && plan.repeatRules.length) {
+  if (plan.isRepeatEnabled && plan.repeatRules?.length) {
     for (const rule of plan.repeatRules) {
       switch (rule.type) {
         case 'everyDay':
@@ -105,15 +105,13 @@ export const checkRepeatRule = (plan: any): boolean => {
           break;
         case 'everyWeek':
           if (
-            rule.weekValue &&
-            rule.weekValue.find(i => i.value === now.day().toString())
+            rule.weekValue?.find(i => i.value === now.day().toString())
           )
             rulePassCount++;
           break;
         case 'everyMonth':
           if (
-            rule.monthValue &&
-            rule.monthValue.find(i => i.value === now.date().toString())
+            rule.monthValue?.find(i => i.value === now.date().toString())
           )
             rulePassCount++;
           break;
@@ -291,7 +289,7 @@ export const calculateExpiryRule = (
   // Check expiry rule
   if (!plan.isExpiryEnabled) passed = true;
 
-  if (plan.isExpiryEnabled && plan.expiryRules && plan.expiryRules.length)
+  if (plan.isExpiryEnabled && plan.expiryRules?.length)
     for (const rule of plan.expiryRules) {
       // Check validity
       if (!item.manufacturedDate) continue;
