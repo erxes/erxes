@@ -24,11 +24,11 @@ export const getMainConditions: any = (branchId?, departmentId?, date?) => {
       {
         $or: [
           {
-            branchIds: { $in: [branchId && branchId] },
+            branchIds: { $in: [branchId] },
             departmentIds: { $size: 0 }
           },
           {
-            departmentIds: { $in: [departmentId && departmentId] },
+            departmentIds: { $in: [departmentId] },
             branchIds: { $size: 0 }
           },
           {
@@ -36,8 +36,8 @@ export const getMainConditions: any = (branchId?, departmentId?, date?) => {
             departmentIds: { $size: 0 }
           },
           {
-            departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $in: [branchId && branchId] }
+            departmentIds: { $in: [departmentId] },
+            branchIds: { $in: [branchId] }
           }
         ]
       },
@@ -195,14 +195,11 @@ export const checkPricing = async (
         // Bonus product will always be prioritized
         if (
           (priceRule.type === 'bonus' &&
-            priceRule.bonusProducts &&
-            priceRule.bonusProducts.length) ||
+            priceRule.bonusProducts?.length) ||
           (quantityRule.type === 'bonus' &&
-            quantityRule.bonusProducts &&
-            quantityRule.bonusProducts.length) ||
+            quantityRule.bonusProducts?.length) ||
           (expiryRule.type === 'bonus' &&
-            expiryRule.bonusProducts &&
-            expiryRule.bonusProducts.length)
+            expiryRule.bonusProducts?.length)
         ) {
           type = 'bonus';
           bonusProducts = [
