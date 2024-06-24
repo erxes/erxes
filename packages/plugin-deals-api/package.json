@@ -1,0 +1,14 @@
+{
+  "name": "@erxes/plugin-cards-api",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@erxes/api-utils": "*",
+    "server-timing": "3.3.1",
+    "xlsx-populate": "^1.20.1",
+    "dayjs": "1.8.15"
+  }
+}
