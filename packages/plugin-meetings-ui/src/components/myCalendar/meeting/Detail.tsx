@@ -152,9 +152,9 @@ export const MeetingDetail = (props: Props) => {
             <span>Team members:</span>{' '}
             {meetingDetail?.participantUser?.map((user, index) => {
               if (index !== meetingDetail?.participantUser?.length - 1) {
-                return <span key={index}>{user.details?.fullName},</span>;
+                return <span key={user._id}>{user.details?.fullName},</span>;
               }
-              return <span key={index}>{user.details?.fullName}</span>;
+              return <span key={user._id}>{user.details?.fullName}</span>;
             })}
           </MeetingDetailColumn>
         </MeetingDetailRow>
@@ -162,12 +162,12 @@ export const MeetingDetail = (props: Props) => {
           <MeetingDetailColumn>
             <DrawerDetail>
               <span>Deals:</span>{' '}
-              {deals?.map((deal, index) => {
+              {deals?.map((deal) => {
                 const { boardId, _id, pipeline } = deal;
                 const link = `/deal/board?id=${boardId}&pipelineId=${pipeline._id}&itemId=${_id}`;
                 return (
                   <>
-                    <Link to={link} key={index}>
+                    <Link to={link} key={deal._id}>
                       {deal.name}{' '}
                     </Link>
                     ,
