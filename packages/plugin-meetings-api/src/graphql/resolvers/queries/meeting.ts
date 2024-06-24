@@ -58,7 +58,6 @@ const generateSort = (sortField, sortDirection) => {
   let sort: any = { createdAt: -1 };
 
   if (sortField && sortDirection) {
-    sort = {};
     sort = { [sortField]: sortDirection };
   }
   return sort;
@@ -83,7 +82,7 @@ const meetingQueries = {
 
     return await models.Meetings.meetingDetail(_id, user._id);
   },
-  async meetingsTotalCount(_root, {}, { models, user }: IContext) {
+  async meetingsTotalCount(_root, _, { models, user }: IContext) {
     const filter = await generateFilter({ isPreviousSession: true }, user);
 
     return models.Meetings.find(filter).countDocuments();
