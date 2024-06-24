@@ -45,10 +45,6 @@ const List = (props: Props) => {
 
   queryParams.loadingMainQuery = loading;
 
-  const onChange = () => {
-    toggleAll(posList, "posList");
-  };
-
   const renderRow = () => {
     return posList.map((pos) => (
       <Row
