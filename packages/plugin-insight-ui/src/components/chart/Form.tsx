@@ -55,7 +55,7 @@ const Form = (props: Props) => {
   const [name, setName] = useState(chart?.name || "");
   const [chartTypes, setChartTypes] = useState([]);
   const [serviceName, setServiceName] = useState(chart?.serviceName || "");
-  const [templateType, setChartTemplate] = useState(chart?.templateType || "");
+  const [templateType, setTemplateType] = useState(chart?.templateType || ""); 
   const [chartType, setChartType] = useState<string>(chart?.chartType || "bar");
   const [filterTypes, setFilterTypes] = useState<IFilterType[]>([]);
   const [filters, setFilters] = useState<any>(chart?.filter || {});
@@ -124,7 +124,7 @@ const Form = (props: Props) => {
 
   const onChartTemplateChange = (selVal) => {
     setName(selVal.label);
-    setChartTemplate(selVal.value);
+    setTemplateType(selVal.value);
   };
 
   const onChartTypeChange = (chartSelVal) => {
