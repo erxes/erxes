@@ -300,7 +300,7 @@ export interface ILog {
   date: Date;
   type: 'info' | 'error';
   message: string;
-  errorStack?: String;
+  errorStack?: string;
 }
 
 export interface ILogDocument extends ILog, Document {}
