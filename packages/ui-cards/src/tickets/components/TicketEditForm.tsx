@@ -14,8 +14,8 @@ import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
 import { ISelectedOption } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
-import PortableDeals from "../../deals/components/PortableDeals";
-import PortablePurchase from "../../purchases/components/PortablePurchases";
+import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
+import PortablePurchase from "@erxes/ui-sales/src/purchases/components/PortablePurchases";
 import PortableTasks from "../../tasks/components/PortableTasks";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
@@ -35,7 +35,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent,
+      timeSpent
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -53,21 +53,21 @@ export default function TicketEditForm(props: Props) {
   }, [item.source]);
 
   function renderSidebarFields(saveItem) {
-    const sourceValues = INTEGRATION_KINDS.ALL.map((kind) => ({
+    const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
       label: __(kind.text),
-      value: kind.value,
+      value: kind.value
     }));
 
     sourceValues.push({
       label: __("Other"),
-      value: "other",
+      value: "other"
     });
 
     const sourceValueRenderer = (option: ISelectedOption): React.ReactNode => (
       <Capitalize>{option.label}</Capitalize>
     );
 
-    const onSourceChange = (option) => {
+    const onSourceChange = option => {
       const value = option ? option.value : "";
 
       setSource(value);
@@ -77,7 +77,7 @@ export default function TicketEditForm(props: Props) {
       }
     };
 
-    const Option = (props) => {
+    const Option = props => {
       return (
         <components.Option {...props}>
           {sourceValueRenderer(props.data)}
@@ -85,7 +85,7 @@ export default function TicketEditForm(props: Props) {
       );
     };
 
-    const SingleValue = (props) => {
+    const SingleValue = props => {
       return (
         <components.SingleValue {...props}>
           {sourceValueRenderer(props.data)}
@@ -98,7 +98,7 @@ export default function TicketEditForm(props: Props) {
         <ControlLabel>Source</ControlLabel>
         <Select
           placeholder={__("Select a source")}
-          value={sourceValues.find((s) => s.value === source)}
+          value={sourceValues.find(s => s.value === source)}
           options={sourceValues}
           onChange={onSourceChange}
           isClearable={true}
@@ -120,7 +120,7 @@ export default function TicketEditForm(props: Props) {
             id: props.item._id,
             mainType: "ticket",
             mainTypeId: props.item._id,
-            object: props.item,
+            object: props.item
           },
           true
         )}
@@ -138,7 +138,7 @@ export default function TicketEditForm(props: Props) {
       stageId: item.stageId,
       pipelineId: item.pipeline._id,
       options,
-      queryParams: queryString.parse(window.location.search) || {},
+      queryParams: queryString.parse(window.location.search) || {}
     };
 
     return <ChildrenSection {...updatedProps} />;
@@ -149,7 +149,7 @@ export default function TicketEditForm(props: Props) {
     copy,
     remove,
     saveItem,
-    onChangeStage,
+    onChangeStage
   }: IEditFormContent) {
     const {
       options,
@@ -157,7 +157,7 @@ export default function TicketEditForm(props: Props) {
       addItem,
       sendToBoard,
       updateTimeTrack,
-      currentUser,
+      currentUser
     } = props;
 
     const renderSidebar = () => renderSidebarFields(saveItem);
@@ -205,7 +205,7 @@ export default function TicketEditForm(props: Props) {
     ...props,
     formContent: renderFormContent,
     extraFields: { source },
-    refresh,
+    refresh
   };
 
   return <EditForm {...extendedProps} />;

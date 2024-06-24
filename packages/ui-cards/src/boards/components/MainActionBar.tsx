@@ -4,7 +4,7 @@ import {
   HeaderButton,
   HeaderLabel,
   HeaderLink,
-  PageHeader,
+  PageHeader
 } from "../styles/header";
 import { IBoard, IOptions, IPipeline } from "../types";
 import { __, isEnabled } from "@erxes/ui/src/utils/core";
@@ -13,7 +13,7 @@ import {
   groupByGantt,
   groupByList,
   showByTime,
-  stackByChart,
+  stackByChart
 } from "../constants";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -59,7 +59,7 @@ class MainActionBar extends React.Component<Props, State> {
   static defaultProps = {
     viewType: "board",
     boardText: "Board",
-    pipelineText: "Pipeline",
+    pipelineText: "Pipeline"
   };
 
   constructor(props: Props) {
@@ -67,7 +67,7 @@ class MainActionBar extends React.Component<Props, State> {
 
     this.state = {
       showDetail:
-        localStorage.getItem("showSalesDetail") === "true" ? true : false,
+        localStorage.getItem("showSalesDetail") === "true" ? true : false
     };
   }
 
@@ -79,7 +79,7 @@ class MainActionBar extends React.Component<Props, State> {
       );
     }
 
-    return boards.map((board) => {
+    return boards.map(board => {
       let link = `${this.props.link}?id=${board._id}`;
 
       const { pipelines = [] } = board;
@@ -121,7 +121,7 @@ class MainActionBar extends React.Component<Props, State> {
       return null;
     }
 
-    return pipelines.map((pipeline) => {
+    return pipelines.map(pipeline => {
       return (
         <Listbox.Option key={pipeline._id} value={pipeline.name}>
           <Link
@@ -146,7 +146,7 @@ class MainActionBar extends React.Component<Props, State> {
       link,
       extraFilter,
       options,
-      clearFilter,
+      clearFilter
     } = this.props;
 
     const rightMenuProps = {
@@ -157,7 +157,7 @@ class MainActionBar extends React.Component<Props, State> {
       extraFilter,
       options,
       isFiltered,
-      clearFilter,
+      clearFilter
     };
 
     return <RightMenu {...rightMenuProps} />;
@@ -309,26 +309,7 @@ class MainActionBar extends React.Component<Props, State> {
                     {__("Calendar")}
                   </Link>
                 </li>
-                {options.type === "deal" && (
-                  <li key="conversion">
-                    <Link
-                      to={onFilterClick("conversion")}
-                      className={viewType === "conversion" ? "active" : ""}
-                    >
-                      {__("Conversion")}
-                    </Link>
-                  </li>
-                )}
-                {options.type === "purchase" && (
-                  <li key="conversion">
-                    <Link
-                      to={onFilterClick("conversion")}
-                      className={viewType === "conversion" ? "active" : ""}
-                    >
-                      {__("Conversion")}
-                    </Link>
-                  </li>
-                )}
+
                 <li key="activity">
                   <Link
                     to={onFilterClick("activity")}
@@ -381,7 +362,7 @@ class MainActionBar extends React.Component<Props, State> {
   onDetailShowHandler = () => {
     this.setState(
       {
-        showDetail: !this.state.showDetail,
+        showDetail: !this.state.showDetail
       },
       () => {
         localStorage.setItem("showSalesDetail", `${this.state.showDetail}`);
@@ -389,23 +370,6 @@ class MainActionBar extends React.Component<Props, State> {
         window.dispatchEvent(storageChangeEvent);
       }
     );
-  };
-
-  renderSalesDetail = () => {
-    if (window.location.pathname.includes("deal/calendar")) {
-      return (
-        <Button
-          btnStyle="link"
-          size="small"
-          icon={this.state.showDetail ? "eye-slash" : "eye"}
-          onClick={() => this.onDetailShowHandler()}
-        >
-          {this.state.showDetail ? "Hide detail" : "Show detail"}
-        </Button>
-      );
-    }
-
-    return null;
   };
 
   render() {
@@ -417,7 +381,7 @@ class MainActionBar extends React.Component<Props, State> {
       rightContent,
       boardText,
       pipelineText,
-      queryParams,
+      queryParams
     } = this.props;
 
     const type = options.type;
@@ -488,7 +452,6 @@ class MainActionBar extends React.Component<Props, State> {
         ) : null}
 
         {this.renderVisibility()}
-        {this.renderSalesDetail()}
       </BarItems>
     );
 
@@ -503,7 +466,7 @@ class MainActionBar extends React.Component<Props, State> {
         {this.renderTimeView()}
         {queryParams && <Filter queryParams={queryParams} />}
 
-        {isEnabled('segments') && (
+        {isEnabled("segments") && (
           <TemporarySegment
             contentType={`cards:${type}`}
             serviceConfig={{

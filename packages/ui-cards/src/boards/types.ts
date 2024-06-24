@@ -1,15 +1,15 @@
 import {
   IAttachment,
   MutationVariables,
-  QueryResponse,
-} from '@erxes/ui/src/types';
+  QueryResponse
+} from "@erxes/ui/src/types";
 
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { ISavedConformity } from '../conformity/types';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { ISavedConformity } from "../conformity/types";
+import { ITag } from "@erxes/ui-tags/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
 
 export interface IOptions {
   EditForm: any;
@@ -123,7 +123,7 @@ export interface IItemParams {
 
 export type SaveItemMutation = ({ variables: IItemParams }) => Promise<any>;
 export type RemoveStageMutation = ({
-  variables,
+  variables
 }: {
   variables: { _id: string };
 }) => Promise<any>;
@@ -157,19 +157,9 @@ export interface IStage {
   defaultTick?: boolean;
 }
 
-export interface IConversionStage extends IStage {
-  initialDealsTotalCount: number;
-  inProcessDealsTotalCount: number;
-  stayedDealsTotalCount: number;
-  compareNextStage: IStageComparisonInfo;
-}
+export interface IConversionStage extends IStage {}
 
-export interface IConversionStagePurchase extends IStage {
-  initialPurchasesTotalCount: number;
-  inProcessPurchasesTotalCount: number;
-  stayedPurchasesTotalCount: number;
-  compareNextStagePurchase: IStageComparisonInfo;
-}
+export interface IConversionStagePurchase extends IStage {}
 
 export interface IPipelineLabel {
   _id?: string;
@@ -284,7 +274,7 @@ export type PipelinesQueryResponse = {
   loading: boolean;
   refetch: ({
     boardId,
-    type,
+    type
   }: {
     boardId?: string;
     type?: string;
@@ -339,7 +329,7 @@ export type UpdateTimeVariables = {
 export type RemoveMutation = ({ variables: MutationVariables }) => Promise<any>;
 
 export type UpdateTimeTrackMutation = ({
-  variables: UpdateTimeVariables,
+  variables: UpdateTimeVariables
 }) => Promise<any>;
 
 export type CopyVariables = {
@@ -370,11 +360,11 @@ export type PipelineLabelDetailQueryResponse = {
 
 // mutation response
 export type AddPipelineLabelMutationResponse = ({
-  variables: IPipelineLabelVariables,
+  variables: IPipelineLabelVariables
 }) => Promise<any>;
 
 export type EditPipelineLabelMutationResponse = ({
-  variables: EditMutationVariables,
+  variables: EditMutationVariables
 }) => Promise<any>;
 
 export type RemovePipelineLabelMutationResponse = {
@@ -452,7 +442,7 @@ export type ConvertToMutationResponse = {
 };
 
 export type StagesSortItemsMutationResponse = ({
-  variables,
+  variables
 }: {
   variables: {
     stageId: string;
