@@ -221,7 +221,7 @@ export const checkPricing = async (
           return prev;
         });
 
-        if (maxValueRule.type && maxValueRule.type.length) {
+        if (maxValueRule.type?.length) {
           type = maxValueRule.type;
           value = maxValueRule.value;
         }
