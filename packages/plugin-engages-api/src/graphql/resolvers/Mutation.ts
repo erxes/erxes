@@ -234,7 +234,7 @@ const engageMutations = {
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
-        data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+        data: { code: 'SENDGRID_CLIENT_KEY' },
         isRPC: true,
       });
 
@@ -368,7 +368,7 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      return await sendWithSendgrid(models, { content, from, to, title, replacedContent } );
+      return await sendWithSendgrid(subdomain, { from, to, subject:title, html:replacedContent } );
     }
 
     try {
