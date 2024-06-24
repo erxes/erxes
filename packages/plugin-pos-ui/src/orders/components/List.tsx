@@ -50,11 +50,7 @@ const List = (props: Props) => {
 
   const staticKeys = ["count", "totalAmount", "cashAmount", "mobileAmount"];
 
-  const moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = "";
-    e.target.value = tmpValue;
-  };
+
 
   const renderActionBar = () => {
     const rightMenuProps = {
