@@ -6,6 +6,7 @@ import * as _ from "underscore";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { sendCoreMessage, sendNotificationsMessage } from "../messageBroker";
 import { IModels } from "../connectionResolver";
+import { IPurchaseDocument } from "../models/definitions/purchases";
 
 interface IMainType {
   mainType: string;
