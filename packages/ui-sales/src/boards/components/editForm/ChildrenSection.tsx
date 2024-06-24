@@ -5,19 +5,19 @@ import {
   EmptyState,
   Tip,
   Icon
-} from '@erxes/ui/src/components';
-import React from 'react';
-import { AddForm } from '@erxes/ui-cards/src/boards/containers/portable';
-import EditForm from '@erxes/ui-cards/src/boards/containers/editForm/EditForm';
-import { IOptions } from '../../types';
-import { __ } from '@erxes/ui/src/utils';
-import { IDeal } from '../../../deals/types';
-import { ITicket } from '../../../tickets/types';
-import { ITask } from '../../../tasks/types';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { ProductName } from '../../../deals/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { IPurchase } from '../../../purchases/types';
+} from "@erxes/ui/src/components";
+import React from "react";
+import { AddForm } from "@erxes/ui-sales/src/boards/containers/portable";
+import EditForm from "@erxes/ui-sales/src/boards/containers/editForm/EditForm";
+import { IOptions } from "../../types";
+import { __ } from "@erxes/ui/src/utils";
+import { IDeal } from "../../../deals/types";
+import { ITicket } from "../../../tickets/types";
+import { ITask } from "../../../tasks/types";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import { ProductName } from "../../../deals/styles";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { IPurchase } from "../../../purchases/types";
 
 type Props = {
   children: IDeal[] | ITicket[] | ITask[] | IPurchase[];
@@ -37,8 +37,8 @@ class ChildrenSection extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      openChildId: '',
-      openParentId: ''
+      openChildId: "",
+      openParentId: ""
     };
   }
 
@@ -53,7 +53,7 @@ class ChildrenSection extends React.Component<Props, State> {
     };
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__('Add Child Card')}>
+        <Tip text={__("Add Child Card")}>
           <Icon icon="plus-circle" size={16} />
         </Tip>
       </Button>
@@ -73,7 +73,7 @@ class ChildrenSection extends React.Component<Props, State> {
     const { openParentId } = this.state;
 
     const closeModal = () => {
-      this.setState({ openParentId: '' });
+      this.setState({ openParentId: "" });
     };
 
     const openModal = () => {
@@ -91,7 +91,7 @@ class ChildrenSection extends React.Component<Props, State> {
     return (
       <>
         <Button btnStyle="link" onClick={openModal}>
-          <Tip text={__('See Parent Card')}>
+          <Tip text={__("See Parent Card")}>
             <Icon icon="technology" />
           </Tip>
         </Button>
@@ -104,12 +104,12 @@ class ChildrenSection extends React.Component<Props, State> {
     const { openChildId } = this.state;
 
     const closeModal = () => {
-      localStorage.removeItem('isChildModal');
-      this.setState({ openChildId: '' });
+      localStorage.removeItem("isChildModal");
+      this.setState({ openChildId: "" });
     };
 
     const openModal = () => {
-      localStorage.setItem('isChildModal', 'true');
+      localStorage.setItem("isChildModal", "true");
       this.setState({ openChildId: child._id });
     };
 
@@ -144,13 +144,13 @@ class ChildrenSection extends React.Component<Props, State> {
     return (
       <Box title="Children" extraButtons={extraButtons()} isOpen={true}>
         {children?.length ? (
-          (children as Array<
-            IDeal | ITicket | ITask | IPurchase
-          >).map(child => (
-            <SectionBodyItem key={child._id}>
-              {this.renderChildForm(child)}
-            </SectionBodyItem>
-          ))
+          (children as Array<IDeal | ITicket | ITask | IPurchase>).map(
+            child => (
+              <SectionBodyItem key={child._id}>
+                {this.renderChildForm(child)}
+              </SectionBodyItem>
+            )
+          )
         ) : (
           <EmptyState text="No Children" icon="list-ui-alt" />
         )}

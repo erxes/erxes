@@ -1,16 +1,16 @@
-import MainActionBar from '../containers/MainActionBar';
+import MainActionBar from "../containers/MainActionBar";
 import {
   BoardContainer,
   BoardContent,
   ScrolledContent
-} from '../styles/common';
-import Calendar from '@erxes/ui/src/components/Calendar';
-import { colors } from '@erxes/ui/src/styles';
-import { IDateColumn } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import Header from '@erxes/ui/src/layout/components/Header';
-import React from 'react';
-import styled from 'styled-components';
+} from "../styles/common";
+import Calendar from "@erxes/ui/src/components/Calendar";
+import { colors } from "@erxes/ui/src/styles";
+import { IDateColumn } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils";
+import Header from "@erxes/ui/src/layout/components/Header";
+import React from "react";
+import styled from "styled-components";
 
 export const ColumnContainer = styled.div`
   position: relative;
@@ -74,7 +74,7 @@ const Container = styled.div`
 `;
 
 const toKey = ({ year, month }: IDateColumn) => {
-  return year + '-' + month;
+  return year + "-" + month;
 };
 
 class CalendarView extends React.Component<Props> {
