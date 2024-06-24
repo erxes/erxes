@@ -1,12 +1,12 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IStage } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import { StageItemContainer } from '@erxes/ui-cards/src/settings/boards/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
-import { colors } from '@erxes/ui/src/styles';
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import { IStage } from "@erxes/ui-sales/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import { StageItemContainer } from "@erxes/ui-sales/src/settings/boards/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
+import { colors } from "@erxes/ui/src/styles";
 
 type Props = {
   stage: IStage;
@@ -32,7 +32,7 @@ class StageItem extends React.Component<Props, {}> {
         <FormControl
           defaultValue={stage.name}
           type="text"
-          placeholder={__('Stage name')}
+          placeholder={__("Stage name")}
           onKeyPress={onKeyPress}
           autoFocus={true}
           name="name"
@@ -41,7 +41,7 @@ class StageItem extends React.Component<Props, {}> {
         <Tip text="Build a form">
           <Button btnStyle="link" onClick={onBuildClick}>
             <Icon
-              icon={stage.formId ? 'file-edit-alt' : 'file-plus-alt'}
+              icon={stage.formId ? "file-edit-alt" : "file-plus-alt"}
               color={
                 stage.formId ? colors.colorSecondary : colors.colorCoreGreen
               }

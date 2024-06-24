@@ -1,25 +1,25 @@
-import DueDateChanger from '@erxes/ui-cards/src/boards/components/DueDateChanger';
-import { ArchiveBtn } from '@erxes/ui-cards/src/boards/components/editForm/ArchiveBtn';
-import PriorityIndicator from '@erxes/ui-cards/src/boards/components/editForm/PriorityIndicator';
-import SelectItem from '@erxes/ui-cards/src/boards/components/SelectItem';
-import { PRIORITIES } from '@erxes/ui-cards/src/boards/constants';
-import { Watch } from '@erxes/ui-cards/src/boards/containers/editForm/';
-import LabelChooser from '@erxes/ui-cards/src/boards/containers/label/LabelChooser';
-import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
-import { ActionContainer } from '@erxes/ui-cards/src/boards/styles/item';
-import { IOptions } from '@erxes/ui-cards/src/boards/types';
-import ChecklistAdd from '@erxes/ui-cards/src/checklists/components/AddButton';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils/core';
-import { IGrowthHack } from '../../types';
-import React from 'react';
-import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
-import Vote from '../../containers/Vote';
+import DueDateChanger from "@erxes/ui-sales/src/boards/components/DueDateChanger";
+import { ArchiveBtn } from "@erxes/ui-sales/src/boards/components/editForm/ArchiveBtn";
+import PriorityIndicator from "@erxes/ui-sales/src/boards/components/editForm/PriorityIndicator";
+import SelectItem from "@erxes/ui-sales/src/boards/components/SelectItem";
+import { PRIORITIES } from "@erxes/ui-sales/src/boards/constants";
+import { Watch } from "@erxes/ui-sales/src/boards/containers/editForm/";
+import LabelChooser from "@erxes/ui-sales/src/boards/containers/label/LabelChooser";
+import { ColorButton } from "@erxes/ui-sales/src/boards/styles/common";
+import { ActionContainer } from "@erxes/ui-sales/src/boards/styles/item";
+import { IOptions } from "@erxes/ui-sales/src/boards/types";
+import ChecklistAdd from "@erxes/ui-sales/src/checklists/components/AddButton";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils/core";
+import { IGrowthHack } from "../../types";
+import React from "react";
+import { HACKSTAGES } from "@erxes/ui-sales/src/boards/constants";
+import Vote from "../../containers/Vote";
 
 type Props = {
   item: IGrowthHack;
   onChangeField: (
-    name: 'labels' | 'priority' | 'hackStages',
+    name: "labels" | "priority" | "hackStages",
     value: any
   ) => void;
   dateOnChange: (date) => void;
@@ -52,10 +52,10 @@ class Actions extends React.Component<Props> {
     const hackStages = item.hackStages || [];
 
     const priorityOnChange = (value: string) => {
-      onChangeField('priority', value);
+      onChangeField("priority", value);
     };
     const onLabelChange = labels => {
-      onChangeField('labels', labels);
+      onChangeField("labels", labels);
     };
 
     const hackStageOnChange = (value: string) => {
@@ -64,12 +64,12 @@ class Actions extends React.Component<Props> {
           return i !== value;
         });
 
-        return onChangeField('hackStages', remainedValues);
+        return onChangeField("hackStages", remainedValues);
       }
 
       const values = hackStages.concat(value);
 
-      return onChangeField('hackStages', values);
+      return onChangeField("hackStages", values);
     };
 
     const priorityTrigger = (
@@ -79,14 +79,14 @@ class Actions extends React.Component<Props> {
         ) : (
           <Icon icon="sort-amount-up" />
         )}
-        {__('Priority')}
+        {__("Priority")}
       </ColorButton>
     );
 
     const hackStageTrigger = (
       <ColorButton>
         <Icon icon="diary" />
-        {__('Growth funnel')}
+        {__("Growth funnel")}
       </ColorButton>
     );
 
@@ -116,7 +116,7 @@ class Actions extends React.Component<Props> {
         <Watch item={item} options={options} isSmall={true} />
         <ColorButton onClick={copy}>
           <Icon icon="copy-1" />
-          {__('Copy')}
+          {__("Copy")}
         </ColorButton>
         <ArchiveBtn
           item={item}

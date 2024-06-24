@@ -1,17 +1,17 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { SaveMutation } from '@erxes/ui-cards/src/boards/types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import WeightedScore from '../components/weightedScore/WeightedScore';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations, queries } from '../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { SaveMutation } from "@erxes/ui-sales/src/boards/types";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import WeightedScore from "../components/weightedScore/WeightedScore";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations, queries } from "../graphql";
 import {
   GrowthHacksCountQueryResponse,
   GrowthHacksQueryResponse,
   IGrowthHackParams
-} from '../types';
-import { getFilterParams } from '../utils';
+} from "../types";
+import { getFilterParams } from "../utils";
 
 type Props = {
   component: any;
@@ -34,7 +34,7 @@ class EditableGrowthHackList extends React.Component<FinalProps> {
 
       editMutation({ variables: { _id: id, ...doc } })
         .then(() => {
-          Alert.success('You successfully updated an experiment');
+          Alert.success("You successfully updated an experiment");
 
           if (this.props.refetch) {
             this.props.refetch();
@@ -67,11 +67,11 @@ export default withProps<Props>(
     graphql<Props, SaveMutation, IGrowthHackParams>(
       gql(mutations.growthHacksEdit),
       {
-        name: 'editMutation'
+        name: "editMutation"
       }
     ),
     graphql<Props>(gql(queries.growthHacks), {
-      name: 'growthHacksQuery',
+      name: "growthHacksQuery",
       options: ({ queryParams = {} }) => ({
         variables: {
           ...getFilterParams(queryParams),
@@ -82,7 +82,7 @@ export default withProps<Props>(
       })
     }),
     graphql<Props>(gql(queries.growthHacksTotalCount), {
-      name: 'growthHacksTotalCountQuery',
+      name: "growthHacksTotalCountQuery",
       options: ({ queryParams = {} }) => ({
         variables: getFilterParams(queryParams)
       })

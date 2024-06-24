@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { BoxContainer, ProjectItem } from './styles';
+import React, { useState } from "react";
+import { BoxContainer, ProjectItem } from "./styles";
 
-import { IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import PipelineForm from '../../../settings/boards/containers/PipelineForm';
-import { options } from '../../../settings/growthHacks/options';
-import PipelineRow from './PipelineRow';
+import { IPipeline } from "@erxes/ui-sales/src/boards/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import PipelineForm from "../../../settings/boards/containers/PipelineForm";
+import { options } from "../../../settings/growthHacks/options";
+import PipelineRow from "./PipelineRow";
 
 type Props = {
   pipelines: IPipeline[];
@@ -41,7 +41,7 @@ function PipelineList(props: Props) {
       <div>
         <ProjectItem $new={true} onClick={toggleVisibility}>
           <h5>
-            {__('+ Create New Project')}
+            {__("+ Create New Project")}
             <br />
           </h5>
         </ProjectItem>

@@ -1,11 +1,5 @@
-import { dealCharts } from './deal'
-import { taskCharts } from './task'
-import { ticketCharts } from './ticket'
+import { dealCharts } from "./deal";
 
-const chartTemplates = [
-    ...dealCharts,
-    ...taskCharts,
-    ...ticketCharts,
-]
+const chartTemplates = [...dealCharts];
 
 export default chartTemplates;

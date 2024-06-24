@@ -1,8 +1,8 @@
 import {
   commonDragParams,
   commonDragVariables
-} from '@erxes/ui-cards/src/boards/graphql/mutations';
-import { growthHackFields } from './queries';
+} from "@erxes/ui-sales/src/boards/graphql/mutations";
+import { growthHackFields } from "./queries";
 
 const commonVariables = `
   $proccessId: String,

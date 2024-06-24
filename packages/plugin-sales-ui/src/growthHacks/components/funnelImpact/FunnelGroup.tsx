@@ -1,9 +1,9 @@
-import PriorityIndicator from '@erxes/ui-cards/src/boards/components/editForm/PriorityIndicator';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FunnelContent, Title } from '../../styles';
-import { IGrowthHack } from '../../types';
-import React from 'react';
-import GrowthHacks from './GrowthHacks';
+import PriorityIndicator from "@erxes/ui-sales/src/boards/components/editForm/PriorityIndicator";
+import Icon from "@erxes/ui/src/components/Icon";
+import { FunnelContent, Title } from "../../styles";
+import { IGrowthHack } from "../../types";
+import React from "react";
+import GrowthHacks from "./GrowthHacks";
 
 type Props = {
   queryParams: any;
@@ -38,7 +38,7 @@ class FunnelGroup extends React.Component<Props> {
       <FunnelContent>
         <Title onClick={this.onToggle}>
           <div>
-            <Icon icon={isOpen ? 'angle-down' : 'angle-right'} />
+            <Icon icon={isOpen ? "angle-down" : "angle-right"} />
             <PriorityIndicator value={hackStage} isFullBackground={true} />
           </div>
           <span>

@@ -1,9 +1,9 @@
-import { renderAmount } from '@erxes/ui-cards/src/boards/utils';
-import Tip from '@erxes/ui/src/components/Tip';
-import { getUserAvatar } from '@erxes/ui/src/utils';
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import * as React from 'react';
-import { BodyRow } from '../style';
+import { renderAmount } from "@erxes/ui-sales/src/boards/utils";
+import Tip from "@erxes/ui/src/components/Tip";
+import { getUserAvatar } from "@erxes/ui/src/utils";
+import { IDeal } from "@erxes/ui-sales/src/deals/types";
+import * as React from "react";
+import { BodyRow } from "../style";
 
 type Props = {
   deal: IDeal;
@@ -12,7 +12,7 @@ type Props = {
 export default class DealItem extends React.PureComponent<Props> {
   render() {
     const { deal } = this.props;
-    const stageName = deal.stage ? deal.stage.name : '';
+    const stageName = deal.stage ? deal.stage.name : "";
 
     return (
       <BodyRow>
@@ -30,7 +30,7 @@ export default class DealItem extends React.PureComponent<Props> {
                 alt={user.details && (user.details.fullName || user.email)}
                 width="22px"
                 height="22px"
-                style={{ marginLeft: '2px', borderRadius: '11px' }}
+                style={{ marginLeft: "2px", borderRadius: "11px" }}
               />
             </Tip>
           ))}

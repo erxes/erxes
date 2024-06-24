@@ -1,4 +1,4 @@
-import { IStage } from "@erxes/ui-cards/src/boards/types";
+import { IStage } from "@erxes/ui-sales/src/boards/types";
 import Button from "@erxes/ui/src/components/Button";
 import Icon from "@erxes/ui/src/components/Icon";
 import { CloseModal, ModalFooter } from "@erxes/ui/src/styles/main";
@@ -25,7 +25,7 @@ class FormBuilder extends React.Component<
     super(props);
 
     this.state = {
-      isReadyToSaveForm: false,
+      isReadyToSaveForm: false
     };
   }
 
@@ -96,7 +96,7 @@ class FormBuilder extends React.Component<
       afterDbSave: this.afterFormDbSave,
       isReadyToSave: this.state.isReadyToSaveForm,
       hideOptionalFields: true,
-      type: "growthHack",
+      type: "growthHack"
     };
 
     if (stage.formId) {

@@ -7,20 +7,12 @@ import {
   DUE_DATERANGE_TYPES,
   DUE_TYPES,
   MONTH_NAMES,
-  NOW,
   PRIORITY,
   PROBABILITY_DEAL,
-  PROBABILITY_TASK,
   STATUS_TYPES,
-  USER_TYPES,
-  WEEKDAY_NAMES
+  USER_TYPES
 } from "../constants";
-import {
-  buildMatchFilter,
-  buildPipeline,
-  buildData,
-  getDimensionPipeline
-} from "../utils";
+import { buildMatchFilter, buildPipeline, buildData } from "../utils";
 const util = require("util");
 
 const MEASURE_OPTIONS = [

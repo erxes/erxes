@@ -1,7 +1,7 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IItem, IItemParams } from '@erxes/ui-cards/src/boards/types';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IField } from '@erxes/ui/src/types';
+import { IUser } from "@erxes/ui/src/auth/types";
+import { IItem, IItemParams } from "@erxes/ui-sales/src/boards/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+import { IField } from "@erxes/ui/src/types";
 
 export interface IGrowthHack extends IItem {
   hackStages?: string[];
@@ -60,17 +60,17 @@ export type VoteVariables = {
 export type VoteMutation = ({ variables: VoteVariables }) => Promise<any>;
 
 export type GrowthHackFieldName =
-  | 'hackStages'
-  | 'formId'
-  | 'formSubmissions'
-  | 'voteCount'
-  | 'isVoted'
-  | 'votedUsers'
-  | 'scoringType'
-  | 'reach'
-  | 'impact'
-  | 'confidence'
-  | 'formFields'
-  | 'ease'
-  | 'priority'
-  | 'stageId';
+  | "hackStages"
+  | "formId"
+  | "formSubmissions"
+  | "voteCount"
+  | "isVoted"
+  | "votedUsers"
+  | "scoringType"
+  | "reach"
+  | "impact"
+  | "confidence"
+  | "formFields"
+  | "ease"
+  | "priority"
+  | "stageId";

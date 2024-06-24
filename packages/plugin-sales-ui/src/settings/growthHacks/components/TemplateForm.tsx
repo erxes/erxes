@@ -5,7 +5,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
 import { IFormProps } from "@erxes/ui/src/types";
 import { IPipelineTemplate } from "../types";
-import { IStage } from "@erxes/ui-cards/src/boards/types";
+import { IStage } from "@erxes/ui-sales/src/boards/types";
 import React from "react";
 import Stages from "./Stages";
 import { Warning } from "../styles";
@@ -30,13 +30,13 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       stages: stages.map((stage: IStage) => ({
         _id: stage._id,
         name: stage.name,
-        formId: stage.formId,
+        formId: stage.formId
       })),
-      content: (object && object.content) || "",
+      content: (object && object.content) || ""
     };
   }
 
-  onEditorChange = (e) => {
+  onEditorChange = e => {
     this.setState({ content: e.editor.getData() });
   };
 
@@ -58,11 +58,11 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
       name: finalValues.name,
       description: finalValues.description,
       type: "growthHack",
-      stages: stages.filter((el) => el.name && el.formId),
+      stages: stages.filter(el => el.name && el.formId)
     };
   };
 
-  onChangeStages = (stages) => {
+  onChangeStages = stages => {
     this.setState({ stages });
   };
 

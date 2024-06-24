@@ -1,21 +1,21 @@
-import Labels from '@erxes/ui-cards/src/boards/components/label/Labels';
-import ItemFooter from '@erxes/ui-cards/src/boards/components/portable/ItemFooter';
-import EditForm from '@erxes/ui-cards/src/boards/containers/editForm/EditForm';
-import { ItemContainer } from '@erxes/ui-cards/src/boards/styles/common';
+import Labels from "@erxes/ui-sales/src/boards/components/label/Labels";
+import ItemFooter from "@erxes/ui-sales/src/boards/components/portable/ItemFooter";
+import EditForm from "@erxes/ui-sales/src/boards/containers/editForm/EditForm";
+import { ItemContainer } from "@erxes/ui-sales/src/boards/styles/common";
 import {
   Left,
   PriceContainer,
   Right
-} from '@erxes/ui-cards/src/boards/styles/item';
-import { Content } from '@erxes/ui-cards/src/boards/styles/stage';
-import { IOptions } from '@erxes/ui-cards/src/boards/types';
-import { renderPriority } from '@erxes/ui-cards/src/boards/utils';
-import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import { ScoreAmount, Vote } from '../styles';
-import { IGrowthHack } from '../types';
-import Score from './Score';
+} from "@erxes/ui-sales/src/boards/styles/item";
+import { Content } from "@erxes/ui-sales/src/boards/styles/stage";
+import { IOptions } from "@erxes/ui-sales/src/boards/types";
+import { renderPriority } from "@erxes/ui-sales/src/boards/utils";
+import Participators from "@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
+import { ScoreAmount, Vote } from "../styles";
+import { IGrowthHack } from "../types";
+import Score from "./Score";
 
 type Props = {
   stageId: string;

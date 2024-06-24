@@ -1,9 +1,9 @@
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
-import { IPurchase } from '@erxes/ui-cards/src/purchases/types';
-import * as React from 'react';
-import { CenterButton, Purchases, SubHead } from '../style';
-import PurchaseItem from './PurchaseItem';
+import Button from "@erxes/ui/src/components/Button";
+import { __ } from "@erxes/ui/src/utils/core";
+import { IPurchase } from "@erxes/ui-sales/src/purchases/types";
+import * as React from "react";
+import { CenterButton, Purchases, SubHead } from "../style";
+import PurchaseItem from "./PurchaseItem";
 
 type Props = {
   listId: string;
@@ -16,7 +16,7 @@ type Props = {
 
 export default class PurchaseList extends React.Component<Props> {
   static defaultProps = {
-    listId: 'LIST'
+    listId: "LIST"
   };
 
   render() {
@@ -28,10 +28,10 @@ export default class PurchaseList extends React.Component<Props> {
     return (
       <Purchases>
         <SubHead>
-          <span>{__('purchase')}</span>
-          <span>{__('Value')}</span>
-          <span>{__('Current Stage')}</span>
-          <span>{__('Assigned')}</span>
+          <span>{__("purchase")}</span>
+          <span>{__("Value")}</span>
+          <span>{__("Current Stage")}</span>
+          <span>{__("Assigned")}</span>
         </SubHead>
         {contents}
         {this.props.hasMore && (

@@ -1,24 +1,24 @@
-import * as compose from 'lodash.flowright';
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import * as compose from "lodash.flowright";
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IOption, RemoveBoardMutationResponse } from '../types';
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IOption, RemoveBoardMutationResponse } from "../types";
 import {
   mutations,
-  queries,
-} from '@erxes/ui-cards/src/settings/boards/graphql';
+  queries
+} from "@erxes/ui-sales/src/settings/boards/graphql";
 
-import Boards from '../components/Boards';
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import React from 'react';
-import { STORAGE_BOARD_KEY } from '@erxes/ui-cards/src/boards/constants';
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { useLocation, useNavigate } from 'react-router-dom';
+import Boards from "../components/Boards";
+import { BoardsQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import React from "react";
+import { STORAGE_BOARD_KEY } from "@erxes/ui-sales/src/boards/constants";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-sales/src/boards/utils";
+import { getWarningMessage } from "@erxes/ui-sales/src/boards/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   currentBoardId?: string;
@@ -39,17 +39,17 @@ function BoardsContainer(props: FinalProps) {
   const boards = boardsQuery.boards || [];
 
   const removeHash = () => {
-    if (location.hash.includes('showBoardModal')) {
-      routerUtils.removeHash(navigate, 'showBoardModal');
+    if (location.hash.includes("showBoardModal")) {
+      routerUtils.removeHash(navigate, "showBoardModal");
     }
   };
 
   // remove action
-  const remove = (boardId) => {
-    confirm(getWarningMessage('Board'), { hasDeleteConfirm: true }).then(() => {
+  const remove = boardId => {
+    confirm(getWarningMessage("Board"), { hasDeleteConfirm: true }).then(() => {
       removeMutation({
         variables: { _id: boardId },
-        refetchQueries: getRefetchQueries(),
+        refetchQueries: getRefetchQueries()
       })
         .then(() => {
           // if deleted board is default board
@@ -61,13 +61,13 @@ function BoardsContainer(props: FinalProps) {
 
             localStorage.setItem(
               STORAGE_BOARD_KEY,
-              JSON.stringify(defaultBoards),
+              JSON.stringify(defaultBoards)
             );
           }
 
-          Alert.success('You successfully deleted a board');
+          Alert.success("You successfully deleted a board");
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     });
@@ -78,7 +78,7 @@ function BoardsContainer(props: FinalProps) {
     values,
     isSubmitted,
     callback,
-    object,
+    object
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -90,7 +90,7 @@ function BoardsContainer(props: FinalProps) {
         type="submit"
         beforeSubmit={removeHash}
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -102,34 +102,34 @@ function BoardsContainer(props: FinalProps) {
     renderButton,
     remove,
     removeHash,
-    loading: boardsQuery.loading,
+    loading: boardsQuery.loading
   };
 
   return <Boards {...extendedProps} />;
 }
 
 const getRefetchQueries = () => {
-  return ['boards', 'boardGetLast', 'pipelines'];
+  return ["boards", "boardGetLast", "pipelines"];
 };
 
 const generateOptions = () => ({
-  refetchQueries: getRefetchQueries(),
+  refetchQueries: getRefetchQueries()
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
-        variables: { type },
-      }),
+        variables: { type }
+      })
     }),
     graphql<Props, RemoveBoardMutationResponse, {}>(
       gql(mutations.boardRemove),
       {
-        name: 'removeMutation',
-        options: generateOptions(),
-      },
-    ),
-  )(BoardsContainer),
+        name: "removeMutation",
+        options: generateOptions()
+      }
+    )
+  )(BoardsContainer)
 );

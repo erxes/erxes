@@ -4,10 +4,10 @@ import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
-  ModalOverlay,
+  ModalOverlay
 } from "@erxes/ui/src/styles/main";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import { IBoard, IPipeline, IStage } from "@erxes/ui-cards/src/boards/types";
+import { IBoard, IPipeline, IStage } from "@erxes/ui-sales/src/boards/types";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import React, { Fragment, useEffect, useState } from "react";
 import { __, generateTree } from "coreui/utils";
@@ -27,7 +27,7 @@ import { ITag } from "@erxes/ui-tags/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import Select from "react-select";
-import { SelectMemberStyled } from "@erxes/ui-cards/src/settings/boards/styles";
+import { SelectMemberStyled } from "@erxes/ui-sales/src/settings/boards/styles";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Stages from "./Stages";
 import TwitterPicker from "react-color/lib/Twitter";
@@ -52,7 +52,7 @@ type Props = {
 const PipelineForm = (props: Props) => {
   const { pipeline, show, closeModal, options } = props;
   const [stages, setStages] = useState(
-    (props.stages || []).map((stage) => ({ ...stage }))
+    (props.stages || []).map(stage => ({ ...stage }))
   );
   const [visibility, setVisibility] = useState(
     pipeline ? pipeline.visibility : "public"
@@ -88,10 +88,10 @@ const PipelineForm = (props: Props) => {
   );
 
   useEffect(() => {
-    setStages((props.stages || []).map((stage) => ({ ...stage })));
+    setStages((props.stages || []).map(stage => ({ ...stage })));
   }, [props.stages]);
 
-  const onChangeStages = (stages) => {
+  const onChangeStages = stages => {
     setStages(stages);
   };
 
@@ -99,19 +99,19 @@ const PipelineForm = (props: Props) => {
     setVisibility((e.currentTarget as HTMLInputElement).value);
   };
 
-  const onChangeMembers = (items) => {
+  const onChangeMembers = items => {
     setSelectedMemberIds(items);
   };
 
-  const onChangeDepartments = (options) => {
-    setDepartmentIds((options || []).map((o) => o.value));
+  const onChangeDepartments = options => {
+    setDepartmentIds((options || []).map(o => o.value));
   };
 
-  const onChangeDominantUsers = (items) => {
+  const onChangeDominantUsers = items => {
     setExcludeCheckUserIds(items);
   };
 
-  const onColorChange = (e) => {
+  const onColorChange = e => {
     setBackgroundColor(e.hex);
   };
 
@@ -142,7 +142,7 @@ const PipelineForm = (props: Props) => {
       ...extraFields,
       type,
       boardId,
-      stages: stages.filter((el) => el.name),
+      stages: stages.filter(el => el.name),
       memberIds: selectedMemberIds,
       bgColor: backgroundColor,
       isCheckDate,
@@ -152,7 +152,7 @@ const PipelineForm = (props: Props) => {
       numberConfig,
       numberSize,
       departmentIds,
-      tagId,
+      tagId
     };
   };
 
@@ -178,7 +178,7 @@ const PipelineForm = (props: Props) => {
       null,
       (node, level) => ({
         value: node._id,
-        label: `${"---".repeat(level)} ${node.title}`,
+        label: `${"---".repeat(level)} ${node.title}`
       })
     );
 
@@ -200,7 +200,7 @@ const PipelineForm = (props: Props) => {
           <SelectMemberStyled>
             <ControlLabel>Departments</ControlLabel>
             <Select
-              value={departmentOptions.filter((option) =>
+              value={departmentOptions.filter(option =>
                 departmentIds?.includes(option.value)
               )}
               options={departmentOptions}
@@ -214,17 +214,17 @@ const PipelineForm = (props: Props) => {
     );
   };
 
-  const onChangeIsCheckDate = (e) => {
+  const onChangeIsCheckDate = e => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     setIsCheckDate(isChecked);
   };
 
-  const onChangeIsCheckUser = (e) => {
+  const onChangeIsCheckUser = e => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     setIsCheckUser(isChecked);
   };
 
-  const onChangeIsCheckDepartment = (e) => {
+  const onChangeIsCheckDepartment = e => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
     setIsCheckDepartment(isChecked);
   };
@@ -253,12 +253,12 @@ const PipelineForm = (props: Props) => {
   const renderBoards = () => {
     const { boards = [] } = props;
 
-    const boardOptions = boards.map((board) => ({
+    const boardOptions = boards.map(board => ({
       value: board._id,
-      label: board.name,
+      label: board.name
     }));
 
-    const onChange = (item) => {
+    const onChange = item => {
       setBoardId(item.value);
     };
 
@@ -267,7 +267,7 @@ const PipelineForm = (props: Props) => {
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
           placeholder={__("Choose a board")}
-          value={boardOptions.find((option) => option.value === boardId)}
+          value={boardOptions.find(option => option.value === boardId)}
           options={boardOptions}
           onChange={onChange}
           isClearable={true}
@@ -279,21 +279,21 @@ const PipelineForm = (props: Props) => {
   const renderTags = () => {
     const { tags } = props;
 
-    const filteredTags = tags && tags.filter((tag) => !tag.parentId);
+    const filteredTags = tags && tags.filter(tag => !tag.parentId);
 
-    const onChange = (item) => {
+    const onChange = item => {
       setTagId(item.value);
     };
 
-    const generateOptions = (items) => {
+    const generateOptions = items => {
       if (!items || items.length === 0) {
         return null;
       }
 
-      return items.map((item) => {
+      return items.map(item => {
         return {
           value: item._id,
-          label: item.name,
+          label: item.name
         };
       });
     };
@@ -304,7 +304,7 @@ const PipelineForm = (props: Props) => {
         <Select
           placeholder={__("Choose a tag")}
           value={(generateOptions(filteredTags) || []).find(
-            (option) => option.value === tagId
+            option => option.value === tagId
           )}
           options={generateOptions(filteredTags)}
           isClearable={true}
@@ -468,7 +468,7 @@ const PipelineForm = (props: Props) => {
             isSubmitted,
             callback: closeModal,
             object: pipeline,
-            confirmationUpdate: true,
+            confirmationUpdate: true
           })}
         </ModalFooter>
       </div>

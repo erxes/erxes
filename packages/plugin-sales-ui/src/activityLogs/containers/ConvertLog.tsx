@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
 
-import { withProps } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import ConvertLog from '../components/ConvertLog';
+import { withProps } from "@erxes/ui/src/utils";
+import { queries } from "@erxes/ui-sales/src/boards/graphql";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import ConvertLog from "../components/ConvertLog";
 
 type Props = {
   activity: any;
@@ -38,10 +38,10 @@ class ConvertLogContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(queries.boardContentTypeDetail), {
-      name: 'contentTypeDetailsQuery',
+      name: "contentTypeDetailsQuery",
       options: ({ activity }) => ({
         variables: {
-          contentType: activity.contentType.split(':')[1],
+          contentType: activity.contentType.split(":")[1],
           contentId: activity._id
         }
       })

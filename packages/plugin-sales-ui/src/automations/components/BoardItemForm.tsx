@@ -1,17 +1,17 @@
 import { Alert } from "@erxes/ui/src/utils";
 import { BoardItemWrapper } from "../styles";
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
 import { IAction } from "@erxes/ui-automations/src/types";
-import { IPipelineLabel } from "@erxes/ui-cards/src/boards/types";
+import { IPipelineLabel } from "@erxes/ui-sales/src/boards/types";
 import { IUser } from "@erxes/ui/src/auth/types";
-import { PRIORITIES } from "@erxes/ui-cards/src/boards/constants";
+import { PRIORITIES } from "@erxes/ui-sales/src/boards/constants";
 import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
 import React from "react";
 import SelectFields from "@erxes/ui-automations/src/containers/forms/actions/SelectFields";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
-import { queries as pipelineQuery } from "@erxes/ui-cards/src/boards/graphql";
+import { queries as pipelineQuery } from "@erxes/ui-sales/src/boards/graphql";
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
@@ -39,7 +39,7 @@ class BoardItemForm extends React.Component<Props, State> {
 
     this.state = {
       config,
-      pipelineLabels,
+      pipelineLabels
     };
   }
 
@@ -81,23 +81,23 @@ class BoardItemForm extends React.Component<Props, State> {
 
     const { stageId, pipelineId, boardId } = this.state.config;
 
-    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
-    const plIdOnChange = (plId) => {
+    const stgIdOnChange = stgId => this.onChangeField("stageId", stgId);
+    const plIdOnChange = plId => {
       client
         .query({
           query: gql(pipelineQuery.pipelineLabels),
           fetchPolicy: "network-only",
-          variables: { pipelineId: plId },
+          variables: { pipelineId: plId }
         })
-        .then((data) => {
+        .then(data => {
           this.setState({ pipelineLabels: data.data.pipelineLabels });
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
       this.onChangeField("pipelineId", plId);
     };
-    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
+    const brIdOnChange = brId => this.onChangeField("boardId", brId);
 
     return (
       <BoardSelect
@@ -112,7 +112,7 @@ class BoardItemForm extends React.Component<Props, State> {
     );
   }
 
-  onChange = (rConf) => {
+  onChange = rConf => {
     const { config } = this.state;
 
     this.setState({ config: { ...config, ...rConf } });
@@ -122,17 +122,17 @@ class BoardItemForm extends React.Component<Props, State> {
     const { triggerType, users, activeAction, triggerConfig } = this.props;
     const { config, pipelineLabels } = this.state;
 
-    const userOptions = (users || []).map((u) => ({
+    const userOptions = (users || []).map(u => ({
       label: (u.details && u.details.fullName) || u.email,
-      value: u._id,
+      value: u._id
     }));
 
-    const labelOptions = (pipelineLabels || []).map((l) => ({
+    const labelOptions = (pipelineLabels || []).map(l => ({
       label: l.name,
-      value: l._id || "",
+      value: l._id || ""
     }));
 
-    const priorityOptions = PRIORITIES.map((p) => ({ label: p, value: p }));
+    const priorityOptions = PRIORITIES.map(p => ({ label: p, value: p }));
 
     return (
       <Common config={this.state.config} {...this.props}>
@@ -180,26 +180,26 @@ class BoardItemForm extends React.Component<Props, State> {
                 _id: String(Math.random()),
                 label: "Now",
                 name: "now",
-                type: "Date",
+                type: "Date"
               },
               {
                 _id: String(Math.random()),
                 label: "Tomorrow",
                 name: "tomorrow",
-                type: "Date",
+                type: "Date"
               },
               {
                 _id: String(Math.random()),
                 label: "Next Week",
                 name: "nextWeek",
-                type: "Date",
+                type: "Date"
               },
               {
                 _id: String(Math.random()),
                 label: "Next Month",
                 name: "nextMonth",
-                type: "Date",
-              },
+                type: "Date"
+              }
             ]}
           />
           <PlaceHolderInput
@@ -236,9 +236,9 @@ class BoardItemForm extends React.Component<Props, State> {
                 excludeAttr: true,
                 callback: () =>
                   this.setState({
-                    config: { ...config, attachments: "{{ attachments }}" },
-                  }),
-              },
+                    config: { ...config, attachments: "{{ attachments }}" }
+                  })
+              }
             ]}
             label="Add Fields"
             excludedNames={[
@@ -250,7 +250,7 @@ class BoardItemForm extends React.Component<Props, State> {
               "closeDate",
               "labelIds",
               "priority",
-              "stageId",
+              "stageId"
             ]}
             triggerType={triggerType}
             actionType={activeAction.type.replace(".create", "")}

@@ -1,18 +1,18 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IOptions } from '@erxes/ui-cards/src/boards/types';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations } from '@erxes/ui-forms/src/forms/graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { IOptions } from "@erxes/ui-sales/src/boards/types";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import { mutations } from "@erxes/ui-forms/src/forms/graphql";
 import {
   IFormSubmission,
   IFormSubmissionParams,
   SaveFormSubmissionMutation
-} from '@erxes/ui-forms/src/forms/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import GrowthHackEditForm from '../components/GrowthHackEditForm';
-import { IGrowthHack, IGrowthHackParams } from '../types';
+} from "@erxes/ui-forms/src/forms/types";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import GrowthHackEditForm from "../components/GrowthHackEditForm";
+import { IGrowthHack, IGrowthHackParams } from "../types";
 
 type Props = {
   options: IOptions;
@@ -49,11 +49,11 @@ class GrowthHackEditFormContainer extends React.Component<FinalProps> {
         formId,
         formSubmissions,
         contentTypeId,
-        contentType: 'growthHack'
+        contentType: "growthHack"
       }
     })
       .then(() => {
-        Alert.success('You successfully updated');
+        Alert.success("You successfully updated");
       })
       .catch(error => {
         Alert.error(error.message);
@@ -75,7 +75,7 @@ export default withProps<Props>(
     graphql<Props, SaveFormSubmissionMutation, IFormSubmissionParams>(
       gql(mutations.formSubmissionsSave),
       {
-        name: 'saveFormSubmissionMutation'
+        name: "saveFormSubmissionMutation"
       }
     )
   )(GrowthHackEditFormContainer)

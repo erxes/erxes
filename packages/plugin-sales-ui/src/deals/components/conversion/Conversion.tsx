@@ -1,16 +1,16 @@
-import MainActionBar from '@erxes/ui-cards/src/boards/containers/MainActionBar';
+import MainActionBar from "@erxes/ui-sales/src/boards/containers/MainActionBar";
 import {
   BoardContainer,
   ScrolledContent
-} from '@erxes/ui-cards/src/boards/styles/common';
+} from "@erxes/ui-sales/src/boards/styles/common";
 
-import { __ } from '@erxes/ui/src/utils/core';
-import { menuDeal } from '@erxes/ui/src/utils/menus';
-import Stages from '../../containers/conversion/Stages';
-import Header from '@erxes/ui/src/layout/components/Header';
-import * as React from 'react';
-import DealMainActionBar from '../DealMainActionBar';
-import { DealContent, FixedContent, ViewDivider } from './style';
+import { __ } from "@erxes/ui/src/utils/core";
+import { menuDeal } from "@erxes/ui/src/utils/menus";
+import Stages from "../../containers/conversion/Stages";
+import Header from "@erxes/ui/src/layout/components/Header";
+import * as React from "react";
+import DealMainActionBar from "../DealMainActionBar";
+import { DealContent, FixedContent, ViewDivider } from "./style";
 
 type Props = {
   queryParams: any;
@@ -23,7 +23,7 @@ class ConversionView extends React.Component<Props> {
 
     return (
       <BoardContainer>
-        <Header title={__('Deal')} submenu={menuDeal} />
+        <Header title={__("Deal")} submenu={menuDeal} />
         <DealContent transparent={true}>
           <MainActionBar type="deal" component={DealMainActionBar} />
           <ScrolledContent>

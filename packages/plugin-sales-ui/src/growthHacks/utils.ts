@@ -1,4 +1,4 @@
-import { IFilterParams } from '@erxes/ui-cards/src/boards/types';
+import { IFilterParams } from "@erxes/ui-sales/src/boards/types";
 
 interface IGrowthHackFilterParams extends IFilterParams {
   pipelineId?: string;

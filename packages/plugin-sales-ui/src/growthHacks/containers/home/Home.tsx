@@ -1,14 +1,14 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { BoardCountsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as ghQueries } from '../../graphql';
-import { StateCountsQueryResponse } from '../../types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Home from '../../components/home/Home';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { queries } from "@erxes/ui-sales/src/boards/graphql";
+import { BoardCountsQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { withProps } from "@erxes/ui/src/utils";
+import { queries as ghQueries } from "../../graphql";
+import { StateCountsQueryResponse } from "../../types";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import Home from "../../components/home/Home";
 
 type Props = {
   queryParams: any;
@@ -21,11 +21,8 @@ type FinalProps = {
 
 class HomeContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      boardCountsQuery,
-      queryParams,
-      pipelineStateCountQuery
-    } = this.props;
+    const { boardCountsQuery, queryParams, pipelineStateCountQuery } =
+      this.props;
 
     if (pipelineStateCountQuery.loading) {
       return <Spinner />;
@@ -44,18 +41,18 @@ class HomeContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, BoardCountsQueryResponse>(gql(queries.boardCounts), {
-      name: 'boardCountsQuery',
+      name: "boardCountsQuery",
       options: () => ({
-        variables: { type: 'growthHack' },
-        fetchPolicy: 'network-only'
+        variables: { type: "growthHack" },
+        fetchPolicy: "network-only"
       })
     }),
     graphql<Props>(gql(ghQueries.pipelineStateCount), {
-      name: 'pipelineStateCountQuery',
+      name: "pipelineStateCountQuery",
       options: ({ queryParams }) => ({
         variables: {
           boardId: queryParams && queryParams.id,
-          type: 'growthHack'
+          type: "growthHack"
         }
       })
     })

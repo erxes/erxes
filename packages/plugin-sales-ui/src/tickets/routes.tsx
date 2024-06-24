@@ -1,45 +1,44 @@
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { getDefaultBoardAndPipelines } from "@erxes/ui-sales/src/boards/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const TicketBoard = asyncComponent(
-  () =>
-    import(/* webpackChunkName: "TicketBoard" */ './components/TicketBoard'),
+  () => import(/* webpackChunkName: "TicketBoard" */ "./components/TicketBoard")
 );
 
 const Calendar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-    ),
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-sales/src/boards/components/Calendar"
+    )
 );
 
 const CalendarColumn = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "CalendarColumn" */ './containers/CalendarColumn'
-    ),
+      /* webpackChunkName: "CalendarColumn" */ "./containers/CalendarColumn"
+    )
 );
 
 const MainActionBar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "MainActionBar" */ './components/TicketMainActionBar'
-    ),
+      /* webpackChunkName: "MainActionBar" */ "./components/TicketMainActionBar"
+    )
 );
 
 const Tickets = () => {
-  let view = localStorage.getItem('ticketView') || 'board';
+  let view = localStorage.getItem("ticketView") || "board";
   let link = `/ticket/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.ticket,
-    defaultPipelines.ticket,
+    defaultPipelines.ticket
   ];
 
   if (defaultBoardId && defaultPipelineId) {

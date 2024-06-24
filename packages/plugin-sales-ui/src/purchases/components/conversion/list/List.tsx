@@ -1,7 +1,7 @@
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
-import * as React from 'react';
-import { Result } from '../style';
-import Stage from './Stage';
+import { IConversionStage } from "@erxes/ui-sales/src/boards/types";
+import * as React from "react";
+import { Result } from "../style";
+import Stage from "./Stage";
 
 type Props = {
   stages: IConversionStage[];

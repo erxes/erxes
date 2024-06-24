@@ -1,18 +1,18 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IConversionStagePurchase } from '@erxes/ui-cards/src/boards/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import Stage from '../../components/conversion/table/Stage';
-import { queries } from '@erxes/ui-cards/src/purchases/graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { IConversionStagePurchase } from "@erxes/ui-sales/src/boards/types";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { withProps } from "@erxes/ui/src/utils";
+import Stage from "../../components/conversion/table/Stage";
+import { queries } from "@erxes/ui-sales/src/purchases/graphql";
 import {
   PurchasesQueryResponse,
   IPurchase,
   IQueryParams
-} from '@erxes/ui-cards/src/purchases/types';
-import * as React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+} from "@erxes/ui-sales/src/purchases/types";
+import * as React from "react";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   stage: IConversionStagePurchase;
@@ -89,8 +89,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const { stage, purchasesQuery } = this.props;
     const { loadingPurchases } = this.state;
 
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       purchasesQuery.refetch();
     }
@@ -140,7 +140,7 @@ const getFilterParams = queryParams => {
 export default withProps<Props>(
   compose(
     graphql<Props, PurchasesQueryResponse>(gql(queries.purchases), {
-      name: 'purchasesQuery',
+      name: "purchasesQuery",
       options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
           initialStageId: stage._id,

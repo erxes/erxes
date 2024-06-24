@@ -1,23 +1,23 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import React, { useState, useEffect, Fragment } from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
   mutations,
-  queries,
-} from '@erxes/ui-cards/src/settings/boards/graphql';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Table from '@erxes/ui/src/components/table';
-import { Dialog, Transition } from '@headlessui/react';
+  queries
+} from "@erxes/ui-sales/src/settings/boards/graphql";
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import { __ } from "coreui/utils";
+import { FormControl } from "@erxes/ui/src/components/form";
+import Table from "@erxes/ui/src/components/table";
+import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
   ModalOverlay,
-  ModalFooter,
-} from '@erxes/ui/src/styles/main';
+  ModalFooter
+} from "@erxes/ui/src/styles/main";
 
 type array = {
   _id: string;
@@ -39,22 +39,22 @@ function ExpensesForm() {
   }, [data]);
 
   const [inputValues, setInputValues] = useState({
-    _id: '',
-    name: '',
-    description: '',
+    _id: "",
+    name: "",
+    description: ""
   });
 
   const addElement = () => {
     const newElement = {
       _id: Math.random().toString(),
       name: inputValues.name,
-      description: inputValues.description,
+      description: inputValues.description
     };
-    setElements((prevElements) => [...prevElements, newElement]);
+    setElements(prevElements => [...prevElements, newElement]);
     setInputValues({
-      _id: '',
-      name: '',
-      description: '',
+      _id: "",
+      name: "",
+      description: ""
     });
   };
 
@@ -62,37 +62,37 @@ function ExpensesForm() {
     const updatedElements = [...elements];
     updatedElements[index] = {
       ...updatedElements[index],
-      [key]: value,
+      [key]: value
     };
     setElements(updatedElements);
   };
 
-  const deleteElement = (index) => {
+  const deleteElement = index => {
     const updatedElements = [...elements];
     updatedElements.splice(index, 1);
     setElements(updatedElements);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     const setData = elements.map((element, index) => {
       if (!element.name) {
-        Alert.error('Please fill all fields');
-        throw new Error('Please fill all fields');
+        Alert.error("Please fill all fields");
+        throw new Error("Please fill all fields");
       }
       return {
         name: element.name,
         description: element.description,
-        _id: element._id,
+        _id: element._id
       };
     });
     event.preventDefault();
     confirm().then(() => {
       expenseMutation({ variables: { expenseDocs: setData } })
         .then(() => {
-          Alert.success('Successfully created');
+          Alert.success("Successfully created");
           handleClose();
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     });
@@ -125,16 +125,16 @@ function ExpensesForm() {
             <DialogContent>
               <Dialog.Panel className={`dialog-size-sm`}>
                 <Dialog.Title as="h3">
-                  {__('Manage Expenses')}
+                  {__("Manage Expenses")}
                   <Icon icon="times" size={24} onClick={handleClose} />
                 </Dialog.Title>
                 <Transition.Child>
                   <Table $whiteSpace="nowrap" $hover={true}>
                     <thead>
                       <tr>
-                        <th>{__('Name')}</th>
-                        <th>{__('Description')}</th>
-                        <th>{__('Action')}</th>
+                        <th>{__("Name")}</th>
+                        <th>{__("Description")}</th>
+                        <th>{__("Action")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -146,7 +146,7 @@ function ExpensesForm() {
                               placeholder="Enter name"
                               defaultValue={element.name}
                               onChange={(e: any) =>
-                                changeElement(index, 'name', e.target.value)
+                                changeElement(index, "name", e.target.value)
                               }
                             />
                           </td>
@@ -158,8 +158,8 @@ function ExpensesForm() {
                               onChange={(e: any) =>
                                 changeElement(
                                   index,
-                                  'description',
-                                  e.target.value,
+                                  "description",
+                                  e.target.value
                                 )
                               }
                             />
@@ -177,7 +177,7 @@ function ExpensesForm() {
                       ))}
                     </tbody>
                     <LinkButton onClick={addElement}>
-                      <Icon icon="plus-1" /> {__('Add another expense')}
+                      <Icon icon="plus-1" /> {__("Add another expense")}
                     </LinkButton>
                   </Table>
                   <ModalFooter className="dialog-description">
@@ -187,7 +187,7 @@ function ExpensesForm() {
                       icon="times-circle"
                       onClick={handleClose}
                     >
-                      {__('Cancel')}
+                      {__("Cancel")}
                     </Button>
 
                     <Button

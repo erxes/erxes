@@ -1,9 +1,9 @@
-import { IConversionStage } from "@erxes/ui-cards/src/boards/types";
+import { IConversionStage } from "@erxes/ui-sales/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import * as React from "react";
-import Collapse from '@erxes/ui/src/components/Collapse';
-import { IDeal } from "@erxes/ui-cards/src/deals/types";
+import Collapse from "@erxes/ui/src/components/Collapse";
+import { IDeal } from "@erxes/ui-sales/src/deals/types";
 import { BodyRow, StageName } from "../style";
 import DealList from "./DealList";
 
@@ -24,13 +24,13 @@ export default class Stage extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      showCollapse: false,
+      showCollapse: false
     };
   }
 
   toggleCollapse = () => {
     this.setState({
-      showCollapse: !this.state.showCollapse,
+      showCollapse: !this.state.showCollapse
     });
   };
 

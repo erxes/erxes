@@ -4,15 +4,15 @@ import {
   FlexCenterContent,
   Header,
   ShowMore
-} from '@erxes/ui-log/src/activityLogs/styles';
+} from "@erxes/ui-log/src/activityLogs/styles";
 
-import CheckListItem from './ChecklistItem';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import { IChecklist } from '@erxes/ui-cards/src/checklists/types';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
-import { renderUserFullName } from '@erxes/ui/src/utils';
+import CheckListItem from "./ChecklistItem";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import { IChecklist } from "@erxes/ui-sales/src/checklists/types";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
+import { renderUserFullName } from "@erxes/ui/src/utils";
 
 type Props = {
   activity: IActivityLog;
@@ -49,9 +49,9 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     const { activity, checkListDetail } = this.props;
     const { action, contentType, createdByDetail, createdAt } = activity;
 
-    let userName = 'Unknown';
+    let userName = "Unknown";
 
-    if (createdByDetail && createdByDetail.type === 'user') {
+    if (createdByDetail && createdByDetail.type === "user") {
       const createdByDetailContent = createdByDetail.content
         ? createdByDetail.content
         : {};
@@ -67,7 +67,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
       return (
         <>
           <Header>
-            <strong>{checklistName}</strong>`s details{' '}
+            <strong>{checklistName}</strong>`s details{" "}
             <ShowMore onClick={this.onCollapse}>hide</ShowMore>
           </Header>
 
@@ -80,16 +80,16 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
       <>
         <FlexCenterContent>
           <FlexBody>
-            {' '}
+            {" "}
             <span>
               <strong>{userName}</strong> {action}d&nbsp;
               <strong>{checklistName}</strong> {contentType}&nbsp;
               <ShowMore onClick={this.onCollapse}>show details</ShowMore>
             </span>
           </FlexBody>
-          <Tip text={dayjs(createdAt).format('llll')}>
+          <Tip text={dayjs(createdAt).format("llll")}>
             <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
+              {dayjs(createdAt).format("MMM D, h:mm A")}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>

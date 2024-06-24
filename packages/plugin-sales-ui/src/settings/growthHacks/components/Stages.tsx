@@ -1,12 +1,12 @@
-import FormBuilder from './FormBuilder';
-import { IStage } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import SortableList from '@erxes/ui/src/components/SortableList';
-import StageItem from './StageItem';
-import { StageList } from '@erxes/ui-cards/src/settings/boards/styles';
-import { __ } from 'coreui/utils';
+import FormBuilder from "./FormBuilder";
+import { IStage } from "@erxes/ui-sales/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import React from "react";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import StageItem from "./StageItem";
+import { StageList } from "@erxes/ui-sales/src/settings/boards/styles";
+import { __ } from "coreui/utils";
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;
@@ -43,7 +43,7 @@ class Stages extends React.Component<
 
     stages.push({
       _id: Math.random().toString(),
-      name: ''
+      name: ""
     });
 
     onChangeStages(stages);
@@ -58,7 +58,7 @@ class Stages extends React.Component<
   };
 
   onStageInputKeyPress = e => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       this.add();
       e.preventDefault();
     }
@@ -97,7 +97,7 @@ class Stages extends React.Component<
         />
 
         <LinkButton onClick={this.add}>
-          <Icon icon="plus-1" /> {__('Add another stage')}
+          <Icon icon="plus-1" /> {__("Add another stage")}
         </LinkButton>
 
         {currentStage && (

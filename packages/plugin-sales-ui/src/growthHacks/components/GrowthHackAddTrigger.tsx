@@ -1,6 +1,6 @@
-import AddTrigger from '@erxes/ui-cards/src/boards/components/portable/AddTrigger';
-import React from 'react';
-import options from '../options';
+import AddTrigger from "@erxes/ui-sales/src/boards/components/portable/AddTrigger";
+import React from "react";
+import options from "../options";
 
 type Props = {
   customerIds?: string[];
@@ -13,7 +13,7 @@ export default (props: Props) => {
   const extendedProps = {
     options,
     refetch,
-    relType: 'growthHack',
+    relType: "growthHack",
     relTypeIds: customerIds
   };
 

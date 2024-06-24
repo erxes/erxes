@@ -1,25 +1,25 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
 import {
   ColumnProps,
   getCommonParams
-} from '@erxes/ui-cards/src/boards/components/Calendar';
+} from "@erxes/ui-sales/src/boards/components/Calendar";
 import {
   calendarColumnQuery,
   onCalendarLoadMore
-} from '@erxes/ui-cards/src/boards/utils';
-import { IDateColumn } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
-import CalendarColumn from '../components/CalendarColumn';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-cards/src/purchases/graphql';
+} from "@erxes/ui-sales/src/boards/utils";
+import { IDateColumn } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import { getMonthTitle } from "@erxes/ui/src/utils/calendar";
+import CalendarColumn from "../components/CalendarColumn";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-sales/src/purchases/graphql";
 import {
   PurchasesQueryResponse,
   PurchasesTotalAmountsQueryResponse,
   PurchasesTotalCountQueryResponse
-} from '@erxes/ui-cards/src/purchases/types';
+} from "@erxes/ui-sales/src/purchases/types";
 
 type FinalProps = ColumnProps & {
   purchasesQuery: PurchasesQueryResponse;
@@ -54,8 +54,8 @@ class PurchaseColumnContainer extends React.Component<FinalProps> {
     const { fetchMore } = purchasesQuery;
 
     // Update calendar after stage updated
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       purchasesQuery.refetch();
       purchasesTotalCountQuery.refetch();
@@ -69,7 +69,7 @@ class PurchaseColumnContainer extends React.Component<FinalProps> {
       purchasesTotalAmountsQuery.purchasesTotalAmounts || [];
 
     const onLoadMore = (skip: number) => {
-      return onCalendarLoadMore(fetchMore, 'purchases', skip);
+      return onCalendarLoadMore(fetchMore, "purchases", skip);
     };
 
     const updatedProps = {
@@ -87,17 +87,17 @@ class PurchaseColumnContainer extends React.Component<FinalProps> {
 
 export default withProps<ColumnProps>(
   compose(
-    calendarColumnQuery(queries.purchases, 'purchasesQuery'),
+    calendarColumnQuery(queries.purchases, "purchasesQuery"),
     calendarColumnQuery(
       queries.purchasesTotalCount,
-      'purchasesTotalCountQuery'
+      "purchasesTotalCountQuery"
     ),
     graphql<
       ColumnProps,
       PurchasesTotalAmountsQueryResponse,
       { date: IDateColumn }
     >(gql(queries.purchasesTotalAmounts), {
-      name: 'purchasesTotalAmountsQuery',
+      name: "purchasesTotalAmountsQuery",
       options: ({ date, pipelineId, queryParams }: ColumnProps) => ({
         variables: {
           date,

@@ -3,20 +3,20 @@ import {
   ColumnContainer,
   ColumnContentBody,
   ColumnFooter
-} from '@erxes/ui-cards/src/boards/components/Calendar';
-import { AddNew } from '@erxes/ui-cards/src/boards/styles/stage';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IDateColumn } from '@erxes/ui/src/types';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
-import styled from 'styled-components';
-import options from '@erxes/ui-cards/src/purchases/options';
+} from "@erxes/ui-sales/src/boards/components/Calendar";
+import { AddNew } from "@erxes/ui-sales/src/boards/styles/stage";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import { IDateColumn } from "@erxes/ui/src/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
+import styled from "styled-components";
+import options from "@erxes/ui-sales/src/purchases/options";
 import {
   IPurchase,
   IPurchaseTotalAmount
-} from '@erxes/ui-cards/src/purchases/types';
-import Purchase from '@erxes/ui-cards/src/purchases/components/PurchaseItem';
+} from "@erxes/ui-sales/src/purchases/types";
+import Purchase from "@erxes/ui-sales/src/purchases/components/PurchaseItem";
 
 type Props = {
   purchases: IPurchase[];
@@ -46,7 +46,7 @@ const Amount = styled.ul`
     }
 
     &:last-child:after {
-      content: '';
+      content: "";
     }
   }
 `;
@@ -73,11 +73,11 @@ class PurchaseColumn extends React.Component<Props, {}> {
 
   renderAmount(currencies: [{ name: string; amount: number }]) {
     return currencies.map((total, index) => (
-      <div key={index} style={{ display: 'inline' }}>
-        {total.amount.toLocaleString()}{' '}
+      <div key={index} style={{ display: "inline" }}>
+        {total.amount.toLocaleString()}{" "}
         <span>
           {total.name}
-          {index < currencies.length - 1 && ', '}
+          {index < currencies.length - 1 && ", "}
         </span>
       </div>
     ));
@@ -109,7 +109,7 @@ class PurchaseColumn extends React.Component<Props, {}> {
     return (
       <ColumnFooter>
         <AddNew onClick={this.onLoadMore}>
-          <Icon icon="refresh" /> {__('Load more')}
+          <Icon icon="refresh" /> {__("Load more")}
         </AddNew>
       </ColumnFooter>
     );

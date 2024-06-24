@@ -1,16 +1,16 @@
-import MainActionBar from '@erxes/ui-cards/src/boards/containers/MainActionBar';
+import MainActionBar from "@erxes/ui-sales/src/boards/containers/MainActionBar";
 import {
   BoardContainer,
   BoardContent
-} from '@erxes/ui-cards/src/boards/styles/common';
-import { colors } from '@erxes/ui/src/styles';
-import { __ } from '@erxes/ui/src/utils/core';
-import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
-import FunnelGroup from '../../containers/FunnelGroup';
-import { FixedContainer, ScrollContent } from '../../styles';
-import Header from '@erxes/ui/src/layout/components/Header';
-import React from 'react';
-import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
+} from "@erxes/ui-sales/src/boards/styles/common";
+import { colors } from "@erxes/ui/src/styles";
+import { __ } from "@erxes/ui/src/utils/core";
+import { HACKSTAGES } from "@erxes/ui-sales/src/boards/constants";
+import FunnelGroup from "../../containers/FunnelGroup";
+import { FixedContainer, ScrollContent } from "../../styles";
+import Header from "@erxes/ui/src/layout/components/Header";
+import React from "react";
+import GrowthHackMainActionBar from "../GrowthHackMainActionBar";
 
 type Props = {
   queryParams: any;
@@ -67,13 +67,13 @@ class FunnelImpact extends React.Component<Props, States> {
 
   render() {
     const breadcrumb = [
-      { title: __('Growth hacking'), link: '/growthHack/board' },
-      { title: __('Funnel Impact') }
+      { title: __("Growth hacking"), link: "/growthHack/board" },
+      { title: __("Funnel Impact") }
     ];
 
     return (
       <BoardContainer>
-        <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
+        <Header title={__("Growth hacking")} breadcrumb={breadcrumb} />
         <BoardContent $transparent={true} bgcolor={colors.bgMain}>
           {this.renderActionBar()}
           {this.renderContent()}

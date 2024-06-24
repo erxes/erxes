@@ -1,12 +1,12 @@
 import { Alert, __ } from "coreui/utils";
 
 import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import { IStage } from "@erxes/ui-cards/src/boards/types";
+import BoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import { IStage } from "@erxes/ui-sales/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
-import { queries as boardQueries } from "@erxes/ui-cards/src/boards/graphql";
+import { queries as boardQueries } from "@erxes/ui-sales/src/boards/graphql";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 
@@ -38,7 +38,7 @@ export default class SelectBoard extends React.Component<Props, State> {
       boardId: boardId || "",
       pipelineId: pipelineId || "",
       stageId: config[inputName] || "",
-      stageName: config.stageName,
+      stageName: config.stageName
     };
   }
 
@@ -48,12 +48,12 @@ export default class SelectBoard extends React.Component<Props, State> {
       client
         .query({
           query: gql(boardQueries.stages),
-          variables: { pipelineId },
+          variables: { pipelineId }
         })
-        .then((data) => {
+        .then(data => {
           this.setState({ stages: data.data.stages });
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     }
@@ -67,7 +67,7 @@ export default class SelectBoard extends React.Component<Props, State> {
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  onChange = (stageId) => {
+  onChange = stageId => {
     this.overlay.hide();
 
     const { config, setConfig, inputName } = this.props;
@@ -75,7 +75,7 @@ export default class SelectBoard extends React.Component<Props, State> {
 
     config[inputName] = `[[ ${stageId} ]]`;
 
-    const stage = stages.find((s) => s._id === stageId);
+    const stage = stages.find(s => s._id === stageId);
 
     config.boardId = this.state.boardId;
     config.pipelineId = this.state.pipelineId;
@@ -89,7 +89,7 @@ export default class SelectBoard extends React.Component<Props, State> {
 
     const plIdOnChange = (plId, stages) =>
       this.setState({ pipelineId: plId, stages });
-    const brIdOnChange = (brId) => this.setState({ boardId: brId });
+    const brIdOnChange = brId => this.setState({ boardId: brId });
 
     return (
       <Popover

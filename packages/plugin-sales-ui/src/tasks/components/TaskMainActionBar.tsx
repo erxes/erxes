@@ -1,12 +1,12 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
-import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
-import React from 'react';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { __ } from 'coreui/utils';
-import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import options from '@erxes/ui-cards/src/tasks/options';
+import { IBoard } from "@erxes/ui-sales/src/boards/types";
+import MainActionBar from "@erxes/ui-sales/src/boards/components/MainActionBar";
+import React from "react";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { __ } from "coreui/utils";
+import { getBoardViewType } from "@erxes/ui-sales/src/boards/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import options from "@erxes/ui-sales/src/tasks/options";
 
 type Props = {
   onSearch: (search: string) => void;
@@ -26,10 +26,10 @@ const TaskMainActionBar = (props: Props) => {
 
   const extraFilter = (
     <>
-      {isEnabled('contacts') && (
+      {isEnabled("contacts") && (
         <>
           <SelectCompanies
-            label={__('Filter by companies')}
+            label={__("Filter by companies")}
             name="companyIds"
             queryParams={queryParams}
             onSelect={onSelect}

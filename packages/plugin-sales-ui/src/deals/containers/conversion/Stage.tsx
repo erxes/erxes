@@ -1,18 +1,18 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import Stage from '../../components/conversion/table/Stage';
-import { queries } from '@erxes/ui-cards/src/deals/graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { IConversionStage } from "@erxes/ui-sales/src/boards/types";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { withProps } from "@erxes/ui/src/utils";
+import Stage from "../../components/conversion/table/Stage";
+import { queries } from "@erxes/ui-sales/src/deals/graphql";
 import {
   DealsQueryResponse,
   IDeal,
   IQueryParams
-} from '@erxes/ui-cards/src/deals/types';
-import * as React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+} from "@erxes/ui-sales/src/deals/types";
+import * as React from "react";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   stage: IConversionStage;
@@ -87,8 +87,8 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const { stage, dealsQuery } = this.props;
     const { loadingDeals } = this.state;
 
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       dealsQuery.refetch();
     }
@@ -138,7 +138,7 @@ const getFilterParams = queryParams => {
 export default withProps<Props>(
   compose(
     graphql<Props, DealsQueryResponse>(gql(queries.deals), {
-      name: 'dealsQuery',
+      name: "dealsQuery",
       options: ({ pipelineId, stage, queryParams }) => ({
         variables: {
           initialStageId: stage._id,

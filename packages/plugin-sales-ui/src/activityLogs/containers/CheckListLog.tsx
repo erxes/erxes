@@ -1,15 +1,15 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { ActivityLogQueryResponse } from '@erxes/ui-log/src/activityLogs/types';
-import ChecklistLog from '../components/CheckListLog';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as activityLogsQuery } from '@erxes/ui-log/src/activityLogs/graphql';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-cards/src/checklists/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import { ActivityLogQueryResponse } from "@erxes/ui-log/src/activityLogs/types";
+import ChecklistLog from "../components/CheckListLog";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as activityLogsQuery } from "@erxes/ui-log/src/activityLogs/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-sales/src/checklists/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   activity: IActivityLog;
@@ -46,17 +46,17 @@ export default withProps<Props>(
     graphql<Props, ActivityLogQueryResponse>(
       gql(activityLogsQuery.activityLogs),
       {
-        name: 'activityLogQuery',
+        name: "activityLogQuery",
         options: ({ activity }) => ({
           variables: {
             contentId: activity.content._id,
-            contentType: 'activity'
+            contentType: "activity"
           }
         })
       }
     ),
     graphql<Props, any>(gql(queries.checklistDetail), {
-      name: 'checkListDetailQuery',
+      name: "checkListDetailQuery",
       options: ({ activity }) => ({
         variables: {
           _id: activity.content._id

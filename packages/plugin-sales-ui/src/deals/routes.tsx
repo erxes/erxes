@@ -3,13 +3,13 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import { getDefaultBoardAndPipelines } from "@erxes/ui-cards/src/boards/utils";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-sales/src/boards/utils";
 import queryString from "query-string";
 
 const Calendar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Calendar" */ "@erxes/ui-cards/src/boards/components/Calendar"
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-sales/src/boards/components/Calendar"
     )
 );
 
@@ -44,7 +44,7 @@ const Deals = () => {
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.deal,
-    defaultPipelines.deal,
+    defaultPipelines.deal
   ];
 
   if (defaultBoardId && defaultPipelineId) {

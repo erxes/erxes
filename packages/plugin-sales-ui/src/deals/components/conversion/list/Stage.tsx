@@ -1,6 +1,6 @@
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import * as React from 'react';
+import { IConversionStage } from "@erxes/ui-sales/src/boards/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import * as React from "react";
 import {
   Content,
   Lost,
@@ -9,7 +9,7 @@ import {
   StageWrap,
   Stayed,
   Values
-} from '../style';
+} from "../style";
 
 type Props = {
   stage: IConversionStage;
@@ -44,7 +44,7 @@ class Stage extends React.Component<Props> {
           <Content>
             <Name>{stage.name}</Name>
             <Stayed>
-              {stage.itemsTotalCount} /{' '}
+              {stage.itemsTotalCount} /{" "}
               <span>{stage.initialDealsTotalCount}</span>
             </Stayed>
           </Content>

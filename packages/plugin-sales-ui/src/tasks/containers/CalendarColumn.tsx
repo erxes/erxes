@@ -1,15 +1,18 @@
-import * as compose from 'lodash.flowright';
-import { ColumnProps } from '@erxes/ui-cards/src/boards/components/Calendar';
+import * as compose from "lodash.flowright";
+import { ColumnProps } from "@erxes/ui-sales/src/boards/components/Calendar";
 import {
   calendarColumnQuery,
   onCalendarLoadMore
-} from '@erxes/ui-cards/src/boards/utils';
-import { withProps } from '@erxes/ui/src/utils';
-import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
-import CalendarColumn from '../components/CalendarColumn';
-import React from 'react';
-import { queries } from '@erxes/ui-cards/src/tasks/graphql';
-import { TasksQueryResponse, TasksTotalCountQueryResponse } from '@erxes/ui-cards/src/tasks/types';
+} from "@erxes/ui-sales/src/boards/utils";
+import { withProps } from "@erxes/ui/src/utils";
+import { getMonthTitle } from "@erxes/ui/src/utils/calendar";
+import CalendarColumn from "../components/CalendarColumn";
+import React from "react";
+import { queries } from "@erxes/ui-sales/src/tasks/graphql";
+import {
+  TasksQueryResponse,
+  TasksTotalCountQueryResponse
+} from "@erxes/ui-sales/src/tasks/types";
 
 type FinalProps = ColumnProps & {
   tasksQuery: TasksQueryResponse;
@@ -36,8 +39,8 @@ class TaskColumnContainer extends React.Component<FinalProps> {
     const { fetchMore } = tasksQuery;
 
     // Update calendar after stage updated
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       tasksQuery.refetch();
       tasksTotalCountQuery.refetch();
@@ -48,7 +51,7 @@ class TaskColumnContainer extends React.Component<FinalProps> {
     const totalCount = tasksTotalCountQuery.tasksTotalCount || 0;
 
     const onLoadMore = (skip: number) => {
-      return onCalendarLoadMore(fetchMore, 'tasks', skip);
+      return onCalendarLoadMore(fetchMore, "tasks", skip);
     };
 
     const updatedProps = {
@@ -65,7 +68,7 @@ class TaskColumnContainer extends React.Component<FinalProps> {
 
 export default withProps<ColumnProps>(
   compose(
-    calendarColumnQuery(queries.tasks, 'tasksQuery'),
-    calendarColumnQuery(queries.tasksTotalCount, 'tasksTotalCountQuery')
+    calendarColumnQuery(queries.tasks, "tasksQuery"),
+    calendarColumnQuery(queries.tasksTotalCount, "tasksTotalCountQuery")
   )(TaskColumnContainer)
 );

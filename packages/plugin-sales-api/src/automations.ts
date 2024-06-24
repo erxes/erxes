@@ -521,10 +521,8 @@ const actionCreate = async ({
 
   if (newData.hasOwnProperty("attachments")) {
     const [serviceName, itemType] = triggerType.split(":");
-    if (serviceName === "cards") {
+    if (serviceName === "sales") {
       const modelsMap = {
-        ticket: models.Tickets,
-        task: models.Tasks,
         deal: models.Deals,
         purchase: models.Purchases
       };

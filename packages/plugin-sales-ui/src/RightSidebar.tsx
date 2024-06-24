@@ -1,34 +1,38 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
 type Props = {
   user: IUser;
 };
 
-const PortableDeals = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PortableDeals" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
-  )
+const PortableDeals = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PortableDeals" */ "@erxes/ui-sales/src/deals/components/PortableDeals"
+    )
 );
 
-const PortableTasks = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PortableTasks" */ '@erxes/ui-cards/src/tasks/components/PortableTasks'
-  )
+const PortableTasks = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PortableTasks" */ "@erxes/ui-sales/src/tasks/components/PortableTasks"
+    )
 );
 
-const PortableTickets = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
-  )
+const PortableTickets = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-sales/src/tickets/components/PortableTickets"
+    )
 );
 
-const PortablePurchases = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PortablePurchases" */ '@erxes/ui-cards/src/purchases/components/PortablePurchases'
-  )
+const PortablePurchases = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PortablePurchases" */ "@erxes/ui-sales/src/purchases/components/PortablePurchases"
+    )
 );
 
 export default class RightSidebar extends React.Component<Props> {

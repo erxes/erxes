@@ -1,4 +1,4 @@
-import { IBoardCount } from "@erxes/ui-cards/src/boards/types";
+import { IBoardCount } from "@erxes/ui-sales/src/boards/types";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Tabs, TabTitle } from "@erxes/ui/src/components/tabs";
@@ -8,7 +8,7 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList,
+  SidebarList
 } from "@erxes/ui/src/layout/styles";
 import React from "react";
 import Popover from "@erxes/ui/src/components/Popover";
@@ -19,7 +19,7 @@ import {
   CountItem,
   FilterButton,
   FilterWrapper,
-  HelperButtons,
+  HelperButtons
 } from "./styles";
 
 type Props = {
@@ -38,7 +38,7 @@ class Home extends React.Component<Props> {
       return <EmptyState text="There is no campaign" icon="folder-2" />;
     }
 
-    return boardsWithCount.map((board) => (
+    return boardsWithCount.map(board => (
       <li key={board._id}>
         <Link
           className={id === board._id ? "active" : ""}
@@ -127,7 +127,7 @@ class Home extends React.Component<Props> {
   };
 
   renderCounts = () => {
-    return GROWTHHACK_STATES.map((state) => this.renderCountItem(state));
+    return GROWTHHACK_STATES.map(state => this.renderCountItem(state));
   };
 
   renderContent = () => {

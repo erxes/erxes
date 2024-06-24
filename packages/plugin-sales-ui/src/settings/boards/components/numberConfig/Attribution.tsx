@@ -1,4 +1,4 @@
-import { Attributes } from "@erxes/ui-cards/src/settings/boards/styles";
+import { Attributes } from "@erxes/ui-sales/src/settings/boards/styles";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
@@ -31,15 +31,18 @@ export default function Attribution(props: Props) {
 
   const { attributions } = props;
 
-  const content = (close) => {
+  const content = close => {
     return (
       <Attributes>
         <React.Fragment>
           <li>
             <b>{__("Attributions")}</b>
           </li>
-          {attributions.map((item) => (
-            <button key={item.value} onClick={() => onClickAttribute(item, close)}>
+          {attributions.map(item => (
+            <button
+              key={item.value}
+              onClick={() => onClickAttribute(item, close)}
+            >
               {__(item.label)}
             </button>
           ))}

@@ -1,54 +1,52 @@
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
-import React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { getDefaultBoardAndPipelines } from "@erxes/ui-sales/src/boards/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import queryString from "query-string";
+import React from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const Calendar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Calendar" */ '@erxes/ui-cards/src/boards/components/Calendar'
-    ),
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-sales/src/boards/components/Calendar"
+    )
 );
 
 const PurchaseColumn = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PurchaseColumn" */ './containers/CalendarColumn'
-    ),
+      /* webpackChunkName: "PurchaseColumn" */ "./containers/CalendarColumn"
+    )
 );
 
 const PurchaseMainActionBar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PurchaseMainActionbar" */ './components/PurchaseMainActionBar'
-    ),
+      /* webpackChunkName: "PurchaseMainActionbar" */ "./components/PurchaseMainActionBar"
+    )
 );
 
 const PurchaseBoard = asyncComponent(
   () =>
-    import(
-      /* webpackChunkName: "PurchaseBoard" */ './components/PurchaseBoard'
-    ),
+    import(/* webpackChunkName: "PurchaseBoard" */ "./components/PurchaseBoard")
 );
 
 const Conversation = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Conversion" */ './components/conversion/Conversion'
-    ),
+      /* webpackChunkName: "Conversion" */ "./components/conversion/Conversion"
+    )
 );
 
 const Purchases = () => {
-  let view = localStorage.getItem('purchaseView') || 'board';
+  let view = localStorage.getItem("purchaseView") || "board";
   let purchasesLink = `/purchase/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards.purchase,
-    defaultPipelines.purchase,
+    defaultPipelines.purchase
   ];
 
   if (defaultBoardId && defaultPipelineId) {

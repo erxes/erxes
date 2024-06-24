@@ -1,14 +1,14 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { ConversionStagesQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import List from '../../components/conversion/list/List';
-import Table from '../../components/conversion/table/Table';
-import * as React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { queries } from "@erxes/ui-sales/src/boards/graphql";
+import { ConversionStagesQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { withProps } from "@erxes/ui/src/utils";
+import List from "../../components/conversion/list/List";
+import Table from "../../components/conversion/table/Table";
+import * as React from "react";
+import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
   pipelineId: string;
@@ -34,7 +34,7 @@ class PurchaseStagesContainer extends React.Component<FinalProps> {
       );
     }
 
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
+    if (localStorage.getItem("cacheInvalidated") === "true") {
       stagesQuery.refetch({ pipelineId });
     }
 
@@ -44,7 +44,7 @@ class PurchaseStagesContainer extends React.Component<FinalProps> {
 
     const stages = stagesQuery.stages || [];
 
-    if (type === 'more') {
+    if (type === "more") {
       return <Table {...this.props} stages={stages} />;
     }
 
@@ -57,7 +57,7 @@ export default withProps<Props>(
     graphql<Props, ConversionStagesQueryResponse>(
       gql(queries.conversionStages),
       {
-        name: 'stagesQuery',
+        name: "stagesQuery",
         skip: ({ pipelineId }) => !pipelineId,
         options: ({ pipelineId, queryParams }) => ({
           variables: {

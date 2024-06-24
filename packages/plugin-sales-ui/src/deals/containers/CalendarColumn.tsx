@@ -1,25 +1,25 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
 import {
   ColumnProps,
   getCommonParams
-} from '@erxes/ui-cards/src/boards/components/Calendar';
+} from "@erxes/ui-sales/src/boards/components/Calendar";
 import {
   calendarColumnQuery,
   onCalendarLoadMore
-} from '@erxes/ui-cards/src/boards/utils';
-import { IDateColumn } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
-import CalendarColumn from '../components/CalendarColumn';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-cards/src/deals/graphql';
+} from "@erxes/ui-sales/src/boards/utils";
+import { IDateColumn } from "@erxes/ui/src/types";
+import { withProps } from "@erxes/ui/src/utils";
+import { getMonthTitle } from "@erxes/ui/src/utils/calendar";
+import CalendarColumn from "../components/CalendarColumn";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-sales/src/deals/graphql";
 import {
   DealsQueryResponse,
   DealsTotalAmountsQueryResponse,
   DealsTotalCountQueryResponse
-} from '@erxes/ui-cards/src/deals/types';
+} from "@erxes/ui-sales/src/deals/types";
 
 type FinalProps = ColumnProps & {
   dealsQuery: DealsQueryResponse;
@@ -54,8 +54,8 @@ class DealColumnContainer extends React.Component<FinalProps> {
     const { fetchMore } = dealsQuery;
 
     // Update calendar after stage updated
-    if (localStorage.getItem('cacheInvalidated') === 'true') {
-      localStorage.setItem('cacheInvalidated', 'false');
+    if (localStorage.getItem("cacheInvalidated") === "true") {
+      localStorage.setItem("cacheInvalidated", "false");
 
       dealsQuery.refetch();
       dealsTotalCountQuery.refetch();
@@ -68,7 +68,7 @@ class DealColumnContainer extends React.Component<FinalProps> {
     const dealTotalAmounts = dealsTotalAmountsQuery.dealsTotalAmounts || [];
 
     const onLoadMore = (skip: number) => {
-      return onCalendarLoadMore(fetchMore, 'deals', skip);
+      return onCalendarLoadMore(fetchMore, "deals", skip);
     };
 
     const updatedProps = {
@@ -86,12 +86,12 @@ class DealColumnContainer extends React.Component<FinalProps> {
 
 export default withProps<ColumnProps>(
   compose(
-    calendarColumnQuery(queries.deals, 'dealsQuery'),
-    calendarColumnQuery(queries.dealsTotalCount, 'dealsTotalCountQuery'),
+    calendarColumnQuery(queries.deals, "dealsQuery"),
+    calendarColumnQuery(queries.dealsTotalCount, "dealsTotalCountQuery"),
     graphql<ColumnProps, DealsTotalAmountsQueryResponse, { date: IDateColumn }>(
       gql(queries.dealsTotalAmounts),
       {
-        name: 'dealsTotalAmountsQuery',
+        name: "dealsTotalAmountsQuery",
         options: ({ date, pipelineId, queryParams }: ColumnProps) => ({
           variables: {
             date,

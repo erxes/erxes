@@ -2,18 +2,18 @@ import {
   ColumnContainer,
   ColumnContentBody,
   ColumnFooter
-} from '@erxes/ui-cards/src/boards/components/Calendar';
-import { AddNew } from '@erxes/ui-cards/src/boards/styles/stage';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IDateColumn } from '@erxes/ui/src/types';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
-import styled from 'styled-components';
-import options from '@erxes/ui-cards/src/deals/options';
-import { IDeal, IDealTotalAmount } from '@erxes/ui-cards/src/deals/types';
-import Deal from '@erxes/ui-cards/src/deals/components/DealItem';
-import ItemProductProbabilities from '@erxes/ui-cards/src/deals/components/ItemProductProbabilities';
+} from "@erxes/ui-sales/src/boards/components/Calendar";
+import { AddNew } from "@erxes/ui-sales/src/boards/styles/stage";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import { IDateColumn } from "@erxes/ui/src/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils/core";
+import styled from "styled-components";
+import options from "@erxes/ui-sales/src/deals/options";
+import { IDeal, IDealTotalAmount } from "@erxes/ui-sales/src/deals/types";
+import Deal from "@erxes/ui-sales/src/deals/components/DealItem";
+import ItemProductProbabilities from "@erxes/ui-sales/src/deals/components/ItemProductProbabilities";
 
 type Props = {
   deals: IDeal[];
@@ -47,7 +47,7 @@ const Amount = styled.ul`
     }
 
     &:last-child:after {
-      content: '';
+      content: "";
     }
   }
 
@@ -58,11 +58,11 @@ const Amount = styled.ul`
 
 class DealColumn extends React.Component<Props, {}> {
   componentDidMount() {
-    window.addEventListener('storageChange', this.handleStorageChange);
+    window.addEventListener("storageChange", this.handleStorageChange);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('storageChange', this.handleStorageChange);
+    window.removeEventListener("storageChange", this.handleStorageChange);
   }
 
   handleStorageChange = () => {
@@ -91,10 +91,10 @@ class DealColumn extends React.Component<Props, {}> {
   renderAmount(currencies: [{ name: string; amount: number }]) {
     return currencies.map((total, index) => (
       <div key={index}>
-        {total.amount.toLocaleString()}{' '}
+        {total.amount.toLocaleString()}{" "}
         <span>
           {total.name}
-          {index < currencies.length - 1 && ', '}
+          {index < currencies.length - 1 && ", "}
         </span>
       </div>
     ));
@@ -110,8 +110,8 @@ class DealColumn extends React.Component<Props, {}> {
       }
 
       if (
-        localStorage.getItem('showSalesDetail') === 'false' ||
-        !localStorage.getItem('showSalesDetail')
+        localStorage.getItem("showSalesDetail") === "false" ||
+        !localStorage.getItem("showSalesDetail")
       ) {
         return null;
       }
@@ -123,16 +123,16 @@ class DealColumn extends React.Component<Props, {}> {
             deals={deals}
           />
           {totalForType.map(type => {
-            if (type.name === 'In progress') {
+            if (type.name === "In progress") {
               return null;
             }
 
-            const percent = type.name === 'Won' ? '100%' : '0%';
+            const percent = type.name === "Won" ? "100%" : "0%";
 
             return (
               <li key={type._id}>
                 <span>
-                  {type.name} ({percent}){' '}
+                  {type.name} ({percent}){" "}
                 </span>
                 {this.renderAmount(type.currencies)}
               </li>
@@ -155,7 +155,7 @@ class DealColumn extends React.Component<Props, {}> {
     return (
       <ColumnFooter>
         <AddNew onClick={this.onLoadMore}>
-          <Icon icon="refresh" /> {__('Load more')}
+          <Icon icon="refresh" /> {__("Load more")}
         </AddNew>
       </ColumnFooter>
     );

@@ -1,14 +1,14 @@
-import Board from '@erxes/ui-cards/src/boards/containers/Board';
-import MainActionBar from '@erxes/ui-cards/src/boards/containers/MainActionBar';
+import Board from "@erxes/ui-sales/src/boards/containers/Board";
+import MainActionBar from "@erxes/ui-sales/src/boards/containers/MainActionBar";
 import {
   BoardContainer,
   BoardContent
-} from '@erxes/ui-cards/src/boards/styles/common';
-import { __ } from '@erxes/ui/src/utils/core';
-import Header from '@erxes/ui/src/layout/components/Header';
-import React from 'react';
-import options from '../options';
-import GrowthHackMainActionBar from './GrowthHackMainActionBar';
+} from "@erxes/ui-sales/src/boards/styles/common";
+import { __ } from "@erxes/ui/src/utils/core";
+import Header from "@erxes/ui/src/layout/components/Header";
+import React from "react";
+import options from "../options";
+import GrowthHackMainActionBar from "./GrowthHackMainActionBar";
 
 type Props = {
   queryParams: any;
@@ -28,13 +28,13 @@ class GrowthHackBoard extends React.Component<Props> {
 
   render() {
     const breadcrumb = [
-      { title: __('Growth hacking'), link: '/growthHack/board' },
-      { title: __('Board') }
+      { title: __("Growth hacking"), link: "/growthHack/board" },
+      { title: __("Board") }
     ];
 
     return (
       <BoardContainer>
-        <Header title={__('Growth hacking')} breadcrumb={breadcrumb} />
+        <Header title={__("Growth hacking")} breadcrumb={breadcrumb} />
         <BoardContent $transparent={true}>
           {this.renderActionBar()}
           {this.renderContent()}

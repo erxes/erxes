@@ -1,8 +1,8 @@
-import { IConversionStage } from '@erxes/ui-cards/src/boards/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import Stage from '../../../containers/conversion/Stage';
-import * as React from 'react';
-import { HeadRow, TableView } from '../style';
+import { IConversionStage } from "@erxes/ui-sales/src/boards/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import Stage from "../../../containers/conversion/Stage";
+import * as React from "react";
+import { HeadRow, TableView } from "../style";
 
 type Props = {
   stages: IConversionStage[];
@@ -17,10 +17,10 @@ class Table extends React.Component<Props, {}> {
     return (
       <TableView>
         <HeadRow>
-          <span>{__('Stage')}</span>
-          <span>{__('Stayed')}</span>
-          <span>{__('In progress')}</span>
-          <span>{__('Lost')}</span>
+          <span>{__("Stage")}</span>
+          <span>{__("Stayed")}</span>
+          <span>{__("In progress")}</span>
+          <span>{__("Lost")}</span>
         </HeadRow>
         {stages.map(stage => (
           <Stage
