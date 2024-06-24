@@ -20,7 +20,7 @@ type Props = {
 
 const OrdersByCustomers = ({ list, loading, totalCount }: Props) => {
   const renderRow = () => {
-    return list.map((item) => <Row item={item} />);
+    return list.map((item) => <Row key={item._id} item={item} />);
   };
 
   const renderContent = () => {
