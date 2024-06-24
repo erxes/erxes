@@ -1,11 +1,11 @@
-import { Model } from 'mongoose';
-import { getCollection } from './utils';
+import { Model } from "mongoose";
+import { getCollection } from "./utils";
 import {
   IPipelineLabel,
   IPipelineLabelDocument,
   pipelineLabelSchema
-} from './definitions/pipelineLabels';
-import { IModels } from '../connectionResolver';
+} from "./definitions/pipelineLabels";
+import { IModels } from "../connectionResolver";
 
 interface IFilter extends IPipelineLabel {
   _id?: any;
@@ -36,7 +36,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       const pipelineLabel = await models.PipelineLabels.findOne({ _id });
 
       if (!pipelineLabel) {
-        throw new Error('Label not found');
+        throw new Error("Label not found");
       }
 
       return pipelineLabel;
@@ -60,7 +60,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
     }
 
     /*
-     * Common helper for objects like deal, purchase ,task, ticket and growth hack etc ...
+     * Common helper for objects like deal, purchase and growth hack etc ...
      */
 
     public static async labelObject({
@@ -73,7 +73,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       }).countDocuments();
 
       if (prevLabelsCount !== labelIds.length) {
-        throw new Error('Label not found');
+        throw new Error("Label not found");
       }
 
       await collection.updateMany(
@@ -96,7 +96,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       const isUnique = await models.PipelineLabels.validateUniqueness(filter);
 
       if (!isUnique) {
-        throw new Error('Label duplicated');
+        throw new Error("Label duplicated");
       }
 
       return models.PipelineLabels.create(doc);
@@ -112,7 +112,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       );
 
       if (!isUnique) {
-        throw new Error('Label duplicated');
+        throw new Error("Label duplicated");
       }
 
       await models.PipelineLabels.updateOne({ _id }, { $set: doc });
@@ -127,7 +127,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
       const pipelineLabel = await models.PipelineLabels.findOne({ _id });
 
       if (!pipelineLabel) {
-        throw new Error('Label not found');
+        throw new Error("Label not found");
       }
 
       const pipeline = await models.Pipelines.getPipeline(

@@ -166,7 +166,7 @@ export const getCollection = (models: IModels, type: string) => {
   let update;
   let remove;
 
-  const { Deals, GrowthHacks, Tasks, Tickets, Purchases } = models;
+  const { Deals, Purchases } = models;
 
   switch (type) {
     case BOARD_TYPES.DEAL: {
@@ -183,26 +183,7 @@ export const getCollection = (models: IModels, type: string) => {
       remove = Purchases.removePurchases;
       break;
     }
-    case BOARD_TYPES.GROWTH_HACK: {
-      collection = GrowthHacks;
-      create = GrowthHacks.createGrowthHack;
-      update = GrowthHacks.updateGrowthHack;
-      break;
-    }
-    case BOARD_TYPES.TASK: {
-      collection = Tasks;
-      create = Tasks.createTask;
-      update = Tasks.updateTask;
-      remove = Tasks.removeTasks;
-      break;
-    }
-    case BOARD_TYPES.TICKET: {
-      collection = Tickets;
-      create = Tickets.createTicket;
-      update = Tickets.updateTicket;
-      remove = Tickets.removeTickets;
-      break;
-    }
+
     default:
       break;
   }

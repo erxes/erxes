@@ -14,16 +14,6 @@ const relations = type => {
       relationType: "contacts:customer"
     },
     {
-      name: "ticketIds",
-      label: "Tickets",
-      relationType: "sales:ticket"
-    },
-    {
-      name: "taskIds",
-      label: "Tasks",
-      relationType: "sales:task"
-    },
-    {
       name: "purchaseIds",
       label: "Purchases",
       relationType: "sales:purchase"

@@ -1,14 +1,8 @@
-import { generateModels, IModels } from './connectionResolver';
+import { generateModels, IModels } from "./connectionResolver";
 
 const modelChanger = (type: string, models: IModels) => {
-  if (type === 'task') {
-    return models.Tasks;
-  }
-  if (type === 'purchase') {
+  if (type === "purchase") {
     return models.Purchases;
-  }
-  if (type === 'ticket') {
-    return models.Tickets;
   }
 
   return models.Deals;
@@ -17,21 +11,13 @@ const modelChanger = (type: string, models: IModels) => {
 export default {
   types: [
     {
-      description: 'Deals',
-      type: 'deal',
+      description: "Deals",
+      type: "deal"
     },
     {
-      description: 'Purchases',
-      type: 'purchase',
-    },
-    {
-      description: 'Tasks',
-      type: 'task',
-    },
-    {
-      description: 'Tickets',
-      type: 'ticket',
-    },
+      description: "Purchases",
+      type: "purchase"
+    }
   ],
 
   tag: async ({ subdomain, data }) => {
@@ -42,15 +28,15 @@ export default {
     let response = {};
     const model: any = modelChanger(type, models);
 
-    if (action === 'count') {
+    if (action === "count") {
       response = await model.countDocuments({ tagIds: { $in: _ids } });
     }
 
-    if (action === 'tagObject') {
+    if (action === "tagObject") {
       await model.updateMany(
         { _id: { $in: targetIds } },
         { $set: { tagIds } },
-        { multi: true },
+        { multi: true }
       );
 
       response = await model.find({ _id: { $in: targetIds } }).lean();
@@ -61,29 +47,29 @@ export default {
 
   fixRelatedItems: async ({
     subdomain,
-    data: { type, sourceId, destId, action },
+    data: { type, sourceId, destId, action }
   }) => {
     const models = await generateModels(subdomain);
     const model: any = modelChanger(type, models);
 
-    if (action === 'remove') {
+    if (action === "remove") {
       await model.updateMany(
         { tagIds: { $in: [sourceId] } },
-        { $pull: { tagIds: { $in: [sourceId] } } },
+        { $pull: { tagIds: { $in: [sourceId] } } }
       );
     }
 
-    if (action === 'merge') {
+    if (action === "merge") {
       const itemIds = await model
         .find({ tagIds: { $in: [sourceId] } }, { _id: 1 })
-        .distinct('_id');
+        .distinct("_id");
 
       // add to the new destination
       await model.updateMany(
         { _id: { $in: itemIds } },
-        { $set: { 'tagIds.$[elem]': destId } },
-        { arrayFilters: [{ elem: { $eq: sourceId } }] },
+        { $set: { "tagIds.$[elem]": destId } },
+        { arrayFilters: [{ elem: { $eq: sourceId } }] }
       );
     }
-  },
+  }
 };

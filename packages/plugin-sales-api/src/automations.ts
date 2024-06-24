@@ -373,13 +373,6 @@ export default {
     ],
     actions: [
       {
-        type: "sales:task.create",
-        icon: "file-plus-alt",
-        label: "Create task",
-        description: "Create task",
-        isAvailable: true
-      },
-      {
         type: "sales:purchase.create",
         icon: "file-plus-alt",
         label: "Create purchase",
@@ -391,13 +384,6 @@ export default {
         icon: "piggy-bank",
         label: "Create deal",
         description: "Create deal",
-        isAvailable: true
-      },
-      {
-        type: "sales:ticket.create",
-        icon: "file-plus",
-        label: "Create ticket",
-        description: "Create ticket",
         isAvailable: true
       }
     ]

@@ -1,40 +1,40 @@
-import { generateModels, IModels } from './connectionResolver';
-import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from './constants';
+import { generateModels, IModels } from "./connectionResolver";
+import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from "./constants";
 import {
   fetchSegment,
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
   sendLogsMessage,
-  sendProductsMessage,
-} from './messageBroker';
-import * as moment from 'moment';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
-import { IStageDocument } from './models/definitions/boards';
+  sendProductsMessage
+} from "./messageBroker";
+import * as moment from "moment";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { IPipelineLabelDocument } from "./models/definitions/pipelineLabels";
+import { IStageDocument } from "./models/definitions/boards";
 import {
   getCompanyIds,
   getCustomerIds,
-  getInternalNoteIds,
-} from './models/utils';
+  getInternalNoteIds
+} from "./models/utils";
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any[]> => {
   const { contentType, segmentData, page, perPage } = query;
 
   let data: any[] = [];
 
-  const type = contentType.split(':')[1];
+  const type = contentType.split(":")[1];
   const skip = (page - 1) * perPage;
 
   const boardItemsFilter: any = {};
   let itemIds = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
+    itemIds = await fetchSegment(subdomain, "", { page, perPage }, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
   }
@@ -62,28 +62,6 @@ const prepareData = async (
       data = await models.Purchases.find(boardItemsFilter).lean();
 
       break;
-    case MODULE_NAMES.TASK:
-      if (!segmentData) {
-        data = await models.Tasks.find(boardItemsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Tasks.find(boardItemsFilter).lean();
-
-      break;
-    case MODULE_NAMES.TICKET:
-      if (!segmentData) {
-        data = await models.Tickets.find(boardItemsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Tickets.find(boardItemsFilter).lean();
-
-      break;
   }
 
   return data;
@@ -92,11 +70,11 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any> => {
   const { contentType, segmentData } = query;
 
-  const type = contentType.split(':')[1];
+  const type = contentType.split(":")[1];
 
   let data = 0;
 
@@ -105,9 +83,9 @@ const prepareDataCount = async (
   if (segmentData.conditions) {
     const itemIds = await fetchSegment(
       subdomain,
-      '',
+      "",
       { scroll: true, page: 1, perPage: 10000 },
-      segmentData,
+      segmentData
     );
 
     boardItemsFilter._id = { $in: itemIds };
@@ -121,13 +99,6 @@ const prepareDataCount = async (
     case MODULE_NAMES.PURCHASE:
       data = await models.Purchases.find(boardItemsFilter).countDocuments();
 
-      break;
-    case MODULE_NAMES.TASK:
-      data = await models.Tasks.find(boardItemsFilter).countDocuments();
-
-      break;
-    case MODULE_NAMES.TICKET:
-      data = await models.Tickets.find(boardItemsFilter).countDocuments();
       break;
   }
 
@@ -143,7 +114,7 @@ const getCustomFieldsData = async (item, fieldId) => {
         value = customFeild.value;
 
         if (Array.isArray(value)) {
-          value = value.join(', ');
+          value = value.join(", ");
         }
 
         return { value };
@@ -165,103 +136,103 @@ const fillDealProductValue = async (subdomain, column, item) => {
     const result = {};
 
     switch (column) {
-      case 'productsData.amount':
+      case "productsData.amount":
         value = productData.amount;
         break;
 
-      case 'productsData.name':
+      case "productsData.name":
         product =
           (await sendProductsMessage({
             subdomain,
-            action: 'findOne',
+            action: "findOne",
             data: {
-              _id: productData.productId,
+              _id: productData.productId
             },
-            isRPC: true,
+            isRPC: true
           })) || {};
 
         value = product.name;
         break;
 
-      case 'productsData.code':
+      case "productsData.code":
         product =
           (await sendProductsMessage({
             subdomain,
-            action: 'findOne',
+            action: "findOne",
             data: {
-              _id: productData.productId,
+              _id: productData.productId
             },
-            isRPC: true,
+            isRPC: true
           })) || {};
 
         value = product.code;
         break;
 
-      case 'productsData.discount':
+      case "productsData.discount":
         value = productData.discount;
         break;
 
-      case 'productsData.discountPercent':
+      case "productsData.discountPercent":
         value = productData.discountPercent;
         break;
 
-      case 'productsData.currency':
+      case "productsData.currency":
         value = productData.amount;
         break;
 
-      case 'productsData.tax':
+      case "productsData.tax":
         value = productData.tax;
         break;
 
-      case 'productsData.taxPercent':
+      case "productsData.taxPercent":
         value = productData.taxPercent;
         break;
 
-      case 'productsData.quantity':
+      case "productsData.quantity":
         value = productData.quantity;
         break;
 
-      case 'productsData.unitPrice':
+      case "productsData.unitPrice":
         value = productData.unitPrice;
         break;
 
-      case 'productsData.tickUsed':
-        value = productData.tickUsed ? 'TRUE' : 'FALSE';
+      case "productsData.tickUsed":
+        value = productData.tickUsed ? "TRUE" : "FALSE";
         break;
 
-      case 'productsData.isVatApplied':
+      case "productsData.isVatApplied":
         value = productData.isVatApplied;
         break;
 
-      case 'productsData.branch':
+      case "productsData.branch":
         const branch =
           (await sendCoreMessage({
             subdomain,
-            action: 'branches.findOne',
+            action: "branches.findOne",
             data: {
-              _id: productData.branchId,
+              _id: productData.branchId
             },
-            isRPC: true,
+            isRPC: true
           })) || {};
 
         value = branch.code;
         break;
 
-      case 'productsData.department':
+      case "productsData.department":
         const department =
           (await sendCoreMessage({
             subdomain,
-            action: 'departments.findOne',
+            action: "departments.findOne",
             data: {
-              _id: productData.departmentId,
+              _id: productData.departmentId
             },
-            isRPC: true,
+            isRPC: true
           })) || {};
 
         value = department.code;
         break;
 
-      case 'productsData.maxQuantity':
+      case "productsData.maxQuantity":
         value = productData.maxQuantity;
         break;
     }
@@ -279,182 +250,178 @@ const fillValue = async (
   subdomain: string,
   column: string,
   item: any,
-  contentType: string,
+  contentType: string
 ): Promise<string> => {
   let value = item[column];
-  const type = contentType.split(':')[1];
+  const type = contentType.split(":")[1];
 
   switch (column) {
-    case 'createdAt':
-    case 'closeDate':
-    case 'modifiedAt':
-      value = moment(value).format('YYYY-MM-DD');
+    case "createdAt":
+    case "closeDate":
+    case "modifiedAt":
+      value = moment(value).format("YYYY-MM-DD");
 
       break;
-    case 'userId':
+    case "userId":
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: item.userId,
+          _id: item.userId
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      value = createdUser ? createdUser.username : 'user not found';
+      value = createdUser ? createdUser.username : "user not found";
 
       break;
-    // deal, task, purchase ticket fields
-    case 'assignedUserIds':
+    // deal, purchase fields
+    case "assignedUserIds":
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
-            _id: { $in: item.assignedUserIds || [] },
-          },
+            _id: { $in: item.assignedUserIds || [] }
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      value = assignedUsers
-        .map((user) => user.username || user.email)
-        .join(', ');
+      value = assignedUsers.map(user => user.username || user.email).join(", ");
 
       break;
 
-    case 'watchedUserIds':
+    case "watchedUserIds":
       const watchedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
-            _id: { $in: item.watchedUserIds || [] },
-          },
+            _id: { $in: item.watchedUserIds || [] }
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      value = watchedUsers
-        .map((user) => user.username || user.email)
-        .join(', ');
+      value = watchedUsers.map(user => user.username || user.email).join(", ");
 
       break;
 
-    case 'labelIds':
+    case "labelIds":
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
-          _id: { $in: item.labelIds },
-        },
+          _id: { $in: item.labelIds }
+        }
       );
 
-      value = labels.map((label) => label.name).join(', ');
+      value = labels.map(label => label.name).join(", ");
 
       break;
 
-    case 'branchIds':
+    case "branchIds":
       const branches = await sendCoreMessage({
         subdomain,
         action: `branches.find`,
         data: {
-          query: { _id: { $in: item.branchIds || [] } },
+          query: { _id: { $in: item.branchIds || [] } }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      value = branches.map((branch) => branch.title).join(', ');
+      value = branches.map(branch => branch.title).join(", ");
 
       break;
 
-    case 'departmentIds':
+    case "departmentIds":
       const departments = await sendCoreMessage({
         subdomain,
-        action: 'departments.find',
+        action: "departments.find",
         data: {
-          _id: { $in: item.departmentIds || [] },
+          _id: { $in: item.departmentIds || [] }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      value = departments.map((department) => department.title).join(', ');
+      value = departments.map(department => department.title).join(", ");
 
       break;
 
-    case 'stageId':
+    case "stageId":
       const stage: IStageDocument | null = await models.Stages.findOne({
-        _id: item.stageId,
+        _id: item.stageId
       });
 
-      value = stage ? stage.name : '-';
+      value = stage ? stage.name : "-";
 
       break;
 
-    case 'boardId':
+    case "boardId":
       const stageForBoard = await models.Stages.findOne({
-        _id: item.stageId,
+        _id: item.stageId
       });
 
-      value = '-';
+      value = "-";
 
       if (stageForBoard) {
         const pipeline = await models.Pipelines.findOne({
-          _id: stageForBoard.pipelineId,
+          _id: stageForBoard.pipelineId
         });
 
         if (pipeline) {
           const board = await models.Boards.findOne({ _id: pipeline.boardId });
 
-          value = board ? board.name : '-';
+          value = board ? board.name : "-";
         }
       }
 
       break;
 
-    case 'pipelineId':
+    case "pipelineId":
       const stageForPipeline = await models.Stages.findOne({
-        _id: item.stageId,
+        _id: item.stageId
       });
 
-      value = '-';
+      value = "-";
 
       if (stageForPipeline) {
         const pipeline = await models.Pipelines.findOne({
-          _id: stageForPipeline.pipelineId,
+          _id: stageForPipeline.pipelineId
         });
 
-        value = pipeline ? pipeline.name : '-';
+        value = pipeline ? pipeline.name : "-";
       }
 
       break;
 
-    case 'initialStageId':
+    case "initialStageId":
       const initialStage: IStageDocument | null = await models.Stages.findOne({
-        _id: item.initialStageId,
+        _id: item.initialStageId
       });
 
-      value = initialStage ? initialStage.name : '-';
+      value = initialStage ? initialStage.name : "-";
 
       break;
 
-    case 'modifiedBy':
+    case "modifiedBy":
       const modifiedBy: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: item.modifiedBy,
+          _id: item.modifiedBy
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      value = modifiedBy ? modifiedBy.username : '-';
+      value = modifiedBy ? modifiedBy.username : "-";
 
       break;
 
-    case 'totalAmount':
+    case "totalAmount":
       const productDatas = item.productsData;
       let totalAmount = 0;
 
@@ -466,46 +433,46 @@ const fillValue = async (
         }
       }
 
-      value = totalAmount ? totalAmount : '-';
+      value = totalAmount ? totalAmount : "-";
 
       break;
 
-    case 'totalLabelCount':
-      value = item.labelIds ? item.labelIds.length : '-';
+    case "totalLabelCount":
+      value = item.labelIds ? item.labelIds.length : "-";
 
       break;
 
-    case 'stageMovedUser':
+    case "stageMovedUser":
       const activities = await sendLogsMessage({
         subdomain,
-        action: 'activityLogs.findMany',
+        action: "activityLogs.findMany",
         data: {
           query: {
             contentId: item._id,
-            action: 'moved',
-          },
+            action: "moved"
+          }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const movedUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id:
             activities.length > 0
               ? activities[activities.length - 1].createdBy
-              : '',
+              : ""
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      value = movedUser ? movedUser.username : '-';
+      value = movedUser ? movedUser.username : "-";
 
       break;
 
-    case 'customers':
+    case "customers":
       const customerRows = [] as any;
 
       const customerIds = await getCustomerIds(subdomain, type, item._id);
@@ -513,22 +480,22 @@ const fillValue = async (
       for (const id of customerIds) {
         const customer = await sendContactsMessage({
           subdomain,
-          action: 'customers.findOne',
+          action: "customers.findOne",
           data: { _id: id },
           isRPC: true,
-          defaultValue: '',
+          defaultValue: ""
         });
 
         customerRows.push(customer);
       }
 
       value = customerRows
-        .map((customer) => customer.primaryEmail || '')
-        .join(', ');
+        .map(customer => customer.primaryEmail || "")
+        .join(", ");
 
       break;
 
-    case 'companies':
+    case "companies":
       const companyRows = [] as any;
 
       const companyIds = await getCompanyIds(subdomain, type, item._id);
@@ -536,30 +503,28 @@ const fillValue = async (
       for (const id of companyIds) {
         const company = await sendContactsMessage({
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: { _id: id },
           isRPC: true,
-          defaultValue: '',
+          defaultValue: ""
         });
 
         companyRows.push(company);
       }
 
-      value = companyRows
-        .map((company) => company.primaryName || '')
-        .join(', ');
+      value = companyRows.map(company => company.primaryName || "").join(", ");
       break;
 
-    case 'internalNotes':
+    case "internalNotes":
       const notes = await getInternalNoteIds(subdomain, contentType, item._id);
 
-      const removeTag = (text) => {
-        return text.replace(/<\/?[^>]+(>|$)|&nbsp;/g, '');
+      const removeTag = text => {
+        return text.replace(/<\/?[^>]+(>|$)|&nbsp;/g, "");
       };
 
       value = notes
-        .map((note: any) => removeTag(note.content) || '')
-        .join(', ');
+        .map((note: any) => removeTag(note.content) || "")
+        .join(", ");
 
       break;
 
@@ -567,7 +532,7 @@ const fillValue = async (
       break;
   }
 
-  return value || '-';
+  return value || "-";
 };
 
 export default {
@@ -588,21 +553,21 @@ export default {
       totalCount = results;
 
       for (const column of columnsConfig) {
-        if (column.startsWith('customFieldsData')) {
-          const fieldId = column.split('.')[1];
+        if (column.startsWith("customFieldsData")) {
+          const fieldId = column.split(".")[1];
           const field = await sendFormsMessage({
             subdomain,
-            action: 'fields.findOne',
+            action: "fields.findOne",
             data: {
               query: {
-                _id: fieldId,
-              },
+                _id: fieldId
+              }
             },
-            isRPC: true,
+            isRPC: true
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
-        } else if (column.startsWith('productsData')) {
+        } else if (column.startsWith("productsData")) {
           headers.push(column);
         } else {
           headers.push(column);
@@ -610,15 +575,15 @@ export default {
       }
 
       for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
+        if (header.startsWith("customFieldsData")) {
+          excelHeader.push(header.split(".")[1]);
         } else {
           excelHeader.push(header);
         }
       }
     } catch (e) {
       return {
-        error: e.message,
+        error: e.message
       };
     }
     return { totalCount, excelHeader };
@@ -636,19 +601,19 @@ export default {
       const results = await prepareData(models, subdomain, data);
 
       for (const column of columnsConfig) {
-        if (column.startsWith('customFieldsData')) {
-          const fieldId = column.split('.')[1];
+        if (column.startsWith("customFieldsData")) {
+          const fieldId = column.split(".")[1];
           const field = await sendFormsMessage({
             subdomain,
-            action: 'fields.findOne',
+            action: "fields.findOne",
             data: {
-              query: { _id: fieldId },
+              query: { _id: fieldId }
             },
-            isRPC: true,
+            isRPC: true
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
-        } else if (column.startsWith('productsData')) {
+        } else if (column.startsWith("productsData")) {
           headers.push(column);
         } else {
           headers.push(column);
@@ -661,18 +626,18 @@ export default {
         const productsArray = [] as any;
 
         for (const column of headers) {
-          if (column.startsWith('customFieldsData')) {
-            const fieldId = column.split('.')[2];
-            const fieldName = column.split('.')[1];
+          if (column.startsWith("customFieldsData")) {
+            const fieldId = column.split(".")[2];
+            const fieldName = column.split(".")[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[fieldName] = value || '-';
-          } else if (column.startsWith('productsData')) {
+            result[fieldName] = value || "-";
+          } else if (column.startsWith("productsData")) {
             const productItem = await fillDealProductValue(
               subdomain,
               column,
-              item,
+              item
             );
 
             productDocs.push(productItem);
@@ -682,10 +647,10 @@ export default {
               subdomain,
               column,
               item,
-              data.contentType,
+              data.contentType
             );
 
-            result[column] = value || '-';
+            result[column] = value || "-";
           }
         }
 
@@ -709,7 +674,7 @@ export default {
             if (index === 0) {
               docs.push({
                 ...result,
-                ...mergedObject,
+                ...mergedObject
               });
               index++;
             } else {
@@ -725,5 +690,5 @@ export default {
     }
 
     return { docs };
-  },
+  }
 };

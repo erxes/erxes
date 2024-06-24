@@ -59,7 +59,7 @@ export const generateConditionStageIds = async (
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
-  const { Deals, Tasks, Tickets, GrowthHacks, Stages, Purchases } = models;
+  const { Deals, Stages, Purchases } = models;
   const { action, content, contentType, contentId } = data;
 
   const type =
@@ -74,15 +74,7 @@ export const getContentItem = async (subdomain, data) => {
       case "deal":
         item = await Deals.getDeal(contentId);
         break;
-      case "task":
-        item = await Tasks.getTask(contentId);
-        break;
-      case "growthHack":
-        item = await GrowthHacks.getGrowthHack(contentId);
-        break;
-      case "ticket":
-        item = await Tickets.getTicket(contentId);
-        break;
+
       case "purchase":
         item = await Purchases.getPurchase(contentId);
       default:
@@ -116,15 +108,7 @@ export const getContentItem = async (subdomain, data) => {
       case "deal":
         item = await Deals.getDeal(contentId);
         break;
-      case "task":
-        item = await Tasks.getTask(contentId);
-        break;
-      case "growthHack":
-        item = await GrowthHacks.getGrowthHack(contentId);
-        break;
-      case "ticket":
-        item = await Tickets.getTicket(contentId);
-        break;
+
       case "purchase":
         item = await Purchases.getPurchase(contentId);
       default:
@@ -188,15 +172,7 @@ export const getContentItem = async (subdomain, data) => {
 export const getContentTypeDetail = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
-  const {
-    Deals,
-    Tickets,
-    Tasks,
-    GrowthHacks,
-    ChecklistItems,
-    Checklists,
-    Purchases
-  } = models;
+  const { Deals, ChecklistItems, Checklists, Purchases } = models;
   const { contentType = "", contentId, content } = data;
 
   let item = {};
@@ -205,15 +181,6 @@ export const getContentTypeDetail = async (subdomain, data) => {
     switch (contentType.split(":")[1]) {
       case "deal":
         item = await Deals.getDeal(contentId);
-        break;
-      case "task":
-        item = await Tasks.getTask(contentId);
-        break;
-      case "growthHack":
-        item = await GrowthHacks.getGrowthHack(contentId);
-        break;
-      case "ticket":
-        item = await Tickets.getTicket(contentId);
         break;
       case "checklist":
         item = (await Checklists.findOne({ _id: content._id })) || {};
@@ -234,67 +201,7 @@ export const getContentTypeDetail = async (subdomain, data) => {
   return item;
 };
 
-export const collectItems = async (
-  models: IModels,
-  subdomain: string,
-  { contentType, contentId }
-) => {
-  let tasks: any[] = [];
-
-  if (contentType === "activity") {
-    return;
-  }
-
-  const relatedTaskIds = await sendCoreMessage({
-    subdomain,
-    action: "conformities.savedConformity",
-    data: {
-      mainType: contentType.split(":")[1],
-      mainTypeId: contentId,
-      relTypes: ["task"]
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-
-  if (contentType !== "sales:task") {
-    tasks = await models.Tasks.aggregate([
-      {
-        $match: {
-          $and: [
-            { _id: { $in: relatedTaskIds } },
-            { status: { $ne: "archived" } }
-          ]
-        }
-      },
-      {
-        $addFields: { contentType: "sales:taskDetail" }
-      },
-      {
-        $project: {
-          _id: 1,
-          contentType: 1,
-          createdAt: {
-            $switch: {
-              branches: [
-                {
-                  case: { $gt: ["$closeDate", null] },
-                  then: "$closeDate"
-                }
-              ],
-              default: "$createdAt"
-            }
-          }
-        }
-      },
-      { $sort: { closeDate: 1 } }
-    ]);
-  }
-
-  return tasks;
-};
-
-// contentType should come with "sales:deal|task|ticket|growthHack|purchase" format
+// contentType should come with "sales:deal|purchase" format
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }
@@ -311,7 +218,7 @@ export const getCardItem = async (
   models: IModels,
   { contentTypeId, contentType }
 ) => {
-  const { Deals, Tasks, Tickets, GrowthHacks, Purchases } = models;
+  const { Deals, Purchases } = models;
   const filter = { _id: contentTypeId };
 
   let item;
@@ -320,15 +227,7 @@ export const getCardItem = async (
     case MODULE_NAMES.DEAL:
       item = await Deals.findOne(filter);
       break;
-    case MODULE_NAMES.TASK:
-      item = await Tasks.findOne(filter);
-      break;
-    case MODULE_NAMES.TICKET:
-      item = await Tickets.findOne(filter);
-      break;
-    case MODULE_NAMES.GROWTH_HACK:
-      item = await GrowthHacks.findOne(filter);
-      break;
+
     case MODULE_NAMES.PURCHASE:
       item = await Purchases.findOne(filter);
       break;

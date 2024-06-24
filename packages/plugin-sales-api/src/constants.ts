@@ -30,16 +30,6 @@ export const IMPORT_EXPORT_TYPES = [
     text: "Purchase",
     contentTypeL: "purchase",
     icon: "signal-alt-3"
-  },
-  {
-    text: "Task",
-    contentType: "task",
-    icon: "laptop"
-  },
-  {
-    text: "Ticket",
-    contentType: "ticket",
-    icon: "ticket"
   }
 ];
 export const PRIORITIES = {
@@ -177,25 +167,15 @@ export const MODULE_NAMES = {
   BOARD: "board",
   BOARD_DEAL: "dealBoards",
   BOARD_PURCHASE: "purchaseBoards",
-  BOARD_TASK: "taskBoards",
-  BOARD_TICKET: "ticketBoards",
-  BOARD_GH: "growthHackBoards",
   PIPELINE_DEAL: "dealPipelines",
   PIPELINE_PURCHASE: "purchasePipelines",
-  PIPELINE_TASK: "taskPipelines",
-  PIPELINE_TICKET: "ticketPipelines",
   PIPELINE_GH: "growthHackPipelines",
   STAGE_DEAL: "dealStages",
   STAGE_PURCHASE: "purchaseStages",
-  STAGE_TASK: "taskStages",
-  STAGE_TICKET: "ticketStages",
-  STAGE_GH: "growthHackStages",
   CHECKLIST: "checklist",
   CHECKLIST_ITEM: "checkListItem",
   DEAL: "deal",
   PURCHASE: "purchase",
-  TICKET: "ticket",
-  TASK: "task",
   PIPELINE_LABEL: "pipelineLabel",
   PIPELINE_TEMPLATE: "pipelineTemplate",
   GROWTH_HACK: "growthHack"
@@ -216,27 +196,11 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [attachmentSchema, boardSchema]
   },
   {
-    name: MODULE_NAMES.BOARD_TASK,
-    schemas: [attachmentSchema, boardSchema]
-  },
-  {
-    name: MODULE_NAMES.BOARD_TICKET,
-    schemas: [attachmentSchema, boardSchema]
-  },
-  {
     name: MODULE_NAMES.PIPELINE_DEAL,
     schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_PURCHASE,
-    schemas: [pipelineSchema]
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TASK,
-    schemas: [pipelineSchema]
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_TICKET,
     schemas: [pipelineSchema]
   },
   {
@@ -269,18 +233,6 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.STAGE_PURCHASE,
-    schemas: [boardStageSchema]
-  },
-  {
-    name: MODULE_NAMES.STAGE_TASK,
-    schemas: [boardStageSchema]
-  },
-  {
-    name: MODULE_NAMES.STAGE_TICKET,
-    schemas: [boardStageSchema]
-  },
-  {
-    name: MODULE_NAMES.STAGE_GH,
     schemas: [boardStageSchema]
   }
 ];

@@ -28,7 +28,7 @@ export default {
     notifDoc.contentType = `${type}`;
     notifDoc.item = card;
 
-    // sendNotificationOfItems on ticket, task, purchase and deal
+    // sendNotificationOfItems on, purchase and deal
     notifDoc.notifOfItems = true;
 
     return notifDoc;

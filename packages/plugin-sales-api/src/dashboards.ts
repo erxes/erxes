@@ -18,5 +18,5 @@ export default {
     "DealsDepartments",
     "PurchasesDepartments"
   ],
-  types: ["Deals", "Purchases", "Tasks", "Tickets"]
+  types: ["Deals", "Purchases"]
 };

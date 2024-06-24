@@ -7,9 +7,7 @@ import Purchase from "./purchase";
 import Checklist from "./checklists";
 import {
   default as DealListItem,
-  default as PurchaseListItem,
-  default as TaskListItem,
-  default as TicketListItem
+  default as PurchaseListItem
 } from "./commonListItem";
 
 export {
@@ -19,8 +17,6 @@ export {
   Deal,
   Purchase,
   Checklist,
-  TaskListItem,
-  TicketListItem,
   DealListItem,
   PurchaseListItem
 };

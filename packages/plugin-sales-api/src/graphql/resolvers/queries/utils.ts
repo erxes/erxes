@@ -563,27 +563,7 @@ export const generateCommonFilters = async (
   if (number) {
     filter.number = { $regex: `${number}`, $options: "mui" };
   }
-  if (vendorCustomerIds?.length > 0) {
-    const cards = await sendCommonMessage({
-      subdomain,
-      serviceName: "clientportal",
-      action: "clientPortalUserCards.find",
-      data: {
-        contentType: "ticket",
-        cpUserId: { $in: vendorCustomerIds }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-    const cardIds = cards.map(d => d.contentTypeId);
-    if (filter._id) {
-      const ids = filter._id.$in;
-      const newIds = ids.filter(d => cardIds.includes(d));
-      filter._id = { $in: newIds };
-    } else {
-      filter._id = { $in: cardIds };
-    }
-  }
+
   return filter;
 };
 
@@ -689,58 +669,6 @@ export const generatePurchaseCommonFilters = async (
 
   if (productIds) {
     filter["productsData.productId"] = contains(productIds);
-  }
-
-  // Calendar monthly date
-  await calendarFilters(models, filter, args);
-
-  return filter;
-};
-
-export const generateTicketCommonFilters = async (
-  models: IModels,
-  subdomain: string,
-  currentUserId: string,
-  args = {} as any,
-  extraParams?: any
-) => {
-  args.type = "ticket";
-
-  let filter = await generateCommonFilters(
-    models,
-    subdomain,
-    currentUserId,
-    args
-  );
-
-  if (extraParams) {
-    filter = await generateExtraFilters(filter, extraParams);
-  }
-
-  // Calendar monthly date
-  await calendarFilters(models, filter, args);
-
-  return filter;
-};
-
-export const generateTaskCommonFilters = async (
-  models: IModels,
-  subdomain: string,
-  currentUserId: string,
-  args = {} as any,
-  extraParams?: any
-) => {
-  args.type = "task";
-
-  let filter = await generateCommonFilters(
-    models,
-    subdomain,
-    currentUserId,
-    args
-  );
-
-  if (extraParams) {
-    filter = await generateExtraFilters(filter, extraParams);
   }
 
   // Calendar monthly date

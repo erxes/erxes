@@ -1,63 +1,49 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 import {
   types as checkListTypes,
   queries as checkListQueries,
-  mutations as checkListMutations,
-} from './schema/checklist';
+  mutations as checkListMutations
+} from "./schema/checklist";
 import {
   types as boardTypes,
   queries as boardQueries,
-  mutations as boardMutations,
-} from './schema/board';
+  mutations as boardMutations
+} from "./schema/board";
 import {
   types as dealTypes,
   queries as dealQueries,
-  mutations as dealMutations,
-} from './schema/deal';
+  mutations as dealMutations
+} from "./schema/deal";
 import {
   types as purchaseTypes,
   queries as purchaseQueries,
-  mutations as purchaseMutations,
-} from './schema/purchase';
-import {
-  types as taskTypes,
-  queries as taskQueries,
-  mutations as taskMutations,
-} from './schema/task';
-import {
-  types as ticketTypes,
-  queries as ticketQueries,
-  mutations as ticketMutations,
-} from './schema/ticket';
-import {
-  types as growthHackTypes,
-  queries as growthHackQueries,
-  mutations as growthHackMutations,
-} from './schema/growthHack';
+  mutations as purchaseMutations
+} from "./schema/purchase";
+
 import {
   types as plTypes,
   queries as plQueries,
-  mutations as plMutations,
-} from './schema/pipelineLabel';
+  mutations as plMutations
+} from "./schema/pipelineLabel";
 import {
   types as ptTypes,
   queries as ptQueries,
-  mutations as ptMutations,
-} from './schema/pipelineTemplate';
-import { types as CommonTypes } from './schema/common';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+  mutations as ptMutations
+} from "./schema/pipelineTemplate";
+import { types as CommonTypes } from "./schema/common";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const contactsEnabled = await isEnabled('contacts');
-  const tagsEnabled = await isEnabled('tags');
-  const formsEnabled = await isEnabled('forms');
-  const clientPortalEnabled = await isEnabled('clientportal');
+  const contactsEnabled = await isEnabled("contacts");
+  const tagsEnabled = await isEnabled("tags");
+  const formsEnabled = await isEnabled("forms");
+  const clientPortalEnabled = await isEnabled("clientportal");
 
   const isEnabledTable = {
     contacts: contactsEnabled,
     forms: formsEnabled,
     tags: tagsEnabled,
-    clientPortal: clientPortalEnabled,
+    clientPortal: clientPortalEnabled
   };
 
   return gql`
@@ -87,7 +73,7 @@ const typeDefs = async () => {
           _id: String! @external
         }
       `
-        : ''
+        : ""
     }
 
     ${
@@ -97,7 +83,7 @@ const typeDefs = async () => {
           _id: String! @external
         }
       `
-        : ''
+        : ""
     }
     
     ${
@@ -107,15 +93,11 @@ const typeDefs = async () => {
           _id: String! @external
         }
       `
-        : ''
+        : ""
     }
     ${boardTypes(isEnabledTable)}
     ${dealTypes(isEnabledTable)}
     ${purchaseTypes(isEnabledTable)}
-    ${taskTypes(isEnabledTable)}
-    ${ticketTypes(isEnabledTable)}
-
-    ${formsEnabled ? growthHackTypes : ''}
 
     ${plTypes}
     ${ptTypes}
@@ -126,11 +108,6 @@ const typeDefs = async () => {
       ${boardQueries}
       ${dealQueries}
       ${purchaseQueries}
-      ${taskQueries}
-      ${ticketQueries}
-
-      ${formsEnabled ? growthHackQueries : ''}
-
       ${plQueries}
       ${ptQueries}
       ${checkListQueries}
@@ -140,9 +117,6 @@ const typeDefs = async () => {
       ${boardMutations}
       ${dealMutations}
       ${purchaseMutations}
-      ${taskMutations}
-      ${ticketMutations}
-      ${formsEnabled ? growthHackMutations : ''}
       ${plMutations}
       ${ptMutations}
       ${checkListMutations}

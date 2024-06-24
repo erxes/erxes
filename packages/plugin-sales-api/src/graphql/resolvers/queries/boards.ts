@@ -612,8 +612,6 @@ const boardQueries = {
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = "";
-    let ticketUrl = "";
-    let taskUrl = "";
     let purchaseUrl = "";
 
     const deal = await Deals.findOne(filter).lean();
@@ -638,8 +636,6 @@ const boardQueries = {
 
     return {
       dealUrl,
-      ticketUrl,
-      taskUrl,
       purchaseUrl
     };
   },
@@ -761,7 +757,7 @@ const boardQueries = {
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ["deal", "ticket", "task", "purchase"]) {
+    for (const ct of ["deal", "purchase"]) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({

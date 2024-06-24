@@ -1,15 +1,11 @@
-import { getNewOrder } from '../models/utils';
-import { NOTIFICATION_TYPES } from '../models/definitions/constants';
-import { IDealDocument } from '../models/definitions/deals';
-import { IGrowthHackDocument } from '../models/definitions/growthHacks';
-import { ITaskDocument } from '../models/definitions/tasks';
-import { IPurchaseDocument } from '../models/definitions/purchases';
-import { ITicketDocument } from '../models/definitions/tickets';
-import { can, checkLogin } from '@erxes/api-utils/src';
-import * as _ from 'underscore';
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
-import { IModels } from '../connectionResolver';
+import { getNewOrder } from "../models/utils";
+import { NOTIFICATION_TYPES } from "../models/definitions/constants";
+import { IDealDocument } from "../models/definitions/deals";
+import { can, checkLogin } from "@erxes/api-utils/src";
+import * as _ from "underscore";
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { sendCoreMessage, sendNotificationsMessage } from "../messageBroker";
+import { IModels } from "../connectionResolver";
 
 interface IMainType {
   mainType: string;
@@ -30,7 +26,7 @@ interface IConformityCreate extends IMainType {
  * Send a notification
  */
 export const sendNotification = (subdomain: string, data) => {
-  return sendNotificationsMessage({ subdomain, action: 'send', data });
+  return sendNotificationsMessage({ subdomain, action: "send", data });
 };
 
 export const notifiedUserIds = async (models: IModels, item: any) => {
@@ -118,13 +114,14 @@ export const sendNotifications = async (
     });
 
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: `${item.name}`,
-        body: `${notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details
-            ?.shortName} removed you from ${contentType}`,
+        body: `${
+          notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details?.shortName
+        } removed you from ${contentType}`,
         receivers: removedUsers.filter(id => id !== user._id),
         data: {
           type: contentType,
@@ -144,13 +141,14 @@ export const sendNotifications = async (
     });
 
     sendCoreMessage({
-      subdomain: 'os',
-      action: 'sendMobileNotification',
+      subdomain: "os",
+      action: "sendMobileNotification",
       data: {
         title: `${item.name}`,
-        body: `${notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details
-            ?.shortName} invited you to the ${contentType}`,
+        body: `${
+          notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details?.shortName
+        } invited you to the ${contentType}`,
         receivers: invitedUsers.filter(id => id !== user._id),
         data: {
           type: contentType,
@@ -175,83 +173,35 @@ export const boardId = async (models: IModels, item: any) => {
 
 const PERMISSION_MAP = {
   deal: {
-    boardsAdd: 'dealBoardsAdd',
-    boardsEdit: 'dealBoardsEdit',
-    boardsRemove: 'dealBoardsRemove',
-    pipelinesAdd: 'dealPipelinesAdd',
-    pipelinesEdit: 'dealPipelinesEdit',
-    pipelinesRemove: 'dealPipelinesRemove',
-    pipelinesArchive: 'dealPipelinesArchive',
-    pipelinesCopied: 'dealPipelinesCopied',
-    pipelinesWatch: 'dealPipelinesWatch',
-    stagesEdit: 'dealStagesEdit',
-    stagesRemove: 'dealStagesRemove',
-    itemsSort: 'dealsSort',
-    updateTimeTracking: 'dealUpdateTimeTracking'
+    boardsAdd: "dealBoardsAdd",
+    boardsEdit: "dealBoardsEdit",
+    boardsRemove: "dealBoardsRemove",
+    pipelinesAdd: "dealPipelinesAdd",
+    pipelinesEdit: "dealPipelinesEdit",
+    pipelinesRemove: "dealPipelinesRemove",
+    pipelinesArchive: "dealPipelinesArchive",
+    pipelinesCopied: "dealPipelinesCopied",
+    pipelinesWatch: "dealPipelinesWatch",
+    stagesEdit: "dealStagesEdit",
+    stagesRemove: "dealStagesRemove",
+    itemsSort: "dealsSort",
+    updateTimeTracking: "dealUpdateTimeTracking"
   },
-  ticket: {
-    boardsAdd: 'ticketBoardsAdd',
-    boardsEdit: 'ticketBoardsEdit',
-    boardsRemove: 'ticketBoardsRemove',
-    pipelinesAdd: 'ticketPipelinesAdd',
-    pipelinesEdit: 'ticketPipelinesEdit',
-    pipelinesRemove: 'ticketPipelinesRemove',
-    pipelinesArchive: 'ticketPipelinesArchive',
-    pipelinesCopied: 'ticketPipelinesCopied',
-    pipelinesWatch: 'ticketPipelinesWatch',
-    stagesEdit: 'ticketStagesEdit',
-    stagesRemove: 'ticketStagesRemove',
-    itemsSort: 'ticketsSort',
-    updateTimeTracking: 'ticketUpdateTimeTracking'
-  },
-  task: {
-    boardsAdd: 'taskBoardsAdd',
-    boardsEdit: 'taskBoardsEdit',
-    boardsRemove: 'taskBoardsRemove',
-    pipelinesAdd: 'taskPipelinesAdd',
-    pipelinesEdit: 'taskPipelinesEdit',
-    pipelinesRemove: 'taskPipelinesRemove',
-    pipelinesArchive: 'taskPipelinesArchive',
-    pipelinesCopied: 'taskPipelinesCopied',
-    pipelinesWatch: 'taskPipelinesWatch',
-    stagesEdit: 'taskStagesEdit',
-    stagesRemove: 'taskStagesRemove',
-    itemsSort: 'tasksSort',
-    updateTimeTracking: 'taskUpdateTimeTracking'
-  },
-  growthHack: {
-    boardsAdd: 'growthHackBoardsAdd',
-    boardsEdit: 'growthHackBoardsEdit',
-    boardsRemove: 'growthHackBoardsRemove',
-    pipelinesAdd: 'growthHackPipelinesAdd',
-    pipelinesEdit: 'growthHackPipelinesEdit',
-    pipelinesRemove: 'growthHackPipelinesRemove',
-    pipelinesArchive: 'growthHackPipelinesArchive',
-    pipelinesCopied: 'growthHackPipelinesCopied',
-    pipelinesWatch: 'growthHackPipelinesWatch',
-    stagesEdit: 'growthHackStagesEdit',
-    templatesAdd: 'growthHackTemplatesAdd',
-    templatesEdit: 'growthHackTemplatesEdit',
-    templatesRemove: 'growthHackTemplatesRemove',
-    templatesDuplicate: 'growthHackTemplatesDuplicate',
-    showTemplates: 'showGrowthHackTemplates',
-    stagesRemove: 'growthHackStagesRemove',
-    itemsSort: 'growthHacksSort'
-  },
+
   purchase: {
-    boardsAdd: 'purchaseBoardsAdd',
-    boardsEdit: 'purchaseBoardsEdit',
-    boardsRemove: 'purchaseBoardsRemove',
-    pipelinesAdd: 'purchasePipelinesAdd',
-    pipelinesEdit: 'purchasePipelinesEdit',
-    pipelinesRemove: 'purchasePipelinesRemove',
-    pipelinesArchive: 'purchasePipelinesArchive',
-    pipelinesCopied: 'purchasePipelinesCopied',
-    pipelinesWatch: 'purchasePipelinesWatch',
-    stagesEdit: 'purchaseStagesEdit',
-    stagesRemove: 'purchaseStagesRemove',
-    itemsSort: 'purchasesSort',
-    updateTimeTracking: 'purchaseUpdateTimeTracking'
+    boardsAdd: "purchaseBoardsAdd",
+    boardsEdit: "purchaseBoardsEdit",
+    boardsRemove: "purchaseBoardsRemove",
+    pipelinesAdd: "purchasePipelinesAdd",
+    pipelinesEdit: "purchasePipelinesEdit",
+    pipelinesRemove: "purchasePipelinesRemove",
+    pipelinesArchive: "purchasePipelinesArchive",
+    pipelinesCopied: "purchasePipelinesCopied",
+    pipelinesWatch: "purchasePipelinesWatch",
+    stagesEdit: "purchaseStagesEdit",
+    stagesRemove: "purchaseStagesRemove",
+    itemsSort: "purchasesSort",
+    updateTimeTracking: "purchaseUpdateTimeTracking"
   }
 };
 
@@ -273,7 +223,7 @@ export const checkPermission = async (
   }
 
   if (!allowed) {
-    throw new Error('Permission required');
+    throw new Error("Permission required");
   }
 
   return;
@@ -287,7 +237,7 @@ export const createConformity = async (
     companyId => ({
       mainType,
       mainTypeId,
-      relType: 'company',
+      relType: "company",
       relTypeId: companyId
     })
   );
@@ -296,7 +246,7 @@ export const createConformity = async (
     customerId => ({
       mainType,
       mainTypeId,
-      relType: 'customer',
+      relType: "customer",
       relTypeId: customerId
     })
   );
@@ -305,19 +255,19 @@ export const createConformity = async (
 
   sendCoreMessage({
     subdomain,
-    action: 'conformities.addConformities',
+    action: "conformities.addConformities",
     data: allConformities
   });
 };
 
 interface ILabelParams {
-  item: IDealDocument | ITaskDocument | ITicketDocument | IPurchaseDocument;
+  item: IDealDocument;
   doc: any;
   user: IUserDocument;
 }
 
 /**
- * Copies pipeline labels alongside deal/task/tickets/purchase when they are moved between different pipelines.
+ * Copies pipeline labels alongside deal/purchase when they are moved between different pipelines.
  */
 export const copyPipelineLabels = async (
   models: IModels,
@@ -329,7 +279,7 @@ export const copyPipelineLabels = async (
   const newStage = await models.Stages.findOne({ _id: doc.stageId }).lean();
 
   if (!(oldStage && newStage)) {
-    throw new Error('Stage not found');
+    throw new Error("Stage not found");
   }
 
   if (oldStage.pipelineId === newStage.pipelineId) {
@@ -450,12 +400,7 @@ export const copyChecklists = async (
 };
 
 export const prepareBoardItemDoc = async (
-  item:
-    | IDealDocument
-    | ITaskDocument
-    | ITicketDocument
-    | IGrowthHackDocument
-    | IPurchaseDocument,
+  item: IDealDocument,
   collection: string,
   userId: string
 ) => {

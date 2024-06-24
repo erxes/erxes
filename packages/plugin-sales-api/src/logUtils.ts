@@ -1,7 +1,6 @@
 import { IPipelineDocument, IStageDocument } from "./models/definitions/boards";
 import { IDealDocument } from "./models/definitions/deals";
 import { IPurchaseDocument } from "./models/definitions/purchases";
-import { IGrowthHackDocument } from "./models/definitions/growthHacks";
 import { IPipelineTemplateDocument } from "./models/definitions/pipelineTemplates";
 import {
   putCreateLog as commonPutCreateLog,
@@ -14,8 +13,6 @@ import {
   IDescriptions,
   getSchemaLabels
 } from "@erxes/api-utils/src/logUtils";
-import { ITaskDocument } from "./models/definitions/tasks";
-import { ITicketDocument } from "./models/definitions/tickets";
 import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
 import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
 import {
@@ -39,12 +36,7 @@ export const LOG_ACTIONS = {
   DELETE: "delete"
 };
 
-type BoardItemDocument =
-  | IDealDocument
-  | IPurchaseDocument
-  | ITaskDocument
-  | ITicketDocument
-  | IGrowthHackDocument;
+type BoardItemDocument = IDealDocument | IPurchaseDocument;
 
 const findUsers = async (subdomain: string, ids: string[]) => {
   return sendCoreMessage({
@@ -261,31 +253,6 @@ const gatherPurchaseFieldNames = async (
   return options;
 };
 
-const gatherGHFieldNames = async (
-  models: IModels,
-  subdomain: string,
-  doc: IGrowthHackDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherBoardItemFieldNames(models, subdomain, doc, options);
-
-  if (doc.votedUserIds && doc.votedUserIds.length > 0) {
-    options = await gatherUsernames({
-      foreignKey: "votedUserIds",
-      prevList: options,
-      items: await findUsers(subdomain, doc.votedUserIds)
-    });
-  }
-
-  return options;
-};
-
 const gatherPipelineTemplateFieldNames = async (
   subdomain: string,
   doc: IPipelineTemplateDocument,
@@ -374,7 +341,7 @@ const findItemName = async (
   models: IModels,
   { contentType, contentTypeId }: IContentTypeParams
 ): Promise<string> => {
-  const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
+  const { Deals, Purchases } = models;
 
   let item: any;
   let name: string = "";
@@ -385,18 +352,6 @@ const findItemName = async (
 
   if (contentType === ACTIVITY_CONTENT_TYPES.PURCHASE) {
     item = await Purchases.findOne({ _id: contentTypeId });
-  }
-
-  if (contentType === ACTIVITY_CONTENT_TYPES.TASK) {
-    item = await Tasks.findOne({ _id: contentTypeId });
-  }
-
-  if (contentType === ACTIVITY_CONTENT_TYPES.TICKET) {
-    item = await Tickets.findOne({ _id: contentTypeId });
-  }
-
-  if (contentType === ACTIVITY_CONTENT_TYPES.GROWTH_HACK) {
-    item = await GrowthHacks.getGrowthHack(contentTypeId);
   }
 
   if (item && item.name) {
@@ -419,9 +374,6 @@ const gatherDescriptions = async (
   switch (type) {
     case MODULE_NAMES.BOARD_DEAL:
     case MODULE_NAMES.BOARD_PURCHASE:
-    case MODULE_NAMES.BOARD_GH:
-    case MODULE_NAMES.BOARD_TASK:
-    case MODULE_NAMES.BOARD_TICKET:
       if (object.userId) {
         extraDesc = await gatherUsernames({
           foreignKey: "userId",
@@ -434,9 +386,6 @@ const gatherDescriptions = async (
       break;
     case MODULE_NAMES.PIPELINE_DEAL:
     case MODULE_NAMES.BOARD_PURCHASE:
-    case MODULE_NAMES.PIPELINE_GH:
-    case MODULE_NAMES.PIPELINE_TASK:
-    case MODULE_NAMES.PIPELINE_TICKET:
       extraDesc = await gatherPipelineFieldNames(models, subdomain, object);
 
       if (updatedDocument) {
@@ -478,21 +427,7 @@ const gatherDescriptions = async (
         );
       }
       break;
-    case MODULE_NAMES.GROWTH_HACK:
-      description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherGHFieldNames(models, subdomain, object);
-
-      if (updatedDocument) {
-        extraDesc = await gatherGHFieldNames(
-          models,
-          subdomain,
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
     case MODULE_NAMES.PIPELINE_LABEL:
       description = `"${object.name}" has been ${action}d`;
 
@@ -524,41 +459,9 @@ const gatherDescriptions = async (
       }
 
       break;
-    case MODULE_NAMES.TASK:
-      description = `"${object.name}" has been ${action}d`;
 
-      extraDesc = await gatherBoardItemFieldNames(models, subdomain, object);
-
-      if (updatedDocument) {
-        extraDesc = await gatherBoardItemFieldNames(
-          models,
-          subdomain,
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
-    case MODULE_NAMES.TICKET:
-      description = `"${object.name}" has been ${action}d`;
-
-      extraDesc = await gatherBoardItemFieldNames(models, subdomain, object);
-
-      if (updatedDocument) {
-        extraDesc = await gatherBoardItemFieldNames(
-          models,
-          subdomain,
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
     case MODULE_NAMES.STAGE_DEAL:
     case MODULE_NAMES.STAGE_PURCHASE:
-    case MODULE_NAMES.STAGE_TASK:
-    case MODULE_NAMES.STAGE_TICKET:
-    case MODULE_NAMES.STAGE_GH:
       description = `"${object.name}" has been ${action}d`;
 
       extraDesc = await gatherStageFieldNames(

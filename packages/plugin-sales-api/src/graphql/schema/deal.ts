@@ -5,7 +5,7 @@ import {
   commonTypes,
   conformityQueryFields,
   copyParams
-} from './common';
+} from "./common";
 
 export const types = ({ contacts, tags }) => `
   type DealListItem @key(fields: "_id") {
@@ -27,10 +27,10 @@ export const types = ({ contacts, tags }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
+        : ""
     }
 
-    ${tags ? `tags: [Tag]` : ''}
+    ${tags ? `tags: [Tag]` : ""}
 
     products: JSON
     productsData: JSON

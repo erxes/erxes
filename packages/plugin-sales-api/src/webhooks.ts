@@ -42,46 +42,6 @@ export default {
       label: "Purchase moved",
       action: "createBoardItemMovementLog",
       type: "sales:purchase"
-    },
-    {
-      label: "Task created",
-      action: "create",
-      type: "sales:task"
-    },
-    {
-      label: "Task updated",
-      action: "update",
-      type: "sales:task"
-    },
-    {
-      label: "Task deleted",
-      action: "delete",
-      type: "sales:task"
-    },
-    {
-      label: "Task moved",
-      action: "createBoardItemMovementLog",
-      type: "sales:task"
-    },
-    {
-      label: "Ticket created",
-      action: "create",
-      type: "sales:ticket"
-    },
-    {
-      label: "Ticket updated",
-      action: "update",
-      type: "sales:ticket"
-    },
-    {
-      label: "Ticket deleted",
-      action: "delete",
-      type: "sales:ticket"
-    },
-    {
-      label: "Ticket moved",
-      action: "createBoardItemMovementLog",
-      type: "sales:ticket"
     }
   ],
   getInfo: async ({

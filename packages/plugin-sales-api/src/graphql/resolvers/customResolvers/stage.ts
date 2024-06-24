@@ -7,9 +7,6 @@ import {
 } from "../../../models/definitions/constants";
 import {
   generateDealCommonFilters,
-  generateGrowthHackCommonFilters,
-  generateTaskCommonFilters,
-  generateTicketCommonFilters,
   generatePurchaseCommonFilters
 } from "../queries/utils";
 
