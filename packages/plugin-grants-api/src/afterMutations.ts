@@ -44,7 +44,7 @@ export const afterMutationHandlers = async (
           ]
         });
 
-        if (!!requests.length) {
+        if (requests.length) {
           const itemIds: string[] = [];
           const sourceContentTypes: string[] = [];
 
