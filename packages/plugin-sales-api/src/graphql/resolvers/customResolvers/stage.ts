@@ -1,17 +1,17 @@
-import { IContext } from '../../../connectionResolver';
-import { IStageDocument } from '../../../models/definitions/boards';
+import { IContext } from "../../../connectionResolver";
+import { IStageDocument } from "../../../models/definitions/boards";
 import {
   BOARD_STATUSES,
   BOARD_TYPES,
   VISIBLITIES
-} from '../../../models/definitions/constants';
+} from "../../../models/definitions/constants";
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
   generateTaskCommonFilters,
   generateTicketCommonFilters,
   generatePurchaseCommonFilters
-} from '../queries/utils';
+} from "../queries/utils";
 
 const getAmountsMap = async (
   subdomain,
@@ -36,13 +36,13 @@ const getAmountsMap = async (
       $match: filter
     },
     {
-      $unwind: '$productsData'
+      $unwind: "$productsData"
     },
     {
       $project: {
-        amount: '$productsData.amount',
-        currency: '$productsData.currency',
-        tickUsed: '$productsData.tickUsed'
+        amount: "$productsData.amount",
+        currency: "$productsData.currency",
+        tickUsed: "$productsData.tickUsed"
       }
     },
     {
@@ -50,8 +50,8 @@ const getAmountsMap = async (
     },
     {
       $group: {
-        _id: '$currency',
-        amount: { $sum: '$amount' }
+        _id: "$currency",
+        amount: { $sum: "$amount" }
       }
     }
   ]);
@@ -72,7 +72,7 @@ export default {
   members(stage: IStageDocument, {}) {
     if (stage.visibility === VISIBLITIES.PRIVATE && stage.memberIds) {
       return stage.memberIds.map(memberId => ({
-        __typename: 'User',
+        __typename: "User",
         _id: memberId
       }));
     }
@@ -154,7 +154,7 @@ export default {
     { user, models, subdomain }: IContext,
     { variableValues: args }
   ) {
-    const { Deals, Tickets, Tasks, GrowthHacks, Purchases } = models;
+    const { Deals, Purchases } = models;
 
     switch (stage.type) {
       case BOARD_TYPES.DEAL: {
@@ -168,43 +168,7 @@ export default {
 
         return Deals.find(filter).countDocuments();
       }
-      case BOARD_TYPES.TICKET: {
-        const filter = await generateTicketCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
-        );
 
-        return Tickets.find(filter).countDocuments();
-      }
-      case BOARD_TYPES.TASK: {
-        const filter = await generateTaskCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          {
-            ...args,
-            stageId: stage._id,
-            pipelineId: stage.pipelineId
-          },
-          args.extraParams
-        );
-
-        return Tasks.find(filter).countDocuments();
-      }
-      case BOARD_TYPES.GROWTH_HACK: {
-        const filter = await generateGrowthHackCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          { ...args, stageId: stage._id, pipelineId: stage.pipelineId },
-          args.extraParams
-        );
-
-        return GrowthHacks.find(filter).countDocuments();
-      }
       case BOARD_TYPES.PURCHASE: {
         const filter = await generatePurchaseCommonFilters(
           models,
@@ -271,7 +235,7 @@ export default {
   ) {
     const filter = {
       pipelineId: stage.pipelineId,
-      probability: { $ne: 'Lost' },
+      probability: { $ne: "Lost" },
       _id: { $ne: stage._id }
     };
 
@@ -281,21 +245,21 @@ export default {
       },
       {
         $lookup: {
-          from: 'deals',
-          let: { stageId: '$_id' },
+          from: "deals",
+          let: { stageId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                    { $eq: ["$stageId", "$$stageId"] },
+                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] }
                   ]
                 }
               }
             }
           ],
-          as: 'deals'
+          as: "deals"
         }
       },
       {
@@ -305,11 +269,11 @@ export default {
         }
       },
       {
-        $unwind: '$deals'
+        $unwind: "$deals"
       },
       {
         $match: {
-          'deals.initialStageId': stage._id
+          "deals.initialStageId": stage._id
         }
       }
     ]);
@@ -329,7 +293,7 @@ export default {
   ) {
     const filter = {
       pipelineId: stage.pipelineId,
-      probability: { $ne: 'Lost' },
+      probability: { $ne: "Lost" },
       _id: { $ne: stage._id }
     };
 
@@ -339,21 +303,21 @@ export default {
       },
       {
         $lookup: {
-          from: 'purchases',
-          let: { stageId: '$_id' },
+          from: "purchases",
+          let: { stageId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                    { $eq: ["$stageId", "$$stageId"] },
+                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] }
                   ]
                 }
               }
             }
           ],
-          as: 'purchases'
+          as: "purchases"
         }
       },
       {
@@ -363,11 +327,11 @@ export default {
         }
       },
       {
-        $unwind: '$purchases'
+        $unwind: "$purchases"
       },
       {
         $match: {
-          'purchases.initialStageId': stage._id
+          "purchases.initialStageId": stage._id
         }
       }
     ]);
@@ -434,7 +398,7 @@ export default {
 
     const filter = {
       order: { $in: [order, order + 1] },
-      probability: { $ne: 'Lost' },
+      probability: { $ne: "Lost" },
       pipelineId: stage.pipelineId
     };
 
@@ -444,47 +408,47 @@ export default {
       },
       {
         $lookup: {
-          from: 'deals',
-          let: { stageId: '$_id' },
+          from: "deals",
+          let: { stageId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                    { $eq: ["$stageId", "$$stageId"] },
+                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] }
                   ]
                 }
               }
             }
           ],
-          as: 'currentDeals'
+          as: "currentDeals"
         }
       },
       {
         $lookup: {
-          from: 'deals',
-          let: { stageId: '$_id' },
+          from: "deals",
+          let: { stageId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$initialStageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                    { $eq: ["$initialStageId", "$$stageId"] },
+                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] }
                   ]
                 }
               }
             }
           ],
-          as: 'initialDeals'
+          as: "initialDeals"
         }
       },
       {
         $project: {
           order: 1,
-          currentDealCount: { $size: '$currentDeals' },
-          initialDealCount: { $size: '$initialDeals' }
+          currentDealCount: { $size: "$currentDeals" },
+          initialDealCount: { $size: "$initialDeals" }
         }
       },
       { $sort: { order: 1 } }
@@ -510,7 +474,7 @@ export default {
 
     const filter = {
       order: { $in: [order, order + 1] },
-      probability: { $ne: 'Lost' },
+      probability: { $ne: "Lost" },
       pipelineId: stage.pipelineId
     };
 
@@ -520,47 +484,47 @@ export default {
       },
       {
         $lookup: {
-          from: 'purchases',
-          let: { stageId: '$_id' },
+          from: "purchases",
+          let: { stageId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$stageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                    { $eq: ["$stageId", "$$stageId"] },
+                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] }
                   ]
                 }
               }
             }
           ],
-          as: 'currentPurchases'
+          as: "currentPurchases"
         }
       },
       {
         $lookup: {
-          from: 'purchases',
-          let: { stageId: '$_id' },
+          from: "purchases",
+          let: { stageId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$initialStageId', '$$stageId'] },
-                    { $ne: ['$status', BOARD_STATUSES.ARCHIVED] }
+                    { $eq: ["$initialStageId", "$$stageId"] },
+                    { $ne: ["$status", BOARD_STATUSES.ARCHIVED] }
                   ]
                 }
               }
             }
           ],
-          as: 'initialPurchases'
+          as: "initialPurchases"
         }
       },
       {
         $project: {
           order: 1,
-          currentPurchaseCount: { $size: '$currentPurchases' },
-          initialPurchaseCount: { $size: '$initialPurchases' }
+          currentPurchaseCount: { $size: "$currentPurchases" },
+          initialPurchaseCount: { $size: "$initialPurchases" }
         }
       },
       { $sort: { order: 1 } }

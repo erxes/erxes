@@ -1,16 +1,12 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendFormsMessage } from '../../../messageBroker';
-import { IItemCommonFields } from '../../../models/definitions/boards';
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage, sendFormsMessage } from "../../../messageBroker";
+import { IItemCommonFields } from "../../../models/definitions/boards";
 
 export default {
-  async __resolveReference({ _id }, { models }: IContext) {
-    return models.Tickets.findOne({ _id });
-  },
-
   async branches(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: 'branches.find',
+      action: "branches.find",
       data: {
         query: { _id: { $in: item.branchIds } }
       },
@@ -21,7 +17,7 @@ export default {
   async departments(item: IItemCommonFields, args, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
-      action: 'departments.find',
+      action: "departments.find",
       data: {
         _id: { $in: item.departmentIds }
       },
@@ -44,7 +40,7 @@ export default {
 
     const fields = await sendFormsMessage({
       subdomain,
-      action: 'fields.find',
+      action: "fields.find",
       data: {
         query: { _id: { $in: fieldIds } }
       },
