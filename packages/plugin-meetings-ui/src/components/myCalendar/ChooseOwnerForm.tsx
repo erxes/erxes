@@ -14,7 +14,7 @@ type Props = {
 const ChooseOwnerForm = (props: Props) => {
   const { pinnedUserIds, currentUser } = props;
 
-  const [pinnedIds, setPinnedUserIds] = useState([pinnedUserIds] || []);
+  const [pinnedIds, setPinnedUserIds] = useState([pinnedUserIds ?? []]);
 
   const generateDoc = values => {
     const finalValues = values;

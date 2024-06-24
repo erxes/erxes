@@ -40,7 +40,7 @@ export const MeetingForm = (props: Props) => {
 
   const dealInitialId = dealId ? [dealId] : "";
 
-  const [userIds, setUserIds] = useState([props.currentUser._id] || []);
+  const [userIds, setUserIds] = useState([props.currentUser._id ?? []]);
   const [companyId, setCompanyId] = useState(meeting?.companyId || "");
   const [title, setTitle] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
