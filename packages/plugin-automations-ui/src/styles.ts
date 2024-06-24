@@ -45,20 +45,14 @@ export const Container = styled.div`
       }
     }
 
-    .show-action-menu .custom-menu {
-      visibility: visible;
-      top: -28px;
-    }
-
     .custom-menu {
-      position: absolute;
       right: 0;
       margin: 0;
       top: ${dimensions.unitSpacing}px;
       visibility: hidden;
       transition: all 0.2s linear;
 
-      i {
+      > i {
         background: #e3deee;
         margin-left: ${dimensions.unitSpacing - 5}px;
         padding: ${dimensions.unitSpacing - 5}px;
@@ -79,10 +73,6 @@ export const Container = styled.div`
           background: #ffe4e7;
           color: ${colors.colorCoreRed};
           border: 1px solid ${colors.colorCoreRed};
-        }
-
-        &:hover {
-          box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
         }
       }
     }
@@ -686,4 +676,26 @@ export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   transition: all ease .3s;
   filter: ${(props) => !props.isToggled && `blur(4px)`};
   pointer-events: ${(props) => !props.isToggled && `none`};
+`;
+
+const ToolBarButton = styled.i`
+  background: #e3deee;
+  margin-left: ${dimensions.unitSpacing - 5}px;
+  padding: ${dimensions.unitSpacing - 5}px;
+  border-radius: 50%;
+  color: ${colors.colorSecondary};
+  cursor: pointer;
+  border: 1px solid ${colors.colorSecondary};
+`;
+
+export const ToolBarRemoveBtn = styled(ToolBarButton)`
+  background: #ffe4e7;
+  color: ${colors.colorCoreRed};
+  border: 1px solid ${colors.colorCoreRed};
+`;
+
+export const ToolbarNoteBtn = styled(ToolBarButton)`
+  background: ${rgba(colors.colorSecondary, 0.12)};
+  color: ${colors.colorSecondary};
+  border: 1px solid ${colors.colorSecondary};
 `;
