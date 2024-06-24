@@ -36,7 +36,7 @@ const CardsConfig = (props: Props) => {
           },
         })
         .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+          setFieldsCombined(data ? data.fieldsCombinedByContentType : []);
         });
     }
   }, []);
@@ -58,10 +58,12 @@ const CardsConfig = (props: Props) => {
   };
 
   const handleDelete = (currentConfigKey: string) => {
-    delete config[currentConfigKey];
 
-    setConfig(config);
-    onChange('cardsConfig', config);
+    const currentConfig = { ...config }
+    delete currentConfig[currentConfigKey]
+
+    setConfig(currentConfig);
+    onChange('cardsConfig', currentConfig);
 
     Alert.success('You successfully deleted stage in cards settings.');
   };
