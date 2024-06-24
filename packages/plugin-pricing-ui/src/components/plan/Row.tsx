@@ -90,7 +90,7 @@ export default function Row(props: Props) {
           {renderArchiveButton()}
           {renderCompleteButton()}
           <Tip text={__("Edit")} placement="bottom">
-            <Link to={`/pricing/plans/edit/${data._id && data._id}`}>
+            <Link to={`/pricing/plans/edit/${data._id?._id}`}>
               <Button type="button" btnStyle="link" size="small">
                 <Icon icon="edit-3" />
               </Button>
@@ -108,14 +108,14 @@ export default function Row(props: Props) {
 
   return (
     <tr>
-      <td>{data.name && data.name}</td>
+      <td>{data.name?.name}</td>
       <td>
         <Label lblStyle={generateStatusStyle()} ignoreTrans={true}>
-          {data.status && data.status}
+          {data.status?.status}
         </Label>
       </td>
       <td>{(data.isPriority && "true") || "false"}</td>
-      <td>{data.applyType && data.applyType}</td>
+      <td>{data.applyType?.applyType}</td>
       <td>
         <b>
           {data.createdUser?.details?.fullName || data.createdUser?.email || ""}
