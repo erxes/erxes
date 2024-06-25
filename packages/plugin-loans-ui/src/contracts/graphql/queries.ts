@@ -58,6 +58,32 @@ const contractFields = `
   endDate
 `;
 
+const selectContractFields = `
+  _id
+  contractTypeId
+  number
+  status
+  description
+  createdBy
+  createdAt
+  marginAmount
+  leaseAmount
+  feeAmount
+  tenor
+  lossPercent
+  lossCalcType
+  interestRate
+  repayment
+  startDate
+  firstPayDate
+  scheduleDays
+  givenAmount
+  leaseType
+  commitmentInterest
+  endDate
+  classification
+`;
+
 const listParamsDef = `
   $page: Int
   $perPage: Int
@@ -122,6 +148,14 @@ export const contracts = `
   query contracts(${listParamsDef}) {
     contracts(${listParamsValue}) {
       ${contractFields}
+    }
+  }
+`;
+
+export const selectContracts = `
+  query contracts(${listParamsDef}) {
+    contracts(${listParamsValue}) {
+      ${selectContractFields}
     }
   }
 `;
@@ -383,6 +417,7 @@ const getPolarisData = `
 `;
 export default {
   contracts,
+  selectContracts,
   contractsMain,
   contractDetail,
   schedules,

@@ -223,7 +223,7 @@ function ContractForm(props: Props) {
       customInterest: Number(state.customInterest),
       repayment: state.repayment,
       lossCalcType: state.lossCalcType || "fromInterest",
-      startDate: state.startDate,
+      startDate: state.startDate || new Date(),
       scheduleDays: state.scheduleDays,
       debt: Number(state.debt),
       debtTenor: Number(state.debtTenor),

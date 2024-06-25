@@ -178,6 +178,7 @@ const queryParams = `
   branchId: String
   status: String
   leaseType: String
+  leaseTypes: [String]
 `;
 
 export const queries = `

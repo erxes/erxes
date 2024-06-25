@@ -95,7 +95,6 @@ export const loadContractClass = (models: IModels) => {
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
       doc.mustPayDate = getFullDate(doc.firstPayDate);
-      doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)

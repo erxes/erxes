@@ -12,7 +12,6 @@ import { ITransactionDocument } from "./definitions/transactions";
 import { IModels } from "../connectionResolver";
 import { FilterQuery } from "mongoose";
 import { IContractDocument } from "./definitions/contracts";
-import { getPureDate } from "@erxes/api-utils/src";
 import { createEbarimt } from "./utils/ebarimtUtils";
 import { getFullDate } from "./utils/utils";
 import { getConfig, sendMessageBroker } from "../messageBroker";
@@ -408,7 +407,7 @@ export const loadTransactionClass = (models: IModels) => {
     }
 
     public static async getPaymentInfo(id, payDate, subdomain) {
-      const today = getPureDate(new Date(payDate));
+      const today = getFullDate(new Date(payDate));
 
       const config: IConfig = await getConfig("loansConfig", subdomain);
 
