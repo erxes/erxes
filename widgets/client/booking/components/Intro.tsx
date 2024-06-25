@@ -9,13 +9,13 @@ type Props = {
   goToCategory: (categoryId: string) => void;
 };
 
-function Intro({ booking, goToBooking, goToCategory }: Props) {
+const Intro = ({ booking, goToBooking, goToCategory }: Props) => {
   const { name, image, style, categoryTree } = booking;
   const { widgetColor } = style;
 
   const description = booking.description.replace(/<\/?[^>]+(>|$)/g, '');
 
-  const hasCategory = categoryTree.some(tree =>
+  const hasCategory = categoryTree.some((tree) =>
     tree.parentId !== booking.productCategoryId ? true : false
   );
 
@@ -45,6 +45,6 @@ function Intro({ booking, goToBooking, goToCategory }: Props) {
       </div>
     </>
   );
-}
+};
 
 export default Intro;

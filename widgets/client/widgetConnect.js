@@ -1,12 +1,12 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import client from './apollo-client';
 
 // base connect function for all widgets
-const widgetConnect = params => {
+const widgetConnect = (params) => {
   const { postParams, connectMutation, connectCallback, AppContainer } = params;
 
-  window.addEventListener('message', event => {
+  window.addEventListener('message', (event) => {
     // connect to api using passed setting
     if (!(event.data.fromPublisher && event.data.setting)) {
       return;
@@ -33,7 +33,7 @@ const widgetConnect = params => {
             ...postParams,
             message: 'connected',
             connectionInfo: data,
-            setting: event.data.setting
+            setting: event.data.setting,
           },
           '*'
         );
@@ -50,16 +50,17 @@ const widgetConnect = params => {
           head.appendChild(style);
         }
 
+        const container = document.getElementById('root');
+        const root = createRoot(container);
         // render root react component
-        ReactDOM.render(
+        root.render(
           <ApolloProvider client={client}>
             <AppContainer />
-          </ApolloProvider>,
-          document.getElementById('root')
+          </ApolloProvider>
         );
       })
 
-      .catch(error => {
+      .catch((error) => {
         console.log(error); // eslint-disable-line
       });
   });

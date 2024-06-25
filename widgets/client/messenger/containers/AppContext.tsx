@@ -1,18 +1,19 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import client, { wsLink } from "../../apollo-client";
-import { getLocalStorageItem, setLocalStorageItem } from "../../common";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { useContext, createContext, useState } from 'react';
+import client, { wsLink } from '../../apollo-client';
+import { getLocalStorageItem, setLocalStorageItem } from '../../common';
 import {
   IBrand,
   IBrowserInfo,
   IIntegrationMessengerData,
-  IIntegrationUiOptions
-} from "../../types";
-import uploadHandler from "../../uploadHandler";
-import { newLineToBr, postMessage, requestBrowserInfo } from "../../utils";
-import { connection } from "../connection";
-import graphqlTypes from "../graphql";
-import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from "../types";
+  IIntegrationUiOptions,
+} from '../../types';
+import uploadHandler from '../../uploadHandler';
+import { newLineToBr, postMessage, requestBrowserInfo } from '../../utils';
+import { connection } from '../connection';
+import graphqlTypes from '../graphql';
+import { IAttachment, IFaqArticle, IFaqCategory, IMessage } from '../types';
 
 interface IState {
   unreadCount: number;
@@ -21,7 +22,7 @@ interface IState {
   lastUnreadMessage?: IMessage;
   isMessengerVisible: boolean;
   isSavingNotified: boolean;
-  activeRoute: string | "";
+  activeRoute: string | '';
   currentWebsiteApp?: string;
   activeConversation: string | null;
   activeFaqCategory: IFaqCategory | null;
@@ -87,37 +88,43 @@ interface IStore extends IState {
 }
 
 export const MESSAGE_TYPES = {
-  VIDEO_CALL: "videoCall",
-  VIDEO_CALL_REQUEST: "videoCallRequest",
-  TEXT: "text",
-  ALL: ["videoCall", "videoCallRequest", "text"]
+  VIDEO_CALL: 'videoCall',
+  VIDEO_CALL_REQUEST: 'videoCallRequest',
+  TEXT: 'text',
+  ALL: ['videoCall', 'videoCallRequest', 'text'],
 };
 
-const AppContext = React.createContext({} as IStore);
+// Create the AppContext
+const AppContext = createContext({} as IStore);
 
-export const AppConsumer = AppContext.Consumer;
+// Custom hook to use the AppContext
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
+};
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
-    super(props);
-
-    let activeRoute = "conversationList";
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, setState] = useState<IState>(() => {
+    let activeRoute = 'conversationList';
     let inputDisabled = false;
 
     const { messengerData } = connection.data;
     const { requireAuth, showChat, skillData = {} } = messengerData;
 
-    // if visitor did not give email or phone then ask
-    if (!this.isLoggedIn() && requireAuth) {
-      activeRoute = "accquireInformation";
+    // Check conditions and update activeRoute and inputDisabled accordingly
+    if (!isLoggedIn() && requireAuth) {
+      activeRoute = 'accquireInformation';
     }
 
-    if (!requireAuth && !getLocalStorageItem("hasNotified")) {
-      activeRoute = "home";
+    if (!requireAuth && !getLocalStorageItem('hasNotified')) {
+      activeRoute = 'home';
     }
 
     if (!showChat) {
-      activeRoute = "home";
+      activeRoute = 'home';
     }
 
     const { options = [] } = skillData;
@@ -126,7 +133,8 @@ export class AppProvider extends React.Component<{}, IState> {
       inputDisabled = true;
     }
 
-    this.state = {
+    // Return the initial state object based on computed values
+    return {
       unreadCount: 0,
       sendingMessage: false,
       lastUnreadMessage: undefined,
@@ -143,194 +151,210 @@ export class AppProvider extends React.Component<{}, IState> {
       browserInfo: {},
       selectedSkill: null,
       inputDisabled,
-      errorMessage: ""
+      errorMessage: '',
     };
-  }
+  });
 
-  getBrand() {
+  const getBrand = () => {
     return connection.data.brand || {};
-  }
-
-  isLoggedIn = () => {
-    const { email, phone }: any = connection.setting;
-
-    return email || phone || getLocalStorageItem("getNotifiedType");
   };
 
-  getUiOptions = () => {
+  const isLoggedIn = () => {
+    const { email, phone }: any = connection.setting;
+
+    return email || phone || getLocalStorageItem('getNotifiedType');
+  };
+
+  const getUiOptions = () => {
     return connection.data.uiOptions || {};
   };
 
-  getColor = () => {
-    return this.getUiOptions().color;
+  const getColor = () => {
+    return getUiOptions().color;
   };
 
-  getMessengerData = () => {
+  const getMessengerData = () => {
     return connection.data.messengerData || {};
   };
 
-  isOnline = () => {
-    return this.getMessengerData().isOnline;
+  const isOnline = () => {
+    return getMessengerData().isOnline;
   };
 
-  isSmallContainer = () => {
-    const { activeRoute } = this.state;
+  const isSmallContainer = () => {
+    const { activeRoute } = state;
 
-    if (activeRoute === "accquireInformation") {
+    if (activeRoute === 'accquireInformation') {
       return true;
     }
 
     return false;
   };
 
-  saveBrowserInfo = () => {
+  const saveBrowserInfo = () => {
     requestBrowserInfo({
-      source: "fromMessenger",
+      source: 'fromMessenger',
       callback: (browserInfo: IBrowserInfo) => {
         connection.browserInfo = browserInfo;
-        
+
         const variables = {
           visitorId: connection.data.visitorId,
           customerId: connection.data.customerId,
-          browserInfo
+          browserInfo,
         };
 
         client
           .mutate({
             mutation: gql(graphqlTypes.saveBrowserInfo),
-            variables
+            variables,
           })
 
           .then(({ data: { widgetsSaveBrowserInfo } }: any) => {
-            this.setState({
+            setState((prevState) => ({
+              ...prevState,
               lastUnreadMessage: widgetsSaveBrowserInfo,
               isBrowserInfoSaved: true,
-              browserInfo
-            });
+              browserInfo,
+            }));
           });
-      }
+      },
     });
   };
 
-  toggle = (isVisible?: boolean) => {
-    const { activeRoute } = this.state;
+  const toggle = (isVisible?: boolean) => {
+    const { activeRoute } = state;
 
     // notify parent window launcher state
-    postMessage("fromMessenger", "messenger", {
+    postMessage('fromMessenger', 'messenger', {
       isVisible: !isVisible,
-      isSmallContainer: this.isSmallContainer()
+      isSmallContainer: isSmallContainer(),
     });
 
-    let state: any = { isMessengerVisible: !isVisible };
+    let newState: any = { ...state, isMessengerVisible: !isVisible };
 
-    if (activeRoute.includes("conversation")) {
-      state = { ...state, ...this.prepareOpenLastConversation() };
+    if (activeRoute.includes('conversation')) {
+      newState = { ...newState, ...prepareOpenLastConversation() };
     }
 
-    this.setState(state);
+    setState(newState);
   };
 
-  setHeadHeight = (headHeight: number) => {
-    this.setState({ headHeight });
+  const setHeadHeight = (headHeight: number) => {
+    setState((prevState) => ({
+      ...prevState,
+      headHeight,
+    }));
   };
 
-  toggleNotifier = (isVisible?: boolean) => {
+  const toggleNotifier = (isVisible?: boolean) => {
     // notify state
-    postMessage("fromMessenger", "notifier", { isVisible: !isVisible });
+    postMessage('fromMessenger', 'notifier', { isVisible: !isVisible });
   };
 
-  toggleNotifierFull = (isVisible?: boolean) => {
+  const toggleNotifierFull = (isVisible?: boolean) => {
     // notify state
-    postMessage("fromMessenger", "notifierFull", { isVisible: !isVisible });
+    postMessage('fromMessenger', 'notifierFull', { isVisible: !isVisible });
   };
 
-  changeRoute = (route: string) => {
+  const changeRoute = (route: string) => {
     if (
-      route === "conversationDetail" &&
-      !this.isLoggedIn() &&
+      route === 'conversationDetail' &&
+      !isLoggedIn() &&
       connection.data.messengerData.requireAuth
     ) {
       // if visitor did not give email or phone then ask
-      return this.setState({
-        activeRoute: "accquireInformation",
-        selectedSkill: null
-      });
+      setState((prevState) => ({
+        ...prevState,
+        activeRoute: 'accquireInformation',
+        selectedSkill: null,
+      }));
+      return;
     }
 
     const { skillData = {} } = connection.data.messengerData;
     const { options = [] } = skillData;
-
-    this.setState({
+    setState((prevState) => ({
+      ...prevState,
       activeRoute: route,
       selectedSkill: null,
-      inputDisabled: options.length > 0
-    });
+      inputDisabled: options.length > 0,
+    }));
   };
 
-  changeConversation = (_id: string) => {
+  const changeConversation = (_id: string) => {
     // save last conversationId
-    this.setLastConversationId(_id);
+    setLastConversationId(_id);
 
     // reset last unread message
-    const { lastUnreadMessage } = this.state;
+    const { lastUnreadMessage } = state;
 
     const options = {
       activeConversation: _id,
-      activeRoute: _id ? "conversationDetail" : "conversationCreate",
-      lastUnreadMessage
+      activeRoute: _id ? 'conversationDetail' : 'conversationCreate',
+      lastUnreadMessage,
     };
 
     if (lastUnreadMessage && lastUnreadMessage.conversationId === _id) {
       options.lastUnreadMessage = undefined;
     }
 
-    this.setState(options);
+    setState((prevState) => ({
+      ...prevState,
+      options,
+    }));
   };
 
-  goToWebsiteApp = (id: string) => {
-    this.setState({ currentWebsiteApp: id });
+  const goToWebsiteApp = (id: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      currentWebsiteApp: id,
+    }));
 
-    this.changeRoute("websiteApp");
+    changeRoute('websiteApp');
   };
 
-  goToConversation = (conversationId: string) => {
-    this.changeConversation(conversationId);
-    this.changeRoute("conversationDetail");
-    this.readMessages(conversationId);
+  const goToConversation = (conversationId: string) => {
+    changeConversation(conversationId);
+    changeRoute('conversationDetail');
+    readMessages(conversationId);
   };
 
-  goToFaqCategory = (category?: IFaqCategory) => {
-    const { activeFaqCategory } = this.state;
+  const goToFaqCategory = (category?: IFaqCategory) => {
+    const { activeFaqCategory } = state;
     if (category) {
-      this.setState({ activeFaqCategory: category });
+      setState((prevState) => ({
+        ...prevState,
+        activeFaqCategory: category,
+      }));
     }
-
-    this.setState({
+    setState((prevState) => ({
+      ...prevState,
       activeRoute:
-        activeFaqCategory || category ? "faqCategory" : "conversationList"
-    });
+        activeFaqCategory || category ? 'faqCategory' : 'conversationList',
+    }));
   };
 
-  goToFaqArticle = (article: IFaqArticle) => {
-    this.setState({
-      activeRoute: "faqArticle",
-      activeFaqArticle: article
-    });
+  const goToFaqArticle = (article: IFaqArticle) => {
+    setState((prevState) => ({
+      ...prevState,
+      activeRoute: 'faqArticle',
+      activeFaqArticle: article,
+    }));
   };
 
-  goToConversationList = () => {
+  const goToConversationList = () => {
     // reset current conversation
-    this.changeConversation("");
+    changeConversation('');
 
-    this.changeRoute("conversationList");
+    changeRoute('conversationList');
   };
 
-  getLastConversationId = () => {
+  const getLastConversationId = () => {
     const brandConfig = getLocalStorageItem(connection.setting.brand_id) || {};
     return brandConfig.lastConversationId;
   };
 
-  setLastConversationId = (id: string) => {
+  const setLastConversationId = (id: string) => {
     const brandId = connection.setting.brand_id;
     const brandConfig = getLocalStorageItem(brandId) || {};
 
@@ -339,16 +363,16 @@ export class AppProvider extends React.Component<{}, IState> {
     setLocalStorageItem(brandId, brandConfig);
   };
 
-  prepareOpenLastConversation = () => {
-    const _id = this.getLastConversationId();
+  const prepareOpenLastConversation = () => {
+    const _id = getLastConversationId();
 
     return {
-      activeConversation: _id || "",
-      activeRoute: _id ? "conversationDetail" : "conversationCreate"
+      activeConversation: _id || '',
+      activeRoute: _id ? 'conversationDetail' : 'conversationCreate',
     };
   };
 
-  saveGetNotified = (
+  const saveGetNotified = (
     { type, value }: { type: string; value: string },
     callback?: () => void
   ) => {
@@ -356,7 +380,10 @@ export class AppProvider extends React.Component<{}, IState> {
       return;
     }
 
-    this.setState({ isSavingNotified: true });
+    setState((prevState) => ({
+      ...prevState,
+      isSavingNotified: true,
+    }));
 
     client
       .mutate({
@@ -380,45 +407,51 @@ export class AppProvider extends React.Component<{}, IState> {
           customerId: connection.data.customerId,
           visitorId: connection.data.visitorId,
           type,
-          value
-        }
+          value,
+        },
       })
 
       // after mutation
       .then(({ data: { widgetsSaveCustomerGetNotified } }: any) => {
-        this.setState({ isSavingNotified: false });
+        setState((prevState) => ({
+          ...prevState,
+          isSavingNotified: false,
+        }));
 
         if (callback) {
           callback();
         }
 
         // cache customerId
-        setLocalStorageItem("customerId", widgetsSaveCustomerGetNotified._id);
+        setLocalStorageItem('customerId', widgetsSaveCustomerGetNotified._id);
         connection.data.customerId = widgetsSaveCustomerGetNotified._id;
 
         // save email
-        setLocalStorageItem("getNotifiedType", type);
-        setLocalStorageItem("getNotifiedValue", value);
+        setLocalStorageItem('getNotifiedType', type);
+        setLocalStorageItem('getNotifiedValue', value);
 
         // redirect to conversation
-        this.setState(this.prepareOpenLastConversation());
+        setState((prevState) => ({
+          ...prevState,
+          ...prepareOpenLastConversation(),
+        }));
 
         // notify parent window launcher state
-        postMessage("fromMessenger", "messenger", {
+        postMessage('fromMessenger', 'messenger', {
           isVisible: true,
-          isSmallContainer: this.isSmallContainer()
+          isSmallContainer: isSmallContainer(),
         });
 
         const messengerDataJson = getLocalStorageItem('messengerDataJson');
         const messengerData = JSON.parse(messengerDataJson);
         messengerData.customerId = widgetsSaveCustomerGetNotified._id;
-        setLocalStorageItem("messengerDataJson", JSON.stringify(messengerData));
+        setLocalStorageItem('messengerDataJson', JSON.stringify(messengerData));
 
         wsLink.restart();
       });
   };
 
-  endConversation = () => {
+  const endConversation = () => {
     const setting = connection.setting;
 
     // ignore this action for inapp
@@ -427,42 +460,44 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     // reset local storage items
-    setLocalStorageItem("getNotifiedType", "");
-    setLocalStorageItem("getNotifiedValue", "");
-    setLocalStorageItem("customerId", "");
-    setLocalStorageItem("hasNotified", "");
+    setLocalStorageItem('getNotifiedType', '');
+    setLocalStorageItem('getNotifiedValue', '');
+    setLocalStorageItem('customerId', '');
+    setLocalStorageItem('hasNotified', '');
 
-    this.setLastConversationId("");
+    setLastConversationId('');
 
-    this.toggle(true);
+    toggle(true);
     window.location.reload();
   };
 
-  exportConversation = (callback: (exportData: any) => void) => {
-    const { activeConversation } = this.state
-    return client.query({
-      query: gql(graphqlTypes.widgetExportMessengerDataQuery),
-      variables: {
-        _id: activeConversation,
-        integrationId: connection.data.integrationId
-      }
-    }).then(({ data }: any) => {
-      if (data.widgetExportMessengerData) {
-        callback(data.widgetExportMessengerData);
-      }
-    });
+  const exportConversation = (callback: (exportData: any) => void) => {
+    const { activeConversation } = state;
+    return client
+      .query({
+        query: gql(graphqlTypes.widgetExportMessengerDataQuery),
+        variables: {
+          _id: activeConversation,
+          integrationId: connection.data.integrationId,
+        },
+      })
+      .then(({ data }: any) => {
+        if (data.widgetExportMessengerData) {
+          callback(data.widgetExportMessengerData);
+        }
+      });
   };
 
-  readConversation = (conversationId: string) => {
-    this.toggle();
-    this.changeConversation(conversationId);
-    this.changeRoute("conversationDetail");
-    this.readMessages(conversationId);
-    this.toggleNotifier();
-    this.toggle();
+  const readConversation = (conversationId: string) => {
+    toggle();
+    changeConversation(conversationId);
+    changeRoute('conversationDetail');
+    readMessages(conversationId);
+    toggleNotifier();
+    toggle();
   };
 
-  readMessages = (conversationId: string) => {
+  const readMessages = (conversationId: string) => {
     client
       .mutate({
         mutation: gql(graphqlTypes.readConversationMessages),
@@ -470,36 +505,41 @@ export class AppProvider extends React.Component<{}, IState> {
         refetchQueries: [
           {
             query: gql(graphqlTypes.unreadCountQuery),
-            variables: { conversationId }
-          }
-        ]
+            variables: { conversationId },
+          },
+        ],
       })
 
       .then(() => {
-        this.setUnreadCount(0);
+        setUnreadCount(0);
       });
   };
 
-  setBotTyping = (typing: boolean) => {
-    this.setState({ botTyping: typing });
+  const setBotTyping = (typing: boolean) => {
+    setState((prevState) => ({
+      ...prevState,
+      botTyping: typing,
+    }));
   };
 
-  sendTypingInfo = (conversationId: string, text: string) => {
-    const { lastSentTypingInfo } = this.state;
+  const sendTypingInfo = (conversationId: string, text: string) => {
+    const { lastSentTypingInfo } = state;
 
     if (lastSentTypingInfo === text) {
       return;
     }
+    setState((prevState) => ({
+      ...prevState,
+      lastSentTypingInfo: text,
+    }));
 
-    this.setState({ lastSentTypingInfo: text }, () => {
-      client.mutate({
-        mutation: gql(graphqlTypes.sendTypingInfo),
-        variables: { conversationId, text }
-      });
+    client.mutate({
+      mutation: gql(graphqlTypes.sendTypingInfo),
+      variables: { conversationId, text },
     });
   };
 
-  changeOperatorStatus = (
+  const changeOperatorStatus = (
     _id: string,
     operatorStatus: string,
     callback: () => void
@@ -519,8 +559,8 @@ export class AppProvider extends React.Component<{}, IState> {
         `,
         variables: {
           _id,
-          operatorStatus
-        }
+          operatorStatus,
+        },
       })
       .then(() => {
         if (callback) {
@@ -529,11 +569,15 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
-  onSelectSkill = (skillId: string) => {
-    this.setState({ selectedSkill: skillId, inputDisabled: false });
+  const onSelectSkill = (skillId: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      selectedSkill: skillId,
+      inputDisabled: false,
+    }));
   };
 
-  getBotInitialMessage = (callback: (botData: any) => void) => {
+  const getBotInitialMessage = (callback: (botData: any) => void) => {
     return client
       .mutate({
         mutation: gql`
@@ -542,8 +586,8 @@ export class AppProvider extends React.Component<{}, IState> {
           }
         `,
         variables: {
-          integrationId: connection.data.integrationId
-        }
+          integrationId: connection.data.integrationId,
+        },
       })
       .then(({ data }) => {
         if (data && data.widgetGetBotInitialMessage) {
@@ -552,8 +596,11 @@ export class AppProvider extends React.Component<{}, IState> {
       });
   };
 
-  replyAutoAnswer = (message: string, payload: string, type: string) => {
-    this.setState({ sendingMessage: true });
+  const replyAutoAnswer = (message: string, payload: string, type: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      sendingMessage: true,
+    }));
 
     return client
       .mutate({
@@ -579,43 +626,50 @@ export class AppProvider extends React.Component<{}, IState> {
           }
         `,
         variables: {
-          conversationId: this.state.activeConversation,
+          conversationId: state.activeConversation,
           integrationId: connection.data.integrationId,
           customerId: connection.data.customerId,
           visitorId: connection.data.visitorId,
           message: newLineToBr(message),
           type,
-          payload
-        }
+          payload,
+        },
       })
       .then(({ data }) => {
-        if (!data){
-          this.setState({ sendingMessage: false });
-          return
+        if (!data) {
+          setState((prevState) => ({
+            ...prevState,
+            sendingMessage: false,
+          }));
+          return;
         }
 
         const { conversationId, customerId } = data.widgetBotRequest;
 
-        setLocalStorageItem("customerId", customerId);
+        setLocalStorageItem('customerId', customerId);
         connection.data.customerId = customerId;
 
-        this.setState({
+        setState((prevState) => ({
+          ...prevState,
           sendingMessage: false,
-          activeConversation: conversationId
-        });
+          activeConversation: conversationId,
+        }));
       })
       .catch(() => {
-        this.setState({ sendingMessage: false });
+        setState((prevState) => ({
+          ...prevState,
+          sendingMessage: false,
+        }));
       });
   };
 
-  sendMessage = (
+  const sendMessage = (
     contentType: string,
     message: string,
     attachments?: IAttachment[]
   ) => {
     // current conversation
-    const { activeConversation, sendingMessage } = this.state;
+    const { activeConversation, sendingMessage } = state;
 
     let optimisticResponse;
     let update;
@@ -623,9 +677,9 @@ export class AppProvider extends React.Component<{}, IState> {
     // generate optimistic response
     if (activeConversation) {
       optimisticResponse = {
-        __typename: "Mutation",
+        __typename: 'Mutation',
         widgetsInsertMessage: {
-          __typename: "ConversationMessage",
+          __typename: 'ConversationMessage',
           _id: Math.round(Math.random() * -1000000),
           contentType: MESSAGE_TYPES.TEXT,
           conversationId: activeConversation,
@@ -639,17 +693,21 @@ export class AppProvider extends React.Component<{}, IState> {
           fromBot: false,
           messengerAppData: null,
           videoCallData: null,
-          engageData: null
-        }
+          engageData: null,
+        },
       };
 
       update = (proxy: any, { data: { widgetsInsertMessage } }: any) => {
         const selector = {
-          query: gql(graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)),
+          query: gql(
+            graphqlTypes.conversationDetailQuery(
+              connection.enabledServices.dailyco
+            )
+          ),
           variables: {
             _id: widgetsInsertMessage.conversationId,
-            integrationId: connection.data.integrationId
-          }
+            integrationId: connection.data.integrationId,
+          },
         };
 
         // Read data from our cache for this query
@@ -672,10 +730,14 @@ export class AppProvider extends React.Component<{}, IState> {
 
     // Preventing from creating new conversations
     if (!activeConversation && sendingMessage) {
-      return "Already sending";
+      return 'Already sending';
     }
 
-    this.setState({ sendingMessage: true, errorMessage: "" });
+    setState((prevState) => ({
+      ...prevState,
+      sendingMessage: true,
+      errorMessage: '',
+    }));
 
     return (
       client
@@ -707,117 +769,130 @@ export class AppProvider extends React.Component<{}, IState> {
             customerId: connection.data.customerId,
             visitorId: connection.data.visitorId,
             conversationId: activeConversation,
-            skillId: this.state.selectedSkill,
+            skillId: state.selectedSkill,
             contentType,
             message: newLineToBr(message),
-            attachments
+            attachments,
           },
           optimisticResponse,
-          update
+          update,
         })
 
         // after mutation
         .then(({ data }: any) => {
-          this.setState({ sendingMessage: false });
+          setState((prevState) => ({
+            ...prevState,
+            sendingMessage: false,
+          }));
 
           const { widgetsInsertMessage } = data;
 
           if (!activeConversation) {
-            this.changeConversation(widgetsInsertMessage.conversationId);
+            changeConversation(widgetsInsertMessage.conversationId);
           }
 
           if (!connection.data.customerId) {
             connection.data.customerId = widgetsInsertMessage.customerId;
             connection.data.visitorId = null;
-            setLocalStorageItem("customerId", widgetsInsertMessage.customerId);
+            setLocalStorageItem('customerId', widgetsInsertMessage.customerId);
           }
         })
 
         .catch((e: Error) => {
-          this.setState({
+          setState((prevState) => ({
+            ...prevState,
             sendingMessage: false,
             errorMessage:
-              e && e.message ? e.message.replace("GraphQL error: ", "") : ""
-          });
+              e && e.message ? e.message.replace('GraphQL error: ', '') : '',
+          }));
         })
     );
   };
 
-  sendFile = (file: File) => {
-    const self = this;
-
+  const sendFile = (file: File) => {
     uploadHandler({
       file,
 
       beforeUpload() {
-        self.setState({ isAttachingFile: true });
+        setState((prevState) => ({
+          ...prevState,
+          isAttachingFile: true,
+        }));
       },
 
       // upload to server
       afterUpload({ response, fileInfo }: { response: any; fileInfo: any }) {
-        self.setState({ isAttachingFile: false });
+        setState((prevState) => ({
+          ...prevState,
+          isAttachingFile: false,
+        }));
 
         const attachment = { url: response, ...fileInfo };
 
         // send message with attachment
-        self.sendMessage(MESSAGE_TYPES.TEXT, "This message has an attachment", [
-          attachment
+
+        sendMessage(MESSAGE_TYPES.TEXT, 'This message has an attachment', [
+          attachment,
         ]);
       },
 
-      onError: message => {
+      onError: (message) => {
         alert(message);
-        self.setState({ isAttachingFile: false });
-      }
+        setState((prevState) => ({
+          ...prevState,
+          isAttachingFile: false,
+        }));
+      },
     });
   };
 
-  setUnreadCount = (count: number) => {
-    this.setState({ unreadCount: count });
+  const setUnreadCount = (count: number) => {
+    setState((prevState) => ({
+      ...prevState,
+      unreadCount: count,
+    }));
   };
 
-  public render() {
-    return (
-      <AppContext.Provider
-        value={{
-          ...this.state,
-          getColor: this.getColor,
-          getUiOptions: this.getUiOptions,
-          getBrand: this.getBrand,
-          getMessengerData: this.getMessengerData,
-          saveBrowserInfo: this.saveBrowserInfo,
-          toggle: this.toggle,
-          toggleNotifier: this.toggleNotifier,
-          toggleNotifierFull: this.toggleNotifierFull,
-          changeRoute: this.changeRoute,
-          changeConversation: this.changeConversation,
-          goToWebsiteApp: this.goToWebsiteApp,
-          goToConversation: this.goToConversation,
-          goToFaqCategory: this.goToFaqCategory,
-          goToFaqArticle: this.goToFaqArticle,
-          goToConversationList: this.goToConversationList,
-          saveGetNotified: this.saveGetNotified,
-          endConversation: this.endConversation,
-          exportConversation: this.exportConversation,
-          readConversation: this.readConversation,
-          readMessages: this.readMessages,
-          replyAutoAnswer: this.replyAutoAnswer,
-          getBotInitialMessage: this.getBotInitialMessage,
-          onSelectSkill: this.onSelectSkill,
-          changeOperatorStatus: this.changeOperatorStatus,
-          sendMessage: this.sendMessage,
-          sendTypingInfo: this.sendTypingInfo,
-          setBotTyping: this.setBotTyping,
-          sendFile: this.sendFile,
-          setHeadHeight: this.setHeadHeight,
-          setUnreadCount: this.setUnreadCount,
-          isLoggedIn: this.isLoggedIn,
-          browserInfo: this.state.browserInfo,
-          inputDisabled: this.state.inputDisabled
-        }}
-      >
-        {this.props.children}
-      </AppContext.Provider>
-    );
-  }
-}
+  return (
+    <AppContext.Provider
+      value={{
+        ...state,
+        getColor,
+        getUiOptions,
+        getBrand,
+        getMessengerData,
+        saveBrowserInfo,
+        toggle,
+        toggleNotifier,
+        toggleNotifierFull,
+        changeRoute,
+        changeConversation,
+        goToWebsiteApp,
+        goToConversation,
+        goToFaqCategory,
+        goToFaqArticle,
+        goToConversationList,
+        saveGetNotified,
+        endConversation,
+        exportConversation,
+        readConversation,
+        readMessages,
+        replyAutoAnswer,
+        getBotInitialMessage,
+        onSelectSkill,
+        changeOperatorStatus,
+        sendMessage,
+        sendTypingInfo,
+        setBotTyping,
+        sendFile,
+        setHeadHeight,
+        setUnreadCount,
+        isLoggedIn,
+        browserInfo: state.browserInfo,
+        inputDisabled: state.inputDisabled,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};

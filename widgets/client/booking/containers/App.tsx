@@ -1,12 +1,13 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import DumbApp from '../components/App';
-import { AppConsumer, AppProvider } from './AppContext';
+import { AppProvider, useAppContext } from './AppContext';
 import { connection } from '../connection';
 import { saveBrowserInfo } from './utils';
 import { connection as formConnection } from '../../form/connection';
 import { IIntegration } from '../../types';
 import { setLocale } from '../../utils';
-import "../sass/style.min.css";
+import '../sass/style.min.css';
 
 type Props = {
   isPopupVisible: boolean;
@@ -17,88 +18,62 @@ type Props = {
   showPopup: () => void;
 };
 
-class AppContainer extends React.Component<
-  Props,
-  { isTransationsLoaded: boolean }
-> {
-  constructor(props: Props) {
-    super(props);
+const AppContainer: React.FC<{ isTransationsLoaded: boolean }> = () => {
+  const {
+    activeRoute,
+    isFormVisible,
+    isPopupVisible,
+    showPopup,
+    closePopup,
+    getIntegration,
+  } = useAppContext();
 
-    this.state = { isTransationsLoaded: false };
-  }
+  const [isTransationsLoaded, setIsTransationsLoaded] = useState(false);
 
-  componentDidMount() {
+  const integration = getIntegration();
+
+  useEffect(() => {
     saveBrowserInfo();
-
     setLocale(connection.data.integration.languageCode, () => {
-      this.setState({ isTransationsLoaded: true });
+      setIsTransationsLoaded(true);
     });
+  }, []);
+
+  if (!isTransationsLoaded) {
+    return null;
   }
 
-  render() {
-    const { isTransationsLoaded } = this.state;
+  const booking = integration.bookingData || {};
+  connection.data.booking = booking;
+  formConnection.data.form = integration.formId;
 
-    if (!isTransationsLoaded) {
-      return null;
+  const loadType = 'popup';
+
+  let parentClass;
+  let containerClass = '';
+
+  if (loadType) {
+    if (isPopupVisible) {
+      parentClass = 'erxes-modal-iframe';
+      containerClass = 'modal-form open';
+    } else {
+      parentClass = 'erxes-modal-iframe hidden';
     }
-
-    const { isPopupVisible, integration } = this.props;
-
-    const booking = integration.bookingData || {};
-    connection.data.booking = booking;
-    formConnection.data.form = integration.formId;
-
-    const loadType = 'popup';
-
-    let parentClass;
-    let containerClass = '';
-
-    if (loadType) {
-      if (isPopupVisible) {
-        parentClass = 'erxes-modal-iframe';
-        containerClass = 'modal-form open';
-      } else {
-        parentClass = 'erxes-modal-iframe hidden';
-      }
-    }
-
-    const extendedProps = {
-      ...this.props,
-      booking,
-      containerClass
-    };
-
-    return <DumbApp {...extendedProps} />;
   }
-}
 
-const WithContext = () => {
+  const extendedProps = {
+    activeRoute,
+    isFormVisible,
+    booking,
+    containerClass,
+    closePopup,
+  };
+
   return (
     <AppProvider>
-      <AppConsumer>
-        {({
-          activeRoute,
-          isFormVisible,
-          showPopup,
-          closePopup,
-          isPopupVisible,
-          getIntegration
-        }) => {
-          const integration = getIntegration();
-          return (
-            <AppContainer
-              activeRoute={activeRoute}
-              isFormVisible={isFormVisible}
-              showPopup={showPopup}
-              closePopup={closePopup}
-              isPopupVisible={isPopupVisible}
-              integration={integration}
-            />
-          );
-        }}
-      </AppConsumer>
+      <DumbApp {...extendedProps} />
     </AppProvider>
   );
 };
 
-export default WithContext;
+export default AppContainer;

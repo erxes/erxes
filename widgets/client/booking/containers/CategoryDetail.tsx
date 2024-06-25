@@ -1,71 +1,37 @@
-import * as React from "react";
-import CategoryDetail from "../components/CategoryDetail";
-import { AppConsumer } from "./AppContext";
-import { ChildProps, graphql, compose } from "react-apollo";
-import gql from "graphql-tag";
-import { productCategory } from "../graphql";
-import { IProductCategory } from "../../types";
-
-type Props = {
-  goToBookings: () => void;
-  categoryId?: string;
-  goToCategory: (categoryId: string) => void;
-  goToProduct: (productId: string) => void;
-  goToIntro: () => void;
-};
+import * as React from 'react';
+import CategoryDetail from '../components/CategoryDetail';
+import { useQuery } from '@apollo/react-hooks';
+import { GET_PRODUCT_CATEGORY } from '../graphql';
+import { IProductCategory } from '../../types';
+import { useAppContext } from './AppContext';
 
 type QueryResponse = {
   widgetsProductCategory: IProductCategory;
 };
 
-function CategoryDetailContainer(props: ChildProps<Props, QueryResponse>) {
-  const { data } = props;
+function CategoryDetailContainer() {
+  const { activeCategory, goToBookings, goToCategory, goToProduct, goToIntro } =
+    useAppContext();
 
-  if (!data || data.loading) {
+  const { data, loading } = useQuery(GET_PRODUCT_CATEGORY, {
+    variables: {
+      _id: activeCategory,
+    },
+  });
+
+  if (!data || loading) {
     return null;
   }
 
   const extendedProps = {
-    ...props,
-    category: data.widgetsProductCategory
+    goToBookings,
+    goToCategory,
+    goToProduct,
+    goToIntro,
+    category: data.widgetsProductCategory,
   };
 
   return <CategoryDetail {...extendedProps} />;
 }
 
-const WithData = compose(
-  graphql<Props, QueryResponse>(gql(productCategory), {
-    options: ({ categoryId }) => ({
-      variables: {
-        _id: categoryId
-      }
-    })
-  })
-)(CategoryDetailContainer);
-
-const WithContext = () => (
-  <AppConsumer>
-    {({
-      activeCategory,
-      goToBookings,
-      getBooking,
-      goToCategory,
-      goToProduct,
-      goToIntro
-    }) => {
-      const booking = getBooking();
-      return (
-        <WithData
-          goToBookings={goToBookings}
-          categoryId={activeCategory}
-          booking={booking}
-          goToCategory={goToCategory}
-          goToProduct={goToProduct}
-          goToIntro={goToIntro}
-        />
-      );
-    }}
-  </AppConsumer>
-);
-
-export default WithContext;
+export default CategoryDetailContainer;

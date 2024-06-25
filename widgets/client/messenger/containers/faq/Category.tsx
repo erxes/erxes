@@ -1,7 +1,7 @@
-import * as React from "react";
-import Category from "../../components/faq/Category";
-import { IFaqCategory } from "../../types";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import Category from '../../components/faq/Category';
+import { IFaqCategory } from '../../types';
+import { useAppContext } from '../AppContext';
 
 type Props = {
   category: IFaqCategory;
@@ -9,14 +9,10 @@ type Props = {
   getCurrentItem?: (currentCategory: IFaqCategory) => void;
 };
 
-const container = (props: Props) => {
-  return (
-    <AppConsumer>
-      {({ goToFaqCategory }) => (
-        <Category {...props} onClick={goToFaqCategory} />
-      )}
-    </AppConsumer>
-  );
+const Container = (props: Props) => {
+  const { goToFaqCategory } = useAppContext();
+
+  return <Category {...props} onClick={goToFaqCategory} />;
 };
 
-export default container;
+export default Container;

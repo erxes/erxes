@@ -3,28 +3,34 @@ import { iconClose } from '../../icons/Icons';
 import { IBookingData } from '../types';
 import asyncComponent from '../../AsyncComponent';
 
-const Form = asyncComponent(() =>
-  import(/* webpackChunkName: "BookingForm" */ '../containers/form/Form')
+const Form = asyncComponent(
+  () => import(/* webpackChunkName: "BookingForm" */ '../containers/form/Form')
 );
 
-const Booking = asyncComponent(() =>
-  import(/* webpackChunkName: "BookingMain" */ '../containers/Booking')
+const Booking = asyncComponent(
+  () => import(/* webpackChunkName: "BookingMain" */ '../containers/Booking')
 );
 
-const Intro = asyncComponent(() =>
-  import(/* webpackChunkName: "BookingIntro" */ '../containers/Intro')
+const Intro = asyncComponent(
+  () => import(/* webpackChunkName: "BookingIntro" */ '../containers/Intro')
 );
 
-const CategoryDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "BookingCategoryDetail" */ '../containers/CategoryDetail')
+const CategoryDetail = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "BookingCategoryDetail" */ '../containers/CategoryDetail'
+    )
 );
 
-const Product = asyncComponent(() =>
-  import(/* webpackChunkName: "BookingProduct" */ '../containers/Product')
+const Product = asyncComponent(
+  () => import(/* webpackChunkName: "BookingProduct" */ '../containers/Product')
 );
 
-const Header = asyncComponent(() =>
-  import(/* webpackChunkName: "BookingHeader" */ '../containers/common/Header')
+const Header = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "BookingHeader" */ '../containers/common/Header'
+    )
 );
 
 type Props = {
@@ -35,13 +41,13 @@ type Props = {
   closePopup: () => void;
 };
 
-function App({
+const App = ({
   booking,
   activeRoute,
   isFormVisible,
   containerClass,
-  closePopup
-}: Props) {
+  closePopup,
+}: Props) => {
   const renderContent = () => {
     if (activeRoute === 'INTRO') {
       return <Intro />;
@@ -95,6 +101,6 @@ function App({
       </div>
     </div>
   );
-}
+};
 
 export default App;

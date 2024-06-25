@@ -1,15 +1,36 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import DumbForm from "../../../form/components/Form";
-import { ICurrentStatus, IForm } from "../../../form/types";
-import { formDetailQuery } from "../../graphql";
-import { AppConsumer } from "../AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import DumbForm from '../../../form/components/Form';
+import { IForm } from '../../../form/types';
+import { formDetailQuery } from '../../graphql';
+import { useAppContext } from '../AppContext';
+import { useQuery } from '@apollo/react-hooks';
 
-const Form = (props: ChildProps<IProps, QueryResponse>) => {
-  const { data } = props;
+type QueryResponse = {
+  formDetail: IForm;
+};
 
-  if (!data || data.loading) {
+const Form = () => {
+  const {
+    currentStatus,
+    createNew,
+    sendEmail,
+    isSubmitting,
+    getIntegration,
+    save,
+    onChangeCurrentStatus,
+  } = useAppContext();
+
+  const integration = getIntegration();
+
+  const { data, loading } = useQuery(gql(formDetailQuery), {
+    variables: {
+      _id: integration.formId,
+    },
+    fetchPolicy: 'network-only',
+  });
+
+  if (!data || loading) {
     return null;
   }
 
@@ -18,67 +39,17 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
   }
 
   const extendedProps = {
-    ...props,
+    isSubmitting,
+    currentStatus,
+    onSubmit: save,
+    onCreateNew: createNew,
+    sendEmail,
+    integration,
+    onChangeCurrentStatus,
     form: data.formDetail,
-    integration: props.integration
   };
 
   return <DumbForm {...extendedProps} hasTopBar={true} />;
 };
 
-type QueryResponse = {
-  formDetail: IForm;
-};
-
-interface IProps {
-  integration: any;
-  currentStatus: ICurrentStatus;
-  onSubmit: (doc: any) => void;
-  onCreateNew: () => void;
-  sendEmail: (params: any) => void;
-  isSubmitting?: boolean;
-  onChangeCurrentStatus: (status: string) => void;
-}
-
-const FormWithData = graphql<IProps, QueryResponse>(
-  gql(formDetailQuery),
-
-  {
-    options: ({ integration }) => ({
-      fetchPolicy: "network-only",
-      variables: {
-        _id: integration.formId
-      }
-    })
-  }
-)(Form);
-
-const WithContext = () => (
-  <AppConsumer>
-    {({
-      currentStatus,
-      createNew,
-      sendEmail,
-      isSubmitting,
-      getIntegration,
-      save,
-      onChangeCurrentStatus
-    }) => {
-      const integration = getIntegration();
-
-      return (
-        <FormWithData
-          isSubmitting={isSubmitting}
-          currentStatus={currentStatus}
-          onSubmit={save}
-          onCreateNew={createNew}
-          sendEmail={sendEmail}
-          integration={integration}
-          onChangeCurrentStatus={onChangeCurrentStatus}
-        />
-      );
-    }}
-  </AppConsumer>
-);
-
-export default WithContext;
+export default Form;

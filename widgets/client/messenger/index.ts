@@ -7,12 +7,14 @@ import { connection } from './connection';
 import graphqTypes from './graphql';
 import { IConnectResponse } from './types';
 import asyncComponent from '../AsyncComponent';
-import {enabledServicesQuery} from '../form/graphql';
+import { enabledServicesQuery } from '../form/graphql';
 import { EnabledServices } from '../form/types';
+import { lazy } from 'react';
 
-const App = asyncComponent(() => 
+const App = asyncComponent(() =>
   import( /* webpackChunkName: "MessengerApp" */'./containers/App')
 )
+// const App = lazy(() => import('./containers/App'));
 
 widgetConnect({
   connectMutation: async (event: MessageEvent) => {

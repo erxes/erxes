@@ -1,10 +1,11 @@
-import * as React from "react";
-import { sendEmail } from "../../form/containers/utils";
-import { ICurrentStatus, ISaveFormResponse } from "../../form/types";
-import { IEmailParams, IIntegration } from "../../types";
-import { connection } from "../connection";
-import { IBookingData } from "../types";
-import { saveBooking } from "./utils";
+import * as React from 'react';
+import { createContext, useContext, useReducer } from 'react';
+import { sendEmail } from '../../form/containers/utils';
+import { ICurrentStatus, ISaveFormResponse } from '../../form/types';
+import { IEmailParams, IIntegration } from '../../types';
+import { connection } from '../connection';
+import { IBookingData } from '../types';
+import { saveBooking } from './utils';
 
 interface IState {
   activeRoute: string;
@@ -14,11 +15,20 @@ interface IState {
   isFormVisible: boolean;
   isPopupVisible: boolean;
   isSubmitting?: boolean;
-
   selectedItem: string;
-
   currentStatus: ICurrentStatus;
 }
+
+type Action =
+  | { type: 'SET_ACTIVE_ROUTE'; payload: string }
+  | { type: 'SET_ACTIVE_BOOKING'; payload: IBookingData | null }
+  | { type: 'SET_ACTIVE_CATEGORY'; payload: string | null }
+  | { type: 'SET_ACTIVE_PRODUCT'; payload: string | null }
+  | { type: 'SET_FORM_VISIBLE'; payload: boolean }
+  | { type: 'SET_POPUP_VISIBLE'; payload: boolean }
+  | { type: 'SET_SUBMITTING'; payload: boolean }
+  | { type: 'SET_SELECTED_ITEM'; payload: string }
+  | { type: 'SET_CURRENT_STATUS'; payload: ICurrentStatus };
 
 interface IStore extends IState {
   goToIntro: () => void;
@@ -37,164 +47,166 @@ interface IStore extends IState {
   onChangeCurrentStatus: (status: string) => void;
 }
 
-const AppContext = React.createContext({} as IStore);
+const initialState: IState = {
+  activeRoute: 'INTRO',
+  activeBooking: null,
+  activeCategory: null,
+  activeProduct: null,
+  isFormVisible: false,
+  isPopupVisible: false,
+  currentStatus: { status: 'INITIAL' },
+  isSubmitting: false,
+  selectedItem: '',
+};
 
-export const AppConsumer = AppContext.Consumer;
+const AppContext = createContext({} as IStore);
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
-    super(props);
-
-    this.state = {
-      activeRoute: "INTRO",
-      activeBooking: null,
-      activeCategory: null,
-      activeProduct: null,
-      isFormVisible: false,
-      isPopupVisible: false,
-      currentStatus: { status: "INITIAL" },
-      isSubmitting: false,
-      selectedItem: ""
-    };
+const reducer = (state: IState, action: Action): IState => {
+  switch (action.type) {
+    case 'SET_ACTIVE_ROUTE':
+      return { ...state, activeRoute: action.payload };
+    case 'SET_ACTIVE_BOOKING':
+      return { ...state, activeBooking: action.payload };
+    case 'SET_ACTIVE_CATEGORY':
+      return { ...state, activeCategory: action.payload };
+    case 'SET_ACTIVE_PRODUCT':
+      return { ...state, activeProduct: action.payload };
+    case 'SET_FORM_VISIBLE':
+      return { ...state, isFormVisible: action.payload };
+    case 'SET_POPUP_VISIBLE':
+      return { ...state, isPopupVisible: action.payload };
+    case 'SET_SUBMITTING':
+      return { ...state, isSubmitting: action.payload };
+    case 'SET_SELECTED_ITEM':
+      return { ...state, selectedItem: action.payload };
+    case 'SET_CURRENT_STATUS':
+      return { ...state, currentStatus: action.payload };
+    default:
+      return state;
   }
+};
 
-  goToIntro = () => {
-    this.setState({
-      activeRoute: "INTRO",
-      activeBooking: null
-    });
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const goToIntro = () => {
+    dispatch({ type: 'SET_ACTIVE_ROUTE', payload: 'INTRO' });
+    dispatch({ type: 'SET_ACTIVE_BOOKING', payload: null });
   };
 
-  goToBooking = (booking: any) => {
-    this.setState({
-      activeRoute: "BOOKING",
-      activeBooking: booking,
-      selectedItem: ""
-    });
+  const goToBooking = (booking: IBookingData) => {
+    dispatch({ type: 'SET_ACTIVE_ROUTE', payload: 'BOOKING' });
+    dispatch({ type: 'SET_ACTIVE_BOOKING', payload: booking });
+    dispatch({ type: 'SET_SELECTED_ITEM', payload: '' });
   };
 
-  goToBookings = () => {
-    this.setState({
-      activeRoute: "BOOKING",
-      activeCategory: null,
-      selectedItem: ""
-    });
+  const goToBookings = () => {
+    dispatch({ type: 'SET_ACTIVE_ROUTE', payload: 'BOOKING' });
+    dispatch({ type: 'SET_ACTIVE_CATEGORY', payload: null });
+    dispatch({ type: 'SET_SELECTED_ITEM', payload: '' });
   };
 
-  goToCategory = (categoryId: any) => {
-    this.setState({
-      activeRoute: "CATEGORY_DETAIL",
-      activeCategory: categoryId,
-      selectedItem: categoryId
-    });
+  const goToCategory = (categoryId: string) => {
+    dispatch({ type: 'SET_ACTIVE_ROUTE', payload: 'CATEGORY_DETAIL' });
+    dispatch({ type: 'SET_ACTIVE_CATEGORY', payload: categoryId });
+    dispatch({ type: 'SET_SELECTED_ITEM', payload: categoryId });
   };
 
-  goToProduct = (productId: string) => {
-    this.setState({
-      activeRoute: "PRODUCT_DETAIL",
-      activeProduct: productId,
-      selectedItem: productId
-    });
+  const goToProduct = (productId: string) => {
+    dispatch({ type: 'SET_ACTIVE_ROUTE', payload: 'PRODUCT_DETAIL' });
+    dispatch({ type: 'SET_ACTIVE_PRODUCT', payload: productId });
+    dispatch({ type: 'SET_SELECTED_ITEM', payload: productId });
   };
 
-  getBooking = () => {
+  const getBooking = () => {
     return connection.data.booking;
   };
 
-  getIntegration = () => {
+  const getIntegration = () => {
     return connection.data.integration;
   };
 
-  showForm = () => {
-    this.setState({
-      isFormVisible: true
-    });
+  const showForm = () => {
+    dispatch({ type: 'SET_FORM_VISIBLE', payload: true });
   };
 
-  /*
-   * When load type is popup, Show popup and show one of callout and form
-   */
-  showPopup = () => {
-    this.setState({ isPopupVisible: true });
-
-    return this.setState({ isFormVisible: true });
+  const showPopup = () => {
+    dispatch({ type: 'SET_POPUP_VISIBLE', payload: true });
+    dispatch({ type: 'SET_FORM_VISIBLE', payload: true });
   };
 
-  /*
-   * When load type is popup, Hide popup
-   */
-  closePopup = () => {
-    const { currentStatus } = this.state;
+  const closePopup = () => {
+    const { currentStatus } = state;
 
-    this.setState({
-      isPopupVisible: false,
-      isFormVisible: false
-    });
+    dispatch({ type: 'SET_POPUP_VISIBLE', payload: false });
+    dispatch({ type: 'SET_FORM_VISIBLE', payload: false });
 
-    if (currentStatus.status === "SUCCESS") {
-      this.setState({ activeRoute: "INTRO", selectedItem: "" });
+    if (currentStatus.status === 'SUCCESS') {
+      dispatch({ type: 'SET_ACTIVE_ROUTE', payload: 'INTRO' });
+      dispatch({ type: 'SET_SELECTED_ITEM', payload: '' });
     }
   };
 
-  /*
-   * Redisplay form component after submission
-   */
-  createNew = () => {
-    this.setState({ currentStatus: { status: "INITIAL" } });
+  const createNew = () => {
+    dispatch({ type: 'SET_CURRENT_STATUS', payload: { status: 'INITIAL' } });
   };
 
-  /**
-   * User submission
-   */
-
-  save = (doc: any) => {
-    if (!this.state.activeProduct) {
+  const save = (doc: any) => {
+    if (!state.activeProduct) {
       return null;
     }
 
-    this.setState({ isSubmitting: true });
+    dispatch({ type: 'SET_SUBMITTING', payload: true });
 
     saveBooking({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration()._id,
-      formId: this.getIntegration().formId,
-      productId: this.state.activeProduct,
+      integrationId: getIntegration()._id,
+      formId: getIntegration().formId,
+      productId: state.activeProduct,
       saveCallback: async (response: ISaveFormResponse) => {
-        this.setState({
-          isSubmitting: false,
-        });
-      }
+        dispatch({ type: 'SET_SUBMITTING', payload: false });
+      },
     });
   };
 
-  onChangeCurrentStatus = (status: string) => {
-    this.setState({ currentStatus: { status } });
+  const sendEmailHandler = (params: IEmailParams) => {
+    sendEmail(params);
   };
 
-  render() {
-    return (
-      <AppContext.Provider
-        value={{
-          ...this.state,
-          goToBooking: this.goToBooking,
-          goToIntro: this.goToIntro,
-          goToCategory: this.goToCategory,
-          goToBookings: this.goToBookings,
-          goToProduct: this.goToProduct,
-          getBooking: this.getBooking,
-          showForm: this.showForm,
-          showPopup: this.showPopup,
-          closePopup: this.closePopup,
-          createNew: this.createNew,
-          sendEmail,
-          save: this.save,
-          getIntegration: this.getIntegration,
-          onChangeCurrentStatus: this.onChangeCurrentStatus
-        }}
-      >
-        {this.props.children}
-      </AppContext.Provider>
-    );
+  const onChangeCurrentStatus = (status: string) => {
+    dispatch({ type: 'SET_CURRENT_STATUS', payload: { status } });
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        ...state,
+        goToIntro,
+        goToBooking,
+        goToBookings,
+        goToCategory,
+        goToProduct,
+        getBooking,
+        showForm,
+        showPopup,
+        closePopup,
+        createNew,
+        sendEmail: sendEmailHandler,
+        save,
+        getIntegration,
+        onChangeCurrentStatus,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useAppContext = () => {
+  const context = React.useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
   }
-}
+  return context;
+};

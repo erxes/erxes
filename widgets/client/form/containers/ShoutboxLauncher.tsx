@@ -1,21 +1,20 @@
-import * as React from "react";
-import ShoutboxLauncher from "../components/ShoutboxLauncher";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import ShoutboxLauncher from '../components/ShoutboxLauncher';
+import { useAppContext } from './AppContext';
 
-const container = () => (
-  <AppConsumer>
-    {({ isFormVisible, toggleShoutbox, getIntegrationConfigs }) => {
-      const leadData = getIntegrationConfigs();
+const Container = () => {
+  const { isFormVisible, toggleShoutbox, getIntegrationConfigs } =
+    useAppContext();
 
-      return (
-        <ShoutboxLauncher
-          isFormVisible={isFormVisible}
-          onClick={toggleShoutbox}
-          color={leadData.themeColor || ""}
-        />
-      );
-    }}
-  </AppConsumer>
-);
+  const leadData = getIntegrationConfigs();
 
-export default container;
+  return (
+    <ShoutboxLauncher
+      isFormVisible={isFormVisible}
+      onClick={toggleShoutbox}
+      color={leadData.themeColor || ''}
+    />
+  );
+};
+
+export default Container;

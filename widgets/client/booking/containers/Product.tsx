@@ -1,26 +1,27 @@
-import * as React from "react";
-import Product from "../components/Product";
-import { AppConsumer } from "./AppContext";
-import { ChildProps, graphql, compose } from "react-apollo";
-import { bookingProductWithFields } from "../graphql";
-import gql from "graphql-tag";
-import { IBookingData, IProductWithFields } from "../types";
-
-type Props = {
-  productId: string;
-  booking: IBookingData;
-  goToCategory: (categoryId: string) => void;
-  showPopup: () => void;
-};
+import * as React from 'react';
+import Product from '../components/Product';
+import { GET_BOOKING_PRODUCT_WITH_FIELDS } from '../graphql';
+import { IProductWithFields } from '../types';
+import { useAppContext } from './AppContext';
+import { useQuery } from '@apollo/react-hooks';
 
 type QueryResponse = {
   widgetsBookingProductWithFields: IProductWithFields;
 };
 
-function ProductContainer(props: ChildProps<Props, QueryResponse>) {
-  const { data } = props;
+function ProductContainer() {
+  const { activeProduct, getBooking, showPopup, goToCategory } =
+    useAppContext();
 
-  if (!data || data.loading) {
+  const { data, loading } = useQuery(GET_BOOKING_PRODUCT_WITH_FIELDS, {
+    variables: {
+      _id: activeProduct,
+    },
+  });
+
+  const booking = getBooking();
+
+  if (!data || loading) {
     return null;
   }
 
@@ -28,38 +29,14 @@ function ProductContainer(props: ChildProps<Props, QueryResponse>) {
     data.widgetsBookingProductWithFields || ({} as IProductWithFields);
 
   const extendedProps = {
-    ...props,
+    booking,
+    goToCategory,
+    showPopup,
     product: productWithFields.product,
-    fields: productWithFields.fields
+    fields: productWithFields.fields,
   };
 
   return <Product {...extendedProps} />;
 }
 
-const WithData = compose(
-  graphql<Props, QueryResponse>(gql(bookingProductWithFields), {
-    options: ({ productId }) => ({
-      variables: {
-        _id: productId
-      }
-    })
-  })
-)(ProductContainer);
-
-const WithContext = () => (
-  <AppConsumer>
-    {({ activeProduct, getBooking, showPopup, goToCategory }) => {
-      const booking = getBooking();
-      return (
-        <WithData
-          productId={activeProduct}
-          booking={booking}
-          goToCategory={goToCategory}
-          showPopup={showPopup}
-        />
-      );
-    }}
-  </AppConsumer>
-);
-
-export default WithContext;
+export default ProductContainer;

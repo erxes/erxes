@@ -1,7 +1,8 @@
-import * as React from "react";
-import * as fe from "fast-equals";
+import * as React from 'react';
+import * as fe from 'fast-equals';
 
 interface IMapProps extends google.maps.MapOptions {
+  children: React.ReactNode;
   style: { [key: string]: string };
 }
 
@@ -35,7 +36,7 @@ const Map: React.FC<IMapProps> = ({ children, style, ...options }) => {
 
 const useDeepCompareMemoize = (value: any) => {
   const ref = React.useRef(() => {
-    throw new Error("Cannot call an event handler while rendering.");
+    throw new Error('Cannot call an event handler while rendering.');
   });
 
   if (!fe.deepEqual(value, ref.current)) {

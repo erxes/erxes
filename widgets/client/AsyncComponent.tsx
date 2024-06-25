@@ -21,15 +21,13 @@ function retry(fn: any, retriesLeft = 30, interval = 2000) {
   });
 }
 
-export default function asyncComponent(
-  importComponent: any,
-): any {
+export default function asyncComponent(importComponent: any): any {
   class AsyncComponent extends React.Component<any, { component: any }> {
     constructor(props: any) {
       super(props);
 
       this.state = {
-        component: null
+        component: null,
       };
     }
 
@@ -46,7 +44,7 @@ export default function asyncComponent(
         return <Comp {...this.props} />;
       }
 
-      return <div/>;
+      return <div />;
     }
   }
 

@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { AppConsumer } from '../../messenger/containers/AppContext';
+import { useRef, useEffect, useState } from 'react';
 import { readFile } from '../../utils';
 import { ICallout } from '../types';
 import TopBar from './TopBar';
+import { useAppContext } from '../../messenger/containers/AppContext';
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
@@ -16,30 +17,38 @@ type State = {
   callOutWidth: number;
 };
 
-class Callout extends React.Component<Props, State> {
-  private callOutRef: React.RefObject<HTMLDivElement>;
+const Callout: React.FC<Props> = ({
+  configs = {},
+  hasTopBar,
+  onSubmit,
+  setHeight,
+  ...props
+}) => {
+  const { getColor } = useAppContext();
 
-  constructor(props: Props) {
-    super(props);
-    this.callOutRef = React.createRef();
-    this.state = {
-      callOutWidth: 0,
-    };
-  }
+  // if lead is in a messenger, return messenger theme color (getColor())
+  // else return lead theme color
+  const color = getColor ? getColor() : props.color;
 
-  componentDidMount() {
-    if (this.props.setHeight) {
-      this.props.setHeight();
+  const callOutRef = useRef<HTMLDivElement>(null);
+  const [callOutWidth, setCallOutWidth] = useState(0);
+
+  useEffect(() => {
+    if (setHeight) {
+      setHeight();
     }
 
-    // calculate width of component
-    if (this.callOutRef.current) {
-      const width = this.callOutRef.current.clientWidth;
-      this.setState({ callOutWidth: width });
+    if (callOutRef.current) {
+      const width = callOutRef.current.clientWidth;
+      setCallOutWidth(width);
     }
-  }
+  }, [setHeight]);
 
-  renderFeaturedImage(image: string, title: string, calloutImgSize?: string) {
+  const renderFeaturedImage = (
+    image: string,
+    title: string,
+    calloutImgSize?: string
+  ) => {
     if (!image) {
       return null;
     }
@@ -49,87 +58,61 @@ class Callout extends React.Component<Props, State> {
     };
 
     const imgWidth =
-      this.state.callOutWidth *
+      callOutWidth *
       (calloutImgSize ? parseInt(calloutImgSize, 10) / 100 : 0.5);
 
     return (
       <img
-        id={'callOutImg'}
-        onLoad={this.props.setHeight}
+        id="callOutImg"
+        onLoad={setHeight}
         src={readFile(image, imgWidth * 1.5)}
         alt={title}
         style={style}
       />
     );
-  }
+  };
 
-  renderHead(title: string) {
-    const { hasTopBar, color } = this.props;
-
+  const renderHead = (title: string) => {
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
 
     return <h4>{title}</h4>;
+  };
+
+  const {
+    skip = false,
+    title = '',
+    buttonText = '',
+    body = '',
+    featuredImage = '',
+    calloutImgSize = '50%',
+  } = configs;
+
+  if (skip) {
+    return null;
   }
 
-  render() {
-    const { configs, onSubmit, color } = this.props;
-    const defaultConfig = {
-      skip: false,
-      title: '',
-      buttonText: '',
-      body: '',
-      featuredImage: '',
-      calloutImgSize: '50%',
-    };
-    const {
-      skip,
-      title = '',
-      buttonText,
-      body,
-      featuredImage = '',
-      calloutImgSize = '50%',
-    } = configs || defaultConfig;
+  return (
+    <div className="erxes-form">
+      {renderHead(title)}
 
-    if (skip) {
-      return null;
-    }
-
-    return (
-      <div className="erxes-form">
-        {this.renderHead(title)}
-
-        <div className="erxes-form-content">
-          <div className="erxes-callout-body" ref={this.callOutRef}>
-            {this.renderFeaturedImage(featuredImage, title, calloutImgSize)}
-            {body}
-          </div>
-          <button
-            style={{ background: color }}
-            type="button"
-            className="erxes-button btn-block"
-            onClick={onSubmit}
-          >
-            {buttonText}
-          </button>
+      <div className="erxes-form-content">
+        <div className="erxes-callout-body" ref={callOutRef}>
+          {renderFeaturedImage(featuredImage, title, calloutImgSize)}
+          {body}
         </div>
+        <button
+          style={{ background: color }}
+          type="button"
+          className="erxes-button btn-block"
+          onClick={onSubmit}
+        >
+          {buttonText}
+        </button>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-export default (props: Props) => (
-  <AppConsumer>
-    {({ getColor }) => {
-      return (
-        <Callout
-          {...props}
-          // if lead is in a messenger, return messenger theme color (getColor())
-          // else return lead theme color
-          color={getColor ? getColor() : props.color}
-        />
-      );
-    }}
-  </AppConsumer>
-);
+export default Callout;

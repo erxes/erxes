@@ -1,44 +1,20 @@
-import * as React from "react";
-import Booking from "../components/Booking";
-import { AppConsumer } from "./AppContext";
-import { IBookingData } from "../types";
+import * as React from 'react';
+import Booking from '../components/Booking';
+import { useAppContext } from './AppContext';
 
-type Props = {
-  goToIntro: () => void;
-  booking: IBookingData | null;
-  goToCategory: (categoryId: string) => void;
-  goToProduct: (productId: string) => void;
-};
+const BookingContainer: React.FC = () => {
+  const { goToIntro, getBooking, goToCategory, goToProduct } = useAppContext();
 
-function BookingContainer(props: Props) {
+  const booking = getBooking();
+
   const extendedProps = {
-    ...props
+    goToIntro,
+    booking,
+    goToCategory,
+    goToProduct,
   };
 
   return <Booking {...extendedProps} />;
-}
-
-const WithContext = () => {
-  return (
-    <AppConsumer>
-      {({
-        goToIntro,
-        getBooking,
-        goToCategory,
-        goToProduct,
-      }) => {
-        const booking = getBooking();
-        return (
-          <BookingContainer
-            goToIntro={goToIntro}
-            booking={booking}
-            goToCategory={goToCategory}
-            goToProduct={goToProduct}
-          />
-        );
-      }}
-    </AppConsumer>
-  );
 };
 
-export default WithContext;
+export default BookingContainer;

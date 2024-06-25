@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MessagesList from '../components/MessagesList';
 import { IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import { useAppContext } from './AppContext';
 
 type Props = {
   messages: IMessage[];
@@ -15,57 +15,49 @@ type Props = {
 };
 
 export default (props: Props) => {
+  const {
+    getUiOptions,
+    getMessengerData,
+    saveGetNotified,
+    getBotInitialMessage,
+    getColor,
+    isLoggedIn,
+    sendMessage,
+    sendTypingInfo,
+    replyAutoAnswer,
+    changeOperatorStatus,
+    onSelectSkill,
+    selectedSkill,
+    botTyping,
+    activeConversation,
+  } = useAppContext();
+
   return (
-    <AppConsumer>
-      {({
-        getUiOptions,
-        getMessengerData,
-        saveGetNotified,
-        getBotInitialMessage,
-        getColor,
-        isLoggedIn,
-        sendMessage,
-        sendTypingInfo,
-        replyAutoAnswer,
-        changeOperatorStatus,
-        onSelectSkill,
-        selectedSkill,
-        botTyping,
-        activeConversation
-      }) => {
-        return (
-          <MessagesList
-            {...props}
-            botTyping={botTyping}
-            selectedSkill={selectedSkill}
-            conversationId={activeConversation}
-            uiOptions={getUiOptions()}
-            messengerData={getMessengerData()}
-            saveGetNotified={saveGetNotified}
-            getBotInitialMessage={getBotInitialMessage}
-            onSelectSkill={onSelectSkill}
-            getColor={getColor()}
-            isLoggedIn={isLoggedIn}
-            sendTypingInfo={sendTypingInfo}
-            changeOperatorStatus={(conversationId, operatorStatus) => {
-              return changeOperatorStatus(
-                conversationId,
-                operatorStatus,
-                () => {
-                  if (props.refetchConversationDetail) {
-                    return props.refetchConversationDetail();
-                  }
-                }
-              );
-            }}
-            replyAutoAnswer={replyAutoAnswer}
-            sendMessage={sendMessage}
-            showVideoCallRequest={
-              props.isOnline && getMessengerData().showVideoCallRequest
-            }
-          />
-        );
+    <MessagesList
+      {...props}
+      botTyping={botTyping}
+      selectedSkill={selectedSkill}
+      conversationId={activeConversation}
+      uiOptions={getUiOptions()}
+      messengerData={getMessengerData()}
+      saveGetNotified={saveGetNotified}
+      getBotInitialMessage={getBotInitialMessage}
+      onSelectSkill={onSelectSkill}
+      getColor={getColor()}
+      isLoggedIn={isLoggedIn}
+      sendTypingInfo={sendTypingInfo}
+      changeOperatorStatus={(conversationId, operatorStatus) => {
+        return changeOperatorStatus(conversationId, operatorStatus, () => {
+          if (props.refetchConversationDetail) {
+            return props.refetchConversationDetail();
+          }
+        });
       }}
-    </AppConsumer>
+      replyAutoAnswer={replyAutoAnswer}
+      sendMessage={sendMessage}
+      showVideoCallRequest={
+        props.isOnline && getMessengerData().showVideoCallRequest
+      }
+    />
   );
 };

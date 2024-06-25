@@ -1,23 +1,20 @@
 import * as React from 'react';
 import AccquireInformation from '../components/AccquireInformation';
-import { AppConsumer } from './AppContext';
+import { useAppContext } from './AppContext';
 
-export default class extends React.Component {
-  render() {
-    return (
-      <AppConsumer>
-        {({ saveGetNotified, getColor, isSavingNotified, getUiOptions }) => {
-          return (
-            <AccquireInformation
-              color={getColor()}
-              textColor={getUiOptions().textColor || '#fff'}
-              save={saveGetNotified}
-              loading={isSavingNotified}
-              showTitle={true}
-            />
-          );
-        }}
-      </AppConsumer>
-    );
-  }
-}
+const AccquireInformationContainer: React.FC = () => {
+  const { saveGetNotified, getColor, isSavingNotified, getUiOptions } =
+    useAppContext();
+
+  return (
+    <AccquireInformation
+      color={getColor()}
+      textColor={getUiOptions().textColor || '#fff'}
+      save={saveGetNotified}
+      loading={isSavingNotified}
+      showTitle={true}
+    />
+  );
+};
+
+export default AccquireInformationContainer;

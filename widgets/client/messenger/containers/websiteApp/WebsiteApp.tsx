@@ -1,26 +1,18 @@
 import * as React from 'react';
 import WebsiteApp from '../../components/websiteApp/WebsiteApp';
 import { IWebsiteApp } from '../../types';
-import { AppConsumer } from '../AppContext';
+import { useAppContext } from '../AppContext';
 
 type Props = {
   websiteApp: IWebsiteApp;
 };
 
-const container = (props: Props) => {
+const Container = (props: Props) => {
+  const { goToWebsiteApp, getColor } = useAppContext();
+
   return (
-    <AppConsumer>
-      {({ goToWebsiteApp, getColor }) => {
-        return (
-          <WebsiteApp
-            {...props}
-            goToWebsiteApp={goToWebsiteApp}
-            color={getColor()}
-          />
-        );
-      }}
-    </AppConsumer>
+    <WebsiteApp {...props} goToWebsiteApp={goToWebsiteApp} color={getColor()} />
   );
 };
 
-export default container;
+export default Container;

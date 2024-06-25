@@ -1,8 +1,8 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import client from "../../apollo-client";
-import { IKbArticle, IKbCategory } from "../types";
-import graphql from "./graphql";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import client from '../../apollo-client';
+import { IKbArticle, IKbCategory } from '../types';
+import graphql from './graphql';
 
 interface IState {
   activeRoute: string;
@@ -24,82 +24,92 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
-    super(props);
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, setState] = React.useState<IState>({
+    activeRoute: 'CATEGORIES',
+    activeCategory: null,
+    activeArticle: null,
+    searchString: '',
+  });
 
-    this.state = {
-      activeRoute: "CATEGORIES",
+  const goToCategory = (category: IKbCategory) => {
+    setState((prevState) => ({
+      ...prevState,
+      activeRoute: 'CATEGORY_DETAIL',
+      activeCategory: category,
+    }));
+  };
+
+  const goToArticle = (article: IKbArticle) => {
+    setState((prevState) => ({
+      ...prevState,
+      activeRoute: 'ARTICLE_DETAIL',
+      activeArticle: article,
+    }));
+  };
+
+  const goToCategories = () => {
+    setState((prevState) => ({
+      ...prevState,
+      activeRoute: 'CATEGORIES',
       activeCategory: null,
-      activeArticle: null,
-      searchString: ""
-    };
-  }
-
-  goToCategory = (category: IKbCategory) => {
-    this.setState({
-      activeRoute: "CATEGORY_DETAIL",
-      activeCategory: category
-    });
+    }));
   };
 
-  goToArticle = (article: IKbArticle) => {
-    this.setState({
-      activeRoute: "ARTICLE_DETAIL",
-      activeArticle: article
-    });
+  const goToArticles = () => {
+    const { activeCategory } = state;
+
+    setState((prevState) => ({
+      ...prevState,
+      activeRoute: activeCategory ? 'CATEGORY_DETAIL' : 'CATEGORIES',
+    }));
   };
 
-  goToCategories = () => {
-    this.setState({
-      activeRoute: "CATEGORIES",
-      activeCategory: null
-    });
-  };
-
-  goToArticles = () => {
-    const { activeCategory } = this.state;
-
-    this.setState({
-      activeRoute: activeCategory ? "CATEGORY_DETAIL" : "CATEGORIES"
-    });
-  };
-
-  incReactionCount = (articleId: string, reactionChoice: string) => {
+  const incReactionCount = (articleId: string, reactionChoice: string) => {
     client.mutate({
       mutation: gql(graphql.incReactionCount),
       variables: {
         articleId,
-        reactionChoice
-      }
+        reactionChoice,
+      },
     });
   };
 
-  search = (value: string) => {
-    let activeRoute = "CATEGORIES";
+  const search = (value: string) => {
+    let activeRoute = 'CATEGORIES';
 
     if (value) {
-      activeRoute = "ARTICLES";
+      activeRoute = 'ARTICLES';
     }
 
-    this.setState({ searchString: value, activeRoute });
+    setState((prevState) => ({
+      ...prevState,
+      searchString: value,
+      activeRoute,
+    }));
   };
 
-  render() {
-    return (
-      <AppContext.Provider
-        value={{
-          ...this.state,
-          goToCategory: this.goToCategory,
-          goToCategories: this.goToCategories,
-          goToArticle: this.goToArticle,
-          goToArticles: this.goToArticles,
-          incReactionCount: this.incReactionCount,
-          search: this.search
-        }}
-      >
-        {this.props.children}
-      </AppContext.Provider>
-    );
+  return (
+    <AppContext.Provider
+      value={{
+        ...state,
+        goToCategory,
+        goToCategories,
+        goToArticle,
+        goToArticles,
+        incReactionCount,
+        search,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useAppContext = () => {
+  const context = React.useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
   }
-}
+  return context;
+};

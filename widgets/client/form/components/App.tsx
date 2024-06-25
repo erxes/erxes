@@ -1,19 +1,20 @@
-import * as React from "react";
-import asyncComponent from "../../AsyncComponent";
-import { iconClose } from "../../icons/Icons";
+import * as React from 'react';
+import asyncComponent from '../../AsyncComponent';
+import { iconClose } from '../../icons/Icons';
 
-const Form = asyncComponent(() =>
-  import(/* webpackChunkName: "Form" */ '../containers/Form')
+const Form = asyncComponent(
+  () => import(/* webpackChunkName: "Form" */ '../containers/Form')
 );
 
-const Callout = asyncComponent(() =>
-  import(/* webpackChunkName: "FormCallout" */ '../containers/Callout')
+const Callout = asyncComponent(
+  () => import(/* webpackChunkName: "FormCallout" */ '../containers/Callout')
 );
 
-const ShoutboxLauncher = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "FormShoutboxLauncher" */ '../containers/ShoutboxLauncher'
-  )
+const ShoutboxLauncher = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "FormShoutboxLauncher" */ '../containers/ShoutboxLauncher'
+    )
 );
 
 type Props = {
@@ -24,65 +25,61 @@ type Props = {
   loadType: string;
 };
 
-class App extends React.Component<Props> {
-  renderCloseButton() {
-    const { loadType, closePopup } = this.props;
+const App = (props: Props) => {
+  const {
+    loadType,
+    closePopup,
+    isFormVisible,
+    isCalloutVisible,
+    containerClass,
+  } = props;
 
-    if (loadType === "shoutbox") {
+  const renderCloseButton = () => {
+    if (loadType === 'shoutbox') {
       return null;
     }
 
     return (
       <a className="close" onClick={closePopup} title="Close">
-        {iconClose()}
+        {iconClose()} {/* Assuming iconClose() is defined elsewhere */}
       </a>
     );
-  }
+  };
 
-  renderForm() {
-    const { isFormVisible } = this.props;
-
+  const renderForm = () => {
     if (isFormVisible) {
       return <Form />;
     }
 
     return null;
-  }
+  };
 
-  renderCallout() {
-    const { isCalloutVisible } = this.props;
-
+  const renderCallout = () => {
     if (isCalloutVisible) {
       return <Callout />;
     }
 
     return null;
-  }
+  };
 
-  renderShoutboxLauncher() {
-    const { loadType } = this.props;
-
-    if (loadType === "shoutbox") {
+  const renderShoutboxLauncher = () => {
+    if (loadType === 'shoutbox') {
       return <ShoutboxLauncher />;
     }
 
     return null;
-  }
+  };
 
-  render() {
-    const { containerClass } = this.props;
-
-    return (
-      <div id="erxes-container" className="erxes-content">
-        <div className={containerClass}>
-          {this.renderCloseButton()}
-          {this.renderCallout()}
-          {this.renderForm()}
-          {this.renderShoutboxLauncher()}
-        </div>
+  return (
+    <div id="erxes-container" className="erxes-content">
+      <div className={containerClass}>
+        {renderCloseButton()}
+        {renderCallout()}
+        {renderForm()}
+        {renderShoutboxLauncher()}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default App;

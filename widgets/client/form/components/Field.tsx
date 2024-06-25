@@ -43,8 +43,8 @@ type Props = {
 };
 
 type State = {
-  dateValue?: Date | string;
-  dateTimeValue: Date | string;
+  dateValue?: string | number | Date | undefined;
+  dateTimeValue: string | number | Date | undefined;
   isAttachingFile?: boolean;
   multipleSelectValues?: string[];
   isMapDraggable: boolean;
@@ -281,12 +281,12 @@ export default class Field extends React.Component<Props, State> {
     self.onChange(attachments);
   };
 
-  onDateChange = (date?: Date | string) => {
+  onDateChange = (date?: string | number | Date | undefined) => {
     this.setState({ dateValue: date || '' });
     this.onChange(date || '');
   };
 
-  onDateTimeChange = (date?: Date | string) => {
+  onDateTimeChange = (date?: string | number | Date | undefined) => {
     this.setState({ dateTimeValue: date || '' });
     this.onChange(date || '');
   };
@@ -669,11 +669,14 @@ export default class Field extends React.Component<Props, State> {
         });
 
       case 'location':
-        return Field.renderSelect(COUNTRIES.map(c => c.name), {
-          onChange: this.onSelectChange,
-          id: field._id,
-          value: String(value),
-        });
+        return Field.renderSelect(
+          COUNTRIES.map((c) => c.name),
+          {
+            onChange: this.onSelectChange,
+            id: field._id,
+            value: String(value),
+          }
+        );
 
       case 'industry':
         return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import MessageSender from '../components/MessageSender';
-import { AppConsumer, MESSAGE_TYPES } from './AppContext';
+import { MESSAGE_TYPES, useAppContext } from './AppContext';
 
 type Props = {
   placeholder?: string;
@@ -11,40 +11,36 @@ type Props = {
 };
 
 const Container = (props: Props) => {
+  const {
+    isAttachingFile,
+    activeConversation,
+    sendMessage,
+    sendTypingInfo,
+    sendFile,
+    readMessages,
+    getMessengerData,
+    inputDisabled,
+  } = useAppContext();
+
   return (
-    <AppConsumer>
-      {({
-        isAttachingFile,
-        activeConversation,
-        sendMessage,
-        sendTypingInfo,
-        sendFile,
-        readMessages,
-        getMessengerData,
-        inputDisabled
-      }) => {
-        return (
-          <MessageSender
-            {...props}
-            inputDisabled={inputDisabled}
-            isAttachingFile={isAttachingFile}
-            conversationId={activeConversation}
-            sendTypingInfo={sendTypingInfo}
-            sendMessage={(contentType, message) => {
-              if (contentType === MESSAGE_TYPES.TEXT && !message.trim()) {
-                return;
-              }
-              sendMessage(contentType, message);
-            }}
-            readMessages={readMessages}
-            sendFile={sendFile}
-            showVideoCallRequest={
-              props.isOnline && getMessengerData().showVideoCallRequest
-            }
-          />
-        );
+    <MessageSender
+      {...props}
+      inputDisabled={inputDisabled}
+      isAttachingFile={isAttachingFile}
+      conversationId={activeConversation}
+      sendTypingInfo={sendTypingInfo}
+      sendMessage={(contentType, message) => {
+        if (contentType === MESSAGE_TYPES.TEXT && !message.trim()) {
+          return;
+        }
+        sendMessage(contentType, message);
       }}
-    </AppConsumer>
+      readMessages={readMessages}
+      sendFile={sendFile}
+      showVideoCallRequest={
+        props.isOnline && getMessengerData().showVideoCallRequest
+      }
+    />
   );
 };
 

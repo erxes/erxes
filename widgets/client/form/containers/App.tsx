@@ -1,171 +1,156 @@
-import * as React from "react";
-import DumbApp from "../components/App";
-import { connection } from "../connection";
-import { AppConsumer, AppProvider } from "./AppContext";
-import { postMessage, saveBrowserInfo } from "./utils";
-import "../sass/style.min.css";
+import * as React from 'react';
+import { useEffect } from 'react';
+import DumbApp from '../components/App';
+import { connection } from '../connection';
+import { postMessage, saveBrowserInfo } from './utils';
+import '../sass/style.min.css';
+import { useAppContext } from './AppContext';
 
-type Props = {
-  loadType: string;
-  isPopupVisible: boolean;
-  isFormVisible: boolean;
-  isCalloutVisible: boolean;
-  init: () => void;
-  closePopup: () => void;
-  showPopup: () => void;
-  setHeight: () => void;
-  setCallSubmit: (state: boolean) => void;
-  setExtraContent: (content: string) => void;
-  onChangeCurrentStatus: (status: string) => void;
-};
+const App = () => {
+  const {
+    init,
+    closePopup,
+    showPopup,
+    isPopupVisible,
+    isFormVisible,
+    isCalloutVisible,
+    setHeight,
+    getIntegrationConfigs,
+    setCallSubmit,
+    setExtraContent,
+    onChangeCurrentStatus,
+  } = useAppContext();
 
-class App extends React.Component<Props> {
-  componentDidMount() {
+  const loadType = getIntegrationConfigs().loadType;
+
+  useEffect(() => {
     saveBrowserInfo();
 
-    window.addEventListener("message", event => {
-      const { fromPublisher, fromPayment, message, action, formId, html, invoice } = event.data;
+    const handleMessage = (event: MessageEvent) => {
+      const {
+        fromPublisher,
+        fromPayment,
+        message,
+        action,
+        formId,
+        html,
+        invoice,
+      } = event.data;
 
       if (fromPublisher) {
-        // receive sendingBrowserInfo command from publisher
-        if (message === "sendingBrowserInfo") {
-          this.props.init();
+        if (message === 'sendingBrowserInfo') {
+          init();
         }
 
         if (formId === connection.setting.form_id) {
-          // receive show popup command from publisher
-          if (action === "showPopup") {
-            this.props.showPopup();
+          if (action === 'showPopup') {
+            showPopup();
           }
 
-          // receive call submit command
-          if (action === "callSubmit") {
-            this.props.setCallSubmit(true);
+          if (action === 'callSubmit') {
+            setCallSubmit(true);
           }
 
-          if (action === "extraFormContent") {
-            this.props.setExtraContent(html);
+          if (action === 'extraFormContent') {
+            setExtraContent(html);
           }
         }
       }
 
-      if (fromPayment) {
-        if (message === "paymentSuccessfull") {
-          this.props.onChangeCurrentStatus("SUCCESS");
-        }
+      if (fromPayment && message === 'paymentSuccessfull') {
+        onChangeCurrentStatus('SUCCESS');
       }
+    };
 
-    });
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [
+    init,
+    showPopup,
+    setCallSubmit,
+    setExtraContent,
+    onChangeCurrentStatus,
+    connection,
+  ]);
+
+  useEffect(() => {
+    setHeight();
+  }, [setHeight]);
+
+  let parentClass;
+  let containerClass = '';
+
+  const extendedProps = {
+    init,
+    closePopup,
+    showPopup,
+    isPopupVisible,
+    isFormVisible,
+    isCalloutVisible,
+    setHeight,
+    getIntegrationConfigs,
+    setCallSubmit,
+    setExtraContent,
+    onChangeCurrentStatus,
+    loadType,
+    containerClass,
+  };
+
+  if (loadType === 'popup') {
+    if (isPopupVisible) {
+      parentClass = 'erxes-modal-iframe';
+      containerClass = 'modal-form open';
+    } else {
+      parentClass = 'erxes-modal-iframe hidden';
+      containerClass = 'modal-form';
+    }
   }
 
-  componentDidUpdate() {
-    this.props.setHeight();
+  if (loadType === 'slideInLeft') {
+    parentClass = 'erxes-slide-left-iframe';
+    containerClass = 'container-slide-in-left';
   }
 
-  render() {
-    const {
-      isPopupVisible,
-      isFormVisible,
-      isCalloutVisible,
-      loadType
-    } = this.props;
-
-    let parentClass;
-    let containerClass = "";
-
-    const extendedProps = { ...this.props, containerClass };
-
-    if (loadType === "popup") {
-      if (isPopupVisible) {
-        parentClass = "erxes-modal-iframe";
-        containerClass = "modal-form open";
-      } else {
-        parentClass = "erxes-modal-iframe hidden";
-        containerClass = "modal-form";
-      }
-    }
-
-    if (loadType === "slideInLeft") {
-      parentClass = "erxes-slide-left-iframe";
-      containerClass = "container-slide-in-left";
-    }
-
-    if (loadType === "slideInRight") {
-      parentClass = "erxes-slide-right-iframe";
-      containerClass = "container-slide-in-right";
-    }
-
-    if (loadType === "dropdown") {
-      parentClass = "erxes-dropdown-iframe";
-      containerClass = "container-dropdown";
-
-      if (isCalloutVisible) {
-        containerClass += " call-out";
-      }
-    }
-
-    if (loadType === "embedded") {
-      parentClass = "erxes-embedded-iframe";
-      containerClass = "container-embedded";
-    }
-
-    if (loadType === "shoutbox") {
-      if (isCalloutVisible || isFormVisible) {
-        parentClass = "erxes-shoutbox-iframe";
-      } else {
-        parentClass = "erxes-shoutbox-iframe erxes-hidden";
-      }
-
-      containerClass = "container-shoutbox";
-    }
-
-    postMessage({
-      message: "changeContainerClass",
-      className: parentClass
-    });
-
-    extendedProps.containerClass = containerClass;
-
-    return <DumbApp {...extendedProps} />;
+  if (loadType === 'slideInRight') {
+    parentClass = 'erxes-slide-right-iframe';
+    containerClass = 'container-slide-in-right';
   }
-}
 
-const WithContext = () => (
-  <AppProvider>
-    <AppConsumer>
-      {value => {
-        const {
-          init,
-          closePopup,
-          showPopup,
-          isPopupVisible,
-          isFormVisible,
-          isCalloutVisible,
-          setHeight,
-          getIntegrationConfigs,
-          setCallSubmit,
-          setExtraContent,
-          onChangeCurrentStatus
-        } = value;
+  if (loadType === 'dropdown') {
+    parentClass = 'erxes-dropdown-iframe';
+    containerClass = 'container-dropdown';
 
-        return (
-          <App
-            loadType={getIntegrationConfigs().loadType}
-            isPopupVisible={isPopupVisible}
-            isFormVisible={isFormVisible}
-            isCalloutVisible={isCalloutVisible}
-            init={init}
-            setCallSubmit={setCallSubmit}
-            setExtraContent={setExtraContent}
-            setHeight={setHeight}
-            closePopup={closePopup}
-            showPopup={showPopup}
-            onChangeCurrentStatus={onChangeCurrentStatus}
-          />
-        );
-      }}
-    </AppConsumer>
-  </AppProvider>
-);
+    if (isCalloutVisible) {
+      containerClass += ' call-out';
+    }
+  }
 
-export default WithContext;
+  if (loadType === 'embedded') {
+    parentClass = 'erxes-embedded-iframe';
+    containerClass = 'container-embedded';
+  }
+
+  if (loadType === 'shoutbox') {
+    if (isCalloutVisible || isFormVisible) {
+      parentClass = 'erxes-shoutbox-iframe';
+    } else {
+      parentClass = 'erxes-shoutbox-iframe erxes-hidden';
+    }
+
+    containerClass = 'container-shoutbox';
+  }
+
+  postMessage({
+    message: 'changeContainerClass',
+    className: parentClass,
+  });
+
+  extendedProps.containerClass = containerClass;
+
+  return <DumbApp {...extendedProps} />;
+};
+
+export default App;

@@ -1,7 +1,8 @@
 import '@nateradebaugh/react-datetime/css/react-datetime.css';
-import * as React from "react";
-import DumbApp from "../components/App";
-import { AppConsumer, AppProvider } from "./AppContext";
+import * as React from 'react';
+import { useCallback, useEffect } from 'react';
+import DumbApp from '../components/App';
+import { AppProvider, useAppContext } from './AppContext';
 import '../sass/style.min.css';
 
 import * as dayjs from 'dayjs';
@@ -11,51 +12,47 @@ import * as relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 
-type Props = {
-  toggle: (isVisible?: boolean) => void;
-  isMessengerVisible: boolean;
-  saveBrowserInfo: () => void;
-  showLauncher: boolean;
+const AppWrapper: React.FC = () => {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
 };
 
-class App extends React.Component<Props> {
-  componentDidMount() {
-    window.addEventListener("message", event => {
-      if (event.data.fromPublisher) {
-        // receive show messenger command from publisher
-        if (event.data.action === "showMessenger") {
-          this.props.toggle(false);
+const AppContent: React.FC = () => {
+  const { isMessengerVisible, saveBrowserInfo, getMessengerData, toggle } =
+    useAppContext();
+
+  const { showLauncher } = getMessengerData();
+
+  const handleMessage = useCallback(
+    (event: MessageEvent) => {
+      const { data } = event;
+      if (data?.fromPublisher) {
+        // Receive show messenger command from publisher
+        if (data.action === 'showMessenger') {
+          toggle(false);
         }
       }
-    });
-  }
+    },
+    [toggle]
+  );
 
-  render() {
-    return (
-      <DumbApp
-        isMessengerVisible={this.props.isMessengerVisible}
-        saveBrowserInfo={this.props.saveBrowserInfo}
-        showLauncher={this.props.showLauncher}
-      />
-    );
-  }
-}
+  useEffect(() => {
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [handleMessage]);
 
-const WithContext = () => (
-  <AppProvider>
-    <AppConsumer>
-      {({ isMessengerVisible, saveBrowserInfo, getMessengerData, toggle }) => {
-        return (
-          <App
-            toggle={toggle}
-            isMessengerVisible={isMessengerVisible}
-            saveBrowserInfo={saveBrowserInfo}
-            showLauncher={getMessengerData().showLauncher}
-          />
-        );
-      }}
-    </AppConsumer>
-  </AppProvider>
-);
+  return (
+    <DumbApp
+      isMessengerVisible={isMessengerVisible}
+      saveBrowserInfo={saveBrowserInfo}
+      showLauncher={showLauncher}
+    />
+  );
+};
 
-export default WithContext;
+export default AppWrapper;

@@ -1,17 +1,12 @@
-import * as React from "react";
-import ArticleDetail from "../../components/faq/ArticleDetail";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import ArticleDetail from '../../components/faq/ArticleDetail';
+import { useAppContext } from '../AppContext';
 
 const ArticleDetailContainer = () => {
+  const { goToFaqCategory, activeFaqArticle } = useAppContext();
+
   return (
-    <AppConsumer>
-      {({ goToFaqCategory, activeFaqArticle }) => (
-        <ArticleDetail
-          goToCategory={goToFaqCategory}
-          article={activeFaqArticle}
-        />
-      )}
-    </AppConsumer>
+    <ArticleDetail goToCategory={goToFaqCategory} article={activeFaqArticle} />
   );
 };
 

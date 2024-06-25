@@ -1,6 +1,5 @@
 import * as React from 'react';
-
-import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
+import { createContext, useContext, useReducer } from 'react';
 import { checkRules, getEnv } from '../../utils';
 import { connection } from '../connection';
 import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from '../types';
@@ -12,6 +11,7 @@ import {
   sendEmail,
 } from './utils';
 import * as cookie from 'cookie';
+import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
 
 interface IState {
   isPopupVisible: boolean;
@@ -23,6 +23,16 @@ interface IState {
   callSubmit: boolean;
   invoiceLink?: string;
 }
+
+type Action =
+  | { type: 'SET_POPUP_VISIBLE'; payload: boolean }
+  | { type: 'SET_FORM_VISIBLE'; payload: boolean }
+  | { type: 'SET_CALLOUT_VISIBLE'; payload: boolean }
+  | { type: 'SET_CURRENT_STATUS'; payload: ICurrentStatus }
+  | { type: 'SET_SUBMITTING'; payload: boolean }
+  | { type: 'SET_EXTRA_CONTENT'; payload: string }
+  | { type: 'SET_CALL_SUBMIT'; payload: boolean }
+  | { type: 'SET_INVOICE_LINK'; payload: string };
 
 interface IStore extends IState {
   init: () => void;
@@ -46,28 +56,43 @@ interface IStore extends IState {
   onChangeCurrentStatus: (status: string) => void;
 }
 
-const AppContext = React.createContext({} as IStore);
+const initialState: IState = {
+  isPopupVisible: false,
+  isFormVisible: false,
+  isCalloutVisible: false,
+  currentStatus: { status: 'INITIAL' },
+  callSubmit: false,
+};
 
-export const AppConsumer = AppContext.Consumer;
+const AppContext = createContext({} as IStore);
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
-    super(props);
-
-    this.state = {
-      isPopupVisible: false,
-      isFormVisible: false,
-      isCalloutVisible: false,
-      currentStatus: { status: 'INITIAL' },
-      extraContent: '',
-      callSubmit: false,
-    };
+const reducer = (state: IState, action: Action): IState => {
+  switch (action.type) {
+    case 'SET_POPUP_VISIBLE':
+      return { ...state, isPopupVisible: action.payload };
+    case 'SET_FORM_VISIBLE':
+      return { ...state, isFormVisible: action.payload };
+    case 'SET_CALLOUT_VISIBLE':
+      return { ...state, isCalloutVisible: action.payload };
+    case 'SET_CURRENT_STATUS':
+      return { ...state, currentStatus: action.payload };
+    case 'SET_SUBMITTING':
+      return { ...state, isSubmitting: action.payload };
+    case 'SET_EXTRA_CONTENT':
+      return { ...state, extraContent: action.payload };
+    case 'SET_CALL_SUBMIT':
+      return { ...state, callSubmit: action.payload };
+    case 'SET_INVOICE_LINK':
+      return { ...state, invoiceLink: action.payload };
+    default:
+      return state;
   }
+};
 
-  /*
-   * Decide which component will render initially
-   */
-  init = async () => {
+export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const init = async () => {
     const { data, browserInfo, hasPopupHandlers } = connection;
     const { integration } = data;
 
@@ -81,10 +106,9 @@ export class AppProvider extends React.Component<{}, IState> {
     const isPassedAllRules = await checkRules(rules, browserInfo);
 
     if (!isPassedAllRules) {
-      return this.setState({
-        isPopupVisible: false,
-        isFormVisible: false,
-        isCalloutVisible: false,
+      return dispatch({
+        type: 'SET_POPUP_VISIBLE',
+        payload: false,
       });
     }
 
@@ -93,116 +117,153 @@ export class AppProvider extends React.Component<{}, IState> {
       return null;
     }
 
-    this.setState({ isPopupVisible: true });
+    dispatch({
+      type: 'SET_POPUP_VISIBLE',
+      payload: true,
+    });
 
     // if there is no callout setting then show form
     if (!callout) {
-      return this.setState({ isFormVisible: true });
+      return dispatch({
+        type: 'SET_FORM_VISIBLE',
+        payload: true,
+      });
     }
 
     // If load type is shoutbox then hide form component initially
     if (callout.skip && loadType !== 'shoutbox') {
-      return this.setState({ isFormVisible: true });
+      return dispatch({
+        type: 'SET_FORM_VISIBLE',
+        payload: true,
+      });
     }
 
-    return this.setState({ isCalloutVisible: true });
+    dispatch({
+      type: 'SET_CALLOUT_VISIBLE',
+      payload: true,
+    });
   };
 
-  /*
-   * Will be called when user click callout's submit button
-   */
-  showForm = () => {
+  const showForm = () => {
     const cookies = cookie.parse(document.cookie);
 
-    const paymentCookies = Object.keys(cookies).filter(key =>
+    const paymentCookies = Object.keys(cookies).filter((key) =>
       key.includes('paymentData')
     );
 
     if (paymentCookies.length > 0) {
       if (cookies[paymentCookies[0]]) {
         const { API_URL } = getEnv();
-  
-        this.setState({
-          currentStatus: { status: 'PAYMENT_PENDING'},
-          invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies[paymentCookies[0]]}`,
+
+        dispatch({
+          type: 'SET_CURRENT_STATUS',
+          payload: { status: 'PAYMENT_PENDING' },
+        });
+
+        dispatch({
+          type: 'SET_INVOICE_LINK',
+          payload: `${API_URL}/pl:payment/gateway?params=${cookies[paymentCookies[0]]}`,
         });
       }
     }
 
+    dispatch({
+      type: 'SET_CALLOUT_VISIBLE',
+      payload: false,
+    });
 
-    this.setState({
-      isCalloutVisible: false,
-      isFormVisible: true,
+    dispatch({
+      type: 'SET_FORM_VISIBLE',
+      payload: true,
     });
   };
 
-  /*
-   * Toggle circle button. Hide callout and show or hide form
-   */
-  toggleShoutbox = (isVisible?: boolean) => {
+  const toggleShoutbox = (isVisible?: boolean) => {
     if (!isVisible) {
-      // Increasing view count
-      increaseViewCount(this.getForm()._id);
+      increaseViewCount(getForm()._id);
     }
 
-    this.setState({
-      isCalloutVisible: false,
-      isFormVisible: !isVisible,
+    dispatch({
+      type: 'SET_CALLOUT_VISIBLE',
+      payload: false,
+    });
+
+    dispatch({
+      type: 'SET_FORM_VISIBLE',
+      payload: !isVisible,
     });
   };
 
-  /*
-   * When load type is popup, Show popup and show one of callout and form
-   */
-  showPopup = () => {
+  const showPopup = () => {
     const { data } = connection;
     const { integration } = data;
     const { callout } = integration.leadData;
 
-    this.setState({ isPopupVisible: true });
+    dispatch({
+      type: 'SET_POPUP_VISIBLE',
+      payload: true,
+    });
 
     // if there is no callout setting then show form
     if (!callout) {
-      return this.setState({ isFormVisible: true });
+      return dispatch({
+        type: 'SET_FORM_VISIBLE',
+        payload: true,
+      });
     }
 
     if (callout.skip) {
-      return this.setState({ isFormVisible: true });
+      return dispatch({
+        type: 'SET_FORM_VISIBLE',
+        payload: true,
+      });
     }
 
-    return this.setState({ isCalloutVisible: true });
+    dispatch({
+      type: 'SET_CALLOUT_VISIBLE',
+      payload: true,
+    });
   };
 
-  /*
-   * When load type is popup, Hide popup
-   */
-  closePopup = () => {
-    this.setState({
-      isPopupVisible: false,
-      isCalloutVisible: false,
-      isFormVisible: false,
-      currentStatus: { status: 'INITIAL' },
+  const closePopup = () => {
+    dispatch({
+      type: 'SET_POPUP_VISIBLE',
+      payload: false,
     });
 
-    // Increasing view count
-    increaseViewCount(this.getForm()._id);
+    dispatch({
+      type: 'SET_CALLOUT_VISIBLE',
+      payload: false,
+    });
+
+    dispatch({
+      type: 'SET_FORM_VISIBLE',
+      payload: false,
+    });
+
+    dispatch({
+      type: 'SET_CURRENT_STATUS',
+      payload: { status: 'INITIAL' },
+    });
+
+    increaseViewCount(getForm()._id);
   };
 
-  /*
-   * Save user submissions
-   */
-  save = (
+  const save = (
     doc: IFormDoc,
     _formCode?: string,
     requiredPaymentAmount?: number
   ) => {
-    this.setState({ isSubmitting: true });
+    dispatch({
+      type: 'SET_SUBMITTING',
+      payload: true,
+    });
 
     saveLead({
       doc,
       browserInfo: connection.browserInfo,
-      integrationId: this.getIntegration()._id,
-      formId: this.getForm()._id,
+      integrationId: getIntegration()._id,
+      formId: getForm()._id,
       userId: connection.setting.user_id,
       saveCallback: async (response: ISaveFormResponse) => {
         const { errors } = response;
@@ -234,48 +295,69 @@ export class AppProvider extends React.Component<{}, IState> {
             );
 
             if (invoiceLink) {
-              this.setState({ invoiceLink });
+              dispatch({
+                type: 'SET_INVOICE_LINK',
+                payload: invoiceLink,
+              });
             }
           } catch (e) {
             status = 'ERROR';
-            this.setState({ currentStatus: { status } });
+            dispatch({
+              type: 'SET_CURRENT_STATUS',
+              payload: { status },
+            });
           }
         }
 
         postMessage({
           message: 'submitResponse',
           status,
-          response
+          response,
         });
 
-        this.setState({
-          callSubmit: false,
-          isSubmitting: false,
-          currentStatus: {
+        dispatch({
+          type: 'SET_CALLOUT_VISIBLE',
+          payload: false,
+        });
+
+        dispatch({
+          type: 'SET_SUBMITTING',
+          payload: false,
+        });
+
+        dispatch({
+          type: 'SET_CURRENT_STATUS',
+          payload: {
             status,
-            errors
+            errors,
           },
         });
       },
     });
   };
 
-  setExtraContent = (content: string) => {
-    this.setState({ extraContent: content });
+  const setExtraContent = (content: string) => {
+    dispatch({
+      type: 'SET_EXTRA_CONTENT',
+      payload: content,
+    });
   };
 
-  setCallSubmit = (state: boolean) => {
-    this.setState({ callSubmit: state });
+  const setCallSubmit = (state: boolean) => {
+    dispatch({
+      type: 'SET_CALL_SUBMIT',
+      payload: state,
+    });
   };
 
-  /*
-   * Redisplay form component after submission
-   */
-  createNew = () => {
-    this.setState({ currentStatus: { status: 'INITIAL' } });
+  const createNew = () => {
+    dispatch({
+      type: 'SET_CURRENT_STATUS',
+      payload: { status: 'INITIAL' },
+    });
   };
 
-  setHeight = () => {
+  const setHeight = () => {
     const container = document.getElementById('erxes-container');
 
     if (!container) {
@@ -290,46 +372,55 @@ export class AppProvider extends React.Component<{}, IState> {
     });
   };
 
-  getIntegration = () => {
+  const getIntegration = () => {
     return connection.data.integration;
   };
 
-  getForm = () => {
+  const getForm = () => {
     return connection.data.form;
   };
 
-  getIntegrationConfigs = () => {
-    return this.getIntegration().leadData;
+  const getIntegrationConfigs = () => {
+    return getIntegration().leadData;
   };
 
-  onChangeCurrentStatus = (status: string) => {
-    this.setState({ currentStatus: { status } });
+  const onChangeCurrentStatus = (status: string) => {
+    dispatch({
+      type: 'SET_CURRENT_STATUS',
+      payload: { status },
+    });
   };
 
-  render() {
-    return (
-      <AppContext.Provider
-        value={{
-          ...this.state,
-          init: this.init,
-          showForm: this.showForm,
-          toggleShoutbox: this.toggleShoutbox,
-          showPopup: this.showPopup,
-          closePopup: this.closePopup,
-          save: this.save,
-          createNew: this.createNew,
-          sendEmail,
-          setHeight: this.setHeight,
-          setCallSubmit: this.setCallSubmit,
-          setExtraContent: this.setExtraContent,
-          getIntegration: this.getIntegration,
-          getForm: this.getForm,
-          getIntegrationConfigs: this.getIntegrationConfigs,
-          onChangeCurrentStatus: this.onChangeCurrentStatus,
-        }}
-      >
-        {this.props.children}
-      </AppContext.Provider>
-    );
+  return (
+    <AppContext.Provider
+      value={{
+        ...state,
+        init,
+        showForm,
+        toggleShoutbox,
+        showPopup,
+        closePopup,
+        save,
+        createNew,
+        sendEmail,
+        setHeight,
+        setCallSubmit,
+        setExtraContent,
+        getIntegration,
+        getForm,
+        getIntegrationConfigs,
+        onChangeCurrentStatus,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useAppContext = () => {
+  const context = React.useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
   }
-}
+  return context;
+};

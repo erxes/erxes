@@ -1,7 +1,7 @@
-import * as React from "react";
-import { IUser } from "../../types";
-import WidgetHome from "../components/Home";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import { IUser } from '../../types';
+import WidgetHome from '../components/Home';
+import { useAppContext } from './AppContext';
 
 type Props = {
   supporters: IUser[];
@@ -10,18 +10,16 @@ type Props = {
   activeSupport?: boolean;
 };
 
-const home = (props: Props) => (
-  <AppConsumer>
-    {({ getColor, getMessengerData }) => {
-      return (
-        <WidgetHome
-          {...props}
-          messengerData={getMessengerData()}
-          color={getColor()}
-        />
-      );
-    }}
-  </AppConsumer>
-);
+const Home = (props: Props) => {
+  const { getColor, getMessengerData } = useAppContext();
 
-export default home;
+  return (
+    <WidgetHome
+      {...props}
+      messengerData={getMessengerData()}
+      color={getColor()}
+    />
+  );
+};
+
+export default Home;

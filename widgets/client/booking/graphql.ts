@@ -1,3 +1,5 @@
+import gql from "graphql-tag";
+
 const productCategoryFields = `
   _id
   name
@@ -53,13 +55,13 @@ const productFields = `
   customFieldsData
 `;
 
-const productCategory = `
+const GET_PRODUCT_CATEGORY = gql(/* GraphQL */`
   query widgetsProductCategory($_id: String!) {
     widgetsProductCategory(_id: $_id) {
       ${productCategoryFields}
     }
   }
-`;
+`);
 
 const formDetailQuery = `
   query formDetail($_id: String!) {
@@ -158,7 +160,7 @@ export const saveBookingMutation = `
   }
 `;
 
-const bookingProductWithFields = `
+const GET_BOOKING_PRODUCT_WITH_FIELDS = gql(/* GraphQL */`
   query widgetsBookingProductWithFields($_id: String!) {
     widgetsBookingProductWithFields(_id: $_id) {
       fields {
@@ -176,11 +178,11 @@ const bookingProductWithFields = `
       }
     }
   }
-`;
+`);
 
 export {
-  productCategory,
+  GET_PRODUCT_CATEGORY,
   formDetailQuery,
   widgetsConnectMutation,
-  bookingProductWithFields
+  GET_BOOKING_PRODUCT_WITH_FIELDS
 };

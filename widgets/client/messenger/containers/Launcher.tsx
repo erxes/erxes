@@ -1,12 +1,13 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import { IBrowserInfo, IIntegrationUiOptions } from "../../types";
-import DumpLauncher from "../components/Launcher";
-import { connection } from "../connection";
-import graphqlTypes from "../graphql";
-import { IMessage } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { ChildProps } from 'react-apollo';
+import { IBrowserInfo, IIntegrationUiOptions } from '../../types';
+import DumpLauncher from '../components/Launcher';
+import { connection } from '../connection';
+import graphqlTypes from '../graphql';
+import { IMessage } from '../types';
+import { useAppContext } from './AppContext';
+import { useQuery } from '@apollo/react-hooks';
 
 type BaseProps = {
   isMessengerVisible: boolean;
@@ -25,73 +26,55 @@ type QueryResponse = {
 
 type Props = ChildProps<BaseProps, QueryResponse>;
 
-class Launcher extends React.Component<Props, {}> {
-  componentDidMount() {
-    const { data, setUnreadCount } = this.props;
+const Launcher = () => {
+  const {
+    isMessengerVisible,
+    isBrowserInfoSaved,
+    lastUnreadMessage,
+    toggle,
+    unreadCount,
+    setUnreadCount,
+    getUiOptions,
+    browserInfo,
+  } = useAppContext();
 
+  const { data, subscribeToMore, loading } = useQuery(
+    gql(graphqlTypes.totalUnreadCountQuery),
+    {
+      variables: connection.data,
+    }
+  );
+
+  React.useEffect(() => {
     if (data) {
-      data.subscribeToMore({
+      subscribeToMore({
         document: gql(graphqlTypes.adminMessageInserted),
         variables: { customerId: connection.data.customerId },
         updateQuery: (prev, { subscriptionData }) => {
           setUnreadCount(
             subscriptionData.data.conversationAdminMessageInserted.unreadCount
           );
-        }
+        },
       });
     }
-  }
+  }, [data, subscribeToMore]);
 
-  componentDidUpdate({ data }: Props) {
-    const cData = this.props.data;
-
-    if (data && data.loading && cData && !cData.loading) {
-      this.props.setUnreadCount(cData.widgetsTotalUnreadCount || 0);
+  React.useEffect(() => {
+    if (data && loading === false) {
+      setUnreadCount(data.widgetsTotalUnreadCount || 0);
     }
-  }
+  }, [data, setUnreadCount]);
 
-  render() {
-    const { unreadCount } = this.props;
+  return (
+    <DumpLauncher
+      onClick={toggle}
+      isMessengerVisible={isMessengerVisible}
+      isBrowserInfoSaved={isBrowserInfoSaved}
+      uiOptions={getUiOptions()}
+      browserInfo={browserInfo}
+      totalUnreadCount={unreadCount}
+    />
+  );
+};
 
-    return <DumpLauncher {...this.props} totalUnreadCount={unreadCount} />;
-  }
-}
-
-const WithQuery = graphql<Props, QueryResponse>(
-  gql(graphqlTypes.totalUnreadCountQuery),
-  {
-    options: () => ({
-      variables: connection.data
-    })
-  }
-)(Launcher);
-
-const container = () => (
-  <AppConsumer>
-    {({
-      isMessengerVisible,
-      isBrowserInfoSaved,
-      lastUnreadMessage,
-      toggle,
-      unreadCount,
-      setUnreadCount,
-      getUiOptions,
-      browserInfo
-    }) => {
-      return (
-        <WithQuery
-          isMessengerVisible={isMessengerVisible}
-          isBrowserInfoSaved={isBrowserInfoSaved}
-          unreadCount={unreadCount}
-          setUnreadCount={setUnreadCount}
-          onClick={toggle}
-          uiOptions={getUiOptions()}
-          lastUnreadMessage={lastUnreadMessage}
-          browserInfo={browserInfo}
-        />
-      );
-    }}
-  </AppConsumer>
-);
-
-export default container;
+export default Launcher;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { AppConsumer } from '../../messenger/containers/AppContext';
+// import { AppConsumer } from '../../messenger/containers/AppContext';
 import { IEmailParams, IIntegration } from '../../types';
 import {
   __,
@@ -409,11 +409,21 @@ class Form extends React.Component<Props, State> {
 
       this.showField(field._id);
 
-      const selectFieldTypes = ['select', 'multiSelect', 'pronoun','businessType','location','industry'];
+      const selectFieldTypes = [
+        'select',
+        'multiSelect',
+        'pronoun',
+        'businessType',
+        'location',
+        'industry',
+      ];
 
-      if(selectFieldTypes.find(t => t === field.type ) ) {
-        
-        if(field.options && field.options.length > 0 && !this.state.doc[field._id].value) {
+      if (selectFieldTypes.find((t) => t === field.type)) {
+        if (
+          field.options &&
+          field.options.length > 0 &&
+          !this.state.doc[field._id].value
+        ) {
           this.state.doc[field._id].value = field.options[0];
         }
       }
@@ -652,19 +662,20 @@ class Form extends React.Component<Props, State> {
   }
 }
 
-export default (props: Props) => (
-  <AppConsumer>
-    {({ getColor }) => {
-      return (
-        <Form
-          {...props}
-          // if lead is in a messenger, return messenger theme color (getColor())
-          // else return lead theme color
-          color={
-            getColor ? getColor() : props.integration.leadData.themeColor || ''
-          }
-        />
-      );
-    }}
-  </AppConsumer>
-);
+// export default (props: Props) => (
+//   <AppConsumer>
+//     {({ getColor }) => {
+//       return (
+//         <Form
+//           {...props}
+//           // if lead is in a messenger, return messenger theme color (getColor())
+//           // else return lead theme color
+//           color={
+//             getColor ? getColor() : props.integration.leadData.themeColor || ''
+//           }
+//         />
+//       );
+//     }}
+//   </AppConsumer>
+// );
+export default Form;

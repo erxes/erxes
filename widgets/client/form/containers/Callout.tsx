@@ -1,24 +1,22 @@
-import * as React from "react";
-import Callout from "../components/Callout";
-import { AppConsumer } from "./AppContext";
+import * as React from 'react';
+import Callout from '../components/Callout';
+import { useAppContext } from './AppContext';
 
-const container = () => (
-  <AppConsumer>
-    {({ showForm, setHeight, getIntegrationConfigs }) => {
-      const leadData = getIntegrationConfigs();
-      const { callout, themeColor } = leadData;
+const Container = () => {
+  const { showForm, setHeight, getIntegrationConfigs } = useAppContext();
 
-      return (
-        <Callout
-          onSubmit={showForm}
-          setHeight={setHeight}
-          configs={callout || {}}
-          color={themeColor || ""}
-          hasTopBar={true}
-        />
-      );
-    }}
-  </AppConsumer>
-);
+  const leadData = getIntegrationConfigs();
+  const { callout, themeColor } = leadData;
 
-export default container;
+  return (
+    <Callout
+      onSubmit={showForm}
+      setHeight={setHeight}
+      configs={callout || {}}
+      color={themeColor || ''}
+      hasTopBar={true}
+    />
+  );
+};
+
+export default Container;
