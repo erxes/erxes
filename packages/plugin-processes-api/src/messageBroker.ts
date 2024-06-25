@@ -24,7 +24,7 @@ export const setupMessageConsumers = async () => {
         throw new Error('not valid data');
       }
 
-      if (!dayPlans || !dayPlans.length) {
+      if (!dayPlans?.length) {
         throw new Error('not valid data');
       }
 

@@ -109,7 +109,7 @@ export default {
   async needProducts(overallWork: IOverallWork, _, { }) {
     const { needProducts } = overallWork;
 
-    if (!needProducts || !needProducts.length) {
+    if (!needProducts?.length) {
       return;
     }
 
@@ -119,7 +119,7 @@ export default {
   async resultProducts(overallWork: IOverallWork, _, { }) {
     const { resultProducts } = overallWork;
 
-    if (!resultProducts || !resultProducts.length) {
+    if (!resultProducts?.length) {
       return;
     }
 

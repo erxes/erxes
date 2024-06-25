@@ -98,7 +98,7 @@ const generateFilter = async (
     hasFilterProductIds = true;
   }
 
-  if (vendorIds && vendorIds.length) {
+  if (vendorIds?.length) {
     const limit = await sendProductsMessage({
       subdomain,
       action: 'count',
@@ -122,9 +122,7 @@ const generateFilter = async (
   }
 
   if (
-    productIds &&
-    productIds.length &&
-    productIds.filter(p => p !== '').length
+    productIds?.length && productIds.filter(p => p !== '').length
   ) {
     filterProductIds = filterProductIds.concat(productIds);
     hasFilterProductIds = true;
@@ -232,7 +230,7 @@ const performQueries = {
     const series = performs.map(p => p.series);
 
     let notPerformSeries: string[] = [];
-    if (ids && ids.length && !excludeIds) {
+    if (ids?.length && !excludeIds) {
       notPerformSeries = ids.filter(id => !series.includes(id));
     }
 

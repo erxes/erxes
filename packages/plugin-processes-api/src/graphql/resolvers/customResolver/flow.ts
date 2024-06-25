@@ -46,7 +46,7 @@ export default {
   async latestNeedProducts(flow: IFlowDocument, _, { subdomain }: IContext) {
     const latestNeedProducts = flow.latestNeedProducts || [];
 
-    if (!latestNeedProducts || !latestNeedProducts.length) {
+    if (!latestNeedProducts?.length) {
       return latestNeedProducts;
     }
 
@@ -57,7 +57,7 @@ export default {
 
     for (const need of latestNeedProducts || []) {
       need.product = productById[need.productId] || {};
-      need.uom = (productById[need.productId] || {}).uom;
+      need.uom = productById[need.productId]?.uom;
     }
 
     return latestNeedProducts;
@@ -66,7 +66,7 @@ export default {
   async latestResultProducts(flow: IFlowDocument, _, { subdomain }: IContext) {
     const latestResultProducts = flow.latestResultProducts || [];
 
-    if (!latestResultProducts || !latestResultProducts.length) {
+    if (!latestResultProducts?.length) {
       return latestResultProducts;
     }
 
@@ -77,7 +77,7 @@ export default {
 
     for (const result of latestResultProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = (productById[result.productId] || {}).uom;
+      result.uom = productById[result.productId]?.uom;
     }
 
     return latestResultProducts;
