@@ -9,11 +9,11 @@ import {
   router,
   __,
   ActionButtons,
-} from '@erxes/ui/src';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import AssetForm from '../containers/AssetForm';
-import AssignArticles from '../containers/actions/Assign';
-import { useLocation, useNavigate } from 'react-router-dom';
+} from "@erxes/ui/src";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import AssetForm from "../containers/AssetForm";
+import AssignArticles from "../containers/actions/Assign";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   asset: IAsset;
@@ -27,13 +27,7 @@ type Props = {
 };
 
 const Row = (props: Props) => {
-  const {
-    asset,
-    queryParams,
-    isChecked,
-    toggleBulk,
-    assignKbArticles,
-  } = props;
+  const { asset, queryParams, isChecked, toggleBulk, assignKbArticles } = props;
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -84,10 +78,14 @@ const Row = (props: Props) => {
   };
 
   const handleParent = () => {
+    let params: { assetId: string; categoryId?: string } = {
+      assetId: asset._id,
+    };
+
     if (queryParams.categoryId) {
-      router.removeParams(navigate, location, 'categoryId');
+      params.categoryId = undefined;
     }
-    router.setParams(navigate, location, { assetId: asset._id });
+    router.setParams(navigate, location, params);
   };
 
   const content = (formProps) => <AssetForm {...formProps} asset={asset} />;
