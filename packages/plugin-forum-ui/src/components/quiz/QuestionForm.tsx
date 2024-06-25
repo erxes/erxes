@@ -35,19 +35,24 @@ const QuizQuestionForm: React.FC<Props> = ({
   choice,
   questionId,
 }) => {
-  const defaultFile = question
-    ? {
-        url: question.imageUrl,
-        name: "Question image",
-        type: "image",
-      }
-    : choice
-      ? {
-          url: choice.imageUrl,
-          name: "Choice image",
-          type: "image",
-        }
-      : ({} as IAttachment);
+  let defaultFile;
+
+  if (question) {
+    defaultFile = {
+      url: question.imageUrl,
+      name: "Question image",
+      type: "image",
+    };
+  } else if (choice) {
+    defaultFile = {
+      url: choice.imageUrl,
+      name: "Choice image",
+      type: "image",
+    };
+  } else {
+    defaultFile = {} as IAttachment;
+  }
+  
   const [image, setImage] = React.useState(defaultFile);
   const [isMultipleChoice, setIsMultipleChoice] = React.useState(
     question?.isMultipleChoice || false
