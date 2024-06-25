@@ -40,12 +40,8 @@ type Props = {};
 
 const SelectMenu = (props) => {
   const navigate = useNavigate();
-  // const onChangeFunction = useCallback((key, val) => {
-  //     props.onChange(key, val);
-  //   }, []);
 
   const renderBox = useCallback((name, icon, desc, path) => {
-    // const { name, icon, desc, path } = args;
     return (
       <Box
         $selected={true}

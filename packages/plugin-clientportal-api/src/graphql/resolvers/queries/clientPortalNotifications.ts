@@ -71,9 +71,9 @@ const notificationQueries = {
       };
     }
 
-    if (eventDataFilter) {
-      const { field, values } = eventDataFilter || {};
-      query[`eventData.${field}`] = { $in: values || [] };
+    if (eventDataFilter.field && eventDataFilter.values) {
+       eventDataFilter || {};
+      query[`eventData.${eventDataFilter.field}`] = { $in: eventDataFilter.values || [] };
     }
 
     return paginate(
