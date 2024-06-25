@@ -146,7 +146,7 @@ const groupSubmissions = (submissions: any[]) => {
         submissionsGrouped.default.push(submission);
       } else {
         submissionsGrouped.default = [submission];
-      
+      }
   });
   return submissionsGrouped;
 };
