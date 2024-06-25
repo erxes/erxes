@@ -45,7 +45,7 @@ class Signature extends React.Component<Props, State> {
     if (current) {
       current.signature = content;
 
-      this.setState({ signatures: this.state.signatures });
+      this.setState(prevState => ({ signatures: prevState.signatures }));
     }
   };
 
