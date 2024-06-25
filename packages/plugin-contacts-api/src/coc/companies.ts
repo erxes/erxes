@@ -8,7 +8,7 @@ type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
 export const sortBuilder = (params: IListArgs): TSortBuilder => {
   const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
+  const sortDirection = params.sortDirection ?? 0;
 
   let sortParams: TSortBuilder = { primaryName: -1 };
 

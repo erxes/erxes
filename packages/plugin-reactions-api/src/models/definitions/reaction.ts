@@ -20,9 +20,9 @@ export interface ICommentDocument extends IComment, Document {
 }
 
 export interface IEmoji {
-  type: String;
-  contentType: String;
-  contentId: String;
+  type: string;
+  contentType: string;
+  contentId: string;
   userId: String;
   createdAt: Date;
   updatedBy: String;

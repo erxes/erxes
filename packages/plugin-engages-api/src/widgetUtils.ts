@@ -127,7 +127,7 @@ export const checkRules = async (
     // check individual rule
     if (!checkRule({ rule, browserInfo, numberOfVisits })) {
       passedAllRules = false;
-      return;
+ 
     }
   });
 

@@ -278,7 +278,7 @@ const CollateralItem = (props: Props) => {
         collateralData._id
       );
       onCalcInsurance(collateralData);
-      return;
+ 
     }
   };
 

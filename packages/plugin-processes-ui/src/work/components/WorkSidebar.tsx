@@ -15,8 +15,8 @@ import { router } from "@erxes/ui/src/utils";
 import { __ } from "coreui/utils";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import { MenuFooter, SidebarFilters } from "../../styles";
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, Wrapper } from "@erxes/ui/src/layout";
+
 import { IQueryParams } from "@erxes/ui/src/types";
 import SelectJobCategory from "../../job/containers/category/SelectJobCategory";
 import SelectJobRefer from "../../job/containers/refer/SelectJobRefer";
@@ -41,7 +41,6 @@ const Sidebar = (props: Props) => {
   const [filterParams, setFilterParams] = useState<IQueryParams>(
     props.queryParams
   );
-  let timer;
 
   const isFiltered = (): boolean => {
     const params = generateQueryParams();
@@ -78,19 +77,6 @@ const Sidebar = (props: Props) => {
     setFilterParams({ ...filterParams, [name]: value });
   };
 
-  const onInputChange = (e) => {
-    e.preventDefault();
-
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const value = e.target.value;
-    const name = e.target.name;
-    timer = setTimeout(() => {
-      setFilter(name, value);
-    }, 500);
-  };
 
   const onSelectDate = (value, name) => {
     const strVal = moment(value).format("YYYY-MM-DD HH:mm");

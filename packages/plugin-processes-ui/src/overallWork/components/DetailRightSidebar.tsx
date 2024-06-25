@@ -5,9 +5,9 @@ import { __ } from 'coreui/utils';
 import { CustomSideContent } from '../../styles';
 import { IOverallWorkDet } from '../types';
 import { IQueryParams } from '@erxes/ui/src/types';
-import { SidebarList as List } from '@erxes/ui/src/layout';
+import { SidebarList as List, Wrapper } from '@erxes/ui/src/layout';
 import { SidebarMainContent } from '@erxes/ui/src/layout/styles';
-import { Wrapper } from '@erxes/ui/src/layout';
+
 import { ScrolledContent } from '../../flow/styles';
 
 interface Props {

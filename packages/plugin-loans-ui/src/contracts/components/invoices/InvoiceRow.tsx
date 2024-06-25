@@ -13,9 +13,7 @@ type Props = {
 function ScheduleRow({ schedule }: Props) {
   const renderCell = name => {
     return (
-      <>
         <WillAmount>{(schedule[name] || 0).toLocaleString()}</WillAmount>
-      </>
     );
   };
 

@@ -44,8 +44,7 @@ type Props = {
   kind: string;
   segmentType?: string;
   isActionLoading: boolean;
-  handleSubmit?: (name: string, e: React.MouseEvent) => void;
-  save: (doc: IEngageMessageDoc) => Promise<any>;
+ save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
     doc: IEngageMessageDoc
@@ -327,7 +326,6 @@ class AutoAndManualForm extends React.Component<Props, State> {
         <Step noButton={true} title='Compose your notification' img={imagePath}>
           <NotificationForm
             onChange={this.changeState}
-            messageKind={kind}
             notification={notification}
           />
         </Step>
@@ -339,7 +337,7 @@ class AutoAndManualForm extends React.Component<Props, State> {
         img={imagePath}
         title='Compose your broadcast'
         message={message}
-        noButton={method !== METHODS.EMAIL && true}
+        noButton={method !== METHODS.EMAIL}
       >
         <MessageStep
           brands={brands}

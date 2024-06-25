@@ -54,7 +54,7 @@ export const doLogicAfterAction = async (
 ) => {
   const { logics, itemId, sourceType } = JSON.parse(params || '{}');
 
-  if (!!logics?.length) {
+  if (logics?.length) {
     const models = await generateModels(subdomain);
     const grant = await models.Requests.findOne({ _id: requestId });
 

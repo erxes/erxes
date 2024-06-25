@@ -67,7 +67,7 @@ type Props = {
     name: 'shortMessage' | 'notification',
     value?: IEngageNotification | IEngageNotification
   ) => void;
-  messageKind: string;
+
   notification?: IEngageNotification;
 };
 

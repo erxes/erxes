@@ -123,7 +123,7 @@ const InventoryCategory = ({
     };
 
     const syncButton = (
-      <>
+      
         <Button
           btnStyle="primary"
           size="small"
@@ -132,7 +132,7 @@ const InventoryCategory = ({
         >
           Sync
         </Button>
-      </>
+      
     );
 
     const subHeader = <Wrapper.ActionBar right={syncButton} />;

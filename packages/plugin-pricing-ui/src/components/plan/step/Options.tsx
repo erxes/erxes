@@ -67,7 +67,7 @@ export default function Options(props: Props) {
         </Block>
       );
 
-    return;
+
   };
 
   return (

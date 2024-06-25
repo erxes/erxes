@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 
 import {
-  removeEngageConversations,
+
   sendContactsMessage,
   sendInboxMessage,
 } from '../messageBroker';
@@ -214,9 +214,8 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
       const { brandId, integrationId, customer, visitorId, browserInfo } =
         params;
 
-      const customerObj = customer
-        ? customer
-        : { _id: '', state: CONTENT_TYPES.VISITOR };
+      const customerObj = customer || { _id: '', state: CONTENT_TYPES.VISITOR };
+
 
       const messages: IEngageMessageDocument[] =
         await models.EngageMessages.find({
@@ -260,7 +259,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           continue;
         }
 
-        const user = await findUser(subdomain, fromUserId || '');
+        const user = await findUser(subdomain, fromUserId ?? '');
 
         if (!user) {
           continue;

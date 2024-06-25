@@ -7,9 +7,9 @@ import {
 } from "@erxes/ui/src";
 import React from "react";
 import { queries } from "../section/graphql";
-import { gql } from "@apollo/client";
+import { gql, useQuery  } from "@apollo/client";
 import Select from "react-select";
-import { useQuery } from "@apollo/client";
+
 
 type Props = {
   label: string;
@@ -126,11 +126,11 @@ export const DefaultWrapper = ({
 export const generateTeamMemberParams = (object) => {
   const filter: any = {};
 
-  if (!!object?.branchIds?.length) {
+  if (object?.branchIds?.length) {
     filter.branchIds = object?.branchIds;
   }
 
-  if (!!object?.departmentIds?.length) {
+  if (object?.departmentIds?.length) {
     filter.departmentIds = object?.departmentIds;
   }
 

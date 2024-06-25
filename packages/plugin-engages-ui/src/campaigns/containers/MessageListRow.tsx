@@ -29,7 +29,6 @@ type Props = {
 
 type FinalProps = Props &
   RemoveMutationResponse &
-  SetPauseMutationResponse &
   SetLiveMutationResponse &
   SetLiveManualMutationResponse &
   CopyMutationResponse;
@@ -39,7 +38,6 @@ const MessageRowContainer = (props: FinalProps) => {
     copyMutation,
     message,
     removeMutation,
-    setPauseMutation,
     setLiveMutation,
     setLiveManualMutation,
     isChecked,
@@ -83,8 +81,6 @@ const MessageRowContainer = (props: FinalProps) => {
     doMutation(setLiveManualMutation, "Yay! Your broadcast is now live.");
   const setLive = () =>
     doMutation(setLiveMutation, "Yay! Your broadcast is now live.");
-  const setPause = () =>
-    doMutation(setPauseMutation, "Your broadcast is paused for now.");
   const copy = () => {
     doMutation(copyMutation, "broadcast has been duplicated.").then(() => {
       refetch();
@@ -98,7 +94,6 @@ const MessageRowContainer = (props: FinalProps) => {
     remove,
     setLive,
     setLiveManual,
-    setPause,
     isChecked,
     toggleBulk,
     copy,
@@ -136,13 +131,6 @@ export default withProps<Props>(
       {
         name: "removeMutation",
         options: crudMutationsOptions,
-      }
-    ),
-    graphql<Props, SetPauseMutationResponse, MutationVariables>(
-      gql(mutations.setPause),
-      {
-        name: "setPauseMutation",
-        options: statusMutationsOptions,
       }
     ),
     graphql<Props, SetLiveMutationResponse, MutationVariables>(

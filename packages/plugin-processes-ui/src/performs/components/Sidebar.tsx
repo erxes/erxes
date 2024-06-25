@@ -15,8 +15,8 @@ import { router } from "@erxes/ui/src/utils";
 import { __ } from "coreui/utils";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import { MenuFooter, SidebarFilters } from "../../styles";
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, Wrapper } from "@erxes/ui/src/layout";
+
 import { IQueryParams } from "@erxes/ui/src/types";
 import SelectJobRefer from "../../job/containers/refer/SelectJobRefer";
 import { JOB_TYPE_CHOISES, PERFORM_STATUSES } from "../../constants";
@@ -68,13 +68,6 @@ const PerformSidebar = (props: Props) => {
     return false;
   };
 
-  const gotoBack = () => {
-    navigate(
-      `/processes/overallWorks?${queryString.stringify({
-        ...props.queryParams,
-      })}`
-    );
-  };
   const clearFilter = () => {
     const params = generateQueryParams();
     router.removeParams(navigate, location, ...Object.keys(params));
@@ -292,7 +285,7 @@ const PerformSidebar = (props: Props) => {
                 componentclass="select"
                 value={filterParams.status}
                 required={false}
-                onChange={(e) => setFilter("status", (e.target as any).value)}
+                onChange={(e: any) => setFilter("status", (e.target.value))}
               >
                 {Object.keys(PERFORM_STATUSES).map((key) => (
                   <option value={key} key={Math.random()}>

@@ -29,7 +29,7 @@ const List: React.FC<Props> = (props) => {
       .filter((value): value is string => typeof value === "string");
 
     const handleSelectAll = () => {
-      if (!!selectedRequests.length) {
+      if (selectedRequests.length) {
         return setSelectedRequests([]);
       }
 

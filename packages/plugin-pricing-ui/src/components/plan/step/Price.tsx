@@ -202,7 +202,7 @@ export default function Price(props: Props) {
         </>
       );
 
-    return;
+ 
   };
 
   return (

@@ -62,7 +62,7 @@ const SmsDeliveries = (props: Props) => {
     }
 
     for (const log of smsDeliveries) {
-      rows.push(<Row key={log._id} log={log} type={type} />);
+      rows.push(<Row key={log._id} log={log} />);
     }
 
     return rows;

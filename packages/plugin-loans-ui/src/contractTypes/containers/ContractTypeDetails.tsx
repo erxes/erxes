@@ -3,7 +3,7 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Spinner from "@erxes/ui/src/components/Spinner";
 
 import { IUser } from "@erxes/ui/src/auth/types";
-import { gql } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import React from "react";
 import ContractTypeDetails from "../components/ContractTypeDetails";
 import { mutations, queries } from "../graphql";
@@ -13,7 +13,7 @@ import {
   IContractType,
   RemoveMutationResponse,
 } from "../types";
-import { useMutation, useQuery } from "@apollo/client";
+
 import { useNavigate } from "react-router-dom";
 
 type Props = {

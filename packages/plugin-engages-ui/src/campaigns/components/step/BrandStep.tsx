@@ -1,6 +1,5 @@
 import Icon from '@erxes/ui/src/components/Icon';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Counts } from '@erxes/ui/src/types';
+import { IButtonMutateProps, Counts} from '@erxes/ui/src/types';
 import React from 'react';
 import Common from './Common';
 import BrandForm from './forms/BrandForm';

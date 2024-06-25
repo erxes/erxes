@@ -3,20 +3,14 @@ import { debugError } from './debuggers';
 import {
   getFileUploadConfigs,
   sendAutomationsMessage,
-  sendInboxMessage,
-} from './messageBroker';
-import {
-  getFacebookUser,
-  getFacebookUserProfilePic,
-  getPostLink,
-  uploadMedia,
-} from './utils';
+  sendInboxMessage,} from './messageBroker';
+import {getFacebookUser,getFacebookUserProfilePic,getPostLink,uploadMedia, getPostDetails} from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { getPostDetails } from './utils';
+
 interface IDoc {
   postId?: string;
   commentId?: string;

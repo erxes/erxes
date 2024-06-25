@@ -267,8 +267,8 @@ const engageQueries = {
     { models, subdomain }: IContext
   ) {
     const { page, perPage, customerId, status, searchValue } = params;
-    const _page = Number(page || '1');
-    const _limit = Number(perPage || '20');
+    const _page = Number(page ?? '1');
+    const _limit = Number(perPage ?? '20');
     const filter: any = {};
 
     if (customerId) {
@@ -397,8 +397,8 @@ const engageQueries = {
       filter.to = { $regex: to, $options: '$i' };
     }
 
-    const _page = Number(page || '1');
-    const _limit = Number(perPage || '20');
+    const _page = Number(page ?? '1');
+    const _limit = Number(perPage ?? '20');
 
     const data = await models.SmsRequests.find(filter)
       .sort({ createdAt: -1 })

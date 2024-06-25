@@ -374,9 +374,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
         subdomain: this.subdomain,
         action: "conformities.relatedConformity",
         data: {
-          mainType: conformityMainType || "",
-          mainTypeId: conformityMainTypeId || "",
-          relType
+          mainType: conformityMainType ?? '',
+          mainTypeId: conformityMainTypeId ?? '',
+          relType,
         },
         isRPC: true,
         defaultValue: []
@@ -394,9 +394,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
         subdomain: this.subdomain,
         action: "conformities.savedConformity",
         data: {
-          mainType: conformityMainType || "",
-          mainTypeId: conformityMainTypeId || "",
-          relTypes: [relType]
+          mainType: conformityMainType ?? '',
+          mainTypeId: conformityMainTypeId ?? '',
+          relTypes: [relType],
         },
         isRPC: true,
         defaultValue: []

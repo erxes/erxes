@@ -438,11 +438,11 @@ class Form extends React.Component<Props, State> {
   onChangePerView = (values: any) => {
     this.setStateWrapper({
       ...values,
-    } as any);
+    });
   };
 
   focusNext = (index: number, length: number, val?: number) => {
-    let next = index + (val || 1);
+    let next = index + (val ?? 1);
     if (next >= length) {
       next = 0;
     }
@@ -576,17 +576,17 @@ class Form extends React.Component<Props, State> {
 
     if (type === "income") {
       return (
-        <>
+      
           <FormColumn>{this.renderPerformIncome()}</FormColumn>
-        </>
+  
       );
     }
 
     if (type === "outlet" || type === "move") {
       return (
-        <>
+      
           <FormColumn>{this.renderPerformIn()}</FormColumn>
-        </>
+      
       );
     }
 
@@ -889,7 +889,8 @@ class Form extends React.Component<Props, State> {
         </>
       );
     }
-    return;
+
+    return <></>
   }
 
   renderDocuments() {

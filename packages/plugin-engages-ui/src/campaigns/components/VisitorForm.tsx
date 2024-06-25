@@ -28,7 +28,7 @@ type Props = {
   message?: IEngageMessage;
   brands: IBrand[];
   users: IUser[];
-  handleSubmit?: (name: string, e: React.MouseEvent) => void;
+
   save: (doc: IEngageMessageDoc) => Promise<any>;
   validateDoc: (
     type: string,
@@ -140,7 +140,6 @@ class VisitorForm extends React.Component<Props, State> {
           </>
         );
       }
-      return;
     };
 
     return (

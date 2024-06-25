@@ -28,7 +28,7 @@ export interface IConformityQueryParams {
 
 export const sortBuilder = (params: IListArgs): ISortParams => {
   const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
+  const sortDirection = params.sortDirection ?? 0;
 
   let sortParams: ISortParams = { createdAt: -1 };
 
@@ -240,7 +240,7 @@ export class Builder extends CommonBuilder<IListArgs> {
     const selector = {
       ...this.context.commonQuerySelector,
       status: { $ne: 'deleted' },
-      state: this.params.type || 'customer',
+      state: this.params.type ?? 'customer',
       $or: [
         {
           integrationId: { $in: [null, undefined, ''] },
