@@ -47,7 +47,7 @@ module.exports = {
       to: "/settings/boards/deal",
       image: "/images/icons/erxes-25.png",
       location: "settings",
-      scope: "deals",
+      scope: "sales",
       action: "dealsAll",
       permissions: [
         "dealBoardsAdd",
@@ -70,7 +70,7 @@ module.exports = {
       to: "/settings/boards/purchase",
       image: "/images/icons/erxes-25.png",
       location: "settings",
-      scope: "deals",
+      scope: "sales",
       action: "purchasesAll",
       permissions: [
         "purchaseBoardsAdd",

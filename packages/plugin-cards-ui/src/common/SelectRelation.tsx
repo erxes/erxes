@@ -1,6 +1,6 @@
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import SelectCard from './SelectCards';
+import { IField } from "@erxes/ui/src/types";
+import React from "react";
+import SelectCard from "./SelectCards";
 
 type Props = {
   contentType: string;
@@ -10,14 +10,14 @@ type Props = {
 
 const SelectContacts = (props: Props) => {
   const { field, onChange } = props;
-  const { relationType = '' } = field;
-  const type = relationType.split(':')[1] as
-    | 'deal'
-    | 'task'
-    | 'ticket'
-    | 'purchase';
+  const { relationType = "" } = field;
+  const type = relationType.split(":")[1] as
+    | "deal"
+    | "task"
+    | "ticket"
+    | "purchase";
 
-  if (!['deal', 'ticket', 'task', 'purchase'].includes(type)) {
+  if (!["deal", "ticket", "task", "purchase"].includes(type)) {
     return null;
   }
 

@@ -1,9 +1,5 @@
 import { ChartBack, RootBack, ScrolledContent } from "../styles/common";
-import {
-  EMPTY_CONTENT_DEAL,
-  EMPTY_CONTENT_PURCHASE,
-  EMPTY_CONTENT_TASK,
-} from "../constants";
+import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_PURCHASE } from "../constants";
 import { IOptions, PipelineDetailQueryResponse } from "../types";
 import { gql, useQuery } from "@apollo/client";
 
@@ -38,7 +34,7 @@ function Board(props: Props & WrapperProps) {
     gql(queries.pipelineDetail),
     {
       variables: { _id: queryParams && queryParams.pipelineId },
-      skip: !queryParams.pipelineId,
+      skip: !queryParams.pipelineId
     }
   );
 
@@ -49,15 +45,11 @@ function Board(props: Props & WrapperProps) {
   if (!data || !data.pipelineDetail) {
     const type = options.type;
 
-    if (type === "deal" || type === "task" || type === "purchase") {
+    if (type === "deal" || type === "purchase") {
       return (
         <EmptyContent
           content={
-            type === "deal"
-              ? EMPTY_CONTENT_DEAL
-              : type === "task"
-                ? EMPTY_CONTENT_TASK
-                : EMPTY_CONTENT_PURCHASE
+            type === "deal" ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_PURCHASE
           }
           maxItemWidth="400px"
         />

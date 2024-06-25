@@ -21,19 +21,19 @@ type Props = {
 };
 
 class Form extends React.Component<any, any, any> {
-  generatePipelineOptions = (boards) => {
+  generatePipelineOptions = boards => {
     const config = this.props.config || {};
     const { boardId } = config;
 
-    const board = (boards || []).find((b) => b._id === boardId);
+    const board = (boards || []).find(b => b._id === boardId);
 
     if (!board) {
       return [];
     }
 
-    return (board.pipelines || []).map((p) => ({
+    return (board.pipelines || []).map(p => ({
       value: p._id,
-      label: p.name,
+      label: p.name
     }));
   };
 
@@ -70,9 +70,9 @@ class Form extends React.Component<any, any, any> {
 
     const boards = boardsQuery.boards || [];
 
-    const options = boards.map((b) => ({
+    const options = boards.map(b => ({
       value: b._id,
-      label: b.name,
+      label: b.name
     }));
 
     const content = (
@@ -82,7 +82,7 @@ class Form extends React.Component<any, any, any> {
             <FormGroup>
               <ControlLabel>Board</ControlLabel>
               <Select
-                value={options.find((b) => b.value === config.boardId)}
+                value={options.find(b => b.value === config.boardId)}
                 isClearable={true}
                 options={options}
                 onChange={this.onChangeBoard.bind(this, "boardId")}
@@ -93,7 +93,7 @@ class Form extends React.Component<any, any, any> {
 
               <Select
                 value={this.generatePipelineOptions(boards).find(
-                  (option) => option.value === config.pipelineId
+                  option => option.value === config.pipelineId
                 )}
                 isClearable={true}
                 onChange={this.onChangePipeLine.bind(this, "pipelineId")}
@@ -108,42 +108,24 @@ class Form extends React.Component<any, any, any> {
     if (component === "filter") {
       if (
         propertyType &&
-        ![
-          "cards:deal",
-          "cards:ticket",
-          "cards:task",
-          "cards:purchase",
-        ].includes(propertyType)
+        !["cards:ticket", "cards:task"].includes(propertyType)
       ) {
         return null;
       }
 
-      if (
-        !hideDetailForm &&
-        ["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
-          type
-        )
-      ) {
+      if (!hideDetailForm && ["cards:ticket", "cards:task"].includes(type)) {
         return null;
       }
 
       return content;
-    } else if (
-      ["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
-        type
-      )
-    ) {
+    } else if (["cards:ticket", "cards:task"].includes(type)) {
       return content;
     }
   }
 }
 
 const generateVariable = (type, propertyType) => {
-  if (
-    ["cards:deal", "cards:ticket", "cards:task", "cards:purchase"].includes(
-      type
-    )
-  ) {
+  if (["cards:ticket", "cards:task"].includes(type)) {
     return { type: type.split(":")[1] };
   }
 
@@ -155,8 +137,8 @@ export default withProps<Props>(
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: "boardsQuery",
       options: ({ type, propertyType }) => ({
-        variables: generateVariable(type, propertyType),
-      }),
+        variables: generateVariable(type, propertyType)
+      })
     })
   )(Form)
 );

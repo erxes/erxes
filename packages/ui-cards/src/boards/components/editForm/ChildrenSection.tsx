@@ -11,15 +11,13 @@ import { AddForm } from "@erxes/ui-cards/src/boards/containers/portable";
 import EditForm from "@erxes/ui-cards/src/boards/containers/editForm/EditForm";
 import { IOptions } from "../../types";
 import { __ } from "@erxes/ui/src/utils";
-import { IDeal } from "../../../deals/types";
 import { ITicket } from "../../../tickets/types";
 import { ITask } from "../../../tasks/types";
 import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
-import { ProductName } from "../../../deals/styles";
 import { Flex } from "@erxes/ui/src/styles/main";
 
 type Props = {
-  children: IDeal[] | ITicket[] | ITask[] | IPurchase[];
+  children: ITicket[] | ITask[];
   parentId: string;
   options: IOptions;
   stageId: string;
@@ -99,7 +97,7 @@ class ChildrenSection extends React.Component<Props, State> {
     );
   }
 
-  renderChildForm(child: IDeal | ITicket | ITask | IPurchase) {
+  renderChildForm(child: ITicket | ITask) {
     const { openChildId } = this.state;
 
     const closeModal = () => {
@@ -122,7 +120,6 @@ class ChildrenSection extends React.Component<Props, State> {
 
     return (
       <>
-        <ProductName onClick={openModal}>{child.name}</ProductName>
         <EditForm {...updatedProps} />
       </>
     );
@@ -143,13 +140,11 @@ class ChildrenSection extends React.Component<Props, State> {
     return (
       <Box title="Children" extraButtons={extraButtons()} isOpen={true}>
         {children?.length ? (
-          (children as Array<IDeal | ITicket | ITask | IPurchase>).map(
-            child => (
-              <SectionBodyItem key={child._id}>
-                {this.renderChildForm(child)}
-              </SectionBodyItem>
-            )
-          )
+          (children as Array<ITicket | ITask>).map(child => (
+            <SectionBodyItem key={child._id}>
+              {this.renderChildForm(child)}
+            </SectionBodyItem>
+          ))
         ) : (
           <EmptyState text="No Children" icon="list-ui-alt" />
         )}

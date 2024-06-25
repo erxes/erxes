@@ -39,7 +39,7 @@ class BoardItemForm extends React.Component<Props, State> {
 
     this.state = {
       config,
-      pipelineLabels,
+      pipelineLabels
     };
   }
 
@@ -62,10 +62,6 @@ class BoardItemForm extends React.Component<Props, State> {
     let type = "";
 
     switch (activeAction.type) {
-      case "cards:deal.create":
-        type = "deal";
-        break;
-
       case "cards:task.create":
         type = "task";
         break;
@@ -73,31 +69,27 @@ class BoardItemForm extends React.Component<Props, State> {
       case "cards:ticket.create":
         type = "ticket";
         break;
-
-      case "cards:purchase.create":
-        type = "purchase";
-        break;
     }
 
     const { stageId, pipelineId, boardId } = this.state.config;
 
-    const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
-    const plIdOnChange = (plId) => {
+    const stgIdOnChange = stgId => this.onChangeField("stageId", stgId);
+    const plIdOnChange = plId => {
       client
         .query({
           query: gql(pipelineQuery.pipelineLabels),
           fetchPolicy: "network-only",
-          variables: { pipelineId: plId },
+          variables: { pipelineId: plId }
         })
-        .then((data) => {
+        .then(data => {
           this.setState({ pipelineLabels: data.data.pipelineLabels });
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
       this.onChangeField("pipelineId", plId);
     };
-    const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
+    const brIdOnChange = brId => this.onChangeField("boardId", brId);
 
     return (
       <BoardSelect
@@ -112,7 +104,7 @@ class BoardItemForm extends React.Component<Props, State> {
     );
   }
 
-  onChange = (rConf) => {
+  onChange = rConf => {
     const { config } = this.state;
 
     this.setState({ config: { ...config, ...rConf } });
@@ -122,17 +114,17 @@ class BoardItemForm extends React.Component<Props, State> {
     const { triggerType, users, activeAction, triggerConfig } = this.props;
     const { config, pipelineLabels } = this.state;
 
-    const userOptions = (users || []).map((u) => ({
+    const userOptions = (users || []).map(u => ({
       label: (u.details && u.details.fullName) || u.email,
-      value: u._id,
+      value: u._id
     }));
 
-    const labelOptions = (pipelineLabels || []).map((l) => ({
+    const labelOptions = (pipelineLabels || []).map(l => ({
       label: l.name,
-      value: l._id || "",
+      value: l._id || ""
     }));
 
-    const priorityOptions = PRIORITIES.map((p) => ({ label: p, value: p }));
+    const priorityOptions = PRIORITIES.map(p => ({ label: p, value: p }));
 
     return (
       <Common config={this.state.config} {...this.props}>
@@ -180,26 +172,26 @@ class BoardItemForm extends React.Component<Props, State> {
                 _id: String(Math.random()),
                 label: "Now",
                 name: "now",
-                type: "Date",
+                type: "Date"
               },
               {
                 _id: String(Math.random()),
                 label: "Tomorrow",
                 name: "tomorrow",
-                type: "Date",
+                type: "Date"
               },
               {
                 _id: String(Math.random()),
                 label: "Next Week",
                 name: "nextWeek",
-                type: "Date",
+                type: "Date"
               },
               {
                 _id: String(Math.random()),
                 label: "Next Month",
                 name: "nextMonth",
-                type: "Date",
-              },
+                type: "Date"
+              }
             ]}
           />
           <PlaceHolderInput
@@ -236,9 +228,9 @@ class BoardItemForm extends React.Component<Props, State> {
                 excludeAttr: true,
                 callback: () =>
                   this.setState({
-                    config: { ...config, attachments: "{{ attachments }}" },
-                  }),
-              },
+                    config: { ...config, attachments: "{{ attachments }}" }
+                  })
+              }
             ]}
             label="Add Fields"
             excludedNames={[
@@ -250,7 +242,7 @@ class BoardItemForm extends React.Component<Props, State> {
               "closeDate",
               "labelIds",
               "priority",
-              "stageId",
+              "stageId"
             ]}
             triggerType={triggerType}
             actionType={activeAction.type.replace(".create", "")}

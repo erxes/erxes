@@ -2,7 +2,7 @@ import {
   IEditFormContent,
   IItem,
   IItemParams,
-  IOptions,
+  IOptions
 } from "../../boards/types";
 
 import ChildrenSection from "../../boards/containers/editForm/ChildrenSection";
@@ -10,14 +10,15 @@ import EditForm from "../../boards/components/editForm/EditForm";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
-import PortableDeals from "../../deals/components/PortableDeals";
-import PortablePurchases from "../../purchases/components/PortablePurchases";
 import PortableTickets from "../../tickets/components/PortableTickets";
 import React from "react";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
 import { loadDynamicComponent } from "@erxes/ui/src/utils";
 import queryString from "query-string";
+import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
+import PortablePurchases from "@erxes/ui-sales/src/purchases/components/PortablePurchases";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   options: IOptions;
@@ -31,7 +32,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent,
+      timeSpent
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -49,29 +50,35 @@ export default class TaskEditForm extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      refresh: false,
+      refresh: false
     };
   }
 
   onChangeRefresh = () => {
     this.setState({
-      refresh: !this.state.refresh,
+      refresh: !this.state.refresh
     });
   };
 
   renderItems = () => {
     return (
       <>
-        <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
+        {isEnabled("sales") ?? (
+          <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
+        )}
+        {isEnabled("sales") ?? (
+          <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
+        )}
+
         <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
-        <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
+
         {loadDynamicComponent(
           "taskRightSidebarSection",
           {
             id: this.props.item._id,
             mainType: "task",
             mainTypeId: this.props.item._id,
-            object: this.props.item,
+            object: this.props.item
           },
           true
         )}
@@ -88,7 +95,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
       itemId: item._id,
       stageId: item.stageId,
       pipelineId: item.pipeline._id,
-      queryParams: queryString.parse(window.location.search) || {},
+      queryParams: queryString.parse(window.location.search) || {}
     };
 
     return <ChildrenSection {...updatedProps} />;
@@ -99,7 +106,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
     copy,
     remove,
     saveItem,
-    onChangeStage,
+    onChangeStage
   }: IEditFormContent) => {
     const {
       item,
@@ -108,7 +115,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
       onUpdate,
       addItem,
       sendToBoard,
-      updateTimeTrack,
+      updateTimeTrack
     } = this.props;
 
     return (
@@ -154,7 +161,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
       ...this.props,
       formContent: this.renderFormContent,
       extraFields: this.state,
-      refresh: this.state.refresh,
+      refresh: this.state.refresh
     };
 
     return <EditForm {...extendedProps} />;

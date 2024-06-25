@@ -1,9 +1,9 @@
-import { gql, useQuery } from '@apollo/client';
-import { Button, ControlLabel, Spinner } from '@erxes/ui/src/components';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { gql, useQuery } from "@apollo/client";
+import { Button, ControlLabel, Spinner } from "@erxes/ui/src/components";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
+import { Link } from "react-router-dom";
 
 const fields = `
     _id
@@ -39,28 +39,28 @@ const ticketQuery = gql`
 `;
 
 const Item = ({ invoice }) => {
-  if (!isEnabled('payment')) {
+  if (!isEnabled("payment")) {
     return null;
   }
 
   if (
-    !['cards:deal', 'cards:task', 'cards:ticket'].includes(invoice.contentType)
+    !["sales:deal", "cards:task", "cards:ticket"].includes(invoice.contentType)
   ) {
     return null;
   }
 
   let qry;
 
-  let link = '';
+  let link = "";
 
   switch (invoice.contentType) {
-    case 'cards:deal':
+    case "sales:deal":
       qry = dealQuery;
       break;
-    case 'cards:task':
+    case "cards:task":
       qry = taskQuery;
       break;
-    case 'cards:ticket':
+    case "cards:ticket":
       qry = ticketQuery;
       break;
     default:
@@ -95,7 +95,7 @@ const Item = ({ invoice }) => {
   }
 
   return (
-    <div style={{ justifyContent: 'space-between', display: 'flex' }}>
+    <div style={{ justifyContent: "space-between", display: "flex" }}>
       <SectionBodyItem>
         <Link to={link} target="_blank">
           <ControlLabel uppercase={false}>{item.name}</ControlLabel>
@@ -106,7 +106,7 @@ const Item = ({ invoice }) => {
         icon="eye"
         iconColor="gray"
         onClick={() => {
-          window.open(link, '_blank');
+          window.open(link, "_blank");
         }}
       />
     </div>

@@ -1,4 +1,4 @@
-import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
 
 const detailFields = teamQueries.detailFields;
 
@@ -385,22 +385,6 @@ const boardItemQueryParams = `
   search: $searchValue,
 `;
 
-const tasks = `
-  query tasks(${boardItemQueryParamsDef}) {
-    tasks(${boardItemQueryParams}) {
-      ${cardFields}
-    }
-  }
-`;
-
-const tickets = `
-  query tickets(${boardItemQueryParamsDef}) {
-    tickets(${boardItemQueryParams}) {
-      ${cardFields}
-    }
-  }
-`;
-
 const deals = `
   query deals(${boardItemQueryParamsDef}) {
     deals(${boardItemQueryParams}) {
@@ -465,8 +449,6 @@ export default {
   conversionStages,
   internalNotesByAction,
   deals,
-  tickets,
-  tasks,
   boardContentTypeDetail,
   boardLogs,
   documents,

@@ -41,7 +41,7 @@ const ConversationCustomFieldsSection = asyncComponent(
 const PortableDeals = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ "@erxes/ui-cards/src/deals/components/PortableDeals"
+      /* webpackChunkName:"Inbox-Sidebar-PortableDeals" */ "@erxes/ui-sales/src/deals/components/PortableDeals"
     )
 );
 
@@ -61,7 +61,7 @@ const PortableTickets = asyncComponent(
 const PortablePurchases = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ "@erxes/ui-cards/src/purchases/components/PortablePurchases"
+      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ "@erxes/ui-sales/src/purchases/components/PortablePurchases"
     )
 );
 
@@ -158,15 +158,15 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
 
     this.state = {
       currentTab: "customer",
-      currentSubTab: "details",
+      currentSubTab: "details"
     };
   }
 
-  onTabClick = (currentTab) => {
+  onTabClick = currentTab => {
     this.setState({ currentTab });
   };
 
-  onSubtabClick = (currentSubTab) => {
+  onSubtabClick = currentSubTab => {
     this.setState({ currentSubTab });
   };
 
@@ -183,7 +183,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
     customer,
     kind,
     fields,
-    toggleSection,
+    toggleSection
   }: IRenderData) => {
     if (!(kind === "messenger" || kind === "form")) {
       return null;
@@ -213,7 +213,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
       customerVisibility,
       deviceFields,
       conversationFields,
-      customerFields,
+      customerFields
     } = this.props;
 
     const { kind = "" } = customer.integration || {};
@@ -258,7 +258,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             customer,
             kind,
             fields: deviceFields,
-            toggleSection,
+            toggleSection
           })}
           <WebsiteActivity urlVisits={customer.urlVisits || []} />
 
@@ -267,7 +267,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             customer,
             customerId: customer._id,
             contentType: "inbox:conversations",
-            contentTypeId: conversation._id,
+            contentTypeId: conversation._id
           })}
         </TabContent>
       );

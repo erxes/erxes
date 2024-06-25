@@ -17,14 +17,14 @@ const PortableDeals = asyncComponent(
 const PortableTasks = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PortableTasks" */ "@erxes/ui-sales/src/tasks/components/PortableTasks"
+      /* webpackChunkName: "PortableTasks" */ "@erxes/ui-cards/src/tasks/components/PortableTasks"
     )
 );
 
 const PortableTickets = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-sales/src/tickets/components/PortableTickets"
+      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-cards/src/tickets/components/PortableTickets"
     )
 );
 

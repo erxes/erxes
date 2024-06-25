@@ -20,6 +20,7 @@ import PortableTasks from "../../tasks/components/PortableTasks";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
 import queryString from "query-string";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   options: IOptions;
@@ -111,9 +112,14 @@ export default function TicketEditForm(props: Props) {
   function renderItems() {
     return (
       <>
-        <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
+        {isEnabled("sales") ?? (
+          <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
+        )}
+        {isEnabled("sales") ?? (
+          <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
+        )}
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
-        <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
+
         {loadDynamicComponent(
           "ticketRightSidebarSection",
           {

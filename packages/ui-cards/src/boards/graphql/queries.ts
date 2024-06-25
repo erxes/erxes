@@ -1,4 +1,4 @@
-import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
 
 const detailFields = teamQueries.detailFields;
 
@@ -334,26 +334,6 @@ const internalNotesByAction = `
   }
 `;
 
-const conversionStages = `
-  query stages(
-    ${stageParams}
-  ) {
-    stages(
-      ${stageParamDefs}
-    ) {
-      ${stageCommon}
-      compareNextStage
-      compareNextStagePurchase
-      initialDealsTotalCount
-      stayedDealsTotalCount
-      inProcessDealsTotalCount
-      initialPurchasesTotalCount
-      stayedPurchasesTotalCount
-      inProcessPurchasesTotalCount
-    }
-  }
-`;
-
 const cardFields = `
   _id
   name
@@ -396,22 +376,6 @@ const tasks = `
 const tickets = `
   query tickets(${boardItemQueryParamsDef}) {
     tickets(${boardItemQueryParams}) {
-      ${cardFields}
-    }
-  }
-`;
-
-const deals = `
-  query deals(${boardItemQueryParamsDef}) {
-    deals(${boardItemQueryParams}) {
-      ${cardFields}
-    }
-  }
-`;
-
-const purchases = `
-  query purchases(${boardItemQueryParamsDef}) {
-    purchases(${boardItemQueryParams}) {
       ${cardFields}
     }
   }
@@ -462,13 +426,10 @@ export default {
   itemsCountByAssignedUser,
   pipelineAssignedUsers,
   activityLogsByAction,
-  conversionStages,
   internalNotesByAction,
-  deals,
   tickets,
   tasks,
   boardContentTypeDetail,
   boardLogs,
-  documents,
-  purchases
+  documents
 };

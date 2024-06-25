@@ -287,12 +287,6 @@ export type StagesQueryResponse = {
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
-export type ConversionStagesQueryResponse = {
-  stages: IConversionStage[];
-  loading: boolean;
-  refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
-};
-
 export type BoardsGetLastQueryResponse = {
   boardGetLast: IBoard;
   loading: boolean;

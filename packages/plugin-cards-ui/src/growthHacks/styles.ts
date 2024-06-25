@@ -1,8 +1,7 @@
-import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { FixedContent } from '../deals/components/conversion/style';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { ColorButton } from "@erxes/ui-cards/src/boards/styles/common";
+import { colors, dimensions } from "@erxes/ui/src/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const ScoreWrapper = styled.div``;
 
@@ -27,8 +26,8 @@ const CalculatedAmount = styled.div`
   position: relative;
 
   &:after {
-    content: '\\e945';
-    font-family: 'erxes';
+    content: "\\e945";
+    font-family: "erxes";
     position: absolute;
     left: -20px;
     color: ${colors.colorSecondary};
@@ -97,7 +96,7 @@ const AmountItem = styledTS<IAmountItem>(styled.div)`
 
   &:after {
     ${props =>
-      props.type === 'pie' ? "content: '\\ec2d'" : "content: '\\ecdb'"};
+      props.type === "pie" ? "content: '\\ec2d'" : "content: '\\ecdb'"};
     font-family: 'erxes';
     position: absolute;
     left: -17px;
@@ -119,22 +118,6 @@ const ScoreAmount = styled.div`
   padding: 2px 6px;
   color: ${colors.colorWhite};
   font-weight: 500;
-`;
-
-const FixedContainer = styled(FixedContent)`
-  flex: 1;
-  background: ${colors.colorWhite};
-  overflow: auto;
-  padding-top: 0;
-  margin: 10px auto;
-  border-radius: 2px;
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
-  display: flex;
-  flex-direction: column;
-
-  > a {
-    ${AddButton}
-  }
 `;
 
 const ScrollContent = styled.div`
@@ -314,7 +297,6 @@ export {
   ContentContainer,
   LeftContent,
   RightContent,
-  FixedContainer,
   ScrollContent,
   TableHead,
   FunnelContent,

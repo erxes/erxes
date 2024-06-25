@@ -26,9 +26,9 @@ const CustomerSection = asyncComponent(
 
 const DealSection = asyncComponent(
   () =>
-    isEnabled("cards") &&
+    isEnabled("sales") &&
     import(
-      /* webpackChunkName: "CustomerSection" */ "@erxes/ui-cards/src/deals/components/PortableDeals"
+      /* webpackChunkName: "CustomerSection" */ "@erxes/ui-sales/src/deals/components/PortableDeals"
     )
 );
 
@@ -37,7 +37,7 @@ type Props = {
 };
 
 const RightSidebar = (props: Props) => {
-  const renderPlan = (car) => {
+  const renderPlan = car => {
     if (!car.plan) {
       return null;
     }

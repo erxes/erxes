@@ -1,23 +1,23 @@
-import { IItem, IOptions } from '../../types';
+import { IItem, IOptions } from "../../types";
 
-import { ActionContainer } from '../../styles/item';
-import { ArchiveBtn } from './ArchiveBtn';
-import ChecklistAdd from '../../../checklists/components/AddButton';
-import { ColorButton } from '../../styles/common';
-import Icon from '@erxes/ui/src/components/Icon';
-import LabelChooser from '../../containers/label/LabelChooser';
-import { PRIORITIES } from '../../constants';
-import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
-import PriorityIndicator from './PriorityIndicator';
-import React from 'react';
-import SelectItem from '../../components/SelectItem';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import Tags from '@erxes/ui/src/components/Tags';
-import Watch from '../../containers/editForm/Watch';
-import Comment from '../../../comment/containers/Comment';
-import { loadDynamicComponent, __ } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ActionContainer } from "../../styles/item";
+import { ArchiveBtn } from "./ArchiveBtn";
+import ChecklistAdd from "../../../checklists/components/AddButton";
+import { ColorButton } from "../../styles/common";
+import Icon from "@erxes/ui/src/components/Icon";
+import LabelChooser from "../../containers/label/LabelChooser";
+import { PRIORITIES } from "../../constants";
+import { PopoverButton } from "@erxes/ui-inbox/src/inbox/styles";
+import PriorityIndicator from "./PriorityIndicator";
+import React from "react";
+import SelectItem from "../../components/SelectItem";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import Tags from "@erxes/ui/src/components/Tags";
+import Watch from "../../containers/editForm/Watch";
+import Comment from "../../../comment/containers/Comment";
+import { loadDynamicComponent, __ } from "@erxes/ui/src/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   item: IItem;
@@ -57,7 +57,7 @@ class Actions extends React.Component<Props> {
     const onLabelChange = labels => saveItem({ labels });
 
     const tags = item.tags || [];
-    const pipelineTagId = item.pipeline.tagId || '';
+    const pipelineTagId = item.pipeline.tagId || "";
 
     const priorityTrigger = (
       <ColorButton>
@@ -66,18 +66,12 @@ class Actions extends React.Component<Props> {
         ) : (
           <Icon icon="sort-amount-up" />
         )}
-        {item.priority ? item.priority : __('Priority')}
+        {item.priority ? item.priority : __("Priority")}
       </ColorButton>
     );
 
     const TAG_TYPE =
-      options.type === 'deal'
-        ? TAG_TYPES.DEAL
-        : options.type === 'task'
-        ? TAG_TYPES.TASK
-        : options.type === 'purchase' // Add a new condition for 'purchase'
-        ? TAG_TYPES.PURCHASE
-        : TAG_TYPES.TICKET;
+      options.type === "deal" ? TAG_TYPES.DEAL : TAG_TYPES.PURCHASE;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -111,10 +105,10 @@ class Actions extends React.Component<Props> {
         <ChecklistAdd itemId={item._id} type={options.type} />
 
         <Watch item={item} options={options} isSmall={true} />
-        {(isEnabled('clientportal') && <Comment item={item} />) || ''}
+        {(isEnabled("clientportal") && <Comment item={item} />) || ""}
         <ColorButton onClick={copyItem}>
           <Icon icon="copy-1" />
-          {__('Copy')}
+          {__("Copy")}
         </ColorButton>
         <ArchiveBtn
           item={item}
@@ -123,11 +117,11 @@ class Actions extends React.Component<Props> {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
         />
-        {isEnabled('tags') && (
+        {isEnabled("tags") && (
           <TaggerPopover
             type={TAG_TYPE}
             trigger={tagTrigger}
-            refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
+            refetchQueries={["dealDetail"]}
             targets={[item]}
             parentTagId={pipelineTagId}
             singleSelect={true}
@@ -135,10 +129,10 @@ class Actions extends React.Component<Props> {
         )}
 
         {loadDynamicComponent(
-          'cardDetailAction',
+          "cardDetailAction",
           {
             item,
-            contentType: 'cards',
+            contentType: "cards",
             subType: item.stage?.type,
             path: `stageId=${item.stageId}`
           },
