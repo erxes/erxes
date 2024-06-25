@@ -105,7 +105,7 @@ export const sendEmail = async (
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  const VERSION = getEnv({ name: 'VERSION' });
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: 'saas' });
 
   // do not send email it is running in test mode
   if (NODE_ENV === 'test') {
@@ -248,7 +248,13 @@ export const sendEmail = async (
         return sendgridMail.send(mailOptions);
       }
 
-      return transporter.sendMail(mailOptions, (error, info) => {
+      console.log('transporter ',transporter)
+      console.log('mailOptions ', JSON.stringify(mailOptions, null, 4))
+      console.log("DATE ==== ", new Date());
+
+      return transporter.sendMail(mailOptions, data => {
+        console.log(data)
+        const {error, info} = data;
         if (error) {
           debugError(`Error sending email: ${error}`);
         }
