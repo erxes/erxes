@@ -8,7 +8,7 @@ export default {
     return models.Flows.findOne({ _id });
   },
 
-  async product(flow: IFlow, {}, { subdomain }: IContext) {
+  async product(flow: IFlow, _, { subdomain }: IContext) {
     return (
       (await sendProductsMessage({
         subdomain,
@@ -19,11 +19,11 @@ export default {
     );
   },
 
-  async jobCount(flow: IFlow, {}, {}: IContext) {
+  async jobCount(flow: IFlow, _) {
     return (flow.jobs || []).length;
   },
 
-  async latestBranch(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestBranch(flow: IFlowDocument, _, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
@@ -33,7 +33,7 @@ export default {
     });
   },
 
-  async latestDepartment(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestDepartment(flow: IFlowDocument, _, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
@@ -43,7 +43,7 @@ export default {
     });
   },
 
-  async latestNeedProducts(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestNeedProducts(flow: IFlowDocument, _, { subdomain }: IContext) {
     const latestNeedProducts = flow.latestNeedProducts || [];
 
     if (!latestNeedProducts || !latestNeedProducts.length) {
@@ -63,7 +63,7 @@ export default {
     return latestNeedProducts;
   },
 
-  async latestResultProducts(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestResultProducts(flow: IFlowDocument, _, { subdomain }: IContext) {
     const latestResultProducts = flow.latestResultProducts || [];
 
     if (!latestResultProducts || !latestResultProducts.length) {
