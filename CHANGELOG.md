@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.13.0](https://github.com/erxes/erxes/compare/1.13.0-rc.6...1.13.0) (2024-06-25)
+
+
+### Bug Fixes
+
+* **automations:** switch to sendgrid for email sending in SaaS version ([ce83c65](https://github.com/erxes/erxes/commit/ce83c65e5dd23d9dde675dbc7ce9ffef1b205d94))
+* **core:** send reset password mail via sendgrid in SaaS version ([9fc1afc](https://github.com/erxes/erxes/commit/9fc1afc81445182f8e9de57ff8e058a46df76a1c))
+* **core:** team members bug ([#5435](https://github.com/erxes/erxes/issues/5435)) ([77f30d3](https://github.com/erxes/erxes/commit/77f30d31cac8125018bbdf34d4dbb1ffe5b1a098))
+* **payment:** fix check invoices method ([9513e78](https://github.com/erxes/erxes/commit/9513e78cf4ad001bf137b7da552acd6916ee7211))
+* **posclient:** get uoms from right rpc channel ([47905f0](https://github.com/erxes/erxes/commit/47905f0e84bc46e4d72253054ee99dbd1aa331b3))
+* **syncErkhet:** can't click new config button ([bb8a824](https://github.com/erxes/erxes/commit/bb8a8244fe9d60e23b5359eb3b7247d4417e103d))
+* **syncErkhet:** save btn not working ([0488474](https://github.com/erxes/erxes/commit/0488474167d597cb51edc79917c2ca2aa1e763b2))
+* **timeclock:** schedules main query ([#5430](https://github.com/erxes/erxes/issues/5430)) ([b8feb7d](https://github.com/erxes/erxes/commit/b8feb7d35be96eeec932d2729fcf4ac2d99811bf))
+
 ## [1.13.0-rc.6](https://github.com/erxes/erxes/compare/1.13.0-rc.5...1.13.0-rc.6) (2024-06-23)
 
 
