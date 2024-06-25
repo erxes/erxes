@@ -78,10 +78,6 @@ export const getProductsDataOnOwork = async (
       mainQuantity: ratio ? data.quantity / ratio : NaN,
       product
     };
-
-    if (ratio && ratio !== 1) {
-    }
-
     result.push(perData);
   }
 
