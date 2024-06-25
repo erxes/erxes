@@ -1,3 +1,6 @@
+import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
 import {
   ActionBarButtonsWrapper,
   CenterBar,
@@ -11,34 +14,29 @@ import {
   IAutomationNote,
   ITrigger
 } from '../../types';
-import { BackButton, BackIcon } from '@erxes/ui-automations/src/styles';
-import { BarItems, FlexContent } from '@erxes/ui/src/layout/styles';
-import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import { connection, getTriggerConfig, getTriggerType } from '../../utils';
 
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
+import { IAction } from '@erxes/ui-automations/src/types';
+import SaveTemplate from '@erxes/ui-template/src/components/SaveTemplate';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Alert from '@erxes/ui/src/utils/Alert/index';
+import { __, router } from '@erxes/ui/src/utils/core';
+import { Transition } from '@headlessui/react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Confirmation from '../../containers/forms/Confirmation';
+import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import ActionDetailForm from '../forms/actions/ActionDetailForm';
 import ActionsForm from '../forms/actions/ActionsForm';
-import Alert from '@erxes/ui/src/utils/Alert/index';
-import AutomationEditor from './RFEditor';
-import Button from '@erxes/ui/src/components/Button';
-import Confirmation from '../../containers/forms/Confirmation';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Histories from '../histories/Wrapper';
-import { IAction } from '@erxes/ui-automations/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import React from 'react';
-import { ScrolledContent } from '@erxes/ui-automations/src/styles';
-import TemplateForm from '../../containers/forms/TemplateForm';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { Transition } from '@headlessui/react';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
-import TriggerForm from '../../containers/forms/triggers/TriggerForm';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import Histories from '../histories/Wrapper';
+import AutomationEditor from './RFEditor';
 import { generatePostion } from './utils';
 
 type Props = {
@@ -115,6 +113,12 @@ class Editor extends React.Component<Props, State> {
     this.setState({ name: value });
   };
   switchActionbarTab = (type) => {
+    if (!this.state.isActionTab && type === 'history') {
+      router.setParams(navigator, location, {
+        activeTab: type === 'history' ? 'history' : undefined
+      });
+    }
+
     this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
@@ -550,30 +554,23 @@ class Editor extends React.Component<Props, State> {
   renderTemplateModal() {
     const { automation } = this.props;
 
-    const content = ({ closeModal }) => {
-      return (
-        <Form
-          renderContent={(formProps) => (
-            <TemplateForm
-              formProps={formProps}
-              closeModal={closeModal}
-              id={automation._id}
-              name={automation.name}
-            />
-          )}
-        />
-      );
+    const {
+      _id,
+      name,
+      createdAt,
+      updatedAt,
+      createdBy,
+      updatedBy,
+      ...automationContent
+    } = automation;
+
+    const content = {
+      content: JSON.stringify(automationContent),
+      contentType: 'automations',
+      serviceName: 'automations'
     };
 
-    const trigger = (
-      <Button btnStyle="primary" size="small" icon={'check-circle'}>
-        Save as a template
-      </Button>
-    );
-
-    return (
-      <ModalTrigger content={content} trigger={trigger} title="" hideHeader />
-    );
+    return <SaveTemplate {...content} />;
   }
 
   rendeRightActionBar() {
@@ -607,7 +604,8 @@ class Editor extends React.Component<Props, State> {
     const {
       automation,
       constants: { triggersConst, actionsConst },
-      automationNotes
+      automationNotes,
+      queryParams
     } = this.props;
 
     if (!this.state.isActionTab) {
@@ -620,6 +618,7 @@ class Editor extends React.Component<Props, State> {
           automation={automation}
           triggersConst={triggersConst}
           actionsConst={actionsConst}
+          queryParams={queryParams}
         />
       );
     }

@@ -76,6 +76,8 @@ var plugins = [
   { name: 'instagram', api: true, ui: true },
   { name: 'insight', api: true, ui: true },
   { name: 'burenscoring', api: true, ui: true },
+  { name: 'golomtbank', api: true, ui: true },
+  { name: 'template', api: true, ui: true }
 ];
 
 const pluginsMap = {};
@@ -124,7 +126,7 @@ var main = async () => {
       }
 
       pluginsMap[plugin.name] = {
-        ui: uiConfigs,
+        ui: uiConfigs
       };
     }
 

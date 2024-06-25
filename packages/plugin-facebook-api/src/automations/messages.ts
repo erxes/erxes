@@ -253,29 +253,6 @@ const generateObjectToWait = ({
   };
 };
 
-const sendTypingIndicator = async (
-  models,
-  {
-    senderId,
-    recipientId,
-    integration,
-    tag
-  }: {
-    senderId: string;
-    recipientId: string;
-    integration: IIntegrationDocument;
-    tag?: string;
-  }
-) => {
-  return sendReply(
-    models,
-    'me/messages',
-    { recipient: { id: senderId }, sender_action: 'typing_on', tag },
-    recipientId,
-    integration.erxesApiId
-  );
-};
-
 const sendMessage = async (
   models,
   {
@@ -292,11 +269,18 @@ const sendMessage = async (
     tag?: string;
   }
 ) => {
-  await sendTypingIndicator(models, {
-    senderId,
+  await sendReply(
+    models,
+    'me/messages',
+    {
+      recipient: { id: senderId },
+      sender_action: 'typing_on',
+      tag
+    },
     recipientId,
-    integration,
-    tag
+    integration.erxesApiId
+  ).catch((error) => {
+    throw new Error(error.message);
   });
 
   const resp = await sendReply(
@@ -317,28 +301,6 @@ const sendMessage = async (
     return;
   }
   return resp;
-};
-
-const handleSendError = async (
-  error,
-  models,
-  { senderId, recipientId, integration, message, bot }
-) => {
-  if (
-    error.message.includes('This message is sent outside of allowed window') &&
-    bot?.tag
-  ) {
-    return await sendMessage(models, {
-      senderId,
-      recipientId,
-      integration,
-      message,
-      tag: bot?.tag
-    });
-  } else {
-    debugError(error.message);
-    throw new Error(error.message);
-  }
 };
 
 export const actionCreateMessage = async (
@@ -400,13 +362,23 @@ export const actionCreateMessage = async (
           message
         });
       } catch (error) {
-        handleSendError(error, models, {
-          senderId,
-          recipientId,
-          integration,
-          message,
-          bot
-        });
+        if (
+          error.message.includes(
+            'This message is sent outside of allowed window'
+          ) &&
+          bot?.tag
+        ) {
+          resp = await sendMessage(models, {
+            senderId,
+            recipientId,
+            integration,
+            message,
+            tag: bot?.tag
+          });
+        } else {
+          debugError(error.message);
+          throw new Error(error.message);
+        }
       }
 
       if (!resp) {
