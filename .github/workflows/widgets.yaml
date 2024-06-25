@@ -6,6 +6,7 @@ on:
       - dev
       - master
       - rc
+      - staging
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
@@ -14,8 +15,6 @@ on:
       - master
       - rc
       - dev
-      - master
-      - rc
     paths:
       - 'widgets/**'
 

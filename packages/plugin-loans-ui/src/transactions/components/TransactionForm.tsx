@@ -49,29 +49,21 @@ const TransactionForm = (props: Props) => {
       (props.invoice && props.invoice.payDate) ||
       new Date()
   );
-  const [invoiceId, setInvoiceId] = useState(
-    transaction.invoiceId || (props.invoice && props.invoice._id) || ""
-  );
   const [description, setDescription] = useState(transaction.description || "");
   const [total, setTotal] = useState(
     transaction.total || (props.invoice && props.invoice.total) || 0
   );
-  const [companyId, setCompanyId] = useState(
-    transaction.companyId || (props.invoice && props.invoice.companyId) || ""
-  );
+  
   const [customerId, setCustomerId] = useState(
     transaction.customerId || (props.invoice && props.invoice.customerId) || ""
   );
-  const [invoice, setInvoice] = useState(
-    props.invoice || transaction.invoice || null
-  );
+ 
   const [paymentInfo, setPaymentInfo] = useState(null as any);
   const [isGetEBarimt, setIsGetEBarimt] = useState(false);
   const [isOrganization, setIsOrganization] = useState(false);
   const [organizationRegister, setOrganizationRegister] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [storedInterest, setStoredInterest] = useState(0);
-  const [isPrePayment, setIsPrePayment] = useState(false);
 
   const generateDoc = (values: { _id: string } & ITransactionDoc) => {
     const { transaction, type } = props;
@@ -85,11 +77,8 @@ const TransactionForm = (props: Props) => {
     return {
       _id: finalValues._id,
       contractId,
-      invoiceId,
       description,
-      companyId,
       customerId,
-      invoice,
       paymentInfo,
       storedInterest,
       transactionType: type,
@@ -101,32 +90,6 @@ const TransactionForm = (props: Props) => {
 
   const onFieldClick = (e) => {
     e.target.select();
-  };
-
-  const renderRow = (label, fieldName) => {
-    const invoiceVal = (invoice && invoice[fieldName]) || 0;
-    const fromState =
-      fieldName === "total"
-        ? total
-        : fieldName === "storedInterest" && storedInterest;
-    const trVal = fromState || transaction[fieldName] || 0;
-
-    return (
-      <FormWrapper>
-        <FormColumn>
-          <ControlLabel>{`${label}`}</ControlLabel>
-        </FormColumn>
-        <FormColumn>
-          <Amount>{Number(invoiceVal).toLocaleString()}</Amount>
-        </FormColumn>
-        <FormColumn>
-          <Amount>{Number(trVal).toLocaleString()}</Amount>
-        </FormColumn>
-        <FormColumn>
-          <Amount>{Number(trVal - invoiceVal).toLocaleString()}</Amount>
-        </FormColumn>
-      </FormWrapper>
-    );
   };
 
   const renderRowTr = (label, fieldName, isFromState?: any) => {
@@ -162,32 +125,6 @@ const TransactionForm = (props: Props) => {
   };
 
   const renderInfo = () => {
-    if (!invoice) {
-      return (
-        <>
-          <FormWrapper>
-            <FormColumn>
-              <ControlLabel>{__("Type")}</ControlLabel>
-            </FormColumn>
-            <FormColumn>
-              <ControlLabel>Transaction</ControlLabel>
-            </FormColumn>
-            <FormColumn>
-              <ControlLabel>Amount</ControlLabel>
-            </FormColumn>
-          </FormWrapper>
-          {renderRowTr("Payment", "payment")}
-          {renderRowTr("Stored Interest", "storedInterest")}
-          {renderRowTr("Interest Nonce", "calcInterest")}
-          {renderRowTr("Commitment interest", "commitmentInterest")}
-          {renderRowTr("Loss", "loss")}
-          {renderRowTr("Insurance", "insurance")}
-          {renderRowTr("Debt", "debt")}
-          {renderRowTr("Total must pay", "total")}
-        </>
-      );
-    }
-
     return (
       <>
         <FormWrapper>
@@ -204,20 +141,20 @@ const TransactionForm = (props: Props) => {
             <ControlLabel>Change</ControlLabel>
           </FormColumn>
         </FormWrapper>
-        {renderRow("payment", "payment")}
-        {renderRow("interest eve", "storedInterest")}
-        {renderRow("interest nonce", "calcInterest")}
-        {renderRow("Commitment interest", "commitmentInterest")}
+        {renderRowTr("payment", "payment")}
+        {renderRowTr("interest eve", "storedInterest")}
+        {renderRowTr("interest nonce", "calcInterest")}
+        {renderRowTr("Commitment interest", "commitmentInterest")}
 
-        {renderRow("loss", "loss")}
-        {renderRow("insurance", "insurance")}
-        {renderRow("debt", "debt")}
+        {renderRowTr("loss", "loss")}
+        {renderRowTr("insurance", "insurance")}
+        {renderRowTr("debt", "debt")}
         <FormWrapper>
           <FormColumn></FormColumn>
           <FormColumn></FormColumn>
           <FormColumn></FormColumn>
         </FormWrapper>
-        {renderRow("total", "total")}
+        {renderRowTr("total", "total")}
       </>
     );
   };
@@ -378,22 +315,6 @@ const TransactionForm = (props: Props) => {
                 />
               </FormGroup>
               {renderRowTr("Total", "total", true)}
-              {type !== "give" && (
-                <FormGroup>
-                  <ControlLabel>{__("Is Pre Payment")}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    type={"checkbox"}
-                    componentclass="checkbox"
-                    useNumberFormat
-                    fixed={0}
-                    name="isPrePayment"
-                    value={isPrePayment}
-                    onChange={onChangeField}
-                    onClick={onFieldClick}
-                  />
-                </FormGroup>
-              )}
               {type !== "give" && (
                 <FormGroup>
                   <ControlLabel>{__("Is get E-Barimt")}</ControlLabel>

@@ -28,7 +28,7 @@ const StatusIcon = styledTS<{ type?: string }>(styled.div)`
   border-radius: 40px;
   display: flex;
   align-items: center;
-  justify-content: center
+  justify-content: center;
   background: ${(props) =>
     props.type === 'missed' || props.type === 'cancelled'
       ? colors.colorCoreRed
@@ -41,10 +41,22 @@ const StatusIcon = styledTS<{ type?: string }>(styled.div)`
 const StatusContent = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  > div {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
 `;
 
 const Audio = styled.div`
   flex: 1;
+
+  audio {
+    margin-top: ${dimensions.unitSpacing}px;
+    height: 35px;
+  }
 
   span {
     font-size: 11px;
@@ -53,4 +65,8 @@ const Audio = styled.div`
   }
 `;
 
-export { CallWrapper, StatusIcon, Audio, StatusContent };
+const Download = styled.a`
+  color: ${colors.textPrimary};
+`;
+
+export { CallWrapper, StatusIcon, Audio, StatusContent, Download };

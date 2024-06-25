@@ -2,16 +2,18 @@ import {
   ICollateralData,
   IContract,
   IContractDocument
-} from '../../../models/definitions/contracts';
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+} from "../../../models/definitions/contracts";
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 import {
+  getConfig,
+  getFieldObject,
   sendCardsMessage,
   sendCoreMessage,
   sendMessageBroker
-} from '../../../messageBroker';
-import { createLog, deleteLog, updateLog } from '../../../logUtils';
-import { putActivityLog } from '@erxes/api-utils/src/logUtils';
+} from "../../../messageBroker";
+import { createLog, deleteLog, updateLog } from "../../../logUtils";
+import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
 const contractMutations = {
   contractsAdd: async (
@@ -22,7 +24,7 @@ const contractMutations = {
     const contract = await models.Contracts.createContract(doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       newData: doc,
       object: contract,
       extraParams: { models }
@@ -41,24 +43,24 @@ const contractMutations = {
     const validate = await sendMessageBroker(
       {
         subdomain,
-        action: 'clientPortalUsers.validatePassword',
+        action: "clientPortalUsers.validatePassword",
         data: {
           userId: doc.customerId,
           password: doc.secondaryPassword,
           secondary: true
         }
       },
-      'clientportal'
+      "clientportal"
     );
 
-    if (validate?.status === 'error') {
+    if (validate?.status === "error") {
       throw new Error(validate.errorMessage);
     }
 
     const contract = await models.Contracts.createContract(doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       newData: doc,
       object: contract,
       extraParams: { models }
@@ -82,7 +84,7 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
@@ -92,7 +94,7 @@ const contractMutations = {
     await updateLog(subdomain, user, logData);
     // action:'edit',data: { ...logData, coc: contract,contentType: `loans:${logData.type}` }}
     await putActivityLog(subdomain, {
-      action: 'putActivityLog',
+      action: "putActivityLog",
       data: {
         ...logData,
         createdBy: user._id,
@@ -104,6 +106,7 @@ const contractMutations = {
 
     return updated;
   },
+
   contractsDealEdit: async (
     _root,
     { _id, ...doc }: IContractDocument,
@@ -125,7 +128,7 @@ const contractMutations = {
     const updated = await models.Contracts.updateContract(_id, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: { ...doc },
       updatedDocument: updated,
@@ -148,7 +151,7 @@ const contractMutations = {
     const updated = await models.Contracts.closeContract(subdomain, doc);
 
     const logData = {
-      type: 'contract',
+      type: "contract",
       object: contract,
       newData: doc,
       updatedDocument: updated,
@@ -177,7 +180,7 @@ const contractMutations = {
 
     for (const contract of contracts) {
       const logData = {
-        type: 'contract',
+        type: "contract",
         object: contract,
         extraParams: { models }
       };
@@ -203,10 +206,10 @@ const contractMutations = {
 
     const dealIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'contract',
-        relTypes: ['deal'],
+        mainType: "contract",
+        relTypes: ["deal"],
         mainTypeId: contract._id
       },
       isRPC: true
@@ -218,7 +221,7 @@ const contractMutations = {
 
     const deals = await sendCardsMessage({
       subdomain,
-      action: 'deals.find',
+      action: "deals.find",
       data: { _id: { $in: dealIds } },
       isRPC: true
     });
@@ -252,11 +255,11 @@ const contractMutations = {
       const collateral = await sendMessageBroker(
         {
           subdomain,
-          action: 'findOne',
+          action: "findOne",
           data: { _id: data.collateralId },
           isRPC: true
         },
-        'products'
+        "products"
       );
 
       const insuranceType = await models.InsuranceTypes.findOne({
@@ -341,13 +344,168 @@ const contractMutations = {
       invDate,
       interestAmount
     });
+  },
+  clientCreditLoanRequest: async (
+    _root,
+    {
+      secondaryPassword,
+      customerId,
+      amount,
+      contractId,
+      dealtType,
+      dealtResponse,
+      accountNumber,
+      accountHolderName,
+      externalBankName
+    }: {
+      contractId: string;
+      amount: number;
+      customerId: string;
+      secondaryPassword: string;
+      dealtType?: "own" | "external";
+      dealtResponse?: any;
+      accountNumber?: string;
+      accountHolderName?: string;
+      externalBankName?: string;
+    },
+    { models, subdomain }: IContext
+  ) => {
+    const validate = await sendMessageBroker(
+      {
+        subdomain,
+        action: "clientPortalUsers.validatePassword",
+        data: {
+          userId: customerId,
+          password: secondaryPassword,
+          secondary: true
+        }
+      },
+      "clientportal"
+    );
+
+    if (validate?.status === "error") {
+      throw new Error(validate.errorMessage);
+    }
+
+    const contract = await models.Contracts.getContract({ _id: contractId });
+
+    if (!contract) {
+      throw new Error("Contract not found!");
+    }
+
+    return await models.Contracts.clientCreditLoanRequest(
+      subdomain,
+      {
+        customerId,
+        amount,
+        contractId,
+        dealtType,
+        dealtResponse,
+        accountNumber,
+        accountHolderName,
+        externalBankName
+      },
+      contract
+    );
+  },
+  clientCreditLoanCalculate: async (
+    _root,
+    {
+      customerId
+    }: {
+      customerId: string;
+    },
+    { subdomain }: IContext
+  ) => {
+    let customerCreditAmount = 0;
+
+    const customer = await sendMessageBroker(
+      {
+        subdomain,
+        action: "customers.findOne",
+        data: { _id: customerId },
+        isRPC: true
+      },
+      "contacts"
+    );
+
+    const customerScore = await sendMessageBroker(
+      { subdomain, action: "getScoring", data: { customerId }, isRPC: true },
+      "burenscoring"
+    );
+
+    const configs = await getConfig("creditScore", subdomain);
+
+    if (!configs) {
+      throw new Error("Credit score config not configured!");
+    }
+
+    for (let key in configs) {
+      const config = configs[key];
+
+      if (
+        config.startScore <= customerScore.score &&
+        config.endScore >= customerScore.score
+      ) {
+        customerCreditAmount = config.amount;
+        break;
+      }
+    }
+
+    const maxLeaseAmountField = await getFieldObject(
+      subdomain,
+      "contacts:customer",
+      "maxLeaseAmount"
+    );
+
+    if (customerCreditAmount > 0 && maxLeaseAmountField) {
+      const index =
+        customer.customFieldsData?.findIndex(
+          (a) => a.field == maxLeaseAmountField._id
+        ) || -1;
+      if (index == -1) {
+        customer.customFieldsData = [
+          ...customer.customFieldsData,
+          {
+            field: maxLeaseAmountField._id,
+            value: customerCreditAmount.toString(),
+            stringValue: customerCreditAmount.toString(),
+            numberValue: customerCreditAmount,
+            text: maxLeaseAmountField.code
+          }
+        ];
+      } else {
+        customer.customFieldsData[index] = {
+          field: maxLeaseAmountField._id,
+          value: customerCreditAmount.toString(),
+          stringValue: customerCreditAmount.toString(),
+          numberValue: customerCreditAmount,
+          text: maxLeaseAmountField.code
+        };
+      }
+
+      await sendMessageBroker(
+        {
+          subdomain,
+          action: "customers.updateOne",
+          data: {
+            selector: { _id: customerId },
+            modifier: { $set: customer }
+          },
+          isRPC: true
+        },
+        "contacts"
+      );
+    }
+
+    return customerCreditAmount;
   }
 };
 
-checkPermission(contractMutations, 'contractsAdd', 'contractsAdd');
-checkPermission(contractMutations, 'contractsEdit', 'contractsEdit');
-checkPermission(contractMutations, 'contractsDealEdit', 'contractsDealEdit');
-checkPermission(contractMutations, 'contractsClose', 'contractsClose');
-checkPermission(contractMutations, 'contractsRemove', 'contractsRemove');
+checkPermission(contractMutations, "contractsAdd", "contractsAdd");
+checkPermission(contractMutations, "contractsEdit", "contractsEdit");
+checkPermission(contractMutations, "contractsDealEdit", "contractsDealEdit");
+checkPermission(contractMutations, "contractsClose", "contractsClose");
+checkPermission(contractMutations, "contractsRemove", "contractsRemove");
 
 export default contractMutations;

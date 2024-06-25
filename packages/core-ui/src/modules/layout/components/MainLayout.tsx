@@ -165,9 +165,10 @@ class MainLayout extends React.Component<IProps, State> {
       (window as any).wootricSettings = {
         email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
         created_at: Math.floor(
-          (currentUser.createdAt
-            ? new Date(currentUser.createdAt)
-            : new Date()
+          new Date(
+            currentUser.createdAt ||
+              currentOrganization?.createdAt ||
+              `${dayjs(new Date()).format("YYYY-MM-DD")}`
           ).getTime() / 1000
         ),
         account_token: "NPS-477ee032", // This is your unique account token.

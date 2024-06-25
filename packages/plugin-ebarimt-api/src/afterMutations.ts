@@ -85,7 +85,7 @@ export const afterMutationHandlers = async (
       if (config.skipPutData) {
         const { status, msg, data, innerData } = await getEbarimtData({ config, doc: ebarimtData });
 
-        if (status !== 'ok' || !data || !innerData) {
+        if (status !== 'ok' || (!data && !innerData)) {
           ebarimtResponses.push({
             _id: nanoid(),
             id: 'Error',

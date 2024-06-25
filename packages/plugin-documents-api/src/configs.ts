@@ -75,6 +75,38 @@ export default {
           }
         }
 
+        const regex = /\{{ (\b\w+\.\b\w+\.\b\w+) }}/g;
+        const matches = document?.content?.match(regex) || [];
+        let replaceContentNormal = document?.content;
+        let array: string[] = [];
+        for (const x of matches) {
+          const pattern = x.replace('{{ ', '').replace(' }}', '').split('.');
+          const serviceName = pattern[0];
+          array.push(serviceName);
+        }
+        const uniqueServices = [...new Set(array)];
+        for (const serviceName of uniqueServices) {
+          if (services.includes(serviceName)) {
+            try {
+              const result = await sendCommonMessage({
+                subdomain,
+                serviceName: serviceName,
+                action: 'documents.replaceContentFields',
+                isRPC: true,
+                data: {
+                  ...(req.query || {}),
+                  content: replaceContentNormal,
+                  isArray: false,
+                },
+                timeout: 50000,
+              });
+              replaceContentNormal = result;
+            } catch (e) {
+              console.log(e);
+            }
+          }
+        }
+
         let replacedContents: any[] = [];
         let scripts = '';
         let styles = '';
@@ -91,7 +123,7 @@ export default {
             },
           });
 
-          let content = document.content;
+          let content = replaceContentNormal;
 
           const details = user.details || {};
 
@@ -144,7 +176,7 @@ export default {
               isRPC: true,
               data: {
                 ...(req.query || {}),
-                content: document.content,
+                content: replaceContentNormal,
               },
               timeout: 50000,
             });

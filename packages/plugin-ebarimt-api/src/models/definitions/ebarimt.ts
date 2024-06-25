@@ -79,7 +79,7 @@ export interface IEbarimt {
   customerTin?: string;
   customerName?: string;
   consumerNo?: string;
-  type: 'B2C_RECEIPT' | 'B2B_RECEIPT';
+  type?: 'B2C_RECEIPT' | 'B2B_RECEIPT';
   inactiveId?: string;
   invoiceId?: string;
   reportMonth?: string;
