@@ -68,9 +68,8 @@ export const generateForumClientPortalUserModel = (
 
       const notExistings = _ids
         .filter((_id) => !existingIds.has(_id))
-        .map((_id) => {
-          _id;
-        });
+        .map(_id => _id);
+    
 
       await models.ForumClientPortalUser.insertMany(notExistings);
 
