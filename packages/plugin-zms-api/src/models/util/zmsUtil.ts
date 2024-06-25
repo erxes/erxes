@@ -15,7 +15,7 @@ const IdRegex = /^[a-zA-Z.0-9._@!#$%^&*()+-=]{1,12}$/;
 const registerRegex = /^[a-zA-Z]{1,16}$/;
 const pureDateRegex = /([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))/;
 const numberRegex = /^\d+$/;
-const booleanRegex = /^[0-1]{}$/;
+const booleanRegex = /^[0-1]{1}$/;
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const numberLimRegex = /^\d{1,10}$/;
 const fullDateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1]) (2[0-3]|[01]\d):[0-5]\d:[0-5]\d$/;
@@ -844,7 +844,7 @@ export const validationFields = [
 
 //#region interface
 
-interface io_c_Address {
+interface Io_c_address {
   o_c_address_full: string;
   o_c_address_aimag_city_name: string;
   o_c_address_aimag_city_code: string;
@@ -883,7 +883,7 @@ interface o_c_loan_transactions {
   o_c_loan_schedule_status: boolean;
   o_c_loan_schedule_change_reason: string;
   o_c_loan_schedule: [o_c_loan_schedule];
-  o_c_loan_payment: [o_c_loanp_ayment];
+  o_c_loan_payment: [o_c_loan_payment];
 }
 
 interface o_c_loan_schedule {
@@ -895,7 +895,7 @@ interface o_c_loan_schedule {
   o_c_schedule_balance: number;
 }
 
-interface o_c_loanp_ayment {
+interface o_c_loan_payment {
   '-action': string;
   o_c_payment_due_date: Date;
   o_c_payment_date: Date;
@@ -924,7 +924,7 @@ interface o_c_coll_state_registration {
   o_c_coll_confirmed_date: Date;
 }
 
-interface o_c_collo_therr_registration {
+interface o_c_coll_other_registration {
   o_c_coll_other_certificateno: string;
   o_c_coll_other_regnum: string;
   o_c_coll_other_name: string;
@@ -976,7 +976,7 @@ interface o_shareholder_orgs {
   o_shareholder_org_phone: string;
   o_shareholder_org_email: string;
 }
-interface o_shareholdercustomers {
+interface o_shareholder_customers {
   '-action': string;
   o_shareholder_customer_civil_id: string;
   o_shareholder_customer_regnum: string;
@@ -1000,7 +1000,7 @@ export interface IZms {
     c_familyname: string;
     o_c_isforeign: boolean;
     o_c_birthdate: Date;
-    o_c_address: io_c_Address;
+    o_c_address: Io_c_address;
     o_c_phone: number;
     o_c_email: string;
     c_tax_number: string;
@@ -1101,7 +1101,7 @@ export interface IZms {
       o_c_coll_zipcode: number;
       o_c_coll_is_real_estate: boolean;
       o_c_coll_state_registration: o_c_coll_state_registration;
-      o_c_coll_other_registration: o_c_collo_therr_registration;
+      o_c_coll_other_registration: o_c_coll_other_registration;
       o_c_coll_customer: o_c_coll_customer;
       o_c_coll_org: o_c_coll_org;
     }

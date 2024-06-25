@@ -165,7 +165,7 @@ export const checkCondition = async (
         })
       ) {
         segmentRes = true;
-        
+        }
     }
   }
 
@@ -280,4 +280,4 @@ export const getCustomer = async (subdomain, deal) => {
     }
   }
   return {};
-}};
+};
