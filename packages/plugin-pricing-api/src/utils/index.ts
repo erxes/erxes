@@ -219,7 +219,7 @@ export const checkPricing = async (
             return current;
           }
           return prev;
-        });
+        }, rules[0]);
 
         if (maxValueRule.type?.length) {
           type = maxValueRule.type;
