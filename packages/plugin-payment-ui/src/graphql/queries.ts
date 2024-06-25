@@ -25,6 +25,7 @@ const paymentsTotalCountQuery = gql`
 
 const invoicesFields = `
     _id
+    invoiceNumber
     amount
     contentType
     contentTypeId
@@ -33,10 +34,6 @@ const invoicesFields = `
     customerId
     description
     email
-    payment {
-      name
-      kind
-    }
     phone
     resolvedAt
     status
@@ -74,7 +71,6 @@ const getInvoice = gql`
     invoiceDetail(_id: $_id) {
       _id
       amount
-      apiResponse
       contentType
       contentTypeId
       createdAt
@@ -83,19 +79,26 @@ const getInvoice = gql`
       customerType
       description
       email
-      payment {
-        _id
-        createdAt
-        kind
-        name
-      }
-      paymentId
-      paymentKind
+      invoiceNumber
       phone
-      resolvedAt
+      remainingAmount
       status
-      idOfProvider
-      errorDescription
+      resolvedAt
+      transactions {
+        _id
+        amount
+        response
+        status
+        paymentKind
+        paymentId
+        payment {
+          _id
+          kind
+          name
+        }
+        details
+        createdAt
+      }
     }
   }
 `;
@@ -149,5 +152,5 @@ export default {
   paymentConfigsQuery,
   paymentConfigsTotalCount,
 
-  districts
+  districts,
 };
