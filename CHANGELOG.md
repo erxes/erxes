@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.14.0-rc.0](https://github.com/erxes/erxes/compare/1.13.0...1.14.0-rc.0) (2024-06-25)
+
+
+### Features
+
+* add template plugin ([dc8b891](https://github.com/erxes/erxes/commit/dc8b891ff821f4e06bb5660a3a67a3e5cd05f3c6))
+* **assets:** added ability set history when kb articles changed ([a5a8f23](https://github.com/erxes/erxes/commit/a5a8f23715d6482930cb186cdda3273b0b83ced6))
+* Loans transaction logic ([#5399](https://github.com/erxes/erxes/issues/5399)) ([4da3750](https://github.com/erxes/erxes/commit/4da3750595fd6e102e1c0ce6f55c001ba3ba8623))
+
+
+### Bug Fixes
+
+* **automations:** added rpc trigger consumer in automations ([40b9fa6](https://github.com/erxes/erxes/commit/40b9fa6d7462410aa03cf20dbb56e526fec4039e))
+* **automations:** can't paginate automation history ([fb18302](https://github.com/erxes/erxes/commit/fb18302e39fdd1d2801586fb6e174b54db6d5c1a))
+* burenscoring and golomt ([#5393](https://github.com/erxes/erxes/issues/5393)) ([753d697](https://github.com/erxes/erxes/commit/753d697dbeebcd7f68fb15cdf9fc6cca9b9f12e1))
+* field name changed  in burenscoring query ([#5425](https://github.com/erxes/erxes/issues/5425)) ([8e76b1a](https://github.com/erxes/erxes/commit/8e76b1a70ea976e8af91b679ca55a6c9f074a2ec))
+* golomtbank CI ([5b57849](https://github.com/erxes/erxes/commit/5b57849c9543d9ecc8d7806db4e3cb08a6dd7d87))
+* settings ui bug ([959153b](https://github.com/erxes/erxes/commit/959153b4ae6925bbba98d4ac2286639a055cccd3))
+* **template:** change ui scope ([57fbe19](https://github.com/erxes/erxes/commit/57fbe19685d14e0c786c0a3271db02661fed8d73))
+* **templates:**  file export ([e2f647c](https://github.com/erxes/erxes/commit/e2f647ccb53eb7680d66e0de9c76ca7a90bbe0a4))
+* transaction ([429f933](https://github.com/erxes/erxes/commit/429f9335482d4dfc1c985ae2f8ae0474aa765f51))
+
 ## [1.13.0](https://github.com/erxes/erxes/compare/1.13.0-rc.6...1.13.0) (2024-06-25)
 
 
