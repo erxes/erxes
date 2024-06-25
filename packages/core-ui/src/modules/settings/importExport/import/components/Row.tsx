@@ -16,7 +16,11 @@ type Props = {
   contentType: string;
 };
 
-class Row extends React.Component<Props, {}> {
+type State = {
+  value: string;
+}
+
+class Row extends React.Component<Props, State> {
   renderSampleDatas = () => {
     const { column, columns } = this.props;
 
@@ -33,7 +37,6 @@ class Row extends React.Component<Props, {}> {
 
   onChange = ({ value }) => {
     const { column, contentType, columns } = this.props;
-
     this.props.onChangeColumn(column, value, contentType, columns);
   };
 
@@ -92,12 +95,13 @@ class Row extends React.Component<Props, {}> {
     const renderValue = () => {
       const chosenField = columnWithChosenField[contentType];
 
+
       if (!chosenField) {
         return "";
       }
 
       if (chosenField) {
-        return chosenField[column] && chosenField[column];
+        return renderOptions().find(option => option.value === (chosenField[column] && chosenField[column].value))
       }
 
       return "";

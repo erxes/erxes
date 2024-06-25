@@ -33,9 +33,16 @@ export const transactionDealt = async (
     const contract = await models.Contracts.findOne({
       number: doc?.accountNumber
     }).lean();
-    if (!contract) throw new Error("Dealt contract not found");
 
+    if (!contract) {
+      throw new Error("Dealt contract not found");
+    }
+
+    doc.contractId = contract._id;
+    doc.customerId = contract.customerId;
+    doc.accountHolderName = doc.accountNumber = contract.number;
     doc.transactionType = TRANSACTION_TYPE.INCOME;
+    doc.balance = contract.savingAmount;
 
     return await models.Transactions.createTransaction(doc, subdomain);
   } else if (doc?.dealtType === "external") {

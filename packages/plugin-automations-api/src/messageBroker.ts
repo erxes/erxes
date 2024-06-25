@@ -1,18 +1,18 @@
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgsOmitService,
-  MessageArgs,
+  MessageArgs
 } from '@erxes/api-utils/src/core';
 import { playWait } from './actions';
 import {
   checkWaitingResponseAction,
-  doWaitingResponseAction,
+  doWaitingResponseAction
 } from './actions/wait';
 import { generateModels } from './connectionResolver';
 import { receiveTrigger } from './utils';
 import {
   consumeQueue,
-  consumeRPCQueue,
+  consumeRPCQueue
 } from '@erxes/api-utils/src/messageBroker';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
@@ -46,7 +46,7 @@ export const setupMessageConsumers = async () => {
       await playWait(models, subdomain, data);
       return {
         status: 'success',
-        data: 'complete',
+        data: 'complete'
       };
     }
 
@@ -54,7 +54,7 @@ export const setupMessageConsumers = async () => {
       await doWaitingResponseAction(models, subdomain, data);
       return {
         status: 'success',
-        data: 'complete',
+        data: 'complete'
       };
     }
 
@@ -62,66 +62,66 @@ export const setupMessageConsumers = async () => {
       await receiveTrigger({ models, subdomain, type, targets });
       return {
         status: 'success',
-        data: 'complete',
+        data: 'complete'
       };
     } catch (error) {
       return {
         status: 'error',
-        errorMessage: error?.message || 'error',
+        errorMessage: error?.message || 'error'
       };
     }
   });
 
-  consumeQueue('automations:find.count', async ({ subdomain, data }) => {
+  consumeRPCQueue('automations:find.count', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { query = {} } = data || {};
 
     return {
       status: 'success',
-      data: await models.Automations.countDocuments(query),
+      data: await models.Automations.countDocuments(query)
     };
   });
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
-    ...args,
+    ...args
   });
 };
 
 export const sendEmailTemplateMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'emailtemplates',
-    ...args,
+    ...args
   });
 };
 
 export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
-    ...args,
+    ...args
   });
 };
