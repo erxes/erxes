@@ -3,7 +3,7 @@ import styled from 'styled-components';
 const RichTextEditorWrapper = styled.div<{ $position: string }>`
   position: relative;
   background: #fff;
-  overflow-y: hidden;
+  overflow-y: visible;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -18,8 +18,8 @@ const RichTextEditorWrapper = styled.div<{ $position: string }>`
 
   .Select-menu-outer {
     ${({ $position }) =>
-      $position === 'bottom' &&
-      `
+    $position === 'bottom' &&
+    `
     bottom: 100% !important;
     top: auto !important;
   `}

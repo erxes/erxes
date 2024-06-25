@@ -63,7 +63,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeQueue('engages:notification', async ({ subdomain, data }) => {
-    debugInfo(`Receiving queue data ${JSON.stringify(data)}`);
+    debugInfo(`Receiving queue data ${JSON.stringify(data, null , 2)}`);
     const models = (await generateModels(subdomain)) as IModels;
 
     try {

@@ -82,7 +82,6 @@ const ChartRendererList = (props: FinalProps) => {
     return (
       <TableRenderer
         dataset={dataset}
-        serviceName={chartVariables.serviceName}
       />
     );
   }

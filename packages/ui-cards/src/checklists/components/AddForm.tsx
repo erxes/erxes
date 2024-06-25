@@ -5,6 +5,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import * as React from 'react';
+import { NotWrappable } from '@erxes/ui-settings/src/permissions/styles';
 
 type IProps = {
   itemId: string;
@@ -61,7 +62,7 @@ class AddForm extends React.Component<IProps, State> {
     const { isSubmitted, values } = formProps;
 
     return (
-      <>
+      <NotWrappable>
         <div>
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
@@ -91,7 +92,7 @@ class AddForm extends React.Component<IProps, State> {
             callback: this.close
           })}
         </FormFooter>
-      </>
+      </NotWrappable>
     );
   };
 

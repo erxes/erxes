@@ -38,7 +38,7 @@ const SchedulesList = (props: IProps) => {
   return (
     <>
       <ScheduleYears>{renderYear()}</ScheduleYears>
-      <Table striped>
+      <Table $striped>
         <thead>
           <tr>
             <th />
