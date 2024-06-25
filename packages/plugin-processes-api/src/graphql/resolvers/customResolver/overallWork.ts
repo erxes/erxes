@@ -13,13 +13,13 @@ export default {
     return models.Works.findOne({ _id });
   },
 
-  async type(work: IOverallWork, {}, {}) {
+  async type(work: IOverallWork, _, { }) {
     const { key } = work;
     const { type } = key;
     return type;
   },
 
-  async jobRefer(work: IOverallWork, {}, { models }: IContext) {
+  async jobRefer(work: IOverallWork, _, { models }: IContext) {
     const { key } = work;
     const { type, typeId } = key;
     if (![JOB_TYPES.ENDPOINT, JOB_TYPES.JOB].includes(type)) {
@@ -29,7 +29,7 @@ export default {
     return await models.JobRefers.findOne({ _id: typeId }).lean();
   },
 
-  async product(work: IOverallWork, {}, { subdomain }: IContext) {
+  async product(work: IOverallWork, _, { subdomain }: IContext) {
     const { key } = work;
     const { type, typeId } = key;
     if ([JOB_TYPES.ENDPOINT, JOB_TYPES.JOB].includes(type)) {
@@ -44,7 +44,7 @@ export default {
     });
   },
 
-  async inBranch(work: IOverallWork, {}, { subdomain }: IContext) {
+  async inBranch(work: IOverallWork, _, { subdomain }: IContext) {
     const { key } = work;
     const { inBranchId } = key;
 
@@ -60,7 +60,7 @@ export default {
     });
   },
 
-  async outBranch(work: IOverallWork, {}, { subdomain }: IContext) {
+  async outBranch(work: IOverallWork, _, { subdomain }: IContext) {
     const { key } = work;
     const { outBranchId } = key;
 
@@ -76,7 +76,7 @@ export default {
     });
   },
 
-  async inDepartment(work: IOverallWork, {}, { subdomain }: IContext) {
+  async inDepartment(work: IOverallWork, _, { subdomain }: IContext) {
     const { key } = work;
     const { inDepartmentId } = key;
     if (!inDepartmentId) {
@@ -91,7 +91,7 @@ export default {
     });
   },
 
-  async outDepartment(work: IOverallWork, {}, { subdomain }: IContext) {
+  async outDepartment(work: IOverallWork, _, { subdomain }: IContext) {
     const { key } = work;
     const { outDepartmentId } = key;
     if (!outDepartmentId) {
@@ -106,7 +106,7 @@ export default {
     });
   },
 
-  async needProducts(overallWork: IOverallWork, {}, {}) {
+  async needProducts(overallWork: IOverallWork, _, { }) {
     const { needProducts } = overallWork;
 
     if (!needProducts || !needProducts.length) {
@@ -116,7 +116,7 @@ export default {
     return getProductsData(needProducts);
   },
 
-  async resultProducts(overallWork: IOverallWork, {}, {}) {
+  async resultProducts(overallWork: IOverallWork, _, { }) {
     const { resultProducts } = overallWork;
 
     if (!resultProducts || !resultProducts.length) {

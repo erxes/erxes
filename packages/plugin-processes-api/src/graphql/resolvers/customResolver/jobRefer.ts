@@ -7,7 +7,7 @@ export default {
     return models.JobRefers.findOne({ _id }).lean();
   },
 
-  async needProducts(jobRefer: IJobReferDocument, {}, { subdomain }: IContext) {
+  async needProducts(jobRefer: IJobReferDocument, _, { subdomain }: IContext) {
     const needProducts = jobRefer.needProducts || [];
 
     const { productById } = await getProductAndUoms(subdomain, needProducts);
@@ -22,7 +22,7 @@ export default {
 
   async resultProducts(
     jobRefer: IJobReferDocument,
-    {},
+    _,
     { subdomain }: IContext
   ) {
     const resultProducts = jobRefer.resultProducts || [];

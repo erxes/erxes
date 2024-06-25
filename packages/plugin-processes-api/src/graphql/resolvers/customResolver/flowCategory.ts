@@ -12,11 +12,11 @@ export default {
     });
   },
 
-  isRoot(category: any, {}) {
+  isRoot(category: any, _) {
     return category.parentId ? false : true;
   },
 
-  async flowCount(category: any, {}, { models, subdomain }: IContext) {
+  async flowCount(category: any, _, { models, subdomain }: IContext) {
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
