@@ -389,10 +389,12 @@ class FlowForm extends React.Component<Props, State> {
   };
 
   toggleDrawer = (type: string) => {
-    this.setState({
-      showDrawer: !this.state.showDrawer,
-      activeFlowJob: undefined,
-      currentTab: type,
+    this.setState((prevState) => {
+      return {
+        showDrawer: !prevState.showDrawer,
+        activeFlowJob: undefined,
+        currentTab: type,
+      };
     });
   };
 
