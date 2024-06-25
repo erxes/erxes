@@ -280,4 +280,4 @@ export const getCustomer = async (subdomain, deal) => {
     }
   }
   return {};
-};
+}};

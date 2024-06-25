@@ -279,15 +279,15 @@ export interface IXmlZms {
       c_job: string;
       c_occupation: string;
       o_companytypecode: string;
-      o_orgrate: Oorgrate;
-      o_shareholderorgs: [Oshareholderorg];
-      o_c_relationorg: [Ocrelationorg];
+      o_orgrate: o_orgrate;
+      o_shareholderorgs: [o_shareholderorg];
+      o_c_relationorg: [o_c_relationorg];
       o_c_president_family_firstname: string;
       o_c_president_family_lastname: string;
       o_c_president_family_isforeign: string;
       o_c_president_family_registerno: string;  
     };
-    o_c_onus_information: OconusInformation;
+    o_c_onus_information: o_c_onusInformation;
     o_c_mortgage_information: [o_c_mortgage_information];
   };
 }

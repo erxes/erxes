@@ -1022,7 +1022,7 @@ export interface IZms {
     o_numof_shareholder_orgs: number;
     o_shareholder_orgs: [o_shareholder_orgs];
     o_numof_shareholder_customers: number;
-    o_shareholder_customers: [o_c_loan_information];
+    o_shareholder_customers: [o_shareholder_customers];
   };
 
   o_c_loan_information: [
@@ -1101,7 +1101,7 @@ export interface IZms {
       o_c_coll_zipcode: number;
       o_c_coll_is_real_estate: boolean;
       o_c_coll_state_registration: o_c_coll_state_registration;
-      o_c_coll_other_registration: o_c_coll_other_registration;
+      o_c_coll_other_registration: o_c_collo_therr_registration;
       o_c_coll_customer: o_c_coll_customer;
       o_c_coll_org: o_c_coll_org;
     }
