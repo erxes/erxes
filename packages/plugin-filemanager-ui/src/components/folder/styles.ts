@@ -10,7 +10,6 @@ const FolderItemRow = styledTS<{
   position: relative;
   background: ${props => props.$isActive && colors.colorSecondary};
   padding-right: 20px;
-  overflow: hidden;
   list-style: none;
 
   > div {
@@ -51,12 +50,12 @@ const FolderItemRow = styledTS<{
     display: flex;
     align-items: center;
     cursor: pointer;
-    
-    > i {
-      color: ${props =>
-        props.$isActive ? colors.colorWhite : colors.colorCoreGray};
-      transition: all ease 0.3s;
-    }
+  }
+
+  i {
+    color: ${props =>
+      props.$isActive ? colors.colorWhite : colors.colorCoreGray};
+    transition: all ease 0.3s;
   }
 
   &:last-child {

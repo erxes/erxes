@@ -15,16 +15,13 @@ import { colors } from '../../../styles';
 import { getAttributesForEachSelected } from '../utils/getAttributesForEachSelected';
 import { useRichTextEditorContext } from '../RichTextEditor.context';
 
-const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
-  <span className="editor_icon bgcolor_icon" />
-);
 export const RichTextEditorHighlightControl = () => {
   let overLayRef;
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [pickerColor, setPickerColor] = useState(colors.colorPrimary);
   const [color, setColor] = useState('');
 
-  const { editor, labels } = useRichTextEditorContext();
+  const { editor, labels, isSourceEnabled } = useRichTextEditorContext();
 
   useEffect(() => {
     if (!color) {
@@ -40,7 +37,7 @@ export const RichTextEditorHighlightControl = () => {
       : [];
 
     const currentSelectionTextColors: string[] = allSelectionTextStyleAttrs.map(
-      (attrs) => attrs.color,
+      (attrs) => attrs.color
     );
 
     const numUniqueSelectionTextColors = new Set(currentSelectionTextColors)
@@ -86,7 +83,7 @@ export const RichTextEditorHighlightControl = () => {
     : [];
 
   const currentHighlights: string[] = allCurrentTextStyleAttrs.map(
-    (attrs) => attrs.color,
+    (attrs) => attrs.color
   );
 
   const numUniqueCurrentHighlights = new Set(currentHighlights).size;
@@ -97,6 +94,13 @@ export const RichTextEditorHighlightControl = () => {
   } else {
     isActive = false;
   }
+
+  const LinkIcon: IRichTextEditorControlBaseProps['icon'] = () => (
+    <span
+      className="editor_icon bgcolor_icon"
+      style={{ ...(isSourceEnabled && { opacity: 0.3 }) }}
+    />
+  );
 
   const renderColorPickerOverlay = () => (
     <ColorPickerWrapper>
@@ -143,7 +147,7 @@ export const RichTextEditorHighlightControl = () => {
 
   return (
     <Popover id="background-color-picker">
-      <Popover.Button>
+      <Popover.Button disabled={isSourceEnabled}>
         <RichTextEditorControlBase
           icon={LinkIcon}
           aria-label={labels.highlightControlLabel}
