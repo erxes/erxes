@@ -200,6 +200,8 @@ class SelectWithSearch extends React.Component<
       multi,
       customOption,
       showAvatar = true,
+      menuPortalTarget,
+      customStyles,
     } = this.props;
 
     const { totalOptions, selectedOptions } = this.state;
@@ -278,6 +280,8 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        styles={customStyles}
+        menuPortalTarget={menuPortalTarget}
       />
     );
   }
@@ -346,6 +350,8 @@ type WrapperProps = {
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;
+  menuPortalTarget?: any;
+  customStyles?: any;
   filterParams?: any;
   showAvatar?: boolean;
   customOption?: {

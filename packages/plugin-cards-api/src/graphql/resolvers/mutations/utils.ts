@@ -713,7 +713,9 @@ export const itemsRemove = async (
 
   await destroyBoardItemRelations(models, subdomain, item._id, type);
 
-  const removed = await item.remove();
+  const removed = await getCollection(models, type).collection.findOneAndDelete(
+    { _id: item._id }
+  );
 
   await putDeleteLog(models, subdomain, { type, object: item }, user);
 
