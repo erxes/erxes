@@ -52,11 +52,7 @@ const Permission = (props: Props) => {
       ...config,
       [type]: {
         ...config[type],
-        [name]: isNaN(numericValue)
-          ? value
-          : numericValue > 100
-            ? 100
-            : numericValue,
+        [name]: isNaN(numericValue) ? value : Math.min(numericValue, 100),
       },
     };
 
@@ -147,11 +143,7 @@ const Permission = (props: Props) => {
                 'cashiers',
                 'directDiscount',
               )}
-              {/* {this.renderToggle(
-              'Set unit price',
-              'cashiers',
-              'setUnitPrice'
-            )} */}
+              { }
             </BlockRow>
           </Block>
         </LeftItem>
