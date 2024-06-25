@@ -1027,7 +1027,7 @@ class Form extends React.Component<Props, State> {
               <SelectTeamMembers
                 label={__("Choose team member")}
                 name="assignedUserIds"
-                initialValue={perform ? perform.assignedUserIds : [] || []}
+                initialValue={perform ? perform.assignedUserIds : []}
                 onSelect={(userIds) =>
                   this.setStateWrapper({ assignedUserIds: userIds as string[] })
                 }
