@@ -1,5 +1,5 @@
-import { IMovementDocument } from '../../common/types/asset';
-import { IContext } from '../../connectionResolver';
+import { IMovementDocument } from '../../../common/types/asset';
+import { IContext } from '../../../connectionResolver';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
