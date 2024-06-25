@@ -45,7 +45,7 @@ const exmMutations = {
     }
 
     try {
-      return sendCoreMessage({
+      return await sendCoreMessage({
         subdomain,
         action: 'users.create',
         data: {
