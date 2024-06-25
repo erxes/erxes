@@ -4,7 +4,10 @@ import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
   MESSAGE_TYPES,
+  AUTO_BOT_MESSAGES,
+  BOT_MESSAGE_TYPES,
 } from '../../models/definitions/constants';
+
 
 import {
   IAttachment,
@@ -12,15 +15,10 @@ import {
   IMessengerDataMessagesItem,
 } from '../../models/definitions/integrations';
 
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError} from '@erxes/api-utils/src/debuggers';
 
 import redis from '@erxes/api-utils/src/redis';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-
-import {
-  AUTO_BOT_MESSAGES,
-  BOT_MESSAGE_TYPES,
-} from '../../models/definitions/constants';
 
 import { getEnv, sendToWebhook } from '@erxes/api-utils/src';
 
@@ -138,7 +136,7 @@ export const getMessengerData = async (
       messengerData = messengerData.toJSON();
     }
 
-    const languageCode = integration.languageCode || 'en';
+    const languageCode = integration.languageCode ?? 'en';
     const messages = (messengerData || {}).messages;
 
     if (messages) {
@@ -765,7 +763,7 @@ const widgetMutations = {
           (config) => config.code === 'VIDEO_CALL_TIME_DELAY_BETWEEN_REQUESTS',
         ) || { value: '0' };
 
-        const timeDelayIntValue = parseInt(timeDelay.value || '0', 10);
+        const timeDelayIntValue = parseInt(timeDelay.value ?? '0', 10);
 
         const timeDelayValue = isNaN(timeDelayIntValue) ? 0 : timeDelayIntValue;
 
@@ -776,7 +774,7 @@ const widgetMutations = {
             (config) => config.code === 'VIDEO_CALL_MESSAGE_FOR_TIME_DELAY',
           ) || { value: defaultValue };
 
-          throw new Error(messageForDelay.value || defaultValue);
+          throw new Error(messageForDelay.value ?? defaultValue);
         }
       }
     }

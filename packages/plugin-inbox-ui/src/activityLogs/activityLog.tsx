@@ -2,9 +2,7 @@ import Conversation from './containers/Conversation';
 import React from 'react';
 
 type Props = {
-  contentType: string;
   activity: any;
-  currentUser: any;
 };
 
 class ActivityItem extends React.Component<Props> {

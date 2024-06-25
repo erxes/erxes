@@ -61,7 +61,7 @@ export const loadClass = (models: IModels) => {
 
       if (!doc.fromBot) {
         convDocModifier.messageCount = messageCount;
-        convDocModifier.isCustomerRespondedLast = doc.customerId ? true : false;
+        convDocModifier.isCustomerRespondedLast = !! doc.customerId;
       }
 
       await models.Conversations.updateConversation(
@@ -99,7 +99,7 @@ export const loadClass = (models: IModels) => {
       }
 
       // normalize content, attachments
-      const content = doc.content || '';
+      const content = doc.content ?? '';
       const attachments = doc.attachments || [];
 
       doc.content = content;

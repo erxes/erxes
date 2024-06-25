@@ -55,7 +55,7 @@ const generateFilterQuery = async (
   }
 
   if (status) {
-    query.isActive = status === 'active' ? true : false;
+    query.isActive = status === 'active';
   }
 
   if (formLoadType) {

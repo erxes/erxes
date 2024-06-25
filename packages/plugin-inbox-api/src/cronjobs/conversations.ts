@@ -1,5 +1,4 @@
 import * as moment from 'moment';
-import * as _ from 'underscore';
 import { generateModels } from '../connectionResolver';
 import {
   sendAutomationsMessage,
@@ -132,7 +131,7 @@ export const sendMessageEmail = async (subdomain: string) => {
 
       if (question.attachments.length !== 0) {
         for (const attachment of question.attachments) {
-          questionData.content = (questionData.content || '').concat(
+          questionData.content = (questionData.content ?? '').concat(
             `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
           );
         }
