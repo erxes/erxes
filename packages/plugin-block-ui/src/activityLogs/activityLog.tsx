@@ -44,7 +44,7 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
 
   const amount = activity.content ? activity.content.amount : [];
 
-  switch ((action && action) || type) {
+  switch (action || type) {
     case 'invest':
       return renderDetail(
         'invest',

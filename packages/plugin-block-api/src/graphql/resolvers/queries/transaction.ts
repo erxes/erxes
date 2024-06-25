@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { getBalance } from '../../../utils';
 
 const transactionQueries = {
   async transaction(
@@ -21,6 +20,5 @@ const transactionQueries = {
   }
 };
 
-// requireLogin(transactionQueries, 'transaction');
 
 export default transactionQueries;

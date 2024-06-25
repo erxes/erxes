@@ -16,6 +16,5 @@ const transactionMutations = {
   }
 };
 
-// requireLogin(transactionMutations, 'transactionsAdd');
 
 export default transactionMutations;
