@@ -67,11 +67,9 @@ export const generateForumClientPortalUserModel = (
       const existingIds = new Set(existings.map((e) => e._id));
 
       const notExistings = _ids
-        .filter((_id) => !existingIds.has(_id))
-        .map((_id) => {
-          _id;
-        });
-
+      .filter((_id) => !existingIds.has(_id))
+      .map(_id => _id);
+      
       await models.ForumClientPortalUser.insertMany(notExistings);
 
       return await models.ForumClientPortalUser.find({ _id: { $in: _ids } });
