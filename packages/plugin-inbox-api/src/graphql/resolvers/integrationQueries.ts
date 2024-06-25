@@ -267,9 +267,7 @@ const integrationQueries = {
       if(!args.brandId){
         counts.byBrand[brand._id] = countQueryResult;
       } else {
-        args.brandId === brand._id
-        ? countQueryResult
-        : 0;
+        args.brandId === brand._id && countQueryResult || 0;
       }
     }
 
