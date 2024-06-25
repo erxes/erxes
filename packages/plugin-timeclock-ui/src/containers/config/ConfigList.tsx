@@ -130,8 +130,6 @@ const ListContainer = (props: FinalProps) => {
         : mutations.deviceConfigAdd;
     }
 
-    console.log(values, 'values');
-
     // client
     //   .mutate({
     //     mutation: gql(mutation),

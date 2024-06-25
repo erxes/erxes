@@ -19,7 +19,7 @@ const FilterWrapper = styled.div`
 `;
 
 export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
-  styled.div,
+  styled.div
 )`
   cursor: pointer;
   display: flex;
@@ -322,7 +322,7 @@ const FlexColumn = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap:${(props) => props.$marginNum}px;
+  gap:${props => props.$marginNum}px;
 `;
 
 const FlexColumnMargined = styledTS<{
@@ -330,8 +330,8 @@ const FlexColumnMargined = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.$marginNum}px
-  margin-top:${(props) => props.$marginNum * 2}px;
+  gap: ${props => props.$marginNum}px
+  margin-top:${props => props.$marginNum * 2}px;
 `;
 
 const FlexColumnCustom = styledTS<{
@@ -339,7 +339,7 @@ const FlexColumnCustom = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.$marginNum}px
+  gap: ${props => props.$marginNum}px
   margin: 20px 20px
 
   div:first-child {
