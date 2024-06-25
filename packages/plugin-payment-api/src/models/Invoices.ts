@@ -16,6 +16,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
+  markAsPaid(_id: string): Promise<string>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -75,26 +76,18 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async checkInvoice(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      const totalAmount = await models.Transactions.aggregate([
-        {
-          $match: {
-            invoiceId: _id,
-            status: 'paid',
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: '$amount' },
-          },
-        },
-      ]);
-
-      if (totalAmount.length === 0) {
-        return PAYMENT_STATUS.PENDING;
-      }
-
-      if (totalAmount[0].total < invoice.amount) {
+      const transactions = await models.Transactions.find({
+        invoiceId: invoice._id,
+        status: 'paid',
+      });
+  
+      // sum of paid transactions
+      const paidAmount = transactions.reduce(
+        (acc, transaction) => acc + transaction.amount,
+        0
+      );
+  
+      if (invoice.amount < paidAmount) {
         return PAYMENT_STATUS.PENDING;
       }
 
@@ -102,8 +95,6 @@ export const loadInvoiceClass = (models: IModels) => {
         { _id },
         { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
       );
-
-
 
       return PAYMENT_STATUS.PAID;
     }
@@ -126,6 +117,21 @@ export const loadInvoiceClass = (models: IModels) => {
       redisUtils.removeInvoices(_ids);
 
       return 'removed';
+    }
+
+    public static async markAsPaid(_id: string) {
+      const invoice = await models.Invoices.getInvoice({ _id });
+
+      if (invoice.status === 'paid') {
+        throw new Error('Already paid');
+      }
+
+      await models.Invoices.updateOne(
+        { _id },
+        { $set: { status: 'paid', resolvedAt: new Date() } },
+      );
+
+      return 'success';
     }
   }
 
