@@ -60,7 +60,7 @@ const findContentItemName = async (
       isRPC: true,
     });
 
-    if (cardItem && cardItem.name) {
+    if (cardItem?.name) {
       name = cardItem.name;
     }
   }
