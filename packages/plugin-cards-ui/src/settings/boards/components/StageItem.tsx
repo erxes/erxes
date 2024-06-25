@@ -75,7 +75,6 @@ class StageItem extends React.Component<Props> {
       onChange(stageId, e.target.name, e.target.value);
 
     const onChangeCheckbox = (stageId, e) => {
-      const value = e.target.checked;
       onChange(stageId, e.target.name, e.target.checked);
     };
 
@@ -97,8 +96,8 @@ class StageItem extends React.Component<Props> {
           name="probability"
           onChange={onChangeFormControl.bind(this, stage._id)}
         >
-          {probabilties.map((p, index) => (
-            <option key={index} value={p}>
+          {probabilties.map((p) => (
+            <option key={stage._id} value={p}>
               {p}
             </option>
           ))}

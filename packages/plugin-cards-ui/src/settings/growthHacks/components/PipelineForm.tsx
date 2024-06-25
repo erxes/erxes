@@ -120,10 +120,6 @@ class PipelineForm extends React.Component<Props, State> {
     }
   };
 
-  collectValues = (items) => {
-    return items.map((item) => item.value);
-  };
-
   onColorChange = (e) => {
     this.setState({ backgroundColor: e.hex });
   };

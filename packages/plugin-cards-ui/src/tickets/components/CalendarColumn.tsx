@@ -33,8 +33,8 @@ class TicketColumn extends React.Component<Props, {}> {
       return <EmptyState icon="postcard" text="No tickets" />;
     }
 
-    const contents = tickets.map((ticket: ITicket, index: number) => (
-      <Ticket options={options} key={index} item={ticket} portable={true} />
+    const contents = tickets.map((ticket: ITicket) => (
+      <Ticket options={options} key={ticket._id} item={ticket} portable={true} />
     ));
 
     return <ColumnContentBody>{contents}</ColumnContentBody>;
