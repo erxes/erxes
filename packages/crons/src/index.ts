@@ -6,6 +6,19 @@ import {
   isEnabled,
 } from '@erxes/api-utils/src/serviceDiscovery';
 
+import * as Sentry from "@sentry/node";
+
+const { SENTRY_URL } = process.env
+
+if (SENTRY_URL) {
+  Sentry.init({
+    dsn: SENTRY_URL,
+    tracesSampleRate: 1.0,
+  });
+}
+
+const scheduleWithCheckIn = Sentry.cron.instrumentNodeSchedule(schedule);
+
 const sendMessage = async (
   subdomain: string,
   action: string,
@@ -37,31 +50,47 @@ initBroker()
     const subdomain = 'os';
 
     // every minute at 1sec
-    schedule.scheduleJob('1 * * * * *', async () => {
-      console.log('every minute ....', services);
+    scheduleWithCheckIn.scheduleJob('handleMinutelyJob', '1 * * * * *', async () => {
+      Sentry.withMonitor(
+        "handleMinutelyJob",
+        async () => {
+          console.log('every minute ....', services);
 
-      await sendMessage(subdomain, 'handleMinutelyJob', services);
+          await sendMessage(subdomain, 'handleMinutelyJob', services);
+        });
     });
 
     // every 10 minute at 1sec
-    schedule.scheduleJob('*/10 * * * *', async () => {
+    scheduleWithCheckIn.scheduleJob('handle10MinutelyJob', '*/10 * * * *', async () => {
+      Sentry.withMonitor(
+        "handle10MinutelyJob",
+        async () => {
       console.log('every 10 minute ....', services);
 
       await sendMessage(subdomain, 'handle10MinutelyJob', services);
+        });
     });
 
     // every hour at 10min:10sec
-    schedule.scheduleJob('10 10 * * * *', async () => {
+    scheduleWithCheckIn.scheduleJob('handleHourlyJob', '10 10 * * * *', async () => {
+      Sentry.withMonitor(
+        "handleHourlyJob",
+        async () => {
       console.log('every hour ....', services);
 
       await sendMessage(subdomain, 'handleHourlyJob', services);
+        });
     });
 
     // every day at 04hour:20min:20sec (UTC)
-    schedule.scheduleJob('20 20 20 * * *', async () => {
+    scheduleWithCheckIn.scheduleJob('handleDailyJob', '20 20 20 * * *', async () => {
+      Sentry.withMonitor(
+        "handleDailyJob",
+        async () => {
       console.log('every day ....', services);
 
       await sendMessage(subdomain, 'handleDailyJob', services);
+        });
     });
   })
   .catch((e) =>
