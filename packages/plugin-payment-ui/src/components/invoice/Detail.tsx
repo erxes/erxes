@@ -4,14 +4,14 @@ import Label from '@erxes/ui/src/components/Label';
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
+  SidebarList,
 } from '@erxes/ui/src/layout/styles';
 import { DateWrapper, Flex } from '@erxes/ui/src/styles/main';
 import Alert from '@erxes/ui/src/utils/Alert';
 import {
   loadDynamicComponent,
   renderFullName,
-  renderUserFullName
+  renderUserFullName,
 } from '@erxes/ui/src/utils/core';
 
 import dayjs from 'dayjs';
@@ -42,14 +42,14 @@ const Detail = ({ invoice }: Props) => {
 
     return (
       <li>
-        <FieldStyle overflow="unset">Status:</FieldStyle>
+        <FieldStyle overflow='unset'>Status:</FieldStyle>
         <Label lblStyle={labelStyle}>{invoice.status}</Label>
       </li>
     );
   };
 
   const renderKind = () => {
-    const payment = PAYMENTCONFIGS.find(item => {
+    const payment = PAYMENTCONFIGS.find((item) => {
       if (item.kind === invoice.paymentKind) {
         return item;
       }
@@ -57,7 +57,7 @@ const Detail = ({ invoice }: Props) => {
 
     return (
       <li>
-        <FieldStyle overflow="unset">Kind:</FieldStyle>
+        <FieldStyle overflow='unset'>Kind:</FieldStyle>
         <SidebarCounter nowrap={true}>
           <Label lblColor={payment?.color || 'blue'}>{payment?.name}</Label>
         </SidebarCounter>
@@ -103,12 +103,40 @@ const Detail = ({ invoice }: Props) => {
           window.open(link, '_blank');
         }}
       >
-        <FieldStyle overflow="unset">Customer:</FieldStyle>
+        <FieldStyle overflow='unset'>Customer:</FieldStyle>
 
         <SidebarCounter nowrap={true}>
           <span>{name}</span>
         </SidebarCounter>
       </li>
+    );
+  };
+
+  const renderTransactions = () => {
+    if (!invoice.transactions || !invoice.transactions.length) {
+      return null;
+    }
+
+    const paidTransactions = invoice.transactions.filter(
+      (transaction) => transaction.status === 'paid'
+    );
+
+    return (
+      <table>
+        <thead>
+          <tr>
+            <th>Amount</th>
+            <th>Payment Kind</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paidTransactions.map((transaction, index) => (
+            <tr key={index}>
+              <td>{transaction.paymentKind}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   };
 
@@ -134,7 +162,7 @@ const Detail = ({ invoice }: Props) => {
     <>
       <Flex>
         <div style={{ width: '50%' }}>
-          <SidebarList className="no-link">
+          <SidebarList className='no-link'>
             <li
               onClick={() => {
                 navigator.clipboard.writeText(invoice.idOfProvider);
@@ -142,13 +170,13 @@ const Detail = ({ invoice }: Props) => {
                 Alert.success('Invoice number copied to clipboard');
               }}
             >
-              <FieldStyle overflow="unset">Invoice Number:</FieldStyle>
+              <FieldStyle overflow='unset'>Invoice Number:</FieldStyle>
               <SidebarCounter nowrap={true}>
-                {invoice.idOfProvider}
+                {invoice.invoiceNumber}
               </SidebarCounter>
             </li>
             <li>
-              <FieldStyle overflow="unset">Date:</FieldStyle>
+              <FieldStyle overflow='unset'>Date:</FieldStyle>
 
               <DateWrapper>
                 {dayjs(invoice.createdAt || new Date()).format('ll')}
@@ -156,7 +184,7 @@ const Detail = ({ invoice }: Props) => {
             </li>
 
             <li>
-              <FieldStyle overflow="unset">Resolved Date:</FieldStyle>
+              <FieldStyle overflow='unset'>Resolved Date:</FieldStyle>
 
               {invoice.resolvedAt ? (
                 <DateWrapper>
@@ -168,10 +196,10 @@ const Detail = ({ invoice }: Props) => {
             </li>
 
             {renderStatus()}
-            {renderKind()}
+            {/* {renderKind()} */}
             {renderCustomer()}
             <li>
-              <FieldStyle overflow="unset">Amount:</FieldStyle>
+              <FieldStyle overflow='unset'>Amount:</FieldStyle>
               <SidebarCounter nowrap={true}>
                 {invoice.amount.toLocaleString()}
               </SidebarCounter>
@@ -183,7 +211,7 @@ const Detail = ({ invoice }: Props) => {
                 Alert.success('Invoice description copied to clipboard');
               }}
             >
-              <FieldStyle overflow="unset">Description:</FieldStyle>
+              <FieldStyle overflow='unset'>Description:</FieldStyle>
               <SidebarCounter nowrap={true}>
                 {invoice.description}
               </SidebarCounter>
@@ -192,7 +220,10 @@ const Detail = ({ invoice }: Props) => {
           &nbsp;
           {renderError()}
         </div>
-        <div style={{ width: '50%' }}>{renderRightSection()}</div>
+        <div style={{ width: '50%' }}>
+          {renderTransactions()}
+          {renderRightSection()}
+        </div>
       </Flex>
     </>
   );

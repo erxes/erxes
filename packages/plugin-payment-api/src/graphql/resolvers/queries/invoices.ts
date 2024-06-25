@@ -44,8 +44,6 @@ const generateFilterQuery = (params: IParam) => {
     query.contentTypeId = contentTypeId;
   }
 
-  query.selectedPaymentId = { $exists: true };
-
   return query;
 };
 
@@ -59,7 +57,8 @@ const queries = {
     { models }: IContext
   ) {
     const selector = generateFilterQuery(params);
-    
+
+    console.log(selector)
     return paginate(models.Invoices.find(selector).sort({ createdAt: -1 }), {
       ...params,
     });
