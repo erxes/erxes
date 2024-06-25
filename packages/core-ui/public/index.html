@@ -20,7 +20,6 @@
     <script defer="defer" src="%REACT_APP_PUBLIC_PATH%/remoteEntry.js"></script>
   </head>
   <body>
-    <script src="/js/env.js"></script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script>
       const REACT_APP_PLUGINSJS_PATH = "%REACT_APP_PLUGINSJS_PATH%";
@@ -32,6 +31,15 @@
         document.write('<script src="%REACT_APP_PLUGINSJS_PATH%"><\/script>');
       } else {
         document.write('<script src="/js/plugins.js"><\/script>');
+      }
+    </script>
+    <script>
+      const REACT_APP_ENVJS_PATH = "%REACT_APP_ENVJS_PATH%";
+
+      if (REACT_APP_ENVJS_PATH && !REACT_APP_ENVJS_PATH.includes("REACT_APP")) {
+        document.write('<script src="%REACT_APP_ENVJS_PATH%"><\/script>');
+      } else {
+        document.write('<script src="/js/env.js"><\/script>');
       }
     </script>
     <script>
@@ -73,8 +81,8 @@
           processValue: "%REACT_APP_FILE_UPLOAD_MAX_SIZE%"
         },
         {
-          name: "REACT_APP_APM_SERVER_URL",
-          processValue: "%REACT_APP_APM_SERVER_URL%"
+          name: "REACT_APP_SENTRY_URL",
+          processValue: "%REACT_APP_SENTRY_URL%"
         },
         {
           name: "REACT_APP_HIDE_MESSENGER",
@@ -87,6 +95,26 @@
         {
           name: "REACT_APP_PLUGINSJS_PATH",
           processValue: "%REACT_APP_PLUGINSJS_PATH%"
+        },
+        {
+          name: "REACT_APP_ENVJS_PATH",
+          processValue: "%REACT_APP_ENVJS_PATH%"
+        },
+        {
+          name: "REACT_APP_PUBLIC_POSTHOG_KEY",
+          processValue: "%REACT_APP_PUBLIC_POSTHOG_KEY%"
+        },
+        {
+          name: "REACT_APP_PUBLIC_POSTHOG_HOST",
+          processValue: "%REACT_APP_PUBLIC_POSTHOG_HOST%"
+        },
+        {
+          name: "REACT_APP_FARO_COLLECTOR_URL",
+          processValue: "%REACT_APP_FARO_COLLECTOR_URL%"
+        },
+        {
+          name: "REACT_APP_FARO_APP_NAME",
+          processValue: "%REACT_APP_FARO_APP_NAME%"
         }
       ];
 

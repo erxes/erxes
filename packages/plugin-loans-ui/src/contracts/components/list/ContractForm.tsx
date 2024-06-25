@@ -3,40 +3,40 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src/styles/eindex';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IContract, IContractDoc } from '../../types';
-import { LoanSchedule } from '../../interface/LoanContract';
-import { LoanPurpose, ORGANIZATION_TYPE } from '../../../constants';
-import { Tabs as MainTabs, TabTitle } from '@erxes/ui/src/components/tabs';
+} from "@erxes/ui/src/styles/eindex";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { IContract, IContractDoc } from "../../types";
+import { LoanSchedule } from "../../interface/LoanContract";
+import { LoanPurpose, ORGANIZATION_TYPE } from "../../../constants";
+import { Tabs as MainTabs, TabTitle } from "@erxes/ui/src/components/tabs";
 import SelectContractType, {
   ContractTypeById
-} from '../../../contractTypes/containers/SelectContractType';
+} from "../../../contractTypes/containers/SelectContractType";
 import SelectSavingContract, {
   Contracts
-} from '../collaterals/SelectSavingContract';
-import { generateCustomGraphic, getDiffDay } from '../../utils/customGraphic';
+} from "../collaterals/SelectSavingContract";
+import { generateCustomGraphic, getDiffDay } from "../../utils/customGraphic";
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IContractType } from '../../../contractTypes/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { LEASE_TYPES } from '../../../contractTypes/constants';
-import React, { useState } from 'react';
-import Select from 'react-select';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
-import dayjs from 'dayjs';
-import moment from 'moment';
+import Button from "@erxes/ui/src/components/Button";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IContractType } from "../../../contractTypes/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import { LEASE_TYPES } from "../../../contractTypes/constants";
+import React, { useState } from "react";
+import Select from "react-select";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import Table from "@erxes/ui/src/components/table";
+import { __ } from "coreui/utils";
+import dayjs from "dayjs";
+import moment from "moment";
 
 const onFieldClick = (e) => {
   e.target.select();
@@ -98,7 +98,7 @@ function generateDefault(props) {
     lossCalcType: contract.lossCalcType,
     interestRate: getValue(contract.interestRate, 0),
     interestMonth: getValue(contract.interestRate, 0) / 12,
-    repayment: getValue(contract.repayment, 'fixed'),
+    repayment: getValue(contract.repayment, "fixed"),
     startDate: getValue(contract.startDate, new Date()),
     scheduleDays: getValue(contract.scheduleDays, [new Date().getDate()]),
     debt: getValue(contract.debt, 0),
@@ -111,14 +111,14 @@ function generateDefault(props) {
     useDebt: contract.useDebt,
     useMargin: contract.useMargin,
     useSkipInterest: contract.useSkipInterest,
-    relationExpertId: getValue(contract.relationExpertId, ''),
-    leasingExpertId: getValue(contract.leasingExpertId, ''),
-    riskExpertId: getValue(contract.riskExpertId, ''),
-    customerId: getValue(contract.customerId, ''),
-    customerType: getValue(contract.customerType, 'customer'),
+    relationExpertId: getValue(contract.relationExpertId, ""),
+    leasingExpertId: getValue(contract.leasingExpertId, ""),
+    riskExpertId: getValue(contract.riskExpertId, ""),
+    customerId: getValue(contract.customerId, ""),
+    customerType: getValue(contract.customerType, "customer"),
     weekends: getValue(contract.weekends, []),
     useHoliday: getValue(contract.useHoliday, false),
-    relContractId: getValue(contract.relContractId, ''),
+    relContractId: getValue(contract.relContractId, ""),
     skipAmountCalcMonth: getValue(contract.skipAmountCalcMonth, 0),
     customInterest: getValue(contract.customInterest, 0),
     customPayment: getValue(contract.customPayment, 0),
@@ -132,7 +132,8 @@ function generateDefault(props) {
     commitmentInterest: contract.commitmentInterest,
     savingContractId: contract.savingContractId,
     firstPayDate: contract.firstPayDate,
-    holidayType: getValue(contract.holidayType, 'before')
+    holidayType: getValue(contract.holidayType, "before"),
+    depositAccountId: contract.depositAccountId
   };
 }
 
@@ -153,7 +154,7 @@ export function Tabs({ tabs }: ITabs) {
       <MainTabs>
         {tabs.map((tab, index) => (
           <TabTitle
-            className={tabIndex === index ? 'active' : ''}
+            className={tabIndex === index ? "active" : ""}
             key={`tab${tab.label}`}
             onClick={() => setTabIndex(index)}
           >
@@ -162,7 +163,7 @@ export function Tabs({ tabs }: ITabs) {
         ))}
       </MainTabs>
 
-      <div style={{ width: '100%', marginTop: 20 }}>
+      <div style={{ width: "100%", marginTop: 20 }}>
         {tabs?.[tabIndex]?.component}
       </div>
     </>
@@ -175,7 +176,7 @@ function ContractForm(props: Props) {
   const [state, setState] = useState(generateDefault(props));
   const [config, setConfig] = useState<IConfig>();
   const [schedule, setSchedule] = useState<LoanSchedule[]>(
-    contract?.repayment === 'custom'
+    contract?.repayment === "custom"
       ? generateCustomGraphic({
           dateRange: contract.scheduleDays,
           interestRate: contract.interestRate,
@@ -220,14 +221,14 @@ function ContractForm(props: Props) {
       customPayment: Number(state.customPayment),
       customInterest: Number(state.customInterest),
       repayment: state.repayment,
-      lossCalcType: state.lossCalcType || 'fromInterest',
+      lossCalcType: state.lossCalcType || "fromInterest",
       startDate: state.startDate,
       scheduleDays: state.scheduleDays,
       debt: Number(state.debt),
       debtTenor: Number(state.debtTenor),
       debtLimit: Number(state.debtLimit),
-      customerId: state.customerId || '',
-      customerType: state.customerType || '',
+      customerId: state.customerId || "",
+      customerType: state.customerType || "",
       salvageAmount: 0,
       salvagePercent: 0,
       salvageTenor: 0,
@@ -251,10 +252,11 @@ function ContractForm(props: Props) {
       loanPurpose: state.loanPurpose,
       endDate: state.endDate,
       loanDestination: state.loanDestination,
-      holidayType: state.holidayType
+      holidayType: state.holidayType,
+      depositAccountId: state.depositAccountId
     };
 
-    if (state.leaseType === 'salvage') {
+    if (state.leaseType === "salvage") {
       result.salvageAmount = Number(state.salvageAmount);
       result.salvagePercent = Number(state.salvagePercent);
       result.salvageTenor = Number(state.salvageTenor);
@@ -277,15 +279,15 @@ function ContractForm(props: Props) {
     const name = (e?.target as HTMLInputElement)?.name;
     let value: any = (e?.target as HTMLInputElement)?.value;
 
-    if ((e?.target as HTMLInputElement)?.type === 'checkbox') {
+    if ((e?.target as HTMLInputElement)?.type === "checkbox") {
       value = (e.target as HTMLInputElement).checked;
     }
 
-    const repayment = name === 'repayment' ? value : state.repayment;
+    const repayment = name === "repayment" ? value : state.repayment;
 
     customGraphicChange(repayment, name, value);
 
-    if (name === 'interestRate') {
+    if (name === "interestRate") {
       setState((v) => ({
         ...v,
         interestRate: Number(value),
@@ -303,32 +305,32 @@ function ContractForm(props: Props) {
 
   const customGraphicChange = (repayment, name, value) => {
     if (
-      (name === 'repayment' && repayment === 'custom') ||
-      (repayment === 'custom' &&
-        (name === 'tenor' ||
-          name === 'leaseAmount' ||
-          name === 'customPayment' ||
-          name === 'customInterest' ||
-          name === 'scheduleDays' ||
-          name === 'isPayFirstMonth' ||
-          name === 'interestRate' ||
-          name === 'startDate')) ||
-      name === 'firstPayDate' ||
-      name === 'skipAmountCalcMonth'
+      (name === "repayment" && repayment === "custom") ||
+      (repayment === "custom" &&
+        (name === "tenor" ||
+          name === "leaseAmount" ||
+          name === "customPayment" ||
+          name === "customInterest" ||
+          name === "scheduleDays" ||
+          name === "isPayFirstMonth" ||
+          name === "interestRate" ||
+          name === "startDate")) ||
+      name === "firstPayDate" ||
+      name === "skipAmountCalcMonth"
     ) {
-      const tenor = Number(getMainValue('tenor', name, value));
-      const leaseAmount = Number(getMainValue('leaseAmount', name, value));
-      const customPayment = Number(getMainValue('customPayment', name, value));
+      const tenor = Number(getMainValue("tenor", name, value));
+      const leaseAmount = Number(getMainValue("leaseAmount", name, value));
+      const customPayment = Number(getMainValue("customPayment", name, value));
       const customInterest = Number(
-        getMainValue('customInterest', name, value)
+        getMainValue("customInterest", name, value)
       );
-      const isPayFirstMonth = getMainValue('isPayFirstMonth', name, value);
-      const interestRate = getMainValue('interestRate', name, value);
-      const startDate = getMainValue('startDate', name, value);
-      const scheduleDays = getMainValue('scheduleDays', name, value);
-      const firstPayDate = getMainValue('firstPayDate', name, value);
+      const isPayFirstMonth = getMainValue("isPayFirstMonth", name, value);
+      const interestRate = getMainValue("interestRate", name, value);
+      const startDate = getMainValue("startDate", name, value);
+      const scheduleDays = getMainValue("scheduleDays", name, value);
+      const firstPayDate = getMainValue("firstPayDate", name, value);
       const skipAmountCalcMonth = getMainValue(
-        'skipAmountCalcMonth',
+        "skipAmountCalcMonth",
         name,
         value
       );
@@ -358,7 +360,7 @@ function ContractForm(props: Props) {
 
     let changingStateValue: any = {
       contractTypeId: value,
-      leaseType: (contractTypeObj && contractTypeObj.leaseType) || 'finance',
+      leaseType: (contractTypeObj && contractTypeObj.leaseType) || "finance",
       commitmentInterest:
         (contractTypeObj && contractTypeObj.commitmentInterest) || 0,
       useMargin: contractTypeObj.useMargin,
@@ -373,30 +375,30 @@ function ContractForm(props: Props) {
       contractTypeObj.invoiceDay &&
       contractTypeObj.leaseType === LEASE_TYPES.CREDIT
     ) {
-      changingStateValue['scheduleDays'] = [contractTypeObj.invoiceDay];
+      changingStateValue["scheduleDays"] = [contractTypeObj.invoiceDay];
     }
 
     if (!state.lossPercent) {
-      changingStateValue['lossPercent'] = contractTypeObj?.lossPercent;
+      changingStateValue["lossPercent"] = contractTypeObj?.lossPercent;
     }
     if (!state.lossCalcType) {
-      changingStateValue['lossCalcType'] = contractTypeObj?.lossCalcType;
+      changingStateValue["lossCalcType"] = contractTypeObj?.lossCalcType;
     }
     if (!state.interestMonth && contractTypeObj?.config?.defaultInterest) {
-      changingStateValue['interestMonth'] = Number(
+      changingStateValue["interestMonth"] = Number(
         contractTypeObj?.config?.defaultInterest
       );
-      changingStateValue['interestRate'] = Number(
+      changingStateValue["interestRate"] = Number(
         contractTypeObj?.config?.defaultInterest || 0
       );
     }
 
     if (!state.tenor && contractTypeObj?.config?.minTenor) {
-      changingStateValue['tenor'] = contractTypeObj?.config?.minTenor;
+      changingStateValue["tenor"] = contractTypeObj?.config?.minTenor;
     }
 
     if (!state.leaseAmount && contractTypeObj?.config?.minAmount) {
-      changingStateValue['leaseAmount'] = contractTypeObj?.config?.minAmount;
+      changingStateValue["leaseAmount"] = contractTypeObj?.config?.minAmount;
     }
 
     setConfig({
@@ -415,7 +417,7 @@ function ContractForm(props: Props) {
   const onCheckCustomerType = (e) => {
     setState((v) => ({
       ...v,
-      customerType: e.target.checked ? 'company' : 'customer'
+      customerType: e.target.checked ? "company" : "customer"
     }));
   };
 
@@ -423,7 +425,7 @@ function ContractForm(props: Props) {
     const errors: any = {};
 
     function errorWrapper(text: string) {
-      return <label style={{ color: 'red' }}>{text}</label>;
+      return <label style={{ color: "red" }}>{text}</label>;
     }
 
     if (
@@ -432,7 +434,7 @@ function ContractForm(props: Props) {
       Number(state.marginAmount) < Number(state.leaseAmount)
     )
       errors.marginAmount = errorWrapper(
-        'Margin Amount can not be less than lease Amount'
+        "Margin Amount can not be less than lease Amount"
       );
 
     if (
@@ -441,7 +443,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(config.minAmount, state.leaseAmount)
     )
       errors.leaseAmount = errorWrapper(
-        `${__('Lease amount must greater than')} ${config.minAmount}`
+        `${__("Lease amount must greater than")} ${config.minAmount}`
       );
 
     if (
@@ -450,7 +452,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(state.leaseAmount, config.maxAmount)
     )
       errors.leaseAmount = errorWrapper(
-        `${__('Lease amount must less than')} ${config.maxAmount}`
+        `${__("Lease amount must less than")} ${config.maxAmount}`
       );
 
     if (
@@ -459,7 +461,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(config.minTenor, state.tenor)
     )
       errors.tenor = errorWrapper(
-        `${__('Tenor must greater than')} ${config.minTenor}`
+        `${__("Tenor must greater than")} ${config.minTenor}`
       );
 
     if (
@@ -468,7 +470,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(state.tenor, config.maxTenor)
     )
       errors.tenor = errorWrapper(
-        `${__('Tenor must less than')} ${config.maxTenor}`
+        `${__("Tenor must less than")} ${config.maxTenor}`
       );
 
     if (
@@ -477,7 +479,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(config.minInterest, state.interestRate)
     )
       errors.interestRate = errorWrapper(
-        `${__('Interest must greater than')} ${config.minInterest.toFixed(0)}`
+        `${__("Interest must greater than")} ${config.minInterest.toFixed(0)}`
       );
 
     if (
@@ -486,7 +488,7 @@ function ContractForm(props: Props) {
       isGreaterNumber(state.interestRate, config.maxInterest)
     )
       errors.interestRate = errorWrapper(
-        `${__('Interest must less than')} ${config.maxInterest.toFixed(0)}`
+        `${__("Interest must less than")} ${config.maxInterest.toFixed(0)}`
       );
 
     return errors;
@@ -509,20 +511,20 @@ function ContractForm(props: Props) {
         <ScrollWrapper>
           <FormWrapper>
             <FormColumn>
-              <div style={{ paddingBottom: '13px', paddingTop: '20px' }}>
-                {renderFormGroup('Is Organization', {
+              <div style={{ paddingBottom: "13px", paddingTop: "20px" }}>
+                {renderFormGroup("Is Organization", {
                   ...formProps,
-                  className: 'flex-item',
-                  type: 'checkbox',
-                  componentclass: 'checkbox',
-                  name: 'customerType',
-                  checked: state.customerType === 'company',
+                  className: "flex-item",
+                  type: "checkbox",
+                  componentclass: "checkbox",
+                  name: "customerType",
+                  checked: state.customerType === "company",
                   onChange: onCheckCustomerType
                 })}
               </div>
-              {state.customerType === 'customer' && (
+              {state.customerType === "customer" && (
                 <FormGroup>
-                  <ControlLabel required={true}>{__('Customer')}</ControlLabel>
+                  <ControlLabel required={true}>{__("Customer")}</ControlLabel>
                   <SelectCustomers
                     label="Choose customer"
                     name="customerId"
@@ -532,9 +534,9 @@ function ContractForm(props: Props) {
                   />
                 </FormGroup>
               )}
-              {state.customerType === 'company' && (
+              {state.customerType === "company" && (
                 <FormGroup>
-                  <ControlLabel required={true}>{__('Company')}</ControlLabel>
+                  <ControlLabel required={true}>{__("Company")}</ControlLabel>
                   <SelectCompanies
                     label="Choose company"
                     name="customerId"
@@ -545,19 +547,19 @@ function ContractForm(props: Props) {
                 </FormGroup>
               )}
               {state.useManualNumbering &&
-                renderFormGroup('Contract Number', {
+                renderFormGroup("Contract Number", {
                   ...formProps,
-                  name: 'contractNumber',
+                  name: "contractNumber",
                   value: state.contractNumber,
                   onChange: onChangeField,
                   onClick: onFieldClick
                 })}
 
               {state.useFee &&
-                renderFormGroup('Fee Amount', {
+                renderFormGroup("Fee Amount", {
                   ...formProps,
-                  type: 'number',
-                  name: 'feeAmount',
+                  type: "number",
+                  name: "feeAmount",
                   useNumberFormat: true,
                   fixed: 2,
                   value: state.feeAmount || 0,
@@ -566,10 +568,10 @@ function ContractForm(props: Props) {
                 })}
 
               {state.useMargin &&
-                renderFormGroup('Margin Amount', {
+                renderFormGroup("Margin Amount", {
                   ...formProps,
-                  type: 'number',
-                  name: 'marginAmount',
+                  type: "number",
+                  name: "marginAmount",
                   useNumberFormat: true,
                   fixed: 2,
                   value: state.marginAmount || 0,
@@ -581,7 +583,7 @@ function ContractForm(props: Props) {
               {props.currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.BBSB && (
                 <FormGroup>
-                  <ControlLabel required={true}>{__('Loan Type')}</ControlLabel>
+                  <ControlLabel required={true}>{__("Loan Type")}</ControlLabel>
                   <FormControl
                     {...formProps}
                     name="loanDestination"
@@ -601,7 +603,7 @@ function ContractForm(props: Props) {
             <FormColumn>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Contract Date')}
+                  {__("Contract Date")}
                 </ControlLabel>
                 <DateContainer>
                   <DateControl
@@ -616,12 +618,12 @@ function ContractForm(props: Props) {
               </FormGroup>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Contract Type')}
+                  {__("Contract Type")}
                 </ControlLabel>
                 <SelectContractType
-                  label={__('Choose type')}
+                  label={__("Choose type")}
                   name="contractTypeId"
-                  value={state.contractTypeId || ''}
+                  value={state.contractTypeId || ""}
                   onSelect={onSelectContractType}
                   multi={false}
                 ></SelectContractType>
@@ -630,7 +632,7 @@ function ContractForm(props: Props) {
                 ORGANIZATION_TYPE.BBSB && (
                 <FormGroup>
                   <ControlLabel required={true}>
-                    {__('Loan Purpose')}
+                    {__("Loan Purpose")}
                   </ControlLabel>
                   <FormControl
                     {...formProps}
@@ -654,10 +656,10 @@ function ContractForm(props: Props) {
                 </FormGroup>
               )}
               {state.useMargin &&
-                renderFormGroup('Down payment', {
+                renderFormGroup("Down payment", {
                   ...formProps,
-                  type: 'number',
-                  name: 'downPayment',
+                  type: "number",
+                  name: "downPayment",
                   useNumberFormat: true,
                   fixed: 2,
                   value: state.downPayment || 0,
@@ -667,19 +669,19 @@ function ContractForm(props: Props) {
             </FormColumn>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Branches')}</ControlLabel>
+                <ControlLabel>{__("Branches")}</ControlLabel>
                 <SelectBranches
                   name="branchId"
-                  label={__('Choose branch')}
+                  label={__("Choose branch")}
                   initialValue={state?.branchId}
                   onSelect={onChangeBranchId}
                   multi={false}
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>{__('Leasing Expert')}</ControlLabel>
+                <ControlLabel>{__("Leasing Expert")}</ControlLabel>
                 <SelectTeamMembers
-                  label={__('Choose an leasing expert')}
+                  label={__("Choose an leasing expert")}
                   name="leasingExpertId"
                   initialValue={state.leasingExpertId}
                   onSelect={onSelectTeamMember}
@@ -689,10 +691,10 @@ function ContractForm(props: Props) {
               {state.leaseType === LEASE_TYPES.SAVING && (
                 <FormGroup>
                   <ControlLabel required={true}>
-                    {__('Saving Contract')}
+                    {__("Saving Contract")}
                   </ControlLabel>
                   <SelectSavingContract
-                    label={__('Choose an contract')}
+                    label={__("Choose an contract")}
                     name="depositAccount"
                     initialValue={state.savingContractId}
                     filterParams={{
@@ -700,7 +702,7 @@ function ContractForm(props: Props) {
                       customerId: state.customerId
                     }}
                     onSelect={(v) => {
-                      if (typeof v === 'string') {
+                      if (typeof v === "string") {
                         const savingContract = Contracts[v];
 
                         let changeState: any = {
@@ -720,7 +722,7 @@ function ContractForm(props: Props) {
                             config?.savingPlusLoanInterest;
                           changeState.tenor = dayjs(
                             savingContract.endDate
-                          ).diff(dayjs(state.startDate ?? new Date()), 'month');
+                          ).diff(dayjs(state.startDate ?? new Date()), "month");
                         }
                         setState((v) => ({ ...v, ...changeState }));
                       }
@@ -729,18 +731,42 @@ function ContractForm(props: Props) {
                   />
                 </FormGroup>
               )}
+
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__("Deposit Contract")}
+                </ControlLabel>
+                <SelectSavingContract
+                  label={__("Choose an contract")}
+                  name="depositAccountId"
+                  initialValue={state.savingContractId}
+                  filterParams={{
+                    isDeposit: true,
+                    customerId: state.customerId
+                  }}
+                  onSelect={(depositAccountId) => {
+                    if (typeof depositAccountId === "string") {
+                      setState((v) => ({
+                        ...v,
+                        ["depositAccountId"]: depositAccountId
+                      }));
+                    }
+                  }}
+                  multi={false}
+                />
+              </FormGroup>
             </FormColumn>
           </FormWrapper>
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>{__('Description')}</ControlLabel>
+                <ControlLabel>{__("Description")}</ControlLabel>
                 <FormControl
                   {...formProps}
                   max={140}
                   name="description"
                   componentclass="textarea"
-                  value={state.description || ''}
+                  value={state.description || ""}
                   onChange={onChangeField}
                 />
               </FormGroup>
@@ -750,11 +776,11 @@ function ContractForm(props: Props) {
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
+            name: "contract",
             values: generateDoc(values),
             disabled: !!Object.keys(checkValidation()).length,
             isSubmitted,
@@ -779,13 +805,13 @@ function ContractForm(props: Props) {
 
     const onSelectScheduleDays = (values) => {
       onChangeField({
-        target: { name: 'scheduleDays', value: values.map((val) => val.value) }
+        target: { name: "scheduleDays", value: values.map((val) => val.value) }
       });
     };
 
     const onChangeRow = (value, key, index) => {
       switch (key) {
-        case 'payDate':
+        case "payDate":
           schedule[index].payDate = new Date(value);
           schedule[index].diffDay = Number(
             getDiffDay(
@@ -801,10 +827,10 @@ function ContractForm(props: Props) {
               ).toFixed(0)
             );
           break;
-        case 'payment':
+        case "payment":
           schedule[index].payment = Number(value);
           break;
-        case 'interestNonce':
+        case "interestNonce":
           schedule[index].interestNonce = Number(value);
           break;
 
@@ -825,7 +851,7 @@ function ContractForm(props: Props) {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>{__('Start Date')}</ControlLabel>
+                <ControlLabel required={true}>{__("Start Date")}</ControlLabel>
                 <DateContainer>
                   <DateControl
                     {...formProps}
@@ -837,9 +863,9 @@ function ContractForm(props: Props) {
                   />
                 </DateContainer>
               </FormGroup>
-              {renderFormGroup('Lease Amount', {
-                type: 'number',
-                name: 'leaseAmount',
+              {renderFormGroup("Lease Amount", {
+                type: "number",
+                name: "leaseAmount",
                 useNumberFormat: true,
                 required: true,
                 fixed: 2,
@@ -847,10 +873,10 @@ function ContractForm(props: Props) {
                 errors: checkValidation(),
                 onChange: onChangeField
               })}
-              {state.repayment === 'custom' &&
-                renderFormGroup('Skip Amount Calc /Month/', {
-                  type: 'number',
-                  name: 'skipAmountCalcMonth',
+              {state.repayment === "custom" &&
+                renderFormGroup("Skip Amount Calc /Month/", {
+                  type: "number",
+                  name: "skipAmountCalcMonth",
                   value: state.skipAmountCalcMonth,
                   onChange: onChangeField
                 })}
@@ -858,7 +884,7 @@ function ContractForm(props: Props) {
             <FormColumn>
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('First Pay Date')}
+                  {__("First Pay Date")}
                 </ControlLabel>
                 <DateContainer>
                   <DateControl
@@ -870,7 +896,7 @@ function ContractForm(props: Props) {
                     onChange={onChangeFirstPayDate}
                     isValidDate={(date) => {
                       const startDate = new Date(state.startDate);
-                      const maxDate = moment(startDate).add(45, 'day').toDate();
+                      const maxDate = moment(startDate).add(45, "day").toDate();
 
                       if (date > maxDate) return false;
                       if (startDate > date) return false;
@@ -881,7 +907,7 @@ function ContractForm(props: Props) {
               </FormGroup>
               {state.leaseType === LEASE_TYPES.FINANCE && (
                 <FormGroup>
-                  <ControlLabel required={true}>{__('Repayment')}</ControlLabel>
+                  <ControlLabel required={true}>{__("Repayment")}</ControlLabel>
                   <FormControl
                     {...formProps}
                     name="repayment"
@@ -889,17 +915,17 @@ function ContractForm(props: Props) {
                     value={state.repayment}
                     onChange={onChangeField}
                   >
-                    {['fixed', 'equal', 'custom'].map((typeName) => (
+                    {["fixed", "equal", "custom"].map((typeName) => (
                       <option key={typeName} value={typeName}>
-                        {__(typeName + 'Method')}
+                        {__(typeName + "Method")}
                       </option>
                     ))}
                   </FormControl>
                 </FormGroup>
               )}
-              {renderFormGroup('Tenor', {
-                type: 'number',
-                name: 'tenor',
+              {renderFormGroup("Tenor", {
+                type: "number",
+                name: "tenor",
                 useNumberFormat: true,
                 value: state.tenor || 0,
                 errors: checkValidation(),
@@ -908,29 +934,29 @@ function ContractForm(props: Props) {
                 onChange: onChangeField
               })}
 
-              {state.repayment === 'custom' &&
-                renderFormGroup('Custom payment Amount', {
-                  type: 'number',
-                  name: 'customPayment',
+              {state.repayment === "custom" &&
+                renderFormGroup("Custom payment Amount", {
+                  type: "number",
+                  name: "customPayment",
                   useNumberFormat: true,
                   fixed: 2,
                   value: state.customPayment || 0,
                   onChange: onChangeField
                 })}
               {state.useSkipInterest &&
-                renderFormGroup('Skip Interest Calc /Month/', {
-                  type: 'number',
-                  name: 'skipInterestCalcMonth',
+                renderFormGroup("Skip Interest Calc /Month/", {
+                  type: "number",
+                  name: "skipInterestCalcMonth",
                   value: state.skipInterestCalcMonth,
                   onChange: onChangeField
                 })}
               {state.leaseType === LEASE_TYPES.LINEAR &&
-                renderFormGroup('Commitment interest', {
+                renderFormGroup("Commitment interest", {
                   ...formProps,
-                  type: 'number',
+                  type: "number",
                   useNumberFormat: true,
                   fixed: 2,
-                  name: 'commitmentInterest',
+                  name: "commitmentInterest",
                   value: state.commitmentInterest || 0,
                   errors: checkValidation(),
                   onChange: onChangeField,
@@ -940,11 +966,11 @@ function ContractForm(props: Props) {
             <FormColumn>
               {state.leaseType === LEASE_TYPES.FINANCE && (
                 <FormGroup>
-                  <ControlLabel required>{__('Schedule Days')}</ControlLabel>
+                  <ControlLabel required>{__("Schedule Days")}</ControlLabel>
                   <Select
                     required
                     className="flex-item"
-                    placeholder={__('Choose an schedule Days')}
+                    placeholder={__("Choose an schedule Days")}
                     value={scheduleOptions.filter((o) =>
                       state.scheduleDays?.includes(o.value)
                     )}
@@ -956,7 +982,7 @@ function ContractForm(props: Props) {
               )}
               {state.leaseType === LEASE_TYPES.SAVING && (
                 <FormGroup>
-                  <ControlLabel required={true}>{__('End Date')}</ControlLabel>
+                  <ControlLabel required={true}>{__("End Date")}</ControlLabel>
                   <DateContainer>
                     <DateControl
                       {...formProps}
@@ -968,12 +994,12 @@ function ContractForm(props: Props) {
                   </DateContainer>
                 </FormGroup>
               )}
-              {renderFormGroup('Interest Rate', {
+              {renderFormGroup("Interest Rate", {
                 ...formProps,
-                type: 'number',
+                type: "number",
                 useNumberFormat: true,
                 fixed: 2,
-                name: 'interestRate',
+                name: "interestRate",
                 value: state.interestRate || 0,
                 errors: checkValidation(),
                 onChange: onChangeField,
@@ -981,7 +1007,7 @@ function ContractForm(props: Props) {
               })}
               <FormGroup>
                 <ControlLabel required={true}>
-                  {__('Holiday type')}
+                  {__("Holiday type")}
                 </ControlLabel>
                 <FormControl
                   {...formProps}
@@ -990,36 +1016,36 @@ function ContractForm(props: Props) {
                   value={state.holidayType}
                   onChange={onChangeField}
                 >
-                  {['before', 'exact', 'after'].map((typeName, index) => (
+                  {["before", "exact", "after"].map((typeName, index) => (
                     <option key={typeName} value={typeName}>
-                      {__(typeName + 'Method')}
+                      {__(typeName + "Method")}
                     </option>
                   ))}
                 </FormControl>
               </FormGroup>
-              {state.repayment === 'custom' &&
-                renderFormGroup('Custom Interest', {
+              {state.repayment === "custom" &&
+                renderFormGroup("Custom Interest", {
                   ...formProps,
-                  type: 'number',
+                  type: "number",
                   useNumberFormat: true,
                   fixed: 2,
-                  name: 'customInterest',
+                  name: "customInterest",
                   value: state.customInterest || 0,
                   onChange: onChangeField,
                   onClick: onFieldClick
                 })}
             </FormColumn>
           </FormWrapper>
-          {state.repayment === 'custom' && (
+          {state.repayment === "custom" && (
             <Table $striped>
               <thead>
                 <tr>
                   <th></th>
-                  <th style={{ textAlign: 'center' }}>{__('Day')}</th>
-                  <th style={{ textAlign: 'center' }}>{__('Schedule day')}</th>
-                  <th style={{ textAlign: 'center' }}>{__('Payment')}</th>
-                  <th style={{ textAlign: 'center' }}>{__('Interest')}</th>
-                  <th style={{ textAlign: 'center' }}>{__('Total')}</th>
+                  <th style={{ textAlign: "center" }}>{__("Day")}</th>
+                  <th style={{ textAlign: "center" }}>{__("Schedule day")}</th>
+                  <th style={{ textAlign: "center" }}>{__("Payment")}</th>
+                  <th style={{ textAlign: "center" }}>{__("Interest")}</th>
+                  <th style={{ textAlign: "center" }}>{__("Total")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1027,9 +1053,9 @@ function ContractForm(props: Props) {
                   if (rowIndex === changeRowIndex)
                     return (
                       <tr key={`schedule${mur.order}`}>
-                        <td style={{ textAlign: 'center' }}>{mur.order}</td>
-                        <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td style={{ textAlign: "center" }}>{mur.order}</td>
+                        <td style={{ textAlign: "center" }}>{mur.diffDay}</td>
+                        <td style={{ textAlign: "center" }}>
                           <DateContainer>
                             <DateControl
                               required={false}
@@ -1037,40 +1063,40 @@ function ContractForm(props: Props) {
                               dateFormat="YYYY/MM/DD"
                               value={mur.payDate}
                               onChange={(v) =>
-                                onChangeRow(v, 'payDate', rowIndex)
+                                onChangeRow(v, "payDate", rowIndex)
                               }
                             />
                           </DateContainer>
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td style={{ textAlign: "center" }}>
                           {renderFormGroup(undefined, {
-                            type: 'number',
+                            type: "number",
                             useNumberFormat: true,
                             fixed: 2,
-                            name: 'payment',
+                            name: "payment",
                             value: mur.payment || 0,
                             onChange: (e) => {
-                              onChangeRow(e.target.value, 'payment', rowIndex);
+                              onChangeRow(e.target.value, "payment", rowIndex);
                             }
                           })}
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td style={{ textAlign: "center" }}>
                           {renderFormGroup(undefined, {
-                            type: 'number',
+                            type: "number",
                             useNumberFormat: true,
                             fixed: 2,
-                            name: 'interestNonce',
+                            name: "interestNonce",
                             value: mur.interestNonce || 0,
                             onChange: (e) => {
                               onChangeRow(
                                 e.target.value,
-                                'interestNonce',
+                                "interestNonce",
                                 rowIndex
                               );
                             }
                           })}
                         </td>
-                        <td style={{ textAlign: 'center' }}>
+                        <td style={{ textAlign: "center" }}>
                           <span>{mur.total?.toLocaleString()}</span>
                           <Button
                             icon="check"
@@ -1082,18 +1108,18 @@ function ContractForm(props: Props) {
                     );
                   return (
                     <tr key={`schedule${mur.order}`}>
-                      <td style={{ textAlign: 'center' }}>{mur.order}</td>
-                      <td style={{ textAlign: 'center' }}>{mur.diffDay}</td>
-                      <td style={{ textAlign: 'center' }}>
+                      <td style={{ textAlign: "center" }}>{mur.order}</td>
+                      <td style={{ textAlign: "center" }}>{mur.diffDay}</td>
+                      <td style={{ textAlign: "center" }}>
                         {mur.payDate.toLocaleDateString()}
                       </td>
-                      <td style={{ textAlign: 'center' }}>
+                      <td style={{ textAlign: "center" }}>
                         {mur.payment?.toLocaleString()}
                       </td>
-                      <td style={{ textAlign: 'center' }}>
+                      <td style={{ textAlign: "center" }}>
                         {mur.interestNonce?.toLocaleString()}
                       </td>
-                      <td style={{ textAlign: 'center' }}>
+                      <td style={{ textAlign: "center" }}>
                         <span>{mur.total?.toLocaleString()}</span>
 
                         <Button
@@ -1108,18 +1134,18 @@ function ContractForm(props: Props) {
                 <tr>
                   <td></td>
                   <td></td>
-                  <td style={{ textAlign: 'center' }}>{schedule.length}</td>
-                  <td style={{ textAlign: 'center' }}>
+                  <td style={{ textAlign: "center" }}>{schedule.length}</td>
+                  <td style={{ textAlign: "center" }}>
                     {schedule
                       .reduce((a, b) => a + Number(b.payment), 0)
                       .toLocaleString()}
                   </td>
-                  <td style={{ textAlign: 'center' }}>
+                  <td style={{ textAlign: "center" }}>
                     {schedule
                       .reduce((a, b) => a + Number(b.interestNonce || 0), 0)
                       .toLocaleString()}
                   </td>
-                  <td style={{ textAlign: 'center' }}>
+                  <td style={{ textAlign: "center" }}>
                     {schedule
                       .reduce((a, b) => a + Number(b.total), 0)
                       .toLocaleString()}
@@ -1131,11 +1157,11 @@ function ContractForm(props: Props) {
         </ScrollWrapper>
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="cancel-1">
-            {__('Close')}
+            {__("Close")}
           </Button>
 
           {renderButton({
-            name: 'contract',
+            name: "contract",
             values: generateDoc(values),
             disabled: !!Object.keys(checkValidation()).length,
             isSubmitted,
@@ -1152,11 +1178,11 @@ function ContractForm(props: Props) {
     <Tabs
       tabs={[
         {
-          label: 'Гэрээ',
+          label: "Гэрээ",
           component: <Form renderContent={renderContent} />
         },
         {
-          label: 'Хуваарь',
+          label: "Хуваарь",
           component: <Form renderContent={renderGraphic} />
         }
       ]}

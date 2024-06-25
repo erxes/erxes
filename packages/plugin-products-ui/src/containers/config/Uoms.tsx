@@ -13,10 +13,10 @@ type Props = {};
 const ListContainer = (props: Props) => {
   const uomsQuery = useQuery<UomsQueryResponse>(gql(queries.uoms));
   const uomsCountQuery = useQuery<UomsCountQueryResponse>(
-    gql(queries.uomsTotalCount),
+    gql(queries.uomsTotalCount)
   );
   const [uomsRemove] = useMutation<UomRemoveMutationResponse>(
-    gql(mutations.uomsRemove),
+    gql(mutations.uomsRemove)
   );
 
   const remove = (uom) => {
@@ -41,7 +41,7 @@ const ListContainer = (props: Props) => {
     values,
     isSubmitted,
     callback,
-    object,
+    object
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -65,7 +65,7 @@ const ListContainer = (props: Props) => {
       (uomsCountQuery.data && uomsCountQuery.data.uomsTotalCount) || 0,
     loading: uomsQuery.loading || uomsCountQuery.loading,
     renderButton,
-    remove,
+    remove
   };
 
   return <List {...updatedProps} />;
