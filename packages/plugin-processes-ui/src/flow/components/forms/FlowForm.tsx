@@ -358,7 +358,7 @@ class FlowForm extends React.Component<Props, State> {
       (a) => a.id.toString() === info.sourceId.replace("flowJob-", "")
     );
 
-    const idElm = "flowJob-" + (sourceFlowJob || {}).id;
+    const idElm = "flowJob-" + sourceFlowJob?.id;
     instance.addEndpoint(idElm, sourceEndpoint, {
       anchor: ["Right"],
     });
