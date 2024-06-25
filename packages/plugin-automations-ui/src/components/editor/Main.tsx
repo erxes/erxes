@@ -38,7 +38,7 @@ import { Transition } from '@headlessui/react';
 import TriggerDetailForm from '../forms/triggers/TriggerDetailForm';
 import TriggerForm from '../../containers/forms/triggers/TriggerForm';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __, router } from '@erxes/ui/src/utils/core';
 import { generatePostion } from './utils';
 
 type Props = {
@@ -115,6 +115,12 @@ class Editor extends React.Component<Props, State> {
     this.setState({ name: value });
   };
   switchActionbarTab = (type) => {
+    if (!this.state.isActionTab && type === 'history') {
+      router.setParams(navigator, location, {
+        activeTab: type === 'history' ? 'history' : undefined
+      });
+    }
+
     this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
@@ -607,7 +613,8 @@ class Editor extends React.Component<Props, State> {
     const {
       automation,
       constants: { triggersConst, actionsConst },
-      automationNotes
+      automationNotes,
+      queryParams
     } = this.props;
 
     if (!this.state.isActionTab) {
@@ -620,6 +627,7 @@ class Editor extends React.Component<Props, State> {
           automation={automation}
           triggersConst={triggersConst}
           actionsConst={actionsConst}
+          queryParams={queryParams}
         />
       );
     }
