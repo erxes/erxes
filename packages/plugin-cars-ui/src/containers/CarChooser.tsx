@@ -35,10 +35,6 @@ const CarChooser = (props: Props) => {
     fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
   });
 
-  const [carsAdd] = useMutation<AddMutationResponse, ICarDoc>(
-    gql(mutations.carsAdd),
-  );
-
   const renderName = (car) => {
     return car.plateNumber || car.vinNumber || 'Unknown';
   };
@@ -98,10 +94,10 @@ const Wrapper = (props: WrapperProps) => {
     let page = 20;
 
     if (loadmore) {
-      page = page + 20;
+      page += 20;
     }
 
-    setPerPage(perPage);
+    setPerPage(page);
     setSearchValue(value);
   };
 
