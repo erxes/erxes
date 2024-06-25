@@ -195,8 +195,8 @@ class WidgetForm extends React.Component<Props, State> {
 
               <FormControl id="brandId" componentclass="select" required={true}>
                 <option />
-                {this.props.brands.map((b, index) => (
-                  <option key={`brand-${index}`} value={b._id}>
+                {this.props.brands.map((b) => (
+                  <option key={`brand-${b._id}`} value={b._id}>
                     {b.name}
                   </option>
                 ))}
@@ -214,8 +214,8 @@ class WidgetForm extends React.Component<Props, State> {
                       required={true}
                     >
                       <option />
-                      {this.props.messengerKinds.map((t, index) => (
-                        <option key={`messengerKind-${index}`} value={t.value}>
+                      {this.props.messengerKinds.map((t) => (
+                        <option key={`messengerKind-${t.id}`} value={t.value}>
                           {t.text}
                         </option>
                       ))}
@@ -232,8 +232,8 @@ class WidgetForm extends React.Component<Props, State> {
                       componentclass="select"
                       onChange={this.onSentAsChange}
                     >
-                      {this.props.sentAsChoices.map((t, index) => (
-                        <option key={`sentAs-${index}`} value={t.value}>
+                      {this.props.sentAsChoices.map((t,) => (
+                        <option key={`sentAs-${t.id}`} value={t.value}>
                           {t.text}
                         </option>
                       ))}
