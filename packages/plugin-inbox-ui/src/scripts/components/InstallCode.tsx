@@ -77,7 +77,7 @@ class InstallCode extends React.Component<Props, State> {
           <Button
             btnStyle="simple"
             icon="times-circle"
-            onClick={this.props.closeModal && this.props.closeModal}
+            onClick={this.props.closeModal}
           >
             Close
           </Button>

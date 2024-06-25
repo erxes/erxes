@@ -144,7 +144,7 @@ const integrationQueries = {
   /**
    * Get used integration types
    */
-  async integrationsGetUsedTypes(_root, {}, { models }: IContext) {
+  async integrationsGetUsedTypes(_root, _, { models }: IContext) {
     const usedTypes: Array<{ _id: string; name: string }> = [];
     const kindMap = await getIntegrationsKinds();
 
@@ -214,25 +214,27 @@ const integrationQueries = {
 
     for (const tag of tags) {
       const countQueryResult = await count({ tagIds: tag._id, ...qry });
-
-      counts.byTag[tag._id] = !args.tag
-        ? countQueryResult
-        : args.tag === tag._id
-        ? countQueryResult
-        : 0;
+    
+      if (!args.tag) {
+        counts.byTag[tag._id] = countQueryResult;
+      } else {
+        counts.byTag[tag._id] = args.tag === tag._id ? countQueryResult : 0;
+      }
     }
+    
 
     // Counting integrations by kind
     const kindMap = await getIntegrationsKinds();
 
     for (const kind of Object.keys(kindMap)) {
       const countQueryResult = await count({ kind, ...qry });
-      counts.byKind[kind] = !args.kind
-        ? countQueryResult
-        : args.kind === kind
-        ? countQueryResult
-        : 0;
+      if(!args.kind){
+        counts.byKind[kind] = countQueryResult;
+      } else {
+        counts.byKind[kind] = args.kind === kind ? countQueryResult : 0;
+      }
     }
+
 
     // Counting integrations by channel
     const channels = await models.Channels.find({});
@@ -242,12 +244,11 @@ const integrationQueries = {
         _id: { $in: channel.integrationIds },
         ...qry
       });
-
-      counts.byChannel[channel._id] = !args.channelId
-        ? countQueryResult
-        : args.channelId === channel._id
-        ? countQueryResult
-        : 0;
+      if(!args.channelId){
+        counts.byChannel[channel._id] = countQueryResult;
+      } else {
+        counts.byChannel[channel._id] = args.channelId === channel._id ? countQueryResult : 0;
+      }
     }
 
     // Counting integrations by brand
@@ -263,11 +264,13 @@ const integrationQueries = {
 
     for (const brand of brands) {
       const countQueryResult = await count({ brandId: brand._id, ...qry });
-      counts.byBrand[brand._id] = !args.brandId
-        ? countQueryResult
-        : args.brandId === brand._id
+      if(!args.brandId){
+        counts.byBrand[brand._id] = countQueryResult;
+      } else {
+        args.brandId === brand._id
         ? countQueryResult
         : 0;
+      }
     }
 
     counts.byStatus.active = await count({ isActive: true, ...qry });

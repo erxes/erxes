@@ -44,8 +44,11 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   onCollapse = () => {
-    this.setState({ toggleMessage: !this.state.toggleMessage });
+    this.setState(prevState => ({
+      toggleMessage: !prevState.toggleMessage
+    }));
   };
+  
 
   renderMessages() {
     const { conversation, messages } = this.props;
@@ -205,7 +208,7 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     const iconAndColor = getIconAndColor(condition);
 
     return (
-      <ActivityRow key={Math.random()} isConversation={true}>
+      <ActivityRow key={activity._id} isConversation={true}>
         <Tip text={formatText(condition)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />

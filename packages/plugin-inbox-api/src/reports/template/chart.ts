@@ -725,7 +725,7 @@ const chartTemplates = [
                 {
                     $unwind: "$tag",
                 },
-                ...(tagIds && tagIds.length ? [{ $match: { _id: { $in: tagIds } } }] : []),
+                ...(tagIds?.length ? [{ $match: { _id: { $in: tagIds } } }] : []),
                 {
                     $project: {
                         _id: 1,

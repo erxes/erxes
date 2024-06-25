@@ -59,7 +59,7 @@ const DIMENSION_OPTIONS = [
 ];
 
 const checkFilterParam = (param: any) => {
-  return param && param.length;
+  return param?.length;
 };
 
 const getDates = (startDate: Date, endDate: Date) => {
@@ -207,7 +207,7 @@ const STATUS_TYPES = [
 ];
 
 const calculateAverage = (arr: number[]) => {
-  if (!arr || !arr.length) {
+  if (!arr?.length) {
     return 0; // Handle division by zero for an empty array
   }
 
@@ -356,7 +356,6 @@ const chartTemplates = [
           defaultValue: [],
         });
 
-        departmentUsers = findDepartmentUsers;
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
@@ -631,7 +630,7 @@ const chartTemplates = [
         closedAt: { $exists: true },
       };
 
-      const { departmentIds, branchIds, userIds, tagIds, brandIds } = filter;
+      const { departmentIds, branchIds, userIds, tagIds } = filter;
 
       let departmentUsers;
       let filterUserIds: any = [];
@@ -651,7 +650,6 @@ const chartTemplates = [
           defaultValue: [],
         });
 
-        departmentUsers = findDepartmentUsers;
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
@@ -1355,7 +1353,6 @@ const chartTemplates = [
           defaultValue: [],
         });
 
-        departmentUsers = findDepartmentUsers;
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
@@ -1438,9 +1435,9 @@ const chartTemplates = [
       if (filterStatus === 'open' || filterStatus === 'all') {
         matchfilter['assignedUserId'] =
           filter &&
-          ((userIds && userIds.length) ||
-            (departmentIds && departmentIds.length) ||
-            (branchIds && branchIds.length))
+          ((userIds?.length) ||
+            (departmentIds?.length) ||
+            (branchIds?.length))
             ? {
                 $exists: true,
                 $in: filterUserIds,
@@ -1745,7 +1742,6 @@ const chartTemplates = [
         userIds,
         brandIds,
         dateRange,
-        integrationTypes,
         tagIds,
       } = filter;
 
@@ -1770,7 +1766,6 @@ const chartTemplates = [
           defaultValue: [],
         });
 
-        departmentUsers = findDepartmentUsers;
         filterUserIds = findDepartmentUsers.map((user) => user._id);
       }
 
@@ -1819,7 +1814,7 @@ const chartTemplates = [
       const integrationFindQuery = {};
 
       // filter integrations by brands
-      if (brandIds && brandIds.length) {
+      if (brandIds?.length) {
         integrationFindQuery['brandId'] = { $in: filter.brandIds };
 
         const integrations: any =
@@ -1857,9 +1852,9 @@ const chartTemplates = [
       if (filterStatus === 'open' || filterStatus === 'all') {
         matchfilter['assignedUserId'] =
           filter &&
-          ((userIds && userIds.length) ||
-            (departmentIds && departmentIds.length) ||
-            (branchIds && branchIds.length))
+          ((userIds?.length) ||
+            (departmentIds?.length) ||
+            (branchIds?.length))
             ? {
                 $exists: true,
                 $in: filterUserIds,
@@ -1967,7 +1962,7 @@ const chartTemplates = [
         const departmentsDict = {};
 
         const departmentsQuery =
-          departmentIds && departmentIds.length
+          departmentIds?.length
             ? { query: { _id: { $in: departmentIds } } }
             : {};
 
@@ -1988,7 +1983,7 @@ const chartTemplates = [
 
         if (usersWithConvosCount) {
           for (const user of usersWithConvosCount) {
-            if (!usersMap[user._id] || !usersMap[user._id].departmentIds) {
+            if (!usersMap[user._id]?.departmentIds) {
               continue;
             }
 
@@ -2026,7 +2021,7 @@ const chartTemplates = [
         const branchesDict = {};
 
         const branchesQuery =
-          branchIds && branchIds.length
+          branchIds?.length
             ? { query: { _id: { $in: branchIds } } }
             : {};
 
@@ -2047,7 +2042,7 @@ const chartTemplates = [
 
         if (usersWithConvosCount) {
           for (const user of usersWithConvosCount) {
-            if (!usersMap[user._id] || !usersMap[user._id].branchIds) {
+            if (!usersMap[user._id]?.branchIds) {
               continue;
             }
 
@@ -2138,7 +2133,7 @@ const chartTemplates = [
       //brand
       if (dimensionX === 'brand') {
         const query =
-          brandIds && brandIds.length ? { _id: { $in: brandIds } } : {};
+          brandIds?.length ? { _id: { $in: brandIds } } : {};
 
         const brandsMap: { [brandId: string]: string } = {};
 
@@ -2170,7 +2165,7 @@ const chartTemplates = [
           groupByQuery,
         ]);
 
-        if (convosCountBySource && convosCountBySource.length) {
+        if (convosCountBySource?.length) {
           const integrationsCountMap = {};
           const brandsCountMap = {};
 

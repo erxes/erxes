@@ -144,7 +144,7 @@ export default class Builder {
     // filter only queries with $in field
     const withIn = queries.filter(
       q =>
-        q.integrationId && q.integrationId.$in && q.integrationId.$in.length > 0
+        q.integrationId?.$in?.$in.length > 0
     );
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]

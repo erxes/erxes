@@ -32,47 +32,57 @@ class OnlineHours extends React.Component<Props, State> {
   }
 
   onTimeItemChange(onlineHourId, name, value) {
-    const onlineHours = this.state.onlineHours;
-
-    // find current editing one
-    const onlineHour =
-      onlineHours.find((hour) => hour._id === onlineHourId) || [];
-
-    // set new value
-    onlineHour[name] = value;
-
-    this.setState({ onlineHours });
-
-    // notify as change to main component
-    this.props.onChange(onlineHours);
-  }
-
-  addTime = () => {
-    const onlineHours = this.state.onlineHours.slice();
-
-    onlineHours.push({
-      _id: Math.random().toString(),
-      day: days[0].value,
-      from: hours[0].value,
-      to: hours[0].value,
+    
+    this.setState((prevState) => {
+    
+      const updatedOnlineHours = prevState.onlineHours.map((hour) => {
+        if (hour._id === onlineHourId) {
+          return {
+            ...hour,
+            [name]: value
+          };
+        }
+        return hour; 
+      });
+  
+      this.props.onChange(updatedOnlineHours);
+  
+      return { onlineHours: updatedOnlineHours };
     });
-
-    this.setState({ onlineHours });
-
-    // notify as change to main component
-    this.props.onChange(onlineHours);
+  }
+  
+  addTime = () => {
+    
+    this.setState((prevState) => {
+     
+      const updatedOnlineHours = prevState.onlineHours.slice();
+  
+      
+      updatedOnlineHours.push({
+        _id: Math.random().toString(),
+        day: days[0].value,
+        from: hours[0].value,
+        to: hours[0].value,
+      });
+  
+      this.props.onChange(updatedOnlineHours);
+  
+      return { onlineHours: updatedOnlineHours };
+    });
   };
-
+  
   removeTime = (onlineHourId) => {
-    let onlineHours = this.state.onlineHours;
-
-    onlineHours = onlineHours.filter((hour) => hour._id !== onlineHourId);
-
-    this.setState({ onlineHours });
-
-    // notify as change to main component
-    this.props.onChange(onlineHours);
+    
+    this.setState((prevState) => {
+    
+      const updatedOnlineHours = prevState.onlineHours.filter((hour) => hour._id !== onlineHourId);
+  
+      this.props.onChange(updatedOnlineHours);
+  
+      return { onlineHours: updatedOnlineHours };
+    });
   };
+  
 
   renderOnlineHour(onlineHour) {
     const remove = () => {

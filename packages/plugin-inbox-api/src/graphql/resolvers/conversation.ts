@@ -58,7 +58,7 @@ export default {
   },
 
   participatorCount(conv: IConversationDocument) {
-    return (conv.participatedUserIds && conv.participatedUserIds.length) || 0;
+    return (conv.participatedUserIds?.length) || 0;
   },
 
   async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
@@ -168,7 +168,5 @@ export default {
       return null;
     }
     // }
-
-    return null;
   },
 };

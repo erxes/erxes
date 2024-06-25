@@ -171,9 +171,12 @@ class Lead extends React.Component<Props, State> {
 
   componentDidUpdate(_prevProps, prevState) {
     if (prevState.formData !== this.state.formData) {
-      this.setState({ formData: this.state.formData });
+      this.setState((state) => ({
+        formData: state.formData
+      }));
     }
   }
+  
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -253,11 +256,12 @@ class Lead extends React.Component<Props, State> {
   };
 
   onFormInit = (fields: IField[]) => {
-    const formData = this.state.formData;
-    formData.fields = fields;
-
-    this.setState({ formData });
+    this.setState((prevState) => {
+      const formData = { ...prevState.formData, fields };
+      return { formData };
+    });
   };
+  
 
   onFieldClick = (field: IField) => {
     this.setState({ currentMode: "update", currentField: field });

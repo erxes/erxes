@@ -35,14 +35,14 @@ class Intro extends React.Component<Props, State> {
   }
 
   onMessageChange = (name, value) => {
-    const messages = { ...this.state.messages };
-
-    messages[this.props.languageCode][name] = value;
-
-    this.setState({ messages });
-
-    this.props.onChange("messages", messages);
+    this.setState((prevState) => {
+      const messages = { ...prevState.messages };
+      messages[this.props.languageCode][name] = value;
+      this.props.onChange("messages", messages);
+      return { messages };
+    });
   };
+  
 
   render() {
     const { languageCode, skillData } = this.props;

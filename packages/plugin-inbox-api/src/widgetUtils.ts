@@ -142,13 +142,11 @@ const groupSubmissions = (submissions: any[]) => {
       } else {
         submissionsGrouped[submission.groupId] = [submission];
       }
-    } else {
-      if (submissionsGrouped.default) {
+    } else if (submissionsGrouped.default) {
         submissionsGrouped.default.push(submission);
       } else {
         submissionsGrouped.default = [submission];
-      }
-    }
+      
   });
   return submissionsGrouped;
 };

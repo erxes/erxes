@@ -7,7 +7,7 @@ export const getIntegrationMeta = async () => {
   for (const serviceName of serviceNames) {
     const service = await getService(serviceName);
     const inboxIntegrations =
-      (service.config.meta || {}).inboxIntegrations || [];
+      service.config.meta?.inboxIntegrations || [];
 
     if (inboxIntegrations && inboxIntegrations.length > 0) {
       metas = metas.concat(inboxIntegrations);
