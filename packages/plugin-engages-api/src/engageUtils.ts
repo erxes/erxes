@@ -645,9 +645,9 @@ export const sendWithSendgrid = async (subdomain, doc) => {
   sendgridMail.setApiKey(SENDGRID_API_KEY);
 
   try {
-    const sendgridResponse = await sendgridMail.send(doc);
+    const [response] = await sendgridMail.send(doc);
 
-    return JSON.stringify(sendgridResponse);
+    return response.headers
   } catch (e) {
     console.error(e)
     return;
