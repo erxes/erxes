@@ -127,13 +127,14 @@ class FlowForm extends React.Component<Props, State> {
     this.setState({ ...param });
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.flow !== this.props.flow) {
-      this.setState({
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.flow !== prevState.flow) {
+      return {
         flowValidation: nextProps.flow.flowValidation,
-        isActive: (nextProps.flow.status === "active" && true) || false,
-      });
+        isActive: nextProps.flow.status === "active",
+      };
     }
+    return null;
   }
 
   componentDidMount() {
