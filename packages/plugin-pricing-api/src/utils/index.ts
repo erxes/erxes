@@ -207,7 +207,6 @@ export const checkPricing = async (
             ...quantityRule.bonusProducts,
             ...expiryRule.bonusProducts
           ];
-          value = 0;
         }
 
         // Prioritize highest value between rules
@@ -243,13 +242,11 @@ export const checkPricing = async (
           // Priority calculation
           if (plan.isPriority) {
             result[item.itemId].value += value;
-          } else {
-            if (
+          } else if (
               (value > 0 && result[item.itemId].value < value) ||
               (value < 0 && result[item.itemId].value > value)
             ) {
               result[item.itemId].value = value;
-            }
           }
         }
 
