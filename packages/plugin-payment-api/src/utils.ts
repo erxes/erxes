@@ -96,12 +96,13 @@ export const callbackHandler = async (req, res) => {
 
       if (await isEnabled(serviceName)) {
         try {
-          sendMessage(`${serviceName}:transactionCallback`, {
+          sendMessage(`${serviceName}:paymentTransactionCallback`, {
             subdomain,
             data: {
               ...transaction,
               apiResponse: 'success',
             },
+            defaultValue: null,
           });
 
           if (result === 'paid') {
@@ -114,7 +115,7 @@ export const callbackHandler = async (req, res) => {
             });
           }
         } catch (e) {
-          console.error(e);
+          console.error("Error: ",e);
         }
       }
     }
