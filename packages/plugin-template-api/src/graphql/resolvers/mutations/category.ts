@@ -1,24 +1,34 @@
-import { IContext } from "../../../connectionResolver"
-import { TemplateCategoryDocument } from "../../../models/definitions/templates"
+import { IContext } from '../../../connectionResolver';
+import { TemplateCategoryDocument } from '../../../models/definitions/templates';
 
 const categoryMutations = {
-    categoryAdd: async (_root, doc: TemplateCategoryDocument, { user, models, subdomain }: IContext) => {
-        const category = await models.TemplateCategories.createTemplateCategory(doc, user)
+  categoryAdd: async (
+    _root,
+    doc: TemplateCategoryDocument,
+    { user, models, subdomain }: IContext
+  ) => {
+    return await models.TemplateCategories.createTemplateCategory(doc, user);
+  },
 
-        return category
-    },
+  categoryEdit: async (
+    _root,
+    { _id, ...doc }: TemplateCategoryDocument,
+    { user, models, subdomain }: IContext
+  ) => {
+    return await models.TemplateCategories.updateTemplateCategory(
+      _id,
+      doc,
+      user
+    );
+  },
 
-    categoryEdit: async (_root, { _id, ...doc }: TemplateCategoryDocument, { user, models, subdomain }: IContext) => {
-        const category = await models.TemplateCategories.updateTemplateCategory(_id, doc, user)
+  categoryRemove: async (
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) => {
+    return await models.TemplateCategories.removeTemplateCategory(_id);
+  }
+};
 
-        return category
-    },
-
-    categoryRemove: async (_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) => {
-        const category = await models.TemplateCategories.removeTemplateCategory(_id)
-
-        return category
-    }
-}
-
-export default categoryMutations
+export default categoryMutations;

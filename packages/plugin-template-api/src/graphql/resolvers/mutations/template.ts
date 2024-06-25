@@ -1,42 +1,49 @@
-import { IContext } from "../../../connectionResolver";
-import { sendCommonMessage } from "../../../messageBroker";
-import { TemplateDocument } from "../../../models/definitions/templates";
+import { IContext } from '../../../connectionResolver';
+import { sendCommonMessage } from '../../../messageBroker';
+import { TemplateDocument } from '../../../models/definitions/templates';
 
 const templateMutations = {
-    templateAdd: async (_root, doc: TemplateDocument, { user, models, subdomain }: IContext) => {
-        const template = await models.Templates.createTemplate(doc, subdomain, user)
+  templateAdd: async (
+    _root,
+    doc: TemplateDocument,
+    { user, models, subdomain }: IContext
+  ) => {
+    return await models.Templates.createTemplate(doc, subdomain, user);
+  },
 
-        return template
-    },
+  templateEdit: async (
+    _root,
+    { _id, ...doc }: TemplateDocument,
+    { user, models }: IContext
+  ) => {
+    return await models.Templates.updateTemplate(_id, doc, user);
+  },
 
-    templateEdit: async (_root, { _id, ...doc }: TemplateDocument, { user, models, subdomain }: IContext) => {
-        const template = await models.Templates.updateTemplate(_id, doc, user)
+  templateRemove: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return await models.Templates.removeTemplate(_id);
+  },
 
-        return template
-    },
-
-    templateRemove: async (_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) => {
-        const template = await models.Templates.removeTemplate(_id)
-
-        return template
-    },
-
-    templateUse: async (_root, { serviceName, contentType, template }, { user, subdomain }: IContext) => {
-
-        const response = await sendCommonMessage({
-            subdomain,
-            serviceName,
-            action: 'templates.useTemplate',
-            data: {
-                template,
-                contentType,
-                currentUser: user
-            },
-            isRPC: true,
-        })
-
-        return response
-    }
-}
+  templateUse: async (
+    _root,
+    { serviceName, contentType, template },
+    { user, subdomain }: IContext
+  ) => {
+    return await sendCommonMessage({
+      subdomain,
+      serviceName,
+      action: 'templates.useTemplate',
+      data: {
+        template,
+        contentType,
+        currentUser: user
+      },
+      isRPC: true
+    });
+  }
+};
 
 export default templateMutations;
