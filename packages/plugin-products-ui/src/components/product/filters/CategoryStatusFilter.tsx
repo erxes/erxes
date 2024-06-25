@@ -56,8 +56,9 @@ const CategoryStatusFilter: React.FC<Props> = (props) => {
         isOpen={router.getParam(location, [productParam])}
       >
         <SidebarList>
-          {categoryStatusChoises(__).map(({ value, label} : {value: string, label: string} , index: number ) =>
+          {categoryStatusChoises(__).map((choice : {value: string, label: string}, index: number ) =>
               {
+                const {value, label} = choice
 
                 if(value !== "deleted") { 
                   return <></>

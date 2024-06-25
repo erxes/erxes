@@ -82,7 +82,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
   const [isOpen, setIsOpen] = useState<boolean>(
     props.config?.showAddition || false,
   );
-  const [counts, setCounts] = useState<{ [key: string]: number }>({});
+  const [itemCounts, setItemCounts] = useState<{ [key: string]: number }>({});
 
 
   const renderTrigger = (text: string) => {
@@ -304,7 +304,7 @@ const LeftSidebar: React.FC<Props> = (props) => {
           queryParams={queryParams}
           toggleRowCheckbox={toggleBulk}
           selectedConversations={bulk}
-          counts={counts}
+          counts={itemCounts}
           location={location}
           navigate={navigate}
         />
