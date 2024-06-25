@@ -189,7 +189,6 @@ const goalForm = (props: Props) => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
     dispatch({ type: "updateState", payload: { target: parsedValue } });
-    // if (!isNaN(parsedValue)) {
 
     // }
     //  else {

@@ -1,13 +1,11 @@
 import { Chooser } from '@erxes/ui/src';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import React, { useState } from 'react';
 
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import {
-  AddMutationResponse,
   GoalTypesQueryResponse,
   IGoalType,
-  IGoalTypeDoc,
 } from '../types';
 import GoalTypeForm from './goalForm';
 
@@ -36,10 +34,6 @@ const GoalTypeChooser = (props: Props) => {
       },
       fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
     },
-  );
-
-  const [goalTypesAdd] = useMutation<AddMutationResponse>(
-    gql(mutations.goalTypesAdd),
   );
 
   const resetAssociatedItem = () => {
@@ -101,10 +95,10 @@ const Wrapper = (props: WrapperProps) => {
   const [searchValue, setSearchValue] = useState<string>('');
 
   const search = (value, loadmore) => {
-    let page = 20;
+    let perPage = 20;
 
     if (loadmore) {
-      page = page + 20;
+      perPage = perPage + 20;
     }
 
     setPerPage(perPage);

@@ -7,7 +7,7 @@ import {
 } from '@erxes/ui/src/team/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import GoalTypeForm from '../components/goalForm';
+import GoalTypeForm from '../components/GoalForm';
 import { mutations, queries } from '../graphql';
 import { IGoalType } from '../types';
 
@@ -17,7 +17,7 @@ type Props = {
   closeModal: () => void;
 };
 
-const goalForm = (props: Props) => {
+const GoalForm = (props: Props) => {
   const { closeModal, getAssociatedGoalType } = props;
 
   const branchListQuery = useQuery<BranchesMainQueryResponse>(
@@ -92,4 +92,4 @@ const goalForm = (props: Props) => {
   return <GoalTypeForm segmentIds={[]} {...updatedProps} />;
 };
 
-export default goalForm;
+export default GoalForm;
