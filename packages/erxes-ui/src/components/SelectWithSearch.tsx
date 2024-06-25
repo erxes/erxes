@@ -200,6 +200,8 @@ class SelectWithSearch extends React.Component<
       multi,
       customOption,
       showAvatar = true,
+      menuPortalTarget,
+      customStyles,
     } = this.props;
 
     const { totalOptions, selectedOptions } = this.state;
@@ -264,11 +266,6 @@ class SelectWithSearch extends React.Component<
       </components.MultiValue>
     );
 
-    const customStyles = {
-      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-      menu: (base) => ({ ...base, zIndex: 9999 }),
-    };
-
     return (
       <Select
         isClearable={true}
@@ -284,7 +281,7 @@ class SelectWithSearch extends React.Component<
         options={selectOptions}
         isMulti={multi}
         styles={customStyles}
-        menuPortalTarget={document.body}
+        menuPortalTarget={menuPortalTarget}
       />
     );
   }
@@ -353,6 +350,8 @@ type WrapperProps = {
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;
+  menuPortalTarget?: any;
+  customStyles?: any;
   filterParams?: any;
   showAvatar?: boolean;
   customOption?: {
