@@ -30,7 +30,13 @@ const acceptCall = async (
     callStatus,
     sessionId,
     inboxIntegrationId,
+    queueName,
   } = params;
+
+  let queue = queueName as any;
+  if (queueName === '') {
+    queue = null; // or set a default value
+  }
 
   let customer = await models.Customers.findOne({
     primaryPhone: customerPhone,
@@ -51,6 +57,7 @@ const acceptCall = async (
       updatedBy: user._id,
       callDuration: 0,
       extentionNumber,
+      queueName: queue,
     });
 
     try {
