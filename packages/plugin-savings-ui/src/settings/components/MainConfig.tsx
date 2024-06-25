@@ -5,15 +5,16 @@ import {
   FormControl,
   FormGroup,
   MainStyleModalFooter as ModalFooter
-} from '@erxes/ui/src';
-import React from 'react';
-import { IConfigsMap } from '../types';
-import { __ } from 'coreui/utils';
+} from "@erxes/ui/src";
+import React from "react";
+import { IConfigsMap } from "../types";
+import { __ } from "coreui/utils";
 
 type Props = {
   configsMap: IConfigsMap;
   config: any;
   save: (configsMap: IConfigsMap) => void;
+  loading: boolean;
 };
 
 type State = {
@@ -63,13 +64,13 @@ class MainConfig extends React.Component<Props, State> {
       <>
         <CollapseContent title={__(config.title)} open={false}>
           <FormGroup>
-            <ControlLabel>{__('Calculation number fixed')}</ControlLabel>
+            <ControlLabel>{__("Calculation number fixed")}</ControlLabel>
             <FormControl
-              defaultValue={config['calculationFixed']}
+              defaultValue={config["calculationFixed"]}
               type="number"
               min={0}
               max={100}
-              onChange={this.onChangeInput.bind(this, 'calculationFixed')}
+              onChange={this.onChangeInput.bind(this, "calculationFixed")}
               required={true}
             />
           </FormGroup>
@@ -80,24 +81,25 @@ class MainConfig extends React.Component<Props, State> {
               icon="check-circle"
               onClick={this.onSave}
               uppercase={false}
+              disabled={this.props.loading}
             >
-              {__('Save')}
+              {__("Save")}
             </Button>
           </ModalFooter>
         </CollapseContent>
-        <CollapseContent title={__('period lock config')} open={false}>
+        <CollapseContent title={__("period lock config")} open={false}>
           <FormGroup>
             <ControlLabel required={true}>
-              {__('Period lock type')}
+              {__("Period lock type")}
             </ControlLabel>
             <FormControl
               name="periodLockType"
               componentclass="select"
               type="select"
-              defaultValue={config['periodLockType']}
-              onChange={this.onChangeInput.bind(this, 'periodLockType')}
+              defaultValue={config["periodLockType"]}
+              onChange={this.onChangeInput.bind(this, "periodLockType")}
             >
-              {['daily', 'endOfMonth', 'manual'].map((typeName) => (
+              {["daily", "endOfMonth", "manual"].map((typeName) => (
                 <option key={typeName} value={typeName}>
                   {__(typeName)}
                 </option>
@@ -105,14 +107,14 @@ class MainConfig extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Is Store Interest')}</ControlLabel>
+            <ControlLabel>{__("Is Store Interest")}</ControlLabel>
             <FormControl
               className="flex-item"
               type="checkbox"
               componentclass="checkbox"
               name="isStoreInterest"
-              checked={config['isStoreInterest']}
-              onChange={this.onChangeCheck.bind(this, 'isStoreInterest')}
+              checked={config["isStoreInterest"]}
+              onChange={this.onChangeCheck.bind(this, "isStoreInterest")}
             />
           </FormGroup>
 
@@ -122,33 +124,34 @@ class MainConfig extends React.Component<Props, State> {
               icon="check-circle"
               onClick={this.onSave}
               uppercase={false}
+              disabled={this.props.loading}
             >
-              {__('Save')}
+              {__("Save")}
             </Button>
           </ModalFooter>
         </CollapseContent>
-        <CollapseContent title={__('internet bank config')} open={false}>
+        <CollapseContent title={__("internet bank config")} open={false}>
           <FormGroup>
-            <ControlLabel>{__('one time transaction limit')}</ControlLabel>
+            <ControlLabel>{__("one time transaction limit")}</ControlLabel>
             <FormControl
-              defaultValue={config['oneTimeTransactionLimit']}
+              defaultValue={config["oneTimeTransactionLimit"]}
               type="number"
               onChange={this.onChangeInputNumber.bind(
                 this,
-                'oneTimeTransactionLimit'
+                "oneTimeTransactionLimit"
               )}
               required={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Transaction account type')}</ControlLabel>
+            <ControlLabel>{__("Transaction account type")}</ControlLabel>
             <FormControl
               name="transactionAccountType"
               componentclass="select"
-              defaultValue={config['transactionAccountType']}
-              onChange={this.onChangeInput.bind(this, 'transactionAccountType')}
+              defaultValue={config["transactionAccountType"]}
+              onChange={this.onChangeInput.bind(this, "transactionAccountType")}
             >
-              {['khanbank', 'golomt'].map((typeName) => (
+              {["khanbank", "golomt"].map((typeName) => (
                 <option key={`${typeName}bank`} value={typeName}>
                   {__(typeName)}
                 </option>
@@ -156,49 +159,49 @@ class MainConfig extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Transaction account number')}</ControlLabel>
+            <ControlLabel>{__("Transaction account number")}</ControlLabel>
             <FormControl
-              defaultValue={config['transactionAccountNumber']}
+              defaultValue={config["transactionAccountNumber"]}
               type="number"
               onChange={this.onChangeInputNumber.bind(
                 this,
-                'transactionAccountNumber'
+                "transactionAccountNumber"
               )}
               required={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('transaction Config')}</ControlLabel>
+            <ControlLabel>{__("transaction Config")}</ControlLabel>
             <FormControl
-              defaultValue={config['transactionConfigId']}
+              defaultValue={config["transactionConfigId"]}
               type="password"
               onChange={this.onChangeInputNumber.bind(
                 this,
-                'transactionConfigId'
+                "transactionConfigId"
               )}
               required={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Transaction Login Name')}</ControlLabel>
+            <ControlLabel>{__("Transaction Login Name")}</ControlLabel>
             <FormControl
-              defaultValue={config['transactionLoginName']}
+              defaultValue={config["transactionLoginName"]}
               type="password"
               onChange={this.onChangeInputNumber.bind(
                 this,
-                'transactionLoginName'
+                "transactionLoginName"
               )}
               required={true}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>{__('Transaction password')}</ControlLabel>
+            <ControlLabel>{__("Transaction password")}</ControlLabel>
             <FormControl
-              defaultValue={config['transactionPassword']}
+              defaultValue={config["transactionPassword"]}
               type="password"
               onChange={this.onChangeInputNumber.bind(
                 this,
-                'transactionPassword'
+                "transactionPassword"
               )}
               required={true}
             />
@@ -210,8 +213,47 @@ class MainConfig extends React.Component<Props, State> {
               icon="check-circle"
               onClick={this.onSave}
               uppercase={false}
+              disabled={this.props.loading}
             >
-              {__('Save')}
+              {__("Save")}
+            </Button>
+          </ModalFooter>
+        </CollapseContent>
+        <CollapseContent title={__("Block config")} open={false}>
+          <FormGroup>
+            <ControlLabel>{__("block limit")}</ControlLabel>
+            <FormControl
+              defaultValue={config["blockLimit"]}
+              type="number"
+              onChange={this.onChangeInputNumber.bind(this, "blockLimit")}
+              required={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__("Block end day")}</ControlLabel>
+            <FormControl
+              name="blockEndDay"
+              componentclass="select"
+              defaultValue={config["blockEndDay"]}
+              onChange={this.onChangeInput.bind(this, "blockEndDay")}
+            >
+              {new Array(31).fill(1).map((number, index) => (
+                <option key={`${index + number}bank`} value={index + number}>
+                  {__((index + number).toString())}
+                </option>
+              ))}
+            </FormControl>
+          </FormGroup>
+
+          <ModalFooter>
+            <Button
+              btnStyle="primary"
+              icon="check-circle"
+              onClick={this.onSave}
+              uppercase={false}
+              disabled={this.props.loading}
+            >
+              {__("Save")}
             </Button>
           </ModalFooter>
         </CollapseContent>
