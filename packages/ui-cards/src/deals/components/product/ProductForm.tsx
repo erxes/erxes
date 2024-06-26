@@ -33,6 +33,11 @@ const TableWrapper = styled.div`
 
   table thead tr th {
     font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .css-13cymwt-control, .css-t3ipsp-control, .css-1nmdiq5-menu {
+    width: max-content;
   }
 `;
 

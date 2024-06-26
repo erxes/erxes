@@ -711,18 +711,18 @@ export const sendWithSendgrid = async (subdomain, doc) => {
   const SENDGRID_API_KEY = await sendCoreMessage({
     subdomain,
     action: 'getConfig',
-    data: { code: 'SENDGRID_API_KEY', defaultValue: null },
+    data: { code: 'SENDGRID_API_KEY' },
     isRPC: true,
   });
 
   sendgridMail.setApiKey(SENDGRID_API_KEY);
 
   try {
-    const sendgridResponse = await sendgridMail.send(doc);
+    const [response] = await sendgridMail.send(doc);
 
-    return JSON.stringify(sendgridResponse);
+    return response.headers
   } catch (e) {
-    console.error(e);
+    console.error(e)
     return;
   }
 };
@@ -732,7 +732,7 @@ export const sendgridClient = async (subdomain) => {
   const SENDGRID_CLIENT_KEY = await sendCoreMessage({
     subdomain,
     action: 'getConfig',
-    data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+    data: { code: 'SENDGRID_CLIENT_KEY' },
     isRPC: true,
   });
 
