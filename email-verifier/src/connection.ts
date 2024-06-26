@@ -6,10 +6,7 @@ dotenv.config();
 
 mongoose.Promise = global.Promise;
 
-const connectionOptions: mongoose.ConnectionOptions = {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useFindAndModify: false,
+const connectionOptions: mongoose.ConnectOptions = {
   family: 4,
 };
 

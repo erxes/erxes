@@ -7,6 +7,7 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import cronjobs from './cronjobs/automations';
 import tags from './tags';
+import templates from './templates';
 import logs from './logUtils';
 
 export default {
@@ -17,6 +18,7 @@ export default {
     permissions,
     cronjobs,
     tags,
+    templates,
     logs: { providesActivityLog: true, consumers: logs },
   },
   graphql: async () => {

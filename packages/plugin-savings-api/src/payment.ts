@@ -3,6 +3,9 @@ import * as moment from 'moment';
 import { TRANSACTION_TYPE } from './models/definitions/constants';
 
 export default {
+  transactionCallback: async ({ subdomain, data }) => {
+    // TODO: implement transaction callback if necessary
+  },
   callback: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

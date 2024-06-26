@@ -65,7 +65,10 @@ const DepositLists = () => {
   const location = useLocation();
 
   return (
-    <ContractList queryParams={queryString.parse(location.search)} isDeposit />
+    <ContractList
+      queryParams={queryString.parse(location.search)}
+      isDeposit={true}
+    />
   );
 };
 
