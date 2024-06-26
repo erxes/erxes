@@ -60,7 +60,7 @@ class JobStatus extends React.Component<Props, State> {
     return ((products || []).filter(p => p.product?._id) || []).map(
       product => {
         if (!product.product) {
-          return <li>Unknown product</li>;
+          return <li key={product.id || "unknown-product"}>Unknown product</li>;
         }
 
         const productId = product.product._id;
