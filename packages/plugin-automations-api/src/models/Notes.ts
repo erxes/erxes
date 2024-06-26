@@ -11,7 +11,7 @@ export interface INoteModel extends Model<INoteDocument> {
 export const loadClass = (models: IModels) => {
   class Note {
     public static async getNote(_id: string) {
-      const note = models.Notes.findOne({ _id }).lean();
+      const note = await models.Notes.findOne({ _id }).lean();
 
       if(!note) {
         throw new Error('Note not found')
@@ -20,7 +20,7 @@ export const loadClass = (models: IModels) => {
     }
 
     public static async createNote(doc: INote) {
-      return models.Notes.create({ ...doc, createdAt: new Date() });
+      return await models.Notes.create({ ...doc, createdAt: new Date() });
     }
 
     public static async updateNote(_id: string, doc: INote) {
@@ -29,7 +29,7 @@ export const loadClass = (models: IModels) => {
         { $set: { ...doc, updatedAt: new Date() } }
       );
 
-      return models.Notes.findOne({ _id }).lean();
+      return await models.Notes.findOne({ _id }).lean();
     }
   }
 

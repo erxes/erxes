@@ -256,7 +256,7 @@ export const receivePutLogCommand = async (models: IModels, params) => {
     extraDesc,
   } = params;
 
-  return models.Logs.createLog({
+  return await models.Logs.createLog({
     createdBy,
     type,
     action,
