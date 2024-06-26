@@ -8,8 +8,6 @@ import { atomWithStorage } from "jotai/utils"
 import { modeT } from "@/types/config.types"
 import { IPaymentAmountType } from "@/types/order.types"
 
-import { setInitialAtom } from "./order.store"
-
 // products
 export const searchAtom = atom<string>("")
 export const activeCategoryAtom = atom<string>("")
