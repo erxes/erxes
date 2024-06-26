@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import redis from './redis';
-import { getEnv } from './core';
 dotenv.config();
 
 const { NODE_ENV, LOAD_BALANCER_ADDRESS, ENABLED_SERVICES_JSON, MONGO_URL } =

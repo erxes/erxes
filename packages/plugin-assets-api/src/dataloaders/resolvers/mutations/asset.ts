@@ -7,6 +7,7 @@ import {
   putDeleteLog,
   putUpdateLog
 } from '../../../logUtils';
+import { ASSET_KB_ARTICLE_HISTORY_ACTIONS } from '../../../common/constant/asset';
 
 interface IAssetsEdit extends IAsset {
   _id: string;
@@ -96,7 +97,7 @@ const assetMutations = {
     return await models.Assets.mergeAssets(assetIds, { ...assetFields });
   },
 
-  async assetsAssignKbArticles(_root, args, { models }: IContext) {
+  async assetsAssignKbArticles(_root, args, { models, user }: IContext) {
     const { ids, articleIds, action } = args;
 
     if (!ids?.length) {
@@ -104,17 +105,27 @@ const assetMutations = {
     }
 
     if (action === 'add') {
-      return await models.Assets.updateMany(
+      await models.Assets.updateMany(
         { _id: { $in: ids } },
         {
           $addToSet: { kbArticleIds: articleIds }
         }
       );
+    } else {
+      await models.Assets.updateMany(
+        { _id: { $in: ids } },
+        { $pull: { kbArticleIds: { $in: articleIds } } }
+      );
     }
-    return await models.Assets.updateMany(
-      { _id: { $in: ids } },
-      { $pull: { kbArticleIds: { $in: articleIds } } }
-    );
+
+    await models.AssetsKbArticlesHistories.addAssetsKbArticleHistories({
+      assetIds: ids,
+      kbArticleIds: articleIds,
+      user,
+      action
+    });
+
+    return { status: 'success' };
   }
 };
 

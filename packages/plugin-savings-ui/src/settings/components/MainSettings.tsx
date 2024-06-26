@@ -2,20 +2,20 @@ import {
   MainStyleTitle as Title,
   Wrapper,
   HeaderDescription
-} from '@erxes/ui/src';
-import React from 'react';
+} from "@erxes/ui/src";
+import React from "react";
 
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import Sidebar from './Sidebar';
-import { __ } from 'coreui/utils';
-import MainConfig from './MainConfig';
+import { ContentBox } from "../styles";
+import { IConfigsMap } from "../types";
+import Sidebar from "./Sidebar";
+import { __ } from "coreui/utils";
+import MainConfig from "./MainConfig";
 
 function Header() {
   return (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title={__('Saving settings')}
+      title={__("Saving settings")}
       description=""
     />
   );
@@ -24,6 +24,7 @@ function Header() {
 type Props = {
   save: (configsMap: IConfigsMap) => void;
   configsMap: IConfigsMap;
+  loading: boolean;
 };
 
 type State = {
@@ -45,9 +46,9 @@ class MainSettings extends React.Component<Props, State> {
       <div>
         <MainConfig
           configsMap={configsMap}
-          currentConfigKey="savingConfig"
-          config={{ title: 'main config', ...configs }}
+          config={{ title: "main config", ...configs }}
           save={this.props.save}
+          loading={this.props.loading}
         />
       </div>
     );
@@ -59,7 +60,7 @@ class MainSettings extends React.Component<Props, State> {
     const configs = configsMap?.savingConfig || {};
 
     return (
-      <ContentBox id={'MainSettingsMenu'}>
+      <ContentBox id={"MainSettingsMenu"}>
         {this.renderConfigs(configs)}
       </ContentBox>
     );
@@ -67,18 +68,18 @@ class MainSettings extends React.Component<Props, State> {
 
   render() {
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Saving config') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Saving config") }
     ];
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Main configs')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("Main configs")} breadcrumb={breadcrumb} />
         }
         mainHead={<Header />}
         actionBar={
-          <Wrapper.ActionBar left={<Title>{__('Main configs')}</Title>} />
+          <Wrapper.ActionBar left={<Title>{__("Main configs")}</Title>} />
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}

@@ -6,14 +6,17 @@ import { useAtomValue } from "jotai"
 
 const loading = () => <div className="h-14 w-full borde-b" />
 
-const Market = dynamic(
+const Market: any = dynamic(
   () => import("@/components/header/headerLayout.market"),
   { loading }
 )
 
-const Main = dynamic(() => import("@/components/header/headerLayout.main"), {
-  loading,
-})
+const Main: any = dynamic(
+  () => import("@/components/header/headerLayout.main"),
+  {
+    loading,
+  }
+)
 
 const HeaderLayout = (props: {
   children?: React.ReactNode
