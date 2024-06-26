@@ -1,6 +1,4 @@
-import { IDashboardDocument } from './../../models/definitions/insight';
 import customScalars from '@erxes/api-utils/src/customScalars';
-import { IContext } from '../../connectionResolver';
 import customResolvers from './customResolvers';
 
 import {
