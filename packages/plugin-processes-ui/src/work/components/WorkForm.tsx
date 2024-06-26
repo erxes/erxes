@@ -94,7 +94,7 @@ class Form extends React.Component<Props, State> {
 
   renderView = (name: string, variable: number, uom: string) => {
     return (
-      <li key={Math.random()}>
+      <li key={name}>
         <FieldStyle>{__(name)}</FieldStyle>
         <SidebarCounter>
           {variable || 0} /${uom}/
@@ -107,7 +107,7 @@ class Form extends React.Component<Props, State> {
     const result: React.ReactNode[] = [];
 
     result.push(
-      <li key={Math.random()}>
+      <li key={name}>
         <FieldStyle>{__(name)}</FieldStyle>
         <SidebarCounter>{(products || []).length}</SidebarCounter>
       </li>
