@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 
-const Apollo = dynamic(() => import("./apolloClient"))
+const Apollo: any = dynamic(() => import("./apolloClient"))
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    (window as any).envMaps = [
+    ;(window as any).envMaps = [
       {
         name: "NEXT_PUBLIC_APP_VERSION",
         processValue: "%NEXT_PUBLIC_APP_VERSION%",

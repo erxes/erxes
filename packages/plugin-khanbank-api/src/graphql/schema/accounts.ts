@@ -29,7 +29,7 @@ type KhanbankAccountHolder {
     intTo: String
     addr1: String
 
-    holderInfo(configId: String!, accountNumber: String!): KhanbankAccountHolder
+    holderInfo(configId: String!, accountNumber: String!): JSON
   }
 
   type KhanbankTransaction {
@@ -88,7 +88,7 @@ const dateParams = `
 export const queries = `
   khanbankAccounts(configId: String!): [KhanbankAccount]
   khanbankAccountDetail(configId: String!, accountNumber: String!): KhanbankAccount
-  khanbankAccountHolder(configId: String!, accountNumber: String! bankCode: String): KhanbankAccountHolder
+  khanbankAccountHolder(configId: String!, accountNumber: String! bankCode: String): JSON
 
   khanbankStatements(configId: String!, accountNumber: String!, ${paginationParams} ${dateParams} ): KhanbankStatement
   khanbankStatementsAfterRecord(configId: String!, accountNumber: String!, record: Int! ${paginationParams}): KhanbankStatement
