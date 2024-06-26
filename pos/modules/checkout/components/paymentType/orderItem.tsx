@@ -64,7 +64,7 @@ const OrderItem = ({ _id, productName, unitPrice, isTake, count }: T) => {
       <div className="w-6/12">
         <p>{productName}</p>
         <div className="mt-1 font-bold space-y-2">
-          {unitPrice.toLocaleString()}₮{isTake && <TruckIcon />}
+          {unitPrice.toLocaleString()}₮ {isTake && <TruckIcon />}
         </div>
       </div>
       <div className="w-5/12 flex items-center justify-end">
@@ -93,30 +93,13 @@ const OrderItem = ({ _id, productName, unitPrice, isTake, count }: T) => {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div
-              className={cn(
-                "w-full flex gap-1 py-2 max-w-full",
-                count < 10 ? "gap-1" : "gap-[1px]"
-              )}
-            >
-              {Array.from({ length: count }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className={cn(
-                    "flex-auto h-1",
-                    count < 10 && "rounded-sm",
-                    (paidCount || 0) > idx ? "bg-green-500" : "bg-neutral-600"
-                  )}
-                />
-              ))}
-              <Slider
-                value={[(product?.count || 0) * 100]}
-                max={count * 100}
-                onValueChange={(value) => handleChange(value[0] / 100)}
-                className={cn("w-full")}
-                disabled={availableCount === 0}
-              />
-            </div>
+            <Slider
+              value={[(paidCount + (product?.count || 0)) * 100]}
+              max={count * 100}
+              onValueChange={(value) => handleChange(value[0] / 100)}
+              className={"w-full my-2"}
+              disabled={availableCount === 0}
+            />
           </TooltipTrigger>
           <TooltipContent>
             <p>

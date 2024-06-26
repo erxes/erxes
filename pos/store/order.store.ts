@@ -78,7 +78,6 @@ export const splitOrderItemsAtom = atom<{
   subItems: OrderItem[]
 }>((get) => {
   const type = get(paymentAmountTypeAtom)
-  const payByIds = get(payByProductAtom).map((item) => item._id)
   if (type === "items") {
     return {
       mainItems: get(cartAtom)
@@ -93,7 +92,15 @@ export const splitOrderItemsAtom = atom<{
         })
         .filter((item) => item.count > 0),
       subItems: get(cartAtom)
-        .filter((item) => payByIds.includes(item._id))
+        .map((item) => {
+          const payByProduct = get(payByProductAtom).find(
+            (product) => product._id === item._id
+          )
+          return {
+            ...item,
+            count: payByProduct?.count || 0,
+          }
+        })
         .filter((item) => item.count > 0),
     }
   }
