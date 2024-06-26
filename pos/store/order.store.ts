@@ -136,6 +136,15 @@ export const paidOrderIdAtom = atomWithStorage<string | null>(
   null
 )
 
+export const resetPayByProductAtom = atom(
+  () => "",
+  (get, set) => {
+    set(paidOrderIdAtom, null)
+    set(paidProductsAtom, [])
+    set(payByProductAtom, [])
+  }
+)
+
 export const getTotalPaidAmountAtom = atom(
   (get) =>
     get(paidAmountsAtom).reduce((total, item) => total + item.amount, 0) +

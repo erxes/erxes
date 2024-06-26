@@ -1,6 +1,10 @@
 import { useRouter } from "next/navigation"
 import { currentPaymentTypeAtom, paymentAmountTypeAtom } from "@/store"
-import { orderValuesAtom, splitOrderItemsAtom } from "@/store/order.store"
+import {
+  orderValuesAtom,
+  resetPayByProductAtom,
+  splitOrderItemsAtom,
+} from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtomValue, useSetAtom } from "jotai"
 
@@ -16,6 +20,7 @@ const useSplitOrder = () => {
   const paymentType = useAtomValue(currentPaymentTypeAtom)
   const router = useRouter()
   const setAmountType = useSetAtom(paymentAmountTypeAtom)
+  const reset = useSetAtom(resetPayByProductAtom)
 
   const [ordersAdd, { loading }] = useMutation(mutations.ordersAdd, {
     variables: {
@@ -25,6 +30,7 @@ const useSplitOrder = () => {
     },
     onCompleted(data) {
       const { _id } = data?.ordersAdd || {}
+      reset()
       router.push(
         `/checkout?orderId=${_id}&paymentType=${paymentType}&mainOrder=${variables._id}`
       )
