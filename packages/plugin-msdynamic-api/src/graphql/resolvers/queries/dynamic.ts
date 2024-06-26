@@ -75,7 +75,6 @@ const msdynamicQueries = {
     const config = configs[brandId || 'noBrand'];
 
     if (
-      !config ||
       !config.itemApi ||
       !config.username ||
       !config.password ||
@@ -88,8 +87,8 @@ const msdynamicQueries = {
 
     let filterSection = '';
 
-    for (let i = 0; i < productCodes.length; i++) {
-      const code = productCodes[i];
+    for (let value of  productCodes) {
+      const code = value;
       filterSection += `No eq '${code}' or `;
     }
 
@@ -97,13 +96,15 @@ const msdynamicQueries = {
 
     const url = `${itemApi}?$filter=(${filterSection}) and Location_Filter eq '${locationCode}'&$select=No,Inventory`;
 
+    const credentials = `${username}:${password}`;
+    const credentialsBuffer = Buffer.from(credentials);
+    const encodedCredentials = credentialsBuffer.toString('base64');
+
     const response = await fetch(url, {
-      headers: {
+      headers : {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`,
+        Authorization: `Basic ${encodedCredentials}`,
       },
       timeout: 60000,
     }).then((res) => res.json());

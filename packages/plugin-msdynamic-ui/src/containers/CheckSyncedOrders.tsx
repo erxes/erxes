@@ -10,7 +10,7 @@ import {
 } from "../types";
 import React, { useState } from "react";
 import { mutations, queries } from "../graphql";
-import { router, withProps } from "@erxes/ui/src/utils/core";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 import Alert from "@erxes/ui/src/utils/Alert";
 import { Bulk } from "@erxes/ui/src/components";
@@ -140,7 +140,6 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
 };
 
 const generateParams = ({ queryParams }) => {
-  const pageInfo = router.generatePaginationParams(queryParams || {});
 
   return {
     paidStartDate: queryParams.paidStartDate,

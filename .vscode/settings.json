@@ -1,1 +1,6 @@
-{}
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "erxes",
+        "projectKey": "erxes_erxes"
+    }
+}

@@ -28,7 +28,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   let customFieldData = [] as any;
   let updateCustomFieldData;
 
-  const brandIds = (company || {}).scopeBrandIds || [];
+  const brandIds = company?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
@@ -148,7 +148,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
   let customFieldData = [] as any;
   let updateCustomFieldData;
 
-  const brandIds = (customer || {}).scopeBrandIds || [];
+  const brandIds = customer?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
@@ -266,7 +266,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
     defaultValue: {},
   });
 
-  const brandIds = (product || {}).scopeBrandIds || [];
+  const brandIds = product?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     const productCategory = await sendProductsMessage({
@@ -347,7 +347,7 @@ export const consumeCategory = async (
     defaultValue: {},
   });
 
-  const brandIds = (productCategory || {}).scopeBrandIds || [];
+  const brandIds = productCategory?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.Code) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
@@ -535,7 +535,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
 
   const sendData: any = {
     Name: name,
-    Name_MN: getCompanyName && getCompanyName.name ? getCompanyName.name : '',
+    Name_MN: getCompanyName || getCompanyName.name ? getCompanyName.name : '',
     Phone_No: customer.primaryPhone || '',
     E_Mail: customer.primaryEmail || '',
     Mobile_Phone_No: customer.primaryPhone || '',
@@ -635,7 +635,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
 
     const { customerApi, salesApi, salesLineApi, username, password } = config;
 
-    if (order && order.customerId) {
+    if (order?.customerId) {
       customer = await sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
@@ -681,7 +681,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           body: JSON.stringify('sendData'),
         }).then((r) => r.json());
 
-        const brandIds = (customer || {}).scopeBrandIds || [];
+        const brandIds = customer?.scopeBrandIds || [];
 
         if (
           !brandIds.includes(params.scopeBrandIds[0]) &&
@@ -742,7 +742,8 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+        const User =  `${username} : ${password}`;
+        Authorization: `Basic ${Buffer.from(`${ser}`).toString(
           'base64'
         )}`,
       },
@@ -801,7 +802,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           body: JSON.stringify(sendSalesLine),
         }).then((res) => res.json());
 
-        if (responseSaleLine?.error && responseSaleLine?.error?.message) {
+        if (responseSaleLine?.error?.message) {
           const foundSyncLog = await models.SyncLogs.findOne({
             _id: syncLog._id,
           });
