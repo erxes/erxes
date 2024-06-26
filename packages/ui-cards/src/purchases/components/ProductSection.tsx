@@ -67,9 +67,9 @@ function ProductSection({
 
     const { customFieldsData } = product;
 
-    Object.values(customFieldsData).forEach((field: any, index: number) => {
+    Object.values(customFieldsData).forEach((field: any) => {
       result.push(
-        <CustomField key={index}>
+        <CustomField key={product._id}>
           <b>{field.text}:</b> {field.data}
         </CustomField>
       );
@@ -148,8 +148,8 @@ function ProductSection({
       name="showProductAndService"
     >
       <div>
-        {products.map((product, index) => (
-          <SectionBodyItem key={index}>
+        {products.map((product) => (
+          <SectionBodyItem key={product._id}>
             {renderProduct(product)}
           </SectionBodyItem>
         ))}

@@ -36,7 +36,7 @@ export default class Overlay extends React.Component<
   }
 
   onChangeForm = () => {
-    this.setState({ showForm: !this.state.showForm });
+    this.setState(prevState =>({ showForm: !prevState.showForm }));
   };
 
   onEdit = (labelId: string) => {

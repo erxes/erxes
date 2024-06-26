@@ -92,9 +92,9 @@ class AddForm extends React.Component<Props, State> {
     if (name === "stageId") {
       const { fetchCards } = this.props;
       fetchCards(String(value), (cards: any) => {
-        if (cards) {
+        if (cards && cards.length > 0) {
           this.setState({
-            cards: (cards || []).map((c) => ({ value: c._id, label: c.name })),
+            cards: cards.map(c => ({ value: c._id, label: c.name }))
           });
         }
       });

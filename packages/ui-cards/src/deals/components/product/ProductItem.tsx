@@ -336,9 +336,9 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   changeCurrentProduct = (_id: string) => {
-    this.setState({
-      currentProduct: this.state.currentProduct === _id ? "" : _id,
-    });
+    this.setState(prevState => ({
+      currentProduct: prevState.currentProduct === _id ? "" : _id,
+    }));
   };
 
   changeDiscountPercent = async (productData: any) => {

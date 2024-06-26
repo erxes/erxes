@@ -75,12 +75,14 @@ class FormComponent extends React.Component<IProps, State> {
   }
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
-    const label = { ...this.state.label };
-
-    label.name = (e.currentTarget as HTMLButtonElement).value;
-
-    this.setState({ label });
+    this.setState(prevState => ({
+      label: {
+        ...prevState.label,
+        name: (e.currentTarget as HTMLButtonElement).value
+      }
+    }));
   };
+  
 
   onRemove = () => {
     const { remove, label } = this.props;

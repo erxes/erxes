@@ -53,10 +53,10 @@ class Items extends React.Component<Props, { openItemId?: string }> {
 
     return (
       <ItemsWrapper>
-        {items.map((item, index) => (
+        {items.map((item) => (
           <Item
             options={data.options}
-            key={index}
+            key={item._id}
             item={item}
             beforePopupClose={this.beforePopupClose}
             isFormVisible={item._id === openItemId}

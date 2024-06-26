@@ -54,9 +54,9 @@ export default class TaskEditForm extends React.Component<Props, State> {
   }
 
   onChangeRefresh = () => {
-    this.setState({
-      refresh: !this.state.refresh,
-    });
+    this.setState(prevState =>({
+      refresh: !prevState.refresh,
+    }));
   };
 
   renderItems = () => {

@@ -70,8 +70,8 @@ const ExpensesForm = ({
           </tr>
         </thead>
         <tbody>
-          {(expensesData || []).map((element, index) => (
-            <tr key={index}>
+          {(expensesData || []).map((element) => (
+            <tr key={element._id}>
               <td>
                 <Select
                   placeholder={__("Select a type")}
