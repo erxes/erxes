@@ -141,7 +141,7 @@ const Form = (props: Props) => {
           maskList.push(`(${Object.values(value.matches).join("|")})`);
         }
       }
-      maskStr = `${maskList.join("")}\w+`;
+      maskStr = `${maskList.join("")}\\w+`;
 
       if (maskList.length && !code) {
         setState((prevState) => ({ ...prevState, code: maskList[0] }));
@@ -452,7 +452,7 @@ const Form = (props: Props) => {
         </thead>
         <tbody>
           {barcodes.map((item: any) => (
-            <tr>
+            <tr key={product._id}>
               <td>
                 <BarcodeItem key={item} onClick={() => onClickBarcode(item)}>
                   {item}
@@ -483,7 +483,7 @@ const Form = (props: Props) => {
                   value={((variants[item] || {}).image || {}).url || ""}
                   onChange={onChangePerImage.bind(this, item)}
                 >
-                  <option key={Math.random()} value="">
+                  <option key={product._id} value="">
                     {" "}
                   </option>
                   {(attachmentMore || []).map((img) => (

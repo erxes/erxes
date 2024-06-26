@@ -12,7 +12,7 @@ export function generateProductOptions(
   return array.map(item => {
     const category = item || ({} as IProductCategory);
 
-    const foundedString = category.order.match(/[/]/gi);
+    const foundedString = category.order.match(/\//gi);
 
     let space = '';
 
