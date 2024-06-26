@@ -14,15 +14,14 @@ type Props = {
 function InvoiceSecitonContainer(props: Props) {
   const { contentType, contentTypeId } = props;
 
-  const invoicesQuery = useQuery<InvoicesQueryResponse>(queries.invoices, {
-    variables: { contentType, contentTypeId },
-    fetchPolicy: 'network-only'
-
-  });
-
   if (!contentType || !contentTypeId) {
     return null;
   }
+
+  const invoicesQuery = useQuery<InvoicesQueryResponse>(queries.invoices, {
+    variables: { contentType, contentTypeId },
+    fetchPolicy: 'network-only'
+  });
 
   if (invoicesQuery.loading) {
     return <Spinner />;
