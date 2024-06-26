@@ -31,10 +31,11 @@ class JobDetailForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
-      this.setState({ activeFlowJob: nextProps.activeFlowJob });
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.activeFlowJob !== prevState.activeFlowJob) {
+      return { activeFlowJob: nextProps.activeFlowJob };
     }
+    return null;
   }
 
   tabOnClick = (currentTab: string) => {
