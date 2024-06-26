@@ -1,0 +1,12 @@
+# See https://docs.ellipsis.dev for all available configurations.
+
+version: 1.3
+
+workspace_type: "internal_ec2"
+
+build:
+  file: "ellipsis.Dockerfile"
+  commands:
+    - command: "echo 'hello world'"
+      description: "This is an example command, replace it with your own."
+
