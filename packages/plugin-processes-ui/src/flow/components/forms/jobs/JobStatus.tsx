@@ -199,7 +199,7 @@ class JobStatus extends React.Component<Props, State> {
     }
 
     const activeFlowJobId =
-      activeFlowJob && activeFlowJob.id ? activeFlowJob.id : '';
+      activeFlowJob?.id ? activeFlowJob.id : '';
     const beforeFlowJobs = flowJobs.filter(e =>
       (e.nextJobIds || []).includes(activeFlowJobId)
     );
