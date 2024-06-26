@@ -27,6 +27,7 @@ export interface ITrDetail {
 };
 
 export interface ITransaction {
+  _id?: string;
   date: Date;
   description: string;
   status?: string;

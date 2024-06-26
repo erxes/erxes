@@ -16,6 +16,7 @@ import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 import { ITransaction } from '../types';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import { IAccount } from '../../settings/accounts/types';
 
 
 type Props = {
@@ -35,6 +36,15 @@ const TrFormMain = (props: Props) => {
 
   const onChangeDetail = (key, value) => {
     setTrDoc({ ...trDoc, details: [{ ...detail, [key]: value }] });
+  }
+
+  const onAccountChange = (accountId, obj?: IAccount) => {
+    setTrDoc({
+      ...trDoc,
+      branchId: obj?.branchId,
+      departmentId: obj?.departmentId,
+      details: [{ ...detail, accountId }]
+    });
   }
 
   const renderCustomerChooser = () => {
@@ -92,9 +102,9 @@ const TrFormMain = (props: Props) => {
               multi={false}
               initialValue={detail.accountId || ''}
               label='Account'
-              name='account'
+              name='accountId'
               filterParams={{ journals: ['main'] }}
-              onSelect={(accountId) => { onChangeDetail('accountId', accountId) }}
+              onSelect={(accountId, obj) => { onAccountChange(accountId, obj) }}
             />
           </FormGroup>
           <FormGroup>
@@ -161,7 +171,7 @@ const TrFormMain = (props: Props) => {
           <ControlLabel required={true}>{__('Department')}</ControlLabel>
           <SelectDepartment
             multi={false}
-            initialValue={trDoc.departmentId || ''}
+            initialValue={trDoc.departmentId}
             label='Department'
             name='departmentId'
             onSelect={(departmentId) => onChange('departmentId', departmentId)}

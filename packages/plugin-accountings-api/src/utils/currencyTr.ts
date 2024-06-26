@@ -65,6 +65,7 @@ export const checkValidationCurrency = async (models: IModels, doc: ITransaction
 }
 
 export const doCurrencyTr = async (models: IModels, transaction: ITransactionDocument, currencyDoc?: ITransaction) => {
+  let currencyTr;
   const oldFollowInfo = (transaction.follows || []).find(f => f.type === 'currencyDiff')
 
   if (!currencyDoc) {
@@ -74,6 +75,7 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
           follows: { ...oldFollowInfo }
         }
       });
+      await models.Transactions.deleteOne({ _id: oldFollowInfo.id })
     }
     return;
   }
@@ -82,9 +84,10 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
     const oldCurrencyTr = await models.Transactions.findOne({ _id: oldFollowInfo.id });
     if (oldCurrencyTr) {
       await models.Transactions.updateTransaction(oldCurrencyTr._id, { ...currencyDoc, originId: transaction._id });
+      currencyTr = models.Transactions.findOne({ _id: oldCurrencyTr._id });
 
     } else {
-      const currencyTr = await models.Transactions.createTransaction({ ...currencyDoc, originId: transaction._id });
+      currencyTr = await models.Transactions.createTransaction({ ...currencyDoc, originId: transaction._id });
       await models.Transactions.updateOne({ _id: transaction._id }, {
         $pull: {
           follows: { ...oldFollowInfo }
@@ -101,7 +104,7 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
     }
 
   } else {
-    const currencyTr = await models.Transactions.createTransaction({ ...currencyDoc, originId: transaction._id });
+    currencyTr = await models.Transactions.createTransaction({ ...currencyDoc, originId: transaction._id });
     await models.Transactions.updateOne({ _id: transaction._id }, {
       $addToSet: {
         follows: [{
@@ -111,4 +114,6 @@ export const doCurrencyTr = async (models: IModels, transaction: ITransactionDoc
       }
     });
   }
+
+  return currencyTr;
 }

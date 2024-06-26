@@ -16,7 +16,8 @@ export function generateAccountOptions(
 
     return {
       value: account._id,
-      label: `${space}${account.code} - ${account.name}`
+      label: `${space}${account.code} - ${account.name}`,
+      obj: account
     };
   });
 }
@@ -33,7 +34,7 @@ export default ({
 }: {
   queryParams?: IQueryParams;
   label: string;
-  onSelect: (values: string[] | string, name: string) => void;
+  onSelect: (values: string[] | string, obj?: IAccount, name?: string, extraValue?: string) => void;
   multi?: boolean;
   customOption?: IOption;
   initialValue?: string | string[];
@@ -49,6 +50,10 @@ export default ({
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
+  const onSelected = (id: string[] | string, name: string, extraValue?: string, obj?: any) => {
+    onSelect(id, obj, name, extraValue);
+  }
+
   return (
     <SelectWithSearch
       showAvatar={false}
@@ -59,7 +64,7 @@ export default ({
       filterParams={filterParams}
       initialValue={defaultValue}
       generateOptions={generateAccountOptions}
-      onSelect={onSelect}
+      onSelect={onSelected}
       multi={multi}
       customOption={customOption}
     />

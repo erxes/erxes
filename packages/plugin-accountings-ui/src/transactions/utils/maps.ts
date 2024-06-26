@@ -2,7 +2,6 @@ import TrFormMain from "../components/trFormMain";
 import TrFormCash from "../components/trFormCash";
 import { ITransaction } from "../types";
 import * as dayjs from 'dayjs';
-import { ReactElement } from "react";
 import { TR_SIDES } from "../../constants";
 
 export const commonData = (journal, date?): ITransaction => {

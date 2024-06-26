@@ -112,12 +112,16 @@ const PosContainer = (props: Props) => {
       },
     })
       .then((data) => {
-        const newParentId = data.data.transactionsCreate[0]?.parentId
-        Alert.success("You successfully updated a pos");
-
-        navigate({
-          pathname: `/accountings/transaction/edit/${newParentId}`,
-        });
+        if (!parentId) {
+          const newParentId = data.data.transactionsCreate[0]?.parentId
+          Alert.success("You successfully created transactions");
+  
+          navigate({
+            pathname: `/accountings/transaction/edit/${newParentId}`,
+          });
+        } else {
+          Alert.success("You successfully updated transactions");
+        }
       })
 
       .catch((error) => {

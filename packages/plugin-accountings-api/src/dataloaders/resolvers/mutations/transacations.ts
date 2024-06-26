@@ -22,10 +22,10 @@ const transactionsMutations = {
   async transactionsCreate(
     _root,
     { trDocs }: { trDocs: ITransaction[] },
-    { user, models, subdomain }: IContext,
+    { user, models }: IContext,
   ) {
 
-    const transactions = await models.Transactions.createPTransaction(trDocs);
+    const transactions = await models.Transactions.createPTransaction(trDocs, user);
 
     return transactions;
   },
@@ -38,10 +38,11 @@ const transactionsMutations = {
   async transactionsUpdate(
     _root,
     { parentId, trDocs }: { parentId: string, trDocs: ITransaction[] },
-    { user, models, subdomain }: IContext,
+    { user, models }: IContext,
   ) {
-    console.log(parentId, trDocs)
-    return trDocs;
+    const transactions = await models.Transactions.updatePTransaction(parentId, trDocs, user);
+
+    return transactions;
   },
 
   /**

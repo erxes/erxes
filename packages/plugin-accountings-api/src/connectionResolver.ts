@@ -65,7 +65,7 @@ export const loadClasses = (
   models.AccountingConfigs = db.model<
     IAccountingConfigDocument,
     IAccountingConfigModel
-  >('accounting_configs', loadAccountingConfigClass(models));
+  >('accountings_configs', loadAccountingConfigClass(models));
 
   models.AccountCategories = db.model<
     IAccountCategoryDocument,

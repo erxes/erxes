@@ -8,14 +8,17 @@ import {
 } from './definitions/transaction';
 import { PTR_STATUSES, TR_SIDES } from './definitions/constants';
 import { setPtrStatus } from './utils';
+import { commonCreate } from '../utils/commonCreate';
+import { IUserDocument } from '@erxes/api-utils/src/definitions/users';
+import { commonUpdate } from '../utils/commonUpdate';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
   getPTransactions(selector: any): Promise<ITransactionDocument[]>;
   linkTransaction(_ids: string[], ptrId?: string): Promise<ITransactionDocument[]>;
   createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
-  createPTransaction(docs: ITransaction[]): Promise<ITransactionDocument[]>;
-  updatePTransaction(_id: string, doc: ITransaction[]): Promise<ITransactionDocument[]>;
+  createPTransaction(docs: ITransaction[], user: IUserDocument): Promise<ITransactionDocument[]>;
+  updatePTransaction(parentId: string, doc: ITransaction[], user: IUserDocument): Promise<ITransactionDocument[]>;
   updateTransaction(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -114,7 +117,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     /**
      * Create a perfect transactions
      */
-    public static async createPTransaction(docs: ITransaction[]) {
+    public static async createPTransaction(docs: ITransaction[], user: IUserDocument) {
       const transactions: ITransactionDocument[] = []
       let errMsg: string = '';
 
@@ -125,13 +128,107 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
         let parentId = '';
 
         for (const doc of docs) {
-          if (!parentId) {
-            const firstTr = await this.createTransaction({ ...doc, ptrId });
-            parentId = firstTr.parentId;
-            transactions.push(firstTr);
-          } else {
-            transactions.push(await this.createTransaction({ ...doc, ptrId, parentId }));
+          if (doc._id?.substring(0, 4) === 'temp') {
+            delete doc._id
           }
+
+          if (!parentId) {
+            const firstTrs = await commonCreate(models, { ...doc, ptrId });
+            parentId = firstTrs.mainTr.parentId;
+            transactions.push(firstTrs.mainTr);
+            if (firstTrs.otherTrs?.length) {
+              for (const otherTr of firstTrs.otherTrs) {
+                transactions.push(otherTr)
+              }
+            }
+          } else {
+            const trs = await commonCreate(models, { ...doc, ptrId, parentId });
+            transactions.push(trs.mainTr);
+            if (trs.otherTrs?.length) {
+              for (const otherTr of trs.otherTrs) {
+                transactions.push(otherTr)
+              }
+            }
+          }
+        }
+
+        await setPtrStatus(models, transactions);
+
+        await session.commitTransaction();
+
+      } catch (e) {
+        errMsg = e.message;
+        await session.abortTransaction();
+      } finally {
+        session.endSession();
+      }
+
+      if (errMsg) {
+        throw new Error(errMsg)
+      }
+
+      return transactions;
+    }
+
+    /**
+     * Create a perfect transactions
+     */
+    public static async updatePTransaction(parentId: string, docs: ITransaction[], user: IUserDocument) {
+      const oldTrs = await models.Transactions.find({ parentId, $or: [{ originId: { $exists: false } }, { originId: { $ne: '' } }] }).lean();
+      if (!oldTrs.length) {
+        throw new Error('Not found old transactions')
+      }
+
+      const ptrId = oldTrs[0].ptrId;
+
+      if (!ptrId) {
+        throw new Error('Not found old transactions ptr')
+      }
+
+      const oldTrIds = oldTrs.map(ot => ot._id)
+
+      const addTrDocs: ITransaction[] = [];
+      const editTrDocs: ITransaction[] = [];
+
+      for (const doc of docs) {
+        if (oldTrIds.includes(doc._id || '')) {
+          editTrDocs.push(doc);
+        } else {
+          addTrDocs.push(doc);
+        }
+      }
+
+      const editTrIds = editTrDocs.map(itd => itd._id)
+      const deleteTrs: ITransaction[] = oldTrs.filter(otr => !editTrIds.includes(otr._id))
+
+      const transactions: ITransactionDocument[] = []
+      let errMsg: string = '';
+
+      const session = await connection.startSession();
+      session.startTransaction();
+      try {
+        for (const doc of editTrDocs) {
+          const trs = await commonUpdate(models, { ...doc, ptrId, parentId }, oldTrs.find(ot => ot._id === doc._id));
+          transactions.push(trs.mainTr);
+          if (trs.otherTrs?.length) {
+            for (const otherTr of trs.otherTrs) {
+              transactions.push(otherTr)
+            }
+          }
+        }
+
+        for (const doc of addTrDocs) {
+          const trs = await commonCreate(models, { ...doc, ptrId, parentId })
+          transactions.push(trs.mainTr);
+          if (trs.otherTrs?.length) {
+            for (const otherTr of trs.otherTrs) {
+              transactions.push(otherTr)
+            }
+          }
+        }
+
+        for (const tr of deleteTrs) {
+          await models.Transactions.deleteMany({ $or: [{ _id: tr._id }, { _id: { $in: (tr.follows || []).map(tr => tr.id) } }] });
         }
 
         await setPtrStatus(models, transactions);
