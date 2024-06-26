@@ -1,7 +1,7 @@
 import * as QRCode from 'qrcode';
 
 import { IModels } from '../../connectionResolver';
-import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { ITransactionDocument } from '../../models/definitions/transactions';
 import { BaseAPI } from '../base';
 import { PAYMENTS, PAYMENT_STATUS } from '../constants';
 import { IMonpayInvoice } from '../types';
@@ -17,18 +17,15 @@ export const monpayCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Payment failed');
   }
 
-  const invoice = await models.Invoices.getInvoice(
-    {
-      'apiResponse.uuid': uuid,
-    },
-    true,
-  );
+  const transaction = await models.Transactions.getTransaction({
+    'response.uuid': uuid,
+  });
 
-  if (invoice.amount !== Number(amount)) {
+  if (transaction.amount !== Number(amount)) {
     throw new Error('Payment amount is not correct');
   }
 
-  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
+  const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== 'monpay') {
     throw new Error('Payment config type is mismatched');
@@ -36,20 +33,17 @@ export const monpayCallbackHandler = async (models: IModels, data: any) => {
 
   try {
     const api = new MonpayAPI(payment.config);
-    const invoiceStatus = await api.checkInvoice(invoice);
+    const invoiceStatus = await api.checkInvoice(transaction);
 
     if (invoiceStatus !== PAYMENT_STATUS.PAID) {
-      return invoice;
+      return transaction;
     }
 
-    await models.Invoices.updateOne(
-      { _id: invoice._id },
-      { $set: { status, resolvedAt: new Date() } },
-    );
+    transaction.status = invoiceStatus;
+    transaction.updatedAt = new Date();
+    await transaction.save();
 
-    invoice.status = status;
-
-    return invoice;
+    return transaction;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -82,7 +76,7 @@ export class MonpayAPI extends BaseAPI {
     };
   }
 
-  async createInvoice(invoice: IInvoiceDocument) {
+  async createInvoice(invoice: ITransactionDocument) {
     const data: IMonpayInvoice = {
       amount: invoice.amount,
       generateUuid: true,
@@ -111,13 +105,13 @@ export class MonpayAPI extends BaseAPI {
     }
   }
 
-  async checkInvoice(invoice: IInvoiceDocument) {
+  async checkInvoice(invoice: ITransactionDocument) {
     try {
       const res = await this.request({
         method: 'GET',
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceCheck,
-        params: { uuid: invoice.apiResponse.uuid },
+        params: { uuid: invoice.response.uuid },
       }).then((r) => r.json());
 
       switch (res.code) {
@@ -133,13 +127,13 @@ export class MonpayAPI extends BaseAPI {
     }
   }
 
-  async manualCheck(invoice: IInvoiceDocument) {
+  async manualCheck(invoice: ITransactionDocument) {
     try {
       const res = await this.request({
         method: 'GET',
         headers: this.headers,
         path: PAYMENTS.monpay.actions.invoiceCheck,
-        params: { uuid: invoice.apiResponse.uuid },
+        params: { uuid: invoice.response.uuid },
       }).then((r) => r.json());
 
       switch (res.code) {

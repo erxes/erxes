@@ -300,14 +300,6 @@ class Search extends React.Component<
       return null;
     }
 
-    if (loading) {
-      return (
-        <Results>
-          <Spinner objective={true} />
-        </Results>
-      );
-    }
-
     if (!results) {
       return null;
     }
@@ -372,6 +364,7 @@ class Search extends React.Component<
               onKeyDown={onSearch}
               onChange={this.handleInput}
             />
+            {this.props.loading && <Spinner objective={true} size={18} />}
             <Icon icon="times" size={18} onClick={this.closeInput} />
           </>
         ) : (

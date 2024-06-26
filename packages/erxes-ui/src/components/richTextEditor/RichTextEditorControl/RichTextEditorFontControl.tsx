@@ -1,8 +1,10 @@
-import { FontSelectWrapper } from "./styles";
 import React from "react";
-import Select from "react-select";
+import Select, { type DropdownIndicatorProps, components } from "react-select";
 import { getAttributesForEachSelected } from "../utils/getAttributesForEachSelected";
 import { useRichTextEditorContext } from "../RichTextEditor.context";
+import Icon from "../../Icon";
+import styled from "styled-components";
+import { getReactSelectStyle } from "./styles";
 
 export type SelectProps = {
   value: string;
@@ -29,7 +31,18 @@ const DEFAULT_FONT_SIZE_SELECT_OPTIONS: Array<any> = [
   "72",
 ];
 
-export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
+const MoreIcon = () => <Icon icon="angle-down" />;
+
+const DropdownIndicator: React.FC<DropdownIndicatorProps> = (props) => {
+  return (
+    <components.DropdownIndicator {...props}>
+      <MoreIcon />
+    </components.DropdownIndicator>
+  );
+};
+const StyledSelect = styled(Select)``;
+
+export const RichTextEditorFontControl = () => {
   const { editor, isSourceEnabled } = useRichTextEditorContext();
   // Determine if all of the selected content shares the same set font size.
   // Scenarios:
@@ -87,22 +100,25 @@ export const RichTextEditorFontControl = ({ toolbarPlacement }) => {
     editor?.chain().setFontSize(size).focus().run();
   };
 
-  const options = DEFAULT_FONT_SIZE_SELECT_OPTIONS.map((size) => ({
-    value: size,
-    label: size,
-  }));
-
   return (
-    <FontSelectWrapper $toolbarPlacement={toolbarPlacement}>
-      <Select
-        placeholder="Size"
-        isMulti={false}
-        value={options.find((o) => o.value === (currentFontSize || ""))}
-        onChange={(val: any) => setSize(val.value)}
-        options={options}
-        isDisabled={isSourceEnabled}
-        isSearchable={false}
-      />
-    </FontSelectWrapper>
+    <StyledSelect
+      placeholder="Size"
+      isMulti={false}
+      isSearchable={false}
+      menuPlacement="auto"
+      maxMenuHeight={200}
+      value={{ value: currentFontSize || 'Size', label: currentFontSize || 'Size' }}
+      onChange={(val: any) => setSize(val.value)}
+      options={DEFAULT_FONT_SIZE_SELECT_OPTIONS.map((size) => ({
+        value: size,
+        label: size,
+      }))}
+      isDisabled={isSourceEnabled}
+      components={{
+        DropdownIndicator,
+      }}
+      menuPortalTarget={document.body}
+      styles={getReactSelectStyle(isSourceEnabled)}
+    />
   );
 };
