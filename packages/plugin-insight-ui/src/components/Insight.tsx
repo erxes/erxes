@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
@@ -25,7 +25,7 @@ const Insight = (props: Props) => {
   };
 
   return (
-    <>
+  
       <Wrapper
         hasBorder
         header={
@@ -34,7 +34,7 @@ const Insight = (props: Props) => {
         leftSidebar={<Sidebar queryParams={queryParams} />}
         content={renderContent()}
       />
-    </>
+
   );
 };
 
