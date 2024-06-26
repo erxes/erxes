@@ -2,13 +2,15 @@
 const params = `
   $keyword: String,
   $reportPurpose: String,
-  $customerId: String
+  $customerId: String,
+  $vendor: String
 `;
 
 const paramsDefs = `
   keyword: $keyword,
   reportPurpose: $reportPurpose,
-  customerId: $customerId
+  customerId: $customerId,
+  vendor: $vendor
 `;
 const toCheckScoring = `
 mutation toCheckScore(${params}) {

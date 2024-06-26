@@ -25,7 +25,7 @@ interface IFacetedFilter {
   options: {
     label: string
     value: string
-    icon?: React.ComponentType<{ className?: string }>
+    icon?: (props: { className: string }) => JSX.Element
   }[]
   onSelect?: (value: string[]) => void
   values?: string[]
