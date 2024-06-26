@@ -64,7 +64,7 @@ class JobStatus extends React.Component<Props, State> {
         }
 
         const productId = product.product._id;
-        const name = `${product.product.code} - ${product.product.name}` || '';
+        const name = `${product.product.code ?? ''} - ${product.product.name ?? ''}`;
 
         if (matchProducts.length && !matchProductIds.includes(productId)) {
           return (
