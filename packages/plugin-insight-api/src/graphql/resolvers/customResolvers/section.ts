@@ -1,6 +1,5 @@
 import { ISectionDocument } from './../../../models/definitions/insight';
 import { IContext } from '../../../connectionResolver';
-import { IDashboardDocument } from '../../../models/definitions/insight';
 
 export default {
   async list(
