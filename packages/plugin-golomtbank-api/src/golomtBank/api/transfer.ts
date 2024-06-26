@@ -43,14 +43,12 @@ export class TransferApi extends BaseApi {
    */
   async transfer(tranfer: any) {
     try {
-      const res = await this.request({
+      return await this.request({
         method: "POST",
         path: "v1/transaction/cgw/transfer",
         type: "CGWTXNADD",
         data: tranfer,
       });
-
-      return res;
     } catch (e) {
       console.error(e);
       throw new Error(e.message);

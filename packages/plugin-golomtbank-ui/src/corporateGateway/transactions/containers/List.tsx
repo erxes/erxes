@@ -19,8 +19,7 @@ type Props = {
 export default function ListContainer(props: Props) {
   const { queryParams, showLatest } = props;
   let { page, perPage } = router.generatePaginationParams(queryParams || {});
-  let startDate = queryParams.startDate;
-  let endDate = queryParams.endDate;
+  let { startDate, endDate } = queryParams;
 
   if (showLatest) {
     page = 1;
@@ -62,7 +61,7 @@ export default function ListContainer(props: Props) {
 
   const extendedProps = {
     ...props,
-    loading: !statement.statements ? false : loading,
+    loading: statement.statements ? false : loading,
     statement,
   };
 

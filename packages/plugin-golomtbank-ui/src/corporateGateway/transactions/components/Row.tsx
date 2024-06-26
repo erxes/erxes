@@ -18,26 +18,26 @@ const Row = (props: Props) => {
   };
 
   return (
-    <tr>
-      <td key={Math.random()}>
+    <tr key={transaction.requestId}>
+      <td>
         <RowTitle>
           {dayjs(transaction?.tranPostedDate).format("YYYY-MM-DD HH:mm:ss")}
         </RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td>
         <RowTitle>{transaction.tranDesc}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td>
         <RowTitle>{beginBalance()}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td>
         <RowTitle>{transaction.balance.toLocaleString()}</RowTitle>
       </td>
 
-      <td key={Math.random()}>
+      <td>
         <RowTitle>{transaction.tranAmount.toLocaleString()}</RowTitle>
       </td>
     </tr>
