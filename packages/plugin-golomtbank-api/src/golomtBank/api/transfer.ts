@@ -41,44 +41,13 @@ export class TransferApi extends BaseApi {
 
    * @return {object} - Returns a response object
    */
-  async transfer(args: TransferParams) {
+  async transfer(tranfer: any) {
     try {
-      const preData = {
-        genericType: null,
-        registerNumber: "2734745",
-        type: "TSF",
-        refCode: "123",
-        initiator: {
-          genericType: null,
-          acctName: "ОЧИР УНДРАА ОМЗ ББСБ",
-          acctNo: "4005110163",
-          amount: {
-            value: 100.0,
-            currency: "MNT",
-          },
-          particulars: "remarks",
-          bank: "15",
-        },
-        receives: [
-          {
-            genericType: null,
-            acctName: "ОЧИР УНДРАА ОМЗ ББСБ",
-            acctNo: "1605214227",
-            amount: {
-              value: 100.0,
-              currency: "MNT",
-            },
-            particulars: "remarks",
-            bank: "15",
-          },
-        ],
-        remarks: "remarks",
-      };
       const res = await this.request({
         method: "POST",
         path: "v1/transaction/cgw/transfer",
         type: "CGWTXNADD",
-        data: preData,
+        data: tranfer,
       });
 
       return res;
@@ -111,7 +80,7 @@ export class TransferApi extends BaseApi {
     }
   ) {
     try {
-      const res = await this.request({
+      return await this.request({
         method: "POST",
         path: "transfer/interbank",
         data: {
@@ -119,8 +88,6 @@ export class TransferApi extends BaseApi {
           tranPassword: args,
         },
       });
-
-      return res;
     } catch (e) {
       console.error(e);
       throw new Error(e.message);

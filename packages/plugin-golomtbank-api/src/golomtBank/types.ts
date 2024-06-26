@@ -10,16 +10,19 @@ export type TransferParams = {
   initiatorAmountCurrency: string;
   initiatorParticulars: string;
   initiatorBank: string;
-  receivesGenericType: string;
-  receivesAcctName: string;
-  receivesAcctNo: string;
-  receivesAmountValue: number;
-  receivesAmountCurrency: string;
-  receivesParticulars: string;
-  receivesBank: string;
-  receivesRemarks: string;
+  receives: [JSON];
 };
-
+export type receive = {
+  genericType: string;
+  acctName: string;
+  acctNo: string;
+  amount: {
+    value: number;
+    currency: string;
+  };
+  particulars: string;
+  bank: string;
+};
 export type GolomtBankAccount = {
   requestId: string;
   accountId: string;

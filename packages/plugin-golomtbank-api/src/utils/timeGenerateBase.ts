@@ -1,133 +1,134 @@
-import * as CryptoJS from "crypto-js";
+import { createHmac } from "crypto";
 
-class TimeBasedOneTimePasswordUtil {
-  static readonly DEFAULT_TIME_STEP_SECONDS = 30;
-  private static readonly NUM_DIGITS_OUTPUT = 6;
-  private static readonly blockOfZeros = "000000";
+const DEFAULT_TIME_STEP_SECONDS = 30;
+let NUM_DIGITS_OUTPUT = 6;
+const blockOfZeros = "000000";
 
-  static generateBase32Secret(length = 16): string {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    let secret = "";
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * 32);
-      secret += chars[randomIndex];
-    }
-    return secret;
-  }
-
-  static validateCurrentNumber(
-    base32Secret: string,
-    authNumber: number,
-    windowMillis: number,
-    timeMillis = Date.now(),
-    timeStepSeconds = 30
-  ): boolean {
-    const fromTimeMillis = timeMillis - windowMillis;
-    const toTimeMillis = timeMillis + windowMillis;
-    const timeStepMillis = timeStepSeconds * 1000;
-
-    for (
-      let millis = fromTimeMillis;
-      millis <= toTimeMillis;
-      millis += timeStepMillis
-    ) {
-      const generatedNumber = this.generateNumber(
-        base32Secret,
-        millis,
-        timeStepSeconds
-      );
-      if (generatedNumber === authNumber) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  static generateCurrentNumberString(base32Secret: string): string {
-    return this.generateNumberString(base32Secret, Date.now(), 30);
-  }
-
-  static generateNumberString(
-    base32Secret: string,
-    timeMillis: number,
-    timeStepSeconds: number
-  ): string {
-    const number = this.generateNumber(
-      base32Secret,
-      timeMillis,
-      timeStepSeconds
-    );
-    return this.zeroPrepend(number, this.NUM_DIGITS_OUTPUT);
-  }
-
-  static generateCurrentNumber(base32Secret: string): number {
-    return this.generateNumber(base32Secret, Date.now(), 30);
-  }
-
-  static generateNumber(
-    base32Secret: string,
-    timeMillis: number,
-    timeStepSeconds: number
-  ): number {
-    const key = this.decodeBase32(base32Secret);
-    const data = new Uint8Array(8);
-    let value = Math.floor(timeMillis / 1000 / timeStepSeconds);
-
-    for (let i = 7; value > 0; --i) {
-      data[i] = value & 0xff;
-      value >>= 8;
-    }
-
-    const hmac = CryptoJS.HmacSHA1(
-      CryptoJS.lib.WordArray.create(data as any),
-      CryptoJS.enc.Base64.parse(
-        CryptoJS.enc.Base64.stringify(CryptoJS.lib.WordArray.create(key as any))
-      )
-    );
-    const hash = hmac.words;
-    const offset = hash[hash.length - 1] & 0xf;
-
-    let truncatedHash = 0;
-    for (let i = 0; i < 4; ++i) {
-      truncatedHash <<= 8;
-      truncatedHash |= (hash[offset + i] >> 24) & 0xff;
-    }
-    truncatedHash &= 0x7fffffff;
-    truncatedHash %= 1000000;
-
-    return truncatedHash;
-  }
-
-  static zeroPrepend(num: number, digits: number): string {
-    const numStr = num.toString();
-    if (numStr.length >= digits) {
-      return numStr;
-    }
-    return this.blockOfZeros.slice(0, digits - numStr.length) + numStr;
-  }
-
-  static decodeBase32(str: string): Uint8Array {
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    let bits: any = 0;
-    let value: any = 0;
-    const result: any[] = [];
-
-    for (let i = 0; i < str.length; i++) {
-      const idx = alphabet.indexOf(str.charAt(i).toUpperCase());
-      if (idx === -1) {
-        throw new Error("Invalid base-32 character: " + str.charAt(i));
-      }
-      value = (value << 5) | idx;
-      bits += 5;
-
-      if (bits >= 8) {
-        result.push((value >> (bits - 8)) & 0xff);
-        bits -= 8;
-      }
-    }
-
-    return new Uint8Array(result);
-  }
+export function generateCurrentNumberString(base32Secret: string): string {
+  return generateNumberString(
+    base32Secret,
+    Date.now(),
+    DEFAULT_TIME_STEP_SECONDS
+  );
 }
 
-export default TimeBasedOneTimePasswordUtil;
+function generateNumberString(
+  base32Secret: string,
+  timeMillis: number,
+  timeStepSeconds: number
+): string {
+  const number = generateNumber(base32Secret, timeMillis, timeStepSeconds);
+  return zeroPrepend(number, NUM_DIGITS_OUTPUT);
+}
+
+function generateNumber(
+  base32Secret: string,
+  timeMillis: number,
+  timeStepSeconds: number
+): number {
+  const key = decodeBase32(base32Secret);
+  const data = Buffer.alloc(8);
+  let value = Math.floor(timeMillis / 1000 / timeStepSeconds);
+
+  for (let i = 7; value > 0; i--) {
+    data[i] = value & 0xff;
+    value >>= 8;
+  }
+
+  const signKey = Buffer.from(key);
+  const hmac = createHmac("sha1", signKey);
+  hmac.update(data);
+  const hash = hmac.digest();
+
+  const offset = hash[hash.length - 1] & 0x0f;
+  let truncatedHash = 0;
+  for (let i = offset; i < offset + 4; i++) {
+    truncatedHash <<= 8;
+    truncatedHash |= hash[i];
+  }
+
+  truncatedHash &= 0x7fffffff;
+  truncatedHash %= 1000000;
+
+  return truncatedHash;
+}
+
+function zeroPrepend(num: number, digits: number): string {
+  const numStr = String(num);
+  if (numStr.length >= digits) {
+    return numStr;
+  }
+
+  const zeroCount = digits - numStr.length;
+  return blockOfZeros.slice(0, zeroCount) + numStr;
+}
+
+function decodeBase32(str: string): Uint8Array {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const charmap = new Map(Array.from(alphabet).map((c, i) => [c, i]));
+
+  const numBytes = Math.ceil((str.length * 5) / 8);
+  const result = new Uint8Array(numBytes);
+  let resultIndex = 0;
+  let which = 0;
+  let working = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charAt(i).toUpperCase();
+    const val = charmap.get(ch);
+
+    if (val === undefined) {
+      throw new Error(`Invalid base-32 character: ${ch}`);
+    }
+
+    switch (which) {
+      case 0:
+        working = (val & 31) << 3;
+        which = 1;
+        break;
+      case 1:
+        working |= (val & 28) >> 2;
+        result[resultIndex++] = working;
+        working = (val & 3) << 6;
+        which = 2;
+        break;
+      case 2:
+        working |= (val & 31) << 1;
+        which = 3;
+        break;
+      case 3:
+        working |= (val & 16) >> 4;
+        result[resultIndex++] = working;
+        working = (val & 15) << 4;
+        which = 4;
+        break;
+      case 4:
+        working |= (val & 30) >> 1;
+        result[resultIndex++] = working;
+        working = (val & 1) << 7;
+        which = 5;
+        break;
+      case 5:
+        working |= (val & 31) << 2;
+        which = 6;
+        break;
+      case 6:
+        working |= (val & 24) >> 3;
+        result[resultIndex++] = working;
+        working = (val & 7) << 5;
+        which = 7;
+        break;
+      case 7:
+        working |= val & 31;
+        result[resultIndex++] = working;
+        which = 0;
+        break;
+    }
+  }
+
+  if (which !== 0) {
+    result[resultIndex++] = working;
+  }
+
+  return result;
+}

@@ -10,23 +10,18 @@ export const types = `
     domestic
     interbank
   }
-
+  
   input TransferInput {
-    type: TransferType!
-    fromAccount: String!
-    toAccount: String!
-    amount: Float!
-    description: String!
-    currency: String!
-    loginName: String!
-    password: String!
-    transferid: String
-    toCurrency: String
-    toAccountName: String
-    toBank: String
+      genericType: String
+      registerNumber: String
+      type: String
+      refCode: String
+      initiator: JSON
+      receives: [JSON]
+      remarks: String
   }
 `;
-
 export const mutations = `
-  golomtBankTransfer(configId: String!, transfer: TransferInput): JSON
+  golomtBankTransfer(configId: String!, fromAccount: String, toAccount: String, toAccountName: String,
+  fromBank: String, toBank: String, toCurrency: String, fromCurrency: String, toDescription: String, fromDescription: String, toAmount: String, fromAmount: String): JSON
 `;
