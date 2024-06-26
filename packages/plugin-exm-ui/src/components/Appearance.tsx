@@ -181,6 +181,25 @@ export default function Appearance(props: Props) {
     );
   };
 
+  const renderStructureForm = (modalProps) => (
+    <VisionStructureForm
+      {...modalProps}
+      object={exm}
+      type="vision"
+      renderButton={renderButton}
+    />
+  )
+
+  const structureForm = (modalProps) => (
+    <VisionStructureForm
+      {...modalProps}
+      object={exm}
+      type="structure"
+      renderButton={renderButton}
+    />
+  )
+
+
   return (
     <AppearanceWrapper>
       <GeneralWrapper>
@@ -299,14 +318,7 @@ export default function Appearance(props: Props) {
                     {__(exm.vision ? "Edit Vision" : "Add Vision")}
                   </Button>
                 }
-                content={(modalProps) => (
-                  <VisionStructureForm
-                    {...modalProps}
-                    object={exm}
-                    type="vision"
-                    renderButton={renderButton}
-                  />
-                )}
+                content={renderStructureForm}
               />
             </FeatureRowItem>
             <FeatureRowItem>
@@ -319,14 +331,7 @@ export default function Appearance(props: Props) {
                     {__(exm.structure ? "Edit Structure" : "Add Structure")}
                   </Button>
                 }
-                content={(modalProps) => (
-                  <VisionStructureForm
-                    {...modalProps}
-                    object={exm}
-                    type="structure"
-                    renderButton={renderButton}
-                  />
-                )}
+                content={structureForm}
               />
             </FeatureRowItem>
           </FeatureRow>
