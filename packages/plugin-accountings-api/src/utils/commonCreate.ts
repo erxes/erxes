@@ -4,10 +4,10 @@ import { checkValidationCurrency, doCurrencyTr } from "./currencyTr";
 
 export const commonCreate = async (models: IModels, doc: ITransaction) => {
   switch (doc.journal) {
-    case 'main':
+    case 'main': {
       return { mainTr: await models.Transactions.createTransaction({ ...doc }) };
-
-    case 'cash':
+    }
+    case 'cash': {
       const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
 
       const transaction =
@@ -18,6 +18,7 @@ export const commonCreate = async (models: IModels, doc: ITransaction) => {
         return { mainTr: transaction, otherTrs: [currencyTr] }
       }
       return { mainTr: transaction };
+    }
   }
   return { mainTr: {} as ITransactionDocument }
 }

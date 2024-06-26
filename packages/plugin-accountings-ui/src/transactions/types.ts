@@ -122,5 +122,5 @@ export type EditMainTrMutationResponse = {
 export type RemoveMainTrMutationResponse = {
   removeMainTrMutation: (params: {
     variables: { _id: string };
-  }) => Promise<String>;
+  }) => Promise<string>;
 };

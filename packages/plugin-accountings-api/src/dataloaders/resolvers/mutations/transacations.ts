@@ -1,13 +1,4 @@
-import { nanoid } from 'nanoid';
-// import { checkPermission } from '@erxes/api-utils/src/permissions';
-import {
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog,
-  MODULE_NAMES,
-} from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { JOURNALS } from '../../../models/definitions/constants';
 import { ITransaction } from '../../../models/definitions/transaction';
 
 const transactionsMutations = {
@@ -59,19 +50,8 @@ const transactionsMutations = {
     });
     const removed = await models.Transactions.removeTransaction(_id);
 
-    await putDeleteLog(
-      models,
-      subdomain,
-      { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: transaction },
-      user,
-    );
-
     return removed;
   },
 };
-
-// checkPermission(transactionsMutations, 'transactionsCreate', 'manageTransactions');
-// checkPermission(transactionsMutations, 'transactionsEdit', 'manageTransactions');
-// checkPermission(transactionsMutations, 'transactionsRemove', 'manageTransactions');
 
 export default transactionsMutations;

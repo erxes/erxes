@@ -8,21 +8,22 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
   }
 
   switch (doc.journal) {
-    case 'main':
+    case 'main': {
       return { mainTr: await models.Transactions.updateTransaction(oldTr._id, { ...doc }) };
-
-    case 'cash':
+    }
+    case 'cash': {
       let currencyTr;
       const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
 
       const transaction =
         await models.Transactions.updateTransaction(oldTr._id, { ...doc });
       currencyTr = await doCurrencyTr(models, transaction, currencyDiffTrDoc)
-      
+
       if (currencyTr) {
         return { mainTr: transaction, otherTrs: [currencyTr] }
       }
       return { mainTr: transaction };
+    }
   }
   return { mainTr: {} as ITransactionDocument }
 }

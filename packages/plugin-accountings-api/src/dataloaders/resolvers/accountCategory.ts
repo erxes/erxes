@@ -9,7 +9,7 @@ export default {
   },
 
   isRoot(category: IAccountCategoryDocument, { }) {
-    return !Boolean(category.parentId ?? false);
+    return !Boolean(category.parentId);
   },
 
   async accountCount(
