@@ -1,14 +1,14 @@
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __, confirm } from '@erxes/ui/src/utils';
-import { Button, DataWithLoader } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
+import { Button, DataWithLoader } from "@erxes/ui/src/components";
+import { __, confirm } from "@erxes/ui/src/utils";
 
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import Header from './Header';
-import PerRemSettings from './PerRemSettings';
-import Sidebar from './Sidebar';
+import { ContentBox } from "../styles";
+import Header from "./Header";
+import { IConfigsMap } from "../types";
+import PerRemSettings from "./PerRemSettings";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -25,7 +25,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap
+      configsMap: props.configsMap,
     };
   }
 
@@ -35,28 +35,32 @@ class GeneralSettings extends React.Component<Props, State> {
     }
   }
 
-  add = e => {
+  add = (e) => {
     e.preventDefault();
     const { configsMap } = this.state;
+
+    const newPipelineConfig = { ...configsMap.remainderConfig };
 
     if (!configsMap.remainderConfig) {
       configsMap.remainderConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.remainderConfig.newPipelineConfig = {
-      title: 'New Pipeline Remainder Config',
-      boardId: '',
-      pipelineId: '',
-      account: '',
-      location: ''
+    newPipelineConfig.newPipelineConfig = {
+      title: "New Pipeline Remainder Config",
+      boardId: "",
+      pipelineId: "",
+      account: "",
+      location: "",
     };
 
-    this.setState({ configsMap });
+    this.setState({
+      configsMap: { ...configsMap, remainderConfig: newPipelineConfig },
+    });
   };
 
   delete = (currentConfigKey: string) => {
-    confirm('This Action will delete this config are you sure?').then(() => {
+    confirm("This Action will delete this config are you sure?").then(() => {
       const { configsMap } = this.state;
       delete configsMap.remainderConfig[currentConfigKey];
       delete configsMap.remainderConfig.newPipelineConfig;
@@ -67,7 +71,7 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerRemSettings
           key={key}
@@ -86,19 +90,20 @@ class GeneralSettings extends React.Component<Props, State> {
     const configs = configsMap.remainderConfig || {};
 
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         {this.renderConfigs(configs)}
       </ContentBox>
     );
   }
 
   render() {
-    const configCount = Object.keys(this.state.configsMap.remainderConfig || {})
-      .length;
+    const configCount = Object.keys(
+      this.state.configsMap.remainderConfig || {}
+    ).length;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Remainder config') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Remainder config") },
     ];
 
     const actionButtons = (
@@ -116,14 +121,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Remainder config')}
+            title={__("Remainder config")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Remainder configs')}</Title>}
+            left={<Title>{__("Remainder configs")}</Title>}
             right={actionButtons}
           />
         }
@@ -133,7 +138,7 @@ class GeneralSettings extends React.Component<Props, State> {
             data={this.renderContent()}
             loading={this.props.loading}
             count={configCount}
-            emptyText={__('There is no config') + '.'}
+            emptyText={__("There is no config") + "."}
             emptyImage="/images/actions/8.svg"
           />
         }
