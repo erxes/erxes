@@ -90,7 +90,7 @@ export class AccountsApi extends BaseApi {
         return { ...res?.[0]?.account, ...res?.[0]?.customer };
       }
 
-      return { ...res.account, ...res.customer };
+      return res;
     } catch (e) {
       throw new Error(e.message);
     }

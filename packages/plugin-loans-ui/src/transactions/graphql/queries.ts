@@ -1,4 +1,4 @@
-import { invoicePreInfo } from '../../invoices/graphql/queries';
+import { invoicePreInfo } from "../../invoices/graphql/queries";
 
 export const transactionPreInfo = `
   contractId
@@ -140,8 +140,8 @@ export const transactionDetail = `
 `;
 
 export const getPaymentInfo = `
-query GetPaymentInfo($id: String!, $payDate: Date) {
-  getPaymentInfo(id: $id,payDate: $payDate) {
+query GetPaymentInfo($id: String!, $payDate: Date, $scheduleDate: Date) {
+  getPaymentInfo(id: $id,payDate: $payDate, scheduleDate: $scheduleDate) {
     number
     contractId
     payDate
