@@ -22,6 +22,5 @@ export const types = `
   }
 `;
 export const mutations = `
-  golomtBankTransfer(configId: String!, fromAccount: String, toAccount: String, toAccountName: String,
-  fromBank: String, toBank: String, toCurrency: String, fromCurrency: String, toDescription: String, fromDescription: String, toAmount: String, fromAmount: String): JSON
+  golomtBankTransfer(configId: String!, fromAccount: String, toAccount: String, toAccountName: String, toBank: String, toCurrency: String, fromCurrency: String, toDescription: String, fromDescription: String, toAmount: String, fromAmount: String): JSON
 `;

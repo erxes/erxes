@@ -21,7 +21,6 @@ type Props = {
   queryParams: any;
   loading: boolean;
   showLatest?: boolean;
-  refetch?: () => void;
 };
 
 const List = (props: Props) => {
@@ -82,57 +81,55 @@ const List = (props: Props) => {
   );
 
   const rightActionBar = (
-    <>
-      <BarItems>
-        <CustomRangeContainer>
-          <FormControl
-            id="type"
-            name="type"
-            componentclass="select"
-            required={true}
-            defaultValue={type}
-            onChange={(e: any) => {
-              setType(e.currentTarget.value);
-              routerUtils.setParams(navigate, location, {
-                type: e.currentTarget.value,
-              });
-            }}
-          >
-            {["all", "income", "outcome"].map((t) => (
-              <option key={t} value={t}>
-                {__(t)}
-              </option>
-            ))}
-          </FormControl>
+    <BarItems>
+      <CustomRangeContainer>
+        <FormControl
+          id="type"
+          name="type"
+          componentclass="select"
+          required={true}
+          defaultValue={type}
+          onChange={(e: any) => {
+            setType(e.currentTarget.value);
+            routerUtils.setParams(navigate, location, {
+              type: e.currentTarget.value,
+            });
+          }}
+        >
+          {["all", "income", "outcome"].map((t) => (
+            <option key={t} value={t}>
+              {__(t)}
+            </option>
+          ))}
+        </FormControl>
 
-          <DateControl
-            value={queryParams.startDate}
-            required={false}
-            name="startDate"
-            onChange={(date: any) => {
-              routerUtils.setParams(navigate, location, {
-                startDate: dayjs(date).format("YYYY-MM-DD"),
-              });
-            }}
-            placeholder={"Start date"}
-            dateFormat={"YYYY-MM-DD"}
-          />
+        <DateControl
+          value={queryParams.startDate}
+          required={false}
+          name="startDate"
+          onChange={(date: any) => {
+            routerUtils.setParams(navigate, location, {
+              startDate: dayjs(date).format("YYYY-MM-DD"),
+            });
+          }}
+          placeholder={"Start date"}
+          dateFormat={"YYYY-MM-DD"}
+        />
 
-          <DateControl
-            value={queryParams.endDate}
-            required={false}
-            name="endDate"
-            placeholder={"End date"}
-            onChange={(date: any) => {
-              routerUtils.setParams(navigate, location, {
-                endDate: dayjs(date).format("YYYY-MM-DD"),
-              });
-            }}
-            dateFormat={"YYYY-MM-DD"}
-          />
-        </CustomRangeContainer>
-      </BarItems>
-    </>
+        <DateControl
+          value={queryParams.endDate}
+          required={false}
+          name="endDate"
+          placeholder={"End date"}
+          onChange={(date: any) => {
+            routerUtils.setParams(navigate, location, {
+              endDate: dayjs(date).format("YYYY-MM-DD"),
+            });
+          }}
+          dateFormat={"YYYY-MM-DD"}
+        />
+      </CustomRangeContainer>
+    </BarItems>
   );
 
   return (

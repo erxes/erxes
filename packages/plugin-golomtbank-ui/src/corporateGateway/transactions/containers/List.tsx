@@ -1,10 +1,8 @@
 import { router } from "@erxes/ui/src";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import dayjs from "dayjs";
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import React from "react";
-import { useQuery } from "@apollo/client";
-
 import List from "../components/List";
 import { queries } from "../graphql";
 import { StatementQueryResponse } from "../../../types/ITransactions";

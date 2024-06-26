@@ -7,11 +7,8 @@ import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
-
-import { BANK_CODES, TRANSACTION_TYPES } from "../.././../constants";
+import { BANK_CODES } from "../.././../constants";
 import { IGolomtBankAccount } from "../../../types/IGolomtAccount";
-import { IGolomtBankTransactionInput } from "../../../types/ITransactions";
-import { config } from "process";
 
 type Props = {
   configId: string;
@@ -22,49 +19,31 @@ type Props = {
     fromAccount,
     toAccount,
     toAccountName,
-    fromBank,
     toBank,
     toCurrency,
     toDescription,
     fromDescription,
     fromCurrency,
     toAmount,
-    fromAmount,
-    type
+    fromAmount
   ) => void;
   closeModal: () => void;
 };
 
 const TransactionForm = (props: Props) => {
-  //const accounts = props.accounts || [];
   const { accountNumber } = props;
-  console.log("accounts:", props.accountNumber);
-  const [refCode, setRef] = useState("");
-  const [fromAccount, setAccount] = useState(accountNumber || "");
-  const [toAccount, setReceiveaccount] = useState("");
-  const [toBank, setTobank] = useState("15");
-  const [fromBank, setFrombank] = useState("15");
-  const [fromDescription, setFromdescription] = useState("");
-  const [toDescription, setTodescription] = useState("");
-  const [fromAmount, setFromAmount] = useState(0);
-  const [toAmount, setToAmount] = useState(0);
-  const [fromCurrency, setFromcurrency] = useState("");
-  const [toCurrency, setTocurrency] = useState("");
-  const [toAccountName, setToaccountname] = useState("");
+  const [refCode, setref] = useState("");
+  const [fromAccount, setaccount] = useState(accountNumber || "");
+  const [toAccount, setreceiveaccount] = useState("");
+  const [toBank, settobank] = useState("15");
+  const [fromDescription, setfromdescription] = useState("");
+  const [toDescription, settodescription] = useState("");
+  const [fromAmount, setfromAmount] = useState(0);
+  const [toAmount, settoAmount] = useState(0);
+  const [fromCurrency, setfromcurrency] = useState("");
+  const [toCurrency, settocurrency] = useState("");
+  const [toAccountName, settoaccountname] = useState("");
 
-  const [type, setType] = useState(0);
-  const [transaction, setTransaction] = useState<IGolomtBankTransactionInput>({
-    refCode: "",
-    accountId: accountNumber || "",
-    toAccountName: "",
-    receiveAccount: "",
-    bankCode: "",
-    toBank: "",
-    toCurrency: "MNT",
-    description: "",
-    currency: "MNT",
-    amount: 0,
-  });
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, configId } = props;
     return (
@@ -75,7 +54,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={refCode}
             placeholder="receipt number"
-            onChange={(e: any) => setRef(e.target.value)}
+            onChange={(e: any) => setref(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -83,7 +62,7 @@ const TransactionForm = (props: Props) => {
           <FormControl
             value={fromAccount}
             placeholder="Account number"
-            onChange={(e: any) => setAccount(e.target.value)}
+            onChange={(e: any) => setaccount(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -93,7 +72,7 @@ const TransactionForm = (props: Props) => {
             value={fromAmount}
             type="number"
             placeholder="from amount"
-            onChange={(e: any) => setFromAmount(e.target.value)}
+            onChange={(e: any) => setfromAmount(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -103,7 +82,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={fromDescription}
             placeholder="from description"
-            onChange={(e: any) => setFromdescription(e.target.value)}
+            onChange={(e: any) => setfromdescription(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -112,7 +91,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={fromCurrency}
             placeholder="from currency"
-            onChange={(e: any) => setFromcurrency(e.target.value)}
+            onChange={(e: any) => setfromcurrency(e.target.value)}
           />
         </FormGroup>
 
@@ -121,7 +100,7 @@ const TransactionForm = (props: Props) => {
           <FormControl
             placeholder=" receive Account number"
             value={toAccount}
-            onChange={(e: any) => setReceiveaccount(e.target.value)}
+            onChange={(e: any) => setreceiveaccount(e.target.value)}
             className="select"
             required={true}
           />
@@ -133,7 +112,7 @@ const TransactionForm = (props: Props) => {
             value={toAmount}
             type="number"
             placeholder="to amount"
-            onChange={(e: any) => setToAmount(e.target.value)}
+            onChange={(e: any) => settoAmount(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -146,7 +125,7 @@ const TransactionForm = (props: Props) => {
             componentclass="select"
             required={true}
             defaultValue={toBank}
-            onChange={(e: any) => setTobank(e.target.value)}
+            onChange={(e: any) => settobank(e.target.value)}
           >
             <option value="">Select bank</option>
             {BANK_CODES.map((bank) => (
@@ -162,7 +141,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={toDescription}
             placeholder="to description"
-            onChange={(e: any) => setTodescription(e.target.value)}
+            onChange={(e: any) => settodescription(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -170,7 +149,7 @@ const TransactionForm = (props: Props) => {
           <FormControl
             value={toAccountName}
             placeholder="to Account Name"
-            onChange={(e: any) => setToaccountname(e.target.value)}
+            onChange={(e: any) => settoaccountname(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -180,7 +159,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={toCurrency}
             placeholder="to currency"
-            onChange={(e: any) => setTocurrency(e.target.value)}
+            onChange={(e: any) => settocurrency(e.target.value)}
           />
         </FormGroup>
         <ModalFooter>
@@ -194,15 +173,13 @@ const TransactionForm = (props: Props) => {
                 fromAccount,
                 toAccount,
                 toAccountName,
-                fromBank,
                 toBank,
                 toCurrency,
                 toDescription,
                 fromDescription,
                 fromCurrency,
                 toAmount,
-                fromAmount,
-                type
+                fromAmount
               );
             }}
           >

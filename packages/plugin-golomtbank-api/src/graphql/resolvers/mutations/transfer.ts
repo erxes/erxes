@@ -1,5 +1,4 @@
 import { IContext } from "../../../connectionResolver";
-import { AccountsApi } from "../../../golomtBank/api/accounts";
 import GolomtBank from "../../../golomtBank/golomtBank";
 
 const mutations = {
@@ -11,7 +10,6 @@ const mutations = {
       fromAccount: string;
       toAccount: string;
       toAccountName: string;
-      fromBank: string;
       toBank: string;
       toCurrency: string;
       toDescription: string;
@@ -19,7 +17,6 @@ const mutations = {
       fromCurrency: string;
       fromAmount: string;
       toAmount: string;
-      type: string;
     },
     { models }: IContext
   ) => {
@@ -29,7 +26,6 @@ const mutations = {
       fromAccount,
       toAccount,
       toAccountName,
-      fromBank,
       toBank,
       toCurrency,
       toDescription,
@@ -37,7 +33,6 @@ const mutations = {
       fromCurrency,
       toAmount,
       fromAmount,
-      type,
     } = args;
     const config = await models.GolomtBankConfigs.getConfig({
       _id: configId,
@@ -47,7 +42,6 @@ const mutations = {
     }
 
     const golomtBank = new GolomtBank(config);
-    const initiatorAccount = await golomtBank.accounts.get(fromAccount);
     const preData = {
       genericType: null,
       registerNumber: config.registerId,
@@ -62,7 +56,7 @@ const mutations = {
           currency: fromCurrency,
         },
         particulars: fromDescription,
-        bank: fromBank,
+        bank: "15",
       },
       receives: [
         {
