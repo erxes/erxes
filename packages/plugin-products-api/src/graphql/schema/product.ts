@@ -173,6 +173,7 @@ export const queries = `
 
   productsCheckUsedPipeline(
     ${productsQueryParams},
+    excludeStageIds: [String],
     page: Int,
     perPage: Int,
     sortField: String
