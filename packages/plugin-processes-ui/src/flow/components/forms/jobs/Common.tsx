@@ -52,9 +52,9 @@ class CommonForm extends React.Component<Props, State> {
     this.state = {
       durationType:
         config.durationType ||
-        (jobRefer || {}).durationType ||
+        jobRefer?.durationType ||
         DURATION_TYPES.minut,
-      duration: config.duration || (jobRefer || {}).duration || 1,
+      duration: config.duration || jobRefer?.duration || 1,
       inBranchId: config.inBranchId || "",
       inDepartmentId: config.inDepartmentId || "",
       outBranchId: config.outBranchId || "",
@@ -70,10 +70,10 @@ class CommonForm extends React.Component<Props, State> {
           {
             durationType:
               config.durationType ||
-              (nextProps.jobRefer || {}).durationType ||
+              nextProps.jobRefer?.durationType ||
               DURATION_TYPES.minut,
             duration:
-              config.duration || (nextProps.jobRefer || {}).duration || 1,
+              config.duration || nextProps.jobRefer?.duration || 1,
             inBranchId: config.inBranchId,
             inDepartmentId: config.inDepartmentId,
             outBranchId: config.outBranchId,
