@@ -30,6 +30,10 @@ const buildQuery = (args: any) => {
     qry.brandId = args.brandId;
   }
 
+  if (args.icon) {
+    qry.icon = args.icon;
+  }
+
   return qry;
 };
 
@@ -120,6 +124,7 @@ const knowledgeBaseQueries = {
       perPage: number;
       topicIds: string[];
       codes: string[];
+      icon: string;
     },
     { models }: IContext
   ) {

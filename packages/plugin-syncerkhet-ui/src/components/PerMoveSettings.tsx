@@ -1,9 +1,3 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import client from "@erxes/ui/src/apolloClient";
-import { gql } from "@apollo/client";
-import React from "react";
-import Select from "react-select";
-import { __ } from "@erxes/ui/src/utils";
 import {
   Button,
   CollapseContent,
@@ -12,12 +6,19 @@ import {
   FormGroup,
   Icon,
 } from "@erxes/ui/src/components";
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+
+import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { IConfigsMap } from "../types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
+import React from "react";
+import Select from "react-select";
+import { __ } from "@erxes/ui/src/utils";
+import client from "@erxes/ui/src/apolloClient";
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -77,9 +78,12 @@ class PerSettings extends React.Component<Props, State> {
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.stageInMoveConfig[currentConfigKey];
-    configsMap.stageInMoveConfig[key] = config;
-    this.props.save(configsMap);
+    const stageInMoveConfig = { ...configsMap.stageInMoveConfig };
+
+    delete stageInMoveConfig[currentConfigKey];
+    stageInMoveConfig[key] = config;
+
+    this.props.save({ ...configsMap, stageInMoveConfig });
   };
 
   onDelete = (e) => {
@@ -89,9 +93,12 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState((prevState) => ({
+      config: {
+        ...prevState.config,
+        [code]: value,
+      },
+    }));
   };
 
   onChangeInput = (code: string, e) => {
