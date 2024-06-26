@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button"
 import Loader from "@/components/ui/loader"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { SheetClose } from "@/components/ui/sheet"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { mutations } from "../../graphql"
 import PaymentType from "./paymentType"
@@ -58,7 +58,6 @@ const MobileSheet = () => {
   const orderNumber = useAtomValue(orderNumberAtom)
   const setPaymentData = useSetAtom(paymentDataAtom)
   const [selected, setSelected] = useState("")
-  const { onError } = useToast()
 
   const { payments: allPayments } = data || {}
   const { errorDescription, status, apiResponse, idOfProvider } =
@@ -105,7 +104,9 @@ const MobileSheet = () => {
           })
         }
       },
-      onError,
+      onError({ message }) {
+        onError(message)
+      },
     })
   }
 
@@ -126,6 +127,7 @@ const MobileSheet = () => {
       setPaymentData(null)
       setInvoiceId(null)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (loading) return <Loader />

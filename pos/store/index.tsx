@@ -66,6 +66,17 @@ export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "products"
 )
 
+export const nextOrderIdAtom = atom<string | null>(null)
+
+export const resetAtom = atom(
+  () => "",
+  (get, set) => {
+    set(activeCategoryAtom, "")
+    set(refetchUserAtom, true)
+    set(nextOrderIdAtom, "-")
+  }
+)
+
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <Provider>
