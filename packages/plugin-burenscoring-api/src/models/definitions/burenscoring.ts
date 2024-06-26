@@ -66,7 +66,7 @@ export interface Inquiry  {
     LASTNAME: string,
     CUSTOMERNAME: string,
     REGISTERNO: string,
-    LOANTYPE: number,
+    LOANTYPE: string,
     CURRENCYCODE: string,
     ADVAMOUNT: number,
     EXPDATE: Date,
@@ -119,6 +119,7 @@ export interface IBurenscoring {
   score: number,
   customerId: string,
   reportPurpose: string,
+  vendor: string,
   keyword: string
 };
 export interface IBurenScoringDocument extends IBurenscoring, Document {
@@ -192,7 +193,7 @@ export const burenscoringSchema = schemaWrapper(
           LASTNAME: String,
           CUSTOMERNAME: String,
           REGISTERNO: String,
-          LOANTYPE: Number,
+          LOANTYPE: String,
           CURRENCYCODE: String,
           ADVAMOUNT: Number,
           EXPDATE: Date,
@@ -232,6 +233,7 @@ export const burenscoringSchema = schemaWrapper(
       ]
     },
     score: Number,
+    vendor: String,
     customerId: String,
     keyword: String,
     reportPurpose: String,

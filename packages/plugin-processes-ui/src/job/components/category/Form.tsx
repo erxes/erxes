@@ -145,7 +145,7 @@ class CategoryForm extends React.Component<Props, State> {
             defaultValue={object.parentId}
           >
             <option value="" />
-            {categories.map((categoryMap) => (
+            {(categories || []).map((categoryMap) => (
               <option key={categoryMap._id} value={categoryMap._id}>
                 {categoryMap.name}
               </option>

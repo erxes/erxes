@@ -115,6 +115,10 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
     }
   }
 
+  if (params.contentId) {
+    filter.contentId = params.contentId
+  }
+
   if (params.success) {
     filter.status = params.success;
   }
