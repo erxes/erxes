@@ -26,7 +26,7 @@ export const setupMessageConsumers = async () => {
           departmentId,
           branchId,
           products,
-        )) || {},
+        )) ?? {},
       status: 'success',
     };
   });
