@@ -143,7 +143,6 @@ const Permission = (props: Props) => {
                 'cashiers',
                 'directDiscount',
               )}
-              { }
             </BlockRow>
           </Block>
         </LeftItem>
