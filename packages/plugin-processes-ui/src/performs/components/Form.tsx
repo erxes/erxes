@@ -856,7 +856,7 @@ class Form extends React.Component<Props, State> {
               <SelectCompanies
                 label={__("Choose company")}
                 name="companyId"
-                initialValue={perform ? perform.companyId : "" || ""}
+                initialValue={perform?.companyId ?? ""}
                 onSelect={(companyId) =>
                   this.setStateWrapper({ companyId: companyId as string })
                 }
@@ -874,7 +874,7 @@ class Form extends React.Component<Props, State> {
               <SelectCustomers
                 label={__("Choose company")}
                 name="customerId"
-                initialValue={perform ? perform.customerId : "" || ""}
+                initialValue={perform?.customerId ?? ""}
                 onSelect={(customerId) =>
                   this.setStateWrapper({ customerId: customerId as string })
                 }
