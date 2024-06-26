@@ -35,13 +35,14 @@ import AddTransactionLink from "../containers/AddTr";
 import { Box } from "../../styles";
 import { TR_SIDES } from "../../constants";
 import { ContentHeader, HeaderContent, HeaderItems } from "@erxes/ui/src/layout/styles";
+import TrFormTBalance from "./TrFormTBalance";
 
 type Props = {
   transactions?: ITransaction[];
   defaultJournal?: string;
   parentId?: string;
   loading?: boolean;
-  save: (params: any) => void;
+  save: (params: any) => ITransaction[];
   queryParams: IQueryParams;
 };
 
@@ -85,13 +86,18 @@ const TransactionForm = (props: Props) => {
     const result = { dt: 0, ct: 0 };
 
     trDocs.forEach((tr) => {
+      let sumDt = 0;
+      let sumCt = 0;
       (tr.details || []).forEach((detail) => {
         if (detail.side === TR_SIDES.DEBIT) {
-          result.dt += Number(detail.amount) ?? 0;
+          sumDt += Number(detail.amount) ?? 0;
         } else {
-          result.ct += Number(detail.amount) ?? 0;
+          sumCt += Number(detail.amount) ?? 0;
         }
       });
+
+      result.dt += sumDt;
+      result.ct += sumCt;
     });
 
     const diff = result.dt - result.ct;
@@ -107,14 +113,16 @@ const TransactionForm = (props: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    save(trDocs);
+    const trs = save(trDocs);
+
+    setTrDocs(trs.filter(tr => !tr.originId));
   };
 
   const renderButtons = () => {
     const SmallLoader = ButtonMutate.SmallLoader;
 
     const cancelButton = (
-      <Link to={`/pos`}>
+      <Link to={`/accountings/ptrs`}>
         <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
@@ -123,14 +131,6 @@ const TransactionForm = (props: Props) => {
 
     return (
       <Button.Group>
-        <Button
-          btnStyle="simple"
-          icon={'alignright'}
-          onClick={handleSubmit}
-        >
-          T balance
-        </Button>
-
         {cancelButton}
 
         <Button btnStyle="success" icon={"check-circle"} onClick={handleSubmit}>
@@ -145,7 +145,6 @@ const TransactionForm = (props: Props) => {
       return Alert.error("wron cho");
     }
     const trData = journalConfigMaps[journal]?.defaultData(state.date);
-    console.log(trDocs, 'kkkkkkkkkkkkkkkkkkkkkk')
     trDocs?.push(trData);
     setTrDocs(trDocs);
     setCurrentTransaction(trData);
@@ -173,44 +172,54 @@ const TransactionForm = (props: Props) => {
     );
   };
 
+  const renderEmptyBox = (text, image) => {
+    return (
+      <Box>
+        <EmptyContent>
+          <EmptyState
+            text={__(text)}
+            image={`/images/actions/${image}.svg`}
+          />
+        </EmptyContent>
+      </Box>
+    )
+  }
   const renderTabContent = () => {
     if (!currentTransaction) {
+      return renderEmptyBox('Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.', '30')
+    }
+
+    if (currentTransaction._id === 'TBalance') {
       return (
-        <Box>
-          <EmptyContent>
-            <EmptyState
-              text={__(
-                `Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.`
-              )}
-              image={`/images/actions/30.svg`}
-            />
-          </EmptyContent>
+        <Box key={currentTransaction._id}>
+          <TrFormTBalance
+            balance={balance}
+            queryParams={queryParams}
+            transactions={trDocs}
+          />
         </Box>
-      );
+      )
     }
 
     if (currentTransaction.permission === "hidden") {
-      return (
-        <Box>
-          <EmptyContent>
-            <EmptyState
-              text={__(`Уучлаарай. Таны эрх уг гүйлгээг удирдах эрх хүрсэнгүй`)}
-              image={`/images/actions/automation2.svg`}
-            />
-          </EmptyContent>
-        </Box>
-      );
+      return renderEmptyBox('Уучлаарай. Таны эрх уг гүйлгээг удирдах эрх хүрсэнгүй', 'automation2');
     }
 
     const Component = journalConfigMaps[currentTransaction?.journal]?.component;
+    const trDoc = trDocs.find((tr) => tr._id === currentTransaction._id)
+    if (!trDoc) {
+      return renderEmptyBox('Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.', '30')
+    }
+
+    const transactions = trDocs.filter(
+      (tr) => tr.originId === currentTransaction._id
+    )
     return (
       <Box key={currentTransaction._id}>
         <Component
           key={currentTransaction._id}
-          transactions={trDocs.filter(
-            (tr) => tr.originId === currentTransaction._id
-          )}
-          trDoc={trDocs.find((tr) => tr._id === currentTransaction._id)}
+          transactions={transactions}
+          trDoc={trDoc}
           setTrDoc={onEditTr}
         />
       </Box>
@@ -280,9 +289,19 @@ const TransactionForm = (props: Props) => {
                       onClick={() => setCurrentTransaction(tr)}
                     >
                       {__(tr.journal)}
-                      <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}></Icon>
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}>
+                        </Icon>
+                      </span>
                     </TabTitle>
                   ))}
+                  <TabTitle
+                    className={currentTransaction?._id === 'TBalance' ? 'active' : ''}
+                    onClick={() => setCurrentTransaction({ ...currentTransaction, _id: 'TBalance' })}
+                  >
+                    <Icon icon={'alignright'}></Icon>
+                    T balance
+                  </TabTitle>
                   <TabTitle>
                     <AddTransactionLink onClick={onAddTr} />
                   </TabTitle>
@@ -297,7 +316,7 @@ const TransactionForm = (props: Props) => {
 
           <ControlWrapper>
             <Indicator>
-              <>{__('You are')} {currentTransaction?._id ? 'editing' : 'creating'} {__('transaction')}.</>
+              <>{__('You are')} {currentTransaction?.parentId ? 'editing' : 'creating'} {__('transaction')}.</>
               <> {__('Sum Debit')}: <strong>{(balance.dt ?? 0).toLocaleString()}</strong>;</>
               <> {__('Sum Credit')}: <strong>{(balance.ct ?? 0).toLocaleString()}</strong>;</>
               {balance?.diff && (<> + {__(balance.side || '')}: <strong>{balance.diff}</strong>;</>) || ''}

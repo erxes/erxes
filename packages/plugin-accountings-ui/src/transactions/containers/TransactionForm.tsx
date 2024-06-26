@@ -115,12 +115,13 @@ const PosContainer = (props: Props) => {
         if (!parentId) {
           const newParentId = data.data.transactionsCreate[0]?.parentId
           Alert.success("You successfully created transactions");
-  
+
           navigate({
             pathname: `/accountings/transaction/edit/${newParentId}`,
           });
         } else {
           Alert.success("You successfully updated transactions");
+          trDetailQuery.refetch();
         }
       })
 
@@ -129,6 +130,7 @@ const PosContainer = (props: Props) => {
 
         setLoading(false);
       });
+    return trDetailQuery?.data?.transactionDetail || docs
   };
 
   const transactions = trDetailQuery?.data?.transactionDetail;

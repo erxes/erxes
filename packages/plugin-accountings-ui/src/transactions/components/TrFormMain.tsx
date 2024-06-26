@@ -93,7 +93,6 @@ const TrFormMain = (props: Props) => {
 
   return (
     <>
-      <ControlLabel>{__('MainForm')}</ControlLabel>
       <FormWrapper>
         <FormColumn>
           <FormGroup>
@@ -107,15 +106,6 @@ const TrFormMain = (props: Props) => {
               onSelect={(accountId, obj) => { onAccountChange(accountId, obj) }}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>{__('Description')}</ControlLabel>
-            <FormControl
-              name="description"
-              value={trDoc.description || ''}
-              required={true}
-              onChange={e => onChange('description', (e.target as any).value)}
-            />
-          </FormGroup>
         </FormColumn>
         <FormColumn>
           <FormGroup>
@@ -126,16 +116,6 @@ const TrFormMain = (props: Props) => {
               value={detail.side || TR_SIDES.DEBIT}
               options={TR_SIDES.OPTIONS}
               onChange={e => onChangeDetail('side', (e.target as any).value)}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>{__('Customer Type')}</ControlLabel>
-            <FormControl
-              componentclass='select'
-              name="side"
-              value={trDoc.customerType || 'customer'}
-              options={TR_CUSTOMER_TYPES}
-              onChange={e => onChange('customerType', (e.target as any).value)}
             />
           </FormGroup>
         </FormColumn>
@@ -151,6 +131,33 @@ const TrFormMain = (props: Props) => {
               onChange={e => onChangeDetail('amount', (e.target as any).value)}
             />
           </FormGroup>
+        </FormColumn>
+      </FormWrapper>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Description')}</ControlLabel>
+            <FormControl
+              name="description"
+              value={trDoc.description || ''}
+              required={true}
+              onChange={e => onChange('description', (e.target as any).value)}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Customer Type')}</ControlLabel>
+            <FormControl
+              componentclass='select'
+              name="side"
+              value={trDoc.customerType || 'customer'}
+              options={TR_CUSTOMER_TYPES}
+              onChange={e => onChange('customerType', (e.target as any).value)}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
           <FormGroup>
             {renderCustomerChooser()}
           </FormGroup>

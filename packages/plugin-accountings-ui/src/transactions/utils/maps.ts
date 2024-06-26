@@ -1,5 +1,5 @@
-import TrFormMain from "../components/trFormMain";
-import TrFormCash from "../components/trFormCash";
+import TrFormMain from "../components/TrFormMain";
+import TrFormCash from "../components/TrFormCash";
 import { ITransaction } from "../types";
 import * as dayjs from 'dayjs';
 import { TR_SIDES } from "../../constants";
