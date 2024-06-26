@@ -126,38 +126,38 @@ class MailForm extends React.Component<Props, State> {
     );
 
     const cc = replyAll
-      ? formatObj(mailData.cc || [])
-      : mailWidget
-        ? mailWidget.cc
-        : "" || "";
+      && formatObj(mailData.cc || [])
+      || mailWidget
+        && mailWidget.cc
+        || "";
 
     const bcc = replyAll
-      ? formatObj(mailData.bcc || [])
-      : mailWidget
-        ? mailWidget.bcc
-        : "" || "";
+      && formatObj(mailData.bcc || [])
+      || mailWidget
+        && mailWidget.bcc
+        || "";
 
     const [from] = mailData.from || ([{}] as IEmail[]);
     const sender =
       this.getEmailSender(from.email || props.fromEmail) || mailWidget?.to;
 
     const to = emailTo
-      ? emailTo
-      : mailWidget
-        ? mailWidget.to
-        : isForward
-          ? ""
-          : sender || "";
+      && emailTo
+      || mailWidget
+        && mailWidget.to
+        || isForward
+          && ""
+          || sender;
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || "").length > 0;
 
     const attachments =
       isForward && mailData.attachments
-        ? mailData.attachments
-        : mailWidget
-          ? mailWidget.attachments
-          : [] || [];
+        && mailData.attachments
+        || mailWidget
+          && mailWidget.attachments
+          || [] ;
 
     this.state = {
       cc,
@@ -179,10 +179,10 @@ class MailForm extends React.Component<Props, State> {
       subject: mailData.subject || mailWidget ? mailWidget.subject : "",
       emailSignature: "",
       content: mailData
-        ? this.getContent(mailData, "")
-        : mailWidget
-          ? mailWidget.content
-          : "",
+        && this.getContent(mailData, "")
+        || mailWidget
+          && mailWidget.content
+          || "",
 
       status: "draft",
       kind: "",
@@ -396,10 +396,10 @@ class MailForm extends React.Component<Props, State> {
 
     const updatedContent =
       isForward || !isReply
-        ? content
-        : !isRepliesRetrieved
-          ? this.getReplies(messageId)
-          : content;
+        && content
+        || !isRepliesRetrieved
+          && this.getReplies(messageId)
+          || content;
 
     const variables = {
       headerId,
@@ -731,15 +731,15 @@ class MailForm extends React.Component<Props, State> {
     };
 
     const removeAttachment = (index: number) => {
-      const attachments = [...this.state.attachments];
-
-      attachments.splice(index, 1);
-
-      this.setState({ attachments });
-
-      onChangeAttachment(attachments);
+      this.setState(prevState => {
+        const attachments = [...prevState.attachments];
+        attachments.splice(index, 1);
+        return { attachments };
+      }, () => {
+        onChangeAttachment(this.state.attachments);
+      });
     };
-
+    
     return (
       <div>
         <UploaderWrapper>

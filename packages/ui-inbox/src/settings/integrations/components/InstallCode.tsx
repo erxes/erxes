@@ -408,7 +408,9 @@ class InstallCode extends React.PureComponent<Props, State> {
 
     return (
       <MarkdownWrapper>
-        <ReactMarkdown children={code} />
+        <ReactMarkdown>
+        {code}
+        </ReactMarkdown>
         {code ? (
           <CopyToClipboard
             text={code}

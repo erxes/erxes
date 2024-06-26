@@ -38,8 +38,8 @@ export default function Carousel({ items }: Props) {
 
     return (
       <div>
-        {buttons.map((button, idx) => (
-          <div key={idx}>{renderButton(button)}</div>
+        {buttons.map((button, index) => (
+          <div key={index}>{renderButton(button)}</div>
         ))}
       </div>
     );

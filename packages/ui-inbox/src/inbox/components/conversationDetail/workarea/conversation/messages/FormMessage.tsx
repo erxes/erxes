@@ -82,12 +82,12 @@ export default class FormMessage extends React.Component<Props, {}> {
       return data.value.map((obj) => {
         return (
           <>
-            {Object.entries(obj).map((e, index) => {
+            {Object.entries(obj).map((e) => {
               const key = e[0];
               const value: any = e[1] || "";
 
               return (
-                <React.Fragment key={index}>
+                <React.Fragment key={this.props.message._id}>
                   {key}: {value} <br />
                 </React.Fragment>
               );
@@ -179,11 +179,11 @@ export default class FormMessage extends React.Component<Props, {}> {
               <ControlLabel ignoreTrans={true} required={field.isRequired}>
                 {field.text}
               </ControlLabel>
-              {field.type === "multiSelect" ? (
+              {field.type === "multiSelect" && (
                 this.renderMultiSelect(field.value)
-              ) : field.type === "productCategory" ? (
+              ) || field.type === "productCategory" && (
                 this.renderProductData(field)
-              ) : (
+              ) || (
                 <FormMessageInput>{this.displayValue(field)}</FormMessageInput>
               )}
             </FormGroup>

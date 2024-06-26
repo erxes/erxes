@@ -38,12 +38,15 @@ class ManageIntegrationsContainer extends React.Component<FinalProps, State> {
       this.setState({ perPage: 0 });
     }
 
-    this.setState({ perPage: this.state.perPage + 20 }, () => {
+    this.setState(prevState => ({
+      perPage: prevState.perPage + 20
+    }), () => {
       allIntegrationsQuery.refetch({
         searchValue: value,
         perPage: this.state.perPage
       });
     });
+    
   };
 
   render() {

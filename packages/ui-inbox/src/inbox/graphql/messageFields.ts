@@ -65,14 +65,14 @@ export default `
         tagIds
         ${
           isEnabled('tags')
-            ? `
+            && `
             getTags {
               _id
               name
               colorCode
             }
           `
-            : ``
+            || ``
         }
       }
     `

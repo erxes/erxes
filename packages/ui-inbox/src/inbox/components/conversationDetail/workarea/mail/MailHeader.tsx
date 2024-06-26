@@ -138,7 +138,7 @@ const MailHeader: React.FC<MailHeaderProps> = ({
     const { length } = values;
 
     const emails = values.map((val: any, idx: number) => (
-      <React.Fragment key={idx}>
+      <React.Fragment key={message._id}>
         <span>{val.email}</span>
         {length - 1 !== idx && `,${" "}`}
       </React.Fragment>

@@ -41,7 +41,9 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
   state = { toggle: true };
 
   toggleParticipator = () => {
-    this.setState({ toggle: !this.state.toggle });
+    this.setState(prevState =>({
+      toggle: !prevState.toggle
+    }));
   };
 
   render() {
@@ -51,7 +53,7 @@ class Participators extends React.Component<Props, { toggle: boolean }> {
 
     const Trigger = (user) => {
       const name =
-        (user.details && user.details.fullName) || user.username || '';
+        (user.details?.fullName) || user.username || '';
 
       return (
         <Tip key={user._id} placement="bottom" text={name}>

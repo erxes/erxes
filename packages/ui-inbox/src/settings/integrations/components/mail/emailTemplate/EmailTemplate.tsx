@@ -46,14 +46,11 @@ class EmailTemplate extends React.Component<Props, State> {
   };
 
   onLoadMore = () => {
-    this.setState(
-      {
-        page: this.state.page + 1,
-      },
-      () => {
+    this.setState(prevState =>({
+        page: prevState.page + 1,
+      }), () => {
         this.props.fetchMoreEmailTemplates(this.state.page);
-      }
-    );
+      });
   };
 
   handleClick = (value: string) => {

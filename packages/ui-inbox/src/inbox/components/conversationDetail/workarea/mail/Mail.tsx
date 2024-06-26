@@ -41,11 +41,15 @@ class Mail extends React.PureComponent<Props, State> {
   }
 
   onToggleContent = () => {
-    this.setState({ isCollapsed: !this.state.isCollapsed });
+    this.setState(prevState =>({
+      isCollapsed: !prevState.isCollapsed
+    }));
   };
 
   toggleReply = (_, replyAll: boolean = false, isForward: boolean = false) => {
-    this.setState({ isReply: !this.state.isReply, replyAll, isForward });
+    this.setState(prevState =>({
+      isReply: !prevState.isReply, replyAll, isForward
+    }));
   };
 
   closeReply = () => {

@@ -60,13 +60,14 @@ class AssignBox extends React.Component<Props, State> {
     prevState: Readonly<State>
   ): void {
     if (prevState.cursor !== this.state.cursor) {
-      this.setState({
+      this.setState(prevState => ({
         assigneesForList: this.generateAssignParams(
-          this.state.verifiedUsers,
+          prevState.verifiedUsers,
           this.props.targets
         ),
-      });
+      }));
     }
+    
   }
 
   componentWillUnmount() {
@@ -123,15 +124,14 @@ class AssignBox extends React.Component<Props, State> {
           },
         })
         .then((response: { loading: boolean; data: { users?: IUser[] } }) => {
-          this.setState({ verifiedUsers: response.data.users || [] }, () => {
-            this.setState({
-              loading: response.loading,
-              assigneesForList: this.generateAssignParams(
-                this.state.verifiedUsers,
-                this.props.targets
-              ),
-            });
-          });
+          this.setState(prevState => ({
+            verifiedUsers: response.data.users || [],
+            loading: response.loading,
+            assigneesForList: this.generateAssignParams(
+              response.data.users || [],
+              this.props.targets
+            ),
+          }));
         })
         .catch((error) => {
           Alert.error(error.message);

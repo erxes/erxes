@@ -44,7 +44,7 @@ const VideoCallMessage = (props: Props) => {
       };
 
       return (
-        <span key={index} onClick={openTab}>
+        <span key={message._id} onClick={openTab}>
           Recording {index + 1}
         </span>
       );

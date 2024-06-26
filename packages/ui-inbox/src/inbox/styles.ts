@@ -367,7 +367,7 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
 const ModalWrapper = styledTS<{ $show?: boolean }>(styled.div)`
 ${({ $show }) =>
   $show
-    ? `
+    && `
       position: fixed;
       top: 0;
       bottom: 0;
@@ -383,7 +383,7 @@ ${({ $show }) =>
         min-height: 450px !important;
       }
   `
-    : `z-index: 3;`}`;
+    || `z-index: 3;`}`;
 
 export {
   PopoverButton,
