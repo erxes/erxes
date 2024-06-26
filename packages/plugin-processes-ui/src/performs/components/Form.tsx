@@ -894,7 +894,7 @@ class Form extends React.Component<Props, State> {
 
   renderDocuments() {
     const { perform } = this.props;
-    if (!perform || !perform._id) {
+    if (!perform?._id) {
       return <></>;
     }
 
@@ -907,7 +907,7 @@ class Form extends React.Component<Props, State> {
 
   renderConfirmOrAbort() {
     const { perform } = this.props;
-    if (!perform || !perform._id) {
+    if (!perform?._id) {
       return <></>;
     }
 
