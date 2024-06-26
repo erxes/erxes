@@ -53,11 +53,11 @@ class PerformFormContainer extends React.Component<
       performAbort
     } = this.props;
 
-    if (performDetailQuery && performDetailQuery.loading) {
+    if (performDetailQuery?.loading) {
       return <Spinner />;
     }
 
-    let perform = performDetailQuery && performDetailQuery.performDetail;
+    let perform = performDetailQuery?.performDetail;
 
     if (this.state.changed && this.state.id && this.state.perform) {
       perform = this.state.perform;
@@ -156,7 +156,7 @@ export default withProps<Props>(
         variables: { _id: perform?._id },
         fetchPolicy: 'network-only'
       }),
-      skip: props => !props.perform || !props.perform._id
+      skip: props => !props.perform?._id
     }),
     graphql<Props, PerformConfirmMutationResponse, {}>(
       gql(mutations.performConfirm),
