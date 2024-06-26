@@ -49,14 +49,15 @@ class JobForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
-      this.setState({
+  static getDeviredStateFromProps(nextProps, prevState) {
+    if (nextProps.activeFlowJob !== prevState.activeFlowJob) {
+      return {
         productId: nextProps.activeFlowJob.productId,
         description: nextProps.activeFlowJob.description,
         product: nextProps.product
-      });
+      };
     }
+    return null;
   }
 
   renderProductServiceTrigger(product?: IProduct) {
