@@ -33,7 +33,7 @@ export default class LogModal extends React.Component<Props> {
 
   /**
    * Builds an html list from given array
-   * @param {Object|string|number[]]} array List of values
+   * @param {Object|string|number[]} array List of values
    * @param {string} name Field name at database
    */
   buildListFromArray(array: any[] = [], name: string = ''): JSX.Element {
@@ -54,14 +54,14 @@ export default class LogModal extends React.Component<Props> {
           }
         }
 
-        list.push(<li key={Math.random()}>{value}</li>);
+        list.push(<li key={elem.id}>{value}</li>);
       }
 
       if (typeof elem === 'object') {
         const sub: JSX.Element[] = this.buildListFromObject(elem);
 
         list.push(
-          <li className="modal-li" key={Math.random()}>
+          <li className="modal-li" key={elem.id}>
             {sub}({index + 1})
           </li>
         );
