@@ -40,22 +40,6 @@ const WebhookForm = (props: Props) => {
     setSelectedActions(value);
   };
 
-  const onChange = (e) => {
-    const index = (e.currentTarget as HTMLInputElement).value;
-    const isChecked = (e.currentTarget as HTMLInputElement).checked;
-
-    const selected = selectedActions[index];
-    const newSelectedActions = selectedActions;
-
-    newSelectedActions[index] = {
-      type: selected.type,
-      action: selected.action,
-      label: selected.label,
-      checked: isChecked,
-    };
-
-    setSelectedActions(newSelectedActions);
-  };
 
   const collectValues = (selectedActions) => {
     return selectedActions.map(

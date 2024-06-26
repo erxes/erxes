@@ -63,7 +63,7 @@ export const send = async (
 const prepareWebhookContent = async (subdomain: string, type, action, data) => {
   const [serviceName, contentType] = type.split(':');
 
-  let actionText = 'created';
+  let actionText;
   let url;
   let content = '';
 
@@ -84,7 +84,7 @@ const prepareWebhookContent = async (subdomain: string, type, action, data) => {
 
     const meta = service.config?.meta || {};
 
-    if (meta && meta.webhooks && meta.webhooks.getInfoAvailable) {
+    if (meta?.webhooks && meta?.getInfoAvailable) {
       const response = await sendCommonMessage({
         subdomain,
         action: 'webhooks.getInfo',
