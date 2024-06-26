@@ -104,7 +104,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
   }
 
   onClick = () => {
-    this.setState({ expand: !this.state.expand }, () => {
+    this.setState((prevState) => ({ expand: !prevState.expand }), () => {
       localStorage.setItem('expand', this.state.expand.toString());
     });
   };
