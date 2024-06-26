@@ -1,15 +1,15 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
     filter.$or = [
-      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
+      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } }
     ];
   }
 
@@ -19,6 +19,10 @@ const generateFilter = async (params, commonQuerySelector) => {
 
   if (params.productType) {
     filter.productType = params.productType;
+  }
+
+  if (params.leaseType) {
+    filter.leaseType = params.leaseType;
   }
 
   return filter;
