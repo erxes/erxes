@@ -144,26 +144,33 @@ class AddOns extends React.Component<Props, State> {
     );
   };
 
-  onChangeInput = (
-    i: number,
-    type: "url" | "description" | "buttonText",
-    e: React.FormEvent
-  ) => {
+  onChangeInput = (i: number, type: "url" | "description" | "buttonText", e: React.FormEvent) => {
     const { value } = e.target as HTMLInputElement;
-
-    const entries = [...this.state.websites];
-
-    entries[i] = { ...entries[i], [type]: value };
-
-    this.setState({ websites: entries }, () => this.updateMessengerValues());
+  
+    this.setState(prevState => {
+      
+      const entries = [...prevState.websites];
+  
+      entries[i] = { ...entries[i], [type]: value };
+  
+      return { websites: entries };
+    }, () => {
+     
+      this.updateMessengerValues();
+    });
   };
-
+  
   handleRemoveWebsite = (i: number) => {
-    this.setState(
-      { websites: this.state.websites.filter((item, index) => index !== i) },
-      () => this.updateMessengerValues()
-    );
+    this.setState(prevState => {
+     
+      const updatedWebsites = prevState.websites.filter((item, index) => index !== i);
+  
+      return { websites: updatedWebsites };
+    }, () => { 
+      this.updateMessengerValues();
+     });
   };
+  
 
   renderRemoveInput = (i: number) => {
     return (
@@ -176,13 +183,14 @@ class AddOns extends React.Component<Props, State> {
   };
 
   onAddMoreInput = () => {
-    this.setState({
+    this.setState(prevState => ({
       websites: [
-        ...this.state.websites,
+        ...prevState.websites,
         { url: "", buttonText: "", description: "" },
       ],
-    });
+    }));
   };
+  
 
   render() {
     const { knowledgeBase, popups, websites } = this.state;

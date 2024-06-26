@@ -26,7 +26,7 @@ const FlexRow = styledTS<{ $alignItems?: string; $justifyContent?: string }>(
 )`
   display: flex;
   align-items: ${(props) => (props.$alignItems ? props.$alignItems : 'center')};
-  justify-content: ${(props) => props.$justifyContent && props.$justifyContent};
+  justify-content: ${(props) => props.$justifyContent};
 `;
 
 const FlexColumn = styled.div`

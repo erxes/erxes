@@ -112,11 +112,11 @@ const ScriptList = (props: Props) => {
 
     return (
       <Templates>
-        {objects.map((object, index) => {
+        {objects.map((object) => {
           const contentHtml = renderToString(<InstallCode script={object} />);
 
           return (
-            <Template key={index} position="flex-start">
+            <Template key={object._id} position="flex-start">
               <TemplateBox>
                 <Actions>
                   {renderEditAction(object)}

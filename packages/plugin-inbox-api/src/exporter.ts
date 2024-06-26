@@ -104,7 +104,7 @@ export const fillValue = async (
 
       break;
 
-    case 'assignedUserId':
+    case 'assignedUserId':{
       const assignedUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -117,8 +117,8 @@ export const fillValue = async (
       value = assignedUser ? assignedUser.username : 'user not found';
 
       break;
-
-    case 'closedUserId':
+    }
+    case 'closedUserId':{
       const closedUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -131,13 +131,13 @@ export const fillValue = async (
       value = closedUser ? closedUser.username : 'user not found';
 
       break;
-
+    }
     case 'isCustomerRespondedLast':
       value = item.isCustomerRespondedLast ? 'true' : 'false';
 
       break;
 
-    case 'participatedUserIds':
+    case 'participatedUserIds':{
       const resultValues = [] as any;
 
       for (const userId of item.participatedUserIds) {
@@ -156,8 +156,8 @@ export const fillValue = async (
       value = (resultValues ? resultValues : []).join(', ');
 
       break;
-
-    case 'tag':
+    }
+    case 'tag':{
       const tags = await sendTagsMessage({
         subdomain,
         action: 'find',
@@ -167,7 +167,7 @@ export const fillValue = async (
         isRPC: true,
         defaultValue: [],
       });
-
+      
       let tagNames = '';
 
       for (const tag of tags) {
@@ -177,7 +177,7 @@ export const fillValue = async (
       value = tags ? tagNames : '-';
 
       break;
-
+    }
     default:
       break;
   }

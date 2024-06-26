@@ -89,13 +89,7 @@ export const types = ({ products, forms, knowledgeBase }) => `
       ? `
       type BookingProduct {
         product: Product
-        ${
-          forms
-            ? `
-            fields: [Field]
-          `
-            : ''
-        }
+        ${forms && ` fields: [Field] ` || ''}
       }
     `
       : ''

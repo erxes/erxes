@@ -56,7 +56,7 @@ const fetchUsers = async (
   });
 
   for (const user of users) {
-    if (user.details && user.details.location) {
+    if (user.details?.location) {
       user.isOnline = await isMessengerOnline(
         models,
         integration,
@@ -211,7 +211,7 @@ export default {
 
     const messengerData = integration.messengerData || { supporterIds: [] };
 
-    if (integration.messengerData && integration.messengerData.timezone) {
+    if (integration.messengerData?.timezone) {
       timezone = integration.messengerData.timezone;
     }
 
@@ -335,7 +335,7 @@ export default {
       }
     });
 
-    if (topic && topic.createdBy) {
+    if (topic?.createdBy) {
       const user = await sendCoreMessage({
         ...commonOptions,
         action: 'users.findOne',

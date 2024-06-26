@@ -155,7 +155,7 @@ function Row({ isChecked, toggleBulk, integration, remove, archive }: Props) {
         <TextInfo ignoreTrans={true}>{bookingData.viewCount || 0}</TextInfo>
       </td>
       <td>
-        <Label lblStyle={labelStyle}>{status && status}</Label>
+        <Label lblStyle={labelStyle}>{status}</Label>
       </td>
 
       <td>

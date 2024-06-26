@@ -278,9 +278,6 @@ function Booking(props: Props) {
   const onStepClick = currentStepNumber => {
     let carousel = 'form';
     switch (currentStepNumber) {
-      case 4:
-        carousel = 'form';
-        break;
       case 5:
         carousel = 'success';
         break;

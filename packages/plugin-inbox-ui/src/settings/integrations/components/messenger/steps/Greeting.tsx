@@ -52,14 +52,14 @@ class Greeting extends React.Component<Props, State> {
   };
 
   onGreetingsChange = (name, value) => {
-    const messages = { ...this.state.messages };
-
-    messages[this.props.languageCode].greetings[name] = value;
-
-    this.setState({ messages });
-
-    this.props.onChange("messages", messages);
+    this.setState((prevState) => {
+      const messages = { ...prevState.messages };
+      messages[this.props.languageCode].greetings[name] = value;
+      this.props.onChange("messages", messages);
+      return { messages };
+    });
   };
+  
 
   render() {
     const {

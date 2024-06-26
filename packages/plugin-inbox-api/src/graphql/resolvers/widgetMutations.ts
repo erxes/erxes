@@ -139,7 +139,7 @@ export const getMessengerData = async (
     }
 
     const languageCode = integration.languageCode || 'en';
-    const messages = (messengerData || {}).messages;
+    const messages = messengerData?.messages;
 
     if (messages) {
       messagesByLanguage = messages[languageCode];
@@ -162,7 +162,7 @@ export const getMessengerData = async (
     kind: 'knowledgebase',
     'credentials.integrationId': integration._id,
   });
-  const topicId = kbApp && kbApp.credentials ? kbApp.credentials.topicId : null;
+  const topicId = kbApp?.credentials ? kbApp.credentials.topicId : null;
 
   // lead app ==========
   const leadApps: any[] = await models.MessengerApps.find({
@@ -172,7 +172,7 @@ export const getMessengerData = async (
   const formCodes = [] as string[];
 
   for (const app of leadApps) {
-    if (app && app.credentials) {
+    if (app?.credentials) {
       formCodes.push(app.credentials.formCode);
     }
   }
@@ -627,7 +627,7 @@ const widgetMutations = {
     }
 
     // get or create company
-    if (companyData && companyData.name) {
+    if (companyData?.name) {
       let company = await sendContactsMessage({
         subdomain,
         action: 'companies.findOne',
@@ -701,7 +701,7 @@ const widgetMutations = {
       uiOptions: integration.uiOptions,
       languageCode: integration.languageCode,
       messengerData: await getMessengerData(models, integration),
-      customerId: customer && customer._id,
+      customerId: customer?._id,
       visitorId: customer ? null : visitorId,
       brand,
     };
@@ -804,9 +804,6 @@ const widgetMutations = {
     const HAS_BOTENDPOINT_URL = (botEndpointUrl || '').length > 0;
 
     if (conversationId) {
-      conversation = await models.Conversations.findOne({
-        _id: conversationId,
-      }).lean();
 
       conversation = await models.Conversations.findByIdAndUpdate(
         conversationId,

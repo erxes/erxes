@@ -261,14 +261,12 @@ const webhookMiddleware = async (req, res, next) => {
           integrationId: integration._id,
           content: params.content,
         });
-      } else {
-        if (conversation.status === 'closed') {
+      } else if(conversation.status === 'closed') {
           await models.Conversations.updateOne(
             { _id: conversation._id },
             { status: 'open' },
           );
         }
-      }
 
       // create conversation message
       const messageDoc: any = {
@@ -386,8 +384,8 @@ const webhookMiddleware = async (req, res, next) => {
         businessType: params.companyBusinessType,
         avatar: params.companyAvatar,
         code: params.companyCode,
-        customFieldsData: companyData && companyData.customFieldsData,
-        trackedData: companyData && companyData.trackedData,
+        customFieldsData: companyData?.customFieldsData,
+        trackedData: companyData?.trackedData,
         parentCompanyId: parentCompany ? parentCompany._id : undefined,
       };
 
