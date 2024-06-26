@@ -1,6 +1,5 @@
 import React from "react";
 import Table from "@erxes/ui/src/components/table";
-import { formatNumbers } from "../../utils";
 import styled from "styled-components";
 
 const ScrollWrapper = styled.div`
@@ -21,14 +20,14 @@ type IDataSet = {
 
 type Props = {
   dataset: IDataSet;
-  // tableType: string;
-  serviceName: string;
+
 };
 
 const TableList = (props: Props) => {
-  const { dataset: { data = [], }, } = props;
+  const { dataset: { data = [], labels = [], title }, } = props;
 
-  const headers = data.length > 0 ? Object.keys(data[0]) : [];
+  const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]) : []
+  const array = labels?.length ? labels : data || []
 
   return (
     <ScrollWrapper>
@@ -41,15 +40,29 @@ const TableList = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-          {(data || []).map((item, index) => (
-            <tr key={index}>
-              {(headers || []).map(header => (
-                <td key={header}>
-                  {item[header] || '-'}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {(array || []).map((item, index) => {
+
+            if (labels?.length) {
+              return (
+                <tr key={index}>
+                  <td>
+                    <b>{item}</b>
+                  </td>
+                  <td>{data[index]}</td>
+                </tr>
+              )
+            }
+
+            return (
+              <tr key={index}>
+                {(headers || []).map(header => (
+                  <td key={header}>
+                    {item[header] || '-'}
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
         </tbody>
       </Table>
     </ScrollWrapper>

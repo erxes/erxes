@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import 'reactflow/dist/style.css';
 import { IAction } from '@erxes/ui-automations/src/types';
 import ReactFlow, {
@@ -10,17 +10,17 @@ import ReactFlow, {
   getOutgoers,
   updateEdge,
   useEdgesState,
-  useNodesState,
+  useNodesState
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
   AutomationConstants,
   IAutomation,
   IAutomationNote,
-  ITrigger,
+  ITrigger
 } from '../../types';
 import CustomNode, { ScratchNode } from './Node';
-import { generateEdges, generateNodes } from './utils';
+import { generateEdges, generateNodes, generatePostion } from './utils';
 import ConnectionLine from './ConnectionLine';
 
 type Props = {
@@ -31,7 +31,7 @@ type Props = {
   onConnection: ({
     sourceId,
     targetId,
-    type,
+    type
   }: {
     sourceId: string;
     targetId: string;
@@ -40,7 +40,7 @@ type Props = {
   showDrawer: boolean;
   toggleDrawer: ({
     type,
-    awaitingNodeId,
+    awaitingNodeId
   }: {
     type: string;
     awaitingNodeId?: string;
@@ -49,14 +49,21 @@ type Props = {
   removeItem: (type: string, id: string) => void;
   constants: AutomationConstants;
   onChangePositions: (type: string, id: string, postions: any) => void;
+  addAction: (data: IAction, actionId?: string, config?: any) => void;
 };
 
 const nodeTypes = {
   primary: CustomNode,
-  scratch: ScratchNode,
+  scratch: ScratchNode
 };
 
 const fitViewOptions = { padding: 4, minZoom: 0.8 };
+function arraysAreNotIdentical(arr1, arr2) {
+  if (arr1.length !== arr2.length) {
+    return true;
+  }
+  return !arr1.every((value, index) => value === arr2[index]);
+}
 
 function AutomationEditor({
   triggers,
@@ -73,9 +80,8 @@ function AutomationEditor({
     generateNodes({ triggers, actions }, props)
   );
 
-  useEffect(() => {
-    resetNodes();
-  }, [JSON.stringify(triggers), JSON.stringify(actions)]);
+  const [selectedNodes, setSelectedNodes] = useState([] as string[]);
+  const [copiedNodes, setCopiedNodes] = useState([]) as any[];
 
   const resetNodes = () => {
     const updatedNodes: any[] = generateNodes({ triggers, actions }, props);
@@ -92,6 +98,10 @@ function AutomationEditor({
     setEdges(generateEdges({ triggers, actions }));
   };
 
+  useEffect(() => {
+    resetNodes();
+  }, [JSON.stringify(triggers), JSON.stringify(actions)]);
+
   const generateConnect = (params, source) => {
     const { sourceHandle } = params;
 
@@ -99,7 +109,7 @@ function AutomationEditor({
       ...params,
       sourceId: params.source,
       targetId: params.target,
-      type: source?.data?.nodeType,
+      type: source?.data?.nodeType
     };
 
     if (sourceHandle) {
@@ -140,7 +150,10 @@ function AutomationEditor({
       const sourceNode = nodes.find((n) => n.id === edge.source);
 
       if (edge.sourceHandle.includes(sourceNode?.id)) {
-        info.optionalConnectId = undefined;
+        const [_action, _sourceId, optionalConnectId] = (edge.id || '').split(
+          '-'
+        );
+        info.optionalConnectId = optionalConnectId;
         info.connectType = 'optional';
       }
 
@@ -179,6 +192,17 @@ function AutomationEditor({
     }
   };
 
+  const onNodesSelectionChange = ({ nodes }) => {
+    if (
+      arraysAreNotIdentical(
+        selectedNodes,
+        nodes.map((node) => node.id)
+      )
+    ) {
+      setSelectedNodes(nodes.map((node) => node.id));
+    }
+  };
+
   const onNodeDragStop = (_, node) => {
     onChangePositions(node?.data?.nodeType, node.id, node.position);
   };
@@ -190,12 +214,53 @@ function AutomationEditor({
     const sourceNode = nodes.find((n) => n.id === edge.source);
 
     if (edge.sourceHandle.includes(sourceNode?.id)) {
-      info.optionalConnectId = undefined;
+      const optionalConnectId = (edge.id || '').split('-')[2];
+      info.optionalConnectId = optionalConnectId;
       info.connectType = 'optional';
     }
 
     onConnect(info);
   };
+
+  const copyNodes = () => {
+    setCopiedNodes(selectedNodes);
+  };
+
+  const pasteNodes = () => {
+    const copyPastedActions = actions.filter((action) =>
+      copiedNodes.includes(action.id)
+    );
+
+    for (const action of copyPastedActions) {
+      delete action.nextActionId;
+      delete action.config.optionalConnects;
+
+      action.position = generatePostion(action.position);
+
+      props.addAction(action);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case 'c':
+            copyNodes();
+            break;
+          case 'v':
+            pasteNodes();
+            break;
+          default:
+            break;
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedNodes, copiedNodes]);
 
   return (
     <>
@@ -216,6 +281,9 @@ function AutomationEditor({
         isValidConnection={isValidConnection}
         onNodeDragStop={onNodeDragStop}
         onEdgeDoubleClick={onDoubleClickEdge}
+        onSelectionChange={onNodesSelectionChange}
+        // onSelectionChange={onNodesSelectionChange}
+        // multiSelectionKeyCode="Control"
         connectionLineComponent={ConnectionLine}
         minZoom={0.1}
       >

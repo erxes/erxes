@@ -112,7 +112,7 @@ const Description = (props: DescProps) => {
             <RichTextEditor
               content={description}
               onChange={onChangeDescription}
-              height={120}
+              height={"max-content"}
               isSubmitted={isSubmitted}
               autoFocus={true}
               name={`${contentType}_description_${item._id}`}

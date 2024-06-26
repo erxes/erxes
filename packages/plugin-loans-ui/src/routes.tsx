@@ -2,6 +2,7 @@ import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import HolidaySettings from "./settings/components/HolidaySettings";
 import LossSettings from "./settings/components/LossSettings";
+import CreditLoanSettings from "./settings/components/CreditLoanSettings";
 import MainSettings from "./settings/components/MainSettings";
 import React from "react";
 import Settings from "./settings/containers/Settings";
@@ -156,6 +157,10 @@ const LossSettingsComponent = () => {
   return <Settings components={LossSettings}></Settings>;
 };
 
+const CreditLoanSettingsComponent = () => {
+  return <Settings components={CreditLoanSettings}></Settings>;
+};
+
 const MainSettingsComponent = () => {
   return <Settings components={MainSettings} />;
 };
@@ -199,6 +204,10 @@ const LoanRoutes = () => {
       <Route
         path="/erxes-plugin-loan/loss-settings"
         element={<LossSettingsComponent />}
+      />
+      <Route
+        path="/erxes-plugin-loan/credit-settings"
+        element={<CreditLoanSettingsComponent />}
       />
       <Route
         path="/erxes-plugin-loan/holiday-settings"

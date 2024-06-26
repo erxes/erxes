@@ -3,18 +3,16 @@ import fetch from 'node-fetch';
 export const getAuthHeaders = async (args: {
   client_id: string;
   secretKey: string;
-  contentType: 'application/xml' | 'application/json';
+  url: string;
+  contentType: 'application/xml' | 'application/Json';
 }) => {
-  const { client_id, secretKey, contentType = 'application/json' } = args;
-
-
-  const apiUrl = 'https://staging-api.burenscore.mn';
-
+  const { client_id, secretKey,url } = args;
   try {
-    const response = await fetch(`${apiUrl}/api/auth/login`, {
+    
+    const response = await fetch(`${url}/api/auth/login`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/JSON',
+        'Content-Type': 'application/json',
         Authorization: `Bearer token`,
       },
       body: JSON.stringify({
@@ -22,7 +20,7 @@ export const getAuthHeaders = async (args: {
         secretKey: secretKey,
       }),
     }).then((res) => res.json());
-
+    
     return {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${response.access_token}`,

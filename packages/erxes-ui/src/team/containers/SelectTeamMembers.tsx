@@ -17,6 +17,7 @@ export default (props: {
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
+  withCustomStyle?: boolean;
   customOption?: IOption;
   customField?: string;
   initialValue?: string | string[];
@@ -32,7 +33,8 @@ export default (props: {
     multi = true,
     label,
     filterParams,
-    name
+    name,
+    withCustomStyle
   } = props;
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
@@ -58,6 +60,11 @@ export default (props: {
     });
   }
 
+  const customStyles = {
+    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+    menu: (base) => ({ ...base, zIndex: 9999 }),
+  };
+
   return (
     <SelectWithSearch
       label={label}
@@ -70,6 +77,8 @@ export default (props: {
       customQuery={queries.users}
       customOption={customOption}
       multi={multi}
+      customStyles={withCustomStyle && customStyles}
+      menuPortalTarget={withCustomStyle && document.body}
     />
   );
 };
