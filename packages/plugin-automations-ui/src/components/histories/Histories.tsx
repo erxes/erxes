@@ -1,21 +1,23 @@
-import { IAutomationHistory, ITrigger } from "../../types";
+import { IAutomationHistory, ITrigger } from '../../types';
 
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import React from "react";
-import Row from "./Row";
-import Table from "@erxes/ui/src/components/table";
-import { __ } from "@erxes/ui/src/utils/core";
-import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import React from 'react';
+import Row from './Row';
+import Table from '@erxes/ui/src/components/table';
+import { __ } from '@erxes/ui/src/utils/core';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { Pagination } from '@erxes/ui/src';
 
 type Props = {
   histories: IAutomationHistory[];
   triggersConst: ITrigger[];
   actionsConst: any[];
+  totalCount: number;
 };
 
 class Histories extends React.Component<Props> {
   render() {
-    const { histories, triggersConst, actionsConst } = this.props;
+    const { histories, triggersConst, actionsConst, totalCount } = this.props;
 
     const triggersByType = {};
     triggersConst.forEach((t) => {
@@ -41,11 +43,11 @@ class Histories extends React.Component<Props> {
         <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
           <thead>
             <tr>
-              <th>{__("Title")}</th>
-              <th>{__("Description")}</th>
-              <th>{__("Trigger")}</th>
-              <th>{__("Status")}</th>
-              <th>{__("Time")}</th>
+              <th>{__('Title')}</th>
+              <th>{__('Description')}</th>
+              <th>{__('Trigger')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Time')}</th>
             </tr>
           </thead>
           <tbody id="automationHistories">
@@ -59,6 +61,7 @@ class Histories extends React.Component<Props> {
             ))}
           </tbody>
         </Table>
+        <Pagination count={totalCount} hidePerPageChooser />
       </withTableWrapper.Wrapper>
     );
   }

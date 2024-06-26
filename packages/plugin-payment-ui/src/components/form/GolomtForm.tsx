@@ -65,7 +65,7 @@ const GolomtConfigForm: React.FC<Props> = (props) => {
     key: string,
     title: string,
     description?: string,
-    isPassword?: boolean,
+    isPassword?: boolean
   ) => {
     const value =
       key === 'pushNotification'
@@ -106,27 +106,14 @@ const GolomtConfigForm: React.FC<Props> = (props) => {
           {renderItem('merchant', 'Merchant')}
           {renderItem('key', 'Key')}
           {renderItem('token', 'Token', '', true)}
-          {renderItem(
-            'pushNotification',
-            'Notification URL',
-            'Register following URL in Golomt Bank',
-          )}
-
-          <a
-            href="https://www.golomtbank.com/corporate/digital-bank/Golomt2"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {__('more about Golomt')}
-          </a>
         </SettingsContent>
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
+            btnStyle='simple'
+            type='button'
             onClick={closeModal}
-            icon="times-circle"
+            icon='times-circle'
           >
             Cancel
           </Button>
