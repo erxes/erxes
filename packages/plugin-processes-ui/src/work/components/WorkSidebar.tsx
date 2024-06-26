@@ -30,7 +30,7 @@ interface Props {
 
 const { Section } = Wrapper.Sidebar;
 
-const generateQueryParams = () => {
+const GenerateQueryParams = () => {
   const location = useLocation();
   return queryString.parse(location.search);
 };
@@ -44,7 +44,7 @@ const Sidebar = (props: Props) => {
   let timer;
 
   const isFiltered = (): boolean => {
-    const params = generateQueryParams();
+    const params = GenerateQueryParams();
 
     for (const param in params) {
       if (
@@ -70,7 +70,7 @@ const Sidebar = (props: Props) => {
   };
 
   const clearFilter = () => {
-    const params = generateQueryParams();
+    const params = GenerateQueryParams();
     router.removeParams(navigate, location, ...Object.keys(params));
   };
 
