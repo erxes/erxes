@@ -39,7 +39,7 @@ class PerformFormContainer extends React.Component<
     const { perform } = this.props;
 
     this.state = {
-      id: perform ? perform._id : '' || '',
+      id: perform?._id ?? '',
       changed: false
     };
   }
