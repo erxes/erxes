@@ -14,11 +14,6 @@ const Container = ({ onChange, value, url, token }) => {
   });
 
   const onSearch = (searchValue: string) => {
-    // getCategories({
-    //   variables: {
-    //     searchValue,
-    //   },
-    // });
   };
 
   const duplicatedOrgNames = data?.xypServiceList.map(d => d.orgName);
