@@ -196,6 +196,7 @@ export const getLasthistoryEachAssets = async (
 ) => {
   return await models.AssetsKbArticlesHistories.aggregate([
     { $match: { ...filter } }, // filter items
+    { $sort: { createdAt: -1 } },
     {
       $group: {
         _id: {
@@ -204,16 +205,6 @@ export const getLasthistoryEachAssets = async (
         },
         kbArticles: {
           $push: '$$ROOT' // Group all entries under each assetId
-        }
-      }
-    },
-    {
-      $addFields: {
-        kbArticles: {
-          $sortArray: {
-            input: '$kbArticles',
-            sortBy: { createdAt: -1 }
-          }
         }
       }
     },

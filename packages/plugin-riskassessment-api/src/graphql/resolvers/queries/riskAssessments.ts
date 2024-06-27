@@ -5,6 +5,7 @@ import { statusColors } from '../../../constants';
 import { sendCardsMessage } from '../../../messageBroker';
 import { generateSort } from '../../../utils';
 import { RiskAssessmentGroupParams } from '../types';
+import { generateCardIds } from './utils';
 
 export const generateFilter = async (
   params,
@@ -43,7 +44,7 @@ export const generateFilter = async (
       await models.IndicatorsGroups.aggregate([
         { $match: { 'groups.indicatorIds': { $in: params.riskIndicatorIds } } }
       ])
-    ).map(group => group._id);
+    ).map((group) => group._id);
 
     filter.indicatorId = { $in: params.riskIndicatorIds };
 
@@ -60,11 +61,11 @@ export const generateFilter = async (
   if (params.tagIds) {
     const indicatorIds = (
       await models.RiskIndicators.find({ tagIds: { $in: params.tagIds } })
-    ).map(indicator => indicator._id);
+    ).map((indicator) => indicator._id);
 
     const groupIds = (
       await models.IndicatorsGroups.find({ tagIds: { $in: params.tagIds } })
-    ).map(group => group._id);
+    ).map((group) => group._id);
 
     filter.$or = [
       { groupId: { $in: groupIds } },
@@ -102,8 +103,8 @@ export const generateFilter = async (
         },
         isRPC: true,
         defaultValue: []
-      }).then(data => {
-        cardIds = [...cardIds, ...data.map(item => item._id)];
+      }).then((data) => {
+        cardIds = [...cardIds, ...data.map((item) => item._id)];
       });
     }
 
@@ -111,27 +112,15 @@ export const generateFilter = async (
   }
 
   if (params?.cardFilter && filter.cardType) {
-    const { name, value, values, regex } = params?.cardFilter;
-
-    let cardFilter = {
-      [name]: regex ? { $regex: new RegExp(`^${value}$`, 'i') } : value
+    filter.cardId = {
+      $in: generateCardIds(subdomain, filter.cardType, [params?.cardFilter])
     };
+  }
 
-    if (!!values?.length) {
-      cardFilter[name] = { $in: values };
-    }
-
-    const cards = await sendCardsMessage({
-      subdomain,
-      action: `${filter.cardType}s.find`,
-      data: cardFilter,
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const cardIds = cards.map(card => card._id);
-
-    filter.cardId = { $in: cardIds };
+  if (params?.cardFilters && filter.cardType) {
+    filter.cardId = {
+      $in: generateCardIds(subdomain, filter.cardType, params?.cardFilter)
+    };
   }
 
   if (params.cardIds) {
