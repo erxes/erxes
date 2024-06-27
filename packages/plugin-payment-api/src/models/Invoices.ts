@@ -80,23 +80,22 @@ export const loadInvoiceClass = (models: IModels) => {
         invoiceId: invoice._id,
         status: 'paid',
       });
-  
+
       // sum of paid transactions
       const paidAmount = transactions.reduce(
         (acc, transaction) => acc + transaction.amount,
         0
       );
-  
-      if (invoice.amount < paidAmount) {
-        return PAYMENT_STATUS.PENDING;
+
+      if (paidAmount >= invoice.amount) {
+        await models.Invoices.updateOne(
+          { _id },
+          { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
+        );
+        return PAYMENT_STATUS.PAID;
       }
 
-      await models.Invoices.updateOne(
-        { _id },
-        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
-      );
-
-      return PAYMENT_STATUS.PAID;
+      return PAYMENT_STATUS.PENDING;
     }
 
     public static async removeInvoices(_ids: string[]) {
