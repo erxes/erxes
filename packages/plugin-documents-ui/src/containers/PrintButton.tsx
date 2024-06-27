@@ -89,7 +89,7 @@ export default class PrintActionButton extends React.Component<Props, State> {
   }
 
   loadDocuments = () => {
-    const { item, contentType, subType } = this.props;
+    const { contentType, subType } = this.props;
     this.setState({ loading: true });
 
     client

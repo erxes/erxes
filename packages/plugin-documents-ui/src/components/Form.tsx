@@ -65,7 +65,7 @@ class Form extends React.Component<Props, State> {
 
   renderContent = (formProps: IFormProps) => {
     const { obj, contentType, subTypes, closeModal } = this.props;
-    const { content, subType } = this.state;
+    const { subType } = this.state;
 
     return (
       <>
