@@ -132,10 +132,10 @@ class PaymentForm extends React.Component<Props, State> {
 
     const currencyOptions = selectConfigOptions(currencies, CURRENCIES);
 
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {this.selectOption(props.data)}
+        <components.Option {...optionProps}>
+          {this.selectOption(optionProps.data)}
         </components.Option>
       );
     };

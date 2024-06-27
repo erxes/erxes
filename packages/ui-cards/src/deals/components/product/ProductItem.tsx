@@ -410,10 +410,10 @@ class ProductItem extends React.Component<Props, State> {
 
     const currencyOptions = selectConfigOptions(currencies, CURRENCIES);
 
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {selectOption(props.data)}
+        <components.Option {...optionProps}>
+          {selectOption(optionProps.data)}
         </components.Option>
       );
     };

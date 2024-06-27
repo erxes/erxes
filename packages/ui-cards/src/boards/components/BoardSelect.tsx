@@ -32,10 +32,10 @@ class BoardSelect extends React.Component<Props> {
   };
 
   renderSelect(placeholder, value, onChange, options) {
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {this.renderOptions(props.data)}
+        <components.Option {...optionProps}>
+          {this.renderOptions(optionProps.data)}
         </components.Option>
       );
     };

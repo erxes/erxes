@@ -17,7 +17,7 @@ type Props = {
 export default function MainChart({ component, data, children }: Props) {
   const ChartComponent = component;
 
-  const CustomizedAxisTick = props => {
+  const CustomizedAxisTick = (props) => {
     const { x, y, payload } = props;
 
     return (
