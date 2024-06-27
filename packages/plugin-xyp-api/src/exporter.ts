@@ -63,7 +63,7 @@ const prepareDataCount = async (
 
 const getExcelHeader = async (subdomain, columnsConfig) => {
   let headers = [] as any;
-  const { fieldsForExcel, list } = (await getServiceToFields(subdomain)) || [];
+  const { fieldsForExcel } = (await getServiceToFields(subdomain)) || [];
 
   for (const column of columnsConfig) {
     if (column.startsWith('service.')) {
@@ -115,8 +115,6 @@ export default {
     const models = await generateModels(subdomain);
 
     const { columnsConfig } = data;
-    const { fieldsForExcel, list } =
-      (await getServiceToFields(subdomain)) || [];
     const docs = [] as any;
 
     const excelHeader = await getExcelHeader(subdomain, columnsConfig);
