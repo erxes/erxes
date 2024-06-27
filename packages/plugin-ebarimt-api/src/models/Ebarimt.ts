@@ -9,6 +9,7 @@ import {
 import { IDoc, getEbarimtData } from './utils';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { returnResponse } from '../utils';
 
 export interface IPutResponseModel extends Model<IEbarimtDocument> {
   putData(
@@ -173,30 +174,7 @@ export const loadPutResponseClass = (models: IModels) => {
           inactiveId: prePutResponse.id,
         });
 
-        const delResponse = await fetch(`${url}/rest/receipt`, {
-          method: 'DELETE',
-          body: JSON.stringify({ ...data }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }).then(async (r) => {
-          if (r.status === 200) {
-            return { status: 200 };
-          }
-          try {
-            return r.json()
-          } catch (e) {
-            return {
-              status: 'ERROR',
-              message: e.message
-            }
-          }
-        }).catch((err) => {
-          return {
-            status: 'ERROR',
-            message: err.message
-          }
-        })
+        const delResponse = await await returnResponse(url, data)
 
         if (delResponse.status === 200) {
           await models.PutResponses.updateOne(

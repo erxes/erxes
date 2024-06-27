@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { getConfig } from '../../../utils';
+import { getConfig, returnResponse } from '../../../utils';
 
 const ebarimtMutations = {
   async putResponseReturnBill(_root, args, { models, subdomain }: IContext) {
@@ -37,30 +37,7 @@ const ebarimtMutations = {
       type: putResponse.type
     });
 
-    const delResponse = await fetch(`${url}/rest/receipt`, {
-      method: 'DELETE',
-      body: JSON.stringify({ ...data }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(async (r) => {
-      if (r.status === 200) {
-        return { status: 200 };
-      }
-      try {
-        return r.json()
-      } catch (e) {
-        return {
-          status: 'ERROR',
-          message: e.message
-        }
-      }
-    }).catch((err) => {
-      return {
-        status: 'ERROR',
-        message: err.message
-      }
-    })
+    const delResponse = await returnResponse(url, data)
 
     if (delResponse.status === 200) {
       await models.PutResponses.updateOne(
@@ -102,30 +79,7 @@ const ebarimtMutations = {
       inactiveId: putResponse.inactiveId,
     });
 
-    const delResponse = await fetch(`${url}/rest/receipt`, {
-      method: 'DELETE',
-      body: JSON.stringify({ ...putResponse.sendInfo }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(async (r) => {
-      if (r.status === 200) {
-        return { status: 200 };
-      }
-      try {
-        return r.json()
-      } catch (e) {
-        return {
-          status: 'ERROR',
-          message: e.message
-        }
-      }
-    }).catch((err) => {
-      return {
-        status: 'ERROR',
-        message: err.message
-      }
-    })
+    const delResponse = await returnResponse(url, putResponse.sendInfo)
 
     if (delResponse.status === 200) {
       await models.PutResponses.updateOne(
