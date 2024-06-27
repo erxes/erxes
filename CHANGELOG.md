@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.14.0-rc.2](https://github.com/erxes/erxes/compare/1.14.0-rc.1...1.14.0-rc.2) (2024-06-27)
+
+
+### Features
+
+* products query check used cards pipeline ([346de3a](https://github.com/erxes/erxes/commit/346de3adda573612468f5cf9ebe7523dcbf16e78))
+
+
+### Bug Fixes
+
+* **assets:** can't save asset kb histories as action added ([656d8eb](https://github.com/erxes/erxes/commit/656d8eb2449fdb1665849c204b5387d26a34e3ad))
+* **assets:** can't sort by createdAt in getLasthistoryEachAssets ([5fd442e](https://github.com/erxes/erxes/commit/5fd442eca5d7534df4a94ceeb31ae08522daaa93))
+* **core:** get branches children by status ([10806d4](https://github.com/erxes/erxes/commit/10806d410ff00cc738249374f317b41a98be4dc3))
+* elastic _id bug ([#5470](https://github.com/erxes/erxes/issues/5470)) ([ad044c5](https://github.com/erxes/erxes/commit/ad044c5197873c0d31c61766fc3dd6fc4520540e))
+* **riskassessment:** prevent risk assessment submitting multiple times ([ef00e9a](https://github.com/erxes/erxes/commit/ef00e9ada708fc8ed8254619d6267ed203965fbd))
+
 ## [1.14.0-rc.1](https://github.com/erxes/erxes/compare/1.14.0-rc.0...1.14.0-rc.1) (2024-06-26)
 
 ## [1.14.0-rc.0](https://github.com/erxes/erxes/compare/1.13.0...1.14.0-rc.0) (2024-06-25)
