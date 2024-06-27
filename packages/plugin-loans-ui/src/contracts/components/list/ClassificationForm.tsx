@@ -2,7 +2,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -24,7 +24,7 @@ type Props = {
   currentUser: IUser;
   contractTypes: IContractType[];
   renderButton: (
-    props: IButtonMutateProps & { disabled: boolean },
+    props: IButtonMutateProps & { disabled: boolean }
   ) => JSX.Element;
   contracts: IContract[];
   closeModal: () => void;
@@ -34,12 +34,12 @@ function addClassification(
   classification,
   newClassification,
   list,
-  currentItem,
+  currentItem
 ) {
   const currentType = list.find(
     (a) =>
       a.classification === classification &&
-      a.newClassification === newClassification,
+      a.newClassification === newClassification
   );
   if (currentItem.classification === newClassification) return;
   if (!currentType) {
@@ -50,15 +50,15 @@ function addClassification(
         {
           contractId: currentItem._id,
           amount: currentItem.amount,
-          ...currentItem,
-        },
-      ],
+          ...currentItem
+        }
+      ]
     });
   } else {
     currentType.list.push({
       contractId: currentItem._id,
       amount: currentItem.amount,
-      ...currentItem,
+      ...currentItem
     });
   }
 }
@@ -68,7 +68,7 @@ function generateList(contractTypes, contracts) {
 
   contractTypes?.map((type) => {
     const currentContracts = contracts?.filter(
-      (a) => a.contractTypeId === type._id,
+      (a) => a.contractTypeId === type._id
     );
     currentContracts.map((contract) => {
       let newClassification = 'NORMAL';
@@ -98,7 +98,7 @@ function generateList(contractTypes, contracts) {
         contract.classification,
         newClassification,
         dataClassifications,
-        contract,
+        contract
       );
     });
   });
@@ -110,7 +110,7 @@ const ClassificationForm = (props: Props) => {
   const { contractTypes, contracts } = props;
   const [invDate, setInvDate] = useState(new Date());
   const [classificationChangeList, setClassificationChangeList] = useState(
-    generateList(contractTypes, contracts),
+    generateList(contractTypes, contracts)
   );
 
   const generateDoc = () => {
@@ -124,8 +124,8 @@ const ClassificationForm = (props: Props) => {
         dtl: mur.list?.map((a) => ({
           amount: a.loanBalanceAmount,
           contractId: a._id,
-          currency: a.currency,
-        })),
+          currency: a.currency
+        }))
       })) || []
     );
   };
@@ -137,6 +137,37 @@ const ClassificationForm = (props: Props) => {
   };
 
   const renderClassificationList = () => {
+    const onChangeClassification = (
+      value,
+      mur,
+      index,
+      classification,
+      cIndex
+    ) => {
+      let dataClassifications = classificationChangeList;
+      let insertDataType = dataClassifications.find(
+        (a) =>
+          a.classification === mur.classification &&
+          value === a.newClassification
+      );
+      if (insertDataType) {
+        insertDataType.list.push({
+          ...mur,
+          newClassification: value
+        });
+      } else {
+        addClassification(mur.classification, value, dataClassifications, {
+          ...mur,
+          newClassification: value
+        });
+      }
+      classification.list.splice(index, 1);
+      if (classification.list.length === 0){
+        dataClassifications.splice(cIndex, 1);
+      }
+
+      setClassificationChangeList(dataClassifications);
+    };
     return (
       <table style={{ width: '100%' }}>
         <thead>
@@ -148,22 +179,24 @@ const ClassificationForm = (props: Props) => {
             <th>{__('new classification')}</th>
           </tr>
         </thead>
-        {classificationChangeList.map((a, cIndex) => {
+        {classificationChangeList.map((classification, cIndex) => {
           return (
             <tbody
+              key={`${classification.classification}-->${classification.newClassification}`}
               style={{
                 boxShadow: '1px 0px 5px rgba(0,0,0,0.1)',
-                columnSpan: 'all',
+                columnSpan: 'all'
               }}
             >
               <tr style={{ columnSpan: 'all' }}>
                 <label style={{ fontWeight: 700, marginLeft: 20 }}>
-                  {a.classification} {`-->`} {a.newClassification}
+                  {classification.classification} {`-->`}{' '}
+                  {classification.newClassification}
                 </label>
               </tr>
-              {a.list.map((mur, index) => {
+              {classification.list.map((mur, index) => {
                 return (
-                  <tr>
+                  <tr key={mur._id}>
                     <td style={{ fontSize: 'bold' }}>{mur.number}</td>
                     <td>{mur.classification}</td>
                     <td>{mur.expiredDays}</td>
@@ -171,32 +204,15 @@ const ClassificationForm = (props: Props) => {
                     <td>
                       <select
                         style={{ border: 'none' }}
-                        value={a.newClassification}
+                        value={classification.newClassification}
                         onChange={(e) => {
-                          let dataClassifications = classificationChangeList;
-                          let insertDataType = dataClassifications.find(
-                            (a) =>
-                              a.classification === mur.classification &&
-                              e.target.value === a.newClassification,
+                          onChangeClassification(
+                            e.target.value,
+                            mur,
+                            index,
+                            classification,
+                            cIndex
                           );
-                          if (insertDataType) {
-                            insertDataType.list.push({
-                              ...mur,
-                              newClassification: e.target.value,
-                            });
-                          } else {
-                            addClassification(
-                              mur.classification,
-                              e.target.value,
-                              dataClassifications,
-                              { ...mur, newClassification: e.target.value },
-                            );
-                          }
-                          a.list.splice(index, 1);
-                          if (a.list.length === 0)
-                            dataClassifications.splice(cIndex, 1);
-
-                          setClassificationChangeList(dataClassifications);
                         }}
                       >
                         <option>NORMAL</option>
@@ -217,7 +233,7 @@ const ClassificationForm = (props: Props) => {
                   Total:
                 </td>
                 <td>
-                  {a.list
+                  {classification.list
                     .reduce((a, b) => a + b.loanBalanceAmount, 0)
                     ?.toLocaleString()}
                 </td>
@@ -231,7 +247,7 @@ const ClassificationForm = (props: Props) => {
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
-    const { values, isSubmitted } = formProps;
+    const { isSubmitted } = formProps;
 
     return (
       <>
@@ -247,6 +263,7 @@ const ClassificationForm = (props: Props) => {
                   dateFormat="YYYY/MM/DD"
                   required={false}
                   name="startDate"
+                  onChange={(e: any) => setInvDate(e.target.value)}
                 />
               </DateContainer>
             </FormGroup>
@@ -264,7 +281,7 @@ const ClassificationForm = (props: Props) => {
             values: generateDoc(),
             disabled: !!Object.keys(checkValidation())?.length,
             isSubmitted,
-            object: props.contracts,
+            object: props.contracts
           })}
         </ModalFooter>
       </>

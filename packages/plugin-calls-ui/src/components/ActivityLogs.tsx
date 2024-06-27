@@ -4,28 +4,26 @@ import {
   ActivityIcon,
   ActivityRow,
   MessageContent,
-} from '../styles';
-import React from 'react';
+} from "../styles";
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { CenterText } from '@erxes/ui-log/src/activityLogs/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
-import dayjs from 'dayjs';
-import { getIconAndColor } from '@erxes/ui-log/src/activityLogs/utils';
-
-import { colors, dimensions } from '@erxes/ui/src/styles';
-
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { readFile } from '@erxes/ui/src/utils/core';
-import Attachment from '@erxes/ui/src/components/Attachment';
-import xss from 'xss';
-import { urlify } from '@erxes/ui/src/utils/urlParser';
-import withConsumer from '../withConsumer';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { can } from '@erxes/ui/src/utils/core';
+import Attachment from "@erxes/ui/src/components/Attachment";
+import { CenterText } from "@erxes/ui-log/src/activityLogs/styles";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils/core";
+import { can } from "@erxes/ui/src/utils/core";
+import dayjs from "dayjs";
+import { getIconAndColor } from "@erxes/ui-log/src/activityLogs/utils";
+import { readFile } from "@erxes/ui/src/utils/core";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { urlify } from "@erxes/ui/src/utils/urlParser";
+import withConsumer from "../withConsumer";
+import xss from "xss";
 
 type Props = {
   contentType: string;
@@ -35,7 +33,7 @@ type Props = {
 
 const MessageBody = styledTS<{ $staff?: boolean }>(styled.div)`
   display: flex;
-  flex-direction: ${(props) => (props.$staff ? 'row-reverse' : 'row')};
+  flex-direction: ${(props) => (props.$staff ? "row-reverse" : "row")};
   align-items: center;
 
   footer {
@@ -79,6 +77,12 @@ const StatusContent = styled.div`
 const Audio = styled.div`
   flex: 1;
 
+  audio {
+    height: 30px;
+    width: 100%;
+    margin: ${dimensions.unitSpacing}px 0;
+  }
+
   span {
     font-size: 11px;
     display: block;
@@ -88,16 +92,16 @@ const Audio = styled.div`
 
 const ActivityItem = (props: Props) => {
   const { activity, currentUser } = props;
-  const { contentTypeDetail = {}, contentType = '' } = activity;
+  const { contentTypeDetail = {}, contentType = "" } = activity;
   const { history = {}, conversationMessages = [] } = contentTypeDetail;
-  const { createdAt = '', recordUrl = '' } = history;
+  const { createdAt = "", recordUrl = "" } = history;
 
   const renderAudio = () => {
     return (
-      can('showCallRecord', currentUser) && (
+      can("showCallRecord", currentUser) && (
         <Audio>
           <audio controls={true}>
-            <source src={readFile(recordUrl)} type="audio/wav" />{' '}
+            <source src={readFile(recordUrl)} type="audio/wav" />{" "}
           </audio>
         </Audio>
       )
@@ -128,15 +132,15 @@ const ActivityItem = (props: Props) => {
     return (
       <CenterText>
         <Link to={`/inbox/index?_id=${conversationId}`}>
-          {__('See full call conversation')} <Icon icon="angle-double-right" />
+          {__("See full call conversation")} <Icon icon="angle-double-right" />
         </Link>
       </CenterText>
     );
   };
-  if (contentType && !contentType.includes('calls')) {
+  if (contentType && !contentType.includes("calls")) {
     return null;
   }
-  const iconAndColor = getIconAndColor('callpro');
+  const iconAndColor = getIconAndColor("callpro");
 
   const renderAttachment = (hasAttachment: boolean, message: any) => {
     const { attachments } = message;
@@ -170,14 +174,14 @@ const ActivityItem = (props: Props) => {
   return (
     history && (
       <ActivityRow>
-        <Tip text={'Phone call'} placement="top">
+        <Tip text={"Phone call"} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
           </ActivityIcon>
         </Tip>
 
         <AcitivityHeader>
-          <ActivityDate>{dayjs(createdAt).format('lll')}</ActivityDate>
+          <ActivityDate>{dayjs(createdAt).format("lll")}</ActivityDate>
         </AcitivityHeader>
         {renderWhom(history)}
         {conversationMessages?.map((message) => renderContent(message))}

@@ -130,6 +130,7 @@ const billTypeCustomFieldsData = async (config, deal) => {
           type: 'B2B_RECEIPT',
           customerCode: customDataRegNo.value,
           customerName: customDataComName.value,
+          customerTin: resp.tin
         }
       }
     }
@@ -167,6 +168,7 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
             type: 'B2B_RECEIPT',
             customerCode: company.code,
             customerName: company.primaryName,
+            customerTin: checkCompanyRes.tin
           }
         }
       }
@@ -178,20 +180,24 @@ const checkBillType = async (subdomain, config, deal) => {
   let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
   let customerCode = '';
   let customerName = '';
+  let customerTin = '';
 
   const checker = await billTypeCustomFieldsData(config, deal);
   if (checker?.type === 'B2B_RECEIPT') {
     type = 'B2B_RECEIPT';
     customerCode = checker.customerCode;
     customerName = checker.customerName;
+    customerTin = checker.customerTin;
   }
 
   if (type === 'B2C_RECEIPT') {
     const checkerC = await billTypeConfomityCompany(subdomain, config, deal);
+
     if (checkerC?.type === 'B2B_RECEIPT') {
       type = 'B2B_RECEIPT';
-      customerCode = checker?.customerCode;
-      customerName = checker?.customerName;
+      customerCode = checkerC?.customerCode;
+      customerName = checkerC?.customerName;
+      customerTin = checkerC?.customerTin;
     }
   }
 
@@ -236,11 +242,12 @@ const checkBillType = async (subdomain, config, deal) => {
       }
     }
   }
-  return { type, customerCode, customerName }
+
+  return { type, customerCode, customerName, customerTin }
 }
 
 export const getPostData = async (subdomain, config, deal) => {
-  const { type, customerCode, customerName } = await checkBillType(subdomain, config, deal)
+  const { type, customerCode, customerName, customerTin } = await checkBillType(subdomain, config, deal)
 
   const productsIds = deal.productsData.map((item) => item.productId);
   const products = await sendProductsMessage({
@@ -264,9 +271,9 @@ export const getPostData = async (subdomain, config, deal) => {
     date: new Date(),
     type,
 
-    customerRD: customerCode,
+    customerCode,
     customerName,
-    // consumerNo?: string;
+    customerTin,
 
     details: deal.productsData.filter(prData => prData.tickUsed).map(prData => {
       const product = productsById[prData.productId];

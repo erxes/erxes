@@ -1,8 +1,10 @@
-import { ISchedule, scheduleSchema } from './definitions/schedules';
-import { IScheduleDocument } from './definitions/schedules';
-import { Model } from 'mongoose';
+import {
+  ISchedule,
+  scheduleSchema,
+  IScheduleDocument
+} from './definitions/schedules';
+import { Model, FilterQuery } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { FilterQuery } from 'mongoose';
 export interface IScheduleModel extends Model<IScheduleDocument> {
   getLastSchedule(
     contractId: string,

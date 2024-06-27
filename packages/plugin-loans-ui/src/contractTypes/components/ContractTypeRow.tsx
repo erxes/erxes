@@ -1,22 +1,18 @@
-import { ActionButton } from "@erxes/ui/src/components/ActionButtons";
-import ContractTypeForm from "../containers/ContractTypeForm";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IContractType } from "../types";
-import Icon from "@erxes/ui/src/components/Icon";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import React from "react";
-import _ from "lodash";
-import { formatValue } from "@erxes/ui/src/utils";
-import { useNavigate } from "react-router-dom";
+import { ActionButton } from '@erxes/ui/src/components/ActionButtons';
+import ContractTypeForm from '../containers/ContractTypeForm';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IContractType } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import _ from 'lodash';
+import { formatValue } from '@erxes/ui/src/utils';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   contractType: IContractType;
   isChecked: boolean;
   toggleBulk: (contractType: IContractType, isChecked?: boolean) => void;
-};
-
-type State = {
-  showModal: boolean;
 };
 
 function displayValue(contractType, name) {
@@ -45,19 +41,15 @@ function renderFormTrigger(
 
 function renderEditAction(contractType: IContractType) {
   const trigger = (
-    <ActionButton
-      style={{ cursor: "pointer" }}
-      children={<Icon icon="edit-1" />}
-    />
+    <ActionButton style={{ cursor: 'pointer' }}>
+      <Icon icon="edit-1" />
+    </ActionButton>
   );
 
   return renderFormTrigger(trigger, contractType);
 }
 
-function ContractTypeRow(
-  { contractType, isChecked, toggleBulk }: Props,
-  { showModal }: State
-) {
+function ContractTypeRow({ contractType, isChecked, toggleBulk }: Props) {
   const navigate = useNavigate();
   const onChange = (e) => {
     if (toggleBulk) {
@@ -83,10 +75,10 @@ function ContractTypeRow(
         />
       </td>
 
-      <td key={"code"}>{displayValue(contractType, "code")}</td>
-      <td key={"name"}>{displayValue(contractType, "name")}</td>
-      <td key={"number"}>{displayValue(contractType, "number")}</td>
-      <td key={"vacancy"}>{displayValue(contractType, "vacancy")}</td>
+      <td key={'code'}>{displayValue(contractType, 'code')}</td>
+      <td key={'name'}>{displayValue(contractType, 'name')}</td>
+      <td key={'number'}>{displayValue(contractType, 'number')}</td>
+      <td key={'vacancy'}>{displayValue(contractType, 'vacancy')}</td>
 
       <td onClick={onClick}>{renderEditAction(contractType)}</td>
     </tr>

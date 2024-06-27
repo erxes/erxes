@@ -1,5 +1,6 @@
+import { modeAtom } from "@/store"
 import { addToCartAtom } from "@/store/cart.store"
-import { useSetAtom } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 
 import { IProduct } from "@/types/product.types"
 import { formatNum } from "@/lib/utils"
@@ -10,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { toast } from "@/components/ui/use-toast"
 
 const ProductItem = ({
   attachment,
@@ -20,12 +22,20 @@ const ProductItem = ({
   _id,
 }: IProduct) => {
   const addToCart = useSetAtom(addToCartAtom)
+  const mode = useAtomValue(modeAtom)
 
   return (
     <div
       className="relative rounded-lg border p-3 text-center "
       title={`${code} - ${name}`}
-      onClick={() => addToCart({ name, _id, unitPrice })}
+      onClick={() => {
+        addToCart({ name, _id, unitPrice })
+        mode === "mobile" &&
+          toast({
+            variant: "default",
+            description: `${name} сагсанд нэмэгдлээ`,
+          })
+      }}
     >
       <Image
         src={(attachment || {}).url || ""}

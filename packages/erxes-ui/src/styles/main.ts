@@ -99,8 +99,10 @@ const TipContent = styled.div`
   box-shadow:
     rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-  padding: 4px;
+  padding: 4px 7px !important;
+  font-weight: 400 !important;
   border-radius: 4px;
+  color: #000 !important;
 `;
 
 const FullContent = styledTS<{ $center: boolean; $align?: boolean }>(
