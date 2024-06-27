@@ -8,7 +8,6 @@ import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDeta
 import React from 'react';
 
 type Props = {
-  queryParams: any;
   growthHacks: IGrowthHack[];
 };
 
@@ -52,7 +51,7 @@ class GrowthHacks extends React.Component<Props> {
 
     return (
       <TableContainer>
-        <Table hover={true}>
+        <Table $hover={true}>
           <thead>
             <tr>
               <th>{__('Experiment name')}</th>

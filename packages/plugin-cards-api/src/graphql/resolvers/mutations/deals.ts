@@ -13,7 +13,6 @@ import {
   itemsRemove,
 } from './utils';
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 interface IDealsEdit extends IDeal {
@@ -56,7 +55,7 @@ const dealMutations = {
       );
       const oldAssignedUserPdata = (oldDeal.productsData || [])
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId ?? '');
       const cantRemoveUserIds = removedUserIds.filter((userId) =>
         oldAssignedUserPdata.includes(userId),
       );
@@ -71,11 +70,11 @@ const dealMutations = {
     if (doc.productsData) {
       const assignedUsersPdata = doc.productsData
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId ?? '');
 
       const oldAssignedUserPdata = (oldDeal.productsData || [])
         .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || '');
+        .map((pdata) => pdata.assignUserId ?? '');
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
@@ -201,7 +200,7 @@ const dealMutations = {
     }
 
     // undefenid or null then true
-    const tickUsed = stage.defaultTick === false ? false : true;
+    const tickUsed = stage.defaultTick === false || true;
     const addDocs = (docs || []).map(
       (doc) => ({ ...doc, tickUsed }) as IProductData,
     );

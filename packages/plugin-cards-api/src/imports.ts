@@ -56,8 +56,7 @@ export default {
 
         switch (property.name) {
           case 'customProperty':
-            {
-              doc.customFieldsData.push({
+            doc.customFieldsData.push({
                 field: property.id,
                 value: fieldValue[colIndex]
               });
@@ -70,7 +69,6 @@ export default {
                 defaultValue: doc.customFieldsData,
                 timeout: 60 * 1000 // 1 minute,
               });
-            }
             break;
 
           case 'boardName':
@@ -109,8 +107,7 @@ export default {
             break;
 
           default:
-            {
-              doc[property.name] = value;
+            doc[property.name] = value;
 
               if (property.name === 'createdAt' && value) {
                 doc.createdAt = new Date(value);
@@ -123,7 +120,6 @@ export default {
               if (property.name === 'isComplete') {
                 doc.isComplete = Boolean(value);
               }
-            }
             break;
         }
 

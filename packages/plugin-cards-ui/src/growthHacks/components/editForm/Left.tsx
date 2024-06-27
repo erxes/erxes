@@ -7,8 +7,7 @@ import Checklists from "@erxes/ui-cards/src/checklists/containers/Checklists";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IAttachment } from "@erxes/ui/src/types";
-import { IOptions } from "@erxes/ui-cards/src/boards/types";
+import { IAttachment } from "@erxes/ui/src/types"; 
 import Icon from "@erxes/ui/src/components/Icon";
 import Labels from "@erxes/ui-cards/src/boards/components/label/Labels";
 import React from "react";
@@ -22,7 +21,6 @@ type Props = {
   saveItem: (doc: { [key: string]: any }) => void;
   addItem: (doc: IGrowthHackParams, callback: () => void) => void;
   type: string;
-  options: IOptions;
 };
 
 class Left extends React.Component<Props> {

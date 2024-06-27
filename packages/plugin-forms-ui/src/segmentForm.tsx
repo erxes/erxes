@@ -44,7 +44,7 @@ class Form extends React.Component<any, any, any> {
     const options = forms.map((b) => ({ value: b.formId, label: b.name }));
 
     return (
-      <>
+      
         <FormGroup>
           <ControlLabel>Form</ControlLabel>
           <Select
@@ -54,7 +54,7 @@ class Form extends React.Component<any, any, any> {
             onChange={this.onChangeForm.bind(this, "formId")}
           />
         </FormGroup>
-      </>
+      
     );
   }
 }

@@ -60,13 +60,11 @@ export const prepareImportDocs = async (models: IModels, args) => {
           break;
 
         case 'basic':
-          {
             doc[property.name] = value;
 
             if (property.name === 'isComplete') {
               doc.isComplete = Boolean(value);
             }
-          }
           break;
       }
 

@@ -135,7 +135,7 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
-        throw e;
+        throw new Error(`Error occured: ${e}`)
       }
     }
   }
@@ -191,7 +191,7 @@ export const repairIntegrations = async (
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
-      throw e;
+      throw new Error(`Error occured: ${e}`)
     }
   }
 

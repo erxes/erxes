@@ -136,7 +136,7 @@ export const removeAccount = async (
         );
         erxesApiIds.push(response);
       } catch (e) {
-        throw e;
+        throw new Error(`Error occured: ${e}`)
       }
     }
   }
@@ -203,7 +203,7 @@ export const repairIntegrations = async (
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (e) {
-      throw e;
+      throw new Error(`Error occured: ${e}`)
     }
   }
 
@@ -263,9 +263,8 @@ export const instagramCreateIntegration = async (
       facebookPageId
     });
   } catch (error) {
-    // You can also throw the error again or perform additional error handling here
-    throw error;
-  }
+    throw new Error(`Error occured: ${error}`)
+    }
 
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });

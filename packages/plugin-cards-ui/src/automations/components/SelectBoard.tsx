@@ -13,7 +13,6 @@ import { gql } from "@apollo/client";
 type Props = {
   config: any;
   type: string;
-  triggerType: string;
   setConfig: (config: any) => void;
   inputName: string;
 };
@@ -102,7 +101,6 @@ export default class SelectBoard extends React.Component<Props, State> {
         innerRef={this.overlay}
       >
         <Attributes>
-          <React.Fragment>
             <BoardSelect
               type={type.includes("cards:") ? type.slice(6) : type}
               stageId={this.state.stageId}
@@ -112,8 +110,7 @@ export default class SelectBoard extends React.Component<Props, State> {
               onChangePipeline={plIdOnChange}
               onChangeBoard={brIdOnChange}
               autoSelectStage={false}
-            />
-          </React.Fragment>
+          />
         </Attributes>
       </Popover>
     );

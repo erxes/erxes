@@ -506,7 +506,7 @@ export const generateCommonFilters = async (
         }
 
         if (
-          !!pipelineDepartmentIds.filter(departmentId =>
+          pipelineDepartmentIds.filter(departmentId =>
             userDepartmentIds.includes(departmentId)
           ).length
         ) {
@@ -1021,7 +1021,7 @@ export const getItemList = async (
       $sort: sort,
     },
     {
-      $skip: args.skip || 0,
+      $skip: args.skip ?? 0,
     },
     {
       $lookup: {
@@ -1147,7 +1147,6 @@ export const getItemList = async (
         'mainTypeId',
         'relTypeId'
       );
-      continue;
     }
     if (conf.relType === 'company') {
       perConformity(
@@ -1157,7 +1156,6 @@ export const getItemList = async (
         'relTypeId',
         'mainTypeId'
       );
-      continue;
     }
     if (conf.mainType === 'customer') {
       perConformity(
@@ -1167,7 +1165,6 @@ export const getItemList = async (
         'mainTypeId',
         'relTypeId'
       );
-      continue;
     }
     if (conf.relType === 'customer') {
       perConformity(
@@ -1177,7 +1174,6 @@ export const getItemList = async (
         'relTypeId',
         'mainTypeId'
       );
-      continue;
     }
   }
 
@@ -1327,7 +1323,7 @@ export const getItemList = async (
       ...item,
       order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: notification ? false : true,
+      hasNotified: !notification,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
       companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
       ...(getExtraFields ? await getExtraFields(item) : {}),

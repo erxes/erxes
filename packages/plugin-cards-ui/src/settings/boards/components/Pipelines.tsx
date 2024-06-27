@@ -28,13 +28,11 @@ type Props = {
   type: string;
   pipelines: IPipeline[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  updateOrder?: any;
   remove: (pipelineId: string) => void;
   archive: (pipelineId: string, status: string) => void;
   copied: (pipelineId: string) => void;
   boardId: string;
   options?: IOption;
-  refetch: ({ boardId }: { boardId?: string }) => Promise<any>;
   currentBoard?: IBoard;
 };
 

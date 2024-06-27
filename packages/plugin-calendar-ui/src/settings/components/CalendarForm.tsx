@@ -1,6 +1,5 @@
 import { AppConsumer } from "@erxes/ui/src/appContext";
 import { COLORS } from "@erxes/ui/src/constants/colors";
-import { Flex } from "@erxes/ui/src/styles/main";
 import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Form from "@erxes/ui/src/components/form/Form";
@@ -9,16 +8,13 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { colors } from "@erxes/ui/src/styles";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
+import { ColorPick, ColorPicker,Flex, ModalFooter } from "@erxes/ui/src/styles/main";
 import React from "react";
 import Popover from "@erxes/ui/src/components/Popover";
 import TwitterPicker from "react-color/lib/Twitter";
 import Select from "react-select";
 import { ICalendar, IGroup } from "../types";
 import Dialog from "@erxes/ui/src/components/Dialog";
-import {
-  ModalFooter,
-} from "@erxes/ui/src/styles/main";
 
 type Props = {
   show: boolean;

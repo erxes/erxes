@@ -315,7 +315,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         // email
         if (
           (type === 'email' || validation === 'email') &&
-          !validator.isEmail(value)
+          !validator.isEmail(value as string)
         ) {
           throwError('Invalid email');
         }

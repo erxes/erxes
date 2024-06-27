@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { getBalance } from '../../../utils';
 
 const transactionQueries = {
   async transaction(

@@ -25,17 +25,17 @@ function CustomerSideBar({
   addBalance,
   updateVerify,
 }: Props) {
-  const [balance, SetBalance] = useState(0);
-  const [verify, SetVerify] = useState(verified);
+  const [balance, setBalance] = useState(0);
+  const [verify, setVerify] = useState(verified);
   console.log("block- sidebar");
   const onChangeBalance = (e) => {
-    SetBalance(Number(e.target.value));
+    setBalance(Number(e.target.value));
   };
 
   const onVerifyChange = (option) => {
     const value = option ? option.value : "";
 
-    SetVerify(value);
+    setVerify(value);
   };
 
   const handleSubmitBalance = () => {

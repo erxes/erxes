@@ -53,9 +53,6 @@ export default class Stage extends React.Component<Props, State> {
       <DealList
         hasMore={hasMore}
         loadMore={this.loadMore}
-        listId={stage._id}
-        listType="DEAL"
-        stageId={stage._id}
         deals={deals}
       />
     );

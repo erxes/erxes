@@ -6,7 +6,6 @@ import React from 'react';
 import GrowthHacks from './GrowthHacks';
 
 type Props = {
-  queryParams: any;
   hackStage: string;
   isOpen: boolean;
   growthHacks: IGrowthHack[];
@@ -26,9 +25,9 @@ class FunnelGroup extends React.Component<Props> {
       return null;
     }
 
-    const { queryParams, growthHacks } = this.props;
+    const { growthHacks } = this.props;
 
-    return <GrowthHacks queryParams={queryParams} growthHacks={growthHacks} />;
+    return <GrowthHacks growthHacks={growthHacks} />;
   };
 
   render() {

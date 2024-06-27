@@ -64,7 +64,7 @@ class CustomFields extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      additionalFields: [emptyField],
+      additionalFields: props.additionalFields || [emptyField],
     };
   }
 

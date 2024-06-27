@@ -3,7 +3,6 @@ import React from 'react';
 import SelectCard from './SelectCards';
 
 type Props = {
-  contentType: string;
   field: IField;
   onChange: (ids: string[], relationType: string) => void;
 };

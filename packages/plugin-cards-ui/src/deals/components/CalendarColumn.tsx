@@ -6,7 +6,6 @@ import {
 import { AddNew } from '@erxes/ui-cards/src/boards/styles/stage';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
-import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
 import styled from 'styled-components';
@@ -18,7 +17,6 @@ import ItemProductProbabilities from '@erxes/ui-cards/src/deals/components/ItemP
 type Props = {
   deals: IDeal[];
   totalCount: number;
-  date: IDateColumn;
   dealTotalAmounts: IDealTotalAmount[];
   onLoadMore: (skip: number) => void;
 };

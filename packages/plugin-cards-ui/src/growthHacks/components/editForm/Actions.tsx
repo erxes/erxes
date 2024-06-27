@@ -2,7 +2,7 @@ import DueDateChanger from '@erxes/ui-cards/src/boards/components/DueDateChanger
 import { ArchiveBtn } from '@erxes/ui-cards/src/boards/components/editForm/ArchiveBtn';
 import PriorityIndicator from '@erxes/ui-cards/src/boards/components/editForm/PriorityIndicator';
 import SelectItem from '@erxes/ui-cards/src/boards/components/SelectItem';
-import { PRIORITIES } from '@erxes/ui-cards/src/boards/constants';
+import { PRIORITIES,HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
 import { Watch } from '@erxes/ui-cards/src/boards/containers/editForm/';
 import LabelChooser from '@erxes/ui-cards/src/boards/containers/label/LabelChooser';
 import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
@@ -13,7 +13,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { __ } from '@erxes/ui/src/utils/core';
 import { IGrowthHack } from '../../types';
 import React from 'react';
-import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';
 import Vote from '../../containers/Vote';
 
 type Props = {
