@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/erxes/erxes/compare/1.13.0...1.13.1) (2024-06-27)
+
+
+### Features
+
+* products query check used cards pipeline ([346de3a](https://github.com/erxes/erxes/commit/346de3adda573612468f5cf9ebe7523dcbf16e78))
+
 ## [1.13.0](https://github.com/erxes/erxes/compare/1.13.0-rc.6...1.13.0) (2024-06-25)
 
 
