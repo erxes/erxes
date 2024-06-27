@@ -31,6 +31,7 @@ type IProps = {
   onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
+  onReReturn: (_id: string) => void;
 };
 
 const PutResponses: React.FC<IProps> = (props: IProps) => {
@@ -47,6 +48,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
     onSelect,
     isFiltered,
     clearFilter,
+    onReReturn
   } = props;
 
   const mainContent = (
@@ -93,6 +95,7 @@ const PutResponses: React.FC<IProps> = (props: IProps) => {
               putResponse={putResponse}
               key={putResponse._id}
               history={history}
+              onReReturn={onReReturn}
             />
           ))}
         </tbody>

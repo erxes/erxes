@@ -327,3 +327,30 @@ export const getCompanyInfo = async ({ checkTaxpayerUrl, no }: { checkTaxpayerUr
 
   return { status: 'checked', result, tin: tinNo };
 };
+
+export const returnResponse = async (url, data) => {
+  return await fetch(`${url}/rest/receipt`, {
+    method: 'DELETE',
+    body: JSON.stringify({ ...data }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then(async (r) => {
+    if (r.status === 200) {
+      return { status: 200 };
+    }
+    try {
+      return r.json()
+    } catch (e) {
+      return {
+        status: 'ERROR',
+        message: e.message
+      }
+    }
+  }).catch((err) => {
+    return {
+      status: 'ERROR',
+      message: err.message
+    }
+  })
+}
