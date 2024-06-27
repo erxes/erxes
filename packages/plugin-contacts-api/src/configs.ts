@@ -81,10 +81,9 @@ export default {
         const result = await buildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
-
         if (segment) {
           try {
-            sendSegmentsMessage({
+            await sendSegmentsMessage({
               subdomain,
               action: 'removeSegment',
               data: { segmentId: segment },
@@ -93,6 +92,7 @@ export default {
             console.log((e as Error).message);
           }
         }
+        
 
         return res.send(result.response);
       }),

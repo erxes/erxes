@@ -31,7 +31,7 @@ function IntegrationFilter({ counts, integrationsGetUsedTypes }: IProps) {
   const data = (
     <SidebarList capitalize={true}>
       {integrationsGetUsedTypes.map((kind) => (
-        <li key={Math.random()}>
+        <li key={kind._id}>
           <a
             href="#filter"
             tabIndex={0}

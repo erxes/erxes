@@ -131,7 +131,7 @@ export const fillCellValue = async (
     case 'phones':
       cellValue = (item.phones || []).join(', ');
       break;
-    case 'mergedIds':
+    case 'mergedIds':{
       const customers: ICustomerDocument[] | null = await models.Customers.find(
         {
           _id: { $in: item.mergedIds },
@@ -144,11 +144,13 @@ export const fillCellValue = async (
 
       break;
     // company fields
+    }
+
     case 'names':
       cellValue = (item.names || []).join(', ');
 
       break;
-    case 'parentCompanyId':
+    case 'parentCompanyId':{
       const parent: ICompanyDocument | null = await models.Companies.findOne({
         _id: item.parentCompanyId,
       });
@@ -156,8 +158,9 @@ export const fillCellValue = async (
       cellValue = parent ? parent.primaryName : '';
 
       break;
-
-    case 'tag':
+    }
+    
+    case 'tag':{
       const tags = await sendTagsMessage({
         subdomain,
         action: 'find',
@@ -177,8 +180,9 @@ export const fillCellValue = async (
       cellValue = tags ? tagNames : '';
 
       break;
+    } 
 
-    case 'relatedIntegrationIds':
+    case 'relatedIntegrationIds':{
       const integration = await sendInboxMessage({
         subdomain,
         action: 'integrations.findOne',
@@ -190,6 +194,7 @@ export const fillCellValue = async (
       cellValue = integration ? integration.name : '';
 
       break;
+    }
 
     case 'ownerEmail':
       const owner: IUserDocument | null = await sendCoreMessage({
@@ -238,7 +243,7 @@ const prepareData = async (
   }
 
   switch (contentType) {
-    case MODULE_NAMES.COMPANY:
+    case MODULE_NAMES.COMPANY:{
       const companyParams: ICompanyListArgs = query;
 
       const companyQb = new CompanyBuildQuery(
@@ -247,15 +252,16 @@ const prepareData = async (
         companyParams,
         {},
       );
-      await companyQb.buildAllQueries();
+      await companyQb.buildAllQueries();{
 
       const companyResponse = await companyQb.runQueries('search', unlimited);
 
       data = companyResponse.list;
 
       break;
-
-    case 'lead':
+}
+}
+    case 'lead':{
       const leadParams: ICustomerListArgs = query;
       const leadQp = new CustomerBuildQuery(models, subdomain, leadParams, {});
       await leadQp.buildAllQueries();
@@ -264,8 +270,8 @@ const prepareData = async (
 
       data = leadResponse.list;
       break;
-
-    case 'visitor':
+    }
+    case 'visitor':{
       const visitorParams: ICustomerListArgs = query;
       const visitorQp = new CustomerBuildQuery(
         models,
@@ -279,8 +285,9 @@ const prepareData = async (
 
       data = visitorResponse.list;
       break;
-
-    case MODULE_NAMES.CUSTOMER:
+    }
+  
+    case MODULE_NAMES.CUSTOMER:{
       const customerParams: ICustomerListArgs = query;
 
       if (customerParams.form && customerParams.popupData) {
@@ -387,7 +394,7 @@ const prepareData = async (
       }
 
       break;
-
+    }
     default:
       break;
   }
@@ -476,7 +483,7 @@ const buildLeadFile = async (
     }
 
     if (item.type === 'select') {
-      return item.value && item.value.value
+      return item.value || item.value.value
         ? item.value.value
         : item.value || '';
     }

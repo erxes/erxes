@@ -546,12 +546,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       if (!searchValue) {
         queryOptions.sort = {
           [fieldToSort]: {
-            order: sortDirection
-              ? sortDirection === -1
-                ? 'desc'
-                : 'asc'
-              : 'desc',
-          },
+            order: sortDirection ? (sortDirection === -1 ? 'desc' : 'asc') : 'desc'
+          }
         };
       }
     }

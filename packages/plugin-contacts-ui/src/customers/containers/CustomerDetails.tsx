@@ -18,7 +18,7 @@ type Props = {
 function CustomerDetailsContainer(props: Props) {
   const { id } = props;
 
-  const { loading, error, data } = useQuery<CustomerDetailQueryResponse>(
+  const { loading, data } = useQuery<CustomerDetailQueryResponse>(
     gql(queries.customerDetail),
     {
       variables: { _id: id },

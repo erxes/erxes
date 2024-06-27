@@ -37,9 +37,8 @@ const findUsers = async (subdomain, ids: string[]) => {
       },
       isRPC: true,
       defaultValue: [],
-    }) || []
-  );
-};
+    }).then(result => result || []))}
+    
 
 const gatherCompanyFieldNames = async (
   models: IModels,

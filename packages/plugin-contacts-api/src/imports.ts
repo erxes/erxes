@@ -18,8 +18,6 @@ export default {
 
     let updated: number = 0;
 
-    const updateDocs: any = [];
-
     try {
       if (contentType === 'customer' || contentType === 'lead') {
         for (const doc of docs) {
@@ -74,7 +72,7 @@ export default {
                 { $set: { ...doc } },
               );
 
-              updateDocs.push(updatedCustomer);
+              objects.push(updatedCustomer);
             } else {
               const insertedCustomer = await models.Customers.create(doc);
 

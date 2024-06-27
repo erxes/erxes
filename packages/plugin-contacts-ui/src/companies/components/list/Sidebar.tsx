@@ -44,8 +44,6 @@ class Sidebar extends React.Component<Props> {
         )}
       </Wrapper.Sidebar>
     );
-
-    return null;
   }
 }
 

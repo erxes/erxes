@@ -36,7 +36,7 @@ type FinalProps = {
 
 const CompanyListContainer = (props: FinalProps) => {
   let timer;
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {

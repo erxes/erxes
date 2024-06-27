@@ -49,8 +49,8 @@ type FinalProps = {
 const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
   let timer;
   const { queryParams } = props;
-  const [responseId, setResponseId] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [responseId] = useState("");
+  const [loading] = useState(false);
   const [mergeCustomerLoading, setMergeCustomerLoading] = useState(false);
   const prevQueryParams = useRef(queryParams);
   const navigate = useNavigate();

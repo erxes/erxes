@@ -50,27 +50,7 @@ const prepareData = async (
 
       break;
     case 'lead':
-      if (!segmentData) {
-        data = await models.Customers.find(contactsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Customers.find(contactsFilter).lean();
-
-      break;
     case 'visitor':
-      if (!segmentData) {
-        data = await models.Customers.find(contactsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Customers.find(contactsFilter).lean();
-
-      break;
     case MODULE_NAMES.CUSTOMER:
       if (!segmentData) {
         data = await models.Customers.find(contactsFilter)
@@ -199,11 +179,10 @@ export const fillValue = async (
       value = (item.phones || []).join(', ');
       break;
     case 'mergedIds':
-      const customers: ICustomerDocument[] | null = await models.Customers.find(
-        {
-          _id: { $in: item.mergedIds || [] }
-        }
-      );
+      const customers: ICustomerDocument[] | null = await models.Customers.find({
+        _id: { $in: item.mergedIds || [] }
+      });
+        
 
       value = customers
         .map(cus => cus.firstName || cus.primaryEmail)
@@ -224,17 +203,20 @@ export const fillValue = async (
 
       break;
 
-    case 'tag':
-      const tags = await sendTagsMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          _id: { $in: item.tagIds || [] }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
-
+      case 'tag': 
+        const tags = await sendTagsMessage({
+          subdomain,
+          action: 'find',
+          data: {
+            _id: { $in: item.tagIds || [] }
+          },
+          isRPC: true,
+          defaultValue: []
+        });
+        break;
+    
+        case 'tag': {
+          
       let tagNames = '';
 
       for (const tag of tags) {
@@ -244,8 +226,9 @@ export const fillValue = async (
       value = tags ? tagNames : '-';
 
       break;
+    }
 
-    case 'relatedIntegrationIds':
+    case 'relatedIntegrationIds': {
       const integration = await sendInboxMessage({
         subdomain,
         action: 'integrations.findOne',
@@ -257,8 +240,9 @@ export const fillValue = async (
       value = integration ? integration.name : '-';
 
       break;
+    }
 
-    case 'ownerEmail':
+    case 'ownerEmail':{
       const owner: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -271,7 +255,7 @@ export const fillValue = async (
       value = owner ? owner.email : '-';
 
       break;
-
+    }
     default:
       break;
   }
@@ -366,7 +350,7 @@ export default {
         for (const column of headers) {
           if (column.startsWith('customFieldsData')) {
             const fieldId = column.split('.')[2];
-            const fieldName = column.split('.')[1];
+            
 
             const { value } = await getCustomFieldsData(item, fieldId);
 

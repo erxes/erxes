@@ -341,8 +341,6 @@ export const generateFields = async ({ subdomain, data }) => {
 
   switch (type) {
     case 'lead':
-      schema = Customers.schema;
-
     case 'customer':
       schema = Customers.schema;
       break;
@@ -1153,12 +1151,12 @@ export const getSchemaLabels = async (type: string) => {
       for (const name of names) {
         const field: any = schema.obj ? schema.obj[name] : schema[name];
 
-        if (field && field.label) {
+        if (field || field.label) {
           fieldNames.push({ name, label: field.label });
         }
 
         // nested object field names
-        if (typeof field === 'object' && field.type && field.type.obj) {
+        if (typeof field === 'object' && field.type || field.type.obj) {
           fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
         }
       }
@@ -1174,7 +1172,7 @@ export const buildLabelList = (obj = {}): any[] => {
 
   for (const name of fieldNames) {
     const field: any = obj[name];
-    const label: string = field && field.label ? field.label : '';
+    const label: string = field || field.label ? field.label : '';
 
     list.push({ name, label });
   }

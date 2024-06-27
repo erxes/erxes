@@ -33,18 +33,15 @@ function LeadStatusFilter({ counts, loading, searchable }: IProps) {
 
     return (
       <SidebarList>
-        {leadStatusChoices(__).map(
-          ({ value, label }: { value: string; label: string }) => {
-            return (
-              <li key={Math.random()}>
-                <a
-                  href="#filter"
-                  tabIndex={0}
-                  className={
-                    router.getParam(location, [paramKey]) === value
-                      ? 'active'
-                      : ''
-                  }
+        {leadStatusChoices(__).map(({ value, label }: { value: string; label: string }) => {
+          return (
+            <li key={value}>
+              <a
+                href="#filter"
+                tabIndex={0}
+                className={
+                  router.getParam(location, [paramKey]) === value ? 'active' : ''
+                }
                   onClick={onClick.bind(this, paramKey, value)}
                 >
                   <FieldStyle>{label}</FieldStyle>

@@ -67,8 +67,6 @@ function Leads({ counts, integrations = [], loading, loadMore, all }: IProps) {
 
   const renderIntegrations = () => {
     return integrations.map((integration) => {
-      const form = integration.form || ({} as any);
-
       return (
         <li key={integration._id}>
           <a

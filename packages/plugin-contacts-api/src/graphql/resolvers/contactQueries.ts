@@ -29,8 +29,12 @@ const generateSort = async ({
   if (!searchValue) {
     sort = {
       [fieldToSort]: {
-        order: sortDirection ? (sortDirection === -1 ? 'desc' : 'asc') : 'desc'
-      }
+        order: sortDirection
+        ? sortDirection === -1
+          ? 'desc'  
+          : 'asc'
+        : 'desc',
+    },
     };
   }
   return sort;
@@ -210,3 +214,4 @@ const contactQueries = {
 };
 
 export default contactQueries;
+  

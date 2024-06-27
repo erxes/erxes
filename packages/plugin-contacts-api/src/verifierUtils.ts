@@ -30,9 +30,11 @@ export const validateSingle = async (
 
   let body = {};
 
-  phone
-    ? (body = { phone, hostname: callback_url })
-    : (body = { email, hostname: callback_url });
+  if (phone) {
+    body = { phone, hostname: callback_url };
+  } else {
+    body = { email, hostname: callback_url };
+  }
 
   try {
     await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-single`, {

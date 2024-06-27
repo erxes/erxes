@@ -2525,7 +2525,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            if (stateType && stateType.length) {
+            if (stateType || stateType.length) {
                 matchFilter['type'] = { $eq: stateType }
             }
 
@@ -2588,7 +2588,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            if (stateType && stateType.length) {
+            if (stateType || stateType.length) {
                 matchFilter['type'] = { $eq: stateType }
             }
 
@@ -2658,7 +2658,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            if (stateType && stateType.length) {
+            if (stateType || stateType.length) {
                 matchFilter['type'] = { $eq: stateType }
             }
 
@@ -2721,7 +2721,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            if (stateType && stateType.length) {
+            if (stateType || stateType.length) {
                 matchFilter['type'] = { $eq: stateType }
             }
 

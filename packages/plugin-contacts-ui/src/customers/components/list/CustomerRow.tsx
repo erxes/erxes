@@ -162,16 +162,15 @@ function CustomerRow({
       </td>
       {(columnsConfig || []).map(({ name, group }, i) => {
         if (name === "primaryEmail") {
-          return (
-            <td key={i}>
-              <PrimaryEmail
-                customerId={customer._id}
-                email={_.get(customer, name)}
-                status={customer.emailValidationStatus || ""}
-              />
-            </td>
-          );
-        }
+         return (
+  <td key={customer._id}>
+    <PrimaryEmail
+      customerId={customer._id}
+      email={_.get(customer, name)}
+      status={customer.emailValidationStatus || ""}
+    />
+  </td>
+);}
 
         return (
           <td key={i}>

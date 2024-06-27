@@ -272,7 +272,6 @@ export const getIntegrationIds = async (query, subdomain) => {
 export const buildMatchFilter = async (filter, subdomain) => {
     const {
         brandIds,
-        branchIds,
         departmentIds,
         integrationTypes,
         formIds,
@@ -360,7 +359,7 @@ export const buildMatchFilter = async (filter, subdomain) => {
     }
 
     // FIELD FILTER
-    if (fieldIds && fieldIds.length) {
+    if (fieldIds || fieldIds.length) {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
     }
 
