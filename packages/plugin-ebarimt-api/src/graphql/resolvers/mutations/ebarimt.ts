@@ -33,8 +33,8 @@ const ebarimtMutations = {
     }
 
     const data = {
-      returnid: id,
-      date: date,
+      id,
+      date,
     };
 
     const resObj = await models.PutResponses.createPutResponse({
@@ -46,31 +46,116 @@ const ebarimtMutations = {
       type: putResponse.type
     });
 
-    const response = await fetch(`${url}/returnBill?lib=${rd}`, {
-      method: 'POST',
-      body: JSON.stringify({ data }),
+    const delResponse = await fetch(`${url}/rest/receipt`, {
+      method: 'DELETE',
+      body: JSON.stringify({ ...data }),
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then((r) => r.json());
+    }).then(async (r) => {
+      if (r.status === 200) {
+        return { status: 200 };
+      }
+      try {
+        return r.json()
+      } catch (e) {
+        return {
+          status: 'ERROR',
+          message: e.message
+        }
+      }
+    }).catch((err) => {
+      return {
+        status: 'ERROR',
+        message: err.message
+      }
+    })
 
-    if (['true', true].includes(response.success)) {
+    if (delResponse.status === 200) {
       await models.PutResponses.updateOne(
         { _id: putResponse._id },
         { $set: { state: 'inactive' } },
       );
-    }
-
-    await models.PutResponses.updatePutResponse(resObj._id, {
-      ...response,
-    });
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { status: 'SUCCESS', modifiedAt: new Date() } })
+    } else {
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { message: delResponse.message, date: delResponse.date, status: 'ERROR', modifiedAt: new Date() } })
+    };
 
     return models.PutResponses.findOne({ _id: resObj._id })
       .lean();
   },
 
+  async putResponseReReturn(_root, args, { models, subdomain }: IContext) {
+    const { _id } = args;
+
+    const putResponse = await models.PutResponses.findOne({ _id }).lean();
+    if (!putResponse) {
+      throw new Error('not found put response')
+    }
+    if (putResponse.id || !putResponse.inactiveId) {
+      throw new Error('this response is not return bill')
+    }
+
+    const config = await getConfig(subdomain, 'EBARIMT', {});
+
+    const url = config.ebarimtUrl || '';
+    if (!url) {
+      throw new Error('not found config')
+    }
+
+    const resObj = await models.PutResponses.createPutResponse({
+      sendInfo: putResponse.sendInfo,
+      contentId: putResponse.contentId,
+      contentType: putResponse.contentType,
+      number: putResponse.number,
+      inactiveId: putResponse.inactiveId,
+    });
+
+    const delResponse = await fetch(`${url}/rest/receipt`, {
+      method: 'DELETE',
+      body: JSON.stringify({ ...putResponse.sendInfo }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(async (r) => {
+      if (r.status === 200) {
+        return { status: 200 };
+      }
+      try {
+        return r.json()
+      } catch (e) {
+        return {
+          status: 'ERROR',
+          message: e.message
+        }
+      }
+    }).catch((err) => {
+      return {
+        status: 'ERROR',
+        message: err.message
+      }
+    })
+
+    if (delResponse.status === 200) {
+      await models.PutResponses.updateOne(
+        { _id: putResponse._id },
+        { $set: { state: 'inactive' } },
+      );
+      await models.PutResponses.updateOne(
+        { id: putResponse.inactiveId },
+        { $set: { state: 'inactive' } },
+      );
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { status: 'SUCCESS', modifiedAt: new Date() } })
+    } else {
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { message: delResponse.message, date: delResponse.date, status: 'ERROR', modifiedAt: new Date() } })
+    };
+
+    return await models.PutResponses.find({ _id: resObj._id })
+      .lean();
+  }
 };
 
 checkPermission(ebarimtMutations, 'putResponseReturnBill', 'specialReturnBill');
+checkPermission(ebarimtMutations, 'putResponseReReturn', 'reReturnBill');
 
 export default ebarimtMutations;
