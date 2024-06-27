@@ -364,26 +364,28 @@ const CallLabel = styledTS<{ type: string }>(styled.span)`
   color: ${(props) => (props.type === 'answered' ? 'green' : 'red')};
 `;
 
-const ModalWrapper = styledTS<{ $show?: boolean }>(styled.div)`
-${({ $show }) =>
-  $show
-    && `
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 300;
+    const showStyles = `
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 300;
+  .cke_contents {
+    min-height: 450px !important;
+  }
+`;
 
-      .cke_contents {
-        min-height: 450px !important;
-      }
-  `
-    || `z-index: 3;`}`;
+const hideStyles = `z-index: 3;`;
+
+const ModalWrapper = styledTS<{ $show?: boolean }>(styled.div)`
+  ${({ $show }) => ($show ? showStyles : hideStyles)}
+`;
+
 
 export {
   PopoverButton,

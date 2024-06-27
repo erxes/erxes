@@ -142,7 +142,6 @@ class MailForm extends React.Component<Props, State> {
       this.getEmailSender(from.email || props.fromEmail) || mailWidget?.to;
 
     const to = emailTo
-      && emailTo
       || mailWidget
         && mailWidget.to
         || isForward
