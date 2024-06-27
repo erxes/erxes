@@ -40,7 +40,7 @@ export const loadxypConfigClass = (models) => {
      * Update comment
      */
     public static async updateXypData(_id: string, doc: any, user: any) {
-      const ret = await models.XypData.updateOne(
+      await models.XypData.updateOne(
         { _id },
         {
           $set: {
@@ -49,7 +49,7 @@ export const loadxypConfigClass = (models) => {
             ...doc,
           },
         },
-      );
+      );      
       return models.XypData.findOne({ _id });
     }
     /*
@@ -75,7 +75,7 @@ export const loadxypConfigClass = (models) => {
           },
         );
       } else {
-        const ret = await models.XypData.create({
+        await models.XypData.create({
           // createdBy: user._id,
           createdAt: new Date(),
           contentType,
