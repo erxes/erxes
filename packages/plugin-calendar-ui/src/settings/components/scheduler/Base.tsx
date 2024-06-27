@@ -7,11 +7,10 @@ import { __ } from "@erxes/ui/src/utils/core";
 import { router as routerUtils } from "@erxes/ui/src/utils";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { ICalendar, IPage } from "../../types";
 import PageRow from "./PageRow";
 import Sidebar from "./Sidebar";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,Link } from "react-router-dom";
 
 type Props = {
   pages: IPage[];

@@ -22,7 +22,6 @@ type Props = {
   saveItem: (doc: { [key: string]: any }) => void;
   addItem: (doc: IGrowthHackParams, callback: () => void) => void;
   type: string;
-  options: IOptions;
 };
 
 class Left extends React.Component<Props> {

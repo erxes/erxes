@@ -796,7 +796,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         clientPortalId,
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         throw new Error('Invalid login');
       }
 
@@ -844,7 +844,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       let isFound;
       if (cp.twoFactorConfig?.enableTwoFactor) {
-        if (twoFactor && twoFactor.key && twoFactor.device) {
+        if (twoFactor?.key && twoFactor.device) {
           isFound = user.twoFactorDevices?.find(x => x.key === twoFactor.key);
         } else {
           throw new Error('TwoFactor argument is required');
@@ -1043,7 +1043,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         ...qryOption,
       });
 
-      if (!users || !users.length) {
+      if (!users?.length) {
         throw new Error('Users not found');
       }
 

@@ -7,7 +7,6 @@ import {
 } from '@erxes/ui-cards/src/settings/boards/graphql';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import { LinkButton } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Table from '@erxes/ui/src/components/table';
@@ -17,6 +16,7 @@ import {
   DialogWrapper,
   ModalOverlay,
   ModalFooter,
+  LinkButton
 } from '@erxes/ui/src/styles/main';
 
 type array = {

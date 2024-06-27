@@ -40,7 +40,6 @@ const goalTypesList = (props: Props) => {
   const {
     goalTypes,
     loading,
-    searchValue,
     totalCount,
     toggleBulk,
     toggleAll,

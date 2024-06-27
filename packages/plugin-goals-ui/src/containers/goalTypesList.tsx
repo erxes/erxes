@@ -1,20 +1,16 @@
+import { Alert, Bulk, router } from "@erxes/ui/src";
+import { MainQueryResponse, RemoveMutationResponse } from "../types";
+import { mutations, queries } from "../graphql";
 
-import { Alert, Bulk, router } from '@erxes/ui/src';
-import {
-  MainQueryResponse,
-  RemoveMutationResponse,
-} from '../types';
-import { mutations, queries } from '../graphql';
-
-import GoalTypesList from '../components/goalTypesList';
-import React from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import GoalTypesList from "../components/goalTypesList";
+import React from "react";
+import { gql, useQuery, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams: any;
 };
 
-const goalTypesList = (props: Props) => {
+const GoalTypesListContainer = (props: Props) => {
   const { queryParams } = props;
 
   const goalTypesMainQuery = useQuery<MainQueryResponse>(
@@ -29,15 +25,15 @@ const goalTypesList = (props: Props) => {
         unit: queryParams.unit,
         contribution: queryParams.contribution,
       },
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [goalTypesRemove] = useMutation<RemoveMutationResponse>(
     gql(mutations.goalTypesRemove),
     {
-      refetchQueries: ['goalTypesMain'],
-    },
+      refetchQueries: ["goalTypesMain"],
+    }
   );
 
   const remove = ({ goalTypeIds }, emptyBulk) => {
@@ -46,7 +42,7 @@ const goalTypesList = (props: Props) => {
     })
       .then(() => {
         emptyBulk();
-        Alert.success('You successfully deleted a goalType');
+        Alert.success("You successfully deleted a goalType");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -75,4 +71,4 @@ const goalTypesList = (props: Props) => {
   return <Bulk content={goalTypesList} refetch={refetch} />;
 };
 
-export default goalTypesList;
+export default GoalTypesListContainer;

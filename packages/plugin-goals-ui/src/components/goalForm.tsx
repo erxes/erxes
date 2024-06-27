@@ -105,7 +105,7 @@ const reducer = (state, action) => {
   }
 };
 
-const goalForm = (props: Props) => {
+const GoalForm = (props: Props) => {
   const { goalType, closeModal, renderButton } = props;
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -189,7 +189,7 @@ const goalForm = (props: Props) => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
     dispatch({ type: "updateState", payload: { target: parsedValue } });
-    // if (!isNaN(parsedValue)) {
+    
 
     // }
     //  else {
@@ -678,4 +678,4 @@ const mapWeeks = (startDate, endDate): string[] => {
   return weeks;
 };
 
-export default goalForm;
+export default GoalForm;

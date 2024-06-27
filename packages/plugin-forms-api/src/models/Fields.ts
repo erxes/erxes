@@ -289,11 +289,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      */
     public static async clean(
       _id: string,
-      _value: string | Date | number | any,
+      _value: string | Date | number,
     ) {
       const field = await models.Fields.findOne({ _id });
 
-      let value = _value;
+      let value: any = _value;
 
       if (!field) {
         throw new Error(`Field not found with the _id of ${_id}`);
@@ -315,7 +315,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         // email
         if (
           (type === 'email' || validation === 'email') &&
-          !validator.isEmail(value)
+          !validator.isEmail(value as string)
         ) {
           throwError('Invalid email');
         }

@@ -14,7 +14,6 @@ import GrowthHackMainActionBar from '../GrowthHackMainActionBar';
 
 type Props = {
   queryParams: any;
-  bgColor?: string;
 };
 
 type States = {

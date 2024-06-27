@@ -43,7 +43,6 @@ type Props = {
   events: IEvent[];
   startTime: Date;
   endTime: Date;
-  queryParams: any;
   remove: (_id: string, accountId: string) => void;
   onDayClick: (date) => void;
 };
@@ -105,12 +104,12 @@ class Event extends React.Component<Props, State> {
   };
 
   onToggleModal = (date?: Date) => {
-    this.setState({
-      isPopupVisible: !this.state.isPopupVisible,
+    this.setState(prevState =>( {
+      isPopupVisible: prevState.isPopupVisible,
       selectedDate: date,
       event: {} as IEvent,
       account: {} as IAccount,
-    });
+    }));
   };
 
   editEvent = (event: IEvent, account?: IAccount) => {
@@ -131,7 +130,7 @@ class Event extends React.Component<Props, State> {
           return (
             <ColumnHeader
               key={week}
-              isWeek={dt ? true : false}
+              isWeek={!dt}
               isCurrent={
                 dt &&
                 isCurrentDate(

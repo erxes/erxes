@@ -43,7 +43,7 @@ const logQueries = {
       subdomain
     });
 
-    return response && response.data && Array.isArray(response.data)
+    return response?.data && Array.isArray(response.data)
       ? response.data
       : [];
   }

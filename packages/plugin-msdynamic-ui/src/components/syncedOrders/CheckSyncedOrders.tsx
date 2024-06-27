@@ -90,7 +90,6 @@ class CheckSyncedOrders extends React.Component<Props> {
       loading,
       unSyncedOrderIds,
       toSyncMsdOrders,
-      syncedOrderInfos,
     } = this.props;
     const tablehead = [
       "Number",

@@ -77,8 +77,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     }
 
     return (
-      <>
-        <FlexCenterContent>
+              <FlexCenterContent>
           <FlexBody>
             {' '}
             <span>
@@ -93,7 +92,6 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-      </>
     );
   }
 }

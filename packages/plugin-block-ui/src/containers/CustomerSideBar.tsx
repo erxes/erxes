@@ -9,9 +9,8 @@ import { mutations, queries } from '../graphql';
 
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
 import CustomerSideBar from '../components/CustomerSideBar';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation, gql} from '@apollo/client';
 
 type Props = {
   id: string;

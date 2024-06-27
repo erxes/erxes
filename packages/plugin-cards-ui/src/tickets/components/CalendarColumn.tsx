@@ -16,7 +16,6 @@ import Ticket from '@erxes/ui-cards/src/tickets/components/TicketItem';
 type Props = {
   tickets: ITicket[];
   totalCount: number;
-  date: IDateColumn;
   onLoadMore: (skip: number) => void;
 };
 
