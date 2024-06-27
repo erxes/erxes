@@ -115,6 +115,7 @@ export default {
     const models = await generateModels(subdomain);
 
     const { columnsConfig } = data;
+
     const docs = [] as any;
 
     const excelHeader = await getExcelHeader(subdomain, columnsConfig);
@@ -132,7 +133,7 @@ export default {
 
             if (data) {
               const columnValue =
-                splits[1] in data?.data ? data.data[splits[1]] : '';
+                splits[1] in data ? data[splits[1]] : '';
               result[column] = columnValue;
             }
           } else {
