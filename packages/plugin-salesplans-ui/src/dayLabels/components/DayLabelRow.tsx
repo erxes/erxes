@@ -55,7 +55,7 @@ const DayLabelRow = (props: Props) => {
       <td>{department ? `${department.code} - ${department.title}` : ""}</td>
       <td>
         {(labels || []).map((l) => (
-          <span key={Math.random()}>
+          <span key={Math?.random()}>
             <Label lblColor={l.color} children={l.title} />
             &nbsp;
           </span>

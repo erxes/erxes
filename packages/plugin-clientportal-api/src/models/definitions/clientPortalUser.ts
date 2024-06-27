@@ -162,7 +162,7 @@ export const clientPortalUserSchema = new Schema({
   email: field({
     type: String,
     match: [
-      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
+      /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/,
       "Please fill a valid email address",
     ],
     label: "Email",

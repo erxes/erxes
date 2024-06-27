@@ -55,8 +55,6 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
         return account;
       }
     }
-
-    return;
   }
 
   onToggle = () => {

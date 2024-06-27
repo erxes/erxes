@@ -59,7 +59,7 @@ class TemplateList extends React.Component<Props> {
   renderDuplicateAction(object) {
     return (
       <Tip text="Duplicate">
-        <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+        <div role="button" onClick={this.duplicateTemplate.bind(this, object._id)}>
           <Icon icon="copy-1" />
         </div>
       </Tip>
@@ -76,7 +76,7 @@ class TemplateList extends React.Component<Props> {
         {this.renderEditAction(object)}
         {this.renderDuplicateAction(object)}
         <Tip text="Remove">
-          <div onClick={this.removeTemplate.bind(this, object)}>
+          <div role="button" onClick={this.removeTemplate.bind(this, object)}>
             <Icon icon="trash" />
           </div>
         </Tip>

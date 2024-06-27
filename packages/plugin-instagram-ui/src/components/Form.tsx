@@ -83,7 +83,7 @@ class Instagram extends React.Component<Props, State> {
       name: values.messengerName,
       brandId: values.brandId,
       kind,
-      accountId: accountId ? accountId : values.accountId,
+      accountId: accountId ||  values.accountId,
       channelIds: this.state.channelIds,
       data: {
         pageIds: this.state.selectedPages,

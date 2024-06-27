@@ -19,7 +19,7 @@ export default {
     });
   },
 
-  async content(syncLog: ISyncLogDocument, _, {}: IContext) {
+  async content(syncLog: ISyncLogDocument, _) {
     const { contentType, contentId } = syncLog;
 
     if (contentType === 'pos:order') {
@@ -33,7 +33,7 @@ export default {
         info.code ||
         info.primaryEmail ||
         info.primaryPhone ||
-        `${info.firstName || ''}${info.lastName && ` ${info.lastName}`}` ||
+        `${info.firstName || ''}${info.lastName }` ||
         contentId
       );
     }

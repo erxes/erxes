@@ -5,14 +5,13 @@ import { __, router } from "coreui/utils";
 import { ButtonGroup } from "@erxes/ui-cards/src/boards/styles/header";
 import { HACKSTAGES } from "@erxes/ui-cards/src/boards/constants";
 import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
 import MainActionBar from "@erxes/ui-cards/src/boards/components/MainActionBar";
 import React from "react";
 import Select, { OnChangeValue } from "react-select";
 import Tip from "@erxes/ui/src/components/Tip";
 import options from "../options";
 import queryString from "query-string";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate,Link } from "react-router-dom";
 
 interface IProps {
   onSearch: (search: string) => void;
@@ -169,7 +168,6 @@ const GrowthHackMainActionBar = (props: IProps) => {
   const { sortField, sortDirection, hackStage } = props.queryParams;
 
   const growthHackFilter = (
-    <>
       <Select
         placeholder="Choose a growth funnel"
         value={
@@ -185,7 +183,6 @@ const GrowthHackMainActionBar = (props: IProps) => {
         onChange={onChangeHackStage}
         isMulti={true}
       />
-    </>
   );
 
   const extraFilter = (

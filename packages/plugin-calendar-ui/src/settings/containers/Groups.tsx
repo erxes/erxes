@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
-import { queries as calendarQueries } from '../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
@@ -62,7 +61,7 @@ class GroupsContainer extends React.Component<FinalProps> {
             .then(() => {
               groupsQuery.refetch({ boardId });
 
-              const msg = `${__(`You successfully deleted a`)} ${__(
+              const msg = `${__('You successfully deleted a')} ${__(
                 'calendar'
               )}.`;
 
@@ -133,7 +132,7 @@ class GroupsContainer extends React.Component<FinalProps> {
             .then(() => {
               getRefetchQueries(boardId, calendar.groupId);
 
-              const msg = `${__(`You successfully deleted a`)} ${__(
+              const msg = `${__('You successfully deleted a')} ${__(
                 'calendar'
               )}.`;
 
@@ -222,7 +221,7 @@ const getRefetchQueries = (boardId: string, groupId?: string) => {
   return [
     ...refetchQueries,
     {
-      query: gql(calendarQueries.calendars),
+      query: gql(queries.calendars),
       variables: { groupId }
     }
   ];

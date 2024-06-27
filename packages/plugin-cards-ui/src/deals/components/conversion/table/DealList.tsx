@@ -6,18 +6,12 @@ import { CenterButton, Deals, SubHead } from '../style';
 import DealItem from './DealItem';
 
 type Props = {
-  listId: string;
-  listType?: string;
-  stageId: string;
   deals: IDeal[];
   hasMore: boolean;
   loadMore: () => void;
 };
 
 export default class DealList extends React.Component<Props> {
-  static defaultProps = {
-    listId: 'LIST'
-  };
 
   render() {
     const { deals } = this.props;

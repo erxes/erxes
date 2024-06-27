@@ -25,7 +25,7 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
     const iconAndColor = getIconAndColor(type || contentType) || {};
 
     return (
-      <ActivityRow key={Math.random()}>
+      <ActivityRow>
         <Tip text={formatText(type || contentType)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
@@ -44,21 +44,19 @@ const ActivityItem: React.FC<Props> = ({ activity, currentUser }: Props) => {
 
   const amount = activity.content ? activity.content.amount : [];
 
-  switch ((action && action) || type) {
-    case 'invest':
-      return renderDetail(
-        'invest',
-        <BlockLog
-          contentId={contentId}
-          packageId={packageId}
-          amount={amount}
-          activity={activity}
-        />,
-      );
-
-    default:
-      return <div />;
+  if ( action === 'invest' || type === 'invest') {
+    return renderDetail(
+      'invest',
+      <BlockLog
+        contentId={contentId}
+        packageId={packageId}
+        amount={amount}
+        activity={activity}
+      />,
+    );
   }
+
+  return <div />
 };
 
 export default ActivityItem;

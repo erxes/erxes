@@ -2,8 +2,7 @@ import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 
 const TicketBoard = asyncComponent(
   () =>

@@ -28,7 +28,7 @@ export default async function cpUserMiddleware(
   }
   const { body } = req;
 
-  const operationName = body.operationName && body.operationName.split('__')[0];
+  const operationName = body.operationName.split('__')[0];
 
   if (
     [

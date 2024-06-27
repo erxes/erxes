@@ -276,7 +276,7 @@ const getDivederInMonth = async (
         categoryIds.includes(rule.productCategoryId)
       );
 
-      if (publicRules && publicRules.length) {
+      if (publicRules?.length) {
         const lastPublicRule = publicRules[publicRules.length - 1];
         publicRules.map(r => r.multiplier || 0);
         divider += (lastPublicRule.multiplier || 1) - 1;
@@ -296,7 +296,7 @@ const getMultiplier = async (product, parentIdsByProductId, dayLabels) => {
       categoryIds.includes(rule.productCategoryId)
     );
 
-    if (rules && rules.length) {
+    if (rules?.length) {
       multiplier *= rules
         .map(r => r.multiplier || 0)
         .reduce((sum, cur) => sum * cur);

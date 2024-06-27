@@ -1,9 +1,8 @@
 import { __ } from '@erxes/ui/src/utils';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarList as List } from '@erxes/ui/src/layout/styles';
+import { SidebarList as List, HeaderItems} from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HeaderItems } from '@erxes/ui/src/layout/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
 

@@ -1,6 +1,5 @@
 import * as schedule from 'node-schedule';
 import { IModels } from '../connectionResolver';
-// import { debugCrons } from '../debuggers';
 import { sendCoreMessage } from '../messageBroker';
 
 export const removeOldLogs = async (models: IModels, subdomain: string) => {

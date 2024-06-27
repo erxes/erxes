@@ -8,7 +8,6 @@ import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDeta
 import React from 'react';
 
 type Props = {
-  queryParams: any;
   growthHacks: IGrowthHack[];
 };
 

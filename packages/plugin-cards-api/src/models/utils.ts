@@ -157,7 +157,7 @@ export const fillSearchTextItem = (
   const document = item || { name: '', description: '' };
   Object.assign(document, doc);
 
-  return validSearchText([document.name || '', document.description || '']);
+  return validSearchText([document.name ?? '' , document.description ?? '']);
 };
 
 export const getCollection = (models: IModels, type: string) => {

@@ -22,13 +22,13 @@ interface IRequestParams {
       | boolean
       | number
       | {
-          [key: string]: string | number | boolean | any;
+          [key: string]:  any;
         }
-      | any
+      
       | any[]
       | {
           [key: string]: {
-            [key: string]: string | boolean | any;
+            [key: string]: any;
           };
         };
   };

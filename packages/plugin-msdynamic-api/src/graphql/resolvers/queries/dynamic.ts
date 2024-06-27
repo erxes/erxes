@@ -75,7 +75,6 @@ const msdynamicQueries = {
     const config = configs[brandId || 'noBrand'];
 
     if (
-      !config ||
       !config.itemApi ||
       !config.username ||
       !config.password ||
@@ -101,9 +100,7 @@ const msdynamicQueries = {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-          'base64'
-        )}`,
+        Authorization: `Basic ${Buffer.from('base64')}`,
       },
       timeout: 60000,
     }).then((res) => res.json());

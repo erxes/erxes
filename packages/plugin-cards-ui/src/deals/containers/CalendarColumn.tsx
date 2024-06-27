@@ -8,7 +8,6 @@ import {
   calendarColumnQuery,
   onCalendarLoadMore
 } from '@erxes/ui-cards/src/boards/utils';
-import { IDateColumn } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { getMonthTitle } from '@erxes/ui/src/utils/calendar';
 import CalendarColumn from '../components/CalendarColumn';
@@ -88,7 +87,7 @@ export default withProps<ColumnProps>(
   compose(
     calendarColumnQuery(queries.deals, 'dealsQuery'),
     calendarColumnQuery(queries.dealsTotalCount, 'dealsTotalCountQuery'),
-    graphql<ColumnProps, DealsTotalAmountsQueryResponse, { date: IDateColumn }>(
+    graphql<ColumnProps, DealsTotalAmountsQueryResponse>(
       gql(queries.dealsTotalAmounts),
       {
         name: 'dealsTotalAmountsQuery',

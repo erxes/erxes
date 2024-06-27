@@ -140,7 +140,7 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
 };
 
 const generateParams = ({ queryParams }) => {
-  const pageInfo = router.generatePaginationParams(queryParams || {});
+   router.generatePaginationParams(queryParams || {});
 
   return {
     paidStartDate: queryParams.paidStartDate,

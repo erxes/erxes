@@ -17,7 +17,6 @@ import { graphql } from '@apollo/client/react/hoc';
 type Props = {
   stage: IConversionStage;
   queryParams: IQueryParams;
-  pipelineId: string;
 };
 
 type FinalStageProps = {
