@@ -107,10 +107,10 @@ class ProductCategoryChooser extends React.Component<Props, State> {
     const { categories } = this.props;
     const onChangeCategory = (option) => this.onChange(option?.value);
 
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {this.renderOptions(props.data)}
+        <components.Option {...optionProps}>
+          {this.renderOptions(optionProps.data)}
         </components.Option>
       );
     };
