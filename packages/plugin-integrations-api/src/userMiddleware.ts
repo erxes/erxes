@@ -10,15 +10,15 @@ const EXCLUDE_PATH = [
   '/gmail/login'
 ];
 
-export let userIds: string[] = [];
+export const userIds: string[] = [];
 
 const userMiddleware = async (req, _res, next) => {
   const { path, headers, query } = req;
   const subdomain = getSubdomain(req);
-
   if (EXCLUDE_PATH.includes(path)) {
     return next();
   }
+  
 
   if (userIds.length === 0) {
     const response = await sendInboxMessage({
