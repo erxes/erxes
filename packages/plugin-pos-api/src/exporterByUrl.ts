@@ -194,7 +194,7 @@ const generateParams = ({ queryParams }) => ({
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
   posId: queryParams.posId,
-  types: queryParams.types?.types.split(',')
+  types: queryParams.types?.split(',')
 });
 
 // Prepares data depending on module type
