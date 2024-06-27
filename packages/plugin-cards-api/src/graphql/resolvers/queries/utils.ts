@@ -997,7 +997,7 @@ const generateArhivedItemsFilter = (
   return filter;
 };
 
-export const getItemList = async ({
+export const getItemList = async (
   models,
   subdomain,
   filter,
@@ -1006,18 +1006,7 @@ export const getItemList = async ({
   type,
   extraFields,
   getExtraFields,
-  serverTiming
-}: {
-  models: IModels,
-  subdomain: string,
-  filter: any,
-  args: IListParams,
-  user: IUserDocument,
-  type: string,
-  extraFields?: { [key: string]: number },
-  getExtraFields?: (item: any) => { [key: string]: any },
-  serverTiming?: any 
-}) => {
+  serverTiming) => {
   const { collection } = getCollection(models, type);
   const { page, perPage } = args;
   const sort = generateSort(args);

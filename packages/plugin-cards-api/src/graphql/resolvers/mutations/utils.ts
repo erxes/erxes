@@ -118,7 +118,7 @@ export const itemsAdd = async (
 
   const extendedDoc = {
     ...modifiedDoc,
-    modifiedBy: user?._id,
+    modifiedBy: user && user._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection,
@@ -273,9 +273,9 @@ export const itemsEdit = async (
   type: string,
   oldItem: any,
   doc: any,
-  processId: string,
+  proccessId: string,
   user: IUserDocument,
-  modelUpate
+  modelUpate,
 ) => {
   const extendedDoc = {
     ...doc,
@@ -388,7 +388,7 @@ export const itemsEdit = async (
   }
 
   // exclude [null]
-  if (doc.tagIds?.length) {
+  if (doc.tagIds && doc.tagIds.length) {
     doc.tagIds = doc.tagIds.filter((ti) => ti);
   }
 
@@ -730,7 +730,7 @@ export const itemsCopy = async (
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
-  modelCreate: any 
+  modelCreate: any,
 ) => {
   const { collection } = getCollection(models, type);
   const item = await collection.findOne({ _id }).lean();

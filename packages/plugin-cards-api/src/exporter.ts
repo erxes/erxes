@@ -37,7 +37,7 @@ const prepareData = async (
     itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
-  }`  `
+  }
 
   switch (type) {
     case MODULE_NAMES.DEAL:

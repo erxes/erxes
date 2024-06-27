@@ -310,16 +310,14 @@ const addCell = (
   }
 };
 
-const fillDealProductValue = async ({
-  subdomain,
+const fillDealProductValue = async (  subdomain,
   column,
   item,
   sheet,
   columnNames,
   rowIndex,
   dealIds,
-  dealRowIndex
-}) => {
+  dealRowIndex) => {
   const productsData = item.productsData;
 
   if (productsData.length === 0) {
