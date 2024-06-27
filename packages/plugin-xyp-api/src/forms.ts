@@ -22,7 +22,7 @@ export const getServiceToFields = async (subdomain) => {
     throw new Error('Config not found');
   }
 
-  const config: IXypConfig = xypConfigs && xypConfigs.value;
+  const config: IXypConfig = xypConfigs?.value;
 
   const response = await fetch(config.url + '/list', {
     method: 'post',
