@@ -2,6 +2,9 @@ import { generateModels } from './connectionResolver';
 import * as moment from 'moment';
 
 export default {
+  transactionCallback: async ({ subdomain, data }) => {
+    // TODO: implement transaction callback if necessary
+  },
   callback: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
