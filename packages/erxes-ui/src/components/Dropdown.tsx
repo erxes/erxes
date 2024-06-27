@@ -83,8 +83,8 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
                   onClick={() => openDialog(index)}
                 >
                   {item.trigger}
-                </Menu.Item>)
-              )}
+                </Menu.Item>
+              ))}
               {children}
             </Menu.Items>
           </Menu>
@@ -99,8 +99,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
             >
               {item.content({ closeModal: () => closeDialog(index) })}
             </Dialog>
-          )
-          )}
+          ))}
         </>
       );
     }
