@@ -93,6 +93,8 @@ const commonHistoryFields = `
   callStatus: String
   sessionId: String
   inboxIntegrationId: String
+  transferedCallStatus: String
+  endedBy: String
 `;
 
 const mutationFilterParams = `
@@ -127,7 +129,7 @@ const mutations = `
   callUpdateActiveSession: JSON
   callTerminateSession: JSON
   callDisconnect: String
-  callHistoryAdd(${commonHistoryFields}): CallHistory
+  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
   callHistoryEdit(_id: String,${commonHistoryFields}): String
   callHistoryEditStatus(callStatus: String, conversationId: String): String
   callHistoryRemove(_id: String!): JSON

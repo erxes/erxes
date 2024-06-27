@@ -4,4 +4,5 @@ export interface IConfig {
   oneTimeTransactionLimit: number;
   periodLockType: string;
   isStoreInterest: boolean;
+  calculationFixed: number;
 }

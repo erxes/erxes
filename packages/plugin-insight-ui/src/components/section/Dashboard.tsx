@@ -42,7 +42,7 @@ const DashboardSection = (props: Props) => {
   };
 
   const extraButtons = (
-    <Tip text="Add dashboard">
+    <Tip text="Add dashboard" placement="left">
       <a
         href="#addDashboard"
         onClick={() => {
@@ -112,7 +112,7 @@ const DashboardSection = (props: Props) => {
 
   const renderContent = () => {
     if (loading) {
-      return <Spinner objective={true} />;
+      return <Spinner objective={true} height='50px' />;
     }
 
     if (sections?.length === 0 && dashboards?.length === 0) {

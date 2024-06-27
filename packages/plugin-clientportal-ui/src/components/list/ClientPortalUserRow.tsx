@@ -115,28 +115,23 @@ const Row: React.FC<Props> = ({
       </td>
       <td>
         <ClickableRow>
-          {" "}
           <Flex>
-            {verificationStatus}
+            {verificationStatus}&nbsp;
             {renderStatus(verificationStatus === "verified")}
           </Flex>
         </ClickableRow>
       </td>
       <td>
         <ClickableRow>
-          {" "}
           <Flex>
-            {email}
-            {renderStatus(clientPortalUser.isEmailVerified)}
+            {email}&nbsp;{renderStatus(clientPortalUser.isEmailVerified)}
           </Flex>
         </ClickableRow>
       </td>
       <td>
         <ClickableRow>
-          {" "}
           <Flex>
-            {phone}
-            {renderStatus(clientPortalUser.isPhoneVerified)}
+            {phone}&nbsp;{renderStatus(clientPortalUser.isPhoneVerified)}
           </Flex>
         </ClickableRow>
       </td>
@@ -163,7 +158,6 @@ const Row: React.FC<Props> = ({
       </td>
       <td>
         <ClickableRow>
-          {" "}
           <Label
             key={clientPortalUser._id}
             lblColor={

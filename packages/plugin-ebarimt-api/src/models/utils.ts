@@ -10,9 +10,9 @@ export interface IDoc {
   date?: Date;
   type: 'B2C_RECEIPT' | 'B2B_RECEIPT';
 
-  customerRD?: string;
-  customerTin?: string;
+  customerCode?: string;
   customerName?: string;
+  customerTin?: string;
   consumerNo?: string;
 
   details?: {
@@ -92,11 +92,16 @@ const isValidBarcode = (barcode: string): boolean => {
   return checkSum == lastDigit;
 };
 
-const getCustomerInfo = async (type, config, doc) => {
+const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) => {
   if (type === 'B2B_RECEIPT') {
+    const tinre = /(^\d{11}$)|(^\d{12}$)/;
+    if (tinre.test(doc.customerTin || '')) {
+      return { customerTin: doc.customerTin, customerName: doc.customerName }
+    }
+
     const resp = await getCompanyInfo({
       checkTaxpayerUrl: config.checkTaxpayerUrl,
-      no: doc.customerTin || doc.customerRD,
+      no: doc.customerTin || doc.customerCode || '',
     });
 
     if (resp.status !== 'checked' || !resp.tin) {

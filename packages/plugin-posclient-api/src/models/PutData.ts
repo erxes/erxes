@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import * as moment from 'moment';
 import { IEbarimt, IEbarimtFull } from './definitions/putResponses';
 import { IEbarimtConfig } from './definitions/configs';
+import { IProductDocument } from './definitions/products';
 
 export interface IDoc {
   contentType: string;
@@ -11,31 +12,18 @@ export interface IDoc {
   date?: Date;
   type: string;
 
-  customerRD?: string;
+  customerCode?: string;
   customerTin?: string;
   customerName?: string;
   consumerNo?: string;
 
   details?: {
     recId: string;
-    product: {
-      _id: string;
-      name: string;
-      shortName?: string;
-      categoryId?: string;
-      type?: string;
-      barcodes?: string[];
-      unitPrice?: number;
-      code: string;
-      status?: string;
-      uom?: string;
-      taxType?: string;
-      taxCode?: string;
-    };
+    product: IProductDocument;
     barcode?: string;
     quantity: number;
     unitPrice: number;
-    totalDiscount: number;
+    totalDiscount?: number;
     totalAmount: number;
   }[];
   nonCashAmounts: { amount: number }[];
@@ -93,18 +81,23 @@ const isValidBarcode = (barcode: string): boolean => {
   return checkSum == lastDigit;
 };
 
-const getCustomerInfo = async (type, config, doc) => {
+const getCustomerInfo = async (type: string, config: IEbarimtConfig, doc: IDoc) => {
   if (type === 'B2B_RECEIPT') {
+    const tinre = /(^\d{11}$)|(^\d{12}$)/;
+    if (tinre.test(doc.customerTin || '')) {
+      return { customerTin: doc.customerTin, customerName: doc.customerName }
+    }
+
     const resp = await getCompanyInfo({
       checkTaxpayerUrl: config.checkTaxpayerUrl,
-      no: doc.customerTin || doc.customerRD,
+      no: doc.customerTin || doc.customerCode || '',
     });
 
     if (resp.status !== 'checked') {
       return { msg: 'wrong tin number or rd or billType' }
     }
 
-    return { customerTin: resp.tin, customerName: resp.result?.data?.name }
+    return { customerTin: resp.tin, customerName: resp.result?.data?.name };
   };
 
   const re = /^\d{8}$/gui;

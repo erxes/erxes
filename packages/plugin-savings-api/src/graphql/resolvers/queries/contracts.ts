@@ -2,6 +2,7 @@ import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
+import { sendMessageBroker } from '../../../messageBroker';
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
@@ -305,6 +306,55 @@ const contractQueries = {
     }
 
     return alerts;
+  },
+  /**
+   * @param _root
+   * @returns OK
+   */
+  checkAccountBalance: async (
+    _root,
+    {
+      contractId,
+      requiredAmount
+    }: {
+      contractId: string;
+      requiredAmount: number;
+    },
+    { models }: IContext
+  ) => {
+    const account = await models.Contracts.findById({
+      _id: contractId
+    });
+
+    if (!account) {
+      throw new Error('Account not found.');
+    }
+
+    if (account.savingAmount < requiredAmount) {
+      throw new Error('Account balance not reached.');
+    }
+
+    return 'OK';
+  },
+
+  getAccountOwner: async (
+    _root,
+    { accountNumber },
+    { models, subdomain }: IContext
+  ) => {
+    const account = await models.Contracts.findOne({ number: accountNumber });
+
+    const customer = await sendMessageBroker(
+      {
+        action: 'customers.findOne',
+        subdomain,
+        data: { _id: account?.customerId },
+        isRPC: true
+      },
+      'contacts'
+    );
+
+    return `${customer?.firstName} ${customer?.lastName}`;
   }
 };
 
