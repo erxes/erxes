@@ -315,12 +315,6 @@ class ProductItem extends React.Component<Props, State> {
       this.props.productData._id
     );
 
-  onClick = () => {
-    const { productData, removeProductItem } = this.props;
-
-    return removeProductItem && removeProductItem(productData._id);
-  };
-
   onTickUse = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
 

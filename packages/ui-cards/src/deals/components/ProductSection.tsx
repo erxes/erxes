@@ -57,9 +57,9 @@ function ProductSection({
 
     const { customFieldsData } = product;
 
-    Object.values(customFieldsData).forEach((field: any, index: number) => {
+    Object.values(customFieldsData).forEach((field: any) => {
       result.push(
-        <CustomField key={index}>
+        <CustomField key={product._id}>
           <b>{field.text}:</b> {field.data}
         </CustomField>
       );
@@ -95,7 +95,7 @@ function ProductSection({
           {productName}
           {quantity && (
             <Quantity>
-              ({quantity} {uom ? uom : "PC"})
+              ({quantity} {uom || "PC"})
             </Quantity>
           )}
         </div>
@@ -139,8 +139,8 @@ function ProductSection({
       name="showProductAndService"
     >
       <BoxPadding>
-        {products.map((product, index) => (
-          <SectionBodyItem key={index}>
+        {products.map((product) => (
+          <SectionBodyItem key={product._id}>
             {renderProduct(product)}
           </SectionBodyItem>
         ))}

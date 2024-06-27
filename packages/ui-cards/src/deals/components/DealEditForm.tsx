@@ -140,13 +140,11 @@ export default class DealEditForm extends React.Component<Props, State> {
             } else {
               amount[data.currency] += data.amount || 0;
             }
-          } else {
-            if (!unUsedAmount[data.currency]) {
+          } else if (!unUsedAmount[data.currency]) {
               unUsedAmount[data.currency] = data.amount || 0;
             } else {
               unUsedAmount[data.currency] += data.amount || 0;
             }
-          }
         }
         // collecting data for ItemCounter component
         products.push(data.product);

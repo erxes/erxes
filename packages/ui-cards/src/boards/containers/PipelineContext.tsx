@@ -22,7 +22,7 @@ import {
 import { mutations, queries, subscriptions } from '../graphql';
 
 import InvisibleItemInUrl from './InvisibleItemInUrl';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -656,26 +656,25 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
   render() {
     const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
-
+    const obj = useMemo(() => (
+      {options: this.props.options,
+      onDragEnd: this.onDragEnd,
+      onDragStart: this.onDragStart,
+      onLoadStage: this.onLoadStage,
+      scheduleStage: this.scheduleStage,
+      refetchStage: this.refetchStage,
+      onAddItem: this.onAddItem,
+      onRemoveItem: this.onRemoveItem,
+      onUpdateItem: this.onUpdateItem,
+      itemMap,
+      stageLoadMap,
+      stageIds,
+      isShowLabel,
+      toggleLabels: this.toggleLabels,}), []);
     return (
       <>
         <PipelineContext.Provider
-          value={{
-            options: this.props.options,
-            onDragEnd: this.onDragEnd,
-            onDragStart: this.onDragStart,
-            onLoadStage: this.onLoadStage,
-            scheduleStage: this.scheduleStage,
-            refetchStage: this.refetchStage,
-            onAddItem: this.onAddItem,
-            onRemoveItem: this.onRemoveItem,
-            onUpdateItem: this.onUpdateItem,
-            itemMap,
-            stageLoadMap,
-            stageIds,
-            isShowLabel,
-            toggleLabels: this.toggleLabels,
-          }}
+          value={obj}
         >
           {this.props.children}
           {this.renderInvisibleItemInUrl()}

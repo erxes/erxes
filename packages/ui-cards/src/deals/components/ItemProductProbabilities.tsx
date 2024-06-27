@@ -49,9 +49,9 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
       </div>
     ));
   }
-
+я
   renderPercentage = value => {
-    return value === 'Won' ? '100%' : value === 'Lost' ? '0%' : value;
+    return value === 'Won' ? '100%' : value === 'Lost' && '0%' || value;
   };
 
   renderInfo = () => {
