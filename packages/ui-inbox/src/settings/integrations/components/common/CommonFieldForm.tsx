@@ -129,15 +129,6 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
       this.setState({ isSubmitted: true });
 
-      let data: any;
-
-      switch (this.props.integrationKind) {
-        case "webhook": {
-          data = webhookData;
-          break;
-        }
-      }
-
       onSubmit(integrationId, { name, brandId, channelIds, details }, () => {
         this.setState({ isSubmitted: false });
         closeModal();

@@ -52,7 +52,6 @@ type FinalProps = {
   currentUser: IUser;
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
-  currentConversation: any;
 } & Props;
 
 class MailFormContainer extends React.Component<
@@ -86,7 +85,6 @@ class MailFormContainer extends React.Component<
       currentUser,
       mails,
       messageId,
-      currentConversation,
     } = this.props;
 
     const { loadedEmails, verifiedImapEmails, verifiedEngageEmails } =

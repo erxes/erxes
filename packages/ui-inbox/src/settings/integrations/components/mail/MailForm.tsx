@@ -468,16 +468,6 @@ class MailForm extends React.Component<Props, State> {
     this.prepareData();
   };
 
-  onRemoveAttach = (attachment: any) => {
-    const { attachments } = this.state;
-
-    this.setState({
-      attachments: attachments.filter(
-        (item) => item.filename !== attachment.filename
-      ),
-    });
-  };
-
   getEmailSender = (fromEmail?: string) => {
     const mailData = this.props.mailData || ({} as IMail);
     const { integrationEmail } = mailData;
