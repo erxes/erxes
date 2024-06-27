@@ -4,13 +4,13 @@ dotenv.config();
 import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
-const { SENTRY_URL, SENTRY_PROJECT_NAME, image_tag } = process.env;
+const { SENTRY_URL, SENTRY_PROJECT_NAME, VERSION } = process.env;
 
 // Ensure to call this before requiring any other modules!
 if (SENTRY_URL) {
   Sentry.init({
     dsn: SENTRY_URL,
-    release: `${SENTRY_PROJECT_NAME}@${image_tag}`,
+    release: `${SENTRY_PROJECT_NAME}@${VERSION}`,
     integrations: [
       // Add our Profiling integration
       nodeProfilingIntegration()

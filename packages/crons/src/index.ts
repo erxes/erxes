@@ -17,29 +17,31 @@ if (SENTRY_URL) {
   });
 }
 
-const scheduleWithCheckIn = Sentry.cron.instrumentNodeSchedule(schedule);
-
 const sendMessage = async (
   subdomain: string,
   action: string,
   services: string[],
 ) => {
-  for (const serviceName of services) {
-    const service = await getService(serviceName);
+  const commonMessage = async () => {
+    for (const serviceName of services) {
+      const service = await getService(serviceName);
 
-    if ((await isEnabled(serviceName)) && service) {
-      const meta = service.config ? service.config.meta : {};
+      if ((await isEnabled(serviceName)) && service) {
+        const meta = service.config ? service.config.meta : {};
 
-      if (meta && meta.cronjobs && meta.cronjobs[`${action}Available`]) {
-        sendCommonMessage({
-          subdomain,
-          serviceName,
-          action,
-          data: { subdomain },
-        });
+        if (meta && meta.cronjobs && meta.cronjobs[`${action}Available`]) {
+          sendCommonMessage({
+            subdomain,
+            serviceName,
+            action,
+            data: { subdomain },
+          });
+        }
       }
     }
   }
+
+  return SENTRY_URL ? Sentry.withMonitor(action, async () => { return commonMessage() }) : commonMessage()
 };
 
 initBroker()
@@ -49,49 +51,37 @@ initBroker()
     const services = await getServices();
     const subdomain = 'os';
 
-    // every minute at 1sec
-    scheduleWithCheckIn.scheduleJob('handleMinutelyJob', '1 * * * * *', async () => {
-      Sentry.withMonitor(
-        "handleMinutelyJob",
-        async () => {
-          console.log('every minute ....', services);
+    const scheduler = SENTRY_URL ? Sentry.cron.instrumentNodeSchedule(schedule) : schedule
 
-          await sendMessage(subdomain, 'handleMinutelyJob', services);
-        });
+    // every minute at 1sec
+    scheduler.scheduleJob(SENTRY_URL && "handleMinutelyJob", '1 * * * * *', async () => {
+      console.log('every minute ....', services);
+
+      await sendMessage(subdomain, 'handleMinutelyJob', services);
     });
 
     // every 10 minute at 1sec
-    scheduleWithCheckIn.scheduleJob('handle10MinutelyJob', '*/10 * * * *', async () => {
-      Sentry.withMonitor(
-        "handle10MinutelyJob",
-        async () => {
+    scheduler.scheduleJob(SENTRY_URL && "handle10MinutelyJob", '*/10 * * * *', async () => {
       console.log('every 10 minute ....', services);
 
       await sendMessage(subdomain, 'handle10MinutelyJob', services);
-        });
     });
 
     // every hour at 10min:10sec
-    scheduleWithCheckIn.scheduleJob('handleHourlyJob', '10 10 * * * *', async () => {
-      Sentry.withMonitor(
-        "handleHourlyJob",
-        async () => {
+    scheduler.scheduleJob(SENTRY_URL && "handleHourlyJob", '10 10 * * * *', async () => {
       console.log('every hour ....', services);
 
       await sendMessage(subdomain, 'handleHourlyJob', services);
-        });
     });
 
     // every day at 04hour:20min:20sec (UTC)
-    scheduleWithCheckIn.scheduleJob('handleDailyJob', '20 20 20 * * *', async () => {
-      Sentry.withMonitor(
-        "handleDailyJob",
-        async () => {
+    scheduler.scheduleJob(SENTRY_URL && "handleDailyJob", '20 20 20 * * *', async () => {
       console.log('every day ....', services);
 
       await sendMessage(subdomain, 'handleDailyJob', services);
-        });
     });
+
+
   })
   .catch((e) =>
     console.log(`Error ocurred during message broker init ${e.message}`),
