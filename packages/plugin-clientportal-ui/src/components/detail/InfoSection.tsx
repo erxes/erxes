@@ -24,7 +24,7 @@ const InfoSection: React.FC<Props> = (props: Props) => {
 
   return (
     <InfoWrapper>
-      <AvatarWrapper size={avatarSize} isOnline={clientPortalUser.isOnline}>
+      <AvatarWrapper size={avatarSize} $isOnline={clientPortalUser.isOnline}>
         <NameCard.Avatar customer={clientPortalUser} size={avatarSize} />
       </AvatarWrapper>
       <NameContainer>

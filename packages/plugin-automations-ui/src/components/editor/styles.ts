@@ -4,15 +4,27 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-export const Trigger = styledTS<{ type: string; $isHoverActionBar?: boolean }>(
-  styled.div,
-)`
+export const Trigger = styledTS<{
+  type: string;
+  $isHoverActionBar?: boolean;
+  $isSelected: boolean;
+}>(styled.div)`
   max-width: 300px;
   padding: 3px;
   background: #f5f5f5;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
   cursor: pointer;
+
+  ${({ $isSelected }) =>
+    $isSelected
+      ? `
+      border: 2px dashed ${colors.colorSecondary} ;
+      
+    `
+      : `
+        border: 1px solid ${colors.borderPrimary};
+      `}
 
   > p {
     font-size: 13px;
