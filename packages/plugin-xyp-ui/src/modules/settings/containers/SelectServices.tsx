@@ -9,7 +9,7 @@ const XYP_SERVICES_QUERY = gql`
 `;
 
 const Container = ({ onChange, value, url, token }) => {
-  const { data, loading, error } = useQuery(XYP_SERVICES_QUERY, {
+  const { data, loading } = useQuery(XYP_SERVICES_QUERY, {
     variables: { url, token }
   });
 
