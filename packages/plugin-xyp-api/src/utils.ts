@@ -99,7 +99,7 @@ export const convertToPropertyData = async (
       };
     }
 
-    const groups = await sendCommonMessage({
+    await sendCommonMessage({
       subdomain,
       serviceName: 'forms',
       action: 'fieldsGroups.find',
