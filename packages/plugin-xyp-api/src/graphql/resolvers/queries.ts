@@ -102,7 +102,7 @@ const xypQueries = {
     return response;
   },
 
-  async xypServiceListChoosen(_root, {}, { models, subdomain }: IContext) {
+  async xypServiceListChoosen(_root, _, { models, subdomain }: IContext) {
     const xypConfigs = await sendCommonMessage({
       subdomain,
       serviceName: 'core',
