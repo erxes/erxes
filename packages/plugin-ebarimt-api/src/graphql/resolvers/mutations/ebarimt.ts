@@ -17,15 +17,6 @@ const ebarimtMutations = {
     const config: any = await getConfig(subdomain, 'EBARIMT', {})
     const url = config.ebarimtUrl || '';
 
-    let rd = putResponse.registerNo;
-    if (!rd) {
-      throw new Error('not found putResponses register number')
-    }
-
-    if (rd.length === 12) {
-      rd = rd.slice(-8);
-    }
-
     const { id, date } = putResponse;
 
     if (!id || !date) {

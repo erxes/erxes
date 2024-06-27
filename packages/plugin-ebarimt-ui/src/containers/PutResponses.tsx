@@ -1,21 +1,19 @@
-import { gql } from "@apollo/client";
-import { Alert } from '@erxes/ui/src/utils';
-import PutResponse from "../components/PutResponses";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Bulk, Spinner } from "@erxes/ui/src/components";
+import { IQueryParams } from "@erxes/ui/src/types";
+import { Alert, router } from '@erxes/ui/src/utils';
 import queryString from "query-string";
 import React from "react";
-import { Bulk, Spinner } from "@erxes/ui/src/components";
-import { router } from "@erxes/ui/src/utils";
-import { IQueryParams } from "@erxes/ui/src/types";
+import { useLocation, useNavigate } from "react-router-dom";
+import PutResponse from "../components/PutResponses";
+import { FILTER_PARAMS } from "../constants";
+import { mutations, queries } from "../graphql";
 import {
   PutResponseReReturnMutationResponse,
   PutResponsesAmountQueryResponse,
   PutResponsesCountQueryResponse,
   PutResponsesQueryResponse,
 } from "../types";
-import { mutations, queries } from "../graphql";
-import { FILTER_PARAMS } from "../constants";
-import { useQuery, useMutation } from "@apollo/client";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
