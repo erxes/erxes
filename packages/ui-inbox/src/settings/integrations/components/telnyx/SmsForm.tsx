@@ -123,10 +123,10 @@ class SmsForm extends React.Component<Props, State> {
       });
     };
 
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {this.fromOptionRenderer(props.data)}
+        <components.Option {...optionProps}>
+          {this.fromOptionRenderer(optionProps.data)}
         </components.Option>
       );
     };
