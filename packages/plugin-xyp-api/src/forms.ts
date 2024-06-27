@@ -70,7 +70,7 @@ export const getServiceToFields = async (subdomain) => {
 export default {
   types: [{ description: 'Xyp', type: 'xyp_datas' }],
   fields: async ({ subdomain, data }) => {
-    const { usageType } = data;
+
     const models = await generateModels(subdomain);
 
     const schema = models.XypData.schema as any;
@@ -88,7 +88,7 @@ export default {
 
     fields = [];
 
-    const { fieldsForExcel, list } =
+    const { list } =
       (await getServiceToFields(subdomain)) || [];
 
     if (schema) {
