@@ -39,7 +39,7 @@ export const setupMessageConsumers = async () => {
 
       const { params, wsOperationName } = data;
 
-      const config: IXypConfig = xypConfigs && xypConfigs.value;
+      const config: IXypConfig = xypConfigs?.value;
 
       const response = await fetch(config.url + '/api', {
         method: 'post',
