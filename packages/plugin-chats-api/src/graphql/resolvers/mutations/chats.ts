@@ -299,7 +299,8 @@ const chatMutations = {
 
     const chat = await models.Chats.getChat(message.chatId, user._id);
 
-    let recievers = chat.participantIds.filter(
+    let recievers
+      chat.participantIds.filter(
       (value) => !chat.muteUserIds.includes(value),
     );
 
