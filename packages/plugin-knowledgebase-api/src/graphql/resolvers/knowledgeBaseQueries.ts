@@ -34,6 +34,10 @@ const buildQuery = (args: any) => {
     qry.icon = args.icon;
   }
 
+  if (args?.ids?.length) {
+    qry._id = { $in: args.ids };
+  }
+
   return qry;
 };
 
@@ -120,6 +124,7 @@ const knowledgeBaseQueries = {
   async knowledgeBaseCategories(
     _root,
     args: {
+      ids: string[];
       page: number;
       perPage: number;
       topicIds: string[];
