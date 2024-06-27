@@ -310,17 +310,19 @@ export const loadContractClass = (models: IModels) => {
       const config: IConfig = await getConfig("loansConfig", subdomain);
       const trDate = new Date();
       if (
-        new BigNumber(contract.leaseAmount).toNumber() >
+        new BigNumber(contract.leaseAmount).toNumber() >=
         new BigNumber(contract.loanBalanceAmount)
           .plus(requestParams.amount)
           .dp(config.calculationFixed)
           .toNumber()
       ) {
+
         const loanTr = await models.Transactions.createTransaction(subdomain, {
           total: requestParams.amount,
           give: requestParams.amount,
           contractId: requestParams.contractId,
           customerId: requestParams.customerId,
+          transactionType:'give',
           payDate: new Date(),
           currency: contract.currency
         });
