@@ -41,8 +41,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (riskAssessment) {
       await models.RiskAssessments.removeRiskAssessment(riskAssessment._id);
     }
-
-    return;
   }
 };
 
@@ -127,11 +125,11 @@ const handleConfig = async ({ models, subdomain, params }) => {
     cardType: type.replace('cards:', '')
   } as any;
 
-  if (!!branchIds?.length) {
+  if (branchIds?.length) {
     conformity.branchId = branchIds[0];
   }
 
-  if (!!departmentIds?.length) {
+  if (departmentIds?.length) {
     conformity.branchId = departmentIds[0];
   }
 
@@ -149,7 +147,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
         item => item.value === data.value
       );
       if (customField) {
-        if (!!customField?.indicatorIds?.length) {
+        if (customField?.indicatorIds?.length) {
           for (const indicatorId of customField.indicatorIds) {
             const addedConformity = await models.RiskAssessments.addRiskAssessment(
               {
@@ -185,7 +183,7 @@ const handleConfig = async ({ models, subdomain, params }) => {
       .sort({ createdAt: -1 })
       .limit(1);
 
-    if (!!config?.indicatorIds?.length) {
+    if (config?.indicatorIds?.length) {
       for (const indicatorId of config?.indicatorIds) {
         await models.RiskAssessments.addRiskAssessment({
           ...conformity,

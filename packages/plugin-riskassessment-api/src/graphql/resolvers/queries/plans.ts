@@ -9,7 +9,7 @@ const generateFilters = params => {
     filter.status = 'archived';
   }
 
-  if (!!params?.plannerIds?.length) {
+  if (params?.plannerIds?.length) {
     filter.plannerId = { $in: params?.plannerIds || [] };
   }
 

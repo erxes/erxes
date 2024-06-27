@@ -1,4 +1,4 @@
-import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
+import { Alert, Spinner, confirm } from "@erxes/ui/src";
 import React, { useEffect } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries } from "../graphql";

@@ -6,18 +6,18 @@ import {
   Icon,
   ModalTrigger,
   NameCard,
-  SectionBodyItem
-} from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import React from 'react';
-import { ProductName } from '../../../styles';
+  SectionBodyItem,
+} from "@erxes/ui/src";
+import { IUser } from "@erxes/ui/src/auth/types";
+import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
+import React from "react";
+import { ProductName } from "../../../styles";
 import {
   RiskAssessmentAssignedMembers,
-  RiskAssessmentTypes
-} from '../../common/types';
-import RiskAssessmentForm from '../containers/RiskAssessmentForm';
-import MultipleAssessment from './MultipleAssessmentForm';
+  RiskAssessmentTypes,
+} from "../../common/types";
+import RiskAssessmentForm from "../containers/RiskAssessmentForm";
+import MultipleAssessment from "./MultipleAssessmentForm";
 
 type Props = {
   assignedMembers: RiskAssessmentAssignedMembers[];
@@ -28,20 +28,16 @@ type Props = {
 };
 
 class AssignedMembers extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   renderSubmitForm({ userId, submitStatus }) {
     const { currentUser, cardId, cardType, riskAssessments } = this.props;
     const renderStatusIcon = () => {
       if (currentUser._id === userId) {
         switch (submitStatus) {
-          case 'inProgress':
+          case "inProgress":
             return <Icon icon="file-edit-alt" color={colors.colorCoreBlue} />;
-          case 'pending':
+          case "pending":
             return <Icon icon="file-info-alt" color={colors.colorCoreOrange} />;
-          case 'submitted':
+          case "submitted":
             return <Icon icon="file-check" color={colors.colorCoreGreen} />;
           default:
             return;
@@ -49,11 +45,11 @@ class AssignedMembers extends React.Component<Props> {
       }
 
       switch (submitStatus) {
-        case 'inProgress':
+        case "inProgress":
           return <Icon icon="loading" />;
-        case 'pending':
+        case "pending":
           return <Icon icon="wallclock" />;
-        case 'submitted':
+        case "submitted":
           return <Icon icon="checked" />;
         default:
           return;
@@ -62,16 +58,16 @@ class AssignedMembers extends React.Component<Props> {
 
     const trigger = <Button btnStyle="link">{renderStatusIcon()}</Button>;
 
-    const content = props => {
+    const content = (props) => {
       const updatedProps = {
         ...props,
         filters: {
           cardId,
           cardType,
-          userId: currentUser._id
+          userId: currentUser._id,
         },
 
-        onlyPreview: currentUser._id !== userId
+        onlyPreview: currentUser._id !== userId,
       };
 
       if (riskAssessments.length > 1) {
@@ -89,8 +85,8 @@ class AssignedMembers extends React.Component<Props> {
             ...updatedProps,
             filters: {
               ...updatedProps.filters,
-              riskAssessmentId: riskAssessments[0]._id
-            }
+              riskAssessmentId: riskAssessments[0]._id,
+            },
           }}
         />
       );
@@ -103,7 +99,7 @@ class AssignedMembers extends React.Component<Props> {
         title="Risk Indicators Submit Form"
         size="xl"
         enforceFocus={false}
-        style={{ overflow: 'auto' }}
+        style={{ overflow: "auto" }}
       />
     );
   }
@@ -125,13 +121,13 @@ class AssignedMembers extends React.Component<Props> {
     return (
       <Box title="Risk Assessment Assigned Members" name="assignedMembers">
         <ErrorBoundary>
-          {assignedMembers.map(assignedMember => (
+          {assignedMembers.map((assignedMember) => (
             <SectionBodyItem key={assignedMember._id}>
               <ProductName>
                 <NameCard user={assignedMember} />
                 {this.renderSubmitForm({
                   userId: assignedMember._id,
-                  submitStatus: assignedMember?.submitStatus
+                  submitStatus: assignedMember?.submitStatus,
                 })}
               </ProductName>
             </SectionBodyItem>

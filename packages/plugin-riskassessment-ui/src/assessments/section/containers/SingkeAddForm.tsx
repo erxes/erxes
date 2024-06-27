@@ -1,11 +1,11 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, EmptyState, confirm } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import FormComponent from '../components/SingleAddForm';
-import { mutations, queries } from '../graphql';
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { Alert, EmptyState, confirm } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import * as compose from "lodash.flowright";
+import React from "react";
+import FormComponent from "../components/SingleAddForm";
+import { mutations, queries } from "../graphql";
 type Props = {
   closeModal: () => void;
   cardId: string;
@@ -20,10 +20,6 @@ type FinalProps = {
 } & Props;
 
 class Form extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const {
       cardId,
@@ -32,11 +28,11 @@ class Form extends React.Component<FinalProps> {
       addRiskAssessment,
       editRiskAssessment,
       removeRiskAssessment,
-      closeModal
+      closeModal,
     } = this.props;
 
     if (
-      riskAssessment?.status === 'You does not have permit on risk assessment'
+      riskAssessment?.status === "You does not have permit on risk assessment"
     ) {
       return (
         <EmptyState
@@ -47,16 +43,16 @@ class Form extends React.Component<FinalProps> {
     }
 
     const handleSelect = (doc: any) => {
-      if (riskAssessment && riskAssessment.status !== 'In Progress') {
+      if (riskAssessment && riskAssessment.status !== "In Progress") {
         return Alert.error(
-          'You cannot change this risk assessment because it has already calculated'
+          "You cannot change this risk assessment because it has already calculated"
         );
       }
 
       if (riskAssessment && !doc.groupId && !doc.indicatorId) {
         return confirm().then(() => {
           removeRiskAssessment({
-            variables: { riskAssessmentId: riskAssessment?._id }
+            variables: { riskAssessmentId: riskAssessment?._id },
           });
         });
       }
@@ -72,7 +68,7 @@ class Form extends React.Component<FinalProps> {
       cardType,
       riskAssessment,
       closeModal,
-      handleSelect
+      handleSelect,
     };
 
     return <FormComponent {...updatedProps} />;
@@ -82,7 +78,7 @@ class Form extends React.Component<FinalProps> {
 export const refetchQueries = ({
   cardId,
   cardType,
-  riskAssessmentId
+  riskAssessmentId,
 }: {
   cardId: string;
   cardType: string;
@@ -90,37 +86,37 @@ export const refetchQueries = ({
 }) => [
   {
     query: gql(queries.riskAssessment),
-    variables: { cardId, cardType }
+    variables: { cardId, cardType },
   },
   {
     query: gql(queries.riskAssessmentSubmitForm),
-    variables: { cardId, cardType, riskAssessmentId }
-  }
+    variables: { cardId, cardType, riskAssessmentId },
+  },
 ];
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.addRiskAssessment), {
-      name: 'addRiskAssessment',
+      name: "addRiskAssessment",
       options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
-      })
+        refetchQueries: refetchQueries({ cardId, cardType }),
+      }),
     }),
     graphql<Props>(gql(mutations.editRiskAssessment), {
-      name: 'editRiskAssessment',
+      name: "editRiskAssessment",
       options: ({ cardId, cardType, riskAssessment }) => ({
         refetchQueries: refetchQueries({
           cardId,
           cardType,
-          riskAssessmentId: riskAssessment?._id
-        })
-      })
+          riskAssessmentId: riskAssessment?._id,
+        }),
+      }),
     }),
     graphql<Props>(gql(mutations.removeRiskAssessment), {
-      name: 'removeRiskAssessment',
+      name: "removeRiskAssessment",
       options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
-      })
+        refetchQueries: refetchQueries({ cardId, cardType }),
+      }),
     })
   )(Form)
 );

@@ -57,40 +57,38 @@ class Form extends React.Component<Props, State> {
     };
 
     return (
-      <>
-        <FormContainer $row $gap $flex>
-          <FormGroup>
-            <ControlLabel>{__("Branch")}</ControlLabel>
-            <SelectBranches
-              name={"branchId"}
-              label={`Select Branch`}
-              initialValue={branchId}
-              onSelect={handleSelect}
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__("Department")}</ControlLabel>
-            <SelectDepartments
-              name={"departmentId"}
-              label={`Select Department`}
-              initialValue={departmentId}
-              onSelect={handleSelect}
-              multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__("Operation")}</ControlLabel>
-            <SelectOperations
-              name={"operationId"}
-              label={`Select Operation`}
-              initialValue={operationId}
-              multi={false}
-              onSelect={handleSelect}
-            />
-          </FormGroup>
-        </FormContainer>
-      </>
+      <FormContainer $row $gap $flex>
+        <FormGroup>
+          <ControlLabel>{__("Branch")}</ControlLabel>
+          <SelectBranches
+            name={"branchId"}
+            label={`Select Branch`}
+            initialValue={branchId}
+            onSelect={handleSelect}
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__("Department")}</ControlLabel>
+          <SelectDepartments
+            name={"departmentId"}
+            label={`Select Department`}
+            initialValue={departmentId}
+            onSelect={handleSelect}
+            multi={false}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__("Operation")}</ControlLabel>
+          <SelectOperations
+            name={"operationId"}
+            label={`Select Operation`}
+            initialValue={operationId}
+            multi={false}
+            onSelect={handleSelect}
+          />
+        </FormGroup>
+      </FormContainer>
     );
   };
 
@@ -105,7 +103,7 @@ class Form extends React.Component<Props, State> {
         branchId,
         departmentId,
         operationId,
-        permittedUserIds: !!permittedUserIds?.length
+        permittedUserIds: permittedUserIds?.length
           ? permittedUserIds
           : undefined,
       });

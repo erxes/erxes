@@ -12,14 +12,13 @@ import {
 } from "@erxes/ui/src";
 import { FlexRow, HeaderContent } from "../../styles";
 
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import Row from "./Row";
 import { TableHead } from "../../assessments/components/ListHead";
 import { headers } from "../common/Headers";
 import { setParams } from "@erxes/ui/src/utils/router";
 import { subMenu } from "../../common/constants";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   list: any[];

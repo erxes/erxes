@@ -93,11 +93,11 @@ const generateFilter = async (
     filter._id = params._id;
   }
 
-  if (!!params?.ids?.length) {
+  if (params?.ids?.length) {
     filter._id = { $in: params.ids };
   }
 
-  if (!!params?.tagIds?.length) {
+  if (params?.tagIds?.length) {
     let filterParams: any = { $in: params.tagIds };
 
     if (params.withChilds) {

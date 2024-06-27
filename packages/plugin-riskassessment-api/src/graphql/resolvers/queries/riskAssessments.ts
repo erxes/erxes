@@ -47,7 +47,7 @@ export const generateFilter = async (
 
     filter.indicatorId = { $in: params.riskIndicatorIds };
 
-    if (!!groupIds.length) {
+    if (groupIds.length) {
       delete filter.indicatorId;
 
       filter.$or = [
@@ -89,7 +89,7 @@ export const generateFilter = async (
     filter.statusColor = statusColors[params.status];
   }
 
-  if (!!params?.customFieldsValues?.length) {
+  if (params?.customFieldsValues?.length) {
     const cardTypes = filter.cardType ? [filter.cardType] : ['ticket', 'task'];
     let cardIds: string[] = [];
 
@@ -117,7 +117,7 @@ export const generateFilter = async (
       [name]: regex ? { $regex: new RegExp(`^${value}$`, 'i') } : value
     };
 
-    if (!!values?.length) {
+    if (values?.length) {
       cardFilter[name] = { $in: values };
     }
 

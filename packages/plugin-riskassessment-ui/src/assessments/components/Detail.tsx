@@ -23,7 +23,6 @@ import { __ } from "@erxes/ui/src/utils/core";
 import colors from "@erxes/ui/src/styles/colors";
 
 type Props = {
-  riskAssessment: any;
   detail: any;
   assignedUsers: any;
   groupAssessment: any;

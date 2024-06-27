@@ -8,7 +8,7 @@ export type RiskAssessmentTypes = {
   _id: string;
   name: string;
   cardId: string;
-  cardType: String;
+  cardType: string;
   card: {
     _id: string;
     name: string;

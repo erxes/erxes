@@ -23,16 +23,11 @@ type Props = {
   plan: IPLan;
   selectedItems: string[];
   handleSelect: (id: string) => void;
-  queryParams: any;
   duplicate: (_id: string) => void;
   changeStatus: (_id: string, status: string) => void;
 };
 
 class Row extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { plan, selectedItems, handleSelect, duplicate, changeStatus } =
       this.props;

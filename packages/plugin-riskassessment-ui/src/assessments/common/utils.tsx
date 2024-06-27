@@ -80,7 +80,7 @@ export class DetailPopOver extends React.Component<Props> {
             style={{ padding: "7px 0" }}
             btnStyle="link"
             iconColor={iconColor}
-            icon={icon ? icon : "question-circle"}
+            icon={icon || "question-circle"}
           ></Button>
         </div>
       </>

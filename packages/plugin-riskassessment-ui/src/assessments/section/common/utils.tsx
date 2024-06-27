@@ -1,23 +1,22 @@
-import { queries as dealQueries } from '@erxes/ui-cards/src/deals/graphql';
-import { queries as taskQueries } from '@erxes/ui-cards/src/tasks/graphql';
-import { queries as ticketQueries } from '@erxes/ui-cards/src/tickets/graphql';
+import { queries as dealQueries } from "@erxes/ui-cards/src/deals/graphql";
+import { queries as taskQueries } from "@erxes/ui-cards/src/tasks/graphql";
+import { queries as ticketQueries } from "@erxes/ui-cards/src/tickets/graphql";
 import {
   CollapseContent,
   ControlLabel,
   EmptyState,
   FormGroup,
   SelectTeamMembers,
-  Spinner
-} from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { useQuery } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { ListItem } from '../../../styles';
-import { queries } from '../graphql';
-import { GroupsQueryResponse } from './types';
+  Spinner,
+} from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql, useQuery } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { ListItem } from "../../../styles";
+import { queries } from "../graphql";
+import { GroupsQueryResponse } from "./types";
 
 type SelectGroupsAssignedUsersProps = {
   groups: any[];
@@ -39,7 +38,7 @@ function SelectGroupAssignedUsers({
   group,
   assignedUserIds,
   groupAssignedUserIds,
-  handleSelect
+  handleSelect,
 }: {
   index: any;
   riskAssessmentId: string;
@@ -59,11 +58,11 @@ function SelectGroupAssignedUsers({
           name="groupTeamMembers"
           label="Assign Team Members"
           initialValue={groupAssignedUserIds || []}
-          filterParams={{ status: '', ids: assignedUserIds, excludeIds: false }}
-          onSelect={values =>
+          filterParams={{ status: "", ids: assignedUserIds, excludeIds: false }}
+          onSelect={(values) =>
             handleSelect({
               groupId: group._id,
-              assignedUserIds: [...values]
+              assignedUserIds: [...values],
             })
           }
         />
@@ -79,7 +78,7 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
   constructor(props) {
     super(props);
     this.state = {
-      groupsAssignedUsers: []
+      groupsAssignedUsers: [],
     };
   }
 
@@ -93,13 +92,13 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
       if (!groupsQueryResponse.loading && !groupsQueryResponse.error) {
         const groups = groupsQueryResponse.riskAssessmentGroups;
 
-        const groupsAssignedUsers = groups.map(group => ({
+        const groupsAssignedUsers = groups.map((group) => ({
           groupId: group.groupId,
-          assignedUserIds: group.assignedUserIds
+          assignedUserIds: group.assignedUserIds,
         }));
 
         this.setState({
-          groupsAssignedUsers
+          groupsAssignedUsers,
         });
         handleSelect(groupsAssignedUsers);
       }
@@ -112,7 +111,7 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
       handleSelect,
       riskAssessmentId,
       groups,
-      groupsQueryResponse
+      groupsQueryResponse,
     } = this.props;
     const { groupsAssignedUsers } = this.state;
 
@@ -126,7 +125,7 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
       groupsQueryResponse?.riskAssessmentGroups || [];
 
     const assignedUserIds = (cardDetail.assignedUsers || []).map(
-      user => user._id
+      (user) => user._id
     );
 
     if (!assignedUserIds.length) {
@@ -139,12 +138,12 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
     }) => {
       const { groupId } = groupAssignedUsers;
 
-      if (groupsAssignedUsers.find(group => group.groupId === groupId)) {
+      if (groupsAssignedUsers.find((group) => group.groupId === groupId)) {
         this.setState(
           {
-            groupsAssignedUsers: groupsAssignedUsers.map(group =>
+            groupsAssignedUsers: groupsAssignedUsers.map((group) =>
               group.groupId === groupId ? { ...groupAssignedUsers } : group
-            )
+            ),
           },
           () => handleSelect(this.state.groupsAssignedUsers)
         );
@@ -163,7 +162,7 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
         title=""
         beforeTitle={
           <ControlLabel>
-            {'Split assigned team members to groups of indicators'}
+            {"Split assigned team members to groups of indicators"}
           </ControlLabel>
         }
       >
@@ -171,7 +170,7 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
           const groupAssignedUserIds =
             (
               riskAssessmentGroups.find(
-                assessmentGroup => assessmentGroup.groupId === group._id
+                (assessmentGroup) => assessmentGroup.groupId === group._id
               ) || {}
             ).assignedUserIds || [];
 
@@ -192,64 +191,66 @@ class SelectGroupsAssignedUsersComponent extends React.Component<
   }
 }
 
-export const SelectGroupsAssignedUsers = withProps<
-  SelectGroupsAssignedUsersProps
->(
-  compose(
-    graphql<SelectGroupsAssignedUsersProps>(gql(dealQueries.dealDetail), {
-      skip: ({ cardType }) => cardType !== 'deal',
-      name: 'cardDetailQuery',
-      options: ({ cardId }) => ({
-        variables: {
-          _id: cardId
+export const SelectGroupsAssignedUsers =
+  withProps<SelectGroupsAssignedUsersProps>(
+    compose(
+      graphql<SelectGroupsAssignedUsersProps>(gql(dealQueries.dealDetail), {
+        skip: ({ cardType }) => cardType !== "deal",
+        name: "cardDetailQuery",
+        options: ({ cardId }) => ({
+          variables: {
+            _id: cardId,
+          },
+        }),
+      }),
+      graphql<SelectGroupsAssignedUsersProps>(gql(ticketQueries.ticketDetail), {
+        skip: ({ cardType }) => cardType !== "ticket",
+        name: "cardDetailQuery",
+        options: ({ cardId }) => ({
+          variables: {
+            _id: cardId,
+          },
+        }),
+      }),
+      graphql<SelectGroupsAssignedUsersProps>(gql(taskQueries.taskDetail), {
+        skip: ({ cardType }) => cardType !== "task",
+        name: "cardDetailQuery",
+        options: ({ cardId }) => ({
+          variables: {
+            _id: cardId,
+          },
+        }),
+      }),
+      graphql<SelectGroupsAssignedUsersProps>(
+        gql(queries.riskAssessmentGroups),
+        {
+          skip: ({ groups }) => !groups.length,
+          name: "groupsQueryResponse",
+          options: ({ riskAssessmentId, groups }) => ({
+            variables: {
+              riskAssessmentId,
+              groupIds: groups.map((group) => group._id),
+            },
+            fetchPolicy: "network-only",
+          }),
         }
-      })
-    }),
-    graphql<SelectGroupsAssignedUsersProps>(gql(ticketQueries.ticketDetail), {
-      skip: ({ cardType }) => cardType !== 'ticket',
-      name: 'cardDetailQuery',
-      options: ({ cardId }) => ({
-        variables: {
-          _id: cardId
-        }
-      })
-    }),
-    graphql<SelectGroupsAssignedUsersProps>(gql(taskQueries.taskDetail), {
-      skip: ({ cardType }) => cardType !== 'task',
-      name: 'cardDetailQuery',
-      options: ({ cardId }) => ({
-        variables: {
-          _id: cardId
-        }
-      })
-    }),
-    graphql<SelectGroupsAssignedUsersProps>(gql(queries.riskAssessmentGroups), {
-      skip: ({ groups }) => !groups.length,
-      name: 'groupsQueryResponse',
-      options: ({ riskAssessmentId, groups }) => ({
-        variables: {
-          riskAssessmentId,
-          groupIds: groups.map(group => group._id)
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
-  )(SelectGroupsAssignedUsersComponent)
-);
+      )
+    )(SelectGroupsAssignedUsersComponent)
+  );
 
 export function SelectGroupsAssignedUsersWrapper({
   _id,
   cardId,
   cardType,
-  handleSelect
+  handleSelect,
 }) {
   if (!_id) {
     return <></>;
   }
   const { data, loading } = useQuery(gql(queries.riskIndicatorsGroup), {
     variables: {
-      _id
-    }
+      _id,
+    },
   });
 
   if (loading) {

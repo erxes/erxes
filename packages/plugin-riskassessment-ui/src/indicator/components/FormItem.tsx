@@ -310,10 +310,10 @@ class Item extends React.Component<Props, State> {
     const formTrigger = (
       <Button
         btnStyle="link"
-        icon={!!this.props.doc.formId ? "file-edit-alt" : "file-plus-alt"}
+        icon={this.props.doc.formId ? "file-edit-alt" : "file-plus-alt"}
         iconColor={colors.colorPrimary}
       >
-        {__(!!this.props.doc?.formId ? "Edit a form" : "Build a form")}
+        {__(this.props.doc?.formId ? "Edit a form" : "Build a form")}
       </Button>
     );
 
@@ -399,7 +399,7 @@ class Item extends React.Component<Props, State> {
             </FormGroup>
           )}
           <ModalTrigger
-            title={!!this.props.doc.formId ? "Build New Form" : "Edit Form"}
+            title={this.props.doc.formId ? "Build New Form" : "Edit Form"}
             enforceFocus={false}
             size="xl"
             content={this.renderFormContent}

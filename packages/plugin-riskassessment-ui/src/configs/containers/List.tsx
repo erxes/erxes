@@ -18,9 +18,6 @@ type FinalProps = {
 } & Props;
 
 class List extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
   render() {
     const { configs, configsTotalCount } = this.props;
 

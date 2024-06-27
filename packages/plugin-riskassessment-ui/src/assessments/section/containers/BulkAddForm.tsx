@@ -1,12 +1,12 @@
-import { Alert, confirm } from '@erxes/ui/src';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import BulkAddFormComponent from '../components/BulkAddForm';
-import { mutations } from '../graphql';
-import { refetchQueries } from './SingkeAddForm';
+import { Alert, confirm } from "@erxes/ui/src";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import BulkAddFormComponent from "../components/BulkAddForm";
+import { mutations } from "../graphql";
+import { refetchQueries } from "./SingkeAddForm";
 
 type Props = {
   closeModal: () => void;
@@ -19,10 +19,6 @@ type FinalProps = {
 } & Props;
 
 class BulkAddForm extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { addBulkAssessment, ...props } = this.props;
 
@@ -32,10 +28,10 @@ class BulkAddForm extends React.Component<FinalProps> {
       confirm().then(() => {
         addBulkAssessment({ variables: { bulkItems, cardId, cardType } })
           .then(() => {
-            Alert.success('Added successfully');
+            Alert.success("Added successfully");
             this.props.closeModal();
           })
-          .catch(e => {
+          .catch((e) => {
             Alert.error(e.message);
           });
       });
@@ -43,7 +39,7 @@ class BulkAddForm extends React.Component<FinalProps> {
 
     const updateProps = {
       ...props,
-      handleSave
+      handleSave,
     };
 
     return <BulkAddFormComponent {...updateProps} />;
@@ -53,10 +49,10 @@ class BulkAddForm extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.addBulkAssessment), {
-      name: 'addBulkAssessment',
+      name: "addBulkAssessment",
       options: ({ cardId, cardType }) => ({
-        refetchQueries: refetchQueries({ cardId, cardType })
-      })
+        refetchQueries: refetchQueries({ cardId, cardType }),
+      }),
     })
   )(BulkAddForm)
 );

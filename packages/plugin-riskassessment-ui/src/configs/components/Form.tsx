@@ -25,7 +25,6 @@ import React from "react";
 import Select from "react-select";
 import { cardTypes } from "../../common/constants";
 type Props = {
-  queryParams: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   config?: any;

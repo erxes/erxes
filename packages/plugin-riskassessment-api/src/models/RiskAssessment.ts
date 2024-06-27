@@ -112,7 +112,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
         indicatorId,
         groupsAssignedUsers: any[]
       ) => {
-        if (!!ids?.length) {
+        if (ids?.length) {
           for (const id of ids) {
             {
               await this.addRiskAssessment({
@@ -143,7 +143,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           { key: 'operationId', ids: operationIds }
         ];
 
-        if (!!indicatorIds?.length) {
+        if (indicatorIds?.length) {
           IdsMap.push({ key: 'indicatorId', ids: indicatorIds });
         }
 
@@ -528,7 +528,7 @@ export const loadRiskAssessments = (models: IModels, subdomain: string) => {
           ].isFlagged = !!submittedField.isFlagged;
         }
 
-        if (!!submittedField?.attachments?.length) {
+        if (submittedField?.attachments?.length) {
           editedSubmittedFields[submittedField.fieldId].attachments =
             submittedField?.attachments;
         }

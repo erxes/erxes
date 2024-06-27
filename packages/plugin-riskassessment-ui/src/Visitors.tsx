@@ -1,5 +1,5 @@
-import { SelectTeamMembers } from '@erxes/ui/src';
-import React from 'react';
+import { SelectTeamMembers } from "@erxes/ui/src";
+import React from "react";
 
 type Props = {
   onSelect: (
@@ -11,10 +11,6 @@ type Props = {
 };
 
 class SelectVisitors extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { onSelect, value } = this.props;
 
@@ -25,9 +21,9 @@ class SelectVisitors extends React.Component<Props> {
         multi={true}
         initialValue={value}
         onSelect={(value, name) =>
-          onSelect(value, name, 'riskAssessmentVisitors')
+          onSelect(value, name, "riskAssessmentVisitors")
         }
-        customOption={{ value: '', label: 'Choose Visitors' }}
+        customOption={{ value: "", label: "Choose Visitors" }}
       />
     );
   }

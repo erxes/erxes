@@ -1,11 +1,11 @@
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
-import DetailComponent from '../components/Detail';
-import { queries } from '../graphql';
-import { Spinner } from '@erxes/ui/src';
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { withProps } from "@erxes/ui/src/utils/core";
+import DetailComponent from "../components/Detail";
+import { queries } from "../graphql";
+import { Spinner } from "@erxes/ui/src";
 
 type Props = {
   riskAssessment: any;
@@ -17,16 +17,8 @@ type FinalProps = {
 } & Props;
 
 class Detail extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
-    const {
-      riskAssessment,
-      detailQueryResponse,
-      queryParams,
-    } = this.props;
+    const { riskAssessment, detailQueryResponse, queryParams } = this.props;
 
     if (detailQueryResponse.loading) {
       return <Spinner />;
@@ -45,7 +37,7 @@ class Detail extends React.Component<FinalProps> {
       detail,
       assignedUsers,
       groupAssessment,
-      indicatorAssessment
+      indicatorAssessment,
     };
 
     return <DetailComponent {...updatedProps} />;
@@ -55,13 +47,13 @@ class Detail extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskAssessmentDetail), {
-      name: 'detailQueryResponse',
+      name: "detailQueryResponse",
       options: ({ riskAssessment, queryParams }) => ({
         variables: {
           id: riskAssessment._id,
-          showFlagged: !!queryParams?.showFlagged
-        }
-      })
+          showFlagged: !!queryParams?.showFlagged,
+        },
+      }),
     })
   )(Detail)
 );
