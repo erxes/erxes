@@ -4,7 +4,7 @@ import { IAction } from '../models/definitions/automaions';
 import {
   EXECUTION_STATUS,
   IExecAction,
-  IExecutionDocument,
+  IExecutionDocument
 } from '../models/definitions/executions';
 import { executeActions } from '../utils';
 
@@ -15,12 +15,12 @@ function accessNestedObject(obj, keys) {
 export const playWait = async (models: IModels, subdomain: string, data) => {
   const waitingExecutions = await models.Executions.find({
     waitingActionId: { $ne: null },
-    startWaitingDate: { $ne: null },
+    startWaitingDate: { $ne: null }
   });
 
   for (const exec of waitingExecutions) {
     const automation = await models.Automations.findOne({
-      _id: exec.automationId,
+      _id: exec.automationId
     }).lean();
 
     if (!automation) {
@@ -28,7 +28,7 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
     }
 
     const currentAction: IAction | undefined = automation.actions.find(
-      (a) => a.id === exec.waitingActionId,
+      a => a.id === exec.waitingActionId
     );
 
     if (!currentAction) {
@@ -60,7 +60,7 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
           ? currentAction.config.value
           : currentAction.config.value * 24;
       performDate = new Date(
-        exec.startWaitingDate.getTime() + (finalWaitHour || 0) * 60 * 60 * 1000,
+        exec.startWaitingDate.getTime() + (finalWaitHour || 0) * 60 * 60 * 1000
       );
       nextActionId = currentAction.nextActionId;
     }
@@ -77,7 +77,7 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
       exec.triggerType,
       exec,
       await getActionsMap(automation.actions || []),
-      nextActionId,
+      nextActionId
     );
   }
 };
@@ -85,19 +85,15 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
 export const doWaitingResponseAction = async (
   models: IModels,
   subdomain: string,
-  data,
+  data
 ) => {
   const { type, targets } = data;
 
   const waitingExecutions = await models.Executions.find({
     triggerType: type,
     status: EXECUTION_STATUS.WAITING,
-    $and: [
-      { objToCheck: { $exists: true } },
-      { objToCheck: { $ne: null } },
-      { responseActionId: { $exists: true } },
-      { responseActionId: { $ne: null } },
-    ],
+    objToCheck: { $exists: true, $ne: null },
+    responseActionId: { $exists: true, $ne: null }
   });
 
   const clearExecution = (exec: IExecutionDocument, status?: string) => {
@@ -114,7 +110,7 @@ export const doWaitingResponseAction = async (
 
   for (const exec of waitingExecutions) {
     const automation = await models.Automations.findOne({
-      _id: exec.automationId,
+      _id: exec.automationId
     }).lean();
 
     if (!automation) {
@@ -122,7 +118,7 @@ export const doWaitingResponseAction = async (
     }
 
     const currentAction = automation.actions.find(
-      (action) => action.id === exec.responseActionId,
+      action => action.id === exec.responseActionId
     );
 
     if (!currentAction) {
@@ -134,50 +130,52 @@ export const doWaitingResponseAction = async (
     const { config } = currentAction;
 
     if (!config?.optionalConnects?.length) {
-      clearExecution(exec);
+      clearExecution(exec, EXECUTION_STATUS.ERROR);
       continue;
     }
 
     const optionalConnects = config.optionalConnects;
     const { objToCheck } = exec;
-    const { propertyName } = objToCheck;
+    const { propertyName, general } = objToCheck;
 
     for (const target of targets) {
       //check every general properties in the target
+      const generalKeys = Object.keys(general);
       const propertyValue = accessNestedObject(target, propertyName.split('.'));
       const optionalConnection = optionalConnects.find(
-        ({ optionalConnectId }) => optionalConnectId === String(propertyValue),
+        ({ optionalConnectId }) => optionalConnectId === String(propertyValue)
       );
-
-      if (!optionalConnection) {
+      if (!optionalConnection && !optionalConnection.actionId) {
         continue;
       }
 
-      exec.responseActionId = undefined;
-      exec.startWaitingDate = undefined;
-      exec.objToCheck = undefined;
+      if (generalKeys.every(key => target[key] === general[key])) {
+        exec.responseActionId = undefined;
+        exec.startWaitingDate = undefined;
+        exec.objToCheck = undefined;
 
-      return await executeActions(
-        subdomain,
-        exec.triggerType,
-        exec,
-        await getActionsMap(automation.actions || []),
-        optionalConnection.actionId,
-      );
+        return await executeActions(
+          subdomain,
+          exec.triggerType,
+          exec,
+          await getActionsMap(automation.actions || []),
+          optionalConnection.actionId
+        );
+      }
     }
   }
 
   return 'success';
 };
 
-export const setActionWait = async (data) => {
+export const setActionWait = async data => {
   const {
     objToCheck,
     startWaitingDate,
     waitingActionId,
     execution,
     action,
-    result,
+    result
   } = data;
 
   const execAction: IExecAction = {
@@ -185,7 +183,7 @@ export const setActionWait = async (data) => {
     actionType: action.type,
     actionConfig: action.config,
     nextActionId: action.nextActionId,
-    result,
+    result
   };
 
   execution.waitingActionId = waitingActionId;
@@ -205,7 +203,7 @@ export const checkWaitingResponseAction = async (
   models: IModels,
   type: string,
   actionType: string,
-  targets: any[],
+  targets: any[]
 ) => {
   if (actionType) {
     false;
@@ -214,10 +212,8 @@ export const checkWaitingResponseAction = async (
   const waitingResponseExecution = await models.Executions.find({
     triggerType: type,
     status: EXECUTION_STATUS.WAITING,
-    $and: [
-      { objToCheck: { $exists: true } },
-      { objToCheck: { $ne: null }, responseActionId: { $exists: true } },
-    ],
+    objToCheck: { $exists: true, $ne: null },
+    responseActionId: { $exists: true }
   });
 
   for (const { objToCheck, actions = [] } of waitingResponseExecution) {
@@ -227,11 +223,11 @@ export const checkWaitingResponseAction = async (
     for (const target of targets) {
       const valueToCheck = accessNestedObject(target, propertyName.split('.'));
 
-      if (generalKeys.every((key) => target[key] === general[key])) {
+      if (generalKeys.every(key => target[key] === general[key])) {
         for (const { actionConfig } of actions) {
           if (
             (actionConfig?.optionalConnects || []).some(
-              ({ optionalConnectId }) => optionalConnectId == valueToCheck,
+              ({ optionalConnectId }) => optionalConnectId == valueToCheck
             )
           ) {
             return true;

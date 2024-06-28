@@ -42,14 +42,6 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
 
-    if (actionType && actionType === 'waiting') {
-      await playWait(models, subdomain, data);
-      return {
-        status: 'success',
-        data: 'complete'
-      };
-    }
-
     if (await checkWaitingResponseAction(models, type, actionType, targets)) {
       await doWaitingResponseAction(models, subdomain, data);
       return {

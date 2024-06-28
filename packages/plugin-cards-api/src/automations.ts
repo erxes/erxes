@@ -10,6 +10,7 @@ import {
   sendCoreMessage
 } from './messageBroker';
 import { getCollection } from './models/utils';
+import { PROBABILITY } from './models/definitions/constants';
 
 const getRelatedValue = async (
   models: IModels,
@@ -304,6 +305,20 @@ const getItems = async (
 };
 
 export default {
+  checkCustomTrigger: async ({ subdomain, data }) => {
+    const { collectionType, target, config } = data;
+    const models = await generateModels(subdomain);
+
+    if (collectionType === 'deal.won') {
+      return !!(await models.Stages.findOne({
+        _id: target?.stageId,
+        probability: PROBABILITY.WON
+      }));
+    }
+
+    return false;
+  },
+
   receiveActions: async ({
     subdomain,
     data: { action, execution, collectionType, triggerType, actionType }
@@ -390,6 +405,15 @@ export default {
         label: 'Sales pipeline',
         description:
           'Start with a blank workflow that enrolls and is triggered off sales pipeline item'
+      },
+      {
+        type: 'cards:deal.won',
+        img: 'automation3.svg',
+        icon: 'piggy-bank',
+        label: 'When deal move to probability won stage',
+        description:
+          'Start with a blank workflow that enrolls and is triggered off sales pipeline item move to probability won stage',
+        isCustom: true
       }
     ],
     actions: [
