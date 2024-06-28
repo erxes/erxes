@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.2](https://github.com/erxes/erxes/compare/1.13.1...1.13.2) (2024-06-28)
+
+
+### Bug Fixes
+
+* ebarimt return check and rereturn link ([#5478](https://github.com/erxes/erxes/issues/5478)) ([3692d7e](https://github.com/erxes/erxes/commit/3692d7ed4b541e8037ff6aa3d8d607b0bc9a6e82))
+
 ## [1.13.1](https://github.com/erxes/erxes/compare/1.13.0...1.13.1) (2024-06-27)
 
 
