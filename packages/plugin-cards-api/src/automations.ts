@@ -309,11 +309,45 @@ export default {
     const { collectionType, target, config } = data;
     const models = await generateModels(subdomain);
 
-    if (collectionType === 'deal.won') {
-      return !!(await models.Stages.findOne({
-        _id: target?.stageId,
-        probability: PROBABILITY.WON
-      }));
+    if (collectionType === 'deal.probability') {
+      const { boardId, pipelineId, stageId, probability } = config || {};
+
+      if (!probability) {
+        return false;
+      }
+
+      const filter = { _id: target?.stageId, probability };
+      if (stageId && stageId !== target.stageId) {
+        return false;
+      }
+
+      if (!stageId && pipelineId) {
+        const stageIds = await models.Stages.find({
+          pipelineId,
+          probability: PROBABILITY.WON
+        }).distinct('_id');
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      if (!stageId && !pipelineId && boardId) {
+        const pipelineIds = await models.Pipelines.find({ boardId }).distinct(
+          '_id'
+        );
+
+        const stageIds = await models.Stages.find({
+          pipelineId: { $in: pipelineIds },
+          probability: PROBABILITY.WON
+        }).distinct('_id');
+
+        if (!stageIds.find(stageId => target.stageId === stageId)) {
+          return false;
+        }
+      }
+
+      return !!(await models.Stages.findOne(filter));
     }
 
     return false;
@@ -407,12 +441,12 @@ export default {
           'Start with a blank workflow that enrolls and is triggered off sales pipeline item'
       },
       {
-        type: 'cards:deal.won',
+        type: 'cards:deal.probability',
         img: 'automation3.svg',
         icon: 'piggy-bank',
-        label: 'When deal move to probability won stage',
+        label: 'Sales pipelines stage probability based',
         description:
-          'Start with a blank workflow that enrolls and is triggered off sales pipeline item move to probability won stage',
+          'Start with a blank workflow that triggered off sales pipeline item stage probability',
         isCustom: true
       }
     ],

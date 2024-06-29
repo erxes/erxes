@@ -1,13 +1,16 @@
 import { IAction } from '@erxes/ui-automations/src/types';
 import { ITrigger } from '../../types';
 import { NodeType } from './types';
+import { isEqual } from 'lodash';
 
 export const generateEdges = ({
   actions,
-  triggers
+  triggers,
+  onDisconnect
 }: {
   triggers: ITrigger[];
   actions: IAction[];
+  onDisconnect?: (edge) => void;
 }) => {
   const generatedEdges: any = [];
 
@@ -34,8 +37,10 @@ export const generateEdges = ({
         source: edge.id,
         target: edge[targetField],
         style: { ...commonStyle },
+        type: 'primary',
         data: {
-          type
+          type,
+          onDisconnect
         }
       };
 
@@ -82,7 +87,8 @@ const generateNode = (
   node: IAction & ITrigger,
   nodeType: string,
   nodes: IAction[] & ITrigger[],
-  props: any
+  props: any,
+  generatedNodes: NodeType[]
 ) => {
   const {
     isAvailableOptionalConnect,
@@ -106,7 +112,7 @@ const generateNode = (
       config,
       ...props
     },
-    position: node?.position || generatNodePosition(nodes, node),
+    position: generatNodePosition(nodes, node, generatedNodes),
     isConnectable: true,
     type: 'primary',
     style: {
@@ -138,7 +144,7 @@ export const generateNodes = (
   ]) {
     for (const node of nodes) {
       generatedNodes.push({
-        ...generateNode(node, type, nodes, props)
+        ...generateNode(node, type, nodes, props, generatedNodes)
       });
     }
   }
@@ -148,11 +154,28 @@ export const generateNodes = (
 
 const generatNodePosition = (
   nodes: IAction[] & ITrigger[],
-  node: IAction & ITrigger
+  node: IAction & ITrigger,
+  generatedNodes: NodeType[]
 ) => {
+  if (node.position) {
+    if (
+      generatedNodes.find(
+        generatedNode =>
+          generatedNode?.position?.x === node?.position?.x &&
+          generatedNode?.position?.y === node?.position?.y
+      )
+    ) {
+      return {
+        x: (node?.position?.x || 0) + 10,
+        y: (node?.position?.y || 0) + 10
+      };
+    }
+    return node.position;
+  }
+
   const targetField = node.type === 'trigger' ? 'actionId' : 'nextActionId';
 
-  const prevNode = nodes.find((n) => n[targetField] === node.id);
+  const prevNode = nodes.find(n => n[targetField] === node.id);
 
   if (!prevNode) {
     return { x: 0, y: 0 };
@@ -170,7 +193,7 @@ export const checkNote = (automationNotes, activeId: string) => {
   const item = activeId.split('-');
   const type = item[0];
 
-  return (automationNotes || []).filter((note) => {
+  return (automationNotes || []).filter(note => {
     if (type === 'trigger' && note.triggerId !== item[1]) {
       return null;
     }
@@ -189,4 +212,17 @@ export const generatePostion = (position: { x: number; y: number }) => {
   if (x && y) {
     return { y, x: x + 350 };
   }
+};
+
+export const checkAutomationChanged = (
+  triggers,
+  actions,
+  automation,
+  newName
+) => {
+  return (
+    !isEqual(triggers, automation.triggers || []) ||
+    !isEqual(actions, automation.actions || []) ||
+    automation.name !== newName
+  );
 };
