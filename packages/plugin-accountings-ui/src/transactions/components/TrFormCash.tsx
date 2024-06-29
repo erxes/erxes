@@ -1,3 +1,5 @@
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { __ } from '@erxes/ui/src';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -13,13 +15,13 @@ import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
 import SelectAccount from '../../settings/accounts/containers/SelectAccount';
-import { ITransaction } from '../types';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { IAccount } from '../../settings/accounts/types';
+import { IConfigsMap } from '../../settings/configs/types';
+import { ITransaction } from '../types';
 
 
 type Props = {
+  configsMap: IConfigsMap;
   transactions?: ITransaction[];
   trDoc: ITransaction;
   queryParams: IQueryParams;
@@ -27,7 +29,7 @@ type Props = {
 };
 
 const TrFormMain = (props: Props) => {
-  const { trDoc, setTrDoc } = props;
+  const { trDoc, setTrDoc, configsMap } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
   const onChange = (key, value) => {
@@ -43,7 +45,7 @@ const TrFormMain = (props: Props) => {
       ...trDoc,
       branchId: obj?.branchId,
       departmentId: obj?.departmentId,
-      details: [{ ...detail, accountId }]
+      details: [{ ...detail, accountId, account: obj }]
     });
   }
 
@@ -92,7 +94,35 @@ const TrFormMain = (props: Props) => {
   }
 
   const renderCurrencyFields = () => {
+    if (!detail || !detail.account) {
+      return null;
+    }
 
+    if (detail.account.currency === (configsMap.MainCurrency || 'MNT')) {
+      return null;
+    }
+    
+    return (
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Description')}</ControlLabel>
+            <FormControl
+              name="description"
+              value={trDoc.description || ''}
+              required={true}
+              onChange={e => onChange('description', (e.target as any).value)}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+
+        </FormColumn>
+        <FormColumn>
+
+        </FormColumn>
+      </FormWrapper>
+    )
   }
 
   return (
@@ -118,7 +148,7 @@ const TrFormMain = (props: Props) => {
               componentclass='select'
               name="side"
               value={detail.side || TR_SIDES.DEBIT}
-              options={TR_SIDES.OPTIONS}
+              options={TR_SIDES.CASH_OPTIONS}
               onChange={e => onChangeDetail('side', (e.target as any).value)}
             />
           </FormGroup>
@@ -167,6 +197,7 @@ const TrFormMain = (props: Props) => {
           </FormGroup>
         </FormColumn>
       </FormWrapper>
+      {renderCurrencyFields()}
       <FormWrapper>
         <FormColumn>
           <ControlLabel required={true}>{__('Branch')}</ControlLabel>

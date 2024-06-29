@@ -59,7 +59,8 @@ export const TR_SIDES = {
   DEBIT: 'dt',
   CREDIT: 'ct',
   ALL: ['dt', 'ct'],
-  OPTIONS: [{ value: 'dt', label: 'debit' }, { value: 'ct', label: 'credit' }]
+  OPTIONS: [{ value: 'dt', label: 'debit' }, { value: 'ct', label: 'credit' }],
+  CASH_OPTIONS: [{ value: 'dt', label: 'incoming' }, { value: 'ct', label: 'outgoing' }],
 }
 
 export const TR_STATUSES = {

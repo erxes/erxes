@@ -55,6 +55,7 @@ export const types = () => `
   type TrDetail @key(fields: "_id") @cacheControl(maxAge: 3) {
     ${trDetailFields}
     follows: [FollowTrType]
+    account: Account
   }
 
   type CommonTransaction @key(fields: "_id") @cacheControl(maxAge: 3) {

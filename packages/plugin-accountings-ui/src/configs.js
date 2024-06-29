@@ -30,7 +30,7 @@ module.exports = {
     },
     {
       text: 'Configs of Accountings',
-      to: '/accountings/accounts',
+      to: '/accountings/configs',
       image: '/images/icons/erxes-31.png',
       location: 'settings',
       scope: 'accountings',

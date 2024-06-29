@@ -1,3 +1,5 @@
+import { accountFields } from "../../settings/accounts/graphql/queries";
+
 const followTrType = `
   type
   id
@@ -22,6 +24,10 @@ export const commonTrDetailFields = `
   productId
   count
   unitPrice
+
+  account {
+    ${accountFields}
+  }
 `;
 
 export const commonTransactionFields = `

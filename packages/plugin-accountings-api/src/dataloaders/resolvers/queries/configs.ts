@@ -8,7 +8,7 @@ const configQueries = {
   /**
    * AccountingConfig object
    */
-  accountingConfigs(_root, _args, { models }: IContext) {
+  accountingsConfigs(_root, _args, { models }: IContext) {
     return models.AccountingConfigs.find({});
   },
 };

@@ -5,10 +5,14 @@ import { useNavigate } from "react-router-dom";
 import {
   AddTransactionsMutationResponse,
   EditTransactionsMutationResponse,
+  ITransaction,
   TransactionDetailQueryResponse,
 } from "../types";
 import TransactionForm from "../components/TransactionForm";
 import { mutations, queries } from "../graphql";
+import { queries as configsQueries } from "../../settings/configs/graphql";
+import { AccountsQueryResponse } from "../../settings/accounts/types";
+import { AccountingsConfigsQueryResponse, IAccountingsConfig } from "../../settings/configs/types";
 
 type Props = {
   parentId?: string;
@@ -20,6 +24,10 @@ const PosContainer = (props: Props) => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState<boolean>(false);
+
+  const configsQuery = useQuery<AccountingsConfigsQueryResponse>(
+    gql(configsQueries.configs)
+  )
 
   const trDetailQuery = useQuery<TransactionDetailQueryResponse>(
     gql(queries.transactionDetail),
@@ -39,8 +47,16 @@ const PosContainer = (props: Props) => {
     gql(mutations.transactionsUpdate)
   );
 
-  if (trDetailQuery && trDetailQuery.loading) {
+  if ((trDetailQuery && trDetailQuery.loading) || (configsQuery && configsQuery.loading)) {
     return <Spinner objective={true} />;
+  }
+
+  let transactions = trDetailQuery?.data?.transactionDetail;
+  const configs = configsQuery.data?.accountingsConfigs || [];
+  const configsMap = {};
+
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
   }
 
   const save = (docs) => {
@@ -105,7 +121,7 @@ const PosContainer = (props: Props) => {
       trDocs.push(trDoc);
     }
 
-    saveMutation({
+    return saveMutation({
       variables: {
         parentId,
         trDocs: trDocs,
@@ -113,7 +129,8 @@ const PosContainer = (props: Props) => {
     })
       .then((data) => {
         if (!parentId) {
-          const newParentId = data.data.transactionsCreate[0]?.parentId
+          transactions = data.data.transactionsCreate as ITransaction[];
+          const newParentId = (transactions || [])[0]?.parentId
           Alert.success("You successfully created transactions");
 
           navigate({
@@ -121,7 +138,7 @@ const PosContainer = (props: Props) => {
           });
         } else {
           Alert.success("You successfully updated transactions");
-          trDetailQuery.refetch();
+          transactions = data.data.transactionUpdate as ITransaction[];
         }
       })
 
@@ -129,14 +146,13 @@ const PosContainer = (props: Props) => {
         Alert.error(error.message);
 
         setLoading(false);
+        return docs
       });
-    return trDetailQuery?.data?.transactionDetail || docs
   };
-
-  const transactions = trDetailQuery?.data?.transactionDetail;
 
   const updatedProps = {
     ...props,
+    configsMap,
     parentId,
     transactions,
     save,

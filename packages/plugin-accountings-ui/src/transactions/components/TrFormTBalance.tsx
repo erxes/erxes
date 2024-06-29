@@ -4,6 +4,7 @@ import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { ITransaction } from '../types';
 import { TR_SIDES } from '../../constants';
+import { IAccount } from '../../settings/accounts/types';
 
 type Props = {
   balance: { dt: number, ct: number }
@@ -19,10 +20,35 @@ const TrFormTBalance = (props: Props) => {
     if (!Object.keys(ptrIdByTr).includes(tr.ptrId || '')) {
       ptrIdByTr[tr.ptrId || ''] = [];
     }
-    console.log(tr.sumDt, tr.sumCt)
+
     ptrIdByTr[tr.ptrId || ''].push(tr)
   }
 
+  const renderTrRow = (tr) => {
+    const account = tr.details[0].account;
+    return (
+      <tr>
+        <td>
+          {account?.code} - {account?.name}
+        </td>
+        <td>
+          {tr.number}
+        </td>
+        <td>
+          {tr.description}
+        </td>
+        <td>
+          {(tr.details[0].side === TR_SIDES.DEBIT && tr.details[0].amount || 0).toLocaleString()}
+        </td>
+        <td>
+          {(tr.details[0].side === TR_SIDES.CREDIT && tr.details[0].amount || 0).toLocaleString()}
+        </td>
+        <td>
+
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <Table>
@@ -39,29 +65,7 @@ const TrFormTBalance = (props: Props) => {
       {Object.keys(ptrIdByTr).map((ptrId) => {
         const perTrs = ptrIdByTr[ptrId];
 
-        return (perTrs.map(tr => (
-          <tr>
-            <td>
-              {tr.details[0].accountId}
-            </td>
-            <td>
-              {tr.number}
-            </td>
-            <td>
-              {tr.description}
-            </td>
-            <td>
-              {(tr.details[0].side === TR_SIDES.DEBIT && tr.details[0].amount || 0).toLocaleString()}
-            </td>
-            <td>
-              {(tr.details[0].side === TR_SIDES.CREDIT && tr.details[0].amount || 0).toLocaleString()}
-            </td>
-            <td>
-
-            </td>
-          </tr>
-        ))
-        )
+        return (perTrs.map(tr => renderTrRow(tr)));
       })}
       <tr>
         <td>Нийт</td>

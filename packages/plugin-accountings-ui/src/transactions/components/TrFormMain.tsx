@@ -1,3 +1,5 @@
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { __ } from '@erxes/ui/src';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -13,13 +15,13 @@ import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
 import SelectAccount from '../../settings/accounts/containers/SelectAccount';
-import { ITransaction } from '../types';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import { IAccount } from '../../settings/accounts/types';
+import { IConfigsMap } from '../../settings/configs/types';
+import { ITransaction } from '../types';
 
 
 type Props = {
+  configsMap: IConfigsMap;
   transactions?: ITransaction[];
   trDoc: ITransaction;
   queryParams: IQueryParams;
@@ -43,7 +45,7 @@ const TrFormMain = (props: Props) => {
       ...trDoc,
       branchId: obj?.branchId,
       departmentId: obj?.departmentId,
-      details: [{ ...detail, accountId }]
+      details: [{ ...detail, accountId, account: obj }]
     });
   }
 

@@ -1,8 +1,6 @@
 import { EmptyContent } from "@erxes/ui-log/src/activityLogs/styles";
 import { LeftContent } from "@erxes/ui-settings/src/styles";
 import { __, Alert, Button, ButtonMutate, Icon, Wrapper } from "@erxes/ui/src";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
@@ -14,6 +12,7 @@ import {
   StepWrapper,
 } from "@erxes/ui/src/components/step/styles";
 import { Tabs, TabTitle } from "@erxes/ui/src/components/tabs";
+import { ContentHeader, HeaderContent, HeaderItems } from "@erxes/ui/src/layout/styles";
 import {
   Actions,
   FormColumn,
@@ -29,20 +28,22 @@ import { format } from "date-fns";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { TR_SIDES } from "../../constants";
+import { IAccount } from "../../settings/accounts/types";
+import { Box } from "../../styles";
+import AddTransactionLink from "../containers/AddTr";
 import { ITransaction } from "../types";
 import { journalConfigMaps } from "../utils/maps";
-import AddTransactionLink from "../containers/AddTr";
-import { Box } from "../../styles";
-import { TR_SIDES } from "../../constants";
-import { ContentHeader, HeaderContent, HeaderItems } from "@erxes/ui/src/layout/styles";
 import TrFormTBalance from "./TrFormTBalance";
+import { IConfigsMap } from "../../settings/configs/types";
 
 type Props = {
+  configsMap: IConfigsMap;
   transactions?: ITransaction[];
   defaultJournal?: string;
   parentId?: string;
   loading?: boolean;
-  save: (params: any) => ITransaction[];
+  save: (params: any) => void;
   queryParams: IQueryParams;
 };
 
@@ -54,11 +55,11 @@ type State = {
 
 const TransactionForm = (props: Props) => {
   const {
+    configsMap,
     queryParams,
     transactions,
     defaultJournal,
     loading,
-
     save,
   } = props;
 
@@ -113,9 +114,7 @@ const TransactionForm = (props: Props) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trs = save(trDocs);
-
-    setTrDocs(trs.filter(tr => !tr.originId));
+    save(trDocs);
   };
 
   const renderButtons = () => {
@@ -193,7 +192,7 @@ const TransactionForm = (props: Props) => {
       return (
         <Box key={currentTransaction._id}>
           <TrFormTBalance
-            balance={balance}
+            balance={getBalance()}
             queryParams={queryParams}
             transactions={trDocs}
           />
@@ -218,6 +217,7 @@ const TransactionForm = (props: Props) => {
       <Box key={currentTransaction._id}>
         <Component
           key={currentTransaction._id}
+          configsMap={configsMap}
           transactions={transactions}
           trDoc={trDoc}
           setTrDoc={onEditTr}
@@ -288,7 +288,7 @@ const TransactionForm = (props: Props) => {
                       className={currentTransaction?._id === tr._id ? 'active' : ''}
                       onClick={() => setCurrentTransaction(tr)}
                     >
-                      {__(tr.journal)}
+                      {__(tr.journal.toUpperCase())} - {(tr.details || [])[0]?.side}.
                       <span onClick={(e) => e.stopPropagation()}>
                         <Icon icon='trash-alt' onClick={onRemoveTr.bind(this, tr._id)}>
                         </Icon>
