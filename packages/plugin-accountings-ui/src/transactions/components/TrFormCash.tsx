@@ -12,8 +12,8 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
-import React, { useEffect, useState } from 'react';
-import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ACCOUNT_KINDS, ACCOUNT_STATUSES, TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
 import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 import { IAccount } from '../../settings/accounts/types';
 import { IRate, IConfigsMap, GetRateQueryResponse } from '../../settings/configs/types';
@@ -105,7 +105,7 @@ const TrFormMain = (props: Props) => {
 
     const [spotRate, setSpotRate] = useState(0);
 
-    const [getRate, data] = useLazyQuery<GetRateQueryResponse>(gql(configsQueries.getRate));
+    const [getRate] = useLazyQuery<GetRateQueryResponse>(gql(configsQueries.getRate));
 
     useEffect(() => {
       getRate({
@@ -115,11 +115,24 @@ const TrFormMain = (props: Props) => {
       }).then((data) => {
         setSpotRate(data?.data?.accountingsGetRate?.rate || 0)
       })
-    }, [trDoc.date, detail.account])
+    }, [trDoc.date, detail.account]);
 
-    const getDiffAmount = () => {
-      return 0
+    useEffect(() => {
+      if (spotRate) {
+        setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: (detail.amount || 0) / spotRate }] });
+      }
+    }, [detail.amount]);
+
+    const diffAmount: number = useMemo(() => {
+      const multipler = detail.account?.status === 'active' && 1 || -1;
+      return ((detail.customRate || 0) - spotRate) * (detail.currencyAmount || 0) * multipler;
+    }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
+
+    const onChangeCurrencyAmount = (e) => {
+      const value = (e.target as any).value
+      setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] });
     }
+
     return (
       <>
         <FormWrapper>
@@ -132,7 +145,7 @@ const TrFormMain = (props: Props) => {
                 value={detail.currencyAmount || 0}
                 autoFocus={true}
                 required={true}
-                onChange={e => onChangeDetail('currencyAmount', (e.target as any).value)}
+                onChange={onChangeCurrencyAmount}
               />
             </FormGroup>
           </FormColumn>
@@ -164,11 +177,11 @@ const TrFormMain = (props: Props) => {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>{__('Sum diff amount')}</ControlLabel>
+              <ControlLabel required={true}>{__(`${diffAmount > 0 && 'Loss' || 'Gain'} amount`)}</ControlLabel>
               <FormControl
                 type='number'
                 name="amount"
-                value={getDiffAmount() || 0}
+                value={diffAmount}
                 disabled={true}
               />
             </FormGroup>

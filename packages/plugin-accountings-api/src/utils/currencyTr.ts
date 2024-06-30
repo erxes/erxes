@@ -1,7 +1,8 @@
+import * as moment from 'moment';
 import { nanoid } from 'nanoid';
-import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
-import { JOURNALS, TR_SIDES } from '../models/definitions/constants';
 import { IModels } from '../connectionResolver';
+import { JOURNALS, TR_SIDES } from '../models/definitions/constants';
+import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
 
 export const checkValidationCurrency = async (models: IModels, doc: ITransaction) => {
   const detail = doc.details[0];
@@ -20,7 +21,7 @@ export const checkValidationCurrency = async (models: IModels, doc: ITransaction
     throw new Error('must fill Currency Amount')
   }
 
-  const spotRateObj = await models.ExchangeRates.findOne({ date: doc.date, mainCurrency, rateCurrency: account.currency }).lean();
+  const spotRateObj = await models.ExchangeRates.getExchangeRate({ date: moment(doc.date).format('YYYY-MM-DD'), mainCurrency, rateCurrency: account.currency });
 
   if (!spotRateObj?.rate) {
     throw new Error('not found spot rate')
@@ -28,7 +29,7 @@ export const checkValidationCurrency = async (models: IModels, doc: ITransaction
   const spotRate = spotRateObj.rate;
 
   if (detail.customRate && spotRate !== detail.customRate && !detail.followInfos?.currencyDiffAccountId) {
-    throw new Error('not found spot rate')
+    throw new Error('not found spot rate..')
   }
 
   if (detail.customRate && spotRate !== detail.customRate && detail.followInfos.currencyDiffAccountId) {

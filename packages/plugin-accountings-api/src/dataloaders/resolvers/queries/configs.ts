@@ -17,7 +17,7 @@ const configQueries = {
     const { date, currency } = args;
     const mainCurrency = await models.AccountingConfigs.getConfig('MainCurrency', 'MNT');
     console.log(currency, date, typeof moment(date).format('YYYY-MM-DD'), moment(date).format('YYYY-MM-DD'))
-    // return await models.ExchangeRates.findOne({ mainCurrency, rateCurrency: currency }).lean();
+
     return await models.ExchangeRates.findOne({ mainCurrency, rateCurrency: currency, date: moment(date).format('YYYY-MM-DD') }).lean()
   }
 };

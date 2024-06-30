@@ -32,7 +32,6 @@ export interface ITrDetail {
 
   side?: string;
   amount?: number;
-  currency?: string;
   currencyAmount?: number;
   customRate?: number;
   assignedUserId?: string;
