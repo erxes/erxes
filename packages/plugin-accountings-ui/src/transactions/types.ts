@@ -24,6 +24,7 @@ export interface ITrDetail {
   _id?: string;
   accountId?: string;
   originId?: string;
+  followInfos?: any;
   follows?: {
     type: string;
     id: string;

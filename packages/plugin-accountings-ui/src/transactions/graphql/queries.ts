@@ -10,13 +10,13 @@ export const commonTrDetailFields = `
   accountId
   transactionId
   originId
+  followInfos
   follows {
     ${followTrType}
   }
 
   side
   amount
-  currency
   currencyAmount
   customRate
   assignedUserId

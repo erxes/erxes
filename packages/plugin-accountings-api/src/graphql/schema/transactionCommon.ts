@@ -7,7 +7,6 @@ const trDetailFields = `
 
   side: String
   amount: Float
-  currency: String
   currencyAmount: Float
   customRate: Float
   assignedUserId: String

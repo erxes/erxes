@@ -37,7 +37,6 @@ import { IPermissionModel, loadPermissionClass } from './models/Permissions';
 import { IPermissionDocument } from './models/definitions/permission';
 
 export interface IModels {
-  Configs: IAccountingConfigModel;
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
   AccountCategories: IAccountCategoryModel;

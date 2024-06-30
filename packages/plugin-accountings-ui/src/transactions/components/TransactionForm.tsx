@@ -26,7 +26,7 @@ import { IQueryParams } from "@erxes/ui/src/types";
 import { Popover } from "@headlessui/react";
 import { format } from "date-fns";
 import dayjs from "dayjs";
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { TR_SIDES } from "../../constants";
 import { IAccount } from "../../settings/accounts/types";
@@ -73,7 +73,7 @@ const TransactionForm = (props: Props) => {
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(
-    transactions && transactions.length && [...transactions] ||
+    transactions && transactions.length && transactions.filter(tr => !tr.originId) ||
     (defaultJournal && [
       journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
     ]) ||
@@ -83,7 +83,7 @@ const TransactionForm = (props: Props) => {
     trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
   );
 
-  const getBalance = () => {
+  const balance: { dt: number; ct: number; diff?: number; side?: string } = useMemo(() => {
     const result = { dt: 0, ct: 0 };
 
     trDocs.forEach((tr) => {
@@ -110,7 +110,7 @@ const TransactionForm = (props: Props) => {
       return { ...result, side: TR_SIDES.CREDIT, diff };
     }
     return { ...result, side: TR_SIDES.DEBIT, diff: -1 * diff };
-  };
+  }, [trDocs]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,7 +192,7 @@ const TransactionForm = (props: Props) => {
       return (
         <Box key={currentTransaction._id}>
           <TrFormTBalance
-            balance={getBalance()}
+            balance={balance}
             queryParams={queryParams}
             transactions={trDocs}
           />
@@ -239,9 +239,6 @@ const TransactionForm = (props: Props) => {
 
     setTrDocs(trDocs.map((tr) => ({ ...tr, date })));
   };
-
-  const balance: { dt: number; ct: number; diff?: number; side?: string } =
-    getBalance();
 
   const content = () => {
     return (

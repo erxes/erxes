@@ -2,7 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IExchangeRate {
-  date: Date;
+  date: string;
 
   mainCurrency: string;
   rateCurrency: string;
@@ -21,7 +21,7 @@ export interface IExchangeRateDocument
 
 export const exchangeRateSchema = new Schema({
   _id: field({ pkey: true }),
-  date: field({ type: Date }),
+  date: field({ type: String }),
   mainCurrency: field({ type: String }),
   rateCurrency: field({ type: String }),
   rate: field({ type: Number }),
