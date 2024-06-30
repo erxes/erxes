@@ -1,3 +1,4 @@
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IModels } from '../connectionResolver';
 import { getActionsMap } from '../helpers';
 import { IAction } from '../models/definitions/automaions';
@@ -85,16 +86,10 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
 export const doWaitingResponseAction = async (
   models: IModels,
   subdomain: string,
-  data
+  data,
+  waitingExecution: IExecutionDocument
 ) => {
   const { type, targets } = data;
-
-  const waitingExecutions = await models.Executions.find({
-    triggerType: type,
-    status: EXECUTION_STATUS.WAITING,
-    objToCheck: { $exists: true, $ne: null },
-    responseActionId: { $exists: true, $ne: null }
-  });
 
   const clearExecution = (exec: IExecutionDocument, status?: string) => {
     exec.responseActionId = undefined;
@@ -105,63 +100,71 @@ export const doWaitingResponseAction = async (
       exec.status = status;
     }
 
-    exec.save();
+    exec.save().catch(err => {
+      debugError(`Error saving execution: ${err.message}`);
+    });
   };
 
-  for (const exec of waitingExecutions) {
-    const automation = await models.Automations.findOne({
-      _id: exec.automationId
-    }).lean();
+  const { automationId, responseActionId, objToCheck, triggerType } =
+    waitingExecution;
 
-    if (!automation) {
-      continue;
-    }
+  const automation = await models.Automations.findOne({
+    _id: automationId
+  })
+    .lean()
+    .catch(err => {
+      debugError(`Error finding automation: ${err.message}`);
+      throw new Error('Automation not found');
+    });
 
-    const currentAction = automation.actions.find(
-      action => action.id === exec.responseActionId
+  if (!automation) {
+    throw new Error('Automation not found');
+  }
+
+  const currentAction = automation.actions.find(
+    action => action.id === responseActionId
+  );
+
+  if (!currentAction) {
+    clearExecution(waitingExecution, EXECUTION_STATUS.MISSID);
+    throw new Error('Automation waiting action not found');
+  }
+
+  const { config } = currentAction;
+
+  if (!config?.optionalConnects?.length) {
+    clearExecution(waitingExecution, EXECUTION_STATUS.ERROR);
+    throw new Error('There are no optional connections');
+  }
+
+  const optionalConnects = config.optionalConnects;
+  const { propertyName, general } = objToCheck;
+
+  for (const target of targets) {
+    const generalKeys = Object.keys(general);
+    const propertyValue = accessNestedObject(target, propertyName.split('.'));
+    const optionalConnection = optionalConnects.find(
+      ({ optionalConnectId }) => optionalConnectId === String(propertyValue)
     );
-
-    if (!currentAction) {
-      clearExecution(exec, EXECUTION_STATUS.MISSID);
-      exec.save();
+    if (!optionalConnection || !optionalConnection.actionId) {
       continue;
     }
 
-    const { config } = currentAction;
+    if (generalKeys.every(key => target[key] === general[key])) {
+      waitingExecution.responseActionId = undefined;
+      waitingExecution.startWaitingDate = undefined;
+      waitingExecution.objToCheck = undefined;
 
-    if (!config?.optionalConnects?.length) {
-      clearExecution(exec, EXECUTION_STATUS.ERROR);
-      continue;
-    }
-
-    const optionalConnects = config.optionalConnects;
-    const { objToCheck } = exec;
-    const { propertyName, general } = objToCheck;
-
-    for (const target of targets) {
-      //check every general properties in the target
-      const generalKeys = Object.keys(general);
-      const propertyValue = accessNestedObject(target, propertyName.split('.'));
-      const optionalConnection = optionalConnects.find(
-        ({ optionalConnectId }) => optionalConnectId === String(propertyValue)
-      );
-      if (!optionalConnection && !optionalConnection.actionId) {
-        continue;
-      }
-
-      if (generalKeys.every(key => target[key] === general[key])) {
-        exec.responseActionId = undefined;
-        exec.startWaitingDate = undefined;
-        exec.objToCheck = undefined;
-
-        return await executeActions(
-          subdomain,
-          exec.triggerType,
-          exec,
-          await getActionsMap(automation.actions || []),
-          optionalConnection.actionId
-        );
-      }
+      return await executeActions(
+        subdomain,
+        triggerType,
+        waitingExecution,
+        await getActionsMap(automation.actions || []),
+        optionalConnection.actionId
+      ).catch(err => {
+        debugError(`Error executing actions: ${err.message}`);
+        throw err;
+      });
     }
   }
 
@@ -214,9 +217,10 @@ export const checkWaitingResponseAction = async (
     status: EXECUTION_STATUS.WAITING,
     objToCheck: { $exists: true, $ne: null },
     responseActionId: { $exists: true }
-  });
+  }).sort({ createdAt: -1 });
 
-  for (const { objToCheck, actions = [] } of waitingResponseExecution) {
+  for (const waitingExecution of waitingResponseExecution) {
+    const { objToCheck, actions = [] } = waitingExecution;
     const { general, propertyName } = objToCheck;
 
     const generalKeys = Object.keys(general);
@@ -230,12 +234,10 @@ export const checkWaitingResponseAction = async (
               ({ optionalConnectId }) => optionalConnectId == valueToCheck
             )
           ) {
-            return true;
+            return waitingExecution;
           }
         }
       }
     }
   }
-
-  return false;
 };

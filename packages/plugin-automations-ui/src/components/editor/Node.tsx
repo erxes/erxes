@@ -51,6 +51,7 @@ type Props = {
     constants: AutomationConstants;
     forceToolbarVisible: boolean;
     toolbarPosition: Position;
+    additionalContent?: (id: string, type: string) => React.ReactNode;
   };
   selected: boolean;
 };
@@ -83,7 +84,7 @@ const renderTriggerContent = (
   if (nodeType !== 'trigger') {
     return null;
   }
-  const constant = (constants || []).find((c) => c.type === type);
+  const constant = (constants || []).find(c => c.type === type);
 
   if (!!constant?.isCustom) {
     return (
@@ -107,7 +108,14 @@ const renderTriggerContent = (
 export default memo(({ id, data, selected }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { toggleDrawer, onDoubleClick, removeItem, constants, config } = data;
+  const {
+    toggleDrawer,
+    onDoubleClick,
+    removeItem,
+    constants,
+    config,
+    additionalContent
+  } = data;
 
   const onMouseEnter = () => {
     setIsHovered(true);
@@ -136,7 +144,7 @@ export default memo(({ id, data, selected }: Props) => {
     onDoubleClick(data.nodeType, id);
   };
 
-  const removeNode = (e) => {
+  const removeNode = e => {
     e.persist();
     removeItem(data.nodeType, id);
   };
@@ -147,7 +155,7 @@ export default memo(({ id, data, selected }: Props) => {
 
       return (
         <CommonForm
-          renderContent={(formProps) => (
+          renderContent={formProps => (
             <NoteFormContainer
               formProps={formProps}
               automationId={automation?._id || ''}
@@ -179,14 +187,14 @@ export default memo(({ id, data, selected }: Props) => {
     }
 
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
-      (c) => c.type === data[`${data.nodeType}Type`]
+      c => c.type === data[`${data.nodeType}Type`]
     );
 
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
 
-    const handle = (optionalId) => (
+    const handle = optionalId => (
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
@@ -249,6 +257,11 @@ export default memo(({ id, data, selected }: Props) => {
               title={__('Delete')}
             />
           </NodeToolbar>
+          {additionalContent && (
+            <NodeToolbar isVisible position={Position.Top}>
+              {additionalContent(id, data.nodeType)}
+            </NodeToolbar>
+          )}
           <div>
             <i className={`icon-${data.icon}`} />
             {data.label}
@@ -258,7 +271,6 @@ export default memo(({ id, data, selected }: Props) => {
           isVisible={data.forceToolbarVisible || undefined}
           position={data.toolbarPosition}
         ></NodeToolbar>
-
         {renderOptionalContent()}
         {renderTriggerContent(
           constants.triggersConst,
@@ -266,11 +278,10 @@ export default memo(({ id, data, selected }: Props) => {
           data.triggerType,
           config
         )}
-
         <p>{data.description}</p>
       </Trigger>
       {handleOptions.map(
-        (option) =>
+        option =>
           showHandler(data, option) && (
             <Handle
               key={option.id}

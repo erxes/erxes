@@ -215,3 +215,18 @@ export const EdgeButton = styled.button`
     box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
   }
 `;
+
+export const NodeStatusTrigger = styledTS<{ error?: boolean }>(styled.button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: ${({ error }) => (error ? colors.colorCoreRed : colors.colorCoreGreen)};
+  color: white;
+  border: 1px solid #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+`;

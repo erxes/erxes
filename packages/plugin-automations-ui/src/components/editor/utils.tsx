@@ -2,6 +2,7 @@ import { IAction } from '@erxes/ui-automations/src/types';
 import { ITrigger } from '../../types';
 import { NodeType } from './types';
 import { isEqual } from 'lodash';
+import { Edge } from 'reactflow';
 
 export const generateEdges = ({
   actions,
@@ -11,7 +12,7 @@ export const generateEdges = ({
   triggers: ITrigger[];
   actions: IAction[];
   onDisconnect?: (edge) => void;
-}) => {
+}): Edge[] => {
   const generatedEdges: any = [];
 
   const commonStyle = {
@@ -66,6 +67,9 @@ export const generateEdges = ({
           sourceId,
           optionalConnectId
         } of optionalConnects) {
+          if (!actionId) {
+            continue;
+          }
           generatedEdges.push({
             ...edgeObj,
             id: `${type}-${edge.id}-${optionalConnectId}`,
@@ -75,6 +79,9 @@ export const generateEdges = ({
             style: { ...commonStyle }
           });
         }
+      }
+      if (!edgeObj?.target) {
+        continue;
       }
 
       generatedEdges.push(edgeObj);

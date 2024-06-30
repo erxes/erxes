@@ -27,9 +27,15 @@ export const setupMessageConsumers = async () => {
       await playWait(models, subdomain, data);
       return;
     }
+    const waitingExecution = await await checkWaitingResponseAction(
+      models,
+      type,
+      actionType,
+      targets
+    );
 
-    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
-      await doWaitingResponseAction(models, subdomain, data);
+    if (waitingExecution) {
+      await doWaitingResponseAction(models, subdomain, data, waitingExecution);
       return;
     }
 
@@ -42,8 +48,15 @@ export const setupMessageConsumers = async () => {
     const models = await generateModels(subdomain);
     const { type, actionType, targets } = data;
 
-    if (await checkWaitingResponseAction(models, type, actionType, targets)) {
-      await doWaitingResponseAction(models, subdomain, data);
+    const waitingExecution = await await checkWaitingResponseAction(
+      models,
+      type,
+      actionType,
+      targets
+    );
+
+    if (waitingExecution) {
+      await doWaitingResponseAction(models, subdomain, data, waitingExecution);
       return {
         status: 'success',
         data: 'complete'
