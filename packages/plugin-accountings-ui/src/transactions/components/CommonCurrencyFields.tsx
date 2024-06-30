@@ -1,0 +1,140 @@
+import { __ } from '@erxes/ui/src';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import {
+  FormColumn,
+  FormWrapper
+} from "@erxes/ui/src/styles/main";
+import { IQueryParams } from '@erxes/ui/src/types';
+import React, { useEffect, useMemo, useState } from 'react';
+import SelectAccount from '../../settings/accounts/containers/SelectAccount';
+import { IConfigsMap, GetRateQueryResponse } from '../../settings/configs/types';
+import { ITransaction } from '../types';
+import { gql, useLazyQuery } from '@apollo/client';
+import { queries as configsQueries } from '../../settings/configs/graphql'
+
+type Props = {
+  configsMap: IConfigsMap;
+  trDoc: ITransaction;
+  setTrDoc: (trDoc: ITransaction) => void;
+  onChangeDetail: (key: string, value: any) => void;
+};
+
+const CurrencyFields = (props: Props) => {
+  const { trDoc, setTrDoc, onChangeDetail, configsMap } = props;
+  const detail = trDoc?.details && trDoc?.details[0] || {};
+
+  if (!detail || !detail.account) {
+    return null;
+  }
+
+  if (detail.account.currency === (configsMap.MainCurrency || 'MNT')) {
+    return null;
+  }
+
+
+  const [spotRate, setSpotRate] = useState(0);
+
+  const [getRate] = useLazyQuery<GetRateQueryResponse>(gql(configsQueries.getRate));
+
+  useEffect(() => {
+    getRate({
+      variables: {
+        date: trDoc.date || new Date(), currency: detail.account?.currency
+      }
+    }).then((data) => {
+      setSpotRate(data?.data?.accountingsGetRate?.rate || 0)
+    })
+  }, [trDoc.date, detail.account]);
+
+  useEffect(() => {
+    if (spotRate) {
+      setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: (detail.amount || 0) / spotRate }] });
+    }
+  }, [detail.amount]);
+
+  const diffAmount: number = useMemo(() => {
+    const multipler = detail.account?.status === 'active' && 1 || -1;
+    return ((detail.customRate || 0) - spotRate) * (detail.currencyAmount || 0) * multipler;
+  }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
+
+  const onChangeCurrencyAmount = (e) => {
+    const value = (e.target as any).value
+    setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] });
+  }
+
+  return (
+    <>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Currency Amount')}</ControlLabel>
+            <FormControl
+              type='number'
+              name="amount"
+              value={detail.currencyAmount || 0}
+              autoFocus={true}
+              required={true}
+              onChange={onChangeCurrencyAmount}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Custom Rate')}</ControlLabel>
+            <FormControl
+              type='number'
+              name="amount"
+              value={detail.customRate || 0}
+              autoFocus={true}
+              required={true}
+              onChange={e => onChangeDetail('customRate', (e.target as any).value)}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Spot Rate')}</ControlLabel>
+            <FormControl
+              type='number'
+              name="amount"
+              value={spotRate || 0}
+              disabled={true}
+            />
+          </FormGroup>
+        </FormColumn>
+      </FormWrapper>
+      <FormWrapper>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__(`${diffAmount > 0 && 'Loss' || 'Gain'} amount`)}</ControlLabel>
+            <FormControl
+              type='number'
+              name="amount"
+              value={diffAmount}
+              disabled={true}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+          <FormGroup>
+            <ControlLabel required={true}>{__('Account')}</ControlLabel>
+            <SelectAccount
+              multi={false}
+              initialValue={detail.followInfos?.currencyDiffAccountId || ''}
+              label='Diff Account'
+              name='currencyDiffAccountId'
+              filterParams={{ journals: ['main'] }}
+              onSelect={(accountId) => { onChangeDetail('followInfos', { ...detail.followInfos, currencyDiffAccountId: accountId }) }}
+            />
+          </FormGroup>
+        </FormColumn>
+        <FormColumn>
+        </FormColumn>
+      </FormWrapper>
+    </>
+  )
+}
+
+export default CurrencyFields;
