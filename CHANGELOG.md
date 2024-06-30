@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.13.2](https://github.com/erxes/erxes/compare/1.13.1...1.13.2) (2024-06-28)
+
+
+### Bug Fixes
+
+* ebarimt return check and rereturn link ([#5478](https://github.com/erxes/erxes/issues/5478)) ([3692d7e](https://github.com/erxes/erxes/commit/3692d7ed4b541e8037ff6aa3d8d607b0bc9a6e82))
+
+## [1.13.1](https://github.com/erxes/erxes/compare/1.13.0...1.13.1) (2024-06-27)
+
+
+### Features
+
+* products query check used cards pipeline ([346de3a](https://github.com/erxes/erxes/commit/346de3adda573612468f5cf9ebe7523dcbf16e78))
+
 ## [1.13.0](https://github.com/erxes/erxes/compare/1.13.0-rc.6...1.13.0) (2024-06-25)
 
 

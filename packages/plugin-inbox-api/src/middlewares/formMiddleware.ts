@@ -3,7 +3,7 @@ import { IModels, generateModels } from "../connectionResolver";
 import { createFormConversation } from "../graphql/resolvers/widgetMutations";
 import { sendFormsMessage } from "../messageBroker";
 
-const formMiddleware = async (req, res, next) => {
+const formMiddleware = async (req, res, _next) => {
   const subdomain = getSubdomain(req);
   let models: IModels;
 
@@ -53,6 +53,18 @@ const formMiddleware = async (req, res, next) => {
         type: field.type,
         text: field.text,
         value: params.date,
+        validation: field.validation,
+        associatedFieldId: "",
+        column: null
+      });
+    }
+
+    if (field.validation === "textarea") {
+      submissions.push({
+        _id: field._id,
+        type: field.type,
+        text: field.text,
+        value: params.descrtiption,
         validation: field.validation,
         associatedFieldId: "",
         column: null
@@ -126,7 +138,7 @@ const formMiddleware = async (req, res, next) => {
     "lead"
   );
 
-  res.json("success");
+  return res.json("success");
 };
 
 export default formMiddleware;
