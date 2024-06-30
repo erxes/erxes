@@ -12,15 +12,12 @@ import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
-import React, { useEffect, useMemo, useState } from 'react';
-import { ACCOUNT_KINDS, ACCOUNT_STATUSES, TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
+import React from 'react';
+import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
 import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 import { IAccount } from '../../settings/accounts/types';
-import { IRate, IConfigsMap, GetRateQueryResponse } from '../../settings/configs/types';
+import { IConfigsMap } from '../../settings/configs/types';
 import { ITransaction } from '../types';
-import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import { queries as configsQueries } from '../../settings/configs/graphql'
-import renderCurrencyFields from './CommonCurrencyFields';
 import CurrencyFields from './CommonCurrencyFields';
 
 type Props = {
