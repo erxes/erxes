@@ -76,26 +76,35 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async checkInvoice(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
-      const transactions = await models.Transactions.find({
-        invoiceId: invoice._id,
-        status: 'paid',
-      });
+      const totalAmount = await models.Transactions.aggregate([
+        {
+          $match: {
+            invoiceId: _id,
+            status: 'paid',
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$amount' },
+          },
+        },
+      ]);
 
-      // sum of paid transactions
-      const paidAmount = transactions.reduce(
-        (acc, transaction) => acc + transaction.amount,
-        0
-      );
-
-      if (paidAmount >= invoice.amount) {
-        await models.Invoices.updateOne(
-          { _id },
-          { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
-        );
-        return PAYMENT_STATUS.PAID;
+      if (totalAmount.length === 0) {
+        return PAYMENT_STATUS.PENDING;
       }
 
-      return PAYMENT_STATUS.PENDING;
+      if (totalAmount[0].total < invoice.amount) {
+        return PAYMENT_STATUS.PENDING;
+      }
+
+      await models.Invoices.updateOne(
+        { _id },
+        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } }
+      );
+
+      return PAYMENT_STATUS.PAID;
     }
 
     public static async removeInvoices(_ids: string[]) {
@@ -106,7 +115,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       const transactions = await models.Transactions.find({
         invoiceId: { $in: invoiceIds },
-        status: { $ne: 'paid'}
+        status: { $ne: 'paid' },
       }).distinct('_id');
 
       await models.Transactions.deleteMany({ _id: { $in: transactions } });
@@ -127,7 +136,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       await models.Invoices.updateOne(
         { _id },
-        { $set: { status: 'paid', resolvedAt: new Date() } },
+        { $set: { status: 'paid', resolvedAt: new Date() } }
       );
 
       return 'success';
