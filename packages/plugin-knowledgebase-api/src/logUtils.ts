@@ -6,8 +6,8 @@ import {
   gatherUsernames,
   LogDesc,
   IDescriptions,
+  getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
 
 import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
 import { sendCoreMessage } from './messageBroker';
