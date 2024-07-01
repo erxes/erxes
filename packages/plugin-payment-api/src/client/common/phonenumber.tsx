@@ -65,7 +65,7 @@ const PhoneNumber = ({
   };
 
   const handleFocus = ({ target }: any) => {
-    var el = target;
+    const el = target;
     // In most browsers .select() does not work without the added timeout.
     setTimeout(function () {
       el.select();
