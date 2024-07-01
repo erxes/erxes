@@ -282,25 +282,22 @@ const ChartFormField = (props: Props) => {
     default:
       break;
   }
-
-  switch (fieldType) {
-    case "select":
+  if(fieldType === "select")
+    {
       return (
-        <div>
-          <ControlLabel>{fieldLabel}</ControlLabel>
-          <Select
-            value={valueOptions}
-            isClearable={true}
-            isMulti={multi}
-            onChange={onSelect}
-            options={fieldOptions}
-            placeholder={fieldLabel}
-          />
-        </div>
-      );
-    default:
-      return <></>;
-  }
+              <div>
+                <ControlLabel>{fieldLabel}</ControlLabel>
+                <Select
+                  value={valueOptions}
+                  isClearable={true}
+                  isMulti={multi}
+                  onChange={onSelect}
+                  options={fieldOptions}
+                  placeholder={fieldLabel}
+                />
+              </div>
+            );
+    }
 };
 
 export default ChartFormField;
