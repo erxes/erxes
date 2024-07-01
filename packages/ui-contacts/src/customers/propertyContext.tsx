@@ -3,7 +3,7 @@ import * as compose from "lodash.flowright";
 import { IField } from "@erxes/ui/src/types";
 import { IFieldsVisibility } from "./types";
 import { InboxFieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
-import React from "react";
+import React, {useMemo} from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
 import { gql } from "@apollo/client";
@@ -53,6 +53,8 @@ class Provider extends React.Component<FinalProps> {
     const customerVisibility = isVisible(inboxFields.customer || []);
 
     const deviceVisibility = isVisible(inboxFields.device || []);
+
+    
 
     return (
       <PropertyContext.Provider

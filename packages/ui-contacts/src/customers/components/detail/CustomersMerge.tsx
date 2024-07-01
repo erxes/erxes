@@ -70,6 +70,8 @@ class CustomersMerge extends React.Component<Props, State> {
     key: string,
     value: string | ICustomerLinks
   ) => {
+    this.setState(prevState=>{
+  
     const selectedValues = { ...this.state.selectedValues };
 
     if (type === 'plus-1') {
@@ -81,13 +83,14 @@ class CustomersMerge extends React.Component<Props, State> {
           value
         );
         selectedValues[key] = links;
-      }
+      } 
     } else {
       delete selectedValues[key];
     }
 
     this.setState({ selectedValues });
-  };
+    });
+  }
 
   renderCustomer = (customer: ICustomerDoc, icon: string) => {
     const properties = CUSTOMER_BASIC_INFO.ALL.concat(CUSTOMER_DATAS.ALL);
