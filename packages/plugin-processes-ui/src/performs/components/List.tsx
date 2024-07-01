@@ -28,10 +28,6 @@ interface IProps {
 }
 
 const List = (props: IProps) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [overallWorkPercent, setOverallWorkPercent] = useState(0);
-
   const renderView = (name: string, variable: string) => {
     const defaultName = "-";
 
@@ -149,3 +145,5 @@ const List = (props: IProps) => {
 };
 
 export default List;
+List
+List
