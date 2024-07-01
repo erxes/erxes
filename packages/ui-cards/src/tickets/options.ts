@@ -3,7 +3,7 @@ import TicketEditForm from './components/TicketEditForm';
 import TicketItem from './components/TicketItem';
 import { mutations, queries } from './graphql';
 
-const options = {
+export const options = {
   EditForm: TicketEditForm,
   Item: TicketItem,
   type: 'ticket',

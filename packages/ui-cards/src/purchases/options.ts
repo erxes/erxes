@@ -3,7 +3,7 @@ import PurchaseEditForm from './components/PurchaseEditForm';
 import PurchaseItem from './components/PurchaseItem';
 import { mutations, queries } from './graphql';
 
-const options = {
+export const options = {
   EditForm: PurchaseEditForm,
   Item: PurchaseItem,
   title: 'purchase',
