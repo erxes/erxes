@@ -111,7 +111,7 @@ export const connection = (
 
     innerFlowJobs = flowJobs.filter(a => a.id.toString() !== replacedSourceId);
 
-    if (sourceFlowJob && sourceFlowJob.id) {
+    if (sourceFlowJob?.id) {
       let jobIds = [...(sourceFlowJob.nextJobIds || [])];
 
       if (type === 'connect') {
