@@ -20,7 +20,6 @@ type Props = {
   save: (ids: string[]) => void;
   search: (searchValue: string, check?: boolean) => void;
   allIntegrations: IIntegration[];
-  perPage: number;
   closeModal?: () => void;
   renderConfirm?: (
     integration: IIntegration,
