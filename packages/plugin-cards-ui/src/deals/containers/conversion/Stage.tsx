@@ -41,7 +41,7 @@ class StageContainer extends React.PureComponent<FinalStageProps, State> {
     const { stage, dealsQuery, queryParams } = this.props;
 
     const deals = dealsQuery.deals || [];
-    const loading = dealsQuery.loading || dealsQuery.loading;
+    const loading = dealsQuery.loading;
     const hasMore = stage.initialDealsTotalCount > deals.length;
 
     if (deals.length === stage.initialDealsTotalCount) {

@@ -33,8 +33,8 @@ class TaskColumn extends React.Component<Props, {}> {
       return <EmptyState icon="postcard" text="No tasks" />;
     }
 
-    const contents = tasks.map((task: ITask, index: number) => (
-      <Task options={options} key={index} item={task} portable={true} />
+    const contents = tasks.map((task: ITask) => (
+      <Task options={options} key={task._id} item={task} portable={true} />
     ));
 
     return <ColumnContentBody>{contents}</ColumnContentBody>;

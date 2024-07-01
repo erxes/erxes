@@ -31,7 +31,7 @@ class ActivityItem extends React.Component<Props> {
     const iconAndColor = getIconAndColor(type || contentType) || {};
 
     return (
-      <ActivityRow key={Math.random()}>
+      <ActivityRow>
         <Tip text={formatText(type || contentType)} placement="top">
           <ActivityIcon color={iconAndColor.color}>
             <Icon icon={iconAndColor.icon} />
@@ -49,7 +49,7 @@ class ActivityItem extends React.Component<Props> {
 
     const type = contentType.split(':')[1];
 
-    switch ((action && action) || type) {
+    switch (action || type) {
       case 'taskDetail':
         return this.renderDetail('task', <Task taskId={_id} />);
 

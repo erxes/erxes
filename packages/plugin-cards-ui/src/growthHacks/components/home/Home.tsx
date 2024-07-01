@@ -145,9 +145,10 @@ class Home extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={`${"Growth Hacking" || ""}`}
+            title="Growth Hacking"
             breadcrumb={[{ title: __("Growth Hacking") }]}
           />
+
         }
         content={this.renderContent()}
       />

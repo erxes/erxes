@@ -30,7 +30,10 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
   }
 
   onCollapse = () => {
-    this.setState({ toggleItems: !this.state.toggleItems });
+    this.setState((prevState) => ({
+      toggleItems: !prevState.toggleItems
+  }));
+  
   };
 
   renderItem = () => {
@@ -39,7 +42,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     const rows: React.ReactNode[] = [];
 
     checklistItemActivity.forEach(acitivity => {
-      rows.push(<CheckListItem key={Math.random()} activity={acitivity} />);
+      rows.push(<CheckListItem key={acitivity._id} activity={acitivity} />);
     });
 
     return rows;

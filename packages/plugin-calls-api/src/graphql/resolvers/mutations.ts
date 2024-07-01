@@ -59,7 +59,7 @@ const callsMutations = {
 
   async callUpdateActiveSession(
     _root,
-    {},
+    _,
     {
       models,
       user,
@@ -83,7 +83,7 @@ const callsMutations = {
     });
   },
 
-  async callTerminateSession(_root, {}, { models, user, subdomain }: IContext) {
+  async callTerminateSession(_root, _, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
@@ -97,7 +97,7 @@ const callsMutations = {
     return user._id;
   },
 
-  async callDisconnect(_root, {}, { models, user, subdomain }: IContext) {
+  async callDisconnect(_root, _, { models, user, subdomain }: IContext) {
     await models.ActiveSessions.deleteOne({
       userId: user._id,
     });
@@ -287,8 +287,8 @@ const callsMutations = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
-      const { need_apply } = queueData?.response;
+    if (queueData?.response) {
+      const { need_apply } = queueData.response;
       if (need_apply) {
         const operator = await models.Operators.getOperator(user._id);
         if (operator) {

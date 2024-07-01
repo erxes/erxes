@@ -81,8 +81,8 @@ class DealColumn extends React.Component<Props, {}> {
       return <EmptyState icon="piggy-bank" text="No Sales Pipelines" />;
     }
 
-    const contents = deals.map((deal: IDeal, index: number) => (
-      <Deal options={options} key={index} item={deal} portable={true} />
+    const contents = deals.map((deal: IDeal) => (
+      <Deal options={options} key={deal._id} item={deal} portable={true} />
     ));
 
     return <ColumnContentBody>{contents}</ColumnContentBody>;

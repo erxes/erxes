@@ -85,7 +85,7 @@ export default {
             stageName = value;
             break;
 
-          case 'labels':
+          case 'labels':{
             const label = await models.PipelineLabels.findOne({
               name: value
             });
@@ -93,7 +93,7 @@ export default {
             doc.labelIds = label ? [label._id] : '';
 
             break;
-
+          }
           case 'assignedUserEmail':
             {
               const assignedUser = await sendCoreMessage({
@@ -161,7 +161,7 @@ export default {
         }
 
         let stage = await models.Stages.findOne({
-          pipelineId: pipeline && pipeline._id,
+          pipelineId: pipeline?._id,
           name: stageName
         });
 

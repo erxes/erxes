@@ -76,7 +76,7 @@ export const renderKeyPad = (handNumPad) => {
   );
 };
 
-export const callActions = (
+export const callActions = ({
   isMuted,
   handleAudioToggle,
   endCall,
@@ -85,7 +85,7 @@ export const callActions = (
   direction,
   gotoDetail,
   disableDetail
-) => {
+}) => {
   return (
     <InCallFooter>
       <Actions>

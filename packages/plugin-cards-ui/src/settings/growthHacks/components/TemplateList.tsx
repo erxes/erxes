@@ -85,8 +85,8 @@ class TemplateList extends React.Component<Props> {
   };
 
   renderRow({ objects }) {
-    return objects.map((object, index) => (
-      <BoxItem key={index}>
+    return objects.map(object => (
+      <BoxItem key={object._id}>
         <div>
           <h5>{object.name}</h5>
           <p>{object.description}</p>
