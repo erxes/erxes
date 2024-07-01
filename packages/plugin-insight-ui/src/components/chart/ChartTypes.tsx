@@ -2,7 +2,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react'
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors} from '@erxes/ui/src/styles';
 
 const ChartBoxes = styled.div`
   display: flex;

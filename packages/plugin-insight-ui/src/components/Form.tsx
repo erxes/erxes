@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef} from "react";
 
 import { CSSTransition } from "react-transition-group";
 import { RightDrawerContainer } from "../styles";

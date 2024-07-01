@@ -4,7 +4,6 @@ import {
   chartSchema,
   IChart,
   IChartDocument,
-  IChartEdit,
 
 } from './definitions/insight';
 export interface IChartModel extends Model<IChartDocument> {
