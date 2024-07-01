@@ -48,7 +48,7 @@ export const field = {
     const { groupId } = root;
 
     const group = await models.FieldsGroups.findOne({ _id: groupId });
-    return  group?.name;
+    return group?.name;
   },
 
   async products(root: IFieldDocument, _args, { subdomain }: IContext) {
@@ -87,7 +87,7 @@ export const fieldsGroup = {
     }).sort({ order: 1 });
 
     // Splitting code to array
-    const splitted = root.code && root.code.split(':');
+    const splitted = root.code?.split(':');
 
     if (splitted && splitted.length === 3 && splitted[2] === 'relations') {
       const enabledFields: IField[] = [];
