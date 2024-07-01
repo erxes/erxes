@@ -1,4 +1,4 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IActivityLogDocument } from './models/ActivityLogs';
 import { receivePutLogCommand } from './utils';
 
@@ -6,7 +6,6 @@ import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
-  MessageArgs,
   MessageArgsOmitService,
 } from '@erxes/api-utils/src/core';
 import {
@@ -215,9 +214,9 @@ export const getContentTypeDetail = async (
 
   return enabled
     ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
-        subdomain,
-        data: activityLog,
-      })
+      subdomain,
+      data: activityLog,
+    })
     : null;
 };
 
@@ -238,11 +237,11 @@ export const getContentIds = async (subdomain, data) => {
 
   return enabled
     ? (
-        await sendRPCMessage(`${serviceName}:logs.getContentIds`, {
-          subdomain,
-          data,
-        })
-      )?.data
+      await sendRPCMessage(`${serviceName}:logs.getContentIds`, {
+        subdomain,
+        data,
+      })
+    )?.data
     : [];
 };
 
