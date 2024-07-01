@@ -241,7 +241,7 @@ interface ISendNotification {
   link: string;
   createdUser?: IUserDocument;
   isMobile?: boolean;
-  eventData?: any | null;
+  eventData?: any;
   mobileConfig?: IMobileConfig;
   groupId?: string;
 }
@@ -294,7 +294,7 @@ export const sendNotification = async (
           notifType,
           clientPortalId: recipient.clientPortalId,
           eventData,
-          groupId: doc?.groupId || '',
+          groupId: doc?.groupId ?? '',
         },
         createdUser && createdUser._id,
       );
@@ -592,7 +592,7 @@ export const getCards = async (
     data: {
       _id: { $in: cardIds },
       status: { $regex: '^((?!archived).)*$', $options: 'i' },
-      stageId: oneStageId ? oneStageId : { $in: stageIds },
+      stageId: oneStageId || { $in: stageIds },
       ...(args?.priority && { priority: { $in: args?.priority || [] } }),
       ...(args?.labelIds && { labelIds: { $in: args?.labelIds || [] } }),
       ...(args?.closeDateType && {
@@ -662,7 +662,7 @@ export const getUserName = (data: IUser) => {
   }
 
   if (data.email || data.username || data.phone) {
-    return data.email || data.username || data.phone;
+    return (data.email ?? data.username) ?? data.phone;
   }
 
   return 'Unknown';

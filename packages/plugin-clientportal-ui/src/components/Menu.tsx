@@ -2,12 +2,11 @@ import { BoxRoot, FullContent } from "@erxes/ui/src/styles/main";
 import React, { useCallback } from "react";
 
 import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils";
 import { colors } from "@erxes/ui/src/styles";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 
 const Box = styled(BoxRoot)`
   width: 320px;

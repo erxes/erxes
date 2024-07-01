@@ -425,7 +425,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     }
 
     public static checkPassword(password: string) {
-      if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/)) {
+      if (!RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/).exec(password)) {
         throw new Error(
           'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters'
         );
@@ -678,10 +678,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
       isRessetting?: boolean;
       testUserOTP?: number;
     }) {
-      const code = testUserOTP
-        ? testUserOTP
-        : this.generateVerificationCode(codeLength);
-      const codeExpires = Date.now() + 60000 * (expireAfter || 5);
+      const code = testUserOTP ?? this.generateVerificationCode(codeLength);
+      const codeExpires = Date.now() + 60000 * (expireAfter ?? 5);
 
       let query: any = {};
       let userFindQuery: any = {};
@@ -908,7 +906,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         this.checkPassword(password);
       }
 
-      const plainPassword = password || '';
+      const plainPassword = password ?? '';
 
       const user = await handleContacts({
         subdomain,

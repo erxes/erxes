@@ -1,20 +1,19 @@
-import { ControlLabel, Form } from '@erxes/ui/src/components/form';
-import { IFormProps } from '@erxes/ui/src/types';
-import { IClientPortalUser } from '../../types';
-import React, { useState } from 'react';
+import { ControlLabel, Form } from "@erxes/ui/src/components/form";
+import { IFormProps } from "@erxes/ui/src/types";
+import { IClientPortalUser } from "../../types";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { Alert } from '@erxes/ui/src/utils';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import { __ } from '@erxes/ui/src/utils';
+import Button from "@erxes/ui/src/components/Button";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { Alert, __ } from "@erxes/ui/src/utils";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 
 type Props = {
   clientPortalUser: IClientPortalUser;
   assignCompany: (
     userId: string,
     erxesCompanyId: string,
-    erxesCustomerId: string,
+    erxesCustomerId: string
   ) => void;
   queryParams?: any;
 };
@@ -25,19 +24,19 @@ const CompanyAssignForm = (props: Props) => {
   const getUserErxesCompanyId =
     clientPortalUser && clientPortalUser.erxesCompanyId
       ? clientPortalUser.erxesCompanyId
-      : '';
+      : "";
 
   const [companyId, setCompanyId] = useState(getUserErxesCompanyId);
 
   const onSave = () => {
     if (!companyId.length) {
-      Alert.error('Please choose a company to assign');
+      Alert.error("Please choose a company to assign");
       return;
     }
     assignCompany(
       clientPortalUser._id,
       companyId,
-      clientPortalUser.erxesCustomerId,
+      clientPortalUser.erxesCustomerId
     );
   };
 
@@ -49,11 +48,11 @@ const CompanyAssignForm = (props: Props) => {
     return (
       <>
         <ControlLabel>
-          {clientPortalUser && (clientPortalUser.companyName || '')}
+          {clientPortalUser && (clientPortalUser.companyName || "")}
         </ControlLabel>
         <SelectCompanies
           initialValue={getUserErxesCompanyId}
-          label={__('Select a company to assign')}
+          label={__("Select a company to assign")}
           name="companyIds"
           onSelect={onSelect}
           multi={false}

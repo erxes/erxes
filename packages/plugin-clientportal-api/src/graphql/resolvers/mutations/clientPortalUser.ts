@@ -18,8 +18,6 @@ import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 import fetch from 'node-fetch';
-import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
-
 export interface IVerificationParams {
   userId: string;
   emailOtp?: string;
@@ -232,7 +230,7 @@ const clientPortalUserMutations = {
           firstName: first_name,
           lastName: last_name,
           clientPortalId,
-          isEmailVerified: email ? true : false,
+          isEmailVerified: !!email,
         });
       }
 
@@ -293,9 +291,9 @@ const clientPortalUserMutations = {
           'https://oauth2.googleapis.com/token?' +
             new URLSearchParams({
               code: authCode,
-              client_id: clientPortals.googleClientId || '',
+              client_id: clientPortals.googleClientId ?? '',
               grant_type: 'authorization_code',
-              client_secret: clientPortals.googleClientSecret || '',
+              client_secret: clientPortals.googleClientSecret ?? '',
               redirect_uri: clientPortals.googleRedirectUri || '',
             }),
           {
@@ -1395,7 +1393,7 @@ const clientPortalUserMutations = {
           throw new Error('Invalid refresh token');
         }
 
-        const { userId } = decoded as any;
+        const { userId } = decoded;
         const user = await models.ClientPortalUsers.findOne({ _id: userId });
 
         if (!user) {

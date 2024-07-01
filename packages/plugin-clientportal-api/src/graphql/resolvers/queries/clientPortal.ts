@@ -5,8 +5,6 @@ import { IContext, IModels } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendCommonMessage,
-  sendContactsMessage,
-  sendCoreMessage,
   sendKbMessage,
 } from '../../../messageBroker';
 import { getCards, getUserCards } from '../../../utils';
@@ -175,7 +173,7 @@ const configClientPortalQueries = {
       searchValue?: string;
       categoryIds: string[];
       topicId?: string;
-      isPrivate: Boolean;
+      isPrivate: boolean;
     },
     { subdomain }: IContext
   ) {

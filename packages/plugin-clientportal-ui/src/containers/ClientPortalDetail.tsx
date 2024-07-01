@@ -1,9 +1,8 @@
 import Spinner from "@erxes/ui/src/components/Spinner";
 import Alert from "@erxes/ui/src/utils/Alert";
 import * as routerUtils from "@erxes/ui/src/utils/router";
-import { gql } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
 import React from "react";
-import { useQuery, useMutation } from "@apollo/client";
 
 import ClientPortalDetail from "../components/ClientPortalDetail";
 import mutations from "../graphql/mutations";

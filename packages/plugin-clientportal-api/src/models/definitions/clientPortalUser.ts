@@ -72,8 +72,8 @@ export interface IUserDocument extends IUser, Document {
 }
 
 export interface ITwoFactorDevice {
-  device: String;
-  key: String;
+  device: string;
+  key: string;
   date: Date;
 }
 export const notificationConfigSchema = new Schema(

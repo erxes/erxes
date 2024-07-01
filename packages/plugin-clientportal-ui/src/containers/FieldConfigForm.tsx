@@ -1,10 +1,9 @@
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
-import { queries, mutations } from '../graphql';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import FieldConfigForm from '../components/FieldConfigForm';
+import { IField } from "@erxes/ui/src/types";
+import React from "react";
+import { useQuery, useMutation, gql } from "@apollo/client";
+import { queries, mutations } from "../graphql";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import FieldConfigForm from "../components/FieldConfigForm";
 
 type Props = {
   field: IField;
@@ -23,24 +22,24 @@ function Container(props: Props) {
     return null;
   }
 
-  if (field.contentType !== 'clientportal:user') {
+  if (field.contentType !== "clientportal:user") {
     return null;
   }
 
   const { data, loading } = useQuery(gql(queries.fieldConfig), {
-    variables: { fieldId: field._id }
+    variables: { fieldId: field._id },
   });
 
   const clientportalsQuery = useQuery(gql(queries.getConfigs), {
-    variables: { page: 1, perPage: 100 }
+    variables: { page: 1, perPage: 100 },
   });
 
   const [editFieldConfig] = useMutation(gql(mutations.editFields), {
     variables: {
       fieldId: field._id,
       allowedClientPortalIds: [],
-      requiredOn: []
-    }
+      requiredOn: [],
+    },
   });
 
   if (loading || clientportalsQuery.loading) {
@@ -54,8 +53,8 @@ function Container(props: Props) {
       variables: {
         fieldId: field._id,
         allowedClientPortalIds: value.allowedClientPortalIds,
-        requiredOn: value.requiredOn
-      }
+        requiredOn: value.requiredOn,
+      },
     });
   };
 
