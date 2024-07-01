@@ -7,7 +7,6 @@ import Alert from '@erxes/ui/src/utils/Alert/index';
 import SelectSections from '../../components/utils/SelectSections';
 import { queries, mutations } from '../../graphql';
 import {
-  SectionAddMutationResponse,
   SectionMutationVariables,
   SectionsListQueryResponse,
 } from '../../types';

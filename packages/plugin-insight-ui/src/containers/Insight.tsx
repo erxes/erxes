@@ -91,7 +91,6 @@ const withLastDashboard = (props: Props) => {
         { [dashboard?.type + "Id"]: dashboard?._id },
         true
       );
-      return;
     }
   }, [dashboard]);
 

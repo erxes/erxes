@@ -8,17 +8,14 @@ import {
   Colors,
 } from 'chart.js';
 
-import { IChart } from '../../types';
 import { DEFAULT_BACKGROUND_COLORS, DEFAULT_BORDER_COLORS } from './utils';
 
 Chart.register(Colors);
 
 interface IChartProps {
-  chart: IChart;
 
   data?: number[];
   labels?: string[];
-  template?: string;
   chartType?: ChartType;
   name?: string;
 }
@@ -33,8 +30,6 @@ const CHART_DEFAULT_SCALES = {
 const ChartComponent: React.FC<IChartProps> = ({
   data,
   labels,
-  chartType,
-  name,
 }) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
 

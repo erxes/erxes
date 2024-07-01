@@ -315,9 +315,8 @@ export const calculateExecution = async ({
     .limit(1)
     .lean();
 
-  const latestExecution: IExecutionDocument | null = executions.length
-    ? executions[0]
-    : null;
+  const latestExecution: IExecutionDocument | null =
+    executions.length ? executions[0] : null;
 
   if (latestExecution) {
     if (!reEnrollment || !reEnrollmentRules.length) {

@@ -3,8 +3,7 @@ import { IModels } from '../connectionResolver';
 import {
   chartSchema,
   IChart,
-  IChartDocument,
-  IChartEdit,
+  IChartDocument
 
 } from './definitions/insight';
 export interface IChartModel extends Model<IChartDocument> {

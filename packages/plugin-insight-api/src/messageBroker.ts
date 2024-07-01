@@ -1,5 +1,3 @@
-import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
-import { generateModels } from './connectionResolver';
 import { sendMessage } from '@erxes/api-utils/src/core';
 import type {
   MessageArgs,
