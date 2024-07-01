@@ -76,19 +76,21 @@ const PaymentsStep = (props: Props) => {
     return <SelectValue>{content(option)}</SelectValue>;
   };
 
-  const Option = (props) => {
+  const Option = (optionProps) => {
     return (
-      <components.Option {...props}>
-        {selectItemRenderer(props.data)}
+      <components.Option {...optionProps}>
+        {selectItemRenderer(optionProps.data)}
       </components.Option>
     );
   };
 
-  const SingleValue = (props) => (
-    <components.SingleValue {...props}>
-      {selectItemRenderer(props.data)}
-    </components.SingleValue>
-  );
+  const SingleValue = (singleValueProps) => {
+    return (
+      <components.SingleValue {...singleValueProps}>
+        {selectItemRenderer(singleValueProps.data)}
+      </components.SingleValue>
+    )
+  };
 
   const renderPaymentType = (paymentType: any) => {
     const editPayment = (name, value) => {

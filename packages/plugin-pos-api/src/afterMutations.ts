@@ -32,11 +32,11 @@ const isInProduct = async (
 
   const followProductIds: string[] = [];
 
-  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+  if (pos.deliveryConfig?.productId) {
     followProductIds.push(pos.deliveryConfig.productId);
   }
 
-  if (pos.catProdMappings && pos.catProdMappings.length) {
+  if (pos.catProdMappings?.length) {
     for (const map of pos.catProdMappings) {
       if (!followProductIds.includes(map.productId)) {
         followProductIds.push(map.productId);

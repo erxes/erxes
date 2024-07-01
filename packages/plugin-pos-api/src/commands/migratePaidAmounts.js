@@ -30,7 +30,7 @@ const command = async () => {
     const orders = await PosOrders.find().toArray();
 
     for (const order of orders) {
-      if (order.paidAmounts && order.paidAmounts.length) {
+      if (order.paidAmounts?.length) {
         continue;
       }
 

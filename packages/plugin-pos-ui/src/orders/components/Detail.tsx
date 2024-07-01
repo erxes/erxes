@@ -34,7 +34,7 @@ const Detail = (props: Props) => {
   const { order, pos, onChangePayments } = props;
 
   const initialPaidAmounts = () => {
-    const amounts = [...order.paidAmounts] || [];
+    const amounts = [...order.paidAmounts] ?? [];
     const paidKeys = amounts.map((pa) => pa.type);
 
     for (const emptyType of (pos?.paymentTypes || []).filter(

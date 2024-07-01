@@ -1,7 +1,7 @@
 import { sendCoreMessage } from '../../messageBroker';
 
 const resolvers = {
-  user: async (pos, {}, { subdomain }) => {
+  user: async (pos, _, { subdomain }) => {
     if (!pos.userId) {
       return null;
     }
@@ -14,7 +14,7 @@ const resolvers = {
     });
   },
 
-  branchTitle: async (pos, {}, { subdomain }) => {
+  branchTitle: async (pos, _, { subdomain }) => {
     if (!pos.branchId) {
       return '';
     }
@@ -29,7 +29,7 @@ const resolvers = {
     return branch ? branch.title : '' || '';
   },
 
-  departmentTitle: async (pos, {}, { subdomain }) => {
+  departmentTitle: async (pos, _, { subdomain }) => {
     if (!pos.departmentId) {
       return '';
     }

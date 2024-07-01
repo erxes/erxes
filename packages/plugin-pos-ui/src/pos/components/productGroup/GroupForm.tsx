@@ -14,7 +14,7 @@ type Props = {
 };
 
 const GroupForm = (props: Props) => {
-  const { mode, onSubmit, onDelete, closeModal } = props;
+  const { mode, onSubmit, closeModal } = props;
 
   const [group, setGroup] = useState<IProductGroup>(
     props.group || {

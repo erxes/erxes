@@ -28,7 +28,6 @@ const generateProductsOptions = async (
 export default {
   types: [{ description: 'Pos Order', type: 'pos' }],
   fields: async ({ subdomain, data }) => {
-    const { usageType } = data;
     const models = await generateModels(subdomain);
 
     const schema = models.PosOrders.schema as any;

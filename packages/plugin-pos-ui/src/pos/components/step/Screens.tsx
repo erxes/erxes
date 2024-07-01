@@ -261,7 +261,7 @@ const ScreensConfig = (props: Props) => {
               </option>
             ))}
           </FormControl>
-          {renderFilterProducts}
+          {renderFilterProducts()}
           <br />
 
           <ControlLabel>Status change /leave/</ControlLabel>

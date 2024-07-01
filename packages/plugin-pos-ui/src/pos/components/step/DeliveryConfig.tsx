@@ -47,7 +47,7 @@ const DeliveryConfig = (props: Props) => {
           },
         })
         .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+          setFieldsCombined(data ? data.fieldsCombinedByContentType : []);
         });
     }
   }, []);
