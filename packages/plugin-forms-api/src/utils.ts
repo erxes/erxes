@@ -106,9 +106,7 @@ export const fieldsCombinedByContentType = async (
   for (const customField of customFields) {
     const group = await getFieldGroup(models, customField.groupId || '');
 
-    if (
-      group &&
-      group.isVisible
+    if (group?.isVisible
       // (customField.isVisibleDetail || customField.isVisibleDetail === undefined)
     ) {
       fields.push({
@@ -232,6 +230,6 @@ export const formSubmissionsQuery = async (
 export const getContentTypes = async (serviceName) => {
   const service = await getService(serviceName);
   const meta = service.config.meta || {};
-  const types = (meta.tags && meta.tags.types) || [];
+  const types = (meta.tags?.types) || [];
   return types.map((type) => `${serviceName}:${type.type}`);
 }
