@@ -62,7 +62,7 @@ export const setupMessageConsumers = async () => {
   consumeRPCQueue(
     'zalo:conversationMessages.find',
     async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+      await generateModels(subdomain);
 
       return {
         status: 'success',

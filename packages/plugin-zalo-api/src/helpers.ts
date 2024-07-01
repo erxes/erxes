@@ -22,7 +22,7 @@ export const zaloCreateIntegration = async (
   const account = await models.Accounts.getAccount({ _id: accountId });
   const oa_id = account?.oa_id;
 
-  const integration = await models.Integrations.create({
+   await models.Integrations.create({
     kind,
     accountId,
     erxesApiId: integrationId,
@@ -83,7 +83,7 @@ export const removeIntegration = async (
 
   const account = await models.Accounts.findOne({ _id: accountId });
 
-  const selector = { integrationId: _id };
+   { integrationId: _id };
 
   if (kind.includes('zalo')) {
     //   debugFacebook('Removing entries');

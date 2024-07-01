@@ -9,12 +9,13 @@ import { extend } from 'lodash';
 const OAAPIUrl = 'https://openapi.zalo.me/v2.0/oa/';
 const OAAuthAPIUrl = 'https://oauth.zaloapp.com/v4/oa/access_token';
 
-export let Zalo;
-export let ZaloAuth;
-export let ZaloAppID: string = '';
-export let ZaloSecretKey: string = '';
-export let ZaloAccessToken: string = '';
-export let ZaloRefreshToken: string = '';
+export const Zalo = {};
+export const ZaloAuth = {};
+export const ZaloAppID = { value: '' };
+export const ZaloSecretKey = { value: '' };
+export const ZaloAccessToken = { value: '' };
+export const ZaloRefreshToken = { value: '' };
+
 
 export const createAPI = (baseURL: string, options: Object = {}) => {
   return axios.create({

@@ -19,7 +19,7 @@ const searchMessages = (linkedin, criteria) => {
 
 // Example for save messages to inbox and create or update customer
 const saveMessages = async (linkedin, integration, criteria) => {
-  const msgs: any = await searchMessages(linkedin, criteria);
+   await searchMessages(linkedin, criteria);
 
   // for (const msg of msgs) {
   //   const message = await Messages.findOne({
