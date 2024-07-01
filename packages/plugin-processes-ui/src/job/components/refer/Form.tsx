@@ -255,11 +255,11 @@ class Form extends React.Component<Props, State> {
               ).filter((u) => u);
 
               return (
-                <tr>
+                <tr key={product._id}>
                   <td>
                     <FormControl
                       value={
-                        product && product.product ? product.product.name : ""
+                        product?.product ? product.product.name : ""
                       }
                       disabled={true}
                     />
