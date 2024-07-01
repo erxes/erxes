@@ -30,13 +30,13 @@ function CalendarComponent(props: Props) {
   const [showModal, setShowModal] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [updatedMeetings, setMeetings] = useState(meetings);
+  const [updatedMeetings, setUpdatedMeetings] = useState(meetings);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     setShowModal(false);
-    setMeetings(meetings);
+    setUpdatedMeetings(meetings);
   }, [meetings, meetings.length]);
 
   const events =
