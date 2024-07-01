@@ -1,13 +1,7 @@
 import * as strip from 'strip';
 import axios from 'axios';
 import { generateModels } from '../../models';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { userIds } from '../middlewares/userMiddleware';
-import {
-  createOrUpdateConversation,
-  createOrUpdateCustomer,
-  isFollowedUser,
-} from '../controllers';
 import { zaloSend } from '../../zalo';
 import { generateAttachmentUrl } from '../../utils';
 import {
@@ -185,12 +179,8 @@ export const conversationMessagesBroker = () => {
 
     const { payload, type } = data;
 
-    switch (type) {
-      case 'addUserId':
-        userIds.push(payload._id);
-        break;
-      default:
-        break;
-    }
+    if (type === 'addUserId') {
+      userIds.push(payload._id);
+    }    
   });
 };
