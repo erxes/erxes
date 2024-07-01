@@ -22,23 +22,6 @@ type Props = {
 };
 
 class PerformRow extends React.Component<Props> {
-  displayLocInfo(obj) {
-    if (!obj) {
-      return '';
-    }
-    return `${obj.code} - ${obj.title}`;
-  }
-
-  displayWithNameInfo(obj) {
-    if (!obj) {
-      return '';
-    }
-    return `${obj.code} - ${obj.name}`;
-  }
-  displayValue(work, name) {
-    const value = _.get(work, name);
-    return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
 
   remove = () => {
     const { removePerform, perform } = this.props;
