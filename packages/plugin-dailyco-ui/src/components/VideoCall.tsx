@@ -1,16 +1,16 @@
-import DailyIframe from '@daily-co/daily-js';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { SimpleButton } from '@erxes/ui/src/styles/main';
+import DailyIframe from "@daily-co/daily-js";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { SimpleButton } from "@erxes/ui/src/styles/main";
 
-import React, { useEffect, useState, useRef } from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { mutations } from '../graphql';
-import { __ } from '@erxes/ui/src/utils/core';
-import { Alert } from '@erxes/ui/src/utils';
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { mutations } from "../graphql";
+import { __ } from "@erxes/ui/src/utils/core";
+import { Alert } from "@erxes/ui/src/utils";
 
-const Control = styled('div')`
+const Control = styled("div")`
   position: absolute;
   right: 3px;
   top: 3px;
@@ -26,8 +26,8 @@ const ControlBtn = styledTS<{ disabled?: boolean }>(styled(SimpleButton))`
   margin: 0 20px;
   font-size: 13px;
   background: #fafafa;
-  pointer-events: ${props => props.disabled && 'none'};
-  opacity: ${props => props.disabled && '0.9'};
+  pointer-events: ${(props) => props.disabled && "none"};
+  opacity: ${(props) => props.disabled && "0.9"};
 `;
 
 const ErrorWrapper = styled.div`
@@ -45,35 +45,35 @@ type Props = {
   queryParams: any;
 };
 
-const VideoCall = props => {
+const VideoCall = (props) => {
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [recordingId, setRecordingId] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [recordingId, setRecordingId] = useState("");
   let callFrame;
 
-  const messengerDiv = document.getElementById('erxes-messenger-container');
+  const messengerDiv = document.getElementById("erxes-messenger-container");
 
   if (messengerDiv) {
-    messengerDiv.style.display = 'none';
+    messengerDiv.style.display = "none";
   }
 
   const { url, name } = props.queryParams;
 
   useEffect(() => {
     const container =
-      document.getElementById('call-frame-container') ||
-      document.getElementsByTagName('body')[0];
+      document.getElementById("call-frame-container") ||
+      document.getElementsByTagName("body")[0];
     if (url && container) {
       callFrame = DailyIframe.createFrame(container);
 
       callFrame
-        .on('recording-started', event => {
+        .on("recording-started", (event) => {
           setRecordingId(event.recordingId);
 
           client
             .mutate({
               mutation: gql(mutations.saveRecord),
-              variables: { roomName: name, recordingId: event.recordingId }
+              variables: { roomName: name, recordingId: event.recordingId },
             })
             // .then(({ data: { dailyDeleteVideoChatRoom } }) => {
             //   console.log('dailyDeleteVideoChatRoom', dailyDeleteVideoChatRoom);
@@ -82,15 +82,15 @@ const VideoCall = props => {
             //     setLoading(false);
             //   }
             // })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         })
-        .on('recording-upload-completed', event => {
+        .on("recording-upload-completed", (event) => {
           client
             .mutate({
               mutation: gql(mutations.saveRecord),
-              variables: { roomName: name, recordingId }
+              variables: { roomName: name, recordingId },
             })
             // .then(({ data: { dailyDeleteVideoChatRoom } }) => {
             //   console.log('dailyDeleteVideoChatRoom', dailyDeleteVideoChatRoom);
@@ -99,11 +99,11 @@ const VideoCall = props => {
             //     setLoading(false);
             //   }
             // })
-            .catch(error => {
+            .catch((error) => {
               Alert.error(error.message);
             });
         })
-        .on('error', event => {
+        .on("error", (event) => {
           setErrorMessage(event.errorMsg);
         });
 
@@ -122,7 +122,7 @@ const VideoCall = props => {
     client
       .mutate({
         mutation: gql(mutations.deleteRoom),
-        variables: { name }
+        variables: { name },
       })
       .then(({ data: { dailyDeleteVideoChatRoom } }) => {
         if (dailyDeleteVideoChatRoom) {
@@ -130,7 +130,7 @@ const VideoCall = props => {
           setLoading(false);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   };
@@ -139,7 +139,7 @@ const VideoCall = props => {
     return (
       <Control>
         <ControlBtn onClick={onDelete} disabled={loading}>
-          {loading ? __('Please wait...') : __('End call')}
+          {loading ? __("Please wait...") : __("End call")}
         </ControlBtn>
       </Control>
     );
@@ -155,7 +155,7 @@ const VideoCall = props => {
       {errorMessage && <ErrorWrapper>{errorMessage}</ErrorWrapper>}
       <div
         id="call-frame-container"
-        style={{ width: '100%', height: '100%' }}
+        style={{ width: "100%", height: "100%" }}
         // ref={iframeRef}
       />
       {/* <iframe id="call-frame-container" style={{ width: '100%', height: '100%' }} ref={iframeRef} /> */}
