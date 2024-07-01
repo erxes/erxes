@@ -32,6 +32,5 @@ export default {
     // remove sub fields
     return fields.filter(f => !subFieldIds.includes(f._id));
 
-    return fields;
   }
 };
