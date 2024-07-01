@@ -57,10 +57,10 @@ const getCellValue = (order, colName) => {
     case 'pos':
       return `${order.posName || ''}${order.origin === 'kiosk' ? '*' : ''}`;
     case 'branch':
-      return `${order.branch?.code || ''} - ${order.branch?.title || ''}` || '';
+      return order.branch ? `${order.branch.code || ''} - ${order.branch.title || ''}` : '';
     case 'department':
       return (
-        `${order.department?.code || ''} - ${order.department?.title || ''}` ||
+        order.department ? `${order.department.code || ''} - ${order.department.title || ''}` :
         ''
       );
     case 'cashier':
@@ -193,7 +193,7 @@ const generateParams = ({ queryParams }) => ({
   customerId: queryParams.customerId,
   customerType: queryParams.customerType,
   posId: queryParams.posId,
-  types: queryParams.types && queryParams.types.split(',')
+  types: queryParams.types?.types.split(',')
 });
 
 // Prepares data depending on module type
