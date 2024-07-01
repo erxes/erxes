@@ -487,7 +487,7 @@ class Form extends React.Component<Props, State> {
                 required={true}
               >
                 {Object.keys(DURATION_TYPES).map((typeName, index) => (
-                  <option key={index} value={typeName}>
+                  <option key={typeName} value={typeName}>
                     {typeName}
                   </option>
                 ))}
