@@ -101,11 +101,11 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
-  const [isPaused, setPaused] = useState(
-    agentStatus === 'pause' ? true : false,
+  const [isPaused, setIsPaused] = useState(
+    agentStatus === 'pause'
   );
 
-  const shrink = customer ? true : false;
+  const shrink = !!customer;
 
   const formatedPhone = formatPhone(number);
   const ourPhone = callUserIntegrations?.map((user) => ({
@@ -124,7 +124,7 @@ const KeyPad = (props: Props, context) => {
 
   useEffect(() => {
     setNumber(phoneNumber);
-    setPaused(agentStatus === 'pause' ? true : false);
+    setIsPaused(agentStatus === 'pause');
   }, [phoneNumber, loading]);
 
   // useEffect(() => {
@@ -238,7 +238,7 @@ const KeyPad = (props: Props, context) => {
         wsServer: integration?.wsServer,
         token: integration?.token,
         operators: integration?.operators,
-        isAvailable: isConnected ? true : false,
+        isAvailable: isConnected
       }),
     );
     setConfig({
@@ -247,7 +247,7 @@ const KeyPad = (props: Props, context) => {
       wsServer: integration?.wsServer,
       token: integration?.token,
       operators: integration?.operators,
-      isAvailable: isConnected ? true : false,
+      isAvailable: isConnected,
     });
     localStorage.setItem(
       'isConnectCallRequested',
@@ -256,7 +256,7 @@ const KeyPad = (props: Props, context) => {
       localStorage.setItem(
         'callInfo',
         JSON.stringify({
-          isUnRegistered: isConnected ? true : false,
+          isUnRegistered: !isConnected,
         }),
       );
   };
@@ -306,7 +306,7 @@ const KeyPad = (props: Props, context) => {
     if (pauseExtention) {
       const status = isPaused ? 'unpause' : 'pause';
       pauseExtention(inboxId, status);
-      setPaused(!isPaused);
+      setIsPaused(!isPaused);
     }
   };
 
@@ -441,10 +441,7 @@ const KeyPad = (props: Props, context) => {
               Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true,
+              currentCallConversationId?.length !== 0
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -471,10 +468,7 @@ const KeyPad = (props: Props, context) => {
               Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true,
+              currentCallConversationId?.length !== 0
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -540,8 +534,8 @@ const KeyPad = (props: Props, context) => {
               {Sip.call?.status === CALL_STATUS_IDLE
                 ? 'Call'
                 : Sip.call?.status === CALL_STATUS_STARTING
-                  ? 'Calling'
-                  : 'Stopping'}
+                  && 'Calling'
+                  || 'Stopping'}
             </Button>
           )}
         </>
