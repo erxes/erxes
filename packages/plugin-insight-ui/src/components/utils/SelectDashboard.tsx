@@ -8,7 +8,7 @@ import { __ } from "@erxes/ui/src/utils/index";
 
 import { ISection } from "../../types";
 
-type Props = { sections: ISection[]; handleMutation(id: String): void };
+type Props = { sections: ISection[]; handleMutation(id: string): void };
 
 const SelectDashboard = (props: Props) => {
   const { sections, handleMutation } = props;
