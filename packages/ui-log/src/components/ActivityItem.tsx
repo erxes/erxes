@@ -50,18 +50,20 @@ const activityItem = (activity: IActivityLog) => {
   const type = contentType.split(':')[1];
 
   switch (action || type) {
-    case 'conversation':
+    case 'conversation':{
       return renderDetail(
         'conversation',
         <Conversation conversationId={_id} activity={activity} />
       );
+    }
     case 'taskDetail':
       return renderDetail('task', <Task taskId={_id} />);
-    case 'comment':
+    case 'comment':{
       return renderDetail(
         'conversation',
         <Conversation conversationId={_id} activity={activity} />
       );
+    }
     case 'moved':
       return renderDetail(
         activity.contentType,
