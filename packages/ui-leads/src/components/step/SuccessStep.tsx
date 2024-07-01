@@ -176,7 +176,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Send from</label>
+          <label htmlFor="fromEmail">Send from</label>
           <FormControl
             type="text"
             id="fromEmail"
@@ -185,7 +185,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Subject Line</label>
+          <label htmlFor="userEmailTitle">Subject Line</label>
           <FormControl
             type="text"
             id="userEmailTitle"
@@ -196,7 +196,7 @@ class SuccessStep extends React.Component<Props, State> {
 
         {isEnabled("engages") && (
           <FormGroup>
-            <label>Email templates:</label>
+            <label htmlFor="email-template-select">Email templates:</label>
             <p>{__("Insert email template to content")}</p>
 
             <Select
@@ -210,7 +210,7 @@ class SuccessStep extends React.Component<Props, State> {
           </FormGroup>
         )}
         <FormGroup>
-          <label>Message</label>
+          <label htmlFor="message-editor">Message</label>
           <RichTextEditor
             content={leadData.userEmailContent || ""}
             onChange={this.onEditorChange("userEmailContent")}
@@ -229,7 +229,7 @@ class SuccessStep extends React.Component<Props, State> {
           <ControlLabel>Get email notifications for new responses</ControlLabel>
         </FormGroup>
         <FormGroup>
-          <label>Admin emails</label>
+          <label htmlFor="adminEmails">Admin emails</label>
           <FormControl
             id="adminEmails"
             type="text"
@@ -240,7 +240,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Subject Line</label>
+          <label htmlFor="adminEmailTitle">Subject Line</label>
           <FormControl
             type="text"
             defaultValue={leadData.adminEmailTitle}
@@ -249,7 +249,7 @@ class SuccessStep extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <label>Message</label>
+          <label htmlFor="message-editor">Message</label>
           <RichTextEditor
             content={leadData.adminEmailContent || ""}
             onChange={this.onEditorChange("adminEmailContent")}
