@@ -5,6 +5,8 @@ import QpayForm from './form/QpayForm';
 import QuickQrForm from './form/QuickQrForm';
 import SocialPayForm from './form/SocialPayForm';
 import StorepayForm from './form/StorePayForm';
+import MinuForm from './form/MinuForm';
+import GolomtForm from './form/GolomtForm';
 
 export const PAYMENTCONFIGS = [
   {
@@ -83,13 +85,24 @@ export const PAYMENTCONFIGS = [
     color: 'red',
   },
   {
+    name: 'MinuPay',
+    description: 'Minu pay',
+    isAvailable: true,
+    kind: 'minupay',
+    logo: 'images/payments/minupay.png',
+    createModal: MinuForm,
+    createUrl: '/settings/payments/createMinuPay',
+    category: 'Payment method',
+    color: 'green',
+  },
+  {
     name: 'Golomt E-Commerce',
     description:
       'Becoming an E-Commerce merchant for online sales and payment we offer products and services 24/7. Accepts most type of domestic and foreign card and provide opportunity to make and receive payment from anywhere',
-    isAvailable: false,
+    isAvailable: true,
     kind: 'golomt',
     logo: 'images/payments/golomt.png',
-    createModal: '',
+    createModal: GolomtForm,
     createUrl: '/settings/payments/createGolomt',
     category: 'Payment method',
     color: 'blue',
@@ -129,6 +142,7 @@ export const PAYMENT_KINDS = {
   POCKET: 'pocket',
   WECHATPAY: 'wechatpay',
   PAYPAL: 'paypal',
+  MINUPAY: 'minupay',
 
   ALL: [
     'qpay',
@@ -140,6 +154,7 @@ export const PAYMENT_KINDS = {
     'wechatpay',
     'paypal',
     'qpayQuickqr',
+    'minupay',
   ],
 };
 
@@ -177,14 +192,6 @@ export const BANK_CODES = [
 ];
 
 export const MCC_CODES = [
-  {
-    value: '0000',
-    label: 'Default',
-  },
-  {
-    value: '10000',
-    label: 'Other',
-  },
   {
     value: '5411',
     label: 'Хүнсний дэлгүүр, супермаркет',
@@ -1177,4 +1184,95 @@ export const MCC_CODES = [
     value: '6399',
     label: 'Даатгалын үйлчилгээ',
   },
+];
+
+export const CITIES = [
+  {
+    code: '11000',
+    name: 'Улаанбаатар',
+  },
+  {
+    code: '21000',
+    name: 'Дорнод аймаг',
+  },
+  {
+    code: '22000',
+    name: 'Сүхбаатар аймаг',
+  },
+  {
+    code: '23000',
+    name: 'Хэнтий аймаг',
+  },
+  {
+    code: '41000',
+    name: 'Төв аймаг',
+  },
+  {
+    code: '42000',
+    name: 'Говьсүмбэр аймаг',
+  },
+  {
+    code: '43000',
+    name: 'Сэлэнгэ аймаг',
+  },
+  {
+    code: '44000',
+    name: 'Дорноговь аймаг',
+  },
+  {
+    code: '45000',
+    name: 'Дархан-уул аймаг',
+  },
+  {
+    code: '46000',
+    name: 'Өмнөговь аймаг',
+  },
+  {
+    code: '48000',
+    name: 'Дундговь аймаг',
+  },
+  {
+    code: '61000',
+    name: 'Орхон аймаг',
+  },
+  {
+    code: '62000',
+    name: 'Өвөрхангай аймаг',
+  },
+  {
+    code: '63000',
+    name: 'Булган аймаг',
+  },
+  {
+    code: '64000',
+    name: 'Баянхонгор аймаг',
+  },
+  {
+    code: '65000',
+    name: 'Архангай аймаг',
+  },
+  {
+    code: '67000',
+    name: 'Хөвсгөл аймаг',
+  },
+  {
+    code: '81000',
+    name: 'Завхан аймаг',
+  },
+  {
+    code: '82000',
+    name: 'Говь-алтай аймаг',
+  },
+  {
+    code: '83000',
+    name: 'Баянөлгий аймаг',
+  },
+  {
+    code: '84000',
+    name: 'Ховд аймаг',
+  },
+  {
+    code: '85000',
+    name: 'Увс аймаг',
+  }
 ];

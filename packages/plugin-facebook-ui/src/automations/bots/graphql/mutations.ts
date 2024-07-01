@@ -4,6 +4,7 @@ const params = `
   $pageId: String,
   $persistentMenus: [BotPersistentMenuInput],
   $greetText: String,
+  $tag: String
 `;
 
 const paramsDef = `
@@ -12,6 +13,7 @@ const paramsDef = `
   pageId: $pageId,
   persistentMenus: $persistentMenus,
   greetText: $greetText
+  tag: $tag
 `;
 
 const addBot = `

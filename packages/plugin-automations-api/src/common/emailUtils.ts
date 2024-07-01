@@ -43,7 +43,7 @@ const generateEmails = (entry, key?) => {
     return entry
       .map((item) => item[key])
       .filter((value) =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
       );
   }
 
@@ -51,7 +51,7 @@ const generateEmails = (entry, key?) => {
     return entry
       .split(', ')
       .filter((value) =>
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
+        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
       );
   }
 
@@ -85,7 +85,7 @@ const getAttributionEmails = async ({
   let emails: string[] = [];
   const matches = (value || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
   const attributes = matches.map((match) =>
-    match.replace(/\{\{\s*|\s*\}\}/g, ''),
+    match.replace(/\{\{\s*|\s*\}\}/g, '')
   );
   const relatedValueProps = {};
 
@@ -231,7 +231,7 @@ export const generateDoc = async ({
 
   const replacedContent = (template?.content || '').replace(
     new RegExp(`{{\\s*${type}\\.\\s*(.*?)\\s*}}`, 'g'),
-    '{{ $1 }}',
+    '{{ $1 }}'
   );
 
   const { subject, content } = await sendCommonMessage({
@@ -287,7 +287,7 @@ export const getRecipientEmails = async ({
       const [serviceName, contentType] = triggerType.split(':');
 
       const { type, ...reciepentType } = reciepentTypes.find(
-        (rT) => rT.name === key,
+        (rT) => rT.name === key
       );
 
       if (type === 'teamMember') {
@@ -466,6 +466,7 @@ const sendEmails = async ({
   });
 
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+  const VERSION = getEnv({ name: 'VERSION' });
 
   const DEFAULT_EMAIL_SERVICE = configs['DEFAULT_EMAIL_SERVICE'] || 'SES';
   const COMPANY_EMAIL_FROM = configs['COMPANY_EMAIL_FROM'] || '';
@@ -483,13 +484,15 @@ const sendEmails = async ({
 
   let transporter;
 
-  try {
-    transporter = await createTransporter(
-      { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
-      configs,
-    );
-  } catch (e) {
-    return debugError(e.message);
+  if (VERSION !== 'saas') {
+    try {
+      transporter = await createTransporter(
+        { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
+        configs
+      );
+    } catch (e) {
+      return debugError(e.message);
+    }
   }
 
   const responses: any[] = [];
@@ -537,8 +540,15 @@ const sendEmails = async ({
     }
 
     try {
-      const info = await transporter.sendMail(mailOptions);
-      responses.push({ messageId: info.messageId, toEmail });
+      if (VERSION === 'saas') {
+        const response = await sendWithSendgrid(subdomain, mailOptions);
+
+        responses.push({ messageId: response['x-message-id'], toEmail });
+      } else {
+        const info = await transporter.sendMail(mailOptions);
+
+        responses.push({ messageId: info.messageId, toEmail });
+      }
     } catch (error) {
       responses.push({ fromEmail, toEmail, error });
       debugError(error);
@@ -546,4 +556,25 @@ const sendEmails = async ({
   }
 
   return responses;
+};
+
+export const sendWithSendgrid = async (subdomain, doc) => {
+  const sendgridMail = require('@sendgrid/mail');
+  const SENDGRID_API_KEY = await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code: 'SENDGRID_API_KEY' },
+    isRPC: true,
+  });
+
+  sendgridMail.setApiKey(SENDGRID_API_KEY);
+
+  try {
+    const [response] = await sendgridMail.send(doc);
+
+    return response.headers;
+  } catch (e) {
+    console.error(e);
+    return;
+  }
 };

@@ -2,6 +2,7 @@ import { sendMessage } from '@erxes/api-utils/src/core';
 import type { MessageArgsOmitService } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { consumeRPCQueue } from '@erxes/api-utils/src/messageBroker';
+import { getLasthistoryEachAssets } from './utils';
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue('assets:assets.find', async ({ subdomain, data }) => {
@@ -9,48 +10,60 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Assets.find(data).lean(),
+      data: await models.Assets.find(data).lean()
     };
   });
+
+  consumeRPCQueue(
+    'assets:assets.getKbArticleHistoriesPerAsset',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await getLasthistoryEachAssets(models, data)
+      };
+    }
+  );
 };
 
 export const sendContactsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
-    ...args,
+    ...args
   });
 };
 
 export const sendFormsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
-    ...args,
+    ...args
   });
 };
 
 export const sendCardsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'cards',
-    ...args,
+    ...args
   });
 };
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
 export const sendKbMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
     serviceName: 'knowledgebase',
-    ...args,
+    ...args
   });
 };

@@ -7,6 +7,8 @@ import company from './company';
 import customer from './customer';
 import department from './department';
 import teamMember from './teanMember';
+import kbArticles from './kbArticle';
+import kbCategory from './kbCategory';
 
 export interface IDataLoaders {
   asset: DataLoader<string, any>;
@@ -16,6 +18,8 @@ export interface IDataLoaders {
   customer: DataLoader<string, any>;
   teamMember: DataLoader<string, any>;
   department: DataLoader<string, any>;
+  kbArticles: DataLoader<string, any>;
+  kbCategory: DataLoader<string, any>;
 }
 
 export function generateAllDataLoaders(
@@ -29,6 +33,8 @@ export function generateAllDataLoaders(
     branch: branch(models, subdomain),
     customer: customer(models, subdomain),
     teamMember: teamMember(models, subdomain),
-    department: department(models, subdomain)
+    department: department(models, subdomain),
+    kbArticles: kbArticles(models, subdomain),
+    kbCategory: kbCategory(models, subdomain)
   };
 }

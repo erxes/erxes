@@ -1,5 +1,6 @@
 //store interest calculation
 
+import BigNumber from 'bignumber.js';
 import { IModels } from '../../connectionResolver';
 import { IContractDocument } from '../definitions/contracts';
 import { calcInterest, getDiffDay, getFullDate } from './utils';
@@ -29,7 +30,7 @@ export default async function storeInterest(
       dayOfMonth: diffDays
     });
 
-    mustStoreInterest += storeInterest;
+    mustStoreInterest = new BigNumber(storeInterest).plus(mustStoreInterest).toNumber();
 
     //transaction update action for store insterest
     await models.Transactions.updateOne(
@@ -59,11 +60,13 @@ export default async function storeInterest(
   } else {
     const diffDays = getDiffDay(currentDate, nowDate);
 
-    mustStoreInterest += calcInterest({
+    let interest = calcInterest({
       balance: contract.savingAmount || 0,
       interestRate: contract.interestRate,
       dayOfMonth: diffDays
     });
+
+    mustStoreInterest = new BigNumber(interest).plus(mustStoreInterest).toNumber()
   }
 
   //contract increase store action
