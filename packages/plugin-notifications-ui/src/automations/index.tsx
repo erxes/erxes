@@ -1,24 +1,23 @@
-import React from 'react';
-import SendNotification from './components/sendNotifcation';
+import React from "react";
+import SendNotification from "./components/sendNotifcation";
 
-const Automations = props => {
+const Automations = (props) => {
   const { componentType, activeAction } = props;
 
-  if (componentType === 'actionForm') {
+  if (componentType === "actionForm") {
     const { type } = activeAction;
 
-    const fixedType = type.replace('.', ':');
+    const fixedType = type.replace(".", ":");
 
-    const [_serviceName, contentType, _action] = fixedType.split(':');
+    const [_serviceName, contentType, _action] = fixedType.split(":");
 
-    switch (contentType) {
-      case 'appNotification':
-        return <SendNotification {...props} />;
-      default:
-        return null;
+    if (contentType === "appNotification") {
+      return <SendNotification {...props} />;
+    } else {
+      return null;
     }
   }
-  if (componentType === 'historyActionResult') {
+  if (componentType === "historyActionResult") {
     return <>{JSON.stringify(props?.result || {})}</>;
   }
 };
