@@ -241,7 +241,7 @@ export default function List(props: Props) {
   };
 
   const content = (
-    <>
+
       <iframe
         id="ifmcontentstoprint"
         style={{
@@ -250,9 +250,8 @@ export default function List(props: Props) {
           border: 'none',
           outline: 'none',
           backgroundColor: '#F0F0F0'
-        }}
+        }} title = "Title stop"
       />
-    </>
   );
 
   return (

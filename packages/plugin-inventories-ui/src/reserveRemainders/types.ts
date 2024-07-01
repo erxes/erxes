@@ -1,5 +1,5 @@
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import { IProduct, IUom } from '@erxes/ui-products/src/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 export interface IReserveRem {
   _id: string;

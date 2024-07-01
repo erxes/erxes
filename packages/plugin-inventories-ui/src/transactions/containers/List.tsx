@@ -1,8 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useQuery , gql } from '@apollo/client';
 import queryString from 'query-string';
-import { gql } from '@apollo/client';
 // erxes
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 // local
