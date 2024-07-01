@@ -10,7 +10,7 @@ export function generateProductOptions(array: IJobCategory[] = []): IOption[] {
   return array.map(item => {
     const category = item || ({} as IJobCategory);
 
-    const foundedString = category.order.match(/[/]/gi);
+    const foundedString = category.order.match(/\//gi);
 
     let space = '';
 
