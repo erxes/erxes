@@ -60,7 +60,9 @@ class Detail extends React.Component<FinalProps, { toggle: boolean }> {
   }
 
   onToggle = () => {
-    this.setState({ toggle: !this.state.toggle });
+    this.setState((prevState) => ({
+      toggle: !prevState.toggle
+    }));
   };
 
   render() {
