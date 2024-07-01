@@ -118,7 +118,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
                 selectedAccountId={doc?.accountId}
                 onRemove={() => null}
                 onSelect={(accountId, account) => {
-                  onSelect(accountId, 'accountId'), setAccount(account);
+                  onSelect(accountId, 'accountId')
+                  setAccount(account);
                 }}
               />
             </Padding>
@@ -343,8 +344,8 @@ function Form({ renderButton, bot, returnToList }: Props) {
                       <div className="persistentMenu">
                         <div className="dragger" />
                         <ul>
-                          {(doc?.persistentMenus || []).map((menu) => (
-                            <li key={menu._id}>{menu.text || ''}</li>
+                            {(doc?.persistentMenus || []).map((menu) => (
+                              <li key={menu._id}>{menu.text || ''}</li> 
                           ))}
                         </ul>
                       </div>
