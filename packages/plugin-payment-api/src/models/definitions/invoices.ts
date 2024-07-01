@@ -18,7 +18,7 @@ export interface IInvoice {
   resolvedAt?: Date;
   redirectUri?: string;
   paymentIds: string[];
-
+  callback?: string;
   data?: any;
 }
 export interface IInvoiceDocument extends IInvoice, Document {
@@ -44,6 +44,7 @@ export const invoiceSchema = new Schema({
   resolvedAt: field({ type: Date }),
   data: field({ type: Schema.Types.Mixed }),
   apiResponse: field({ type: Schema.Types.Mixed }),
+  callback: field({ type: String }),
 });
 
 invoiceSchema.index({ invoiceNumber: 1 });
