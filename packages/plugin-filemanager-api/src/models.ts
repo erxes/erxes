@@ -1,6 +1,5 @@
-import { Model } from 'mongoose';
+import { Model, Document, Schema } from 'mongoose';
 
-import { Document, Schema } from 'mongoose';
 import { IModels } from './connectionResolver';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
 
@@ -40,7 +39,7 @@ export interface IFolderModel extends Model<IFolderDocument> {
 export const loadFolderClass = (models: IModels) => {
   class Folder {
     public static async generateCode(code?: string) {
-      let generatedCode = code || randomAlphanumeric(6);
+      let generatedCode = code ?? randomAlphanumeric(6);
 
       let prevBrand = await models.Folders.findOne({ code: generatedCode });
 
