@@ -233,7 +233,7 @@ const timeclockMutations = {
     { checkType, userId, checkTime },
     { models, user }: IContext,
   ) {
-    const getUserId = userId ? userId : user._id;
+    const getUserId = userId || user._id;
 
     return models.Absences.createAbsence({
       reason: `${checkType} request`,
@@ -284,7 +284,7 @@ const timeclockMutations = {
     }
 
     const findAbsenceType = await models.AbsenceTypes.getAbsenceType(
-      shiftRequest.absenceTypeId || '',
+      shiftRequest.absenceTypeId ?? '',
     );
 
     // if request is shift request
@@ -462,7 +462,7 @@ const timeclockMutations = {
 
     // send mobile notification
     sendMobileNotification(
-      [shiftRequest.userId || ''],
+      [shiftRequest.userId ?? ''],
       'requestSolved',
       shiftRequest,
       'request',
@@ -630,7 +630,6 @@ const timeclockMutations = {
   async scheduleRemove(_root, { _id }, { models }: IContext) {
     await models.Schedules.removeSchedule(_id);
     await models.Shifts.deleteMany({ scheduleId: _id });
-    return;
   },
   async scheduleShiftRemove(_root, { _id }, { models }: IContext) {
     const getShift = await models.Shifts.getShift(_id);
@@ -700,8 +699,6 @@ const timeclockMutations = {
     if (scheduleShiftUpdateOps.length) {
       await models.Shifts.bulkWrite(scheduleShiftUpdateOps);
     }
-
-    return;
   },
   async payDateAdd(_root, { dateNums }, { models }: IContext) {
     return models.PayDates.createPayDate({ payDates: dateNums });

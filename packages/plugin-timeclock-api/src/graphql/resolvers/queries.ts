@@ -243,7 +243,7 @@ const timeclockQueries = {
   },
 
   async scheduleConfigOrder(_root, { userId }, { models, user }: IContext) {
-    const getUserId = userId ? userId : user._id;
+    const getUserId = userId || user._id;
     return models.ScheduleConfigOrder.findOne({ userId: getUserId });
   },
 

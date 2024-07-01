@@ -29,8 +29,7 @@ import Table from "@erxes/ui/src/components/table";
 import Tip from "@erxes/ui/src/components/Tip";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils";
-import { confirm } from "@erxes/ui/src/utils";
+import { __, confirm } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
 
 type Props = {
@@ -94,18 +93,18 @@ function ScheduleList(props: Props) {
     {}
   );
 
-  const [selectedScheduleStatus, setScheduleStatus] = useState(
+  const [selectedScheduleStatus, setSelectedScheduleStatus] = useState(
     router.getParam(location, "scheduleStatus") || ""
   );
   const [showButtons, setShowButtons] = useState(false);
 
-  const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem("isSideBarOpen") === "true" ? true : false
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem("isSideBarOpen") === "true"
   );
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
-    setIsOpen(toggleIsOpen);
+    setIsSideBarOpen(toggleIsOpen);
     localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
@@ -222,7 +221,7 @@ function ScheduleList(props: Props) {
   };
 
   const onSelectScheduleStatus = (e) => {
-    setScheduleStatus(e.value);
+    setSelectedScheduleStatus(e.value);
     router.setParams(navigate, location, { scheduleStatus: e.value });
   };
 
@@ -418,7 +417,6 @@ function ScheduleList(props: Props) {
         listShiftsOnCorrectColumn[columnNumber] = [
           { shiftStart, shiftEnd, backgroundColor, scheduleConfigId },
         ];
-        continue;
       }
     }
 

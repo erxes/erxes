@@ -22,10 +22,7 @@ type Props = {
   changeScheduleBreak: (day_key: string, breakMins: number) => void;
 
   removeDate?: (day_key: string) => void;
-  timeOnly?: boolean;
-  dateOnly?: boolean;
   onInputCheckedChange: (day_key: string, checked: boolean) => void;
-  inputDefaultChecked: boolean;
 };
 
 const DatePicker = (props: Props) => {

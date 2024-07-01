@@ -1,21 +1,18 @@
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import { ITimeclock, ITimelog } from '../../types';
-import { __ } from '@erxes/ui/src/utils';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import TimeForm from '../../containers/timeclock/TimeFormList';
-import dayjs from 'dayjs';
-import { dateFormat, timeFormat } from '../../constants';
-import Tip from '@erxes/ui/src/components/Tip';
-import { returnDeviceTypes } from '../../utils';
-import Icon from '@erxes/ui/src/components/Icon';
-import TimelogForm from '../../containers/timeclock/TimelogForm';
-import TimeEditForm from '../../containers/timeclock/TimeEditForm';
-import { TextAlignCenter } from '../../styles';
+import React from "react";
+import Button from "@erxes/ui/src/components/Button";
+import { ITimeclock, ITimelog } from "../../types";
+import { __ } from "@erxes/ui/src/utils";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import dayjs from "dayjs";
+import { dateFormat, timeFormat } from "../../constants";
+import Tip from "@erxes/ui/src/components/Tip";
+import { returnDeviceTypes } from "../../utils";
+import Icon from "@erxes/ui/src/components/Icon";
+import TimelogForm from "../../containers/timeclock/TimelogForm";
+import { TextAlignCenter } from "../../styles";
 
 type Props = {
   isCurrentUserAdmin: boolean;
-
   history?: any;
   timelogsPerUser?: ITimelog[];
   timeclock: ITimeclock;
@@ -23,31 +20,16 @@ type Props = {
 };
 
 class Row extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
-
-  modalContent = props => (
-    <TimeForm
-      {...props}
-      selectedUserId={
-        this.props.timeclock.user ? this.props.timeclock.user._id : null
-      }
-      shiftId={this.props.timeclock._id}
-      shiftStarted={this.props.timeclock.shiftActive}
-    />
-  );
-
   renderTimeLogs = () => {
     const { timelogsPerUser } = this.props;
   };
 
   editShiftTimeContent = (contentProps: any, timeclock: ITimeclock) => {
     const getStartDate = dayjs(timeclock.shiftStart)
-      .add(-1, 'day')
+      .add(-1, "day")
       .format(dateFormat);
     const getEndDate = dayjs(timeclock.shiftStart)
-      .add(1, 'day')
+      .add(1, "day")
       .format(dateFormat);
 
     return (
@@ -71,13 +53,13 @@ class Row extends React.Component<Props> {
     const { timeclock, removeTimeclock } = this.props;
     const shiftStartTime = dayjs(timeclock.shiftStart).format(timeFormat);
     const shiftDate =
-      new Date(timeclock.shiftStart).toDateString().split(' ')[0] +
-      '\t' +
+      new Date(timeclock.shiftStart).toDateString().split(" ")[0] +
+      "\t" +
       dayjs(timeclock.shiftStart).format(dateFormat);
 
     const shiftEndTime = timeclock.shiftEnd
       ? dayjs(timeclock.shiftEnd).format(timeFormat)
-      : '-';
+      : "-";
 
     const overNightShift =
       timeclock.shiftEnd &&
@@ -97,16 +79,16 @@ class Row extends React.Component<Props> {
         <td>
           {timeclock.inDeviceType || returnDeviceTypes(timeclock.deviceType)[0]}
         </td>
-        <td>{timeclock.inDevice || '-'}</td>
+        <td>{timeclock.inDevice || "-"}</td>
         <td>{shiftEndTime}</td>
-        <td>{overNightShift ? 'O' : '-'}</td>
+        <td>{overNightShift ? "O" : "-"}</td>
         <td>
           {timeclock.shiftActive
-            ? '-'
+            ? "-"
             : timeclock.outDeviceType ||
               returnDeviceTypes(timeclock.deviceType)[1]}
         </td>
-        <td>{timeclock.outDevice || '-'}</td>
+        <td>{timeclock.outDevice || "-"}</td>
         <td>
           <TextAlignCenter>
             <ModalTrigger
@@ -117,7 +99,7 @@ class Row extends React.Component<Props> {
                 this.editShiftTimeContent(contentProps, timeclock)
               }
             />
-            <Tip text={__('Delete')} placement="top">
+            <Tip text={__("Delete")} placement="top">
               <Button
                 btnStyle="link"
                 onClick={() => removeTimeclock(timeclock._id)}

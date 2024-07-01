@@ -59,7 +59,7 @@ function ConfigForm(props: Props) {
 
   const [payPeriod, setPayPeriod] = useState("");
 
-  const [explanationRequired, setExplRequired] = useState(
+  const [explanationRequired, setExplanationRequired] = useState(
     (absenceType && absenceType.explRequired) || false
   );
 
@@ -71,11 +71,11 @@ function ConfigForm(props: Props) {
     (absenceType && absenceType.explRequired) || false
   );
 
-  const [scheduleOvertimeExists, setScheduleOverTimeExists] = useState(
+  const [scheduleOvertimeExists, setScheduleOvertimeExists] = useState(
     (absenceType && absenceType.explRequired) || false
   );
 
-  const [attachmentRequired, setAttachRequired] = useState(
+  const [attachmentRequired, setAttachmentRequired] = useState(
     (absenceType && absenceType.attachRequired) || false
   );
 
@@ -141,7 +141,7 @@ function ConfigForm(props: Props) {
     startingDate: (holiday && holiday.startTime) || null,
     endingDate: (holiday && holiday.endTime) || null,
   });
-  const [payDates, setpayDates] = useState({
+  const [payDates, setPayDates] = useState({
     date1: new Date(),
     date2: new Date(),
   });
@@ -163,10 +163,10 @@ function ConfigForm(props: Props) {
     setHoursPerDay(parseInt(e.target.value, 10));
   };
   const toggleExplRequired = (e) => {
-    setExplRequired(e.target.checked);
+    setExplanationRequired(e.target.checked);
   };
   const toggleAttachRequired = (e) => {
-    setAttachRequired(e.target.checked);
+    setAttachmentRequired(e.target.checked);
   };
   const toggleDeviceExtractRequired = (e) => {
     setDeviceExtractRequired(e.target.checked);
@@ -174,7 +174,7 @@ function ConfigForm(props: Props) {
 
   const onConfigDateChange = (dateNum: string, newDate: Date) => {
     payDates[dateNum] = newDate;
-    setpayDates({ ...payDates });
+    setPayDates({ ...payDates });
   };
   const onHolidayStartDateChange = (newStartDate) => {
     setHolidayDates({ ...holidayDates, startingDate: newStartDate });
@@ -760,7 +760,7 @@ function ConfigForm(props: Props) {
               componentclass="checkbox"
               defaultChecked={scheduleOvertimeExists}
               onChange={() =>
-                setScheduleOverTimeExists(!scheduleOvertimeExists)
+                setScheduleOvertimeExists(!scheduleOvertimeExists)
               }
             />
           </FlexRow>

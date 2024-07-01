@@ -9,6 +9,7 @@ import {
   MarginX,
   MarginY,
   SortItem,
+  Row,
 } from "../../styles";
 import { IBranch, IDepartment } from "@erxes/ui/src/team/types";
 import {
@@ -32,7 +33,6 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import { PopoverButton } from "@erxes/ui/src/styles/main";
-import { Row } from "../../styles";
 import Select from "react-select";
 import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -88,7 +88,7 @@ function ScheduleForm(props: Props) {
         shiftEnd: new Date(shift.shiftEnd),
         scheduleConfigId: shift.scheduleConfigId,
         lunchBreakInMins: shift.lunchBreakInMins,
-        inputChecked: shift.scheduleConfigId ? false : true,
+        inputChecked: !shift.scheduleConfigId,
       };
     });
 
@@ -149,11 +149,11 @@ function ScheduleForm(props: Props) {
 
   const [inputDefaultChecked, setInputDefaultChecked] = useState(false);
 
-  const [selectedScheduleConfigId, setScheduleConfigId] = useState(
+  const [selectedScheduleConfigId, setSelectedScheduleConfigId] = useState(
     scheduleConfigsOrderData.orderedList[0]?.scheduleConfigId
   );
 
-  const [lastSelectedDate, setlastSelectedDate] = useState(new Date());
+  const [lastSelectedDate, setLastSelectedDate] = useState(new Date());
 
   const [scheduleId, setScheduleId] = useState(scheduleOfMember?._id);
 
@@ -164,8 +164,8 @@ function ScheduleForm(props: Props) {
     scheduleConfigsObject[selectedScheduleConfigId]?.shiftEnd
   );
 
-  const [dateRangeStart, setDateStart] = useState(new Date());
-  const [dateRangeEnd, setDateEnd] = useState(new Date());
+  const [dateRangeStart, setDateRangeStart] = useState(new Date());
+  const [dateRangeEnd, setDateRangeEnd] = useState(new Date());
 
   const [scheduleDates, setScheduleDates] = useState<IScheduleForm>(
     convertScheduleIntoScheduleForm(scheduleOfMember)
@@ -191,7 +191,7 @@ function ScheduleForm(props: Props) {
   const [overlayTrigger, setOverlayTrigger] = useState<any>(null);
 
   useEffect(() => {
-    setScheduleConfigId(
+    setSelectedScheduleConfigId(
       scheduleConfigsOrderData.orderedList[0].scheduleConfigId
     );
   }, [scheduleConfigsOrderData]);
@@ -215,7 +215,7 @@ function ScheduleForm(props: Props) {
   const onScheduleConfigSelectForAll = (scheduleConfig) => {
     const selectedScheduleConfidId = scheduleConfig.value;
 
-    setScheduleConfigId(selectedScheduleConfidId);
+    setSelectedScheduleConfigId(selectedScheduleConfidId);
 
     setDefaultStartTime(
       scheduleConfigsObject[selectedScheduleConfidId].shiftStart
@@ -469,7 +469,7 @@ function ScheduleForm(props: Props) {
       ...prevScheduleDates,
     });
 
-    setScheduleConfigId(scheduleConfigId);
+    setSelectedScheduleConfigId(scheduleConfigId);
     setDefaultStartTime(scheduleConfigsObject[scheduleConfigId].shiftStart);
     setDefaultEndTime(scheduleConfigsObject[scheduleConfigId].shiftEnd);
   };
@@ -795,7 +795,7 @@ function ScheduleForm(props: Props) {
       <FlexColumn $marginNum={10}>
         <div style={{ marginBottom: "0" }}>
           <SelectDepartments
-            disabled={scheduleId ? true : false}
+            disabled={!!scheduleId}
             isRequired={false}
             defaultValue={departmentIds}
             onChange={onDepartmentSelect}
@@ -806,7 +806,7 @@ function ScheduleForm(props: Props) {
             <ControlLabel>Branches</ControlLabel>
             <Row>
               <Select
-                isDisabled={scheduleId ? true : false}
+                isDisabled={!!scheduleId}
                 value={
                   branches &&
                   renderBranchOptions(branches).filter((o) =>
@@ -882,11 +882,11 @@ function ScheduleForm(props: Props) {
   };
 
   const onDateRangeStartChange = (newStart: Date) => {
-    setDateStart(newStart);
+    setDateRangeStart(newStart);
   };
 
   const onDateRangeEndChange = (newEnd: Date) => {
-    setDateEnd(newEnd);
+    setDateRangeEnd(newEnd);
   };
 
   const onSaveDateRange = () => {
@@ -981,7 +981,7 @@ function ScheduleForm(props: Props) {
         JSON.stringify(dateString).split("-")[1] !==
         JSON.stringify(lastSelectedDate).split("-")[1]
       ) {
-        setlastSelectedDate(new Date(dateString));
+        setLastSelectedDate(new Date(dateString));
       }
 
       const getDate = dayjs(dateString).format(dateFormat);
@@ -1109,19 +1109,17 @@ function ScheduleForm(props: Props) {
   };
 
   const renderAdminConfigSwitchContent = () => {
-    switch (contentType) {
-      case "By Date Selection":
-        return adminConfigBySelect();
-      default:
-        return adminConfigByDateRange();
+    if (contentType === "By Date Selection") {
+      return adminConfigBySelect();
+    } else {
+      return adminConfigByDateRange();
     }
   };
 
-  switch (modalContentType) {
-    case "adminConfig":
-      return adminConfigDefaultContent();
-    default:
-      return modalContent();
+  if (modalContentType === "adminConfig") {
+    return adminConfigDefaultContent();
+  } else {
+    return modalContent();
   }
 }
 

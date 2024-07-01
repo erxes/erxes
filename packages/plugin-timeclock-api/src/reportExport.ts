@@ -333,17 +333,17 @@ const extractAndAddIntoSheet = async (
                   getDeviceNames[0] &&
                   getDeviceNames[0].includes('faceTerminal')
                 ) {
-                  checkInDevice = scheduleShift.deviceName || '-';
+                  checkInDevice = scheduleShift.deviceName ?? '-';
                 }
                 if (
                   getDeviceNames[1] &&
                   getDeviceNames[1].includes('faceTerminal')
                 ) {
-                  checkOutDevice = scheduleShift.deviceName || '-';
+                  checkOutDevice = scheduleShift.deviceName ?? '-';
                 }
               } else {
-                checkInDevice = scheduleShift.deviceName || '-';
-                checkOutDevice = scheduleShift.deviceName || '-';
+                checkInDevice = scheduleShift.deviceName ?? '-';
+                checkOutDevice = scheduleShift.deviceName ?? '-';
               }
             }
             const shiftInfo: any = [];

@@ -3,7 +3,7 @@ import * as xlsxPopulate from 'xlsx-populate';
 import { IModels } from './connectionResolver';
 import { TIMECLOCK_EXPORT_COLUMNS } from './constants';
 import { timeclockReportByUsers } from './graphql/resolvers/utils';
-import { ITeamMembersObj, IUserReport } from './models/definitions/timeclock';
+import { ITeamMembersObj } from './models/definitions/timeclock';
 import {
   createTeamMembersObjectWithFullName,
   findTeamMember,

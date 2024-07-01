@@ -71,8 +71,8 @@ function AbsenceList(props: Props) {
   } = props;
 
   const [note, setNote] = useState("");
-  const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem("isSideBarOpen") === "true" ? true : false
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem("isSideBarOpen") === "true"
   );
 
   const [seeDates, setSeeDates] = useState(
@@ -81,7 +81,7 @@ function AbsenceList(props: Props) {
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
-    setIsOpen(toggleIsOpen);
+    setIsSideBarOpen(toggleIsOpen);
     localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 

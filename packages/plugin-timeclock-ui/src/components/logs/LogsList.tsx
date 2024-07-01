@@ -53,8 +53,8 @@ function ReportList(props: Props) {
     isCurrentUserAdmin,
   } = props;
 
-  const [isSideBarOpen, setIsOpen] = useState(
-    localStorage.getItem("isSideBarOpen") === "true" ? true : false
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem("isSideBarOpen") === "true"
   );
 
   const [startDate, setStartDate] = useState(
@@ -66,7 +66,7 @@ function ReportList(props: Props) {
 
   const onToggleSidebar = () => {
     const toggleIsOpen = !isSideBarOpen;
-    setIsOpen(toggleIsOpen);
+    setIsSideBarOpen(toggleIsOpen);
     localStorage.setItem("isSideBarOpen", toggleIsOpen.toString());
   };
 
@@ -93,13 +93,11 @@ function ReportList(props: Props) {
   );
 
   const actionBarRight = (
-    <>
-      <ModalTrigger
-        title={__("Extract time logs")}
-        trigger={extractTrigger}
-        content={extractContent}
-      />
-    </>
+    <ModalTrigger
+      title={__("Extract time logs")}
+      trigger={extractTrigger}
+      content={extractContent}
+    />
   );
 
   const actionBar = (
