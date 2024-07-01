@@ -7,7 +7,6 @@ import React from "react";
 import { productTypeChoises } from "../../../utils";
 
 interface IProps {
-  searchable?: boolean;
 }
 
 const ProductTypeFilter: React.FC<IProps> = (props) => {

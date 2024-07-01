@@ -218,7 +218,7 @@ const productQueries = {
 
     let sort: any = { code: 1 };
     if (sortField) {
-      sort = { [sortField]: sortDirection || 1 };
+      sort = { [sortField]: sortDirection ?? 1 };
     }
 
     if (params.groupedSimilarity) {
@@ -326,7 +326,7 @@ const productQueries = {
 
       const matchedMasks = codeMasks.filter(
         (cm) =>
-          product.code.match(getRegex(cm)) &&
+          getRegex(cm).exec(product.code) &&
           (similarityGroups[cm].rules || [])
             .map((sg) => sg.fieldId)
             .filter((sgf) => customFieldIds.includes(sgf)).length ===

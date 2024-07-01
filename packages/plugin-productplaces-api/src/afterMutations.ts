@@ -27,7 +27,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
 
-      if (!(deal.productsData && deal.productsData.length)) {
+      if (!(deal?.productsData?.length)) {
         return;
       }
 
@@ -123,7 +123,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
                   data: {
                     prioritizeRule: 'exclude',
                     totalAmount: perDatas.reduce(
-                      (sum, cur) => (sum + cur.amount, 0),
+                      (sum, cur) => {return sum + cur.amount}, 0
                     ),
                     departmentId: departmentId,
                     branchId: branchId,
@@ -268,6 +268,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
       }
     }
-    return;
+
   }
 };

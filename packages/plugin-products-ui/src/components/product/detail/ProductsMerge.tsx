@@ -2,12 +2,11 @@ import Button from '@erxes/ui/src/components/Button';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter,Info, InfoTitle  } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { PRODUCT_INFO } from '@erxes/ui-products/src/constants';
 import { InfoDetail } from '../../../styles';
-import { Info, InfoTitle } from '@erxes/ui/src/styles/main';
 import { IProduct, IProductDoc } from '../../../types';
 
 type Props = {
@@ -49,7 +48,7 @@ const ProductsMerge: React.FC<Props> = (props) => {
       selectedValues[key] = value;
 
       if (key === 'links') {
-        const links = Object.assign({ ...initialSelectedValues.links }, value);
+        const links = { ...initialSelectedValues.links, ...value };
         selectedValues[key] = links;
       }
     } else {

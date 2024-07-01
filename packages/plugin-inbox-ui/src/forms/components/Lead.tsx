@@ -154,7 +154,8 @@ class Lead extends React.Component<Props, State> {
       saveAsCustomer: leadData.saveAsCustomer,
       logo: callout.featuredImage,
       calloutImgSize: callout.calloutImgSize || "50%",
-      isSkip: callout.skip && true,
+      isSkip: callout.skip,
+
       carousel: callout.skip ? "form" : "callout",
 
       currentMode: this.props.currentMode || "create",
@@ -415,10 +416,7 @@ class Lead extends React.Component<Props, State> {
               >
                 <OptionStep
                   title={title}
-                  type={type}
-                  color={color}
                   brand={brand}
-                  theme={theme}
                   language={language}
                   formData={this.state.formData}
                   isRequireOnce={isRequireOnce}
@@ -458,7 +456,8 @@ class Lead extends React.Component<Props, State> {
                   successAction={successAction}
                   leadData={leadData}
                   formId={integration && integration.formId}
-                  emailTemplates={emailTemplates ? emailTemplates : []}
+                  emailTemplates = {emailTemplates || []}
+
                   successImage={successImage}
                   successPreviewStyle={successPreviewStyle}
                   successImageSize={successImageSize}

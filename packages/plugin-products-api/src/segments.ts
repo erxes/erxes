@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+
 
 export default {
   contentTypes: [

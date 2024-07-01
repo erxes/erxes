@@ -1,6 +1,5 @@
 import { ICustomField } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
-import * as _ from 'lodash';
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
 import {
@@ -146,7 +145,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       const product = await models.Products.getProduct({ _id });
 
       const category = await models.ProductCategories.getProductCategory({
-        _id: doc.categoryId || product.categoryId,
+        _id: doc.categoryId ?? product.categoryId,
       });
 
       if (doc.code) {
@@ -243,12 +242,12 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       let tagIds: string[] = [];
       let barcodes: string[] = [];
       const name: string = productFields.name || '';
-      const shortName: string = productFields.shortName || '';
-      const type: string = productFields.type || '';
-      const description: string = productFields.description || '';
-      const barcodeDescription: string = productFields.barcodeDescription || '';
-      const categoryId: string = productFields.categoryId || '';
-      const vendorId: string = productFields.vendorId || '';
+      const shortName: string = productFields.shortName ?? '';
+      const type: string = productFields.type ?? '';
+      const description: string = productFields.description ?? '';
+      const barcodeDescription: string = productFields.barcodeDescription ?? '';
+      const categoryId: string = productFields.categoryId ?? '';
+      const vendorId: string = productFields.vendorId ?? '';
       const usedIds: string[] = [];
 
       for (const productId of productIds) {

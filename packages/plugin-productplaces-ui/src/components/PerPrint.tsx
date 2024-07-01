@@ -24,7 +24,7 @@ type Props = {
 const PerPrintSettings = (props: Props) => {
   const { configsMap, currentConfigKey, save } = props;
   const [config, setConfig] = useState(props.config);
-  const [conditions, setconditions] = useState(props.config.conditions || []);
+  const [conditions, setConditions] = useState(props.config.conditions || []);
 
   const onChangeBoard = (boardId: string) => {
     setConfig({ ...config, boardId });
@@ -66,13 +66,13 @@ const PerPrintSettings = (props: Props) => {
     conditions.push({
       id: Math.random().toString(),
     });
-    setconditions(conditions);
+    setConditions(conditions);
     onChangeConfig('conditions', conditions);
   };
 
   const renderConditions = () => {
     const remove = (id) => {
-      setconditions(conditions.filter((c) => c.id !== id));
+      setConditions(conditions.filter((c) => c.id !== id));
       onChangeConfig(
         'conditions',
         conditions.filter((c) => c.id !== id),
@@ -83,7 +83,7 @@ const PerPrintSettings = (props: Props) => {
       const updated = (conditions || []).map((c) =>
         c.id === id ? condition : c,
       );
-      setconditions(updated);
+      setConditions(updated);
       onChangeConfig('conditions', updated);
     };
 
@@ -100,7 +100,8 @@ const PerPrintSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={currentConfigKey === 'newPrintConfig' ? true : false}
+      open={currentConfigKey === 'newPrintConfig'}
+
     >
       <FormGroup>
         <ControlLabel>{'Title'}</ControlLabel>
@@ -152,7 +153,8 @@ const PerPrintSettings = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.stageId ? false : true}
+          disabled={!config.stageId}
+
         >
           Save
         </Button>

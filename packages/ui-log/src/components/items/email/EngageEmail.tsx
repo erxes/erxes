@@ -18,7 +18,6 @@ import xss from 'xss';
 
 type Props = {
   email: IEngageMessage;
-  emailType: string;
   activity: any;
 };
 

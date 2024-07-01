@@ -19,16 +19,11 @@ import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/wor
 import React from 'react';
 import RespondBox from '../../../containers/conversationDetail/RespondBox';
 import TypingIndicator from './TypingIndicator';
-import { __ } from 'coreui/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  queryParams?: any;
-  title?: string;
-  currentConversationId?: string;
   currentConversation: IConversation;
   conversationMessages: IMessage[];
-  loading: boolean;
   typingInfo?: string;
   loadMoreMessages: () => void;
   addMessage: ({
@@ -101,7 +96,7 @@ export default class WorkArea extends React.Component<Props, State> {
       this.scrollBottom();
     }
 
-    return;
+
   }
 
   onScroll = () => {
@@ -127,7 +122,8 @@ export default class WorkArea extends React.Component<Props, State> {
   };
 
   isMailConversation = (kind: string) =>
-    kind.includes('nylas') || kind === 'gmail' ? true : false;
+    kind.includes('nylas') || kind === 'gmail';
+
 
   renderExtraHeading = (kind: string, conversationMessage: IMessage) => {
     if (!conversationMessage) {
@@ -248,7 +244,8 @@ export default class WorkArea extends React.Component<Props, State> {
       const data = (
         <RespondBox
           showInternal={isEnabled('internalnotes') ? showInternal : false}
-          disableInternalState={showInternal ? true : false}
+          disableInternalState={showInternal}
+
           conversation={currentConversation}
           setAttachmentPreview={this.setAttachmentPreview}
           addMessage={addMessage}

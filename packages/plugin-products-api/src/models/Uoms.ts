@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { PRODUCT_STATUSES } from './definitions/products';
 import { IUom, IUomDocument, uomSchema } from './definitions/uoms';

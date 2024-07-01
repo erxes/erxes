@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+
 import ActionBar from './ActionBar';
 import { ContentBox } from '@erxes/ui/src/layout/styles';
 import React from 'react';
