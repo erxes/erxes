@@ -26,6 +26,9 @@ export function TagsSection({
   queryParams: any;
   type: string;
 }) {
+  const { data, error, loading } = useQuery(gql(queries.tags), {
+    variables: { type },
+  });
   if (!isEnabled("tags")) {
     return (
       <Box name="tags" title="Filter by Tags">
@@ -33,9 +36,7 @@ export function TagsSection({
       </Box>
     );
   }
-  const { data, error, loading } = useQuery(gql(queries.tags), {
-    variables: { type },
-  });
+  
 
   if (loading) {
     return <Spinner />;
@@ -70,11 +71,11 @@ export function TagsSection({
         </button>
       </Link>
       {queryParams.tagIds && (
-        <a>
+
           <button onClick={handleRemoveParams}>
             <Icon icon="cancel-1" />
           </button>
-        </a>
+        
       )}
     </BarItems>
   );
@@ -94,11 +95,11 @@ export function TagsSection({
                 $isActive={(queryParams?.tagIds || []).includes(_id)}
                 onClick={handleSetParams.bind(this, _id)}
               >
-                <a>
+                
                   {"\u00A0 \u00A0 ".repeat(level)}
                   <Icon icon="tag-2" color={colorCode} />
                   {name}
-                </a>
+                
               </SidebarListItem>
             );
           }

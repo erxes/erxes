@@ -89,7 +89,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
     for (const tag of tags) {
       const order = tag.order || "";
 
-      const foundedString = order.match(/[/]/gi);
+      const foundedString = order.match(/\//gi);
 
       let space = "";
 

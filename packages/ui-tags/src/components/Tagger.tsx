@@ -61,7 +61,7 @@ const Tagger: React.FC<TaggerProps> = (props) => {
       const maxCursor: number = tagsForList.length;
 
       switch (event.keyCode) {
-        case 13:
+        case 13:{
           const element = document.getElementsByClassName(
             "tag-" + cursor
           )[0] as HTMLElement;
@@ -73,6 +73,7 @@ const Tagger: React.FC<TaggerProps> = (props) => {
             showTags.click();
           }
           break;
+        };
         case 38:
           // Arrow move up
           if (cursor > 0) {
@@ -192,7 +193,7 @@ const Tagger: React.FC<TaggerProps> = (props) => {
     className,
     links,
     selectable: true,
-    treeView: disableTreeView ? false : true,
+    treeView: !disableTreeView,
     items: JSON.parse(JSON.stringify(state.tagsForList)),
     isIndented: false,
     singleSelect,

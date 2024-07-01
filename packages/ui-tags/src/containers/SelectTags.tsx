@@ -10,7 +10,7 @@ export function generateTagOptions(array: ITag[] = []): IOption[] {
   return array.map(item => {
     const tag = item || ({} as ITag);
 
-    const foundedString = (tag.order || '').match(/[/]/gi);
+    const foundedString = (tag.order || '').match(/\//gi);
 
     let space = '';
 
