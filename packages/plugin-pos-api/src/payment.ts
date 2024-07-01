@@ -2,6 +2,9 @@ import { generateModels } from './connectionResolver';
 import { sendPosclientMessage } from './messageBroker';
 
 export default {
+  transactionCallback: async ({ subdomain, data }) => {
+    // TODO: implement transaction callback if necessary
+  },
   callback: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -19,5 +22,5 @@ export default {
       pos,
       isRPC: false,
     });
-  },
+  }
 };

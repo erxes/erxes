@@ -4,7 +4,7 @@ export const generateFilter = async (
   models: IModels,
   params,
   type,
-  subdomain: string,
+  subdomain: string
 ) => {
   let filter: any = {};
 
@@ -23,7 +23,7 @@ export const generateFilter = async (
   if (params.parentId) {
     if (params.parentId === '*') {
       const assets = await models?.Assets.find({
-        parentId: { $in: ['', undefined, null] },
+        parentId: { $in: ['', undefined, null] }
       });
       const assetIds = (assets || []).map((asset) => asset._id);
       filter.assetId = { $in: assetIds };
@@ -44,7 +44,7 @@ export const generateFilter = async (
       action: 'branches.findOne',
       data: { _id: params.branchId },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (branch) {
@@ -54,7 +54,7 @@ export const generateFilter = async (
           action: 'branches.find',
           data: { query: { order: { $regex: branch.order } } },
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         })
       ).map((branch) => branch._id);
       filter.branchId = { $in: branchIds };
@@ -69,7 +69,7 @@ export const generateFilter = async (
       action: 'departments.find',
       data: { _id: params.departmentId },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (department) {
@@ -77,7 +77,7 @@ export const generateFilter = async (
         await sendCoreMessage({
           subdomain,
           action: 'departments.find',
-          data: { order: { $regex: department.order } },
+          data: { order: { $regex: department.order } }
         })
       ).map((department) => department._id);
       filter.departmentId = { $in: departmentIds };
@@ -103,7 +103,7 @@ export const generateFilter = async (
   if (params.createdAtTo) {
     filter.createdAt = {
       ...filter.createdAt,
-      $lt: new Date(params.createdAtTo),
+      $lt: new Date(params.createdAtTo)
     };
   }
 
@@ -120,7 +120,7 @@ export const generateFilter = async (
   if (params.modifiedAtTo) {
     filter.modifiedAt = {
       ...filter.modifiedAt,
-      $lt: new Date(params.modifiedAtTo),
+      $lt: new Date(params.modifiedAtTo)
     };
   }
 
@@ -129,20 +129,20 @@ export const generateFilter = async (
       filter.$or = [
         { _id: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') } },
         {
-          description: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') },
-        },
+          description: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
+        }
       ];
     }
     if (type === 'movementItems') {
       const assetIds = await models?.Assets.find({
         $or: [
           {
-            name: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') },
+            name: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
           },
           {
-            code: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') },
-          },
-        ],
+            code: { $regex: new RegExp(`.*${params.searchValue}.*`, 'i') }
+          }
+        ]
       }).distinct('_id');
 
       filter.assetId = { $in: assetIds };
@@ -171,14 +171,14 @@ export const generateFilter = async (
         $group: {
           _id: '$assetId',
           movements: {
-            $push: '$$ROOT',
-          },
-        },
+            $push: '$$ROOT'
+          }
+        }
       },
       { $unwind: '$movements' },
       { $sort: { 'movements.createdAt': -1 } },
       { $group: { _id: '$_id', movements: { $push: '$movements' } } },
-      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } },
+      { $replaceRoot: { newRoot: { $arrayElemAt: ['$movements', 0] } } }
     ];
 
     const movements = await models?.MovementItems.aggregate(pipeline);
@@ -188,4 +188,33 @@ export const generateFilter = async (
   }
 
   return filter;
+};
+
+export const getLasthistoryEachAssets = async (
+  models: IModels,
+  filter: any
+) => {
+  return await models.AssetsKbArticlesHistories.aggregate([
+    { $match: { ...filter } }, // filter items
+    { $sort: { createdAt: -1 } },
+    {
+      $group: {
+        _id: {
+          assetId: '$assetId',
+          kbArticleId: '$kbArticleId'
+        },
+        kbArticles: {
+          $push: '$$ROOT' // Group all entries under each assetId
+        }
+      }
+    },
+    {
+      $project: {
+        _id: null,
+        assetId: '$_id.assetId',
+        kbArticleId: '$_id.kbArticleId',
+        current: { $arrayElemAt: ['$kbArticles', 0] }
+      }
+    }
+  ]);
 };

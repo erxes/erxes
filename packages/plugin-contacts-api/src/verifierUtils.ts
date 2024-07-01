@@ -109,7 +109,7 @@ export const validateBulk = async (
         },
         { primaryEmail: 1, _id: 0 },
       ).limit(1000) as any
-    ).stream();
+    ).cursor();
 
     return new Promise((resolve, reject) => {
       const pipe = customersEmailStream.pipe(customerTransformerToEmailStream);
@@ -153,7 +153,7 @@ export const validateBulk = async (
       },
       { primaryPhone: 1, _id: 0 },
     ).limit(1000) as any
-  ).stream();
+  ).cursor();
 
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);

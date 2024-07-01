@@ -1,7 +1,8 @@
 import { useState } from "react"
+import { resetAtom } from "@/store"
 import { configAtom, configsAtom } from "@/store/config.store"
 import { useMutation } from "@apollo/client"
-import { useAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 import { CheckIcon, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -19,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { mutations } from "./graphql"
 
@@ -28,11 +29,14 @@ const ChooseConfig = () => {
 
   const [config] = useAtom(configAtom)
   const [configs] = useAtom(configsAtom)
-  const { onError } = useToast()
+  const reset = useSetAtom(resetAtom)
 
   const [chooseConfig, { loading }] = useMutation(mutations.chooseConfig, {
     refetchQueries: ["CurrentConfig"],
-    onError,
+    onCompleted: reset,
+    onError({ message }) {
+      onError(message)
+    },
   })
 
   const handleChange = (value: string) => {

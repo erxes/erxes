@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { schemaHooksWrapper, field } from './utils';
+import { Document, Schema } from "mongoose";
+import { schemaHooksWrapper, field } from "./utils";
 
 export interface ITransaction {
   number?: string;
@@ -17,7 +17,7 @@ export interface ITransaction {
   contractReaction?: any;
   storeReaction?: any;
   isManual?: boolean;
-  dealtType?: 'internal' | 'external';
+  dealtType?: "internal" | "external";
   dealtResponse?: any;
   accountNumber?: string;
   accountHolderName?: string;
@@ -37,69 +37,69 @@ export const transactionSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     number: field({
       type: String,
-      label: 'Number',
+      label: "Number",
       index: true
     }),
     contractId: field({
       type: String,
       optional: true,
-      label: 'Contract',
+      label: "Contract",
       index: true
     }),
     customerId: field({
       type: String,
       optional: true,
-      label: 'Customer',
+      label: "Customer",
       index: true
     }),
     companyId: field({
       type: String,
       optional: true,
-      label: 'Company',
+      label: "Company",
       index: true
     }),
     transactionType: field({
       type: String,
       optional: true,
-      label: 'Transaction type'
+      label: "Transaction type"
     }),
-    description: field({ type: String, optional: true, label: 'Description' }),
+    description: field({ type: String, optional: true, label: "Description" }),
     payDate: field({
       type: Date,
       default: new Date(),
-      label: 'Created at'
+      label: "Created at"
     }),
     payment: field({
       type: Number,
       min: 0,
       default: 0,
       optional: true,
-      label: 'payment'
+      label: "payment"
     }),
     storedInterest: field({
       type: Number,
       min: 0,
       default: 0,
       optional: true,
-      label: 'stored interest'
+      label: "stored interest"
     }),
-    total: field({ type: Number, min: 0, default: 0, label: 'total' }),
-    balance: field({ type: Number, min: 0, default: 0, label: 'balance' }),
+    total: field({ type: Number, min: 0, default: 0, label: "total" }),
+    balance: field({ type: Number, min: 0, default: 0, label: "balance" }),
     currency: field({
       type: String,
-      default: 'MNT',
-      label: 'transaction currency of saving'
+      default: "MNT",
+      label: "transaction currency of saving"
     }),
-    contractReaction: field({ type: Object, label: 'Contract reaction' }),
-    storeReaction: field({ type: Object, label: 'Contract reaction' }),
-    isManual: field({ type: Boolean, label: 'Is manual transaction' }),
-    dealtType: field({ type: String, label: 'dealtType' }),
-    dealtResponse: field({ type: String, label: 'dealtResponse' }),
-    accountNumber: field({ type: String, label: 'accountNumber' }),
-    accountHolderName: field({ type: String, label: 'accountHolderName' }),
-    externalBankName: field({ type: String, label: 'externalBankName' }),
-    ownBankNumber: field({ type: String, label: 'ownBankNumber' }),
-    ownBankType: field({ type: String, label: 'ownBankType' })
+    contractReaction: field({ type: Object, label: "Contract reaction" }),
+    storeReaction: field({ type: Object, label: "Contract reaction" }),
+    isManual: field({ type: Boolean, label: "Is manual transaction" }),
+    dealtType: field({ type: String, label: "dealtType" }),
+    dealtResponse: field({ type: Schema.Types.Mixed, label: "dealtResponse" }),
+    accountNumber: field({ type: String, label: "accountNumber" }),
+    accountHolderName: field({ type: String, label: "accountHolderName" }),
+    externalBankName: field({ type: String, label: "externalBankName" }),
+    ownBankNumber: field({ type: String, label: "ownBankNumber" }),
+    ownBankType: field({ type: String, label: "ownBankType" })
   }),
-  'erxes_transactionSchema'
+  "erxes_transactionSchema"
 );
