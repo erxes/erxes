@@ -43,7 +43,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       return 0;
     }
 
-    let count = (overallWork.needProductsData[0] || {}).liveRem || 0;
+    let count = overallWork.needProductsData[0]?.liveRem ?? 0;
 
     for (const data of overallWork.needProductsData || []) {
       if (count > data.liveRem) {
@@ -60,7 +60,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
       return 0;
     }
 
-    let count = (overallWork.resultProductsData[0] || {}).liveRem || 0;
+    let count = overallWork.resultProductsData?.liveRem ?? 0;
 
     for (const data of overallWork.resultProductsData || []) {
       const diff = data.quantity + data.reserveRem - data.liveRem;
@@ -80,57 +80,6 @@ class OverallWorkDetail extends React.Component<Props, State> {
       maxMadeCount: this.calcMaxMadeCount(),
     };
   }
-
-  displayValue(overallWork, name) {
-    const value = _.get(overallWork, name);
-    return <FinanceAmount>{(value || 0).toLocaleString()}</FinanceAmount>;
-  }
-
-  renderRow(label, value) {
-    return (
-      <li>
-        <FlexRow>
-          <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <SidebarCounter>{value || "-"}</SidebarCounter>
-        </FlexRow>
-      </li>
-    );
-  }
-
-  renderEditRow(label, key) {
-    const value = this.state[key];
-    const onChangeValue = (e) => {
-      this.setState({ [key]: Number(e.target.value) } as any);
-    };
-    return (
-      <li>
-        <FlexRow>
-          <FieldStyle>{__(`${label}`)}:</FieldStyle>
-          <FormControl type="number" onChange={onChangeValue} value={value} />
-        </FlexRow>
-      </li>
-    );
-  }
-
-  generateLabel = (customer) => {
-    const { firstName, primaryEmail, primaryPhone, lastName } =
-      customer || ({} as ICustomer);
-
-    let value = firstName ? firstName.toUpperCase() : "";
-
-    if (lastName) {
-      value = `${value} ${lastName}`;
-    }
-    if (primaryPhone) {
-      value = `${value} (${primaryPhone})`;
-    }
-    if (primaryEmail) {
-      value = `${value} /${primaryEmail}/`;
-    }
-
-    return value;
-  };
-
   renderContent() {
     const { overallWork, queryParams, errorMsg, performs, removePerform } =
       this.props;
