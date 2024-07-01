@@ -10,8 +10,6 @@ import {
   IFilterParams,
   IOptions,
   ItemsQueryResponse,
-  RemoveStageMutation,
-  SaveItemMutation
 } from '../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
@@ -21,15 +19,12 @@ type StageProps = {
   index: number;
   queryParams: IFilterParams;
   options: IOptions;
-  refetchStages: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
   length: number;
-};
+}
 
 type FinalStageProps = {
-  addMutation: SaveItemMutation;
   itemsQuery: ItemsQueryResponse;
   itemsTotalCountQuery: any;
-  removeStageMutation: RemoveStageMutation;
 } & StageProps;
 
 type State = {

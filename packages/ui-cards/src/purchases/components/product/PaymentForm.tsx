@@ -124,8 +124,6 @@ class PaymentForm extends React.Component<Props, State> {
 
           this.setState({ paymentsData });
           this.props.onChangePaymentsData(paymentsData);
-
-          return;
         }
       });
     };

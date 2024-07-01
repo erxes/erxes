@@ -23,7 +23,6 @@ import { mutations, queries, subscriptions } from '../graphql';
 
 import InvisibleItemInUrl from './InvisibleItemInUrl';
 import React from 'react';
-import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
@@ -45,7 +44,6 @@ type WrapperProps = {
 };
 
 type Props = WrapperProps & {
-  currentUserQuery: UserDetailQueryResponse;
   pipelineDetailQuery: PipelineDetailQueryResponse;
 };
 
@@ -105,7 +103,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
-      isShowLabel: false || localStorage.getItem(pipeline._id) === 'true',
+      isShowLabel: localStorage.getItem(pipeline._id) === 'true',
     };
 
     PipelineProviderInner.tasks = [];
@@ -657,7 +655,6 @@ class PipelineProviderInner extends React.Component<Props, State> {
     const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
 
     return (
-      <>
         <PipelineContext.Provider
           value={{
             options: this.props.options,
@@ -679,7 +676,6 @@ class PipelineProviderInner extends React.Component<Props, State> {
           {this.props.children}
           {this.renderInvisibleItemInUrl()}
         </PipelineContext.Provider>
-      </>
     );
   }
 }

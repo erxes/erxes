@@ -119,7 +119,6 @@ const ListGroupBy = (props: Props) => {
     }
 
     return (
-      <>
         <Table $hover={true} $bordered={true}>
           <thead>
             <tr>
@@ -153,7 +152,6 @@ const ListGroupBy = (props: Props) => {
             ))}
           </tbody>
         </Table>
-      </>
     );
   };
 

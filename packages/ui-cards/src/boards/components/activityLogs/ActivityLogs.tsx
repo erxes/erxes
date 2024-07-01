@@ -10,13 +10,11 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 type Props = {
   queryParams: any;
   isLoading: boolean;
-  errorMessage: string;
 } & commonProps;
 
 type commonProps = {
   activityLogsByAction: IActivityLog[];
   count: number;
-  refetchQueries: any;
 };
 
 class ActivityLogs extends React.Component<Props> {

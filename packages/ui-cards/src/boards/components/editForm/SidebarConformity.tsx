@@ -11,7 +11,6 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   item: IItem;
-  saveItem: (doc: { [key: string]: any }) => void;
   options: IOptions;
   renderItems: () => React.ReactNode;
   updateTimeTrack: (

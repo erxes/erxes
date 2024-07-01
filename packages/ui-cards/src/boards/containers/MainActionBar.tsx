@@ -12,7 +12,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { PageHeader } from "../styles/header";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import _ from "lodash";
 import { getDefaultBoardAndPipelines } from "../utils";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";

@@ -24,9 +24,7 @@ type Props = {
 };
 
 class ProductItemContainer extends React.Component<Props> {
-  constructor(props) {
-    super(props);
-  }
+
 
   render() {
     const { confirmLoyalties } = this.props;

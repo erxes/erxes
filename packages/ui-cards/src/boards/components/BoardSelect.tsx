@@ -1,7 +1,6 @@
 import { IBoard, IPipeline, IStage } from "../types";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FormContainer } from "../styles/common";
 import Select, { components } from "react-select";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";

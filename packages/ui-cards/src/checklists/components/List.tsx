@@ -36,10 +36,10 @@ function List(props: Props) {
   const [items, setItems] = React.useState(item.items);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isAddingItem, setIsAddingItem] = useState(
-    item.items.length === 0 ? true : false
+    item.items.length === 0
   );
   const [isHidden, setIsHidden] = useState(
-    localStorage.getItem("isHidden") === "true" ? true : false
+    localStorage.getItem("isHidden") === "true"
   );
   const [itemContent, setItemContent] = useState(
     getUnsavedContent(props.item._id) || ""

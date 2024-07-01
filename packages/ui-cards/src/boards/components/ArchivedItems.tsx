@@ -16,11 +16,11 @@ type ItemProps = {
 };
 
 function ArchivedItem(props: ItemProps) {
-  const [showPopup, setVisibility] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const { options, item, type } = props;
 
   const toggleVisibility = () => {
-    setVisibility(!showPopup);
+    setShowPopup(!showPopup);
   };
 
   const remove = () => {

@@ -4,7 +4,6 @@ import {
   ControlLabel,
   FormGroup,
   ModalTrigger,
-  Spinner,
   Table,
 } from "@erxes/ui/src/components";
 import {
@@ -19,8 +18,7 @@ import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import ExpensesForm from "./ExpensesForm";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { IProduct } from "@erxes/ui-products/src/types";
-import { IProductCategory } from "@erxes/ui-products/src/types";
+import { IProduct , IProductCategory } from "@erxes/ui-products/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import LastExpensesForm from "./LastExpensesForm";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
@@ -357,7 +355,7 @@ class ProductForm extends React.Component<Props, State> {
     const { paymentsData } = this.props;
     const { total } = this.state;
 
-    const changePayData = Object.assign({}, total);
+    const changePayData = { ...total};
     const payments = paymentsData || {};
 
     Object.keys(payments || {}).forEach((key) => {
@@ -615,7 +613,7 @@ class ProductForm extends React.Component<Props, State> {
               amount: 0,
               currency,
               tickUsed:
-                purchaseQuery.stage?.defaultTick === false ? false : true, // undefined or null then true
+                purchaseQuery.stage?.defaultTick !== false, // undefined or null then true
               maxQuantity: 0,
               product,
               quantity: 1,

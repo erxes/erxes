@@ -146,24 +146,20 @@ class ProductItem extends React.Component<Props, State> {
 
     if (type.includes("product")) {
       return (
-        <>
           <Tip text={__("Product")} placement="left">
             <TypeBox color="#3B85F4">
               <Icon icon="box" />
             </TypeBox>
           </Tip>
-        </>
       );
     }
 
     return (
-      <>
         <Tip text={__("Service")} placement="left">
           <TypeBox color="#EA475D">
             <Icon icon="invoice" />
           </TypeBox>
         </Tip>
-      </>
     );
   };
 

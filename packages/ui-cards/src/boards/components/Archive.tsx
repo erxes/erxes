@@ -11,11 +11,10 @@ import Button from "@erxes/ui/src/components/Button";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import FormControl from "@erxes/ui/src/components/form/Control";
-import { HACKSTAGES } from "../constants";
+import { HACKSTAGES , PRIORITIES } from "../constants";
 import { HeaderButton } from "../styles/header";
 import { INTEGRATION_KINDS } from "@erxes/ui/src/constants/integrations";
 import { IOptions } from "../types";
-import { PRIORITIES } from "../constants";
 import Select from "react-select";
 import SelectLabel from "./label/SelectLabel";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
@@ -37,7 +36,7 @@ const sourceOptions = INTEGRATION_KINDS.ALL.map((kind) => ({
 const growthHackOptions = HACKSTAGES.map((hs) => ({ value: hs, label: hs }));
 
 function Archive(props: Props) {
-  const [type, changeType] = useState("item");
+  const [type, setType] = useState("item");
   const [searchValue, setSearchValue] = useState("");
   const { options, queryParams } = props;
 
@@ -59,7 +58,7 @@ function Archive(props: Props) {
 
   const switchType = (): string => (type === "list" ? "item" : "list");
 
-  const toggleType = () => changeType(switchType());
+  const toggleType = () => setType(switchType());
 
   const debouncedSetSearchValue = debounce(setSearchValue, 1000);
 

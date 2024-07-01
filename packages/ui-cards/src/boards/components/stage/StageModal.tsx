@@ -8,10 +8,9 @@ import { Button, Alert } from "@erxes/ui/src";
 import { IStage } from "../../types";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { ControlLabel, FormGroup, Table } from "@erxes/ui/src/components";
-import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import { FormColumn, FormWrapper , ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import Dialog from "@erxes/ui/src/components/Dialog";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { Menu } from "@headlessui/react";
 
 type Props = {
