@@ -15,7 +15,6 @@ const infos = [
 export default function Info() {
   return (
     <Popover
-      // style={{ width: '350px' }}
       trigger={
         <ControlButton>
           <Icon icon="question-circle" />

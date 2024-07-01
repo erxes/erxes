@@ -8,6 +8,7 @@ import {
   IExecutionDocument
 } from '../models/definitions/executions';
 import { executeActions } from '../utils';
+import * as moment from 'moment';
 
 function accessNestedObject(obj, keys) {
   return keys.reduce((acc, key) => acc && acc[key], obj) || '';
@@ -56,12 +57,9 @@ export const playWait = async (models: IModels, subdomain: string, data) => {
     let nextActionId = exec.waitingActionId;
 
     if (currentAction.type === 'delay') {
-      const finalWaitHour =
-        currentAction.config.type === 'hour'
-          ? currentAction.config.value
-          : currentAction.config.value * 24;
+      const { value, type } = currentAction.config;
       performDate = new Date(
-        exec.startWaitingDate.getTime() + (finalWaitHour || 0) * 60 * 60 * 1000
+        moment(performDate).add(value, type).toISOString()
       );
       nextActionId = currentAction.nextActionId;
     }
