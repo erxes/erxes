@@ -47,9 +47,7 @@ const DetailContainer = (props: Props) => {
   };
 
   return (
-    <>
       <Detail {...extendedProps} />
-    </>
   );
 };
 

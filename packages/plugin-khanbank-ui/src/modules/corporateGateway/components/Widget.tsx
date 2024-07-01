@@ -7,7 +7,6 @@ import RateList from "../containers/Rates";
 
 const Widget = () => {
   return (
-    <>
       <Popover
         placement="bottom"
         trigger={
@@ -19,7 +18,6 @@ const Widget = () => {
       >
         <RateList />
       </Popover>
-    </>
   );
 };
 

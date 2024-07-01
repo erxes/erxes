@@ -1,4 +1,3 @@
-import LocationOption from '@erxes/ui-forms/src/settings/properties/components/LocationOption';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
@@ -6,8 +5,8 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React, { useEffect, useState } from 'react';
+import '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
 
 import { IKhanbankConfigsItem } from '../types';
 

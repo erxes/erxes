@@ -12,7 +12,6 @@ export class AccountsApi extends BaseApi {
   /**
    * get account list
    * @return {[KhanbankAccount]} - Returns an array of accounts
-   * TODO: update return type
    */
   async list() {
     try {
@@ -56,7 +55,6 @@ export class AccountsApi extends BaseApi {
    * get account detail
    * @param {string} accountNumber - account number
    * @return {object} - Returns an account object
-   * TODO: update return type
    */
   async get(accountNumber: string) {
     try {
@@ -77,7 +75,6 @@ export class AccountsApi extends BaseApi {
    * @param {string} accountNumber - account number
    * @param {string} bankCode - bank code
    * @return {object} - Returns an account object
-   * TODO: update return type
    */
   async getHolder(accountNumber: string, bankCode?: string) {
     try {

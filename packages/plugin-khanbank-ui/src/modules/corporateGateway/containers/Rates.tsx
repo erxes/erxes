@@ -21,9 +21,7 @@ const RateList = () => {
   const rates = (data && data.khanbankRates) || [];
 
   return (
-    <>
       <Rates rates={rates} />
-    </>
   );
 };
 
