@@ -1,8 +1,13 @@
 import { generateModels } from './connectionResolver';
 
 export default {
+  transactionCallback: async ({ subdomain, data }) => {
+    // TODO: implement transaction callback if necessary
+  },
   callback: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
+
+    console.log("data", data)
 
     const { status, contentType, contentTypeId, amount, _id, currency } = data;
 

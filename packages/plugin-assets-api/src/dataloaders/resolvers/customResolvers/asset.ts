@@ -1,7 +1,7 @@
-import { ASSET_STATUSES } from '../../common/constant/asset';
-import { IAssetDocument } from '../../common/types/asset';
-import { IContext } from '../../connectionResolver';
-import { sendKbMessage } from '../../messageBroker';
+import { ASSET_STATUSES } from '../../../common/constant/asset';
+import { IAssetDocument } from '../../../common/types/asset';
+import { IContext } from '../../../connectionResolver';
+import { sendKbMessage } from '../../../messageBroker';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -21,7 +21,7 @@ export default {
   },
 
   async isRoot(asset: IAssetDocument, {}) {
-    return !asset.parentId; 
+    return !asset.parentId;
   },
 
   async childAssetCount(asset: IAssetDocument, {}, { models }: IContext) {
@@ -39,7 +39,7 @@ export default {
 
     return models.Assets.countDocuments({
       parentId: { $in: asset_ids },
-      status: { $ne: ASSET_STATUSES.DELETED },
+      status: { $ne: ASSET_STATUSES.DELETED }
     });
   },
 
@@ -53,11 +53,11 @@ export default {
       action: 'articles.find',
       data: {
         query: {
-          _id: { $in: asset.kbArticleIds || [] },
-        },
+          _id: { $in: asset.kbArticleIds || [] }
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const map = {};
@@ -78,10 +78,10 @@ export default {
         action: 'categories.findOne',
         data: {
           query: {
-            _id: categoryId,
-          },
+            _id: categoryId
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
 
       let topic: any;
@@ -91,7 +91,7 @@ export default {
         title: category.title,
         description: category.description,
         parentCategoryId: category.parentCategoryId || null,
-        contents: map[categoryId],
+        contents: map[categoryId]
       };
 
       if (category.topicId) {
@@ -100,11 +100,11 @@ export default {
           action: 'topics.findOne',
           data: {
             query: {
-              _id: category.topicId,
-            },
+              _id: category.topicId
+            }
           },
           isRPC: true,
-          defaultValue: {},
+          defaultValue: {}
         });
       }
 
@@ -114,11 +114,11 @@ export default {
           action: 'categories.findOne',
           data: {
             query: {
-              _id: category.parentCategoryId,
-            },
+              _id: category.parentCategoryId
+            }
           },
           isRPC: true,
-          defaultValue: {},
+          defaultValue: {}
         });
 
         topic.categories = [parentCategory];
@@ -132,5 +132,5 @@ export default {
     }
 
     return results;
-  },
+  }
 };

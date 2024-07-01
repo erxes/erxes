@@ -139,6 +139,15 @@ const contractMutations = {
       throw new Error("Customer not found!");
     }
 
+    const existingContract = await models.Contracts.findOne({
+      isDeposit: true,
+      customerId: customer._id
+    });
+
+    if (existingContract) {
+      throw new Error("Contract exists!");
+    }
+
     const contractType = await models.ContractTypes.findOne({
       isDeposit: true
     });
@@ -245,6 +254,7 @@ const contractMutations = {
     const contract = await models.Contracts.getContract({
       _id: doc.contractId
     });
+
     const updated = await models.Contracts.closeContract(subdomain, doc);
 
     const logData = {

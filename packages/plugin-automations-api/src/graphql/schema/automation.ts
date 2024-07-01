@@ -150,6 +150,7 @@ export const queries = `
   automationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${historiesParams}): [AutomationHistory]
+  automationHistoriesTotalCount(${historiesParams}):Int
   automationConfigPrievewCount(config: JSON): Int
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON

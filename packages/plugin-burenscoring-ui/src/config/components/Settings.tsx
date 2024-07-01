@@ -25,7 +25,7 @@ export default function GeneralSettings(props: Props) {
   const [secretKey, setSecretKey] = useState(
     burenScoringConfig?.secretKey || ""
   );
-  const configField = burenScoringConfig?.fieldRegister || "";
+  const configField = burenScoringConfig?.field || "";
   const [field, setField] = useState(configField);
   const fields = props.customFields?.fieldsCombinedByContentType || [];
 
