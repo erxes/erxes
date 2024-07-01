@@ -41,11 +41,7 @@ export default ({
       queryName="cars"
       name={name}
       values={
-        typeof defaultValue === 'string'
-          ? multi
-            ? [defaultValue]
-            : defaultValue
-          : defaultValue
+        typeof defaultValue === 'string' && multi ? [defaultValue] : defaultValue
       }
       generateOptions={generateCarOptions}
       onSelect={onSelect}
