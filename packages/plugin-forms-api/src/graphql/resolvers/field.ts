@@ -48,7 +48,7 @@ export const field = {
     const { groupId } = root;
 
     const group = await models.FieldsGroups.findOne({ _id: groupId });
-    return group && group.name;
+    return  group?.name;
   },
 
   async products(root: IFieldDocument, _args, { subdomain }: IContext) {
