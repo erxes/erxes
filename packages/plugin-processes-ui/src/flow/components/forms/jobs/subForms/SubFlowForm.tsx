@@ -46,19 +46,20 @@ class JobForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
-      this.setState({
+  static getDerivedStateFormProps(nextProps, prevState) {
+    if (nextProps.activeFlowJob !== prevState.activeFlowJob) {
+      return {
         description: nextProps.activeFlowJob.description,
         subFlowId: nextProps.activeFlowJob.subFlowId,
         subFlow: nextProps.subFlow
-      });
+      };
     }
+    return null;
   }
 
-  onSelect = (name, value) => {
-    this.setState({ [name]: value } as any);
-  };
+  // onSelect = (name, value) => {
+  //   this.setState({ [name]: value } as any);
+  // };
 
   renderSubFlowTrigger(flow?: IFlow) {
     const onClick = () => {

@@ -8,56 +8,56 @@ export default {
     return models.Performs.findOne({ _id });
   },
 
-  async needProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async needProducts(perform: IPerformDocument, _, { subdomain }: IContext) {
     const needProducts = perform.needProducts || [];
 
     const { productById } = await getProductAndUoms(subdomain, needProducts);
 
     for (let need of needProducts) {
       need.product = productById[need.productId] || {};
-      need.uom = (productById[need.productId] || {}).uom;
+      need.uom = productById[need.productId]?.uom;
     }
 
     return needProducts;
   },
-  async resultProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async resultProducts(perform: IPerformDocument, _, { subdomain }: IContext) {
     const resultProducts = perform.resultProducts || [];
 
     const { productById } = await getProductAndUoms(subdomain, resultProducts);
 
     for (const result of resultProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = (productById[result.productId] || {}).uom;
+      result.uom = productById[result.productId]?.uom;
     }
 
     return resultProducts;
   },
-  async inProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async inProducts(perform: IPerformDocument, _, { subdomain }: IContext) {
     const inProducts = perform.inProducts || [];
 
     const { productById } = await getProductAndUoms(subdomain, inProducts);
 
     for (let need of inProducts) {
       need.product = productById[need.productId] || {};
-      need.uom = (productById[need.productId] || {}).uom;
+      need.uom = productById[need.productId]?.uom;
     }
 
     return inProducts;
   },
-  async outProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async outProducts(perform: IPerformDocument, _, { subdomain }: IContext) {
     const outProducts = perform.outProducts || [];
 
     const { productById } = await getProductAndUoms(subdomain, outProducts);
 
     for (const result of outProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = (productById[result.productId] || {}).uom;
+      result.uom = productById[result.productId]?.uom;
     }
 
     return outProducts;
   },
 
-  async inBranch(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async inBranch(perform: IPerformDocument, _, { subdomain }: IContext) {
     const { inBranchId } = perform;
 
     if (!inBranchId) {
@@ -72,7 +72,7 @@ export default {
     });
   },
 
-  async outBranch(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async outBranch(perform: IPerformDocument, _, { subdomain }: IContext) {
     const { outBranchId } = perform;
 
     if (!outBranchId) {
@@ -87,7 +87,7 @@ export default {
     });
   },
 
-  async inDepartment(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async inDepartment(perform: IPerformDocument, _, { subdomain }: IContext) {
     const { inDepartmentId } = perform;
 
     if (!inDepartmentId) {
@@ -102,7 +102,7 @@ export default {
     });
   },
 
-  async outDepartment(perform: IPerformDocument, {}, { subdomain }: IContext) {
+  async outDepartment(perform: IPerformDocument, _, { subdomain }: IContext) {
     const { outDepartmentId } = perform;
 
     if (!outDepartmentId) {

@@ -127,13 +127,14 @@ class FlowForm extends React.Component<Props, State> {
     this.setState({ ...param });
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.flow !== this.props.flow) {
-      this.setState({
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.flow !== prevState.flow) {
+      return {
         flowValidation: nextProps.flow.flowValidation,
-        isActive: (nextProps.flow.status === "active" && true) || false,
-      });
+        isActive: nextProps.flow.status === "active",
+      };
     }
+    return null;
   }
 
   componentDidMount() {
@@ -357,7 +358,7 @@ class FlowForm extends React.Component<Props, State> {
       (a) => a.id.toString() === info.sourceId.replace("flowJob-", "")
     );
 
-    const idElm = "flowJob-" + (sourceFlowJob || {}).id;
+    const idElm = "flowJob-" + sourceFlowJob?.id;
     instance.addEndpoint(idElm, sourceEndpoint, {
       anchor: ["Right"],
     });
@@ -388,10 +389,12 @@ class FlowForm extends React.Component<Props, State> {
   };
 
   toggleDrawer = (type: string) => {
-    this.setState({
-      showDrawer: !this.state.showDrawer,
-      activeFlowJob: undefined,
-      currentTab: type,
+    this.setState((prevState) => {
+      return {
+        showDrawer: !prevState.showDrawer,
+        activeFlowJob: undefined,
+        currentTab: type,
+      };
     });
   };
 
@@ -762,10 +765,10 @@ class FlowForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <FlowFormContainer>
             <Wrapper.Header
-              title={`${(flow && flow.name) || "Flow detail"}`}
+              title={`${(flow?.name) || "Flow detail"}`}
               breadcrumb={[
                 { title: __("Flows"), link: "/processes/Flows" },
-                { title: `${(flow && flow.name) || "New Form"}` },
+                { title: `${(flow?.name) || "New Form"}` },
               ]}
             />
             <PageContent

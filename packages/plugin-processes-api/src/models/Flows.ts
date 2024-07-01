@@ -53,7 +53,7 @@ export const loadFlowClass = (models: IModels) => {
         j => !j.nextJobIds || !(j.nextJobIds || []).length
       );
 
-      if (!latestJobs || !latestJobs.length) {
+      if (!latestJobs?.length) {
         return 'Has not latest job';
       }
 
@@ -62,7 +62,7 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const jobRefers = await models.JobRefers.find({
-        _id: { $in: jobs.map(j => j.config && j.config.jobReferId) }
+        _id: { $in: jobs.map(j => j.config?.jobReferId) }
       }).lean();
       const jobReferById = {};
       for (const jobRefer of jobRefers) {
@@ -70,7 +70,7 @@ export const loadFlowClass = (models: IModels) => {
       }
 
       const subFlows = await models.Flows.find({
-        _id: { $in: jobs.map(j => j.config && j.config.subFlowId) }
+        _id: { $in: jobs.map(j => j.config?.subFlowId) }
       }).lean();
       const subFlowById = {};
       for (const subFlow of subFlows) {

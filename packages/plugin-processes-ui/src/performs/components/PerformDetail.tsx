@@ -50,18 +50,6 @@ class PerformDetail extends React.Component<Props, State> {
     }, 5);
   };
 
-  onChangeInput = (e) => {
-    const { stateName, onChangeState, productData, productsData } = this.props;
-    const newProductsData = productsData.map((pd) =>
-      pd.productId === productData.productId
-        ? { ...pd, series: [...(productData.series || []), e.target.value] }
-        : pd
-    );
-    onChangeState({
-      [stateName]: newProductsData,
-    } as any);
-  };
-
   renderSeriesReader() {
     const { isReadSeries } = this.props;
     if (!isReadSeries) {

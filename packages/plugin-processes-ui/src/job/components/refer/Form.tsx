@@ -255,11 +255,11 @@ class Form extends React.Component<Props, State> {
               ).filter((u) => u);
 
               return (
-                <tr>
+                <tr key={product._id}>
                   <td>
                     <FormControl
                       value={
-                        product && product.product ? product.product.name : ""
+                        product?.product ? product.product.name : ""
                       }
                       disabled={true}
                     />
@@ -487,7 +487,7 @@ class Form extends React.Component<Props, State> {
                 required={true}
               >
                 {Object.keys(DURATION_TYPES).map((typeName, index) => (
-                  <option key={index} value={typeName}>
+                  <option key={typeName} value={typeName}>
                     {typeName}
                   </option>
                 ))}

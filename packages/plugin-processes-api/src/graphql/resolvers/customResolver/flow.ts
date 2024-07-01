@@ -8,7 +8,7 @@ export default {
     return models.Flows.findOne({ _id });
   },
 
-  async product(flow: IFlow, {}, { subdomain }: IContext) {
+  async product(flow: IFlow, _, { subdomain }: IContext) {
     return (
       (await sendProductsMessage({
         subdomain,
@@ -19,11 +19,11 @@ export default {
     );
   },
 
-  async jobCount(flow: IFlow, {}, {}: IContext) {
+  async jobCount(flow: IFlow, _) {
     return (flow.jobs || []).length;
   },
 
-  async latestBranch(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestBranch(flow: IFlowDocument, _, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'branches.findOne',
@@ -33,7 +33,7 @@ export default {
     });
   },
 
-  async latestDepartment(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestDepartment(flow: IFlowDocument, _, { subdomain }: IContext) {
     return sendCoreMessage({
       subdomain,
       action: 'departments.findOne',
@@ -43,10 +43,10 @@ export default {
     });
   },
 
-  async latestNeedProducts(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestNeedProducts(flow: IFlowDocument, _, { subdomain }: IContext) {
     const latestNeedProducts = flow.latestNeedProducts || [];
 
-    if (!latestNeedProducts || !latestNeedProducts.length) {
+    if (!latestNeedProducts?.length) {
       return latestNeedProducts;
     }
 
@@ -57,16 +57,16 @@ export default {
 
     for (const need of latestNeedProducts || []) {
       need.product = productById[need.productId] || {};
-      need.uom = (productById[need.productId] || {}).uom;
+      need.uom = productById[need.productId]?.uom;
     }
 
     return latestNeedProducts;
   },
 
-  async latestResultProducts(flow: IFlowDocument, {}, { subdomain }: IContext) {
+  async latestResultProducts(flow: IFlowDocument, _, { subdomain }: IContext) {
     const latestResultProducts = flow.latestResultProducts || [];
 
-    if (!latestResultProducts || !latestResultProducts.length) {
+    if (!latestResultProducts?.length) {
       return latestResultProducts;
     }
 
@@ -77,7 +77,7 @@ export default {
 
     for (const result of latestResultProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = (productById[result.productId] || {}).uom;
+      result.uom = productById[result.productId]?.uom;
     }
 
     return latestResultProducts;

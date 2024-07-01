@@ -7,14 +7,14 @@ export default {
     return models.JobRefers.findOne({ _id }).lean();
   },
 
-  async needProducts(jobRefer: IJobReferDocument, {}, { subdomain }: IContext) {
+  async needProducts(jobRefer: IJobReferDocument, _, { subdomain }: IContext) {
     const needProducts = jobRefer.needProducts || [];
 
     const { productById } = await getProductAndUoms(subdomain, needProducts);
 
     for (let need of needProducts) {
       need.product = productById[need.productId] || {};
-      need.uom = (productById[need.productId] || {}).uom;
+      need.uom = productById[need.productId]?.uom;
     }
 
     return needProducts;
@@ -22,7 +22,7 @@ export default {
 
   async resultProducts(
     jobRefer: IJobReferDocument,
-    {},
+    _,
     { subdomain }: IContext
   ) {
     const resultProducts = jobRefer.resultProducts || [];
@@ -31,7 +31,7 @@ export default {
 
     for (const result of resultProducts) {
       result.product = productById[result.productId] || {};
-      result.uom = (productById[result.productId] || {}).uom;
+      result.uom = productById[result.productId]?.uom;
     }
 
     return resultProducts;
