@@ -30,7 +30,7 @@ const fieldQueries = {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
-      if (meta && meta.forms) {
+      if (meta?.forms) {
         const types = meta.forms.types || [];
 
         for (const type of types) {
@@ -70,7 +70,7 @@ const fieldQueries = {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
-      if (meta && meta.forms) {
+      if (meta?.forms) {
         const types = meta.forms?.extraFieldTypes || [];
 
         for (const type of types) {
@@ -216,7 +216,7 @@ const fieldQueries = {
 
     const meta = service.config?.meta || {};
 
-    if (meta.forms && meta.forms.defaultColumnsConfig) {
+    if (meta.forms?.defaultColumnsConfig) {
       return meta.forms.defaultColumnsConfig[type] || [];
     }
 
