@@ -73,7 +73,7 @@ const PipelineLabelList = styled.div`
 `;
 
 const Label = styledTS<{ color: string; timeout?: number }>(styled.div)`
-  background-color: ${props => props.color && props.color};
+  background-color: ${props => props.color};
   white-space: nowrap;
   overflow: hidden;
   float: left;

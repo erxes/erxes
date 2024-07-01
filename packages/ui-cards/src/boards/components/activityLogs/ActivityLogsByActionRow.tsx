@@ -60,7 +60,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
       <Link
         to={`/settings/team/details/${createdUser._id}`}
         target="_blank"
-        key={Math.random()}
+        key={createdUser._id}
       >
         {createdUser.details
           ? createdUser.details.fullName || ''

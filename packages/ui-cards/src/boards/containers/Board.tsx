@@ -54,10 +54,10 @@ function Board(props: Props & WrapperProps) {
         <EmptyContent
           content={
             type === "deal"
-              ? EMPTY_CONTENT_DEAL
-              : type === "task"
-                ? EMPTY_CONTENT_TASK
-                : EMPTY_CONTENT_PURCHASE
+              && EMPTY_CONTENT_DEAL
+              || type === "task"
+                && EMPTY_CONTENT_TASK
+                || EMPTY_CONTENT_PURCHASE
           }
           maxItemWidth="400px"
         />

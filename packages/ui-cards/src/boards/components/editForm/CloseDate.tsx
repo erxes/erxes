@@ -35,7 +35,6 @@ type State = {
 
 class CloseDate extends React.Component<Props, State> {
   private ref;
-  private overlay: any;
 
   constructor(props) {
     super(props);
@@ -46,10 +45,6 @@ class CloseDate extends React.Component<Props, State> {
       dueDate: props.closeDate || dayjs(),
     };
   }
-
-  setOverlay = (overlay) => {
-    this.overlay = overlay;
-  };
 
   minuteOnChange = ({ value }: any) => {
     this.props.onChangeField("reminderMinute", parseInt(value, 10));

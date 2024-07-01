@@ -20,22 +20,6 @@ const Sidebar = (props: Props) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const clearItem = (key: string) => {
-    const onClear = () => {
-      router.setParams(navigate, location, { [key]: null });
-    };
-
-    if (router.getParam(location, [key])) {
-      return (
-        <a href="#cancel" tabIndex={0} onClick={onClear}>
-          <Icon icon="times-circle" />
-        </a>
-      );
-    }
-
-    return null;
-  };
-
   const onChange = () => {
     const checkboxes: any = document.getElementsByName(
       "activityLogViewGeneral"

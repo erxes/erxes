@@ -77,18 +77,18 @@ export default function TicketEditForm(props: Props) {
       }
     };
 
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {sourceValueRenderer(props.data)}
+        <components.Option {...optionProps}>
+          {sourceValueRenderer(optionProps.data)}
         </components.Option>
       );
     };
 
-    const SingleValue = (props) => {
+    const SingleValue = (singleValueProps) => {
       return (
-        <components.SingleValue {...props}>
-          {sourceValueRenderer(props.data)}
+        <components.SingleValue {...singleValueProps}>
+          {sourceValueRenderer(singleValueProps.data)}
         </components.SingleValue>
       );
     };

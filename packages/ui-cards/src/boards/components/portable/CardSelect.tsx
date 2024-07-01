@@ -89,9 +89,9 @@ class CardSelect extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({
-      selectedValue: { value: "copiedItem", label: this.state.searchValue },
-    });
+    this.setState(prevState =>({
+      selectedValue: { value: "copiedItem", label: prevState.searchValue }
+    }));
 
     onChange({
       name: this.state.searchValue,

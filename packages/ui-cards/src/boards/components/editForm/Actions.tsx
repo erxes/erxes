@@ -72,12 +72,12 @@ class Actions extends React.Component<Props> {
 
     const TAG_TYPE =
       options.type === 'deal'
-        ? TAG_TYPES.DEAL
-        : options.type === 'task'
-        ? TAG_TYPES.TASK
-        : options.type === 'purchase' // Add a new condition for 'purchase'
-        ? TAG_TYPES.PURCHASE
-        : TAG_TYPES.TICKET;
+        && TAG_TYPES.DEAL
+        || options.type === 'task'
+        && TAG_TYPES.TASK
+        || options.type === 'purchase' // Add a new condition for 'purchase'
+        && TAG_TYPES.PURCHASE
+        || TAG_TYPES.TICKET;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">

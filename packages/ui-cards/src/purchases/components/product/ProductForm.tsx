@@ -367,11 +367,9 @@ class ProductForm extends React.Component<Props, State> {
       if (Object.keys(changePayData).includes(currency)) {
         changePayData[currency] =
           changePayData[currency] - (perPaid.amount || 0);
-      } else {
-        if (perPaid.currency && perPaid.amount) {
+      } else if (perPaid.currency && perPaid.amount) {
           changePayData[currency] = -(perPaid.amount || 0);
         }
-      }
     });
 
     this.setState({ changePayData });

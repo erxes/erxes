@@ -61,10 +61,10 @@ class WithStages extends Component<WithStagesProps> {
     }
 
     if (queryParams.groupBy === 'priority') {
-      groups = PRIORITIES.map(p => ({ _id: p, name: p } || []));
+      groups = PRIORITIES.map(p => ({ _id: p, name: p }));
       groupType = 'priority';
     }
-
+    
     if (queryParams.groupBy === 'assignee') {
       groups = pipelineAssigneeQuery.pipelineAssignedUsers || [];
       groupType = 'assignee';

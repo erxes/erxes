@@ -90,7 +90,7 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   toggleMenu = () => {
-    this.setState({ showMenu: !this.state.showMenu });
+    this.setState(prevState =>({ showMenu: !prevState.showMenu }));
   };
 
   onSearch = (e: React.KeyboardEvent<Element>) => {

@@ -40,16 +40,8 @@ class StartDate extends React.Component<Props, State> {
     };
   }
 
-  setOverlay = (overlay) => {
-    this.overlay = overlay;
-  };
-
   dateOnChange = (date) => {
     this.setState({ startDate: date });
-  };
-
-  hideContent = () => {
-    this.overlay.hide();
   };
 
   onSave = (close) => {

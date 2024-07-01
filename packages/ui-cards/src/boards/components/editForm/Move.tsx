@@ -66,7 +66,7 @@ class Move extends React.Component<Props, State> {
   };
 
   toggleForm = () => {
-    this.setState({ show: !this.state.show });
+    this.setState(prevState => ({ show: !prevState.show }));
   };
 
   renderStages() {

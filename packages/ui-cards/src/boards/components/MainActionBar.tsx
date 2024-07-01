@@ -379,11 +379,9 @@ class MainActionBar extends React.Component<Props, State> {
   };
 
   onDetailShowHandler = () => {
-    this.setState(
-      {
-        showDetail: !this.state.showDetail,
-      },
-      () => {
+    this.setState(prevState =>({
+      showDetail: !prevState.showDetail
+    }), () => {
         localStorage.setItem("showSalesDetail", `${this.state.showDetail}`);
         const storageChangeEvent = new Event("storageChange");
         window.dispatchEvent(storageChangeEvent);

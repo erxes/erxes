@@ -43,10 +43,6 @@ class ItemChooser extends React.Component<Props, State> {
     };
   }
 
-  onOverlayClose = () => {
-    this.ref.hide();
-  };
-
   clearFilter = (e) => {
     e.stopPropagation();
     this.onChangeField("stageId", "");

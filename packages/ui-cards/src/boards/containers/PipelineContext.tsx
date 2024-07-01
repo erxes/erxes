@@ -22,7 +22,7 @@ import {
 import { mutations, queries, subscriptions } from '../graphql';
 
 import InvisibleItemInUrl from './InvisibleItemInUrl';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UserDetailQueryResponse } from '@erxes/ui/src/auth/types';
 import client from '@erxes/ui/src/apolloClient';
 import { gql } from '@apollo/client';
@@ -105,7 +105,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       itemMap: initialItemMap || {},
       stageLoadMap: {},
       stageIds,
-      isShowLabel: false || localStorage.getItem(pipeline._id) === 'true',
+      isShowLabel: localStorage.getItem(pipeline._id) === 'true',
     };
 
     PipelineProviderInner.tasks = [];
@@ -190,9 +190,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
           }
 
           if (action === 'itemUpdate') {
-            this.setState({
-              itemMap: updateItemInfo(this.state, item),
-            });
+            this.setState(prevState =>({
+              itemMap: updateItemInfo(prevState, item),
+            }));
           }
 
           if (action === 'itemOfConformitiesUpdate' && item._id) {
@@ -208,9 +208,9 @@ class PipelineProviderInner extends React.Component<Props, State> {
                 .then(({ data }) => {
                   const refetchedItem =
                     data[this.props.options.queriesName.detailQuery];
-                  this.setState({
-                    itemMap: updateItemInfo(this.state, refetchedItem),
-                  });
+                  this.setState(prevState =>({
+                    itemMap: updateItemInfo(prevState, refetchedItem),
+                  }));
                 });
             }, 5000);
           }
@@ -311,19 +311,20 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
     // reordering stage
     if (result.type === 'STAGE') {
-      const stageIds = reorder(
-        this.state.stageIds,
-        source.index,
-        destination.index,
-      );
-
-      this.setState({ stageIds });
-
-      // save orders to database
-      if (saveToDb) {
-        return this.saveStageOrders(stageIds);
-      }
+      this.setState(prevState => {
+        const stageIds = reorder(
+          prevState.stageIds,
+          source.index,
+          destination.index,
+        );
+        // save orders to database
+        if (saveToDb) {
+          this.saveStageOrders(stageIds);
+        }
+        return { stageIds };
+      });
     }
+    
 
     const { itemMap, target, aboveItem } = reorderItemMap({
       itemMap: this.state.itemMap,
@@ -632,7 +633,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
       localStorage.removeItem(this.props.pipeline._id);
     }
 
-    this.setState({ isShowLabel: !this.state.isShowLabel });
+    this.setState(prevState => ({ isShowLabel: !prevState.isShowLabel }));
   };
 
   renderInvisibleItemInUrl = () => {
@@ -655,26 +656,25 @@ class PipelineProviderInner extends React.Component<Props, State> {
 
   render() {
     const { itemMap, stageLoadMap, stageIds, isShowLabel } = this.state;
-
+    const obj = useMemo(() => (
+      {options: this.props.options,
+      onDragEnd: this.onDragEnd,
+      onDragStart: this.onDragStart,
+      onLoadStage: this.onLoadStage,
+      scheduleStage: this.scheduleStage,
+      refetchStage: this.refetchStage,
+      onAddItem: this.onAddItem,
+      onRemoveItem: this.onRemoveItem,
+      onUpdateItem: this.onUpdateItem,
+      itemMap,
+      stageLoadMap,
+      stageIds,
+      isShowLabel,
+      toggleLabels: this.toggleLabels,}), []);
     return (
       <>
         <PipelineContext.Provider
-          value={{
-            options: this.props.options,
-            onDragEnd: this.onDragEnd,
-            onDragStart: this.onDragStart,
-            onLoadStage: this.onLoadStage,
-            scheduleStage: this.scheduleStage,
-            refetchStage: this.refetchStage,
-            onAddItem: this.onAddItem,
-            onRemoveItem: this.onRemoveItem,
-            onUpdateItem: this.onUpdateItem,
-            itemMap,
-            stageLoadMap,
-            stageIds,
-            isShowLabel,
-            toggleLabels: this.toggleLabels,
-          }}
+          value={obj}
         >
           {this.props.children}
           {this.renderInvisibleItemInUrl()}

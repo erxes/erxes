@@ -256,13 +256,13 @@ class ProductItem extends React.Component<Props, State> {
                 name={discountValue?.bonusName}
                 type="bonus"
               />
-            ) : discountValue.discount > 0 ? (
+            ) : discountValue.discount > 0 && (
               <Discountcard
                 percentage={discountValue?.discount}
                 name={discountValue?.voucherName}
                 type="discount"
               />
-            ) : (
+            ) || (
               ""
             )}
           </VoucherContainer>
@@ -315,12 +315,6 @@ class ProductItem extends React.Component<Props, State> {
       this.props.productData._id
     );
 
-  onClick = () => {
-    const { productData, removeProductItem } = this.props;
-
-    return removeProductItem && removeProductItem(productData._id);
-  };
-
   onTickUse = (e) => {
     const isChecked = (e.currentTarget as HTMLInputElement).checked;
 
@@ -336,9 +330,9 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   changeCurrentProduct = (_id: string) => {
-    this.setState({
-      currentProduct: this.state.currentProduct === _id ? "" : _id,
-    });
+    this.setState(prevState => ({
+      currentProduct: prevState.currentProduct === _id ? "" : _id,
+    }));
   };
 
   changeDiscountPercent = async (productData: any) => {
@@ -416,10 +410,10 @@ class ProductItem extends React.Component<Props, State> {
 
     const currencyOptions = selectConfigOptions(currencies, CURRENCIES);
 
-    const Option = (props) => {
+    const Option = (optionProps) => {
       return (
-        <components.Option {...props}>
-          {selectOption(props.data)}
+        <components.Option {...optionProps}>
+          {selectOption(optionProps.data)}
         </components.Option>
       );
     };

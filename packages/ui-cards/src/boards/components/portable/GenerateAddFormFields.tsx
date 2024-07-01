@@ -136,7 +136,7 @@ function GenerateAddFormFields(props: Props) {
           return (
             <GenerateField
               field={field}
-              key={index}
+              key={field._id}
               onValueChange={onFieldsDataChange}
               isEditing={true}
             />
@@ -144,7 +144,7 @@ function GenerateAddFormFields(props: Props) {
         };
 
         return (
-          <AddRow key={index}>
+          <AddRow key={field._id}>
             <AddContent>{renderField()}</AddContent>
           </AddRow>
         );
@@ -191,11 +191,11 @@ function GenerateAddFormFields(props: Props) {
         }
 
         return (
-          <AddRow key={index}>
+          <AddRow key={field._id}>
             <AddContent>
               <GenerateField
                 field={field}
-                key={index}
+                key={field._id}
                 onValueChange={onCustomFieldsDataChange}
                 isEditing={true}
               />

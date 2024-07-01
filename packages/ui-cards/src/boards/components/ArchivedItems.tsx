@@ -91,10 +91,6 @@ class ArchivedItems extends React.Component<Props, State> {
     };
   }
 
-  openForm = () => {
-    this.setState({ showForm: true });
-  };
-
   render() {
     const { type, hasMore } = this.props;
 
