@@ -86,10 +86,6 @@ export class AccountsApi extends BaseApi {
         path: `accounts/${accountNumber}/name?bank=${bankCode}`
       });
 
-      if (res?.[0]) {
-        return { ...res?.[0]?.account, ...res?.[0]?.customer };
-      }
-
       return res;
     } catch (e) {
       throw new Error(e.message);

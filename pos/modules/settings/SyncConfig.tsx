@@ -3,7 +3,7 @@
 import { useMutation } from "@apollo/client"
 
 import { ButtonProps } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import SettingsButton from "./components/Button"
 import { mutations } from "./graphql"
@@ -12,7 +12,6 @@ const SyncConfig = ({
   configType,
   ...rest
 }: ButtonProps & { configType: "products" | "config" | "slots" }) => {
-  const { toast } = useToast()
 
   const success = () =>
     toast({
@@ -29,7 +28,7 @@ const SyncConfig = ({
       syncConfigProductsConfigs()
     },
     onError(error) {
-      return toast({ description: error.message, variant: "destructive" })
+      return onError(error.message)
     },
     refetchQueries: ["CurrentConfig"],
   })
