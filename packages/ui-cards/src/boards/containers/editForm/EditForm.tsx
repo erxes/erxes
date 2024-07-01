@@ -1,14 +1,12 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { queries as userQueries } from '@erxes/ui/src/team/graphql';
-import { AllUsersQueryResponse, IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import { mutations, queries, subscriptions } from '../../graphql';
+import client from "@erxes/ui/src/apolloClient";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { Alert, confirm } from "@erxes/ui/src/utils";
+import { queries as userQueries } from "@erxes/ui/src/team/graphql";
+import { AllUsersQueryResponse, IUser } from "@erxes/ui/src/auth/types";
+import React, { useEffect } from "react";
+import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
+import { mutations, queries, subscriptions } from "../../graphql";
 import {
   CopyMutation,
   DetailQueryResponse,
@@ -16,11 +14,13 @@ import {
   IItemParams,
   IOptions,
   RemoveMutation,
-  SaveMutation
-} from '../../types';
-import { invalidateCache } from '../../utils';
-import { PipelineConsumer } from '../PipelineContext';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+  SaveMutation,
+} from "../../types";
+import { invalidateCache } from "../../utils";
+import { PipelineConsumer } from "../PipelineContext";
+import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
+import { useLocation, useNavigate } from "react-router-dom";
+import * as routerUtils from "@erxes/ui/src/utils/router";
 
 type WrapperProps = {
   itemId: string;
@@ -42,294 +42,201 @@ type ContainerProps = {
   options: IOptions;
 } & WrapperProps;
 
-type FinalProps = {
-  detailQuery: DetailQueryResponse;
-  usersQuery: AllUsersQueryResponse;
-  // Using this mutation to copy item in edit form
-  addMutation: SaveMutation;
-  editMutation: SaveMutation;
-  removeMutation: RemoveMutation;
-  copyMutation: CopyMutation;
-} & ContainerProps;
+const EditFormContainer = (props: ContainerProps) => {
+  const { options, itemId, stageId, onAdd, onRemove } = props;
+  const location = useLocation();
+  const navigate = useNavigate();
 
-class EditFormContainer extends React.Component<FinalProps> {
-  private unsubcribe;
+  const {
+    data: detailData,
+    loading: detailLoading,
+    error: detailError,
+    refetch: refetchDetail,
+    subscribeToMore,
+  } = useQuery<DetailQueryResponse>(gql(options.queries.detailQuery), {
+    variables: { _id: itemId },
+    fetchPolicy: "network-only",
+  });
 
-  constructor(props) {
-    super(props);
+  const { data: usersData, loading: usersLoading } =
+    useQuery<AllUsersQueryResponse>(gql(userQueries.allUsers));
 
-    this.addItem = this.addItem.bind(this);
-    this.saveItem = this.saveItem.bind(this);
-    this.removeItem = this.removeItem.bind(this);
-    this.copyItem = this.copyItem.bind(this);
-  }
+  const refetchQueries = {
+    refetchQueries: [
+      {
+        query: gql(queries.stageDetail),
+        variables: { _id: stageId },
+      },
+    ],
+  };
 
-  componentDidMount() {
-    const { detailQuery, itemId } = this.props;
+  const [addMutation] = useMutation<SaveMutation>(
+    gql(options.mutations.addMutation),
+    refetchQueries
+  );
+  const [editMutation] = useMutation<SaveMutation>(
+    gql(options.mutations.editMutation),
+    refetchQueries
+  );
+  const [removeMutation] = useMutation<RemoveMutation>(
+    gql(options.mutations.removeMutation),
+    refetchQueries
+  );
+  const [copyMutation] = useMutation<CopyMutation>(
+    gql(options.mutations.copyMutation),
+    refetchQueries
+  );
 
-    this.unsubcribe = detailQuery.subscribeToMore({
+  useEffect(() => {
+    const unsubscribe = subscribeToMore({
       document: gql(subscriptions.pipelinesChanged),
       variables: { _id: itemId },
-      updateQuery: (
-        prev,
-        {
-          subscriptionData: {
-            data: { pipelinesChanged }
-          }
-        }
-      ) => {
+      updateQuery: (prev, { subscriptionData }) => {
+        const { pipelinesChanged } = subscriptionData.data as any;
+
         if (!pipelinesChanged || !pipelinesChanged.data) {
-          return;
+          return prev;
         }
-
         const { proccessId } = pipelinesChanged;
-
-        if (proccessId === localStorage.getItem('proccessId')) {
-          return;
+        if (proccessId === localStorage.getItem("proccessId")) {
+          return prev;
         }
-
-        if (document.querySelectorAll('.modal').length < 2) {
-          this.props.detailQuery.refetch();
+        if (document.querySelectorAll(".modal").length < 2) {
+          refetchDetail();
         }
-      }
+        return prev;
+      },
     });
-  }
+    return () => unsubscribe();
+  }, [itemId, refetchDetail, subscribeToMore]);
 
-  componentWillUnmount() {
-    this.unsubcribe();
-  }
-
-  addItem(doc: IItemParams, callback: () => void) {
-    const { addMutation } = this.props;
-
+  const addItem = (doc: IItemParams, callback: () => void) => {
     addMutation({ variables: doc })
-      .then(() => {
-        callback();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  }
+      .then(() => callback())
+      .catch((error) => Alert.error(error.message));
+  };
 
-  copyItem(itemId: string, callback: () => void) {
-    const { copyMutation, onAdd, options, stageId } = this.props;
-
+  const copyItem = (itemId: string, callback: () => void) => {
     const proccessId = Math.random().toString();
-
-    localStorage.setItem('proccessId', proccessId);
-
+    localStorage.setItem("proccessId", proccessId);
     copyMutation({ variables: { _id: itemId, proccessId } })
       .then(({ data }) => {
         callback();
-
-        if (onAdd) {
+        if (onAdd && data)
           onAdd(stageId, data[options.mutationsName.copyMutation], itemId);
-        }
       })
-      .catch(error => {
-        Alert.error(error.message);
-      });
-  }
-
-  saveItem = (doc: IItemParams, callback: (item) => void) => {
-    const { itemId, editMutation, options } = this.props;
-
-    const proccessId = Math.random().toString();
-
-    localStorage.setItem('proccessId', proccessId);
-
-    doc.proccessId = proccessId;
-
-    editMutation({ variables: { _id: itemId, ...doc } })
-      .then(({ data }) => {
-        if (callback) {
-          callback(data[options.mutationsName.editMutation]);
-        }
-
-        invalidateCache();
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+      .catch((error) => Alert.error(error.message));
   };
 
-  removeItem = (itemId: string, callback) => {
-    const { removeMutation, onRemove, stageId, options } = this.props;
+  const saveItem = (doc: IItemParams, callback: (item: any) => void) => {
+    const proccessId = Math.random().toString();
+    localStorage.setItem("proccessId", proccessId);
+    console.log("doc", doc, doc.status, "archived");
+    editMutation({
+      variables: {
+        _id: itemId,
+        ...doc,
+      },
+    })
+      .then(({ data }) => {
+        data && callback(data[options.mutationsName.editMutation]);
+        invalidateCache();
+        console.log(
+          "if",
+          doc.status !== "archived" &&
+            (data || ({} as any)).tasksEdit?.pipeline._id
+        );
+        if (
+          doc.status !== "archived" &&
+          (data || ({} as any)).tasksEdit?.pipeline._id
+        ) {
+          console.log("inside");
+          routerUtils.removeParams(navigate, location, "pipelineId");
+          routerUtils.setParams(navigate, location, {
+            pipelineId: (data || ({} as any)).tasksEdit?.pipeline._id,
+          });
+        }
+      })
+      .catch((error) => Alert.error(error.message));
+  };
 
+  const removeItem = (itemId: string, callback: () => void) => {
     confirm().then(() =>
       removeMutation({ variables: { _id: itemId } })
         .then(() => {
           callback();
-
           if (options.texts.deleteSuccessText) {
             Alert.success(options.texts.deleteSuccessText);
           }
-
           if (onRemove) {
             invalidateCache();
-
             onRemove(itemId, stageId);
           }
         })
-
-        .catch(error => {
-          Alert.error(error.message);
-        })
+        .catch((error) => Alert.error(error.message))
     );
   };
 
-  updateTimeTrack = (
+  const updateTimeTrack = (
     doc: { _id: string; status: string; timeSpent: number },
-    callback?
+    callback?: () => void
   ) => {
-    const { options } = this.props;
-
     client
       .mutate({
         variables: { ...doc, type: options.type },
-        mutation: gql(mutations.boardItemUpdateTimeTracking)
+        mutation: gql(mutations.boardItemUpdateTimeTracking),
       })
-      .then(() => {
-        if (callback) {
-          callback();
-        }
-      })
-      .catch(error => {
-        Alert.error(error.message);
-      });
+      .then(() => callback && callback())
+      .catch((error) => Alert.error(error.message));
   };
 
-  render() {
-    const { usersQuery, detailQuery, options } = this.props;
-
-    if (usersQuery.loading || detailQuery.loading) {
-      return <Spinner />;
-    }
-
-    if (detailQuery.error) {
-      return <ErrorMsg>{detailQuery.error.message}</ErrorMsg>;
-    }
-
-    const users = usersQuery.allUsers;
-    const item = detailQuery[options.queriesName.detailQuery];
-
-    if (!item) {
-      return null;
-    }
-
-    const extendedProps = {
-      ...this.props,
-      item,
-      addItem: this.addItem,
-      removeItem: this.removeItem,
-      saveItem: this.saveItem,
-      copyItem: this.copyItem,
-      updateTimeTrack: this.updateTimeTrack,
-      users
-    };
-
-    const EditForm = options.EditForm;
-
-    return <EditForm {...extendedProps} />;
+  if (usersLoading || detailLoading) {
+    return <Spinner />;
   }
-}
 
-const withQuery = (props: ContainerProps) => {
-  const { options } = props;
+  if (detailError) {
+    return <ErrorMsg>{detailError.message}</ErrorMsg>;
+  }
 
-  const refetchOptions = ({ stageId }: { stageId: string }) => ({
-    refetchQueries: [
-      {
-        query: gql(queries.stageDetail),
-        variables: { _id: stageId }
-      }
-    ]
-  });
+  const users = usersData?.allUsers || [];
+  const item = detailData?.[options.queriesName.detailQuery];
+  console.log("item", item, props.isPopupVisible);
+  if (!item) {
+    return null;
+  }
 
-  return withProps<ContainerProps>(
-    compose(
-      graphql<ContainerProps, DetailQueryResponse, { _id: string }>(
-        gql(options.queries.detailQuery),
-        {
-          name: 'detailQuery',
-          options: ({ itemId }: { itemId: string }) => {
-            return {
-              variables: {
-                _id: itemId
-              },
-              fetchPolicy: 'network-only'
-            };
-          }
-        }
-      ),
-      graphql<ContainerProps, AllUsersQueryResponse>(
-        gql(userQueries.allUsers),
-        {
-          name: 'usersQuery'
-        }
-      ),
-      graphql<ContainerProps, SaveMutation, IItemParams>(
-        gql(options.mutations.addMutation),
-        {
-          name: 'addMutation',
-          options: refetchOptions
-        }
-      ),
-      graphql<ContainerProps, SaveMutation, IItemParams>(
-        gql(options.mutations.copyMutation),
-        {
-          name: 'copyMutation',
-          options: refetchOptions
-        }
-      ),
-      graphql<ContainerProps, SaveMutation, IItemParams>(
-        gql(options.mutations.editMutation),
-        {
-          name: 'editMutation',
-          options: refetchOptions
-        }
-      ),
-      graphql<ContainerProps, RemoveMutation, { _id: string }>(
-        gql(options.mutations.removeMutation),
-        {
-          name: 'removeMutation',
-          options: refetchOptions
-        }
-      )
-    )(EditFormContainer)
-  );
+  const extendedProps = {
+    ...props,
+    item,
+    addItem,
+    removeItem,
+    saveItem,
+    copyItem,
+    updateTimeTrack,
+    users,
+  };
+
+  const EditForm = options.EditForm;
+
+  return <EditForm {...extendedProps} />;
 };
 
-class WithData extends React.Component<ContainerProps> {
-  private withQuery;
-
-  constructor(props) {
-    super(props);
-
-    this.withQuery = withQuery(props);
-  }
-
-  render() {
-    const Component = this.withQuery;
-
-    return <Component {...this.props} />;
-  }
-}
+const WithData: React.FC<ContainerProps> = (props) => {
+  return <EditFormContainer {...props} />;
+};
 
 export default withCurrentUser((props: WrapperProps) => {
   return (
     <PipelineConsumer>
-      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => {
-        return (
-          <WithData
-            {...props}
-            onAdd={onAddItem || props.onAdd}
-            onRemove={onRemoveItem || props.onRemove}
-            onUpdate={onUpdateItem || props.onUpdate}
-            options={props.options || options}
-          />
-        );
-      }}
+      {({ onAddItem, onRemoveItem, onUpdateItem, options }) => (
+        <WithData
+          {...props}
+          onAdd={onAddItem || props.onAdd}
+          onRemove={onRemoveItem || props.onRemove}
+          onUpdate={onUpdateItem || props.onUpdate}
+          options={props.options || options}
+        />
+      )}
     </PipelineConsumer>
   );
 });

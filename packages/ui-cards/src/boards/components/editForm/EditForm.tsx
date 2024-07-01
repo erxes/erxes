@@ -50,25 +50,13 @@ function EditForm(props: Props) {
   const [updatedItem, setUpdatedItem] = useState(item);
   const [prevStageId, setPrevStageId] = useState<string>("");
 
-  useEffect(() => {
-    if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId);
-
-      saveItem({ stageId }, (updatedItem) => {
-        if (onUpdate) {
-          onUpdate(updatedItem, prevStageId);
-        }
-      });
-    }
-  }, [stageId]);
-
   const onChangeStage = (stageId: string) => {
-    setStageId(stageId)
+    setStageId(stageId);
     const { item, saveItem, onUpdate } = props;
 
     if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId)
-      saveItem({ stageId }, updatedItem => {
+      setPrevStageId(item.stageId);
+      saveItem({ stageId }, (updatedItem) => {
         if (onUpdate) {
           onUpdate(updatedItem, prevStageId);
         }
@@ -149,7 +137,7 @@ function EditForm(props: Props) {
       </Dialog.Title>
     );
   };
-
+console.log("sssssss", props.isPopupVisible)
   return (
     <Transition appear show={props.isPopupVisible} as={Fragment}>
       <Dialog as="div" onClose={onHideModal} className={` relative z-10`}>
