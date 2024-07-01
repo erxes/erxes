@@ -10,8 +10,8 @@ import {
   SpaceBetweenRow,
   ToolBar,
   UploaderWrapper,
+  FlexRow, Subject, Meta
 } from "./styles";
-import { FlexRow, Subject } from "./styles";
 import { IEmail, IMail, IMessage } from "@erxes/ui-inbox/src/inbox/types";
 import React, { ReactNode } from "react";
 import {
@@ -28,14 +28,11 @@ import { Column } from "@erxes/ui/src/styles/main";
 import EmailTemplate from "../../containers/mail/EmailTemplate";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IAttachment } from "@erxes/ui/src/types";
-import { IEmailSignature } from "@erxes/ui/src/auth/types";
+import { IEmailSignature, IUser } from "@erxes/ui/src/auth/types";
 import { IEmailTemplate } from "../../types";
-import { IUser } from "@erxes/ui/src/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Label } from "@erxes/ui/src/components/form/styles";
-import { MAIL_TOOLBARS_CONFIG } from "@erxes/ui/src/constants/integrations";
 import MailChooser from "./MailChooser";
-import { Meta } from "./styles";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import SignatureChooser from "./SignatureChooser";
 import { SmallLoader } from "@erxes/ui/src/components/ButtonMutate";
@@ -141,13 +138,11 @@ class MailForm extends React.Component<Props, State> {
     const sender =
       this.getEmailSender(from.email || props.fromEmail) || mailWidget?.to;
 
-    const to = emailTo
-      ? emailTo
-      : mailWidget
+    const to = emailTo || (mailWidget
         ? mailWidget.to
         : isForward
           ? ""
-          : sender || "";
+        : sender || "");
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
       (localStorage.getItem(`reply_${mailKey}`) || "").length > 0;
@@ -412,9 +407,9 @@ class MailForm extends React.Component<Props, State> {
       body: updatedContent,
       erxesApiId: from,
       shouldResolve:
-        shouldResolve && conversationStatus === "new" ? true : false,
+        !!(shouldResolve && conversationStatus === "new"),
       shouldOpen:
-        shouldResolve && conversationStatus === "closed" ? true : false,
+        !!(shouldResolve && conversationStatus === "closed"),
       ...(!isForward ? { replyToMessageId: mailData.messageId } : {}),
       to: formatStr(to),
       cc: formatStr(cc),
