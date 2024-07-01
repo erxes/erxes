@@ -184,7 +184,7 @@ export const loadFormClass = (models: IModels) => {
           // phone
           if (
             (type === 'phone' || validation === 'phone') &&
-            !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
+            !/^\d{8,}$/.test(value.replace(/[\s()+\-.]|ext/gi, ''))
           ) {
             errors.push({
               fieldId: field._id,

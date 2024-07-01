@@ -46,7 +46,7 @@ const fieldsGroupsHook = async (
     const service = await getService(serviceName);
     const meta = service.config?.meta || {};
 
-    if (meta && meta.forms && meta.forms.groupsHookAvailable) {
+    if (meta.forms?.groupsHookAvailable) {
       doc = await sendCommonMessage({
         subdomain,
         serviceName,
