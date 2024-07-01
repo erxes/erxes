@@ -97,7 +97,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       const fieldObj = await models.Fields.findOne({ _id });
 
       // Checking if the field is defined by the erxes
-      if (fieldObj && fieldObj.isDefinedByErxes) {
+      if (fieldObj?.isDefinedByErxes) {
         throw new Error('Cant update this field');
       }
     }
@@ -306,8 +306,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         throw new Error(`${field.text}: ${message}`);
       };
 
-      // required
-      if (field.isRequired && (!value || !value.toString().trim())) {
+      if (field.isRequired && !value?.toString().trim()) {
         throwError('required');
       }
 
@@ -342,7 +341,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         if (type === 'objectList') {
           const { objectListConfigs = [] } = field;
 
-          if (!objectListConfigs || !objectListConfigs.length) {
+          if (!objectListConfigs?.length) {
             throwError("Object List don't have any keys");
           }
 
@@ -617,7 +616,7 @@ export const loadGroupClass = (models: IModels) => {
       const groupObj = await models.FieldsGroups.findOne({ _id });
 
       // Checking if the group is defined by the erxes
-      if (groupObj && groupObj.isDefinedByErxes) {
+      if (groupObj?.isDefinedByErxes) {
         throw new Error('Cant update this group');
       }
     }
@@ -732,7 +731,7 @@ export const loadGroupClass = (models: IModels) => {
         const service = await getService(serviceName);
         const meta = service.config?.meta || {};
 
-        if (meta && meta.forms && meta.forms.systemFieldsAvailable) {
+        if (meta.forms?.systemFieldsAvailable) {
           const types = meta.forms.types || [];
 
           for (const type of types) {
