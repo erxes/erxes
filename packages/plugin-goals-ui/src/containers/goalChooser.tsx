@@ -1,15 +1,14 @@
-import { Chooser } from '@erxes/ui/src';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React, { useState } from 'react';
+import { Chooser } from "@erxes/ui/src";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React, { useState } from "react";
 
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from "../graphql";
 import {
   AddMutationResponse,
   GoalTypesQueryResponse,
   IGoalType,
-  IGoalTypeDoc,
-} from '../types';
-import GoalTypeForm from './goalForm';
+} from "../types";
+import GoalTypeForm from "./goalForm";
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -31,15 +30,15 @@ const GoalTypeChooser = (props: Props) => {
         mainType: data.mainType,
         mainTypeId: data.mainTypeId,
         isRelated: data.isRelated,
-        sortField: 'createdAt',
+        sortField: "createdAt",
         sortDirection: -1,
       },
-      fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
-    },
+      fetchPolicy: data.isRelated ? "network-only" : "cache-first",
+    }
   );
 
   const [goalTypesAdd] = useMutation<AddMutationResponse>(
-    gql(mutations.goalTypesAdd),
+    gql(mutations.goalTypesAdd)
   );
 
   const resetAssociatedItem = () => {
@@ -62,11 +61,11 @@ const GoalTypeChooser = (props: Props) => {
       datas: data.goalTypes,
       mainTypeId: data.mainTypeId,
       mainType: data.mainType,
-      relType: 'goalType',
+      relType: "goalType",
     },
     search,
-    clearState: () => search(''),
-    title: 'GoalType',
+    clearState: () => search(""),
+    title: "GoalType",
     renderForm: (formProps) => (
       <GoalTypeForm
         {...formProps}
@@ -98,7 +97,7 @@ type WrapperProps = {
 
 const Wrapper = (props: WrapperProps) => {
   const [perPage, setPerPage] = useState<number>(20);
-  const [searchValue, setSearchValue] = useState<string>('');
+  const [searchValue, setSearchValue] = useState<string>("");
 
   const search = (value, loadmore) => {
     let page = 20;
