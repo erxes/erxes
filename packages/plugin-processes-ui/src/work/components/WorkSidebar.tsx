@@ -78,20 +78,6 @@ const Sidebar = (props: Props) => {
     setFilterParams({ ...filterParams, [name]: value });
   };
 
-  const onInputChange = (e) => {
-    e.preventDefault();
-
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const value = e.target.value;
-    const name = e.target.name;
-    timer = setTimeout(() => {
-      setFilter(name, value);
-    }, 500);
-  };
-
   const onSelectDate = (value, name) => {
     const strVal = moment(value).format("YYYY-MM-DD HH:mm");
     setFilter(name, strVal);
@@ -230,7 +216,7 @@ const Sidebar = (props: Props) => {
             >
               <option value="">All type</option>
               {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
-                <option value={jt} key={Math.random()}>
+                <option value={jt} key={jt}>
                   {JOB_TYPE_CHOISES[jt]}
                 </option>
               ))}
