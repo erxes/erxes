@@ -4,7 +4,7 @@ import { Button } from '../common/button';
 import { LoaderIcon } from '../common/Loader';
 
 const CheckPayment = () => {
-  const { transaction, checkInvoiceHandler, checkInvoiceLoading } =
+  const { transaction, invoiceDetail,checkInvoiceHandler, checkInvoiceLoading } =
     usePayment();
 
   if (!transaction) return null;
@@ -12,7 +12,7 @@ const CheckPayment = () => {
   return (
     <Button
       className="w-full mb-2"
-      onClick={() => checkInvoiceHandler(transaction._id)}
+      onClick={() => checkInvoiceHandler(invoiceDetail._id)}
       disabled={checkInvoiceLoading}
     >
       {checkInvoiceLoading && <LoaderIcon className="mr-2" />}

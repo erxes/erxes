@@ -1,14 +1,14 @@
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __, confirm } from '@erxes/ui/src/utils';
-import { Button, DataWithLoader } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
+import { Button, DataWithLoader } from "@erxes/ui/src/components";
+import { __, confirm } from "@erxes/ui/src/utils";
 
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import Header from './Header';
-import PerSettings from './PerSettings';
-import Sidebar from './Sidebar';
+import { ContentBox } from "../styles";
+import Header from "./Header";
+import { IConfigsMap } from "../types";
+import PerSettings from "./PerSettings";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -25,7 +25,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap
+      configsMap: props.configsMap,
     };
   }
 
@@ -35,31 +35,35 @@ class GeneralSettings extends React.Component<Props, State> {
     }
   }
 
-  add = e => {
+  add = (e) => {
     e.preventDefault();
     const { configsMap } = this.state;
+
+    const newEbarimtConfig = { ...configsMap.ebarimtConfig };
 
     if (!configsMap.ebarimtConfig) {
       configsMap.ebarimtConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.ebarimtConfig.newEbarimtConfig = {
-      title: 'New Erkhet Config',
-      boardId: '',
-      pipelineId: '',
-      stageId: '',
-      userEmail: '',
+    newEbarimtConfig.newEbarimtConfig = {
+      title: "New Erkhet Config",
+      boardId: "",
+      pipelineId: "",
+      stageId: "",
+      userEmail: "",
       hasVat: false,
       hasCitytax: false,
-      defaultPay: 'debtAmount'
+      defaultPay: "debtAmount",
     };
 
-    this.setState({ configsMap });
+    this.setState({
+      configsMap: { ...configsMap, ebarimtConfig: newEbarimtConfig },
+    });
   };
 
   delete = (currentConfigKey: string) => {
-    confirm('This Action will delete this config are you sure?').then(() => {
+    confirm("This Action will delete this config are you sure?").then(() => {
       const { configsMap } = this.state;
       const newCurrenConfig = { ...configsMap.ebarimtConfig };
 
@@ -67,14 +71,16 @@ class GeneralSettings extends React.Component<Props, State> {
 
       delete newCurrenConfig.newEbarimtConfig;
 
-      this.setState({ configsMap: { ...configsMap, ebarimtConfig: newCurrenConfig } });
+      this.setState({
+        configsMap: { ...configsMap, ebarimtConfig: newCurrenConfig },
+      });
 
       this.props.save({ ...configsMap, ebarimtConfig: newCurrenConfig });
     });
   };
 
   renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={key}
@@ -93,19 +99,20 @@ class GeneralSettings extends React.Component<Props, State> {
     const configs = configsMap.ebarimtConfig || {};
 
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         {this.renderConfigs(configs)}
       </ContentBox>
     );
   }
 
   render() {
-    const configCount = Object.keys(this.state.configsMap.ebarimtConfig || {})
-      .length;
+    const configCount = Object.keys(
+      this.state.configsMap.ebarimtConfig || {}
+    ).length;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Erkhet config') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Erkhet config") },
     ];
 
     const actionButtons = (
@@ -122,12 +129,12 @@ class GeneralSettings extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Erkhet config')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__("Erkhet config")} breadcrumb={breadcrumb} />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Erkhet configs')}</Title>}
+            left={<Title>{__("Erkhet configs")}</Title>}
             right={actionButtons}
           />
         }
@@ -137,7 +144,7 @@ class GeneralSettings extends React.Component<Props, State> {
             data={this.renderContent()}
             loading={this.props.loading}
             count={configCount}
-            emptyText={__('There is no config') + '.'}
+            emptyText={__("There is no config") + "."}
             emptyImage="/images/actions/8.svg"
           />
         }

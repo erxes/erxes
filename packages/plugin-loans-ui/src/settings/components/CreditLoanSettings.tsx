@@ -35,9 +35,6 @@ const GeneralSettings = (props: Props) => {
   const add = (e) => {
     e.preventDefault();
 
-    console.log("configsMap", configsMap);
-
-    // must save prev item saved then new item
     configsMap.newCreditConfig = {
       title: "New Credit Config",
       startScore: 0,
@@ -47,14 +44,13 @@ const GeneralSettings = (props: Props) => {
 
     let newConfig = JSON.parse(JSON.stringify(configsMap));
 
-    console.log("newConfig", newConfig);
-
     setConfigsMap({ ...newConfig });
   };
 
   const deleteHandler = (currentConfigKey: string) => {
     let newConfig = JSON.parse(JSON.stringify(configsMap));
-    delete newConfig.creditScore[currentConfigKey];
+
+    delete newConfig[currentConfigKey];
     props.configsMap.creditScore = newConfig;
     setConfigsMap({ ...newConfig });
     props.save(props.configsMap);

@@ -96,12 +96,13 @@ export const callbackHandler = async (req, res) => {
 
       if (await isEnabled(serviceName)) {
         try {
-          sendMessage(`${serviceName}:transactionCallback`, {
+          sendMessage(`${serviceName}:paymentTransactionCallback`, {
             subdomain,
             data: {
               ...transaction,
               apiResponse: 'success',
             },
+            defaultValue: null,
           });
 
           if (result === 'paid') {
@@ -112,9 +113,27 @@ export const callbackHandler = async (req, res) => {
                 status: 'paid',
               },
             });
+
+            if (invoice.callback) {
+              try {
+                await fetch(invoice.callback, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    _id: invoice._id,
+                    amount: invoice.amount,
+                    status: 'paid',
+                  }),
+                });
+              } catch (e) {
+                console.error('Error: ', e);
+              }
+            }
           }
         } catch (e) {
-          console.error(e);
+          console.error('Error: ', e);
         }
       }
     }

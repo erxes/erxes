@@ -21,7 +21,7 @@ const contractMutations = {
     doc: IContract,
     { user, models, subdomain }: IContext
   ) => {
-    const contract = await models.Contracts.createContract(doc);
+    const contract = await models.Contracts.createContract(doc, subdomain);
 
     const logData = {
       type: "contract",
@@ -57,7 +57,7 @@ const contractMutations = {
       throw new Error(validate.errorMessage);
     }
 
-    const contract = await models.Contracts.createContract(doc);
+    const contract = await models.Contracts.createContract(doc, subdomain);
 
     const logData = {
       type: "contract",
