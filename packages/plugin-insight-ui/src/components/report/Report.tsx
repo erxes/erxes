@@ -23,9 +23,8 @@ import SelectDashboard from "../../containers/utils/SelectDashboard";
 import SelectMembersPopover from "../utils/SelectMembersPopover";
 import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { __ } from "@erxes/ui/src/utils/index";
+import { __,getEnv } from "@erxes/ui/src/utils/index";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
-import { getEnv } from "@erxes/ui/src/utils/index";
 import queryString from "query-string";
 
 type Props = {
@@ -236,7 +235,7 @@ const Report = (props: Props) => {
       <DataWithLoader
         data={
           <DragField
-            haveChart={(charts || []).length ? true : false}
+            haveChart={(charts ?? []).length ? true : false}
             cols={2 * 3}
             margin={[30, 30]}
             onDragStart={() => setIsDragging(true)}
