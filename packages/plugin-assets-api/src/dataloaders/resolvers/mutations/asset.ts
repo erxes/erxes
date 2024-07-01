@@ -104,6 +104,13 @@ const assetMutations = {
       throw new Error('Please provide some IDs to assign articles');
     }
 
+    await models.AssetsKbArticlesHistories.addAssetsKbArticleHistories({
+      assetIds: ids,
+      kbArticleIds: articleIds,
+      user,
+      action
+    });
+
     if (action === 'add') {
       await models.Assets.updateMany(
         { _id: { $in: ids } },
@@ -117,13 +124,6 @@ const assetMutations = {
         { $pull: { kbArticleIds: { $in: articleIds } } }
       );
     }
-
-    await models.AssetsKbArticlesHistories.addAssetsKbArticleHistories({
-      assetIds: ids,
-      kbArticleIds: articleIds,
-      user,
-      action
-    });
 
     return { status: 'success' };
   }

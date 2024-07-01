@@ -61,9 +61,12 @@ const KhanSheet: any = dynamic(() => import("../paymentTypes/khanCardSheet"), {
 const TDBSheet: any = dynamic(() => import("../paymentTypes/TDBCardSheet"), {
   loading: Loading,
 })
-const CapitronSheet: any = dynamic(() => import("../paymentTypes/capitronSheet"), {
-  loading: Loading,
-})
+const CapitronSheet: any = dynamic(
+  () => import("../paymentTypes/capitronSheet"),
+  {
+    loading: Loading,
+  }
+)
 
 const GolomtSheet: any = dynamic(() => import("../paymentTypes/golomtSheet"), {
   loading: Loading,

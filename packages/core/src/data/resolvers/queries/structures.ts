@@ -104,6 +104,10 @@ const generateFilters = async ({
     }
   }
 
+  if (params.onlyFirstLevel) {
+    filter.parentId = { $in: [null, ''] };
+  }
+
   return filter;
 };
 
