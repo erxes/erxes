@@ -81,9 +81,10 @@ export class AccountsApi extends BaseApi {
    */
   async getHolder(accountNumber: string, bankCode?: string) {
     try {
+      
       const res = await this.request({
         method: "GET",
-        path: `accounts/${accountNumber}/name?bank=${bankCode}`
+        path: `accounts/cam/?acct=${accountNumber}&bank_code=${bankCode}`
       });
 
       return res;
