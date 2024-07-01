@@ -2,13 +2,12 @@ import { gql } from '@apollo/client';
 import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps , IField } from '@erxes/ui/src/types';
 import { getConstantFromStore } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql, ChildProps } from '@apollo/client/react/hoc';
 import SelectProperty from '../components/SelectProperty';
 import { mutations, queries } from '../graphql';
-import { IField } from '@erxes/ui/src/types';
 import { FieldsGroupsQueryResponse, FieldsQueryResponse } from '../types';
 
 type Props = {

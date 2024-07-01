@@ -44,7 +44,7 @@ function FieldLogics(props: Props) {
     onLogicsChange(logics);
   }, [logics, onLogicsChange]);
 
-  const [isEnabled, toggleState] = useState(
+  const [isEnabled, setIsEnabled] = useState(
     props.logics ? props.logics.length > 0 : false
   );
 
@@ -74,7 +74,7 @@ function FieldLogics(props: Props) {
   };
 
   const onEnableLogic = () => {
-    toggleState(true);
+    setIsEnabled(true);
     onActionChange("show");
     addLogic();
   };
