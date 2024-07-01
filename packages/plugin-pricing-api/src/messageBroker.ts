@@ -1,5 +1,4 @@
 import {
-  MessageArgs,
   MessageArgsOmitService,
   sendMessage,
 } from '@erxes/api-utils/src/core';
@@ -27,7 +26,7 @@ export const setupMessageConsumers = async () => {
           departmentId,
           branchId,
           products,
-        )) || {},
+        )) ?? {},
       status: 'success',
     };
   });
