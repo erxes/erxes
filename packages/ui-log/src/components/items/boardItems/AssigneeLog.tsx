@@ -33,7 +33,7 @@ class AssigneeLog extends React.Component<IActivityLogItemProps> {
         <Link
           to={`/settings/team/details/${user._id}`}
           target="_blank"
-          key={Math.random()}
+          key={user._id}
         >
           &nbsp;{user.details.fullName || user.email}&nbsp;
         </Link>
@@ -45,7 +45,7 @@ class AssigneeLog extends React.Component<IActivityLogItemProps> {
         <Link
           to={`/settings/team/details/${user._id}`}
           target="_blank"
-          key={Math.random()}
+          key={user._id}
         >
           &nbsp;{user.details.fullName || user.email}&nbsp;
         </Link>

@@ -254,7 +254,7 @@ const ContentShadow = styled.div`
   right: 0px;
 `;
 
-const Date = styledTS<{ showDetail?: boolean }>(styled.div)`
+const DateBox = styledTS<{ showDetail?: boolean }>(styled.div)`
   cursor: pointer;
   display: table;
   margin-right: ${dimensions.unitSpacing - 2}px;
@@ -419,7 +419,7 @@ export {
   Row,
   IconWrapper,
   Title,
-  Date,
+  DateBox,
   Detail,
   ContentShadow,
   Count,

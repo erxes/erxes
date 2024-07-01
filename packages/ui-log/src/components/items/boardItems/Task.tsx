@@ -1,6 +1,6 @@
 import {
   ActivityDate,
-  Date,
+  DateBox,
   DeleteAction,
   Description,
   Detail,
@@ -72,7 +72,7 @@ class Task extends React.Component<Props, State> {
   };
 
   onChange = (key: string) => {
-    this.setState({ [key]: !this.state[key] } as any);
+    this.setState(prevState=>({ [key]: !prevState[key] } as any));
   };
 
   handleInputChange = (e) => {
@@ -289,12 +289,12 @@ class Task extends React.Component<Props, State> {
         </FlexContent>
         {!isComplete && this.renderContent()}
         <Detail full={true}>
-          <Date
+          <DateBox
             onClick={this.onChange.bind(this, "showDetail")}
             showDetail={showDetail}
           >
             <Icon icon="angle-right" /> {__("Details")}
-          </Date>
+          </DateBox>
           {this.renderDetails()}
         </Detail>
       </LogWrapper>

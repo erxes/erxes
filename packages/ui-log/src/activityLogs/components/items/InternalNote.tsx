@@ -36,8 +36,10 @@ class InternalNote extends React.Component<Props, { editing: boolean }> {
   }
 
   onEditing = () => {
-    this.setState({ editing: !this.state.editing });
-  };
+    this.setState(prevState => ({
+        editing: !prevState.editing
+    }));
+};
 
   renderBody = () => {
     const { internalNote } = this.props;

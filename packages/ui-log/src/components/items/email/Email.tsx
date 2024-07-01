@@ -31,7 +31,7 @@ class Email extends React.Component<Props, { expand: boolean }> {
   }
 
   onExpand = () => {
-    this.setState({ expand: !this.state.expand });
+    this.setState(prevState=>({ expand: !prevState.expand }));
   };
 
   renderContent() {

@@ -36,10 +36,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      currentTab: isEnabled('internalnotes')
-        ? 'newNote'
-        : isEnabled('clientportal')
-        ? 'newComment'
+      currentTab: isEnabled('internalnotes')|| 'newNote'? isEnabled('clientportal')|| 'newComment'
         : ''
     };
   }

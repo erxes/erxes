@@ -28,7 +28,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
   }
 
   onCollapse = () => {
-    this.setState({ toggleItems: !this.state.toggleItems });
+    this.setState(prevState=>({ toggleItems: !prevState.toggleItems }));
   };
 
   renderItem = () => {
@@ -76,7 +76,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
     }
 
     return (
-      <>
+      
         <FlexCenterContent>
           <FlexBody>
             {' '}
@@ -92,7 +92,7 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
             </ActivityDate>
           </Tip>
         </FlexCenterContent>
-      </>
+      
     );
   }
 }

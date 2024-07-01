@@ -17,7 +17,6 @@ import {
 } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
 import {
   IConversation,
-  IFacebookComment,
   IMessage
 } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
@@ -54,7 +53,9 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
   }
 
   onCollapse = () => {
-    this.setState({ toggleMessage: !this.state.toggleMessage });
+    this.setState((prevState) => ({
+      toggleMessage: !prevState.toggleMessage
+    }));
   };
 
   renderComments() {

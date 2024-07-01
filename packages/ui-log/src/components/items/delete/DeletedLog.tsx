@@ -7,12 +7,9 @@ class DeletedLog extends React.Component<IActivityLogItemProps> {
     const { activity } = this.props;
     const { contentType } = activity;
 
-    switch (contentType) {
-      case 'checklist':
+    if (contentType) {
         return <ChecklistLog activity={activity} />;
-      default:
-        return <ChecklistLog activity={activity} />;
-    }
+        }
   }
 }
 

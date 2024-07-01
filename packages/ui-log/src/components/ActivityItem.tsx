@@ -49,7 +49,7 @@ const activityItem = (activity: IActivityLog) => {
 
   const type = contentType.split(':')[1];
 
-  switch ((action && action) || type) {
+  switch (action || type) {
     case 'conversation':
       return renderDetail(
         'conversation',
