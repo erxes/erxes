@@ -8,7 +8,6 @@ import { QueryResponse } from '@erxes/ui/src/types';
 import { ISegment } from '@erxes/ui-segments/src/types';
 
 type Props = {
-  segmentId: string;
   children: any;
 };
 
@@ -17,10 +16,6 @@ type FinalProps = {
 } & Props;
 
 class AttributesForm extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { segmentDetailQuery, children } = this.props;
 

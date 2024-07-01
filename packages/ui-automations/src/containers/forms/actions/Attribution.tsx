@@ -62,7 +62,7 @@ export default withProps<Props>(
         options: ({ triggerType, attrConfig }) => ({
           variables: {
             contentType: triggerType,
-            config: attrConfig ? attrConfig : undefined
+            config: attrConfig || undefined
           }
         })
       }

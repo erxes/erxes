@@ -13,7 +13,6 @@ import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   config: any;
-  triggerType: string;
   setConfig: (config: any) => void;
   inputName?: string;
   options: IOption[];
