@@ -6,8 +6,6 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-import { IQueryParams } from "@erxes/ui/src/types";
-
 import CoverSidebar from "./CoverSidebar";
 import { ICover } from "../types";
 import React from "react";
@@ -18,17 +16,9 @@ import { menuPos } from "../../constants";
 
 type Props = {
   covers: ICover[];
-  bulk: any[];
-  isAllSelected: boolean;
   queryParams: any;
   coversCount: number;
   loading: boolean;
-
-  onSearch: (search: string) => void;
-  onFilter: (filterParams: IQueryParams) => void;
-  onSelect: (values: string[] | string, key: string) => void;
-  isFiltered: boolean;
-  clearFilter: () => void;
   remove: (_id: string) => void;
 };
 

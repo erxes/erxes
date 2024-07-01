@@ -11,7 +11,6 @@ import { FinanceAmount, FlexRow } from "../../styles";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import { ICover } from "../types";
 import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
 import { IPos } from "../../types";
@@ -20,7 +19,6 @@ import _ from "lodash";
 type Props = {
   onChangeNote: (_id: string, note: string) => void;
   cover: ICover;
-  pos: IPos;
 };
 
 const CoverDetail = (props: Props) => {

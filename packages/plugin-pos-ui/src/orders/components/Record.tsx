@@ -8,7 +8,6 @@ import { IOrder } from "../types";
 
 type Props = {
   order: IOrder;
-  otherPayTitles: string[];
 };
 
 const Record = (props: Props) => {

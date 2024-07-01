@@ -107,7 +107,6 @@ export default {
             break;
 
           default:
-            {
               doc[property.name] = value;
 
               if (property.name === 'createdAt' && value) {
@@ -120,7 +119,6 @@ export default {
               if (property.name === 'dueDate' && value) {
                 doc.dueDate = new Date(value);
               }
-            }
             break;
         }
 

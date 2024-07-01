@@ -17,7 +17,6 @@ import {
 export const setupMessageConsumers = async () => {
   consumeQueue('pos:afterMutation', async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
-    return;
   });
 
   consumeQueue('pos:createOrUpdateOrders', async ({ subdomain, data }) => {

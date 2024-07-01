@@ -18,17 +18,12 @@ import { Title } from "@erxes/ui-settings/src/styles";
 type Props = {
   posList: IPos[];
   bulk: IPos[]; //*checkType
-  isAllSelected: boolean;
-  emptyBulk: () => void;
   queryParams: any;
-  tagsCount: { [key: string]: number };
   toggleBulk: (target: IPos, toAdd: boolean) => void; //*checkType
   toggleAll: (bulk: IPos[], name: string) => void; //*checkType
   loading: boolean;
   totalCount: number;
   remove: (posId: string) => void;
-  refetch?: () => void;
-  counts: any; //*checkType
 };
 
 const List = (props: Props) => {

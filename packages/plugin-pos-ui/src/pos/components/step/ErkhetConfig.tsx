@@ -7,13 +7,7 @@ import {
   FormGroup,
   Toggle,
 } from "@erxes/ui/src";
-import {
-  Block,
-  BlockRow,
-  BlockRowUp,
-  FlexColumn,
-  FlexItem,
-} from "../../../styles";
+import { Block, BlockRow, FlexColumn, FlexItem } from "../../../styles";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { IPos } from "../../../types";
 import Select from "react-select";

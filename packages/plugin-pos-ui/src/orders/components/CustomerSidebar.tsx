@@ -1,10 +1,9 @@
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { Box, Button } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { SideBarFooter } from '../../styles';
-import { CenterContent, Loader } from '@erxes/ui/src/styles/main';
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { Box, Button } from "@erxes/ui/src/components";
+import { __ } from "@erxes/ui/src/utils";
+import React from "react";
+import { Link } from "react-router-dom";
+import { SideBarFooter } from "../../styles";
 
 const CustomerSidebar = ({
   customerId,
@@ -18,7 +17,7 @@ const CustomerSidebar = ({
   loading: boolean;
 }) => {
   return (
-    <Box title={'Pos Orders'}>
+    <Box title={"Pos Orders"}>
       {!loading && (
         <>
           <SidebarList className="no-link">
@@ -27,7 +26,7 @@ const CustomerSidebar = ({
             </li>
             <li>Number of orders: {count || 0}</li>
             <li>
-              Average amount of orders:{' '}
+              Average amount of orders:{" "}
               {totalAmount ? (totalAmount / count).toLocaleString() : 0}
             </li>
           </SidebarList>

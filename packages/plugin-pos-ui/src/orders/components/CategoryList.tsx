@@ -63,21 +63,18 @@ const CategoryList = (props: Props) => {
     );
 
     return (
-      <>
-        <Section.Title>
-          {__("Categories")}
-
-          <Section.QuickButtons>
-            {router.getParam(location, "categoryId") && (
-              <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
-                <Tip text={__("Clear filter")} placement="bottom">
-                  <Icon icon="cancel-1" />
-                </Tip>
-              </a>
-            )}
-          </Section.QuickButtons>
-        </Section.Title>
-      </>
+      <Section.Title>
+        {__("Categories")}
+        <Section.QuickButtons>
+          {router.getParam(location, "categoryId") && (
+            <a href="#cancel" tabIndex={0} onClick={clearCategoryFilter}>
+              <Tip text={__("Clear filter")} placement="bottom">
+                <Icon icon="cancel-1" />
+              </Tip>
+            </a>
+          )}
+        </Section.QuickButtons>
+      </Section.Title>
     );
   };
 
