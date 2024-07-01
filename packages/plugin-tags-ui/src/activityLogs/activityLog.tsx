@@ -39,7 +39,7 @@ const ActivityItem: React.FC<Props> = ({ contentType, activity }) => {
   const type = activity.contentType.split(':')[1];
   const tagIds = activity.content ? activity.content.tagIds : [];
 
-  switch ((action && action) || type) {
+  switch ((action) || type) {
     case 'tagged':
       return renderDetail(<TaggedLog tagIds={tagIds} activity={activity} />);
     default:

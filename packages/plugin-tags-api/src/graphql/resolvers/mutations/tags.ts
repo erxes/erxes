@@ -109,7 +109,7 @@ const tagMutations = {
       const service = await getService(serviceName);
       const meta = service.config?.meta || {};
 
-      if (meta && meta.tags && meta.tags.publishChangeAvailable) {
+      if (meta?.tags?.publishChangeAvailable) {
         await sendCommonMessage({
           subdomain,
           serviceName,
