@@ -9,7 +9,6 @@ type Props = {
   templates: any[];
   totalCount: number;
   handleSelect: (id: string) => void;
-  selectedTemplateId?: string;
 };
 
 const SelectEmailTemplate = (props: Props) => {
