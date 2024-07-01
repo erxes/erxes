@@ -54,7 +54,7 @@ export const doLogicAfterAction = async (
 ) => {
   const { logics, itemId, sourceType } = JSON.parse(params || '{}');
 
-  if (!!logics?.length) {
+  if (logics?.length) {
     const models = await generateModels(subdomain);
     const grant = await models.Requests.findOne({ _id: requestId });
 
@@ -122,7 +122,7 @@ export async function checkConfig({
     const params = JSON.parse(config.params || '{}');
     for (const [key, value] of Object.entries(params)) {
       if (typeof value === 'string') {
-        if (value.match(/^{{ .* }}$/)) {
+        if (RegExp(/^{{ .* }}$/).exec(value)) {
           params[key] = detail[value.replace(/{{ | }}/g, '')];
         }
       }
