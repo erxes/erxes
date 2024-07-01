@@ -24,10 +24,6 @@ const KeyPadContainer = (props: IProps) => {
     'config:call_integrations',
   );
 
-  const inboxId =
-    JSON.parse(defaultCallIntegration || '{}')?.inboxId ||
-    callUserIntegrations?.[0]?.inboxId;
-
   const [customer, setCustomer] = useState<any>(undefined);
   const [createCustomerMutation] = useMutation(gql(mutations.customersAdd));
   const [updatePauseAgent] = useMutation(gql(mutations.callPauseAgent));
