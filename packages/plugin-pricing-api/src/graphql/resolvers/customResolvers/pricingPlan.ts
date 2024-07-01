@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import 'lodash';
 import { IContext } from '../../../connectionResolver';
 import {
   sendProductsMessage,
