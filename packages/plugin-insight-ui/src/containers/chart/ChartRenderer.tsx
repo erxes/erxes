@@ -45,7 +45,7 @@ type FinalProps = {
   chartGetResultQuery: any;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { chartGetResultQuery, chartVariables, filter, chartType } = props;
+  const { chartGetResultQuery, chartVariables, chartType } = props;
 
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
@@ -61,7 +61,7 @@ const ChartRendererList = (props: FinalProps) => {
   if (getResult && Array.isArray(getResult)) {
     const randomNums = getRandomNumbers(getResult.length);
 
-    const datasets = (getResult || []).map((d, index) => ({
+    const datasets = getResult.map((d, index) => ({
       ...d,
       backgroundColor: DEFAULT_BACKGROUND_COLORS[randomNums[index]],
       borderColor: DEFAULT_BORDER_COLORS[randomNums[index]],

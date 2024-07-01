@@ -19,8 +19,6 @@ type Props = {
 const SelectSections = (props: Props) => {
   const { type, sections, sectionId, setSectionId, addSection } = props;
 
-  const [input, setInput] = useState<string>('');
-
   const handleClick = (inputValue: string) => {
     if (inputValue === '' && inputValue.length < 2) {
       return;
@@ -56,7 +54,6 @@ const SelectSections = (props: Props) => {
       isClearable={false}
       onCreateOption={handleClick}
       formatCreateLabel={formatCreateLabel}
-      onInputChange={(value) => setInput(value)}
       required={true}
     />
   );

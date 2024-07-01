@@ -48,7 +48,7 @@ export const SelectWithAssets = ({
       const asset = item || ({} as any);
       const order = asset.order;
 
-      const foundedString = order.match(/[/]/gi);
+      const foundedString = order.match(/\/gi/);
 
       let space = '';
 

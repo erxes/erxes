@@ -35,7 +35,7 @@ type Props = {
 };
 
 const ChartFormFieldList = (props: Props) => {
-  const { filterType, chartType, setFilter, fieldValues } = props;
+  const { filterType, setFilter, fieldValues } = props;
 
   const {
     fieldName,
@@ -210,7 +210,6 @@ const ChartFormFieldList = (props: Props) => {
         fieldOptions ||
         (fieldParentVariable ? fieldParentOptions : queryFieldOptions)
       }
-      fieldLogics={logics}
       fieldLabel={fieldLabel}
       fieldDefaultValue={fieldDefaultValue}
       onChange={onChange}
