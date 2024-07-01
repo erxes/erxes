@@ -10,6 +10,7 @@ export const getAuthHeaders = async (args: {
   clientId: string;
   configPassword: string;
   registerId: string;
+  golomtCode?: string;
 }) => {
   const { name, ivKey, clientId, configPassword, sessionKey } = args;
 

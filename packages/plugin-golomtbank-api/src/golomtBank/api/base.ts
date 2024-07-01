@@ -44,7 +44,6 @@ export class BaseApi {
 
       if (type === "CGWTXNADD") {
         const xcode = generateCurrentNumberString("4IO2WPYBASQOSQMS");
-        console.log("xcode::", xcode);
         requestOptions.headers["X-Golomt-Code"] = xcode;
       }
 

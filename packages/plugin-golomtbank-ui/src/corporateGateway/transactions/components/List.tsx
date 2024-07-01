@@ -34,19 +34,14 @@ const List = (props: Props) => {
     (statement && statement.statements) || []
   );
   const totalCount = statement?.statements?.length || 0;
-
+  const incomes = statement?.statements?.filter((t) => t.tranAmount > 0) || [];
+  const outcomes = statement?.statements?.filter((t) => t.tranAmount < 0) || [];
   React.useEffect(() => {
     switch (type) {
       case "income":
-        const incomes =
-          statement?.statements?.filter((t) => t.tranAmount > 0) || [];
-
         setTransactions(incomes);
         break;
       case "outcome":
-        const outcomes =
-          statement?.statements.filter((t) => t.tranAmount < 0) || [];
-
         setTransactions(outcomes);
         break;
       default:

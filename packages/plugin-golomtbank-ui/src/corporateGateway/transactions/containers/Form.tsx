@@ -1,7 +1,6 @@
 import Alert from "@erxes/ui/src/utils/Alert";
-import { gql } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 import React from "react";
-import { useMutation } from "@apollo/client";
 import TransactionForm from "../components/Form";
 import { mutations, queries } from "../graphql";
 
@@ -14,10 +13,10 @@ type Props = {
 
 const TransactionFormContainer = (props: Props) => {
   const [transferMutation] = useMutation(gql(mutations.transferMutation), {
-    refetchQueries: getRefetchQueries(),
+    refetchQueries: getRefetchQueries(props.configId, props.accountNumber),
   });
 
-  const submit = (
+  const submit = ({
     configId,
     fromAccount,
     toAccount,
@@ -28,21 +27,23 @@ const TransactionFormContainer = (props: Props) => {
     fromDescription,
     fromCurrency,
     toAmount,
-    fromAmount
-  ) => {
+    fromAmount,
+    refCode,
+  }) => {
     transferMutation({
       variables: {
-        configId,
-        fromAccount,
-        toAccount,
-        toAccountName,
-        toBank,
-        toCurrency,
-        toDescription,
-        fromDescription,
-        fromCurrency,
-        toAmount,
-        fromAmount,
+        configId: configId,
+        fromAccount: fromAccount,
+        toAccount: toAccount,
+        toAccountName: toAccountName,
+        toBank: toBank,
+        toCurrency: toCurrency,
+        toDescription: toDescription,
+        fromDescription: fromDescription,
+        fromCurrency: fromCurrency,
+        toAmount: toAmount,
+        fromAmount: fromAmount,
+        refCode: refCode,
       },
     })
       .then(() => {
@@ -62,10 +63,14 @@ const TransactionFormContainer = (props: Props) => {
   return <TransactionForm {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
+const getRefetchQueries = (configId?: string, accountNumber?: string) => {
   return [
     {
       query: gql(queries.transactionsQuery),
+      variables: {
+        accountId: accountNumber,
+        configId: configId,
+      },
     },
   ];
 };

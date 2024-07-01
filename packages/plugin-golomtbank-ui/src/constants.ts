@@ -2,9 +2,6 @@ export const TRANSACTION_TYPES = [
   { value: "4", label: "Transactions from the organization's own account" },
 ];
 
-// { value: "1", label: "Transaction within Khan Bank" },
-// { value: "2", label: "Transaction between own account" },
-// { value: "3", label: "Transaction to other banks" },
 export const BANK_CODES = [
   { value: "010000", label: "Bank of Mongolia" },
   { value: "020000", label: "Capital bank" },

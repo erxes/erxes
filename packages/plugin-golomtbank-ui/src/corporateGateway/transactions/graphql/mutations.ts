@@ -1,6 +1,6 @@
 const transferMutation = `
-mutation GolomtBankTransfer($configId: String!, $fromAccount: String, $toAccount: String, $toAccountName: String, $toBank: String, $toCurrency: String, $fromCurrency: String, $toDescription: String, $fromDescription: String, $toAmount: String, $fromAmount: String) {
-  golomtBankTransfer(configId: $configId, fromAccount: $fromAccount, toAccount: $toAccount, toAccountName: $toAccountName, toBank: $toBank, toCurrency: $toCurrency, fromCurrency: $fromCurrency, toDescription: $toDescription, fromDescription: $fromDescription, toAmount: $toAmount, fromAmount: $fromAmount)
+mutation GolomtBankTransfer($configId: String!, $refCode: String, $fromAmount: String, $toAmount: String, $fromDescription: String, $toDescription: String, $fromCurrency: String, $toCurrency: String, $toBank: String, $toAccountName: String, $toAccount: String, $fromAccount: String) {
+  golomtBankTransfer(configId: $configId, refCode: $refCode, fromAmount: $fromAmount, toAmount: $toAmount, fromDescription: $fromDescription, toDescription: $toDescription, fromCurrency: $fromCurrency, toCurrency: $toCurrency, toBank: $toBank, toAccountName: $toAccountName, toAccount: $toAccount, fromAccount: $fromAccount)
 }
 `;
 

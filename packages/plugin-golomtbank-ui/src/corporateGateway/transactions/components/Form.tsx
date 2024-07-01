@@ -14,7 +14,7 @@ type Props = {
   configId: string;
   accounts?: IGolomtBankAccount[];
   accountNumber?: string;
-  submit: (
+  submit: ({
     configId,
     fromAccount,
     toAccount,
@@ -25,27 +25,29 @@ type Props = {
     fromDescription,
     fromCurrency,
     toAmount,
-    fromAmount
-  ) => void;
+    fromAmount,
+    refCode,
+  }) => void;
   closeModal: () => void;
 };
 
 const TransactionForm = (props: Props) => {
   const { accountNumber } = props;
-  const [refCode, setref] = useState("");
-  const [fromAccount, setaccount] = useState(accountNumber || "");
-  const [toAccount, setreceiveaccount] = useState("");
-  const [toBank, settobank] = useState("15");
-  const [fromDescription, setfromdescription] = useState("");
-  const [toDescription, settodescription] = useState("");
-  const [fromAmount, setfromAmount] = useState(0);
-  const [toAmount, settoAmount] = useState(0);
-  const [fromCurrency, setfromcurrency] = useState("");
-  const [toCurrency, settocurrency] = useState("");
-  const [toAccountName, settoaccountname] = useState("");
+  const [refCode, setRefCode] = useState("");
+  const [fromAccount, setFromAccount] = useState(accountNumber || "");
+  const [toAccount, setToAccount] = useState("");
+  const [toBank, setToBank] = useState("15");
+  const [fromDescription, setFromDescription] = useState("");
+  const [toDescription, setToDescription] = useState("");
+  const [fromAmount, setFromAmount] = useState(0);
+  const [toAmount, setToAmount] = useState(0);
+  const [fromCurrency, setFromCurrency] = useState("");
+  const [toCurrency, setToCurrency] = useState("");
+  const [toAccountName, setToAccountName] = useState("");
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, configId } = props;
+
     return (
       <>
         <FormGroup>
@@ -54,7 +56,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={refCode}
             placeholder="receipt number"
-            onChange={(e: any) => setref(e.target.value)}
+            onChange={(e: any) => setRefCode(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -62,7 +64,7 @@ const TransactionForm = (props: Props) => {
           <FormControl
             value={fromAccount}
             placeholder="Account number"
-            onChange={(e: any) => setaccount(e.target.value)}
+            onChange={(e: any) => setFromAccount(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -72,7 +74,7 @@ const TransactionForm = (props: Props) => {
             value={fromAmount}
             type="number"
             placeholder="from amount"
-            onChange={(e: any) => setfromAmount(e.target.value)}
+            onChange={(e: any) => setFromAmount(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -82,7 +84,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={fromDescription}
             placeholder="from description"
-            onChange={(e: any) => setfromdescription(e.target.value)}
+            onChange={(e: any) => setFromDescription(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -91,7 +93,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={fromCurrency}
             placeholder="from currency"
-            onChange={(e: any) => setfromcurrency(e.target.value)}
+            onChange={(e: any) => setFromCurrency(e.target.value)}
           />
         </FormGroup>
 
@@ -100,19 +102,18 @@ const TransactionForm = (props: Props) => {
           <FormControl
             placeholder=" receive Account number"
             value={toAccount}
-            onChange={(e: any) => setreceiveaccount(e.target.value)}
+            onChange={(e: any) => setToAccount(e.target.value)}
             className="select"
             required={true}
           />
         </FormGroup>
-
         <FormGroup>
           <ControlLabel required={true}>{__(" to amount")}</ControlLabel>
           <FormControl
             value={toAmount}
             type="number"
             placeholder="to amount"
-            onChange={(e: any) => settoAmount(e.target.value)}
+            onChange={(e: any) => setToAmount(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -125,7 +126,7 @@ const TransactionForm = (props: Props) => {
             componentclass="select"
             required={true}
             defaultValue={toBank}
-            onChange={(e: any) => settobank(e.target.value)}
+            onChange={(e: any) => setToBank(e.target.value)}
           >
             <option value="">Select bank</option>
             {BANK_CODES.map((bank) => (
@@ -141,7 +142,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={toDescription}
             placeholder="to description"
-            onChange={(e: any) => settodescription(e.target.value)}
+            onChange={(e: any) => setToDescription(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
@@ -149,7 +150,7 @@ const TransactionForm = (props: Props) => {
           <FormControl
             value={toAccountName}
             placeholder="to Account Name"
-            onChange={(e: any) => settoaccountname(e.target.value)}
+            onChange={(e: any) => setToAccountName(e.target.value)}
             required={true}
           />
         </FormGroup>
@@ -159,7 +160,7 @@ const TransactionForm = (props: Props) => {
             required={true}
             value={toCurrency}
             placeholder="to currency"
-            onChange={(e: any) => settocurrency(e.target.value)}
+            onChange={(e: any) => setToCurrency(e.target.value)}
           />
         </FormGroup>
         <ModalFooter>
@@ -168,7 +169,7 @@ const TransactionForm = (props: Props) => {
             icon="check-circle"
             type="submit"
             onClick={() => {
-              props.submit(
+              props.submit({
                 configId,
                 fromAccount,
                 toAccount,
@@ -179,8 +180,9 @@ const TransactionForm = (props: Props) => {
                 fromDescription,
                 fromCurrency,
                 toAmount,
-                fromAmount
-              );
+                fromAmount,
+                refCode,
+              });
             }}
           >
             Submit{" "}
