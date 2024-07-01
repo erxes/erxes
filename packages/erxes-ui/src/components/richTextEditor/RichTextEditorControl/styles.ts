@@ -2,12 +2,12 @@ import { colors } from '../../../styles';
 import { rgba } from '../../../styles/ecolor';
 import styled from 'styled-components';
 
-const EditorControl = styled.span`
+const EditorControl = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #fff;
-  border: 0.0625rem solid #eee;
+  border: 0;
   color: ${colors.textPrimary};
   cursor: pointer;
   height: 1.75rem;
@@ -42,21 +42,8 @@ const EditorControl = styled.span`
     pointer-events: none;
   }
 
-  &[data-rich-text-editor-control] {
-    border-radius: 0;
-    &:not(:last-of-type) {
-      border-right: 0;
-    }
-    &:first-of-type {
-      border-bottom-left-radius: 0.25rem;
-      border-top-left-radius: 0.25rem;
-    }
-    &:last-of-type {
-      margin-right: 0;
-      border-bottom-right-radius: 0.25rem;
-      border-top-right-radius: 0.25rem;
-    }
-  }
+  border-radius: 0.25rem;
+
   &[data-active='true'] {
     color: ${colors.colorSecondary};
     background-color: ${rgba(colors.colorSecondary, 0.05)};
@@ -72,27 +59,26 @@ const LinkWrapper = styled.div`
   color: ${colors.textPrimary};
   cursor: pointer;
   padding: 0.5rem;
-  z-index: 9999;
-  > button {
-    height: 2.25rem;
-    min-height: 2.25rem;
-    background-color: #fff;
-    border: 0.0625rem solid #eee;
-    color: ${colors.textPrimary};
-    cursor: pointer;
-    outline: none;
-    font-weight: 600;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    border-radius: 0.25rem;
-    border: 0.0625rem solid #eee;
-    border-left: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    &:hover,
-    &.is-active {
-      background-color: #f8f9fa;
-    }
+`;
+const LinkButton = styled.button`
+  height: 2.25rem;
+  min-height: 2.25rem;
+  background-color: #fff;
+  border: 0.0625rem solid #eee;
+  color: ${colors.textPrimary};
+  cursor: pointer;
+  outline: none;
+  font-weight: 600;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 0.25rem;
+  border: 0.0625rem solid #eee;
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  &:hover,
+  &.is-active {
+    background-color: #f8f9fa;
   }
 `;
 const ImageInputWrapper = styled.div`
@@ -163,7 +149,7 @@ const InputAction = styled.div`
   position: absolute;
   right: 0.3rem;
   top: 0.3rem;
-  > button {
+  button {
     cursor: pointer;
     background-color: #fff;
     border: 0.0625rem solid #eee;
@@ -209,17 +195,10 @@ const FileInputAction = styled.div`
 `;
 
 const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
-  .css-13cymwt-control, .css-t3ipsp-control, .css-16xfy0z-control {
-    border-top-width:0.0625rem !important;
-    border-right-width:0.0625rem !important;
-    border-left-width:0.0625rem !important;
-    border: 0.0625rem solid #eee !important;
-    border-radius: 0.25rem !important;
+  .css-13cymwt-control {
+    border: 0.0625rem solid #eee;
+    border-radius: 0.25rem;
     height: 1.75rem;
-    min-height: unset;
-    > div {
-      padding: 0 6px;
-    }
   }
   .css-1hb7zxy-IndicatorsContainer {
     display: none;
@@ -236,7 +215,7 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
     .Select-control {
       background-color: unset !important;
     }
-    .css-1jqq78o-placeholder {
+    .Select-placeholder {
       color: #aaa;
       top: -4px;
       left: 9px;
@@ -272,14 +251,14 @@ const FontSelectWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
     width: max-content;
     .Select-menu {
       max-height: ${({ $toolbarPlacement }) =>
-        $toolbarPlacement === 'top' ? '135px' : '216px'};
+    $toolbarPlacement === 'top' ? '135px' : '216px'};
     }
   }
 
   .Select-option {
     padding: 4px 8px;
   }
-  .css-1jqq78o-placeholder {
+  .Select-placeholder {
     color: unset;
     top: -4px;
     left: 9px;
@@ -346,66 +325,12 @@ const ColorPickerWrapper = styled.div`
   }
 `;
 
-const PlaceholderWrapper = styled.div<{ $toolbarPlacement: 'top' | 'bottom' }>`
-  position : relative;
-  > div > button {
-    border: none;
-    height: 1.75rem;
-    background-color: #fff;
-    text-align: left;
-  }
-  #dropdown-item-button {
-    border: 0.0625rem solid rgb(238, 238, 238);
-    border-radius: 0.25rem;
-    height: 1.75rem;
-    background-color: rgb(255, 255, 255);
-
-    &:after {
-      margin-left: 1rem;
-    }
-  }
-  button {
-    &:disabled {
-      color: #aaaeb3;
-    }
-  }
-  [id^="headlessui-menu-items-"] {
-    max-height: ${({ $toolbarPlacement }) =>
-      $toolbarPlacement === 'top' ? '160px' : '216px'};
-    overflow-y: auto;
-    position: absolute;
-    left: 0;
-    right: unset;
-    width: 250px;
-    .dropdown-header {
-      display: block;
-      padding: 0.5rem 0.65rem;
-      margin-bottom: 0;
-      font-size: 0.65rem;
-      color: #6c757d;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-  }
-  [id^="headlessui-menu-item-"] {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    &:hover {
-      cursor: pointer;
-      background-color: #f0f6ff;
-    }
-  }
-`;
 
 const RichTextEditorMenuWrapper = styled.div`
   display: flex;
-  padding: 0.3rem;
+  padding: 0.2rem;
   gap: 0.125rem;
   border-radius: 0.25rem;
-  button {
-    border: 0.0625rem solid transparent !important;
-    border-radius: 0.25rem !important;
-  }
 `;
 
 const RichTextEditorMenuPopoverWrapper = styled.div`
@@ -418,10 +343,89 @@ const RichTextEditorMenuPopoverWrapper = styled.div`
   }
 `;
 
+const getReactSelectStyle = (isSourceEnabled: boolean) => {
+  return {
+    container: (provided) => ({
+      ...provided,
+      background: 'transparent',
+      color: '#444',
+      minHeight: '1.75rem',
+      height: '1.75rem',
+      boxShadow: undefined,
+    }),
+    control: (provided) => ({
+      ...provided,
+      background: 'transparent',
+      borderRadius: '0.25rem',
+      border: 'none',
+      minHeight: '1.75rem',
+      height: '1.75rem',
+      boxShadow: undefined,
+      '&:hover': {
+        border: '0',
+        cursor: 'pointer',
+      },
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: isSourceEnabled ? '#AAAEB3' : '#444',
+      fontSize: '0.75rem',
+      fontWeight: 500,
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      height: '1.75rem',
+      padding: '0 6px',
+      boxShadow: undefined,
+    }),
+    option: (provided, { isSelected }) => ({
+      ...provided,
+      backgroundColor: isSelected ? rgba(colors.colorSecondary, 0.15) 
+      : 'transparent',
+      '&:hover': {
+        cursor: 'pointer',
+        backgroundColor: !isSelected && rgba(colors.colorSecondary, 0.05),
+      },
+      '&:active': {
+        backgroundColor: rgba(colors.colorSecondary, 0.15),
+      },
+      color: isSelected ? '#000' : '#444',
+    }
+    ),
+    menu: (provided) => ({
+      ...provided,
+      width: 'min-content',
+    }),
+    menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
+    input: (provided) => ({
+      ...provided,
+      fontSize: '0.75rem',
+      margin: '0px',
+      caretColor: 'transparent',
+    }),
+    indicatorSeparator: () => ({
+      display: 'none',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      paddingLeft: 0,
+      color: isSourceEnabled ? '#AAAEB3' : '#444',
+      '&:hover': {
+        color: '#444',
+      },
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      height: '1.75rem',
+    }),
+  }
+}
+
 export {
   EditorControl,
   LinkWrapper,
   LinkInput,
+  LinkButton,
   InputAction,
   InputWrapper,
   FontSelectWrapper,
@@ -434,7 +438,7 @@ export {
   ColorPickerWrapper,
   MenuItem,
   PickerAction,
-  PlaceholderWrapper,
   RichTextEditorMenuWrapper,
   RichTextEditorMenuPopoverWrapper,
+  getReactSelectStyle
 };

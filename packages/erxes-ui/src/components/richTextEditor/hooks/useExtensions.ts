@@ -81,6 +81,10 @@ export default function useExtensions({
             style: {
               parseHTML: (element) => element.getAttribute('style'),
             },
+            level: {
+              default: 1,
+              rendered: false,
+            },
           };
         },
       }),

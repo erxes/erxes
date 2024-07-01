@@ -56,7 +56,7 @@ class BoardRow extends React.Component<Props, {}> {
     const { board, isActive } = this.props;
 
     return (
-      <BoardItem key={board._id} isActive={isActive}>
+      <BoardItem key={board._id} $isActive={isActive}>
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}

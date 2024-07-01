@@ -54,7 +54,7 @@ const PosContainer = (props: Props) => {
     }
   );
 
-  const slotsQuery = useQuery<SlotsQueryResponse>(gql(queries.productGroups), {
+  const slotsQuery = useQuery<SlotsQueryResponse>(gql(queries.posSlots), {
     skip: !posId,
     fetchPolicy: "network-only",
     variables: {

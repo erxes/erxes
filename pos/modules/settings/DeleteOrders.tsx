@@ -2,13 +2,12 @@
 
 import { useMutation } from "@apollo/client"
 
-import { useToast } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import SettingsButton from "./components/Button"
 import { mutations } from "./graphql"
 
 const DeleteOrders = () => {
-  const { toast } = useToast()
   const [deleteOrders, { loading }] = useMutation(mutations.deleteOrders, {
     onCompleted(data) {
       const { deleteOrders } = data
@@ -17,7 +16,7 @@ const DeleteOrders = () => {
       })
     },
     onError(error) {
-      return toast({ description: error.message, variant: "destructive" })
+      return onError(error.message)
     },
   })
 
