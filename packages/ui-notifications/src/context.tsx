@@ -9,12 +9,13 @@ import {
   NotificationsCountQueryResponse,
   NotificationsQueryResponse,
 } from "./types";
-import React, { useEffect } from "react";
+import React, { useEffect,useMemo  } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { mutations, queries, subscriptions } from "./graphql";
 
 import { IUser } from "@erxes/ui/src/auth/types";
 import strip from "strip";
+
 
 interface IStore {
   notifications: INotification[];
@@ -110,20 +111,22 @@ const Provider = (props: Props) => {
     notificationsQuery?.refetch({ limit: 10, requireRead });
   };
 
+ const YourComponent = ({ notifications, unreadCount, showNotifications, markAsRead, isLoading, currentUser, children }) => {
+  const contextValue = useMemo(() => ({
+    notifications,
+    unreadCount,
+    showNotifications,
+    markAsRead,
+    isLoading,
+    currentUser,
+  }), [notifications, unreadCount, showNotifications, markAsRead, isLoading, currentUser]);
+
   return (
-    <NotifContext.Provider
-      value={{
-        notifications,
-        unreadCount,
-        showNotifications: showNotifications,
-        markAsRead: markAsRead,
-        isLoading,
-        currentUser,
-      }}
-    >
+    <NotifContext.Provider value={contextValue}>
       {children}
     </NotifContext.Provider>
   );
 };
+}
 
 export { Provider as NotifProvider };
