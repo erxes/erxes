@@ -1,5 +1,4 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   IPricingPlan,
@@ -44,14 +43,14 @@ export const loadPricingPlanClass = (models: IModels) => {
      */
     public static async updatePlan(
       id: string,
-      doc: IPricingPlan | any,
+      doc: IPricingPlan,
       userId: string
     ) {
       const result = await models.PricingPlans.findById(id);
 
       if (!result) return new Error(`Can't find plan`);
 
-      if (doc._id) delete doc._id;
+      if (doc.hasOwnProperty('_id')) delete doc['_id'];
 
       await models.PricingPlans.findByIdAndUpdate(id, {
         $set: {
