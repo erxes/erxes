@@ -126,6 +126,10 @@ const CreatedUser = styledTS<{ isList?: boolean }>(styled.div)`
     padding-left: ${dimensions.unitSpacing - 5}px;
     font-weight: normal;
   }
+
+  img {
+    max-width: 100%;
+  }
 `;
 
 const CreatedDate = styledTS<{ isList?: boolean }>(styled.div)`

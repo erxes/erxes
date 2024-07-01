@@ -57,6 +57,7 @@ const queryParams = `
   sortDirection: Int
   search: String
   contentType: String
+  contentId: String
   success: String
   billType: String
   billIdRule: String
@@ -86,4 +87,5 @@ export const queries = `
 
 export const mutations = `
   putResponseReturnBill(_id: String!): PutResponse
+  putResponseReReturn(_id: String!): PutResponse
 `;

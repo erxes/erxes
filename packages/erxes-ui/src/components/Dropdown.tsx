@@ -54,7 +54,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
           ? { minWidth: width }
           : {};
 
-    if (modalMenuItems) {
+    if (modalMenuItems?.length) {
       const initialDialogsState = modalMenuItems.reduce((acc, item, index) => {
         acc[index] = false;
         return acc;

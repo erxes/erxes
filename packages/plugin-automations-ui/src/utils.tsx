@@ -164,16 +164,16 @@ export const connection = (
   info: any,
   actionId: any
 ) => {
-  const { sourceId, type, connectType } = info || {};
+  const { sourceId, type, connectType, optionalConnectId } = info || {};
 
   if (type === 'trigger') {
-    const trigger = triggers.find(t => t.id.toString() === sourceId);
+    const trigger = triggers.find((t) => t.id.toString() === sourceId);
 
     if (trigger) {
       trigger.actionId = actionId;
     }
   } else {
-    const sourceAction = actions.find(a => a.id.toString() === sourceId);
+    const sourceAction = actions.find((a) => a.id.toString() === sourceId);
 
     if (sourceAction) {
       if (sourceAction.type === 'if') {
@@ -192,7 +192,7 @@ export const connection = (
         const optionalConnects = sourceConfig?.optionalConnects || [];
 
         //update optionalConnects if optional connect exists in sourceAction
-        let updatedOptionalConnects = optionalConnects.map(optConnect =>
+        let updatedOptionalConnects = optionalConnects.map((optConnect) =>
           optConnect.sourceId === sourceId &&
           optConnect.optionalConnectId === info.optionalConnectId
             ? { ...optConnect, actionId }
@@ -202,7 +202,7 @@ export const connection = (
         // add optionalConnect if optional connect not exists in sourceAction
         if (
           !optionalConnects.some(
-            optConnect =>
+            (optConnect) =>
               optConnect.sourceId === sourceId &&
               optConnect.optionalConnectId === info?.optionalConnectId
           )
@@ -217,11 +217,14 @@ export const connection = (
         // disconnect optionalConnect if optional connect exists in sourceAction but info.optionalConnectId is undefined
 
         if (
-          !info?.optionalConnectId &&
-          optionalConnects.some(optConnect => optConnect.sourceId === sourceId)
+          optionalConnects.some(
+            (optConnect) =>
+              optConnect.sourceId === sourceId &&
+              optConnect.optionalConnectId === optionalConnectId
+          )
         ) {
-          updatedOptionalConnects = updatedOptionalConnects.filter(
-            optConnect => optConnect.sourceId !== sourceId
+          updatedOptionalConnects = optionalConnects.filter(
+            (optConnect) => optConnect.optionalConnectId !== optionalConnectId
           );
         }
 
@@ -236,13 +239,13 @@ export const connection = (
   }
 };
 
-export const deleteConnection = instance => {
+export const deleteConnection = (instance) => {
   instance.bind('click', (conn, event) => {
     confirm(
       'Delete connection from ' + conn.sourceId + ' to ' + conn.targetId + '?'
     )
       .then(() => instance.deleteConnection(conn))
-      .catch(error => {
+      .catch((error) => {
         Alert.error(error.message);
       });
   });
@@ -253,13 +256,13 @@ export const getTriggerType = (
   triggers: any,
   activeActionId: string
 ) => {
-  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
+  const activeTrigger = triggers.find((t) => t.actionId === activeActionId);
 
   if (activeTrigger) {
     return activeTrigger.type;
   }
 
-  const activeAction = actions.find(t => t.nextActionId === activeActionId);
+  const activeAction = actions.find((t) => t.nextActionId === activeActionId);
 
   if (activeAction) {
     return getTriggerType(actions, triggers, activeAction.id);
@@ -277,13 +280,13 @@ export const getTriggerConfig = (
   triggers: any,
   activeActionId: string
 ) => {
-  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
+  const activeTrigger = triggers.find((t) => t.actionId === activeActionId);
 
   if (activeTrigger) {
     return activeTrigger?.config;
   }
 
-  const activeAction = actions.find(t => t.nextActionId === activeActionId);
+  const activeAction = actions.find((t) => t.nextActionId === activeActionId);
 
   if (activeAction) {
     return getTriggerType(actions, triggers, activeAction.id);

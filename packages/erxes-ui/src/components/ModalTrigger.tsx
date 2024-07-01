@@ -9,6 +9,7 @@ import { CloseModal } from "../styles/main";
 import Icon from "./Icon";
 import { Modal } from "react-bootstrap";
 import queryString from "query-string";
+import Tip from "@erxes/ui/src/components/Tip";
 
 type Props = {
   title: string;
@@ -28,6 +29,23 @@ type Props = {
   centered?: boolean;
   style?: any;
   onExit?: () => void;
+  tipText?: string;
+  tipPlacement?:
+    | "auto-start"
+    | "auto"
+    | "auto-end"
+    | "top-start"
+    | "top"
+    | "top-end"
+    | "right-start"
+    | "right"
+    | "right-end"
+    | "bottom-end"
+    | "bottom"
+    | "bottom-start"
+    | "left-end"
+    | "left"
+    | "left-start";
   isAnimate?: boolean;
 };
 
@@ -50,6 +68,8 @@ const ModalTrigger: React.FC<Props> = forwardRef(
       backDrop,
       centered,
       style,
+      tipText,
+      tipPlacement,
       isAnimate = false,
     },
     ref
@@ -120,7 +140,16 @@ const ModalTrigger: React.FC<Props> = forwardRef(
 
     return (
       <>
-        {triggerComponent}
+        {tipText ? (
+          <Tip
+            text={__(tipText)}
+            placement={tipPlacement ? tipPlacement : "bottom"}
+          >
+            {triggerComponent}
+          </Tip>
+        ) : (
+          triggerComponent
+        )}
 
         <Modal
           dialogClassName={dialogClassName}

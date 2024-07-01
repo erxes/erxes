@@ -104,6 +104,10 @@ const generateFilters = async ({
     }
   }
 
+  if (params.onlyFirstLevel) {
+    filter.parentId = { $in: [null, ''] };
+  }
+
   return filter;
 };
 
@@ -139,11 +143,11 @@ const structureQueries = {
       type: 'department',
       params: { ...params, withoutUserFilter: true },
     });
-    const list = paginate(
+    const list = await paginate(
       models.Departments.find(filter).sort({ order: 1 }),
       params,
     );
-    const totalCount = models.Departments.find(filter).countDocuments();
+    const totalCount = await models.Departments.find(filter).countDocuments();
 
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
@@ -206,11 +210,11 @@ const structureQueries = {
         },
       ];
     }
-    const list = paginate(
+    const list = await paginate(
       models.Units.find(filter).sort({ createdAt: -1 }),
       params,
     );
-    const totalCount = models.Units.find(filter).countDocuments();
+    const totalCount = await models.Units.find(filter).countDocuments();
 
     const unitUserIds = (await models.Units.find(filter))
       .map((user) => user.userIds)
@@ -261,11 +265,11 @@ const structureQueries = {
       type: 'branch',
       params: { ...params, withoutUserFilter: true },
     });
-    const list = paginate(
+    const list = await paginate(
       models.Branches.find(filter).sort({ order: 1 }),
       params,
     );
-    const totalCount = models.Branches.find(filter).countDocuments();
+    const totalCount = await models.Branches.find(filter).countDocuments();
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
       'branchIds.0': { $exists: true },
@@ -344,12 +348,12 @@ const structureQueries = {
       params: { ...params, withoutUserFilter: true },
     });
 
-    const list = paginate(
+    const list = await paginate(
       models.Positions.find(filter).sort({ order: 1 }),
       params,
     );
 
-    const totalCount = models.Positions.find(filter).countDocuments();
+    const totalCount = await models.Positions.find(filter).countDocuments();
     const totalUsersCount = await models.Users.countDocuments({
       ...filter,
       'positionIds.0': { $exists: true },

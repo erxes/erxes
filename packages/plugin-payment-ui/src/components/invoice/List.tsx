@@ -123,8 +123,7 @@ const List = (props: IProps) => {
                 onChange={onChange}
               />
             </th>
-            <th>{__("Payment name")}</th>
-            <th>{__("Kind")}</th>
+            <th>{__("Invoice Number")}</th>
             <th>{__("Amount")}</th>
             <th>{__("Status")}</th>
             <th>{__("Customer")}</th>

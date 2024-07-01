@@ -25,7 +25,7 @@ const ActivityInputs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    ),
+    )
 );
 
 const ActivityLogs = asyncComponent(
@@ -33,7 +33,7 @@ const ActivityLogs = asyncComponent(
     isEnabled('logs') &&
     import(
       /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    ),
+    )
 );
 
 type Props = {
@@ -61,10 +61,10 @@ const ContractDetails = (props: Props) => {
   const { saveItem, contract } = props;
   const [amount, setAmount] = useState(contract.amount || {});
   const [collateralsData, setCollateralsData] = useState(
-    contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : [],
+    contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : []
   );
   const [collaterals, setCollaterals] = useState(
-    contract.collaterals ? contract.collaterals.map((p) => p.collateral) : [],
+    contract.collaterals ? contract.collaterals.map((p) => p.collateral) : []
   );
 
   useEffect(() => {
@@ -111,90 +111,95 @@ const ContractDetails = (props: Props) => {
 
   const breadcrumb = [
     { title: __('Contracts'), link: '/erxes-plugin-loan/contract-list' },
-    { title },
+    { title }
   ];
 
   const pDataChange = (pData) => onChangeField('collateralsData', pData);
   const prsChange = (prs) => onChangeField('collaterals', prs);
-  const content = (
-    <>
-      <Tabs
-        tabs={[
-          {
-            label: __(`First Schedules`),
-            component: (contract.leaseType === LEASE_TYPES.FINANCE ||
-              contract.leaseType === LEASE_TYPES.SAVING) && (
-              <ScheduleSection contractId={contract._id} isFirst={true} regenSchedules={props.regenSchedules}/>
-            ),
-          },
-          {
-            label: __(`Schedules`),
-            component: (
-              <ScheduleSection contractId={contract._id} isFirst={false} />
-            ),
-          },
-          {
-            label: __(`Invoice`),
-            component: <InvoiceList invoices={contract.invoices} />,
-          },
-          {
-            label: __(`Transaction`),
-            component: (
-              <TransactionSection
-                contractId={contract._id}
-                transactions={contract.loanTransactionHistory}
-              />
-            ),
-          },
-          {
-            label: __('Interest store'),
-            component: (
-              <StoreInterestSection invoices={contract.storeInterest} />
-            ),
-          },
-
-          {
-            label: __('Collaterals'),
-            component: (
-              <CollateralsSection
-                {...props}
-                onChangeCollateralsData={pDataChange}
-                onChangeCollaterals={prsChange}
-                saveCollateralsData={saveCollateralsData}
-                collateralsData={collateralsData}
-                collaterals={collaterals}
-                contractId={contract._id}
-              ></CollateralsSection>
-            ),
-          },
-        ]}
-      />
-
-      {isEnabled('logs') && (
-        <>
-          <ActivityInputs
-            contentTypeId={contract._id}
-            contentType="loans:contract"
-            showEmail={false}
+  const content = () => {
+    let tabs = [
+      {
+        label: __(`First Schedules`),
+        component: (contract.leaseType === LEASE_TYPES.FINANCE ||
+          contract.leaseType === LEASE_TYPES.SAVING) && (
+          <ScheduleSection
+            contractId={contract._id}
+            isFirst={true}
+            regenSchedules={props.regenSchedules}
           />
-          <ActivityLogs
-            target={contract.number || ''}
-            contentId={contract._id}
-            contentType="loans:contract"
-            extraTabs={[]}
-            activityRenderItem={ActivityItem}
+        )
+      },
+      {
+        label: __(`Schedules`),
+        component: <ScheduleSection contractId={contract._id} isFirst={false} />
+      },
+      {
+        label: __(`Transaction`),
+        component: (
+          <TransactionSection
+            contractId={contract._id}
+            transactions={contract.loanTransactionHistory}
           />
-        </>
-      )}
-    </>
-  );
+        )
+      },
+      {
+        label: __('Collaterals'),
+        component: (
+          <CollateralsSection
+            {...props}
+            onChangeCollateralsData={pDataChange}
+            onChangeCollaterals={prsChange}
+            saveCollateralsData={saveCollateralsData}
+            collateralsData={collateralsData}
+            collaterals={collaterals}
+            contractId={contract._id}
+          ></CollateralsSection>
+        )
+      }
+    ];
+
+    if (contract?.storeInterest.length > 0)
+      tabs.push({
+        label: __('Interest store'),
+        component: <StoreInterestSection invoices={contract.storeInterest} />
+      });
+
+    if (contract?.invoices.length > 0)
+      tabs.push({
+        label: __(`Invoice`),
+        component: <InvoiceList invoices={contract.invoices} />
+      });
+
+    return (
+      <>
+        <Tabs tabs={tabs} />
+
+        {isEnabled('logs') && (
+          <>
+            <ActivityInputs
+              contentTypeId={contract._id}
+              contentType="loans:contract"
+              showEmail={false}
+            />
+            <ActivityLogs
+              target={contract.number || ''}
+              contentId={contract._id}
+              contentType="loans:contract"
+              extraTabs={[]}
+              activityRenderItem={ActivityItem}
+            />
+          </>
+        )}
+      </>
+    );
+  };
 
   return (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
       leftSidebar={<LeftSidebar {...props} />}
       rightSidebar={<RightSidebar contract={contract} />}
-      content={content}
+      content={content()}
       transparent={true}
     />
   );

@@ -102,8 +102,6 @@ async function onPaymentClick(payment, invoiceData, prefix) {
       });
       const paymentData = await response.json();
 
-      console.log("################## ", paymentData);
-
       if (paymentData.status === 'paid') {
         clearInterval(intervalId);
         const message = {

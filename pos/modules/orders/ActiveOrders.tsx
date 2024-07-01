@@ -1,6 +1,9 @@
+"use client"
+
 import { useEffect, useState } from "react"
+import { nextOrderIdAtom } from "@/store"
 import { activeOrderIdAtom, slotCodeAtom } from "@/store/order.store"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
@@ -18,7 +21,8 @@ const ActiveOrders = () => {
   const { ALL } = ORDER_STATUSES
   const _id = useAtomValue(activeOrderIdAtom)
   const slotCode = useAtomValue(slotCodeAtom)
-  const [activeOrderId, setActiveOrderId] = useAtom(activeOrderIdAtom)
+  const activeOrderId = useAtomValue(activeOrderIdAtom)
+  const setNextOrder = useSetAtom(nextOrderIdAtom)
   const [open, setOpen] = useState(false)
 
   const {
@@ -44,7 +48,7 @@ const ActiveOrders = () => {
   }, [])
 
   const handleChoose = (_id: string) => {
-    setActiveOrderId(_id === activeOrderId ? "" : _id)
+    setNextOrder(_id)
     setOpen(false)
   }
 
@@ -54,22 +58,19 @@ const ActiveOrders = () => {
     <Popover open={open} onOpenChange={() => setOpen((prev) => !prev)}>
       <div className="mr-2 rounded-md bg-gray-100 p-1 ml-auto">
         <PopoverTrigger asChild>
-          <Button
-            className="h-8 bg-white font-black rounded-sm"
-            variant="ghost"
-          >
+          <Button className="h-8 bg-white font-bold rounded-sm" variant="ghost">
             {activeOrder?.number ?? "0000"}
           </Button>
         </PopoverTrigger>
       </div>
       <PopoverContent className="mt-1 w-screen md:w-[50vw] ">
-        <ScrollArea className="h-[80vh] md:h-[50vh] overflow-hidden">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 max-w-full">
+        <ScrollArea className="h-[50vh] overflow-hidden">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xxl:grid-cols-5 gap-2 max-w-full">
             {fullOrders.map((fo) => (
               <Button
                 key={fo._id}
                 variant={fo._id !== activeOrderId ? "outline" : undefined}
-                className="font-black whitespace-nowrap"
+                className="font-bold whitespace-nowrap"
                 onClick={() => handleChoose(fo._id)}
               >
                 {fo.number}
