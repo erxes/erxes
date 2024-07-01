@@ -1,5 +1,4 @@
-import { Route, Routes } from "react-router-dom";
-import { useLocation, useParams } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import CarDetails from "./containers/detail/CarDetails";
 import CarList from "./containers/CarsList";

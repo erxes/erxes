@@ -5,12 +5,12 @@ import {
   ChooserTitle as Title,
   Icon,
   MainStyleModalFooter as ModalFooter,
-} from '@erxes/ui/src';
-import { Info, InfoDetail, InfoTitle } from '../../styles';
-import React, { useState } from 'react';
+} from "@erxes/ui/src";
+import { Info, InfoDetail, InfoTitle } from "../../styles";
+import React, { useState } from "react";
 
-import { CAR_DATAS, CAR_INFO } from '../../constants';
-import { ICar } from '../../types';
+import { CAR_DATAS, CAR_INFO } from "../../constants";
+import { ICar } from "../../types";
 
 type Props = {
   objects: ICar[];
@@ -53,11 +53,11 @@ const CarsMerge = (props: Props) => {
   const handleChange = (type, key, value) => () => {
     const newSelectedValues = { ...selectedValues };
 
-    if (type === 'plus-1') {
+    if (type === "plus-1") {
       newSelectedValues[key] = value;
 
-      if (key === 'links') {
-        const links = Object.assign({ ...selectedValues.links }, value);
+      if (key === "links") {
+        const links = { ...selectedValues.links, value };
         newSelectedValues[key] = links;
       }
     } else {
@@ -95,9 +95,9 @@ const CarsMerge = (props: Props) => {
 
   const renderValue = (field, value) => {
     switch (field) {
-      case 'owner':
+      case "owner":
         return renderOwner(value);
-      case 'category':
+      case "category":
         return renderCategory(value);
 
       default:
@@ -140,11 +140,11 @@ const CarsMerge = (props: Props) => {
   return (
     <form onSubmit={handleSave}>
       <Columns>
-        <Column className="multiple">{renderCar(car1, 'plus-1')}</Column>
+        <Column className="multiple">{renderCar(car1, "plus-1")}</Column>
 
-        <Column className="multiple">{renderCar(car2, 'plus-1')}</Column>
+        <Column className="multiple">{renderCar(car2, "plus-1")}</Column>
 
-        <Column>{renderCar(selectedValues, 'times')}</Column>
+        <Column>{renderCar(selectedValues, "times")}</Column>
       </Columns>
 
       <ModalFooter>
