@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  __,
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon,
-  Table,
-  Tip,
-} from "@erxes/ui/src";
-import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
+import { __, Button, ControlLabel, FormControl, Icon } from "@erxes/ui/src";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
 import {
   FullContent,
   LinkButton,
@@ -27,9 +19,7 @@ type Props = {
 const ManageConfigs = (props: Props) => {
   const { data, closeModal, edit } = props;
 
-  const [configsData, setConfigsData] = useState<ITimeframe[]>(
-    data ? data : []
-  );
+  const [configsData, setConfigsData] = useState<ITimeframe[]>(data || []);
 
   const [sumPercent, setSumPercent] = useState<number>(0);
 

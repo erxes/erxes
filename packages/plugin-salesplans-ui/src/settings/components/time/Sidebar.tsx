@@ -1,19 +1,15 @@
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import React, { useRef } from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __, router } from "@erxes/ui/src/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { SidebarFilters } from "../../../styles";
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, Wrapper } from "@erxes/ui/src/layout";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectProductCategory from "@erxes/ui-products/src/containers/SelectProductCategory";
-import { useNavigate, useLocation } from "react-router-dom";
-
 type Props = {
   queryParams: any;
 };

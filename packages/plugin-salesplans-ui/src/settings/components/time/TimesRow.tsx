@@ -1,7 +1,7 @@
 import Form from "../../containers/time/TimesEditForm";
 import React from "react";
 import { ITimeProportion } from "../../types";
-import { FormControl, TextInfo, ModalTrigger } from "@erxes/ui/src/components";
+import { FormControl, ModalTrigger } from "@erxes/ui/src/components";
 
 type Props = {
   timeProportion: ITimeProportion;

@@ -1,6 +1,5 @@
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import moment from "moment";
@@ -12,8 +11,7 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { __, router } from "@erxes/ui/src/utils";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import { SidebarFilters } from "../../styles";
-import { SidebarList as List } from "@erxes/ui/src/layout";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { SidebarList as List, Wrapper } from "@erxes/ui/src/layout";
 import Select from "react-select";
 import { useLocation, useNavigate } from "react-router-dom";
 
