@@ -10,14 +10,11 @@ import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import {
-  BarItems,
-  FieldStyle,
-  SidebarCounter,
+  BarItems
 } from "@erxes/ui/src/layout/styles";
 import { Count } from "@erxes/ui/src/styles/main";
 import { IPerform } from "../types";
 import { menuNavs } from "../../constants";
-import { useLocation, useNavigate } from "react-router-dom";
 
 interface IProps {
   queryParams: any;
@@ -28,37 +25,6 @@ interface IProps {
 }
 
 const List = (props: IProps) => {
-  const renderView = (name: string, variable: string) => {
-    const defaultName = "-";
-
-    return (
-      <li>
-        <FieldStyle>{__(name)}</FieldStyle>
-        <SidebarCounter>{variable || defaultName}</SidebarCounter>
-      </li>
-    );
-  };
-
-  const renderProducts = (name: string, products: any[]) => {
-    const result: React.ReactNode[] = [];
-
-    result.push(
-      <li>
-        <FieldStyle>{__(name)}</FieldStyle>
-        <SidebarCounter>{(products || []).length}</SidebarCounter>
-      </li>
-    );
-
-    for (const product of products) {
-      const { quantity, uom } = product;
-      const productName = product.product ? product.product.name : "not name";
-
-      result.push(renderView(productName, quantity + "/" + uom + "/"));
-    }
-
-    return result;
-  };
-
   const renderRow = () => {
     const { performs, removePerform } = props;
     return (performs || []).map((perform) => (
@@ -145,5 +111,3 @@ const List = (props: IProps) => {
 };
 
 export default List;
-List
-List
