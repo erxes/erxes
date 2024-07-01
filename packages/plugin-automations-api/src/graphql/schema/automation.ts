@@ -142,6 +142,7 @@ const historiesParams = `
   triggerType: String,
   beginDate: Date,
   endDate: Date,
+  targetId: String
 `;
 
 export const queries = `
