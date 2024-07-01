@@ -68,13 +68,13 @@ class JobStatus extends React.Component<Props, State> {
 
         if (matchProducts.length && !matchProductIds.includes(productId)) {
           return (
-            <DisabledSpan>
+            <DisabledSpan key={productId}>
               <li>{name}</li>
             </DisabledSpan>
           );
         }
 
-        return <li>{name}</li>;
+        return <li key={productId}>{name}</li>;
       }
     );
   };

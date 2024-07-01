@@ -62,31 +62,23 @@ class CommonForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.activeFlowJob !== prevState.activeFlowJob) {
       const { config } = nextProps.activeFlowJob;
-      this.timer = setTimeout(() => {
-        this.setState(
-          {
-            durationType:
-              config.durationType ||
-              nextProps.jobRefer?.durationType ||
-              DURATION_TYPES.minut,
-            duration:
-              config.duration || nextProps.jobRefer?.duration || 1,
-            inBranchId: config.inBranchId,
-            inDepartmentId: config.inDepartmentId,
-            outBranchId: config.outBranchId,
-            outDepartmentId: config.outDepartmentId,
-          },
-          () => {
-            if (this.timer) {
-              this.timer = undefined;
-            }
-          }
-        );
-      }, 100);
+      return {
+        durationType:
+          config.durationType ||
+          nextProps.jobRefer?.durationType ||
+          DURATION_TYPES.minut,
+        duration:
+          config.duration || nextProps.jobRefer?.duration || 1,
+        inBranchId: config.inBranchId,
+        inDepartmentId: config.inDepartmentId,
+        outBranchId: config.outBranchId,
+        outDepartmentId: config.outDepartmentId,
+      };
     }
+    return null;
   }
 
   onSave = () => {
