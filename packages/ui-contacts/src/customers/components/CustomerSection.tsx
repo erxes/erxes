@@ -84,17 +84,14 @@ function Component({
     }
     return (
       <div>
-        {customersObj.map((customer, index) => (
-          <SectionBodyItem key={index}>
-            <Link to={`/contacts/details/${customer._id}`}>
-              {renderFullName(customer)}
-            </Link>
-            {renderActionSection(customer)}
-          </SectionBodyItem>
-        ))}
-        {customersObj.length === 0 && (
-          <EmptyState icon="user-6" text="No customer" />
-        )}
+      {customersObj.map((customer) => (
+        <SectionBodyItem key={customer._id}>
+          <Link to={`/contacts/details/${customer._id}`}>
+            {renderFullName(customer)}
+          </Link>
+          {renderActionSection(customer)}
+        </SectionBodyItem>
+      ))}
         {mainTypeId && mainType && relQuickButtons}
       </div>
     );

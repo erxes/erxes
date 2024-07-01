@@ -59,7 +59,7 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
 
           return (
             <StateItem
-              key={index}
+              key={`stateItem-${index}`}
               past={index < currentIndex}
               active={index === currentIndex}
               onClick={onClick}

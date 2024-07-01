@@ -63,23 +63,25 @@ class CompaniesMerge extends React.Component<Props, State> {
   };
 
   handleChange = (type, key, value) => {
-    const selectedValues = { ...this.state.selectedValues };
-
-    if (type === 'plus-1') {
-      selectedValues[key] = value;
-
-      if (key === 'links') {
-        const links = Object.assign(
-          { ...this.state.selectedValues.links },
-          value
-        );
-        selectedValues[key] = links;
+    this.setState(prevState => {
+      const selectedValues = { ...prevState.selectedValues };
+    
+      if (type === 'plus-1') {
+        selectedValues[key] = value;
+  
+        if (key === 'links') {
+          const links = Object.assign(
+            { ...prevState.selectedValues.links },
+            value
+          );
+          selectedValues[key] = links;
+        }
+      } else {
+        delete selectedValues[key];
       }
-    } else {
-      delete selectedValues[key];
-    }
-
-    this.setState({ selectedValues });
+  
+      return { selectedValues };
+    });
   };
 
   renderCompany = (company, icon) => {
