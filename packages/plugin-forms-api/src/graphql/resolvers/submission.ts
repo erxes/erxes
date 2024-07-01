@@ -1,6 +1,5 @@
 import { IContext } from "../../connectionResolver";
 import { sendContactsMessage } from "../../messageBroker";
-// import { IFormDocument } from "../../models/definitions/forms";
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
