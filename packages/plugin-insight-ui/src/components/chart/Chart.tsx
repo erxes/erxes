@@ -14,11 +14,8 @@ import { DEFAULT_BACKGROUND_COLORS, DEFAULT_BORDER_COLORS } from './utils';
 Chart.register(Colors);
 
 interface IChartProps {
-  chart: IChart;
-
   data?: number[];
   labels?: string[];
-  template?: string;
   chartType?: ChartType;
   name?: string;
 }
