@@ -90,7 +90,7 @@ const List = (props: IProps) => {
     for (const category of jobCategories) {
       const order = category.order || "";
 
-      const m = order.match(/[/]/gi);
+      const m = order.match(/\//gi);
 
       let space = "";
 
