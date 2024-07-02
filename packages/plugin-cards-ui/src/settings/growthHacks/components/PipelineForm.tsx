@@ -66,8 +66,8 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline } = this.props;
 
     this.state = {
-      visibility: pipeline && pipeline.visibility || "public" : "public",
-      selectedMemberIds: pipeline && pipeline.memberIds || [] : [],
+      visibility: pipeline && pipeline.visibility || "public",
+      selectedMemberIds: pipeline && pipeline.memberIds || [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       hackScoringType: (pipeline && pipeline.hackScoringType) || "ice",
