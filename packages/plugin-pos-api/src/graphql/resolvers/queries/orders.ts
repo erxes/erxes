@@ -673,7 +673,7 @@ const queries = {
       columns[otherAmount._id.type] = otherAmount._id.title;
     }
 
-    const keys = Object.keys(summary).sort();
+    const keys = Object.keys(summary).sort((a, b) => a.localeCompare(b));
 
     const amounts: any[] = [];
     for (const key of keys) {
