@@ -100,7 +100,7 @@ const fillCellValue = async (
   let cellValue: any = getCellValue(item, colName);
 
   if (typeof item[colName] === 'boolean') {
-    cellValue = item[colName] ? 'Yes' : 'No';
+    cellValue = item[colName] && 'Yes' || 'No';
   }
 
   switch (colName) {
@@ -110,7 +110,7 @@ const fillCellValue = async (
       cellValue = moment(cellValue).format('YYYY-MM-DD HH:mm');
 
       break;
-    case 'userId':
+    case 'userId':{
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -120,11 +120,12 @@ const fillCellValue = async (
         isRPC: true
       });
 
-      cellValue = createdUser ? createdUser.username : 'user not found';
+      cellValue = createdUser && createdUser.username || 'user not found';
 
       break;
+    }
     // deal, purchase ,task, ticket fields
-    case 'assignedUserIds':
+    case 'assignedUserIds':{
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
@@ -138,12 +139,12 @@ const fillCellValue = async (
       });
 
       cellValue = assignedUsers
-        .map(user => user.username || user.email)
+        .map(user => user.username ?? user.email)
         .join(', ');
 
       break;
-
-    case 'watchedUserIds':
+    }
+    case 'watchedUserIds':{
       const watchedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
@@ -157,12 +158,12 @@ const fillCellValue = async (
       });
 
       cellValue = watchedUsers
-        .map(user => user.username || user.email)
+        .map(user => user.username ?? user.email)
         .join(', ');
 
       break;
-
-    case 'labelIds':
+    }
+    case 'labelIds':{
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
           _id: { $in: item.labelIds }
@@ -172,16 +173,17 @@ const fillCellValue = async (
       cellValue = labels.map(label => label.name).join(', ');
 
       break;
-    case 'stageId':
+    }
+    case 'stageId':{
       const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId
       });
 
-      cellValue = stage ? stage.name : emptyMsg;
+      cellValue = stage && stage.name || emptyMsg;
 
       break;
-
-    case 'boardId':
+    }
+    case 'boardId':{
       const stageForBoard = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -196,13 +198,13 @@ const fillCellValue = async (
         if (pipeline) {
           const board = await models.Boards.findOne({ _id: pipeline.boardId });
 
-          cellValue = board ? board.name : emptyMsg;
+          cellValue = board && board.name || emptyMsg;
         }
       }
 
       break;
-
-    case 'pipelineId':
+    }
+    case 'pipelineId':{
       const stageForPipeline = await models.Stages.findOne({
         _id: item.stageId
       });
@@ -214,21 +216,21 @@ const fillCellValue = async (
           _id: stageForPipeline.pipelineId
         });
 
-        cellValue = pipeline ? pipeline.name : emptyMsg;
+        cellValue = pipeline && pipeline.name || emptyMsg;
       }
 
       break;
-
-    case 'initialStageId':
+    }
+    case 'initialStageId':{
       const initialStage: IStageDocument | null = await models.Stages.findOne({
         _id: item.initialStageId
       });
 
-      cellValue = initialStage ? initialStage.name : emptyMsg;
+      cellValue = initialStage && initialStage.name || emptyMsg;
 
       break;
-
-    case 'modifiedBy':
+    }
+    case 'modifiedBy':{
       const modifiedBy: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -238,15 +240,15 @@ const fillCellValue = async (
         isRPC: true
       });
 
-      cellValue = modifiedBy ? modifiedBy.username : emptyMsg;
+      cellValue = modifiedBy && modifiedBy.username || emptyMsg;
 
       break;
-
+    }
     default:
       break;
   }
 
-  return cellValue || emptyMsg;
+  return cellValue ?? emptyMsg;
 };
 
 const prepareData = async (
@@ -478,7 +480,7 @@ export const buildFile = async (
       } else {
         let index = rowIndex;
         if (type === MODULE_NAMES.DEAL) {
-          index = dealRowIndex === 0 ? rowIndex : dealRowIndex;
+          index = dealRowIndex === 0 && rowIndex || dealRowIndex;
         }
 
         const cellValue = await fillCellValue(

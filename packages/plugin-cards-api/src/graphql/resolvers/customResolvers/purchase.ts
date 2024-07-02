@@ -46,7 +46,7 @@ export const generateProducts = async (
     const customFields: any[] = [];
 
     const fieldIds: string[] = [];
-    for (const customFieldData of customFieldsData || []) {
+    for (const customFieldData of customFieldsData ?? []) {
       fieldIds.push(customFieldData.field);
     }
 
@@ -62,7 +62,7 @@ export const generateProducts = async (
       defaultValue: []
     });
 
-    for (const customFieldData of customFieldsData || []) {
+    for (const customFieldData of customFieldsData ?? []) {
       const field = fields.find(f => f._id === customFieldData.field);
 
       if (field) {
@@ -76,7 +76,7 @@ export const generateProducts = async (
     product.customFieldsData = customFields;
 
     products.push({
-      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      ...(typeof data.toJSON === 'function' && data.toJSON() || data),
       product
     });
   }

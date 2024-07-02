@@ -117,7 +117,7 @@ export const generateExtraFilters = async (filter, extraParams) => {
   if (userIds) {
     const isEmpty = isListEmpty(userIds);
 
-    filter.userId = isEmpty ? { $in: [null, []] } : { $in: userIds };
+    filter.userId = isEmpty && { $in: [null, []] } || { $in: userIds };
   }
 
   if (priority) {
@@ -140,28 +140,28 @@ export const generateExtraFilters = async (filter, extraParams) => {
     }
   }
 
-  if (createdStartDate || createdEndDate) {
+  if (createdStartDate ?? createdEndDate) {
     filter.createdAt = {
       $gte: new Date(createdStartDate),
       $lte: new Date(createdEndDate),
     };
   }
 
-  if (stateChangedStartDate || stateChangedEndDate) {
+  if (stateChangedStartDate ?? stateChangedEndDate) {
     filter.stageChangedDate = {
       $gte: new Date(stateChangedStartDate),
       $lte: new Date(stateChangedEndDate),
     };
   }
 
-  if (startDateStartDate || startDateEndDate) {
+  if (startDateStartDate ?? startDateEndDate) {
     filter.startDate = {
       $gte: new Date(startDateStartDate),
       $lte: new Date(startDateEndDate),
     };
   }
 
-  if (closeDateStartDate || closeDateEndDate) {
+  if (closeDateStartDate ?? closeDateEndDate) {
     filter.closeDate = {
       $gte: new Date(closeDateStartDate),
       $lte: new Date(closeDateEndDate),
@@ -222,8 +222,8 @@ export const generateCommonFilters = async (
   };
 
   const filter: any = noSkipArchive
-    ? {}
-    : { status: { $ne: BOARD_STATUSES.ARCHIVED }, parentId: undefined };
+    && {}
+    || { status: { $ne: BOARD_STATUSES.ARCHIVED }, parentId: undefined };
 
   let filterIds: string[] = [];
 
@@ -235,7 +235,7 @@ export const generateCommonFilters = async (
     // Filter by assigned to no one
     const notAssigned = isListEmpty(assignedUserIds);
 
-    filter.assignedUserIds = notAssigned ? [] : contains(assignedUserIds);
+    filter.assignedUserIds = notAssigned && [] || contains(assignedUserIds);
   }
 
   if (branchIds) {
@@ -302,8 +302,8 @@ export const generateCommonFilters = async (
       : relIds;
   }
 
-  if (customerIds || companyIds) {
-    filter._id = contains(filterIds || []);
+  if (customerIds ?? companyIds) {
+    filter._id = contains(filterIds ?? []);
   }
 
   if (_ids && _ids.length) {
@@ -324,7 +324,7 @@ export const generateCommonFilters = async (
         defaultValue: [],
       });
 
-      filter._id = contains(relIds || []);
+      filter._id = contains(relIds ?? []);
     }
 
     if (conformityIsRelated) {
@@ -459,7 +459,7 @@ export const generateCommonFilters = async (
   if (labelIds) {
     const isEmpty = isListEmpty(labelIds);
 
-    filter.labelIds = isEmpty ? { $in: [null, []] } : { $in: labelIds };
+    filter.labelIds = isEmpty && { $in: [null, []] } || { $in: labelIds };
   }
 
   if (priority) {
@@ -506,11 +506,11 @@ export const generateCommonFilters = async (
         }
 
         if (
-          !!pipelineDepartmentIds.filter(departmentId =>
+          pipelineDepartmentIds.filter(departmentId =>
             userDepartmentIds.includes(departmentId)
           ).length
         ) {
-          includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
+          includeCheckUserIds = includeCheckUserIds.concat(user._id ?? []);
         }
       }
 
@@ -530,7 +530,7 @@ export const generateCommonFilters = async (
   if (userIds) {
     const isEmpty = isListEmpty(userIds);
 
-    filter.userId = isEmpty ? { $in: [null, []] } : { $in: userIds };
+    filter.userId = isEmpty && { $in: [null, []] } || { $in: userIds };
   }
 
   if (assignedToMe) {
@@ -950,23 +950,23 @@ const generateArhivedItemsFilter = (
     Object.assign(filter, regexSearchText(search, 'name'));
   }
 
-  if (userIds && userIds.length) {
+  if (userIds?.length) {
     filter.userId = { $in: userIds };
   }
 
-  if (priorities && priorities.length) {
+  if (priorities?.length) {
     filter.priority = { $in: priorities };
   }
 
-  if (assignedUserIds && assignedUserIds.length) {
+  if (assignedUserIds?.length) {
     filter.assignedUserIds = { $in: assignedUserIds };
   }
 
-  if (labelIds && labelIds.length) {
+  if (labelIds?.length) {
     filter.labelIds = { $in: labelIds };
   }
 
-  if (productIds && productIds.length) {
+  if (productIds?.length) {
     filter['productsData.productId'] = { $in: productIds };
   }
 
@@ -986,11 +986,11 @@ const generateArhivedItemsFilter = (
     }
   }
 
-  if (sources && sources.length) {
+  if (sources?.length) {
     filter.source = { $in: sources };
   }
 
-  if (hackStages && hackStages.length) {
+  if (hackStages?.length) {
     filter.hackStages = { $in: hackStages };
   }
 
@@ -1011,7 +1011,7 @@ export const getItemList = async (
   const { collection } = getCollection(models, type);
   const { page, perPage } = args;
   const sort = generateSort(args);
-  let limit = args.limit !== undefined ? args.limit : 10;
+  let limit = args.limit ?? 10;
 
   const pipelines: any[] = [
     {
@@ -1021,7 +1021,7 @@ export const getItemList = async (
       $sort: sort,
     },
     {
-      $skip: args.skip || 0,
+      $skip: args.skip ?? 0,
     },
     {
       $lookup: {
@@ -1327,10 +1327,10 @@ export const getItemList = async (
       ...item,
       order: order++,
       isWatched: (item.watchedUserIds || []).includes(user._id),
-      hasNotified: notification ? false : true,
+      hasNotified: !notification,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
       companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
-      ...(getExtraFields ? await getExtraFields(item) : {}),
+      ...(getExtraFields && getExtraFields(item) || {}),
     });
   }
 

@@ -494,6 +494,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.PIPELINE_LABEL:
+      {
       description = `"${object.name}" has been ${action}d`;
 
       const pipeline = await models.Pipelines.findOne({
@@ -510,6 +511,7 @@ const gatherDescriptions = async (
       }
 
       break;
+    }
     case MODULE_NAMES.PIPELINE_TEMPLATE:
       extraDesc = await gatherPipelineTemplateFieldNames(subdomain, object);
 
@@ -540,6 +542,7 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.TICKET:
+    {
       description = `"${object.name}" has been ${action}d`;
 
       extraDesc = await gatherBoardItemFieldNames(models, subdomain, object);
@@ -552,7 +555,7 @@ const gatherDescriptions = async (
           extraDesc,
         );
       }
-
+    }
       break;
     case MODULE_NAMES.STAGE_DEAL:
     case MODULE_NAMES.STAGE_PURCHASE:
@@ -579,7 +582,7 @@ const gatherDescriptions = async (
 
       break;
 
-    case MODULE_NAMES.CHECKLIST:
+    case MODULE_NAMES.CHECKLIST:{
       const itemName = await findItemName(models, {
         contentType: object.contentType,
         contentTypeId: object.contentTypeId,
@@ -609,7 +612,8 @@ const gatherDescriptions = async (
       }
 
       break;
-    case MODULE_NAMES.CHECKLIST_ITEM:
+    }
+    case MODULE_NAMES.CHECKLIST_ITEM:{
       const checklist = await models.Checklists.getChecklist(
         object.checklistId,
       );
@@ -632,7 +636,7 @@ const gatherDescriptions = async (
       }
 
       break;
-
+    }
     default:
       break;
   }

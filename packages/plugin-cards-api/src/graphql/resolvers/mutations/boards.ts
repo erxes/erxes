@@ -121,7 +121,7 @@ const boardMutations = {
 
     await checkPermission(models, subdomain, board.type, user, 'boardsRemove');
 
-    const removed = await models.Boards.removeBoard(_id);
+    const removed = models.Boards.removeBoard(_id);
 
     const relatedFieldsGroups = await sendFormsMessage({
       subdomain,
@@ -264,7 +264,7 @@ const boardMutations = {
       'pipelinesRemove',
     );
 
-    const removed = await models.Pipelines.removePipeline(_id);
+    const removed = models.Pipelines.removePipeline(_id);
 
     const relatedFieldsGroups = await sendFormsMessage({
       subdomain,
@@ -320,7 +320,7 @@ const boardMutations = {
       'pipelinesArchive',
     );
 
-    const archived = await models.Pipelines.archivePipeline(_id, status);
+    const archived = models.Pipelines.archivePipeline(_id, status);
 
     const updated = await models.Pipelines.findOne({ _id });
 
@@ -441,7 +441,7 @@ const boardMutations = {
 
     await checkPermission(models, subdomain, stage.type, user, 'stagesRemove');
 
-    const removed = await models.Stages.removeStage(_id);
+    const removed = models.Stages.removeStage(_id);
 
     await putDeleteLog(
       models,

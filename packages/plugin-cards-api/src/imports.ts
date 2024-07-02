@@ -22,8 +22,10 @@ export default {
           break;
         case 'task':
           model = models.Tasks;
+          break;
         case 'ticket':
           model = models.Tickets;
+          break;
       }
 
       objects = await model.insertMany(docs);
@@ -52,7 +54,7 @@ export default {
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || '').toString();
+        const value = (fieldValue[colIndex] ?? '').toString();
 
         switch (property.name) {
           case 'customProperty':
@@ -86,14 +88,15 @@ export default {
             break;
 
           case 'labels':
+            {
             const label = await models.PipelineLabels.findOne({
               name: value
             });
 
-            doc.labelIds = label ? [label._id] : '';
+            doc.labelIds = label && [label._id] || '';
 
             break;
-
+            }
           case 'assignedUserEmail':
             {
               const assignedUser = await sendCoreMessage({
@@ -103,7 +106,7 @@ export default {
                 isRPC: true
               });
 
-              doc.assignedUserIds = assignedUser ? [assignedUser._id] : [];
+              doc.assignedUserIds = assignedUser && [assignedUser._id] || [];
             }
 
             break;
@@ -173,7 +176,7 @@ export default {
           });
         }
 
-        doc.stageId = stage ? stage._id : '';
+        doc.stageId = stage && stage._id || '';
       }
 
       bulkDoc.push(doc);

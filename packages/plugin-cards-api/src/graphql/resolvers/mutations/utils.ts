@@ -288,8 +288,7 @@ export const itemsEdit = async (
   const { canEditMemberIds } = stage;
 
   if (
-    canEditMemberIds &&
-    canEditMemberIds.length > 0 &&
+    canEditMemberIds && canEditMemberIds.length > 0 &&
     !canEditMemberIds.includes(user._id)
   ) {
     throw new Error('Permission denied');
@@ -318,8 +317,8 @@ export const itemsEdit = async (
     contentType: type,
   };
 
-  if (doc.status && oldItem.status && oldItem.status !== doc.status) {
-    const activityAction = doc.status === 'active' ? 'activated' : 'archived';
+  if (doc.status && oldItem.status !== doc.status) {
+    const activityAction = doc.status === 'active' && 'activated' || 'archived';
 
     putActivityLog(subdomain, {
       action: 'createArchiveLog',
@@ -376,7 +375,7 @@ export const itemsEdit = async (
       action: 'sendMobileNotification',
       data: {
         title: notificationDoc?.item?.name,
-        body: `${user?.details?.fullName || user?.details?.shortName
+        body: `${user?.details?.fullName ?? user?.details?.shortName
           } has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {

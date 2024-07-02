@@ -35,13 +35,13 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps[targetKey]) {
       const key = relatedValueProps[targetKey]?.key;
       return user[key];
     }
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
+      (user && (user.detail?.fullName || user.email)) || ''
     );
   }
 
@@ -61,7 +61,7 @@ const getRelatedValue = async (
       isRPC: true
     });
 
-    if (!!relatedValueProps[targetKey]) {
+    if (relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
       return users
         .filter(user => (filter ? user[filter.key] === filter.value : user))
@@ -70,7 +70,7 @@ const getRelatedValue = async (
     }
 
     return (
-      users.map(user => (user.detail && user.detail.fullName) || user.email) ||
+      users.map(user => (user.detail?.fullName) || user.email) ||
       []
     ).join(', ');
   }
@@ -100,7 +100,7 @@ const getRelatedValue = async (
       _id: target[targetKey]
     });
 
-    return (stage && stage.name) || '';
+    return stage?.name || '';
   }
 
   if (['sourceConversationIds'].includes(targetKey)) {
@@ -521,11 +521,11 @@ const actionCreate = async ({
 
   delete action.config.assignedTo;
 
-  if (!!config.customers) {
+  if (config.customers) {
     relatedValueProps['customers'] = { key: '_id' };
     target.customers = config.customers;
   }
-  if (!!config.companies) {
+  if (config.companies) {
     relatedValueProps['companies'] = { key: '_id' };
     target.companies = config.companies;
   }
@@ -573,10 +573,10 @@ const actionCreate = async ({
     newData.stageId = config.stageId;
   }
 
-  if (!!newData?.customers) {
+  if (newData?.customers) {
     newData.customerIds = generateIds(newData.customers);
   }
-  if (!!newData?.companies) {
+  if (newData?.companies) {
     newData.companyIds = generateIds(newData.companies);
   }
 

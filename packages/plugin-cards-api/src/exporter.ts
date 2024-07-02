@@ -291,7 +291,7 @@ const fillValue = async (
       value = moment(value).format('YYYY-MM-DD');
 
       break;
-    case 'userId':
+    case 'userId':{
       const createdUser: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -301,17 +301,18 @@ const fillValue = async (
         isRPC: true,
       });
 
-      value = createdUser ? createdUser.username : 'user not found';
+      value = createdUser && createdUser.username || 'user not found';
 
       break;
+    }
     // deal, task, purchase ticket fields
-    case 'assignedUserIds':
+    case 'assignedUserIds':{
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: item.assignedUserIds || [] },
+            _id: { $in: item.assignedUserIds ?? [] },
           },
         },
         isRPC: true,
@@ -319,18 +320,18 @@ const fillValue = async (
       });
 
       value = assignedUsers
-        .map((user) => user.username || user.email)
+        .map((user) => user.username ?? user.email)
         .join(', ');
 
       break;
-
-    case 'watchedUserIds':
+    }
+    case 'watchedUserIds':{
       const watchedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
         action: 'users.find',
         data: {
           query: {
-            _id: { $in: item.watchedUserIds || [] },
+            _id: { $in: item.watchedUserIds ?? [] },
           },
         },
         isRPC: true,
@@ -338,12 +339,12 @@ const fillValue = async (
       });
 
       value = watchedUsers
-        .map((user) => user.username || user.email)
+        .map((user) => user.username ?? user.email)
         .join(', ');
 
       break;
-
-    case 'labelIds':
+    }
+    case 'labelIds':{
       const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
         {
           _id: { $in: item.labelIds },
@@ -353,13 +354,13 @@ const fillValue = async (
       value = labels.map((label) => label.name).join(', ');
 
       break;
-
-    case 'branchIds':
+    }
+    case 'branchIds':{
       const branches = await sendCoreMessage({
         subdomain,
         action: `branches.find`,
         data: {
-          query: { _id: { $in: item.branchIds || [] } },
+          query: { _id: { $in: item.branchIds ?? [] } },
         },
         isRPC: true,
         defaultValue: [],
@@ -368,13 +369,13 @@ const fillValue = async (
       value = branches.map((branch) => branch.title).join(', ');
 
       break;
-
-    case 'departmentIds':
+    }
+    case 'departmentIds':{
       const departments = await sendCoreMessage({
         subdomain,
         action: 'departments.find',
         data: {
-          _id: { $in: item.departmentIds || [] },
+          _id: { $in: item.departmentIds ?? [] },
         },
         isRPC: true,
         defaultValue: [],
@@ -383,8 +384,8 @@ const fillValue = async (
       value = departments.map((department) => department.title).join(', ');
 
       break;
-
-    case 'stageId':
+    }
+    case 'stageId':{
       const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId,
       });
@@ -392,8 +393,8 @@ const fillValue = async (
       value = stage ? stage.name : '-';
 
       break;
-
-    case 'boardId':
+    }
+    case 'boardId':{
       const stageForBoard = await models.Stages.findOne({
         _id: item.stageId,
       });
@@ -413,8 +414,8 @@ const fillValue = async (
       }
 
       break;
-
-    case 'pipelineId':
+    }
+    case 'pipelineId':{
       const stageForPipeline = await models.Stages.findOne({
         _id: item.stageId,
       });
@@ -430,8 +431,8 @@ const fillValue = async (
       }
 
       break;
-
-    case 'initialStageId':
+    }
+    case 'initialStageId':{
       const initialStage: IStageDocument | null = await models.Stages.findOne({
         _id: item.initialStageId,
       });
@@ -439,8 +440,8 @@ const fillValue = async (
       value = initialStage ? initialStage.name : '-';
 
       break;
-
-    case 'modifiedBy':
+    }
+    case 'modifiedBy':{
       const modifiedBy: IUserDocument | null = await sendCoreMessage({
         subdomain,
         action: 'users.findOne',
@@ -453,8 +454,8 @@ const fillValue = async (
       value = modifiedBy ? modifiedBy.username : '-';
 
       break;
-
-    case 'totalAmount':
+    }
+    case 'totalAmount':{
       const productDatas = item.productsData;
       let totalAmount = 0;
 
@@ -466,16 +467,16 @@ const fillValue = async (
         }
       }
 
-      value = totalAmount ? totalAmount : '-';
+      value = totalAmount || '-';
 
       break;
-
+    }
     case 'totalLabelCount':
       value = item.labelIds ? item.labelIds.length : '-';
 
       break;
 
-    case 'stageMovedUser':
+    case 'stageMovedUser':{
       const activities = await sendLogsMessage({
         subdomain,
         action: 'activityLogs.findMany',
@@ -504,8 +505,8 @@ const fillValue = async (
       value = movedUser ? movedUser.username : '-';
 
       break;
-
-    case 'customers':
+    }
+    case 'customers':{
       const customerRows = [] as any;
 
       const customerIds = await getCustomerIds(subdomain, type, item._id);
@@ -527,8 +528,8 @@ const fillValue = async (
         .join(', ');
 
       break;
-
-    case 'companies':
+    }
+    case 'companies':{
       const companyRows = [] as any;
 
       const companyIds = await getCompanyIds(subdomain, type, item._id);
@@ -549,8 +550,8 @@ const fillValue = async (
         .map((company) => company.primaryName || '')
         .join(', ');
       break;
-
-    case 'internalNotes':
+    }
+    case 'internalNotes':{
       const notes = await getInternalNoteIds(subdomain, contentType, item._id);
 
       const removeTag = (text) => {
@@ -562,7 +563,7 @@ const fillValue = async (
         .join(', ');
 
       break;
-
+    }
     default:
       break;
   }

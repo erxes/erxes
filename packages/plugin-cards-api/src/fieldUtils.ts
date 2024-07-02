@@ -225,11 +225,11 @@ export const generateFields = async ({ subdomain, data }) => {
       break;
   }
 
-  if (usageType && usageType === 'import') {
+  if (usageType  === 'import') {
     fields = BOARD_ITEM_EXTENDED_FIELDS;
   }
 
-  if (usageType && usageType === 'export') {
+  if (usageType === 'export') {
     fields = BOARD_ITEM_EXPORT_EXTENDED_FIELDS;
   }
 
@@ -381,12 +381,12 @@ export const generateFields = async ({ subdomain, data }) => {
 
     const labelOptions = await getPipelineLabelOptions(
       models,
-      pipelineId || (segment ? segment.pipelineId : null)
+      pipelineId || (segment && segment.pipelineId || null)
     );
 
     const stageOptions = await getStageOptions(
       models,
-      pipelineId || (segment ? segment.pipelineId : null)
+      pipelineId || (segment && segment.pipelineId || null)
     );
 
     fields = [...fields, stageOptions, labelOptions];

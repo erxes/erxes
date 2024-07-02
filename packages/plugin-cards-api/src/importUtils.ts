@@ -13,10 +13,13 @@ export const insertImportItems = async (models: IModels, args) => {
         break;
       case 'task':
         model = models.Tasks;
+        break;
       case 'ticket':
         model = models.Tickets;
+        break;
       case 'purchase':
         model = models.Purchases;
+        break;
     }
 
     objects = await model.insertMany(docs);
@@ -44,7 +47,7 @@ export const prepareImportDocs = async (models: IModels, args) => {
 
     // Iterating through detailed properties
     for (const property of properties) {
-      const value = (fieldValue[colIndex] || '').toString();
+      const value = (fieldValue[colIndex] ?? '').toString();
 
       switch (property.type) {
         case 'boardName':
@@ -60,13 +63,11 @@ export const prepareImportDocs = async (models: IModels, args) => {
           break;
 
         case 'basic':
-          {
             doc[property.name] = value;
 
             if (property.name === 'isComplete') {
               doc.isComplete = Boolean(value);
             }
-          }
           break;
       }
 
@@ -91,7 +92,7 @@ export const prepareImportDocs = async (models: IModels, args) => {
         name: stageName
       });
 
-      doc.stageId = stage ? stage._id : '123';
+      doc.stageId = stage && stage._id || '123';
     }
 
     bulkDoc.push(doc);
