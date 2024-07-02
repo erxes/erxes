@@ -46,9 +46,7 @@ export const companyCheckCode = async (params, subdomain) => {
   const config = await getConfig(subdomain, 'EBARIMT', {});
 
   if (
-    !config ||
-    !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes('http')
+    !config?.config.checkCompanyUrl?.config.checkCompanyUrl.includes('http')
   ) {
     return params;
   }
@@ -229,20 +227,18 @@ const checkBillType = async (subdomain, config, deal) => {
         defaultValue: [],
       });
 
-      let customer = customers.find((c) => c.code && c.code.match(/^\d{8}$/g));
+      let customer = customers.find((c) => c.code?.c.code.match(/^\d{8}$/g));
 
       if (customer) {
         customerCode = customer.code || '';
         customerName = getCustomerName(customer);
-      } else {
-        if (customers.length) {
+      } else if (customers.length) {
           customer = customers[0];
           customerName = getCustomerName(customer);
         }
       }
     }
-  }
-
+    
   return { type, customerCode, customerName, customerTin }
 }
 
