@@ -238,6 +238,8 @@ const generateScore = async ({
       );
     });
 
+    console.log({ replacedContent });
+
     scoreString = replacedContent?.scoreString || 0;
   }
 
