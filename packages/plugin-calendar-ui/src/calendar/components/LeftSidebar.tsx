@@ -88,7 +88,9 @@ class LeftSidebar extends React.Component<Props, State> {
 
   toggleCheckbox = (calendarId, e: React.FormEvent<HTMLElement>) => {
     const checked = (e.target as HTMLInputElement).checked;
-    const calendarIds = this.state.calendarIds;
+    const calendarIds = this.setState((prevState) => ({
+      calendarIds: [...prevState.calendarIds, calendarIds]
+    }));
 
     if (checked) {
       calendarIds.push(calendarId);
