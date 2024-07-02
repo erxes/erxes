@@ -1192,3 +1192,74 @@ const LOG_MAPPINGS = [
     schemas: [companySchema],
   },
 ];
+
+
+export const buildQueryOptions = (positiveList: any[], negativeList: any[]) => ({
+  query: {
+    bool: {
+      must: positiveList,
+      must_not: negativeList,
+    },
+  },
+});
+
+export const fetchTotalCount = async (subdomain: string, contentType: string, queryOptions: any) => {
+  const totalCountResponse = await fetchEs({
+    subdomain,
+    action: 'count',
+    index: contentType,
+    body: queryOptions,
+    defaultValue: 0,
+  });
+  return totalCountResponse.count || 0;
+};
+
+export const replaceCustomFields = (content: string, customFieldsData: any[]) => {
+  customFieldsData.forEach(customFieldData => {
+    content = content.replace(
+      new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+      customFieldData.stringValue
+    );
+  });
+  return content;
+};
+
+export const fetchTags = async (item: any, subdomain: string) => {
+  const tags = await sendTagsMessage({
+    subdomain,
+    action: 'find',
+    data: { _id: { $in: item.tagIds || [] } },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return tags ? tags.map(tag => tag.name).join(', ') : '-';
+};
+
+export const fetchIntegration = async (item: any, subdomain: string) => {
+  const integration = await sendInboxMessage({
+    subdomain,
+    action: 'integrations.findOne',
+    data: { _id: item.integrationId || [] },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  return integration ? integration.name : '-';
+};
+
+export const getColumnHeader = async (column: string, subdomain: string) => {
+  if (column.startsWith('customFieldsData')) {
+    const fieldId = column.split('.')[1];
+    const field = await sendFormsMessage({
+      subdomain,
+      action: 'fields.findOne',
+      data: { query: { _id: fieldId } },
+      isRPC: true
+    });
+    return `customFieldsData.${field.text}.${fieldId}`;
+  } 
+  return column;
+};
+
+
