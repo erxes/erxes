@@ -76,55 +76,63 @@ const IncomingCall = (props: Props, context) => {
     inboxId,
   } = props;
   const primaryPhone = customer?.primaryPhone || '';
+
   const navigate = useNavigate();
 
-  const [haveIncomingCall, setHaveIncomingCall] = useState(!!primaryPhone);
+  const [haveIncomingCall, setHaveIncomingCall] = useState(
+    !!primaryPhone,  
+  );
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState(
-    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+    call.status === CALL_STATUS_ACTIVE && 'active' || 'pending',
   );
-
-  let direction = context.call?.direction?.split('/')[1]?.toLowerCase() || '';
+  let direction = context.call?.direction?.split('/')[1];
+  direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+
     if (audioRef.current) {
       audioRef.current.src = '/sound/incoming.mp3';
       audioRef.current.play();
     }
-    
     if (status === 'accepted') {
-      const timer = setInterval(() => {
+      timer = setInterval(() => {
         setTimeSpent((prevTimeSpent) => prevTimeSpent + 1);
       }, 1000);
-      return () => clearInterval(timer);
-    } else {
+    }
+    if (status !== 'accepted') {
       if (call.status === CALL_STATUS_STARTING) {
         localStorage.removeItem('transferedCallStatus');
       }
       setHaveIncomingCall(true);
     }
-    return cleanupAudio;
-  }, [status, primaryPhone]);
 
-  const cleanupAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
-    }
-  };
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      clearInterval(timer);
+    };
+  }, [status, primaryPhone, audioRef.current]);
 
   const endCall = () => {
     onDeclineCall();
   };
 
   const onAcceptCall = () => {
-    cleanupAudio();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
     if (!hasMicrophone) {
       return Alert.error('Check your microphone');
     }
+
     setStatus('accepted');
-    const { answerCall } = context;
+    const { answerCall, call } = context;
     setHaveIncomingCall(false);
     if (answerCall && call?.status !== CALL_STATUS_IDLE) {
       answerCall();
@@ -132,28 +140,43 @@ const IncomingCall = (props: Props, context) => {
   };
 
   const onDeclineCall = () => {
-    cleanupAudio();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+
     setHaveIncomingCall(false);
     const { stopCall } = context;
+
     if (stopCall) {
       stopCall();
     }
   };
 
   const handleAudioToggle = () => {
-    isMuted() ? unmute() : mute();
+    if (!isMuted()) {
+      mute();
+    } else {
+      unmute();
+    }
   };
 
   const handleHold = () => {
-    isHolded().localHold ? unhold() : hold();
+    if (!isHolded().localHold) {
+      hold();
+    } else {
+      unhold();
+    }
   };
 
   const gotoDetail = () => {
-    navigate(`/inbox/index?_id=${currentCallConversationId}`, { replace: true });
+    navigate(`/inbox/index?_id=${currentCallConversationId}`, {
+      replace: true,
+    });
   };
 
   const renderUserInfo = (type?: string) => {
-    const inCall = type === 'incall';
+    const inCall = type === 'incall' ? true : false;
     const hasChannel = channels?.length > 0;
     const channelName = channels?.[0]?.name || '';
     const fullName = renderFullName(customer || '', false);
@@ -167,8 +190,16 @@ const IncomingCall = (props: Props, context) => {
         {primaryPhone && (
           <PhoneNumber>
             {primaryPhone}
-            {hasGroupName && <span>{__('from')} {hasGroupName}</span>}
-            {hasChannel && <span>{__('is calling to')} {channelName}</span>}
+            {hasGroupName && (
+              <span>
+                {__('from')} {hasGroupName}
+              </span>
+            )}
+            {hasChannel && (
+              <span>
+                {__('is calling to')} {channelName}
+              </span>
+            )}
             <h5>{caller.place}</h5>
           </PhoneNumber>
         )}
@@ -206,22 +237,27 @@ const IncomingCall = (props: Props, context) => {
   }
 
   if (status === 'accepted' && !haveIncomingCall && !hideIncomingCall) {
-    cleanupAudio();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
     return hasMicrophone ? (
       <IncomingCallNav>
         <IncomingContainer>
           <IncomingContent>
             {renderUserInfo('incall')}
-            <p>{__('Call duration:')} <b>{getSpentTime(timeSpent)}</b></p>
+            <p>
+              {__('Call duration:')} <b>{getSpentTime(timeSpent)}</b>
+            </p>
             {callActions(
               isMuted,
               handleAudioToggle,
               endCall,
               inboxId,
-              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              Sip.call?.status !== CALL_STATUS_ACTIVE,
               direction,
               gotoDetail,
-              !currentCallConversationId,
+              currentCallConversationId?.length === 0,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -233,7 +269,6 @@ const IncomingCall = (props: Props, context) => {
 
   return null;
 };
-
 
 IncomingCall.contextTypes = {
   sip: sipPropType,
