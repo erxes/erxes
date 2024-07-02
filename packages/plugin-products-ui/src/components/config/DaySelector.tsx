@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { colors } from "@erxes/ui/src/styles";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
@@ -92,7 +92,7 @@ const DayofMonth = ({ onSelect, selectedValue }: any) => {
 };
 
 export const DaySelector = ({ type, ...props }: Props) => {
-  let overlayTrigger;
+  let overlayTrigger = useRef(null);
   const renderContent = () => {
     switch (type) {
       case "monthly":
@@ -106,7 +106,7 @@ export const DaySelector = ({ type, ...props }: Props) => {
   };
 
   const trigger = (
-    <Input disabled placeholder="Select a day" value={props?.selectedValue} />
+    <Input placeholder="Select a day" value={props?.selectedValue} />
   );
 
   return (

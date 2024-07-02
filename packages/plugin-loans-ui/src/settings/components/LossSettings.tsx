@@ -2,7 +2,7 @@ import {
   Button,
   HeaderDescription,
   MainStyleTitle as Title,
-  Wrapper,
+  Wrapper
 } from "@erxes/ui/src";
 import React, { useState } from "react";
 
@@ -28,34 +28,32 @@ type Props = {
 };
 
 const GeneralSettings = (props: Props) => {
-  const [configsMap, setConfigsMap] = useState<IConfigsMap>(props.configsMap);
+  const [configsMap, setConfigsMap] = useState<IConfigsMap>({
+    ...(props.configsMap?.lossConfig || {})
+  });
 
   const add = (e) => {
     e.preventDefault();
 
-    if (!configsMap.lossConfig) {
-      configsMap.lossConfig = {};
-    }
-
     // must save prev item saved then new item
-    configsMap.lossConfig.newUndueConfig = {
+    configsMap.newUndueConfig = {
       title: "New Loss Config",
       startDate: new Date(),
       endDate: new Date(),
-      percent: 0,
+      percent: 0
     };
 
     setConfigsMap((prevConfigsMap) => ({
       ...prevConfigsMap,
-      configsMap,
+      ...configsMap
     }));
   };
 
   const deleteHandler = (currentConfigKey: string) => {
-    delete configsMap.lossConfig[currentConfigKey];
-    delete configsMap.lossConfig["newUndueConfig"];
+    delete configsMap[currentConfigKey];
 
     setConfigsMap(configsMap);
+    props.configsMap.lossConfig = configsMap;
     props.save(configsMap);
   };
 
@@ -64,7 +62,7 @@ const GeneralSettings = (props: Props) => {
       return (
         <PerSettings
           key={`Loss${key}`}
-          configsMap={configsMap}
+          configsMap={props.configsMap}
           config={configs[key]}
           currentConfigKey={key}
           save={props.save}
@@ -75,16 +73,16 @@ const GeneralSettings = (props: Props) => {
   };
 
   const renderContent = () => {
-    const configs = configsMap.lossConfig || {};
-
     return (
-      <ContentBox id={"UndueSettingsMenu"}>{renderConfigs(configs)}</ContentBox>
+      <ContentBox id={"UndueSettingsMenu"}>
+        {renderConfigs(configsMap)}
+      </ContentBox>
     );
   };
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Loan config") },
+    { title: __("Loan config") }
   ];
 
   const actionButtons = (

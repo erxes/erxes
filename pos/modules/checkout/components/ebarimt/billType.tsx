@@ -14,7 +14,7 @@ import { Kbd } from "@/components/ui/kbd"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-const CheckRegister = dynamic(() => import("./checkRegister.market"))
+const CheckRegister: any = dynamic(() => import("./checkRegister.market"))
 
 const BillType = () => {
   const [billType, setBillType] = useAtom(billTypeAtom)

@@ -5,7 +5,7 @@ import {
   DateControl,
   FormControl,
   FormGroup,
-  MainStyleModalFooter as ModalFooter,
+  MainStyleModalFooter as ModalFooter
 } from "@erxes/ui/src";
 import React, { useEffect, useState } from "react";
 
@@ -28,11 +28,16 @@ const PerSettings = (props: Props) => {
 
   const onSave = (e) => {
     e.preventDefault();
-    const key = Math.floor(Math.random() * 1000000000000000);
 
-    delete configsMap.lossConfig[currentConfigKey];
-    configsMap.lossConfig[key] = config;
-    props.save(configsMap);
+    const key =
+      currentConfigKey != "newUndueConfig"
+        ? currentConfigKey
+        : Math.floor(Math.random() * 1000000000000000);
+
+    let newConfig = JSON.parse(JSON.stringify(configsMap));
+
+    newConfig.lossConfig[key] = config;
+    props.save(newConfig);
   };
 
   const onDelete = (e) => {

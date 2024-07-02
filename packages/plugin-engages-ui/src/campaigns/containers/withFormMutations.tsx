@@ -109,6 +109,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       save,
       users: verifiedUsers,
       isActionLoading: isLoading,
+      kind,
       message: {
         ...message,
         // excluding __type auto fields
