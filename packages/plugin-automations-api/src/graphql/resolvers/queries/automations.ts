@@ -60,7 +60,8 @@ const generateHistoriesFilter = (params: any) => {
     status,
     beginDate,
     endDate,
-    targetId
+    targetId,
+    targetIds
   } = params;
   const filter: any = { automationId };
 
@@ -86,6 +87,10 @@ const generateHistoriesFilter = (params: any) => {
 
   if (targetId) {
     filter.targetId = targetId;
+  }
+
+  if (targetIds?.length) {
+    filter.targetId = { $in: targetIds };
   }
 
   return filter;
