@@ -34,7 +34,7 @@ const configQueries = {
       isRPC: true,
     });
 
-    if (!deal || !deal.productsData || !deal.productsData.length) {
+    if (!deal.productsData?.length) {
       return [];
     }
 
