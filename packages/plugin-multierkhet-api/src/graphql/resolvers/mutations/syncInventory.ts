@@ -15,7 +15,7 @@ const inventoryMutations = {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
 
-    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
+    if (!config?.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -107,7 +107,7 @@ const inventoryMutations = {
           product.uom &&
           resProd.measure_unit_code === product.uom &&
           resProd.category_code ===
-            (categoryOfId[product.categoryId] || {}).code
+            (categoryOfId?.[product.categoryId] || {}).code
         ) {
           matchedCount = matchedCount + 1;
         } else {
@@ -145,7 +145,7 @@ const inventoryMutations = {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
 
-    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
+    if (!config?.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -234,7 +234,7 @@ const inventoryMutations = {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
 
-    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
+    if (!config?.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
@@ -299,7 +299,7 @@ const inventoryMutations = {
     const configs = await models.Configs.getConfig('erkhetConfig', {});
     const config = configs[brandId || 'noBrand'];
 
-    if (!config || !config.apiToken || !config.apiKey || !config.apiSecret) {
+    if (!config?.apiToken || !config.apiKey || !config.apiSecret) {
       throw new Error('Erkhet config not found.');
     }
 
