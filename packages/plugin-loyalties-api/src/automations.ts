@@ -1,3 +1,4 @@
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { generateModels, IModels } from './connectionResolver';
 import {
   sendClientPortalMessage,
@@ -216,19 +217,25 @@ const generateScore = async ({
   target,
   scoreString
 }) => {
+  const data = {
+    target,
+    config: {
+      scoreString
+    }
+  };
+
   if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
     const replacedContent = await sendCommonMessage({
       serviceName,
       subdomain,
       action: 'automations.replacePlaceHolders',
-      data: {
-        target,
-        config: {
-          scoreString
-        }
-      },
+      data,
       isRPC: true,
       defaultValue: {}
+    }).catch(error => {
+      debugError(
+        `Error occurred while replacing placeholders with ${error.message} ${JSON.stringify(data)}`
+      );
     });
 
     scoreString = replacedContent?.scoreString || 0;
@@ -326,6 +333,8 @@ const addScore = async ({
       defaultValue: {}
     });
 
+    debugInfo(`Replaced content ${JSON.stringify(replacedContent)}`);
+
     if (replacedContent['customers']) {
       await models.ScoreLogs.changeOwnersScore({
         ownerType: 'customer',
@@ -356,6 +365,10 @@ const addScore = async ({
         ...teamMemberIds,
         ...(await generateIds(replacedContent[key]))
       ];
+    }
+
+    if (!teamMemberIds?.length) {
+      return 'done';
     }
 
     await models.ScoreLogs.changeOwnersScore({
