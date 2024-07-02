@@ -104,8 +104,7 @@ export const getPostData = async (
         isRPC: true,
         defaultValue: []
       });
-
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = customers.find(c => c.code)?.code || '';
     }
   }
 
