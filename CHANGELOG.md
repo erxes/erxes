@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.3](https://github.com/erxes/erxes/compare/1.13.2...1.13.3) (2024-07-02)
+
+
+### Bug Fixes
+
+* posslots query ([7267d28](https://github.com/erxes/erxes/commit/7267d28ae8f68456f5e1a8e855f7e448b2b17a0f))
+* update pluginsMap ([8177a61](https://github.com/erxes/erxes/commit/8177a61f30f9f1880742dc4231d75d37239d5a8b))
+
 ## [1.13.2](https://github.com/erxes/erxes/compare/1.13.1...1.13.2) (2024-06-28)
 
 
