@@ -18,9 +18,6 @@ const customersAdd = `
         avatar
         code
         createdAt
- ${
-   isEnabled('tags')
-     ? `
         getTags {
           _id
           name
@@ -32,9 +29,7 @@ const customersAdd = `
           parentId
           order
           relatedIds
-        }`
-     : ``
- }
+        }
         email
         primaryPhone
         tagIds

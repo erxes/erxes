@@ -149,7 +149,7 @@ const SipProviderContainer = (props) => {
     direction: string,
     customerPhone: string,
     callStartTime: Date,
-    queueName?: string | null,
+    queueName?: string,
   ) => {
     addHistoryMutation({
       variables: {

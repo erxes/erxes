@@ -7,6 +7,7 @@ import {
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
+  CALL_STATUS_STOPPING,
   SIP_ERROR_TYPE_CONFIGURATION,
   SIP_ERROR_TYPE_CONNECTION,
   SIP_ERROR_TYPE_REGISTRATION,
@@ -138,8 +139,6 @@ export default class SipProvider extends React.Component<
     debug: false,
   };
   private ua;
-  private ringbackTone;
-
   private remoteAudio;
   private logger;
 
@@ -157,7 +156,6 @@ export default class SipProvider extends React.Component<
       callId: null,
     };
     this.ua = null;
-    this.ringbackTone = '';
 
     this.remoteAudio = window.document.getElementById('sip-provider-audio');
     this.remoteAudio?.remove();
@@ -388,6 +386,7 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
+      // rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
@@ -402,7 +401,7 @@ export default class SipProvider extends React.Component<
   };
 
   public stopCall = () => {
-    this.setState({ callStatus: CALL_STATUS_IDLE });
+    this.setState({ callStatus: CALL_STATUS_STOPPING });
     this.ua?.terminateSessions();
   };
 
@@ -418,87 +417,13 @@ export default class SipProvider extends React.Component<
     }
   }
 
-  public playUnAvialableAudio() {
-    if (!this.ringbackTone) {
-      this.ringbackTone = new Audio('/sound/unAvialableCall.mp3');
-      this.ringbackTone.loop = false;
-      this.ringbackTone
-        .play()
-        .catch(() => {
-          this.ringbackTone = '';
-        })
-        .then(() => {
-          this.ringbackTone = '';
-        });
-    }
-  }
-
-  public playBusyAudio() {
-    if (!this.ringbackTone) {
-      this.ringbackTone = new Audio('/sound/busyCall.mp3');
-      this.ringbackTone.loop = false;
-      this.ringbackTone
-        .play()
-        .catch(() => {
-          this.ringbackTone = '';
-        })
-        .then(() => {
-          this.ringbackTone = '';
-        });
-    }
-  }
-
-  public playHangupTone() {
-    if (!this.ringbackTone) {
-      this.ringbackTone = new Audio('/sound/hangup.mp3');
-      this.ringbackTone.loop = false;
-      this.ringbackTone
-        .play()
-        .catch(() => {
-          this.ringbackTone = '';
-        })
-        .then(() => {
-          this.ringbackTone = '';
-        });
-    }
-  }
-  public playRingbackTone() {
-    if (!this.ringbackTone) {
-      this.ringbackTone = new Audio('/sound/outgoingRingtone.mp3');
-      this.ringbackTone.loop = true;
-
-      setTimeout(() => {
-        this.ringbackTone.play().catch(() => {
-          this.stopRingbackTone();
-        });
-      }, 4000);
-    } else {
-      this.stopRingbackTone();
-    }
-  }
-
-  public stopRingbackTone() {
-    if (this.ringbackTone) {
-      this.ringbackTone.pause();
-      this.ringbackTone.currentTime = 0;
-      this.ringbackTone = '';
-    }
-  }
-
   public reinitializeJsSIP() {
     if (this.ua) {
       this.ua.stop();
       this.ua = null;
     }
 
-    const {
-      host = 'call.erxes.io',
-      port = '8089',
-      pathname,
-      user,
-      password,
-      autoRegister,
-    } = this.props;
+    const { host, port, pathname, user, password, autoRegister } = this.props;
     if (!host || !port || !user) {
       this.setState({
         sipStatus: SIP_STATUS_DISCONNECTED,
@@ -522,10 +447,15 @@ export default class SipProvider extends React.Component<
       this.ua = new JsSIP.UA(options);
 
       function reconnectWebSocket() {
+        console.log('Attempting to reconnect WebSocket...');
         setTimeout(() => {
           socket.connect();
-        }, 5000);
+        }, 5000); // Retry after 5 seconds
       }
+      socket.onconnect = () => {
+        console.log('WebSocket connected');
+      };
+
       socket.ondisconnect = (error, code, reason) => {
         console.log('error:', error);
         console.log('Code:', code);
@@ -691,18 +621,10 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
-        rtcSession.on('progress', (e) => {
-          if (
-            e.originator === 'remote' &&
-            e.response.status_code >= 180 &&
-            e.response.status_code <= 189
-          ) {
-            this.playRingbackTone();
-          }
+        rtcSession.on('progress', function (data) {
+          if (data.originator === 'remote') data.response.body = null;
         });
-
         rtcSession.on('failed', (e) => {
-          this.stopRingbackTone();
           this.logger.debug('UA failed event');
           if (this.ua !== ua) {
             return;
@@ -711,12 +633,6 @@ export default class SipProvider extends React.Component<
           const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
 
-          if (e.message?.status_code === 603) {
-            this.playUnAvialableAudio();
-          }
-          if ([480, 486, 606, 607, 608].includes(e.message?.status_code)) {
-            this.playBusyAudio();
-          }
           if (this.state.callDirection) {
             direction = this.state.callDirection.split('/')[1];
             direction = direction?.toLowerCase();
@@ -747,15 +663,15 @@ export default class SipProvider extends React.Component<
 
           rtcSession = null;
         });
-
-        rtcSession.on('ended', (data) => {
-          this.stopRingbackTone();
+        rtcSession.on('peerconnection', (e) => {
           if (this.ua !== ua) {
             return;
           }
+        });
 
-          if (data.cause === 'Terminated') {
-            this.playHangupTone();
+        rtcSession.on('ended', (data) => {
+          if (this.ua !== ua) {
+            return;
           }
           console.log('ended:', data);
           const { updateHistory } = this.props;
@@ -794,6 +710,7 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('bye', () => {
+          console.log('bye:');
           if (this.ua !== ua) {
             return;
           }
@@ -836,8 +753,6 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('accepted', () => {
-          this.stopRingbackTone();
-
           if (this.ua !== ua) {
             return;
           }
