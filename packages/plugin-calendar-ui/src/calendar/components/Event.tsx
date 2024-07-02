@@ -105,17 +105,17 @@ class Event extends React.Component<Props, State> {
   };
 
   onToggleModal = (date?: Date) => {
-    this.setState({
-      isPopupVisible: !this.state.isPopupVisible,
+    this.setState(prevState => ({
+      isPopupVisible: !prevState.isPopupVisible,
       selectedDate: date,
       event: {} as IEvent,
       account: {} as IAccount,
-    });
+  }));
   };
 
   editEvent = (event: IEvent, account?: IAccount) => {
     this.setState({ event, account, isPopupVisible: true });
-    // this.onClosePopover();
+    
   };
 
   deleteEvent = (_id: string, accountId: string) => {
@@ -337,6 +337,11 @@ class Event extends React.Component<Props, State> {
 
             return (
               <WeekCol isCurrent={isCurrentWeek} key={`week_${index}`}>
+
+              {WEEKS.map((week, index) => (
+              <WeekCol key={week} isCurrent={isCurrentWeek} />
+              ))}
+              
                 {renderData(day, week)}
                 {this.renderEvents(events, true)}
                 {isCurrentWeek && <Indicator hour={this.getElapsedHours()} />}
