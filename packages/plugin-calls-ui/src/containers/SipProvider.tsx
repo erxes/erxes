@@ -117,8 +117,7 @@ const SipProviderContainer = (props) => {
             Alert.error(e.message);
           }
         });
-    } else {
-      if (callStatus === 'cancelled') {
+    } else if (callStatus === 'cancelled') {
         updateHistoryMutation({
           variables: {
             sessionId,
@@ -141,7 +140,6 @@ const SipProviderContainer = (props) => {
       } else {
         Alert.error('History id not found');
       }
-    }
   };
   const addHistory = (
     callStatus: string,
