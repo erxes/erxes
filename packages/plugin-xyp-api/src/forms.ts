@@ -22,7 +22,7 @@ export const getServiceToFields = async (subdomain) => {
     throw new Error('Config not found');
   }
 
-  const config: IXypConfig = xypConfigs && xypConfigs.value;
+  const config: IXypConfig = xypConfigs?.value;
 
   const response = await fetch(config.url + '/list', {
     method: 'post',
@@ -70,7 +70,7 @@ export const getServiceToFields = async (subdomain) => {
 export default {
   types: [{ description: 'Xyp', type: 'xyp_datas' }],
   fields: async ({ subdomain, data }) => {
-    const { usageType } = data;
+
     const models = await generateModels(subdomain);
 
     const schema = models.XypData.schema as any;
@@ -88,7 +88,7 @@ export default {
 
     fields = [];
 
-    const { fieldsForExcel, list } =
+    const { list } =
       (await getServiceToFields(subdomain)) || [];
 
     if (schema) {
