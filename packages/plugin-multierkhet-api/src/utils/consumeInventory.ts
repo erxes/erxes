@@ -15,7 +15,7 @@ export const consumeInventory = async (
     defaultValue: {}
   });
 
-  const brandIds = (product || {}).scopeBrandIds || [];
+  const brandIds = product?.scopeBrandIds || [];
 
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await sendProductsMessage({
@@ -51,7 +51,7 @@ export const consumeInventory = async (
     };
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
-      let subUoms = (product || {}).subUoms || [];
+      let subUoms = product?.subUoms || [];
       const subUomCodes = subUoms.map(u => u.uom);
 
       if (subUomCodes.includes(doc.sub_measure_unit_code)) {
@@ -117,7 +117,7 @@ export const consumeInventoryCategory = async (
     isRPC: true
   });
 
-  const brandIds = (productCategory || {}).scopeBrandIds || [];
+  const brandIds = productCategory?.scopeBrandIds || [];
 
   if ((action === 'update' && old_code) || action === 'create') {
     const parentCategory = await sendProductsMessage({
