@@ -179,7 +179,7 @@ const fillCellValue = async (
         _id: item.stageId
       });
 
-      cellValue = stage?.name || emptyMsg;
+      cellValue = stage?.name ?? emptyMsg;
 
       break;
     }
@@ -216,7 +216,7 @@ const fillCellValue = async (
           _id: stageForPipeline.pipelineId
         });
 
-        cellValue = pipeline && pipeline.name || emptyMsg;
+        cellValue = pipeline?.name ?? emptyMsg;
       }
 
       break;
@@ -226,7 +226,7 @@ const fillCellValue = async (
         _id: item.initialStageId
       });
 
-      cellValue = initialStage?.name || emptyMsg;
+      cellValue = initialStage?.name ?? emptyMsg;
 
       break;
     }
