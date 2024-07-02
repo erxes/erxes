@@ -81,9 +81,9 @@ class LeftSidebar extends React.Component<Props, State> {
   }
 
   onHideModal = () => {
-    this.setState({
-      isPopupVisible: !this.state.isPopupVisible,
-    });
+    this.setState(prevState =>(({
+      isPopupVisible: prevState.isPopupVisible,
+    })));
   };
 
   toggleCheckbox = (calendarId, e: React.FormEvent<HTMLElement>) => {
