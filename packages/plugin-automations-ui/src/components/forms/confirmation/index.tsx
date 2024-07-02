@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import Alert from "@erxes/ui/src/utils/Alert";
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   when: boolean;
@@ -27,7 +27,7 @@ const Confirmation: React.FC<Props> = ({
   id,
   name,
   save,
-  removeAutomations,
+  removeAutomations
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,7 +38,11 @@ const Confirmation: React.FC<Props> = ({
 
   useEffect(() => {
     const unblock = () => {
-      if (when && nextLocation.pathname !== location.pathname) {
+      if (
+        when &&
+        nextLocation.pathname &&
+        nextLocation.pathname !== location.pathname
+      ) {
         setShowModal(true);
         setNextLocation(nextLocation);
         return false; // Guard against navigation
@@ -60,8 +64,8 @@ const Confirmation: React.FC<Props> = ({
   };
 
   const onConfirm = () => {
-    if (!name || name === "Your automation title") {
-      Alert.error("Enter an Automation title");
+    if (!name || name === 'Your automation title') {
+      Alert.error('Enter an Automation title');
       return setShowModal(false);
     } else {
       setIsConfirm(true);
