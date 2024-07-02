@@ -54,7 +54,7 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
     await checkCampaignDoc(models, subdomain, doc);
 
@@ -64,7 +64,7 @@ const engageMutations = {
     }
 
     const engageMessage = await models.EngageMessages.createEngageMessage(
-      docModifier({ ...doc, createdBy: user._id })
+      docModifier({ ...doc, createdBy: user._id }),
     );
 
     await sendToWebhook({
@@ -101,7 +101,7 @@ const engageMutations = {
   async engageMessageEdit(
     _root,
     { _id, ...doc }: IEngageMessageEdit,
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     await checkCampaignDoc(models, subdomain, doc);
 
@@ -135,7 +135,7 @@ const engageMutations = {
   async engageMessageRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const engageMessage = await models.EngageMessages.getEngageMessage(_id);
 
@@ -157,7 +157,7 @@ const engageMutations = {
   async engageMessageSetLive(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -176,7 +176,7 @@ const engageMutations = {
   async engageMessageSetPause(
     _root,
     { _id }: { _id: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.EngageMessages.engageMessageSetPause(_id);
   },
@@ -187,7 +187,7 @@ const engageMutations = {
   async engageMessageSetLiveManual(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -212,7 +212,7 @@ const engageMutations = {
         },
         description: `Broadcast "${draftCampaign.title}" has been set live`,
       },
-      user
+      user,
     );
 
     return live;
@@ -234,7 +234,7 @@ const engageMutations = {
       address,
       name,
     }: { email: string; address?: string; name?: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const VERSION = getEnv({ name: 'VERSION' });
 
@@ -276,7 +276,7 @@ const engageMutations = {
         return JSON.stringify(res);
       } catch (e) {
         throw new Error(
-          `Error occurred while verifying email ${email}, message: ${e}`
+          `Error occurred while verifying email ${email}, message: ${e}`,
         );
       }
     }
@@ -292,7 +292,7 @@ const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root,
     { email }: { email: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const VERSION = getEnv({ name: 'VERSION' });
 
@@ -342,12 +342,12 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { content, from, to, title } = args;
     if (!(content && from && to && title)) {
       throw new Error(
-        'Email content, title, from address or to address is missing'
+        'Email content, title, from address or to address is missing',
       );
     }
 
@@ -407,7 +407,7 @@ const engageMutations = {
   async engageMessageCopy(
     _root,
     { _id }: { _id },
-    { docModifier, models, subdomain, user }: IContext
+    { docModifier, models, subdomain, user }: IContext,
   ) {
     const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -446,7 +446,7 @@ const engageMutations = {
         },
         description: `Campaign "${sourceCampaign.title}" has been copied`,
       },
-      user
+      user,
     );
 
     return copy;
@@ -458,7 +458,7 @@ const engageMutations = {
   async engageSendMail(
     _root,
     args: any,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const { body, customerId, ...doc } = args;
     const customerQuery = customerId
@@ -520,19 +520,22 @@ const engageMutations = {
       });
     }
 
-    try {
-      const imapSendMail = await sendImapMessage({
-        subdomain,
-        action: 'imapMessage.create',
-        data: {
-          ...doc,
-        },
-        isRPC: true,
-      });
-      return imapSendMail;
-    } catch (e) {
-      throw e;
+    if (doc.integrationId) {
+      try {
+        const imapSendMail = await sendImapMessage({
+          subdomain,
+          action: 'imapMessage.create',
+          data: {
+            ...doc,
+          },
+          isRPC: true,
+        });
+        return imapSendMail;
+      } catch (e) {
+        throw e;
+      }
     }
+    return;
   },
 };
 
@@ -543,33 +546,33 @@ checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
 checkPermission(
   engageMutations,
   'engageMessageSetLive',
-  'engageMessageSetLive'
+  'engageMessageSetLive',
 );
 checkPermission(
   engageMutations,
   'engageMessageSetPause',
-  'engageMessageSetPause'
+  'engageMessageSetPause',
 );
 checkPermission(
   engageMutations,
   'engageMessageSetLiveManual',
-  'engageMessageSetLiveManual'
+  'engageMessageSetLiveManual',
 );
 checkPermission(
   engageMutations,
   'engageMessageVerifyEmail',
-  'engageMessageRemove'
+  'engageMessageRemove',
 );
 checkPermission(
   engageMutations,
   'engageMessageRemoveVerifiedEmail',
-  'engageMessageRemove'
+  'engageMessageRemove',
 );
 
 checkPermission(
   engageMutations,
   'engageMessageSendTestEmail',
-  'engageMessageRemove'
+  'engageMessageRemove',
 );
 
 checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
