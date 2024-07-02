@@ -8,7 +8,7 @@ import Label from '@erxes/ui/src/components/Label';
 import Tip from '@erxes/ui/src/components/Tip';
 import { Link } from 'react-router-dom';
 
-const Automations = (props) => {
+const Automations = props => {
   const { componentType, activeAction, activeTrigger, target } = props || {};
 
   if (componentType === 'triggerForm') {
