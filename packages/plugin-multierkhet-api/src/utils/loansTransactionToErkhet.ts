@@ -14,13 +14,7 @@ export const loansTransactionToErkhet = async (
   const models = await generateModels(subdomain);
   let erkhetConfig = await models.Configs.getConfig('ERKHET', {});
 
-  if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !erkhetConfig.userEmail ||
-    !erkhetConfig.defaultCustomer
-  ) {
+  if (!erkhetConfig.apiKey! ||!erkhetConfig.apiSecret ||!erkhetConfig.userEmail ||!erkhetConfig?.defaultCustomer) {
     return;
   }
 
