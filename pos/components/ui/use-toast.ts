@@ -166,6 +166,10 @@ function toast({ ...props }: Toast) {
   }
 }
 
+export const onError = (message: string) => {
+  toast({ description: message, variant: "destructive" })
+}
+
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -179,13 +183,8 @@ function useToast() {
     }
   }, [state])
 
-  const onError = (error: { message: string }) =>
-    toast({ description: error.message, variant: "destructive" })
-
   return {
     ...state,
-    toast,
-    onError,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }

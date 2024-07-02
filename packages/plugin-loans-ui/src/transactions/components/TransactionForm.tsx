@@ -8,13 +8,13 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { ITransaction, ITransactionDoc } from "../types";
 import React, { useState } from "react";
 import SelectContracts, {
-  Contracts,
+  Contracts
 } from "../../contracts/components/common/SelectContract";
 
 import { Amount } from "../../contracts/styles";
@@ -53,11 +53,11 @@ const TransactionForm = (props: Props) => {
   const [total, setTotal] = useState(
     transaction.total || (props.invoice && props.invoice.total) || 0
   );
-  
+
   const [customerId, setCustomerId] = useState(
     transaction.customerId || (props.invoice && props.invoice.customerId) || ""
   );
- 
+
   const [paymentInfo, setPaymentInfo] = useState(null as any);
   const [isGetEBarimt, setIsGetEBarimt] = useState(false);
   const [isOrganization, setIsOrganization] = useState(false);
@@ -84,7 +84,7 @@ const TransactionForm = (props: Props) => {
       transactionType: type,
       isManual: true,
       payDate: finalValues.payDate,
-      total: Number(total),
+      total: Number(total)
     };
   };
 
@@ -175,14 +175,11 @@ const TransactionForm = (props: Props) => {
       }
     };
 
-    const getPaymentInfo = (
-      contractId,
-      payDate: any = dayjs().locale("en").format("MMM, D YYYY")
-    ) => {
+    const getPaymentInfo = (contractId, payDate = new Date()) => {
       client
         .mutate({
           mutation: gql(queries.getPaymentInfo),
-          variables: { id: contractId, payDate: payDate },
+          variables: { id: contractId, payDate: payDate }
         })
         .then(({ data }) => {
           setPaymentInfo(data.getPaymentInfo);
@@ -194,7 +191,7 @@ const TransactionForm = (props: Props) => {
         client
           .query({
             query: gql(queries.getCompanyName),
-            variables: { companyRd: register },
+            variables: { companyRd: register }
           })
           .then(({ data }) => {
             data?.ebarimtGetCompany?.info;
@@ -203,6 +200,7 @@ const TransactionForm = (props: Props) => {
     };
 
     const onChangePayDate = (value) => {
+      console.log("value", value);
       if (contractId && payDate !== value) getPaymentInfo(contractId, value);
 
       setPayDate(value);
@@ -391,7 +389,7 @@ const TransactionForm = (props: Props) => {
             name: "transaction",
             values: generateDoc(values),
             isSubmitted,
-            object: transaction,
+            object: transaction
           })}
         </ModalFooter>
       </>

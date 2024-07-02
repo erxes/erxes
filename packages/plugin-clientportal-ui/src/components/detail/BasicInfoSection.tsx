@@ -6,7 +6,7 @@ import Button from "@erxes/ui/src/components/Button";
 import ClientPortalUserForm from "../../containers/ClientPortalUserForm";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
-// import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
+import ExtendSubscription from '@erxes/ui-forum/src/containers/ExtendSubscriptionForm';
 import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
 import { IClientPortalUser } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
@@ -98,17 +98,6 @@ const BasicInfoSection: React.FC<Props> = ({
           Alert.error(error.message);
         });
 
-    const extendSubscription = (props) => {
-      if (!isEnabled("forum")) {
-        return null;
-      }
-
-      // TODO: use loadDynamicComponent
-      // return (
-      //   <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
-      // );
-    };
-
     const customerForm = (props) => {
       return (
         <ClientPortalUserForm
@@ -125,14 +114,24 @@ const BasicInfoSection: React.FC<Props> = ({
         trigger: <a href="#edit">{__("Edit")}</a>,
         content: customerForm,
         additionalModalProps: { size: "lg" },
-      },
-      isEnabled("forum") && {
+      }
+    ];
+
+    const extendSubscription = (props) => {
+      // TODO: use loadDynamicComponent
+      return (
+        <ExtendSubscription {...props} clientPortalUser={clientPortalUser} />
+      );
+    };
+
+    if (isEnabled("forum")) {
+      menuItems.push({
         title: "Extend Subscription",
         trigger: <a href="#extend-subscription">{__("Extend Subscription")}</a>,
         content: extendSubscription,
-        additionalModalProps: { size: "lg" },
-      },
-    ];
+        additionalModalProps: { size: "lg" }
+      })
+    }
 
     return (
       <Dropdown

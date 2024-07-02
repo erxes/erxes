@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import usePrintBill from "@/modules/checkout/hooks/usePrintBill"
 import { ebarimtMainDialogOpenAtom } from "@/store"
 import {
@@ -32,7 +32,7 @@ const EbarimtMain = () => {
   const openEbarimt = useAtomValue(ebarimtSheetAtom)
   const router = useRouter()
   const [openDialog, setOpenDialog] = useAtom(ebarimtMainDialogOpenAtom)
-
+  const mainOrder = useSearchParams().get("mainOrder")
   const { changeVisiblity, loading, disabled, printBill } = usePrintBill()
 
   const { iframeRef } = useReciept({
@@ -40,7 +40,9 @@ const EbarimtMain = () => {
       changeVisiblity(false)
       setInitial()
       setOpenDialog(false)
-      router.push("/")
+      mainOrder
+        ? router.push(`/checkout?orderId=${mainOrder}`)
+        : router.push("/")
     },
   })
 

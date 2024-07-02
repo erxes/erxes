@@ -4,12 +4,12 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  MainStyleModalFooter as ModalFooter,
-} from "@erxes/ui/src";
-import React, { useState } from "react";
+  MainStyleModalFooter as ModalFooter
+} from '@erxes/ui/src';
+import React, { useState } from 'react';
 
-import { IConfigsMap } from "../types";
-import { __ } from "coreui/utils";
+import { IConfigsMap } from '../types';
+import { __ } from 'coreui/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -49,14 +49,14 @@ const MainConfig = (props: Props) => {
     <>
       <CollapseContent title={__(config.title)} open={false}>
         <FormGroup>
-          <ControlLabel required={true}>{__("Organization type")}</ControlLabel>
+          <ControlLabel required={true}>{__('Organization type')}</ControlLabel>
           <FormControl
             name="organizationType"
             componentclass="select"
-            defaultValue={config["organizationType"]}
-            onChange={onChangeInput.bind(this, "organizationType")}
+            defaultValue={config['organizationType']}
+            onChange={onChangeInput.bind(this, 'organizationType')}
           >
-            {["bbsb", "entity"].map((typeName, index) => (
+            {['bbsb', 'entity'].map((typeName, index) => (
               <option key={index} value={typeName}>
                 {__(typeName)}
               </option>
@@ -64,13 +64,13 @@ const MainConfig = (props: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Calculation number fixed")}</ControlLabel>
+          <ControlLabel>{__('Calculation number fixed')}</ControlLabel>
           <FormControl
-            defaultValue={config["calculationFixed"]}
+            defaultValue={config['calculationFixed']}
             type="number"
             min={0}
             max={100}
-            onChange={onChangeInputNumber.bind(this, "calculationFixed")}
+            onChange={onChangeInputNumber.bind(this, 'calculationFixed')}
             required={true}
           />
         </FormGroup>
@@ -82,21 +82,21 @@ const MainConfig = (props: Props) => {
             onClick={onSave}
             uppercase={false}
           >
-            {__("Save")}
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>
 
-      <CollapseContent title={__("period lock config")} open={false}>
+      <CollapseContent title={__('period lock config')} open={false}>
         <FormGroup>
-          <ControlLabel required={true}>{__("Period lock type")}</ControlLabel>
+          <ControlLabel required={true}>{__('Period lock type')}</ControlLabel>
           <FormControl
             name="periodLockType"
             componentclass="select"
-            defaultValue={config["periodLockType"]}
-            onChange={onChangeInput.bind(this, "periodLockType")}
+            defaultValue={config['periodLockType']}
+            onChange={onChangeInput.bind(this, 'periodLockType')}
           >
-            {["daily", "endOfMonth", "manual"].map((typeName, index) => (
+            {['daily', 'endOfMonth', 'manual'].map((typeName, index) => (
               <option key={typeName} value={typeName}>
                 {__(typeName)}
               </option>
@@ -104,36 +104,36 @@ const MainConfig = (props: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Is Store Interest")}</ControlLabel>
+          <ControlLabel>{__('Is Store Interest')}</ControlLabel>
           <FormControl
             className="flex-item"
             type="checkbox"
             componentclass="checkbox"
             name="isStoreInterest"
-            checked={config["isStoreInterest"]}
-            onChange={onChangeCheck.bind(this, "isStoreInterest")}
+            checked={config['isStoreInterest']}
+            onChange={onChangeCheck.bind(this, 'isStoreInterest')}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Is Create Invoice")}</ControlLabel>
+          <ControlLabel>{__('Is Create Invoice')}</ControlLabel>
           <FormControl
             className="flex-item"
             type="checkbox"
             componentclass="checkbox"
             name="isCreateInvoice"
-            checked={config["isCreateInvoice"]}
-            onChange={onChangeCheck.bind(this, "isCreateInvoice")}
+            checked={config['isCreateInvoice']}
+            onChange={onChangeCheck.bind(this, 'isCreateInvoice')}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Is Change Classification")}</ControlLabel>
+          <ControlLabel>{__('Is Change Classification')}</ControlLabel>
           <FormControl
             className="flex-item"
             type="checkbox"
             componentclass="checkbox"
             name="isChangeClassification"
-            checked={config["isChangeClassification"]}
-            onChange={onChangeCheck.bind(this, "isChangeClassification")}
+            checked={config['isChangeClassification']}
+            onChange={onChangeCheck.bind(this, 'isChangeClassification')}
           />
         </FormGroup>
 
@@ -144,64 +144,64 @@ const MainConfig = (props: Props) => {
             onClick={onSave}
             uppercase={false}
           >
-            {__("Save")}
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>
 
-      <CollapseContent title={__("classification config")} open={false}>
+      <CollapseContent title={__('classification config')} open={false}>
         <FormGroup>
-          <ControlLabel>{__("Normal /Day/ ")}</ControlLabel>
+          <ControlLabel>{__('Normal /Day/ ')}</ControlLabel>
           <FormControl
-            defaultValue={config["classificationNormal"]}
+            defaultValue={config['classificationNormal']}
             type="number"
             min={0}
             max={100}
-            onChange={onChangeInputNumber.bind(this, "classificationNormal")}
+            onChange={onChangeInputNumber.bind(this, 'classificationNormal')}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Expired /Day/ ")}</ControlLabel>
+          <ControlLabel>{__('Expired /Day/ ')}</ControlLabel>
           <FormControl
-            defaultValue={config["classificationExpired"]}
+            defaultValue={config['classificationExpired']}
             type="number"
             min={0}
             max={100}
-            onChange={onChangeInputNumber.bind(this, "classificationExpired")}
+            onChange={onChangeInputNumber.bind(this, 'classificationExpired')}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Doubt /Day/ ")}</ControlLabel>
+          <ControlLabel>{__('Doubt /Day/ ')}</ControlLabel>
           <FormControl
-            defaultValue={config["classificationDoubt"]}
+            defaultValue={config['classificationDoubt']}
             type="number"
             min={0}
             max={100}
-            onChange={onChangeInputNumber.bind(this, "classificationDoubt")}
+            onChange={onChangeInputNumber.bind(this, 'classificationDoubt')}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Negative /Day/ ")}</ControlLabel>
+          <ControlLabel>{__('Negative /Day/ ')}</ControlLabel>
           <FormControl
-            defaultValue={config["classificationNegative"]}
+            defaultValue={config['classificationNegative']}
             type="number"
             min={0}
             max={100}
-            onChange={onChangeInputNumber.bind(this, "classificationNegative")}
+            onChange={onChangeInputNumber.bind(this, 'classificationNegative')}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Bad /Day/ ")}</ControlLabel>
+          <ControlLabel>{__('Bad /Day/ ')}</ControlLabel>
           <FormControl
-            defaultValue={config["classificationBad"]}
+            defaultValue={config['classificationBad']}
             type="number"
             min={0}
             max={100}
-            onChange={onChangeInputNumber.bind(this, "classificationBad")}
+            onChange={onChangeInputNumber.bind(this, 'classificationBad')}
             required={true}
           />
         </FormGroup>
@@ -213,29 +213,29 @@ const MainConfig = (props: Props) => {
             onClick={onSave}
             uppercase={false}
           >
-            {__("Save")}
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>
-      <CollapseContent title={__("internet bank config")} open={false}>
+      <CollapseContent title={__('internet bank config')} open={false}>
         <FormGroup>
-          <ControlLabel>{__("Loan give limit")}</ControlLabel>
+          <ControlLabel>{__('Loan give limit')}</ControlLabel>
           <FormControl
-            defaultValue={config["loanGiveLimit"]}
+            defaultValue={config['loanGiveLimit']}
             type="number"
-            onChange={onChangeInputNumber.bind(this, "loanGiveLimit")}
+            onChange={onChangeInputNumber.bind(this, 'loanGiveLimit')}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Loan give account type")}</ControlLabel>
+          <ControlLabel>{__('Loan give account type')}</ControlLabel>
           <FormControl
             name="loanGiveAccountType"
             componentclass="select"
-            defaultValue={config["loanGiveAccountType"]}
-            onChange={onChangeInput.bind(this, "loanGiveAccountType")}
+            defaultValue={config['loanGiveAccountType']}
+            onChange={onChangeInput.bind(this, 'loanGiveAccountType')}
           >
-            {["khanbank", "golomt"].map((typeName, index) => (
+            {['khanbank', 'golomt'].map((typeName, index) => (
               <option key={typeName} value={typeName}>
                 {__(typeName)}
               </option>
@@ -243,19 +243,11 @@ const MainConfig = (props: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Loan give account number")}</ControlLabel>
+          <ControlLabel>{__('Loan give account number')}</ControlLabel>
           <FormControl
-            defaultValue={config["loanGiveAccountNumber"]}
+            defaultValue={config['loanGiveAccountNumber']}
             type="number"
-            onChange={onChangeInputNumber.bind(this, "loanGiveAccountNumber")}
-            required={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__("Transaction password")}</ControlLabel>
-          <FormControl
-            defaultValue={config["transactionPassword"]}
-            onChange={onChangeInputNumber.bind(this, "transactionPassword")}
+            onChange={onChangeInputNumber.bind(this, 'loanGiveAccountNumber')}
             required={true}
           />
         </FormGroup>
@@ -266,7 +258,7 @@ const MainConfig = (props: Props) => {
             onClick={onSave}
             uppercase={false}
           >
-            {__("Save")}
+            {__('Save')}
           </Button>
         </ModalFooter>
       </CollapseContent>

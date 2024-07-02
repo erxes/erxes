@@ -4,3 +4,17 @@ export type RiskAssessmentGroupParams = {
   riskAssessmentId: string;
   groupIds: string[];
 };
+export type CardValues = {
+  value?: any;
+  values: any[];
+};
+export type CardValue = {
+  value: any;
+  values?: any[];
+};
+export type CardFilter = {
+  name: string;
+  regex?: boolean;
+} & (CardValues | CardValue);
+
+export type CardType = 'task' | 'ticket' | 'deal';

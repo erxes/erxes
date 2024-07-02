@@ -2,16 +2,14 @@
 
 import { useMutation } from "@apollo/client"
 
-import { useToast } from "@/components/ui/use-toast"
-
 import Login from "./components/login"
 import { mutations } from "./graphql"
+import { onError } from '@/components/ui/use-toast'
 
 const LoginContainer = () => {
-  const { toast } = useToast()
   const [login, { loading }] = useMutation(mutations.login, {
-    onError(error) {
-      return toast({ description: error.message, variant: "destructive" })
+    onError({ message }) {
+      onError(message)
     },
     refetchQueries: ["posCurrentUser"],
   })

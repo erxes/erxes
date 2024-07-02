@@ -22,6 +22,7 @@ export const EMAIL_VALIDATION_STATUSES = {
     'badsyntax',
     'unverifiable',
     'Not checked',
+    'catch all'
   ],
 };
 

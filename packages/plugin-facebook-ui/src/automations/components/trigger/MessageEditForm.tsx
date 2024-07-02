@@ -1,17 +1,16 @@
-import { BackIcon, DrawerDetail } from "@erxes/ui-automations/src/styles";
-import { Features, TriggerItem, TriggersList } from "../../styles";
-import React, { useState } from "react";
+import { BackIcon, DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { Features, TriggerItem, TriggersList } from '../../styles';
+import React, { useState } from 'react';
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import DirectMessageForm from "./DirectMessage";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Icon from "@erxes/ui/src/components/Icon";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import PersistentMenu from "./PersistentMenu";
-import Tip from "@erxes/ui/src/components/Tip";
-import { __ } from "@erxes/ui/src/utils/core";
-import colors from "@erxes/ui/src/styles/colors";
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DirectMessageForm from './DirectMessage';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import PersistentMenu from './PersistentMenu';
+import { __ } from '@erxes/ui/src/utils/core';
+import colors from '@erxes/ui/src/styles/colors';
 
 type Props = {
   triggerConst: { conditions: any[]; botId: string };
@@ -25,14 +24,14 @@ function EditForm({
   triggerConst: { conditions: conditionsConst = [] },
   onSave,
   onCancel,
-  config: { conditions: conditionsConfig = [], botId },
+  config: { conditions: conditionsConfig = [], botId }
 }: Props) {
   const [conditions, setConditions] = useState(conditionsConfig);
-  const [activeItem, setActiveItem] = useState("");
+  const [activeItem, setActiveItem] = useState('');
 
   const onChangeCondtion = (type, condition) => {
-    if (conditions.find((cond) => cond.type === type)) {
-      const updatedConditions = conditions.map((cond) =>
+    if (conditions.find(cond => cond.type === type)) {
+      const updatedConditions = conditions.map(cond =>
         cond.type === type ? { ...cond, ...condition } : cond
       );
       return setConditions(updatedConditions);
@@ -44,13 +43,13 @@ function EditForm({
   const renderConditionForm = (type, config, onChange) => {
     const updatedProps = {
       ...config,
-      onChange,
+      onChange
     };
 
     switch (type) {
-      case "direct":
+      case 'direct':
         return <DirectMessageForm {...updatedProps} />;
-      case "persistentMenu":
+      case 'persistentMenu':
         return <PersistentMenu {...updatedProps} botId={botId} />;
 
       default:
@@ -61,7 +60,7 @@ function EditForm({
   const renderDetail = ({ type, condition }) => {
     if (activeItem === type) {
       const handleSave = () => {
-        setActiveItem("");
+        setActiveItem('');
       };
 
       const onChange = (name, value) => {
@@ -70,12 +69,12 @@ function EditForm({
 
       return (
         <DrawerDetail>
-          <BackIcon onClick={() => setActiveItem("")}>
-            <Icon icon="angle-left" size={20} /> {__("Back to conditions")}
+          <BackIcon onClick={() => setActiveItem('')}>
+            <Icon icon="angle-left" size={20} /> {__('Back to conditions')}
           </BackIcon>
           {renderConditionForm(type, condition, onChange)}
           <Button size="small" btnStyle="success" onClick={handleSave} block>
-            {__("Save")}
+            {__('Save')}
           </Button>
         </DrawerDetail>
       );
@@ -88,19 +87,19 @@ function EditForm({
       return renderDetail({ type, condition });
     }
 
-    const handleClick = (e) => {
-      if (type === "getStarted") {
+    const handleClick = e => {
+      if (type === 'getStarted') {
         return;
       }
 
-      setActiveItem(!activeItem ? type : "");
+      setActiveItem(!activeItem ? type : '');
     };
 
-    const handleCheck = (isSelected) => {
+    const handleCheck = isSelected => {
       onChangeCondtion(type, { ...condition, isSelected });
     };
 
-    const isDisabled = type !== "getStarted" && !Object.keys(condition).length;
+    const isDisabled = type !== 'getStarted' && !Object.keys(condition).length;
 
     return (
       <div key={type}>
@@ -127,10 +126,10 @@ function EditForm({
       <Features isToggled={botId}>
         {!activeItem && <ControlLabel>Triggers</ControlLabel>}
         <TriggersList>
-          {conditionsConst.map((conditionConst) => {
+          {conditionsConst.map(conditionConst => {
             const conditionConfig =
               conditions.find(
-                (condition) => condition.type === conditionConst.type
+                condition => condition.type === conditionConst.type
               ) || {};
 
             return renderCondition(conditionConst, conditionConfig);
@@ -140,10 +139,10 @@ function EditForm({
       {!activeItem && (
         <ModalFooter>
           <Button btnStyle="simple" onClick={onCancel}>
-            {__("Cancel")}
+            {__('Cancel')}
           </Button>
           <Button btnStyle="success" onClick={() => onSave(conditions)}>
-            {__("Save")}
+            {__('Save')}
           </Button>
         </ModalFooter>
       )}

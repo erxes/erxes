@@ -10,7 +10,7 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  confirm,
+  confirm
 } from "@erxes/ui/src";
 import { ORGANIZATION_TYPE, menuContracts } from "../../constants";
 
@@ -64,7 +64,7 @@ const TransactionsList = (props: IProps) => {
     onSearch,
     isFiltered,
     clearFilter,
-    currentUser,
+    currentUser
   } = props;
 
   const onChange = () => {
@@ -205,7 +205,7 @@ const TransactionsList = (props: IProps) => {
     onSearch,
     isFiltered,
     clearFilter,
-    queryParams,
+    queryParams
   };
 
   const menuItems = [
@@ -213,26 +213,26 @@ const TransactionsList = (props: IProps) => {
       title: "Repayment Transaction",
       trigger: <a href="#Repayment">{__("Repayment Transaction")}</a>,
       content: repaymentForm,
-      additionalModalProps: { size: "lg" },
+      additionalModalProps: { size: "lg" }
     },
     {
       title: "Give Transaction",
       trigger: <a href="#give">{__("Give Transaction")}</a>,
       content: giveForm,
-      additionalModalProps: { size: "lg" },
+      additionalModalProps: { size: "lg" }
     },
     {
       title: "Interest Change",
       trigger: <a href="#interest">{__("Interest Change")}</a>,
       content: interestChangeForm,
-      additionalModalProps: { size: "lg" },
+      additionalModalProps: { size: "lg" }
     },
     {
       title: "Interest Return",
       trigger: <a href="#return">{__("Interest Return")}</a>,
       content: interestReturnForm,
-      additionalModalProps: { size: "lg" },
-    },
+      additionalModalProps: { size: "lg" }
+    }
   ];
 
   const actionBarRight = (

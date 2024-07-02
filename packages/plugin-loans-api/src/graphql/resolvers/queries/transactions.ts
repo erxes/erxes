@@ -1,15 +1,19 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { checkPermission, paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
     const contracts = await models.Contracts.find(
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
       { _id: 1 }
     );
-    filter.contractId = { $in: contracts.map((item) => item._id) };
+    filter.$or = [
+      { contractId: { $in: contracts.map((item) => item._id) } },
+      { description: new RegExp(`.*${params.searchValue}.*`, "i") },
+      { total: params.searchValue }
+    ];
   }
 
   if (params.ids) {
@@ -51,17 +55,17 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     };
   }
 
-  if (params.payDate === 'today') {
+  if (params.payDate === "today") {
     filter.payDate = { $gte: new Date(), $lte: new Date() };
   }
 
   if (params.contractHasnt) {
-    filter.contractId = { $in: ['', null] };
+    filter.contractId = { $in: ["", null] };
   }
 
   if (params.description) {
     filter.description = {
-      $in: [new RegExp(`.*${params.description}.*`, 'i')]
+      $in: [new RegExp(`.*${params.description}.*`, "i")]
     };
   }
 
@@ -147,8 +151,8 @@ const transactionQueries = {
   }
 };
 
-checkPermission(transactionQueries, 'transactions', 'showTransactions');
-checkPermission(transactionQueries, 'transactionsMain', 'showTransactions');
-checkPermission(transactionQueries, 'transactionDetail', 'showTransactions');
+checkPermission(transactionQueries, "transactions", "showTransactions");
+checkPermission(transactionQueries, "transactionsMain", "showTransactions");
+checkPermission(transactionQueries, "transactionDetail", "showTransactions");
 
 export default transactionQueries;

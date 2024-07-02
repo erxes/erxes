@@ -11,10 +11,8 @@ const queries = {
     const totalCount = await models.KhanbankConfigs.find({}).countDocuments();
 
     return {
-      list: paginate(
-        models.KhanbankConfigs.find({})
-          .sort({ createdAt: -1 })
-          .lean(),
+      list: await paginate(
+        models.KhanbankConfigs.find({}).sort({ createdAt: -1 }).lean(),
         {
           page: page || 1,
           perPage: perPage || 20
@@ -33,7 +31,10 @@ const queries = {
       createdAt: -1
     });
 
-    return paginate(response, { page: page || 1, perPage: perPage || 20 });
+    return await paginate(response, {
+      page: page || 1,
+      perPage: perPage || 20
+    });
   },
 
   async khanbankConfigsDetail(

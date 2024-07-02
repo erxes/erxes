@@ -1,40 +1,34 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
-import Asset from './asset';
-import AssetCategory from './assetCategory';
-import Movement from './movement';
-import MovementItem from './movementItems';
-import ItemSourceLocation from './itemSourceLocation';
+import customResolvers from './customResolvers';
 
 import {
   Asset as assetMutations,
   AssetCategories as assetCategoriesMutations,
-  Movement as movementMutations,
+  Movement as movementMutations
 } from './mutations';
 import {
   Asset as assetQueries,
   AssetCategories as assetCategoriesQueries,
   Movement as movementQueries,
   MovementItem as movementItemQueries,
+  KbArticlesHistoriesQueries
 } from './queries';
 
 const resolvers: any = async () => ({
   ...customScalars,
-  Asset,
-  AssetCategory,
-  ItemSourceLocation,
-  MovementItem,
-  Movement,
+  ...customResolvers,
   Mutation: {
     ...assetCategoriesMutations,
     ...assetMutations,
-    ...movementMutations,
+    ...movementMutations
   },
   Query: {
     ...assetCategoriesQueries,
     ...assetQueries,
     ...movementQueries,
     ...movementItemQueries,
-  },
+    ...KbArticlesHistoriesQueries
+  }
 });
 
 export default resolvers;

@@ -77,3 +77,15 @@ export interface IMovementItemDocument extends IMovementItem, Document {
   _id: string;
   createdAt: Date;
 }
+
+export interface IKBArticleHistory {
+  userId: string;
+  action: string;
+  kbArticleId: string;
+  assetId: string;
+}
+
+export interface IKBArticleHistoryDocument extends IKBArticleHistory, Document {
+  _id: string;
+  createdAt: Date;
+}

@@ -16,8 +16,10 @@ import OrderDetail from "../components/history/orderDetail"
 import Pagination from "../components/history/pagination"
 import RenderFilter from "../components/renderFilter"
 
-const List = dynamic(() => import("../components/history/list"))
-const ListMobile = dynamic(() => import("../components/history/list.mobile"))
+const List: any = dynamic(() => import("../components/history/list"))
+const ListMobile: any = dynamic(
+  () => import("../components/history/list.mobile")
+)
 
 const History = () => {
   const [filter, setFilter] = useAtom(filterAtom)

@@ -1,11 +1,11 @@
-import { PaginationList, PaginationWrapper } from "./styles";
-import React from "react";
-import { difference, intersection, range, union } from "../../utils/core";
-import { useLocation, useNavigate } from "react-router-dom";
+import { PaginationList, PaginationWrapper } from './styles';
+import React from 'react';
+import { difference, intersection, range, union } from '../../utils/core';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import Icon from "../Icon";
-import PerPageChooser from "./PerPageChooser";
-import { router } from "../../utils/core";
+import Icon from '../Icon';
+import PerPageChooser from './PerPageChooser';
+import { router } from '../../utils/core';
 
 const generatePages = (pageCount: number, currentPage: number): number[] => {
   const w = 4;
@@ -81,10 +81,10 @@ const Page = ({ page, currentPage }: { page: number; currentPage: number }) => {
   };
 
   if (page !== -1) {
-    let className = "";
+    let className = '';
 
     if (page === currentPage) {
-      className += " active disabled";
+      className += ' active disabled';
     }
 
     return (
@@ -107,6 +107,7 @@ const Pagination = ({
   count,
   currentPage = 1,
   isPaginated,
+  hidePerPageChooser
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,15 +141,15 @@ const Pagination = ({
       return null;
     }
 
-    let prevClass = "";
-    let nextClass = "";
+    let prevClass = '';
+    let nextClass = '';
 
     if (currentPage <= 1) {
-      prevClass = "disabled";
+      prevClass = 'disabled';
     }
 
     if (currentPage >= totalPagesCount) {
-      nextClass = "disabled";
+      nextClass = 'disabled';
     }
 
     return (
@@ -169,7 +170,7 @@ const Pagination = ({
           </a>
         </li>
 
-        {renderPerPageChooser()}
+        {!hidePerPageChooser && renderPerPageChooser()}
       </PaginationList>
     );
   };
@@ -181,11 +182,17 @@ const Pagination = ({
   return <PaginationWrapper>{renderBar()}</PaginationWrapper>;
 };
 
-const PaginationContainer = ({ count = 100 }: { count?: number }) => {
+const PaginationContainer = ({
+  count = 100,
+  hidePerPageChooser
+}: {
+  count?: number;
+  hidePerPageChooser?: boolean;
+}) => {
   const location = useLocation();
 
-  const currentPage = Number(router.getParam(location, "page")) || 1;
-  const perPage = Number(router.getParam(location, "perPage")) || 20;
+  const currentPage = Number(router.getParam(location, 'page')) || 1;
+  const perPage = Number(router.getParam(location, 'perPage')) || 20;
 
   let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 
@@ -202,6 +209,7 @@ const PaginationContainer = ({ count = 100 }: { count?: number }) => {
     isPaginated: totalPagesCount > 1,
     totalPagesCount,
     pages,
+    hidePerPageChooser
   };
 
   return <Pagination {...childProps} />;

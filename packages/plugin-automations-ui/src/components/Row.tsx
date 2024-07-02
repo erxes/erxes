@@ -1,20 +1,20 @@
-import { __, isEnabled } from "@erxes/ui/src/utils/core";
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 
-import ActionButtons from "@erxes/ui/src/components/ActionButtons";
-import Button from "@erxes/ui/src/components/Button";
-import { DateWrapper } from "@erxes/ui/src/styles/main";
-import { FlexCenter } from "@erxes/ui/src/styles/main";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IAutomation } from "../types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Label from "@erxes/ui/src/components/Label";
-import { Link } from "react-router-dom";
-import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
-import React from "react";
-import Tip from "@erxes/ui/src/components/Tip";
-import WithPermission from "coreui/withPermission";
-import dayjs from "dayjs";
-import s from "underscore.string";
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import { DateWrapper } from '@erxes/ui/src/styles/main';
+import { FlexCenter } from '@erxes/ui/src/styles/main';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAutomation } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import { Link } from 'react-router-dom';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import WithPermission from '@erxes/ui/src/components/WithPermission';
+import dayjs from 'dayjs';
+import s from 'underscore.string';
 
 type Props = {
   automation: IAutomation;
@@ -31,15 +31,15 @@ function ActionRow({
   isChecked,
   duplicate,
   toggleBulk,
-  removeAutomations,
+  removeAutomations
 }: Props) {
-  const onChange = (e) => {
+  const onChange = e => {
     if (toggleBulk) {
       toggleBulk(automation, e.target.checked);
     }
   };
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
   };
 
@@ -50,7 +50,7 @@ function ActionRow({
   const editAction = () => {
     return (
       <Link to={`/automations/details/${automation._id}`}>
-        <Tip text={__("Edit")} placement="top">
+        <Tip text={__('Edit')} placement="top">
           <Button btnStyle="link">
             <Icon icon="edit-3" />
           </Button>
@@ -63,7 +63,7 @@ function ActionRow({
     const onDuplicate = () => duplicate(automation._id);
 
     return (
-      <Tip text={__("Duplicate")} placement="top">
+      <Tip text={__('Duplicate')} placement="top">
         <Button
           id="automationDuplicate"
           btnStyle="link"
@@ -79,7 +79,7 @@ function ActionRow({
 
     return (
       <WithPermission action="automationsRemove">
-        <Tip text={__("Delete")} placement="top">
+        <Tip text={__('Delete')} placement="top">
           <Button
             id="automationDelete"
             btnStyle="link"
@@ -100,11 +100,11 @@ function ActionRow({
     updatedUser,
     triggers,
     actions,
-    tags,
+    tags
   } = automation;
 
-  const isActive = status !== "draft" ? true : false;
-  const labelStyle = isActive ? "success" : "simple";
+  const isActive = status !== 'draft' ? true : false;
+  const labelStyle = isActive ? 'success' : 'simple';
 
   return (
     <tr>
@@ -127,9 +127,9 @@ function ActionRow({
         <Icon icon="share-alt" />
         <b> {s.numberFormat(actions.length)}</b>
       </td>
-      {isEnabled("tags") && (
+      {isEnabled('tags') && (
         <td>
-          {(tags || []).map((tag) => (
+          {(tags || []).map(tag => (
             <Label lblColor={tag.colorCode}>{tag.name}</Label>
           ))}
         </td>
@@ -145,12 +145,12 @@ function ActionRow({
         </FlexCenter>
       </td>
       <td>
-        <Icon icon="calender" />{" "}
-        <DateWrapper>{dayjs(updatedAt || new Date()).format("ll")}</DateWrapper>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
       </td>
       <td>
-        <Icon icon="calender" />{" "}
-        <DateWrapper>{dayjs(createdAt || new Date()).format("ll")}</DateWrapper>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>{dayjs(createdAt || new Date()).format('ll')}</DateWrapper>
       </td>
       <td>
         <ActionButtons>

@@ -2,6 +2,7 @@ import React from 'react';
 import BoardItemForm from './containers/BoardItemForm';
 import SelectBoard from './components/SelectBoard';
 import ActionResult from './components/ActionResult';
+import TriggerForm from './components/TriggerForm';
 
 const Automations = props => {
   const { componentType, target } = props;
@@ -9,6 +10,9 @@ const Automations = props => {
   switch (componentType) {
     case 'actionForm':
       return <BoardItemForm {...props} />;
+
+    case 'triggerForm':
+      return <TriggerForm {...props} />;
 
     case 'selectBoard':
       return <SelectBoard {...props} />;

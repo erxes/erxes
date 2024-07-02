@@ -45,3 +45,16 @@ export type ConfigsResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type CustomerFieldsResponse = {
+  fields: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type RegiserResponse = {
+  getRegister: string;
+  loading: boolean;
+  refetch: () => void;
+};
+

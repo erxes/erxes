@@ -6,12 +6,11 @@ import {
 import { useLazyQuery } from "@apollo/client"
 import { useSetAtom } from "jotai"
 
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { queries } from "../graphql"
 
 const useCoverAmounts = () => {
-  const { onError } = useToast()
   const setCoverAmount = useSetAtom(setCoverAmountAtom)
   const changeIsFetched = useSetAtom(isCoverAmountsFetchedAtom)
   const id = useSearchParams().get("id")
@@ -23,7 +22,9 @@ const useCoverAmounts = () => {
         changeIsFetched(true)
       }
     },
-    onError,
+    onError({ message }) {
+      onError(message)
+    },
   })
 
   return { getCoverAmounts, loading }

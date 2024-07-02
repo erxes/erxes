@@ -18,6 +18,8 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { generateParams } from '../../utils';
+import client from '@erxes/ui/src/apolloClient';
+import { error } from 'console';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
@@ -68,6 +70,102 @@ const ListContainer = (props: FinalProps) => {
     listDeviceConfigsQuery
   } = props;
 
+  const onScheduleSubmit = (values: any, object: any, callback: any) => {
+    let mutation;
+
+    mutation = object
+      ? mutations.scheduleConfigEdit
+      : mutations.scheduleConfigAdd;
+
+    client
+      .mutate({
+        mutation: gql(mutation),
+        variables: values,
+        refetchQueries: [{ query: gql(queries.scheduleConfigs) }]
+      })
+      .then(({ data }) => {
+        Alert.success(
+          `You successfully ${object ? 'updated' : 'added'} ${name}`
+        );
+
+        if (callback) {
+          callback();
+        }
+      })
+      .catch(error => {
+        Alert.error(error.message);
+      });
+  };
+
+  const onSubmit = ({
+    values,
+    isSubmitted,
+    callback,
+    object,
+    name,
+    beforeSubmit
+  }: IButtonMutateProps) => {
+    let mutation;
+    if (name === 'absenceType') {
+      mutation = object ? mutations.absenceTypeEdit : mutations.absenceTypeAdd;
+    }
+
+    if (name === 'holiday') {
+      mutation = object ? mutations.holidayEdit : mutations.holidayAdd;
+    }
+
+    if (name === 'payDate') {
+      mutation = object ? mutations.payDateEdit : mutations.payDateAdd;
+    }
+
+    if (name === 'schedule') {
+      mutation = object
+        ? mutations.scheduleConfigEdit
+        : mutations.scheduleConfigAdd;
+    }
+
+    if (name === 'deviceConfig') {
+      mutation = object
+        ? mutations.deviceConfigEdit
+        : mutations.deviceConfigAdd;
+    }
+
+    // client
+    //   .mutate({
+    //     mutation: gql(mutation),
+    //     variables: values,
+    //     refetchQueries: [
+    //       {
+    //         query: gql(queries.absenceTypes)
+    //       },
+    //       {
+    //         query: gql(queries.holidays)
+    //       },
+    //       {
+    //         query: gql(queries.payDates)
+    //       },
+    //       {
+    //         query: gql(queries.scheduleConfigs)
+    //       },
+    //       {
+    //         query: gql(queries.deviceConfigs)
+    //       }
+    //     ]
+    //   })
+    //   .then(({ data }) => {
+    //     Alert.success(
+    //       `You successfully ${object ? 'updated' : 'added'} ${name}`
+    //     );
+
+    //     if (callback) {
+    //       callback();
+    //     }
+    //   })
+    //   .catch(error => {
+    //     Alert.error(error.message);
+    //   });
+  };
+
   const renderButton = ({
     values,
     isSubmitted,
@@ -100,6 +198,10 @@ const ListContainer = (props: FinalProps) => {
         : mutations.deviceConfigAdd;
     }
 
+    if (!values) {
+      return null;
+    }
+
     return (
       <ButtonMutate
         mutation={mutation}
@@ -123,8 +225,8 @@ const ListContainer = (props: FinalProps) => {
           }
         ]}
         isSubmitted={isSubmitted}
-        btnStyle="primary"
-        type="submit"
+        btnStyle='primary'
+        type='submit'
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } ${name}`}

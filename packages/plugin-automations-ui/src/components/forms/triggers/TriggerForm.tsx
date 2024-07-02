@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __, confirm } from 'coreui/utils';
+import { __, confirm } from '@erxes/ui/src';
 import {
   TypeBox,
   Description,
@@ -22,83 +22,49 @@ type Props = {
   triggersConst: ITrigger[];
 };
 
-type State = {
-  currentTab: string;
-  currentType: string;
-};
+export default function TriggerForm({
+  onClickTrigger,
+  templates,
+  triggersConst
+}: Props) {
+  const [currentTab, setCurrentTab] = useState('new');
+  const [currentType, setCurrentType] = useState('customer');
 
-class TriggerForm extends React.Component<Props, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentTab: 'new',
-      currentType: 'customer'
-    };
-  }
-
-  tabOnClick = (currentTab: string) => {
-    this.setState({ currentTab });
-  };
-
-  onClickType = (trigger: ITrigger) => {
-    const { onClickTrigger } = this.props;
-
-    this.setState({ currentType: trigger.type }, () => {
-      onClickTrigger(trigger);
-    });
-  };
-
-  onClickTemplate = (template: any) => {
-    client
-      .mutate({
-        mutation: gql(mutations.automationsCreateFromTemplate),
-        variables: {
-          _id: template._id
-        }
-      })
-      .then(({ data }) => {
-        window.location.href = `/automations/details/${data.automationsCreateFromTemplate._id}`;
-      });
-  };
-
-  onRemoveTemplate = (templateId: string) => {
-    confirm().then(() => {
-      client.mutate({
-        mutation: gql(mutations.automationsRemove),
-        variables: {
-          automationIds: [templateId]
-        },
-        refetchQueries: [
-          {
-            query: gql(queries.automations),
-            variables: {
-              status: 'template'
-            }
+  const renderTemplateItem = (template: any, index: number) => {
+    const onClickTemplate = () => {
+      client
+        .mutate({
+          mutation: gql(mutations.automationsCreateFromTemplate),
+          variables: {
+            _id: template._id
           }
-        ]
+        })
+        .then(({ data }) => {
+          window.location.href = `/automations/details/${data.automationsCreateFromTemplate._id}`;
+        });
+    };
+
+    const onRemoveTemplate = () => {
+      confirm().then(() => {
+        client.mutate({
+          mutation: gql(mutations.automationsRemove),
+          variables: {
+            automationIds: [template._id]
+          },
+          refetchQueries: [
+            {
+              query: gql(queries.automations),
+              variables: {
+                status: 'template'
+              }
+            }
+          ]
+        });
       });
-    });
-  };
-
-  renderTriggerItem(trigger: any, index: number) {
-    return (
-      <TypeBox key={index} onClick={this.onClickType.bind(this, trigger)}>
-        <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
-        <FormGroup>
-          <ControlLabel>
-            {__(trigger.label)} {__('based')}
-          </ControlLabel>
-          <p>{__(trigger.description)}</p>
-        </FormGroup>
-      </TypeBox>
-    );
-  }
-
-  renderTemplateItem(template: any, index: number) {
+    };
     return (
       <TypeBoxContainer key={index}>
-        <TypeBox onClick={this.onClickTemplate.bind(this, template)}>
+        <TypeBox onClick={onClickTemplate}>
           <FormGroup>
             <ControlLabel>{__(template.name)}</ControlLabel>
           </FormGroup>
@@ -108,58 +74,64 @@ class TriggerForm extends React.Component<Props, State> {
             icon="trash"
             color="#EA475D"
             size={16}
-            onClick={this.onRemoveTemplate.bind(this, template._id)}
+            onClick={onRemoveTemplate}
           />
         </div>
       </TypeBoxContainer>
     );
-  }
+  };
 
-  renderTabContent() {
-    if (this.state.currentTab === 'library') {
-      return this.props.templates.map((t, index) =>
-        this.renderTemplateItem(t, index)
-      );
-    }
-
-    const { triggersConst } = this.props;
-
-    return triggersConst.map((trigger, index) =>
-      this.renderTriggerItem(trigger, index)
-    );
-  }
-
-  render() {
-    const { currentTab } = this.state;
-
+  const renderTriggerItem = (trigger: any, index: number) => {
+    const onClickType = () => {
+      setCurrentType(trigger.type);
+      onClickTrigger(trigger);
+    };
     return (
-      <>
-        <Description>
-          <h4>{__('Choose your trigger type')}</h4>
-          <p>
-            {__('Start with an automation type that enrolls and triggers off')}
-          </p>
-        </Description>
-        <TriggerTabs>
-          <Tabs full={true}>
-            <TabTitle
-              className={currentTab === 'new' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'new')}
-            >
-              {__('Start from scratch')}
-            </TabTitle>
-            <TabTitle
-              className={currentTab === 'library' ? 'active' : ''}
-              onClick={this.tabOnClick.bind(this, 'library')}
-            >
-              {__('Library')}
-            </TabTitle>
-          </Tabs>
-        </TriggerTabs>
-        <ScrolledContent>{this.renderTabContent()}</ScrolledContent>
-      </>
+      <TypeBox key={index} onClick={onClickType}>
+        <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
+        <FormGroup>
+          <ControlLabel>
+            {__(trigger.label)} {!trigger?.isCustom && __('based')}
+          </ControlLabel>
+          <p>{__(trigger.description)}</p>
+        </FormGroup>
+      </TypeBox>
     );
-  }
-}
+  };
 
-export default TriggerForm;
+  return (
+    <>
+      <Description>
+        <h4>{__('Choose your trigger type')}</h4>
+        <p>
+          {__('Start with an automation type that enrolls and triggers off')}
+        </p>
+      </Description>
+      <TriggerTabs>
+        <Tabs full={true}>
+          <TabTitle
+            className={currentTab === 'new' ? 'active' : ''}
+            onClick={() => setCurrentTab('new')}
+          >
+            {__('Start from scratch')}
+          </TabTitle>
+          <TabTitle
+            className={currentTab === 'library' ? 'active' : ''}
+            onClick={() => setCurrentTab('library')}
+          >
+            {__('Library')}
+          </TabTitle>
+        </Tabs>
+      </TriggerTabs>
+      <ScrolledContent>
+        {currentTab === 'library'
+          ? templates.map((template, index) =>
+              renderTemplateItem(template, index)
+            )
+          : triggersConst.map((template, index) =>
+              renderTriggerItem(template, index)
+            )}
+      </ScrolledContent>
+    </>
+  );
+}

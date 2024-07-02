@@ -233,6 +233,7 @@ export const types = `
     shiftStart: String
     shiftEnd: String
     configDays: [ConfigDay]
+    overtimeExists: Boolean
   }
   
   type ScheduleConfigOrderItem {
@@ -372,6 +373,16 @@ const absenceType_params = `
   
 `;
 
+const scheduleConfigParams = `
+    scheduleName: String
+    lunchBreakInMins: Int
+    scheduleConfig: [ShiftInput]
+    configShiftStart: String
+    configShiftEnd: String
+    overtimeExists:Boolean 
+    locations: [JSON]
+`;
+
 export const queries = `
   timeclocksMain(${queryParams}): TimeClocksListResponse
   schedulesMain(${queryParams}): SchedulesListResponse
@@ -436,8 +447,8 @@ export const mutations = `
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): Shift
   
-  scheduleConfigAdd(scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
-  scheduleConfigEdit(_id : String ,scheduleName: String, lunchBreakInMins: Int,  scheduleConfig: [ShiftInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigAdd(${scheduleConfigParams}): ScheduleConfig
+  scheduleConfigEdit(_id : String,${scheduleConfigParams}): ScheduleConfig
   scheduleConfigRemove(_id : String ): JSON
   
   scheduleConfigOrderEdit(userId: String, orderedList:[ConfigOrderInput]): JSON

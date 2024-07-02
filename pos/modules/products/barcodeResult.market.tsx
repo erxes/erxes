@@ -11,14 +11,13 @@ import { IProduct } from "@/types/product.types"
 import { formatNum } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast"
 
 import { queries } from "./graphql"
 
 const BarcodeResult = () => {
   const [barcode, setBarcodeAtom] = useAtom(barcodeAtom)
   const addToCart = useSetAtom(addToCartAtom)
-  const { toast } = useToast()
   const [open, setOpen] = useState(false)
 
   const [searchValue, manufactureDate] = barcode.split("_")

@@ -3,7 +3,7 @@ import {
   FormControl,
   Icon,
   ModalTrigger,
-  Tip,
+  Tip
 } from "@erxes/ui/src";
 import _ from "lodash";
 import React from "react";
@@ -103,7 +103,7 @@ function TransactionRow({ transaction, isChecked, toggleBulk }: Props) {
         {displayNumber(transaction, "total")}
       </TrNumberCols>
       <TrNumberCols key={"total"}>{transaction.transactionType}</TrNumberCols>
-      <td key={"manage"}>
+      <td key={"manage"} style={{ display: "flex", flexDirection: "row" }}>
         {renderChangeBtn()}
         {renderEditBrn()}
       </td>

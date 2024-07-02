@@ -33,7 +33,7 @@ type Props = {
 };
 
 function List(props: Props) {
-  const { queryParams, isCurrentUserAdmin, route, searchFilter } =
+  const { queryParams, isCurrentUserAdmin, route, searchFilter, branches } =
     props;
 
   const [showSideBar, setShowSideBar] = useState(true);
@@ -53,7 +53,7 @@ function List(props: Props) {
               showSideBar={setShowSideBar}
               getActionBar={setRightActionBar}
               queryParams={queryParams}
-            />,
+            />
           );
         }
         setLoading(false);
@@ -67,7 +67,7 @@ function List(props: Props) {
             getActionBar={setRightActionBar}
             queryParams={queryParams}
             getPagination={setPagination}
-          />,
+          />
         );
         setLoading(false);
         break;
@@ -79,7 +79,7 @@ function List(props: Props) {
             getPagination={setPagination}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
-          />,
+          />
         );
         setLoading(false);
         break;
@@ -91,7 +91,7 @@ function List(props: Props) {
             getPagination={setPagination}
             getActionBar={setRightActionBar}
             queryParams={queryParams}
-          />,
+          />
         );
         setLoading(false);
         break;
@@ -104,7 +104,7 @@ function List(props: Props) {
               getPagination={setPagination}
               getActionBar={setRightActionBar}
               queryParams={queryParams}
-            />,
+            />
           );
         }
         setLoading(false);
@@ -117,7 +117,7 @@ function List(props: Props) {
             getActionBar={setRightActionBar}
             getPagination={setPagination}
             queryParams={queryParams}
-          />,
+          />
         );
         setLoading(false);
     }
@@ -138,13 +138,11 @@ function List(props: Props) {
           data={Component}
           loading={loading}
           emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
+          emptyImage='/images/actions/8.svg'
         />
       }
       leftSidebar={
-        showSideBar && (
-          <SideBarList {...props} queryParams={queryParams} />
-        )
+        showSideBar && <SideBarList {...props} queryParams={queryParams} />
       }
       transparent={true}
       hasBorder={true}

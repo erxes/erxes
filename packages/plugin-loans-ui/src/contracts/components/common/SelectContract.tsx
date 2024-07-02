@@ -1,13 +1,13 @@
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
 
-import React from 'react';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import React from "react";
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
 
-import queries from '../../graphql/queries';
-import { IContract } from '../../types';
+import queries from "../../graphql/queries";
+import { IContract } from "../../types";
 
 function generateCustomerOptions(array: IContract[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const contract = item || ({} as IContract);
     Contracts[contract._id] = contract;
     return {
@@ -43,11 +43,11 @@ export default ({
       label={label}
       queryName="contracts"
       name={name}
-      customQuery={queries.contracts}
+      customQuery={queries.selectContracts}
       initialValue={defaultValue}
       generateOptions={generateCustomerOptions}
       onSelect={onSelect}
-      filterParams={{ status: 'normal' }}
+      filterParams={{ status: "normal" }}
       customOption={customOption}
       multi={multi}
     />

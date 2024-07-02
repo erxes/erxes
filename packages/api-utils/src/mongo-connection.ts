@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 import * as mongoose from 'mongoose';
-import { debugInfo, debugError } from './debuggers';
 
 dotenv.config();
 

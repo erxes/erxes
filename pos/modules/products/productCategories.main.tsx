@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 import ProductCount from "./components/productCount"
 
-const Categories = dynamic(() => import("./components/CategoriesSheet"))
+const Categories: any = dynamic(() => import("./components/CategoriesSheet"))
 
 const ProductCategories = () => {
   const activeCat = useAtomValue(activeCategoryAtom)

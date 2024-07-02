@@ -47,6 +47,7 @@ const queryParams = `
   sortDirection: Int
   productId:String
   productType:String
+  leaseType:String
 `;
 
 export const queries = `

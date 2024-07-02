@@ -102,7 +102,7 @@ const queryParams = `
 const checkBalanceParams = `
   contractId: String
   requiredAmount: Float
-`
+`;
 
 export const queries = `
   savingsContractsMain(${queryParams}): SavingContractsListResponse
@@ -112,6 +112,7 @@ export const queries = `
   savingsCloseInfo(contractId: String, date: Date): SavingCloseInfo
   savingsContractsAlert(date: Date): [SavingAlert]
   checkAccountBalance(${checkBalanceParams}): String
+  getAccountOwner(accountNumber: String!):String
 `;
 
 const commonFields = `
@@ -164,4 +165,5 @@ export const mutations = `
   savingsInterestChange(${interestCorrectionFields}): SavingContract
   savingsInterestReturn(${interestCorrectionFields}): SavingContract
   savingsExpandDuration(_id: String!,contractTypeId:String):SavingContract
+  clientSavingSubmit(customerId: String!):SavingContract
 `;

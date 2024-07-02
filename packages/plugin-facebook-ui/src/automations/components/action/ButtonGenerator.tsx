@@ -49,13 +49,13 @@ function ButtonsGenerator({
     return btns.map(({ _id, text, link, type }) => ({ _id, text, link, type }));
   };
 
-  const onChangeButtons = (buttons) => {
+  const onChangeButtons = buttons => {
     onChange(_id, 'buttons', buttons);
   };
 
-  const renderButton = (button) => {
+  const renderButton = button => {
     const onBtnChange = (name, value) => {
-      const updateButtons = btns.map((btn) =>
+      const updateButtons = btns.map(btn =>
         btn._id === button._id ? { ...btn, [name]: value } : btn
       );
 
@@ -72,13 +72,13 @@ function ButtonsGenerator({
 
     const onDoubleClick = () => {
       setButtons(
-        btns.map((btn) =>
+        btns.map(btn =>
           btn._id === button._id ? { ...btn, isEditing: true } : btn
         )
       );
     };
 
-    const handleEdit = (e) => {
+    const onEdit = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       if (value.length > 20) {
@@ -93,13 +93,13 @@ function ButtonsGenerator({
         setError(false);
       }
 
-      const updateButtons = btns.map((btn) =>
+      const updateButtons = btns.map(btn =>
         btn._id === button._id ? { ...btn, text: value } : btn
       );
       setButtons(updateButtons);
     };
 
-    const onSave = (e) => {
+    const onSave = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
       e.preventDefault();
@@ -112,21 +112,21 @@ function ButtonsGenerator({
 
     const onRemove = () => {
       const updateButtons = generateButtons().filter(
-        (btn) => btn._id !== button._id
+        btn => btn._id !== button._id
       );
 
       onChangeButtons(updateButtons);
     };
 
-    const handleBtnTypeChange = (e, type) => {
+    const onBtnTypeChange = (e, type) => {
       e.preventDefault();
 
       onBtnChange('type', type);
     };
 
-    const renderTrigger = (type) => {
+    const renderTrigger = type => {
       if (type === 'link') {
-        const onChangeLink = (e) => {
+        const onChangeLink = e => {
           e.stopPropagation();
           const { value } = e.currentTarget as HTMLInputElement;
 
@@ -135,7 +135,7 @@ function ButtonsGenerator({
 
         return (
           <Row>
-            <div onClick={(e) => e.stopPropagation()}>
+            <div onClick={e => e.stopPropagation()}>
               <LinkAction
                 container={this}
                 onChange={onChangeLink}
@@ -167,10 +167,10 @@ function ButtonsGenerator({
             <FormControl
               className="editInput"
               placeholder="Enter a name"
-              onChange={handleEdit}
+              onChange={onEdit}
               value={button?.text || null}
               onBlur={onSave}
-              onKeyPress={(e) => e.key === 'Enter' && onSave(e)}
+              onKeyPress={e => e.key === 'Enter' && onSave(e)}
             />
           </FormContainer>
         );
@@ -197,7 +197,7 @@ function ButtonsGenerator({
                 { type: 'link', text: 'Link' }
               ].map(({ text, type }) => (
                 <Menu.Item key={type}>
-                  <a onClick={(e) => handleBtnTypeChange(e, type)}>{text}</a>
+                  <a onClick={e => onBtnTypeChange(e, type)}>{text}</a>
                 </Menu.Item>
               ))}
             </Container>
@@ -212,7 +212,7 @@ function ButtonsGenerator({
   };
 
   const addButton = () => {
-    const newBtnCount = btns.filter((btn) =>
+    const newBtnCount = btns.filter(btn =>
       btn.text.includes('New Button #')
     ).length;
 
@@ -247,7 +247,7 @@ function ButtonsGenerator({
 
   return (
     <>
-      {btns.map((button) => renderButton(button))}
+      {btns.map(button => renderButton(button))}
       {renderAddButton()}
     </>
   );

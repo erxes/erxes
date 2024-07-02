@@ -1,11 +1,11 @@
-import { ControlLabel, EmptyState, FormControl } from "@erxes/ui/src";
-import { KbCategoriesContainer, KbTopics } from "../../../../style";
+import { ControlLabel, EmptyState, FormControl } from '@erxes/ui/src';
+import { KbCategoriesContainer, KbTopics } from '../../../../style';
 
-import Category from "./Category";
-import { ContainerBox } from "../../../../style";
-import { IAsset } from "../../../../common/types";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
+import Category from './Category';
+import { ContainerBox } from '../../../../style';
+import { IAsset } from '../../../../common/types';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   objects?: IAsset[];
@@ -26,7 +26,7 @@ const Topic = (props: Props) => {
     loadArticles,
     loadedArticles,
     selectedArticles,
-    setSelectedArticles,
+    setSelectedArticles
   } = props;
 
   const categoryIds = (topic?.categories || []).map((category) => category._id);
@@ -65,7 +65,7 @@ const Topic = (props: Props) => {
         {topic.categories.map((category) => {
           const updatedProps = {
             ...props,
-            category,
+            category
           };
 
           return <Category key={category._id} {...updatedProps} />;

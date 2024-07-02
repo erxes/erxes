@@ -69,7 +69,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         _id: indicatorId
       }).lean();
 
-      if(!ri) {
+      if (!ri) {
         throw new Error(`RiskIndicator ${indicatorId} not found`);
       }
       const { forms, calculateMethod } = ri;
@@ -176,6 +176,10 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         throw new Error('Somethin went wrong');
       }
 
+      if (riskAssessment.status !== 'In Progress') {
+        throw new Error('Risk assessment is already closed');
+      }
+
       const { _id, groupId } = riskAssessment;
 
       /**
@@ -185,7 +189,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       const ri = await models.RiskIndicators.findOne({
         _id: indicatorId
       }).lean();
-      if(!ri) {
+      if (!ri) {
         throw new Error(`RiskIndicators ${indicatorId} not found`);
       }
 
@@ -210,17 +214,14 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
 
       if (forms?.length === 1) {
-        const {
-          sumNumber,
-          submissions,
-          scoreAviable
-        } = await calculateFormResponses({
-          responses: formSubmissions,
-          fields,
-          calculateMethod: forms[0].calculateMethod,
-          generalcalculateMethod: forms[0].calculateMethod,
-          filter: { ...filter, riskAssessmentId: _id }
-        });
+        const { sumNumber, submissions, scoreAviable } =
+          await calculateFormResponses({
+            responses: formSubmissions,
+            fields,
+            calculateMethod: forms[0].calculateMethod,
+            generalcalculateMethod: forms[0].calculateMethod,
+            filter: { ...filter, riskAssessmentId: _id }
+          });
 
         resultSumNumber =
           forms[0].calculateMethod === 'ByPercent'
@@ -245,17 +246,14 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
               responses[key] = value;
             }
           }
-          const {
-            sumNumber,
-            submissions,
-            scoreAviable
-          } = await calculateFormResponses({
-            responses: responses,
-            fields,
-            calculateMethod: form.calculateMethod,
-            generalcalculateMethod: calculateMethod,
-            filter: { ...filter, riskAssessmentId: _id }
-          });
+          const { sumNumber, submissions, scoreAviable } =
+            await calculateFormResponses({
+              responses: responses,
+              fields,
+              calculateMethod: form.calculateMethod,
+              generalcalculateMethod: calculateMethod,
+              filter: { ...filter, riskAssessmentId: _id }
+            });
           totalCount += Number(
             (sumNumber * (form.percentWeight || 0 / 100)).toFixed(2)
           );
@@ -453,12 +451,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           }
         );
         if (calculatedIndicators.length === indicatorIds.length) {
-          const riskAssessmentIndicators = await models.RiskAssessmentIndicators.find(
-            {
+          const riskAssessmentIndicators =
+            await models.RiskAssessmentIndicators.find({
               assessmentId,
               indicatorId: { $in: indicatorIds }
-            }
-          );
+            });
 
           let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
 
@@ -512,9 +509,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         await getAsssignedUsers(subdomain, cardId || '', cardType || '')
       ).map(user => user._id);
 
-      const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-        { assessmentId, indicatorId }
-      );
+      const riskAssessmentIndicator =
+        await models.RiskAssessmentIndicators.findOne({
+          assessmentId,
+          indicatorId
+        });
 
       let resultScore = 0;
 
@@ -557,13 +556,8 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           throw new Error('Invalid indicators group id');
         }
 
-        const {
-          _id,
-          groups,
-          calculateLogics,
-          calculateMethod,
-          ignoreZeros
-        } = indicatorsGroup;
+        const { _id, groups, calculateLogics, calculateMethod, ignoreZeros } =
+          indicatorsGroup;
 
         const assignedUsersCount = (
           await getAsssignedUsers(subdomain, cardId, cardType)
@@ -653,9 +647,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           return;
         }
         const { indicatorId } = riskAssessment;
-        const riskAssessmentIndicator = await models.RiskAssessmentIndicators.findOne(
-          { assessmentId: assessmentId, indicatorId: indicatorId }
-        );
+        const riskAssessmentIndicator =
+          await models.RiskAssessmentIndicators.findOne({
+            assessmentId: assessmentId,
+            indicatorId: indicatorId
+          });
 
         await models.RiskAssessments.updateOne(
           { _id: assessmentId },

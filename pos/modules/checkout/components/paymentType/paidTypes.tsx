@@ -11,14 +11,14 @@ import { useAtomValue } from "jotai"
 
 import { mergePaidAmounts } from "@/lib/utils"
 
-const Market = dynamic(
+const Market: any = dynamic(
   () => import("./paidType.market"),
 
   {
     loading: () => <div className="h-10 w-full" />,
   }
 )
-const Main = dynamic(
+const Main: any = dynamic(
   () => import("./paidType.main"),
 
   {

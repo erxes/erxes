@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from '@erxes/ui-cards/src/conformity';
+  conformityQueryFields
+} from "@erxes/ui-cards/src/conformity";
 
 const contractFields = `
   _id
@@ -56,6 +56,32 @@ const contractFields = `
   leaseType
   commitmentInterest
   endDate
+`;
+
+const selectContractFields = `
+  _id
+  contractTypeId
+  number
+  status
+  description
+  createdBy
+  createdAt
+  marginAmount
+  leaseAmount
+  feeAmount
+  tenor
+  lossPercent
+  lossCalcType
+  interestRate
+  repayment
+  startDate
+  firstPayDate
+  scheduleDays
+  givenAmount
+  leaseType
+  commitmentInterest
+  endDate
+  classification
 `;
 
 const listParamsDef = `
@@ -122,6 +148,14 @@ export const contracts = `
   query contracts(${listParamsDef}) {
     contracts(${listParamsValue}) {
       ${contractFields}
+    }
+  }
+`;
+
+export const selectContracts = `
+  query contracts(${listParamsDef}) {
+    contracts(${listParamsValue}) {
+      ${selectContractFields}
     }
   }
 `;
@@ -235,6 +269,7 @@ export const contractDetailFields = `
   invoices
   storeInterest
   loanTransactionHistory
+  depositAccountId
   contractType {
     code
     name
@@ -382,6 +417,7 @@ const getPolarisData = `
 `;
 export default {
   contracts,
+  selectContracts,
   contractsMain,
   contractDetail,
   schedules,
@@ -390,5 +426,5 @@ export default {
   documents,
   contractsAlert,
   savingContracts,
-  getPolarisData,
+  getPolarisData
 };

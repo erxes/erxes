@@ -1,12 +1,12 @@
-import { getCloseInfo } from '../../../models/utils/closeUtils';
-import { getFullDate } from '../../../models/utils/utils';
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { getCloseInfo } from "../../../models/utils/closeUtils";
+import { getFullDate } from "../../../models/utils/utils";
+import { checkPermission, paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
 
-  filter.status = { $ne: 'Deleted' };
+  filter.status = { $ne: "Deleted" };
 
   if (params) {
     const {
@@ -22,6 +22,7 @@ const generateFilter = async (params, commonQuerySelector) => {
       repaymentDate,
       startStartDate,
       endStartDate,
+      leaseTypes,
       ...otherFilter
     } = params;
 
@@ -30,14 +31,14 @@ const generateFilter = async (params, commonQuerySelector) => {
     }
 
     if (searchValue) {
-      filter.number = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+      filter.number = { $in: [new RegExp(`.*${searchValue}.*`, "i")] };
     }
 
-    if (isExpired === 'true') {
+    if (isExpired === "true") {
       filter.isExpired = !!isExpired;
     }
 
-    if (repaymentDate === 'today') {
+    if (repaymentDate === "today") {
       const date = getFullDate(new Date());
       filter.repaymentDate = {
         $gte: date,
@@ -53,17 +54,21 @@ const generateFilter = async (params, commonQuerySelector) => {
       };
     }
 
+    if (leaseTypes) {
+      otherFilter.leaseType = leaseTypes;
+    }
+
     if (closeDateType) {
       let currentDate = new Date();
       switch (closeDateType) {
-        case 'today':
+        case "today":
           const date = getFullDate(currentDate);
           filter.closeDate = {
             $gte: date,
             $lte: new Date(date.getTime() + 1000 * 3600 * 24)
           };
           break;
-        case 'thisWeek':
+        case "thisWeek":
           let firstDayOfWeek = new Date(
             currentDate.setDate(currentDate.getDate() - currentDate.getDay())
           );
@@ -77,7 +82,7 @@ const generateFilter = async (params, commonQuerySelector) => {
             $lte: lastDayOfWeek
           };
           break;
-        case 'thisMonth':
+        case "thisMonth":
           let firstDayOfMonth = new Date(
             currentDate.setDate(currentDate.getDate() - currentDate.getDay())
           );
@@ -98,18 +103,18 @@ const generateFilter = async (params, commonQuerySelector) => {
 
       if (startStartDate || endStartDate) {
         switch (`${!!startStartDate}-${!!endStartDate}`) {
-          case 'true-true':
+          case "true-true":
             filter.closeDate = {
               $gte: getFullDate(startStartDate),
               $lte: getFullDate(endStartDate)
             };
             break;
-          case 'false-true':
+          case "false-true":
             filter.closeDate = {
               $lte: getFullDate(endStartDate)
             };
             break;
-          case 'true-false':
+          case "true-false":
             filter.closeDate = {
               $gte: getFullDate(startStartDate)
             };
@@ -161,7 +166,7 @@ const contractQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    if (!params.customerId) throw new Error('Customer not found');
+    if (!params.customerId) throw new Error("Customer not found");
     return await paginate(
       models.Contracts.find(await generateFilter(params, commonQuerySelector)),
       {
@@ -225,7 +230,7 @@ const contractQueries = {
 
     if (expiredContracts.length > 0) {
       alerts.push({
-        name: 'Expired contracts',
+        name: "Expired contracts",
         count: expiredContracts.length,
         filter: expiredContracts.map((a) => a._id)
       });
@@ -235,8 +240,8 @@ const contractQueries = {
   }
 };
 
-checkPermission(contractQueries, 'contractsMain', 'showContracts');
-checkPermission(contractQueries, 'contractDetail', 'showContracts');
-checkPermission(contractQueries, 'contracts', 'showContracts');
+checkPermission(contractQueries, "contractsMain", "showContracts");
+checkPermission(contractQueries, "contractDetail", "showContracts");
+checkPermission(contractQueries, "contracts", "showContracts");
 
 export default contractQueries;

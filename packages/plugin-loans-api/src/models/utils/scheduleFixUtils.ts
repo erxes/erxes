@@ -1,12 +1,12 @@
-import { IModels } from '../../connectionResolver';
-import { IConfig } from '../../interfaces/config';
-import { IContractDocument } from '../definitions/contracts';
-import { IScheduleDocument } from '../definitions/schedules';
-import { ITransactionDocument } from '../definitions/transactions';
-import { getInterest } from './interestUtils';
-import { calcLoss } from './lossUtils';
-import { getDiffDay } from './utils';
-import { BigNumber } from 'bignumber.js';
+import { IModels } from "../../connectionResolver";
+import { IConfig } from "../../interfaces/config";
+import { IContractDocument } from "../definitions/contracts";
+import { IScheduleDocument } from "../definitions/schedules";
+import { ITransactionDocument } from "../definitions/transactions";
+import { getInterest } from "./interestUtils";
+import { calcLoss } from "./lossUtils";
+import { getDiffDay } from "./utils";
+import { BigNumber } from "bignumber.js";
 
 export async function getMustPayDate(
   scheduleList: IScheduleDocument[],
@@ -111,7 +111,7 @@ export async function getCurrentData(
       totalPayed = calcTotalPayed(totalPayed, schedule, config);
     }
 
-    if (schedule.status === 'give') {
+    if (schedule.status === "give") {
       balance = new BigNumber(schedule.total)
         .plus(balance)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
@@ -238,7 +238,7 @@ export async function scheduleFixAfterCurrent(
   let preSchedule: any = undefined;
 
   for await (let schedule of scheduleList) {
-    if (schedule.status === 'give') {
+    if (schedule.status === "give") {
       balance = new BigNumber(schedule.total ?? 0)
         .plus(balance)
         .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
@@ -357,7 +357,7 @@ export async function createTransactionSchedule(
     const schedule = await models.Schedules.create({
       createdAt: new Date(),
       contractId: contract._id,
-      version: '0',
+      version: "0",
       payDate: currentDate,
       balance: new BigNumber(balance)
         .minus(tr.payment ?? 0)
@@ -388,24 +388,6 @@ export async function createTransactionSchedule(
       {
         $set: {
           reactions: [{ scheduleId: schedule._id }]
-        }
-      }
-    );
-  }
-
-  if (tr.payment) {
-    loanBalance = new BigNumber(loanBalance)
-      .minus(tr.payment)
-      .dp(config.calculationFixed, BigNumber.ROUND_HALF_UP)
-      .toNumber();
-
-    console.log('loanBalance?::::::::::::>', loanBalance);
-
-    await models.Contracts.updateOne(
-      { _id: contract._id },
-      {
-        $set: {
-          loanBalanceAmount: loanBalance
         }
       }
     );

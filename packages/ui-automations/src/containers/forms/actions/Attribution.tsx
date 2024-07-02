@@ -11,6 +11,7 @@ import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   config: any;
@@ -41,7 +42,9 @@ class Attribution extends React.Component<FinalProps, State> {
       return null;
     }
 
-    const attributions = fieldsCombinedByTypeQuery.fieldsCombinedByContentType.concat(
+    const { fieldsCombinedByContentType } = fieldsCombinedByTypeQuery;
+
+    const attributions = (fieldsCombinedByContentType || []).concat(
       this.props.customAttributions || []
     );
 
@@ -59,6 +62,7 @@ export default withProps<Props>(
       gql(formQueries.fieldsCombinedByContentType),
       {
         name: 'fieldsCombinedByTypeQuery',
+        skip: () => isEnabled('forms'),
         options: ({ triggerType, attrConfig }) => ({
           variables: {
             contentType: triggerType,

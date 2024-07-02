@@ -8,15 +8,15 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 
 import SuccessDialog from "./successDialog"
 
-const BillType = dynamic(
+const BillType: any = dynamic(
   () => import("@/modules/checkout/components/ebarimt/billType.kiosk")
 )
 
-const RegisterNumber = dynamic(
+const RegisterNumber: any = dynamic(
   () => import("@/modules/checkout/components/ebarimt/registerNumber.kiosk")
 )
 
-const SelectPaymentType = dynamic(
+const SelectPaymentType: any = dynamic(
   () =>
     import("@/modules/checkout/components/paymentType/selectPaymentType.kiosk")
 )

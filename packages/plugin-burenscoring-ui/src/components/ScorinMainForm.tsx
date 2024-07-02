@@ -15,11 +15,12 @@ type Props = {
   customerId: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   customerScore?: IBurenScoring;
+  registerNumber?: string;
 };
 import { reportPurposeList } from "../utils";
 
 export default function ScoringMainForm(props: Props) {
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(props.registerNumber);
   const [reportPurpose, setReportPurpose] = useState("NEW_LOAN");
 
   const generateDoc = (values) => {
@@ -35,6 +36,7 @@ export default function ScoringMainForm(props: Props) {
           <FormGroup>
             <ControlLabel required={true}>{__("Register number")}</ControlLabel>
             <FormControl
+            disabled={true}
               {...formProps}
               type={"text"}
               name="keyword"

@@ -1,5 +1,7 @@
+import { useSearchParams } from "next/navigation"
 import useHandlePayment from "@/modules/checkout/hooks/useHandlePayment"
 import usePayByProduct from "@/modules/checkout/hooks/usePayByProduct"
+import SplitOrder from "@/modules/orders/components/splitOrder/splitOrder"
 import { currentPaymentTypeAtom } from "@/store"
 import { useSetAtom } from "jotai"
 import { XIcon } from "lucide-react"
@@ -14,7 +16,11 @@ const PaymentType = () => {
   const setPaymentTerm = useSetAtom(currentPaymentTypeAtom)
   const { handlePay, loading, currentAmount, notPaidAmount, type } =
     useHandlePayment()
+  const paymentType = useSearchParams().get("paymentType")
   const { mergePaid } = usePayByProduct()
+  const disabled =
+    HARD_PAYMENT_TYPES.includes(type) &&
+    (notPaidAmount === 0 || currentAmount === 0)
 
   return (
     <>
@@ -23,6 +29,7 @@ const PaymentType = () => {
           <PaymentTypeInput />
         </div>
         <div className="flex-auto flex items-center">
+          {!disabled && !paymentType && <SplitOrder />}
           <Button
             className="bg-green-500 hover:bg-green-500/90 whitespace-nowrap font-bold"
             loading={loading}
@@ -30,10 +37,7 @@ const PaymentType = () => {
               handlePay()
               mergePaid()
             }}
-            disabled={
-              HARD_PAYMENT_TYPES.includes(type) &&
-              (notPaidAmount === 0 || currentAmount === 0)
-            }
+            disabled={disabled}
           >
             Гүйлгээ хийх
           </Button>

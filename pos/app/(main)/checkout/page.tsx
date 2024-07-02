@@ -4,9 +4,9 @@ import dynamic from "next/dynamic"
 import { modeAtom } from "@/store"
 import { useAtomValue } from "jotai"
 
-const Main = dynamic(() => import("./main"))
-const Kiosk = dynamic(() => import("./kiosk"))
-const Mobile = dynamic(() => import("./mobile"))
+const Main: any = dynamic(() => import("./main"))
+const Kiosk: any = dynamic(() => import("./kiosk"))
+const Mobile: any = dynamic(() => import("./mobile"))
 
 const Checkout = () => {
   const mode = useAtomValue(modeAtom)

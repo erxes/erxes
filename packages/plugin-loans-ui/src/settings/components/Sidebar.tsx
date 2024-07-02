@@ -2,7 +2,7 @@ import {
   Button,
   Sidebar as LeftSidebar,
   SidebarList as List,
-  MainStyleTopHeader as TopHeader,
+  MainStyleTopHeader as TopHeader
 } from "@erxes/ui/src";
 
 import { Link } from "react-router-dom";
@@ -54,6 +54,10 @@ const Sidebar = () => {
         {renderListItem(
           "/erxes-plugin-loan/holiday-settings",
           __("Holiday configs")
+        )}
+        {renderListItem(
+          "/erxes-plugin-loan/credit-settings",
+          __("Credit configs")
         )}
       </List>
     </LeftSidebar>

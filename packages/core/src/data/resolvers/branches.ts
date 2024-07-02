@@ -20,7 +20,7 @@ const getAllChildrenIds = async (models: IModels, parentId: string) => {
 
   const result = await models.Branches.aggregate(pipeline).exec();
 
-  return result.map(r => r._id);
+  return result.map((r) => r._id);
 };
 
 export default {
@@ -41,8 +41,19 @@ export default {
     return models.Branches.findOne({ _id: branch.parentId });
   },
 
-  async children(branch: IBranchDocument, _args, { models }: IContext) {
-    return models.Branches.find({ parentId: branch._id });
+  async children(
+    branch: IBranchDocument,
+    _args,
+    { models }: IContext,
+    { variableValues }: any
+  ) {
+    const filter: any = { parentId: branch._id };
+
+    if (variableValues?.status) {
+      filter.status = variableValues?.status;
+    }
+
+    return models.Branches.find(filter);
   },
 
   async supervisor(branch: IBranchDocument, _args, { models }: IContext) {
@@ -57,7 +68,7 @@ export default {
       isActive: true
     });
 
-    const userIds = branchUsers.map(user => user._id);
+    const userIds = branchUsers.map((user) => user._id);
     return userIds;
   },
   async userCount(branch: IBranchDocument, _args, { models }: IContext) {

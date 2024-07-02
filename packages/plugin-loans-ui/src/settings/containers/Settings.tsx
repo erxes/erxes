@@ -1,9 +1,9 @@
-import { gql } from '@apollo/client';
-import { Spinner, Alert } from '@erxes/ui/src';
-import React from 'react';
-import { mutations, queries } from '../graphql';
-import { ConfigsQueryResponse, IConfigsMap } from '../types';
-import { useMutation, useQuery } from '@apollo/client';
+import { gql } from "@apollo/client";
+import { Spinner, Alert } from "@erxes/ui/src";
+import React from "react";
+import { mutations, queries } from "../graphql";
+import { ConfigsQueryResponse, IConfigsMap } from "../types";
+import { useMutation, useQuery } from "@apollo/client";
 
 type Props = {
   components: any;
@@ -20,27 +20,27 @@ const SettingsContainer = (props: Props) => {
   // create or update action
   const save = (map: IConfigsMap) => {
     updateConfigs({
-      variables: { configsMap: map },
+      variables: { configsMap: map }
     })
       .then(() => {
         configsQuery.refetch();
 
-        Alert.success('You successfully updated loan settings');
+        Alert.success("You successfully updated loan settings");
       })
       .catch((error) => {
         Alert.error(error.message);
       });
   };
 
-  const configs = configsQuery?.data?.configs || [];
+  let configs = configsQuery?.data?.configs || [];
 
-  const configsMap = {};
+  let configsMap = {};
 
-  for (const config of configs) {
+  for (let config of configs) {
     configsMap[config.code] = config.value;
   }
 
-  const Component = props.components;
+  let Component = props.components;
 
   return <Component {...props} configsMap={configsMap} save={save} />;
 };

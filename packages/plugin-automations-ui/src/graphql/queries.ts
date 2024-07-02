@@ -172,6 +172,7 @@ const historiesParamValue = `
 
 const automationHistories = `
   query automationHistories(${historiesParamDef}) {
+    automationHistoriesTotalCount(${historiesParamValue}) 
     automationHistories(${historiesParamValue}) {
       _id
       createdAt
@@ -221,5 +222,5 @@ export default {
   automationHistories,
   automationsTotalCount,
   automationConfigPrievewCount,
-  automationConstants,
+  automationConstants
 };

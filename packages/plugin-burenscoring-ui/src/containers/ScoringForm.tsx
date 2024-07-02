@@ -3,7 +3,7 @@ import { IButtonMutateProps } from "@erxes/ui/src/types";
 import React from "react";
 import ScoringForm from "../components/ScorinMainForm";
 import { mutations, queries } from "../graphql";
-import { DetailQueryResponse } from "../types";
+import { DetailQueryResponse, RegiserResponse } from "../types";
 import { gql, useQuery } from "@apollo/client";
 type Props = {
   customerId: string;
@@ -43,6 +43,7 @@ export default function ScoringFormContainer(props: Props) {
       </ButtonMutate>
     );
   };
+
   const response = useQuery<DetailQueryResponse>(
     gql(queries.getCustomerScore),
     {
@@ -52,6 +53,20 @@ export default function ScoringFormContainer(props: Props) {
       },
     }
   );
+
+  const registerNumber = useQuery<RegiserResponse>(
+    gql(queries.getRegister),
+
+    {
+      variables: {
+        customerId: customerId,
+      },
+      fetchPolicy: "network-only",
+    }
+  );
+  if (registerNumber.loading) {
+    return null;
+  }
   const refetch = () => {
     return ["burenCustomerScoringsMain", "getCustomerScore"];
   };
@@ -60,6 +75,8 @@ export default function ScoringFormContainer(props: Props) {
     renderButton,
     customerId: customerId,
     customerScore: response.data?.getCustomerScore,
+    registerNumber: registerNumber.data?.getRegister || "",
   };
+
   return <ScoringForm {...updatedProps} />;
 }

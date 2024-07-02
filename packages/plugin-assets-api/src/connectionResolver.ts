@@ -6,51 +6,68 @@ import {
   IAssetDocument,
   IMovementDocument,
   IMovementItemDocument,
+  IKBArticleHistoryDocument
 } from './common/types/asset';
 import {
   IAssetCategoriesModel,
-  loadAssetCategoriesClass,
+  loadAssetCategoriesClass
 } from './models/AssetCategories';
 import { IAssetModel, loadAssetClass } from './models/Assets';
 import {
   IMovementItemModel,
-  loadMovementItemClass,
+  loadMovementItemClass
 } from './models/MovementItems';
 import { IMovementModel, loadMovementClass } from './models/Movements';
+import {
+  IAssetKbArticlHistoriesModel,
+  loadKBArticlHistoriesClass
+} from './models/KBArticleHistories';
+import { IDataLoaders } from './dataloaders';
 
 export interface IModels {
   Assets: IAssetModel;
   AssetCategories: IAssetCategoriesModel;
   Movements: IMovementModel;
   MovementItems: IMovementItemModel;
+  AssetsKbArticlesHistories: IAssetKbArticlHistoriesModel;
 }
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  dataLoaders: IDataLoaders;
 }
 
 export const loadClasses = (
   db: mongoose.Connection,
-  subdomain: string,
+  subdomain: string
 ): IModels => {
   const models = {} as IModels;
 
   models.Assets = db.model<IAssetDocument, IAssetModel>(
     'assets',
-    loadAssetClass(models, subdomain),
+    loadAssetClass(models, subdomain)
   );
   models.AssetCategories = db.model<
     IAssetCategoriesDocument,
     IAssetCategoriesModel
   >('asset_categories', loadAssetCategoriesClass(models));
+
+  models.AssetsKbArticlesHistories = db.model<
+    IKBArticleHistoryDocument,
+    IAssetKbArticlHistoriesModel
+  >(
+    'assets_kb_articles_histories',
+    loadKBArticlHistoriesClass(models, subdomain)
+  );
+
   models.Movements = db.model<IMovementDocument, IMovementModel>(
     'asset_movements',
-    loadMovementClass(models),
+    loadMovementClass(models)
   );
   models.MovementItems = db.model<IMovementItemDocument, IMovementItemModel>(
     'asset_movement_items',
-    loadMovementItemClass(models),
+    loadMovementItemClass(models)
   );
 
   return models;

@@ -1,4 +1,5 @@
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
 import React from 'react';
 
@@ -21,11 +22,21 @@ export type IAssetCategoryTypes = {
   assetCount: number;
 };
 
+export type IKBArticleHistory = {
+  _id: string;
+  createdAt: Date;
+  userId: string;
+  action: string;
+  kbArticleId: string;
+  assetId: string;
+  article?: any;
+  user?: IUser;
+  asset?: IAsset;
+};
+
 export type IAssetCategoryQeuryResponse = {
   assetCategories: IAssetCategoryTypes[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type IAssetCategoriesTotalCountResponse = {
   assetCategoriesTotalCount: number;
@@ -33,26 +44,23 @@ export type IAssetCategoriesTotalCountResponse = {
 
 export type IAssetQueryResponse = {
   assets: IAsset[];
-  loading: boolean;
-  refetch: (variables?: any) => void;
-};
+} & QueryResponse;
 
 export type IMovementDetailQueryResponse = {
   assetMovement: IMovementType;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type IAssetTotalCountQueryResponse = {
   assetsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 export type IAssetDetailQueryResponse = {
   assetDetail: IAsset;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
+
+export type IAssetKbArticlesHistoriesQueryResponse = {
+  assetKbArticlesHistories: IKBArticleHistory[];
+} & QueryResponse;
+
 export interface IAssetCategory {
   _id: string;
   name: string;
@@ -192,15 +200,11 @@ export type MovementItemsQueryResponse = {
 
 export type MovementItemsTotalCountQueryResponse = {
   assetMovementItemsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MovementQueryResponse = {
   assetMovements: IMovementType[];
-  loading: boolean;
-  refetch: () => void;
-};
+} & QueryResponse;
 
 export type MovementsTotalCountQueryResponse = {
   assetMovementTotalCount: number;

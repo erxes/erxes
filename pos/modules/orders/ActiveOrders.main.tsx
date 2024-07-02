@@ -19,29 +19,32 @@ const ActiveOrders = () => {
   const [_id, setActiveOrderId] = useAtom(activeOrderIdAtom)
   const slotCode = useAtomValue(slotFilterAtom)
 
-  const { fullOrders, subToOrderStatuses, totalCount, handleLoadMore } =
-    useFullOrders({
-      variables: {
-        sortDirection: -1,
-        sortField: "createdAt",
-        isPaid: false,
-        statuses: ALL,
-        slotCode,
-      },
-      query: queries.activeOrders,
-      onCompleted(orders) {
-        if (orders.length === 1) {
-          !!slotCode && setActiveOrderId(orders[0]._id)
-        }
-      },
-    })
+  const {
+    fullOrders,
+    subToOrderStatuses,
+    totalCount,
+    loading,
+    handleLoadMore,
+  } = useFullOrders({
+    variables: {
+      sortDirection: -1,
+      sortField: "createdAt",
+      isPaid: false,
+      statuses: ALL,
+      slotCode,
+    },
+    query: queries.activeOrders,
+    onCompleted(orders) {
+      if (orders.length === 1) {
+        !!slotCode && setActiveOrderId(orders[0]._id)
+      }
+    },
+  })
 
   useEffect(() => {
     subToOrderStatuses(ORDER_STATUSES.ALL)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const loading = true
 
   return (
     <div className="flex-auto overflow-hidden h-[52px]">

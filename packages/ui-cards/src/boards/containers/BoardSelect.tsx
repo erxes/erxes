@@ -24,6 +24,7 @@ type Props = {
   autoSelectStage?: boolean;
   translator?: (key: string, options?: any) => string;
   isRequired?: boolean;
+  isOptional?: boolean;
 };
 
 type FinalProps = {

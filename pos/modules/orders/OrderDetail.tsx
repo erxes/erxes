@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { invoiceIdAtom, refetchOrderAtom } from "@/store"
+import { refetchOrderAtom } from "@/store"
 import { cartChangedAtom } from "@/store/cart.store"
 import { configAtom } from "@/store/config.store"
 import { activeOrderIdAtom, setOrderStatesAtom } from "@/store/order.store"
@@ -9,7 +9,7 @@ import { useAtomValue, useSetAtom } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
 import Loader from "@/components/ui/loader"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import { queries, subscriptions } from "./graphql"
 
@@ -20,41 +20,31 @@ const OrderDetail = ({ children }: { children: React.ReactNode }) => {
   const setOrderStates = useSetAtom(setOrderStatesAtom)
   const setPaymentSheet = useSetAtom(paymentSheetAtom)
   const setRefetchOrder = useSetAtom(refetchOrderAtom)
-  const invoiceId = useAtomValue(invoiceIdAtom)
-  const { onError } = useToast()
 
   const [getOrderDetail, { loading, data, refetch, subscribeToMore }] =
     useLazyQuery(queries.orderDetail, {
       fetchPolicy: "network-only",
-      onError,
+      onError({ message }) {
+        onError(message)
+      },
     })
 
   useEffect(() => {
-    if (invoiceId) {
-      subscribeToMore({
-        document: gql(subscriptions.ordersOrdered),
-        variables: { token, statuses: ORDER_STATUSES.ALL },
-        updateQuery: (prev, { subscriptionData }) => {
-          const { ordersOrdered } = subscriptionData.data || {}
-          if (!ordersOrdered) return prev
-          if (ordersOrdered._id === _id) {
-            refetch()
-            setRefetchOrder(true)
-            setPaymentSheet(false)
-          }
-          return prev
-        },
-      })
-    }
-  }, [
-    _id,
-    invoiceId,
-    refetch,
-    setPaymentSheet,
-    setRefetchOrder,
-    subscribeToMore,
-    token,
-  ])
+    subscribeToMore({
+      document: gql(subscriptions.ordersOrdered),
+      variables: { token, statuses: ORDER_STATUSES.ALL },
+      updateQuery: (prev, { subscriptionData }) => {
+        const { ordersOrdered } = subscriptionData.data || {}
+        if (!ordersOrdered) return prev
+        if (ordersOrdered._id === _id) {
+          refetch()
+          setRefetchOrder(true)
+          setPaymentSheet(false)
+        }
+        return prev
+      },
+    })
+  }, [])
 
   useEffect(() => {
     const { orderDetail } = data || {}

@@ -153,6 +153,7 @@ export type DetailQueryResponse = {
 };
 
 export type AutomationHistoriesQueryResponse = {
+  automationHistoriesTotalCount: number;
   automationHistories: IAutomationHistory[];
   loading: boolean;
 };

@@ -136,6 +136,7 @@ const commonParams = `
     groupIds:[String]
     customFieldsValues:[String]
     cardFilter:CardFilter
+    cardFilters:[CardFilter]
 `;
 
 const commonFormSubmitParams = `

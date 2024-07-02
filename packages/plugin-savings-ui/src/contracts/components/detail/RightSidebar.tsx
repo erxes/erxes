@@ -1,30 +1,30 @@
-import Box from '@erxes/ui/src/components/Box';
-import ContractsCustomFields from '../list/ContractsCustomFields';
-import DealSection from './DealSection';
-import { IContract } from '../../types';
-import { List } from '../../styles';
-import LoanContractSection from './LoanContractSection';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import dayjs from 'dayjs';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import Box from "@erxes/ui/src/components/Box";
+import ContractsCustomFields from "../list/ContractsCustomFields";
+import DealSection from "./DealSection";
+import { IContract } from "../../types";
+import { List } from "../../styles";
+import LoanContractSection from "./LoanContractSection";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import dayjs from "dayjs";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const CompanySection = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
-    ),
+      /* webpackChunkName: "CompanySection" */ "@erxes/ui-contacts/src/companies/components/CompanySection"
+    )
 );
 
 const CustomerSection = asyncComponent(
   () =>
-    isEnabled('contacts') &&
+    isEnabled("contacts") &&
     import(
-      /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
-    ),
+      /* webpackChunkName: "CustomerSection" */ "@erxes/ui-contacts/src/customers/components/CustomerSection"
+    )
 );
 
 type Props = {
@@ -39,7 +39,7 @@ export default function RightSidebar(props: Props) {
 
     return (
       <li>
-        <div>{__('Plan')}: </div>
+        <div>{__("Plan")}: </div>
         <span>{contract.plan}</span>
       </li>
     );
@@ -49,37 +49,37 @@ export default function RightSidebar(props: Props) {
 
   return (
     <Sidebar>
-      {isEnabled('contacts') && (
+      {isEnabled("contacts") && (
         <>
-          {contract.customerType === 'customer' && (
+          {contract.customerType === "customer" && contract.customers && (
             <CustomerSection
-              items={[contract.customerId]}
-              title={__('Saving Primary Customers')}
-              name={'Contract'}
+              customers={[contract.customers]}
+              title={__("Saving Primary Customers")}
+              name={"Contract"}
             />
           )}
-          {contract.customerType === 'company' && (
+          {contract.customerType === "company" && (
             <CompanySection
               mainType="contract"
               mainTypeId={contract._id}
-              title={__('Saving Primary Companies')}
-              name={'Contract'}
+              title={__("Saving Primary Companies")}
+              name={"Contract"}
             />
           )}
           <CustomerSection
             mainType="contractSub"
             mainTypeId={contract._id}
-            title={__('Saving Collectively Customers')}
-            name={'Contract'}
+            title={__("Saving Collectively Customers")}
+            name={"Contract"}
           />
 
-          {isEnabled('cards') && <DealSection contract={contract} />}
+          {isEnabled("cards") && <DealSection contract={contract} />}
         </>
       )}
-      {isEnabled('loans') && !!contract.loansOfForeclosed?.length && (
+      {isEnabled("loans") && !!contract.loansOfForeclosed?.length && (
         <LoanContractSection loanContracts={contract.loansOfForeclosed} />
       )}
-      {isEnabled('forms') && !!contract.loansOfForeclosed?.length && (
+      {isEnabled("forms") && !!contract.loansOfForeclosed?.length && (
         <ContractsCustomFields
           contract={contract}
           collapseCallback={console.log}
@@ -87,11 +87,11 @@ export default function RightSidebar(props: Props) {
         />
       )}
 
-      <Box title={__('Other')} name="showOthers">
+      <Box title={__("Other")} name="showOthers">
         <List>
           <li>
-            <div>{__('Created at')}: </div>{' '}
-            <span>{dayjs(contract.createdAt).format('lll')}</span>
+            <div>{__("Created at")}: </div>{" "}
+            <span>{dayjs(contract.createdAt).format("lll")}</span>
           </li>
           {renderPlan(contract)}
         </List>

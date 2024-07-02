@@ -82,6 +82,9 @@ module.exports = {
       screens: {
         print: { raw: "print" },
       },
+      height: {
+        screen: ["100vh /* fallback for Opera, IE and etc. */", "100dvh"],
+      },
     },
   },
   plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar-hide")],
