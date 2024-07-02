@@ -139,7 +139,7 @@ const structureQueries = {
       type: 'department',
       params: { ...params, withoutUserFilter: true },
     });
-    const list = paginate(
+    const list = await paginate(
       models.Departments.find(filter).sort({ order: 1 }),
       params,
     );
@@ -206,7 +206,7 @@ const structureQueries = {
         },
       ];
     }
-    const list = paginate(
+    const list = await paginate(
       models.Units.find(filter).sort({ createdAt: -1 }),
       params,
     );
@@ -261,7 +261,7 @@ const structureQueries = {
       type: 'branch',
       params: { ...params, withoutUserFilter: true },
     });
-    const list = paginate(
+    const list = await paginate(
       models.Branches.find(filter).sort({ order: 1 }),
       params,
     );
@@ -344,7 +344,7 @@ const structureQueries = {
       params: { ...params, withoutUserFilter: true },
     });
 
-    const list = paginate(
+    const list = await paginate(
       models.Positions.find(filter).sort({ order: 1 }),
       params,
     );

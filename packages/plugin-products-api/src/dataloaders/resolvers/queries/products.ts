@@ -6,7 +6,7 @@ import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext, IModels } from '../../../connectionResolver';
-import { sendTagsMessage } from '../../../messageBroker';
+import { sendCardsMessage, sendTagsMessage } from '../../../messageBroker';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
@@ -35,10 +35,10 @@ interface IQueryParams {
 }
 
 const generateFilter = async (
-  subdomain,
-  models,
-  commonQuerySelector,
-  params,
+  subdomain: string,
+  models: IModels,
+  commonQuerySelector: any,
+  params: IQueryParams,
 ) => {
   const {
     type,
@@ -471,10 +471,79 @@ const productQueries = {
 
     return counts;
   },
+
+  async productsCheckUsedPipeline(
+    _root,
+    params: IQueryParams & { excludeStageIds },
+    { commonQuerySelector, models, subdomain, user }: IContext
+  ) {
+    const filter = await generateFilter(
+      subdomain,
+      models,
+      commonQuerySelector,
+      params,
+    );
+
+    const { sortField, sortDirection, page, perPage, pipelineId, excludeStageIds } = params;
+
+    const pagintationArgs = { page, perPage };
+
+    let sort: any = { code: 1 };
+    if (sortField) {
+      sort = { [sortField]: sortDirection || 1 };
+    }
+
+    const products = await paginate(
+      models.Products.find(filter).sort(sort).lean(),
+      pagintationArgs,
+    )
+
+    const counterByProductId = {};
+
+    if (pipelineId) {
+      const allStages = await sendCardsMessage({
+        subdomain,
+        action: 'stages.find',
+        data: { pipelineId },
+        isRPC: true,
+        defaultValue: []
+      })
+
+      const allStageIds = allStages.map(s => s._id);
+
+      const deals = await sendCardsMessage({
+        subdomain,
+        action: 'deals.find',
+        data: {
+          stageId: { $in: allStageIds.filter(s => !(excludeStageIds|| []).includes(s)) },
+          status: { $in: ['active', ''] },
+          'productsData.productId': { $in: products.map(p => p._id) }
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      for (const deal of deals) {
+        for (const pdata of deal.productsData || []) {
+          if (!Object.keys(counterByProductId).includes(pdata.productId)) {
+            counterByProductId[pdata.productId] = 0
+          }
+          counterByProductId[pdata.productId] += 1
+        }
+      }
+    }
+
+    for (const product of products) {
+      product.usedCount = counterByProductId[product._id] || 0;
+    }
+
+    return products
+  }
 };
 
 requireLogin(productQueries, 'productsTotalCount');
 checkPermission(productQueries, 'products', 'showProducts', []);
+checkPermission(productQueries, 'productsCheckUsedPipeline', 'showProducts', []);
 checkPermission(productQueries, 'productCategories', 'showProducts', []);
 checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
 
