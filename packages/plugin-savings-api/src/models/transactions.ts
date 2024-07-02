@@ -89,7 +89,11 @@ export const loadTransactionClass = (models: IModels) => {
             { $inc: { savingAmount: (doc.payment || 0) * -1 } }
           );
           if (doc.dealtType) {
-            doc.dealtResponse = await transactionDealt(doc, models, subdomain);
+            doc.dealtResponse = await transactionDealt(
+              { ...doc },
+              models,
+              subdomain
+            );
           }
           break;
 
@@ -213,10 +217,12 @@ export const loadTransactionClass = (models: IModels) => {
               "At this moment transaction can not been created because this date closed"
             );
 
-          await models.Contracts.updateOne(
-            { _id: oldTr.contractId },
-            { $set: { savingAmount: oldTr.contractReaction?.savingAmount } }
-          );
+          if (oldTr.contractId) {
+            await models.Contracts.updateOne(
+              { _id: oldTr.contractId },
+              { $set: { savingAmount: oldTr.contractReaction?.savingAmount } }
+            );
+          }
 
           await models.Transactions.deleteOne({ _id: oldTr._id });
         }

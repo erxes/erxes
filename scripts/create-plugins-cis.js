@@ -1,7 +1,7 @@
 var { resolve } = require('path');
 var fs = require('fs');
 
-const filePath = pathName => {
+const filePath = (pathName) => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
@@ -9,7 +9,7 @@ const filePath = pathName => {
   return resolve(__dirname, '..');
 };
 
-var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
   { name: 'inbox', ui: true, api: true },
@@ -77,6 +77,7 @@ var plugins = [
   { name: 'insight', api: true, ui: true },
   { name: 'burenscoring', api: true, ui: true },
   { name: 'golomtbank', api: true, ui: true },
+  { name: 'template', api: true, ui: true }
 ];
 
 const pluginsMap = {};
@@ -125,14 +126,40 @@ var main = async () => {
       }
 
       pluginsMap[plugin.name] = {
-        ui: uiConfigs,
+        ui: uiConfigs
       };
     }
 
     if (plugin.api) {
-      const apiContent = apiContentBuffer
+      let apiContent = apiContentBuffer
         .toString()
         .replace(/{sample}/gi, plugin.name);
+
+      try {
+        const yamlConfigs = require(
+          filePath(`./packages/plugin-${plugin.name}-api/src/yaml.js`)
+        );
+
+        if (
+          yamlConfigs.additionalBuildSteps &&
+          yamlConfigs.additionalBuildSteps.length > 0
+        ) {
+          const steps = yamlConfigs.additionalBuildSteps
+            .map((step) => `          ${step}`)
+            .join('\n');
+
+          const insertIndex =
+            apiContent.indexOf(`${yamlConfigs.beforeRow}`) +
+            `${yamlConfigs.beforeRow}`.length;
+
+          if (insertIndex !== -1) {
+            apiContent = `${apiContent.slice(0, insertIndex)}\n${steps}${apiContent.slice(insertIndex)}`;
+          }
+        }
+      } catch (e) {
+        console.log(`no additional yaml configs file found for ${plugin.name}`);
+      }
+
       fs.writeFileSync(
         workflowsPath(`plugin-${plugin.name}-api.yaml`),
         apiContent
@@ -175,7 +202,7 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map(action => action.name);
+  const actions = permissionCheckers.map((action) => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {

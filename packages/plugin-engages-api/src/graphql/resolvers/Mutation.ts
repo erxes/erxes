@@ -1,10 +1,15 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { getEnv, sendToWebhook} from '@erxes/api-utils/src';
+import { getEnv, sendToWebhook } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CAMPAIGN_KINDS } from '../../constants';
-import { checkCampaignDoc, send, sendWithSendgrid, sendgridClient } from '../../engageUtils';
+import {
+  checkCampaignDoc,
+  send,
+  sendWithSendgrid,
+  sendgridClient,
+} from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -17,7 +22,7 @@ import { awsRequests } from '../../trackers/engageTracker';
 import {
   createTransporter,
   getEditorAttributeUtil,
-  updateConfigs
+  updateConfigs,
 } from '../../utils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -168,7 +173,11 @@ const engageMutations = {
   /**
    * Engage message set pause
    */
-  async engageMessageSetPause(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageSetPause(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.EngageMessages.engageMessageSetPause(_id);
   },
 
@@ -230,11 +239,11 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      const sendgrid = await sendgridClient(subdomain)
+      const sendgrid = await sendgridClient(subdomain);
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
-        data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
+        data: { code: 'SENDGRID_CLIENT_KEY' },
         isRPC: true,
       });
 
@@ -266,7 +275,9 @@ const engageMutations = {
 
         return JSON.stringify(res);
       } catch (e) {
-        throw new Error(`Error occurred while verifying email ${email}, message: ${e}`);
+        throw new Error(
+          `Error occurred while verifying email ${email}, message: ${e}`
+        );
       }
     }
 
@@ -286,8 +297,7 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      
-      const sendgrid = await sendgridClient(subdomain)
+      const sendgrid = await sendgridClient(subdomain);
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
@@ -368,7 +378,12 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      return await sendWithSendgrid(models, { content, from, to, title, replacedContent } );
+      return await sendWithSendgrid(subdomain, {
+        from,
+        to,
+        subject: title,
+        html: replacedContent,
+      });
     }
 
     try {

@@ -1,6 +1,6 @@
-import { ASSET_STATUSES } from '../../common/constant/asset';
-import { IAssetCategoriesDocument } from '../../common/types/asset';
-import { IContext } from '../../connectionResolver';
+import { ASSET_STATUSES } from '../../../common/constant/asset';
+import { IAssetCategoriesDocument } from '../../../common/types/asset';
+import { IContext } from '../../../connectionResolver';
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -27,7 +27,7 @@ export default {
 
     return models.Assets.countDocuments({
       categoryId: { $in: asset_category_ids },
-      status: { $ne: ASSET_STATUSES.DELETED },
+      status: { $ne: ASSET_STATUSES.DELETED }
     });
-  },
+  }
 };
