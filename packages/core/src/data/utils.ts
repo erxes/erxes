@@ -1147,7 +1147,7 @@ export const readFileRequest = async ({
       return readFromCFImages(key, width, models);
     }
 
-    return readFromCR2(sanitizedFileKey, models);
+    return readFromCR2(key, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {

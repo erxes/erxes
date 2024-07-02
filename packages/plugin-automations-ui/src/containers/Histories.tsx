@@ -37,7 +37,8 @@ function HistoriesContainer(props: FinalProps) {
     automationHistoriesQuery,
     triggersConst,
     actionsConst,
-    filterParams
+    filterParams,
+    automation
   } = props;
 
   if (automationHistoriesQuery.loading) {
@@ -50,6 +51,7 @@ function HistoriesContainer(props: FinalProps) {
 
   return (
     <Histories
+      automation={automation}
       histories={automationHistories}
       totalCount={automationHistoriesTotalCount}
       triggersConst={triggersConst}
