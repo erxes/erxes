@@ -20,7 +20,7 @@ export default {
     });
   },
 
-  async content(syncLog: ISyncLogDocument, _, {}: IContext) {
+  async content(syncLog: ISyncLogDocument, _,) {
     const { contentType, contentId } = syncLog;
 
     if (contentType === 'cards:deal') {
@@ -37,12 +37,13 @@ export default {
 
     if (contentType === 'contacts:customer') {
       const info = syncLog.consumeData.object;
+      const lastName = info.lastName || ''
+      const firstName = info.firstName|| ''
       return (
         info.code ||
         info.primaryEmail ||
         info.primaryPhone ||
-        `${info.firstName || ''}${info.lastName && ` ${info.lastName}`}` ||
-        contentId
+        `${firstName}${lastName}` || contentId
       );
     }
 
