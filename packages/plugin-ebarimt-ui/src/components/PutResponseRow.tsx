@@ -13,6 +13,7 @@ import queries from "../graphql/queries";
 type Props = {
   putResponse: IPutResponse;
   history: any;
+  onReReturn: (_id: string) => void;
 };
 
 export const displayValue = (putResponse, name) => {
@@ -20,7 +21,7 @@ export const displayValue = (putResponse, name) => {
   return formatValue(value);
 };
 
-const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
+const PutResponseRow: React.FC<Props> = ({ putResponse, history, onReReturn }: Props) => {
   const onClick = () => {
     client
       .query({
@@ -31,6 +32,10 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
         history.push(`${data.data.getDealLink}`);
       });
   };
+
+  const onClickReReturn = () => {
+    onReReturn(putResponse._id)
+  }
 
   const onPrint = () => {
     const printContent = PerResponse(putResponse);
@@ -55,23 +60,34 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
       <td key={'message'}>{displayValue(putResponse, 'message')}</td>
       <td key={'inactiveId'}>{putResponse.inactiveId} </td>
       <td key={"actions"}>
-        {putResponse.contentType === "deal" && (
+        {(putResponse.contentType === "deal") && (
           <Button
             btnStyle="link"
             size="small"
             icon="external-link-alt"
             onClick={onClick}
           >
-            Show Deal
+            Deal
           </Button>
         )}
 
-        <Button
+        {(!putResponse.id && putResponse.inactiveId) && (
+          <Button
+            btnStyle="link"
+            size="small"
+            icon="repeat"
+            onClick={onClickReReturn}
+          >
+            ReReturn
+          </Button>
+        )}
+
+        {putResponse.id && (<Button
           btnStyle="link"
           size="small"
           icon="print"
           onClick={onPrint}
-        ></Button>
+        >Print</Button>)}
       </td>
     </tr>
   );

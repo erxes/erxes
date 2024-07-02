@@ -122,6 +122,7 @@ const LeftSideBar = (props: Props) => {
 
   const setParams = (key: string, value: any) => {
     if (value) {
+      // removePageParams();
       router.setParams(navigate, location, {
         [key]: value
       });

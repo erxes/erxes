@@ -6,11 +6,11 @@ import { useAtomValue } from "jotai"
 
 import HeaderLayout from "./headerLayout"
 
-const Market = dynamic(
+const Market: any = dynamic(
   () => import("@/modules/products/components/search/search.market")
 )
 
-const Main = dynamic(() => import("@/components/header/header.main"))
+const Main: any = dynamic(() => import("@/components/header/header.main"))
 
 const Header = () => {
   const mode = useAtomValue(modeAtom)

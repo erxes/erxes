@@ -198,19 +198,44 @@ export const loadPutResponseClass = (models: IModels) => {
           inactiveId: prePutResponse.id,
         });
 
-        await fetch(`${url}/rest/receipt`, {
+        const delResponse = await fetch(`${url}/rest/receipt`, {
           method: 'DELETE',
-          body: JSON.stringify({ data }),
+          body: JSON.stringify({ ...data }),
           headers: {
             'Content-Type': 'application/json',
           },
-        }).then(async () => {
+        }).then(async (r) => {
+          if (r.status === 200) {
+            return { status: 200 };
+          }
+          try {
+            return r.json()
+          } catch (e) {
+            return {
+              status: 'ERROR',
+              message: e.message
+            }
+          }
+        }).catch((err) => {
+          return {
+            status: 'ERROR',
+            message: err.message
+          }
+        })
+
+        if (delResponse.status === 200) {
           await models.PutResponses.updateOne(
             { _id: prePutResponse._id },
             { $set: { state: 'inactive' } },
           );
-          await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { modifiedAt: new Date() } });
-        });
+
+          await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { status: 'SUCCESS', modifiedAt: new Date() } });
+        } else {
+          await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { message: delResponse.message, date: delResponse.date, status: 'ERROR', modifiedAt: new Date() } });
+          return {
+            error: `Буцаалтын хүсэлт бүтэлгүй боллоо. ${delResponse.message}`,
+          };
+        };
 
         resultObjIds.push(resObj._id);
       }
