@@ -114,44 +114,51 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
 
-    const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
-    const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
+    const dimensions = Array.isArray(dimension) && dimension || dimension?.split(",") || []
+    const measures = Array.isArray(measure) && measure || measure?.split(",") || []
 
     const pipeline: any[] = [];
 
     let formatType = "%Y"
 
-    if (dateRange?.toLowerCase().includes('day')) {
-        formatType = '%Hh:%Mm:%Ss'
+    switch (true) {
+        case dateRange?.toLowerCase().includes('day'):
+            formatType = '%Hh:%Mm:%Ss';
+            break;
+        
+        case dateRange?.toLowerCase().includes('week'):
+            formatType = '%u';
+            break;
+        
+        case dateRange?.toLowerCase().includes('month'):
+            formatType = '%V';
+            break;
+        
+        case dateRange?.toLowerCase().includes('year'):
+            formatType = '%m';
+            break;
+        
+        case dateRange === 'customDate' && startDate && endDate:
+            formatType = '%Y-%m-%d';
+            break;
+        
+        default:
+            break;
     }
-
-    if (dateRange?.toLowerCase().includes('week')) {
-        formatType = '%u'
-    }
-
-    if (dateRange?.toLowerCase().includes('month')) {
-        formatType = "%V"
-    }
-
-    if (dateRange?.toLowerCase().includes('year')) {
-        formatType = "%m"
-    }
-
-    if (dateRange === 'customDate' && startDate && endDate) {
-        formatType = '%Y-%m-%d';
-    }
+    
 
     const dateFormat = frequencyType || formatType
 
-    if (dimensions.includes("tag")) {
+    switch (true) {
+    case dimensions.includes("tag"):
         pipeline.push({ $unwind: "$tagIds" });
-    }
-
-    if (dimensions.includes("label")) {
+        break;
+    
+    case dimensions.includes("label"):
         pipeline.push({ $unwind: "$labelIds" });
-    }
-
-    if (dimensions.includes("customer")) {
+        break;
+    
+    case dimensions.includes("customer"):
         pipeline.push({
             $lookup: {
                 from: "conformities",
@@ -160,37 +167,21 @@ export const buildPipeline = (filter, type, matchFilter) => {
                     {
                         $match: {
                             $and: [
-                                {
-                                    $expr: {
-                                        $eq: ["$mainType", type],
-                                    },
-                                },
-                                {
-                                    $expr: {
-                                        $eq: [
-                                            "$mainTypeId",
-                                            "$$fieldId",
-                                        ],
-                                    },
-                                },
-                                {
-                                    $expr: {
-                                        $eq: ["$relType", "customer"],
-                                    },
-                                },
-                            ],
-                        },
-                    },
+                                { $expr: { $eq: ["$mainType", type] } },
+                                { $expr: { $eq: ["$mainTypeId", "$$fieldId"] } },
+                                { $expr: { $eq: ["$relType", "customer"] } }
+                            ]
+                        }
+                    }
                 ],
-                as: "conformity",
-            },
-        },
-            {
-                $unwind: "$conformity",
-            });
-    }
+                as: "conformity"
+            }
+        }, {
+            $unwind: "$conformity"
+        });
+        break;
 
-    if (dimensions.includes("company")) {
+    case dimensions.includes("company"):
         pipeline.push({
             $lookup: {
                 from: "conformities",
@@ -199,139 +190,104 @@ export const buildPipeline = (filter, type, matchFilter) => {
                     {
                         $match: {
                             $and: [
-                                {
-                                    $expr: {
-                                        $eq: ["$mainType", type],
-                                    },
-                                },
-                                {
-                                    $expr: {
-                                        $eq: [
-                                            "$mainTypeId",
-                                            "$$fieldId",
-                                        ],
-                                    },
-                                },
-                                {
-                                    $expr: {
-                                        $eq: ["$relType", "company"],
-                                    },
-                                },
-                            ],
-                        },
-                    },
+                                { $expr: { $eq: ["$mainType", type] } },
+                                { $expr: { $eq: ["$mainTypeId", "$$fieldId"] } },
+                                { $expr: { $eq: ["$relType", "company"] } }
+                            ]
+                        }
+                    }
                 ],
-                as: "conformity",
-            },
-        },
-            {
-                $unwind: "$conformity",
-            });
-    }
+                as: "conformity"
+            }
+        }, {
+            $unwind: "$conformity"
+        });
+        break;
 
-    if (dimensions.includes("teamMember") && userType === "assignedUserIds") {
+    case dimensions.includes("teamMember") && userType === "assignedUserIds":
         pipeline.push({ $unwind: "$assignedUserIds" });
-    }
+        break;
 
-    if (dimensions.includes("branch")) {
+    case dimensions.includes("branch"):
         pipeline.push({ $unwind: "$branchIds" });
-    }
+        break;
 
-    if (dimensions.includes("department")) {
+    case dimensions.includes("department"):
         pipeline.push({ $unwind: "$departmentIds" });
-    }
+        break;
 
-    if (dimensions.includes("source")) {
+    case dimensions.includes("source"):
         pipeline.push(
-            {
-                $unwind: "$sourceConversationIds"
-            },
+            { $unwind: "$sourceConversationIds" },
             {
                 $lookup: {
                     from: "conversations",
                     let: { conversationId: "$sourceConversationIds" },
                     pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ["$_id", "$$conversationId"]
-                                }
-                            }
-                        }
+                        { $match: { $expr: { $eq: ["$_id", "$$conversationId"] } } }
                     ],
-                    as: 'conversation'
+                    as: "conversation"
                 }
             },
-            {
-                $unwind: "$conversation"
-            },
+            { $unwind: "$conversation" },
             {
                 $lookup: {
                     from: "integrations",
                     let: { integrationId: "$conversation.integrationId" },
                     pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ["$_id", "$$integrationId"]
-                                }
-                            }
-                        }
+                        { $match: { $expr: { $eq: ["$_id", "$$integrationId"] } } }
                     ],
-                    as: 'integration'
+                    as: "integration"
                 }
             },
-            {
-                $unwind: "$integration"
-            })
-    }
-
-    if (dimensions.includes("product") || measures.some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m))) {
-        pipeline.push({ $unwind: "$productsData" });
-    }
-
-    if (dimensions.includes("pipeline") || measures.includes("forecastAmount")) {
-        pipeline.push(
-            {
-                $lookup: {
-                    from: "stages",
-                    localField: "stageId",
-                    foreignField: "_id",
-                    as: "stage",
-                },
-            },
-            {
-                $unwind: "$stage",
-            },
+            { $unwind: "$integration" }
         );
-    }
+        break;
 
-    if (dimensions.includes("board")) {
+    case dimensions.includes("product") || measures.some(m => ["totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(m)):
+        pipeline.push({ $unwind: "$productsData" });
+        break;
+
+    case dimensions.includes("pipeline") || measures.includes("forecastAmount"):
         pipeline.push(
             {
                 $lookup: {
                     from: "stages",
                     localField: "stageId",
                     foreignField: "_id",
-                    as: "stage",
-                },
+                    as: "stage"
+                }
             },
+            { $unwind: "$stage" }
+        );
+        break;
+
+    case dimensions.includes("board"):
+        pipeline.push(
             {
-                $unwind: "$stage",
+                $lookup: {
+                    from: "stages",
+                    localField: "stageId",
+                    foreignField: "_id",
+                    as: "stage"
+                }
             },
+            { $unwind: "$stage" },
             {
                 $lookup: {
                     from: "pipelines",
                     localField: "stage.pipelineId",
                     foreignField: "_id",
-                    as: "pipeline",
-                },
+                    as: "pipeline"
+                }
             },
-            {
-                $unwind: "$pipeline",
-            },
+            { $unwind: "$pipeline" }
         );
-    }
+        break;
+    
+    default:
+        break;
+}
 
     if (measures.includes("forecastAmount")) {
         pipeline.push({
@@ -421,78 +377,65 @@ export const buildPipeline = (filter, type, matchFilter) => {
     });
 
     const groupKeys: any = {};
-    if (dimensions.includes("tag")) {
-        groupKeys.tagId = "$tagIds";
+    switch (true) {
+        case dimensions.includes("tag"):
+            groupKeys.tagId = "$tagIds";
+            break;
+        case dimensions.includes("card"):
+            groupKeys.cardName = "$name";
+            break;
+        case dimensions.includes("label"):
+            groupKeys.labelId = "$labelIds";
+            break;
+        case dimensions.includes("customer"):
+            groupKeys.customerId = "$conformity.relTypeId";
+            break;
+        case dimensions.includes("company"):
+            groupKeys.companyId = "$conformity.relTypeId";
+            break;
+        case dimensions.includes("priority"):
+            groupKeys.priority = "$priority";
+            break;
+        case dimensions.includes("status"):
+            groupKeys.status = "$status";
+            break;
+        case dimensions.includes("teamMember"):
+            groupKeys.userId = `$${userType}`;
+            break;
+        case dimensions.includes("branch"):
+            groupKeys.branchId = "$branchIds";
+            break;
+        case dimensions.includes("department"):
+            groupKeys.departmentId = "$departmentIds";
+            groupKeys.source = "$integration.kind"; // Make sure this line is correct for the intended logic
+            break;
+        case dimensions.includes("product"):
+            groupKeys.productId = "$productsData.productId";
+            break;
+        case dimensions.includes("stage"):
+            groupKeys.stageId = "$stageId";
+            break;
+        case dimensions.includes("pipeline"):
+            groupKeys.pipelineId = "$stage.pipelineId";
+            break;
+        case dimensions.includes("board"):
+            groupKeys.boardId = "$pipeline.boardId";
+            break;
+        case dimensions.includes("source"):
+            groupKeys.source = "$integration.kind";
+            break;
+        case dimensions.includes("frequency"):
+            groupKeys.frequency = {
+                $dateToString: {
+                    format: dateFormat,
+                    date: `$${dateRangeType}`,
+                },
+            };
+            break;
+        default:
+        break;
     }
-
-    if (dimensions.includes("card")) {
-        groupKeys.cardName = "$name";
-    }
-
-    if (dimensions.includes("label")) {
-        groupKeys.labelId = "$labelIds";
-    }
-
-    if (dimensions.includes("customer")) {
-        groupKeys.customerId = "$conformity.relTypeId";
-    }
-
-    if (dimensions.includes("company")) {
-        groupKeys.companyId = "$conformity.relTypeId";
-    }
-
-    if (dimensions.includes("priority")) {
-        groupKeys.priority = "$priority";
-    }
-
-    if (dimensions.includes("status")) {
-        groupKeys.status = "$status";
-    }
-
-    if (dimensions.includes("teamMember")) {
-        groupKeys.userId = `$${userType}`;
-    }
-
-    if (dimensions.includes("branch")) {
-        groupKeys.branchId = "$branchIds";
-    }
-
-    if (dimensions.includes("department")) {
-        groupKeys.departmentId = "$departmentIds";
-    }
-
-    if (dimensions.includes("department")) {
-        groupKeys.source = "$integration.kind";
-    }
-
-    if (dimensions.includes("product")) {
-        groupKeys.productId = "$productsData.productId";
-    }
-
-    if (dimensions.includes("stage")) {
-        groupKeys.stageId = "$stageId";
-    }
-
-    if (dimensions.includes("pipeline")) {
-        groupKeys.pipelineId = "$stage.pipelineId";
-    }
-
-    if (dimensions.includes("board")) {
-        groupKeys.boardId = "$pipeline.boardId";
-    }
-
-    if (dimensions.includes("source")) {
-        groupKeys.source = "$integration.kind";
-    }
-
-    if (dimensions.includes("frequency")) {
-        groupKeys.frequency = {
-            $dateToString: {
-                format: dateFormat,
-                date: `$${dateRangeType}`,
-            },
-        };
-    }
+    
 
     pipeline.push({
         $group: {
@@ -855,65 +798,57 @@ export const buildPipeline = (filter, type, matchFilter) => {
         projectionFields.frequency = projectStage;
     }
 
-    if (dimensions.includes("tag")) {
-        projectionFields.tag = "$tag.name";
+dimensions.forEach(dim => {
+    switch (dim) {
+        case "tag":
+            projectionFields.tag = "$tag.name";
+            break;
+        case "card":
+            projectionFields.card = "$_id.cardName";
+            break;
+        case "label":
+            projectionFields.label = "$label.name";
+            break;
+        case "customer":
+            projectionFields.customer = "$customer.firstName";
+            break;
+        case "company":
+            projectionFields.company = "$company.primaryName";
+            break;
+        case "priority":
+            projectionFields.priority = "$_id.priority";
+            break;
+        case "status":
+            projectionFields.status = "$_id.status";
+            break;
+        case "teamMember":
+            projectionFields.teamMember = "$user.details.fullName";
+            break;
+        case "branch":
+            projectionFields.branch = "$branch.title";
+            break;
+        case "department":
+            projectionFields.department = "$department.title";
+            break;
+        case "source":
+            projectionFields.source = "$_id.source";
+            break;
+        case "product":
+            projectionFields.product = "$product.name";
+            break;
+        case "stage":
+            projectionFields.stage = "$stage.name";
+            break;
+        case "pipeline":
+            projectionFields.pipeline = "$pipeline.name";
+            break;
+        case "board":
+            projectionFields.board = "$board.name";
+            break;
+        default:
+            break;
     }
-
-    if (dimensions.includes("card")) {
-        projectionFields.card = "$_id.cardName";
-    }
-
-    if (dimensions.includes("label")) {
-        projectionFields.label = "$label.name";
-    }
-
-    if (dimensions.includes("customer")) {
-        projectionFields.customer = "$customer.firstName";
-    }
-
-    if (dimensions.includes("company")) {
-        projectionFields.company = "$company.primaryName";
-    }
-
-    if (dimensions.includes("priority")) {
-        projectionFields.priority = "$_id.priority";
-    }
-
-    if (dimensions.includes("status")) {
-        projectionFields.status = "$_id.status";
-    }
-
-    if (dimensions.includes("teamMember")) {
-        projectionFields.teamMember = "$user.details.fullName";
-    }
-
-    if (dimensions.includes("branch")) {
-        projectionFields.branch = "$branch.title";
-    }
-
-    if (dimensions.includes("department")) {
-        projectionFields.department = "$department.title";
-    }
-
-    if (dimensions.includes("source")) {
-        projectionFields.source = "$_id.source";
-    }
-
-    if (dimensions.includes("product")) {
-        projectionFields.product = "$product.name";
-    }
-
-    if (dimensions.includes("stage")) {
-        projectionFields.stage = "$stage.name";
-    }
-
-    if (dimensions.includes("pipeline")) {
-        projectionFields.pipeline = "$pipeline.name";
-    }
-
-    if (dimensions.includes("board")) {
-        projectionFields.board = "$board.name";
-    }
+});
 
     pipeline.push({ $project: projectionFields });
 
