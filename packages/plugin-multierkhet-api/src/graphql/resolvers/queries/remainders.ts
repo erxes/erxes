@@ -80,8 +80,7 @@ const erkhetQueries = {
 
       for (const brandId of Object.keys(codesByBrandId)) {
         const mainConfig = configs[brandId];
-        const remainderConfig = (remConfig.rules || {})[brandId];
-
+        const remainderConfig = remConfig.rules?.[brandId] ?? {};
         if (!codesByBrandId[brandId].length) {
           continue;
         }
@@ -110,14 +109,14 @@ const erkhetQueries = {
 
           for (const acc of accounts) {
             for (const loc of locations) {
-              const resp = (jsonRes[acc] || {})[loc] || {};
+              const resp = jsonRes?.[acc]?.[loc] ?? {};
               for (const invCode of Object.keys(resp)) {
                 if (!Object.keys(responseByCode).includes(invCode)) {
                   responseByCode[invCode] = '';
                 }
                 const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
                   locations.length > 1 ? `${loc}:` : ''
-                } ${resp[invCode]}`;
+                }${resp[invCode]}`;
                 responseByCode[invCode] = responseByCode[invCode]
                   ? `${responseByCode[invCode]}, ${remainder}`
                   : `${remainder}`;
@@ -187,7 +186,7 @@ const erkhetQueries = {
       };
 
       switch (contentType) {
-        case 'company':
+        case 'company':{
           const company = await sendContactsMessage({
             subdomain,
             action: 'companies.findOne',
@@ -196,9 +195,10 @@ const erkhetQueries = {
             defaultValue: {},
           });
 
-          sendParams.customerCode = company && company.code;
+          sendParams.customerCode = company?.code;
           break;
-        case 'user':
+        }
+        case 'user':{
           const user = await sendCoreMessage({
             subdomain,
             action: 'users.findOne',
@@ -206,10 +206,10 @@ const erkhetQueries = {
             isRPC: true,
             defaultValue: {},
           });
-
-          sendParams.workerEmail = user && user.email;
+          sendParams.workerEmail = user?.email;
           break;
-        default:
+        }
+        default:{
           const customer = await sendContactsMessage({
             subdomain,
             action: 'customers.findOne',
@@ -217,8 +217,9 @@ const erkhetQueries = {
             isRPC: true,
             defaultValue: {},
           });
-
-          sendParams.customerCode = customer && customer.code;
+        
+          sendParams.customerCode = customer?.code;
+        }
       }
 
       if (!sendParams.customerCode && !sendParams.workerEmail) {
