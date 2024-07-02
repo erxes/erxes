@@ -1,6 +1,8 @@
 import * as admin from 'firebase-admin';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
+import { config } from 'process';
+import { sendCoreMessage } from './messageBroker';
 
 const initFirebase = async (models): Promise<void> => {
   const config = await models.Configs.findOne({
@@ -94,3 +96,30 @@ export const sendMobileNotification = async (
     }
   }
 };
+
+export const getSeenList = async (seenInfos, subdomain) => {
+
+  const seenList: any[] = [];
+
+  for (const info of seenInfos || []) {
+    const user = await sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: {
+        _id: info.userId,
+      },
+      isRPC: true,
+    });
+
+    if (user) {
+      seenList.push({
+        user,
+        seenDate: info.seenDate,
+        lastSeenMessageId: info.lastSeenMessageId,
+      });
+    }
+  }
+
+  return seenList
+}
+

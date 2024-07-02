@@ -4,6 +4,7 @@ import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage } from '../../../messageBroker';
+import { getSeenList } from '../../../utils';
 
 const chatQueries = {
   chats: async (
@@ -146,7 +147,7 @@ const chatQueries = {
       user,
       subdomain,
     }: { models: IModels; user: IUserDocument; subdomain: string },
-  ) => {
+  ) => {  
     const lastMessage = await models.ChatMessages.findOne({
       chatId,
     }).sort({
@@ -195,26 +196,7 @@ const chatQueries = {
 
     const chat = await models.Chats.getChat(chatId, user._id);
 
-    const seenList: any[] = [];
-
-    for (const info of chat.seenInfos || []) {
-      const user = await sendCoreMessage({
-        subdomain,
-        action: 'users.findOne',
-        data: {
-          _id: info.userId,
-        },
-        isRPC: true,
-      });
-
-      if (user) {
-        seenList.push({
-          user,
-          seenDate: info.seenDate,
-          lastSeenMessageId: info.lastSeenMessageId,
-        });
-      }
-    }
+    const seenList: any[] = await getSeenList(chat.seenInfos, subdomain)
 
     const filter: { chatId: string; isPinned?: boolean } = { chatId };
 
