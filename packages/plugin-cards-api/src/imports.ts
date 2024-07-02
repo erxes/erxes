@@ -176,7 +176,7 @@ export default {
           });
         }
 
-        doc.stageId = stage && stage._id || '';
+        doc.stageId = stage?._id || '';
       }
 
       bulkDoc.push(doc);

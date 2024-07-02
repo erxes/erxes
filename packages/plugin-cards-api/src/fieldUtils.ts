@@ -381,12 +381,12 @@ export const generateFields = async ({ subdomain, data }) => {
 
     const labelOptions = await getPipelineLabelOptions(
       models,
-      pipelineId || (segment && segment.pipelineId || null)
+      pipelineId || (segment?.pipelineId || null)
     );
 
     const stageOptions = await getStageOptions(
       models,
-      pipelineId || (segment && segment.pipelineId || null)
+      pipelineId || (segment?.pipelineId || null)
     );
 
     fields = [...fields, stageOptions, labelOptions];

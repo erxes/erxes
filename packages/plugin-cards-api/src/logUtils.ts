@@ -542,7 +542,6 @@ const gatherDescriptions = async (
 
       break;
     case MODULE_NAMES.TICKET:
-    {
       description = `"${object.name}" has been ${action}d`;
 
       extraDesc = await gatherBoardItemFieldNames(models, subdomain, object);
@@ -555,8 +554,8 @@ const gatherDescriptions = async (
           extraDesc,
         );
       }
-    }
       break;
+    
     case MODULE_NAMES.STAGE_DEAL:
     case MODULE_NAMES.STAGE_PURCHASE:
     case MODULE_NAMES.STAGE_TASK:

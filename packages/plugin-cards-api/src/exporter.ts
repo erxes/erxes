@@ -233,7 +233,7 @@ const fillDealProductValue = async (subdomain, column, item) => {
         value = productData.isVatApplied;
         break;
 
-      case 'productsData.branch':
+      case 'productsData.branch':{
         const branch =
           (await sendCoreMessage({
             subdomain,
@@ -246,8 +246,8 @@ const fillDealProductValue = async (subdomain, column, item) => {
 
         value = branch.code;
         break;
-
-      case 'productsData.department':
+        }
+      case 'productsData.department':{
         const department =
           (await sendCoreMessage({
             subdomain,
@@ -260,7 +260,7 @@ const fillDealProductValue = async (subdomain, column, item) => {
 
         value = department.code;
         break;
-
+        }
       case 'productsData.maxQuantity':
         value = productData.maxQuantity;
         break;
@@ -301,7 +301,7 @@ const fillValue = async (
         isRPC: true,
       });
 
-      value = createdUser && createdUser.username || 'user not found';
+      value = createdUser?.username || 'user not found';
 
       break;
     }

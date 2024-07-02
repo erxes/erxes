@@ -92,7 +92,7 @@ export const prepareImportDocs = async (models: IModels, args) => {
         name: stageName
       });
 
-      doc.stageId = stage && stage._id || '123';
+      doc.stageId = stage?._id || '123';
     }
 
     bulkDoc.push(doc);

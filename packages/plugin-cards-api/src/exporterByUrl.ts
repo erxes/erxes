@@ -120,7 +120,7 @@ const fillCellValue = async (
         isRPC: true
       });
 
-      cellValue = createdUser && createdUser.username || 'user not found';
+      cellValue = createdUser?.username || 'user not found';
 
       break;
     }
@@ -179,7 +179,7 @@ const fillCellValue = async (
         _id: item.stageId
       });
 
-      cellValue = stage && stage.name || emptyMsg;
+      cellValue = stage?.name || emptyMsg;
 
       break;
     }
@@ -198,7 +198,7 @@ const fillCellValue = async (
         if (pipeline) {
           const board = await models.Boards.findOne({ _id: pipeline.boardId });
 
-          cellValue = board && board.name || emptyMsg;
+          cellValue = board?.name || emptyMsg;
         }
       }
 
@@ -226,7 +226,7 @@ const fillCellValue = async (
         _id: item.initialStageId
       });
 
-      cellValue = initialStage && initialStage.name || emptyMsg;
+      cellValue = initialStage?.name || emptyMsg;
 
       break;
     }
@@ -240,7 +240,7 @@ const fillCellValue = async (
         isRPC: true
       });
 
-      cellValue = modifiedBy && modifiedBy.username || emptyMsg;
+      cellValue = modifiedBy?.username || emptyMsg;
 
       break;
     }
