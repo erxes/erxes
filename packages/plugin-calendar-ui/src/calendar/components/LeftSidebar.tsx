@@ -113,25 +113,31 @@ class LeftSidebar extends React.Component<Props, State> {
     e: React.FormEvent<HTMLElement>
   ) => {
     const checked = (e.target as HTMLInputElement).checked;
-    let calendarIds = this.state.calendarIds || [];
-    const providerCalendarIds = account.calendars.map(
-      (c) => c.providerCalendarId
-    );
+    
+    this.setState(prevState => {
 
-    const ids = [account._id, ...providerCalendarIds];
+      let calendarIds = [...prevState.calendarIds || []] ;
 
-    if (checked) {
-      calendarIds = calendarIds.concat(ids);
-    } else {
-      ids.map((id) => {
-        const index = calendarIds.indexOf(id);
-        return index >= 0 && calendarIds.splice(index, 1);
-      });
-    }
+      const providerCalendarIds = account.calendars.map(
+        (c) => c.providerCalendarId
+      );
+  
+      const ids = [account._id, ...providerCalendarIds];
+  
+      if (checked) {
+        calendarIds = calendarIds.concat(ids);
+      } else {
+        ids.map((id) => {
+          const index = calendarIds.indexOf(id);
+          return index >= 0 && calendarIds.splice(index, 1);
+        });
+      }
 
-    this.setState({ calendarIds });
+      return { calendarIds }
 
-    this.props.onChangeCalendarIds(calendarIds);
+    }, () => {
+      this.props.onChangeCalendarIds(this.state.calendarIds);
+    })
   };
 
   renderCalendars = (
