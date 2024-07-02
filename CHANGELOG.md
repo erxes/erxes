@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0-rc.4](https://github.com/erxes/erxes/compare/1.14.0-rc.3...1.14.0-rc.4) (2024-07-02)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix timeclock config issues  ([ab8083e](https://github.com/erxes/erxes/commit/ab8083e6dd4c941e1c2540ecd70a1b41d0e38e5c))
+
 ## [1.14.0-rc.3](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-07-01)
 
 

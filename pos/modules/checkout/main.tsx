@@ -14,8 +14,7 @@ import { Collapsible } from "@/components/ui/collapsible"
 import DeliveryInputs from "../orders/components/DeliveryInputs"
 
 const CheckoutMain = () => {
-  const [orderCollapsible, setOrderCollapsibleAtom] =
-    useAtom(orderCollapsibleAtom)
+  const [orderCollapsible, setOrderCollapsible] = useAtom(orderCollapsibleAtom)
   const mode = useAtomValue(modeAtom)
   return (
     <OrderDetail>
@@ -30,7 +29,7 @@ const CheckoutMain = () => {
       <Collapsible
         asChild
         open={orderCollapsible}
-        onOpenChange={(open) => setOrderCollapsibleAtom(open)}
+        onOpenChange={(open) => setOrderCollapsible(open)}
       >
         <div className="grid flex-none grid-cols-2 gap-2 pt-4 md:p-4">
           <DeliveryInputs />

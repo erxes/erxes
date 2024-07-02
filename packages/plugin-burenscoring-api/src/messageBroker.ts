@@ -28,9 +28,9 @@ export const setupMessageConsumers = async () => {
       keyword = customer.customFieldsData?.find(
         (el) => el.field == fieldKey
       )?.value;
+    } else {
+      keyword = customer?.[config?.field];
     }
-
-    keyword = customer?.[config?.field];
     if (!keyword) {
       throw new Error("Register not found");
     }
