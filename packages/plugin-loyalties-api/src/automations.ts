@@ -242,7 +242,11 @@ const generateScore = async ({
   }
 
   if (scoreString.match(/[+\-*/]/)) {
-    return eval(scoreString);
+    try {
+      return eval(scoreString);
+    } catch (error) {
+      throw new Error(`Error occurred while calculating score ${scoreString}`);
+    }
   }
   return scoreString;
 };

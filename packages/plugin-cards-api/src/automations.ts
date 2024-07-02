@@ -19,6 +19,7 @@ const getRelatedValue = async (
   targetKey,
   relatedValueProps?: any
 ) => {
+  console.log(JSON.stringify({ target, targetKey, relatedValueProps }));
   if (
     [
       'userId',
