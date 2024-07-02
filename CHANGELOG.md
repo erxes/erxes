@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.13.4](https://github.com/erxes/erxes/compare/1.13.3...1.13.4) (2024-07-02)
+
+
+### Bug Fixes
+
+* **acitivityLog:** ignore all <style> tag showing in email activity log ([16b78f5](https://github.com/erxes/erxes/commit/16b78f5867483121ee11a12a6eaff09aa1ff2ce8))
+* **clientportal:** user detail not showing ([89d19c5](https://github.com/erxes/erxes/commit/89d19c5dde526211cfc07e77dec6717827ac041c))
+* **engages:** fix engage email  ([c41a28f](https://github.com/erxes/erxes/commit/c41a28f73b7f53504b82e2e9c6bf1a165c1f2138))
+* **inbox:** Merge button not working in action ([fd57f9a](https://github.com/erxes/erxes/commit/fd57f9aadc8b6cfeb6c23435569e0726acb412b8))
+
 ## [1.13.3](https://github.com/erxes/erxes/compare/1.13.2...1.13.3) (2024-07-02)
 
 
