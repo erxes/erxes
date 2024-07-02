@@ -174,10 +174,6 @@ const generateTotalAmount = productsData => {
   let totalAmount = 0;
 
   (productsData || []).forEach(product => {
-    if (product.tickUsed) {
-      return;
-    }
-
     totalAmount += product?.amount || 0;
   });
 
