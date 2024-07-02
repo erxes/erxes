@@ -1330,7 +1330,7 @@ export const getItemList = async (
       hasNotified: !notification,
       customers: getCocsByItemId(item._id, customerIdsByItemId, customers),
       companies: getCocsByItemId(item._id, companyIdsByItemId, companies),
-      ...(getExtraFields && getExtraFields(item) || {}),
+      ...(getExtraFields?.(item) || {}),
     });
   }
 
