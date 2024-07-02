@@ -58,7 +58,7 @@ export const getOrderInfo = async (req, res) => {
         data: { _id: { $in: customerIds } },
         isRPC: true
       });
-      if (customers && customers.length) {
+      if (customers?.length) {
         result.customers = customers;
       }
     }
@@ -69,7 +69,7 @@ export const getOrderInfo = async (req, res) => {
         data: { _id: { $in: companyIds } },
         isRPC: true
       });
-      if (companies && companies.length) {
+      if (companies?.length) {
         result.companies = companies;
       }
     }
@@ -104,7 +104,7 @@ export const getOrderInfo = async (req, res) => {
           data: { _id: { $in: [order.customerId] } },
           isRPC: true
         });
-        if (companies && companies.length) {
+        if (companies?.length) {
           result.companies = companies;
         }
       } else if (order.customerType === 'user') {
@@ -114,7 +114,7 @@ export const getOrderInfo = async (req, res) => {
           data: { query: { _id: order.customerId } },
           isRPC: true
         });
-        if (users && users.length) {
+        if (users?.length) {
           result.users = users;
         }
       } else {
@@ -124,7 +124,7 @@ export const getOrderInfo = async (req, res) => {
           data: { _id: { $in: [order.customerId] } },
           isRPC: true
         });
-        if (customers && customers.length) {
+        if (customers?.length) {
           result.customers = customers;
         }
       }
