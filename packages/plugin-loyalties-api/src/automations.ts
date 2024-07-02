@@ -298,7 +298,14 @@ const addScore = async ({
       return 'done';
     }
     const data = {
-      target: execution?.target,
+      target: {
+        ...execution?.target,
+        customers: null,
+        companies: null,
+        type: contentType.includes('.')
+          ? contentType.split('.')[0]
+          : contentType
+      },
       config: {},
       relatedValueProps: {}
     };
