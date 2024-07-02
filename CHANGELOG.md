@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.14.0-rc.5](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.5) (2024-07-02)
+
+
+### Bug Fixes
+
+* **automations:** can't get contactIds in addScore action ([5a7c1b8](https://github.com/erxes/erxes/commit/5a7c1b8e2679b6ea38fa1e2851b68bac69fcb1f4))
+* **automations:** can't handle error in Attribution component ([37803be](https://github.com/erxes/erxes/commit/37803bed4af073df31ba331bfa4d94244057ad46))
+* update pluginsMap ([8177a61](https://github.com/erxes/erxes/commit/8177a61f30f9f1880742dc4231d75d37239d5a8b))
+
 ## [1.14.0-rc.4](https://github.com/erxes/erxes/compare/1.14.0-rc.3...1.14.0-rc.4) (2024-07-02)
 
 
