@@ -7,7 +7,7 @@ import {
   MODULE_NAMES,
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { checkValidationCurrency, doCurrencyTr } from '../../../utils/currencyTr';
+// import { checkValidationCurrency, doCurrencyTr } from '../../../utils/currencyTr';
 import { JOURNALS } from '../../../models/definitions/constants';
 import { ITransaction } from '../../../models/definitions/transaction';
 
@@ -33,12 +33,12 @@ const cashTrMutations = {
       }]
     };
 
-    const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
+    // const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
 
     const transaction =
       await models.Transactions.createTransaction({ ...updatedDoc });
 
-    await doCurrencyTr(models, transaction, currencyDiffTrDoc )
+    // await doCurrencyTr(models, transaction, currencyDiffTrDoc )
 
     await putCreateLog(
       models,
@@ -68,7 +68,7 @@ const cashTrMutations = {
       _id,
     });
     const detail = doc.details[0];
-    const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
+    // const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
 
 
     const updatedDoc = {
@@ -87,9 +87,9 @@ const cashTrMutations = {
       updatedDoc,
     );
 
-    if (currencyDiffTrDoc) {
-      await doCurrencyTr(models, updated, currencyDiffTrDoc)
-    }
+    // if (currencyDiffTrDoc) {
+    //   await doCurrencyTr(models, updated, currencyDiffTrDoc)
+    // }
 
     await putUpdateLog(
       models,

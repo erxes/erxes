@@ -1,6 +1,6 @@
 import { IModels } from "../connectionResolver";
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
-import { checkValidationCurrency, doCurrencyTr } from "./currencyTr";
+import CurrencyTr  from "./currencyTr";
 
 export const commonCreate = async (models: IModels, doc: ITransaction) => {
   switch (doc.journal) {
@@ -8,12 +8,13 @@ export const commonCreate = async (models: IModels, doc: ITransaction) => {
       return { mainTr: await models.Transactions.createTransaction({ ...doc }) };
     }
     case 'cash': {
-      const currencyDiffTrDoc = await checkValidationCurrency(models, doc);
+      const currencyTrClass = new CurrencyTr(models, doc);
+      await currencyTrClass.checkValidationCurrency();
 
       const transaction =
         await models.Transactions.createTransaction({ ...doc });
 
-      const currencyTr = await doCurrencyTr(models, transaction, currencyDiffTrDoc);
+      const currencyTr = await currencyTrClass.doCurrencyTr(transaction);
       if (currencyTr) {
         return { mainTr: transaction, otherTrs: [currencyTr] }
       }

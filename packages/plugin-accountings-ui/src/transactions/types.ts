@@ -74,6 +74,18 @@ export interface ITransaction {
   createdAt?: Date;
   modifiedAt?: Date;
 
+  hasVat?: boolean;
+  vatRowId?: string;
+  afterVat?: boolean;
+  afterVatAccountId?: string;
+  isHandleVat?: boolean;
+  vatAmount?: number;
+
+  hasCtax?: boolean;
+  ctaxRowId?: string;
+  isHandleCtax?: boolean;
+  ctaxAmount?: number;
+
   sumDt: number;
   sumCt: number;
   permission?: string;

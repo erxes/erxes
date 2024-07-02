@@ -80,6 +80,19 @@ export const commonTransactionFields = `
     sumDt
     sumCt
   }
+
+  hasVat
+  vatRowId
+  afterVat
+  afterVatAccountId
+  isHandleVat
+  vatAmount
+
+  hasCtax
+  ctaxRowId
+  isHandleCtax
+  ctaxAmount
+
   permission
 `;
 
