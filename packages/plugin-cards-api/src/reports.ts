@@ -9231,7 +9231,7 @@ async function filterData(filter: any, subdomain: any) {
   }
 
   // FIELD GROUP FILTER
-  if (groupIds && groupIds.length) {
+  if (groupIds?.length) {
     const fields = await sendFormsMessage({
       subdomain,
       action: 'fields.find',
@@ -9250,7 +9250,7 @@ async function filterData(filter: any, subdomain: any) {
   }
 
   // FIELD FILTER
-  if (fieldIds && fieldIds.length) {
+  if (fieldIds?.length) {
     matchfilter['customFieldsData.field'] = { $in: fieldIds };
   }
 

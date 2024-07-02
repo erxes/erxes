@@ -66,16 +66,16 @@ class PipelineForm extends React.Component<Props, State> {
     const { pipeline } = this.props;
 
     this.state = {
-      visibility: pipeline ? pipeline.visibility || "public" : "public",
-      selectedMemberIds: pipeline ? pipeline.memberIds || [] : [],
+      visibility: pipeline && pipeline.visibility || "public" : "public",
+      selectedMemberIds: pipeline && pipeline.memberIds || [] : [],
       backgroundColor:
         (pipeline && pipeline.bgColor) || colors.colorPrimaryDark,
       hackScoringType: (pipeline && pipeline.hackScoringType) || "ice",
       templates: [],
-      templateId: pipeline ? pipeline.templateId : "",
-      metric: pipeline ? pipeline.metric : "",
-      startDate: pipeline ? pipeline.startDate : undefined,
-      endDate: pipeline ? pipeline.endDate : undefined,
+      templateId: pipeline && pipeline.templateId || "",
+      metric: pipeline && pipeline.metric || "",
+      startDate: pipeline && pipeline.startDate || undefined,
+      endDate: pipeline && pipeline.endDate || undefined,
       boardId: props.boardId || "",
       numberConfig: (pipeline && pipeline.numberConfig) || "",
       numberSize: (pipeline && pipeline.numberSize) || "",
