@@ -19,7 +19,6 @@ const getRelatedValue = async (
   targetKey,
   relatedValueProps?: any
 ) => {
-  console.log(JSON.stringify({ target, targetKey, relatedValueProps }));
   if (
     [
       'userId',
@@ -162,11 +161,8 @@ const getRelatedValue = async (
   if (targetKey.includes('productsData')) {
     const [_parentFieldName, childFieldName] = targetKey.split('.');
 
-    console.log(`passed to ${{ _parentFieldName, childFieldName }}`);
-
     if (childFieldName === 'amount') {
       const result = generateTotalAmount(target.productsData);
-      console.log({ result });
       return result;
     }
   }
@@ -185,9 +181,7 @@ const generateTotalAmount = productsData => {
     totalAmount += product?.amount || 0;
   });
 
-  console.log({ totalAmount });
-
-  return totalAmount;
+  return `${totalAmount}`;
 };
 
 // module related services

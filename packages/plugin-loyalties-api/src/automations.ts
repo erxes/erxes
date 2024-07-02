@@ -1,4 +1,3 @@
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { generateModels, IModels } from './connectionResolver';
 import {
   sendClientPortalMessage,
@@ -232,10 +231,6 @@ const generateScore = async ({
       data,
       isRPC: true,
       defaultValue: {}
-    }).catch(error => {
-      debugError(
-        `Error occurred while replacing placeholders with ${error.message} ${JSON.stringify(data)}`
-      );
     });
 
     console.log({ replacedContent });
@@ -338,8 +333,6 @@ const addScore = async ({
       isRPC: true,
       defaultValue: {}
     });
-
-    debugInfo(`Replaced content ${JSON.stringify(replacedContent)}`);
 
     if (replacedContent['customers']) {
       await models.ScoreLogs.changeOwnersScore({
