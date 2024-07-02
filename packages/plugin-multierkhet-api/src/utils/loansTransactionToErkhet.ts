@@ -8,7 +8,7 @@ export const getPureDate = (date: Date) => {
 
 export const loansTransactionToErkhet = async (
   subdomain,
-  generals: any[] = [],
+  generals: any[],
   orderId
 ) => {
   const models = await generateModels(subdomain);
@@ -26,7 +26,7 @@ export const loansTransactionToErkhet = async (
 
   var ptrs: any[] = [];
 
-  generals.forEach(row => {
+  (generals || []).forEach(row => {
     let work: any[] = [];
     row.dtl.forEach(dtl => {
       work.push({
