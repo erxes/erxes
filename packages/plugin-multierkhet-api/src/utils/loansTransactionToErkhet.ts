@@ -8,25 +8,19 @@ export const getPureDate = (date: Date) => {
 
 export const loansTransactionToErkhet = async (
   subdomain,
-  generals: any[] = [],
+  generals: any[],
   orderId
 ) => {
   const models = await generateModels(subdomain);
   let erkhetConfig = await models.Configs.getConfig('ERKHET', {});
 
-  if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !erkhetConfig.userEmail ||
-    !erkhetConfig.defaultCustomer
-  ) {
+  if (!erkhetConfig.apiKey! ||!erkhetConfig.apiSecret ||!erkhetConfig.userEmail ||!erkhetConfig?.defaultCustomer) {
     return;
   }
 
   var ptrs: any[] = [];
 
-  generals.forEach(row => {
+  (generals || []).forEach(row => {
     let work: any[] = [];
     row.dtl.forEach(dtl => {
       work.push({

@@ -106,7 +106,7 @@ export const productCategoryToErkhet = async (
   }
 };
 
-const productSender = async (
+const productSender = async ({
   models,
   syncLogDoc,
   config,
@@ -116,7 +116,7 @@ const productSender = async (
   productCategory,
   subMeasureUnit,
   ratioMeasureUnit
-) => {
+}) => {
   if (!(config.apiKey && config.apiSecret && config.apiToken)) {
     return;
   }
@@ -175,7 +175,7 @@ export const productToErkhet = async (subdomain, models, params, action) => {
   let subMeasureUnit;
   let ratioMeasureUnit;
 
-  if (product.subUoms && product.subUoms.length) {
+  if (product.subUoms?.length) {
     const subUom = product.subUoms[0];
     subMeasureUnit = subUom.uom;
     ratioMeasureUnit = subUom.ratio;
@@ -190,22 +190,22 @@ export const productToErkhet = async (subdomain, models, params, action) => {
 
   for (const remBrand of remBrands) {
     const config = configs[remBrand];
-    productSender(
+    productSender({
       models,
       syncLogDoc,
       config,
-      'delete',
+      action: 'delete',
       oldProduct,
       product,
       productCategory,
       subMeasureUnit,
       ratioMeasureUnit
-    );
+    });
   }
 
   for (const updBrand of updBrands) {
     const config = configs[updBrand];
-    productSender(
+    productSender({
       models,
       syncLogDoc,
       config,
@@ -215,20 +215,20 @@ export const productToErkhet = async (subdomain, models, params, action) => {
       productCategory,
       subMeasureUnit,
       ratioMeasureUnit
-    );
+    });
   }
 
   if (noBrandConfig && !updBrands.length) {
-    productSender(
+    productSender({
       models,
       syncLogDoc,
-      noBrandConfig,
+      config: noBrandConfig,
       action,
       oldProduct,
       product,
       productCategory,
       subMeasureUnit,
       ratioMeasureUnit
-    );
+    });
   }
 };

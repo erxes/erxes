@@ -60,7 +60,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
     for (const brandId of Object.keys(codesByBrandId)) {
       const mainConfig = configs[brandId];
-      const remainderConfig = (remConfig.rules || {})[brandId];
+      const remainderConfig = remConfig.rules?.[brandId];
 
       if (!codesByBrandId[brandId].length) {
         continue;
@@ -90,14 +90,16 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
         for (const acc of accounts) {
           for (const loc of locations) {
-            const resp = (jsonRes[acc] || {})[loc] || {};
+            const resp = jsonRes?.[acc]?.[loc] || {};
             for (const invCode of Object.keys(resp)) {
               if (!Object.keys(responseByCode).includes(invCode)) {
                 responseByCode[invCode] = '';
               }
-              const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
-                locations.length > 1 ? `${loc}:` : ''
-              } ${resp[invCode]}`;
+
+              const account = accounts.length > 1 ? `${acc}/` : ''
+              const location = locations.length > 1 ? `${loc}:` : ''
+
+              const remainder = `${account}${location} ${resp[invCode]}`;
               responseByCode[invCode] = responseByCode[invCode]
                 ? `${responseByCode[invCode]}, ${remainder}`
                 : `${remainder}`;

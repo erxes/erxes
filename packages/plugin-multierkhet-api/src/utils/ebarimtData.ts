@@ -104,8 +104,7 @@ export const getPostData = async (
         isRPC: true,
         defaultValue: []
       });
-
-      customerCode = (customers.find(c => c.code) || {}).code || '';
+      customerCode = customers.find(c => c.code)?.code || '';
     }
   }
 
@@ -292,7 +291,7 @@ export const getPostData = async (
   const postDatas: any[] = [];
   for (const brandId of Object.keys(detailByBrandId)) {
     const details = detailByBrandId[brandId];
-    if (!details || !details.length) {
+    if (!details?.length) {
       continue;
     }
 
