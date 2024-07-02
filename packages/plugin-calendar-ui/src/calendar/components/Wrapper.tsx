@@ -127,9 +127,6 @@ class CalendarWrapper extends React.Component<Props, State> {
     );
   };
 
-  renderOptions = (list: string[]) => {
-    return list.map(item => ({ value: item, label: item.toUpperCase() }));
-  };
 
   renderTypeChooser = () => {
     const { type } = this.state;
