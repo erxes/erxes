@@ -1,4 +1,4 @@
-import { BaseApi } from './base';
+import { BaseApi } from "./base";
 export class StatementsApi extends BaseApi {
   public params;
 
@@ -27,7 +27,10 @@ export class StatementsApi extends BaseApi {
     const { accountId, startDate, endDate } = args;
 
     const queryParams: any = { client_id: this.params.client_id };
-    const data: any = { registerNo: this.params.registerId, accountId:accountId };
+    const data: any = {
+      registerNo: this.params.registerId,
+      accountId: accountId,
+    };
 
     if (startDate) {
       data.startDate = startDate;
@@ -39,11 +42,11 @@ export class StatementsApi extends BaseApi {
 
     try {
       return await this.request({
-        method: 'POST',
+        method: "POST",
         path: `v1/account/operative/statement`,
         params: queryParams,
-        type:'OPERACCTSTA',
-        data: data
+        type: "OPERACCTSTA",
+        data: data,
       });
     } catch (e) {
       console.error(e);

@@ -28,12 +28,9 @@ export default function ListContainer(props: Props) {
     return <Spinner />;
   }
 
-  const accounts = (data && data.golomtBankAccounts) || [];
-
   const extendedProps = {
     ...props,
     loading,
-    accounts,
     configId: props.configId || "",
   };
 

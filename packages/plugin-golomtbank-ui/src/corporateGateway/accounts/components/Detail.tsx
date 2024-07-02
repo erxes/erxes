@@ -6,47 +6,57 @@ import React from "react";
 
 import { BlockRow } from "../../../styles";
 import { getCurrencySymbol } from "../../../utils";
-import { IGolomtBankAccountBalance, IGolomtBankAccountDetail } from "../../../types/IGolomtAccount";
-
+import {
+  IGolomtBankAccountBalance,
+  IGolomtBankAccountDetail,
+} from "../../../types/IGolomtAccount";
+import TransactionForm from "../../transactions/containers/Form";
+import Transactions from "../../transactions/containers/List";
 type Props = {
+  queryParams: any;
   account: IGolomtBankAccountDetail;
   balances?: IGolomtBankAccountBalance;
+  accountId?: string;
 };
 
 const Detail = (props: Props) => {
-  const { account ,balances} = props;
+  const { account, balances, queryParams } = props;
 
-
-const getStatusValue = (value) =>{
-   switch (value) {
-    case "A":
-      return "active";
-    case "I":
-      return "inactive";
-    case "D":
-      return "dormant";
-    default:
-      return "";
-  }
-}
-const isRel = (value) =>{
-  switch (value) {
-    case "N":
-      return "NO";
-    case "Y":
-      return "YES";
-    default:
-      return "";
- }
-}
+  const getStatusValue = (value) => {
+    switch (value) {
+      case "A":
+        return "active";
+      case "I":
+        return "inactive";
+      case "D":
+        return "dormant";
+      default:
+        return "";
+    }
+  };
+  const isRel = (value) => {
+    switch (value) {
+      case "N":
+        return "NO";
+      case "Y":
+        return "YES";
+      default:
+        return "";
+    }
+  };
   const transactionTrigger = (
     <Button btnStyle="simple" size="small" icon="money-insert">
       {__("Transfer")}
     </Button>
   );
 
-  const transactionFormContent = (modalProps) => <div />;
-
+  const transactionFormContent = (modalProps) => (
+    <TransactionForm
+      {...modalProps}
+      configId={queryParams._id}
+      accountNumber={queryParams.account}
+    />
+  );
   const renderAccount = () => {
     return (
       <div>
@@ -69,15 +79,14 @@ const isRel = (value) =>{
         </BlockRow>
 
         <BlockRow>
-        <FormGroup>
+          <FormGroup>
             <p>{__("Balance")} </p>
             {(balances?.balanceLL || []).map((balance) => (
-            <strong key={balance.amount.toString()}>
-            {balance.amount.value.toLocaleString()}
-            {getCurrencySymbol(balance.amount.currency || "MNT")}
-          </strong>
-      ))}
-
+              <strong key={balance.amount.toString()}>
+                {balance.amount.value.toLocaleString()}
+                {getCurrencySymbol(balance.amount.currency || "MNT")}
+              </strong>
+            ))}
           </FormGroup>
           <FormGroup>
             <p>{__("product name")} </p>
@@ -89,13 +98,13 @@ const isRel = (value) =>{
           </FormGroup>
         </BlockRow>
         <BlockRow>
-        <FormGroup>
+          <FormGroup>
             <p>{__("status")}</p>
-            <strong>{ getStatusValue(account.status)}</strong>
+            <strong>{getStatusValue(account.status)}</strong>
           </FormGroup>
           <FormGroup>
             <p>{__("registration")}</p>
-            <strong>{ isRel(account.isRelParty)}</strong>
+            <strong>{isRel(account.isRelParty)}</strong>
           </FormGroup>
           <FormGroup>
             <p>{__("open date")}</p>
@@ -121,6 +130,7 @@ const isRel = (value) =>{
     return (
       <div>
         <h4>{__("Latest transactions")}</h4>
+        <Transactions {...props} showLatest={true} />
       </div>
     );
   };

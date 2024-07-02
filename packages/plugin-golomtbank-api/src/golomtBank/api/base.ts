@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import type { RequestInit, HeadersInit } from "node-fetch";
 import { encryptData } from "../../utils/encrypt";
 import { decryptData } from "../../utils/decrypt";
+import { generateCurrentNumberString } from "../../utils/timeGenerateBase";
 export class BaseApi {
   private config: any;
 
@@ -41,13 +42,20 @@ export class BaseApi {
       requestOptions.headers["X-Golomt-Checksum"] = checkSum;
       requestOptions.headers["X-Golomt-Service"] = type;
 
+      if (type === "CGWTXNADD") {
+        const xcode = generateCurrentNumberString("4IO2WPYBASQOSQMS");
+        requestOptions.headers["X-Golomt-Code"] = xcode;
+      }
+
       if (data) {
         requestOptions.body = JSON.stringify(data);
       }
+
       const response = await fetch(
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions
       ).then((res) => res.text());
+
       return await decryptData(
         response,
         this.config.ivKey,
