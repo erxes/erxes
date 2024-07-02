@@ -114,9 +114,10 @@ const erkhetQueries = {
                 if (!Object.keys(responseByCode).includes(invCode)) {
                   responseByCode[invCode] = '';
                 }
-                const remainder = `${accounts.length > 1 ? `${acc}/` : ''}${
-                  locations.length > 1 ? `${loc}:` : ''
-                }${resp[invCode]}`;
+                const account = accounts.length > 1 ? `${acc}/` : ''
+                const location = locations.length > 1 ? `${loc}:` : ''
+
+                const remainder =  `${account}${location}${resp[invCode]}`;
                 responseByCode[invCode] = responseByCode[invCode]
                   ? `${responseByCode[invCode]}, ${remainder}`
                   : `${remainder}`;
