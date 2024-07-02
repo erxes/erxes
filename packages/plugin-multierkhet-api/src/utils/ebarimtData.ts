@@ -291,7 +291,7 @@ export const getPostData = async (
   const postDatas: any[] = [];
   for (const brandId of Object.keys(detailByBrandId)) {
     const details = detailByBrandId[brandId];
-    if (!details || !details.length) {
+    if (!details?.length) {
       continue;
     }
 
