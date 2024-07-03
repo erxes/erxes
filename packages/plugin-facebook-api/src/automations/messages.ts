@@ -1,22 +1,24 @@
+import * as moment from 'moment';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
+import { IBotDocument } from '../models/definitions/bots';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
 import { sendReply } from '../utils';
+import { Message } from './types';
 import {
+  checkContentConditions,
   generateBotData,
   generatePayloadString,
-  checkContentConditions,
-  getUrl,
+  getUrl
 } from './utils';
-import * as moment from 'moment';
 
 const generateMessages = async (
   subdomain: string,
   config: any,
   conversation: IConversation,
-  customer: ICustomer,
+  customer: ICustomer
 ) => {
   let { messages = [] } = config || {};
 
@@ -26,12 +28,12 @@ const generateMessages = async (
     for (const button of buttons) {
       const obj: any = {
         type: 'postback',
-        title: button.text,
+        title: (button.text || '').trim(),
         payload: generatePayloadString(
           conversation,
           button,
-          customer?.erxesApiId,
-        ),
+          customer?.erxesApiId
+        )
       };
 
       if (button.link) {
@@ -47,7 +49,7 @@ const generateMessages = async (
   };
 
   const quickRepliesIndex = messages.findIndex(
-    ({ type }) => type === 'quickReplies',
+    ({ type }) => type === 'quickReplies'
   );
 
   if (quickRepliesIndex !== -1) {
@@ -65,7 +67,7 @@ const generateMessages = async (
     image = '',
     video = '',
     audio = '',
-    input,
+    input
   } of messages) {
     const botData = generateBotData(subdomain, {
       type,
@@ -73,14 +75,14 @@ const generateMessages = async (
       text,
       cards,
       quickReplies,
-      image,
+      image
     });
 
     if (['text', 'input'].includes(type) && !buttons?.length) {
       generatedMessages.push({
         text: input ? input.text : text,
         botData,
-        inputData: input,
+        inputData: input
       });
     }
 
@@ -90,12 +92,12 @@ const generateMessages = async (
           type: 'template',
           payload: {
             template_type: 'button',
-            text: input ? input.text : text,
-            buttons: generateButtons(buttons),
-          },
+            text: (input ? input.text : text || '').trim(),
+            buttons: generateButtons(buttons)
+          }
         },
         botData,
-        inputData: input,
+        inputData: input
       });
     }
 
@@ -110,28 +112,28 @@ const generateMessages = async (
                 title,
                 subtitle,
                 image_url: getUrl(subdomain, image),
-                buttons: generateButtons(buttons),
-              }),
-            ),
-          },
+                buttons: generateButtons(buttons)
+              })
+            )
+          }
         },
-        botData,
+        botData
       });
     }
 
     if (type === 'quickReplies') {
       generatedMessages.push({
         text: text || '',
-        quick_replies: quickReplies.map((quickReply) => ({
+        quick_replies: quickReplies.map(quickReply => ({
           content_type: 'text',
           title: quickReply?.text || '',
           payload: generatePayloadString(
             conversation,
             quickReply,
-            customer?.erxesApiId,
-          ),
+            customer?.erxesApiId
+          )
         })),
-        botData,
+        botData
       });
     }
 
@@ -143,10 +145,10 @@ const generateMessages = async (
           attachment: {
             type,
             payload: {
-              url: getUrl(subdomain, url),
-            },
+              url: getUrl(subdomain, url)
+            }
           },
-          botData,
+          botData
         });
     }
   }
@@ -164,7 +166,7 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
     isSelected,
     type,
     persistentMenuIds,
-    conditions: directMessageCondtions = [],
+    conditions: directMessageCondtions = []
   } of conditions) {
     if (isSelected) {
       if (type === 'getStarted' && target.content === 'Get Started') {
@@ -195,7 +197,7 @@ const generateObjectToWait = ({
   messages = [],
   optionalConnects = [],
   conversation,
-  customer,
+  customer
 }: {
   messages: any[];
   optionalConnects: any[];
@@ -205,13 +207,13 @@ const generateObjectToWait = ({
   const obj: any = {};
   const general: any = {
     conversationId: conversation._id,
-    customerId: customer.erxesApiId,
+    customerId: customer.erxesApiId
   };
   let propertyName = 'payload.btnId';
 
-  if (messages.some((msg) => msg.type === 'input')) {
+  if (messages.some(msg => msg.type === 'input')) {
     const inputMessageConfig =
-      messages.find((msg) => msg.type === 'input')?.input || {};
+      messages.find(msg => msg.type === 'input')?.input || {};
 
     if (inputMessageConfig.timeType === 'day') {
       obj.startWaitingDate = moment()
@@ -232,7 +234,7 @@ const generateObjectToWait = ({
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        (connect) => connect?.optionalConnectId === 'ifNotReply',
+        connect => connect?.optionalConnectId === 'ifNotReply'
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
@@ -247,41 +249,107 @@ const generateObjectToWait = ({
     ...obj,
     objToCheck: {
       propertyName,
-      general,
-    },
+      general
+    }
   };
+};
+
+const sendMessage = async (
+  models,
+  bot: IBotDocument,
+  { senderId, recipientId, integration, message, tag }: Message,
+  isLoop?: boolean
+) => {
+  try {
+    await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: senderId },
+        sender_action: 'typing_on',
+        tag
+      },
+      recipientId,
+      integration.erxesApiId
+    );
+    const resp = await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: senderId },
+        message,
+        tag
+      },
+      recipientId,
+      integration.erxesApiId
+    );
+    if (!resp) {
+      return;
+    }
+    return resp;
+  } catch (error) {
+    if (
+      error.message.includes(
+        'This message is sent outside of allowed window'
+      ) &&
+      bot?.tag &&
+      !isLoop
+    ) {
+      await sendMessage(
+        models,
+        bot,
+        {
+          senderId,
+          recipientId,
+          integration,
+          message,
+          tag: bot?.tag
+        },
+        true
+      );
+    }
+
+    debugError(error.message);
+    throw new Error(error.message);
+  }
 };
 
 export const actionCreateMessage = async (
   models: IModels,
   subdomain,
   action,
-  execution,
+  execution
 ) => {
   const { target } = execution || {};
   const { config } = action || {};
 
   const conversation = await models.Conversations.findOne({
-    _id: target?.conversationId,
+    _id: target?.conversationId
   });
 
   if (!conversation) {
-    return;
+    throw new Error('Conversation not found');
   }
 
   const integration = await models.Integrations.findOne({
-    _id: conversation.integrationId,
+    _id: conversation.integrationId
   });
 
   if (!integration) {
-    return;
+    throw new Error('Integration not found');
   }
   const { recipientId, senderId, botId } = conversation;
 
   const customer = await models.Customers.findOne({ userId: senderId }).lean();
 
   if (!customer) {
-    return;
+    throw new Error(`Customer not found`);
+  }
+
+  const bot = await models.Bots.findOne({ _id: botId }, { tag: 1 }).lean();
+
+  if (!bot) {
+    throw new Error(`Bot not found`);
   }
 
   let result: any[] = [];
@@ -291,7 +359,7 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-      customer,
+      customer
     );
 
     if (!messages?.length) {
@@ -299,32 +367,22 @@ export const actionCreateMessage = async (
     }
 
     for (const { botData, inputData, ...message } of messages) {
-      await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          sender_action: 'typing_on',
-        },
-        recipientId,
-        integration.erxesApiId,
-      );
+      let resp;
 
-      const resp = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          message,
-        },
-        recipientId,
-        integration.erxesApiId,
-      ).catch((error) => {
-        throw new Error(error);
-      });
+      try {
+        resp = await sendMessage(models, bot, {
+          senderId,
+          recipientId,
+          integration,
+          message
+        });
+      } catch (error) {
+        debugError(error.message);
+        throw new Error(error.message);
+      }
 
       if (!resp) {
-        return;
+        throw new Error('Something went wrong to send this message');
       }
 
       const conversationMessage = await models.ConversationMessages.addMessage({
@@ -334,7 +392,7 @@ export const actionCreateMessage = async (
         mid: resp.message_id,
         botId,
         botData,
-        fromBot: true,
+        fromBot: true
       });
 
       sendInboxMessage({
@@ -342,10 +400,8 @@ export const actionCreateMessage = async (
         action: 'conversationClientMessageInserted',
         data: {
           ...conversationMessage.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
-      }).catch((error) => {
-        debugError(error.message);
+          conversationId: conversation.erxesApiId
+        }
       });
 
       result.push(conversationMessage);
@@ -362,8 +418,8 @@ export const actionCreateMessage = async (
         messages: config?.messages || [],
         conversation,
         customer,
-        optionalConnects,
-      }),
+        optionalConnects
+      })
     };
   } catch (error) {
     debugError(error.message);

@@ -6,11 +6,12 @@ import {
   FormGroup,
   Icon,
 } from "@erxes/ui/src/components";
+
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
-import { __ } from "@erxes/ui/src/utils";
+import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import React from "react";
-import { IConfigsMap } from "../types";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -49,13 +50,17 @@ class PerSettings extends React.Component<Props, State> {
 
   onSave = (e) => {
     e.preventDefault();
+
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
     const key = config.stageId;
 
-    delete configsMap.returnEbarimtConfig[currentConfigKey];
-    configsMap.returnEbarimtConfig[key] = config;
-    this.props.save(configsMap);
+    const returnEbarimtConfig = { ...configsMap.returnEbarimtConfig };
+
+    delete returnEbarimtConfig[currentConfigKey];
+
+    returnEbarimtConfig[key] = config;
+    this.props.save({ ...configsMap, returnEbarimtConfig });
   };
 
   onDelete = (e) => {
@@ -73,9 +78,12 @@ class PerSettings extends React.Component<Props, State> {
   };
 
   onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState((prevState) => ({
+      config: {
+        ...prevState.config,
+        [code]: value,
+      },
+    }));
   };
 
   onChangeInput = (code: string, e) => {

@@ -20,22 +20,18 @@ const loginMiddleware = async (req, res) => {
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  console.log(DOMAIN, 'DOMAIN');
   const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'FACEBOOK_LOGIN_REDIRECT_URL',
     `${API_DOMAIN}/pl:facebook/fblogin`
   );
-  console.log(FACEBOOK_LOGIN_REDIRECT_URL, 'FACEBOOK_LOGIN_REDIRECT_URL');
   const conf = {
     client_id: FACEBOOK_APP_ID,
     client_secret: FACEBOOK_APP_SECRET,
     scope: FACEBOOK_PERMISSIONS,
     redirect_uri: FACEBOOK_LOGIN_REDIRECT_URL
   };
-  console.log(conf, 'conf');
-  console.log(API_DOMAIN, 'API_DOMAIN');
   debugRequest(debugFacebook, req);
 
   // we don't have a code yet
@@ -64,19 +60,15 @@ const loginMiddleware = async (req, res) => {
     client_secret: conf.client_secret,
     code: req.query.code
   };
-  console.log(config, 'config');
   debugResponse(debugFacebook, req, JSON.stringify(config));
+  console.log(req, JSON.stringify(config), 'req, JSON.stringify(config)');
   // If this branch executes user is already being redirected back with
   // code (whatever that is)
   // code is set
   // we'll send that and get the access token
 
-  return graph.authorize(config, async (err, facebookRes) => {
+  return graph.authorize(config, async (_err, facebookRes) => {
     const { access_token } = facebookRes;
-
-    if (err) {
-      console.log(err, 'error');
-    }
 
     const userAccount: {
       id: string;
@@ -86,9 +78,7 @@ const loginMiddleware = async (req, res) => {
       'me?fields=id,first_name,last_name',
       access_token
     );
-    console.log(userAccount, 'userAccount');
     const name = `${userAccount.first_name} ${userAccount.last_name}`;
-    console.log(name, 'name');
     const account = await models.Accounts.findOne({ uid: userAccount.id });
 
     if (account) {
@@ -96,7 +86,6 @@ const loginMiddleware = async (req, res) => {
         { _id: account._id },
         { $set: { token: access_token } }
       );
-      console.log(account, 'account');
       const integrations = await models.Integrations.find({
         accountId: account._id
       });
@@ -116,10 +105,7 @@ const loginMiddleware = async (req, res) => {
     const reactAppUrl = !DOMAIN.includes('ngrok')
       ? DOMAIN
       : 'http://localhost:3000';
-    console.log(account, 'account');
-    console.log(DOMAIN, 'DOMAIN');
     const url = `${reactAppUrl}/settings/fb-authorization?fbAuthorized=true`;
-    console.log(url, 'url');
     debugResponse(debugFacebook, req, url);
 
     return res.redirect(url);

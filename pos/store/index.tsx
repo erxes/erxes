@@ -42,12 +42,6 @@ export const slotFilterAtom = atom<string | null>(null)
 export const refetchUserAtom = atom<boolean>(false)
 
 export const refetchOrderAtom = atomWithStorage<boolean>("refetchOrder", false)
-export const paymentDataAtom = atomWithStorage<null | {
-  kind: string
-  qrData: string
-  amount: number
-}>("paymentData", null)
-export const invoiceIdAtom = atom<null | string>(null)
 
 // dialog
 
@@ -64,6 +58,17 @@ export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "mobileTab",
   "products"
+)
+
+export const nextOrderIdAtom = atom<string | null>(null)
+
+export const resetAtom = atom(
+  () => "",
+  (get, set) => {
+    set(activeCategoryAtom, "")
+    set(refetchUserAtom, true)
+    set(nextOrderIdAtom, "-")
+  }
 )
 
 const JotaiProvider = ({ children }: { children: React.ReactNode }) => {

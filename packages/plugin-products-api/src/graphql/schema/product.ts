@@ -3,6 +3,40 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
+const productFields = (tagsAvailable, contactsAvailable) => {
+  return `
+    _id: String!
+    name: String
+    shortName: String
+    status: String
+    code: String
+    type: String
+    description: String
+    barcodes: [String]
+    variants: JSON
+    barcodeDescription: String
+    unitPrice: Float
+    categoryId: String
+    customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
+    createdAt: Date
+    ${tagsAvailable ? `getTags: [Tag]` : ''}
+    tagIds: [String]
+    attachment: Attachment
+    attachmentMore: [Attachment]
+    vendorId: String
+    scopeBrandIds: [String]
+    uom: String
+    subUoms: JSON
+
+    category: ProductCategory
+    ${contactsAvailable ? 'vendor: Company' : ''}
+    taxType: String
+    taxCode: String
+    hasSimilarity: Boolean
+  `
+}
+
 export const types = (tagsAvailable, contactsAvailable) => `
   ${attachmentType}
   ${attachmentInput}
@@ -47,35 +81,12 @@ export const types = (tagsAvailable, contactsAvailable) => `
   }
 
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
-    _id: String!
-    name: String
-    shortName: String
-    status: String
-    code: String
-    type: String
-    description: String
-    barcodes: [String]
-    variants: JSON
-    barcodeDescription: String
-    unitPrice: Float
-    categoryId: String
-    customFieldsData: JSON
-    customFieldsDataByFieldCode: JSON
-    createdAt: Date
-    ${tagsAvailable ? `getTags: [Tag]` : ''}
-    tagIds: [String]
-    attachment: Attachment
-    attachmentMore: [Attachment]
-    vendorId: String
-    scopeBrandIds: [String]
-    uom: String
-    subUoms: JSON
+    ${productFields(tagsAvailable, contactsAvailable)}
+  }
 
-    category: ProductCategory
-    ${contactsAvailable ? 'vendor: Company' : ''}
-    taxType: String
-    taxCode: String
-    hasSimilarity: Boolean
+  type ProductsUsedPipeline @key(fields: "_id") @cacheControl(maxAge: 3) {
+    ${productFields(tagsAvailable, contactsAvailable)}
+    usedCount: Int
   }
 
   type ProductSimilarityGroup {
@@ -152,13 +163,22 @@ export const queries = `
     page: Int,
     perPage: Int,
     sortField: String
-    sortDirection: Int    
+    sortDirection: Int
   ): [Product]
   productsTotalCount(${productsQueryParams}): Int
   productsGroupCounts(only: String, segment: String, segmentData: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
   productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
+
+  productsCheckUsedPipeline(
+    ${productsQueryParams},
+    excludeStageIds: [String],
+    page: Int,
+    perPage: Int,
+    sortField: String
+    sortDirection: Int
+  ): [ProductsUsedPipeline]
 `;
 
 export const mutations = `
