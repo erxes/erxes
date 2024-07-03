@@ -9,6 +9,8 @@ import {
   IncomingContainer,
   IncomingContent,
   InputBar,
+  KeyPadContainer,
+  KeyPadFooter,
   KeypadHeader,
   NameCardContainer,
   NumberInput,
@@ -18,12 +20,8 @@ import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
   CALL_STATUS_ACTIVE,
-  CALL_STATUS_DISCONNECTED,
-  CALL_STATUS_ENDED,
-  CALL_STATUS_FAILED,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
-  CALL_STATUS_STOPPING,
   SIP_STATUS_DISCONNECTED,
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
@@ -32,6 +30,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   calculateTimeElapsed,
   callActions,
+  endCallOption,
   formatPhone,
   getSpentTime,
   renderKeyPad,
@@ -87,10 +86,12 @@ const KeyPad = (props: Props, context) => {
 
   const [selectFocus, setSelectFocus] = useState(false);
   const [number, setNumber] = useState(phoneNumber || '');
+  const [code, setCode] = useState('0');
   const [dialCode, setDialCode] = useState('');
   // const [ringingSound, setRingingSound] = useState(false);
 
   const [showTrigger, setShowTrigger] = useState(false);
+  const [showKeyPad, setShowKeyPad] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [callFrom, setCallFrom] = useState(
     JSON.parse(defaultCallIntegration || '{}')?.phone ||
@@ -101,9 +102,7 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
-  const [isPaused, setPaused] = useState(
-    agentStatus === 'pause' ? true : false,
-  );
+  const [isPaused, setPaused] = useState(!!(agentStatus === 'paused'));
 
   const shrink = customer ? true : false;
 
@@ -126,21 +125,6 @@ const KeyPad = (props: Props, context) => {
     setNumber(phoneNumber);
     setPaused(agentStatus === 'pause' ? true : false);
   }, [phoneNumber, loading]);
-
-  // useEffect(() => {
-  //   const audio = outgoingAudio.current;
-
-  //   if (ringingSound) {
-  //     audio.loop = true;
-  //     audio
-  //       .play()
-  //       .catch((error) => console.error("Error playing audio:", error));
-  //   } else {
-  //     audio.loop = false;
-  //     audio.pause();
-  //     audio.currentTime = 0;
-  //   }
-  // }, [ringingSound]);
 
   useEffect(() => {
     let timer;
@@ -184,21 +168,14 @@ const KeyPad = (props: Props, context) => {
       localStorage.removeItem('transferedCallStatus');
     }
 
-    // if (
-    //   call?.status === CALL_STATUS_STOPPING ||
-    //   call?.status === CALL_STATUS_FAILED ||
-    //   call?.status === CALL_STATUS_DISCONNECTED ||
-    //   call?.status === CALL_STATUS_ENDED
-    // ) {
-    //   const audio = hangupAudio.current;
-    //   audio.play();
-    // }
     return () => {
-      // setRingingSound(false);
-
       clearInterval(timer);
     };
   }, [call?.status]);
+
+  const onClickKeyPad = () => {
+    setShowKeyPad(!showKeyPad);
+  };
 
   const handleCall = () => {
     if (!hasMicrophone) {
@@ -272,6 +249,7 @@ const KeyPad = (props: Props, context) => {
       dialNumber = dialCode.slice(0, -1);
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         setDialCode(dialNumber);
+        setCode(dialNumber);
       } else {
         setNumber(num);
       }
@@ -283,10 +261,10 @@ const KeyPad = (props: Props, context) => {
       num += e;
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         dialNumber += e;
-
         const { sendDtmf } = context;
-        if (dialNumber.includes('*') && sendDtmf) {
-          sendDtmf(dialNumber);
+        if (sendDtmf) {
+          sendDtmf(e);
+          setCode(dialNumber);
           setDialCode(dialNumber);
         }
       } else {
@@ -392,6 +370,28 @@ const KeyPad = (props: Props, context) => {
     );
   };
 
+  const renderKeyPadView = () => {
+    return (
+      <KeyPadContainer>
+        <InputBar type="keypad">
+          <input
+            placeholder={__('0')}
+            name="searchValue"
+            value={code}
+            onKeyDown={handleKeyDown}
+            ref={inputRef}
+            autoComplete="off"
+            type="number"
+          />
+        </InputBar>
+        {renderKeyPad(handNumPad)}
+        <KeyPadFooter>
+          {endCallOption(handleCallStop, onClickKeyPad)}
+        </KeyPadFooter>
+      </KeyPadContainer>
+    );
+  };
+
   const renderCallerInfo = () => {
     if (!formatedPhone) {
       return null;
@@ -422,6 +422,10 @@ const KeyPad = (props: Props, context) => {
     Sip.call?.direction === CALL_DIRECTION_OUTGOING &&
     Sip.call?.status === CALL_STATUS_STARTING
   ) {
+    if (showKeyPad) {
+      return renderKeyPadView();
+    }
+
     return (
       <IncomingCallNav type="outgoing">
         <IncomingContainer>
@@ -445,6 +449,7 @@ const KeyPad = (props: Props, context) => {
                 currentCallConversationId.length !== 0
                 ? false
                 : true,
+              onClickKeyPad,
             )}
           </IncomingContent>
         </IncomingContainer>
@@ -452,6 +457,10 @@ const KeyPad = (props: Props, context) => {
     );
   }
   if (Sip.call?.status === CALL_STATUS_ACTIVE) {
+    if (showKeyPad) {
+      return renderKeyPadView();
+    }
+
     return (
       <IncomingCallNav type="outgoing">
         <IncomingContainer>
@@ -475,6 +484,7 @@ const KeyPad = (props: Props, context) => {
                 currentCallConversationId.length !== 0
                 ? false
                 : true,
+              onClickKeyPad,
             )}
           </IncomingContent>
         </IncomingContainer>

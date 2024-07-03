@@ -5,11 +5,11 @@ import {
   InnerActions,
   Keypad,
 } from "./styles";
+import React, { useState } from "react";
 import { numbers, symbols } from "./constants";
 
 import DialogComponent from "./components/Dialog";
 import { Icon } from "@erxes/ui/src/components";
-import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import moment from "moment";
 
@@ -47,9 +47,10 @@ export const getSpentTime = (seconds: number) => {
     </>
   );
 };
-export const renderKeyPad = (handNumPad) => {
+
+export const renderKeyPad = (handNumPad, isTransparent?: boolean) => {
   return (
-    <Keypad>
+    <Keypad $transparent={isTransparent}>
       {numbers.map((n) => (
         <div className="number" key={n} onClick={() => handNumPad(n)}>
           {n}
@@ -76,6 +77,20 @@ export const renderKeyPad = (handNumPad) => {
   );
 };
 
+export const endCallOption = (endCall, onClickKeyPad) => {
+  return (
+    <>
+      <div>
+        <CallAction onClick={endCall} $isDecline={true}>
+          <Icon size={20} icon="phone-slash" />
+        </CallAction>
+        {__("End Call")}
+      </div>
+      <span onClick={onClickKeyPad}>{__("Hide Keypad")}</span>
+    </>
+  );
+};
+
 export const callActions = (
   isMuted,
   handleAudioToggle,
@@ -84,7 +99,8 @@ export const callActions = (
   disableTransferCall,
   direction,
   gotoDetail,
-  disableDetail
+  disableDetail,
+  onClickKeyPad
 ) => {
   return (
     <InCallFooter>
@@ -116,6 +132,13 @@ export const callActions = (
             </CallAction>
 
             {__("Detail")}
+          </div>
+          <div>
+            <CallAction onClick={onClickKeyPad}>
+              <Icon size={20} icon={"dialpad-alt"} />
+            </CallAction>
+
+            {__("Keypad")}
           </div>
         </InnerActions>
         <div>
