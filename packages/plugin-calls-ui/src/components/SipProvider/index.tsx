@@ -425,10 +425,10 @@ export default class SipProvider extends React.Component<
       this.ringbackTone
         .play()
         .catch(() => {
-          this.ringbackTone = '';
+          this.ringbackTone = null;
         })
         .then(() => {
-          this.ringbackTone = '';
+          this.ringbackTone = null;
         });
     }
   }
@@ -440,10 +440,10 @@ export default class SipProvider extends React.Component<
       this.ringbackTone
         .play()
         .catch(() => {
-          this.ringbackTone = '';
+          this.ringbackTone = null;
         })
         .then(() => {
-          this.ringbackTone = '';
+          this.ringbackTone = null;
         });
     }
   }
@@ -455,10 +455,10 @@ export default class SipProvider extends React.Component<
       this.ringbackTone
         .play()
         .catch(() => {
-          this.ringbackTone = '';
+          this.ringbackTone = null;
         })
         .then(() => {
-          this.ringbackTone = '';
+          this.ringbackTone = null;
         });
     }
   }
@@ -481,7 +481,7 @@ export default class SipProvider extends React.Component<
     if (this.ringbackTone) {
       this.ringbackTone.pause();
       this.ringbackTone.currentTime = 0;
-      this.ringbackTone = '';
+      this.ringbackTone = null;
     }
   }
 
