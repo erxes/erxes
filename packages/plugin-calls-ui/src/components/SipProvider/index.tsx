@@ -520,21 +520,6 @@ export default class SipProvider extends React.Component<
       } as any;
 
       this.ua = new JsSIP.UA(options);
-
-      function reconnectWebSocket() {
-        setTimeout(() => {
-          socket.connect();
-        }, 5000);
-      }
-      socket.ondisconnect = (error, code, reason) => {
-        console.log('error:', error);
-        console.log('Code:', code);
-        console.log('Reason:', reason);
-
-        if (code === 1006) {
-          reconnectWebSocket();
-        }
-      };
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
@@ -580,14 +565,12 @@ export default class SipProvider extends React.Component<
       this.logger.debug('UA "disconnected" event');
 
       if (e.code === 1006) {
-        // Retry connection after a delay
-        setTimeout(this.reinitializeJsSIP, 5000); // Retry after 5 seconds
+        setTimeout(this.reinitializeJsSIP, 5000);
       }
       if (this.ua !== ua) {
         return;
       }
       setLocalStorage(false, false);
-      console.log('disconnected:', e);
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_CONNECTION,
@@ -630,7 +613,6 @@ export default class SipProvider extends React.Component<
 
     ua.on('registrationFailed', (data) => {
       this.logger.debug('UA "registrationFailed" event');
-      console.log('registrationfailed:', data);
       if (this.ua !== ua) {
         return;
       }
@@ -650,7 +632,6 @@ export default class SipProvider extends React.Component<
         if (!this || this.ua !== ua) {
           return;
         }
-        // identify call direction
         if (originator === 'local') {
           const foundUri = rtcRequest.to.toString();
           const toDelimiterPosition = foundUri.indexOf(';') || null;
@@ -681,7 +662,7 @@ export default class SipProvider extends React.Component<
 
         let direction = 'OUTGOING';
         let customerPhone = '';
-        // Avoid if busy or other incoming
+
         if (rtcSessionInState) {
           this.logger.debug('incoming call replied with 486 "Busy Here"');
           rtcSession.terminate({
@@ -809,7 +790,6 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('rejected', function (e) {
-          console.log('rejected:', e);
           if (this.ua !== ua) {
             return;
           }
