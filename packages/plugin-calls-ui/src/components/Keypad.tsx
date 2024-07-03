@@ -251,7 +251,6 @@ const KeyPad = (props: Props, context) => {
     setSelectFocus(!selectFocus);
 
     if (e === 'delete') {
-      console.log('1');
       num = number.slice(0, -1);
       dialNumber = dialCode.slice(0, -1);
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
