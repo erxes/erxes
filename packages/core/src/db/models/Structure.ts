@@ -521,8 +521,6 @@ export const loadPositionClass = (models: IModels) => {
       doc: any,
       user: IUserDocument,
     ) {
-      console.log(doc, ' doc');
-
       const position = await models.Positions.getPosition({ _id });
 
       if (position?.code !== doc.code) {

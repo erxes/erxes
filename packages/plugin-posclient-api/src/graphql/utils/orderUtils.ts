@@ -6,12 +6,14 @@ import { IOrderItemDocument } from '../../models/definitions/orderItems';
 import {
   BILL_TYPES,
   ORDER_TYPES,
-  ORDER_ITEM_STATUSES
+  ORDER_ITEM_STATUSES,
+  PRODUCT_TYPES,
+  SUBSCRIPTION_INFO_STATUS,
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
   IConfig,
-  IEbarimtConfig
+  IEbarimtConfig,
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { debugError } from '@erxes/api-utils/src/debuggers';
@@ -22,6 +24,8 @@ import { checkRemainders } from './products';
 import { getPureDate } from '@erxes/api-utils/src';
 import { checkDirectDiscount } from './directDiscount';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
+import { sendProductsMessage } from '../../messageBroker';
+import { nanoid } from 'nanoid';
 import { getCompanyInfo } from '../../models/PutData';
 
 interface IDetailItem {
@@ -34,7 +38,7 @@ interface IDetailItem {
 
 export const generateOrderNumber = async (
   models: IModels,
-  config: IConfig
+  config: IConfig,
 ): Promise<string> => {
   const todayStr = moment().format('YYYYMMDD').toString();
 
@@ -50,17 +54,17 @@ export const generateOrderNumber = async (
     {
       $match: {
         posToken: config.token,
-        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) }
-      }
+        number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
+      },
     },
     {
       $project: {
         number: 1,
-        number_len: { $strLenCP: '$number' }
-      }
+        number_len: { $strLenCP: '$number' },
+      },
     },
     { $sort: { number_len: -1, number: -1 } },
-    { $limit: 1 }
+    { $limit: 1 },
   ]);
 
   if (latestOrders.length) {
@@ -93,24 +97,24 @@ export const validateOrder = async (
   subdomain: string,
   models: IModels,
   config: IConfigDocument,
-  doc: IOrderInput
+  doc: IOrderInput,
 ) => {
   const { items = [] } = doc;
 
-  if (!items.filter(i => !i.isPackage).length) {
+  if (!items.filter((i) => !i.isPackage).length) {
     throw new Error('Products missing in order. Please add products');
   }
 
   if (doc.isPre && (!doc.dueDate || doc.dueDate < getPureDate(new Date()))) {
     throw new Error(
-      'The due date of the pre-order must be recorded in the future'
+      'The due date of the pre-order must be recorded in the future',
     );
   }
 
   const products = await models.Products.find({
-    _id: { $in: items.map(i => i.productId) }
+    _id: { $in: items.map((i) => i.productId) },
   }).lean();
-  const productIds = products.map(p => p._id);
+  const productIds = products.map((p) => p._id);
 
   for (const item of items) {
     // will throw error if product is not found
@@ -119,13 +123,19 @@ export const validateOrder = async (
     }
   }
 
+  if(products.find(product=>product?.type === PRODUCT_TYPES.SUBSCRIPTION) && !doc?.customerId){
+    throw new Error(
+      'Please ensure that the customer information is included in the order, as there are subscription-based products within it.'
+    );
+  }
+
   if (
     config.isCheckRemainder &&
     (doc.branchId || config.branchId) &&
     config.departmentId
   ) {
     const checkProducts = products.filter(
-      p => (p.isCheckRems || {})[config.token || ''] || false
+      (p) => (p.isCheckRems || {})[config.token || ''] || false,
     );
 
     if (checkProducts.length) {
@@ -133,7 +143,7 @@ export const validateOrder = async (
         subdomain,
         config,
         checkProducts,
-        doc.branchId || config.branchId
+        doc.branchId || config.branchId,
       );
 
       const errors: string[] = [];
@@ -150,7 +160,7 @@ export const validateOrder = async (
 
         if (!doc.isPre && product.remainder < item.count) {
           errors.push(
-            `#${product.code} - ${product.name} have a potential sales balance of ${product.remainder}`
+            `#${product.code} - ${product.name} have a potential sales balance of ${product.remainder}`,
           );
         }
 
@@ -159,7 +169,7 @@ export const validateOrder = async (
           product.remainder + product.soonIn - product.soonOut < item.count
         ) {
           errors.push(
-            `#${product.code} - ${product.name} have a potential sales limit of ${product.remainder}`
+            `#${product.code} - ${product.name} have a potential sales limit of ${product.remainder}`,
           );
         }
       }
@@ -178,7 +188,7 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
   const {
     cashAmount: paidCash = 0,
     mobileAmount: paidMobile = 0,
-    paidAmounts
+    paidAmounts,
   } = order;
   const { cashAmount = 0 } = doc;
 
@@ -187,7 +197,7 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
       paidCash +
       paidMobile +
       (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0)
-    ).toFixed(2)
+    ).toFixed(2),
   );
   // only remainder cash amount will come
   const total = Number(cashAmount.toFixed(2));
@@ -200,9 +210,9 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
 export const cleanOrderItems = async (
   orderId: string,
   items: IOrderItemInput[],
-  models: IModels
+  models: IModels,
 ) => {
-  const itemIds = items.map(item => item._id);
+  const itemIds = items.map((item) => item._id);
 
   await models.OrderItems.deleteMany({ orderId, isPackage: true });
   await models.OrderItems.deleteMany({ orderId, _id: { $nin: itemIds } });
@@ -211,13 +221,13 @@ export const cleanOrderItems = async (
 export const updateOrderItems = async (
   orderId: string,
   items: IOrderItemInput[],
-  models: IModels
+  models: IModels,
 ) => {
   const oldItems = await models.OrderItems.find({
-    _id: { $in: items.map(item => item._id) }
+    _id: { $in: items.map((item) => item._id) },
   }).lean();
 
-  const itemIds = oldItems.map(i => i._id);
+  const itemIds = oldItems.map((i) => i._id);
 
   for (const item of items) {
     const doc = {
@@ -232,7 +242,7 @@ export const updateOrderItems = async (
       isTake: item.isTake,
       manufacturedDate: item.manufacturedDate,
       description: item.description,
-      attachment: item.attachment
+      attachment: item.attachment,
     };
 
     if (itemIds.includes(item._id)) {
@@ -240,7 +250,7 @@ export const updateOrderItems = async (
     } else {
       await models.OrderItems.createOrderItem({
         ...doc,
-        orderId
+        orderId,
       });
     }
   }
@@ -262,7 +272,7 @@ export const prepareEbarimtData = async (
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
   orderBillType?: string,
-  registerNumber?: string
+  registerNumber?: string,
 ) => {
   const billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let type: string = billType === '3' ? 'B2B_RECEIPT' : 'B2C_RECEIPT';
@@ -271,7 +281,10 @@ export const prepareEbarimtData = async (
   let customerName = '';
 
   if (registerNumber) {
-    const resp = await getCompanyInfo({ checkTaxpayerUrl: config.checkTaxpayerUrl, no: registerNumber })
+    const resp = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: registerNumber,
+    });
 
     if (resp.status === 'checked' && resp.tin) {
       type = 'B2B_RECEIPT';
@@ -281,8 +294,10 @@ export const prepareEbarimtData = async (
     }
   }
 
-  const productIds = items.map(item => item.productId);
-  const products: IProductDocument[] = await models.Products.find({ _id: { $in: productIds } }).lean();
+  const productIds = items.map((item) => item.productId);
+  const products: IProductDocument[] = await models.Products.find({
+    _id: { $in: productIds },
+  }).lean();
   const productsById = {};
 
   for (const product of products) {
@@ -301,45 +316,50 @@ export const prepareEbarimtData = async (
     customerName,
     customerTin,
 
-    details: items.filter(item => {
-      return Boolean(productsById[item.productId]);
-    }).map(item => {
-      const product: IProductDocument = productsById[item.productId];
-      return {
-        recId: item._id,
-        product,
-        quantity: item.count,
-        unitPrice: item.unitPrice ?? 0,
-        totalDiscount: item.discountAmount,
-        totalAmount: item.count * (item.unitPrice ?? 0)
-      }
-    }),
-    nonCashAmounts: [...order.paidAmounts || [], ...order.mobileAmounts || []].map(pay => ({ amount: pay.amount }))
-  }
+    details: items
+      .filter((item) => {
+        return Boolean(productsById[item.productId]);
+      })
+      .map((item) => {
+        const product: IProductDocument = productsById[item.productId];
+        return {
+          recId: item._id,
+          product,
+          quantity: item.count,
+          unitPrice: item.unitPrice ?? 0,
+          totalDiscount: item.discountAmount,
+          totalAmount: item.count * (item.unitPrice ?? 0),
+        };
+      }),
+    nonCashAmounts: [
+      ...(order.paidAmounts || []),
+      ...(order.mobileAmounts || []),
+    ].map((pay) => ({ amount: pay.amount })),
+  };
 };
 
 const getMatchMaps = (matchOrders, lastCatProdMaps, product) => {
   for (const order of matchOrders) {
     const matchMaps = lastCatProdMaps.filter(
-      lcp => lcp.category.order === order
+      (lcp) => lcp.category.order === order,
     );
 
     if (matchMaps.length) {
       const withCodeMatch = matchMaps.find(
-        m => m.code && product.code.includes(m.code)
+        (m) => m.code && product.code.includes(m.code),
       );
       if (withCodeMatch) {
         return withCodeMatch;
       }
 
       const withNameMatch = matchMaps.find(
-        m => !m.code && m.name && product.name.includes(m.name)
+        (m) => !m.code && m.name && product.name.includes(m.name),
       );
       if (withNameMatch) {
         return withNameMatch;
       }
 
-      const normalMatch = matchMaps.find(m => !m.code && !m.name);
+      const normalMatch = matchMaps.find((m) => !m.code && !m.name);
       if (normalMatch) {
         return normalMatch;
       }
@@ -374,14 +394,16 @@ export const prepareOrderDoc = async (
   doc: IOrderInput,
   config: IConfigDocument,
   models: IModels,
-  posUser: IPosUserDocument
+  posUser?: IPosUserDocument,
 ) => {
   const { catProdMappings = [] } = config;
 
-  const items = doc.items.filter(i => !i.isPackage) || [];
+  let subscriptionUoms: any[] = [];
+
+  const items = doc.items.filter((i) => !i.isPackage) || [];
 
   const products: IProductDocument[] = await models.Products.find({
-    _id: { $in: items.map(i => i.productId) }
+    _id: { $in: items.map((i) => i.productId) },
   }).lean();
 
   const productsOfId: { [_id: string]: IProductDocument } = {};
@@ -390,44 +412,83 @@ export const prepareOrderDoc = async (
     productsOfId[prod._id] = prod;
   }
 
+  let subscriptionInfo;
+
+  if (products.find((product) => product?.type === PRODUCT_TYPES.SUBSCRIPTION)) {
+    subscriptionUoms = await sendProductsMessage({
+      subdomain,
+      action: 'uoms.find',
+      data: { isForSubscription: true },
+      isRPC: true,
+      defaultValue: [],
+    });
+  }
+
   // set unitPrice
   doc.totalAmount = 0;
   for (const item of items) {
     const fixedUnitPrice = Number(
       Number(
         ((productsOfId[item.productId] || {}).prices || {})[config.token] ||
-        item.unitPrice ||
-        0
-      ).toFixed(2)
+          item.unitPrice ||
+          0,
+      ).toFixed(2),
     );
 
     item.unitPrice = isNaN(fixedUnitPrice) ? 0 : fixedUnitPrice;
     doc.totalAmount += (item.count || 0) * fixedUnitPrice;
+
+    if (
+      productsOfId[item.productId]?.type === PRODUCT_TYPES.SUBSCRIPTION &&
+      subscriptionUoms.some(
+        (uom) => uom.code === productsOfId[item.productId]?.uom,
+      )
+    ) {
+      const { subscriptionConfig = {} } =
+        subscriptionUoms.find(
+          ({ code }) => code === productsOfId[item.productId]?.uom,
+        ) || {};
+
+      const period = (subscriptionConfig?.period || '').replace('ly', '');
+
+      item.closeDate = new Date(
+        moment()
+          .add(item.count || 0, period)
+          .toISOString(),
+      );
+
+      if (!subscriptionInfo) {
+        subscriptionInfo = {
+          subscriptionId: doc?.subscriptionId || nanoid(),
+          status: SUBSCRIPTION_INFO_STATUS.ACTIVE,
+        };
+      }
+    }
   }
 
-  const hasTakeItems = items.filter(i => i.isTake);
+  const hasTakeItems = items.filter((i) => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
     const toAddProducts = {};
 
     const mapCatIds = catProdMappings
-      .filter(cpm => cpm.categoryId)
-      .map(cpm => cpm.categoryId);
-    const hasTakeProducIds = hasTakeItems.map(hti => hti.productId);
+      .filter((cpm) => cpm.categoryId)
+      .map((cpm) => cpm.categoryId);
+    const hasTakeProducIds = hasTakeItems.map((hti) => hti.productId);
     const hasTakeCatIds = hasTakeProducIds.map(
-      htpi => (productsOfId[htpi] || {}).categoryId
+      (htpi) => (productsOfId[htpi] || {}).categoryId,
     );
     const categories = await models.ProductCategories.find({
-      _id: { $in: [...mapCatIds, ...hasTakeCatIds] }
+      _id: { $in: [...mapCatIds, ...hasTakeCatIds] },
     }).lean();
 
     const categoriesOfId = {};
     for (const cat of categories) {
       categoriesOfId[cat._id] = cat;
     }
-    const lastCatProdMaps = catProdMappings.map(cpm => ({
+    const lastCatProdMaps = catProdMappings.map((cpm) => ({
       ...cpm,
-      category: categoriesOfId[cpm.categoryId]
+      category: categoriesOfId[cpm.categoryId],
     }));
 
     for (const item of hasTakeItems) {
@@ -460,14 +521,14 @@ export const prepareOrderDoc = async (
 
     if (addProductIds.length) {
       const takingProducts = await models.Products.find({
-        _id: { $in: addProductIds }
+        _id: { $in: addProductIds },
       });
 
       for (const addProduct of takingProducts) {
         const toAddItem = toAddProducts[addProduct._id];
 
         const fixedUnitPrice = Number(
-          ((addProduct.prices || {})[config.token] || 0).toFixed(2)
+          ((addProduct.prices || {})[config.token] || 0).toFixed(2),
         );
 
         items.push({
@@ -476,7 +537,7 @@ export const prepareOrderDoc = async (
           count: toAddItem.count,
           unitPrice: fixedUnitPrice,
           isPackage: true,
-          isTake: true
+          isTake: true,
         });
 
         doc.totalAmount += (toAddItem.count || 0) * fixedUnitPrice;
@@ -490,24 +551,30 @@ export const prepareOrderDoc = async (
     config.deliveryConfig.productId
   ) {
     const deliveryProd = await models.Products.findOne({
-      _id: config.deliveryConfig.productId
+      _id: config.deliveryConfig.productId,
     }).lean();
 
     if (deliveryProd) {
-      const deliveryUnitPrice = (deliveryProd.prices || {})[config.token || ''] || 0;
+      const deliveryUnitPrice =
+        (deliveryProd.prices || {})[config.token || ''] || 0;
       items.push({
         _id: Math.random().toString(),
         productId: deliveryProd._id,
         count: 1,
         unitPrice: deliveryUnitPrice,
         isPackage: true,
-        isTake: true
+        isTake: true,
       });
       doc.totalAmount += deliveryUnitPrice;
     }
   }
 
-  return await checkPrices(subdomain, { ...doc, items }, config, posUser);
+  return await checkPrices(
+    subdomain,
+    { ...doc, items, subscriptionInfo },
+    config,
+    posUser,
+  );
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
@@ -542,25 +609,25 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
 
 export const reverseItemStatus = async (
   models: IModels,
-  items: IOrderItemInput[]
+  items: IOrderItemInput[],
 ) => {
   let newPreparedDocItems: IOrderItemInput[] = [...items];
   try {
     const oldOrderItems = await models.OrderItems.find({
-      _id: { $in: items.map(item => item._id) }
+      _id: { $in: items.map((item) => item._id) },
     }).lean();
     if (oldOrderItems) {
       newPreparedDocItems.forEach(async (newItem, index) => {
         const foundItem = oldOrderItems.find(
-          oldItem =>
-            oldItem._id === newItem._id && oldItem.count < newItem.count
+          (oldItem) =>
+            oldItem._id === newItem._id && oldItem.count < newItem.count,
         );
         if (foundItem && foundItem._id) {
           newPreparedDocItems[index].status = ORDER_ITEM_STATUSES.CONFIRM;
 
           await models.OrderItems.updateOrderItem(foundItem._id, {
             ...foundItem,
-            status: ORDER_ITEM_STATUSES.CONFIRM
+            status: ORDER_ITEM_STATUSES.CONFIRM,
           });
         }
       });
@@ -572,9 +639,14 @@ export const reverseItemStatus = async (
   }
 };
 
-export const fakePutData = async (models: IModels, items: IOrderItemDocument[], order: IOrderDocument, config: IConfig) => {
+export const fakePutData = async (
+  models: IModels,
+  items: IOrderItemDocument[],
+  order: IOrderDocument,
+  config: IConfig,
+) => {
   const products = await models.Products.find({
-    _id: { $in: items.map(item => item.productId) }
+    _id: { $in: items.map((item) => item.productId) },
   });
   const productById = {};
   for (const product of products) {
@@ -602,29 +674,30 @@ export const fakePutData = async (models: IModels, items: IOrderItemDocument[], 
     customerNo: '',
     customerName: '',
 
-    receipts: [{
-      _id: '',
-      id: '',
-      totalAmount: order.totalAmount,
-      totalVAT: 0,
-      totalCityTax: 0,
-      taxType: 'NOT_SEND',
-      items: items.map(item => ({
-        _id: item._id,
-        id: item.id,
-        name: productById[item.productId].shortName || productById[item.productId].name,
-        measureUnit: productById[item.productId].uom || 'ш',
-        qty: item.count,
-        unitPrice: item.unitPrice,
-        totalAmount: (item.unitPrice ?? 0) * item.count,
+    receipts: [
+      {
+        _id: '',
+        id: '',
+        totalAmount: order.totalAmount,
         totalVAT: 0,
         totalCityTax: 0,
-        totalBonus: item.discountAmount,
-      })),
-    }],
-    payments: [
-      {}
+        taxType: 'NOT_SEND',
+        items: items.map((item) => ({
+          _id: item._id,
+          id: item.id,
+          name:
+            productById[item.productId].shortName ||
+            productById[item.productId].name,
+          measureUnit: productById[item.productId].uom || 'ш',
+          qty: item.count,
+          unitPrice: item.unitPrice,
+          totalAmount: (item.unitPrice ?? 0) * item.count,
+          totalVAT: 0,
+          totalCityTax: 0,
+          totalBonus: item.discountAmount,
+        })),
+      },
     ],
-
+    payments: [{}],
   };
-}
+};

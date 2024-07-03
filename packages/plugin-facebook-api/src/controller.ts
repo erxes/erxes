@@ -80,7 +80,6 @@ const init = async (app) => {
     const models = await generateModels(subdomain);
 
     const data = req.body;
-    console.log('data receive:', data);
     if (data.object !== 'page') {
       return;
     }

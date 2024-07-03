@@ -1,7 +1,6 @@
 import { BaseApi } from './base';
 
 export class BurenScoringApi extends BaseApi {
-  
   async getScoring(params: {
     keyword: string;
     reportPurpose: string;

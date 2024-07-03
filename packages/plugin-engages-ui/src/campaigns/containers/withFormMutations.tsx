@@ -45,7 +45,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
     const message =
       engageMessageDetailQuery.engageMessageDetail || ({} as IEngageMessage);
     const users = usersQuery.allUsers || [];
-    const verifiedUsers = users.filter(user => user.username) || [];
+    const verifiedUsers = users.filter((user) => user.username || user.email) || [];
 
     const doMutation = (mutation, variables, msg) => {
       setIsLoading(true);
@@ -109,6 +109,7 @@ function withSaveAndEdit<IComponentProps>(Component) {
       save,
       users: verifiedUsers,
       isActionLoading: isLoading,
+      kind,
       message: {
         ...message,
         // excluding __type auto fields
