@@ -11,7 +11,7 @@ const pathReplacer = (subdomain: string, html: any, site: ISiteDocument) => {
   }
 
   if (html.includes(path)) {
-    if (site.domain && site.domain.includes('http')) {
+    if (site.domain?.includes('http')) {
       html = html.replace(new RegExp(path, 'g'), '');
     }
 
