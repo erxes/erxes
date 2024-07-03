@@ -60,7 +60,7 @@ class Form extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentDidUpdate(nextProps: Props) {
     const { saveForm, type, isReadyToSave, formData } = this.props;
     const { title, buttonText, description, fields } = this.state;
 
