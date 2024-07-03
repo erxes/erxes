@@ -1,13 +1,12 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import React from 'react';
+import { IUser } from "@erxes/ui/src/auth/types";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql, useQuery } from "@apollo/client";
+import React from "react";
 
-import ClientPortalUserDetail from '../../components/detail/ClientPortalUserDetails';
-import { queries } from '../../graphql';
-import { ClientPoratlUserDetailQueryResponse } from '../../types';
-import { useQuery } from '@apollo/client';
+import ClientPortalUserDetail from "../../components/detail/ClientPortalUserDetails";
+import { queries } from "../../graphql";
+import { ClientPoratlUserDetailQueryResponse } from "../../types";
 
 type Props = {
   id: string;
@@ -28,7 +27,7 @@ function CustomerDetailsContainer(props: FinalProps) {
         variables: {
           _id: id,
         },
-      },
+      }
     );
 
   if (clientPortalUserDetailQuery.loading) {

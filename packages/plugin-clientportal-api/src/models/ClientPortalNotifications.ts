@@ -1,4 +1,3 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
@@ -51,7 +50,7 @@ export const loadNotificationClass = (models: IModels) => {
         contentTypeId,
       });
 
-      return notification ? false : true;
+      return !notification;
     }
 
     /**

@@ -1,6 +1,6 @@
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { Alert, confirm, router as routerUtils } from "@erxes/ui/src/utils";
-import { gql } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
 import React from "react";
 
 import Component from "../components/List";
@@ -11,7 +11,6 @@ import {
   ClientPortalGetLastQueryResponse,
   ClientPortalTotalQueryResponse,
 } from "../types";
-import { useQuery, useMutation } from "@apollo/client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type ListProps = {

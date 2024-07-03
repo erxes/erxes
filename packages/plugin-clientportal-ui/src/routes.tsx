@@ -1,8 +1,7 @@
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 const BusinessPortalMenu = asyncComponent(
   () =>
@@ -51,32 +50,28 @@ const BusinessPortal = () => {
 
   const queryParams = queryString.parse(location.search);
 
-  return <BusinessPortalMenu queryParams={queryParams}  />;
+  return <BusinessPortalMenu queryParams={queryParams} />;
 };
 
 const ClientPortalComponent = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return (
-    <ClientPortal queryParams={queryParams}  kind="client" />
-  );
+  return <ClientPortal queryParams={queryParams} kind="client" />;
 };
 
 const VendorPortal = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return (
-    <ClientPortal queryParams={queryParams}  kind="vendor" />
-  );
+  return <ClientPortal queryParams={queryParams} kind="vendor" />;
 };
 
 const ConfigsForm = () => {
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
 
-  return <ClientPortalDetail queryParams={queryParams}  />;
+  return <ClientPortalDetail queryParams={queryParams} />;
 };
 
 const UserDetail = () => {
@@ -84,18 +79,13 @@ const UserDetail = () => {
   const { id } = useParams();
 
   const queryParams = queryString.parse(location.search);
-  return (
-    <ClientPortalUserDetails
-      id={id}
-      queryParams={queryParams}
-    />
-  );
+  return <ClientPortalUserDetails id={id} queryParams={queryParams} />;
 };
 
 const CompanyDetail = () => {
   const { id } = useParams();
 
-  return <ClientPortalCompanyDetails id={id}  />;
+  return <ClientPortalCompanyDetails id={id} />;
 };
 
 const List = () => {
@@ -108,12 +98,7 @@ const List = () => {
     kind = "vendor";
   }
 
-  return (
-    <ClientPortalUserList
-      queryParams={queryParams}
-      kind={kind}
-    />
-  );
+  return <ClientPortalUserList queryParams={queryParams} kind={kind} />;
 };
 
 const routes = () => (

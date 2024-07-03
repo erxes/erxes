@@ -1,14 +1,13 @@
-import { Alert } from '@erxes/ui/src/utils';
+import { Alert } from "@erxes/ui/src/utils";
 import {
   ClientPortalUserAssignCompanyMutationResponse,
   IClientPortalUser,
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+} from "../../types";
+import { mutations, queries } from "../../graphql";
 
-import CompanyAssignForm from '../../components/detail/CompanyAssignForm';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { useMutation } from '@apollo/client';
+import CompanyAssignForm from "../../components/detail/CompanyAssignForm";
+import React from "react";
+import { gql, useMutation } from "@apollo/client";
 
 type Props = {
   queryParams?: any;
@@ -30,19 +29,19 @@ const FormContainer = (props: FinalProps) => {
           variables: { _id: clientPortalUser._id },
         },
       ],
-    },
+    }
   );
 
   const assignCompany = (
     userId: string,
     erxesCompanyId: string,
-    erxesCustomerId: string,
+    erxesCustomerId: string
   ) => {
     clientPortalUserAssignCompany({
       variables: { erxesCustomerId, erxesCompanyId, userId },
     })
       .then(() => {
-        Alert.success('Successfully assigned company');
+        Alert.success("Successfully assigned company");
         closeModal();
       })
       .catch((err) => Alert.error(err));

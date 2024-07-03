@@ -37,7 +37,7 @@ const BasicInfoSection: React.FC<Props> = ({
       <>
         {(isEnabled("engages") || isEnabled("imap")) && (
           <EmailWidget
-            disabled={email ? false : true}
+            disabled={!email}
             buttonStyle={email ? "primary" : "simple"}
             emailTo={email}
             customerId={clientPortalUser._id || undefined}

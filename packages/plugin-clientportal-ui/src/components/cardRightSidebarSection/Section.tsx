@@ -1,23 +1,19 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { IClientPortalParticipant, IClientPortalUser } from '../../types';
-
-import Box from '@erxes/ui/src/components/Box';
-import ClientPortalParticipantForm from '../../containers/ClientPortalParticipantForm';
-import ClientUserChooser from '../../containers/ClientUserChooser';
-import Detail from './Detail';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ItemContainer } from '@erxes/ui-cards/src/boards/styles/common';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { ParticipantsWrapper } from '../../styles';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import { renderFullName } from '@erxes/ui/src/utils/core';
+import { IClientPortalParticipant } from "../../types";
+import Box from "@erxes/ui/src/components/Box";
+import ClientPortalParticipantForm from "../../containers/ClientPortalParticipantForm";
+import ClientUserChooser from "../../containers/ClientUserChooser";
+import Detail from "./Detail";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import { ItemContainer } from "@erxes/ui-cards/src/boards/styles/common";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import { ParticipantsWrapper } from "../../styles";
+import React from "react";
 
 export type Props = {
   participants: IClientPortalParticipant[];
-  kind: 'client' | 'vendor';
+  kind: "client" | "vendor";
   mainType: string;
   mainTypeId: string;
   refetch: () => void;
@@ -30,50 +26,52 @@ export default function Component({
   mainTypeId,
   refetch,
 }: Props) {
+  const renderForm = (formProps, participant) => {
+    return (
+      <ClientPortalParticipantForm
+        mainType={mainType}
+        mainTypeId={mainTypeId}
+        {...formProps}
+        queryParams={{}}
+        kind={kind}
+        clientPortalUser={participant.cpUser}
+      />
+    );
+  };
+
   const renderBody = () => {
     if (!participants || !participants.length) {
-      return <EmptyState icon='user-6' text='No data' />;
+      return <EmptyState icon="user-6" text="No data" />;
     }
 
     return (
       <>
-        {participants.map((participant, index) => (
-          <React.Fragment key={index}>
+        {participants.map((participant) => (
+          <React.Fragment key={participant._id}>
             <ModalTrigger
-              key={index}
               title={`User Card detail`}
               trigger={
-                <ParticipantsWrapper key={index}>
-                  <ItemContainer key={index}>
+                <ParticipantsWrapper>
+                  <ItemContainer>
                     {/* <Detail color='#F7CE53' item={participant.cpUser} /> */}
-                    <Detail color='#b49cf1' item={participant?.cpUser} />
+                    <Detail color="#b49cf1" item={participant?.cpUser} />
                     <Detail
-                      color='#EA475D'
+                      color="#EA475D"
                       item={participant?.cpUser?.company}
                     />
                     <Link
-                      key={index}
                       to={`/settings/client-portal/users/details/${participant.cpUserId}`}
-                      target='_blank'
-                      rel='noopener noreferrer'
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <a>{participant.status}</a>
+                      {participant.status}
                     </Link>
                   </ItemContainer>
                 </ParticipantsWrapper>
               }
-              autoOpenKey='showCardClientUserModal'
-              content={props => (
-                <ClientPortalParticipantForm
-                  mainType={mainType}
-                  mainTypeId={mainTypeId}
-                  {...props}
-                  queryParams={{}}
-                  kind={kind}
-                  clientPortalUser={participant.cpUser}
-                />
-              )}
-              size={'lg'}
+              autoOpenKey="showCardClientUserModal"
+              content={(formProps) => renderForm(formProps, participant)}
+              size={"lg"}
             />
           </React.Fragment>
         ))}
@@ -81,13 +79,13 @@ export default function Component({
     );
   };
 
-  const manageContent = props => (
+  const manageContent = (props) => (
     <ClientUserChooser
       onSelect={() => {}}
       closeModal={props.closeModal}
       refetch={refetch}
       data={{
-        users: participants.map(d => d.cpUser),
+        users: participants.map((d) => d.cpUser),
         kind,
         mainType,
         mainTypeId,
@@ -97,11 +95,11 @@ export default function Component({
 
   const extraButtons = (
     <ModalTrigger
-      title='Manage'
-      size='xl'
+      title="Manage"
+      size="xl"
       trigger={
         <button>
-          <Icon icon='edit-3' />
+          <Icon icon="edit-3" />
         </button>
       }
       content={manageContent}
@@ -113,7 +111,7 @@ export default function Component({
       title={`${kind}s`}
       extraButtons={[extraButtons]}
       isOpen={true}
-      name='participants'
+      name="participants"
     >
       {renderBody()}
     </Box>

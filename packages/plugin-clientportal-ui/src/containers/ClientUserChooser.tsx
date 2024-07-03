@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
 import React from "react";
 import { graphql } from "@apollo/client/react/hoc";
-import Chooser, { CommonProps } from "@erxes/ui/src/components/Chooser";
+import Chooser from "@erxes/ui/src/components/Chooser";
 
 import { mutations, queries } from "../graphql";
 import {

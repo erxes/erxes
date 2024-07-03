@@ -36,6 +36,4 @@ export const afterMutationHandlers = async (
   if (params.type === 'knowledgebase:knowledgeBaseArticle') {
     await kbHandler(models, subdomain, params);
   }
-
-  return;
 };
