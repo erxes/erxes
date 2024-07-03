@@ -50,8 +50,7 @@ class SiteForm extends React.Component<Props, State> {
       showPage: false,
       showContentType: false,
       loading: false,
-      showDarkMode:
-        localStorage.getItem("showDarkMode") === "true" ? true : false || false,
+      showDarkMode: localStorage.getItem("showDarkMode") === "true",
     };
   }
 
