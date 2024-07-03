@@ -229,7 +229,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
             });
     }
 
-    if (dimensions.includes("teamMember") && userType === "assignedUserIds") {
+    if (dimensions.includes("assignedTo")) {
         pipeline.push({ $unwind: "$assignedUserIds" });
     }
 
@@ -416,6 +416,52 @@ export const buildPipeline = (filter, type, matchFilter) => {
         match["name"] = { $nin: [null, ""] }
     }
 
+    if (dimensions.includes('description')) {
+        match["description"] = { $nin: ['', null] }
+    }
+
+    if (dimensions.includes('number')) {
+        match["number"] = { $ne: null }
+    }
+
+    if (dimensions.includes("createdAt")) {
+        match["createdAt"] = { $ne: null }
+    }
+
+    if (dimensions.includes("modifiedAt")) {
+        match["modifiedAt"] = { $ne: null }
+    }
+
+    if (dimensions.includes("stageChangedDate")) {
+        match["stageChangedDate"] = { $ne: null }
+    }
+
+    if (dimensions.includes("startDate")) {
+        Object.assign(match, {
+            startDate: { $ne: null },
+            $expr: { $gte: [{ $year: "$startDate" }, 2020] }
+        })
+    }
+
+    if (dimensions.includes("closeDate")) {
+        Object.assign(match, {
+            closeDate: { $ne: null },
+            $expr: { $gte: [{ $year: "$closeDate" }, 2020] }
+        })
+    }
+
+    if (dimensions.includes("createdBy")) {
+        match["userId"] = { $ne: null }
+    }
+
+    if (dimensions.includes("modifiedBy")) {
+        match["modifiedBy"] = { $ne: null }
+    }
+
+    if (dimensions.includes("assignedTo")) {
+        match["assignedUserIds"] = { $ne: null }
+    }
+
     pipeline.push({
         $match: match
     });
@@ -449,10 +495,6 @@ export const buildPipeline = (filter, type, matchFilter) => {
         groupKeys.status = "$status";
     }
 
-    if (dimensions.includes("teamMember")) {
-        groupKeys.userId = `$${userType}`;
-    }
-
     if (dimensions.includes("branch")) {
         groupKeys.branchId = "$branchIds";
     }
@@ -483,6 +525,50 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     if (dimensions.includes("source")) {
         groupKeys.source = "$integration.kind";
+    }
+
+    if (dimensions.includes("description")) {
+        groupKeys.description = "$description";
+    }
+
+    if (dimensions.includes("number")) {
+        groupKeys.number = "$number";
+    }
+
+    if (dimensions.includes("startDate")) {
+        groupKeys.startDate = "$startDate";
+    }
+
+    if (dimensions.includes("closeDate")) {
+        groupKeys.closeDate = "$closeDate";
+    }
+
+    if (dimensions.includes("createdAt")) {
+        groupKeys.createdAt = "$createdAt";
+    }
+
+    if (dimensions.includes("modifiedAt")) {
+        groupKeys.modifiedAt = "$modifiedAt";
+    }
+
+    if (dimensions.includes("stageChangedDate")) {
+        groupKeys.stageChangedDate = "$stageChangedDate";
+    }
+
+    if (dimensions.includes("isComplete")) {
+        groupKeys.isComplete = "$isComplete";
+    }
+
+    if (dimensions.includes("modifiedBy")) {
+        groupKeys.modifiedBy = "$modifiedBy";
+    }
+
+    if (dimensions.includes("createdBy")) {
+        groupKeys.createdBy = "$userId";
+    }
+
+    if (dimensions.includes("assignedTo")) {
+        groupKeys.assignedTo = "$assignedUserIds";
     }
 
     if (dimensions.includes("frequency")) {
@@ -594,28 +680,47 @@ export const buildPipeline = (filter, type, matchFilter) => {
         );
     }
 
-    if (dimensions.includes("teamMember")) {
+    if (['createdBy', 'modifiedBy', 'assignedTo'].some(item => dimensions.includes(item))) {
+
+        const conditions: any = [];
+
+        if (dimensions.includes('createdBy')) {
+            conditions.push({ $eq: ["$_id", "$$createdBy"] });
+        }
+        if (dimensions.includes('modifiedBy')) {
+            conditions.push({ $eq: ["$_id", "$$modifiedBy"] });
+        }
+        if (dimensions.includes('assignedTo')) {
+            conditions.push({ $eq: ["$_id", "$$assignedTo"] });
+        }
+
         pipeline.push(
             {
                 $lookup: {
                     from: "users",
-                    let: { fieldId: "$_id.userId" },
+                    let: {
+                        ...(dimensions.includes('createdBy') && { createdBy: "$_id.createdBy" }),
+                        ...(dimensions.includes('modifiedBy') && { modifiedBy: "$_id.modifiedBy" }),
+                        ...(dimensions.includes('assignedTo') && { assignedTo: "$_id.assignedTo" }),
+                    },
                     pipeline: [
                         {
                             $match: {
                                 $expr: {
-                                    $and: [
-                                        { $eq: ["$_id", "$$fieldId"] },
-                                        { $eq: ["$isActive", true] },
-                                    ]
+                                    $or: conditions
                                 }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                "details.fullName": 1
                             }
                         }
                     ],
-                    as: "user"
+                    as: "userDetails"
                 }
             },
-            { $unwind: "$user" }
         );
     }
 
@@ -761,6 +866,76 @@ export const buildPipeline = (filter, type, matchFilter) => {
             },
             { $unwind: "$board" }
         );
+    }
+
+    const addFields: any = {}
+
+    if (dimensions.includes("createdBy")) {
+        addFields['createdBy'] = {
+            $arrayElemAt: [
+                {
+                    $filter: {
+                        input: "$userDetails",
+                        as: "user",
+                        cond: {
+                            $eq: [
+                                "$$user._id",
+                                "$_id.createdBy"
+                            ]
+                        }
+                    }
+                },
+                0
+            ]
+        }
+    }
+
+    if (dimensions.includes("modifiedBy")) {
+        addFields['modifiedBy'] = {
+            $arrayElemAt: [
+                {
+                    $filter: {
+                        input: "$userDetails",
+                        as: "user",
+                        cond: {
+                            $eq: [
+                                "$$user._id",
+                                "$_id.modifiedBy"
+                            ]
+                        }
+                    }
+                },
+                0
+            ]
+        }
+    }
+
+    if (dimensions.includes("assignedTo")) {
+        addFields['assignedTo'] = {
+            $arrayElemAt: [
+                {
+                    $filter: {
+                        input: "$userDetails",
+                        as: "user",
+                        cond: {
+                            $eq: [
+                                "$$user._id",
+                                "$_id.assignedTo"
+                            ]
+                        }
+                    }
+                },
+                0
+            ]
+        }
+    }
+
+    if (['createdBy', 'modifiedBy', 'assignedTo'].some(item => dimensions.includes(item))) {
+        pipeline.push({
+            $addFields: {
+                ...addFields
+            }
+        })
     }
 
     const projectionFields: any = {
@@ -913,6 +1088,50 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     if (dimensions.includes("board")) {
         projectionFields.board = "$board.name";
+    }
+
+    if (dimensions.includes("description")) {
+        projectionFields.description = "$_id.description";
+    }
+
+    if (dimensions.includes("number")) {
+        projectionFields.number = "$_id.number";
+    }
+
+    if (dimensions.includes("startDate")) {
+        projectionFields.startDate = "$_id.startDate";
+    }
+
+    if (dimensions.includes("closeDate")) {
+        projectionFields.closeDate = "$_id.closeDate";
+    }
+
+    if (dimensions.includes("createdAt")) {
+        projectionFields.createdAt = "$_id.createdAt";
+    }
+
+    if (dimensions.includes("modifiedAt")) {
+        projectionFields.modifiedAt = "$_id.modifiedAt";
+    }
+
+    if (dimensions.includes("stageChangedDate")) {
+        projectionFields.stageChangedDate = "$_id.stageChangedDate";
+    }
+
+    if (dimensions.includes("isComplete")) {
+        projectionFields.isComplete = "$_id.isComplete";
+    }
+
+    if (dimensions.includes("createdBy")) {
+        projectionFields.createdBy = "$createdBy.details.fullName";
+    }
+
+    if (dimensions.includes("modifiedBy")) {
+        projectionFields.modifiedBy = "$modifiedBy.details.fullName";
+    }
+
+    if (dimensions.includes("assignedTo")) {
+        projectionFields.assignedTo = "$assignedTo.details.fullName";
     }
 
     pipeline.push({ $project: projectionFields });
@@ -1278,25 +1497,34 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     const reorderedData = data.map(item => {
         const order = {};
 
-        dimensions.forEach(dimension => {
-            order[dimension] = item[dimension];
-        });
+        if (dimensions?.length) {
+            dimensions.forEach(dimension => {
+                order[dimension] = item[dimension];
+            });
+        }
 
-        measures.forEach(measure => {
-            order[measure] = item[measure];
-        });
+        if (measures?.length) {
+            measures.forEach(measure => {
+                order[measure] = item[measure];
+            });
+        }
+
         return order;
     });
 
-    const total = data.reduce((acc, item) => {
-        measures.forEach(measure => {
-            if (item[measure] !== undefined) {
-                acc[measure] = (acc[measure] || 0) + item[measure];
-            }
-        });
+    let total = '-'
 
-        return acc;
-    }, {})
+    if (measures?.length) {
+        total = data.reduce((acc, item) => {
+            measures.forEach(measure => {
+                if (item[measure] !== undefined) {
+                    acc[measure] = (acc[measure] || 0) + item[measure];
+                }
+            });
+
+            return acc;
+        }, {})
+    }
 
     return { data: [...reorderedData, total] }
 }
