@@ -652,43 +652,6 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderProductCategory() {
-    const { field } = this.state;
-    const { productCategories = [] } = this.props;
-
-    if (field.type !== "productCategory") {
-      return null;
-    }
-
-    const onCategoryChange = (e) => {
-      this.onFieldChange(
-        "productCategoryId",
-        (e.currentTarget as HTMLInputElement).value
-      );
-    };
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Categories:</ControlLabel>
-          <FormControl
-            id="productCategories"
-            componentclass="select"
-            defaultValue={field.productCategoryId || ""}
-            onChange={onCategoryChange}
-          >
-            <option>-</option>
-            {productCategories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </>
-    );
-  }
-
   renderColumn() {
     const { field } = this.state;
 
