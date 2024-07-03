@@ -52,31 +52,31 @@ type Props = {
 const PipelineForm = (props: Props) => {
   const { pipeline, show, closeModal, options } = props;
   const [stages, setStages] = useState(
-    (props.stages || []).map((stage) => ({ ...stage }))
+    (props.stages ?? []).map((stage) => ({ ...stage }))
   );
   const [visibility, setVisibility] = useState(
-    pipeline ? pipeline.visibility : "public"
+    pipeline && pipeline.visibility || "public"
   );
   const [selectedMemberIds, setSelectedMemberIds] = useState(
-    pipeline ? pipeline.memberIds : []
+    pipeline && pipeline.memberIds || []
   );
   const [backgroundColor, setBackgroundColor] = useState(
     (pipeline && pipeline.bgColor) || colors.colorPrimaryDark
   );
   const [isCheckDate, setIsCheckDate] = useState(
-    pipeline ? pipeline.isCheckDate : false
+    pipeline && pipeline.isCheckDate || false
   );
   const [isCheckUser, setIsCheckUser] = useState(
-    pipeline ? pipeline.isCheckUser : false
+    pipeline && pipeline.isCheckUser || false
   );
   const [isCheckDepartment, setIsCheckDepartment] = useState(
-    pipeline ? pipeline.isCheckDepartment : false
+    pipeline && pipeline.isCheckDepartment || false
   );
   const [excludeCheckUserIds, setExcludeCheckUserIds] = useState(
-    pipeline ? pipeline.excludeCheckUserIds : []
+    pipeline && pipeline.excludeCheckUserIds || []
   );
   const [boardId, setBoardId] = useState(props.boardId || "");
-  const [tagId, setTagId] = useState(pipeline ? pipeline.tagId : "");
+  const [tagId, setTagId] = useState(pipeline && pipeline.tagId || "");
   const [numberConfig, setNumberConfig] = useState(
     (pipeline && pipeline.numberConfig) || ""
   );
@@ -84,7 +84,7 @@ const PipelineForm = (props: Props) => {
     (pipeline && pipeline.numberSize) || ""
   );
   const [departmentIds, setDepartmentIds] = useState(
-    pipeline ? pipeline.departmentIds : []
+    pipeline && pipeline.departmentIds || []
   );
 
   useEffect(() => {
@@ -481,8 +481,8 @@ const PipelineForm = (props: Props) => {
 
   const pipelineName =
     options && options.pipelineName
-      ? options.pipelineName.toLowerCase()
-      : "pipeline";
+      && options.pipelineName.toLowerCase()
+      || "pipeline";
 
   return (
     <Transition appear show={show} as={Fragment}>
@@ -502,7 +502,7 @@ const PipelineForm = (props: Props) => {
           <DialogContent>
             <Dialog.Panel className={`dialog-size-xl`}>
               <Dialog.Title as="h3">
-                {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
+                {pipeline && `Edit ${pipelineName}` || `Add ${pipelineName}`}
                 <Icon icon="times" size={24} onClick={closeModal} />
               </Dialog.Title>
               <Transition.Child>

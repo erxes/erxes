@@ -292,7 +292,7 @@ export default {
       let index = 0;
 
       for (const pd of productsData) {
-        if (!pd || !pd.productId) {
+        if (!pd?.productId) {
           continue;
         }
 
@@ -307,13 +307,12 @@ export default {
           isRPC: true
         });
 
-        if (!product || product.type !== type) {
+          if (product?.type === type) {
           continue;
         }
 
         if (
-          (brandId &&
-            brandId !== 'noBrand' &&
+          (brandId  !== 'noBrand' &&
             !product.scopeBrandIds.includes(brandId)) ||
           (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
         ) {
@@ -348,7 +347,7 @@ export default {
                   <tr>
                     <th>№</th>
                     <th>
-                      ${type === 'product' ? 'Product name' : 'Service name'}
+                      ${type === 'product' && 'Product name' || 'Service name'}
                     </th>
                     <th>Quantity</th>
                     <th>Unit price</th>

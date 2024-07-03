@@ -64,9 +64,9 @@ export const getContentItem = async (subdomain, data) => {
 
   const type =
     contentType && typeof contentType === 'string'
-      ? contentType.split(':')[1]
-      : '';
-
+      && contentType.split(':')[1]
+      || '';
+      
   if (action === 'moved') {
     let item = {};
 
@@ -85,6 +85,7 @@ export const getContentItem = async (subdomain, data) => {
         break;
       case 'purchase':
         item = await Purchases.getPurchase(contentId);
+        break;
       default:
         break;
     }
@@ -127,6 +128,7 @@ export const getContentItem = async (subdomain, data) => {
         break;
       case 'purchase':
         item = await Purchases.getPurchase(contentId);
+        break;
       default:
         break;
     }
