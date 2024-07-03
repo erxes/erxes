@@ -216,26 +216,34 @@ const generateScore = async ({
   target,
   scoreString
 }) => {
+  const data = {
+    target,
+    config: {
+      scoreString
+    }
+  };
+
   if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
     const replacedContent = await sendCommonMessage({
       serviceName,
       subdomain,
       action: 'automations.replacePlaceHolders',
-      data: {
-        target,
-        config: {
-          scoreString
-        }
-      },
+      data,
       isRPC: true,
       defaultValue: {}
     });
+
+    console.log({ replacedContent });
 
     scoreString = replacedContent?.scoreString || 0;
   }
 
   if (scoreString.match(/[+\-*/]/)) {
-    return eval(scoreString);
+    try {
+      return eval(scoreString);
+    } catch (error) {
+      throw new Error(`Error occurred while calculating score ${scoreString}`);
+    }
   }
   return scoreString;
 };
@@ -356,6 +364,10 @@ const addScore = async ({
         ...teamMemberIds,
         ...(await generateIds(replacedContent[key]))
       ];
+    }
+
+    if (!teamMemberIds?.length) {
+      return 'done';
     }
 
     await models.ScoreLogs.changeOwnersScore({

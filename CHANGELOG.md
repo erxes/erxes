@@ -9,22 +9,6 @@
 * **automations:** can't handle error in Attribution component ([37803be](https://github.com/erxes/erxes/commit/37803bed4af073df31ba331bfa4d94244057ad46))
 * update pluginsMap ([8177a61](https://github.com/erxes/erxes/commit/8177a61f30f9f1880742dc4231d75d37239d5a8b))
 
-## [1.13.0-rc.3](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-06-17)
-
-## [1.12.0-rc.7](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-06-11)
-
-## [1.12.0-rc.5](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-06-06)
-
-## [1.12.0-rc.4](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-06-05)
-
-## [1.12.0-rc.2](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-06-03)
-
-## [1.11.0-rc.8](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-05-28)
-
-## [1.11.0-rc.7](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-05-28)
-
-## [1.11.0-rc.6](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-05-28)
-
 ## [1.14.0-rc.4](https://github.com/erxes/erxes/compare/1.14.0-rc.3...1.14.0-rc.4) (2024-07-02)
 
 
