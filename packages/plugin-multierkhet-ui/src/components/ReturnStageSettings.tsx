@@ -47,18 +47,22 @@ const GeneralSettings = (props: Props) => {
   };
 
   const deleteHandler = (currentConfigKey: string) => {
+    const newConfigsMap = {
+      ...configsMap
+    };
     delete configsMap.stageInReturnConfig[currentConfigKey];
     delete configsMap.stageInReturnConfig['newStageInReturnConfig'];
 
-    setConfigsMap(configsMap);
+    setConfigsMap(newConfigsMap);
 
-    props.save(configsMap);
+    props.save(newConfigsMap);
   };
 
   const renderConfigs = (configs) => {
-    return Object.keys(configs).map((key) => {
+    return Object.keys(configs).map((key,i) => {
       return (
         <PerSettings
+        key={i}
           configsMap={configsMap}
           config={configs[key]}
           currentConfigKey={key}
