@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.14.0-rc.5](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.5) (2024-07-02)
+## [1.14.0-rc.6](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-07-02)
 
 
 ### Bug Fixes
