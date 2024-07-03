@@ -9,6 +9,7 @@ import { IConfigsMap } from '../types';
 import Header from './Header';
 import PerSettings from './SalePerSettings';
 import Sidebar from './Sidebar';
+import { config } from 'process';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -52,10 +53,11 @@ const GeneralSettings = (props: Props) => {
   };
 
   const deleteHandler = (currentConfigKey: string) => {
+    const newConfigsMap = {...configsMap};
     delete configsMap.stageInSaleConfig[currentConfigKey];
     delete configsMap.stageInSaleConfig['newStageInSaleConfig'];
 
-    setConfigsMap(configsMap);
+    setConfigsMap(newConfigsMap);
 
     props.save(configsMap);
   };
