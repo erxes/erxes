@@ -174,12 +174,12 @@ class FieldForm extends React.Component<Props, State> {
 
     const regexPattern = stringToRegex(e.target.value);
 
-    this.setState({
+    this.setState((prevState) => ({
       field: {
-        ...this.state.field,
+        ...prevState.field,
         regexValidation: regexPattern,
       },
-    });
+    }));
   };
 
   onSubmit = (e) => {
@@ -213,7 +213,6 @@ class FieldForm extends React.Component<Props, State> {
     }
 
     const validation = (e) => {
-      const value = (e.currentTarget as HTMLInputElement).value;
       this.onFieldChange(
         "validation",
         (e.currentTarget as HTMLInputElement).value
