@@ -193,9 +193,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -287,8 +286,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
           lng: marker.longitude || marker.lng,
           description: 'location',
         },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
+        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
           }`,
       },
     ];
@@ -443,7 +441,11 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
       data: {
         name: `Cards: ${newOrder.number}`,
         startDate: newOrder.createdAt,
-        description: newOrder.deliveryInfo ? newOrder.deliveryInfo.address : '',
+        description: JSON.stringify(newOrder.deliveryInfo || '{}', undefined, 2).replace(
+          /\n( *)/g, (_, p1) => {
+            return '<br>' + '&nbsp;'.repeat(p1.length);
+          }
+        ),
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
         productsData: newOrder.items.map((i) => ({
