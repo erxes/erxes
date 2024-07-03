@@ -185,36 +185,33 @@ class Form extends React.Component<Props, State> {
   };
 
   onFieldDelete = (field: IField) => {
-    // remove field from state
-    const fields = this.state.fields.filter((f) => f._id !== field._id);
-
-    this.setState({ fields, currentField: undefined });
+    this.setState(prevState => {
+      const updatedFields = prevState.fields.filter(f => f._id !== field._id);
+      return { fields: updatedFields, currentField: undefined };
+    });
   };
-
+  
   onFieldFormCancel = () => {
     this.setState({ currentField: undefined });
   };
-
-  onChangeFieldsOrder = (fields) => {
+  onChangeFieldsOrder = (updatedFields) => {
     const { onDocChange } = this.props;
-
-    const allFields = this.state.fields;
-
-    for (const field of fields) {
-      const index = allFields.map((e) => e._id).indexOf(field._id);
-
-      if (index !== -1) {
-        allFields[index] = field;
-      }
-    }
-
-    this.setState({ fields: allFields }, () => {
+    this.setState(prevState => {
+      const allFields = [...prevState.fields];  
+      updatedFields.forEach(updatedField => {
+        const index = allFields.findIndex(f => f._id === updatedField._id);
+        if (index !== -1) {
+          allFields[index] = updatedField;
+        }
+      });
+      return { fields: allFields };
+    }, () => {
       if (onDocChange) {
-        onDocChange(this.state);
+        onDocChange(this.state); 
       }
     });
   };
-
+  
   render() {
     const { renderPreviewWrapper } = this.props;
     const { currentMode, currentField, fields, description, numberOfPages } =
