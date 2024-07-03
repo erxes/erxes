@@ -90,7 +90,9 @@ const List = (props: Props) => {
       </Button>
     );
   }
-
+  const renderform = (formProps) => {
+    return (<PostForm {...formProps} />)
+  }
   const actionBarRight = (
     <Flex>
       <FormControl
@@ -108,7 +110,7 @@ const List = (props: Props) => {
             Create New Post
           </Button>
         }
-        content={(props) => <PostForm {...props} />}
+        content={(renderform)}
         enforceFocus={false}
       />
     </Flex>
