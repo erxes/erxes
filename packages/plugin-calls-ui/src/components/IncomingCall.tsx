@@ -147,13 +147,6 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
-  const onChangeCode = (val) => {
-    const { sendDtmf } = context;
-
-    setCode(val);
-    sendDtmf(val);
-  };
-
   const onDeclineCall = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -179,14 +172,6 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
-  const handleHold = () => {
-    if (!isHolded().localHold) {
-      hold();
-    } else {
-      unhold();
-    }
-  };
-
   const handNumPad = (e) => {
     let num = code;
     let dialNumber = dialCode;
@@ -198,6 +183,7 @@ const IncomingCall = (props: Props, context) => {
       dialNumber = dialCode.slice(0, -1);
       if (Sip.call?.status === CALL_STATUS_ACTIVE) {
         setDialCode(dialNumber);
+        setCode(dialNumber);
       } else {
         setCode(num);
       }
@@ -211,9 +197,10 @@ const IncomingCall = (props: Props, context) => {
         dialNumber += e;
 
         const { sendDtmf } = context;
-        if (dialNumber.includes('*') && sendDtmf) {
+        if (sendDtmf) {
           sendDtmf(dialNumber);
           setDialCode(dialNumber);
+          setCode(dialNumber);
         }
       } else {
         setCode(num);
@@ -235,10 +222,7 @@ const IncomingCall = (props: Props, context) => {
             placeholder={__('0')}
             name="searchValue"
             value={code}
-            // onKeyDown={handleKeyDown}
-            // ref={inputRef}
             autoComplete="off"
-            onChange={(e) => onChangeCode(e.target.value)}
             type="number"
           />
         </InputBar>

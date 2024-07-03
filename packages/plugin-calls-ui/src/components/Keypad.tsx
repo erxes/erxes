@@ -20,12 +20,8 @@ import {
   CALL_DIRECTION_INCOMING,
   CALL_DIRECTION_OUTGOING,
   CALL_STATUS_ACTIVE,
-  CALL_STATUS_DISCONNECTED,
-  CALL_STATUS_ENDED,
-  CALL_STATUS_FAILED,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
-  CALL_STATUS_STOPPING,
   SIP_STATUS_DISCONNECTED,
   SIP_STATUS_ERROR,
   SIP_STATUS_REGISTERED,
@@ -106,9 +102,7 @@ const KeyPad = (props: Props, context) => {
   const [timeSpent, setTimeSpent] = useState(
     call?.startTime ? calculateTimeElapsed(call.startTime) : 0,
   );
-  const [isPaused, setPaused] = useState(
-    agentStatus === 'paused' ? true : false,
-  );
+  const [isPaused, setPaused] = useState(!!(agentStatus === 'paused'));
 
   const shrink = customer ? true : false;
 
