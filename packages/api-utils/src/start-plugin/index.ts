@@ -252,6 +252,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       readFileHook,
       payment,
       reports,
+      templates,
       cpCustomerHandle,
     } = configs.meta;
 
@@ -486,6 +487,18 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       }
     }
 
+    if (templates) {
+      if (templates.useTemplate) {
+        consumeRPCQueue(
+          `${configs.name}:templates.useTemplate`,
+          async (args) => ({
+            status: 'success',
+            data: await templates.useTemplate(args),
+          }),
+        );
+      }
+    }
+
     if (initialSetup) {
       if (initialSetup.generate) {
         initialSetup.generateAvailable = true;
@@ -600,6 +613,17 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           status: 'success',
           data: await payment.callback(args),
         }));
+      }
+
+      if (payment.transactionCallback) {
+        payment.transactionCallbackAvailable = true;
+        consumeQueue(
+          `${configs.name}:paymentTransactionCallback`,
+          async (args) => ({
+            status: 'success',
+            data: await payment.transactionCallback(args),
+          }),
+        );
       }
     }
 

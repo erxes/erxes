@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { LoaderIcon } from "@/components/ui/loader"
 import { Toggle } from "@/components/ui/toggle"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from '@/components/ui/use-toast'
 
 const ActiveOrderItem = ({
   productName,
@@ -21,11 +21,12 @@ const ActiveOrderItem = ({
   attachment,
   description,
 }: OrderItem) => {
-  const { onError } = useToast()
   const [changeStatus, { loading }] = useMutation(
     mutations.orderItemChangeStatus,
     {
-      onError,
+      onError({message}) {
+        onError(message)
+      }
     }
   )
 

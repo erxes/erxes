@@ -45,7 +45,7 @@ export interface IContractModel extends Model<IContractDocument> {
   getContract(
     selector: FilterQuery<IContractDocument>
   ): Promise<IContractDocument>;
-  createContract(doc: IContract): Promise<IContractDocument>;
+  createContract(doc: IContract, subdomain: string): Promise<IContractDocument>;
   updateContract(_id, doc: IContract): Promise<IContractDocument>;
   closeContract(subdomain, doc: ICloseVariable);
   clientCreditLoanRequest(
@@ -87,15 +87,14 @@ export const loadContractClass = (models: IModels) => {
     /**
      * Create a contract
      */
-    public static async createContract({
-      schedule,
-      ...doc
-    }: IContract & { schedule: any }): Promise<IContractDocument> {
+    public static async createContract(
+      { schedule, ...doc }: IContract & { schedule: any },
+      subdomain: string
+    ): Promise<IContractDocument> {
       doc.startDate = getFullDate(doc.startDate || new Date());
       doc.lastStoredDate = getFullDate(doc.startDate || new Date());
       doc.firstPayDate = getFullDate(doc.firstPayDate);
       doc.mustPayDate = getFullDate(doc.firstPayDate);
-      doc.lastStoredDate.setDate(doc.lastStoredDate.getDate() + 1);
       doc.endDate =
         doc.endDate ?? addMonths(new Date(doc.startDate), doc.tenor);
       if (!doc.useManualNumbering || !doc.number)
@@ -153,6 +152,23 @@ export const loadContractClass = (models: IModels) => {
             total: doc.leaseAmount
           }
         ];
+
+        await sendMessageBroker(
+          {
+            action: "block.create",
+            data: {
+              customerId: contract.customerId,
+              accountId: contract.savingContractId,
+              description: "saving collateral loan",
+              blockType: "scheduleTransaction",
+              amount: contract.leaseAmount,
+              scheduleDate: contract.endDate,
+              payDate: contract.startDate
+            },
+            subdomain
+          },
+          "savings"
+        );
 
         await models.FirstSchedules.insertMany(schedules);
       }
@@ -294,17 +310,19 @@ export const loadContractClass = (models: IModels) => {
       const config: IConfig = await getConfig("loansConfig", subdomain);
       const trDate = new Date();
       if (
-        new BigNumber(contract.leaseAmount).toNumber() >
+        new BigNumber(contract.leaseAmount).toNumber() >=
         new BigNumber(contract.loanBalanceAmount)
           .plus(requestParams.amount)
           .dp(config.calculationFixed)
           .toNumber()
       ) {
+
         const loanTr = await models.Transactions.createTransaction(subdomain, {
           total: requestParams.amount,
           give: requestParams.amount,
           contractId: requestParams.contractId,
           customerId: requestParams.customerId,
+          transactionType:'give',
           payDate: new Date(),
           currency: contract.currency
         });

@@ -242,8 +242,12 @@ export const sendEmail = async (
 
     try {
       if (VERSION === 'saas' && mailOptions.subject === 'Reset password') {
-        const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
-  
+        sendgridMail = require('@sendgrid/mail');
+        const SENDGRID_API_KEY = getEnv({
+          name: 'SENDGRID_API_KEY',
+          subdomain,
+        });
+
         sendgridMail.setApiKey(SENDGRID_API_KEY);
         return sendgridMail.send(mailOptions);
       }
@@ -1143,7 +1147,7 @@ export const readFileRequest = async ({
       return readFromCFImages(key, width, models);
     }
 
-    return readFromCR2(sanitizedFileKey, models);
+    return readFromCR2(key, models);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'local') {
