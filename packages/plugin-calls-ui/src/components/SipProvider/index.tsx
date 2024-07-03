@@ -418,7 +418,7 @@ export default class SipProvider extends React.Component<
     }
   }
 
-  public playUnAvialableAudio() {
+  public playUnavailableAudio() {
     if (!this.ringbackTone) {
       this.ringbackTone = new Audio('/sound/unAvialableCall.mp3');
       this.ringbackTone.loop = false;
@@ -693,7 +693,7 @@ export default class SipProvider extends React.Component<
           const { rtcSession: session } = this.state;
 
           if (e.message?.status_code === 603) {
-            this.playUnAvialableAudio();
+            this.playUnavailableAudio();
           }
           if ([480, 486, 606, 607, 608].includes(e.message?.status_code)) {
             this.playBusyAudio();
