@@ -31,7 +31,7 @@ function ExpensesForm() {
   const handleShow = () => setShow(true);
   const [elements, setElements] = useState<array[]>([]);
   const [expenseMutation] = useMutation(gql(mutations.manageExpenses));
-  const { data, loading } = useQuery(gql(queries.expenses));
+  const { data } = useQuery(gql(queries.expenses));
   useEffect(() => {
     if (data) {
       setElements(data.expenses);
@@ -139,7 +139,7 @@ function ExpensesForm() {
                     </thead>
                     <tbody>
                       {(elements || []).map((element, index) => (
-                        <tr key={index}>
+                        <tr key={element._id}>
                           <td>
                             <FormControl
                               type="text"

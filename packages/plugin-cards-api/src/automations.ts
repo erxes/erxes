@@ -41,7 +41,7 @@ const getRelatedValue = async (
     }
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
+      (user && ((user.detail?.fullName) || user.email)) || ''
     );
   }
 
@@ -70,7 +70,7 @@ const getRelatedValue = async (
     }
 
     return (
-      users.map(user => (user.detail && user.detail.fullName) || user.email) ||
+      users.map(user => (user.detail?.fullName) || user.email) ||
       []
     ).join(', ');
   }
@@ -100,7 +100,7 @@ const getRelatedValue = async (
       _id: target[targetKey]
     });
 
-    return (stage && stage.name) || '';
+    return (stage?.name) || '';
   }
 
   if (['sourceConversationIds'].includes(targetKey)) {

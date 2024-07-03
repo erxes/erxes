@@ -29,9 +29,9 @@ export default class Stage extends React.Component<Props, State> {
   }
 
   toggleCollapse = () => {
-    this.setState({
-      showCollapse: !this.state.showCollapse,
-    });
+    this.setState((prevState) => ({
+      showCollapse: !prevState.showCollapse
+    }));
   };
 
   loadMore = () => {

@@ -36,10 +36,6 @@ class TemplateForm extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  onEditorChange = (e) => {
-    this.setState({ content: e.editor.getData() });
-  };
-
   generateDoc = (values: {
     _id?: string;
     name: string;

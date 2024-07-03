@@ -21,7 +21,7 @@ export default {
     return { __typename: 'User', _id: pipeline.userId };
   },
 
-  members(pipeline: IPipelineDocument, {}) {
+  members(pipeline: IPipelineDocument, _) {
     if (pipeline.visibility === VISIBLITIES.PRIVATE && pipeline.memberIds) {
       return pipeline.memberIds.map(memberId => ({
         __typename: 'User',

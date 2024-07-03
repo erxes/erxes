@@ -292,7 +292,7 @@ export default {
       let index = 0;
 
       for (const pd of productsData) {
-        if (!pd || !pd.productId) {
+        if (!pd?.productId) {
           continue;
         }
 
@@ -348,7 +348,7 @@ export default {
                   <tr>
                     <th>№</th>
                     <th>
-                      ${type === 'product' ? 'Product name' : 'Service name'}
+                      ${type === 'product' && 'Product name' || 'Service name'}
                     </th>
                     <th>Quantity</th>
                     <th>Unit price</th>
@@ -409,8 +409,8 @@ export default {
       /{{ totalAmountWithoutVat }}/g,
       toMoney(totalAmountWithoutVat)
     );
-
-    const cash = ((item.paymentsData || {}).cash || {}).amount || 0;
+    
+    const cash = item?.paymentsData?.cash?.amount || 0;
 
     replacedContent = replacedContent.replace(
       /{{ paymentCash }}/g,

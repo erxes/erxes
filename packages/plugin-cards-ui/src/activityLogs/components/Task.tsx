@@ -72,9 +72,12 @@ class Task extends React.Component<Props, State> {
   };
 
   onChange = (key: string) => {
-    this.setState({ [key]: !this.state[key] } as any);
+    this.setState((prevState) => ({
+        [key]: !prevState[key]
+    }) as any);
   };
 
+  
   handleInputChange = (e) => {
     e.preventDefault();
 
@@ -140,8 +143,6 @@ class Task extends React.Component<Props, State> {
     if (!showDetail) {
       return null;
     }
-
-    const value = this.props.task.reminderMinute;
 
     return (
       <>
@@ -244,10 +245,13 @@ class Task extends React.Component<Props, State> {
     const { createdUser, createdAt, boardId, _id } = this.props.task;
 
     const onComplete = () => {
-      this.setState({ isComplete: !this.state.isComplete }, () => {
-        this.saveItem("isComplete", this.state.isComplete);
+      this.setState((prevState) => ({
+          isComplete: !prevState.isComplete
+      }), () => {
+          this.saveItem("isComplete", this.state.isComplete);
       });
-    };
+  };
+  
 
     return (
       <LogWrapper>

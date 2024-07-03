@@ -65,7 +65,7 @@ class PurchaseColumn extends React.Component<Props, {}> {
     }
 
     const contents = purchases.map((purchase: IPurchase, index: number) => (
-      <Purchase options={options} key={index} item={purchase} portable={true} />
+      <Purchase options={options} key={purchase._id} item={purchase} portable={true} />
     ));
 
     return <ColumnContentBody>{contents}</ColumnContentBody>;
