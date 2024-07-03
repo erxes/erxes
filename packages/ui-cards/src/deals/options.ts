@@ -3,7 +3,7 @@ import DealEditForm from './components/DealEditForm';
 import DealItem from './components/DealItem';
 import { mutations, queries } from './graphql';
 
-const options = {
+export const options = {
   EditForm: DealEditForm,
   Item: DealItem,
   title: 'Deal',

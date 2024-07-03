@@ -15,11 +15,8 @@ import Pipeline from "./Pipeline";
 import PipelineActivity from "./PipelineActivity";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import TimeItems from "./time/TimeItems";
 import ViewGroupBy from "./ViewGroupBy";
-import { compose } from "lodash.flowright";
 import { queries } from "../graphql";
-import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   date?: IDateColumn;
