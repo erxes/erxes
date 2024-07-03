@@ -124,7 +124,7 @@ const mutations = {
     for (const slot of updateSlots) {
       bulkOps.push({
         updateOne: {
-          filter: { _id: slot._id || '' },
+          filter: { _id: slot._id ?? '' },
           update: { $set: { ...slot } },
           upsert: true
         }

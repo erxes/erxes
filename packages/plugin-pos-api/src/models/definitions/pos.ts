@@ -15,8 +15,8 @@ export interface IPos {
   paymentIds?: string[];
   paymentTypes?: any[];
   erxesAppToken: string;
-  isOnline?: Boolean;
-  onServer?: Boolean;
+  isOnline?: boolean;
+  onServer?: boolean;
   branchId?: string;
   departmentId?: string;
   allowBranchIds?: string[];

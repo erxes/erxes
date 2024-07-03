@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
-import { Block, BlockRow, PosSlotContainer, SlotList } from '../../../styles';
-import {
-  Button,
-  ControlLabel,
-  FormGroup,
-  ModalTrigger,
-  __
-} from '@erxes/ui/src';
-import PosSlotItem from './PosSlotItem';
-import PosSlotHall from './posSlotHall';
-import SlotDetail from './posSlotDetail';
+import React, { useState } from "react";
+import { Block, BlockRow, PosSlotContainer, SlotList } from "../../../styles";
+import { Button, ControlLabel, FormGroup, ModalTrigger } from "@erxes/ui/src";
+import PosSlotItem from "./PosSlotItem";
+import PosSlotHall from "./posSlotHall";
+import SlotDetail from "./posSlotDetail";
 
 export interface ISlot {}
 
 const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
-  const cleanedSlot = savedSlots.map(sl => {
+  const cleanedSlot = savedSlots.map((sl) => {
     const { _id, name, code, posId, option } = sl || {};
     const {
       width,
@@ -25,7 +19,7 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
       borderRadius,
       color,
       zIndex,
-      isShape
+      isShape,
     } = option || {};
 
     return {
@@ -40,10 +34,10 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
         left: left || 100,
         rotateAngle: rotateAngle || 0,
         borderRadius: borderRadius || 0,
-        color: color || '#6569DF',
+        color: color || "#6569DF",
         zIndex: zIndex || 0,
-        isShape
-      }
+        isShape,
+      },
     };
   });
   const [slots, setSlots] = useState(cleanedSlot || []);
@@ -52,12 +46,12 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
 
   const addSlot = () => {
     const _id = Math.random().toString();
-    setSlots(prev => [
+    setSlots((prev) => [
       ...prev,
       {
         _id,
-        name: '',
-        code: '',
+        name: "",
+        code: "",
         posId,
         option: {
           width: 100,
@@ -66,11 +60,11 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
           left: 100,
           rotateAngle: 0,
           borderRadius: 0,
-          color: '#673FBD',
+          color: "#673FBD",
           zIndex: 0,
-          isShape: false
-        }
-      }
+          isShape: false,
+        },
+      },
     ]);
     setActiveSlot(_id);
   };
@@ -78,75 +72,73 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
   const handleBack = () => setActiveSlot(null);
 
   const handleChange = (property, _id, main) =>
-    setSlots(prev =>
-      (prev || []).map(sl => {
+    setSlots((prev) =>
+      (prev || []).map((sl) => {
         if (sl._id === _id) {
           if (main) {
             return {
               ...sl,
-              ...property
+              ...property,
             };
           }
           return {
             ...sl,
             option: {
               ...sl.option,
-              ...property
-            }
+              ...property,
+            },
           };
         }
         return sl;
       })
     );
 
-  const cleanedSlots = slots.filter(sl => !!sl.code);
+  const cleanedSlots = slots.filter((sl) => !!sl.code);
 
-  const renderContent = props => (
-    <>
-      <PosSlotContainer>
-        <PosSlotHall
-          handleBack={handleBack}
-          slots={slots}
+  const renderContent = (props) => (
+    <PosSlotContainer>
+      <PosSlotHall
+        handleBack={handleBack}
+        slots={slots}
+        handleChange={handleChange}
+        activeSlot={activeSlot}
+        setActiveSlot={setActiveSlot}
+      />
+      {activeSlot ? (
+        <SlotDetail
+          {...slots.find((sl) => sl._id === activeSlot)}
           handleChange={handleChange}
-          activeSlot={activeSlot}
-          setActiveSlot={setActiveSlot}
+          handleBack={handleBack}
         />
-        {!!activeSlot ? (
-          <SlotDetail
-            {...slots.find(sl => sl._id === activeSlot)}
-            handleChange={handleChange}
-            handleBack={handleBack}
-          />
-        ) : (
-          <SlotList>
-            {slots.map(sl => (
-              <PosSlotItem
-                {...sl}
-                key={sl._id}
-                setActiveSlot={setActiveSlot}
-                setSlots={setSlots}
-              />
-            ))}
-            <div className="slots-actions">
-              <Button btnStyle="primary" icon="plus-circle" onClick={addSlot}>
-                Add
-              </Button>
-              <Button
-                onClick={() => {
-                  setSlots(cleanedSlots);
-                  onSave(cleanedSlots);
-                  props.closeModal();
-                }}
-                btnStyle="success"
-                icon={'plus-circle'}
-              >
-                {'Save'}
-              </Button>
-            </div>
-          </SlotList>
-        )}
-      </PosSlotContainer>
-    </>
+      ) : (
+        <SlotList>
+          {slots.map((sl) => (
+            <PosSlotItem
+              {...sl}
+              key={sl._id}
+              setActiveSlot={setActiveSlot}
+              setSlots={setSlots}
+            />
+          ))}
+          <div className="slots-actions">
+            <Button btnStyle="primary" icon="plus-circle" onClick={addSlot}>
+              Add
+            </Button>
+            <Button
+              onClick={() => {
+                setSlots(cleanedSlots);
+                onSave(cleanedSlots);
+                props.closeModal();
+              }}
+              btnStyle="success"
+              icon={"plus-circle"}
+            >
+              {"Save"}
+            </Button>
+          </div>
+        </SlotList>
+      )}
+    </PosSlotContainer>
   );
 
   return (
@@ -157,7 +149,7 @@ const PosSlotPlan = ({ slots: savedSlots, onSave, posId }) => {
         </FormGroup>
         <FormGroup>
           <ModalTrigger
-            title={'Slots'}
+            title={"Slots"}
             size="xl"
             trigger={slotTrigger}
             content={renderContent}
