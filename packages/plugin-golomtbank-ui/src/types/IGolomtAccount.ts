@@ -43,8 +43,7 @@ export interface IGolomtBankAccountBalance {
   balanceLL?: [any];
 }
 export type AccountsListQueryResponse = {
-  golomtBankAccounts: IGolomtBankAccount[];
-
+  golomtBankAccounts: [any];
   loading: boolean;
   refetch: () => void;
 } & QueryResponse;
