@@ -80,13 +80,12 @@ const IncomingCall = (props: Props, context) => {
   const navigate = useNavigate();
 
   const [haveIncomingCall, setHaveIncomingCall] = useState(
-    primaryPhone ? true : false,
+    !!primaryPhone,  
   );
   const [timeSpent, setTimeSpent] = useState(0);
   const [status, setStatus] = useState(
-    call.status === CALL_STATUS_ACTIVE ? 'active' : 'pending',
+    call.status === CALL_STATUS_ACTIVE && 'active' || 'pending',
   );
-
   let direction = context.call?.direction?.split('/')[1];
   direction = direction?.toLowerCase() || '';
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -255,13 +254,10 @@ const IncomingCall = (props: Props, context) => {
               handleAudioToggle,
               endCall,
               inboxId,
-              Sip.call?.status === CALL_STATUS_ACTIVE ? false : true,
+              Sip.call?.status !== CALL_STATUS_ACTIVE,
               direction,
               gotoDetail,
-              currentCallConversationId &&
-                currentCallConversationId.length !== 0
-                ? false
-                : true,
+              currentCallConversationId?.length === 0,
             )}
           </IncomingContent>
         </IncomingContainer>
