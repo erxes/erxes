@@ -53,8 +53,15 @@ const generateFilter = (params: IListArgs) => {
 };
 
 const generateHistoriesFilter = (params: any) => {
-  const { automationId, triggerType, triggerId, status, beginDate, endDate } =
-    params;
+  const {
+    automationId,
+    triggerType,
+    triggerId,
+    status,
+    beginDate,
+    endDate,
+    targetId
+  } = params;
   const filter: any = { automationId };
 
   if (status) {
@@ -75,6 +82,10 @@ const generateHistoriesFilter = (params: any) => {
 
   if (endDate) {
     filter.createdAt = { $lte: endDate };
+  }
+
+  if (targetId) {
+    filter.targetId = targetId;
   }
 
   return filter;
@@ -257,11 +268,11 @@ const automationQueries = {
 
         if (!!pluginConstants?.emailRecipientTypes?.length) {
           const updatedEmailRecipIentTypes =
-            pluginConstants.emailRecipientTypes.map((eRT) => ({
+            pluginConstants.emailRecipientTypes.map(eRT => ({
               ...eRT,
               serviceName
             }));
-          constants.actionsConst = constants.actionsConst.map((actionConst) =>
+          constants.actionsConst = constants.actionsConst.map(actionConst =>
             actionConst.type === 'sendEmail'
               ? {
                   ...actionConst,

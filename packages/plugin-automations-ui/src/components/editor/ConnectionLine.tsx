@@ -1,9 +1,9 @@
-import React from "react";
+import React from 'react';
 
-const checkIsOptionalConnect = (id = "") => {
-  const hasTwoHyphens = id.split("-").length - 1 === 2;
+const checkIsOptionalConnect = (id = '') => {
+  const hasTwoHyphens = id.split('-').length - 1 === 2;
 
-  const endsWithRight = id.endsWith("right");
+  const endsWithRight = id.endsWith('right');
 
   return hasTwoHyphens && endsWithRight;
 };
@@ -17,11 +17,12 @@ const ConnectionLine = ({ fromX, fromY, toX, toY, ...props }) => {
     <g>
       <path
         fill="none"
-        stroke={isOptionalConnect ? "rgb(136, 136, 136)" : "rgb(101, 105, 223)"}
-        className={isOptionalConnect ? "animated" : ""}
+        stroke={isOptionalConnect ? 'rgb(136, 136, 136)' : 'rgb(101, 105, 223)'}
+        className={isOptionalConnect ? 'animated' : ''}
         strokeWidth={2}
         d={`M${fromX},${fromY} C${fromX + 50},${fromY} ${toX - 50},${toY} ${toX},${toY}`}
       />
+
       <circle
         cx={toX}
         cy={toY}
