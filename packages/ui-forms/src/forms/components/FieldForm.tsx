@@ -163,12 +163,12 @@ class FieldForm extends React.Component<Props, State> {
 
   onRegexChange = (e: any) => {
     if (e.target.value.length === 0) {
-      this.setState({
+      this.setState((prevState) => ({
         field: {
-          ...this.state.field,
+          ...prevState.field,
           regexValidation: "",
         },
-      });
+      }));
       return;
     }
 
