@@ -118,7 +118,7 @@ const IntegrationForm: React.FC<Props> = ({
               onChange={onChangeOperators}
               onChangeDetails={onChangeOperatorDetails}
               removeOperator={handleRemoveOperator}
-              key={index}
+              key={operator.userId}
             />
           ))}
           <FormGroup>

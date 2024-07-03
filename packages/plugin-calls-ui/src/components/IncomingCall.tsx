@@ -162,13 +162,6 @@ const IncomingCall = (props: Props, context) => {
     }
   };
 
-  const handleHold = () => {
-    if (!isHolded().localHold) {
-      hold();
-    } else {
-      unhold();
-    }
-  };
 
   const gotoDetail = () => {
     navigate(`/inbox/index?_id=${currentCallConversationId}`, {

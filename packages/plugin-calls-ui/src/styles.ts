@@ -439,12 +439,12 @@ export const CallAction = styledTS<{
   color: ${(props) => (props.$active ? colors.textPrimary : colors.colorWhite)};
   background: ${(props) =>
     props.$disabled
-      ? colors.colorShadowGray
-      : props.$isDecline
-        ? colors.colorCoreRed
-        : props.$active
-          ? colors.colorWhite
-          : 'rgba(255, 255, 255, 0.4)'};
+      && colors.colorShadowGray
+      || props.$isDecline
+        && colors.colorCoreRed
+        || props.$active
+          && colors.colorWhite
+          || 'rgba(255, 255, 255, 0.4)'};
   margin-bottom: 2px;
   transition: all ease .3s;
 
@@ -513,10 +513,10 @@ export const CallTabContent = styledTS<{ tab: string; show: boolean }>(
   display: ${(props) => (props.show ? 'flex' : 'none')};
   border-radius: ${(props) =>
     props.tab === 'Notes'
-      ? '0px 10px 10px 10px'
-      : props.tab === 'Assign'
-        ? '10px 0px 10px 10px'
-        : '10px'};
+      && '0px 10px 10px 10px'
+      || props.tab === 'Assign'
+        && '10px 0px 10px 10px'
+        || '10px'};
   flex-direction: column;
   
   ul {

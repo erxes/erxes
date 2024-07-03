@@ -10,7 +10,6 @@ import React, { Fragment, useState } from "react";
 import Form from "@erxes/ui/src/components/form/Form";
 import { Icon } from "@erxes/ui/src/components";
 import TransferCall from "../containers/TransferCall";
-//import Dialog from '@erxes/ui/src/components/Dialog';
 
 type Props = {
   inboxId: string;
