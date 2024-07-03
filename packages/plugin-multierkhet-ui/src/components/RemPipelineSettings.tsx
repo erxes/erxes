@@ -44,12 +44,18 @@ const GeneralSettings = (props: Props) => {
   };
 
   const deleteHandler = (currentConfigKey: string) => {
+    const newConfigMap = {
+      ...configsMap,
+      remainderConfig:{
+        ...configsMap.remainderConfig
+      }
+    };
     delete configsMap.remainderConfig[currentConfigKey];
     delete configsMap.remainderConfig["newPipelineConfig"];
 
-    setConfigsMap(configsMap);
+    setConfigsMap(newConfigMap);
 
-    props.save(configsMap);
+    props.save(newConfigMap);
   };
 
   const renderConfigs = (configs) => {
