@@ -27,20 +27,14 @@ function LocationOptions(props: Props) {
   useEffect(() => {
     onChange(options);
   }, [options, onChange]);
-
   const onChangeOption = (option, index) => {
-    // find current editing one
-    const currentOption = options.find((l, i) => i === index);
-
-    // set new value
-    if (currentOption) {
-      options[index] = option;
-    }
-
-    setOptions(options);
-    onChange(options);
+    setOptions(prevOptions => {
+      const newOptions = [...prevOptions];
+      newOptions[index] = option;
+      onChange(newOptions);
+      return newOptions;
+    });
   };
-
   const addOption = () => {
     const option: any = currentLocation || {
       lat: 0.0,
