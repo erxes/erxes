@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.14.0-rc.7](https://github.com/erxes/erxes/compare/1.14.0-rc.6...1.14.0-rc.7) (2024-07-03)
+
+
+### Features
+
+* **calls:** added ringing and busy tone ([85ecb8e](https://github.com/erxes/erxes/commit/85ecb8e90e9865ce73096a828d0e3b4d38b9a35c))
+* **calls:** Enhanced call functionality by adding a keypad view with DTMF support and improving call action interfaces.  ([2583c7c](https://github.com/erxes/erxes/commit/2583c7cc6e1ccc07ae0cc4e5b5baf0353592e10f))
+* sentry crons setup  ([3592cf0](https://github.com/erxes/erxes/commit/3592cf06201648d8ce627b3cc83803de07bc3ba4))
+
+
+### Bug Fixes
+
+* **automations:** remove tick used from generateTotalAmount ([122a175](https://github.com/erxes/erxes/commit/122a175e37616ff24d80aa1ffb00ff1eac48bed2))
+* **pos:** create per deal description from deliveryInfo ([7306564](https://github.com/erxes/erxes/commit/7306564e523a123646211cb7df9046a9df081e4c))
+* **riskassessment:** can't filters  cardsFilters in riskassessment statistic ([4545566](https://github.com/erxes/erxes/commit/45455661bfde0e8d3e7cc99b66a9eb2c9dfe9944))
+
+## [1.14.0-rc.5](https://github.com/erxes/erxes/compare/1.14.0-rc.6...1.14.0-rc.7) (2024-07-02)
+
 ## [1.14.0-rc.6](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-07-02)
 
 
