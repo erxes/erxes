@@ -47,7 +47,7 @@ const PerSettings = (props: Props) => {
           },
         })
         .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+          setFieldsCombined(data ? data.fieldsCombinedByContentType : []);
         });
     }
   }, [fieldsCombined]);
@@ -84,8 +84,11 @@ const PerSettings = (props: Props) => {
   };
 
   const onChangeConfig = (code: string, value) => {
+    const newConfig = {
+      ...config
+    };
     config[code] = value;
-    setConfig(config);
+    setConfig(newConfig);
   };
 
   const onChangeInput = (code: string, e) => {
