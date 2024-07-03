@@ -139,9 +139,7 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
   const afterMutations = JSON.parse(value || '{}');
 
   if (
-    afterMutations['pos:order'] &&
-    afterMutations['pos:order']['synced'] &&
-    afterMutations['pos:order']['synced'].length
+    afterMutations['pos:order']?.synced?.length
   ) {
     const user = await sendCoreMessage({
       subdomain,
@@ -294,7 +292,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     ];
   }
 
-  if ((doneOrder.deliveryInfo || {}).dealId) {
+  if (doneOrder.deliveryInfo?.dealId) {
     const deal = await sendCardsMessage({
       subdomain,
       action: 'deals.updateOne',
@@ -436,7 +434,7 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
       (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId,
   );
 
-  if (currentCardsConfig && currentCardsConfig.stageId) {
+  if (currentCardsConfig?.stageId) {
     const cardDeal = await sendCardsMessage({
       subdomain,
       action: 'deals.create',
@@ -495,7 +493,7 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
 };
 
 const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
-  if (!(pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet)) {
+  if (!(pos.erkhetConfig?.isSyncErkhet)) {
     return;
   }
   let resp;
@@ -663,7 +661,7 @@ export const syncOrderFromClient = async ({
 
   if (await isEnabled('ebarimt')) {
     for (const response of responses || []) {
-      if (response && response._id) {
+      if (response?._id) {
         await sendEbarimtMessage({
           subdomain,
           action: 'putresponses.createOrUpdate',
@@ -733,8 +731,7 @@ export const syncOrderFromClient = async ({
 
     // change branch and before another pos synced then remove from befort sync
     if (
-      oldOrder &&
-      oldOrder.subBranchId &&
+      oldOrder?.subBranchId &&
       newOrder.subBranchId !== oldOrder.subBranchId
     ) {
       const toCancelPos = await models.Pos.findOne({

@@ -31,11 +31,7 @@ const CategoryList = (props: Props) => {
     router.removeParams(navigate, location, "categoryId");
   };
 
-  const isActive = (id: string) => {
-    const currentGroup = queryParams.categoryId || "";
 
-    return currentGroup === id;
-  };
 
   const onClick = (id: string) => {
     router.removeParams(navigate, location, "page");

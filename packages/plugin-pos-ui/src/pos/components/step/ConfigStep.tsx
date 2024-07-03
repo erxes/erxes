@@ -44,7 +44,7 @@ type State = {
 };
 
 const ConfigStep = (props: Props) => {
-  const { onChange, pos, groups, catProdMappings } = props;
+  const { onChange, pos, groups } = props;
 
   const [state, setState] = useState<State>({
     groups: props.groups || [],

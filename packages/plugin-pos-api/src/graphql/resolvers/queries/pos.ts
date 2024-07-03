@@ -13,7 +13,7 @@ const generateFilterQuery = async ({ isOnline }, commonQuerySelector) => {
 };
 
 const queries = {
-  posEnv: async (_root, _args, {}: IContext) => {
+  posEnv: async (_root, _args, _: IContext) => {
     const { ALL_AUTO_INIT } = process.env;
     return {
       ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')
