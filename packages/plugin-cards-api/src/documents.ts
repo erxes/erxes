@@ -403,7 +403,7 @@ export default {
 
     let totalAmountAfterTaxVat = 0;
     for (const pd of item.productsData || []) {
-      if (!pd || !pd.productId) {
+      if (!pd?.productId) {
         continue;
       }
 
