@@ -59,7 +59,7 @@ const formMiddleware = async (req, res, _next) => {
       });
     }
 
-    if (field.validation === "textarea") {
+    if (field.type === "textarea") {
       submissions.push({
         _id: field._id,
         type: field.type,

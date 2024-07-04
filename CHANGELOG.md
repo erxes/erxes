@@ -1,6 +1,14 @@
 # Changelog
 
 ## [1.14.0-rc.6](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-07-02)
+## [1.13.5](https://github.com/erxes/erxes/compare/1.13.4...1.13.5) (2024-07-04)
+
+
+### Bug Fixes
+
+* **inbox:** fix convert to and fix cards save when hit enter ([45cf7a5](https://github.com/erxes/erxes/commit/45cf7a5995d5af6be9211845c66eef65450f1c18))
+
+## [1.13.4](https://github.com/erxes/erxes/compare/1.13.3...1.13.4) (2024-07-02)
 
 
 ### Bug Fixes
