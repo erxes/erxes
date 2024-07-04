@@ -30,6 +30,14 @@ const buildQuery = (args: any) => {
     qry.brandId = args.brandId;
   }
 
+  if (args.icon) {
+    qry.icon = args.icon;
+  }
+
+  if (args?.ids?.length) {
+    qry._id = { $in: args.ids };
+  }
+
   return qry;
 };
 
@@ -47,10 +55,13 @@ const knowledgeBaseQueries = {
       articleIds: string[];
       codes: string[];
       topicIds: string[];
+      sortField?: string;
+      sortDirection?: number;
     },
     { models }: IContext
   ) {
     const selector: any = buildQuery(args);
+    let sort: any = { createdDate: -1 };
 
     const pageArgs = { page: args.page, perPage: args.perPage };
 
@@ -64,9 +75,11 @@ const knowledgeBaseQueries = {
       delete selector.topicIds;
     }
 
-    const articles = models.KnowledgeBaseArticles.find(selector).sort({
-      createdDate: -1,
-    });
+    if (args.sortField) {
+      sort = { [args.sortField]: args.sortDirection };
+    }
+
+    const articles = models.KnowledgeBaseArticles.find(selector).sort(sort);
 
     return paginate(articles, pageArgs);
   },
@@ -116,10 +129,12 @@ const knowledgeBaseQueries = {
   async knowledgeBaseCategories(
     _root,
     args: {
+      ids: string[];
       page: number;
       perPage: number;
       topicIds: string[];
       codes: string[];
+      icon: string;
     },
     { models }: IContext
   ) {

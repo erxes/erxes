@@ -75,13 +75,17 @@ export default {
           }
         }
 
-        // {{ pluginname.data.fieldname }}
-        const regex = /\{{ (\b\w+\.\b\w+\.\b\w+)\ }}/g;
+        const regex = /\{{ (\b\w+\.\b\w+\.\b\w+) }}/g;
         const matches = document?.content?.match(regex) || [];
         let replaceContentNormal = document?.content;
+        let array: string[] = [];
         for (const x of matches) {
           const pattern = x.replace('{{ ', '').replace(' }}', '').split('.');
           const serviceName = pattern[0];
+          array.push(serviceName);
+        }
+        const uniqueServices = [...new Set(array)];
+        for (const serviceName of uniqueServices) {
           if (services.includes(serviceName)) {
             try {
               const result = await sendCommonMessage({

@@ -1,21 +1,21 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
-import { List, SkillList } from './styles';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
+import { List, SkillList } from "./styles";
+import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
-import Button from '@erxes/ui/src/components/Button';
-import { EmptyState } from '@erxes/ui/src/components';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { __ } from '@erxes/ui/src/utils';
-import dayjs from 'dayjs';
+import Button from "@erxes/ui/src/components/Button";
+import { EmptyState } from "@erxes/ui/src/components";
+import { IUser } from "@erxes/ui/src/auth/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { __ } from "@erxes/ui/src/utils";
+import dayjs from "dayjs";
 
 type Props = {
   user: IUser;
@@ -24,7 +24,7 @@ type Props = {
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
     closeModal,
-    user
+    user,
   }: {
     closeModal: () => void;
     user: IUser;
@@ -39,7 +39,7 @@ function LeftSidebar({
   skills = [],
   channels,
   excludeUserSkill,
-  renderSkillForm
+  renderSkillForm,
 }: Props) {
   const { details = {} } = user;
 
@@ -47,7 +47,7 @@ function LeftSidebar({
     return (
       <li>
         <FieldStyle>{__(title)}:</FieldStyle>
-        <SidebarCounter nowrap={nowrap}>{value || '-'}</SidebarCounter>
+        <SidebarCounter $nowrap={nowrap}>{value || "-"}</SidebarCounter>
       </li>
     );
   };
@@ -56,26 +56,29 @@ function LeftSidebar({
     return (
       <Section>
         <SidebarList className="no-link">
-          {renderRow('Primary Email', user.email)}
-          {renderRow('Operator Phone number', details.operatorPhone)}
-          {renderRow('User name', user.username)}
-          {renderRow('Short name', details.shortName)}
-          {renderRow('Location', details.location)}
+          {renderRow("Primary Email", user.email)}
           {renderRow(
-            'Birthdate',
-            details.birthDate
-              ? dayjs(details.birthDate).format('YYYY-MM-DD')
-              : '-'
+            "Operator Phone number",
+            details ? details.operatorPhone : "-"
           )}
-          {renderRow('Position', details.position)}
-          {renderRow('Score', user.score)}
+          {renderRow("User name", user.username)}
+          {renderRow("Short name", details ? details.shortName : "-")}
+          {renderRow("Location", details ? details.location : "-")}
           {renderRow(
-            'Joined date',
-            details.workStartedDate
-              ? dayjs(details.workStartedDate).format('YYYY-MM-DD')
-              : '-'
+            "Birthdate",
+            details && details.birthDate
+              ? dayjs(details.birthDate).format("YYYY-MM-DD")
+              : "-"
           )}
-          {renderRow('Description', details.description, true)}
+          {renderRow("Position", details ? details.position : "-")}
+          {renderRow("Score", user.score)}
+          {renderRow(
+            "Joined date",
+            details && details.workStartedDate
+              ? dayjs(details.workStartedDate).format("YYYY-MM-DD")
+              : "-"
+          )}
+          {renderRow("Description", details ? details.description : "-", true)}
         </SidebarList>
       </Section>
     );
@@ -84,14 +87,14 @@ function LeftSidebar({
   function renderChannels() {
     return (
       <Section>
-        <Title>{__('Channels')}</Title>
+        <Title>{__("Channels")}</Title>
         <List>
-          {channels.map(channel => {
+          {channels.map((channel) => {
             return (
               <li key={channel._id}>
                 <Link to={`/settings/channels?id=${channel._id}`}>
-                  <FieldStyle>{channel.name || ''}</FieldStyle>
-                  <SidebarCounter>{channel.description || ''}</SidebarCounter>
+                  <FieldStyle>{channel.name || ""}</FieldStyle>
+                  <SidebarCounter>{channel.description || ""}</SidebarCounter>
                 </Link>
               </li>
             );
@@ -102,13 +105,13 @@ function LeftSidebar({
   }
 
   function renderSkills() {
-    const getContent = props => {
+    const getContent = (props) => {
       return renderSkillForm(props);
     };
 
     return (
       <Section>
-        <Title>{__('Skills')}</Title>
+        <Title>{__("Skills")}</Title>
         <Section.QuickButtons>
           <ModalTrigger
             title="Edit"
@@ -118,7 +121,7 @@ function LeftSidebar({
         </Section.QuickButtons>
         <SkillList>
           {skills.length > 0 ? (
-            skills.map(skill => {
+            skills.map((skill) => {
               const handleRemove = () => excludeUserSkill(skill._id, user._id);
 
               return (
@@ -143,34 +146,34 @@ function LeftSidebar({
 
   function renderForms() {
     const content = () =>
-      loadDynamicComponent('contactDetailLeftSidebar', {
+      loadDynamicComponent("contactDetailLeftSidebar", {
         user: user,
-        isDetail: true
+        isDetail: true,
       });
 
     const extraButton = (
       <ModalTrigger
         title="Properties"
         trigger={
-          <Icon icon="expand-arrows-alt" style={{ cursor: 'pointer' }} />
+          <Icon icon="expand-arrows-alt" style={{ cursor: "pointer" }} />
         }
         size="xl"
         content={content}
       />
     );
 
-    return loadDynamicComponent('contactDetailLeftSidebar', {
+    return loadDynamicComponent("contactDetailLeftSidebar", {
       user: user,
-      isDetail: true
+      isDetail: true,
     });
   }
 
   return (
     <Sidebar wide={true}>
       {renderUserInfo()}
-      {isEnabled('inbox') && renderChannels()}
-      {isEnabled('inbox') && renderSkills()}
-      {isEnabled('forms') && renderForms()}
+      {isEnabled("inbox") && renderChannels()}
+      {isEnabled("inbox") && renderSkills()}
+      {isEnabled("forms") && renderForms()}
     </Sidebar>
   );
 }

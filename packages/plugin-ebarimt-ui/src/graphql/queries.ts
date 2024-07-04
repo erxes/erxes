@@ -50,7 +50,7 @@ const listParamsValue = `
   paidDate: $paidDate
 `;
 
-const responseFields = `
+export const responseFields = `
   _id
   number
 

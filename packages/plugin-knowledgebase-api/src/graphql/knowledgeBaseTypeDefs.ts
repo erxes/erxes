@@ -1,6 +1,6 @@
 import {
   attachmentInput,
-  attachmentType,
+  attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = `
@@ -156,12 +156,12 @@ export const queries = `
   knowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   knowledgeBaseTopicsTotalCount: Int
 
-  knowledgeBaseCategories(page: Int, perPage: Int, topicIds: [String], codes: [String]): [KnowledgeBaseCategory]
+  knowledgeBaseCategories(page: Int, perPage: Int,ids:[String] topicIds: [String], codes: [String],icon:String): [KnowledgeBaseCategory]
   knowledgeBaseCategoryDetail(_id: String!): KnowledgeBaseCategory
   knowledgeBaseCategoriesTotalCount(topicIds: [String], codes: [String]): Int
   knowledgeBaseCategoriesGetLast: KnowledgeBaseCategory
 
-  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String]): [KnowledgeBaseArticle]
+  knowledgeBaseArticles(searchValue: String, page: Int, perPage: Int, categoryIds: [String],articleIds:[String], codes: [String], topicIds: [String], sortField:String, sortDirection: Int ): [KnowledgeBaseArticle]
   knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
   knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String]): Int

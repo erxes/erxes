@@ -79,6 +79,7 @@ function getValue(value, defaultValue) {
 function generateDefault(props) {
   const { contract = {} } = props;
   return {
+    _id: contract._id,
     contractNumber: contract.number,
     contractDate: getValue(contract.contractDate, new Date()),
     endDate: contract.endDate,
@@ -222,7 +223,7 @@ function ContractForm(props: Props) {
       customInterest: Number(state.customInterest),
       repayment: state.repayment,
       lossCalcType: state.lossCalcType || "fromInterest",
-      startDate: state.startDate,
+      startDate: state.startDate || new Date(),
       scheduleDays: state.scheduleDays,
       debt: Number(state.debt),
       debtTenor: Number(state.debtTenor),
@@ -739,7 +740,7 @@ function ContractForm(props: Props) {
                 <SelectSavingContract
                   label={__("Choose an contract")}
                   name="depositAccountId"
-                  initialValue={state.savingContractId}
+                  initialValue={state.depositAccountId}
                   filterParams={{
                     isDeposit: true,
                     customerId: state.customerId
