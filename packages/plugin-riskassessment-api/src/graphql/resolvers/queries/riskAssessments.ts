@@ -121,7 +121,11 @@ export const generateFilter = async (
 
   if (params?.cardFilters && filter.cardType) {
     filter.cardId = {
-      $in: await generateCardIds(subdomain, filter.cardType, params?.cardFilter)
+      $in: await generateCardIds(
+        subdomain,
+        filter.cardType,
+        params?.cardFilters
+      )
     };
   }
 
