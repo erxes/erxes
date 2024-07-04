@@ -1,5 +1,6 @@
 import { Alert, confirm, router } from "@erxes/ui/src/utils";
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
@@ -18,7 +19,6 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "@erxes/ui/src/utils/core";
 import { menuContacts } from "@erxes/ui/src/utils/menus";
 import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
-import { useLocation, useNavigate } from 'react-router-dom';
 
 interface IProps {
   type: string;
@@ -58,7 +58,7 @@ const ClientportalUserList: React.FC<IProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [state, setState] = useState({
     searchValue: searchValue,
   });
@@ -67,7 +67,7 @@ const ClientportalUserList: React.FC<IProps> = ({
     setState((prevState) => ({ ...prevState, searchValue }));
   }, [searchValue]);
 
-  const timerRef = React.useRef<number | null>(null);
+  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const onChange = () => {
     toggleAll(clientPortalUsers, "clientPortalUsers");
@@ -155,8 +155,8 @@ const ClientportalUserList: React.FC<IProps> = ({
     setState((prevState) => ({ ...prevState, searchValue }));
 
     timerRef.current = setTimeout(() => {
-      router.removeParams(navigate,location, "page");
-      router.setParams(navigate,location, { searchValue });
+      router.removeParams(navigate, location, "page");
+      router.setParams(navigate, location, { searchValue });
     }, 500);
   };
 
