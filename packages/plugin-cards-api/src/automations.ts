@@ -162,7 +162,8 @@ const getRelatedValue = async (
     const [_parentFieldName, childFieldName] = targetKey.split('.');
 
     if (childFieldName === 'amount') {
-      return generateTotalAmount(target.productsData);
+      const result = generateTotalAmount(target.productsData);
+      return result;
     }
   }
 
@@ -173,14 +174,10 @@ const generateTotalAmount = productsData => {
   let totalAmount = 0;
 
   (productsData || []).forEach(product => {
-    if (product.tickUsed) {
-      return;
-    }
-
     totalAmount += product?.amount || 0;
   });
 
-  return totalAmount;
+  return `${totalAmount}`;
 };
 
 // module related services

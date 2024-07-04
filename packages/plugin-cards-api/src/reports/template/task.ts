@@ -4,7 +4,6 @@ import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getSt
 const util = require('util')
 
 const DIMENSION_OPTIONS = [
-    { label: 'Team members', value: 'teamMember' },
     { label: 'Departments', value: 'department' },
     { label: 'Branches', value: 'branch' },
     { label: 'Companies', value: 'company' },
@@ -18,6 +17,16 @@ const DIMENSION_OPTIONS = [
     { label: 'Frequency (day, week, month)', value: 'frequency' },
     { label: 'Status', value: 'status' },
     { label: 'Priority', value: 'priority' },
+    { label: 'Item number', value: 'number' },
+    { label: 'Description', value: 'description' },
+    { label: 'Created by', value: 'createdBy' },
+    { label: 'Modified by', value: 'modifiedBy' },
+    { label: 'Assigned to', value: 'assignedTo' },
+    { label: 'Created at', value: 'createdAt' },
+    { label: 'Modified at', value: 'modifiedAt' },
+    { label: 'Stage changed at', value: 'stageChangedDate' },
+    { label: 'Start Date', value: 'startDate' },
+    { label: 'Close Date', value: 'closeDate' },
 ]
 
 const MEASURE_OPTIONS = [
@@ -340,7 +349,7 @@ export const taskCharts = [
             subdomain: string,
         ) => {
 
-            const { dimension, measure } = filter
+            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'task', subdomain, models)
 
@@ -367,7 +376,7 @@ export const taskCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['teamMember'],
+                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER
