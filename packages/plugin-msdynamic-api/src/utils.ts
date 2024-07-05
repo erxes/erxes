@@ -551,11 +551,12 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
 
   const brands = await sendCoreMessage({
     subdomain,
-    action: 'brands.findOne',
+    action: 'brands.find',
     data: {
       query: { _id: { $in: brandIds } },
     },
     isRPC: true,
+    defaultValue: []
   });
 
   for (const brand of brands) {
@@ -724,9 +725,13 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
           });
         } else {
           const brand = await sendCoreMessage({
-            subdomain, action: 'brands.findOne', data: {
+            subdomain,
+            action: 'brands.findOne',
+            data: {
               query: { _id: brandId }
-            }
+            },
+            isRPC: true,
+            defaultValue: {}
           });
 
           await sendContactsMessage({
@@ -735,7 +740,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
             data: {
               _id: customer._id, doc: {
                 scopeBrandIds: brandIds, data: {
-                  ...customer.data, [brand?.name]: responseData.No
+                  ...customer.data, [brand?.name || 'noBrand']: responseData.No
                 }
               }
             },
