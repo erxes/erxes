@@ -330,13 +330,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderUser({ id, value }) {
-    const onSelect = (l) => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: l });
+        this.setState({ value: e });
 
-        onValueChange({ _id: id, value: l });
+        onValueChange({ _id: id, value: e });
       }
     };
 
@@ -352,13 +352,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderProduct({ id, value }) {
-    const onSelect = (a) => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: a });
+        this.setState({ value: e });
 
-        onValueChange({ _id: id, value: a });
+        onValueChange({ _id: id, value: e });
       }
     };
 
@@ -374,13 +374,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderBranch({ id, value }) {
-    const onSelect = (c) => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: c });
+        this.setState({ value: e });
 
-        onValueChange({ _id: id, value: c });
+        onValueChange({ _id: id, value: e });
       }
     };
 
@@ -396,13 +396,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderDepartment({ id, value }) {
-    const onSelect = (b) => {
+    const onSelect = (e) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: b });
+        this.setState({ value: e });
 
-        onValueChange({ _id: id, value: b });
+        onValueChange({ _id: id, value: e });
       }
     };
 
@@ -830,6 +830,7 @@ export default class GenerateField extends React.Component<Props, State> {
     if (field.type !== "objectList" || !field.objectListConfigs) {
       return null;
     }
+
     const onClick = () => {
       this.setState(prevState => {
         const object = objectListConfigs.reduce((previousValue, currentValue) => {
