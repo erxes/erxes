@@ -67,6 +67,7 @@ const msdynamicCheckMutations = {
         },
         timeout: 180000,
       }).then((res) => res.json());
+      console.log('summary count of products response: ', response.value.length)
 
       const resultCodes =
         response.value.map((r) => r.No) || [];
