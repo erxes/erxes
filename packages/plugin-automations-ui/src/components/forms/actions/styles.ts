@@ -97,13 +97,3 @@ export const ActionBox = styledTS<{
 export const Padding = styled.div`
     padding 10px;
   `;
-
-export const ItemRowHeader = styled.h5`
-  display: flex;
-  flex-direction: column;
-
-  > span {
-    font-size: 11px;
-    color: ${colors.colorLightGray};
-  }
-`;
