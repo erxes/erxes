@@ -36,49 +36,53 @@ class GeneralSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.DYNAMIC) {
-      configsMap.DYNAMIC = {};
-    }
-
-    // must save prev item saved then new item
-    configsMap.DYNAMIC.newDYNAMIC = {
-      title: 'New MSDynamic Config',
-      brandId: '',
-      itemApi: '',
-      itemCategoryApi: '',
-      pricePriority: '',
-      priceApi: '',
-      customerApi: '',
-      salesApi: '',
-      salesLineApi: '',
-      username: '',
-      password: '',
-      genBusPostingGroup: '',
-      vatBusPostingGroup: '',
-      paymentTermsCode: '',
-      paymentMethodCode: '',
-      customerPostingGroup: '',
-      customerPricingGroup: '',
-      customerDiscGroup: '',
-      locationCode: '',
-      responsibilityCenter: '',
-      billType: '',
-      dealType: '',
-      syncType: '',
-    };
-
-    this.setState({ configsMap });
+    this.setState({
+      configsMap: {
+        ...configsMap,
+        DYNAMIC: {
+          ...configsMap.DYNAMIC, newDYNAMIC: {
+            title: 'New MSDynamic Config',
+            brandId: '',
+            itemApi: '',
+            itemCategoryApi: '',
+            pricePriority: '',
+            priceApi: '',
+            customerApi: '',
+            salesApi: '',
+            salesLineApi: '',
+            username: '',
+            password: '',
+            genBusPostingGroup: '',
+            vatBusPostingGroup: '',
+            paymentTermsCode: '',
+            paymentMethodCode: '',
+            customerPostingGroup: '',
+            customerPricingGroup: '',
+            customerDiscGroup: '',
+            locationCode: '',
+            responsibilityCenter: '',
+            billType: '',
+            dealType: '',
+            syncType: '',
+          }
+        }
+      }
+    });
   };
 
   delete = (currentConfigKey: string) => {
     confirm('This Action will delete this config are you sure?').then(() => {
       const { configsMap } = this.state;
-      delete configsMap.DYNAMIC[currentConfigKey];
-      delete configsMap.DYNAMIC.newDYNAMIC;
+      const tempDynamic = {};
+      Object.keys(configsMap?.DYNAMIC || {}).forEach(key => {
+        if (key !== currentConfigKey) {
+          tempDynamic[key] = configsMap?.DYNAMIC[key]
+        }
+      })
 
-      this.setState({ configsMap });
+      this.setState({ configsMap: { ...configsMap, DYNAMIC: tempDynamic } });
 
-      this.props.save(configsMap);
+      this.props.save({ ...configsMap, DYNAMIC: tempDynamic });
     });
   };
 

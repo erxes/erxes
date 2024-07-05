@@ -459,22 +459,7 @@ export const consumeCustomers = async (subdomain, config, doc, action) => {
   }
 };
 
-export const customerToDynamic = async (subdomain, syncLog, params, models) => {
-  const configs = await getConfig(subdomain, 'DYNAMIC', {});
-
-  const brand = await sendCoreMessage({
-    subdomain,
-    action: 'brands.findOne',
-    data: {
-      query: { name: 'Beverage' },
-    },
-    isRPC: true,
-  });
-
-  const config = configs[brand._id || 'noBrand'];
-
-  const customer = params;
-
+const getSendDataCustomer = async (subdomain, customer, config,) => {
   let name = customer.primaryName || '';
   let foundfield;
   let sendVAT;
@@ -557,67 +542,103 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
     Prices_Including_VAT: true,
     Allow_Line_Disc: true,
   };
+  return sendData;
+}
 
-  try {
-    let responseData;
+export const customerToDynamic = async (subdomain, syncLog, params, models) => {
+  const configs = await getConfig(subdomain, 'DYNAMIC', {});
+  const brandIds = Object.keys(configs);
 
-    if (!config.customerApi || !config.username || !config.password) {
-      throw new Error('MS Dynamic config not found.');
-    }
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.findOne',
+    data: {
+      query: { _id: { $in: brandIds } },
+    },
+    isRPC: true,
+  });
 
-    const { customerApi, username, password } = config;
+  for (const brand of brands) {
+    const config = configs[brand._id || 'noBrand'];
 
-    const response = await fetch(
-      `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`,
-        },
+    const customer = params;
+
+    const sendData = getSendDataCustomer(subdomain, customer, config);
+
+    try {
+      let responseData;
+
+      if (!config.customerApi || !config.username || !config.password) {
+        throw new Error('MS Dynamic config not found.');
       }
-    ).then((r) => r.json());
 
-    if (response.value.length === 0) {
-      responseData = await fetch(customerApi, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Basic ${Buffer.from(
-            `${username}:${password}`
-          ).toString('base64')}`,
-        },
-        body: JSON.stringify(sendData),
-      }).then((r) => r.json());
-    }
+      const { customerApi, username, password } = config;
 
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      {
-        $set: {
-          sendData,
-          sendStr: JSON.stringify(sendData),
-          responseData,
-          responseStr: JSON.stringify(responseData),
-        },
+      const response = await fetch(
+        `${customerApi}?$filter=Phone_No eq '${customer.primaryPhone}'`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+        }
+      ).then((r) => r.json());
+
+      if (response.value.length === 0) {
+        responseData = await fetch(customerApi, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(
+              `${username}:${password}`
+            ).toString('base64')}`,
+          },
+          body: JSON.stringify(sendData),
+        }).then((r) => r.json());
+
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.updateCustomer',
+          data: {
+            _id: customer._id, doc: { data: { ...customer.data, [brand.name]: response.value[0].No } }
+          },
+        })
       }
-    );
-  } catch (e) {
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      { $set: { error: e.message } }
-    );
-    console.log(e, 'error');
+
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        {
+          $set: {
+            sendData,
+            sendStr: JSON.stringify(sendData),
+            responseData,
+            responseStr: JSON.stringify(responseData),
+          },
+        }
+      );
+    } catch (e) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } }
+      );
+      console.log(e, 'error');
+    }
   }
 };
 
 export const dealToDynamic = async (subdomain, syncLog, params, models) => {
+  const brandId = params.scopeBrandIds[0];
   const configs = await getConfig(subdomain, 'DYNAMIC', {});
-  const config = configs[params.scopeBrandIds[0] || 'noBrand'];
+  const config = configs[brandId || 'noBrand'];
+
+
+
 
   const order = params;
+  let msdCustomer: any = {};
 
   try {
     let responseData;
@@ -669,7 +690,11 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
         }
       ).then((r) => r.json());
 
-      if (responseCustomer.value.length === 0) {
+      if (responseCustomer.value.length) {
+        msdCustomer = responseCustomer.value[0];
+      } else {
+        const sendDataCustomer = getSendDataCustomer(subdomain, customer, config);
+
         responseData = await fetch(customerApi, {
           method: 'POST',
           headers: {
@@ -678,7 +703,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
               `${username}:${password}`
             ).toString('base64')}`,
           },
-          body: JSON.stringify('sendData'),
+          body: JSON.stringify(sendDataCustomer),
         }).then((r) => r.json());
 
         const brandIds = (customer || {}).scopeBrandIds || [];
@@ -698,18 +723,31 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
             isRPC: true,
           });
         } else {
+          const brand = await sendCoreMessage({
+            subdomain, action: 'brands.findOne', data: {
+              query: { _id: brandId }
+            }
+          });
+
           await sendContactsMessage({
             subdomain,
             action: 'customers.updateCustomer',
-            data: { _id: customer._id, doc: { scopeBrandIds: brandIds } },
+            data: {
+              _id: customer._id, doc: {
+                scopeBrandIds: brandIds, data: {
+                  ...customer.data, [brand?.name]: responseData.No
+                }
+              }
+            },
             isRPC: true,
           });
         }
+        msdCustomer = responseData;
       }
     }
 
     const sendData: any = {
-      Sell_to_Customer_No: customer ? customer.code : 'BEV-00499',
+      Sell_to_Customer_No: msdCustomer?.No || '',
       Sell_to_Phone_No: customer ? customer.primaryPhone : '',
       Sell_to_E_Mail: customer ? customer.primaryEmail : '',
       External_Document_No: 'nemelt medeelel',
@@ -810,9 +848,8 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
             { _id: syncLog._id },
             {
               $set: {
-                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${
-                  responseSaleLine.error.message
-                }`,
+                error: `${foundSyncLog.error ? foundSyncLog.error : ''} - ${responseSaleLine.error.message
+                  }`,
               },
             }
           );

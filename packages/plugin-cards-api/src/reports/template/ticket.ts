@@ -18,6 +18,16 @@ const DIMENSION_OPTIONS = [
     { label: 'Frequency (day, week, month)', value: 'frequency' },
     { label: 'Status', value: 'status' },
     { label: 'Priority', value: 'priority' },
+    { label: 'Description', value: 'description' },
+    { label: 'Is Complete', value: 'isComplete' },
+    { label: 'Created by', value: 'createdBy' },
+    { label: 'Modified by', value: 'modifiedBy' },
+    { label: 'Assigned to', value: 'assignedTo' },
+    { label: 'Created at', value: 'createdAt' },
+    { label: 'Modified at', value: 'modifiedAt' },
+    { label: 'Stage changed at', value: 'stageChangedDate' },
+    { label: 'Start Date', value: 'startDate' },
+    { label: 'Close Date', value: 'closeDate' },
 ]
 
 const MEASURE_OPTIONS = [
@@ -2462,7 +2472,7 @@ export const ticketCharts = [
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension, measure } = filter
+            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
 
@@ -2489,7 +2499,7 @@ export const ticketCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['teamMember'],
+                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER

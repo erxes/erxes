@@ -38,14 +38,14 @@ class Attribution extends React.Component<FinalProps, State> {
   render() {
     const { fieldsCombinedByTypeQuery } = this.props;
 
-    if (fieldsCombinedByTypeQuery.loading) {
+    if (fieldsCombinedByTypeQuery?.loading) {
       return null;
     }
 
-    const { fieldsCombinedByContentType } = fieldsCombinedByTypeQuery;
+    const { fieldsCombinedByContentType } = fieldsCombinedByTypeQuery || {};
 
     const attributions = (fieldsCombinedByContentType || []).concat(
-      this.props.customAttributions || []
+      this.props?.customAttributions || []
     );
 
     const extendedProps = {
@@ -62,7 +62,7 @@ export default withProps<Props>(
       gql(formQueries.fieldsCombinedByContentType),
       {
         name: 'fieldsCombinedByTypeQuery',
-        skip: () => isEnabled('forms'),
+        skip: () => !isEnabled('forms'),
         options: ({ triggerType, attrConfig }) => ({
           variables: {
             contentType: triggerType,
