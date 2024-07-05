@@ -108,7 +108,7 @@ class GenerateGroup extends React.Component<Props, State> {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(nextProps) {
     if (!nextProps.loading && this.props.data !== nextProps.data) {
       this.setState({ data: nextProps.data });
     }
@@ -279,12 +279,13 @@ class GenerateGroup extends React.Component<Props, State> {
         />
       );
     }
+    let groupLength = 1;
+      if (groupData && groupData.length > 0) {
+      groupLength = groupData.length;
+}
 
-    const numberToIterate = isMultiple
-      ? groupData && groupData.length > 0
-        ? groupData.length
-        : 1
-      : 1;
+const numberToIterate = isMultiple ? groupLength : 1;
+
 
     return (
       <SidebarContent>
