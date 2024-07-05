@@ -33,7 +33,6 @@ import SelectProductCategory from "../containers/SelectProductCategory";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import { SelectTeamMembers } from "@erxes/ui/src";
 import Uploader from "@erxes/ui/src/components/Uploader";
-import { SelectValue } from "@erxes/ui/src/components/SelectWithSearch";
 
 type Props = {
   field: IField;
@@ -610,6 +609,7 @@ export default class GenerateField extends React.Component<Props, State> {
   onChange = (e, optionValue) => {
     const { field, onValueChange } = this.props;
     const { validation, type, regexValidation } = field;
+    let checkBoxValues = this.state.checkBoxValues || [];     
 
     if (!e.target && !optionValue) {
       return;
@@ -622,7 +622,6 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (type === "check") {
-      let checkBoxValues = [...this.state.checkBoxValues];     
 
       const isChecked = e.target.checked;
       // if selected value is not already in list then add it
