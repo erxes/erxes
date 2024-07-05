@@ -51,7 +51,7 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(segmentQueries.segmentDetail), {
       name: 'segmentDetailQuery',
-      skip: () => isEnabled('segments'),
+      skip: () => !isEnabled('segments'),
       options: ({ segmentId }) => ({
         variables: {
           _id: segmentId

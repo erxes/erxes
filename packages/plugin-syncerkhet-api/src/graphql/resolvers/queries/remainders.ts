@@ -58,16 +58,16 @@ const erkhetQueries = {
 
       const response = await fetch(
         configs.getRemainderApiUrl +
-          '?' +
-          new URLSearchParams({
-            kind: 'remainder',
-            api_key: configs.apiKey,
-            api_secret: configs.apiSecret,
-            check_relate: codes.length < 4 ? '1' : '',
-            accounts: remConfig.account,
-            locations: remConfig.location,
-            inventories: codes.join(','),
-          }),
+        '?' +
+        new URLSearchParams({
+          kind: 'remainder',
+          api_key: configs.apiKey,
+          api_secret: configs.apiSecret,
+          check_relate: codes.length < 4 ? '1' : '',
+          accounts: remConfig.account,
+          locations: remConfig.location,
+          inventories: codes.join(','),
+        }),
         {
           timeout: 8000,
         },
@@ -98,7 +98,7 @@ const erkhetQueries = {
       for (const r of products) {
         result.push({
           _id: r._id,
-          remainder: Number(responseByCode[r.code]),
+          remainder: Number(responseByCode[r.code] || 0),
         });
       }
     } catch (e) {

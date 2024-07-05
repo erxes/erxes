@@ -66,7 +66,7 @@ class Histories extends React.Component<Props> {
             ))}
           </tbody>
         </Table>
-        <Pagination count={totalCount} hidePerPageChooser />
+        <Pagination count={totalCount} hidePerPageChooser perPage={13} />
       </withTableWrapper.Wrapper>
     );
   }

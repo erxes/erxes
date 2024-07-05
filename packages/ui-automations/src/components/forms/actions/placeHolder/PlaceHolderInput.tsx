@@ -1,16 +1,17 @@
-import Attribution from "../../../../containers/forms/actions/Attribution";
-import { BoardHeader } from "../../../../styles";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IOption } from "@erxes/ui/src/types";
-import React from "react";
+import Attribution from '../../../../containers/forms/actions/Attribution';
+import { BoardHeader } from '../../../../styles';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IOption } from '@erxes/ui/src/types';
+import React from 'react';
 
-import SelectDate from "./SelectDate";
-import SelectOption from "./SelectOption";
-import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
-import AttriibutionForms from "../../../../containers/forms/actions/AttriibutionForms";
+import SelectDate from './SelectDate';
+import SelectOption from './SelectOption';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import AttriibutionForms from '../../../../containers/forms/actions/AttriibutionForms';
+import { Row } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   onChange: (config: any) => void;
@@ -53,11 +54,11 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
 
     if (!Object.keys(config).includes(inputName)) {
-      config[inputName] = "";
+      config[inputName] = '';
     }
 
     this.state = {
-      config,
+      config
     };
   }
 
@@ -67,7 +68,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
     }
   }
 
-  onSelect = (conf) => {
+  onSelect = conf => {
     const { inputName } = this.props;
     const { config } = this.state;
     config[inputName] = conf[inputName];
@@ -79,15 +80,15 @@ class PlaceHolderInput extends React.Component<Props, State> {
   renderSelect() {
     const { fieldType, options, inputName, isMulti, optionsAllowedTypes } =
       this.props;
-    if (!["select", ...(optionsAllowedTypes || [])].includes(fieldType || "")) {
-      return "";
+    if (!['select', ...(optionsAllowedTypes || [])].includes(fieldType || '')) {
+      return '';
     }
 
     return (
       <SelectOption
         inputName={inputName}
         config={this.state.config}
-        setConfig={(conf) => this.onSelect(conf)}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
         options={options || []}
         isMulti={isMulti}
@@ -97,15 +98,15 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   renderDate() {
     const { fieldType, inputName } = this.props;
-    if (fieldType !== "date") {
-      return "";
+    if (fieldType !== 'date') {
+      return '';
     }
 
     return (
       <SelectDate
         inputName={inputName}
         config={this.state.config}
-        setConfig={(conf) => this.onSelect(conf)}
+        setConfig={conf => this.onSelect(conf)}
         triggerType={this.props.triggerType}
       />
     );
@@ -118,11 +119,11 @@ class PlaceHolderInput extends React.Component<Props, State> {
       return false;
     }
 
-    if (["select"].includes(fieldType) || options) {
+    if (['select'].includes(fieldType) || options) {
       return !isMulti;
     }
 
-    if (["date"].includes(fieldType) || options) {
+    if (['date'].includes(fieldType) || options) {
       return true;
     }
 
@@ -137,28 +138,28 @@ class PlaceHolderInput extends React.Component<Props, State> {
       attrTypes,
       triggerConfig,
       fieldType,
-      attrWithSegmentConfig,
+      attrWithSegmentConfig
     } = this.props;
-    if (excludeAttr || fieldType === "stage") {
-      return "";
+    if (excludeAttr || fieldType === 'stage') {
+      return '';
     }
 
     const updatedProps = {
       inputName: inputName,
       config: this.state.config,
-      setConfig: (conf) => this.onSelect(conf),
+      setConfig: conf => this.onSelect(conf),
       triggerType: this.props.triggerType,
       onlySet: this.getOnlySet(),
       fieldType: fieldType,
       attrType: attrType,
       attrTypes: attrTypes,
-      customAttributions: this.props.customAttributions,
+      customAttributions: this.props.customAttributions
     };
 
     if (attrWithSegmentConfig) {
       return (
         <AttriibutionForms segmentId={triggerConfig?.contentId}>
-          {(config) => {
+          {config => {
             return <Attribution {...updatedProps} attrConfig={config} />;
           }}
         </AttriibutionForms>
@@ -168,13 +169,12 @@ class PlaceHolderInput extends React.Component<Props, State> {
     return <Attribution {...updatedProps} />;
   }
 
-  onChange = (e) => {
-    const { inputName, fieldType,componentClass,textLimit } = this.props;
-    if (["select"].includes(fieldType || "")) {
+  onChange = e => {
+    const { inputName, fieldType, componentClass, textLimit } = this.props;
+    if (['select'].includes(fieldType || '')) {
       return;
     }
 
-    
     const { config } = this.state;
     const value = (e.target as HTMLInputElement).value;
 
@@ -193,23 +193,23 @@ class PlaceHolderInput extends React.Component<Props, State> {
     this.props.onChange(config);
   };
 
-  onKeyPress = (e) => {
+  onKeyPress = e => {
     const { fieldType } = this.props;
-    if (["select"].includes(fieldType || "")) {
+    if (['select'].includes(fieldType || '')) {
       return;
     }
     const { config } = this.state;
     const { name } = e.currentTarget as HTMLInputElement;
 
     if (this.props?.onKeyPress) {
-      config[name] = "";
+      config[name] = '';
       this.setState({ config });
 
       this.props.onKeyPress(e);
     }
   };
 
-  onKeyDown = (e) => {
+  onKeyDown = e => {
     if (e.keyCode === 8) {
       const { value } = e.currentTarget as HTMLInputElement;
       const { config, inputName } = this.props;
@@ -217,7 +217,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
       const pattern = /\{\{[^\}]*\}\}$/;
 
       if (value.match(pattern)) {
-        config[inputName] = value.replace(pattern, "");
+        config[inputName] = value.replace(pattern, '');
       } else {
         config[inputName] = value;
       }
@@ -229,7 +229,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
 
   renderExtraContent() {
     const plugins: any[] = (window as any).plugins || [];
-    const { type = "" } = this.props;
+    const { type = '' } = this.props;
 
     for (const plugin of plugins) {
       if (type.includes(`${plugin.name}:`) && plugin.automation) {
@@ -239,9 +239,9 @@ class PlaceHolderInput extends React.Component<Props, State> {
             component={plugin.automation}
             injectedProps={{
               ...this.props,
-              setConfig: (conf) => this.onSelect(conf),
+              setConfig: conf => this.onSelect(conf),
               triggerType: type,
-              componentType: "selectBoard",
+              componentType: 'selectBoard'
             }}
           />
         );
@@ -255,24 +255,24 @@ class PlaceHolderInput extends React.Component<Props, State> {
       options = [],
       inputName,
       label,
-      fieldType = "string",
+      fieldType = 'string',
       additionalContent,
       required,
       componentClass,
-      placeholder,
+      placeholder
     } = this.props;
 
-    let converted: string = config[inputName] || "";
+    let converted: string = config[inputName] || '';
 
-    if (fieldType === "select") {
+    if (fieldType === 'select') {
       const re = /(\[\[ \w* \]\])/gi;
 
       const ids = converted.match(re) || [];
-      const listById = ids.map((ch) => {
-        const id = ch.replace("[[ ", "").replace(" ]]", "");
-        const option = options.find((o) => o.value === id) || {
-          value: "",
-          label: "",
+      const listById = ids.map(ch => {
+        const id = ch.replace('[[ ', '').replace(' ]]', '');
+        const option = options.find(o => o.value === id) || {
+          value: '',
+          label: ''
         };
         return { byId: ch, byName: `[[ ${option.label} ]]` };
       });
@@ -281,7 +281,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
         converted = converted.replace(rep.byId, rep.byName);
       }
     }
-    if (fieldType === "stage") {
+    if (fieldType === 'stage') {
       converted = `[[ ${config.stageName} ]]`;
     }
 
@@ -290,13 +290,13 @@ class PlaceHolderInput extends React.Component<Props, State> {
         <FormGroup>
           <div className="header-row">
             <ControlLabel required={required}>{label}</ControlLabel>
-            <div>
+            <Row>
               {this.renderSelect()}
               {this.renderDate()}
               {this.renderAttribution()}
               {this.renderExtraContent()}
               {additionalContent}
-            </div>
+            </Row>
           </div>
 
           <FormControl

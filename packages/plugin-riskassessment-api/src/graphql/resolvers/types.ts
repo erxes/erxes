@@ -11,10 +11,12 @@ export type CardValues = {
 export type CardValue = {
   value: any;
   values?: any[];
+  
 };
 export type CardFilter = {
   name: string;
   regex?: boolean;
+  operator?: string;
 } & (CardValues | CardValue);
 
 export type CardType = 'task' | 'ticket' | 'deal';
