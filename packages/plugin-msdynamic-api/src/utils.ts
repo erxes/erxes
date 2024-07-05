@@ -604,7 +604,7 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
           subdomain,
           action: 'customers.updateCustomer',
           data: {
-            _id: customer._id, doc: { data: { ...customer.data, [brand.name]: response.value[0].No } }
+            _id: customer._id, doc: { data: { ...customer.data, [brand.name]: responseData.No } }
           },
         })
       }
