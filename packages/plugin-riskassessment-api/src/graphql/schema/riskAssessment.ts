@@ -88,6 +88,7 @@ export const types = `
         value:String
         values:[String]
         regex:Boolean
+        operator:String
     }
 
 `;
