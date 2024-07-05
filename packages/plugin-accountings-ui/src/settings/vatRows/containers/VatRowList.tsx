@@ -62,15 +62,13 @@ const VatRowListContainer = (props: Props) => {
       removeVatRowMutation({
         variables: { vatRowIds },
       })
-        .then((removeStatus) => {
-          // refresh queries
-
+        .then(({ data = {} as any }) => {
           emptyBulk();
-          const status = removeStatus.data?.removeVatRowMutation || '';
+          vatRowsQuery.refetch();
 
-          // status === "deleted"
-          //   ? Alert.success("You successfully deleted a VatRow")
-          //   : Alert.warning("VatRow status deleted");
+          data?.ctaxRowsRemove === "deleted"
+            ? Alert.success("You successfully deleted a VatRow")
+            : Alert.warning("VatRow status deleted");
         })
         .catch((e) => {
           Alert.error(e.message);

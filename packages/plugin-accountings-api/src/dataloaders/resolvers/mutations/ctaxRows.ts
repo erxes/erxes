@@ -78,20 +78,22 @@ const ctaxRowsMutations = {
    */
   async ctaxRowsRemove(
     _root,
-    { ids }: { ids: string[] },
+    { ctaxRowIds }: { ctaxRowIds: string[] },
     { user, models, subdomain }: IContext,
   ) {
-    const ctaxRow = await models.CtaxRows.getCtaxRow({
-      ids,
-    });
-    const removed = await models.CtaxRows.removeCtaxRows(ids);
+    const ctaxRows = await models.CtaxRows.find({
+      _id: { $in: ctaxRowIds }
+    }).lean();
+    const removed = await models.CtaxRows.removeCtaxRows(ctaxRowIds);
 
-    await putDeleteLog(
-      models,
-      subdomain,
-      { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: ctaxRow },
-      user,
-    );
+    for (const ctaxRow of ctaxRows) {
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: ctaxRow },
+        user,
+      );
+    }
 
     return removed;
   },

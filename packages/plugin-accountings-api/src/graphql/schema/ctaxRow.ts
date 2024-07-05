@@ -43,5 +43,5 @@ export const queries = `
 export const mutations = `
   ctaxRowsAdd(${ctaxRowParams}): CtaxRow
   ctaxRowsEdit(_id: String!, ${ctaxRowParams}): CtaxRow
-  ctaxRowsRemove(accountIds: [String!]): String
+  ctaxRowsRemove(ctaxRowIds: [String!]): String
 `;

@@ -60,7 +60,7 @@ export const loadCtaxRowClass = (models: IModels, subdomain: string) => {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
 
-      const usedCtaxRowIds = await models.Transactions.find({ 'details.accountId': { $in: _ids } }).distinct('details.accountId')
+      const usedCtaxRowIds = await models.Transactions.find({ ctaxRowId: { $in: _ids } }).distinct('ctaxRowId')
       
       for (const id of _ids) {
         if (!usedCtaxRowIds.includes(id)) {

@@ -34,7 +34,7 @@ export type EditCtaxRowMutationResponse = {
 };
 
 export type RemoveCtaxRowMutationResponse = {
-  removeCtaxRowMutation: (params: {
+  ctaxRowsRemove: (params: {
     variables: { _id: string };
   }) => Promise<string>;
 };

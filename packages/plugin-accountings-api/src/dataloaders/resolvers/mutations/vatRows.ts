@@ -78,20 +78,22 @@ const vatRowsMutations = {
    */
   async vatRowsRemove(
     _root,
-    { ids }: { ids: string[] },
+    { vatRowIds }: { vatRowIds: string[] },
     { user, models, subdomain }: IContext,
   ) {
-    const vatRow = await models.VatRows.getVatRow({
-      ids,
-    });
-    const removed = await models.VatRows.removeVatRows(ids);
+    const vatRows = await models.VatRows.find({
+      _id: { $in: vatRowIds }
+    }).lean();
+    const removed = await models.VatRows.removeVatRows(vatRowIds);
 
-    await putDeleteLog(
-      models,
-      subdomain,
-      { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: vatRow },
-      user,
-    );
+    for (const vatRow of vatRows) {
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.ACCOUNT_CATEGORY, object: vatRow },
+        user,
+      );
+    }
 
     return removed;
   },

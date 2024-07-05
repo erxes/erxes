@@ -8,8 +8,8 @@ const vatRowInputParamsDefs = `
   $formula_text: String
   $tab_count: Float
   $is_bold: Boolean
-  status: $status
-  percent: $percent
+  $status: String
+  $percent: Float
 `;
 
 const vatRowInputParams = `

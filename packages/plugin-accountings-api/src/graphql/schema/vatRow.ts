@@ -47,5 +47,5 @@ export const queries = `
 export const mutations = `
   vatRowsAdd(${vatRowParams}): VatRow
   vatRowsEdit(_id: String!, ${vatRowParams}): VatRow
-  vatRowsRemove(accountIds: [String!]): String
+  vatRowsRemove(vatRowIds: [String!]): String
 `;

@@ -54,6 +54,7 @@ const CtaxRowListContainer = (props: Props) => {
       refetchQueries
     }
   );
+
   const remove = (ctaxRowIds: string[], emptyBulk) => {
     const message = 'Are you sure?';
 
@@ -61,15 +62,13 @@ const CtaxRowListContainer = (props: Props) => {
       removeCtaxRowMutation({
         variables: { ctaxRowIds },
       })
-        .then((removeStatus) => {
-          // refresh queries
-
+        .then(({ data = {} as any }) => {
           emptyBulk();
-          const status = removeStatus.data?.removeCtaxRowMutation || '';
+          ctaxRowsQuery.refetch();
 
-          // status === "deleted"
-          //   ? Alert.success("You successfully deleted a CtaxRow")
-          //   : Alert.warning("CtaxRow status deleted");
+          data?.ctaxRowsRemove === "deleted"
+            ? Alert.success("You successfully deleted a CtaxRow")
+            : Alert.warning("CtaxRow status deleted");
         })
         .catch((e) => {
           Alert.error(e.message);
