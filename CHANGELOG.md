@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0-rc.9](https://github.com/erxes/erxes/compare/1.14.0-rc.8...1.14.0-rc.9) (2024-07-05)
+
+
+### Bug Fixes
+
+* **msdynamic:** to deal with customer NO ([7a8008b](https://github.com/erxes/erxes/commit/7a8008b28744b7888faad7f1b8ea4c3dd11721aa))
+
 ## [1.14.0-rc.8](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-04)
 
 
