@@ -7,8 +7,6 @@ import { CAMPAIGN_KINDS } from '../../constants';
 import {
   checkCampaignDoc,
   send,
-  sendWithSendgrid,
-  sendgridClient,
 } from '../../engageUtils';
 import {
   sendContactsMessage,
@@ -229,58 +227,9 @@ const engageMutations = {
    */
   async engageMessageVerifyEmail(
     _root,
-    {
-      email,
-      address,
-      name,
-    }: { email: string; address?: string; name?: string },
-    { models, subdomain }: IContext,
+    { email }: { email: string },
+    { models }: IContext
   ) {
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (VERSION === 'saas') {
-      const sendgrid = await sendgridClient(subdomain);
-      const SENDGRID_CLIENT_KEY = await sendCoreMessage({
-        subdomain,
-        action: 'getConfig',
-        data: { code: 'SENDGRID_CLIENT_KEY' },
-        isRPC: true,
-      });
-
-      sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
-
-      const data = {
-        nickname: name,
-        from: {
-          email,
-          name,
-        },
-        reply_to: {
-          email,
-          name,
-        },
-        address,
-        city: 'Ulaanbaatar',
-        zip: '16000',
-        country: 'Mongolia',
-      };
-
-      const options: any = {
-        url: '/v3/marketing/senders',
-        method: 'POST',
-        body: data,
-      };
-      try {
-        const res = await sendgrid.request(options);
-
-        return JSON.stringify(res);
-      } catch (e) {
-        throw new Error(
-          `Error occurred while verifying email ${email}, message: ${e}`,
-        );
-      }
-    }
-
     const response = await awsRequests.verifyEmail(models, email);
 
     return JSON.stringify(response);
@@ -292,48 +241,8 @@ const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root,
     { email }: { email: string },
-    { models, subdomain }: IContext,
+    { models }: IContext
   ) {
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (VERSION === 'saas') {
-      const sendgrid = await sendgridClient(subdomain);
-      const SENDGRID_CLIENT_KEY = await sendCoreMessage({
-        subdomain,
-        action: 'getConfig',
-        data: { code: 'SENDGRID_CLIENT_KEY', defaultValue: null },
-        isRPC: true,
-      });
-
-      const sendersRequest = {
-        url: `/v3/marketing/senders`,
-        method: 'GET',
-      };
-
-      sendgrid.setApiKey(SENDGRID_CLIENT_KEY);
-
-      const [body] = await sendgrid.request(sendersRequest);
-
-      const result = body.body;
-
-      const senderToRemove = result.find((e) => e.from.email === email);
-
-      if (!senderToRemove) {
-        throw new Error(`Sender with email ${email} not found`);
-      }
-
-      const deleteRequest = {
-        url: `/v3/marketing/senders/${senderToRemove.id}`,
-        method: 'DELETE',
-      };
-      try {
-        await sendgrid.request(deleteRequest);
-        return JSON.stringify({ status: 'removed' });
-      } catch (e) {
-        throw new Error(`Error removing sender with email ${email}`);
-      }
-    }
-
     const response = await awsRequests.removeVerifiedEmail(models, email);
 
     return JSON.stringify(response);
@@ -342,12 +251,12 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { subdomain, models }: IContext,
+    { subdomain, models }: IContext
   ) {
     const { content, from, to, title } = args;
     if (!(content && from && to && title)) {
       throw new Error(
-        'Email content, title, from address or to address is missing',
+        'Email content, title, from address or to address is missing'
       );
     }
 
@@ -357,14 +266,14 @@ const engageMutations = {
       isRPC: true,
       subdomain,
       action: 'customers.findOne',
-      data: { customerPrimaryEmail: to },
+      data: { customerPrimaryEmail: to }
     });
 
     const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
       subdomain,
-      isRPC: true,
+      isRPC: true
     });
 
     const attributeUtil = await getEditorAttributeUtil(subdomain);
@@ -372,19 +281,8 @@ const engageMutations = {
     replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
-      user: targetUser,
+      user: targetUser
     });
-
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (VERSION === 'saas') {
-      return await sendWithSendgrid(subdomain, {
-        from,
-        to,
-        subject: title,
-        html: replacedContent,
-      });
-    }
 
     try {
       const transporter = await createTransporter(models);
@@ -393,7 +291,7 @@ const engageMutations = {
         to,
         subject: title,
         html: content,
-        content: replacedContent,
+        content: replacedContent
       });
       return JSON.stringify(response);
     } catch (e) {
