@@ -128,8 +128,13 @@ class PropertyGroupForm extends React.Component<Props, State> {
       return null;
     }
 
-    const Checked = () => <span>And</span>;
-    const UnChecked = () => <span>Or</span>;
+    const checked = () => {
+      return <span>And</span>
+    };
+
+    const unChecked = () => {
+      return <span>Or</span>
+    };
 
     return (
       <FormGroup>
@@ -139,7 +144,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
             id="visible"
             checked={this.state.isVisible}
             onChange={this.visibleHandler}
-            icons={{ checked: <Checked />, unchecked: <UnChecked /> }}
+            icons={{ checked: checked(), unchecked: unChecked() }}
           />
         </div>
       </FormGroup>
