@@ -60,3 +60,15 @@ export const INTEGRATION_TYPES = [
     { label: 'Facebook Messenger', value: 'facebook-messenger' },
     { label: 'Facebook Post', value: 'facebook-post' },
 ];
+
+export const DATERANGE_BY_TYPES = [
+    { label: 'Created At', value: 'createdAt' },
+    { label: 'Modified At', value: 'modifiedAt' },
+    { label: 'Date Of Birth', value: 'birthDate' },
+    { label: 'Last Seen At', value: 'lastSeenAt' },
+];
+
+export const DATERANGE_BY_TYPES_COMPANIES = [
+    { label: 'Created At', value: 'createdAt' },
+    { label: 'Modified At', value: 'modifiedAt' },
+];

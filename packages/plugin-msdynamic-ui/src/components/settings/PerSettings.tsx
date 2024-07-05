@@ -42,39 +42,17 @@ class PerSettings extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap, currentConfigKey = "" } = this.props;
     const { config } = this.state;
-    const key = config.brandId;
+    const newKey = config.brandId;
 
-    delete configsMap.DYNAMIC[currentConfigKey];
-    configsMap.DYNAMIC[key] = config;
-    this.props.save(configsMap);
+    const tempDynamic = {};
+    Object.keys(configsMap?.DYNAMIC || {}).forEach(key => {
+      if (key !== currentConfigKey) {
+        tempDynamic[key] = configsMap?.DYNAMIC[key]
+      }
+    })
 
-    this.setState({
-      config: {
-        title: config.title,
-        brandId: "",
-        itemApi: "",
-        itemCategoryApi: "",
-        pricePriority: "",
-        priceApi: "",
-        customerApi: "",
-        salesApi: "",
-        salesLineApi: "",
-        username: "",
-        password: "",
-        genBusPostingGroup: "",
-        vatBusPostingGroup: "",
-        paymentTermsCode: "",
-        paymentMethodCode: "",
-        customerPostingGroup: "",
-        customerPricingGroup: "",
-        customerDiscGroup: "",
-        locationCode: "",
-        responsibilityCenter: "",
-        billType: "",
-        dealType: "",
-        syncType: "",
-      },
-    });
+    tempDynamic[newKey] = config;
+    this.props.save({...configsMap, DYNAMIC: tempDynamic});
   };
 
   onDelete = (e) => {
@@ -85,8 +63,7 @@ class PerSettings extends React.Component<Props, State> {
 
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
-    config[code] = value;
-    this.setState({ config });
+    this.setState({ config: {...config, [code]: value} });
   };
 
   onChangeBrand = (brandId, e: any) => {
