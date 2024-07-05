@@ -29,20 +29,12 @@ function LocationOptions(props: Props) {
   }, [options, onChange]);
 
   const onChangeOption = (option, index) => {
-    // find current editing one
-    const newcurrentOption = {
-      ...options
-    }
-    const currentOption = options.find((l, i) => i === index);
-
-    // set new value
-    if (currentOption) {
-      options[index] = option;
-    }
-
-    setOptions(newcurrentOption);
-    onChange(newcurrentOption);
+    const updatedOptions = [...options];
+    updatedOptions[index] = option;
+    setOptions(updatedOptions);
+    onChange(updatedOptions);
   };
+  
 
   const addOption = () => {
     const option: any = currentLocation || {
