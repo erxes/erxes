@@ -6,7 +6,7 @@ import {
 
 import Button from "@erxes/ui/src/components/Button";
 import DealConvertTrigger from "@erxes/ui-cards/src/deals/components/DealConvertTrigger";
-import Dropdown from "@erxes/ui/src/components/Dropdown";
+import Dropdown from "react-bootstrap/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import Icon from "@erxes/ui/src/components/Icon";
 import PurchaseConvertTrigger from "@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger";
@@ -20,7 +20,7 @@ const Container = styled.div`
   display: inline-block;
 
   .dropdown-menu {
-    min-width: auto;
+    min-width: fit-content;
   }
 `;
 
@@ -59,38 +59,36 @@ export default function ConvertTo(props: Props) {
 
   return (
     <Container>
-      <Dropdown
-        as={DropdownToggle}
-        isMenuWidthFit={true}
-        toggleComponent={
+      <Dropdown>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
           <Button size="small" btnStyle="simple">
             {__("Convert")} <Icon icon="angle-down" />
           </Button>
-        }
-        unmount={false}
-      >
-        <li key="ticket">
-          <TicketConvertTrigger
-            {...triggerProps}
-            url={convertToInfo.ticketUrl}
-          />
-        </li>
-        <li key="deal">
-          <DealConvertTrigger
-            {...triggerProps}
-            bookingProductId={conversation.bookingProductId}
-            url={convertToInfo.dealUrl}
-          />
-        </li>
-        <li key="task">
-          <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
-        </li>
-        <li key="purchase">
-          <PurchaseConvertTrigger
-            {...triggerProps}
-            url={convertToInfo.purchaseUrl}
-          />
-        </li>
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <li key="ticket">
+            <TicketConvertTrigger
+              {...triggerProps}
+              url={convertToInfo.ticketUrl}
+            />
+          </li>
+          <li key="deal">
+            <DealConvertTrigger
+              {...triggerProps}
+              bookingProductId={conversation.bookingProductId}
+              url={convertToInfo.dealUrl}
+            />
+          </li>
+          <li key="task">
+            <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
+          </li>
+          <li key="purchase">
+            <PurchaseConvertTrigger
+              {...triggerProps}
+              url={convertToInfo.purchaseUrl}
+            />
+          </li>
+        </Dropdown.Menu>
       </Dropdown>
     </Container>
   );
