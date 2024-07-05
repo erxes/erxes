@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.6](https://github.com/erxes/erxes/compare/1.13.5...1.13.6) (2024-07-05)
+
+
+### Reverts
+
+* fallback to AWS for marketing emails and SendGrid for transactional emails in SaaS version ([7d8d104](https://github.com/erxes/erxes/commit/7d8d10478b7ee11a4255d3551cf10fb45ab3eb65))
+
 ## [1.13.5](https://github.com/erxes/erxes/compare/1.13.4...1.13.5) (2024-07-04)
 
 
