@@ -81,7 +81,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return state;
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.defaultValue !== this.props.defaultValue) {
       this.setState(this.generateState(nextProps));
     }
@@ -126,7 +126,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderMultiSelect(options: string[] = [], attrs) {
+  renderMultiSelect(attrs,options: string[] = [],) {
     const onChange = (ops: OnChangeValue<IOption, true>) => {
       const { field, onValueChange } = this.props;
 
@@ -675,7 +675,7 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderSelect(options, attrs);
 
       case "multiSelect":
-        return this.renderMultiSelect(options, attrs);
+        return this.renderMultiSelect( attrs,options,);
 
       case "pronoun":
         return this.renderSelect(["Male", "Female", "Not applicable"], attrs);
