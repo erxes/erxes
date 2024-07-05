@@ -65,7 +65,7 @@ const msdynamicCheckMutations = {
             `${username}:${password}`
           ).toString('base64')}`,
         },
-        timeout: 60000,
+        timeout: 180000,
       }).then((res) => res.json());
 
       const resultCodes =
