@@ -77,7 +77,6 @@ export interface ITransaction {
   hasVat?: boolean;
   vatRowId?: string;
   afterVat?: boolean;
-  afterVatAccountId?: string;
   isHandleVat?: boolean;
   vatAmount?: number;
 

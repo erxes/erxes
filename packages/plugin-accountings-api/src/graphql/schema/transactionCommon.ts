@@ -35,7 +35,6 @@ const transactionFields = `
   hasVat: Boolean
   vatRowId: String
   afterVat: Boolean
-  afterVatAccountId: String
   isHandleVat: Boolean
   vatAmount: Float
 

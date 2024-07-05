@@ -6,6 +6,8 @@ export const types = () => `
     kind: String
     formula: String
     formula_text: String
+    status: String
+    percent: Float
   }
 `;
 
@@ -15,12 +17,15 @@ const ctaxRowParams = `
   kind: String
   formula: String
   formula_text: String
+  status: String
+  percent: Float
 `;
 
 const ctaxRowsQueryParams = `
-  searchValue: String
-  kinds: [String]
-  status: String
+  status: String,
+  searchValue: String,
+  ids: [String],
+  excludeIds: Boolean,
 `;
 
 export const queries = `
@@ -31,7 +36,7 @@ export const queries = `
     sortField: String
     sortDirection: Int    
   ): [CtaxRow]
-  ctaxRowsTotalCount(${ctaxRowsQueryParams}): Int
+  ctaxRowsCount(${ctaxRowsQueryParams}): Int
   ctaxRowDetail(_id: String): CtaxRow
 `;
 

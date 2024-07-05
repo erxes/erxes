@@ -14,6 +14,8 @@ import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import Icon from '@erxes/ui/src/components/Icon';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import SelectAccount from '../../accounts/containers/SelectAccount';
+import Sidebar from './Sidebar';
 
 type Props = {
   currentLanguage: string;
@@ -101,13 +103,64 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="settings" />}
         >
           <FormGroup>
-            <ControlLabel>Main Currency</ControlLabel>
+            <ControlLabel>{__('Main Currency')}</ControlLabel>
             <FormControl
               componentclass='select'
               name="MainCurrency"
               value={configsMap.MainCurrency}
               options={CURRENCIES}
               onChange={this.onChangeInput.bind(this, 'MainCurrency')}
+            />
+          </FormGroup>
+        </CollapseContent>
+        <CollapseContent
+          transparent={true}
+          title={__('Tax settings')}
+          beforeTitle={<Icon icon="settings" />}
+        >
+          <FormGroup>
+            <ControlLabel>{__('Vat Account Payable')}</ControlLabel>
+            <SelectAccount
+              multi={false}
+              initialValue={configsMap.VatPayableAccount || ''}
+              label='Account'
+              name='VatPayableAccount'
+              filterParams={{ journals: ['vat'] }}
+              onSelect={(accountId) => { this.onChangeConfig('VatPayableAccount', accountId) }}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Vat Account Receivable')}</ControlLabel>
+            <SelectAccount
+              multi={false}
+              initialValue={configsMap.VatReceivableAccount || ''}
+              label='Account'
+              name='VatReceivableAccount'
+              filterParams={{ journals: ['vat'] }}
+              onSelect={(accountId) => { this.onChangeConfig('VatReceivableAccount', accountId) }}
+            />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>{__('Vat after Account Payable')}</ControlLabel>
+            <SelectAccount
+              multi={false}
+              initialValue={configsMap.VatAfterPayableAccount || ''}
+              label='Account'
+              name='VatAfterPayableAccount'
+              filterParams={{ journals: ['vat'] }}
+              onSelect={(accountId) => { this.onChangeConfig('VatAfterPayableAccount', accountId) }}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Vat after Account Receivable')}</ControlLabel>
+            <SelectAccount
+              multi={false}
+              initialValue={configsMap.VatAfterReceivableAccount || ''}
+              label='Account'
+              name='VatAfterReceivableAccount'
+              filterParams={{ journals: ['vat'] }}
+              onSelect={(accountId) => { this.onChangeConfig('VatAfterReceivableAccount', accountId) }}
             />
           </FormGroup>
         </CollapseContent>
@@ -139,6 +192,7 @@ class GeneralSettings extends React.Component<Props, State> {
             right={actionButtons}
           />
         }
+        leftSidebar={<Sidebar />}
         content={content}
         hasBorder={true}
       />

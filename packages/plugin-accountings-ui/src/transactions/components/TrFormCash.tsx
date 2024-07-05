@@ -18,7 +18,8 @@ import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 import { IAccount } from '../../settings/accounts/types';
 import { IConfigsMap } from '../../settings/configs/types';
 import { ITransaction } from '../types';
-import CurrencyFields from './CommonCurrencyFields';
+import CurrencyFields from './helpers/CurrencyFields';
+import VatFields from './helpers/Vat';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -201,6 +202,10 @@ const TrFormMain = (props: Props) => {
           />
         </FormColumn>
       </FormWrapper>
+      <VatFields
+        {...props}
+        onChangeDetail={onChangeDetail}
+      />
     </>
   );
 };

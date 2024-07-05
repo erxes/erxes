@@ -84,7 +84,6 @@ export const commonTransactionFields = `
   hasVat
   vatRowId
   afterVat
-  afterVatAccountId
   isHandleVat
   vatAmount
 

@@ -37,8 +37,6 @@ export const ctaxRowSchema = schemaWrapper(
     kind: field({ type: String, enum: CtaxRowKinds.ALL }),
     formula: field({ type: String, optional: true }),
     formula_text: field({ type: String, optional: true }),
-    tab_count: field({ type: Number, default: 0 }),
-    is_bold: field({ type: Boolean, default: false }),
     status: field({
       type: String,
       enum: CTAX_ROW_STATUS.ALL,

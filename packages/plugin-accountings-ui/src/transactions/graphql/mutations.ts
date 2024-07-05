@@ -19,7 +19,6 @@ const mainTrInputParamDefs = `
   $hasVat: Boolean,
   $vatRowId: String,
   $afterVat: Boolean,
-  $afterVatAccountId: String,
   $isHandleVat: Boolean,
   $vatAmount: Float,
 
@@ -50,7 +49,6 @@ const mainTrInputParams = `
   hasVat: $hasVat,
   vatRowId: $vatRowId,
   afterVat: $afterVat,
-  afterVatAccountId: $afterVatAccountId,
   isHandleVat: $isHandleVat,
   vatAmount: $vatAmount,
 

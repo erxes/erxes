@@ -45,7 +45,7 @@ const vatRowQueries = {
     return await models.VatRows.find(filter).sort(sortParams).lean();
   },
 
-  async vatRowsTotalCount(
+  async vatRowsCount(
     _root,
     { kinds, searchValue, status },
     { models }: IContext,
@@ -58,7 +58,7 @@ const vatRowQueries = {
     return models.VatRows.find(filter).countDocuments();
   },
 
-  vatRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async vatRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.VatRows.findOne({ _id }).lean();
   },
 };

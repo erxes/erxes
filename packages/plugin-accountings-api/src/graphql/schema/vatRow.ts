@@ -8,6 +8,8 @@ export const types = () => `
     formula_text: String
     tab_count: Float
     is_b: Boolean
+    status: String
+    percent: Float
   }
 `;
 
@@ -19,12 +21,15 @@ const vatRowParams = `
   formula_text: String
   tab_count: Float
   is_bold: Boolean
+  status: String
+  percent: Float
 `;
 
 const vatRowsQueryParams = `
-  searchValue: String
-  kinds: [String]
-  status: String
+  status: String,
+  searchValue: String,
+  ids: [String],
+  excludeIds: Boolean,
 `;
 
 export const queries = `
@@ -35,7 +40,7 @@ export const queries = `
     sortField: String
     sortDirection: Int    
   ): [VatRow]
-  vatRowsTotalCount(${vatRowsQueryParams}): Int
+  vatRowsCount(${vatRowsQueryParams}): Int
   vatRowDetail(_id: String): VatRow
 `;
 

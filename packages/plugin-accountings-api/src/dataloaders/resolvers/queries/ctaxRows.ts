@@ -45,7 +45,7 @@ const ctaxRowQueries = {
     return await models.CtaxRows.find(filter).sort(sortParams).lean();
   },
 
-  async ctaxRowsTotalCount(
+  async ctaxRowsCount(
     _root,
     { kinds, searchValue, status },
     { models }: IContext,
@@ -58,7 +58,7 @@ const ctaxRowQueries = {
     return models.CtaxRows.find(filter).countDocuments();
   },
 
-  ctaxRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async ctaxRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.CtaxRows.findOne({ _id }).lean();
   },
 };

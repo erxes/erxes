@@ -86,7 +86,6 @@ const PosContainer = (props: Props) => {
         hasVat: doc.hasVat,
         vatRowId: doc.vatRowId,
         afterVat: doc.afterVat,
-        afterVatAccountId: doc.afterVatAccountId,
         isHandleVat: doc.isHandleVat,
         vatAmount: doc.vatAmount && Number(doc.vatAmount),
 
