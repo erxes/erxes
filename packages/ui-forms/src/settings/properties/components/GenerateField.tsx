@@ -33,6 +33,7 @@ import SelectProductCategory from "../containers/SelectProductCategory";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import { SelectTeamMembers } from "@erxes/ui/src";
 import Uploader from "@erxes/ui/src/components/Uploader";
+import { SelectValue } from "@erxes/ui/src/components/SelectWithSearch";
 
 type Props = {
   field: IField;
@@ -329,13 +330,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderUser({ id, value }) {
-    const onSelect = (e) => {
+    const onSelect = (l) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: e });
+        this.setState({ value: l });
 
-        onValueChange({ _id: id, value: e });
+        onValueChange({ _id: id, value: l });
       }
     };
 
@@ -351,13 +352,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderProduct({ id, value }) {
-    const onSelect = (e) => {
+    const onSelect = (a) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: e });
+        this.setState({ value: a });
 
-        onValueChange({ _id: id, value: e });
+        onValueChange({ _id: id, value: a });
       }
     };
 
@@ -373,13 +374,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderBranch({ id, value }) {
-    const onSelect = (e) => {
+    const onSelect = (c) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: e });
+        this.setState({ value: c });
 
-        onValueChange({ _id: id, value: e });
+        onValueChange({ _id: id, value: c });
       }
     };
 
@@ -395,13 +396,13 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderDepartment({ id, value }) {
-    const onSelect = (e) => {
+    const onSelect = (b) => {
       const { onValueChange } = this.props;
 
       if (onValueChange) {
-        this.setState({ value: e });
+        this.setState({ value: b });
 
-        onValueChange({ _id: id, value: e });
+        onValueChange({ _id: id, value: b });
       }
     };
 
@@ -621,7 +622,8 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (type === "check") {
-      let checkBoxValues = this.state.checkBoxValues;
+      let checkBoxValues = [...this.state.checkBoxValues];     
+
       const isChecked = e.target.checked;
       // if selected value is not already in list then add it
       if (isChecked && !checkBoxValues.includes(optionValue)) {
@@ -709,15 +711,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
         } catch {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
-        }
-
-      case "company_isSubscribed":
-        attrs.name = Math.random().toString();
-        try {
-          return this.renderRadioOrCheckInputs(boolOptions, attrs);
-        } catch {
-          return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
-        }
+        };
 
       case "textarea":
         return this.renderTextarea(attrs);
@@ -836,16 +830,17 @@ export default class GenerateField extends React.Component<Props, State> {
     if (field.type !== "objectList" || !field.objectListConfigs) {
       return null;
     }
-
     const onClick = () => {
-      const object = objectListConfigs.reduce((previousValue, currentValue) => {
-        previousValue[`${currentValue.key}`] = "";
-
-        return previousValue;
-      }, {});
-
-      this.setState({ value: [object, ...this.state.value] });
+      this.setState(prevState => {
+        const object = objectListConfigs.reduce((previousValue, currentValue) => {
+          previousValue[`${currentValue.key}`] = "";
+          return previousValue;
+        }, {});
+    
+        return { value: [object, ...prevState.value] };
+      });
     };
+    
 
     return (
       <Button btnStyle="link" onClick={onClick}>
