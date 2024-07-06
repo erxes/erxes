@@ -6,9 +6,9 @@ export interface IVatRow {
   number: string;
   kind: string;
   formula: string;
-  formula_text: string;
-  tab_count: number;
-  is_bold: boolean;
+  formulaText: string;
+  tabCount: number;
+  isBold: boolean;
   status: string;
   percent: number;
 }

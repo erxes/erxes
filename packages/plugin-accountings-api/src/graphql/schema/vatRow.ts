@@ -5,9 +5,9 @@ export const types = () => `
     number: String
     kind: String
     formula: String
-    formula_text: String
-    tab_count: Float
-    is_b: Boolean
+    formulaText: String
+    tabCount: Float
+    isBold: Boolean
     status: String
     percent: Float
   }
@@ -18,15 +18,17 @@ const vatRowParams = `
   number: String
   kind: String
   formula: String
-  formula_text: String
-  tab_count: Float
-  is_bold: Boolean
+  formulaText: String
+  tabCount: Float
+  isBold: Boolean
   status: String
   percent: Float
 `;
 
 const vatRowsQueryParams = `
   status: String,
+  name: String,
+  number: String,
   searchValue: String,
   ids: [String],
   excludeIds: Boolean,

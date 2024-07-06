@@ -5,7 +5,7 @@ const ctaxRowInputParamsDefs = `
   $number: String
   $kind: String
   $formula: String
-  $formula_text: String
+  $formulaText: String
   $status: String
   $percent: Float
 `;
@@ -15,7 +15,7 @@ const ctaxRowInputParams = `
   number: $number
   kind: $kind
   formula: $formula
-  formula_text: $formula_text
+  formulaText: $formulaText
   status: $status
   percent: $percent
 `;

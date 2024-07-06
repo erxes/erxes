@@ -1,22 +1,21 @@
-import { __, router } from "@erxes/ui/src/utils";
-import { ICtaxRow } from "../types";
-import { useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-
-import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Form from "../containers/CtaxRowForm";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Row from "./CtaxRowRow";
 import Spinner from "@erxes/ui/src/components/Spinner";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Table from "@erxes/ui/src/components/table";
-import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { Title } from "@erxes/ui/src/styles/main";
+import { __, router } from "@erxes/ui/src/utils";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from '../../configs/components/Sidebar';
+import Form from "../containers/CtaxRowForm";
+import { ICtaxRow } from "../types";
+import Row from "./CtaxRowRow";
 
 interface IProps {
   queryParams: any;
@@ -29,11 +28,11 @@ interface IProps {
   toggleBulk: () => void;
   toggleAll: (targets: ICtaxRow[], containerId: string) => void;
   loading: boolean;
-  searchValue: string;
 }
 
-const VatRowList: React.FC<IProps> = (props) => {
-  let timer;
+const CtaxRowList: React.FC<IProps> = (props) => {
+  const timerRef = useRef<number | null>(null);
+  const [focusedField, setFocusedField] = useState<string>('')
 
   const {
     ctaxRows,
@@ -48,7 +47,9 @@ const VatRowList: React.FC<IProps> = (props) => {
     queryParams,
   } = props;
 
-  const [searchValue, setSearchValue] = useState<string>(props.searchValue);
+  const [searchValues, setSearchValues] = useState<any>(
+    { ...queryParams }
+  );
   const [checked, setChecked] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ const VatRowList: React.FC<IProps> = (props) => {
     }
   };
 
-  const removeVatRows = (ctaxRows) => {
+  const removeCtaxRows = (ctaxRows) => {
     const ctaxRowIds: string[] = [];
 
     ctaxRows.forEach((ctaxRow) => {
@@ -91,18 +92,20 @@ const VatRowList: React.FC<IProps> = (props) => {
   };
 
   const search = (e) => {
-    if (timer) {
-      clearTimeout(timer);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
+    const searchField = e.target.name;
     const searchValue = e.target.value;
 
-    setSearchValue(searchValue);
+    setSearchValues({ ...searchValues, [searchField]: searchValue });
+    setFocusedField(searchField)
 
-    timer = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
-    }, 500);
+      router.setParams(navigate, location, { [searchField]: searchValue });
+    }, 800);
   };
 
   const moveCursorAtTheEnd = (e) => {
@@ -117,20 +120,20 @@ const VatRowList: React.FC<IProps> = (props) => {
       return <Spinner objective={true} />;
     }
 
-    if (!ctaxRowsCount) {
-      return (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
-
     return (
       <>
         <Table $hover={true}>
           <thead>
+            <tr>
+              <th>
+              </th>
+              <th>{__("number")}</th>
+              <th>{__("name")}</th>
+              <th>{__("kind")}</th>
+              <th>{__("status")}</th>
+              <th>{__("percent")}</th>
+              <th>{__("Actions")}</th>
+            </tr>
             <tr>
               <th style={{ width: 60 }}>
                 <FormControl
@@ -139,24 +142,64 @@ const VatRowList: React.FC<IProps> = (props) => {
                   onChange={onChange}
                 />
               </th>
-              <th>{__("Code")}</th>
-              <th>{__("Name")}</th>
-              <th>{__("Category")}</th>
-              <th>{__("Currency")}</th>
-              <th>{__("Kind")}</th>
-              <th>{__("Journal")}</th>
-              <th>{__("Actions")}</th>
+              <th>
+                <FormControl
+                  name='number'
+                  value={searchValues.number}
+                  onChange={search}
+                  autoFocus={focusedField === 'number'}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name='name'
+                  value={searchValues.name}
+                  onChange={search}
+                  autoFocus={focusedField === 'name'}
+                />
+              </th>
+              <th></th>
+              <th>
+                <FormControl
+                  componentclass="select"
+                  value={searchValues.status}
+                  name='status'
+                  options={[
+                    { label: 'Active', value: undefined },
+                    { label: 'Deleted', value: 'deleted' },
+                  ]}
+                  onChange={search}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name='percent'
+                  value={searchValues.percent}
+                  onChange={search}
+                  autoFocus={focusedField === 'percent'}
+                />
+              </th>
+              <th></th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
         </Table>
+        {!ctaxRowsCount &&
+          (
+            <EmptyState
+              image="/images/actions/8.svg"
+              text="No CTax"
+              size="small"
+            />
+          ) || null
+        }
       </>
     );
   };
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("VatRows") },
+    { title: __("CtaxRows") },
   ];
 
   const onChangeChecked = (e) => {
@@ -164,13 +207,11 @@ const VatRowList: React.FC<IProps> = (props) => {
 
     if (checked && (bulk || []).length) {
       setChecked(true);
-      setSearchValue("");
       router.removeParams(
         navigate,
         location,
         "page",
         "searchValue",
-        "categoryId"
       );
       router.setParams(navigate, location, {
         ids: (bulk || []).map((b) => b._id).join(","),
@@ -199,17 +240,17 @@ const VatRowList: React.FC<IProps> = (props) => {
             checked={checked}
           />
           <FormControl
-            type="text"
             placeholder={__("Type to search")}
+            name='searchValue'
             onChange={search}
-            value={searchValue}
-            autoFocus={true}
+            value={searchValues.searchValue}
+            autoFocus={focusedField === 'searchValue'}
             onFocus={moveCursorAtTheEnd}
           />
           <Button
             btnStyle="danger"
             icon="cancel-1"
-            onClick={removeVatRows.bind(this, bulk)}
+            onClick={removeCtaxRows.bind(this, bulk)}
           >
             Remove
           </Button>
@@ -222,15 +263,16 @@ const VatRowList: React.FC<IProps> = (props) => {
         <FormControl
           type="text"
           placeholder={__("Type to search")}
+          name='searchValue'
           onChange={search}
-          value={searchValue}
-          autoFocus={true}
+          value={searchValues.searchValue}
+          autoFocus={focusedField === 'searchValue'}
           onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger
-          title="Add VatRow"
+          title="Add CtaxRow"
           trigger={trigger}
-          autoOpenKey="showVatRowModal"
+          autoOpenKey="showCtaxRowModal"
           content={modalContent}
           size="lg"
         />
@@ -246,7 +288,7 @@ const VatRowList: React.FC<IProps> = (props) => {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__("VatRows")}
+          title={__("CtaxRows")}
           queryParams={queryParams}
           breadcrumb={breadcrumb}
         />
@@ -254,7 +296,7 @@ const VatRowList: React.FC<IProps> = (props) => {
       mainHead={
         <HeaderDescription
           icon="/images/actions/30.svg"
-          title={"VatRows"}
+          title={"CtaxRows"}
           description={`${__(
             "All information and know-how related to your business ctaxRows and services are found here"
           )}.${__(
@@ -274,4 +316,4 @@ const VatRowList: React.FC<IProps> = (props) => {
   );
 };
 
-export default VatRowList;
+export default CtaxRowList;

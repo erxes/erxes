@@ -44,7 +44,6 @@ const CtaxRowListContainer = (props: Props) => {
 
   const refetchQueries = [
     "CtaxRows",
-    "CtaxRowCategoriesCount",
     "CtaxRowsCount",
   ];
 
@@ -79,15 +78,12 @@ const CtaxRowListContainer = (props: Props) => {
   const ctaxRows = ctaxRowsQuery.data?.ctaxRows || [];
   const ctaxRowsCount = ctaxRowsCountQuery.data?.ctaxRowsCount || 0;
 
-  const searchValue = props.queryParams.searchValue || "";
-
   const updatedProps = {
     ...props,
     queryParams,
     ctaxRows,
     remove,
     loading: ctaxRowsQuery.loading || ctaxRowsCountQuery.loading,
-    searchValue,
     ctaxRowsCount,
   };
 

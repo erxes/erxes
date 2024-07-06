@@ -6,7 +6,7 @@ export interface ICtaxRow {
   number: string;
   kind: string;
   formula: string;
-  formula_text: string;
+  formulaText: string;
   status: string;
   percent: number;
 }

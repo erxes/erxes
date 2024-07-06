@@ -12,13 +12,13 @@ import {
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
-import { __, router } from "@erxes/ui/src/utils/core";
+import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ICtaxRow } from '../types';
 
 interface IProps {
-  vatRow?: ICtaxRow;
+  ctaxRow?: ICtaxRow;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 }
@@ -28,72 +28,65 @@ type State = {
   number: string;
   kind: string;
   formula: string;
-  formula_text: string;
-  tab_count: number;
-  is_bold: boolean;
+  formulaText: string;
   status: string;
   percent: number;
 };
 
 function VatRowForm(props: IProps): React.ReactNode {
   const location = useLocation();
-  const vatRow = props.vatRow || ({} as ICtaxRow);
+  const ctaxRow = props.ctaxRow || ({} as ICtaxRow);
 
   const {
     name,
     number,
     kind,
     formula,
-    formula_text,
-    tab_count,
-    is_bold,
+    formulaText,
     status,
     percent,
-  } = vatRow;
+  } = ctaxRow;
 
   const [state, setState] = useState<State>({
-    ...vatRow,
+    ...ctaxRow,
     name: name ?? '',
-    number,
-    kind,
-    formula,
-    formula_text,
-    tab_count,
-    is_bold,
-    status,
-    percent,
+    number: number ?? '',
+    kind: kind ?? '',
+    formula: formula ?? '',
+    formulaText: formulaText ?? '',
+    status: status ?? 'active',
+    percent: percent ?? 0,
   });
 
   const generateDoc = (values: {
     _id?: string;
   }) => {
-    const { vatRow } = props;
+    const { ctaxRow } = props;
     const finalValues = values;
-    if (vatRow) {
-      finalValues._id = vatRow._id;
+    if (ctaxRow) {
+      finalValues._id = ctaxRow._id;
     }
 
     return {
-      ...vatRow,
+      ...ctaxRow,
       ...state,
       ...finalValues,
+      percent: Number(state.percent || 0),
     };
   };
 
   const renderContent = (formProps: IFormProps) => {
-    const { renderButton, closeModal, vatRow } =
+    const { renderButton, closeModal, ctaxRow } =
       props;
     const { values, isSubmitted } = formProps;
-    const object = vatRow || ({} as ICtaxRow);
+    const object = ctaxRow || ({} as ICtaxRow);
 
     const {
       name,
       number,
       kind,
       formula,
-      formula_text,
-      tab_count,
-      is_bold,
+      formulaText,
       status,
       percent,
     } = state;
@@ -102,6 +95,21 @@ function VatRowForm(props: IProps): React.ReactNode {
       <>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Number</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="number"
+                value={number}
+                required={true}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    number: e.target.value,
+                  }));
+                }}
+              />
+            </FormGroup>
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
@@ -112,16 +120,71 @@ function VatRowForm(props: IProps): React.ReactNode {
                 onChange={(e: any) => {
                   setState((prevState) => ({
                     ...prevState,
-                    name: e.target.value.replace(/\*/g, ""),
+                    name: e.target.value,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Kind</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="kind"
+                value={kind}
+                options={[
+                  { value: '', label: 'normal' },
+                  { value: 'formula', label: 'formula' },
+                  { value: 'title', label: 'title' },
+                  { value: 'hidden', label: 'hidden' },
+                ]}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    kind: e.target.value,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Percent</ControlLabel>
+              <FormControl
+                {...formProps}
+                type='number'
+                name="percent"
+                value={percent}
+                required={true}
+                max={100}
+                min={0}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    percent: Number(e.target.value || 0),
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Status</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="status"
+                value={status}
+                options={[
+                  { value: '', label: 'Active' },
+                  { value: 'deleted', label: 'Deleted' },
+                ]}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    status: e.target.value
                   }));
                 }}
               />
             </FormGroup>
           </FormColumn>
-
-          <FormColumn>
-          </FormColumn>
-        </FormWrapper>
+        </FormWrapper >
 
         <ModalFooter>
           <Button
@@ -134,11 +197,11 @@ function VatRowForm(props: IProps): React.ReactNode {
           </Button>
 
           {renderButton({
-            name: "vatRow and service",
+            name: "ctaxRow and service",
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: vatRow,
+            object: ctaxRow,
           })}
         </ModalFooter>
       </>

@@ -44,8 +44,6 @@ const VatRowListContainer = (props: Props) => {
 
   const refetchQueries = [
     "VatRows",
-    "VatRowCategories",
-    "VatRowCategoriesCount",
     "VatRowsCount",
   ];
 
@@ -79,15 +77,12 @@ const VatRowListContainer = (props: Props) => {
   const vatRows = vatRowsQuery.data?.vatRows || [];
   const vatRowsCount = vatRowsCountQuery.data?.vatRowsCount || 0;
 
-  const searchValue = props.queryParams.searchValue || "";
-
   const updatedProps = {
     ...props,
     queryParams,
     vatRows,
     remove,
     loading: vatRowsQuery.loading || vatRowsCountQuery.loading,
-    searchValue,
     vatRowsCount,
   };
 

@@ -42,7 +42,22 @@ const Row: React.FC<Props> = (props) => {
 
   const content = (props) => <VatRowFormContainer {...props} vatRowId={vatRow._id} />;
 
-  const { name, kind, } = vatRow;
+  const {
+    name,
+    number,
+    kind,
+    tabCount,
+    isBold,
+    status,
+    percent
+  } = vatRow;
+
+  const renderText = (value) => {
+    if (isBold) {
+      return <strong>value</strong>
+    }
+    return value
+  }
 
   return (
     <tr>
@@ -54,8 +69,11 @@ const Row: React.FC<Props> = (props) => {
         />
       </td>
 
-      <td>{name}</td>
+      <td>{renderText(`${'\u00A0 \u00A0'.repeat(tabCount)}${number || ''}`)}</td>
+      <td>{renderText(name)}</td>
       <td>{kind}</td>
+      <td>{status}</td>
+      <td>{percent}</td>
 
       <td onClick={onClick}>
         <ActionButtons>

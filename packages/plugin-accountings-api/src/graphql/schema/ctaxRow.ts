@@ -5,7 +5,7 @@ export const types = () => `
     number: String
     kind: String
     formula: String
-    formula_text: String
+    formulaText: String
     status: String
     percent: Float
   }
@@ -16,7 +16,7 @@ const ctaxRowParams = `
   number: String
   kind: String
   formula: String
-  formula_text: String
+  formulaText: String
   status: String
   percent: Float
 `;

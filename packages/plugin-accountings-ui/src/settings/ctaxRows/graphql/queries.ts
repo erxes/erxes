@@ -4,7 +4,7 @@ export const ctaxRowFields = `
   number
   kind
   formula
-  formula_text
+  formulaText
   status
   percent
 `;

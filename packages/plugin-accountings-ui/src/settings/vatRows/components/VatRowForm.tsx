@@ -1,4 +1,3 @@
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from "@erxes/ui/src/components/form/Form";
@@ -9,13 +8,11 @@ import {
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   IButtonMutateProps,
   IFormProps,
 } from "@erxes/ui/src/types";
-import { __, router } from "@erxes/ui/src/utils/core";
+import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { IVatRow } from '../types';
@@ -31,9 +28,9 @@ type State = {
   number: string;
   kind: string;
   formula: string;
-  formula_text: string;
-  tab_count: number;
-  is_bold: boolean;
+  formulaText: string;
+  tabCount: number;
+  isBold: boolean;
   status: string;
   percent: number;
 };
@@ -47,9 +44,9 @@ function VatRowForm(props: IProps): React.ReactNode {
     number,
     kind,
     formula,
-    formula_text,
-    tab_count,
-    is_bold,
+    formulaText,
+    tabCount,
+    isBold,
     status,
     percent,
   } = vatRow;
@@ -57,14 +54,14 @@ function VatRowForm(props: IProps): React.ReactNode {
   const [state, setState] = useState<State>({
     ...vatRow,
     name: name ?? '',
-    number,
-    kind,
-    formula,
-    formula_text,
-    tab_count,
-    is_bold,
-    status,
-    percent,
+    number: number ?? '',
+    kind: kind ?? '',
+    formula: formula ?? '',
+    formulaText: formulaText ?? '',
+    tabCount: tabCount || 0,
+    isBold: isBold ?? false,
+    status: status ?? 'active',
+    percent: percent || 0,
   });
 
   const generateDoc = (values: {
@@ -75,11 +72,13 @@ function VatRowForm(props: IProps): React.ReactNode {
     if (vatRow) {
       finalValues._id = vatRow._id;
     }
-
     return {
       ...vatRow,
       ...state,
       ...finalValues,
+      percent: Number(state.percent),
+      tabCount: Number(state.tabCount),
+      isBold: Boolean(state.isBold),
     };
   };
 
@@ -94,9 +93,9 @@ function VatRowForm(props: IProps): React.ReactNode {
       number,
       kind,
       formula,
-      formula_text,
-      tab_count,
-      is_bold,
+      formulaText,
+      tabCount,
+      isBold,
       status,
       percent,
     } = state;
@@ -105,6 +104,21 @@ function VatRowForm(props: IProps): React.ReactNode {
       <>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Number</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="number"
+                value={number}
+                required={true}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    number: e.target.value,
+                  }));
+                }}
+              />
+            </FormGroup>
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
@@ -115,16 +129,100 @@ function VatRowForm(props: IProps): React.ReactNode {
                 onChange={(e: any) => {
                   setState((prevState) => ({
                     ...prevState,
-                    name: e.target.value.replace(/\*/g, ""),
+                    name: e.target.value,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Kind</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="kind"
+                value={kind}
+                options={[
+                  { value: '', label: 'normal' },
+                  { value: 'formula', label: 'formula' },
+                  { value: 'title', label: 'title' },
+                  { value: 'hidden', label: 'hidden' },
+                ]}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    kind: e.target.value,
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Percent</ControlLabel>
+              <FormControl
+                {...formProps}
+                type='number'
+                name="percent"
+                value={percent}
+                max={100}
+                min={0}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    percent: Number(e.target.value || 0),
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Tab</ControlLabel>
+              <FormControl
+                {...formProps}
+                type='number'
+                name="tabCount"
+                value={Number(tabCount)}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    tabCount: Number(e.target.value || 0),
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Is Bold</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='checkbox'
+                name="isBold"
+                checked={isBold}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    isBold: e.target.checked
+                  }));
+                }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Status</ControlLabel>
+              <FormControl
+                {...formProps}
+                componentclass='select'
+                name="status"
+                value={status}
+                options={[
+                  { value: '', label: 'Active' },
+                  { value: 'deleted', label: 'Deleted' },
+                ]}
+                onChange={(e: any) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    status: e.target.value
                   }));
                 }}
               />
             </FormGroup>
           </FormColumn>
-
-          <FormColumn>
-          </FormColumn>
-        </FormWrapper>
+        </FormWrapper >
 
         <ModalFooter>
           <Button

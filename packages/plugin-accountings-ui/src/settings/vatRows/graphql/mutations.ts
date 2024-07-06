@@ -5,9 +5,9 @@ const vatRowInputParamsDefs = `
   $number: String
   $kind: String
   $formula: String
-  $formula_text: String
-  $tab_count: Float
-  $is_bold: Boolean
+  $formulaText: String
+  $tabCount: Float
+  $isBold: Boolean
   $status: String
   $percent: Float
 `;
@@ -17,9 +17,9 @@ const vatRowInputParams = `
   number: $number
   kind: $kind
   formula: $formula
-  formula_text: $formula_text
-  tab_count: $tab_count
-  is_bold: $is_bold
+  formulaText: $formulaText
+  tabCount: $tabCount
+  isBold: $isBold
   status: $status
   percent: $percent
 `;

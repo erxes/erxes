@@ -22,8 +22,8 @@ export interface IVatRow {
   kind: string;
   formula: string;
   formula_text: string;
-  tab_count: number;
-  is_bold: boolean;
+  tabCount: number;
+  isBold: boolean;
   status: string;
   percent: number;
 }
@@ -40,8 +40,8 @@ export const vatRowSchema = schemaWrapper(
     kind: field({ type: String, enum: VatRowKinds.ALL }),
     formula: field({ type: String, optional: true }),
     formula_text: field({ type: String, optional: true }),
-    tab_count: field({ type: Number, default: 0 }),
-    is_bold: field({ type: Boolean, default: false }),
+    tabCount: field({ type: Number, default: 0 }),
+    isBold: field({ type: Boolean, default: false }),
     status: field({
       type: String,
       enum: VAT_ROW_STATUS.ALL,

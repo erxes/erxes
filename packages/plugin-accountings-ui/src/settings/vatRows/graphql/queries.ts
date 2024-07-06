@@ -4,13 +4,17 @@ export const vatRowFields = `
   number
   kind
   formula
-  formula_text
-  tab_count
-  is_b
+  formulaText
+  tabCount
+  isBold
+  status
+  percent
 `;
 
 const vatRowsFilterParamDefs = `
   $status: String,
+  $name: String,
+  $number: String,
   $searchValue: String,
   $ids: [String],
   $excludeIds: Boolean,
@@ -18,6 +22,8 @@ const vatRowsFilterParamDefs = `
 
 const vatRowsFilterParams = `
   status: $status,
+  name: $name,
+  number: $number,
   searchValue: $searchValue,
   ids: $ids,
   excludeIds: $excludeIds,

@@ -1,22 +1,21 @@
-import { __, router } from "@erxes/ui/src/utils";
-import { IVatRow } from "../types";
-import { useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-
-import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Form from "../containers/VatRowForm";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Row from "./VatRowRow";
 import Spinner from "@erxes/ui/src/components/Spinner";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Table from "@erxes/ui/src/components/table";
-import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { Title } from "@erxes/ui/src/styles/main";
+import { __, router } from "@erxes/ui/src/utils";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from '../../configs/components/Sidebar';
+import Form from "../containers/VatRowForm";
+import { IVatRow } from "../types";
+import Row from "./VatRowRow";
 
 interface IProps {
   queryParams: any;
@@ -29,11 +28,11 @@ interface IProps {
   toggleBulk: () => void;
   toggleAll: (targets: IVatRow[], containerId: string) => void;
   loading: boolean;
-  searchValue: string;
 }
 
 const VatRowList: React.FC<IProps> = (props) => {
-  let timer;
+  const timerRef = useRef<number | null>(null);
+  const [focusedField, setFocusedField] = useState<string>('')
 
   const {
     vatRows,
@@ -48,7 +47,9 @@ const VatRowList: React.FC<IProps> = (props) => {
     queryParams,
   } = props;
 
-  const [searchValue, setSearchValue] = useState<string>(props.searchValue);
+  const [searchValues, setSearchValues] = useState<any>(
+    { ...queryParams }
+  );
   const [checked, setChecked] = useState<boolean>(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -91,18 +92,20 @@ const VatRowList: React.FC<IProps> = (props) => {
   };
 
   const search = (e) => {
-    if (timer) {
-      clearTimeout(timer);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
+    const searchField = e.target.name;
     const searchValue = e.target.value;
 
-    setSearchValue(searchValue);
+    setSearchValues({ ...searchValues, [searchField]: searchValue });
+    setFocusedField(searchField)
 
-    timer = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
-    }, 500);
+      router.setParams(navigate, location, { [searchField]: searchValue });
+    }, 800);
   };
 
   const moveCursorAtTheEnd = (e) => {
@@ -117,20 +120,20 @@ const VatRowList: React.FC<IProps> = (props) => {
       return <Spinner objective={true} />;
     }
 
-    if (!vatRowsCount) {
-      return (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
-
     return (
       <>
         <Table $hover={true}>
           <thead>
+            <tr>
+              <th>
+              </th>
+              <th>{__("number")}</th>
+              <th>{__("name")}</th>
+              <th>{__("kind")}</th>
+              <th>{__("status")}</th>
+              <th>{__("percent")}</th>
+              <th>{__("Actions")}</th>
+            </tr>
             <tr>
               <th style={{ width: 60 }}>
                 <FormControl
@@ -139,17 +142,57 @@ const VatRowList: React.FC<IProps> = (props) => {
                   onChange={onChange}
                 />
               </th>
-              <th>{__("Code")}</th>
-              <th>{__("Name")}</th>
-              <th>{__("Category")}</th>
-              <th>{__("Currency")}</th>
-              <th>{__("Kind")}</th>
-              <th>{__("Journal")}</th>
-              <th>{__("Actions")}</th>
+              <th>
+                <FormControl
+                  name='number'
+                  value={searchValues.number}
+                  onChange={search}
+                  autoFocus={focusedField === 'number'}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name='name'
+                  value={searchValues.name}
+                  onChange={search}
+                  autoFocus={focusedField === 'name'}
+                />
+              </th>
+              <th></th>
+              <th>
+                <FormControl
+                  componentclass="select"
+                  value={searchValues.status}
+                  name='status'
+                  options={[
+                    { label: 'Active', value: undefined },
+                    { label: 'Deleted', value: 'deleted' },
+                  ]}
+                  onChange={search}
+                />
+              </th>
+              <th>
+                <FormControl
+                  name='percent'
+                  value={searchValues.percent}
+                  onChange={search}
+                  autoFocus={focusedField === 'percent'}
+                />
+              </th>
+              <th></th>
             </tr>
           </thead>
           <tbody>{renderRow()}</tbody>
         </Table>
+        {!vatRowsCount &&
+          (
+            <EmptyState
+              image="/images/actions/8.svg"
+              text="No Brands"
+              size="small"
+            />
+          ) || null
+        }
       </>
     );
   };
@@ -164,13 +207,11 @@ const VatRowList: React.FC<IProps> = (props) => {
 
     if (checked && (bulk || []).length) {
       setChecked(true);
-      setSearchValue("");
       router.removeParams(
         navigate,
         location,
         "page",
         "searchValue",
-        "categoryId"
       );
       router.setParams(navigate, location, {
         ids: (bulk || []).map((b) => b._id).join(","),
@@ -199,11 +240,11 @@ const VatRowList: React.FC<IProps> = (props) => {
             checked={checked}
           />
           <FormControl
-            type="text"
             placeholder={__("Type to search")}
+            name='searchValue'
             onChange={search}
-            value={searchValue}
-            autoFocus={true}
+            value={searchValues.searchValue}
+            autoFocus={focusedField === 'searchValue'}
             onFocus={moveCursorAtTheEnd}
           />
           <Button
@@ -222,9 +263,10 @@ const VatRowList: React.FC<IProps> = (props) => {
         <FormControl
           type="text"
           placeholder={__("Type to search")}
+          name='searchValue'
           onChange={search}
-          value={searchValue}
-          autoFocus={true}
+          value={searchValues.searchValue}
+          autoFocus={focusedField === 'searchValue'}
           onFocus={moveCursorAtTheEnd}
         />
         <ModalTrigger

@@ -42,7 +42,13 @@ const Row: React.FC<Props> = (props) => {
 
   const content = (props) => <CtaxRowFormContainer {...props} ctaxRowId={ctaxRow._id} />;
 
-  const { name, kind, } = ctaxRow;
+  const {
+    name,
+    number,
+    kind,
+    status,
+    percent
+  } = ctaxRow;
 
   return (
     <tr>
@@ -54,13 +60,16 @@ const Row: React.FC<Props> = (props) => {
         />
       </td>
 
+      <td>{number || ''}</td>
       <td>{name}</td>
       <td>{kind}</td>
+      <td>{status}</td>
+      <td>{percent}</td>
 
       <td onClick={onClick}>
         <ActionButtons>
           <ModalTrigger
-            title="Edit ctaxRow"
+            title="Edit vatRow"
             trigger={trigger}
             size="xl"
             content={content}
