@@ -22,7 +22,7 @@ export function generateVatRowOptions(
   });
 }
 
-export default ({
+const SelectVatRow = ({
   queryParams,
   onSelect,
   initialValue,
@@ -70,3 +70,4 @@ export default ({
     />
   );
 };
+export default SelectVatRow;

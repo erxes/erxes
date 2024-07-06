@@ -22,7 +22,7 @@ export function generateCtaxRowOptions(
   });
 }
 
-export default ({
+const SelectCtaxRow = ({
   queryParams,
   onSelect,
   initialValue,
@@ -70,3 +70,5 @@ export default ({
     />
   );
 };
+
+export default SelectCtaxRow;

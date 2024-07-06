@@ -172,34 +172,40 @@ const TrFormMain = (props: Props) => {
       />
       <FormWrapper>
         <FormColumn>
-          <ControlLabel required={true}>{__('Branch')}</ControlLabel>
-          <SelectBranches
-            multi={false}
-            initialValue={trDoc.branchId}
-            label='Branch'
-            name='branchId'
-            onSelect={(branchId) => onChange('branchId', branchId)}
-          />
+          <FormGroup>
+            <ControlLabel required={true}>{__('Branch')}</ControlLabel>
+            <SelectBranches
+              multi={false}
+              initialValue={trDoc.branchId}
+              label='Branch'
+              name='branchId'
+              onSelect={(branchId) => onChange('branchId', branchId)}
+            />
+          </FormGroup>
         </FormColumn>
         <FormColumn>
-          <ControlLabel required={true}>{__('Department')}</ControlLabel>
-          <SelectDepartment
-            multi={false}
-            initialValue={trDoc.departmentId}
-            label='Department'
-            name='departmentId'
-            onSelect={(departmentId) => onChange('departmentId', departmentId)}
-          />
+          <FormGroup>
+            <ControlLabel required={true}>{__('Department')}</ControlLabel>
+            <SelectDepartment
+              multi={false}
+              initialValue={trDoc.departmentId}
+              label='Department'
+              name='departmentId'
+              onSelect={(departmentId) => onChange('departmentId', departmentId)}
+            />
+          </FormGroup>
         </FormColumn>
         <FormColumn>
-          <ControlLabel>{__('Assigned')}</ControlLabel>
-          <SelectTeamMembers
-            multi={true}
-            initialValue={trDoc.assignedUserIds || []}
-            label='Assigned Users'
-            name='assignedUserIds'
-            onSelect={(userIds) => onChange('assignedUserIds', userIds)}
-          />
+          <FormGroup>
+            <ControlLabel>{__('Assigned')}</ControlLabel>
+            <SelectTeamMembers
+              multi={true}
+              initialValue={trDoc.assignedUserIds || []}
+              label='Assigned Users'
+              name='assignedUserIds'
+              onSelect={(userIds) => onChange('assignedUserIds', userIds)}
+            />
+          </FormGroup>
         </FormColumn>
       </FormWrapper>
       <VatFields
