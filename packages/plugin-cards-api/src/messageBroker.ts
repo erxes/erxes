@@ -201,8 +201,6 @@ export const setupMessageConsumers = async () => {
 
     const deal = await models.Deals.createDeal(data);
 
-    console.log('deal created');
-
     const { customerId = '' } = data;
 
     if (customerId) {
@@ -223,6 +221,7 @@ export const setupMessageConsumers = async () => {
           data: {
             type: `cards:deal`,
             targets: [deal],
+            withDelay:true
           },
           isRPC: true,
           defaultValue: null,
