@@ -133,6 +133,8 @@ const getRelatedValue = async (
       defaultValue: []
     });
 
+    console.log({ contactIds });
+
     const upperCasedTargetKey =
       targetKey.charAt(0).toUpperCase() + targetKey.slice(1);
 
@@ -143,6 +145,8 @@ const getRelatedValue = async (
       isRPC: true,
       defaultValue: []
     });
+
+    console.log({ activeContacts });
 
     if (relatedValueProps && !!relatedValueProps[targetKey]) {
       const { key, filter } = relatedValueProps[targetKey] || {};
