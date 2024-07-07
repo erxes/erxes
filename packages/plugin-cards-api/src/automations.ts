@@ -121,6 +121,11 @@ const getRelatedValue = async (
       customers: 'customer'
     };
 
+    console.log({
+      mainType: target.type,
+      mainTypeId: target._id,
+      relTypes: [relTypeConst[targetKey]]
+    });
     const contactIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
