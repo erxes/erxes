@@ -40,7 +40,7 @@ const ctaxRowQueries = {
       searchValue
     });
 
-    const sortParams: any = { order: 1 };
+    const sortParams: any = { number: 1 };
 
     return await models.CtaxRows.find(filter).sort(sortParams).lean();
   },

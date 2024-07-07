@@ -40,7 +40,7 @@ const vatRowQueries = {
       searchValue
     });
 
-    const sortParams: any = { order: 1 };
+    const sortParams: any = { number: 1 };
 
     return await models.VatRows.find(filter).sort(sortParams).lean();
   },

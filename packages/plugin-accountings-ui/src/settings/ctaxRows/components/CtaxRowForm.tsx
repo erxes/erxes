@@ -51,11 +51,11 @@ function VatRowForm(props: IProps): React.ReactNode {
     ...ctaxRow,
     name: name ?? '',
     number: number ?? '',
-    kind: kind ?? '',
+    kind: kind || 'normal',
     formula: formula ?? '',
     formulaText: formulaText ?? '',
-    status: status ?? 'active',
-    percent: percent ?? 0,
+    status: status || 'active',
+    percent: percent || 0,
   });
 
   const generateDoc = (values: {
@@ -85,8 +85,6 @@ function VatRowForm(props: IProps): React.ReactNode {
       name,
       number,
       kind,
-      formula,
-      formulaText,
       status,
       percent,
     } = state;
@@ -131,7 +129,7 @@ function VatRowForm(props: IProps): React.ReactNode {
                 {...formProps}
                 componentclass='select'
                 name="kind"
-                value={kind}
+                value={kind || 'normal'}
                 options={[
                   { value: '', label: 'normal' },
                   { value: 'formula', label: 'formula' },
@@ -170,9 +168,9 @@ function VatRowForm(props: IProps): React.ReactNode {
                 {...formProps}
                 componentclass='select'
                 name="status"
-                value={status}
+                value={status || 'active'}
                 options={[
-                  { value: '', label: 'Active' },
+                  { value: 'active', label: 'Active' },
                   { value: 'deleted', label: 'Deleted' },
                 ]}
                 onChange={(e: any) => {

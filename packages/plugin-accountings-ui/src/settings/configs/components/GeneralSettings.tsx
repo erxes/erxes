@@ -119,50 +119,96 @@ class GeneralSettings extends React.Component<Props, State> {
           beforeTitle={<Icon icon="settings" />}
         >
           <FormGroup>
-            <ControlLabel>{__('Vat Account Payable')}</ControlLabel>
-            <SelectAccount
-              multi={false}
-              initialValue={configsMap.VatPayableAccount || ''}
-              label='Account'
-              name='VatPayableAccount'
-              filterParams={{ journals: ['vat'] }}
-              onSelect={(accountId) => { this.onChangeConfig('VatPayableAccount', accountId) }}
+            <ControlLabel>{__('has vat')}</ControlLabel>
+            <FormControl
+              componentclass='checkbox'
+              name="HasVat"
+              checked={configsMap.HasVat}
+              autoFocus={true}
+              required={true}
+              onChange={(e: any) => {
+                this.onChangeConfig('HasVat', e.target.checked)
+              }}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__('Vat Account Receivable')}</ControlLabel>
-            <SelectAccount
-              multi={false}
-              initialValue={configsMap.VatReceivableAccount || ''}
-              label='Account'
-              name='VatReceivableAccount'
-              filterParams={{ journals: ['vat'] }}
-              onSelect={(accountId) => { this.onChangeConfig('VatReceivableAccount', accountId) }}
-            />
-          </FormGroup>
+          {configsMap.HasVat &&
+            <>
+              <FormGroup>
+                <ControlLabel>{__('Vat Account Payable')}</ControlLabel>
+                <SelectAccount
+                  multi={false}
+                  initialValue={configsMap.VatPayableAccount || ''}
+                  label='Account'
+                  name='VatPayableAccount'
+                  filterParams={{ journals: ['vat'] }}
+                  onSelect={(accountId) => { this.onChangeConfig('VatPayableAccount', accountId) }}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>{__('Vat Account Receivable')}</ControlLabel>
+                <SelectAccount
+                  multi={false}
+                  initialValue={configsMap.VatReceivableAccount || ''}
+                  label='Account'
+                  name='VatReceivableAccount'
+                  filterParams={{ journals: ['vat'] }}
+                  onSelect={(accountId) => { this.onChangeConfig('VatReceivableAccount', accountId) }}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <ControlLabel>{__('Vat after Account Payable')}</ControlLabel>
+                <SelectAccount
+                  multi={false}
+                  initialValue={configsMap.VatAfterPayableAccount || ''}
+                  label='Account'
+                  name='VatAfterPayableAccount'
+                  filterParams={{ journals: ['vat'] }}
+                  onSelect={(accountId) => { this.onChangeConfig('VatAfterPayableAccount', accountId) }}
+                />
+              </FormGroup>
+              <FormGroup>
+                <ControlLabel>{__('Vat after Account Receivable')}</ControlLabel>
+                <SelectAccount
+                  multi={false}
+                  initialValue={configsMap.VatAfterReceivableAccount || ''}
+                  label='Account'
+                  name='VatAfterReceivableAccount'
+                  filterParams={{ journals: ['vat'] }}
+                  onSelect={(accountId) => { this.onChangeConfig('VatAfterReceivableAccount', accountId) }}
+                />
+              </FormGroup>
+            </>
+            || null}
 
           <FormGroup>
-            <ControlLabel>{__('Vat after Account Payable')}</ControlLabel>
-            <SelectAccount
-              multi={false}
-              initialValue={configsMap.VatAfterPayableAccount || ''}
-              label='Account'
-              name='VatAfterPayableAccount'
-              filterParams={{ journals: ['vat'] }}
-              onSelect={(accountId) => { this.onChangeConfig('VatAfterPayableAccount', accountId) }}
+            <ControlLabel>{__('has ctax')}</ControlLabel>
+            <FormControl
+              componentclass='checkbox'
+              name="HasCtax"
+              checked={configsMap.HasCtax}
+              autoFocus={true}
+              required={true}
+              onChange={(e: any) => {
+                this.onChangeConfig('HasCtax', e.target.checked)
+              }}
             />
           </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__('Vat after Account Receivable')}</ControlLabel>
-            <SelectAccount
-              multi={false}
-              initialValue={configsMap.VatAfterReceivableAccount || ''}
-              label='Account'
-              name='VatAfterReceivableAccount'
-              filterParams={{ journals: ['vat'] }}
-              onSelect={(accountId) => { this.onChangeConfig('VatAfterReceivableAccount', accountId) }}
-            />
-          </FormGroup>
+          {configsMap.HasCtax &&
+            <>
+              <FormGroup>
+                <ControlLabel>{__('Ctax Account Payable')}</ControlLabel>
+                <SelectAccount
+                  multi={false}
+                  initialValue={configsMap.CtaxPayableAccount || ''}
+                  label='Account'
+                  name='CtaxPayableAccount'
+                  filterParams={{ journals: ['vat'] }}
+                  onSelect={(accountId) => { this.onChangeConfig('CtaxPayableAccount', accountId) }}
+                />
+              </FormGroup>
+            </>
+            || null}
         </CollapseContent>
 
       </ContentBox>
