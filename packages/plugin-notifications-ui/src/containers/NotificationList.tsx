@@ -25,7 +25,7 @@ const NotificationListContainer = (props: Props) => {
     {
       variables: {
         ...generatePaginationParams(queryParams),
-        requireRead: queryParams.requireRead === 'true' ? true : false,
+        requireRead: queryParams.requireRead === 'true',
         title: queryParams.title,
       },
     },
@@ -35,7 +35,7 @@ const NotificationListContainer = (props: Props) => {
     gql(queries.notificationCounts),
     {
       variables: {
-        requireRead: queryParams.requireRead === 'true' ? true : false,
+        requireRead: queryParams.requireRead === 'true',
       },
     },
   );

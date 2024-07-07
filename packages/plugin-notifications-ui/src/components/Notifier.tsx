@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import NotifierItem from './NotiferItem';
 
@@ -9,8 +9,6 @@ const NotifierContainer = styled.div`
 `;
 
 const Notifier = () => {
-  const [show, setShow] = useState<boolean>(false);
-  const [activeRoute, setActiveRoute] = useState<string>('feature');
 
   const renderNotifications = () => {
     return (
