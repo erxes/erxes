@@ -126,6 +126,19 @@ const getRelatedValue = async (
       mainTypeId: target._id,
       relTypes: [relTypeConst[targetKey]]
     });
+
+    console.log({
+      test: await sendCoreMessage({
+        subdomain,
+        action: 'conformities.findConformities',
+        data: {
+          mainType: target.type,
+          mainTypeId: target._id
+        },
+        isRPC: true,
+        defaultValue: []
+      })
+    });
     const contactIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
