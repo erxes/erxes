@@ -1,7 +1,6 @@
 import { getUserDetail } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { IModels } from './connectionResolver';
-import { generateModels } from './connectionResolver';
+import { IModels , generateModels } from './connectionResolver';
 import {
   MessageArgs,
   MessageArgsOmitService,

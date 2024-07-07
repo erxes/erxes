@@ -53,13 +53,13 @@ export default {
     let teamMemberIds = [...(config?.teamMemberIds || [])];
     let customerIds = [...(config?.customerIds || [])];
 
-    if (!!config?.teamMemberIds?.length) {
+    if (config?.teamMemberIds?.length) {
       await handleTeamMembersAppNotifications({
         ...commonDoc,
         teamMemberIds: config.teamMemberIds
       });
     }
-    if (!!config?.teamMemberIds?.length) {
+    if (config?.teamMemberIds?.length) {
       await handleCustomerAppNotifications({
         ...commonDoc,
         customerIds: config.customerIds
@@ -82,14 +82,14 @@ export default {
       return 'Not Found';
     }
 
-    if (!!customerIds?.length) {
+    if (customerIds?.length) {
       await handleCustomerAppNotifications({
         ...commonDoc,
         customerIds
       });
     }
 
-    if (!!teamMemberIds?.length) {
+    if (teamMemberIds?.length) {
       await handleTeamMembersAppNotifications({
         ...commonDoc,
         teamMemberIds
@@ -167,7 +167,7 @@ const generateSendToIds = async ({
     );
   }
 
-  if (!!attributes?.length) {
+  if (attributes?.length) {
     const obj = {};
 
     for (const attribute of attributes) {
