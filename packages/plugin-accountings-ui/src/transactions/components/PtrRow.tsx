@@ -42,7 +42,7 @@ const Row: React.FC<Props> = (props) => {
     e.stopPropagation();
   };
 
-  const { date, number, journal, sumDt, sumCt, parentId } = transaction;
+  const { _id, date, number, journal, sumDt, sumCt, parentId } = transaction;
 
   return (
     <tr>
@@ -53,15 +53,15 @@ const Row: React.FC<Props> = (props) => {
           onChange={onChange}
         />
       </td>
-      <td>{dayjs(date).format('yyyy-MM-dd')}</td>
       <td>{number}</td>
+      <td>{dayjs(date).format('YYYY-MM-DD')}</td>
       <td>{sumDt.toLocaleString()}</td>
       <td>{sumCt.toLocaleString()}</td>
       <td>{journal}</td>
 
       <td onClick={onClick}>
         <ActionButtons>
-          <Link to={`/accountings/transaction/edit/${parentId}`}>
+          <Link to={`/accountings/transaction/edit/${parentId}?trId=${_id}`}>
             <Button btnStyle="link">
               <Tip text={__('Manage')} placement="top">
                 <Icon icon="edit-3" />

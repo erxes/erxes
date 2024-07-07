@@ -14,13 +14,8 @@ import {
 import { Tabs, TabTitle } from "@erxes/ui/src/components/tabs";
 import { ContentHeader, HeaderContent, HeaderItems } from "@erxes/ui/src/layout/styles";
 import {
-  Actions,
   FormColumn,
   FormWrapper,
-  InfoWrapper,
-  ModalFooter,
-  PopoverButton,
-  PopoverHeader,
 } from "@erxes/ui/src/styles/main";
 import { IQueryParams } from "@erxes/ui/src/types";
 import { Popover } from "@headlessui/react";
@@ -48,7 +43,6 @@ type Props = {
 };
 
 type State = {
-  firstTransaction?: ITransaction;
   date: Date;
   number: string;
 };
@@ -64,12 +58,9 @@ const TransactionForm = (props: Props) => {
   } = props;
 
   const [state, setState] = useState<State>({
-    firstTransaction: transactions?.find(
-      (tr) => tr._id === tr.parentId
-    ) as ITransaction,
     date:
-      transactions?.find((tr) => tr._id === tr.parentId)?.date || new Date(),
-    number: transactions?.find((tr) => tr._id === tr.parentId)?.number || "",
+      transactions?.length && transactions[0].date || new Date(),
+    number: transactions?.length && transactions[0].number || "",
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(
@@ -250,7 +241,7 @@ const TransactionForm = (props: Props) => {
                 <ControlLabel required={true}>{__('Number')}</ControlLabel>
                 <FormControl
                   name="number"
-                  value={state.number || ''}
+                  value={state.number}
                   autoFocus={true}
                   required={true}
                   onChange={e => setState((prevState) => ({
@@ -264,7 +255,7 @@ const TransactionForm = (props: Props) => {
                 <ControlLabel required={true}>{__('Date')}</ControlLabel>
                 <DateControl
                   required={true}
-                  value={state.date || new Date()}
+                  value={state.date}
                   name={'date'}
                   placeholder="Enter date"
                   dateFormat='YYYY-MM-DD'

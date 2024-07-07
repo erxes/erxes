@@ -188,13 +188,13 @@ const transactionCommon = {
       pagintationArgs.perPage = ids.length;
     }
 
-    let sort: any = { code: 1 };
+    let sort: any = { date: 1 };
     if (sortField) {
       sort = { [sortField]: sortDirection ?? 1 };
     }
 
     return await paginate(
-      models.Transactions.find(filter).sort(sort).lean(),
+      models.Transactions.find(filter).sort({ ...sort, ptrId: 1 }).lean(),
       pagintationArgs,
     )
   },
