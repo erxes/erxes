@@ -334,6 +334,8 @@ const addScore = async ({
       defaultValue: {}
     });
 
+    console.log({ replacedContent, owner: true });
+
     if (replacedContent['customers']) {
       await models.ScoreLogs.changeOwnersScore({
         ownerType: 'customer',
