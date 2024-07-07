@@ -1,29 +1,25 @@
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
+import { ItemRow } from '@erxes/ui-automations/src/components/forms/actions/ItemRow';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import {
-  Button,
   ControlLabel,
   FormControl,
   FormGroup,
   Icon,
   Label,
-  ModalTrigger,
   SelectTeamMembers,
   TabTitle,
   Tabs,
   Toggle,
-  __,
-  colors
+  __
 } from '@erxes/ui/src';
 import { Columns } from '@erxes/ui/src/styles/chooser';
 import { Column, LinkButton } from '@erxes/ui/src/styles/main';
-import React, { useState, useEffect } from 'react';
-import { Padding, TopContainer } from '../styles';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { ItemRow } from '@erxes/ui-automations/src/components/forms/actions/ItemRow';
-import { Divider } from '@erxes/ui-cards/src/boards/styles/stage';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Padding } from '../styles';
 
 type Props = {
   activeAction: IAction;
@@ -51,61 +47,7 @@ const sendNotifcation = (props: Props) => {
     setConfig(config);
   };
 
-  const handleSettingOnChange = e => {
-    const { value } = e.currentTarget as HTMLInputElement;
-
-    setConfig(prevConfig => {
-      return { ...prevConfig, customConfig: value };
-    });
-  };
-
-  const renderSettings = () => {
-    const trigger = (
-      <Button
-        icon="settings"
-        iconColor={config?.customConfig ? colors.colorCoreBlue : ''}
-        btnStyle="link"
-      />
-    );
-
-    const content = () => {
-      return (
-        <>
-          <Columns>
-            <Column>
-              <ControlLabel>
-                {__('Use Custom Firebase notification config')}
-              </ControlLabel>
-            </Column>
-            <Toggle
-              checked={useCustomConfig}
-              onChange={() => setUseCustomConfig(!useCustomConfig)}
-            />
-          </Columns>
-          {useCustomConfig && (
-            <FormGroup>
-              <ControlLabel>
-                {__('GOOGLE APPLICATION CREDENTIALS JSON')}
-                <LinkButton>{__('Add additional JSON')}</LinkButton>
-              </ControlLabel>
-              <p>{__('Firebase config for notifications')}</p>
-              <FormControl
-                placeholder="Paste a config"
-                onChange={handleSettingOnChange}
-                value={config?.customConfig}
-              />
-            </FormGroup>
-          )}
-        </>
-      );
-    };
-
-    return (
-      <ModalTrigger trigger={trigger} content={content} hideHeader title="" />
-    );
-  };
-
-  const renderCustomConfig = (doc, onChange) => {
+  const renderCustomConfig = (doc: any, onChange: (...props: any) => void) => {
     const handleSettingOnChange = e => {
       const { value } = e.currentTarget as HTMLInputElement;
 
@@ -142,7 +84,7 @@ const sendNotifcation = (props: Props) => {
     );
   };
 
-  const renderStatic = (doc, onChange) => {
+  const renderStatic = (doc: any, onChange: (...props: any) => void) => {
     return (
       <Padding>
         <FormGroup>
@@ -169,7 +111,7 @@ const sendNotifcation = (props: Props) => {
     );
   };
 
-  const renderGeneral = (doc, onChange) => {
+  const renderGeneral = (_doc, onChange) => {
     const isAviableTriggerExcutor = ['contacts', 'user'].some(c =>
       triggerType.includes(c)
     );
@@ -199,7 +141,7 @@ const sendNotifcation = (props: Props) => {
     );
   };
 
-  const renderTabContent = (doc, onChange) => {
+  const renderTabContent = (doc: any, onChange: (...props: any) => void) => {
     const content = {
       general: renderGeneral(doc, onChange),
       static: renderStatic(doc, onChange)
@@ -239,13 +181,13 @@ const sendNotifcation = (props: Props) => {
     );
   };
 
-  const renderMainContent = (doc, onChange) => {
+  const renderMainContent = (doc: any, onChange: (...props: any) => void) => {
     return (
       <Padding>
         <PlaceHolderInput
           inputName="subject"
           label="Subject"
-          config={config}
+          config={doc}
           onChange={onChange}
           triggerType={triggerType}
           required
@@ -253,7 +195,7 @@ const sendNotifcation = (props: Props) => {
         <PlaceHolderInput
           inputName="body"
           label="Body"
-          config={config}
+          config={doc}
           onChange={onChange}
           triggerType={triggerType}
           required
@@ -261,6 +203,22 @@ const sendNotifcation = (props: Props) => {
       </Padding>
     );
   };
+
+  const checkIsDone = useCallback(
+    (field: string) => {
+      if (field === 'recipient') {
+        return ['sendTo', 'teamMemberIds', 'customerIds'].some(key =>
+          Array.isArray(config[key])
+            ? (config[key] || [])?.length
+            : config[key] && Object.keys(config).includes(key)
+        );
+      }
+      if (field === 'content') {
+        return ['subject', 'body'].every(key => !!config[key]);
+      }
+    },
+    [JSON.stringify(config)]
+  );
 
   return (
     <DrawerDetail>
@@ -275,11 +233,7 @@ const sendNotifcation = (props: Props) => {
           description="Who is recieve notification"
           buttonText="recipient"
           config={config}
-          isDone={['sendTo', 'teamMemberIds', 'customerIds'].some(key =>
-            Array.isArray(config[key])
-              ? (config[key] || [])?.length
-              : config[key] && Object.keys(config).includes(key)
-          )}
+          isDone={checkIsDone('recipient')}
           content={renderTabContent}
           onSave={handleOnChange}
           subContent={''}
@@ -290,7 +244,7 @@ const sendNotifcation = (props: Props) => {
           description="Notification content"
           buttonText="content"
           config={config}
-          isDone={['subject', 'body'].every(key => !!config[key])}
+          isDone={checkIsDone('content')}
           content={renderMainContent}
           onSave={handleOnChange}
           subContent={''}

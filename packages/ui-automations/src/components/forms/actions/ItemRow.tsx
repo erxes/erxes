@@ -1,7 +1,7 @@
 import { __, Button, colors, Icon } from '@erxes/ui/src';
 import { FlexRow } from '@erxes/ui-settings/src/styles';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import { ItemRowHeader } from '../../../styles';
 import { Divider } from '@erxes/ui-cards/src/boards/styles/stage';
@@ -28,7 +28,11 @@ export const ItemRow = ({
   config
 }: Props) => {
   const [isOpen, setOpen] = useState(false);
-  const [doc, setDoc] = useState(config);
+  const [doc, setDoc] = useState({});
+
+  useEffect(() => {
+    setDoc(config);
+  }, [config]);
 
   const toggleOpen = () => setOpen(!isOpen);
 
