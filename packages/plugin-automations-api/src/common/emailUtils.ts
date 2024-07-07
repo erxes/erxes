@@ -282,7 +282,6 @@ export const getRecipientEmails = async ({
   target,
   execution
 }) => {
-  console.log({ config });
   let toEmails: string[] = [];
   const reciepentTypes: any = await getEmailRecipientTypes();
 
@@ -291,13 +290,10 @@ export const getRecipientEmails = async ({
   for (const key of Object.keys(config)) {
     if (reciepentTypeKeys.includes(key)) {
       const [serviceName, contentType] = triggerType.split(':');
-      console.log({ serviceName, contentType });
 
       const { type, ...reciepentType } = reciepentTypes.find(
         rT => rT.name === key
       );
-
-      console.log({ type, reciepentType });
 
       if (type === 'teamMember') {
         const emails = await getTeamMemberEmails({
@@ -350,7 +346,6 @@ export const getRecipientEmails = async ({
       }
     }
   }
-  console.log({ toEmails });
 
   return [...new Set(toEmails)];
 };
