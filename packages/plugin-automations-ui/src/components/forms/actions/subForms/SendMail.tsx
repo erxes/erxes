@@ -18,7 +18,7 @@ import {
 
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { DrawerDetail } from '@erxes/ui-automations/src/styles';
+import { DrawerDetail, ItemRowHeader } from '@erxes/ui-automations/src/styles';
 import { IAction } from '@erxes/ui-automations/src/types';
 import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
 import AddTemplateForm from '@erxes/ui-emailtemplates/src/containers/Form';
@@ -27,11 +27,11 @@ import { FlexRow } from '@erxes/ui-settings/src/styles';
 import Popover from '@erxes/ui/src/components/Popover';
 import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
 import { PopoverContent } from '@erxes/ui/src/components/filterableList/styles';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { renderDynamicComponent } from '../../../../utils';
-import { ItemRowHeader, Padding } from '../styles';
+import { Padding } from '../styles';
+import { ItemRow } from '@erxes/ui-automations/src/components/forms/actions/ItemRow';
 
 type Props = {
   activeAction: any;
@@ -319,74 +319,6 @@ const ConfigForm = ({
 }) => {
   const onSelect = (value, name) => {
     setConfig({ ...config, [name]: value });
-  };
-
-  const ItemRow = ({
-    title,
-    content,
-    subContent,
-    description,
-    buttonText,
-    isDone,
-    onSave,
-    config
-  }: any) => {
-    const [isOpen, setOpen] = useState(false);
-    const [doc, setDoc] = useState(config);
-
-    const toggleOpen = () => setOpen(!isOpen);
-
-    const handleSave = () => {
-      onSave(doc);
-      toggleOpen();
-    };
-
-    return (
-      <>
-        <div>
-          <FlexRow $justifyContent="space-between">
-            <FlexRow $alignItems="baseline">
-              <ItemRowHeader>
-                {title}
-                <span>{!isOpen && subContent}</span>
-              </ItemRowHeader>
-              {isDone && (
-                <Icon
-                  color={colors.colorCoreGreen}
-                  icon="check-circle"
-                  style={{ paddingLeft: '6px' }}
-                />
-              )}
-            </FlexRow>
-            {isOpen ? (
-              <Button
-                btnStyle="white"
-                icon="times"
-                iconColor={colors.colorPrimary}
-                onClick={toggleOpen}
-              />
-            ) : (
-              <Button btnStyle="white" onClick={toggleOpen}>
-                {`Edit ${buttonText}`}
-              </Button>
-            )}
-          </FlexRow>
-
-          <span>{isOpen && description}</span>
-        </div>
-        {isOpen && content(doc, setDoc)}
-        {isOpen && (
-          <ModalFooter>
-            <Button size="small" btnStyle="simple" onClick={toggleOpen}>
-              {__('Cancel')}
-            </Button>
-            <Button size="small" btnStyle="success" onClick={handleSave}>
-              {__('Save')}
-            </Button>
-          </ModalFooter>
-        )}
-      </>
-    );
   };
 
   return (
