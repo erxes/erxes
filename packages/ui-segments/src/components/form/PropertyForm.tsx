@@ -178,9 +178,9 @@ class PropertyForm extends React.Component<Props, State> {
 
     const operators = OPERATORS[validation || type || " "] || DEFAULT_OPERATORS;
 
-    return operators.map((operator, index) => {
+    return operators.map((operator, _id) => {
       return (
-        <div key={index}>
+        <div key={_id}>
           <FormControl
             componentclass="radio"
             onChange={this.onClickOperator.bind(this, operator)}
