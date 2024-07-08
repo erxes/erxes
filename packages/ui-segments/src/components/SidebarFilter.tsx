@@ -44,21 +44,24 @@ class Segments extends React.Component<Props, State> {
     };
   }
 
+
   groupByParent = (array: any[]) => {
     const key = "subOf";
-
     return array.reduce((rv, x) => {
-      (rv[x[key]] = rv[x[key]] || []).push(x);
-
+      const parentKey = x[key];
+      if (!rv[parentKey]) {
+        rv[parentKey] = [];
+      }
+      rv[parentKey].push(x);
       return rv;
     }, {});
   };
-
   onToggle = (id: string, isOpen: boolean) => {
-    const parentFieldIds = this.state.parentFieldIds;
+    this.setState((prevState)=> {
+    const parentFieldIds = {...prevState.parentFieldIds};
     parentFieldIds[id] = !isOpen;
-
-    this.setState({ parentFieldIds });
+    return({ parentFieldIds });
+    });
   };
 
   renderCancelBtn() {
