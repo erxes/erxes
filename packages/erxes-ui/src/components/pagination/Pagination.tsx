@@ -71,11 +71,11 @@ const Page = ({ page, currentPage }: { page: number; currentPage: number }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const goto = (page) => {
+  const goto = page => {
     router.setParams(navigate, location, { page });
   };
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.preventDefault();
     goto(page);
   };
@@ -112,11 +112,11 @@ const Pagination = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const goto = (page) => {
+  const goto = page => {
     router.setParams(navigate, location, { page });
   };
 
-  const onPrev = (e) => {
+  const onPrev = e => {
     e.preventDefault();
 
     const page = (currentPage || 1) - 1;
@@ -126,7 +126,7 @@ const Pagination = ({
     }
   };
 
-  const onNext = (e) => {
+  const onNext = e => {
     e.preventDefault();
 
     const page = (currentPage || 1) + 1;
@@ -184,15 +184,18 @@ const Pagination = ({
 
 const PaginationContainer = ({
   count = 100,
-  hidePerPageChooser
+  hidePerPageChooser,
+  ...props
 }: {
   count?: number;
   hidePerPageChooser?: boolean;
+  perPage?: number;
 }) => {
   const location = useLocation();
 
   const currentPage = Number(router.getParam(location, 'page')) || 1;
-  const perPage = Number(router.getParam(location, 'perPage')) || 20;
+  const perPage =
+    Number(router.getParam(location, 'perPage')) || props.perPage || 20;
 
   let totalPagesCount = parseInt((count / perPage).toString(), 10) + 1;
 

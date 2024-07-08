@@ -138,6 +138,10 @@ export class VendorBaseAPI {
         `${this.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions,
       ).then((r) => r.json());
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
 
       return response;
     } catch (e) {
@@ -146,7 +150,7 @@ export class VendorBaseAPI {
         return await this.makeRequest(args);
       }
 
-      throw new Error(e.message);
+      throw new Error(e);
     }
   }
 }

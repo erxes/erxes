@@ -143,6 +143,7 @@ const historiesParams = `
   beginDate: Date,
   endDate: Date,
   targetId: String
+  targetIds: [String]
 `;
 
 export const queries = `
