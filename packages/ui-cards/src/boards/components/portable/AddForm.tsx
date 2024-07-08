@@ -107,6 +107,12 @@ class AddForm extends React.Component<Props, State> {
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
+  convertToParagraphs(input) {
+    const lines = input.split('\n');
+    const paragraphs = lines.map(line => `<p>${line}</p>`);
+    return paragraphs.join('');
+  }
+
   save = (e) => {
     e.preventDefault();
 
@@ -224,7 +230,7 @@ class AddForm extends React.Component<Props, State> {
     }
 
     if (description) {
-      doc.description = description;
+      doc.description = this.convertToParagraphs(description);
     }
 
     if (tagIds) {
