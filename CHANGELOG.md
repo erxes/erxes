@@ -1,5 +1,177 @@
 # Changelog
 
+## [1.14.0-rc.9](https://github.com/erxes/erxes/compare/1.14.0-rc.8...1.14.0-rc.9) (2024-07-05)
+
+
+### Bug Fixes
+
+* **msdynamic:** to deal with customer NO ([7a8008b](https://github.com/erxes/erxes/commit/7a8008b28744b7888faad7f1b8ea4c3dd11721aa))
+
+## [1.14.0-rc.8](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-04)
+
+
+### Features
+
+* **calls:** added new tones ([1705120](https://github.com/erxes/erxes/commit/17051209a2c3c5c35919c8d04b6efa71643ba60e))
+* **calls:** added ringing and busy tone ([85ecb8e](https://github.com/erxes/erxes/commit/85ecb8e90e9865ce73096a828d0e3b4d38b9a35c))
+* **calls:** Enhanced call functionality by adding a keypad view with DTMF support and improving call action interfaces.  ([2583c7c](https://github.com/erxes/erxes/commit/2583c7cc6e1ccc07ae0cc4e5b5baf0353592e10f))
+* sentry crons setup  ([3592cf0](https://github.com/erxes/erxes/commit/3592cf06201648d8ce627b3cc83803de07bc3ba4))
+
+
+### Bug Fixes
+
+* **automations:** remove tick used from generateTotalAmount ([122a175](https://github.com/erxes/erxes/commit/122a175e37616ff24d80aa1ffb00ff1eac48bed2))
+* pos create deal per orders linked ([76c7ada](https://github.com/erxes/erxes/commit/76c7adaf813127a7b9667a770ab45ded95fe8c01))
+* pos order list with summary and cardsConfig edit ([fe3c5fa](https://github.com/erxes/erxes/commit/fe3c5faa244659cc3c08947849f17d79a95b541a))
+* **pos:** create per deal description from deliveryInfo ([7306564](https://github.com/erxes/erxes/commit/7306564e523a123646211cb7df9046a9df081e4c))
+* **riskassessment:** can't filters  cardsFilters in riskassessment statistic ([4545566](https://github.com/erxes/erxes/commit/45455661bfde0e8d3e7cc99b66a9eb2c9dfe9944))
+
+## [1.14.0-rc.5](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-02)
+
+
+### Bug Fixes
+
+* **automations:** can't get contactIds in addScore action ([5a7c1b8](https://github.com/erxes/erxes/commit/5a7c1b8e2679b6ea38fa1e2851b68bac69fcb1f4))
+* **automations:** can't handle error in Attribution component ([37803be](https://github.com/erxes/erxes/commit/37803bed4af073df31ba331bfa4d94244057ad46))
+
+## [1.14.0-rc.4](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-02)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix timeclock config issues  ([ab8083e](https://github.com/erxes/erxes/commit/ab8083e6dd4c941e1c2540ecd70a1b41d0e38e5c))
+
+## [1.14.0-rc.3](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-01)
+
+## [1.14.0-rc.2](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-06-27)
+
+
+### Bug Fixes
+
+* **assets:** can't save asset kb histories as action added ([656d8eb](https://github.com/erxes/erxes/commit/656d8eb2449fdb1665849c204b5387d26a34e3ad))
+* **assets:** can't sort by createdAt in getLasthistoryEachAssets ([5fd442e](https://github.com/erxes/erxes/commit/5fd442eca5d7534df4a94ceeb31ae08522daaa93))
+* **core:** get branches children by status ([10806d4](https://github.com/erxes/erxes/commit/10806d410ff00cc738249374f317b41a98be4dc3))
+* elastic _id bug ([#5470](https://github.com/erxes/erxes/issues/5470)) ([ad044c5](https://github.com/erxes/erxes/commit/ad044c5197873c0d31c61766fc3dd6fc4520540e))
+* **riskassessment:** prevent risk assessment submitting multiple times ([ef00e9a](https://github.com/erxes/erxes/commit/ef00e9ada708fc8ed8254619d6267ed203965fbd))
+
+## [1.14.0-rc.1](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-06-26)
+
+## [1.14.0-rc.0](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-06-25)
+
+
+### Features
+
+* add template plugin ([dc8b891](https://github.com/erxes/erxes/commit/dc8b891ff821f4e06bb5660a3a67a3e5cd05f3c6))
+* **assets:** added ability set history when kb articles changed ([a5a8f23](https://github.com/erxes/erxes/commit/a5a8f23715d6482930cb186cdda3273b0b83ced6))
+* Loans transaction logic ([#5399](https://github.com/erxes/erxes/issues/5399)) ([4da3750](https://github.com/erxes/erxes/commit/4da3750595fd6e102e1c0ce6f55c001ba3ba8623))
+
+
+### Bug Fixes
+
+* **automations:** added rpc trigger consumer in automations ([40b9fa6](https://github.com/erxes/erxes/commit/40b9fa6d7462410aa03cf20dbb56e526fec4039e))
+* **automations:** can't paginate automation history ([fb18302](https://github.com/erxes/erxes/commit/fb18302e39fdd1d2801586fb6e174b54db6d5c1a))
+* burenscoring and golomt ([#5393](https://github.com/erxes/erxes/issues/5393)) ([753d697](https://github.com/erxes/erxes/commit/753d697dbeebcd7f68fb15cdf9fc6cca9b9f12e1))
+* field name changed  in burenscoring query ([#5425](https://github.com/erxes/erxes/issues/5425)) ([8e76b1a](https://github.com/erxes/erxes/commit/8e76b1a70ea976e8af91b679ca55a6c9f074a2ec))
+* golomtbank CI ([5b57849](https://github.com/erxes/erxes/commit/5b57849c9543d9ecc8d7806db4e3cb08a6dd7d87))
+* settings ui bug ([959153b](https://github.com/erxes/erxes/commit/959153b4ae6925bbba98d4ac2286639a055cccd3))
+* **template:** change ui scope ([57fbe19](https://github.com/erxes/erxes/commit/57fbe19685d14e0c786c0a3271db02661fed8d73))
+* **templates:**  file export ([e2f647c](https://github.com/erxes/erxes/commit/e2f647ccb53eb7680d66e0de9c76ca7a90bbe0a4))
+* transaction ([429f933](https://github.com/erxes/erxes/commit/429f9335482d4dfc1c985ae2f8ae0474aa765f51))
+
+## [1.13.5](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-04)
+
+
+### Bug Fixes
+
+* **inbox:** fix convert to and fix cards save when hit enter ([45cf7a5](https://github.com/erxes/erxes/commit/45cf7a5995d5af6be9211845c66eef65450f1c18))
+
+## [1.13.4](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-02)
+
+
+### Bug Fixes
+
+* **acitivityLog:** ignore all <style> tag showing in email activity log ([16b78f5](https://github.com/erxes/erxes/commit/16b78f5867483121ee11a12a6eaff09aa1ff2ce8))
+* **clientportal:** user detail not showing ([89d19c5](https://github.com/erxes/erxes/commit/89d19c5dde526211cfc07e77dec6717827ac041c))
+* **engages:** fix engage email  ([c41a28f](https://github.com/erxes/erxes/commit/c41a28f73b7f53504b82e2e9c6bf1a165c1f2138))
+* **inbox:** Merge button not working in action ([fd57f9a](https://github.com/erxes/erxes/commit/fd57f9aadc8b6cfeb6c23435569e0726acb412b8))
+
+## [1.13.3](https://github.com/erxes/erxes/compare/1.14.0-rc.5...1.14.0-rc.8) (2024-07-02)
+
+## [1.14.0-rc.6](https://github.com/erxes/erxes/compare/1.14.0-rc.4...1.14.0-rc.6) (2024-07-02)
+## [1.13.5](https://github.com/erxes/erxes/compare/1.13.4...1.13.5) (2024-07-04)
+
+
+### Bug Fixes
+
+* **inbox:** fix convert to and fix cards save when hit enter ([45cf7a5](https://github.com/erxes/erxes/commit/45cf7a5995d5af6be9211845c66eef65450f1c18))
+
+## [1.13.4](https://github.com/erxes/erxes/compare/1.13.3...1.13.4) (2024-07-02)
+
+
+### Bug Fixes
+
+* **automations:** can't get contactIds in addScore action ([5a7c1b8](https://github.com/erxes/erxes/commit/5a7c1b8e2679b6ea38fa1e2851b68bac69fcb1f4))
+* **automations:** can't handle error in Attribution component ([37803be](https://github.com/erxes/erxes/commit/37803bed4af073df31ba331bfa4d94244057ad46))
+* update pluginsMap ([8177a61](https://github.com/erxes/erxes/commit/8177a61f30f9f1880742dc4231d75d37239d5a8b))
+
+## [1.14.0-rc.4](https://github.com/erxes/erxes/compare/1.14.0-rc.3...1.14.0-rc.4) (2024-07-02)
+
+
+### Bug Fixes
+
+* **timeclocks:** fix timeclock config issues  ([ab8083e](https://github.com/erxes/erxes/commit/ab8083e6dd4c941e1c2540ecd70a1b41d0e38e5c))
+
+## [1.14.0-rc.3](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-07-01)
+
+
+### Bug Fixes
+
+* posslots query ([7267d28](https://github.com/erxes/erxes/commit/7267d28ae8f68456f5e1a8e855f7e448b2b17a0f))
+
+## [1.14.0-rc.2](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-06-27)
+
+
+### Bug Fixes
+
+* **assets:** can't save asset kb histories as action added ([656d8eb](https://github.com/erxes/erxes/commit/656d8eb2449fdb1665849c204b5387d26a34e3ad))
+* **assets:** can't sort by createdAt in getLasthistoryEachAssets ([5fd442e](https://github.com/erxes/erxes/commit/5fd442eca5d7534df4a94ceeb31ae08522daaa93))
+* **core:** get branches children by status ([10806d4](https://github.com/erxes/erxes/commit/10806d410ff00cc738249374f317b41a98be4dc3))
+* elastic _id bug ([#5470](https://github.com/erxes/erxes/issues/5470)) ([ad044c5](https://github.com/erxes/erxes/commit/ad044c5197873c0d31c61766fc3dd6fc4520540e))
+* **riskassessment:** prevent risk assessment submitting multiple times ([ef00e9a](https://github.com/erxes/erxes/commit/ef00e9ada708fc8ed8254619d6267ed203965fbd))
+
+## [1.14.0-rc.1](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-06-26)
+
+## [1.14.0-rc.0](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-06-25)
+
+
+### Features
+
+* add template plugin ([dc8b891](https://github.com/erxes/erxes/commit/dc8b891ff821f4e06bb5660a3a67a3e5cd05f3c6))
+* **assets:** added ability set history when kb articles changed ([a5a8f23](https://github.com/erxes/erxes/commit/a5a8f23715d6482930cb186cdda3273b0b83ced6))
+* Loans transaction logic ([#5399](https://github.com/erxes/erxes/issues/5399)) ([4da3750](https://github.com/erxes/erxes/commit/4da3750595fd6e102e1c0ce6f55c001ba3ba8623))
+
+
+### Bug Fixes
+
+* **automations:** added rpc trigger consumer in automations ([40b9fa6](https://github.com/erxes/erxes/commit/40b9fa6d7462410aa03cf20dbb56e526fec4039e))
+* **automations:** can't paginate automation history ([fb18302](https://github.com/erxes/erxes/commit/fb18302e39fdd1d2801586fb6e174b54db6d5c1a))
+* burenscoring and golomt ([#5393](https://github.com/erxes/erxes/issues/5393)) ([753d697](https://github.com/erxes/erxes/commit/753d697dbeebcd7f68fb15cdf9fc6cca9b9f12e1))
+* field name changed  in burenscoring query ([#5425](https://github.com/erxes/erxes/issues/5425)) ([8e76b1a](https://github.com/erxes/erxes/commit/8e76b1a70ea976e8af91b679ca55a6c9f074a2ec))
+* golomtbank CI ([5b57849](https://github.com/erxes/erxes/commit/5b57849c9543d9ecc8d7806db4e3cb08a6dd7d87))
+* settings ui bug ([959153b](https://github.com/erxes/erxes/commit/959153b4ae6925bbba98d4ac2286639a055cccd3))
+* **template:** change ui scope ([57fbe19](https://github.com/erxes/erxes/commit/57fbe19685d14e0c786c0a3271db02661fed8d73))
+* **templates:**  file export ([e2f647c](https://github.com/erxes/erxes/commit/e2f647ccb53eb7680d66e0de9c76ca7a90bbe0a4))
+* transaction ([429f933](https://github.com/erxes/erxes/commit/429f9335482d4dfc1c985ae2f8ae0474aa765f51))
+
+## [1.13.2](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-06-28)
+
+
+### Bug Fixes
+
+* ebarimt return check and rereturn link ([#5478](https://github.com/erxes/erxes/issues/5478)) ([3692d7e](https://github.com/erxes/erxes/commit/3692d7ed4b541e8037ff6aa3d8d607b0bc9a6e82))
+
+## [1.13.1](https://github.com/erxes/erxes/compare/1.14.0-rc.2...1.14.0-rc.3) (2024-06-27)
+
 ## [1.14.0-rc.2](https://github.com/erxes/erxes/compare/1.14.0-rc.1...1.14.0-rc.2) (2024-06-27)
 
 

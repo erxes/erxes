@@ -20,7 +20,6 @@ type IDataSet = {
 
 type Props = {
   dataset: IDataSet;
-
 };
 
 const TableList = (props: Props) => {
@@ -55,11 +54,13 @@ const TableList = (props: Props) => {
 
             return (
               <tr key={index}>
-                {(headers || []).map(header => (
-                  <td key={header}>
-                    {item[header] || '-'}
-                  </td>
-                ))}
+                {(headers || []).map(header => {
+                  if (header === 'description') {
+                    return <td dangerouslySetInnerHTML={{ __html: item[header] }} />
+                  }
+
+                  return <td key={header} >{item[header] || '-'}</td>
+                })}
               </tr>
             )
           })}

@@ -33,6 +33,11 @@ export const Attributes = styled.ul`
   }
 `;
 
+export const AttributeTrigger = styled.span`
+  color: ${colors.colorSecondary};
+  font-weight: 500;
+`;
+
 export const ActionFooter = styled.div`
   padding: ${dimensions.unitSpacing}px;
   bottom: ${dimensions.coreSpacing}px;

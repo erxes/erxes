@@ -1,20 +1,7 @@
-const commonFields = `
-requestId
-accountId
-accountName
-shortName
-currency
-branchId
-isSocialPayConnected
-accountType
-`;
-
 const listQuery = `
 query GolomtBankAccounts($configId: String) {
-    golomtBankAccounts(configId: $configId) {
-        ${commonFields}
-    }
-  }
+  golomtBankAccounts(configId: $configId)
+}
 `;
 
 const detailQuery = `
@@ -44,9 +31,9 @@ const getBalance = `query GolomtBankAccountBalance($configId: String!, $accountI
     currency
     balanceLL
   }
-}`
+}`;
 export default {
   listQuery,
   detailQuery,
-  getBalance
+  getBalance,
 };

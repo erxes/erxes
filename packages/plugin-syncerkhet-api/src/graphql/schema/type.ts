@@ -28,7 +28,7 @@ export const types = `
 
   type erkhetRemainder {
     _id: String!
-    remainder: Int
+    remainder: Float
     remainders: [JSON]
   }
 `;
