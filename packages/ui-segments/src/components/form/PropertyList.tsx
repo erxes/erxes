@@ -48,7 +48,7 @@ class PropertyList extends React.Component<Props, {}> {
     return fields.map((field) => {
       return (
         <FormControl
-          key={Math.random()}
+          key={field}
           componentclass="radio"
           onChange={this.onClickProperty.bind(this, field)}
         >
