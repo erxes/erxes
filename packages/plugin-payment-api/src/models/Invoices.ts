@@ -16,6 +16,7 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
+  markAsPaid(_id: string): Promise<string>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -100,10 +101,8 @@ export const loadInvoiceClass = (models: IModels) => {
 
       await models.Invoices.updateOne(
         { _id },
-        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
+        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } }
       );
-
-
 
       return PAYMENT_STATUS.PAID;
     }
@@ -116,7 +115,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       const transactions = await models.Transactions.find({
         invoiceId: { $in: invoiceIds },
-        status: { $ne: 'paid'}
+        status: { $ne: 'paid' },
       }).distinct('_id');
 
       await models.Transactions.deleteMany({ _id: { $in: transactions } });
@@ -126,6 +125,21 @@ export const loadInvoiceClass = (models: IModels) => {
       redisUtils.removeInvoices(_ids);
 
       return 'removed';
+    }
+
+    public static async markAsPaid(_id: string) {
+      const invoice = await models.Invoices.getInvoice({ _id });
+
+      if (invoice.status === 'paid') {
+        throw new Error('Already paid');
+      }
+
+      await models.Invoices.updateOne(
+        { _id },
+        { $set: { status: 'paid', resolvedAt: new Date() } }
+      );
+
+      return 'success';
     }
   }
 

@@ -480,6 +480,7 @@ const up = async ({ uis, downloadLocales, fromInstaller }) => {
           NGINX_HOST,
           NODE_ENV: 'production',
           REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
+          REACT_APP_RELEASE: configs.image_tag || '',
           ...((configs.coreui || {}).extra_env || {}),
         },
         ports: [`${UI_PORT}:${SERVICE_INTERNAL_PORT}`],

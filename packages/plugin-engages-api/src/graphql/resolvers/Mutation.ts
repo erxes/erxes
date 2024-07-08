@@ -1,10 +1,15 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
-import { getEnv, sendToWebhook} from '@erxes/api-utils/src';
+import { getEnv, sendToWebhook } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CAMPAIGN_KINDS } from '../../constants';
-import { checkCampaignDoc, send, sendWithSendgrid, sendgridClient } from '../../engageUtils';
+import {
+  checkCampaignDoc,
+  send,
+  sendWithSendgrid,
+  sendgridClient,
+} from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -17,7 +22,7 @@ import { awsRequests } from '../../trackers/engageTracker';
 import {
   createTransporter,
   getEditorAttributeUtil,
-  updateConfigs
+  updateConfigs,
 } from '../../utils';
 
 interface IEngageMessageEdit extends IEngageMessage {
@@ -49,7 +54,7 @@ const engageMutations = {
   async engageMessageAdd(
     _root,
     doc: IEngageMessage,
-    { user, docModifier, models, subdomain }: IContext
+    { user, docModifier, models, subdomain }: IContext,
   ) {
     await checkCampaignDoc(models, subdomain, doc);
 
@@ -59,7 +64,7 @@ const engageMutations = {
     }
 
     const engageMessage = await models.EngageMessages.createEngageMessage(
-      docModifier({ ...doc, createdBy: user._id })
+      docModifier({ ...doc, createdBy: user._id }),
     );
 
     await sendToWebhook({
@@ -96,7 +101,7 @@ const engageMutations = {
   async engageMessageEdit(
     _root,
     { _id, ...doc }: IEngageMessageEdit,
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     await checkCampaignDoc(models, subdomain, doc);
 
@@ -130,7 +135,7 @@ const engageMutations = {
   async engageMessageRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const engageMessage = await models.EngageMessages.getEngageMessage(_id);
 
@@ -152,7 +157,7 @@ const engageMutations = {
   async engageMessageSetLive(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -168,7 +173,11 @@ const engageMutations = {
   /**
    * Engage message set pause
    */
-  async engageMessageSetPause(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageSetPause(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return models.EngageMessages.engageMessageSetPause(_id);
   },
 
@@ -178,7 +187,7 @@ const engageMutations = {
   async engageMessageSetLiveManual(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     const draftCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -203,7 +212,7 @@ const engageMutations = {
         },
         description: `Broadcast "${draftCampaign.title}" has been set live`,
       },
-      user
+      user,
     );
 
     return live;
@@ -225,12 +234,12 @@ const engageMutations = {
       address,
       name,
     }: { email: string; address?: string; name?: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      const sendgrid = await sendgridClient(subdomain)
+      const sendgrid = await sendgridClient(subdomain);
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
@@ -266,7 +275,9 @@ const engageMutations = {
 
         return JSON.stringify(res);
       } catch (e) {
-        throw new Error(`Error occurred while verifying email ${email}, message: ${e}`);
+        throw new Error(
+          `Error occurred while verifying email ${email}, message: ${e}`,
+        );
       }
     }
 
@@ -281,13 +292,12 @@ const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root,
     { email }: { email: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      
-      const sendgrid = await sendgridClient(subdomain)
+      const sendgrid = await sendgridClient(subdomain);
       const SENDGRID_CLIENT_KEY = await sendCoreMessage({
         subdomain,
         action: 'getConfig',
@@ -332,12 +342,12 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { content, from, to, title } = args;
     if (!(content && from && to && title)) {
       throw new Error(
-        'Email content, title, from address or to address is missing'
+        'Email content, title, from address or to address is missing',
       );
     }
 
@@ -368,7 +378,12 @@ const engageMutations = {
     const VERSION = getEnv({ name: 'VERSION' });
 
     if (VERSION === 'saas') {
-      return await sendWithSendgrid(subdomain, { from, to, subject:title, html:replacedContent } );
+      return await sendWithSendgrid(subdomain, {
+        from,
+        to,
+        subject: title,
+        html: replacedContent,
+      });
     }
 
     try {
@@ -392,7 +407,7 @@ const engageMutations = {
   async engageMessageCopy(
     _root,
     { _id }: { _id },
-    { docModifier, models, subdomain, user }: IContext
+    { docModifier, models, subdomain, user }: IContext,
   ) {
     const sourceCampaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -431,7 +446,7 @@ const engageMutations = {
         },
         description: `Campaign "${sourceCampaign.title}" has been copied`,
       },
-      user
+      user,
     );
 
     return copy;
@@ -443,7 +458,7 @@ const engageMutations = {
   async engageSendMail(
     _root,
     args: any,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain }: IContext,
   ) {
     const { body, customerId, ...doc } = args;
     const customerQuery = customerId
@@ -505,19 +520,22 @@ const engageMutations = {
       });
     }
 
-    try {
-      const imapSendMail = await sendImapMessage({
-        subdomain,
-        action: 'imapMessage.create',
-        data: {
-          ...doc,
-        },
-        isRPC: true,
-      });
-      return imapSendMail;
-    } catch (e) {
-      throw e;
+    if (doc.integrationId) {
+      try {
+        const imapSendMail = await sendImapMessage({
+          subdomain,
+          action: 'imapMessage.create',
+          data: {
+            ...doc,
+          },
+          isRPC: true,
+        });
+        return imapSendMail;
+      } catch (e) {
+        throw e;
+      }
     }
+    return;
   },
 };
 
@@ -528,33 +546,33 @@ checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
 checkPermission(
   engageMutations,
   'engageMessageSetLive',
-  'engageMessageSetLive'
+  'engageMessageSetLive',
 );
 checkPermission(
   engageMutations,
   'engageMessageSetPause',
-  'engageMessageSetPause'
+  'engageMessageSetPause',
 );
 checkPermission(
   engageMutations,
   'engageMessageSetLiveManual',
-  'engageMessageSetLiveManual'
+  'engageMessageSetLiveManual',
 );
 checkPermission(
   engageMutations,
   'engageMessageVerifyEmail',
-  'engageMessageRemove'
+  'engageMessageRemove',
 );
 checkPermission(
   engageMutations,
   'engageMessageRemoveVerifiedEmail',
-  'engageMessageRemove'
+  'engageMessageRemove',
 );
 
 checkPermission(
   engageMutations,
   'engageMessageSendTestEmail',
-  'engageMessageRemove'
+  'engageMessageRemove',
 );
 
 checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');

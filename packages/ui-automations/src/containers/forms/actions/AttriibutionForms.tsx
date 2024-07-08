@@ -6,6 +6,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { ISegment } from '@erxes/ui-segments/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   segmentId: string;
@@ -24,7 +25,7 @@ class AttributesForm extends React.Component<FinalProps> {
   render() {
     const { segmentDetailQuery, children } = this.props;
 
-    const { segmentDetail, loading, error } = segmentDetailQuery;
+    const { segmentDetail, loading, error } = segmentDetailQuery || {};
 
     if (loading || error) {
       return '';
@@ -50,6 +51,7 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(segmentQueries.segmentDetail), {
       name: 'segmentDetailQuery',
+      skip: () => !isEnabled('segments'),
       options: ({ segmentId }) => ({
         variables: {
           _id: segmentId

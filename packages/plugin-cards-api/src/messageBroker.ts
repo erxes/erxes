@@ -19,6 +19,7 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("cards:tickets.create", async ({ subdomain, data }) => {
@@ -633,6 +634,15 @@ export const sendTagsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "tags",
+    ...args
+  });
+};
+
+export const sendAutomationsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "automations",
     ...args
   });
 };

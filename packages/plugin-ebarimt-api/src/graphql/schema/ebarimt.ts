@@ -87,4 +87,5 @@ export const queries = `
 
 export const mutations = `
   putResponseReturnBill(_id: String!): PutResponse
+  putResponseReReturn(_id: String!): PutResponse
 `;

@@ -1,9 +1,8 @@
 "use client"
 
 import { usePathname, useRouter } from "next/navigation"
-import { activeCategoryAtom, refetchUserAtom, slotFilterAtom } from "@/store"
+import { resetAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
-import { setInitialAtom } from "@/store/order.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import Image from "@/components/ui/image"
@@ -11,20 +10,10 @@ import Image from "@/components/ui/image"
 const Logo = () => {
   const pathname = usePathname()
   const router = useRouter()
-  const setInitialState = useSetAtom(setInitialAtom)
-  const setCategory = useSetAtom(activeCategoryAtom)
-  const setSlotFilter = useSetAtom(slotFilterAtom)
-  const setRefetchUser = useSetAtom(refetchUserAtom)
+  const reset = useSetAtom(resetAtom)
   const config = useAtomValue(configAtom)
 
   const { logo } = config?.uiOptions || {}
-
-  const reset = () => {
-    setInitialState()
-    setCategory("")
-    setSlotFilter(null)
-    setRefetchUser(true)
-  }
 
   return (
     <div className="rounded-md bg-gray-100 p-1 mx-1 block">

@@ -140,6 +140,7 @@ module.exports = configs => (env, args) => {
             path.resolve(__dirname, "../ui-tags/src"),
             path.resolve(__dirname, "../ui-forum/src"),
             path.resolve(__dirname, "../ui-emailtemplates/src"),
+            path.resolve(__dirname, "../ui-template/src"),
             configs.srcDir
           ],
           use: {

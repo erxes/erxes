@@ -78,18 +78,23 @@ const renderRoutes = currentUser => {
     REACT_APP_PUBLIC_POSTHOG_KEY,
     REACT_APP_PUBLIC_POSTHOG_HOST,
     REACT_APP_FARO_COLLECTOR_URL,
-    REACT_APP_FARO_APP_NAME
+    REACT_APP_FARO_APP_NAME,
+    REACT_APP_SENTRY_PROJECT_NAME,
+    REACT_APP_RELEASE
   } = getEnv();
 
   if (REACT_APP_SENTRY_URL) {
     Sentry.init({
       dsn: REACT_APP_SENTRY_URL,
+      release: `${REACT_APP_SENTRY_PROJECT_NAME}@${REACT_APP_RELEASE}`,
       integrations: [
+        Sentry.browserProfilingIntegration(),
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration()
       ],
       // Performance Monitoring
       tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production!
+      profilesSampleRate: 1.0,
       replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
       replaysOnErrorSampleRate: 1.0 // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
     });

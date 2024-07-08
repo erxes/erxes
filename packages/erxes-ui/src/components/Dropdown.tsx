@@ -54,7 +54,7 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
           ? { minWidth: width }
           : {};
 
-    if (modalMenuItems) {
+    if (modalMenuItems?.length) {
       const initialDialogsState = modalMenuItems.reduce((acc, item, index) => {
         acc[index] = false;
         return acc;
@@ -76,30 +76,42 @@ const Dropdown: React.FC<Props> = forwardRef<HTMLDivElement, Props>(
               style={style}
               unmount={unmount}
             >
-              {modalMenuItems.map((item, index) => (
-                <Menu.Item
-                  as="span"
-                  key={index}
-                  onClick={() => openDialog(index)}
-                >
-                  {item.trigger}
-                </Menu.Item>
-              ))}
+              {modalMenuItems.map((item, index) => {
+                if (!item) {
+                  return null;
+                }
+
+                return (
+                  <Menu.Item
+                    as="span"
+                    key={index}
+                    onClick={() => openDialog(index)}
+                  >
+                    {item.trigger}
+                  </Menu.Item>
+                );
+              })}
               {children}
             </Menu.Items>
           </Menu>
 
-          {modalMenuItems.map((item, index) => (
-            <Dialog
-              key={index}
-              show={dialogs[index]}
-              closeModal={() => closeDialog(index)}
-              title={item.title}
-              {...item.additionalModalProps}
-            >
-              {item.content({ closeModal: () => closeDialog(index) })}
-            </Dialog>
-          ))}
+          {modalMenuItems.map((item, index) => {
+            if (!item) {
+              return null;
+            }
+
+            return (
+              <Dialog
+                key={index}
+                show={dialogs[index]}
+                closeModal={() => closeDialog(index)}
+                title={item.title}
+                {...item.additionalModalProps}
+              >
+                {item.content({ closeModal: () => closeDialog(index) })}
+              </Dialog>
+            );
+          })}
         </>
       );
     }

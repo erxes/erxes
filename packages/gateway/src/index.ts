@@ -23,6 +23,7 @@ import { applyInspectorEndpoints } from "@erxes/api-utils/src/inspect";
 import app from "@erxes/api-utils/src/app";
 import { sanitizeHeaders } from "@erxes/api-utils/src/headers";
 import { applyGraphqlLimiters } from "./middlewares/graphql-limiter";
+import * as Sentry from "@sentry/node";
 
 const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
   process.env;
@@ -54,6 +55,7 @@ const { DOMAIN, WIDGETS_DOMAIN, CLIENT_PORTAL_DOMAINS, ALLOWED_ORIGINS, PORT } =
 
   await startRouter(targets);
 
+  Sentry.setupExpressErrorHandler(app);
   applyGraphqlLimiters(app);
   applyProxiesCoreless(app, targets);
 

@@ -75,6 +75,7 @@ export const loadTransactionClass = (models: IModels) => {
       doc.number = `${contract.number}${new Date().getTime().toString()}`;
       doc.payment = doc.total;
       doc.balance = contract.savingAmount;
+
       switch (doc.transactionType) {
         case TRANSACTION_TYPE.INCOME:
           await models.Contracts.updateOne(
@@ -216,10 +217,12 @@ export const loadTransactionClass = (models: IModels) => {
               "At this moment transaction can not been created because this date closed"
             );
 
-          await models.Contracts.updateOne(
-            { _id: oldTr.contractId },
-            { $set: { savingAmount: oldTr.contractReaction?.savingAmount } }
-          );
+          if (oldTr.contractId) {
+            await models.Contracts.updateOne(
+              { _id: oldTr.contractId },
+              { $set: { savingAmount: oldTr.contractReaction?.savingAmount } }
+            );
+          }
 
           await models.Transactions.deleteOne({ _id: oldTr._id });
         }
