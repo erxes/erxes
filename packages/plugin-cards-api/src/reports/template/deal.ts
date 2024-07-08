@@ -1,7 +1,6 @@
 import { IModels } from '../../connectionResolver';
-import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, NOW, PRIORITY, PROBABILITY_DEAL, PROBABILITY_TASK, STATUS_TYPES, USER_TYPES, WEEKDAY_NAMES } from '../constants';
-import { buildMatchFilter, buildPipeline, buildData, getDimensionPipeline } from '../utils';
-const util = require('util')
+import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_DEAL, STATUS_TYPES, USER_TYPES } from '../constants';
+import { buildMatchFilter, buildPipeline, buildData } from '../utils';
 
 const MEASURE_OPTIONS = [
     { label: 'Total Count', value: 'count' },
@@ -12,7 +11,6 @@ const MEASURE_OPTIONS = [
 ];
 
 const DIMENSION_OPTIONS = [
-    { label: 'Team members', value: 'teamMember' },
     { label: 'Departments', value: 'department' },
     { label: 'Branches', value: 'branch' },
     { label: 'Companies', value: 'company' },
@@ -27,6 +25,16 @@ const DIMENSION_OPTIONS = [
     { label: 'Frequency (day, week, month)', value: 'frequency' },
     { label: 'Status', value: 'status' },
     { label: 'Priority', value: 'priority' },
+    { label: 'Description', value: 'description' },
+    { label: 'Is Complete', value: 'isComplete' },
+    { label: 'Created by', value: 'createdBy' },
+    { label: 'Modified by', value: 'modifiedBy' },
+    { label: 'Assigned to', value: 'assignedTo' },
+    { label: 'Created at', value: 'createdAt' },
+    { label: 'Modified at', value: 'modifiedAt' },
+    { label: 'Stage changed at', value: 'stageChangedDate' },
+    { label: 'Start Date', value: 'startDate' },
+    { label: 'Close Date', value: 'closeDate' },
 ];
 
 export const dealCharts = [
@@ -643,23 +651,17 @@ export const dealCharts = [
                         fieldType: { $first: "$field.type" },
                         fieldOptions: { $first: "$field.options" },
                         selectedOptions: { $push: "$customFieldsData.value" },
-                        count: { $sum: 1 },
                     },
                 },
             ]
 
             const deals = await models.Deals.aggregate(pipeline)
 
-            const totalCountByCustomProperties = (deals || []).reduce((acc, { field,
+            const totalCountByCustomProperties = (deals || []).reduce((acc, { 
                 fieldType,
                 fieldOptions,
                 selectedOptions,
-                count }) => {
-
-                if (!fieldOptions.length) {
-                    acc[field] = count
-                    return acc
-                }
+            }) => {
 
                 (selectedOptions || []).map(selectedOption => {
                     if (fieldType === 'multiSelect') {
@@ -676,6 +678,8 @@ export const dealCharts = [
                             }
                         })
                     } else if (fieldOptions.includes(selectedOption)) {
+                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
+                    } else {
                         acc[selectedOption] = (acc[selectedOption] || 0) + 1
                     }
                 })
@@ -2856,7 +2860,7 @@ export const dealCharts = [
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension, measure } = filter
+            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
 
@@ -2883,7 +2887,7 @@ export const dealCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['teamMember'],
+                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER

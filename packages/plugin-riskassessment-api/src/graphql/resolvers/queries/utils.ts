@@ -9,15 +9,22 @@ export const generateCardIds = async (
   let cardFilter = {};
 
   for (const filter of filters) {
-    const { name, value, values, regex } = filter;
+    const { name, value, values, regex, operator } = filter;
+    if (operator) {
+      cardFilter[name] = { [operator]: value };
+      continue;
+    }
+
+    if (!!values?.length) {
+      cardFilter[name] = {
+        $in: regex ? values.map(value => new RegExp(`${value}`, 'i')) : values
+      };
+      continue;
+    }
 
     cardFilter[name] = regex
       ? { $regex: new RegExp(`^${value}$`, 'i') }
       : value;
-
-    if (!!values?.length) {
-      cardFilter[name] = { $in: values };
-    }
   }
 
   const cards = await sendCardsMessage({
