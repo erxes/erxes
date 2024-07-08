@@ -113,16 +113,19 @@ class SelectBoards extends React.Component<Props, State> {
   };
 
   addNew = () => {
-    const selectItems = this.state.selectItems.slice();
-
-    selectItems.push({
-      _id: Math.random().toString(),
-      boardId: "",
-      pipelineIds: [],
+    this.setState(prevState => {
+      const selectItems = prevState.selectItems.slice();
+  
+      selectItems.push({
+        _id: Math.random().toString(),
+        boardId: "",
+        pipelineIds: [],
+      });
+  
+      return { selectItems };
     });
-
-    this.setState({ selectItems });
   };
+  
 
   removeItem = (itemId) => {
     let { selectItems } = this.state;
