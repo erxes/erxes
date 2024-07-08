@@ -497,10 +497,10 @@ class SegmentFormAutomations extends React.Component<Props, State> {
     }
 
     if (state === "list") {
-      return segments.map((segment, _id) => {
+      return segments.map((segment, index) => {
         return (
           <ConditionsList
-            key={_id}
+            key={Math.random()}
             conditionsConjunction={conditionsConjunction}
             changeConditionsConjunction={this.changeConditionsConjunction}
             addNewProperty={this.addNewProperty}
@@ -509,7 +509,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
             removeCondition={this.removeCondition}
             removeSegment={this.removeSegment}
             contentType={contentType}
-            index={_id}
+            index={index}
             segment={segment}
             addCondition={this.addCondition}
             changeSubSegmentConjunction={this.changeSubSegmentConjunction}
