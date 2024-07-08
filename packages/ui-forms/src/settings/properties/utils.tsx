@@ -217,7 +217,7 @@ const stringToRegex = (str) => {
   }
 
   const parts = str
-    .match(/(\d+|[a-z]+|[A-Z]+|[а-я]+|[А-Я]+|[$&+,:;=?@#|'<>.^*()%!-]+|\s+)/g)
+    .match(/(\d+|[a-zA-Zа-яА-Я]+|[$&+,:;=?@#|'<>.^*()%!-]+|\s+)/g)
     .map((part) => {
       if (part.match(/^\d+$/)) {
         // Check if part is all digits
