@@ -165,7 +165,7 @@ class ConditionsList extends React.Component<Props, State> {
 
     if (condition.type === 'property') {
       return (
-        <ConditionItem $useMargin={useMargin} key={Math.random()}>
+        <ConditionItem $useMargin={useMargin} key={'property'}>
           <FilterRow>
             <PropertyDetail
               onClickProperty={this.props.onClickProperty}
