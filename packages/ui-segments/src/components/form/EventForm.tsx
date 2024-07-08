@@ -139,7 +139,7 @@ class EventForm extends React.Component<Props, State> {
             return (
               <div key={index}>
                 <FormControl
-                  key={Math.random()}
+                  key={index}
                   componentclass="radio"
                   value={attributeName}
                   onChange={this.onClickAttribute.bind(this, attributeName)}
