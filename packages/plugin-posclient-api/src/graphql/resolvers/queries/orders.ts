@@ -2,7 +2,6 @@ import { IContext } from '../../types';
 import { escapeRegExp, getPureDate, paginate } from '@erxes/api-utils/src/core';
 import { sendPosMessage } from '../../../messageBroker';
 import { IConfig } from '../../../models/definitions/configs';
-import { SUBSCRIPTION_INFO_STATUS } from '../../../models/definitions/constants';
 import { getCompanyInfo } from '../../../models/PutData';
 
 interface ISearchParams {
@@ -201,11 +200,13 @@ const orderQueries = {
       return models.Orders.findOne({ _id, ...tokenFilter });
     }
 
-    if (!customerId) {
+    const order = await models.Orders.findOne({ _id, ...tokenFilter }).lean();
+
+    if (!order || !(order.customerType === 'visitor' || order.customerId === customerId)) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, ...tokenFilter });
+    return order;
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
