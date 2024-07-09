@@ -3,7 +3,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
-  sendFormsMessage
+  sendFormsMessage,
 } from './messageBroker';
 import * as _ from 'lodash';
 
@@ -20,17 +20,17 @@ const getCustomFields = async ({ subdomain }) => {
       action: 'fields.fieldsCombinedByContentType',
       isRPC: true,
       data: {
-        contentType: `cards:${cardType}`
+        contentType: `cards:${cardType}`,
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     fields = [
       ...fields,
       ...items.map(f => ({
         value: f.name,
-        name: `${cardType}:${f.label}`
-      }))
+        name: `${cardType}:${f.label}`,
+      })),
     ];
   }
   return fields;
@@ -53,10 +53,11 @@ const commonFields = [
   { value: 'servicesTotalAmount', name: 'Services total amount' },
   { value: 'totalAmount', name: 'Total amount' },
   { value: 'totalAmountVat', name: 'Total amount vat' },
+  { value: 'totalAmountAfterTaxVat', name: 'Total amount after tax and vat' },
   { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
   { value: 'discount', name: 'Discount' },
   { value: 'paymentCash', name: 'Payment cash' },
-  { value: 'paymentNonCash', name: 'Payment non cash' }
+  { value: 'paymentNonCash', name: 'Payment non cash' },
 ];
 
 export default {
@@ -64,8 +65,8 @@ export default {
     {
       label: 'Cards',
       type: 'cards',
-      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal']
-    }
+      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal'],
+    },
   ],
 
   editorAttributes: async ({ subdomain }) => {
@@ -79,7 +80,7 @@ export default {
 
   replaceContent: async ({
     subdomain,
-    data: { stageId, itemId, content, contentype, itemIds, brandId }
+    data: { stageId, itemId, content, contentype, itemIds, brandId },
   }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
@@ -113,7 +114,7 @@ export default {
     if (contentype == 'cards:stage') {
       const items = await collection.find({
         stageId: stageId,
-        _id: { $in: itemIds.split(',') }
+        _id: { $in: itemIds.split(',') },
       });
 
       if (!items) {
@@ -169,7 +170,7 @@ export default {
           subdomain,
           action: 'brands.findOne',
           data: { _id: brandId },
-          isRPC: true
+          isRPC: true,
         });
 
         replacedContent = replacedContent.replace(
@@ -186,8 +187,8 @@ export default {
       action: 'users.find',
       isRPC: true,
       data: {
-        query: { _id: { $in: item.assignedUserIds || [] } }
-      }
+        query: { _id: { $in: item.assignedUserIds || [] } },
+      },
     });
 
     replacedContent = replacedContent.replace(
@@ -207,10 +208,10 @@ export default {
         data: {
           mainType: stage.type,
           mainTypeId: item._id,
-          relTypes: ['customer']
+          relTypes: ['customer'],
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const activeCustomers = await sendContactsMessage({
@@ -218,7 +219,7 @@ export default {
         action: 'customers.findActiveCustomers',
         data: { selector: { _id: { $in: customerIds } } },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const customerRows: string[] = [];
@@ -229,7 +230,7 @@ export default {
           action: 'customers.getCustomerName',
           data: { customer: item },
           isRPC: true,
-          defaultValue: ''
+          defaultValue: '',
         });
 
         customerRows.push(name);
@@ -248,10 +249,10 @@ export default {
         data: {
           mainType: stage.type,
           mainTypeId: item._id,
-          relTypes: ['company']
+          relTypes: ['company'],
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const activeCompanies = await sendContactsMessage({
@@ -259,7 +260,7 @@ export default {
         action: 'companies.findActiveCompanies',
         data: { selector: { _id: { $in: companyIds } } },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       const companyRows: string[] = [];
@@ -270,7 +271,7 @@ export default {
           action: 'companies.getCompanyName',
           data: { company: item },
           isRPC: true,
-          defaultValue: ''
+          defaultValue: '',
         });
 
         companyRows.push(name);
@@ -304,7 +305,7 @@ export default {
           subdomain,
           action: 'findOne',
           data: { _id: pd.productId },
-          isRPC: true
+          isRPC: true,
         });
 
         if (!product || product.type !== type) {
@@ -400,6 +401,46 @@ export default {
       toMoney(totalAmount)
     );
 
+    let totalAmountAfterTaxVat = 0;
+    for (const pd of item.productsData || []) {
+      if (!pd?.productId) {
+        continue;
+      }
+
+      if (!pd.tickUsed) {
+        continue;
+      }
+
+      const product = await sendProductsMessage({
+        subdomain,
+        action: 'findOne',
+        data: { _id: pd.productId },
+        isRPC: true,
+      });
+
+      if (!product) {
+        continue;
+      }
+
+      if (
+        (brandId &&
+          brandId !== 'noBrand' &&
+          !product.scopeBrandIds.includes(brandId)) ||
+        (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
+      ) {
+        continue;
+      }
+
+      const tAmount = pd.amount;
+
+      totalAmountAfterTaxVat += tAmount;
+    }
+
+    replacedContent = replacedContent.replace(
+      /{{ totalAmountAfterTaxVat }}/g,
+      toMoney(totalAmountAfterTaxVat)
+    );
+
     replacedContent = replacedContent.replace(
       /{{ totalAmountVat }}/g,
       toMoney(totalAmountVat)
@@ -457,7 +498,7 @@ export default {
     }
 
     return [replacedContent];
-  }
+  },
 };
 
 const cardsStage = async (items: any[]) => {
@@ -465,9 +506,9 @@ const cardsStage = async (items: any[]) => {
     const itemsArray = items;
     const aggregatedData: Record<string, any> = {
       amount: {
-        AED: 0
+        AED: 0,
       },
-      productsData: []
+      productsData: [],
     };
     itemsArray.forEach(item => {
       const combinedNames = itemsArray.map(item => item.name).join(',');
@@ -518,7 +559,7 @@ const cardsStage = async (items: any[]) => {
               productId: product.productId,
               unitPrice: product.unitPrice,
               globalUnitPrice: product.globalUnitPrice,
-              unitPricePercent: product.unitPricePercent
+              unitPricePercent: product.unitPricePercent,
             });
           }
 

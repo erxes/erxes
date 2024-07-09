@@ -491,10 +491,10 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (templates.useTemplate) {
         consumeRPCQueue(
           `${configs.name}:templates.useTemplate`,
-          async (args) => ({
+          async args => ({
             status: 'success',
             data: await templates.useTemplate(args),
-          }),
+          })
         );
       }
     }
@@ -619,10 +619,10 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         payment.transactionCallbackAvailable = true;
         consumeQueue(
           `${configs.name}:paymentTransactionCallback`,
-          async (args) => ({
+          async args => ({
             status: 'success',
             data: await payment.transactionCallback(args),
-          }),
+          })
         );
       }
     }
