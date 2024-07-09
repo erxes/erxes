@@ -41,10 +41,6 @@ const search = async ({ subdomain, data: { value } }) => {
 
   return [
     {
-      module: "deals",
-      items: await searchBoardItems(models, subdomain, "deals", value)
-    },
-    {
       module: "purchases",
       items: await searchBoardItems(models, subdomain, "purchases", value)
     },

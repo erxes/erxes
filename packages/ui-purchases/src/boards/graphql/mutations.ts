@@ -1,18 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
-const createTicketComment = `
-  mutation createTicketComment(
-    $ticketId: String!
-    $content: String!
-  ) {
-    createTicketComment(
-      ticketId: $ticketId
-      content: $content
-    ) {
-      _id
-    }
-  }
-`;
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export const commonMutationVariables = `
   $parentId: String,
@@ -77,8 +63,8 @@ export const commonDragParams = `
 export const commonListFields = `
   _id
   name
-  ${isEnabled('contacts') ? `companies` : ``}
-  ${isEnabled('contacts') ? `customers` : ``}
+  ${isEnabled("contacts") ? `companies` : ``}
+  ${isEnabled("contacts") ? `customers` : ``}
   assignedUsers
   labels
   stage
@@ -110,7 +96,7 @@ export const commonFields = `
     isCheckDate
 
     ${
-      isEnabled('tags')
+      isEnabled("tags")
         ? `
         tag {
           order
@@ -121,7 +107,7 @@ export const commonFields = `
   }
   boardId
   ${
-    isEnabled('contacts')
+    isEnabled("contacts")
       ? `
     ... @defer {
       companies {
@@ -134,7 +120,7 @@ export const commonFields = `
       : ``
   }
   ${
-    isEnabled('contacts')
+    isEnabled("contacts")
       ? `
     ... @defer {
       customers {
@@ -151,7 +137,7 @@ export const commonFields = `
       : ``
   }
   ${
-    isEnabled('tags')
+    isEnabled("tags")
       ? `
   tags {
     _id
@@ -223,8 +209,8 @@ export const commonFields = `
 `;
 
 const pipelinesWatch = `
-  mutation pipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
-    pipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
+  mutation purchasePipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
+    purchasePipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
       _id
       isWatched
     }
@@ -232,68 +218,68 @@ const pipelinesWatch = `
 `;
 
 const stagesEdit = `
-  mutation stagesEdit($_id: String!, $type: String, $name: String, $status: String) {
-    stagesEdit(_id: $_id, type: $type, name: $name, status: $status) {
+  mutation purchaseStagesEdit($_id: String!, $type: String, $name: String, $status: String) {
+    purchaseStagesEdit(_id: $_id, type: $type, name: $name, status: $status) {
       _id
     }
   }
 `;
 
 const stagesRemove = `
-  mutation stagesRemove($_id: String!) {
-    stagesRemove(_id: $_id)
+  mutation purchaseStagesRemove($_id: String!) {
+    purchaseStagesRemove(_id: $_id)
   }
 `;
 
 const boardItemUpdateTimeTracking = `
-  mutation boardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
-    boardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+  mutation purchaseBoardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
+    purchaseBoardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
   }
 `;
 
 const stagesSortItems = `
-  mutation stagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
-    stagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
+  mutation purchaseStagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
+    purchaseStagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
   }
 `;
 
 const pipelineLabelsAdd = `
-  mutation pipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
-    pipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation purchasePipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
+    purchasePipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
       _id
     }
   }
 `;
 
 const pipelineLabelsEdit = `
-  mutation pipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
-    pipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation purchasePipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
+    purchasePipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
       _id
     }
   }
 `;
 
 const pipelineLabelsRemove = `
-  mutation pipelineLabelsRemove($_id: String!) {
-    pipelineLabelsRemove(_id: $_id)
+  mutation purchasePipelineLabelsRemove($_id: String!) {
+    purchasePipelineLabelsRemove(_id: $_id)
   }
 `;
 
 const pipelineLabelsLabel = `
-  mutation pipelineLabelsLabel($pipelineId: String!, $targetId: String!, $labelIds: [String!]!) {
-    pipelineLabelsLabel(pipelineId: $pipelineId, targetId: $targetId, labelIds: $labelIds)
+  mutation purchasePipelineLabelsLabel($pipelineId: String!, $targetId: String!, $labelIds: [String!]!) {
+    purchasePipelineLabelsLabel(pipelineId: $pipelineId, targetId: $targetId, labelIds: $labelIds)
   }
 `;
 
 const boardItemsSaveForGanttTimeline = `
-  mutation boardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
-    boardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
+  mutation purchaseBoardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
+    purchaseBoardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
   }
 `;
 
 const stagesUpdateOrder = `
-  mutation stagesUpdateOrder($orders: [OrderItem]) {
-    stagesUpdateOrder(orders: $orders) {
+  mutation purchaseStagesUpdateOrder($orders: [OrderItem]) {
+    purchaseStagesUpdateOrder(orders: $orders) {
       _id
     }
   }
@@ -336,7 +322,6 @@ mutation conversationConvertToCard(
 `;
 
 export default {
-  createTicketComment,
   pipelinesWatch,
   stagesEdit,
   stagesRemove,
@@ -348,5 +333,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard,
+  conversationConvertToCard
 };

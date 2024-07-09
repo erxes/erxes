@@ -24,11 +24,6 @@ export default {
 
   contentTypes: [
     {
-      type: "deal",
-      description: "Deal",
-      esIndex: "deals"
-    },
-    {
       type: "purchase",
       description: "Purchase",
       esIndex: "purchases"

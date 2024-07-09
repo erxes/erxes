@@ -166,16 +166,9 @@ export const getCollection = (models: IModels, type: string) => {
   let update;
   let remove;
 
-  const { Deals, Purchases } = models;
+  const { Purchases } = models;
 
   switch (type) {
-    case BOARD_TYPES.DEAL: {
-      collection = Deals;
-      create = Deals.createDeal;
-      update = Deals.updateDeal;
-      remove = Deals.removeDeals;
-      break;
-    }
     case BOARD_TYPES.PURCHASE: {
       collection = Purchases;
       create = Purchases.createPurchase;

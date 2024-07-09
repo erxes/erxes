@@ -1,9 +1,9 @@
 module.exports = {
   srcDir: __dirname,
-  name: "sales",
-  port: 3020,
+  name: "purchases",
+  port: 3021,
   scope: "sales",
-  url: "http://localhost:3020/remoteEntry.js",
+  url: "http://localhost:3021/remoteEntry.js",
   exposes: {
     "./routes": "./src/routes.tsx",
     "./settings": "./src/Settings.tsx",
@@ -16,8 +16,8 @@ module.exports = {
     "./invoiceDetailRightSection": "./src/common/Item.tsx"
   },
   routes: {
-    url: "http://localhost:3020/remoteEntry.js",
-    scope: "sales",
+    url: "http://localhost:3021/remoteEntry.js",
+    scope: "purchases",
     module: "./routes"
   },
   propertyGroupForm: "./propertyGroupForm",
@@ -29,13 +29,6 @@ module.exports = {
   selectRelation: "./selectRelation",
   menus: [
     {
-      text: "Sales Pipeline",
-      url: "/deal",
-      icon: "icon-piggy-bank",
-      location: "mainNavigation",
-      permission: "showDeals"
-    },
-    {
       text: "Purchases Pipeline",
       url: "/purchase",
       icon: "icon-bag-alt",
@@ -43,34 +36,11 @@ module.exports = {
       permission: "showPurchases"
     },
     {
-      text: "Sales Pipelines",
-      to: "/settings/boards/deal",
-      image: "/images/icons/erxes-25.png",
-      location: "settings",
-      scope: "sales",
-      action: "dealsAll",
-      permissions: [
-        "dealBoardsAdd",
-        "dealBoardsEdit",
-        "dealBoardsRemove",
-        "dealPipelinesAdd",
-        "dealPipelinesEdit",
-        "dealPipelinesUpdateOrder",
-        "dealPipelinesRemove",
-        "dealPipelinesArchive",
-        "dealPipelinesArchive",
-        "dealStagesAdd",
-        "dealStagesEdit",
-        "dealStagesUpdateOrder",
-        "dealStagesRemove"
-      ]
-    },
-    {
       text: "Purchases Pipelines",
       to: "/settings/boards/purchase",
       image: "/images/icons/erxes-25.png",
       location: "settings",
-      scope: "sales",
+      scope: "purchases",
       action: "purchasesAll",
       permissions: [
         "purchaseBoardsAdd",

@@ -1,24 +1,24 @@
 export const types = `
-  type PipelineTemplateStage {
+  type PurchasePipelineTemplateStage {
     _id: String!
     name: String!
     formId: String
     order: Int
   }
 
-  input PipelineTemplateStageInput {
+  input PurchasePipelineTemplateStageInput {
     _id: String!
     name: String!
     formId: String
   }
   
-  type PipelineTemplate @key(fields: "_id") {
+  type PurchasePipelineTemplate @key(fields: "_id") {
     _id: String!
     name: String!
     description: String
     type: String
     isDefinedByErxes: Boolean
-    stages: [PipelineTemplateStage]
+    stages: [PurchasePipelineTemplateStage]
     createdBy: String
     createdAt: Date
   }
@@ -28,18 +28,18 @@ const commonParams = `
   name: String!
   description: String
   type: String!
-  stages: [PipelineTemplateStageInput]
+  stages: [PurchasePipelineTemplateStageInput]
 `;
 
 export const queries = `
-  pipelineTemplates(type: String!): [PipelineTemplate]
-  pipelineTemplateDetail(_id: String!): PipelineTemplate
+  pipelineTemplates(type: String!): [PurchasePipelineTemplate]
+  pipelineTemplateDetail(_id: String!): PurchasePipelineTemplate
   pipelineTemplatesTotalCount: Int
 `;
 
 export const mutations = `
-  pipelineTemplatesAdd(${commonParams}): PipelineTemplate
-  pipelineTemplatesEdit(_id: String!, ${commonParams}): PipelineTemplate
+  pipelineTemplatesAdd(${commonParams}): PurchasePipelineTemplate
+  pipelineTemplatesEdit(_id: String!, ${commonParams}): PurchasePipelineTemplate
   pipelineTemplatesRemove(_id: String!): JSON
-  pipelineTemplatesDuplicate(_id: String!): PipelineTemplate
+  pipelineTemplatesDuplicate(_id: String!): PurchasePipelineTemplate
 `;

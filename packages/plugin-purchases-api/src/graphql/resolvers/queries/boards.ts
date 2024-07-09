@@ -65,7 +65,7 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  async boards(
+  async purchaseBoards(
     _root,
     { type }: { type: string },
     { user, commonQuerySelector, models: { Boards }, res }: IContext
@@ -117,7 +117,7 @@ const boardQueries = {
   /**
    *  Boards count
    */
-  async boardCounts(
+  async purchaseBoardCounts(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards, Pipelines } }: IContext
@@ -154,7 +154,7 @@ const boardQueries = {
   /**
    *  Board detail
    */
-  async boardDetail(
+  async purchaseBoardDetail(
     _root,
     { _id }: { _id: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -165,7 +165,7 @@ const boardQueries = {
   /**
    * Get last board
    */
-  async boardGetLast(
+  async purchaseBoardGetLast(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -180,7 +180,7 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  async pipelines(
+  async purchasePipelines(
     _root,
     {
       boardId,
@@ -260,7 +260,7 @@ const boardQueries = {
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async pipelineStateCount(
+  async purchasePipelineStateCount(
     _root,
     { boardId, type }: { boardId: string; type: string },
     { models: { Pipelines } }: IContext
@@ -317,7 +317,7 @@ const boardQueries = {
   /**
    *  Pipeline detail
    */
-  async pipelineDetail(
+  async purchasePipelineDetail(
     _root,
     { _id }: { _id: string },
     { models: { Pipelines } }: IContext
@@ -328,7 +328,7 @@ const boardQueries = {
   /**
    *  Pipeline related assigned users
    */
-  async pipelineAssignedUsers(
+  async purchasePipelineAssignedUsers(
     _root,
     { _id }: { _id: string },
     { models }: IContext
@@ -353,7 +353,7 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  async stages(
+  async purchaseStages(
     _root,
     {
       pipelineId,
@@ -414,7 +414,7 @@ const boardQueries = {
     return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async itemsCountByAssignedUser(
+  async purchaseItemsCountByAssignedUser(
     _root,
     {
       pipelineId,
@@ -558,7 +558,7 @@ const boardQueries = {
   /**
    *  Stage detail
    */
-  async stageDetail(
+  async purchaseStageDetail(
     _root,
     { _id }: { _id: string },
     { models: { Stages } }: IContext
@@ -570,7 +570,7 @@ const boardQueries = {
    *  Archived stages
    */
 
-  async archivedStages(
+  async purchaseArchivedStages(
     _root,
     {
       pipelineId,
@@ -588,7 +588,7 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  async archivedStagesCount(
+  async purchaseArchivedStagesCount(
     _root,
     { pipelineId, search }: { pipelineId: string; search?: string },
     { models: { Stages } }: IContext
@@ -605,24 +605,13 @@ const boardQueries = {
   /**
    *  ConvertTo info
    */
-  async convertToInfo(
+  async purchaseConvertToInfo(
     _root,
     { conversationId }: { conversationId: string },
-    { models: { Deals, Stages, Pipelines, Boards, Purchases } }: IContext
+    { models: { Stages, Pipelines, Boards, Purchases } }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
-    let dealUrl = "";
     let purchaseUrl = "";
-
-    const deal = await Deals.findOne(filter).lean();
-
-    if (deal) {
-      const stage = await Stages.getStage(deal.stageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-      const board = await Boards.getBoard(pipeline.boardId);
-
-      dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
-    }
 
     const purchase = await Purchases.findOne(filter).lean();
 
@@ -635,12 +624,11 @@ const boardQueries = {
     }
 
     return {
-      dealUrl,
       purchaseUrl
     };
   },
 
-  async itemsCountBySegments(
+  async purchaseItemsCountBySegments(
     _root,
     {
       type,
@@ -675,12 +663,12 @@ const boardQueries = {
     return counts;
   },
 
-  async boardContentTypeDetail(_root, args, { subdomain }: IContext) {
+  async purchaseBoardContentTypeDetail(_root, args, { subdomain }: IContext) {
     return getContentTypeDetail(subdomain, args);
   },
 
-  async boardLogs(_root, args, { subdomain, models }: IContext) {
-    const { Deals, Stages, Purchases } = models;
+  async purchaseBoardLogs(_root, args, { subdomain, models }: IContext) {
+    const { Stages, Purchases } = models;
     const { action, content, contentType, contentId } = args;
 
     const type = contentType.split(":")[0];
@@ -689,9 +677,6 @@ const boardQueries = {
       let item = {};
 
       switch (type) {
-        case "deal":
-          item = await Deals.getDeal(contentId);
-          break;
         case "purchase":
           item = await Purchases.getPurchase(contentId);
           break;
@@ -754,10 +739,10 @@ const boardQueries = {
     }
   },
 
-  async cardsFields(_root, _args, { models, subdomain }: IContext) {
+  async purchaseCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ["deal", "purchase"]) {
+    for (const ct of ["purchase"]) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({
@@ -765,7 +750,7 @@ const boardQueries = {
         action: "fieldsGroups.find",
         data: {
           query: {
-            contentType: `purchases:${ct}`
+            contentType: `purchaseS:${ct}`
           }
         },
         isRPC: true
@@ -807,7 +792,7 @@ const boardQueries = {
     return result;
   },
 
-  async checkFreeTimes(
+  async purchaseCheckFreeTimes(
     _root,
     { pipelineId, intervals },
     { models, subdomain }: IContext

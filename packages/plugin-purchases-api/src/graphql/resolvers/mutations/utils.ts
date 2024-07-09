@@ -13,7 +13,6 @@ import {
   IStageDocument
 } from "../../../models/definitions/boards";
 import { BOARD_STATUSES } from "../../../models/definitions/constants";
-import { IDeal, IDealDocument } from "../../../models/definitions/deals";
 import {
   IPurchase,
   IPurchaseDocument
@@ -53,9 +52,6 @@ export const itemResolver = async (
   let resolverType = "";
 
   switch (type) {
-    case "deal":
-      resolverType = "Deal";
-      break;
     case "purchase":
       resolverType = "Purchase";
       break;
@@ -83,7 +79,7 @@ export const itemResolver = async (
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
-  doc: (IDeal | IPurchase | IItemCommonFields) & {
+  doc: (IPurchase | IItemCommonFields) & {
     proccessId: string;
     aboveItemId: string;
   },
@@ -471,7 +467,7 @@ const itemMover = async (
   models: IModels,
   subdomain: string,
   userId: string,
-  item: IDealDocument | IPurchaseDocument,
+  item: IPurchaseDocument,
   contentType: string,
   destinationStageId: string
 ) => {
@@ -821,7 +817,7 @@ export const itemsArchive = async (
 };
 
 export const publishHelperItemsConformities = async (
-  item: IDealDocument | IPurchaseDocument,
+  item: IPurchaseDocument,
   stage: IStageDocument
 ) => {
   graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {

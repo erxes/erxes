@@ -5,7 +5,7 @@ import {
   commonTypes,
   conformityQueryFields,
   copyParams
-} from './common';
+} from "./common";
 
 export const types = ({ contacts, tags }) => `
   type PurchaseListItem @key(fields: "_id") {
@@ -27,10 +27,10 @@ export const types = ({ contacts, tags }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
+        : ""
     }
 
-    ${tags ? `tags: [Tag]` : ''}
+    ${tags ? `tags: [Tag]` : ""}
     products: JSON
     productsData: JSON
     paymentsData: JSON
@@ -63,7 +63,7 @@ export const types = ({ contacts, tags }) => `
     productId : String
     quantity: Int
   }
-  input ExpenseInput {
+  input PurchaseExpenseInput {
     _id: String
     name: String
     description: String
@@ -78,7 +78,7 @@ const purchaseMutationParams = `
 
 const commonQueryParams = `
   _ids: [String]
-  date: ItemDate
+  date: PurchaseItemDate
   parentId:String
   pipelineId: String
   pipelineIds: [String]
@@ -141,7 +141,7 @@ const archivedPurchasesParams = `
 
 export const queries = `
  purchaseDetail(_id: String!): Purchase
- purchasecheckDiscount(_id: String!,products:[ProductField]):JSON
+ purchasecheckDiscount(_id: String!,products:[PurchaseProductField]):JSON
  purchases(${listQueryParams}): [PurchaseListItem]
  purchasesTotalCount(${listQueryParams}): Int
  archivedPurchases(
@@ -155,7 +155,7 @@ export const queries = `
  purchasesTotalAmounts(
    ${commonQueryParams}
    ${conformityQueryFields}
- ): [TotalForType]
+ ): [PurchaseTotalForType]
   expenses: [Expense]
   expensesTotalCount: JSON
   expenseDetail(_id: String!): Expense
@@ -173,5 +173,5 @@ export const mutations = `
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- manageExpenses(expenseDocs: [ExpenseInput]): [Expense]
+ purchaseManageExpenses(expenseDocs: [PurchaseExpenseInput]): [Expense]
 `;

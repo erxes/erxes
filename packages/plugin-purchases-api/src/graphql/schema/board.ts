@@ -6,14 +6,14 @@ const commonTypes = `
 
 export const types = ({ tags }) => `
 
-  type Board @key(fields: "_id") {
+  type PurchaseBoard @key(fields: "_id") {
     _id: String!
     name: String!
     ${commonTypes}
-    pipelines: [Pipeline]
+    purchasePipelines: [PurchasePipeline]
   }
 
-  type Pipeline @key(fields: "_id") {
+  type PurchasePipeline @key(fields: "_id") {
     _id: String!
     name: String!
     status: String
@@ -44,7 +44,7 @@ export const types = ({ tags }) => `
     ${commonTypes}
   }
 
-  type Stage @key(fields: "_id") {
+  type PurchaseStage @key(fields: "_id") {
     _id: String!
     name: String!
     pipelineId: String!
@@ -62,9 +62,6 @@ export const types = ({ tags }) => `
     itemsTotalCount: Int
     compareNextStage: JSON
     compareNextStagePurchase: JSON
-    stayedDealsTotalCount: Int
-    initialDealsTotalCount: Int
-    inProcessDealsTotalCount: Int
     stayedPurchasesTotalCount: Int
     initialPurchasesTotalCount: Int
     inProcessPurchasesTotalCount: Int
@@ -74,37 +71,36 @@ export const types = ({ tags }) => `
     ${commonTypes}
   }
 
-  type PipelineChangeResponse {
+  type PurchasePipelineChangeResponse {
     _id: String
     proccessId: String
     action: String
     data: JSON
   }
 
-  type ProductsDataChangeResponse {
+  type PurchaseProductsDataChangeResponse {
     _id: String
     proccessId: String
     action: String
     data: JSON
   }
 
-  type ConvertTo {
-    dealUrl: String,
+  type PurchaseConvertTo {
     purchaseUrl:String,
   }
 
-  type BoardCount {
+  type PurchaseBoardCount {
     _id: String
     name: String
     count: Int
   }
 
-  input ItemDate {
+  input PurchaseItemDate {
     month: Int
     year: Int
   }
 
-  input Interval {
+  input PurchaseInterval {
     startTime: Date
     endTime: Date
   }
@@ -135,31 +131,31 @@ const stageParams = `
 `;
 
 export const queries = `
-  boards(type: String!): [Board]
-  boardCounts(type: String!): [BoardCount]
-  boardGetLast(type: String!): Board
-  boardDetail(_id: String!): Board
-  pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
-  pipelineDetail(_id: String!): Pipeline
+  purchaseBoards(type: String!): [PurchaseBoard]
+  boardCounts(type: String!): [PurchaseBoardCount]
+  boardGetLast(type: String!): PurchaseBoard
+  boardDetail(_id: String!): PurchaseBoard
+  purchasePipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [PurchasePipeline]
+  pipelineDetail(_id: String!): PurchasePipeline
   pipelineAssignedUsers(_id: String!): [User]
-  stages(
+  purchaseStages(
     isNotLost: Boolean,
     isAll: Boolean,
     pipelineId: String,
     pipelineIds: [String],
     ${stageParams}
-  ): [Stage]
-  stageDetail(_id: String!, ${stageParams}): Stage
-  convertToInfo(conversationId: String!): ConvertTo
+  ): [PurchaseStage]
+  stageDetail(_id: String!, ${stageParams}): PurchaseStage
+  convertToInfo(conversationId: String!): PurchaseConvertTo
   pipelineStateCount(boardId: String, type: String): JSON
-  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
+  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [PurchaseStage]
   archivedStagesCount(pipelineId: String!, search: String): Int
   itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
   itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
   cardsFields: JSON
   boardContentTypeDetail(contentType: String, contentId: String): JSON
   boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
+  checkFreeTimes(pipelineId: String, intervals: [PurchaseInterval]): JSON
 `;
 
 const commonParams = `
@@ -171,7 +167,7 @@ const pipelineParams = `
   name: String!,
   boardId: String!,
   type: String!,
-  stages: JSON,
+  purchaseStages: JSON,
   visibility: String!,
   memberIds: [String],
   tagId: String,
@@ -191,22 +187,22 @@ const pipelineParams = `
 `;
 
 export const mutations = `
-  boardsAdd(${commonParams}): Board
-  boardsEdit(_id: String!, ${commonParams}): Board
-  boardsRemove(_id: String!): JSON
-  boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
-  boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+  purchaseBoardsAdd(${commonParams}): PurchaseBoard
+  purchaseBoardsEdit(_id: String!, ${commonParams}): PurchaseBoard
+  purchaseBoardsRemove(_id: String!): JSON
+  purchaseBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  purchaseBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
-  pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
-  pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
-  pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON
-  pipelinesCopied(_id: String!): JSON
+  purchasePipelinesAdd(${commonParams}, ${pipelineParams}): PurchasePipeline
+  purchasePipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): PurchasePipeline
+  purchasePipelinesUpdateOrder(orders: [OrderItem]): [PurchasePipeline]
+  purchasePipelinesWatch(_id: String!, isAdd: Boolean, type: String!): PurchasePipeline
+  purchasePipelinesRemove(_id: String!): JSON
+  purchasePipelinesArchive(_id: String!): JSON
+  purchasePipelinesCopied(_id: String!): JSON
 
-  stagesUpdateOrder(orders: [OrderItem]): [Stage]
-  stagesRemove(_id: String!): JSON
-  stagesEdit(_id: String!, type: String, name: String, status: String): Stage
-  stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+  purchaseStagesUpdateOrder(orders: [OrderItem]): [PurchaseStage]
+  purchaseStagesRemove(_id: String!): JSON
+  purchaseStagesEdit(_id: String!, type: String, name: String, status: String): PurchaseStage
+  purchaseStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

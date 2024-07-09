@@ -64,19 +64,6 @@ export default {
     { user, models, subdomain }: IContext
   ) {
     switch (pipeline.type) {
-      case BOARD_TYPES.DEAL: {
-        const filter = await generateDealCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          {
-            pipelineId: pipeline._id
-          }
-        );
-
-        return models.Deals.find(filter).countDocuments();
-      }
-
       case BOARD_TYPES.PURCHASE: {
         const filter = await generatePurchaseCommonFilters(
           models,

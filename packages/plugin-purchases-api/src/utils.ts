@@ -59,7 +59,7 @@ export const generateConditionStageIds = async (
 export const getContentItem = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
-  const { Deals, Stages, Purchases } = models;
+  const { Stages, Purchases } = models;
   const { action, content, contentType, contentId } = data;
 
   const type =
@@ -71,10 +71,6 @@ export const getContentItem = async (subdomain, data) => {
     let item = {};
 
     switch (type) {
-      case "deal":
-        item = await Deals.getDeal(contentId);
-        break;
-
       case "purchase":
         item = await Purchases.getPurchase(contentId);
       default:
@@ -105,10 +101,6 @@ export const getContentItem = async (subdomain, data) => {
     let item = {};
 
     switch (type) {
-      case "deal":
-        item = await Deals.getDeal(contentId);
-        break;
-
       case "purchase":
         item = await Purchases.getPurchase(contentId);
       default:
@@ -172,16 +164,13 @@ export const getContentItem = async (subdomain, data) => {
 export const getContentTypeDetail = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
-  const { Deals, ChecklistItems, Checklists, Purchases } = models;
+  const { ChecklistItems, Checklists, Purchases } = models;
   const { contentType = "", contentId, content } = data;
 
   let item = {};
 
   try {
     switch (contentType.split(":")[1]) {
-      case "deal":
-        item = await Deals.getDeal(contentId);
-        break;
       case "checklist":
         item = (await Checklists.findOne({ _id: content._id })) || {};
         break;
@@ -218,16 +207,12 @@ export const getCardItem = async (
   models: IModels,
   { contentTypeId, contentType }
 ) => {
-  const { Deals, Purchases } = models;
+  const { Purchases } = models;
   const filter = { _id: contentTypeId };
 
   let item;
 
   switch (contentType) {
-    case MODULE_NAMES.DEAL:
-      item = await Deals.findOne(filter);
-      break;
-
     case MODULE_NAMES.PURCHASE:
       item = await Purchases.findOne(filter);
       break;

@@ -1,19 +1,7 @@
-import { generateModels, IModels } from "./connectionResolver";
-
-const modelChanger = (type: string, models: IModels) => {
-  if (type === "purchase") {
-    return models.Purchases;
-  }
-
-  return models.Deals;
-};
+import { generateModels } from "./connectionResolver";
 
 export default {
   types: [
-    {
-      description: "Deals",
-      type: "deal"
-    },
     {
       description: "Purchases",
       type: "purchase"
@@ -26,7 +14,7 @@ export default {
     const models = await generateModels(subdomain);
 
     let response = {};
-    const model: any = modelChanger(type, models);
+    const model: any = models.Purchases;
 
     if (action === "count") {
       response = await model.countDocuments({ tagIds: { $in: _ids } });
@@ -47,10 +35,10 @@ export default {
 
   fixRelatedItems: async ({
     subdomain,
-    data: { type, sourceId, destId, action }
+    data: { sourceId, destId, action }
   }) => {
     const models = await generateModels(subdomain);
-    const model: any = modelChanger(type, models);
+    const model: any = models.Purchases;
 
     if (action === "remove") {
       await model.updateMany(

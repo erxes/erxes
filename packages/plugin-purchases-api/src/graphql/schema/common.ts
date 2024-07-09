@@ -1,7 +1,7 @@
 import {
   attachmentInput,
-  attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 const ruleFields = `
   _id : String!,
@@ -69,9 +69,9 @@ export const commonTypes = `
   tagIds: [String]
 
   assignedUsers: [User]
-  stage: Stage
-  labels: [PipelineLabel]
-  pipeline: Pipeline
+  stage: PurchaseStage
+  labels: [PurchasePipelineLabel]
+  pipeline: PurchasePipeline
   createdUser: User
   customFieldsData: JSON
   score: Float

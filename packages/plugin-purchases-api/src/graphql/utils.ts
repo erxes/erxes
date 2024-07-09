@@ -1,6 +1,5 @@
 import { getNewOrder } from "../models/utils";
 import { NOTIFICATION_TYPES } from "../models/definitions/constants";
-import { IDealDocument } from "../models/definitions/deals";
 import { can, checkLogin } from "@erxes/api-utils/src";
 import * as _ from "underscore";
 import { IUserDocument } from "@erxes/api-utils/src/types";
@@ -46,7 +45,7 @@ export const notifiedUserIds = async (models: IModels, item: any) => {
 };
 
 export interface IBoardNotificationParams {
-  item: IDealDocument | IPurchaseDocument;
+  item: IPurchaseDocument;
   user: IUserDocument;
   type: string;
   action?: string;
@@ -173,22 +172,6 @@ export const boardId = async (models: IModels, item: any) => {
 };
 
 const PERMISSION_MAP = {
-  deal: {
-    boardsAdd: "dealBoardsAdd",
-    boardsEdit: "dealBoardsEdit",
-    boardsRemove: "dealBoardsRemove",
-    pipelinesAdd: "dealPipelinesAdd",
-    pipelinesEdit: "dealPipelinesEdit",
-    pipelinesRemove: "dealPipelinesRemove",
-    pipelinesArchive: "dealPipelinesArchive",
-    pipelinesCopied: "dealPipelinesCopied",
-    pipelinesWatch: "dealPipelinesWatch",
-    stagesEdit: "dealStagesEdit",
-    stagesRemove: "dealStagesRemove",
-    itemsSort: "dealsSort",
-    updateTimeTracking: "dealUpdateTimeTracking"
-  },
-
   purchase: {
     boardsAdd: "purchaseBoardsAdd",
     boardsEdit: "purchaseBoardsEdit",
@@ -262,13 +245,13 @@ export const createConformity = async (
 };
 
 interface ILabelParams {
-  item: IDealDocument;
+  item: IPurchaseDocument;
   doc: any;
   user: IUserDocument;
 }
 
 /**
- * Copies pipeline labels alongside deal/purchase when they are moved between different pipelines.
+ * Copies pipeline labels alongside purchase when they are moved between different pipelines.
  */
 export const copyPipelineLabels = async (
   models: IModels,
@@ -401,7 +384,7 @@ export const copyChecklists = async (
 };
 
 export const prepareBoardItemDoc = async (
-  item: IDealDocument,
+  item: IPurchaseDocument,
   collection: string,
   userId: string
 ) => {

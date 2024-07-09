@@ -1,5 +1,5 @@
 export const types = `
-  type ChecklistItem {
+  type PurchaseChecklistItem {
     _id: String!
     checklistId: String
     isChecked: Boolean
@@ -7,31 +7,31 @@ export const types = `
     order: Int
   }
 
-  type Checklist {
+  type PurchaseChecklist {
     _id: String!
     contentType: String
     contentTypeId: String
     title: String
     createdUserId: String
     createdDate: Date
-    items: [ChecklistItem]
+    items: [PurchaseChecklistItem]
     percent: Float
   }
 
 `;
 
 export const queries = `
-  checklists(contentType: String, contentTypeId: String): [Checklist]
-  checklistDetail(_id: String!): Checklist
+  purchaseChecklists(contentType: String, contentTypeId: String): [PurchaseChecklist]
+  purchaseChecklistDetail(_id: String!): PurchaseChecklist
 `;
 
 export const mutations = `
-  checklistsAdd(contentType: String, contentTypeId: String, title: String): Checklist
-  checklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): Checklist
-  checklistsRemove(_id: String!): Checklist
-  checklistItemsOrder(_id: String!, destinationIndex: Int): ChecklistItem
+  purchaseChecklistsAdd(contentType: String, contentTypeId: String, title: String): PurchaseChecklist
+  purchaseChecklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): PurchaseChecklist
+  purchaseChecklistsRemove(_id: String!): PurchaseChecklist
+  purchaseChecklistItemsOrder(_id: String!, destinationIndex: Int): PurchaseChecklistItem
 
-  checklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): ChecklistItem
-  checklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): ChecklistItem
-  checklistItemsRemove(_id: String!): ChecklistItem
+  purchaseChecklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): PurchaseChecklistItem
+  purchaseChecklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): PurchaseChecklistItem
+  purchaseChecklistItemsRemove(_id: String!): PurchaseChecklistItem
 `;
