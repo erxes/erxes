@@ -507,12 +507,14 @@ const userMutations = {
       passwordConfirmation,
       fullName,
       username,
+      operatorPhone
     }: {
       token: string;
       password: string;
       passwordConfirmation: string;
       fullName?: string;
       username?: string;
+      operatorPhone: string;
     },
     { subdomain, models }: IContext,
   ) {
@@ -522,6 +524,7 @@ const userMutations = {
       passwordConfirmation,
       fullName,
       username,
+      operatorPhone,
     });
 
     await sendIntegrationsMessage({

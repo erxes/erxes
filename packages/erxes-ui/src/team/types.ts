@@ -63,6 +63,7 @@ export type ConfirmMutationVariables = {
   passwordConfirmation: string;
   fullName: string;
   username: string;
+  operatorPhone: string;
 };
 
 export type ConfirmMutationResponse = {

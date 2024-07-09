@@ -13,12 +13,14 @@ class Confirmation extends React.Component<{
     password,
     passwordConfirmation,
     fullName,
-    username
+    username,
+    operatorPhone,
   }: {
     password: string;
     passwordConfirmation: string;
     fullName: string;
     username: string;
+    operatorPhone: string;
   }) => void;
   currentUser?: IUser;
 }> {
@@ -38,11 +40,15 @@ class Confirmation extends React.Component<{
     const username = (document.getElementById('username') as HTMLInputElement)
       .value;
 
+    const operatorPhone = (document.getElementById('operatorPhone') as HTMLInputElement)
+      .value;
+
     this.props.confirmUser({
       fullName,
       username,
       password,
-      passwordConfirmation
+      passwordConfirmation,
+      operatorPhone,
     });
   };
 
@@ -58,6 +64,10 @@ class Confirmation extends React.Component<{
           <FormGroup>
             <ControlLabel>{__('Username')}</ControlLabel>
             <FormControl id="username" />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Phone number')}</ControlLabel>
+            <FormControl id="operatorPhone" />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__('New Password')}</ControlLabel>

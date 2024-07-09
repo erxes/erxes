@@ -27,11 +27,13 @@ const UserConfirmationContainer = (props: FinalProps) => {
     passwordConfirmation,
     username,
     fullName,
+    operatorPhone,
   }: {
     password: string;
     passwordConfirmation: string;
     username: string;
     fullName: string;
+    operatorPhone: string;
   }) => {
     usersConfirmInvitation({
       variables: {
@@ -40,6 +42,7 @@ const UserConfirmationContainer = (props: FinalProps) => {
         passwordConfirmation,
         username,
         fullName,
+        operatorPhone,
       },
     })
       .then(() => {
