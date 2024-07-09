@@ -9,7 +9,6 @@ import {
 } from './utils';
 import { getEnv, resetConfigsCache } from './commonUtils';
 import fetch from 'node-fetch';
-import { RPSuccess } from '@erxes/api-utils/src/messageBroker';
 
 export const removeIntegration = async (
   subdomain: string,
@@ -245,7 +244,7 @@ export const instagramCreateIntegration = async (
   subdomain: string,
   models: IModels,
   { accountId, integrationId, data, kind }
-): Promise<RPSuccess> => {
+): Promise<{ status: 'success' }> => {
   const account = await models.Accounts.getAccount({ _id: accountId });
   const instagramPageId = JSON.parse(data).pageIds;
   const getInstagramPageId = instagramPageId[0].replace(/'/g, '');
@@ -325,7 +324,7 @@ export const instagramCreateIntegration = async (
     }
   } else {
     // Handle the case where facebookPageId is null
-    throw new Error('facebookPageId is nullsss');
+    throw new Error('facebookPageId is null');
   }
 
   integration.facebookPageTokensMap = facebookPageTokensMap;
