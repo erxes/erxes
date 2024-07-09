@@ -80,7 +80,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     setSearchValue(searchValue);
     timer = setTimeout(() => {
       router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { searchValue, page: 1 });
     }, 500);
   };
 
