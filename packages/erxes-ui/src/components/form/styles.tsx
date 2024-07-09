@@ -284,7 +284,7 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   + span {
     &:after {
       background-color: transparent;
-      top: 53%;
+      top: 11px;
       left: calc(1px + ${inputHeight} / 5);
       width: calc(${inputHeight} / 2);
       height: calc(${inputHeight} / 5);
