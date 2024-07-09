@@ -245,91 +245,89 @@ export const instagramCreateIntegration = async (
   models: IModels,
   { accountId, integrationId, data, kind }
 ): Promise<{ status: 'success' }> => {
-  const account = await models.Accounts.getAccount({ _id: accountId });
-  const instagramPageId = JSON.parse(data).pageIds;
-  const getInstagramPageId = instagramPageId[0].replace(/'/g, '');
-  const facebookPageId = await getFacebookPageIdsForInsta(
-    account.token,
-    getInstagramPageId
-  );
-  let integration;
   try {
-    integration = await models.Integrations.create({
-      kind,
-      accountId,
-      erxesApiId: integrationId,
-      instagramPageId: getInstagramPageId,
-      facebookPageId
-    });
+    // Parse data and log the Instagram page IDs
+    const instagramPageIds = JSON.parse(data).pageIds;
+    console.log(instagramPageIds, 'instagramPageIds');
+
+    // Fetch account information
+    const account = await models.Accounts.getAccount({ _id: accountId });
+
+    // Process each Instagram page ID
+    for (const instagramPageId of instagramPageIds) {
+      // Get the corresponding Facebook page ID
+      const facebookPageId = await getFacebookPageIdsForInsta(
+        account.token,
+        instagramPageId
+      );
+      console.log(facebookPageId, 'facebookPageId');
+
+      // Check if facebookPageId is not null
+      if (!facebookPageId) {
+        throw new Error(
+          `No Facebook page ID found for Instagram page ID ${instagramPageId}`
+        );
+      }
+
+      // Register endpoint (conditional based on environment)
+      const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+      const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+      let domain = `${DOMAIN}/gateway/pl:instagram`;
+
+      if (process.env.NODE_ENV !== 'production') {
+        domain = `${DOMAIN}/pl:instagram`;
+      }
+
+      if (ENDPOINT_URL) {
+        try {
+          await fetch(`${ENDPOINT_URL}/register-endpoint`, {
+            method: 'POST',
+            body: JSON.stringify({
+              domain,
+              facebookPageIds: [facebookPageId], // Wrap facebookPageId in an array
+              fbPageIds: [facebookPageId] // Wrap facebookPageId in an array
+            }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } catch (e) {
+          throw new Error(
+            `Failed to register endpoint for Facebook page ID ${facebookPageId}: ${e.message}`
+          );
+        }
+      }
+
+      // Get page access token and subscribe page
+      try {
+        const pageAccessToken = await getPageAccessToken(
+          facebookPageId,
+          account.token
+        );
+        const facebookPageTokensMap: { [key: string]: string } = {};
+        facebookPageTokensMap[facebookPageId] = pageAccessToken;
+
+        await subscribePage(facebookPageId, pageAccessToken);
+        console.log(`Successfully subscribed page ${facebookPageId}`);
+
+        // If needed, save the integration (uncomment and adjust if necessary)
+        const integration = await models.Integrations.create({
+          kind,
+          accountId,
+          erxesApiId: integrationId,
+          instagramPageIds,
+          facebookPageIds: [facebookPageId],
+          facebookPageTokensMap
+        });
+        await integration.save();
+      } catch (e) {
+        throw new Error(
+          `Error with Facebook page ID ${facebookPageId}: ${e.message}`
+        );
+      }
+    }
+
+    return { status: 'success' };
   } catch (error) {
-    // You can also throw the error again or perform additional error handling here
+    console.error(`Integration creation failed: ${error.message}`);
     throw error;
   }
-
-  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
-  let domain = `${DOMAIN}/gateway/pl:instagram`;
-
-  if (process.env.NODE_ENV !== 'production') {
-    domain = `${DOMAIN}/pl:instagram`;
-  }
-
-  if (ENDPOINT_URL) {
-    // send domain to core endpoints
-    try {
-      await fetch(`${ENDPOINT_URL}/register-endpoint`, {
-        method: 'POST',
-        body: JSON.stringify({
-          domain,
-          instagramPageId,
-          igPageId: instagramPageId
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
-      throw e;
-    }
-  }
-
-  const facebookPageTokensMap: { [key: string]: string } = {};
-
-  if (facebookPageId !== null) {
-    // Directly use facebookPageId as it's a string
-    const pageId = facebookPageId;
-
-    // Rest of your code
-    try {
-      const pageAccessToken = await getPageAccessToken(pageId, account.token);
-
-      facebookPageTokensMap[pageId] = pageAccessToken;
-
-      try {
-        await subscribePage(pageId, pageAccessToken);
-        debugInstagram(`Successfully subscribed page ${pageId}`);
-      } catch (e) {
-        debugError(
-          `Error occurred while trying to subscribe page ${e.message || e}`
-        );
-        throw e;
-      }
-    } catch (e) {
-      debugError(
-        `Error occurred while trying to get page access token with ${
-          e.message || e
-        }`
-      );
-      throw e;
-    }
-  } else {
-    // Handle the case where facebookPageId is null
-    throw new Error('facebookPageId is null');
-  }
-
-  integration.facebookPageTokensMap = facebookPageTokensMap;
-
-  await integration.save();
-
-  return { status: 'success' };
 };
