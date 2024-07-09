@@ -55,8 +55,9 @@ const isArrayPrimitive = (arr) => {
       return true; // If a non-object element is found, return true (primitive type)
     }
   }
-  return false; // If no non-object element is found, return false (array of objects)
+  return false;
 };
+
 
 const extractAndAddIntoSheet = async (
   sheet: any,

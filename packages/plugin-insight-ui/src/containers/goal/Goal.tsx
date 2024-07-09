@@ -3,8 +3,7 @@ import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 
 import Goal from '../../components/goal/Goal';
-import { queries, mutations } from '../../graphql';
-import { GoalTypesQueryResponse } from '../../types';
+import { queries } from '../../graphql';
 
 type Props = {
   queryParams: any;

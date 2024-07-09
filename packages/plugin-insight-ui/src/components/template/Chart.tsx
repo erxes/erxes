@@ -1,5 +1,5 @@
-import { IDashboard, IReport, IReportTemplate } from "../../types";
-import React, { memo, useEffect, useState } from "react";
+import { IReportTemplate } from "../../types";
+import React, { useEffect, useState } from "react";
 
 import ChartLoader from "./ChartLoader";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
@@ -28,7 +28,7 @@ const ChartTemplates = (props: Props) => {
     setTemplateCharts,
   } = props;
 
-  const [templates, setTemplate] = useState<{
+  const [templates, setTemplates] = useState<{
     [templateType: string]: boolean;
   }>({});
 
@@ -42,7 +42,7 @@ const ChartTemplates = (props: Props) => {
           ? report.charts.some((c) => c.templateType === chart)
           : true;
     }
-    setTemplate(newTemplates);
+    setTemplates(newTemplates);
 
     const trueTemplates = Object.keys(newTemplates).filter(
       (key) => newTemplates[key]
@@ -56,7 +56,7 @@ const ChartTemplates = (props: Props) => {
       [chartTemplate.templateType]: v.target.checked,
     };
 
-    setTemplate(updatedTemplates);
+    setTemplates(updatedTemplates);
 
     const updated = !v.target.checked
       ? templateCharts.filter(

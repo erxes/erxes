@@ -249,12 +249,5 @@ export const sendInboxMessage = (args: MessageArgsOmitService) => {
   });
 };
 
-export const sendAutomationsMessage = (args: MessageArgsOmitService) => {
-  return sendCommonMessage({
-    serviceName: 'automations',
-    ...args
-  });
-};
-
 export const getFileUploadConfigs = async (subdomain) =>
   sendRPCMessage('core:getFileUploadConfigs', { subdomain });
