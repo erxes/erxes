@@ -105,8 +105,8 @@ const messageRemove = `
 `;
 
 const verifyEmail = `
-  mutation engageMessageVerifyEmail($email: String!, $address: String, $name: String) {
-    engageMessageVerifyEmail(email: $email, address: $address, name: $name)
+  mutation engageMessageVerifyEmail($email: String!) {
+    engageMessageVerifyEmail(email: $email)
   }
 `;
 
