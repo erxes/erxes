@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.0-rc.10](https://github.com/erxes/erxes/compare/1.14.0-rc.9...1.14.0-rc.10) (2024-07-07)
+
+
+### Bug Fixes
+
+* **automations:** can't replace customer or companies in cards ([5d68d5c](https://github.com/erxes/erxes/commit/5d68d5c80296b046cb13a7441d69fd18048bf213))
+* por product similarites query filter by special character ([3c8fe04](https://github.com/erxes/erxes/commit/3c8fe04d5cc8eec4ad0711f23a77daf81d31637e))
+
 ## [1.14.0-rc.9](https://github.com/erxes/erxes/compare/1.14.0-rc.8...1.14.0-rc.9) (2024-07-05)
 
 
