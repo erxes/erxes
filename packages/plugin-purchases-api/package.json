@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-purchase-api",
+  "name": "@erxes/plugin-purchases-api",
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/index.ts",

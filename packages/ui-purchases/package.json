@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/ui-sales",
+  "name": "@erxes/ui-purchases",
   "version": "1.0.0",
   "dependencies": {
     "@apollo/client": "^3.9.5",
