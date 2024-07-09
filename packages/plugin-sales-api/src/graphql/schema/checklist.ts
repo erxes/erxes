@@ -1,5 +1,5 @@
 export const types = `
-  type ChecklistItem {
+  type SalesChecklistItem {
     _id: String!
     checklistId: String
     isChecked: Boolean
@@ -7,7 +7,7 @@ export const types = `
     order: Int
   }
 
-  type Checklist {
+  type SalesChecklist {
     _id: String!
     contentType: String
     contentTypeId: String
@@ -21,17 +21,17 @@ export const types = `
 `;
 
 export const queries = `
-  checklists(contentType: String, contentTypeId: String): [Checklist]
-  checklistDetail(_id: String!): Checklist
+  salesChecklists(contentType: String, contentTypeId: String): [SalesChecklist]
+  salesChecklistDetail(_id: String!): SalesChecklist
 `;
 
 export const mutations = `
-  checklistsAdd(contentType: String, contentTypeId: String, title: String): Checklist
-  checklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): Checklist
-  checklistsRemove(_id: String!): Checklist
-  checklistItemsOrder(_id: String!, destinationIndex: Int): ChecklistItem
+  salesChecklistsAdd(contentType: String, contentTypeId: String, title: String): SalesChecklist
+  salesChecklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): SalesChecklist
+  salesChecklistsRemove(_id: String!): SalesChecklist
+  salesChecklistItemsOrder(_id: String!, destinationIndex: Int): SalesChecklistItem
 
-  checklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): ChecklistItem
-  checklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): ChecklistItem
-  checklistItemsRemove(_id: String!): ChecklistItem
+  salesChecklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): SalesChecklistItem
+  salesChecklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): SalesChecklistItem
+  salesChecklistItemsRemove(_id: String!): SalesChecklistItem
 `;

@@ -3,7 +3,7 @@ import { generateModels } from "../connectionResolver";
 import { sendCoreMessage, sendNotificationsMessage } from "../messageBroker";
 
 /**
- * Send notification Deals dueDate
+ * Send notification Sales dueDate
  */
 export const sendNotifications = async (subdomain: string) => {
   const models = await generateModels(subdomain);

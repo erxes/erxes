@@ -6,14 +6,14 @@ const commonTypes = `
 
 export const types = ({ tags }) => `
 
-  type Board @key(fields: "_id") {
+  type SalesBoard @key(fields: "_id") {
     _id: String!
     name: String!
     ${commonTypes}
     pipelines: [Pipeline]
   }
 
-  type Pipeline @key(fields: "_id") {
+  type SalesPipeline @key(fields: "_id") {
     _id: String!
     name: String!
     status: String
@@ -44,7 +44,7 @@ export const types = ({ tags }) => `
     ${commonTypes}
   }
 
-  type Stage @key(fields: "_id") {
+  type SalesStage @key(fields: "_id") {
     _id: String!
     name: String!
     pipelineId: String!
@@ -70,36 +70,36 @@ export const types = ({ tags }) => `
     ${commonTypes}
   }
 
-  type PipelineChangeResponse {
+  type SalesPipelineChangeResponse {
     _id: String
     proccessId: String
     action: String
     data: JSON
   }
 
-  type ProductsDataChangeResponse {
+  type SalesProductsDataChangeResponse {
     _id: String
     proccessId: String
     action: String
     data: JSON
   }
 
-  type ConvertTo {
+  type SalesConvertTo {
     dealUrl: String,
   }
 
-  type BoardCount {
+  type SalesBoardCount {
     _id: String
     name: String
     count: Int
   }
 
-  input ItemDate {
+  input SalesItemDate {
     month: Int
     year: Int
   }
 
-  input Interval {
+  input SalesInterval {
     startTime: Date
     endTime: Date
   }
@@ -130,31 +130,31 @@ const stageParams = `
 `;
 
 export const queries = `
-  boards(type: String!): [Board]
-  boardCounts(type: String!): [BoardCount]
-  boardGetLast(type: String!): Board
-  boardDetail(_id: String!): Board
-  pipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [Pipeline]
-  pipelineDetail(_id: String!): Pipeline
-  pipelineAssignedUsers(_id: String!): [User]
-  stages(
+  salesBoards(type: String!): [SalesBoard]
+  salesBoardCounts(type: String!): [SalesBoardCount]
+  salesBoardGetLast(type: String!): SalesBoard
+  salesBoardDetail(_id: String!): SalesBoard
+  salesPipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [SalesPipeline]
+  salesPipelineDetail(_id: String!): SalesPipeline
+  salesPipelineAssignedUsers(_id: String!): [User]
+  salesStages(
     isNotLost: Boolean,
     isAll: Boolean,
     pipelineId: String,
     pipelineIds: [String],
     ${stageParams}
-  ): [Stage]
-  stageDetail(_id: String!, ${stageParams}): Stage
-  convertToInfo(conversationId: String!): ConvertTo
-  pipelineStateCount(boardId: String, type: String): JSON
-  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [Stage]
-  archivedStagesCount(pipelineId: String!, search: String): Int
-  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
-  itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
-  cardsFields: JSON
-  boardContentTypeDetail(contentType: String, contentId: String): JSON
-  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(pipelineId: String, intervals: [Interval]): JSON
+  ): [SalesStage]
+  salesStageDetail(_id: String!, ${stageParams}): SalesStage
+  salesConvertToInfo(conversationId: String!): SalesConvertTo
+  salesPipelineStateCount(boardId: String, type: String): JSON
+  salesArchivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [SalesStage]
+  salesArchivedStagesCount(pipelineId: String!, search: String): Int
+  salesItemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+  salesItemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
+  salesCardsFields: JSON
+  salesBoardContentTypeDetail(contentType: String, contentId: String): JSON
+  salesBoardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  salesCheckFreeTimes(pipelineId: String, intervals: [Interval]): JSON
 `;
 
 const commonParams = `
@@ -186,22 +186,22 @@ const pipelineParams = `
 `;
 
 export const mutations = `
-  boardsAdd(${commonParams}): Board
-  boardsEdit(_id: String!, ${commonParams}): Board
-  boardsRemove(_id: String!): JSON
-  boardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
-  boardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+  salesBoardsAdd(${commonParams}): SalesBoard
+  salesBoardsEdit(_id: String!, ${commonParams}): SalesBoard
+  salesBoardsRemove(_id: String!): JSON
+  salesBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  salesBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
-  pipelinesAdd(${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): Pipeline
-  pipelinesUpdateOrder(orders: [OrderItem]): [Pipeline]
-  pipelinesWatch(_id: String!, isAdd: Boolean, type: String!): Pipeline
-  pipelinesRemove(_id: String!): JSON
-  pipelinesArchive(_id: String!): JSON
-  pipelinesCopied(_id: String!): JSON
+  salesPipelinesAdd(${commonParams}, ${pipelineParams}): SalesPipeline
+  salesPipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): SalesPipeline
+  salesPipelinesUpdateOrder(orders: [OrderItem]): [SalesPipeline]
+  salesPipelinesWatch(_id: String!, isAdd: Boolean, type: String!): SalesPipeline
+  salesPipelinesRemove(_id: String!): JSON
+  salesPipelinesArchive(_id: String!): JSON
+  salesPipelinesCopied(_id: String!): JSON
 
-  stagesUpdateOrder(orders: [OrderItem]): [Stage]
-  stagesRemove(_id: String!): JSON
-  stagesEdit(_id: String!, type: String, name: String, status: String): Stage
-  stagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+  salesStagesUpdateOrder(orders: [OrderItem]): [SalesStage]
+  salesStagesRemove(_id: String!): JSON
+  salesStagesEdit(_id: String!, type: String, name: String, status: String): SalesStage
+  salesStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

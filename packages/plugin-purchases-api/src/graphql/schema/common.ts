@@ -15,20 +15,20 @@ export const types = `
   ${attachmentType}
   ${attachmentInput}
 
-  type Rule {
+  type PurchasesRule {
     ${ruleFields}
   }
 
-  input OrderItem {
+  input PurchasesOrderItem {
     _id: String!
     order: Int!
   }
 
-  input InputRule {
+  input PurchasesInputRule {
     ${ruleFields}
   }
 
-  type TimeTrack {
+  type PurchasesTimeTrack {
     status: String,
     timeSpent: Int,
     startDate: String
@@ -75,7 +75,7 @@ export const commonTypes = `
   createdUser: User
   customFieldsData: JSON
   score: Float
-  timeTrack: TimeTrack
+  timeTrack: PurchasesTimeTrack
   number: String
   stageChangedDate: Date
 

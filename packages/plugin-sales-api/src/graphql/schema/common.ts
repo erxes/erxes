@@ -1,7 +1,7 @@
 import {
   attachmentInput,
-  attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 const ruleFields = `
   _id : String!,
@@ -15,20 +15,20 @@ export const types = `
   ${attachmentType}
   ${attachmentInput}
 
-  type Rule {
+  type SalesRule {
     ${ruleFields}
   }
 
-  input OrderItem {
+  input SalesOrderItem {
     _id: String!
     order: Int!
   }
 
-  input InputRule {
+  input SalesInputRule {
     ${ruleFields}
   }
 
-  type TimeTrack {
+  type SalesTimeTrack {
     status: String,
     timeSpent: Int,
     startDate: String
@@ -75,7 +75,7 @@ export const commonTypes = `
   createdUser: User
   customFieldsData: JSON
   score: Float
-  timeTrack: TimeTrack
+  timeTrack: SalesTimeTrack
   number: String
   stageChangedDate: Date
 

@@ -1,18 +1,18 @@
 export const types = `
-  type PipelineTemplateStage {
+  type SalesPipelineTemplateStage {
     _id: String!
     name: String!
     formId: String
     order: Int
   }
 
-  input PipelineTemplateStageInput {
+  input SalesPipelineTemplateStageInput {
     _id: String!
     name: String!
     formId: String
   }
   
-  type PipelineTemplate @key(fields: "_id") {
+  type SalesPipelineTemplate @key(fields: "_id") {
     _id: String!
     name: String!
     description: String
@@ -28,18 +28,18 @@ const commonParams = `
   name: String!
   description: String
   type: String!
-  stages: [PipelineTemplateStageInput]
+  stages: [SalesPipelineTemplateStageInput]
 `;
 
 export const queries = `
-  pipelineTemplates(type: String!): [PipelineTemplate]
-  pipelineTemplateDetail(_id: String!): PipelineTemplate
+  pipelineTemplates(type: String!): [SalesPipelineTemplate]
+  pipelineTemplateDetail(_id: String!): SalesPipelineTemplate
   pipelineTemplatesTotalCount: Int
 `;
 
 export const mutations = `
-  pipelineTemplatesAdd(${commonParams}): PipelineTemplate
-  pipelineTemplatesEdit(_id: String!, ${commonParams}): PipelineTemplate
+  pipelineTemplatesAdd(${commonParams}): SalesPipelineTemplate
+  pipelineTemplatesEdit(_id: String!, ${commonParams}): SalesPipelineTemplate
   pipelineTemplatesRemove(_id: String!): JSON
-  pipelineTemplatesDuplicate(_id: String!): PipelineTemplate
+  pipelineTemplatesDuplicate(_id: String!): SalesPipelineTemplate
 `;

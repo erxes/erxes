@@ -43,13 +43,13 @@ export const types = ({ contacts, tags }) => `
     name: String
   }
 
-  type TotalForType {
+  type SalesTotalForType {
     _id: String
     name: String
     currencies: [DealTotalCurrency]
   }
 
-  input ProductField {
+  input SalesProductField {
     productId : String
     quantity: Int
   }
@@ -129,7 +129,7 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
-  checkDiscount(_id: String!,products:[ProductField]):JSON
+  checkDiscount(_id: String!,products:[SalesProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(
@@ -143,7 +143,7 @@ export const queries = `
   dealsTotalAmounts(
     ${commonQueryParams}
     ${conformityQueryFields}
-  ): [TotalForType]
+  ): [SalesTotalForType]
 `;
 
 export const mutations = `
