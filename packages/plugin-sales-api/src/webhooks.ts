@@ -22,26 +22,6 @@ export default {
       label: "Deal moved",
       action: "createBoardItemMovementLog",
       type: "sales:deal"
-    },
-    {
-      label: "Purchase created",
-      action: "create",
-      type: "sales:purchase"
-    },
-    {
-      label: "Purchase updated",
-      action: "update",
-      type: "sales:purchase"
-    },
-    {
-      label: "Purchase deleted",
-      action: "delete",
-      type: "sales:purchase"
-    },
-    {
-      label: "Purchase moved",
-      action: "createBoardItemMovementLog",
-      type: "sales:purchase"
     }
   ],
   getInfo: async ({

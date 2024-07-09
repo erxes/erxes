@@ -9,7 +9,7 @@ import {
   ListBody,
   ListContainer,
   ListStageFooter,
-  StageTitle,
+  StageTitle
 } from "../../styles/stage";
 import { IItem, IOptions } from "../../types";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -71,10 +71,10 @@ const ListGroupBy = (props: Props) => {
       showSelect: false,
       callback: (item: IItem) => onAddItem(groupObj._id, item),
       stageId: groupObj._id,
-      aboveItemId: "",
+      aboveItemId: ""
     };
 
-    const content = (props) => <AddForm {...props} {...formProps} />;
+    const content = props => <AddForm {...props} {...formProps} />;
 
     return <ModalTrigger title={addText} trigger={trigger} content={content} />;
   };
@@ -84,7 +84,7 @@ const ListGroupBy = (props: Props) => {
 
     routerUtils.setParams(navigate, location, {
       itemId: `${item._id}${groupObj._id}`,
-      key: "",
+      key: ""
     });
   };
 
@@ -131,9 +131,7 @@ const ListGroupBy = (props: Props) => {
               <th>{groupType === "priority" ? __("Label") : __("Priority")}</th>
               <th>{__("Due Date")}</th>
               {groupType !== "assignee" && <th>{__("Assignee")}</th>}
-              {(options.type === "deal" || options.type === "purchase") && (
-                <th>{__("Products")}</th>
-              )}
+              {options.type === "deal" && <th>{__("Products")}</th>}
               <th>{__("Associated Customer")}</th>
               <ColumnLastChild>{__("Associated Company")}</ColumnLastChild>
             </tr>

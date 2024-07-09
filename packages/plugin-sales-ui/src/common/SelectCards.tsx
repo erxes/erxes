@@ -30,7 +30,7 @@ export default ({
   customOption?: IOption;
   initialValue?: string | string[];
   name: string;
-  type: "deal" | "ticket" | "task" | "purchase";
+  type: "deal" | "ticket" | "task";
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 

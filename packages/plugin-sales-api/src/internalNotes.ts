@@ -9,9 +9,6 @@ export default {
     const { contentTypeId, notifDoc, type } = data;
 
     switch (type) {
-      case "purchase":
-        model = models.Purchases;
-        break;
       default:
         model = models.Deals;
         break;
@@ -28,7 +25,7 @@ export default {
     notifDoc.contentType = `${type}`;
     notifDoc.item = card;
 
-    // sendNotificationOfItems on, purchase and deal
+    // sendNotificationOfItems on and deal
     notifDoc.notifOfItems = true;
 
     return notifDoc;

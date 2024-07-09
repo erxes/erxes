@@ -147,7 +147,7 @@ class StageItem extends React.Component<Props> {
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
 
-        {(["deal", "purchase"].includes(type) && (
+        {(["deal"].includes(type) && (
           <FormControl
             componentclass="checkbox"
             checked={

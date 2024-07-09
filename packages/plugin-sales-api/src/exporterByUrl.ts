@@ -48,7 +48,6 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
 
   switch (itemType) {
     case MODULE_NAMES.DEAL:
-    case MODULE_NAMES.PURCHASE:
 
     default:
       break;
@@ -107,7 +106,7 @@ const fillCellValue = async (
       cellValue = createdUser ? createdUser.username : "user not found";
 
       break;
-    // deal, purchase, fields
+    // deal, fields
     case "assignedUserIds":
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
@@ -253,10 +252,6 @@ const prepareData = async (
   switch (type) {
     case MODULE_NAMES.DEAL:
       data = await models.Deals.find(boardItemsFilter);
-
-      break;
-    case MODULE_NAMES.PURCHASE:
-      data = await models.Purchases.find(boardItemsFilter);
 
       break;
   }

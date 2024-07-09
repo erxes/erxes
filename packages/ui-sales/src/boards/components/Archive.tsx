@@ -2,7 +2,7 @@ import {
   ArchiveWrapper,
   CustomRangeContainer,
   FilterBox,
-  TopBar,
+  TopBar
 } from "../styles/rightMenu";
 import React, { useEffect, useState } from "react";
 
@@ -29,12 +29,12 @@ type Props = {
   queryParams: any;
 };
 
-const priorityValues = PRIORITIES.map((p) => ({ label: p, value: p }));
-const sourceOptions = INTEGRATION_KINDS.ALL.map((kind) => ({
+const priorityValues = PRIORITIES.map(p => ({ label: p, value: p }));
+const sourceOptions = INTEGRATION_KINDS.ALL.map(kind => ({
   label: kind.text,
-  value: kind.value,
+  value: kind.value
 }));
-const growthHackOptions = HACKSTAGES.map((hs) => ({ value: hs, label: hs }));
+const growthHackOptions = HACKSTAGES.map(hs => ({ value: hs, label: hs }));
 
 function Archive(props: Props) {
   const [type, changeType] = useState("item");
@@ -105,7 +105,7 @@ function Archive(props: Props) {
         <SelectTeamMembers
           label="Filter by created members"
           name="userIds"
-          onSelect={(v) => {
+          onSelect={v => {
             if (typeof v === "string") {
               if (!v) {
                 setUserIds([]);
@@ -119,10 +119,10 @@ function Archive(props: Props) {
         />
         <Select
           placeholder={__("Filter by priority")}
-          value={priorityValues.filter((p) => priorities.includes(p.value))}
+          value={priorityValues.filter(p => priorities.includes(p.value))}
           options={priorityValues}
           name="priority"
-          onChange={(arr) => setPriorities(arr.map((v) => v.value))}
+          onChange={arr => setPriorities(arr.map(v => v.value))}
           isMulti={true}
           // loadingPlaceholder={__('Loading...')}
         />
@@ -130,7 +130,7 @@ function Archive(props: Props) {
         <SelectTeamMembers
           label="Filter by team members"
           name="assignedUserIds"
-          onSelect={(v) => {
+          onSelect={v => {
             if (typeof v === "string") {
               if (!v) {
                 setAssignedUserIds([]);
@@ -145,7 +145,7 @@ function Archive(props: Props) {
 
         <SelectLabel
           name="labelIds"
-          onSelect={(v) => {
+          onSelect={v => {
             if (typeof v === "string") {
               if (!v) {
                 setLabelIds([]);
@@ -164,7 +164,7 @@ function Archive(props: Props) {
           <SelectProducts
             label={__("Filter by products")}
             name="productIds"
-            onSelect={(v) => {
+            onSelect={v => {
               if (typeof v === "string") {
                 if (!v) {
                   setProductIds([]);
@@ -175,50 +175,6 @@ function Archive(props: Props) {
                 setProductIds(v);
               }
             }}
-          />
-        )}
-
-        {options.type === "purchase" && (
-          <SelectProducts
-            label={__("Filter by products")}
-            name="productIds"
-            onSelect={(v) => {
-              if (typeof v === "string") {
-                if (!v) {
-                  setProductIds([]);
-                } else {
-                  setProductIds([v]);
-                }
-              } else {
-                setProductIds(v);
-              }
-            }}
-          />
-        )}
-
-        {options.type === "ticket" && (
-          <Select
-            placeholder={__("Choose a source")}
-            value={sourceOptions.filter((o) => sources.includes(o.value))}
-            options={sourceOptions}
-            name="source"
-            onChange={(xs) => setSources(xs.map((x) => x.value))}
-            isMulti={true}
-            // loadingPlaceholder={__('Loading...')}
-          />
-        )}
-
-        {options.type === "growthHack" && (
-          <Select
-            placeholder="Choose a growth funnel"
-            value={growthHackOptions.filter((o) =>
-              hackStages.includes(o.value)
-            )}
-            options={growthHackOptions}
-            name="hackStage"
-            onChange={(xs) => setHackStages(xs.map((x) => x.value))}
-            isMulti={true}
-            // loadingPlaceholder={__('Loading...')}
           />
         )}
 
@@ -229,7 +185,7 @@ function Archive(props: Props) {
             value={startDate}
             required={false}
             name="startDate"
-            onChange={(date) => onChangeRangeFilter(setStartDate, date)}
+            onChange={date => onChangeRangeFilter(setStartDate, date)}
             placeholder={"Start date"}
             dateFormat={"YYYY-MM-DD"}
           />
@@ -239,7 +195,7 @@ function Archive(props: Props) {
             required={false}
             name="endDate"
             placeholder={"End date"}
-            onChange={(date) => onChangeRangeFilter(setEndDate, date)}
+            onChange={date => onChangeRangeFilter(setEndDate, date)}
             dateFormat={"YYYY-MM-DD"}
           />
         </CustomRangeContainer>
@@ -255,7 +211,7 @@ function Archive(props: Props) {
           autoFocus={true}
           placeholder={`Type to search ${type}...`}
           value={searchInputValue}
-          onChange={(e) =>
+          onChange={e =>
             setSearchInputValue((e.target as HTMLInputElement).value)
           }
         />
@@ -294,7 +250,7 @@ function Archive(props: Props) {
           startDate,
           endDate,
           sources,
-          hackStages,
+          hackStages
         }}
         type={type}
       />

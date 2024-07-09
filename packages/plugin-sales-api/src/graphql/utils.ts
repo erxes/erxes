@@ -6,7 +6,6 @@ import * as _ from "underscore";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { sendCoreMessage, sendNotificationsMessage } from "../messageBroker";
 import { IModels } from "../connectionResolver";
-import { IPurchaseDocument } from "../models/definitions/purchases";
 
 interface IMainType {
   mainType: string;
@@ -46,7 +45,7 @@ export const notifiedUserIds = async (models: IModels, item: any) => {
 };
 
 export interface IBoardNotificationParams {
-  item: IDealDocument | IPurchaseDocument;
+  item: IDealDocument;
   user: IUserDocument;
   type: string;
   action?: string;
@@ -187,22 +186,6 @@ const PERMISSION_MAP = {
     stagesRemove: "dealStagesRemove",
     itemsSort: "dealsSort",
     updateTimeTracking: "dealUpdateTimeTracking"
-  },
-
-  purchase: {
-    boardsAdd: "purchaseBoardsAdd",
-    boardsEdit: "purchaseBoardsEdit",
-    boardsRemove: "purchaseBoardsRemove",
-    pipelinesAdd: "purchasePipelinesAdd",
-    pipelinesEdit: "purchasePipelinesEdit",
-    pipelinesRemove: "purchasePipelinesRemove",
-    pipelinesArchive: "purchasePipelinesArchive",
-    pipelinesCopied: "purchasePipelinesCopied",
-    pipelinesWatch: "purchasePipelinesWatch",
-    stagesEdit: "purchaseStagesEdit",
-    stagesRemove: "purchaseStagesRemove",
-    itemsSort: "purchasesSort",
-    updateTimeTracking: "purchaseUpdateTimeTracking"
   }
 };
 
@@ -268,7 +251,7 @@ interface ILabelParams {
 }
 
 /**
- * Copies pipeline labels alongside deal/purchase when they are moved between different pipelines.
+ * Copies pipeline labels alongside deal when they are moved between different pipelines.
  */
 export const copyPipelineLabels = async (
   models: IModels,

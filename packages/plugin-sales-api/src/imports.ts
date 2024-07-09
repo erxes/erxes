@@ -17,9 +17,6 @@ export default {
         case "deal":
           model = models.Deals;
           break;
-        case "purchase":
-          model = models.Purchases;
-          break;
       }
 
       objects = await model.insertMany(docs);

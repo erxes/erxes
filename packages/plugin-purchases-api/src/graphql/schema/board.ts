@@ -60,7 +60,6 @@ export const types = ({ tags }) => `
     unUsedAmount: JSON
     amount: JSON
     itemsTotalCount: Int
-    compareNextStage: JSON
     compareNextStagePurchase: JSON
     stayedPurchasesTotalCount: Int
     initialPurchasesTotalCount: Int

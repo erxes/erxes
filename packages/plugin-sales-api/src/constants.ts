@@ -10,10 +10,6 @@ import {
 } from "./models/definitions/checklists";
 import { dealSchema, productDataSchema } from "./models/definitions/deals";
 import {
-  purchaseSchema,
-  purchaseproductDataSchema
-} from "./models/definitions/purchases";
-import {
   pipelineTemplateSchema,
   stageSchema
 } from "./models/definitions/pipelineTemplates";
@@ -24,11 +20,6 @@ export const IMPORT_EXPORT_TYPES = [
   {
     text: "Deal",
     contentType: "deal",
-    icon: "signal-alt-3"
-  },
-  {
-    text: "Purchase",
-    contentTypeL: "purchase",
     icon: "signal-alt-3"
   }
 ];
@@ -166,16 +157,12 @@ export const BOARD_BASIC_INFOS = [
 export const MODULE_NAMES = {
   BOARD: "board",
   BOARD_DEAL: "dealBoards",
-  BOARD_PURCHASE: "purchaseBoards",
   PIPELINE_DEAL: "dealPipelines",
-  PIPELINE_PURCHASE: "purchasePipelines",
   PIPELINE_GH: "growthHackPipelines",
   STAGE_DEAL: "dealStages",
-  STAGE_PURCHASE: "purchaseStages",
   CHECKLIST: "checklist",
   CHECKLIST_ITEM: "checkListItem",
   DEAL: "deal",
-  PURCHASE: "purchase",
   PIPELINE_LABEL: "pipelineLabel",
   PIPELINE_TEMPLATE: "pipelineTemplate",
   GROWTH_HACK: "growthHack"
@@ -192,15 +179,7 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [attachmentSchema, boardSchema]
   },
   {
-    name: MODULE_NAMES.BOARD_PURCHASE,
-    schemas: [attachmentSchema, boardSchema]
-  },
-  {
     name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema]
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_PURCHASE,
     schemas: [pipelineSchema]
   },
   {
@@ -216,10 +195,6 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [dealSchema, productDataSchema]
   },
   {
-    name: MODULE_NAMES.PURCHASE,
-    schemas: [purchaseSchema, purchaseproductDataSchema]
-  },
-  {
     name: MODULE_NAMES.PIPELINE_LABEL,
     schemas: [pipelineLabelSchema]
   },
@@ -229,10 +204,6 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.STAGE_DEAL,
-    schemas: [boardStageSchema]
-  },
-  {
-    name: MODULE_NAMES.STAGE_PURCHASE,
     schemas: [boardStageSchema]
   }
 ];
@@ -340,38 +311,6 @@ export const NOTIFICATION_MODULES = [
       {
         name: "dealDelete",
         text: "Deal card deleted"
-      }
-    ]
-  },
-
-  {
-    name: "purchases",
-    description: "Purchases",
-    icon: "bag-alt",
-    types: [
-      {
-        name: "purchaseAdd",
-        text: "Assigned a new purchase  card"
-      },
-      {
-        name: "purchaseRemoveAssign",
-        text: "Removed from the purchase card"
-      },
-      {
-        name: "purchaseEdit",
-        text: "Purchase card edited"
-      },
-      {
-        name: "purchaseChange",
-        text: "Moved between stages"
-      },
-      {
-        name: "purchaseDueDate",
-        text: "Due date is near"
-      },
-      {
-        name: "purchaseDelete",
-        text: "Purchase card deleted"
       }
     ]
   }

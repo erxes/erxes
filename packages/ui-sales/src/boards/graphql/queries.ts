@@ -347,9 +347,6 @@ const conversionStages = `
       initialDealsTotalCount
       stayedDealsTotalCount
       inProcessDealsTotalCount
-      initialPurchasesTotalCount
-      stayedPurchasesTotalCount
-      inProcessPurchasesTotalCount
     }
   }
 `;
@@ -388,14 +385,6 @@ const boardItemQueryParams = `
 const deals = `
   query deals(${boardItemQueryParamsDef}) {
     deals(${boardItemQueryParams}) {
-      ${cardFields}
-    }
-  }
-`;
-
-const purchases = `
-  query purchases(${boardItemQueryParamsDef}) {
-    purchases(${boardItemQueryParams}) {
       ${cardFields}
     }
   }
@@ -451,6 +440,5 @@ export default {
   deals,
   boardContentTypeDetail,
   boardLogs,
-  documents,
-  purchases
+  documents
 };

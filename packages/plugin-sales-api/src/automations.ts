@@ -242,17 +242,6 @@ const getItems = async (
 
   const models = await generateModels(subdomain);
 
-  let model: any;
-
-  switch (moduleCollectionType) {
-    case "purchase":
-      model = models.Purchases;
-      break;
-
-    default:
-      model = models.Deals;
-  }
-
   if (moduleService === triggerService) {
     const relTypeIds = await sendCommonMessage({
       subdomain,
@@ -266,7 +255,7 @@ const getItems = async (
       isRPC: true
     });
 
-    return model.find({ _id: { $in: relTypeIds } });
+    return models.Deals.find({ _id: { $in: relTypeIds } });
   }
 
   // search trigger service relation from relatedServices
@@ -295,7 +284,7 @@ const getItems = async (
     });
   }
 
-  return filter ? await model.find(filter) : [];
+  return filter ? await models.Deals.find(filter) : [];
 };
 
 export default {
@@ -355,14 +344,6 @@ export default {
   constants: {
     triggers: [
       {
-        type: "sales:purchase",
-        img: "automation3.svg",
-        icon: "file-plus-alt",
-        label: "Purchase",
-        description:
-          "Start with a blank workflow that enrolls and is triggered off purchase"
-      },
-      {
         type: "sales:deal",
         img: "automation3.svg",
         icon: "piggy-bank",
@@ -372,13 +353,6 @@ export default {
       }
     ],
     actions: [
-      {
-        type: "sales:purchase.create",
-        icon: "file-plus-alt",
-        label: "Create purchase",
-        description: "Create purchase",
-        isAvailable: true
-      },
       {
         type: "sales:deal.create",
         icon: "piggy-bank",
@@ -508,12 +482,7 @@ const actionCreate = async ({
   if (newData.hasOwnProperty("attachments")) {
     const [serviceName, itemType] = triggerType.split(":");
     if (serviceName === "sales") {
-      const modelsMap = {
-        deal: models.Deals,
-        purchase: models.Purchases
-      };
-
-      const item = await modelsMap[itemType].findOne({ _id: target._id });
+      const item = await models.Deals.findOne({ _id: target._id });
       newData.attachments = item.attachments;
     }
   }

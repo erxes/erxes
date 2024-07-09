@@ -14,10 +14,6 @@ import {
 } from "../../../models/definitions/boards";
 import { BOARD_STATUSES } from "../../../models/definitions/constants";
 import { IDeal, IDealDocument } from "../../../models/definitions/deals";
-import {
-  IPurchase,
-  IPurchaseDocument
-} from "../../../models/definitions/purchases";
 
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
@@ -56,9 +52,6 @@ export const itemResolver = async (
     case "deal":
       resolverType = "Deal";
       break;
-    case "purchase":
-      resolverType = "Purchase";
-      break;
   }
 
   const additionInfo = {};
@@ -83,7 +76,7 @@ export const itemResolver = async (
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
-  doc: (IDeal | IPurchase | IItemCommonFields) & {
+  doc: (IDeal | IItemCommonFields) & {
     proccessId: string;
     aboveItemId: string;
   },
@@ -471,7 +464,7 @@ const itemMover = async (
   models: IModels,
   subdomain: string,
   userId: string,
-  item: IDealDocument | IPurchaseDocument,
+  item: IDealDocument,
   contentType: string,
   destinationStageId: string
 ) => {
@@ -821,7 +814,7 @@ export const itemsArchive = async (
 };
 
 export const publishHelperItemsConformities = async (
-  item: IDealDocument | IPurchaseDocument,
+  item: IDealDocument,
   stage: IStageDocument
 ) => {
   graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {

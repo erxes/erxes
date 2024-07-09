@@ -1,7 +1,7 @@
-import PortableItems from '../../boards/components/portable/Items';
-import GetConformity from '../../conformity/containers/GetConformity';
-import React from 'react';
-import options from '../options';
+import PortableItems from "../../boards/components/portable/Items";
+import GetConformity from "../../conformity/containers/GetConformity";
+import React from "react";
+import options from "../options";
 
 type IProps = {
   mainType?: string;

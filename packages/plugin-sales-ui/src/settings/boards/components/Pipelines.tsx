@@ -1,8 +1,4 @@
-import {
-  EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_PURCHASE_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
-} from "@erxes/ui-settings/src/constants";
+import { EMPTY_CONTENT_DEAL_PIPELINE } from "@erxes/ui-settings/src/constants";
 import { IBoard, IPipeline } from "@erxes/ui-sales/src/boards/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { __, router } from "coreui/utils";
@@ -155,28 +151,12 @@ function Pipelines(props: Props) {
       if (type === "deal" || type === "task") {
         return (
           <EmptyContent
-            content={
-              type === "deal"
-                ? EMPTY_CONTENT_DEAL_PIPELINE
-                : EMPTY_CONTENT_TASK_PIPELINE
-            }
+            content={type === "deal" || EMPTY_CONTENT_DEAL_PIPELINE}
             maxItemWidth="420px"
           />
         );
       }
 
-      if (type === "purchase") {
-        return (
-          <EmptyContent
-            content={
-              type === "purchase"
-                ? EMPTY_CONTENT_PURCHASE_PIPELINE
-                : EMPTY_CONTENT_TASK_PIPELINE
-            }
-            maxItemWidth="420px"
-          />
-        );
-      }
       return (
         <EmptyState
           text={`Get started on your ${pipelineName.toLowerCase()}`}

@@ -1,6 +1,6 @@
-import { IPipelineLabel } from '../../../models/definitions/pipelineLabels';
-import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
-import { IContext } from '../../../connectionResolver';
+import { IPipelineLabel } from "../../../models/definitions/pipelineLabels";
+import { putCreateLog, putUpdateLog, putDeleteLog } from "../../../logUtils";
+import { IContext } from "../../../connectionResolver";
 
 interface IPipelineLabelsEdit extends IPipelineLabel {
   _id: string;
@@ -24,7 +24,7 @@ const pipelineLabelMutations = {
       models,
       subdomain,
       {
-        type: 'pipelineLabel',
+        type: "pipelineLabel",
         newData: {
           ...doc,
           createdBy: user._id,
@@ -53,7 +53,7 @@ const pipelineLabelMutations = {
       models,
       subdomain,
       {
-        type: 'pipelineLabel',
+        type: "pipelineLabel",
         newData: doc,
         object: pipelineLabel
       },
@@ -77,7 +77,7 @@ const pipelineLabelMutations = {
     await putDeleteLog(
       models,
       subdomain,
-      { type: 'pipelineLabel', object: pipelineLabel },
+      { type: "pipelineLabel", object: pipelineLabel },
       user
     );
 

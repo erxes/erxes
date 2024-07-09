@@ -7,15 +7,7 @@ export const insertImportItems = async (models: IModels, args) => {
     let objects;
     let model;
 
-    switch (contentType) {
-      case "deal":
-        model = models.Deals;
-        break;
-      case "purchase":
-        model = models.Purchases;
-    }
-
-    objects = await model.insertMany(docs);
+    objects = await models.Deals.insertMany(docs);
     return { objects, updated: 0 };
   } catch (e) {
     return { error: e.message };

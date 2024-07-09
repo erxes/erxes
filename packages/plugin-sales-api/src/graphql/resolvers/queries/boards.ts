@@ -608,11 +608,10 @@ const boardQueries = {
   async convertToInfo(
     _root,
     { conversationId }: { conversationId: string },
-    { models: { Deals, Stages, Pipelines, Boards, Purchases } }: IContext
+    { models: { Deals, Stages, Pipelines, Boards } }: IContext
   ) {
     const filter = { sourceConversationIds: { $in: [conversationId] } };
     let dealUrl = "";
-    let purchaseUrl = "";
 
     const deal = await Deals.findOne(filter).lean();
 
@@ -624,19 +623,8 @@ const boardQueries = {
       dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
     }
 
-    const purchase = await Purchases.findOne(filter).lean();
-
-    if (purchase) {
-      const stage = await Stages.getStage(purchase.stageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-      const board = await Boards.getBoard(pipeline.boardId);
-
-      purchaseUrl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
-    }
-
     return {
-      dealUrl,
-      purchaseUrl
+      dealUrl
     };
   },
 
@@ -680,7 +668,7 @@ const boardQueries = {
   },
 
   async boardLogs(_root, args, { subdomain, models }: IContext) {
-    const { Deals, Stages, Purchases } = models;
+    const { Deals, Stages } = models;
     const { action, content, contentType, contentId } = args;
 
     const type = contentType.split(":")[0];
@@ -692,9 +680,7 @@ const boardQueries = {
         case "deal":
           item = await Deals.getDeal(contentId);
           break;
-        case "purchase":
-          item = await Purchases.getPurchase(contentId);
-          break;
+
         default:
           break;
       }
@@ -757,7 +743,7 @@ const boardQueries = {
   async cardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
-    for (const ct of ["deal", "purchase"]) {
+    for (const ct of ["deal"]) {
       result[ct] = [];
 
       const groups = await sendFormsMessage({

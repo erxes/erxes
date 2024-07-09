@@ -5,14 +5,11 @@ import {
   Stage,
   Deal,
   DealListItem,
-  Purchase,
-  PurchaseListItem,
   Checklist
 } from "./customResolvers";
 import {
   Board as BoardMutations,
   Deal as DealMutations,
-  Purchase as PurchaseMutations,
   PipelineTemplate as PipelineTemplateMutations,
   PipelineLabel as PipelineLabelMutations,
   Checklists as ChecklistMutations
@@ -21,7 +18,6 @@ import {
 import {
   Board as BoardQueries,
   Deal as DealQueries,
-  Purchase as PurchaseQueries,
   PipelineTemplate as PipelineTemplateQueries,
   PipelineLabel as PipelineLabelQueries,
   CheckLists as ChecklistQueries
@@ -34,13 +30,10 @@ const resolvers: any = {
   Stage,
   Deal,
   DealListItem,
-  Purchase,
-  PurchaseListItem,
   Checklist,
   Mutation: {
     ...BoardMutations,
     ...DealMutations,
-    ...PurchaseMutations,
     ...PipelineTemplateMutations,
     ...PipelineLabelMutations,
     ...ChecklistMutations
@@ -48,7 +41,6 @@ const resolvers: any = {
   Query: {
     ...BoardQueries,
     ...DealQueries,
-    ...PurchaseQueries,
     ...PipelineTemplateQueries,
     ...PipelineLabelQueries,
     ...ChecklistQueries

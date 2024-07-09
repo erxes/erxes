@@ -1,5 +1,5 @@
 import { ChartBack, RootBack, ScrolledContent } from "../styles/common";
-import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_PURCHASE } from "../constants";
+import { EMPTY_CONTENT_DEAL } from "../constants";
 import { IOptions, PipelineDetailQueryResponse } from "../types";
 import { gql, useQuery } from "@apollo/client";
 
@@ -11,11 +11,8 @@ import Pipeline from "./Pipeline";
 import PipelineActivity from "./PipelineActivity";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import TimeItems from "./time/TimeItems";
 import ViewGroupBy from "./ViewGroupBy";
-import { compose } from "lodash.flowright";
 import { queries } from "../graphql";
-import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   date?: IDateColumn;
@@ -45,15 +42,8 @@ function Board(props: Props & WrapperProps) {
   if (!data || !data.pipelineDetail) {
     const type = options.type;
 
-    if (type === "deal" || type === "purchase") {
-      return (
-        <EmptyContent
-          content={
-            type === "deal" ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_PURCHASE
-          }
-          maxItemWidth="400px"
-        />
-      );
+    if (type === "deal") {
+      return <EmptyContent content={EMPTY_CONTENT_DEAL} maxItemWidth="400px" />;
     }
 
     return (

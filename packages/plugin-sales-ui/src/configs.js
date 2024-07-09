@@ -36,13 +36,6 @@ module.exports = {
       permission: "showDeals"
     },
     {
-      text: "Purchases Pipeline",
-      url: "/purchase",
-      icon: "icon-bag-alt",
-      location: "mainNavigation",
-      permission: "showPurchases"
-    },
-    {
       text: "Sales Pipelines",
       to: "/settings/boards/deal",
       image: "/images/icons/erxes-25.png",
@@ -63,29 +56,6 @@ module.exports = {
         "dealStagesEdit",
         "dealStagesUpdateOrder",
         "dealStagesRemove"
-      ]
-    },
-    {
-      text: "Purchases Pipelines",
-      to: "/settings/boards/purchase",
-      image: "/images/icons/erxes-25.png",
-      location: "settings",
-      scope: "sales",
-      action: "purchasesAll",
-      permissions: [
-        "purchaseBoardsAdd",
-        "purchaseBoardsEdit",
-        "purchaseBoardsRemove",
-        "purchasePipelinesAdd",
-        "purchasePipelinesEdit",
-        "purchasePipelinesUpdateOrder",
-        "purchasePipelinesRemove",
-        "purchasePipelinesArchive",
-        "purchasePipelinesArchive",
-        "purchaseStagesAdd",
-        "purchaseStagesEdit",
-        "purchaseStagesUpdateOrder",
-        "purchaseStagesRemove"
       ]
     }
   ]

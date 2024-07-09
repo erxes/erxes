@@ -51,17 +51,6 @@ const prepareData = async (
       data = await models.Deals.find(boardItemsFilter).lean();
 
       break;
-    case MODULE_NAMES.PURCHASE:
-      if (!segmentData) {
-        data = await models.Purchases.find(boardItemsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Purchases.find(boardItemsFilter).lean();
-
-      break;
   }
 
   return data;
@@ -94,10 +83,6 @@ const prepareDataCount = async (
   switch (type) {
     case MODULE_NAMES.DEAL:
       data = await models.Deals.find(boardItemsFilter).countDocuments();
-
-      break;
-    case MODULE_NAMES.PURCHASE:
-      data = await models.Purchases.find(boardItemsFilter).countDocuments();
 
       break;
   }
@@ -275,7 +260,7 @@ const fillValue = async (
       value = createdUser ? createdUser.username : "user not found";
 
       break;
-    // deal, purchase fields
+    // deal fields
     case "assignedUserIds":
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,

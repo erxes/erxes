@@ -157,9 +157,7 @@ export interface IStage {
   defaultTick?: boolean;
 }
 
-export interface IConversionStage extends IStage {
-  compareNextStage: IStageComparisonInfo;
-}
+export interface IConversionStage extends IStage {}
 
 export interface IConversionStagePurchase extends IStage {
   initialPurchasesTotalCount: number;

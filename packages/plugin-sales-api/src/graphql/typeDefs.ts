@@ -14,11 +14,6 @@ import {
   queries as dealQueries,
   mutations as dealMutations
 } from "./schema/deal";
-import {
-  types as purchaseTypes,
-  queries as purchaseQueries,
-  mutations as purchaseMutations
-} from "./schema/purchase";
 
 import {
   types as plTypes,
@@ -97,7 +92,6 @@ const typeDefs = async () => {
     }
     ${boardTypes(isEnabledTable)}
     ${dealTypes(isEnabledTable)}
-    ${purchaseTypes(isEnabledTable)}
 
     ${plTypes}
     ${ptTypes}
@@ -107,7 +101,6 @@ const typeDefs = async () => {
     extend type Query {
       ${boardQueries}
       ${dealQueries}
-      ${purchaseQueries}
       ${plQueries}
       ${ptQueries}
       ${checkListQueries}
@@ -116,7 +109,6 @@ const typeDefs = async () => {
     extend type Mutation {
       ${boardMutations}
       ${dealMutations}
-      ${purchaseMutations}
       ${plMutations}
       ${ptMutations}
       ${checkListMutations}

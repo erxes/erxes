@@ -342,7 +342,6 @@ const conversionStages = `
       ${stageParamDefs}
     ) {
       ${stageCommon}
-      compareNextStage
       compareNextStagePurchase
       initialPurchasesTotalCount
       stayedPurchasesTotalCount

@@ -14,11 +14,6 @@ const relations = type => {
       relationType: "contacts:customer"
     },
     {
-      name: "purchaseIds",
-      label: "Purchases",
-      relationType: "sales:purchase"
-    },
-    {
       name: "dealIds",
       label: "Deals",
       relationType: "sales:deal"
@@ -28,14 +23,6 @@ const relations = type => {
 
 export default {
   types: [
-    {
-      description: "Purchases",
-      type: "purchase",
-      relations: [
-        ...relations("sales:purchase"),
-        { name: "carIds", label: "Cars", relationType: "cars:car" }
-      ]
-    },
     {
       description: "Sales pipelines",
       type: "deal",

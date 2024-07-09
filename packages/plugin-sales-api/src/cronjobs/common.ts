@@ -11,8 +11,7 @@ export const sendNotifications = async (subdomain: string) => {
   const now = new Date();
   const collections = {
     deal: models.Deals,
-    purchase: models.Purchases,
-    all: ["deal", "purchase"]
+    all: ["deal"]
   };
 
   for (const type of collections.all) {

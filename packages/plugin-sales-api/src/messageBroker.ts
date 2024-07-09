@@ -24,32 +24,8 @@ import {
 } from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue("sales:purchases.create", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    const purchases = await models.Purchases.create(data);
-
-    const { customerId = "" } = data;
-
-    if (customerId) {
-      await createConformity(subdomain, {
-        customerIds: [customerId],
-        mainType: "deal",
-        mainTypeId: purchases._id
-      });
-    }
-    return {
-      status: "success",
-      data: purchases
-    };
-  });
-
   consumeRPCQueue("sales:editItem", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-
-    const objModels = {
-      deal: models.Deals,
-      purchase: models.Purchases
-    };
 
     const { itemId, processId, type, user, ...doc } = data;
 
@@ -59,7 +35,7 @@ export const setupMessageConsumers = async () => {
         errorMessage: "you must provide some params"
       };
     }
-    const collection = objModels[type];
+    const collection = models.Deals;
 
     const oldItem = await collection.findOne({ _id: itemId });
     const typeUpperCase = type.charAt(0).toUpperCase() + type.slice(1);
@@ -170,18 +146,6 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue(
-    "sales:purchases.remove",
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        status: "success",
-        data: await models.Purchases.removePurchases(_ids)
-      };
-    }
-  );
-
   consumeRPCQueue("sales:stages.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -282,43 +246,12 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("sales:purchases.find", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    if (!data.query) {
-      return {
-        status: "success",
-        data: await models.Purchases.find(data).lean()
-      };
-    }
-
-    const { query, skip, limit, sort = {} } = data;
-
-    return {
-      status: "success",
-      data: await models.Purchases.find(query)
-        .skip(skip || 0)
-        .limit(limit || 20)
-        .sort(sort)
-        .lean()
-    };
-  });
-
   consumeRPCQueue("sales:deals.count", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: "success",
       data: await models.Deals.find(data).countDocuments()
-    };
-  });
-
-  consumeRPCQueue("sales:purchases.count", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: "success",
-      data: await models.Purchases.find(data).countDocuments()
     };
   });
 
@@ -331,35 +264,12 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("sales:purchases.findOne", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: "success",
-      data: await models.Purchases.findOne(data).lean()
-    };
-  });
-
   consumeRPCQueue("sales:deals.generateAmounts", async productsData => {
-    return { data: generateAmounts(productsData), status: "success" };
-  });
-
-  consumeRPCQueue("sales:purchases.generateAmounts", async productsData => {
     return { data: generateAmounts(productsData), status: "success" };
   });
 
   consumeRPCQueue(
     "sales:deals.generateProducts",
-    async ({ subdomain, data }) => {
-      return {
-        data: await generateProducts(subdomain, data),
-        status: "success"
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    "sales:purchases.generateProducts",
     async ({ subdomain, data }) => {
       return {
         data: await generateProducts(subdomain, data),
@@ -388,19 +298,6 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    "sales:findPurchaseProductIds",
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
-
-      const purchaseProductIds = await await models.Purchases.find({
-        "productsData.productId": { $in: _ids }
-      }).distinct("productsData.productId");
-
-      return { data: purchaseProductIds, status: "success" };
-    }
-  );
-
-  consumeRPCQueue(
     "sales:deals.updateMany",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
@@ -413,36 +310,12 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    "sales:purchases.updateMany",
-    async ({ subdomain, data: { selector, modifier } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Purchases.updateMany(selector, modifier),
-        status: "success"
-      };
-    }
-  );
-
-  consumeRPCQueue(
     "sales:deals.updateOne",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.Deals.updateOne(selector, modifier),
-        status: "success"
-      };
-    }
-  );
-
-  consumeRPCQueue(
-    "sales:purchases.updateOne",
-    async ({ subdomain, data: { selector, modifier } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Purchases.updateOne(selector, modifier),
         status: "success"
       };
     }
@@ -578,7 +451,7 @@ export const setupMessageConsumers = async () => {
   consumeQueue(
     "sales:publishHelperItems",
     async ({ subdomain, data: { addedTypeIds, removedTypeIds, doc } }) => {
-      const targetTypes = ["deal", "purchase"];
+      const targetTypes = ["deal"];
       const targetRelTypes = ["company", "customer"];
 
       if (

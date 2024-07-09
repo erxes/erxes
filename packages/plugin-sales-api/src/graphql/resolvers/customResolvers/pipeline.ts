@@ -4,10 +4,7 @@ import {
   BOARD_TYPES,
   VISIBLITIES
 } from "../../../models/definitions/constants";
-import {
-  generateDealCommonFilters,
-  generatePurchaseCommonFilters
-} from "../queries/utils";
+import { generateDealCommonFilters } from "../queries/utils";
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
@@ -75,19 +72,6 @@ export default {
         );
 
         return models.Deals.find(filter).countDocuments();
-      }
-
-      case BOARD_TYPES.PURCHASE: {
-        const filter = await generatePurchaseCommonFilters(
-          models,
-          subdomain,
-          user._id,
-          {
-            pipelineId: pipeline._id
-          }
-        );
-
-        return models.Purchases.find(filter).countDocuments();
       }
     }
   },

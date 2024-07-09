@@ -15,10 +15,9 @@ import { IDeal } from "../../../deals/types";
 import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
 import { ProductName } from "../../../deals/styles";
 import { Flex } from "@erxes/ui/src/styles/main";
-import { IPurchase } from "../../../purchases/types";
 
 type Props = {
-  children: IDeal[] | IPurchase[];
+  children: IDeal[];
   parentId: string;
   options: IOptions;
   stageId: string;
@@ -98,7 +97,7 @@ class ChildrenSection extends React.Component<Props, State> {
     );
   }
 
-  renderChildForm(child: IDeal | IPurchase) {
+  renderChildForm(child: IDeal) {
     const { openChildId } = this.state;
 
     const closeModal = () => {
@@ -142,7 +141,7 @@ class ChildrenSection extends React.Component<Props, State> {
     return (
       <Box title="Children" extraButtons={extraButtons()} isOpen={true}>
         {children?.length ? (
-          (children as Array<IDeal | IPurchase>).map(child => (
+          (children as Array<IDeal>).map(child => (
             <SectionBodyItem key={child._id}>
               {this.renderChildForm(child)}
             </SectionBodyItem>

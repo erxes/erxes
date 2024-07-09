@@ -16,7 +16,6 @@ import {
 
 import { loadExpenseClass } from "./models/Expenses";
 import { IDealModel, loadDealClass } from "./models/Deals";
-import { IPurchaseModel, loadPurchaseClass } from "./models/Purchases";
 import { IChecklistModel } from "./models/Checklists";
 import {
   IBoardDocument,
@@ -24,7 +23,6 @@ import {
   IStageDocument
 } from "./models/definitions/boards";
 import { IDealDocument } from "./models/definitions/deals";
-import { IPurchaseDocument } from "./models/definitions/purchases";
 import {
   IChecklistDocument,
   IChecklistItemDocument
@@ -49,7 +47,6 @@ export interface IModels {
   Stages: IStageModel;
   Expenses: IExpenseModel;
   Deals: IDealModel;
-  Purchases: IPurchaseModel;
   Checklists: IChecklistModel;
   ChecklistItems: IChecklistItemModel;
   PipelineLabels: IPipelineLabelModel;
@@ -90,10 +87,6 @@ export const loadClasses = (
   models.Deals = db.model<IDealDocument, IDealModel>(
     "sales_deals",
     loadDealClass(models, subdomain)
-  );
-  models.Purchases = db.model<IPurchaseDocument, IPurchaseModel>(
-    "sales_purchases",
-    loadPurchaseClass(models, subdomain)
   );
 
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(

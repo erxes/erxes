@@ -60,7 +60,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
     }
 
     /*
-     * Common helper for objects like deal, purchase and growth hack etc ...
+     * Common helper for objects like deal and growth hack etc ...
      */
 
     public static async labelObject({

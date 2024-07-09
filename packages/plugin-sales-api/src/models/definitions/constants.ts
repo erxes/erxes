@@ -63,8 +63,7 @@ export const TIME_TRACK_TYPES = {
 
 export const BOARD_TYPES = {
   DEAL: "deal",
-  PURCHASE: "purchase",
-  ALL: ["deal", "purchase"]
+  ALL: ["deal"]
 };
 
 export const NOTIFICATION_TYPES = {
@@ -74,12 +73,6 @@ export const NOTIFICATION_TYPES = {
   DEAL_CHANGE: "dealChange",
   DEAL_DUE_DATE: "dealDueDate",
   DEAL_DELETE: "dealDelete",
-  PURCHASE_ADD: "purchaseAdd",
-  PURCHASE_REMOVE_ASSIGN: "purchaseRemoveAssign",
-  PURCHASE_EDIT: "purchaseEdit",
-  PURCHASE_CHANGE: "purchaseChange",
-  PURCHASE_DUE_DATE: "purchaseDueDate",
-  PURCHASE_DELETE: "purchaseDelete",
 
   ALL: [
     "dealAdd",
@@ -87,23 +80,16 @@ export const NOTIFICATION_TYPES = {
     "dealEdit",
     "dealChange",
     "dealDueDate",
-    "dealDelete",
-    "purchaseAdd",
-    "purchaseRemoveAssign",
-    "purchaseEdit",
-    "purchaseChange",
-    "purchaseDueDate",
-    "purchaseDelete"
+    "dealDelete"
   ]
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
   DEAL: "deal",
-  PURCHASE: "purchase",
   PRODUCT: "product",
   CHECKLIST: "checklist",
 
-  ALL: ["deal", "purchase", "product", "checklist"]
+  ALL: ["deal", "product", "checklist"]
 };
 
 export const EXPENSE_DIVIDE_TYPES = {
