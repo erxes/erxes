@@ -1,22 +1,22 @@
-import { CustomField, ProductName } from '../styles';
+import { CustomField, ProductName } from "../styles";
 import {
   IPurchase,
   IPaymentsData,
   IProductData,
   IExpensesData
-} from '../types';
+} from "../types";
 
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IProduct } from '@erxes/ui-products/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ProductForm from '../containers/product/ProductForm';
-import { Quantity } from '../../boards/styles/stage';
-import React from 'react';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import Box from "@erxes/ui/src/components/Box";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IProduct } from "@erxes/ui-products/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import ProductForm from "../containers/product/ProductForm";
+import { Quantity } from "../../boards/styles/stage";
+import React from "react";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   productsData: IProductData[];
@@ -105,7 +105,7 @@ function ProductSection({
           {productName}
           {quantity && (
             <Quantity>
-              ({quantity} {uom ? uom : 'PC'})
+              ({quantity} {uom ? uom : "PC"})
             </Quantity>
           )}
         </div>
@@ -122,7 +122,7 @@ function ProductSection({
           {renderProductItem(
             product.name,
             product.quantity || 0,
-            product.uom || '',
+            product.uom || "",
             product._id
           )}
         </Tip>
@@ -132,14 +132,14 @@ function ProductSection({
     return renderProductItem(
       product.name,
       product.quantity || 0,
-      product.uom || '',
+      product.uom || "",
       product._id
     );
   };
 
   return (
     <Box
-      title={__('Product & Service')}
+      title={__("Product & Service")}
       extraButtons={renderProductFormModal(
         <button>
           <Icon icon="edit-3" />
