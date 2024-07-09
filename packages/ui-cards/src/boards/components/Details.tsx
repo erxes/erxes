@@ -51,7 +51,7 @@ class Details extends React.Component<Props> {
       return null;
     }
 
-    return <>{this.renderItems(items)}</>;
+    return this.renderItems(items);
   }
 }
 

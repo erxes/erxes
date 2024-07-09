@@ -270,7 +270,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       sendToBoard,
       updateTimeTrack,
     } = this.props;
-
+    console.log("kkk", item, this.state.updatedItem);
     return (
       <>
         <Top
