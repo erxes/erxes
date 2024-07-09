@@ -1,14 +1,12 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState } from 'react';
-import { BoardItem, ItemContainer, LoadMore } from '../styles/rightMenu';
-import { IItem, IOptions } from '../types';
-import { ITicket } from '../../tickets/types';
-import { IDeal } from '../../deals/types';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import { __ } from "@erxes/ui/src/utils";
+import React, { useState } from "react";
+import { BoardItem, ItemContainer, LoadMore } from "../styles/rightMenu";
+import { IItem, IOptions } from "../types";
 
 type ItemProps = {
-  item: IDeal | IItem | ITicket;
+  item: IItem;
   sendToBoard: (item: any) => void;
   remove: (item: any) => void;
   type: string;
@@ -34,14 +32,14 @@ function ArchivedItem(props: ItemProps) {
   const renderActions = () => {
     return (
       <>
-        <span onClick={sendToBoard}>{__('Send to Board')}</span>
-        {' - '}
-        <span onClick={remove}>{__('Delete')}</span>
+        <span onClick={sendToBoard}>{__("Send to Board")}</span>
+        {" - "}
+        <span onClick={remove}>{__("Delete")}</span>
       </>
     );
   };
 
-  if (type === 'item') {
+  if (type === "item") {
     const Component = options.Item;
 
     return (
@@ -124,7 +122,7 @@ class ArchivedItems extends React.Component<Props, State> {
         {hasMore ? (
           <LoadMore onClick={loadMore}>
             <Icon icon="redo" />
-            {__('Load More')}
+            {__("Load More")}
           </LoadMore>
         ) : null}
       </>

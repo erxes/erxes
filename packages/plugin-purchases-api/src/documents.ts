@@ -14,13 +14,13 @@ const toMoney = value => {
 const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
 
-  for (const cardType of ["deal", "purchase"]) {
+  for (const cardType of ["purchase"]) {
     let items = await sendFormsMessage({
       subdomain,
       action: "fields.fieldsCombinedByContentType",
       isRPC: true,
       data: {
-        contentType: `sales:${cardType}`
+        contentType: `purchases:${cardType}`
       },
       defaultValue: []
     });
@@ -62,9 +62,9 @@ const commonFields = [
 export default {
   types: [
     {
-      label: "Sales",
-      type: "sales",
-      subTypes: ["deal", "purchase", "stageDeal"]
+      label: "Purchases",
+      type: "purchases",
+      subTypes: ["purchase"]
     }
   ],
 
@@ -89,9 +89,6 @@ export default {
     }
     let collection;
 
-    if (stage.type == "deal") {
-      collection = models.Deals;
-    }
     if (stage.type == "purchase") {
       collection = models.Purchases;
     }
@@ -100,7 +97,7 @@ export default {
       return "";
     }
     let item;
-    if (contentype == "sales:stage") {
+    if (contentype == "purchases:stage") {
       const items = await collection.find({
         stageId: stageId,
         _id: { $in: itemIds.split(",") }

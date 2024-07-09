@@ -242,16 +242,7 @@ const getItems = async (
 
   const models = await generateModels(subdomain);
 
-  let model: any;
-
-  switch (moduleCollectionType) {
-    case "purchase":
-      model = models.Purchases;
-      break;
-
-    default:
-      model = models.Deals;
-  }
+  let model = models.Purchases;
 
   if (moduleService === triggerService) {
     const relTypeIds = await sendCommonMessage({
@@ -355,35 +346,20 @@ export default {
   constants: {
     triggers: [
       {
-        type: "sales:purchase",
+        type: "purchases:purchase",
         img: "automation3.svg",
         icon: "file-plus-alt",
         label: "Purchase",
         description:
           "Start with a blank workflow that enrolls and is triggered off purchase"
-      },
-      {
-        type: "sales:deal",
-        img: "automation3.svg",
-        icon: "piggy-bank",
-        label: "Sales pipeline",
-        description:
-          "Start with a blank workflow that enrolls and is triggered off sales pipeline item"
       }
     ],
     actions: [
       {
-        type: "sales:purchase.create",
+        type: "purchases:purchase.create",
         icon: "file-plus-alt",
         label: "Create purchase",
         description: "Create purchase",
-        isAvailable: true
-      },
-      {
-        type: "sales:deal.create",
-        icon: "piggy-bank",
-        label: "Create deal",
-        description: "Create deal",
         isAvailable: true
       }
     ]
@@ -421,7 +397,10 @@ const actionCreate = async ({
         subdomain,
         getRelatedValue,
         actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: (triggerType || "").replace("sales:", "") },
+        target: {
+          ...target,
+          type: (triggerType || "").replace("purchases:", "")
+        },
         isRelated: false
       })
     : {};
@@ -444,7 +423,10 @@ const actionCreate = async ({
       subdomain,
       getRelatedValue,
       actionData: action.config,
-      target: { ...target, type: (triggerType || "").replace("sales:", "") },
+      target: {
+        ...target,
+        type: (triggerType || "").replace("purchases:", "")
+      },
       relatedValueProps
     }))
   };
@@ -506,14 +488,9 @@ const actionCreate = async ({
   }
 
   if (newData.hasOwnProperty("attachments")) {
-    const [serviceName, itemType] = triggerType.split(":");
-    if (serviceName === "sales") {
-      const modelsMap = {
-        deal: models.Deals,
-        purchase: models.Purchases
-      };
-
-      const item = await modelsMap[itemType].findOne({ _id: target._id });
+    const [serviceName] = triggerType.split(":");
+    if (serviceName === "purchases") {
+      const item = await models.Purchases.findOne({ _id: target._id });
       newData.attachments = item.attachments;
     }
   }

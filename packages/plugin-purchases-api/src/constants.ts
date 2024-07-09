@@ -8,7 +8,6 @@ import {
   checklistItemSchema,
   checklistSchema
 } from "./models/definitions/checklists";
-import { dealSchema, productDataSchema } from "./models/definitions/deals";
 import {
   purchaseSchema,
   purchaseproductDataSchema
@@ -22,16 +21,12 @@ import { pipelineLabelSchema } from "./models/definitions/pipelineLabels";
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: "Deal",
-    contentType: "deal",
-    icon: "signal-alt-3"
-  },
-  {
     text: "Purchase",
     contentTypeL: "purchase",
     icon: "signal-alt-3"
   }
 ];
+
 export const PRIORITIES = {
   CRITICAL: "Critical",
   HIGH: "High",
@@ -165,16 +160,11 @@ export const BOARD_BASIC_INFOS = [
 
 export const MODULE_NAMES = {
   BOARD: "board",
-  BOARD_DEAL: "dealBoards",
   BOARD_PURCHASE: "purchaseBoards",
-  PIPELINE_DEAL: "dealPipelines",
   PIPELINE_PURCHASE: "purchasePipelines",
-  PIPELINE_GH: "growthHackPipelines",
-  STAGE_DEAL: "dealStages",
   STAGE_PURCHASE: "purchaseStages",
   CHECKLIST: "checklist",
   CHECKLIST_ITEM: "checkListItem",
-  DEAL: "deal",
   PURCHASE: "purchase",
   PIPELINE_LABEL: "pipelineLabel",
   PIPELINE_TEMPLATE: "pipelineTemplate",
@@ -188,16 +178,8 @@ interface ISchemaMap {
 
 export const LOG_MAPPINGS: ISchemaMap[] = [
   {
-    name: MODULE_NAMES.BOARD_DEAL,
-    schemas: [attachmentSchema, boardSchema]
-  },
-  {
     name: MODULE_NAMES.BOARD_PURCHASE,
     schemas: [attachmentSchema, boardSchema]
-  },
-  {
-    name: MODULE_NAMES.PIPELINE_DEAL,
-    schemas: [pipelineSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_PURCHASE,
@@ -212,10 +194,6 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [checklistItemSchema]
   },
   {
-    name: MODULE_NAMES.DEAL,
-    schemas: [dealSchema, productDataSchema]
-  },
-  {
     name: MODULE_NAMES.PURCHASE,
     schemas: [purchaseSchema, purchaseproductDataSchema]
   },
@@ -226,10 +204,6 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.PIPELINE_TEMPLATE,
     schemas: [pipelineTemplateSchema, stageSchema]
-  },
-  {
-    name: MODULE_NAMES.STAGE_DEAL,
-    schemas: [boardStageSchema]
   },
   {
     name: MODULE_NAMES.STAGE_PURCHASE,
@@ -312,38 +286,6 @@ export const CARD_PROPERTIES_INFO = {
 };
 
 export const NOTIFICATION_MODULES = [
-  {
-    name: "deals",
-    description: "Deals",
-    icon: "piggy-bank",
-    types: [
-      {
-        name: "dealAdd",
-        text: "Assigned a new deal  card"
-      },
-      {
-        name: "dealRemoveAssign",
-        text: "Removed from the deal card"
-      },
-      {
-        name: "dealEdit",
-        text: "Deal card edited"
-      },
-      {
-        name: "dealChange",
-        text: "Moved between stages"
-      },
-      {
-        name: "dealDueDate",
-        text: "Due date is near"
-      },
-      {
-        name: "dealDelete",
-        text: "Deal card deleted"
-      }
-    ]
-  },
-
   {
     name: "purchases",
     description: "Purchases",

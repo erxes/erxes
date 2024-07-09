@@ -16,12 +16,7 @@ const relations = type => {
     {
       name: "purchaseIds",
       label: "Purchases",
-      relationType: "sales:purchase"
-    },
-    {
-      name: "dealIds",
-      label: "Deals",
-      relationType: "sales:deal"
+      relationType: "purchases:purchase"
     }
   ].filter(r => r.relationType !== type);
 };
@@ -32,15 +27,7 @@ export default {
       description: "Purchases",
       type: "purchase",
       relations: [
-        ...relations("sales:purchase"),
-        { name: "carIds", label: "Cars", relationType: "cars:car" }
-      ]
-    },
-    {
-      description: "Sales pipelines",
-      type: "deal",
-      relations: [
-        ...relations("sales:deal"),
+        ...relations("purchases:purchase"),
         { name: "carIds", label: "Cars", relationType: "cars:car" }
       ]
     }

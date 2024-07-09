@@ -70,8 +70,7 @@ class Actions extends React.Component<Props> {
       </ColorButton>
     );
 
-    const TAG_TYPE =
-      options.type === "deal" ? TAG_TYPES.DEAL : TAG_TYPES.PURCHASE;
+    const TAG_TYPE = options.type === TAG_TYPES.PURCHASE;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">

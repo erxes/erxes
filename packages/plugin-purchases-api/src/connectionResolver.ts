@@ -15,7 +15,6 @@ import {
 } from "./models/Checklists";
 
 import { loadExpenseClass } from "./models/Expenses";
-import { IDealModel, loadDealClass } from "./models/Deals";
 import { IPurchaseModel, loadPurchaseClass } from "./models/Purchases";
 import { IChecklistModel } from "./models/Checklists";
 import {
@@ -23,7 +22,6 @@ import {
   IPipelineDocument,
   IStageDocument
 } from "./models/definitions/boards";
-import { IDealDocument } from "./models/definitions/deals";
 import { IPurchaseDocument } from "./models/definitions/purchases";
 import {
   IChecklistDocument,
@@ -48,7 +46,6 @@ export interface IModels {
   Pipelines: IPipelineModel;
   Stages: IStageModel;
   Expenses: IExpenseModel;
-  Deals: IDealModel;
   Purchases: IPurchaseModel;
   Checklists: IChecklistModel;
   ChecklistItems: IChecklistItemModel;
@@ -69,49 +66,48 @@ export const loadClasses = (
   const models = {} as IModels;
 
   models.Boards = db.model<IBoardDocument, IBoardModel>(
-    "sales_boards",
+    "purchases_boards",
     loadBoardClass(models, subdomain)
   );
 
   models.Expenses = db.model<IExpenseDocument, IExpenseModel>(
-    "sales_expenses",
+    "purchases_expenses",
     loadExpenseClass(models, subdomain)
   );
 
   models.Pipelines = db.model<IPipelineDocument, IPipelineModel>(
-    "sales_pipelines",
+    "purchases_pipelines",
     loadPipelineClass(models, subdomain)
   );
 
   models.Stages = db.model<IStageDocument, IStageModel>(
-    "sales_stages",
+    "purchases_stages",
     loadStageClass(models, subdomain)
   );
-  models.Deals = db.model<IDealDocument, IDealModel>(
-    "sales_deals",
-    loadDealClass(models, subdomain)
-  );
   models.Purchases = db.model<IPurchaseDocument, IPurchaseModel>(
-    "sales_purchases",
+    "purchases_purchases",
     loadPurchaseClass(models, subdomain)
   );
 
   models.Checklists = db.model<IChecklistDocument, IChecklistModel>(
-    "sales_checklists",
+    "purchases_checklists",
     loadChecklistClass(models, subdomain)
   );
   models.ChecklistItems = db.model<IChecklistItemDocument, IChecklistItemModel>(
-    "sales_checklist_items",
+    "purchases_checklist_items",
     loadItemClass(models, subdomain)
   );
   models.PipelineLabels = db.model<IPipelineLabelDocument, IPipelineLabelModel>(
-    "sales_pipeline_labels",
+    "purchases_pipeline_labels",
     loadPipelineLabelClass(models)
   );
   models.PipelineTemplates = db.model<
     IPipelineTemplateDocument,
     IPipelineTemplateModel
-  >("sales_pipeline_templates", loadPipelineTemplateClass(models, subdomain));
+  >(
+    "purchases_pipeline_templates",
+    loadPipelineTemplateClass(models, subdomain)
+  );
 
   return models;
 };

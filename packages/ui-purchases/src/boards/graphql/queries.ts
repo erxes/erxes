@@ -344,9 +344,6 @@ const conversionStages = `
       ${stageCommon}
       compareNextStage
       compareNextStagePurchase
-      initialDealsTotalCount
-      stayedDealsTotalCount
-      inProcessDealsTotalCount
       initialPurchasesTotalCount
       stayedPurchasesTotalCount
       inProcessPurchasesTotalCount
@@ -383,14 +380,6 @@ const boardItemQueryParams = `
   limit: $limit,
   tagIds: $tagIds,
   search: $searchValue,
-`;
-
-const deals = `
-  query deals(${boardItemQueryParamsDef}) {
-    deals(${boardItemQueryParams}) {
-      ${cardFields}
-    }
-  }
 `;
 
 const purchases = `
@@ -448,7 +437,6 @@ export default {
   activityLogsByAction,
   conversionStages,
   internalNotesByAction,
-  deals,
   boardContentTypeDetail,
   boardLogs,
   documents,

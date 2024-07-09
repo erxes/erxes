@@ -287,7 +287,7 @@ export const destroyBoardItemRelations = async (
     subdomain,
     action: "removeInternalNotes",
     data: {
-      contentType: `sales:${contentType}`,
+      contentType: `purchases:${contentType}`,
       contentTypeIds: [contentTypeId]
     }
   });

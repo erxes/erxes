@@ -2,13 +2,10 @@ import React from "react";
 import * as compose from "lodash.flowright";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries as dealQueries } from "../../../deals/graphql";
 import { queries as purchaseQueries } from "../../../purchases/graphql";
 import { withProps } from "@erxes/ui/src/utils";
-import { IOptions } from "../../types";
-import { IQueryParams } from "@erxes/ui/src/types";
+import { IFilterParams, IOptions } from "../../types";
 import { getFilterParams } from "../../utils";
-import { DealsQueryResponse } from "../../../deals/types";
 import { PurchasesQueryResponse } from "../../../purchases/types";
 import ChildrenSectionComponent from "../../components/editForm/ChildrenSection";
 
@@ -17,28 +14,22 @@ type Props = {
   parentId?: string;
   itemId: string;
   stageId: string;
-  queryParams: IQueryParams;
+  queryParams: IFilterParams;
   options: IOptions;
   pipelineId: string;
 };
 
 type FinalProps = {
-  dealQueries: DealsQueryResponse;
   purchaseQueries: PurchasesQueryResponse;
 } & Props;
 
 class ChildrenSection extends React.Component<FinalProps> {
   render() {
-    const { type, dealQueries, purchaseQueries, parentId, options } =
-      this.props;
+    const { type, purchaseQueries, parentId, options } = this.props;
 
     let children: any[] = [];
     let refetch;
 
-    if (type === "deal") {
-      children = dealQueries.deals;
-      refetch = dealQueries.refetch;
-    }
     if (type === "purchase") {
       children = purchaseQueries.purchases;
       refetch = purchaseQueries.refetch;
@@ -62,7 +53,7 @@ const commonFilter = ({
   options
 }: {
   itemId: string;
-  queryParams: IQueryParams;
+  queryParams: IFilterParams;
   options: IOptions;
 }) => ({
   variables: {
@@ -74,12 +65,6 @@ const commonFilter = ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(dealQueries.deals), {
-      name: "dealQueries",
-      skip: ({ type }) => type !== "deal",
-      options: props => commonFilter(props)
-    }),
-
     graphql<Props>(gql(purchaseQueries.purchases), {
       name: "purchaseQueries",
       skip: ({ type }) => type !== "purchase",

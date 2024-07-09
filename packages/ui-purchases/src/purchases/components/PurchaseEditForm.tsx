@@ -10,8 +10,6 @@ import { HeaderContentSmall } from "../../boards/styles/item";
 import { IProduct } from "@erxes/ui-products/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
-import PortableDeals from "../../deals/components/PortableDeals";
-
 import ProductSection from "./ProductSection";
 import React from "react";
 import Sidebar from "../../boards/components/editForm/Sidebar";
@@ -20,6 +18,7 @@ import queryString from "query-string";
 import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
 import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
 
 type Props = {
   options: IOptions;
@@ -254,7 +253,10 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
           <PortableTasks mainType="purchase" mainTypeId={item._id} />
         )}
 
-        <PortableDeals mainType="purchase" mainTypeId={item._id} />
+        {isEnabled("sales") && (
+          <PortableDeals mainType="purchase" mainTypeId={item._id} />
+        )}
+
         {loadDynamicComponent(
           "purchaseRightSidebarSection",
           { id: item._id },

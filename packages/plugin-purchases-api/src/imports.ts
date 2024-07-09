@@ -14,9 +14,6 @@ export default {
       let model;
 
       switch (contentType) {
-        case "deal":
-          model = models.Deals;
-          break;
         case "purchase":
           model = models.Purchases;
           break;

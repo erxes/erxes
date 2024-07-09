@@ -8,9 +8,6 @@ export const insertImportItems = async (models: IModels, args) => {
     let model;
 
     switch (contentType) {
-      case "deal":
-        model = models.Deals;
-        break;
       case "purchase":
         model = models.Purchases;
     }

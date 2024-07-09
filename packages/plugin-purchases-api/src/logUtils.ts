@@ -1,5 +1,4 @@
 import { IPipelineDocument, IStageDocument } from "./models/definitions/boards";
-import { IDealDocument } from "./models/definitions/deals";
 import { IPurchaseDocument } from "./models/definitions/purchases";
 import { IPipelineTemplateDocument } from "./models/definitions/pipelineTemplates";
 import {
@@ -35,7 +34,7 @@ export const LOG_ACTIONS = {
   DELETE: "delete"
 };
 
-type BoardItemDocument = IDealDocument | IPurchaseDocument;
+type BoardItemDocument = IPurchaseDocument;
 
 const findUsers = async (subdomain: string, ids: string[]) => {
   return sendCoreMessage({
@@ -180,42 +179,6 @@ const gatherBoardItemFieldNames = async (
   return options;
 };
 
-const gatherDealFieldNames = async (
-  models: IModels,
-  subdomain: string,
-  doc: IDealDocument,
-  prevList?: LogDesc[]
-): Promise<LogDesc[]> => {
-  let options: LogDesc[] = [];
-
-  if (prevList) {
-    options = prevList;
-  }
-
-  options = await gatherBoardItemFieldNames(models, subdomain, doc, options);
-
-  if (doc.productsData && doc.productsData.length > 0) {
-    options = await gatherNames({
-      foreignKey: "productId",
-      prevList: options,
-      nameFields: ["name"],
-      items: await sendProductsMessage({
-        subdomain,
-        action: "find",
-        data: {
-          query: {
-            _id: { $in: doc.productsData.map(p => p.productId) }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-    });
-  }
-
-  return options;
-};
-
 const gatherPurchaseFieldNames = async (
   models: IModels,
   subdomain: string,
@@ -340,14 +303,10 @@ const findItemName = async (
   models: IModels,
   { contentType, contentTypeId }: IContentTypeParams
 ): Promise<string> => {
-  const { Deals, Purchases } = models;
+  const { Purchases } = models;
 
   let item: any;
   let name: string = "";
-
-  if (contentType === ACTIVITY_CONTENT_TYPES.DEAL) {
-    item = await Deals.findOne({ _id: contentTypeId });
-  }
 
   if (contentType === ACTIVITY_CONTENT_TYPES.PURCHASE) {
     item = await Purchases.findOne({ _id: contentTypeId });
@@ -371,7 +330,6 @@ const gatherDescriptions = async (
   let description: string = "";
 
   switch (type) {
-    case MODULE_NAMES.BOARD_DEAL:
     case MODULE_NAMES.BOARD_PURCHASE:
       if (object.userId) {
         extraDesc = await gatherUsernames({
@@ -383,7 +341,7 @@ const gatherDescriptions = async (
       description = `"${object.name}" has been ${action}d`;
 
       break;
-    case MODULE_NAMES.PIPELINE_DEAL:
+
     case MODULE_NAMES.BOARD_PURCHASE:
       extraDesc = await gatherPipelineFieldNames(models, subdomain, object);
 
@@ -399,20 +357,7 @@ const gatherDescriptions = async (
       description = `"${object.name}" has been ${action}d`;
 
       break;
-    case MODULE_NAMES.DEAL:
-      description = `"${object.name}" has been ${action}d`;
-      extraDesc = await gatherDealFieldNames(models, subdomain, object);
 
-      if (updatedDocument) {
-        extraDesc = await gatherDealFieldNames(
-          models,
-          subdomain,
-          updatedDocument,
-          extraDesc
-        );
-      }
-
-      break;
     case MODULE_NAMES.PURCHASE:
       description = `"${object.name}" has been ${action}d`;
       extraDesc = await gatherPurchaseFieldNames(models, subdomain, object);
@@ -459,7 +404,6 @@ const gatherDescriptions = async (
 
       break;
 
-    case MODULE_NAMES.STAGE_DEAL:
     case MODULE_NAMES.STAGE_PURCHASE:
       description = `"${object.name}" has been ${action}d`;
 
@@ -559,7 +503,7 @@ export const putDeleteLog = async (
 
   await commonPutDeleteLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `sales:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `purchases:${logDoc.type}` },
     user
   );
 };
@@ -581,7 +525,7 @@ export const putUpdateLog = async (
 
   await commonPutUpdateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `sales:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `purchases:${logDoc.type}` },
     user
   );
 };
@@ -603,7 +547,7 @@ export const putCreateLog = async (
 
   await commonPutCreateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `sales:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `purchases:${logDoc.type}` },
     user
   );
 };
@@ -616,7 +560,7 @@ export const putActivityLog = async (
 
   const updatedParams = {
     ...params,
-    data: { ...data, contentType: `sales:${data.contentType}` }
+    data: { ...data, contentType: `purchases:${data.contentType}` }
   };
 
   if (action === "createBoardItemMovementLog") {
@@ -624,7 +568,7 @@ export const putActivityLog = async (
       subdomain,
       data: {
         action,
-        type: `sales:${data.contentType}`,
+        type: `purchases:${data.contentType}`,
         params
       }
     });

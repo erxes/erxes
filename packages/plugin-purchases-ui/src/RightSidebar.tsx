@@ -2,6 +2,7 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   user: IUser;
@@ -41,9 +42,16 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar>
-        <PortableTasks mainType="user" mainTypeId={user._id} />
-        <PortableDeals mainType="user" mainTypeId={user._id} />
-        <PortableTickets mainType="user" mainTypeId={user._id} />
+        {isEnabled("cards") && (
+          <PortableTasks mainType="user" mainTypeId={user._id} />
+        )}
+        {isEnabled("cards") && (
+          <PortableTickets mainType="user" mainTypeId={user._id} />
+        )}
+        {isEnabled("sales") && (
+          <PortableDeals mainType="user" mainTypeId={user._id} />
+        )}
+
         <PortablePurchases mainType="user" mainTypeId={user._id} />
       </Sidebar>
     );

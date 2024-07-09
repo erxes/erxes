@@ -47,7 +47,6 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
 
   switch (itemType) {
-    case MODULE_NAMES.DEAL:
     case MODULE_NAMES.PURCHASE:
 
     default:
@@ -107,7 +106,7 @@ const fillCellValue = async (
       cellValue = createdUser ? createdUser.username : "user not found";
 
       break;
-    // deal, purchase, fields
+    // purchase, purchase, fields
     case "assignedUserIds":
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
@@ -251,10 +250,6 @@ const prepareData = async (
   }
 
   switch (type) {
-    case MODULE_NAMES.DEAL:
-      data = await models.Deals.find(boardItemsFilter);
-
-      break;
     case MODULE_NAMES.PURCHASE:
       data = await models.Purchases.find(boardItemsFilter);
 
@@ -285,35 +280,35 @@ const addCell = (
   }
 };
 
-const fillDealProductValue = async (
+const fillPurchaseProductValue = async (
   subdomain,
   column,
   item,
   sheet,
   columnNames,
   rowIndex,
-  dealIds,
-  dealRowIndex
+  purchaseIds,
+  purchaseRowIndex
 ) => {
   const productsData = item.productsData;
 
   if (productsData.length === 0) {
     rowIndex++;
-    dealRowIndex++;
+    purchaseRowIndex++;
 
-    addCell(column, "-", sheet, columnNames, dealRowIndex);
+    addCell(column, "-", sheet, columnNames, purchaseRowIndex);
 
-    return { rowIndex, dealRowIndex };
+    return { rowIndex, purchaseRowIndex };
   }
 
-  if (dealIds.length === 0) {
-    dealIds.push(item._id);
-  } else if (!dealIds.includes(item._id)) {
-    dealIds.push(item._id);
-    rowIndex = dealRowIndex;
+  if (purchaseIds.length === 0) {
+    purchaseIds.push(item._id);
+  } else if (!purchaseIds.includes(item._id)) {
+    purchaseIds.push(item._id);
+    rowIndex = purchaseRowIndex;
   }
 
-  dealRowIndex = rowIndex;
+  purchaseRowIndex = rowIndex;
 
   for (const productData of productsData) {
     let cellValue = "";
@@ -370,13 +365,13 @@ const fillDealProductValue = async (
     }
 
     if (cellValue) {
-      addCell(column, cellValue, sheet, columnNames, dealRowIndex);
+      addCell(column, cellValue, sheet, columnNames, purchaseRowIndex);
 
-      dealRowIndex++;
+      purchaseRowIndex++;
     }
   }
 
-  return { rowIndex, dealRowIndex };
+  return { rowIndex, purchaseRowIndex };
 };
 
 export const buildFile = async (
@@ -393,8 +388,8 @@ export const buildFile = async (
 
   const columnNames: string[] = [];
   let rowIndex: number = 1;
-  const dealIds: string[] = [];
-  let dealRowIndex: number = 0;
+  const purchaseIds: string[] = [];
+  let purchaseRowIndex: number = 0;
 
   let headers: IColumnLabel[] = fillHeaders(type);
 
@@ -404,7 +399,7 @@ export const buildFile = async (
     });
   }
 
-  if (type === MODULE_NAMES.DEAL) {
+  if (type === MODULE_NAMES.PURCHASE) {
     headers = filterHeaders(headers);
   }
 
@@ -439,23 +434,23 @@ export const buildFile = async (
           );
         }
       } else if (column.name.startsWith("productsData")) {
-        const indexes = await fillDealProductValue(
+        const indexes = await fillPurchaseProductValue(
           subdomain,
           column,
           item,
           sheet,
           columnNames,
           rowIndex,
-          dealIds,
-          dealRowIndex
+          purchaseIds,
+          purchaseRowIndex
         );
 
         rowIndex = indexes?.rowIndex;
-        dealRowIndex = indexes?.dealRowIndex;
+        purchaseRowIndex = indexes?.purchaseRowIndex;
       } else {
         let index = rowIndex;
-        if (type === MODULE_NAMES.DEAL) {
-          index = dealRowIndex === 0 ? rowIndex : dealRowIndex;
+        if (type === MODULE_NAMES.PURCHASE) {
+          index = purchaseRowIndex === 0 ? rowIndex : purchaseRowIndex;
         }
 
         const cellValue = await fillCellValue(

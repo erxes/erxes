@@ -12,28 +12,6 @@ class List extends React.Component<Props, {}> {
     return 100 - (index * (100 / lenght)) / 1.5;
   };
 
-  renderFooter() {
-    const { stages } = this.props;
-
-    if (stages.length === 0) {
-      return;
-    }
-
-    const firstStage: IConversionStage = stages[0] || ({} as IConversionStage);
-    const lastStage: IConversionStage =
-      stages.slice(-1)[0] || ({} as IConversionStage);
-
-    const firstStageInitialDealsTotalCount =
-      firstStage.initialDealsTotalCount || 1;
-
-    const lastStageItemsTotalCount = lastStage.itemsTotalCount || 0;
-
-    const Average =
-      (lastStageItemsTotalCount * 100) / firstStageInitialDealsTotalCount;
-
-    return <Result>Winrate: {parseInt(`${Average}`, 10)}%</Result>;
-  }
-
   render() {
     const { stages } = this.props;
 
@@ -45,12 +23,7 @@ class List extends React.Component<Props, {}> {
       />
     ));
 
-    return (
-      <>
-        {contents}
-        {this.renderFooter()}
-      </>
-    );
+    return <>{contents}</>;
   }
 }
 

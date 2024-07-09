@@ -4,18 +4,9 @@ export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    let model: any = models.Deals;
+    let model: any = models.Purchases;
 
     const { contentTypeId, notifDoc, type } = data;
-
-    switch (type) {
-      case "purchase":
-        model = models.Purchases;
-        break;
-      default:
-        model = models.Deals;
-        break;
-    }
 
     const card = await model.findOne({ _id: contentTypeId });
     const stage = await models.Stages.getStage(card.stageId);
@@ -28,7 +19,7 @@ export default {
     notifDoc.contentType = `${type}`;
     notifDoc.item = card;
 
-    // sendNotificationOfItems on, purchase and deal
+    // sendNotificationOfItems on, purchase
     notifDoc.notifOfItems = true;
 
     return notifDoc;

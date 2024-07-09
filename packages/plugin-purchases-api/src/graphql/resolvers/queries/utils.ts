@@ -1215,7 +1215,7 @@ export const getItemList = async (
     data: {
       query: {
         showInCard: true,
-        contentType: `sales:${type}`
+        contentType: `purchases:${type}`
       }
     },
     isRPC: true,

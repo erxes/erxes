@@ -41,30 +41,6 @@ export const PIPELINE_UPDATE_STATUSES = {
   NEW_REQUEST: __("newRequest")
 };
 
-export const EMPTY_CONTENT_DEAL = {
-  title: __("Getting Started with Sales Pipeline"),
-  description: __(
-    `Drive leads to a successful close with our Kanban-style boards`
-  ),
-  steps: [
-    {
-      title: __("Create Boards and Pipelines"),
-      description: `${__(
-        "Track your entire sales pipeline from one dashboard"
-      )}${__("You can also restrict access to your sales pipelines")}`,
-      url: "/settings/boards/deal",
-      urlText: __("Go to Board & Pipeline")
-    },
-    {
-      title: __("Tip: Choose different views"),
-      description: __(
-        "Click on “Boards, Calendar, Conversions” to filter deals"
-      ),
-      icon: "lightbulb-alt"
-    }
-  ]
-};
-
 export const EMPTY_CONTENT_PURCHASE = {
   title: __("Getting Started with Purchase"),
   description: __(

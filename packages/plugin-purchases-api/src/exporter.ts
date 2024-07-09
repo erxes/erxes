@@ -40,17 +40,6 @@ const prepareData = async (
   }
 
   switch (type) {
-    case MODULE_NAMES.DEAL:
-      if (!segmentData) {
-        data = await models.Deals.find(boardItemsFilter)
-          .skip(skip)
-          .limit(perPage)
-          .lean();
-      }
-
-      data = await models.Deals.find(boardItemsFilter).lean();
-
-      break;
     case MODULE_NAMES.PURCHASE:
       if (!segmentData) {
         data = await models.Purchases.find(boardItemsFilter)
@@ -92,10 +81,6 @@ const prepareDataCount = async (
   }
 
   switch (type) {
-    case MODULE_NAMES.DEAL:
-      data = await models.Deals.find(boardItemsFilter).countDocuments();
-
-      break;
     case MODULE_NAMES.PURCHASE:
       data = await models.Purchases.find(boardItemsFilter).countDocuments();
 
@@ -125,7 +110,7 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
-const fillDealProductValue = async (subdomain, column, item) => {
+const fillPurchaseProductValue = async (subdomain, column, item) => {
   const productsData = item.productsData;
 
   const productDocs: any[] = [];
@@ -275,7 +260,7 @@ const fillValue = async (
       value = createdUser ? createdUser.username : "user not found";
 
       break;
-    // deal, purchase fields
+    // purchase fields
     case "assignedUserIds":
       const assignedUsers: IUserDocument[] = await sendCoreMessage({
         subdomain,
@@ -634,7 +619,7 @@ export default {
 
             result[fieldName] = value || "-";
           } else if (column.startsWith("productsData")) {
-            const productItem = await fillDealProductValue(
+            const productItem = await fillPurchaseProductValue(
               subdomain,
               column,
               item

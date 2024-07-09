@@ -201,7 +201,7 @@ export const getContentTypeDetail = async (subdomain, data) => {
   return item;
 };
 
-// contentType should come with "sales:deal|purchase" format
+// contentType should come with "purchases:deal|purchase" format
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }
@@ -280,7 +280,7 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
       validation: e.validation,
       groupId,
       options: e.options,
-      contentType: `sales:${type}`,
+      contentType: `purchases:${type}`,
       isDefinedByErxes: true
     });
   });

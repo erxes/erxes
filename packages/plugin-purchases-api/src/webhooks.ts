@@ -6,42 +6,42 @@ export default {
     {
       label: "Deal created",
       action: "create",
-      type: "sales:deal"
+      type: "purchases:deal"
     },
     {
       label: "Deal updated",
       action: "update",
-      type: "sales:deal"
+      type: "purchases:deal"
     },
     {
       label: "Deal deleted",
       action: "delete",
-      type: "sales:deal"
+      type: "purchases:deal"
     },
     {
       label: "Deal moved",
       action: "createBoardItemMovementLog",
-      type: "sales:deal"
+      type: "purchases:deal"
     },
     {
       label: "Purchase created",
       action: "create",
-      type: "sales:purchase"
+      type: "purchases:purchase"
     },
     {
       label: "Purchase updated",
       action: "update",
-      type: "sales:purchase"
+      type: "purchases:purchase"
     },
     {
       label: "Purchase deleted",
       action: "delete",
-      type: "sales:purchase"
+      type: "purchases:purchase"
     },
     {
       label: "Purchase moved",
       action: "createBoardItemMovementLog",
-      type: "sales:purchase"
+      type: "purchases:purchase"
     }
   ],
   getInfo: async ({
