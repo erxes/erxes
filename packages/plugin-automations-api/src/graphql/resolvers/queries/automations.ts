@@ -19,6 +19,7 @@ interface IListArgs {
   sortField: string;
   sortDirection: number;
   tagIds: string[];
+  triggerTypes: string[];
 }
 
 interface IHistoriesParams {
@@ -33,7 +34,7 @@ interface IHistoriesParams {
 }
 
 const generateFilter = (params: IListArgs) => {
-  const { status, searchValue, tagIds } = params;
+  const { status, searchValue, tagIds, triggerTypes } = params;
 
   const filter: any = { status: { $nin: [STATUSES.ARCHIVED, 'template'] } };
 
@@ -47,6 +48,10 @@ const generateFilter = (params: IListArgs) => {
 
   if (tagIds) {
     filter.tagIds = { $in: tagIds };
+  }
+
+  if (triggerTypes?.length) {
+    filter['triggers.type'] = { $in: triggerTypes };
   }
 
   return filter;
@@ -273,11 +278,11 @@ const automationQueries = {
 
         if (!!pluginConstants?.emailRecipientTypes?.length) {
           const updatedEmailRecipIentTypes =
-            pluginConstants.emailRecipientTypes.map(eRT => ({
+            pluginConstants.emailRecipientTypes.map((eRT) => ({
               ...eRT,
               serviceName
             }));
-          constants.actionsConst = constants.actionsConst.map(actionConst =>
+          constants.actionsConst = constants.actionsConst.map((actionConst) =>
             actionConst.type === 'sendEmail'
               ? {
                   ...actionConst,
