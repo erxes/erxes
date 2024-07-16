@@ -7,8 +7,9 @@ import CommnetForm from './components/trigger/CommentForm';
 import Label from '@erxes/ui/src/components/Label';
 import Tip from '@erxes/ui/src/components/Tip';
 import { Link } from 'react-router-dom';
+import ReplyComments from './components/action/ReplyComment';
 
-const Automations = props => {
+const Automations = (props) => {
   const { componentType, activeAction, activeTrigger, target } = props || {};
 
   if (componentType === 'triggerForm') {
@@ -41,6 +42,8 @@ const Automations = props => {
     switch (contentType) {
       case 'messages':
         return <ReplyFbMessage {...props} />;
+      case 'comments':
+        return <ReplyComments {...props} />;
       default:
         return null;
     }

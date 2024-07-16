@@ -351,6 +351,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
         });
       }
 
+      if (doc.password) {
+        this.checkPassword(doc.password);
+        doc.password = await this.generatePassword(doc.password);
+      }
+
       await models.ClientPortalUsers.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } }
