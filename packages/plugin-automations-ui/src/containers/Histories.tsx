@@ -33,21 +33,14 @@ type FinalProps = {
   RemoveMutationResponse;
 
 function HistoriesContainer(props: FinalProps) {
-  const {
-    automationHistoriesQuery,
-    triggersConst,
-    actionsConst,
-    filterParams,
-    automation
-  } = props;
+  const { automationHistoriesQuery, triggersConst, actionsConst, automation } =
+    props;
 
   if (automationHistoriesQuery.loading) {
     return null;
   }
   const { automationHistories = [], automationHistoriesTotalCount = 0 } =
     automationHistoriesQuery;
-
-  console.log({ filterParams });
 
   return (
     <Histories

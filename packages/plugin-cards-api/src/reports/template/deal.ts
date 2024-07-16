@@ -26,6 +26,7 @@ const DIMENSION_OPTIONS = [
     { label: 'Status', value: 'status' },
     { label: 'Priority', value: 'priority' },
     { label: 'Description', value: 'description' },
+    { label: 'Is Complete', value: 'isComplete' },
     { label: 'Created by', value: 'createdBy' },
     { label: 'Modified by', value: 'modifiedBy' },
     { label: 'Assigned to', value: 'assignedTo' },
@@ -650,23 +651,17 @@ export const dealCharts = [
                         fieldType: { $first: "$field.type" },
                         fieldOptions: { $first: "$field.options" },
                         selectedOptions: { $push: "$customFieldsData.value" },
-                        count: { $sum: 1 },
                     },
                 },
             ]
 
             const deals = await models.Deals.aggregate(pipeline)
 
-            const totalCountByCustomProperties = (deals || []).reduce((acc, { field,
+            const totalCountByCustomProperties = (deals || []).reduce((acc, { 
                 fieldType,
                 fieldOptions,
                 selectedOptions,
-                count }) => {
-
-                if (!fieldOptions.length) {
-                    acc[field] = count
-                    return acc
-                }
+            }) => {
 
                 (selectedOptions || []).map(selectedOption => {
                     if (fieldType === 'multiSelect') {
@@ -683,6 +678,8 @@ export const dealCharts = [
                             }
                         })
                     } else if (fieldOptions.includes(selectedOption)) {
+                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
+                    } else {
                         acc[selectedOption] = (acc[selectedOption] || 0) + 1
                     }
                 })
