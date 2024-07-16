@@ -7,19 +7,20 @@ import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import automations from './automations';
 
 export default {
   name: 'knowledgebase',
   graphql: () => {
     return {
       typeDefs,
-      resolvers,
+      resolvers
     };
   },
   hasSubscriptions: false,
   permissions,
   segment: {},
-  meta: { logs: { consumers: logs }, webhooks, permissions },
+  meta: { logs: { consumers: logs }, webhooks, permissions, automations },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
@@ -30,5 +31,5 @@ export default {
   },
 
   onServerInit: async () => {},
-  setupMessageConsumers,
+  setupMessageConsumers
 };
