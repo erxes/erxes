@@ -71,8 +71,7 @@ const LeftSideBar = (props: Props) => {
   ];
 
   useEffect(() => {
-    onStartDateChange(startOfThisMonth);
-    onEndDateChange(startOfNextMonth);
+    resetParams();
   }, []);
 
   const returnTotalUserOptions = () => {
@@ -187,7 +186,6 @@ const LeftSideBar = (props: Props) => {
 
   const onEndDateChange = date => {
     setEndDate(date);
-
     setParams('endDate', date);
   };
 
