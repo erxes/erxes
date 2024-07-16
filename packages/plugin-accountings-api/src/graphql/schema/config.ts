@@ -1,6 +1,6 @@
 export const types = `
 
-  type AccountingsCongig {
+  type AccountingsConfig {
     _id: String!
     code: String!
     value: JSON
@@ -18,7 +18,8 @@ export const types = `
 `;
 
 export const queries = `
-  accountingsConfigs: [AccountingsCongig]
+  accountingsConfigs: [AccountingsConfig]
+  accountingsConfigsByCode(codes: [String]): JSON
   accountingsGetRate(date: Date, currency: String): ExchangeRate
 `;
 

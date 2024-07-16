@@ -13,6 +13,11 @@ const configQueries = {
     return models.AccountingConfigs.find({});
   },
 
+  async accountingsConfigsByCode(_root, params: { codes: string[] }, { models }: IContext) {
+    const { codes } = params
+    return models.AccountingConfigs.getConfigs(codes);
+  },
+
   async accountingsGetRate(_root, args: { currency: string, date: Date }, { models }: IContext) {
     const { date, currency } = args;
     const mainCurrency = await models.AccountingConfigs.getConfig('MainCurrency', 'MNT');

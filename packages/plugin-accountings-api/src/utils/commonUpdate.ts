@@ -3,13 +3,18 @@ import { ITransaction, ITransactionDocument } from "../models/definitions/transa
 import CurrencyTr from "./currencyTr";
 
 export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: ITransactionDocument) => {
+  let mainTr: ITransactionDocument | null = null;
+  let otherTrs: ITransactionDocument[] = [];
+
   if (!oldTr || oldTr.journal !== doc.journal) {
     throw new Error('Not change journal')
   }
 
+
   switch (doc.journal) {
     case 'main': {
-      return { mainTr: await models.Transactions.updateTransaction(oldTr._id, { ...doc }) };
+      mainTr = await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+      break;
     }
     case 'cash': {
       let currencyTr;
@@ -18,13 +23,23 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
 
       const transaction =
         await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+
+      mainTr = transaction
       currencyTr = await currencyTrClass.doCurrencyTr(transaction)
 
       if (currencyTr) {
-        return { mainTr: transaction, otherTrs: [currencyTr] }
+        otherTrs.push(currencyTr)
       }
-      return { mainTr: transaction };
+
+      
+      break;
     }
   }
-  return { mainTr: {} as ITransactionDocument }
+
+  if (!mainTr) {
+    throw new Error('main transaction not found')
+  }
+  mainTr = await models.Transactions.getTransaction({ _id: mainTr._id })
+
+  return { mainTr, otherTrs };
 }

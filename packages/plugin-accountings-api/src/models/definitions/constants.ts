@@ -77,12 +77,14 @@ export const JOURNALS = {
   INV_COST: 'inv_cost',
   INV_IN_RETURN: 'inv_in_return',
   INV_SALE_RETURN: 'inv_sale_return',
+  VAT: 'vat',
+  CTAX: 'ctax',
   ALL: [
     'main', 'cash', 'bank', 'debt',
     'inv_fb', 'inv_income', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
     'inv_sale', 'inv_cost',
     'inv_in_return', 'inv_sale_return',
-    'expense'
+    'expense', 'vat'
   ],
   ALL_INV: [],
 }

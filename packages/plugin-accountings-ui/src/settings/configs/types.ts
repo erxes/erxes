@@ -23,6 +23,12 @@ export type AccountingsConfigsQueryResponse = {
   refetch: () => void;
 };
 
+export type AccountingsConfigsByCodeQueryResponse = {
+  accountingsConfigsByCode: any;
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type GetRateQueryResponse = {
   accountingsGetRate: IRate;
   loading: boolean;

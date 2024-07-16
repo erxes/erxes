@@ -8,6 +8,7 @@ import {
 export interface IAccountingConfigModel
   extends Model<IAccountingConfigDocument> {
   getConfig(code: string, defaultValue?: string): Promise<any>;
+  getConfigs(codes: string[]): Promise<any>;
   createOrUpdateConfig({
     code,
     value,
@@ -28,6 +29,18 @@ export const loadAccountingConfigClass = (models) => {
       }
 
       return config.value;
+    }
+
+    /*
+     * Get a Configs
+     */
+    public static async getConfigs(codes: string[]) {
+      const configs = await models.AccountingConfigs.find({ code: { $in: codes } });
+      const result: any = {};
+      for (const code of codes) {
+        result[code] = configs.find(c => c.code === code)
+      }
+      return result;
     }
 
     /**

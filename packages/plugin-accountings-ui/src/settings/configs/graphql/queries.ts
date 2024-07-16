@@ -8,6 +8,12 @@ const configs = `
   }
 `;
 
+const configsByCode = `
+  query accountingsConfigsByCode($codes: [String]) {
+    accountingsConfigsByCode(codes: $codes)
+  }
+`;
+
 const getRate = `
   query accountingsGetRate ($currency: String, $date: Date) {
     accountingsGetRate (currency: $currency, date: $date) {
@@ -24,5 +30,6 @@ const getRate = `
 
 export default {
   configs,
+  configsByCode,
   getRate
 };

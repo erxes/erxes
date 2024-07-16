@@ -11,8 +11,7 @@ import {
 import TransactionForm from "../components/TransactionForm";
 import { mutations, queries } from "../graphql";
 import { queries as configsQueries } from "../../settings/configs/graphql";
-import { AccountsQueryResponse } from "../../settings/accounts/types";
-import { AccountingsConfigsQueryResponse, IAccountingsConfig } from "../../settings/configs/types";
+import { AccountingsConfigsByCodeQueryResponse, IAccountingsConfig } from "../../settings/configs/types";
 
 type Props = {
   parentId?: string;
@@ -25,7 +24,7 @@ const PosContainer = (props: Props) => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const configsQuery = useQuery<AccountingsConfigsQueryResponse>(
+  const configsQuery = useQuery<AccountingsConfigsByCodeQueryResponse>(
     gql(configsQueries.configs)
   )
 
@@ -52,13 +51,8 @@ const PosContainer = (props: Props) => {
   }
 
   let transactions = trDetailQuery?.data?.transactionDetail;
-  const configs = configsQuery.data?.accountingsConfigs || [];
-  const configsMap = {};
-
-  for (const config of configs) {
-    configsMap[config.code] = config.value;
-  }
-
+  const configsMap = configsQuery.data?.accountingsConfigsByCode || {};
+  
   const save = (docs) => {
     setLoading(true);
 

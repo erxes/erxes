@@ -19,7 +19,6 @@ export default class CurrencyTr {
     this.doc = doc;
   }
 
-
   public checkValidationCurrency = async () => {
     const detail = this.doc.details[0];
     if (!detail) {

@@ -23,6 +23,11 @@ type Props = {
 
 const VatFields = (props: Props) => {
   const { trDoc, setTrDoc, onChangeDetail, configsMap } = props;
+
+  if (!configsMap.HasVat && !trDoc.hasVat) {
+    return null;
+  }
+
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
   if (!trDoc.hasVat) {
