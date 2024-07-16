@@ -52,6 +52,7 @@ function EditForm(props: Props) {
 
   useEffect(() => {
     if (item.stageId !== stageId) {
+      console.log('qqqqqqqqqqqqqqqqqqqq')
       setPrevStageId(item.stageId);
 
       saveItem({ stageId }, (updatedItem) => {
@@ -63,16 +64,12 @@ function EditForm(props: Props) {
   }, [stageId]);
 
   const onChangeStage = (stageId: string) => {
+    console.log(stageId, 'kkkkkkkkkkkkkkkkkkkk')
     setStageId(stageId)
-    const { item, saveItem, onUpdate } = props;
+    const { item } = props;
 
     if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId)
-      saveItem({ stageId }, updatedItem => {
-        if (onUpdate) {
-          onUpdate(updatedItem, prevStageId);
-        }
-      });
+      setPrevStageId(item.stageId) 
     }
   };
 
