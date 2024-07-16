@@ -65,7 +65,7 @@ const boardQueries = {
   /**
    *  Boards list
    */
-  async boards(
+  async salesBoards(
     _root,
     { type }: { type: string },
     { user, commonQuerySelector, models: { Boards }, res }: IContext
@@ -117,7 +117,7 @@ const boardQueries = {
   /**
    *  Boards count
    */
-  async boardCounts(
+  async salesBoardCounts(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards, Pipelines } }: IContext
@@ -154,7 +154,7 @@ const boardQueries = {
   /**
    *  Board detail
    */
-  async boardDetail(
+  async salesBoardDetail(
     _root,
     { _id }: { _id: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -165,7 +165,7 @@ const boardQueries = {
   /**
    * Get last board
    */
-  async boardGetLast(
+  async salesBoardGetLast(
     _root,
     { type }: { type: string },
     { commonQuerySelector, models: { Boards } }: IContext
@@ -180,7 +180,7 @@ const boardQueries = {
   /**
    *  Pipelines list
    */
-  async pipelines(
+  async salesPipelines(
     _root,
     {
       boardId,
@@ -260,7 +260,7 @@ const boardQueries = {
     return Pipelines.find(query).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async pipelineStateCount(
+  async salesPipelineStateCount(
     _root,
     { boardId, type }: { boardId: string; type: string },
     { models: { Pipelines } }: IContext
@@ -317,7 +317,7 @@ const boardQueries = {
   /**
    *  Pipeline detail
    */
-  async pipelineDetail(
+  async salesPipelineDetail(
     _root,
     { _id }: { _id: string },
     { models: { Pipelines } }: IContext
@@ -328,7 +328,7 @@ const boardQueries = {
   /**
    *  Pipeline related assigned users
    */
-  async pipelineAssignedUsers(
+  async salesPipelineAssignedUsers(
     _root,
     { _id }: { _id: string },
     { models }: IContext
@@ -353,7 +353,7 @@ const boardQueries = {
   /**
    *  Stages list
    */
-  async stages(
+  async salesStages(
     _root,
     {
       pipelineId,
@@ -414,7 +414,7 @@ const boardQueries = {
     return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async itemsCountByAssignedUser(
+  async salesItemsCountByAssignedUser(
     _root,
     {
       pipelineId,
@@ -558,7 +558,7 @@ const boardQueries = {
   /**
    *  Stage detail
    */
-  async stageDetail(
+  async salesStageDetail(
     _root,
     { _id }: { _id: string },
     { models: { Stages } }: IContext
@@ -570,7 +570,7 @@ const boardQueries = {
    *  Archived stages
    */
 
-  async archivedStages(
+  async salesArchivedStages(
     _root,
     {
       pipelineId,
@@ -588,7 +588,7 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  async archivedStagesCount(
+  async salesArchivedStagesCount(
     _root,
     { pipelineId, search }: { pipelineId: string; search?: string },
     { models: { Stages } }: IContext
@@ -605,7 +605,7 @@ const boardQueries = {
   /**
    *  ConvertTo info
    */
-  async convertToInfo(
+  async salesConvertToInfo(
     _root,
     { conversationId }: { conversationId: string },
     { models: { Deals, Stages, Pipelines, Boards } }: IContext
@@ -628,7 +628,7 @@ const boardQueries = {
     };
   },
 
-  async itemsCountBySegments(
+  async salesItemsCountBySegments(
     _root,
     {
       type,
@@ -663,11 +663,11 @@ const boardQueries = {
     return counts;
   },
 
-  async boardContentTypeDetail(_root, args, { subdomain }: IContext) {
+  async salesBoardContentTypeDetail(_root, args, { subdomain }: IContext) {
     return getContentTypeDetail(subdomain, args);
   },
 
-  async boardLogs(_root, args, { subdomain, models }: IContext) {
+  async salesBoardLogs(_root, args, { subdomain, models }: IContext) {
     const { Deals, Stages } = models;
     const { action, content, contentType, contentId } = args;
 
@@ -740,7 +740,7 @@ const boardQueries = {
     }
   },
 
-  async cardsFields(_root, _args, { models, subdomain }: IContext) {
+  async salesCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
     for (const ct of ["deal"]) {
@@ -793,7 +793,7 @@ const boardQueries = {
     return result;
   },
 
-  async checkFreeTimes(
+  async salesCheckFreeTimes(
     _root,
     { pipelineId, intervals },
     { models, subdomain }: IContext

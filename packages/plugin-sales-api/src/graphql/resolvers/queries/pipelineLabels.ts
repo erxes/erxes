@@ -1,14 +1,14 @@
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
 
 const pipelineLabelQueries = {
   /**
    *  Pipeline label list
    */
-  async pipelineLabels(
+  async salesPipelineLabels(
     _root,
     { pipelineId, pipelineIds }: { pipelineId: string; pipelineIds: string[] },
-    { models: { PipelineLabels } }: IContext,
+    { models: { PipelineLabels } }: IContext
   ) {
     const filter: any = {};
 
@@ -24,13 +24,13 @@ const pipelineLabelQueries = {
   /**
    *  Pipeline label detail
    */
-  async pipelineLabelDetail(
+  async salesPipelineLabelDetail(
     _root,
     { _id }: { _id: string },
-    { models: { PipelineLabels } }: IContext,
+    { models: { PipelineLabels } }: IContext
   ) {
     return PipelineLabels.findOne({ _id });
-  },
+  }
 };
 
 moduleRequireLogin(pipelineLabelQueries);

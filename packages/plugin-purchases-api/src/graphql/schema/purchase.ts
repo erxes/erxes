@@ -8,7 +8,7 @@ import {
 } from "./common";
 
 export const types = ({ contacts, tags }) => `
-  type PurchaseListItem @key(fields: "_id") {
+  type PurchasesListItem @key(fields: "_id") {
     products: JSON
     unUsedAmount: JSON
     amount: JSON
@@ -16,7 +16,7 @@ export const types = ({ contacts, tags }) => `
     ${commonListTypes}
   }
 
-  type Purchase @key(fields: "_id") {
+  type Purchases @key(fields: "_id") {
     _id: String!
     unUsedAmount: JSON
     amount: JSON
@@ -38,7 +38,7 @@ export const types = ({ contacts, tags }) => `
     ${commonTypes}
   }
 
-  type PurchaseTotalCurrency {
+  type PurchasesTotalCurrency {
     amount: Float
     name: String
   }
@@ -53,17 +53,17 @@ export const types = ({ contacts, tags }) => `
   }
 
 
-  type PurchaseTotalForType {
+  type PurchasesTotalForType {
     _id: String
     name: String
-    currencies: [PurchaseTotalCurrency]
+    currencies: [PurchasesTotalCurrency]
   }
 
-  input PurchaseProductField {
+  input PurchasesProductField {
     productId : String
     quantity: Int
   }
-  input PurchaseExpenseInput {
+  input PurchasesExpenseInput {
     _id: String
     name: String
     description: String
@@ -78,7 +78,7 @@ const purchaseMutationParams = `
 
 const commonQueryParams = `
   _ids: [String]
-  date: PurchaseItemDate
+  date: PurchasesItemDate
   parentId:String
   pipelineId: String
   pipelineIds: [String]
@@ -140,22 +140,22 @@ const archivedPurchasesParams = `
  `;
 
 export const queries = `
- purchaseDetail(_id: String!): Purchase
- purchasecheckDiscount(_id: String!,products:[PurchaseProductField]):JSON
- purchases(${listQueryParams}): [PurchaseListItem]
+ purchaseDetail(_id: String!): Purchases
+ purchasecheckDiscount(_id: String!,products:[PurchasesProductField]):JSON
+ purchases(${listQueryParams}): [PurchasesListItem]
  purchasesTotalCount(${listQueryParams}): Int
  archivedPurchases(
    page: Int
    perPage: Int
    ${archivedPurchasesParams}
- ): [Purchase]
+ ): [Purchases]
  archivedPurchasesCount(
    ${archivedPurchasesParams}
  ): Int
  purchasesTotalAmounts(
    ${commonQueryParams}
    ${conformityQueryFields}
- ): [PurchaseTotalForType]
+ ): [PurchasesTotalForType]
   expenses: [Expense]
   expensesTotalCount: JSON
   expenseDetail(_id: String!): Expense
@@ -163,15 +163,15 @@ export const queries = `
 `;
 
 export const mutations = `
- purchasesAdd(name: String!, ${copyParams}, ${purchaseMutationParams}, ${commonMutationParams}): Purchase
- purchasesEdit(_id: String!, name: String, ${purchaseMutationParams}, ${commonMutationParams}): Purchase
- purchasesChange(${commonDragParams}): Purchase
- purchasesRemove(_id: String!): Purchase
- purchasesWatch(_id: String, isAdd: Boolean): Purchase
- purchasesCopy(_id: String!, proccessId: String): Purchase
+ purchasesAdd(name: String!, ${copyParams}, ${purchaseMutationParams}, ${commonMutationParams}): Purchases
+ purchasesEdit(_id: String!, name: String, ${purchaseMutationParams}, ${commonMutationParams}): Purchases
+ purchasesChange(${commonDragParams}): Purchases
+ purchasesRemove(_id: String!): Purchases
+ purchasesWatch(_id: String, isAdd: Boolean): Purchases
+ purchasesCopy(_id: String!, proccessId: String): Purchases
  purchasesArchive(stageId: String!, proccessId: String): String
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- purchaseManageExpenses(expenseDocs: [PurchaseExpenseInput]): [Expense]
+ purchaseManageExpenses(expenseDocs: [PurchasesExpenseInput]): [Expense]
 `;

@@ -32,14 +32,14 @@ const commonParams = `
 `;
 
 export const queries = `
-  pipelineTemplates(type: String!): [PurchasePipelineTemplate]
-  pipelineTemplateDetail(_id: String!): PurchasePipelineTemplate
-  pipelineTemplatesTotalCount: Int
+  purchasesPipelineTemplates(type: String!): [PurchasePipelineTemplate]
+  purchasesPipelineTemplateDetail(_id: String!): PurchasePipelineTemplate
+  purchasesPipelineTemplatesTotalCount: Int
 `;
 
 export const mutations = `
-  pipelineTemplatesAdd(${commonParams}): PurchasePipelineTemplate
-  pipelineTemplatesEdit(_id: String!, ${commonParams}): PurchasePipelineTemplate
-  pipelineTemplatesRemove(_id: String!): JSON
-  pipelineTemplatesDuplicate(_id: String!): PurchasePipelineTemplate
+  purchasesPipelineTemplatesAdd(${commonParams}): PurchasePipelineTemplate
+  purchasesPipelineTemplatesEdit(_id: String!, ${commonParams}): PurchasePipelineTemplate
+  purchasesPipelineTemplatesRemove(_id: String!): JSON
+  purchasesPipelineTemplatesDuplicate(_id: String!): PurchasePipelineTemplate
 `;

@@ -10,7 +10,7 @@ export const types = ({ tags }) => `
     _id: String!
     name: String!
     ${commonTypes}
-    purchasePipelines: [PurchasePipeline]
+    purchasesPipelines: [PurchasePipeline]
   }
 
   type PurchasePipeline @key(fields: "_id") {
@@ -94,7 +94,7 @@ export const types = ({ tags }) => `
     count: Int
   }
 
-  input PurchaseItemDate {
+  input PurchasesItemDate {
     month: Int
     year: Int
   }
@@ -130,14 +130,14 @@ const stageParams = `
 `;
 
 export const queries = `
-  purchaseBoards(type: String!): [PurchaseBoard]
+  purchasesBoards(type: String!): [PurchaseBoard]
   boardCounts(type: String!): [PurchaseBoardCount]
   boardGetLast(type: String!): PurchaseBoard
   boardDetail(_id: String!): PurchaseBoard
-  purchasePipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [PurchasePipeline]
+  purchasesPipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [PurchasePipeline]
   pipelineDetail(_id: String!): PurchasePipeline
   pipelineAssignedUsers(_id: String!): [User]
-  purchaseStages(
+  purchasesStages(
     isNotLost: Boolean,
     isAll: Boolean,
     pipelineId: String,
@@ -166,7 +166,7 @@ const pipelineParams = `
   name: String!,
   boardId: String!,
   type: String!,
-  purchaseStages: JSON,
+  purchasesStages: JSON,
   visibility: String!,
   memberIds: [String],
   tagId: String,
@@ -186,22 +186,22 @@ const pipelineParams = `
 `;
 
 export const mutations = `
-  purchaseBoardsAdd(${commonParams}): PurchaseBoard
-  purchaseBoardsEdit(_id: String!, ${commonParams}): PurchaseBoard
-  purchaseBoardsRemove(_id: String!): JSON
-  purchaseBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
-  purchaseBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
+  purchasesBoardsAdd(${commonParams}): PurchaseBoard
+  purchasesBoardsEdit(_id: String!, ${commonParams}): PurchaseBoard
+  purchasesBoardsRemove(_id: String!): JSON
+  purchasesBoardItemUpdateTimeTracking(_id: String!, type: String!, status: String!, timeSpent: Int!, startDate: String): JSON
+  purchasesBoardItemsSaveForGanttTimeline(items: JSON, links: JSON, type: String!): String
 
-  purchasePipelinesAdd(${commonParams}, ${pipelineParams}): PurchasePipeline
-  purchasePipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): PurchasePipeline
-  purchasePipelinesUpdateOrder(orders: [OrderItem]): [PurchasePipeline]
-  purchasePipelinesWatch(_id: String!, isAdd: Boolean, type: String!): PurchasePipeline
-  purchasePipelinesRemove(_id: String!): JSON
-  purchasePipelinesArchive(_id: String!): JSON
-  purchasePipelinesCopied(_id: String!): JSON
+  purchasesPipelinesAdd(${commonParams}, ${pipelineParams}): PurchasePipeline
+  purchasesPipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): PurchasePipeline
+  purchasesPipelinesUpdateOrder(orders: [PurchasesOrderItem]): [PurchasePipeline]
+  purchasesPipelinesWatch(_id: String!, isAdd: Boolean, type: String!): PurchasePipeline
+  purchasesPipelinesRemove(_id: String!): JSON
+  purchasesPipelinesArchive(_id: String!): JSON
+  purchasesPipelinesCopied(_id: String!): JSON
 
-  purchaseStagesUpdateOrder(orders: [OrderItem]): [PurchaseStage]
-  purchaseStagesRemove(_id: String!): JSON
-  purchaseStagesEdit(_id: String!, type: String, name: String, status: String): PurchaseStage
-  purchaseStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
+  purchasesStagesUpdateOrder(orders: [PurchasesOrderItem]): [PurchaseStage]
+  purchasesStagesRemove(_id: String!): JSON
+  purchasesStagesEdit(_id: String!, type: String, name: String, status: String): PurchaseStage
+  purchasesStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String
 `;

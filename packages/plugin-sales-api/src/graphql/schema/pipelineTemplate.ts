@@ -18,7 +18,7 @@ export const types = `
     description: String
     type: String
     isDefinedByErxes: Boolean
-    stages: [PipelineTemplateStage]
+    stages: [SalesPipelineTemplateStage]
     createdBy: String
     createdAt: Date
   }
@@ -32,14 +32,14 @@ const commonParams = `
 `;
 
 export const queries = `
-  pipelineTemplates(type: String!): [SalesPipelineTemplate]
-  pipelineTemplateDetail(_id: String!): SalesPipelineTemplate
+  salesPipelineTemplates(type: String!): [SalesPipelineTemplate]
+  salesPipelineTemplateDetail(_id: String!): SalesPipelineTemplate
   pipelineTemplatesTotalCount: Int
 `;
 
 export const mutations = `
-  pipelineTemplatesAdd(${commonParams}): SalesPipelineTemplate
-  pipelineTemplatesEdit(_id: String!, ${commonParams}): SalesPipelineTemplate
-  pipelineTemplatesRemove(_id: String!): JSON
-  pipelineTemplatesDuplicate(_id: String!): SalesPipelineTemplate
+  salesPipelineTemplatesAdd(${commonParams}): SalesPipelineTemplate
+  salesPipelineTemplatesEdit(_id: String!, ${commonParams}): SalesPipelineTemplate
+  salesPipelineTemplatesRemove(_id: String!): JSON
+  salesPipelineTemplatesDuplicate(_id: String!): SalesPipelineTemplate
 `;

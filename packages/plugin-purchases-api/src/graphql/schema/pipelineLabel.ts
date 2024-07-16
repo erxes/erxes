@@ -1,5 +1,5 @@
 export const types = `
-  type PurchasePipelineLabel @key(fields: "_id") {
+  type PurchasesPipelineLabel @key(fields: "_id") {
     _id: String!
     name: String!
     colorCode: String
@@ -16,13 +16,13 @@ const commonParams = `
 `;
 
 export const queries = `
-  purchasePipelineLabels(pipelineId: String, pipelineIds: [String]): [PurchasePipelineLabel]
-  purchasePipelineLabelDetail(_id: String!): PurchasePipelineLabel
+  purchasesPipelineLabels(pipelineId: String, pipelineIds: [String]): [PurchasesPipelineLabel]
+  purchasesPipelineLabelDetail(_id: String!): PurchasesPipelineLabel
 `;
 
 export const mutations = `
-  purchasePipelineLabelsAdd(${commonParams}): PurchasePipelineLabel
-  purchasePipelineLabelsEdit(_id: String!, ${commonParams}): PurchasePipelineLabel
-  purchasePipelineLabelsRemove(_id: String!): JSON
-  purchasePipelineLabelsLabel(pipelineId: String!, targetId: String!, labelIds: [String!]!): String
+  purchasesPipelineLabelsAdd(${commonParams}): PurchasesPipelineLabel
+  purchasesPipelineLabelsEdit(_id: String!, ${commonParams}): PurchasesPipelineLabel
+  purchasesPipelineLabelsRemove(_id: String!): JSON
+  purchasesPipelineLabelsLabel(pipelineId: String!, targetId: String!, labelIds: [String!]!): String
 `;

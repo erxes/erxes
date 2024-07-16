@@ -16,13 +16,13 @@ const commonParams = `
 `;
 
 export const queries = `
-  pipelineLabels(pipelineId: String, pipelineIds: [String]): [SalesPipelineLabel]
-  pipelineLabelDetail(_id: String!): PipelineLabel
+  salesPipelineLabels(pipelineId: String, pipelineIds: [String]): [SalesPipelineLabel]
+  salesPipelineLabelDetail(_id: String!): SalesPipelineLabel
 `;
 
 export const mutations = `
-  pipelineLabelsAdd(${commonParams}): SalesPipelineLabel
-  pipelineLabelsEdit(_id: String!, ${commonParams}): SalesPipelineLabel
-  pipelineLabelsRemove(_id: String!): JSON
-  pipelineLabelsLabel(pipelineId: String!, targetId: String!, labelIds: [String!]!): String
+  salesPipelineLabelsAdd(${commonParams}): SalesPipelineLabel
+  salesPipelineLabelsEdit(_id: String!, ${commonParams}): SalesPipelineLabel
+  salesPipelineLabelsRemove(_id: String!): JSON
+  salesPipelineLabelsLabel(pipelineId: String!, targetId: String!, labelIds: [String!]!): String
 `;

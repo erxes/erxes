@@ -14,7 +14,7 @@ export const types = `
     title: String
     createdUserId: String
     createdDate: Date
-    items: [ChecklistItem]
+    items: [SalesChecklistItem]
     percent: Float
   }
 

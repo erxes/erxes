@@ -1,17 +1,17 @@
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { checkPermission } from '../../utils';
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { checkPermission } from "../../utils";
 
 const pipelineTemplateQueries = {
   /**
    *  Pipeline template list
    */
-  async pipelineTemplates(
+  async salesPipelineTemplates(
     _root,
     { type }: { type: string },
     { user, subdomain, models, commonQuerySelector }: IContext
   ) {
-    await checkPermission(models, subdomain, type, user, 'showTemplates');
+    await checkPermission(models, subdomain, type, user, "showTemplates");
 
     const filter = { ...commonQuerySelector, type };
 
@@ -21,21 +21,20 @@ const pipelineTemplateQueries = {
   /**
    *  Pipeline template detail
    */
-  async pipelineTemplateDetail(
+  async salesPipelineTemplateDetail(
     _root,
     { _id }: { _id: string },
     { user, subdomain, models }: IContext
   ) {
-    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
-      _id
-    );
+    const pipelineTemplate =
+      await models.PipelineTemplates.getPipelineTemplate(_id);
 
     await checkPermission(
       models,
       subdomain,
       pipelineTemplate.type,
       user,
-      'showTemplates'
+      "showTemplates"
     );
 
     return models.PipelineTemplates.findOne({ _id });
@@ -44,7 +43,7 @@ const pipelineTemplateQueries = {
   /**
    *  Pipeline template total count
    */
-  async pipelineTemplatesTotalCount(
+  async salesPipelineTemplatesTotalCount(
     _root,
     _args,
     { models: { PipelineTemplates } }: IContext

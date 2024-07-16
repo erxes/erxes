@@ -1,6 +1,6 @@
-import { IPipelineLabel } from '../../../models/definitions/pipelineLabels';
-import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
-import { IContext } from '../../../connectionResolver';
+import { IPipelineLabel } from "../../../models/definitions/pipelineLabels";
+import { putCreateLog, putUpdateLog, putDeleteLog } from "../../../logUtils";
+import { IContext } from "../../../connectionResolver";
 
 interface IPipelineLabelsEdit extends IPipelineLabel {
   _id: string;
@@ -10,7 +10,7 @@ const pipelineLabelMutations = {
   /**
    * Creates a new pipeline label
    */
-  async pipelineLabelsAdd(
+  async purchasesPipelineLabelsAdd(
     _root,
     { ...doc }: IPipelineLabel,
     { user, models, subdomain }: IContext
@@ -24,7 +24,7 @@ const pipelineLabelMutations = {
       models,
       subdomain,
       {
-        type: 'pipelineLabel',
+        type: "pipelineLabel",
         newData: {
           ...doc,
           createdBy: user._id,
@@ -41,7 +41,7 @@ const pipelineLabelMutations = {
   /**
    * Edit pipeline label
    */
-  async pipelineLabelsEdit(
+  async purchasesPipelineLabelsEdit(
     _root,
     { _id, ...doc }: IPipelineLabelsEdit,
     { user, models, subdomain }: IContext
@@ -53,7 +53,7 @@ const pipelineLabelMutations = {
       models,
       subdomain,
       {
-        type: 'pipelineLabel',
+        type: "pipelineLabel",
         newData: doc,
         object: pipelineLabel
       },
@@ -66,7 +66,7 @@ const pipelineLabelMutations = {
   /**
    * Remove pipeline label
    */
-  async pipelineLabelsRemove(
+  async purchasesPipelineLabelsRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -77,7 +77,7 @@ const pipelineLabelMutations = {
     await putDeleteLog(
       models,
       subdomain,
-      { type: 'pipelineLabel', object: pipelineLabel },
+      { type: "pipelineLabel", object: pipelineLabel },
       user
     );
 
@@ -87,7 +87,7 @@ const pipelineLabelMutations = {
   /**
    * Attach a label
    */
-  async pipelineLabelsLabel(
+  async purchasesPipelineLabelsLabel(
     _root,
     {
       pipelineId,

@@ -10,7 +10,7 @@ const pipelineLabelMutations = {
   /**
    * Creates a new pipeline label
    */
-  async pipelineLabelsAdd(
+  async salesPipelineLabelsAdd(
     _root,
     { ...doc }: IPipelineLabel,
     { user, models, subdomain }: IContext
@@ -41,7 +41,7 @@ const pipelineLabelMutations = {
   /**
    * Edit pipeline label
    */
-  async pipelineLabelsEdit(
+  async salesPipelineLabelsEdit(
     _root,
     { _id, ...doc }: IPipelineLabelsEdit,
     { user, models, subdomain }: IContext
@@ -66,7 +66,7 @@ const pipelineLabelMutations = {
   /**
    * Remove pipeline label
    */
-  async pipelineLabelsRemove(
+  async salesPipelineLabelsRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -87,7 +87,7 @@ const pipelineLabelMutations = {
   /**
    * Attach a label
    */
-  async pipelineLabelsLabel(
+  async salesPipelineLabelsLabel(
     _root,
     {
       pipelineId,

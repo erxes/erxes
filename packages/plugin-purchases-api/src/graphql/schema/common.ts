@@ -70,7 +70,7 @@ export const commonTypes = `
 
   assignedUsers: [User]
   stage: PurchaseStage
-  labels: [PurchasePipelineLabel]
+  labels: [PurchasesPipelineLabel]
   pipeline: PurchasePipeline
   createdUser: User
   customFieldsData: JSON

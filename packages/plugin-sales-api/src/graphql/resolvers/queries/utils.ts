@@ -10,7 +10,6 @@ import { getNextMonth, getToday, regexSearchText } from "@erxes/api-utils/src";
 import { IListParams } from "./boards";
 import {
   fetchSegment,
-  sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,

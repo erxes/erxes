@@ -10,7 +10,7 @@ export const types = ({ tags }) => `
     _id: String!
     name: String!
     ${commonTypes}
-    pipelines: [Pipeline]
+    pipelines: [SalesPipeline]
   }
 
   type SalesPipeline @key(fields: "_id") {
@@ -154,7 +154,7 @@ export const queries = `
   salesCardsFields: JSON
   salesBoardContentTypeDetail(contentType: String, contentId: String): JSON
   salesBoardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  salesCheckFreeTimes(pipelineId: String, intervals: [Interval]): JSON
+  salesCheckFreeTimes(pipelineId: String, intervals: [SalesInterval]): JSON
 `;
 
 const commonParams = `
@@ -194,13 +194,13 @@ export const mutations = `
 
   salesPipelinesAdd(${commonParams}, ${pipelineParams}): SalesPipeline
   salesPipelinesEdit(_id: String!, ${commonParams}, ${pipelineParams}): SalesPipeline
-  salesPipelinesUpdateOrder(orders: [OrderItem]): [SalesPipeline]
+  salesPipelinesUpdateOrder(orders: [SalesOrderItem]): [SalesPipeline]
   salesPipelinesWatch(_id: String!, isAdd: Boolean, type: String!): SalesPipeline
   salesPipelinesRemove(_id: String!): JSON
   salesPipelinesArchive(_id: String!): JSON
   salesPipelinesCopied(_id: String!): JSON
 
-  salesStagesUpdateOrder(orders: [OrderItem]): [SalesStage]
+  salesStagesUpdateOrder(orders: [SalesOrderItem]): [SalesStage]
   salesStagesRemove(_id: String!): JSON
   salesStagesEdit(_id: String!, type: String, name: String, status: String): SalesStage
   salesStagesSortItems(stageId: String!, type: String, proccessId: String, sortType: String): String

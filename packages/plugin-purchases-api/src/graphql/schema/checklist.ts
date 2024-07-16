@@ -1,5 +1,5 @@
 export const types = `
-  type PurchaseChecklistItem {
+  type PurchasesChecklistItem {
     _id: String!
     checklistId: String
     isChecked: Boolean
@@ -7,31 +7,31 @@ export const types = `
     order: Int
   }
 
-  type PurchaseChecklist {
+  type PurchasesChecklist {
     _id: String!
     contentType: String
     contentTypeId: String
     title: String
     createdUserId: String
     createdDate: Date
-    items: [PurchaseChecklistItem]
+    items: [PurchasesChecklistItem]
     percent: Float
   }
 
 `;
 
 export const queries = `
-  purchaseChecklists(contentType: String, contentTypeId: String): [PurchaseChecklist]
-  purchaseChecklistDetail(_id: String!): PurchaseChecklist
+  purchasesChecklists(contentType: String, contentTypeId: String): [PurchasesChecklist]
+  purchasesChecklistDetail(_id: String!): PurchasesChecklist
 `;
 
 export const mutations = `
-  purchaseChecklistsAdd(contentType: String, contentTypeId: String, title: String): PurchaseChecklist
-  purchaseChecklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): PurchaseChecklist
-  purchaseChecklistsRemove(_id: String!): PurchaseChecklist
-  purchaseChecklistItemsOrder(_id: String!, destinationIndex: Int): PurchaseChecklistItem
+  purchasesChecklistsAdd(contentType: String, contentTypeId: String, title: String): PurchasesChecklist
+  purchasesChecklistsEdit(_id: String!, title: String, contentType: String, contentTypeId: String,): PurchasesChecklist
+  purchasesChecklistsRemove(_id: String!): PurchasesChecklist
+  purchasesChecklistItemsOrder(_id: String!, destinationIndex: Int): PurchasesChecklistItem
 
-  purchaseChecklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): PurchaseChecklistItem
-  purchaseChecklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): PurchaseChecklistItem
-  purchaseChecklistItemsRemove(_id: String!): PurchaseChecklistItem
+  purchasesChecklistItemsAdd(checklistId: String, content: String, isChecked: Boolean): PurchasesChecklistItem
+  purchasesChecklistItemsEdit(_id: String!, checklistId: String, content: String, isChecked: Boolean): PurchasesChecklistItem
+  purchasesChecklistItemsRemove(_id: String!): PurchasesChecklistItem
 `;

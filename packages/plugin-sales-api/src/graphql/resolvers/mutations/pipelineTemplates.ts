@@ -17,7 +17,7 @@ const pipelineTemplateMutations = {
   /**
    * Create new pipeline template
    */
-  async pipelineTemplatesAdd(
+  async salesPipelineTemplatesAdd(
     _root,
     { stages, ...doc }: IPipelineTemplate,
     { user, docModifier, models, subdomain }: IContext
@@ -47,7 +47,7 @@ const pipelineTemplateMutations = {
   /**
    * Edit pipeline template
    */
-  async pipelineTemplatesEdit(
+  async salesPipelineTemplatesEdit(
     _root,
     { _id, stages, ...doc }: IPipelineTemplatesEdit,
     { user, models, subdomain }: IContext
@@ -80,7 +80,7 @@ const pipelineTemplateMutations = {
   /**
    * Duplicate pipeline template
    */
-  async pipelineTemplatesDuplicate(
+  async salesPipelineTemplatesDuplicate(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
@@ -111,7 +111,7 @@ const pipelineTemplateMutations = {
   /**
    * Remove pipeline template
    */
-  async pipelineTemplatesRemove(
+  async salesPipelineTemplatesRemove(
     _root,
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
