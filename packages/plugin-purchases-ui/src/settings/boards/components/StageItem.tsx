@@ -3,12 +3,12 @@ import { __, generateTree } from "coreui/utils";
 import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IDepartment } from "@erxes/ui/src/team/types";
-import { IStage } from "@erxes/ui-sales/src/boards/types";
+import { IStage } from "@erxes/ui-purchases/src/boards/types";
 import { PROBABILITY } from "../constants";
 import React from "react";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { StageItemContainer } from "@erxes/ui-sales/src/settings/boards/styles";
+import { StageItemContainer } from "@erxes/ui-purchases/src/settings/boards/styles";
 
 type Props = {
   stage: IStage;
@@ -147,7 +147,7 @@ class StageItem extends React.Component<Props> {
           onChange={onChangeFormControl.bind(this, stage._id)}
         />
 
-        {(["deal", "purchase"].includes(type) && (
+        {(["purchase"].includes(type) && (
           <FormControl
             componentclass="checkbox"
             checked={

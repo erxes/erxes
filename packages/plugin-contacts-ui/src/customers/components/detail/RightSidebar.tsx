@@ -7,7 +7,7 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import { ICustomer } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { List } from "../../../companies/styles";
-import PortabelPurchases from "@erxes/ui-sales/src/purchases/components/PortablePurchases";
+import PortabelPurchases from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
 import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
 import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
@@ -83,11 +83,6 @@ export default class RightSidebar extends React.Component<Props> {
         <CompanySection mainType="customer" mainTypeId={customer._id} />
         {isEnabled("cards") && (
           <>
-            <PortableDeals
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
             <PortableTickets
               mainType="customer"
               mainTypeId={customer._id}
@@ -98,6 +93,21 @@ export default class RightSidebar extends React.Component<Props> {
               mainTypeId={customer._id}
               mainTypeName={mainTypeName}
             />
+          </>
+        )}
+
+        {isEnabled("sales") && (
+          <>
+            <PortableDeals
+              mainType="customer"
+              mainTypeId={customer._id}
+              mainTypeName={mainTypeName}
+            />
+          </>
+        )}
+
+        {isEnabled("purchases") && (
+          <>
             <PortabelPurchases
               mainType="customer"
               mainTypeId={customer._id}

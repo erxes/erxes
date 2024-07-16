@@ -1,4 +1,4 @@
-import { getDefaultBoardAndPipelines } from "@erxes/ui-sales/src/boards/utils";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-purchases/src/boards/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 import React from "react";
@@ -8,7 +8,7 @@ import { Navigate } from "react-router-dom";
 const Calendar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Calendar" */ "@erxes/ui-sales/src/boards/components/Calendar"
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-purchases/src/boards/components/Calendar"
     )
 );
 

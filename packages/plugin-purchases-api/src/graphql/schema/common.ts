@@ -69,9 +69,9 @@ export const commonTypes = `
   tagIds: [String]
 
   assignedUsers: [User]
-  stage: PurchaseStage
+  stage: PurchasesStage
   labels: [PurchasesPipelineLabel]
-  pipeline: PurchasePipeline
+  pipeline: PurchasesPipeline
   createdUser: User
   customFieldsData: JSON
   score: Float

@@ -1,7 +1,7 @@
-import { renderAmount } from "@erxes/ui-sales/src/boards/utils";
+import { renderAmount } from "@erxes/ui-purchases/src/boards/utils";
 import Tip from "@erxes/ui/src/components/Tip";
 import { getUserAvatar } from "@erxes/ui/src/utils";
-import { IPurchase } from "@erxes/ui-sales/src/purchases/types";
+import { IPurchase } from "@erxes/ui-purchases/src/purchases/types";
 import * as React from "react";
 import { BodyRow } from "../style";
 

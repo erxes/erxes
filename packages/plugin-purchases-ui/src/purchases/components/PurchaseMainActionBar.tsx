@@ -1,13 +1,13 @@
-import { IBoard } from "@erxes/ui-sales/src/boards/types";
-import MainActionBar from "@erxes/ui-sales/src/boards/components/MainActionBar";
+import { IBoard } from "@erxes/ui-purchases/src/boards/types";
+import MainActionBar from "@erxes/ui-purchases/src/boards/components/MainActionBar";
 import React from "react";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import { __ } from "coreui/utils";
-import { getBoardViewType } from "@erxes/ui-sales/src/boards/utils";
+import { getBoardViewType } from "@erxes/ui-purchases/src/boards/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import options from "@erxes/ui-sales/src/purchases/options";
+import options from "@erxes/ui-purchases/src/purchases/options";
 
 type Props = {
   onSearch: (search: string) => void;

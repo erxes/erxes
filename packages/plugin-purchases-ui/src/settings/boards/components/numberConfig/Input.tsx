@@ -7,7 +7,7 @@ import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 
 import { Alert } from "@erxes/ui/src/utils";
 import Attribution from "./Attribution";
-import { BoardHeader } from "@erxes/ui-sales/src/settings/boards/styles";
+import { BoardHeader } from "@erxes/ui-purchases/src/settings/boards/styles";
 import React from "react";
 
 type Props = {

@@ -1,4 +1,4 @@
-import { IBoard } from "@erxes/ui-sales/src/boards/types";
+import { IBoard } from "@erxes/ui-purchases/src/boards/types";
 import Button from "@erxes/ui/src/components/Button";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import Form from "@erxes/ui/src/components/form/Form";

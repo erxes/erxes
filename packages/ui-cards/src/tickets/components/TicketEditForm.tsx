@@ -15,7 +15,7 @@ import { ISelectedOption } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
 import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
-import PortablePurchase from "@erxes/ui-sales/src/purchases/components/PortablePurchases";
+import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import PortableTasks from "../../tasks/components/PortableTasks";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
@@ -115,9 +115,10 @@ export default function TicketEditForm(props: Props) {
         {isEnabled("sales") ?? (
           <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
         )}
-        {isEnabled("sales") ?? (
+        {isEnabled("purchases") ?? (
           <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />
         )}
+
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
 
         {loadDynamicComponent(

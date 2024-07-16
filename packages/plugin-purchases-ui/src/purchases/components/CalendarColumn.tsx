@@ -3,20 +3,20 @@ import {
   ColumnContainer,
   ColumnContentBody,
   ColumnFooter
-} from "@erxes/ui-sales/src/boards/components/Calendar";
-import { AddNew } from "@erxes/ui-sales/src/boards/styles/stage";
+} from "@erxes/ui-purchases/src/boards/components/Calendar";
+import { AddNew } from "@erxes/ui-purchases/src/boards/styles/stage";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Icon from "@erxes/ui/src/components/Icon";
 import { IDateColumn } from "@erxes/ui/src/types";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
 import styled from "styled-components";
-import options from "@erxes/ui-sales/src/purchases/options";
+import options from "@erxes/ui-purchases/src/purchases/options";
 import {
   IPurchase,
   IPurchaseTotalAmount
-} from "@erxes/ui-sales/src/purchases/types";
-import Purchase from "@erxes/ui-sales/src/purchases/components/PurchaseItem";
+} from "@erxes/ui-purchases/src/purchases/types";
+import Purchase from "@erxes/ui-purchases/src/purchases/components/PurchaseItem";
 
 type Props = {
   purchases: IPurchase[];

@@ -32,7 +32,7 @@ const PortableTickets = asyncComponent(
 const PortablePurchases = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PortablePurchases" */ "@erxes/ui-sales/src/purchases/components/PortablePurchases"
+      /* webpackChunkName: "PortablePurchases" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
     )
 );
 

@@ -3,7 +3,7 @@ import {
   EMPTY_CONTENT_PURCHASE_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE
 } from "@erxes/ui-settings/src/constants";
-import { IBoard, IPipeline } from "@erxes/ui-sales/src/boards/types";
+import { IBoard, IPipeline } from "@erxes/ui-purchases/src/boards/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { __, router } from "coreui/utils";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IOption } from "../types";
 import { Link } from "react-router-dom";
-import { PipelineCount } from "@erxes/ui-sales/src/settings/boards/styles";
+import { PipelineCount } from "@erxes/ui-purchases/src/settings/boards/styles";
 import PipelineForm from "../containers/PipelineForm";
 import PipelineRow from "./PipelineRow";
 import React, { useState, useEffect } from "react";
@@ -149,38 +149,15 @@ function Pipelines(props: Props) {
   const renderContent = () => {
     const { pipelines, options, type } = props;
 
-    const pipelineName = options?.pipelineName || "pipeline";
-
     if (pipelines.length === 0) {
-      if (type === "deal" || type === "task") {
-        return (
-          <EmptyContent
-            content={
-              type === "deal"
-                ? EMPTY_CONTENT_DEAL_PIPELINE
-                : EMPTY_CONTENT_TASK_PIPELINE
-            }
-            maxItemWidth="420px"
-          />
-        );
-      }
-
-      if (type === "purchase") {
-        return (
-          <EmptyContent
-            content={
-              type === "purchase"
-                ? EMPTY_CONTENT_PURCHASE_PIPELINE
-                : EMPTY_CONTENT_TASK_PIPELINE
-            }
-            maxItemWidth="420px"
-          />
-        );
-      }
       return (
-        <EmptyState
-          text={`Get started on your ${pipelineName.toLowerCase()}`}
-          image="/images/actions/16.svg"
+        <EmptyContent
+          content={
+            type === "purchase"
+              ? EMPTY_CONTENT_PURCHASE_PIPELINE
+              : EMPTY_CONTENT_TASK_PIPELINE
+          }
+          maxItemWidth="420px"
         />
       );
     }

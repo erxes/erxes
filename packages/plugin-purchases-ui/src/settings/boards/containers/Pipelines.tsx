@@ -10,19 +10,19 @@ import {
 import {
   BoardDetailQueryResponse,
   PipelinesQueryResponse
-} from "@erxes/ui-sales/src/boards/types";
+} from "@erxes/ui-purchases/src/boards/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import {
   mutations,
   queries
-} from "@erxes/ui-sales/src/settings/boards/graphql";
+} from "@erxes/ui-purchases/src/settings/boards/graphql";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import Pipelines from "../components/Pipelines";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { queries as boardQueries } from "@erxes/ui-sales/src/boards/graphql";
-import { getWarningMessage } from "@erxes/ui-sales/src/boards/utils";
+import { queries as boardQueries } from "@erxes/ui-purchases/src/boards/graphql";
+import { getWarningMessage } from "@erxes/ui-purchases/src/boards/utils";
 import { gql, useQuery, useMutation } from "@apollo/client";
 
 type Props = {

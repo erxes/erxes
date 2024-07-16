@@ -61,7 +61,7 @@ const PortableTickets = asyncComponent(
 const PortablePurchases = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ "@erxes/ui-sales/src/purchases/components/PortablePurchases"
+      /* webpackChunkName:"Inbox-Sidebar-PortablePurchases" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
     )
 );
 
@@ -285,10 +285,21 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
 
     return (
       <>
-        <PortableDeals mainType="customer" mainTypeId={customer._id} />
-        <PortableTickets mainType="customer" mainTypeId={customer._id} />
-        <PortableTasks mainType="customer" mainTypeId={customer._id} />
-        <PortablePurchases mainType="customer" mainTypeId={customer._id} />
+        {isEnabled("sales") && (
+          <PortableDeals mainType="customer" mainTypeId={customer._id} />
+        )}
+
+        {isEnabled("purchases") && (
+          <PortablePurchases mainType="customer" mainTypeId={customer._id} />
+        )}
+
+        {isEnabled("cards") && (
+          <PortableTickets mainType="customer" mainTypeId={customer._id} />
+        )}
+
+        {isEnabled("cards") && (
+          <PortableTasks mainType="customer" mainTypeId={customer._id} />
+        )}
       </>
     );
   }

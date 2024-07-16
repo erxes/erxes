@@ -1,4 +1,4 @@
-import { Attributes } from "@erxes/ui-sales/src/settings/boards/styles";
+import { Attributes } from "@erxes/ui-purchases/src/settings/boards/styles";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";

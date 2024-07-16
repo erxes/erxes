@@ -2,7 +2,7 @@ import * as compose from "lodash.flowright";
 
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 
-import { BoardsQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import { BoardsQueryResponse } from "@erxes/ui-purchases/src/boards/types";
 import { ControlLabel } from "@erxes/ui/src/components/form";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";
@@ -10,7 +10,7 @@ import Select from "react-select";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "@erxes/ui-sales/src/settings/boards/graphql";
+import { queries } from "@erxes/ui-purchases/src/settings/boards/graphql";
 import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {

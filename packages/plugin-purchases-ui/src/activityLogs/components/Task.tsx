@@ -19,18 +19,18 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Datetime from "@nateradebaugh/react-datetime";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IItem } from "@erxes/ui-sales/src/boards/types";
+import { IItem } from "@erxes/ui-purchases/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import Popover from "@erxes/ui/src/components/Popover";
-import { REMINDER_MINUTES } from "@erxes/ui-sales/src/boards/constants";
+import { REMINDER_MINUTES } from "@erxes/ui-purchases/src/boards/constants";
 import React from "react";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
-import { selectOptions } from "@erxes/ui-sales/src/boards/utils";
+import { selectOptions } from "@erxes/ui-purchases/src/boards/utils";
 
 type Props = {
   task: IItem;

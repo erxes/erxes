@@ -1,14 +1,14 @@
-import Board from "@erxes/ui-sales/src/boards/containers/Board";
-import MainActionBar from "@erxes/ui-sales/src/boards/containers/MainActionBar";
+import Board from "@erxes/ui-purchases/src/boards/containers/Board";
+import MainActionBar from "@erxes/ui-purchases/src/boards/containers/MainActionBar";
 import {
   BoardContainer,
   BoardContent
-} from "@erxes/ui-sales/src/boards/styles/common";
+} from "@erxes/ui-purchases/src/boards/styles/common";
 import { __ } from "@erxes/ui/src/utils/core";
 import Header from "@erxes/ui/src/layout/components/Header";
 import React from "react";
 import PurchaseMainActionBar from "./PurchaseMainActionBar";
-import options from "@erxes/ui-sales/src/purchases/options";
+import options from "@erxes/ui-purchases/src/purchases/options";
 
 type Props = {
   queryParams: any;

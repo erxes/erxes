@@ -7,7 +7,11 @@ import {
   ModalOverlay
 } from "@erxes/ui/src/styles/main";
 import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import { IBoard, IPipeline, IStage } from "@erxes/ui-sales/src/boards/types";
+import {
+  IBoard,
+  IPipeline,
+  IStage
+} from "@erxes/ui-purchases/src/boards/types";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import React, { Fragment, useEffect, useState } from "react";
 import { __, generateTree } from "coreui/utils";
@@ -27,7 +31,7 @@ import { ITag } from "@erxes/ui-tags/src/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import Select from "react-select";
-import { SelectMemberStyled } from "@erxes/ui-sales/src/settings/boards/styles";
+import { SelectMemberStyled } from "@erxes/ui-purchases/src/settings/boards/styles";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Stages from "./Stages";
 import TwitterPicker from "react-color/lib/Twitter";

@@ -1,4 +1,4 @@
-import { IConversionStagePurchase } from "@erxes/ui-sales/src/boards/types";
+import { IConversionStagePurchase } from "@erxes/ui-purchases/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import * as React from "react";
 import {

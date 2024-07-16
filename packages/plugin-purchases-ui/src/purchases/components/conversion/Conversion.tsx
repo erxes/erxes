@@ -1,8 +1,8 @@
-import MainActionBar from "@erxes/ui-sales/src/boards/containers/MainActionBar";
+import MainActionBar from "@erxes/ui-purchases/src/boards/containers/MainActionBar";
 import {
   BoardContainer,
   ScrolledContent
-} from "@erxes/ui-sales/src/boards/styles/common";
+} from "@erxes/ui-purchases/src/boards/styles/common";
 
 import { __ } from "@erxes/ui/src/utils/core";
 import Stages from "../../containers/conversion/Stages";

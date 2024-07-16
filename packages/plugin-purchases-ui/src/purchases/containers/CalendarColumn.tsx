@@ -3,23 +3,23 @@ import * as compose from "lodash.flowright";
 import {
   ColumnProps,
   getCommonParams
-} from "@erxes/ui-sales/src/boards/components/Calendar";
+} from "@erxes/ui-purchases/src/boards/components/Calendar";
 import {
   calendarColumnQuery,
   onCalendarLoadMore
-} from "@erxes/ui-sales/src/boards/utils";
+} from "@erxes/ui-purchases/src/boards/utils";
 import { IDateColumn } from "@erxes/ui/src/types";
 import { withProps } from "@erxes/ui/src/utils";
 import { getMonthTitle } from "@erxes/ui/src/utils/calendar";
 import CalendarColumn from "../components/CalendarColumn";
 import React from "react";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "@erxes/ui-sales/src/purchases/graphql";
+import { queries } from "@erxes/ui-purchases/src/purchases/graphql";
 import {
   PurchasesQueryResponse,
   PurchasesTotalAmountsQueryResponse,
   PurchasesTotalCountQueryResponse
-} from "@erxes/ui-sales/src/purchases/types";
+} from "@erxes/ui-purchases/src/purchases/types";
 
 type FinalProps = ColumnProps & {
   purchasesQuery: PurchasesQueryResponse;

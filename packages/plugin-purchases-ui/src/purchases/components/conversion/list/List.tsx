@@ -1,4 +1,4 @@
-import { IConversionStage } from "@erxes/ui-sales/src/boards/types";
+import { IConversionStage } from "@erxes/ui-purchases/src/boards/types";
 import * as React from "react";
 import { Result } from "../style";
 import Stage from "./Stage";

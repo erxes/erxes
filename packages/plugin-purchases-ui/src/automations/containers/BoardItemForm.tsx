@@ -5,10 +5,10 @@ import BoardItemForm from "../components/BoardItemForm";
 import { IAction } from "@erxes/ui-automations/src/types";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
-import { queries as pipelineQuery } from "@erxes/ui-sales/src/boards/graphql";
+import { queries as pipelineQuery } from "@erxes/ui-purchases/src/boards/graphql";
 import React from "react";
 import { AllUsersQueryResponse } from "@erxes/ui/src/auth/types";
-import { PipelineLabelsQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import { PipelineLabelsQueryResponse } from "@erxes/ui-purchases/src/boards/types";
 
 type Props = {
   activeAction: IAction;

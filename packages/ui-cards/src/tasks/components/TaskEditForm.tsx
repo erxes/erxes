@@ -17,7 +17,7 @@ import Top from "../../boards/components/editForm/Top";
 import { loadDynamicComponent } from "@erxes/ui/src/utils";
 import queryString from "query-string";
 import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
-import PortablePurchases from "@erxes/ui-sales/src/purchases/components/PortablePurchases";
+import PortablePurchases from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
@@ -66,7 +66,7 @@ export default class TaskEditForm extends React.Component<Props, State> {
         {isEnabled("sales") ?? (
           <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         )}
-        {isEnabled("sales") ?? (
+        {isEnabled("purchases") ?? (
           <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
         )}
 

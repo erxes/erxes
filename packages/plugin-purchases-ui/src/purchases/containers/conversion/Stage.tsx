@@ -1,16 +1,16 @@
 import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import { IConversionStagePurchase } from "@erxes/ui-sales/src/boards/types";
+import { IConversionStagePurchase } from "@erxes/ui-purchases/src/boards/types";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { withProps } from "@erxes/ui/src/utils";
 import Stage from "../../components/conversion/table/Stage";
-import { queries } from "@erxes/ui-sales/src/purchases/graphql";
+import { queries } from "@erxes/ui-purchases/src/purchases/graphql";
 import {
   PurchasesQueryResponse,
   IPurchase,
   IQueryParams
-} from "@erxes/ui-sales/src/purchases/types";
+} from "@erxes/ui-purchases/src/purchases/types";
 import * as React from "react";
 import { graphql } from "@apollo/client/react/hoc";
 

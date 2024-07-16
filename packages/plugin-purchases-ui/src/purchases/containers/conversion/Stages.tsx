@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import { queries } from "@erxes/ui-sales/src/boards/graphql";
-import { ConversionStagesQueryResponse } from "@erxes/ui-sales/src/boards/types";
+import { queries } from "@erxes/ui-purchases/src/boards/graphql";
+import { ConversionStagesQueryResponse } from "@erxes/ui-purchases/src/boards/types";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { withProps } from "@erxes/ui/src/utils";
