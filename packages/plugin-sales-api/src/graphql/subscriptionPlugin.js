@@ -1,13 +1,13 @@
 var { withFilter } = require("graphql-subscriptions");
 
 module.exports = {
-  name: "cards",
+  name: "sales",
   typeDefs: `
-      salesPipelinesChanged(_id: String!): PipelineChangeResponse
+      salesPipelinesChanged(_id: String!): SalesPipelineChangeResponse
 
-      salesChecklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-      salesChecklistDetailChanged(_id: String!): Checklist
-      salesProductsDataChanged(_id: String!): ProductsDataChangeResponse
+      salesChecklistsChanged(contentType: String!, contentTypeId: String!): SalesChecklist
+      salesChecklistDetailChanged(_id: String!): SalesChecklist
+      salesProductsDataChanged(_id: String!): SalesProductsDataChangeResponse
 		`,
   generateResolvers: graphqlPubsub => {
     return {
@@ -22,8 +22,8 @@ module.exports = {
             info,
             queryVariables: { _id: payload.checklistsChanged._id },
             buildQueryUsingSelections: selections => `
-              query Subscription_GetChecklist($_id: String!) {
-                checklistDetail(_id: $_id) {
+              query Subscription_SalesGetChecklist($_id: String!) {
+                salesChecklistDetail(_id: $_id) {
                   ${selections}
                 }
               }
@@ -32,7 +32,7 @@ module.exports = {
         },
         subscribe: (_, { contentType, contentTypeId }) =>
           graphqlPubsub.asyncIterator(
-            `checklistsChanged:${contentType}:${contentTypeId}`
+            `salesChecklistsChanged:${contentType}:${contentTypeId}`
           )
       },
 
@@ -43,8 +43,8 @@ module.exports = {
             info,
             queryVariables: { _id: payload.checklistDetailChanged._id },
             buildQueryUsingSelections: selections => `
-              query Subscription_GetChecklist($_id: String!) {
-                checklistDetail(_id: $_id) {
+              query Subscription_SalesGetChecklist($_id: String!) {
+                salesChecklistDetail(_id: $_id) {
                   ${selections}
                 }
               }
@@ -52,12 +52,12 @@ module.exports = {
           });
         },
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`checklistDetailChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`salesChecklistDetailChanged:${_id}`)
       },
 
       salesProductsDataChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`productsDataChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`salesProductsDataChanged:${_id}`)
       }
     };
   }

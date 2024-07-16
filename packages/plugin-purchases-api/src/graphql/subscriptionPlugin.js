@@ -1,29 +1,29 @@
 var { withFilter } = require("graphql-subscriptions");
 
 module.exports = {
-  name: "cards",
+  name: "purchases",
   typeDefs: `
-      purchasePipelinesChanged(_id: String!): PipelineChangeResponse
+      purchasesPipelinesChanged(_id: String!): PurchasesPipelineChangeResponse
 
-      purchaseChecklistsChanged(contentType: String!, contentTypeId: String!): Checklist
-      purchaseChecklistDetailChanged(_id: String!): Checklist
-      purchaseProductsDataChanged(_id: String!): ProductsDataChangeResponse
+      purchasesChecklistsChanged(contentType: String!, contentTypeId: String!): PurchasesChecklist
+      purchasesChecklistDetailChanged(_id: String!): PurchasesChecklist
+      purchasesProductsDataChanged(_id: String!): PurchasesProductsDataChangeResponse
 		`,
   generateResolvers: graphqlPubsub => {
     return {
-      purchasePipelinesChanged: {
+      purchasesPipelinesChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`pipelinesChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`purchasesPipelinesChanged:${_id}`)
       },
-      purchaseChecklistsChanged: {
+      purchasesChecklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
             queryVariables: { _id: payload.checklistsChanged._id },
             buildQueryUsingSelections: selections => `
-              query Subscription_PurchaseGetChecklist($_id: String!) {
-                checklistDetail(_id: $_id) {
+              query Subscription_PurchasesGetChecklist($_id: String!) {
+                purchasesChecklistDetail(_id: $_id) {
                   ${selections}
                 }
               }
@@ -32,19 +32,19 @@ module.exports = {
         },
         subscribe: (_, { contentType, contentTypeId }) =>
           graphqlPubsub.asyncIterator(
-            `checklistsChanged:${contentType}:${contentTypeId}`
+            `purchasesChecklistsChanged:${contentType}:${contentTypeId}`
           )
       },
 
-      purchaseChecklistDetailChanged: {
+      purchasesChecklistDetailChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
             info,
             queryVariables: { _id: payload.checklistDetailChanged._id },
             buildQueryUsingSelections: selections => `
-              query Subscription_PurchaseGetChecklist($_id: String!) {
-                checklistDetail(_id: $_id) {
+              query Subscription_PurchasesGetChecklist($_id: String!) {
+                purchasesChecklistDetail(_id: $_id) {
                   ${selections}
                 }
               }
@@ -52,12 +52,12 @@ module.exports = {
           });
         },
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`checklistDetailChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`purchasesChecklistDetailChanged:${_id}`)
       },
 
-      purchaseProductsDataChanged: {
+      purchasesProductsDataChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`productsDataChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`purchasesProductsDataChanged:${_id}`)
       }
     };
   }
