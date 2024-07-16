@@ -8,15 +8,15 @@ import {
 } from './definitions/callHistories';
 
 export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
-  getCallHistory(sessionId: string): Promise<ICallHistoryDocument>;
+  getCallHistory(timeStamp: number): Promise<ICallHistoryDocument>;
   getCallHistories(selector, user: IUser): Promise<ICallHistoryDocument>;
   getHistoriesCount(selector, user: IUser): Promise<ICallHistoryDocument>;
 }
 
 export const loadCallHistoryClass = (models: IModels) => {
   class CallHistory {
-    public static async getCallHistory(sessionId) {
-      const history = await models.CallHistory.findOne({ sessionId });
+    public static async getCallHistory(timeStamp) {
+      const history = await models.CallHistory.findOne({ timeStamp });
       return history;
     }
     public static async getCallHistories(selector, user) {
@@ -94,6 +94,6 @@ export const loadCallHistoryClass = (models: IModels) => {
   }
 
   callHistorySchema.loadClass(CallHistory);
-
+  callHistorySchema.index({ timeStamp: 1 }, { unique: true });
   return callHistorySchema;
 };
