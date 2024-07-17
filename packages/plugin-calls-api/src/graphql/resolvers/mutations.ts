@@ -245,7 +245,11 @@ const callsMutations = {
             60000,
           );
         } catch (e) {
-          return reject(`History ${doc.timeStamp} is already being processed`);
+          return reject(
+            new Error(
+              `History ${doc.timeStamp} is already being processed. ${e.errorMessage}`,
+            ),
+          );
         }
 
         try {
@@ -271,13 +275,17 @@ const callsMutations = {
 
               return resolve('Successfully edited');
             } catch (saveError) {
-              return reject(`Failed to save call history ${saveError}`);
+              return reject(
+                new Error(`Failed to save call history ${saveError}`),
+              );
             }
           } else {
             return resolve('Call history already exists');
           }
         } catch (processingError) {
-          return reject('An error occurred while processing call history');
+          return reject(
+            new Error('An error occurred while processing call history'),
+          );
         } finally {
           try {
             await lock.unlock();
@@ -293,7 +301,7 @@ const callsMutations = {
 
   async callHistoryEditStatus(
     _root,
-    { callStatus, timeStamp }: { callStatus: String; timeStamp: Number },
+    { callStatus, timeStamp }: { callStatus: string; timeStamp: number },
     { user, models }: IContext,
   ) {
     if (timeStamp && timeStamp !== 0) {
