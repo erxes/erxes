@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.15.0-rc.0](https://github.com/erxes/erxes/compare/1.14.0...1.15.0-rc.0) (2024-07-17)
+
+
+### Features
+
+* Add golomt transaction ([#5459](https://github.com/erxes/erxes/issues/5459)) ([6803fbf](https://github.com/erxes/erxes/commit/6803fbf06dfe4e752c1d317d8be0d9d845a11292))
+* Pos split order and confirm edited order ([#5411](https://github.com/erxes/erxes/issues/5411)) ([2220380](https://github.com/erxes/erxes/commit/2220380df029eeb9351086045926df2a1804ec00))
+
+
+### Bug Fixes
+
+* clientportal dropdown items and saving little bug ([#5477](https://github.com/erxes/erxes/issues/5477)) ([fa32e14](https://github.com/erxes/erxes/commit/fa32e149d2bfbace470f827daaba00f772c8168a))
+* instagram create integration bug ([857b92c](https://github.com/erxes/erxes/commit/857b92c465dca80b7ad89a1370b820050448bcc9))
+* instagram integration bugs ([a59df5e](https://github.com/erxes/erxes/commit/a59df5e23f560d1e552d9e90587093bff5339f89))
+* khanbank account name ([c2d7fc6](https://github.com/erxes/erxes/commit/c2d7fc6cb70965d99184f65c65f462d61d43d170))
+* khanbank method ([#5466](https://github.com/erxes/erxes/issues/5466)) ([dcc9f68](https://github.com/erxes/erxes/commit/dcc9f68f2fb0a533fa171a60a6976eb03a9035b1))
+* khanbank, account holder query ([#5504](https://github.com/erxes/erxes/issues/5504)) ([0e55898](https://github.com/erxes/erxes/commit/0e558981f925f3aeeedb7d9593eb2117d81e4d3d))
+* loans and savings transaction and query ([#5448](https://github.com/erxes/erxes/issues/5448)) ([be27c11](https://github.com/erxes/erxes/commit/be27c11444b7db503acf51c1c1623e3a70b2ed3b))
+* pos payment ([#5479](https://github.com/erxes/erxes/issues/5479)) ([089a014](https://github.com/erxes/erxes/commit/089a01474d35f2811fef5bad753bb71941b5f2dd))
+* pos slots query ([#5473](https://github.com/erxes/erxes/issues/5473)) ([a909dde](https://github.com/erxes/erxes/commit/a909dde6fa09f0e30b10541d37efd645480e95dd))
+* scoring bug ([#5460](https://github.com/erxes/erxes/issues/5460)) ([dc9b7b3](https://github.com/erxes/erxes/commit/dc9b7b3b76c624eea26f567c7a6a45e0c765e005))
+* **verifier:** add missing enum in mongoose schema ([4133372](https://github.com/erxes/erxes/commit/4133372507bd9adb51d3f2002d9bd9689be566a0))
+
 ## [1.14.0](https://github.com/erxes/erxes/compare/1.14.0-rc.10...1.14.0) (2024-07-17)
 
 
