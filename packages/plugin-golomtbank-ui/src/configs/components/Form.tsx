@@ -39,6 +39,7 @@ const ConfigForm = (props: Props) => {
       finalValues.configPassword = configObject.configPassword;
       finalValues.accountId = configObject.accountId;
       finalValues.golomtCode = configObject.golomtCode;
+      finalValues.apiUrl = configObject.apiUrl;
     }
     return {
       ...finalValues,
@@ -132,6 +133,13 @@ const ConfigForm = (props: Props) => {
           "golomtCode",
           "string",
           config && config.golomtCode
+        )}
+        {renderInput(
+          formProps,
+          "ApiUrl",
+          "apiUrl",
+          "string",
+          config && config.apiUrl
         )}
         {renderInput(
           formProps,

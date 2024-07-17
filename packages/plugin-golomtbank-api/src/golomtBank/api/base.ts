@@ -15,10 +15,6 @@ export class BaseApi {
     return await getAuthHeaders(this.config);
   }
 
-  get apiUrl() {
-    return "https://openapi-uat.golomtbank.com/api";
-  }
-
   async request(args: {
     method: string;
     path: string;
@@ -48,13 +44,13 @@ export class BaseApi {
 
       if (type === "CGWTXNADD") {
         const xcode = generateCurrentNumberString(this.config.golomtCode);
-        console.log("xcode:::", xcode);
         requestOptions.headers["X-Golomt-Code"] = xcode;
       }
-
-      console.log("start:", requestOptions.body);
+      if (!this.config.apiUrl) {
+        throw new Error("Not found url");
+      }
       const response = await fetch(
-        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
+        `${this.config.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions
       ).then((res) => res.text());
 
@@ -64,7 +60,7 @@ export class BaseApi {
         this.config.sessionKey
       );
     } catch (e) {
-      console.log("e", e);
+      console.log("error:", e);
       throw new Error(e);
     }
   }

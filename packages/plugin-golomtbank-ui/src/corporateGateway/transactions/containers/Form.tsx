@@ -26,7 +26,7 @@ const TransactionFormContainer = (props: Props) => {
     })
       .then(() => {
         props.closeModal();
-        // window.location.reload();
+        window.location.reload();
       })
       .catch((e) => {
         Alert.error(e.message);

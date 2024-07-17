@@ -28,10 +28,7 @@ export class TransferApi extends BaseApi {
    * @return {object} - Returns a response object
    */
   async transfer(transfer: TransferParams, registerId: String) {
-    // console.log("config:", registerId, transfer);
     try {
-      //const data = await toPreferTransferfTemp(transfer, registerId);
-
       return await this.request({
         method: "POST",
         path: "v1/transaction/cgw/transfer",
