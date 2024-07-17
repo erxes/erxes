@@ -8,6 +8,6 @@
   "dependencies": {
     "@erxes/api-utils": "*",
     "dayjs": "^1.11.11",
-    "redlock": "^5.0.0-beta.2"
+    "redlock": "4.2.0"
   }
 }

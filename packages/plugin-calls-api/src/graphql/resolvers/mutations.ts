@@ -228,6 +228,13 @@ const callsMutations = {
       if (cancelledCall) {
         return 'Already exists this history';
       }
+      const integration = await models.Integrations.findOne({
+        inboxId: doc.inboxIntegrationId,
+      }).lean();
+
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
 
       return new Promise(async (resolve, reject) => {
         let lock;
@@ -253,6 +260,7 @@ const callsMutations = {
           if (!oldHistory) {
             const history = new models.CallHistory({
               ...doc,
+              operatorPhone: integration.phone,
               createdAt: new Date(),
               createdBy: doc.endedBy ? user._id : null,
               updatedBy: doc.endedBy ? user._id : null,
