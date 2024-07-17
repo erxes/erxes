@@ -1,4 +1,4 @@
-import { sendCoreMessage, sendFormsMessage, sendInboxMessage } from "../messageBroker";
+import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendTagsMessage } from "../messageBroker";
 import { MONTH_NAMES, NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, WEEKDAY_NAMES, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
@@ -231,6 +231,23 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     if (dimensions.includes("assignedTo")) {
         pipeline.push({ $unwind: "$assignedUserIds" });
+    }
+
+    if (dimensions.includes("property")) {
+        pipeline.push(
+            { $unwind: "$customFieldsData" },
+            {
+                $lookup: {
+                    from: "form_fields",
+                    localField: "customFieldsData.field",
+                    foreignField: "_id",
+                    as: "field"
+                }
+            },
+            {
+                $unwind: "$field"
+            }
+        );
     }
 
     if (dimensions.includes("branch")) {
@@ -1308,12 +1325,36 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
 
     // BRANCH FILTER
     if (branchIds?.length) {
-        matchfilter['branchIds'] = { $in: branchIds };
+
+        const branches = await sendCoreMessage({
+            subdomain,
+            action: `branches.findWithChild`,
+            data: {
+                query: { _id: { $in: branchIds } },
+                fields: { _id: 1 },
+            },
+            isRPC: true,
+            defaultValue: [],
+        });
+
+        matchfilter['branchIds'] = { $in: branches.map(branch => branch._id) };
     }
 
     // DEPARTMENT FILTER
     if (departmentIds?.length) {
-        matchfilter['departmentIds'] = { $in: departmentIds };
+
+        const departments = await sendCoreMessage({
+            subdomain,
+            action: `departments.findWithChild`,
+            data: {
+                query: { _id: { $in: departmentIds } },
+                fields: { _id: 1 },
+            },
+            isRPC: true,
+            defaultValue: [],
+        });
+
+        matchfilter['departmentIds'] = { $in: departments.map(department => department._id) };
     }
 
     // COMPANY FILTER
@@ -1365,7 +1406,19 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
 
     // TAG FILTER
     if (tagIds?.length) {
-        matchfilter['tagIds'] = { $in: tagIds };
+
+        const tags = await sendTagsMessage({
+            subdomain,
+            action: 'withChilds',
+            data: {
+                query: { _id: { $in: tagIds } },
+                fields: { _id: 1 },
+            },
+            isRPC: true,
+            defaultValue: []
+        })
+
+        matchfilter['tagIds'] = { $in: tags.map(tag => tag._id) };
     }
 
     // BOARD FILTER

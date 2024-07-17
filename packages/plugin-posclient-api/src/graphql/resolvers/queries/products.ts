@@ -245,7 +245,7 @@ const generateFilterCat = async ({
   }
 
   if (ids && ids.length > 0) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };    
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
 
   return filter;
@@ -388,10 +388,7 @@ const productQueries = {
             .replace(/\*/g, '.')
             .replace(/_/g, '.')}.*`,
           'igu',
-        ) : new RegExp(
-          `.*${str}.*`,
-          'igu',
-        );
+        ) : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups =

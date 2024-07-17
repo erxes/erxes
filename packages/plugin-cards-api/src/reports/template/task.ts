@@ -19,6 +19,7 @@ const DIMENSION_OPTIONS = [
     { label: 'Priority', value: 'priority' },
     { label: 'Item number', value: 'number' },
     { label: 'Description', value: 'description' },
+    { label: 'Is Complete', value: 'isComplete' },
     { label: 'Created by', value: 'createdBy' },
     { label: 'Modified by', value: 'modifiedBy' },
     { label: 'Assigned to', value: 'assignedTo' },

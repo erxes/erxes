@@ -29,8 +29,6 @@ const chartTemplates = [
             } else {
                 const pipeline = buildPipeline(filter, matchFilter)
 
-                console.log('pipeline', util.inspect(pipeline, false, null, true))
-
                 calls = await models.CallHistory.aggregate(pipeline)
             }
 
@@ -185,24 +183,6 @@ const chartTemplates = [
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',
-            },
-            {
-                fieldName: 'brandIds',
-                fieldType: 'select',
-                fieldQuery: 'allBrands',
-                fieldValueVariable: '_id',
-                fieldLabelVariable: 'name',
-                multi: true,
-                fieldLabel: 'Select brands',
-            },
-            {
-                fieldName: 'channelIds',
-                fieldType: 'select',
-                fieldQuery: 'channels',
-                fieldValueVariable: '_id',
-                fieldLabelVariable: 'name',
-                multi: true,
-                fieldLabel: 'Select channel',
             },
             {
                 fieldName: "type",

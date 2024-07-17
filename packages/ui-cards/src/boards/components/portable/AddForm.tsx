@@ -340,7 +340,7 @@ class AddForm extends React.Component<Props, State> {
     const { type } = this.props.options;
 
     return (
-      <form>
+      <form onSubmit={this.save}>
         {this.renderSelect()}
         {/* <HeaderRow>
           <HeaderContent>

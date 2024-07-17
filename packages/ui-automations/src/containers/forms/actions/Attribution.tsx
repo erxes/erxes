@@ -62,7 +62,7 @@ export default withProps<Props>(
       gql(formQueries.fieldsCombinedByContentType),
       {
         name: 'fieldsCombinedByTypeQuery',
-        skip: () => isEnabled('forms'),
+        skip: () => !isEnabled('forms'),
         options: ({ triggerType, attrConfig }) => ({
           variables: {
             contentType: triggerType,
