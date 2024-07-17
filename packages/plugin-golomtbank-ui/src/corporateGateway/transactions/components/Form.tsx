@@ -92,7 +92,7 @@ const TransactionForm = (props: Props) => {
             value={amount}
             type="number"
             placeholder="from amount"
-            onChange={(e: any) => setAmount(e.target.value)}
+            onChange={(e: any) => setAmount(Number(e.target.value))}
             required={true}
           />
         </FormGroup>

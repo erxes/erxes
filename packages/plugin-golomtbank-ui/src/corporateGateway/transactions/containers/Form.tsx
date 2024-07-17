@@ -18,7 +18,6 @@ const TransactionFormContainer = (props: Props) => {
     refetchQueries: getRefetchQueries(props.configId, props.accountNumber),
   });
   const submit = (transfer: IGolomtBankTransactionInput) => {
-    console.log("transfer:::::", transfer);
     transferMutation({
       variables: {
         transfer: transfer,
