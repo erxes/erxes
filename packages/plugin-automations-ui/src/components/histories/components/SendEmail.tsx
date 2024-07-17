@@ -1,5 +1,5 @@
 import React from 'react';
-import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
+import EmailTemplate from '@erxes/ui-emailtemplates/src/components/EmailTemplate';
 import {
   Button,
   ControlLabel,
@@ -21,17 +21,19 @@ type Props = {
 class SendEmail extends React.Component<Props> {
   constructor(props) {
     super(props);
-
-    this.renderContent = this.renderContent.bind(this);
   }
 
-  renderTemplate(action) {
+  renderTemplate(action, result) {
     const { actionConfig } = action;
 
     return (
       <FormGroup>
         <ControlLabel>{__('Email Template')}</ControlLabel>
-        <EmailTemplate templateId={actionConfig.templateId} onlyPreview />
+        <EmailTemplate
+          templateId={actionConfig?.templateId}
+          template={{ content: result.customHtml }}
+          onlyPreview
+        />
       </FormGroup>
     );
   }
@@ -89,28 +91,13 @@ class SendEmail extends React.Component<Props> {
     );
   }
 
-  renderContent() {
-    const { action, result } = this.props;
-
-    return (
-      <Columns>
-        {this.renderTemplate(action)}
-        <Column>{this.renderEmails(result)}</Column>
-      </Columns>
-    );
-  }
-
   render() {
-    const trigger = <Button size="small" icon="eye" btnStyle="simple" />;
-
+    const { action, result } = this.props;
     return (
-      <ModalTrigger
-        title=""
-        size="lg"
-        hideHeader
-        trigger={trigger}
-        content={this.renderContent}
-      />
+      <div>
+        {this.renderTemplate(action, result)}
+        <div>{this.renderEmails(result)}</div>
+      </div>
     );
   }
 }

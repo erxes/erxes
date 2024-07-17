@@ -1,17 +1,18 @@
+import * as moment from 'moment';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
-import { IIntegrationDocument } from '../models/Integrations';
+import { IBotDocument } from '../models/definitions/bots';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
 import { sendReply } from '../utils';
+import { Message } from './types';
 import {
+  checkContentConditions,
   generateBotData,
   generatePayloadString,
-  checkContentConditions,
   getUrl
 } from './utils';
-import * as moment from 'moment';
 
 const generateMessages = async (
   subdomain: string,
@@ -27,7 +28,7 @@ const generateMessages = async (
     for (const button of buttons) {
       const obj: any = {
         type: 'postback',
-        title: button.text,
+        title: (button.text || '').trim(),
         payload: generatePayloadString(
           conversation,
           button,
@@ -91,7 +92,7 @@ const generateMessages = async (
           type: 'template',
           payload: {
             template_type: 'button',
-            text: input ? input.text : text,
+            text: (input ? input.text : text || '').trim(),
             buttons: generateButtons(buttons)
           }
         },
@@ -123,7 +124,7 @@ const generateMessages = async (
     if (type === 'quickReplies') {
       generatedMessages.push({
         text: text || '',
-        quick_replies: quickReplies.map((quickReply) => ({
+        quick_replies: quickReplies.map(quickReply => ({
           content_type: 'text',
           title: quickReply?.text || '',
           payload: generatePayloadString(
@@ -210,9 +211,9 @@ const generateObjectToWait = ({
   };
   let propertyName = 'payload.btnId';
 
-  if (messages.some((msg) => msg.type === 'input')) {
+  if (messages.some(msg => msg.type === 'input')) {
     const inputMessageConfig =
-      messages.find((msg) => msg.type === 'input')?.input || {};
+      messages.find(msg => msg.type === 'input')?.input || {};
 
     if (inputMessageConfig.timeType === 'day') {
       obj.startWaitingDate = moment()
@@ -233,7 +234,7 @@ const generateObjectToWait = ({
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        (connect) => connect?.optionalConnectId === 'ifNotReply'
+        connect => connect?.optionalConnectId === 'ifNotReply'
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
@@ -253,89 +254,61 @@ const generateObjectToWait = ({
   };
 };
 
-const sendTypingIndicator = async (
-  models,
-  {
-    senderId,
-    recipientId,
-    integration,
-    tag
-  }: {
-    senderId: string;
-    recipientId: string;
-    integration: IIntegrationDocument;
-    tag?: string;
-  }
-) => {
-  return sendReply(
-    models,
-    'me/messages',
-    { recipient: { id: senderId }, sender_action: 'typing_on', tag },
-    recipientId,
-    integration.erxesApiId
-  );
-};
-
 const sendMessage = async (
   models,
-  {
-    senderId,
-    recipientId,
-    integration,
-    message,
-    tag
-  }: {
-    senderId: string;
-    recipientId: string;
-    integration: IIntegrationDocument;
-    message: any;
-    tag?: string;
-  }
+  bot: IBotDocument,
+  { senderId, recipientId, integration, message, tag }: Message,
+  isLoop?: boolean
 ) => {
-  await sendTypingIndicator(models, {
-    senderId,
-    recipientId,
-    integration,
-    tag
-  });
-
-  const resp = await sendReply(
-    models,
-    'me/messages',
-    {
-      recipient: { id: senderId },
-      message,
-      tag
-    },
-    recipientId,
-    integration.erxesApiId
-  ).catch((error) => {
-    throw new Error(error);
-  });
-
-  if (!resp) {
-    return;
-  }
-  return resp;
-};
-
-const handleSendError = async (
-  error,
-  models,
-  { senderId, recipientId, integration, message, bot }
-) => {
-  if (
-    error.message.includes('This message is sent outside of allowed window') &&
-    bot?.tag
-  ) {
-    return await sendMessage(models, {
-      senderId,
+  try {
+    await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: senderId },
+        sender_action: 'typing_on',
+        tag
+      },
       recipientId,
-      integration,
-      message,
-      tag: bot?.tag
-    });
-  } else {
+      integration.erxesApiId
+    );
+    const resp = await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: senderId },
+        message,
+        tag
+      },
+      recipientId,
+      integration.erxesApiId
+    );
+    if (!resp) {
+      return;
+    }
+    return resp;
+  } catch (error) {
+    if (
+      error.message.includes(
+        'This message is sent outside of allowed window'
+      ) &&
+      bot?.tag &&
+      !isLoop
+    ) {
+      await sendMessage(
+        models,
+        bot,
+        {
+          senderId,
+          recipientId,
+          integration,
+          message,
+          tag: bot?.tag
+        },
+        true
+      );
+    }
+
     debugError(error.message);
     throw new Error(error.message);
   }
@@ -347,15 +320,19 @@ export const actionCreateMessage = async (
   action,
   execution
 ) => {
-  const { target } = execution || {};
+  const { target, triggerType } = execution || {};
   const { config } = action || {};
+
+  if (!['facebook:messages', 'facebook:comments'].includes(triggerType)) {
+    throw new Error('Unsupported trigger type');
+  }
 
   const conversation = await models.Conversations.findOne({
     _id: target?.conversationId
   });
 
   if (!conversation) {
-    return;
+    throw new Error('Conversation not found');
   }
 
   const integration = await models.Integrations.findOne({
@@ -363,17 +340,21 @@ export const actionCreateMessage = async (
   });
 
   if (!integration) {
-    return;
+    throw new Error('Integration not found');
   }
   const { recipientId, senderId, botId } = conversation;
 
   const customer = await models.Customers.findOne({ userId: senderId }).lean();
 
   if (!customer) {
-    return;
+    throw new Error(`Customer not found`);
   }
 
   const bot = await models.Bots.findOne({ _id: botId }, { tag: 1 }).lean();
+
+  if (!bot) {
+    throw new Error(`Bot not found`);
+  }
 
   let result: any[] = [];
 
@@ -393,20 +374,15 @@ export const actionCreateMessage = async (
       let resp;
 
       try {
-        resp = await sendMessage(models, {
+        resp = await sendMessage(models, bot, {
           senderId,
           recipientId,
           integration,
           message
         });
       } catch (error) {
-        handleSendError(error, models, {
-          senderId,
-          recipientId,
-          integration,
-          message,
-          bot
-        });
+        debugError(error.message);
+        throw new Error(error.message);
       }
 
       if (!resp) {
@@ -430,8 +406,6 @@ export const actionCreateMessage = async (
           ...conversationMessage.toObject(),
           conversationId: conversation.erxesApiId
         }
-      }).catch((error) => {
-        debugError(error.message);
       });
 
       result.push(conversationMessage);

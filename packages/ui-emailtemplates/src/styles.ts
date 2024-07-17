@@ -61,14 +61,14 @@ const IframeFullScreen = styled.div`
   }
 `;
 
-const TemplateWrapper = styled.div`
+const TemplateWrapper = styledTS<{ $isGrid?: boolean }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
   overflow: auto;
   padding: 5px;
   justify-content: center;
   > div {
-    min-width: 440px;
+    min-width: ${({ $isGrid }) => ($isGrid ? '200px' : '440px')};
   }
 `;
 
@@ -117,10 +117,12 @@ const Actions = styled.div`
   }
 `;
 
-const Template = styledTS<{ $isLongName?: boolean; position?: string }>(
-  styled.div
-)`
-  flex-basis: 300px;
+const Template = styledTS<{
+  $isLongName?: boolean;
+  position?: string;
+  width?: string;
+}>(styled.div)`
+  flex-basis: ${({ width }) => (width ? width : '300px')};
   display: flex;
   flex-direction: column;
   justify-content: ${props => props.position || 'space-between'};

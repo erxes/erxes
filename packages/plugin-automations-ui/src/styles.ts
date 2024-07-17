@@ -182,7 +182,7 @@ export const Container = styled.div`
 export const TriggerBox = styledTS<{ selected?: boolean }>(styled.div)`
   background: ${colors.colorWhite};
   border-radius: 2px;
-  border: ${(props) =>
+  border: ${props =>
     props.selected
       ? `2px solid ${colors.colorPrimary}`
       : `1px solid ${colors.borderPrimary}`};
@@ -302,7 +302,6 @@ export const CenterBar = styled.div`
   > div {
     height: 30px;
     border: 1px solid ${colors.borderDarker};
-    border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
     span {
       font-weight: 500;
@@ -467,7 +466,7 @@ export const EmptyContent = styled.div`
 export const EnrollmentWrapper = styledTS<{ noMargin?: boolean }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
-  margin: ${(props) => (props.noMargin ? '0 0 10px' : '10px 0 0')};
+  margin: ${props => (props.noMargin ? '0 0 10px' : '10px 0 0')};
   border-radius: 5px;
 
   > div {
@@ -632,9 +631,9 @@ export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
   height: ${dimensions.coreSpacing}px;
   line-height: ${dimensions.coreSpacing}px;
   text-align: center;
-  background: ${(props) =>
+  background: ${props =>
     props.disabled ? colors.bgActive : colors.colorWhite};
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   margin: 0;
   transition: all ease .3s;
 
@@ -674,8 +673,8 @@ export const FlexContainer = styled.div`
 
 export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   transition: all ease .3s;
-  filter: ${(props) => !props.isToggled && `blur(4px)`};
-  pointer-events: ${(props) => !props.isToggled && `none`};
+  filter: ${props => !props.isToggled && `blur(4px)`};
+  pointer-events: ${props => !props.isToggled && `none`};
 `;
 
 const ToolBarButton = styled.i`

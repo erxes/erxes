@@ -26,7 +26,6 @@ import Select from "react-select";
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   nonBalanceTransaction: INonBalanceTransaction;
-  transactionType: string;
   closeModal: () => void;
 };
 
@@ -50,42 +49,46 @@ class AddTransactionForm extends React.Component<Props, State> {
     const { nonBalanceTransaction = {}, transactionType } = props;
 
     this.state = {
-      contractId: nonBalanceTransaction.contractId || "",
-      customerId: nonBalanceTransaction.customerId || "",
-      description: nonBalanceTransaction.description || "",
-      number: nonBalanceTransaction.number || "",
-      detail: nonBalanceTransaction.detail || [],
-      isDedit: false,
-      detailType: nonBalanceTransaction.detail?.detailType || "",
-      amount: 0,
-      currency: nonBalanceTransaction.detail?.currency || "",
-      detailTypeList:
-        transactionType === "interest"
-          ? [
-              {
-                value: "storedInterest",
-                label: "storedInterest",
-              },
-              {
-                value: "stoppedInterest",
-                label: "stoppedInterest",
-              },
-              {
-                value: "allOfInterest",
-                label: "stoppedInterest && storedInterest",
-              },
-            ]
-          : [
-              {
-                value: transactionType,
-                label: transactionType,
-              },
-            ],
-    };
+        contractId: nonBalanceTransaction.contractId || '',
+        customerId: nonBalanceTransaction.customerId || '',
+        description: nonBalanceTransaction.description || '',
+        number: nonBalanceTransaction.number || '',
+        detail: nonBalanceTransaction.detail || [],
+        isDedit: false,
+        detailType:  nonBalanceTransaction.detail?.detailType || '',
+        amount: 0,
+        currency: nonBalanceTransaction.detail?.currency || '',
+        detailTypeList: [
+          {
+            value: 'interest',
+            label: 'interest'
+          },
+          {
+            value: 'stoppedInterest',
+            label: 'stoppedInterest'
+          },
+          {
+            value: 'storedInterest',
+            label: 'storedInterest'
+          },
+          {
+            value: 'allOfInterest',
+            label: 'stoppedInterest && storedInterest'
+          },
+          {
+            value: 'loan',
+            label: 'loan'
+          },{
+            value: 'collateral',
+            label: 'collateral'
+          }
+      ] 
+      };
+      
   }
 
   generateDoc = (values: { _id: string } & INonBalanceTransactionDoc) => {
-    const { transactionType } = this.props;
+   
     const finalValues = values;
     let addDetail: any = {};
     addDetail.currency = this.state.currency;
@@ -96,7 +99,7 @@ class AddTransactionForm extends React.Component<Props, State> {
     finalValues.contractId = this.state.contractId || "";
     finalValues.customerId = this.state.customerId || "";
     finalValues.description = this.state.description;
-    finalValues.transactionType = transactionType;
+    finalValues.transactionType =  this.state.description || 'loan';
     finalValues.detail = [addDetail];
     return finalValues;
   };

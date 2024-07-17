@@ -88,6 +88,7 @@ export const types = `
         value:String
         values:[String]
         regex:Boolean
+        operator:String
     }
 
 `;
@@ -136,6 +137,7 @@ const commonParams = `
     groupIds:[String]
     customFieldsValues:[String]
     cardFilter:CardFilter
+    cardFilters:[CardFilter]
 `;
 
 const commonFormSubmitParams = `

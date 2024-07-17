@@ -122,6 +122,35 @@ const knowledgeBaseArticles = `
   }
 `;
 
+const assetKbArticlesHistories = `
+  query AssetKbArticlesHistories($assetId: String) {
+    assetKbArticlesHistories(assetId: $assetId) {
+      _id
+      action
+      article
+      asset {
+        _id
+        name
+        order
+      }
+      assetId
+      createdAt
+      kbArticleId
+      user {
+        _id
+        email
+        username
+        details {
+          firstName
+          lastName
+          fullName
+        }
+      }
+      userId
+    }
+  }
+`;
+
 export default {
   assets,
   assetsCount,
@@ -131,4 +160,5 @@ export default {
   assetCategoriesTotalCount,
   knowledgeBaseArticles,
   knowledgeBaseTopics,
+  assetKbArticlesHistories
 };

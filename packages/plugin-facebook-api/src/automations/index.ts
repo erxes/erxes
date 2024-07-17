@@ -1,3 +1,4 @@
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from '../connectionResolver';
 import { actionCreateComment, checkCommentTrigger } from './comments';
 import { actionCreateMessage, checkMessageTrigger } from './messages';
@@ -33,6 +34,13 @@ export default {
         description: 'Send Facebook Message',
         isAvailable: true,
         isAvailableOptionalConnect: true,
+      },
+      {
+        type: 'facebook:comments.create',
+        icon: 'comments-alt',
+        label: 'Send Facebook Comment',
+        description: 'Send Facebook Comments',
+        isAvailable: true,
       },
     ],
     triggers: [
@@ -148,11 +156,13 @@ export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType } = data;
 
+    debugInfo(`Recieved:${JSON.stringify(data)}`);
+
     switch (collectionType) {
       case 'messages':
         return checkMessageTrigger(subdomain, data);
       case 'comments':
-        return checkCommentTrigger(subdomain, data);
+        return await checkCommentTrigger(subdomain, data);
       default:
         return false;
     }

@@ -68,3 +68,13 @@ export const BackIcon = styled.div`
     }
   }
 `;
+
+export const ItemRowHeader = styled.h5`
+  display: flex;
+  flex-direction: column;
+
+  > span {
+    font-size: 11px;
+    color: ${colors.colorLightGray};
+  }
+`;

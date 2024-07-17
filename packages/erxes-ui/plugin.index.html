@@ -25,6 +25,7 @@
 
     window.envMaps = [
       { name: 'REACT_APP_API_URL', processValue: '%REACT_APP_API_URL%' },
+      { name: 'REACT_APP_RELEASE', processValue: '%REACT_APP_RELEASE%' },
       {
         name: 'REACT_APP_API_SUBSCRIPTION_URL',
         processValue: '%REACT_APP_API_SUBSCRIPTION_URL%'
@@ -40,7 +41,7 @@
       }
     ];
 
-    for (var i = 0; i < window.envMaps.length; i++) {
+    for (let i = 0; i < window.envMaps.length; i++) {
       var envMap = window.envMaps[i];
 
       localStorage.setItem(
