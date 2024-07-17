@@ -35,12 +35,14 @@ export const transactionSchema = new Schema({
   response: field({ type: Object }),
 });
 
-transactionSchema.index(
-  { createdAt: 1 },
-  {
-    expireAfterSeconds: 24 * 60 * 60,
-    partialFilterExpression: {
-      status: PAYMENT_STATUS.PENDING,
-    },
-  }
-);
+
+// TODO: readd after server time issue fixed
+// transactionSchema.index(
+//   { createdAt: 1 },
+//   {
+//     expireAfterSeconds: 24 * 60 * 60,
+//     partialFilterExpression: {
+//       status: PAYMENT_STATUS.PENDING,
+//     },
+//   }
+// );
