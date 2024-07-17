@@ -1,20 +1,27 @@
-import React from "react";
-import { gql, useQuery } from "@apollo/client";
-import { queries } from "../../../../graphql";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import Workflow from "../../../../components/forms/actions/subForms/WorkFlow";
+import React from 'react';
+import { gql, useQuery } from '@apollo/client';
+import { queries } from '../../../../graphql';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Workflow from '../../../../components/forms/actions/subForms/WorkFlow';
+import { IAction } from '@erxes/ui-automations/src/types';
 
 type Props = {
+  actionsConst: any[];
+  activeAction: IAction;
+  addAction: () => void;
+  closeModal: () => void;
+  onSave: () => void;
+  propertyTypesConst: any[];
   triggerType: string;
 };
 
-export default function WorkFlow({ triggerType }: Props) {
+export default function WorkFlow({ triggerType, ...props }: Props) {
   const {
     data = {},
     loading,
-    error,
+    error
   } = useQuery(gql(queries.automations), {
-    variables: { triggerTypes: [triggerType] },
+    variables: { triggerTypes: [triggerType] }
   });
 
   if (loading) {
@@ -22,7 +29,8 @@ export default function WorkFlow({ triggerType }: Props) {
   }
 
   const updatedProps = {
-    list: data?.automations || [],
+    ...props,
+    list: data?.automations || []
   };
 
   return <Workflow {...updatedProps} />;

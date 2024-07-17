@@ -34,7 +34,7 @@ interface IHistoriesParams {
 }
 
 const generateFilter = (params: IListArgs) => {
-  const { status, searchValue, tagIds, triggerTypes } = params;
+  const { status, searchValue, tagIds, triggerTypes, ids } = params;
 
   const filter: any = { status: { $nin: [STATUSES.ARCHIVED, 'template'] } };
 
@@ -52,6 +52,10 @@ const generateFilter = (params: IListArgs) => {
 
   if (triggerTypes?.length) {
     filter['triggers.type'] = { $in: triggerTypes };
+  }
+
+  if (ids?.length) {
+    filter._id = { $in: ids };
   }
 
   return filter;

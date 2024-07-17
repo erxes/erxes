@@ -68,6 +68,7 @@ type State = {
   selectedContentId?: string;
   automationNotes: IAutomationNote[];
   awaitingNodeId?: string;
+  workFlowActions: { workflowId: string; actions: IAction[] }[];
 };
 
 class Editor extends React.Component<Props, State> {
@@ -81,6 +82,7 @@ class Editor extends React.Component<Props, State> {
       name: automation.name,
       actions: JSON.parse(JSON.stringify(automation.actions || [])),
       triggers: JSON.parse(JSON.stringify(automation.triggers || [])),
+      workFlowActions: [],
       activeTrigger: {} as ITrigger,
       activeId: '',
       currentTab: 'triggers',
@@ -104,7 +106,7 @@ class Editor extends React.Component<Props, State> {
     return newId;
   };
 
-  setWrapperRef = node => {
+  setWrapperRef = (node) => {
     this.wrapperRef = node;
   };
 
@@ -112,7 +114,7 @@ class Editor extends React.Component<Props, State> {
     const value = (e.currentTarget as HTMLButtonElement).value;
     this.setState({ name: value });
   };
-  switchActionbarTab = type => {
+  switchActionbarTab = (type) => {
     if (!this.state.isActionTab && type === 'history') {
       router.setParams(navigator, location, {
         activeTab: type === 'history' ? 'history' : undefined
@@ -122,7 +124,7 @@ class Editor extends React.Component<Props, State> {
     this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
-  onToggle = e => {
+  onToggle = (e) => {
     const isActive = e.target.checked;
 
     this.setState({ isActive });
@@ -147,7 +149,7 @@ class Editor extends React.Component<Props, State> {
         _id: automation._id,
         name,
         status: isActive ? 'active' : 'draft',
-        triggers: triggers.map(t => ({
+        triggers: triggers.map((t) => ({
           id: t.id,
           type: t.type,
           config: t.config,
@@ -158,7 +160,7 @@ class Editor extends React.Component<Props, State> {
           position: t.position,
           isCustom: t.isCustom
         })),
-        actions: actions.map(a => ({
+        actions: actions.map((a) => ({
           id: a.id,
           type: a.type,
           nextActionId: a.nextActionId,
@@ -204,13 +206,13 @@ class Editor extends React.Component<Props, State> {
     const { triggers, actions } = this.state;
 
     if (type === 'action') {
-      const action = actions.find(action => action.id === id);
+      const action = actions.find((action) => action.id === id);
 
       return action && this.onClickAction(action);
     }
 
     if (type === 'trigger') {
-      const trigger = triggers.find(trigger => trigger.id === id);
+      const trigger = triggers.find((trigger) => trigger.id === id);
       trigger && this.onClickTrigger(trigger);
     }
   };
@@ -246,7 +248,7 @@ class Editor extends React.Component<Props, State> {
     this.setState(doc);
   };
 
-  onConnection = info => {
+  onConnection = (info) => {
     const { triggers, actions } = this.state;
 
     connection(triggers, actions, info, info.targetId);
@@ -257,12 +259,12 @@ class Editor extends React.Component<Props, State> {
   addAction = (data: IAction, actionId?: string, config?: any) => {
     let { actions, triggers, awaitingNodeId } = this.state;
 
-    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
+    let action: any = { ...data, id: this.getNewId(actions.map((a) => a.id)) };
 
     let actionIndex = -1;
 
     if (actionId) {
-      actionIndex = actions.findIndex(a => a.id === actionId);
+      actionIndex = actions.findIndex((a) => a.id === actionId);
 
       if (actionIndex !== -1) {
         action = actions[actionIndex];
@@ -279,7 +281,7 @@ class Editor extends React.Component<Props, State> {
 
     if (awaitingNodeId) {
       if (triggers.some(({ id }) => id === awaitingNodeId)) {
-        triggers = triggers.map(trigger => {
+        triggers = triggers.map((trigger) => {
           if (trigger.id === awaitingNodeId) {
             action.position = generatePostion(trigger.position || {});
             return { ...trigger, actionId: action.id };
@@ -289,7 +291,7 @@ class Editor extends React.Component<Props, State> {
       } else {
         const [awaitActionId, optionalConnectId] = awaitingNodeId.split('-');
 
-        actions = actions.map(a => {
+        actions = actions.map((a) => {
           if (a.id === awaitActionId) {
             action.position = generatePostion(a.position || {});
 
@@ -329,9 +331,9 @@ class Editor extends React.Component<Props, State> {
 
     let trigger: any = {
       ...data,
-      id: this.getNewId(triggers.map(t => t.id))
+      id: this.getNewId(triggers.map((t) => t.id))
     };
-    const triggerIndex = triggers.findIndex(t => t.id === triggerId);
+    const triggerIndex = triggers.findIndex((t) => t.id === triggerId);
 
     if (triggerId && activeTrigger.id === triggerId) {
       trigger = activeTrigger;
@@ -352,7 +354,7 @@ class Editor extends React.Component<Props, State> {
     const fieldName = `${type}s`;
 
     this.setState({
-      [fieldName]: this.state[fieldName].filter(item => item.id !== id)
+      [fieldName]: this.state[fieldName].filter((item) => item.id !== id)
     } as Pick<State, keyof State>);
   };
 
@@ -376,7 +378,7 @@ class Editor extends React.Component<Props, State> {
     if (currentTab === 'triggers') {
       if (showTrigger && activeTrigger) {
         const triggerConst = triggersConst.find(
-          triggersConst => triggersConst.type === activeTrigger.type
+          (triggersConst) => triggersConst.type === activeTrigger.type
         );
 
         return (
@@ -516,8 +518,29 @@ class Editor extends React.Component<Props, State> {
 
     this.setState({
       ...this.state,
-      [`${type}s`]: items.map(item =>
+      [`${type}s`]: items.map((item) =>
         item.id === id ? { ...item, position } : item
+      )
+    });
+  };
+
+  addWorkFlowAction = (workflowId: string, actions: IAction[]) => {
+    const { workFlowActions } = this.state;
+
+    if (
+      !workFlowActions.some((workflow) => workflow.workflowId === workflowId)
+    ) {
+      this.setState({
+        workFlowActions: [...workFlowActions, { workflowId, actions }]
+      });
+    }
+  };
+  removeWorkFlowAction = (workflowId: string) => {
+    const { workFlowActions } = this.state;
+
+    this.setState({
+      workFlowActions: workFlowActions.filter(
+        (workflow) => workflow.workflowId !== workflowId
       )
     });
   };
@@ -597,7 +620,7 @@ class Editor extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { triggers, actions, showDrawer } = this.state;
+    const { triggers, actions, showDrawer, workFlowActions } = this.state;
     const {
       automation,
       constants: { triggersConst, actionsConst },
@@ -625,6 +648,7 @@ class Editor extends React.Component<Props, State> {
         automation={automation}
         triggers={triggers}
         actions={actions}
+        workFlowActions={workFlowActions}
         constants={this.props.constants}
         automationNotes={automationNotes}
         showDrawer={showDrawer}
@@ -635,6 +659,8 @@ class Editor extends React.Component<Props, State> {
         onChangePositions={this.onChangeItemPosition}
         addAction={this.addAction}
         handelSave={this.handleSubmit}
+        addWorkFlowAction={this.addWorkFlowAction}
+        removeWorkFlowAction={this.removeWorkFlowAction}
       />
     );
   }

@@ -1,15 +1,13 @@
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert, Icon } from '@erxes/ui/src';
+import { Alert } from '@erxes/ui/src';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
+  addEdge,
   Background,
   ConnectionMode,
-  ControlButton,
   Controls,
-  EdgeTypes,
-  MiniMap,
-  addEdge,
   getOutgoers,
+  MiniMap,
   updateEdge,
   useEdgesState,
   useNodesState
@@ -21,16 +19,17 @@ import {
   IAutomationNote,
   ITrigger
 } from '../../types';
-import ConnectionLine from './ConnectionLine';
-import Edge from './Egde';
-import CustomNode, { ScratchNode } from './Node';
-import { generateEdges, generateNodes, generatePostion } from './utils';
+import edgeTypes from './edges';
+import ConnectionLine from './edges/ConnectionLine';
 import Info from './Info';
+import nodeTypes from './nodes';
+import { generateEdges, generateNodes, generatePostion } from './utils';
 
 type Props = {
   automation: IAutomation;
   triggers: ITrigger[];
   actions: IAction[];
+  workFlowActions?: { workflowId: string; actions: IAction[] }[];
   automationNotes?: IAutomationNote[];
   onConnection: ({
     sourceId,
@@ -55,14 +54,8 @@ type Props = {
   onChangePositions: (type: string, id: string, postions: any) => void;
   addAction: (data: IAction, actionId?: string, config?: any) => void;
   handelSave: () => void;
-};
-
-const nodeTypes = {
-  primary: CustomNode,
-  scratch: ScratchNode
-};
-const edgeTypes: EdgeTypes = {
-  primary: Edge
+  addWorkFlowAction: (workflowId: string, actions: IAction[]) => void;
+  removeWorkFlowAction: (workflowId: string) => void;
 };
 
 const fitViewOptions = { padding: 4, minZoom: 0.8 };
@@ -74,10 +67,10 @@ function arraysAreNotIdentical(arr1, arr2) {
 }
 
 const onDisConnection = ({ nodes, edge, setEdges, onConnect }) => {
-  setEdges(eds => eds.filter(e => e.id !== edge.id));
+  setEdges((eds) => eds.filter((e) => e.id !== edge.id));
   let info: any = { source: edge.source, target: undefined };
 
-  const sourceNode = nodes.find(n => n.id === edge.source);
+  const sourceNode = nodes.find((n) => n.id === edge.source);
 
   if (edge.sourceHandle.includes(sourceNode?.id)) {
     const [_action, _sourceId, optionalConnectId] = (edge.id || '').split('-');
@@ -91,19 +84,21 @@ const onDisConnection = ({ nodes, edge, setEdges, onConnect }) => {
 function AutomationEditor({
   triggers,
   actions,
+  workFlowActions,
   onConnection,
   onChangePositions,
   ...props
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    generateNodes({ triggers, actions }, props)
+    generateNodes({ triggers, actions, workFlowActions }, props)
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     generateEdges({
       triggers,
       actions,
-      onDisconnect: edge =>
+      workFlowActions,
+      onDisconnect: (edge) =>
         onDisConnection({ nodes, edge, setEdges, onConnect })
     })
   );
@@ -112,10 +107,13 @@ function AutomationEditor({
   const [copiedNodes, setCopiedNodes] = useState([]) as any[];
 
   const resetNodes = () => {
-    const updatedNodes: any[] = generateNodes({ triggers, actions }, props);
+    const updatedNodes: any[] = generateNodes(
+      { triggers, actions, workFlowActions },
+      props
+    );
 
-    const mergedArray = updatedNodes.map(node1 => {
-      let node2 = nodes.find(o => o.id === node1.id);
+    const mergedArray = updatedNodes.map((node1) => {
+      let node2 = nodes.find((o) => o.id === node1.id);
 
       if (node2) {
         return { ...node1, position: { ...node1.position, ...node2.position } };
@@ -127,7 +125,8 @@ function AutomationEditor({
       generateEdges({
         triggers,
         actions,
-        onDisconnect: edge =>
+        workFlowActions,
+        onDisconnect: (edge) =>
           onDisConnection({ nodes, edge, setEdges, onConnect })
       })
     );
@@ -135,7 +134,11 @@ function AutomationEditor({
 
   useEffect(() => {
     resetNodes();
-  }, [JSON.stringify(triggers), JSON.stringify(actions)]);
+  }, [
+    JSON.stringify(triggers),
+    JSON.stringify(actions),
+    JSON.stringify(workFlowActions)
+  ]);
 
   const generateConnect = (params, source) => {
     const { sourceHandle } = params;
@@ -159,9 +162,9 @@ function AutomationEditor({
   };
 
   const onConnect = useCallback(
-    params => {
-      const source = nodes.find(node => node.id === params.source);
-      setEdges(eds => {
+    (params) => {
+      const source = nodes.find((node) => node.id === params.source);
+      setEdges((eds) => {
         const updatedEdges = addEdge({ ...params }, eds);
 
         onConnection(generateConnect(params, source));
@@ -174,7 +177,7 @@ function AutomationEditor({
 
   const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
     edgeUpdateSuccessful.current = true;
-    setEdges(els => updateEdge(oldEdge, newConnection, els));
+    setEdges((els) => updateEdge(oldEdge, newConnection, els));
   }, []);
 
   const onEdgeUpdateEnd = useCallback((_, edge) => {
@@ -190,8 +193,8 @@ function AutomationEditor({
   }, []);
 
   const isValidConnection = useCallback(
-    connection => {
-      const target = nodes.find(node => node.id === connection.target);
+    (connection) => {
+      const target = nodes.find((node) => node.id === connection.target);
       const hasCycle = (node, visited = new Set()) => {
         if (node?.dta?.nodeType === 'trigger') return true;
         if (visited.has(node.id)) return false;
@@ -219,10 +222,10 @@ function AutomationEditor({
     if (
       arraysAreNotIdentical(
         selectedNodes,
-        nodes.map(node => node.id)
+        nodes.map((node) => node.id)
       )
     ) {
-      setSelectedNodes(nodes.map(node => node.id));
+      setSelectedNodes(nodes.map((node) => node.id));
     }
   };
 
@@ -243,7 +246,7 @@ function AutomationEditor({
       Alert.warning('Please hide drawer before paste');
       return;
     }
-    const copyPastedActions = actions.filter(action =>
+    const copyPastedActions = actions.filter((action) =>
       copiedNodes.includes(action.id)
     );
 
@@ -258,7 +261,7 @@ function AutomationEditor({
   };
 
   useEffect(() => {
-    const handleKeyDown = event => {
+    const handleKeyDown = (event) => {
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
           case 'c':

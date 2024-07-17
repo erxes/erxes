@@ -145,6 +145,7 @@ const historiesParams = `
   targetId: String
   targetIds: [String]
   triggerTypes: [String]
+  ids:[String]
 `;
 
 export const queries = `

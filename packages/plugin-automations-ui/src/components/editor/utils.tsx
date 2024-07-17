@@ -1,19 +1,23 @@
 import { IAction } from '@erxes/ui-automations/src/types';
-import { ITrigger } from '../../types';
-import { NodeType } from './types';
+import { colors } from '@erxes/ui/src';
 import { isEqual } from 'lodash';
 import { Edge } from 'reactflow';
+import { ITrigger } from '../../types';
+import { NodeType } from './types';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const generateEdges = ({
   actions,
   triggers,
+  workFlowActions,
   onDisconnect
 }: {
   triggers: ITrigger[];
   actions: IAction[];
+  workFlowActions?: { workflowId: string; actions: IAction[] }[];
   onDisconnect?: (edge) => void;
 }): Edge[] => {
-  const generatedEdges: any = [];
+  let generatedEdges: any = [];
 
   const commonStyle = {
     strokeWidth: 2
@@ -80,6 +84,16 @@ export const generateEdges = ({
           });
         }
       }
+
+      if (edgeObj.type === 'workflow') {
+        const workflow = (workFlowActions || [])?.some(({ actions }) =>
+          actions.some((action) => action.id !== edge[targetField])
+        );
+
+        if (workflow) {
+          edgeObj.target = undefined;
+        }
+      }
       if (!edgeObj?.target) {
         continue;
       }
@@ -87,15 +101,23 @@ export const generateEdges = ({
       generatedEdges.push(edgeObj);
     }
   }
+  for (const { actions } of workFlowActions || []) {
+    const workflowEdges = generateEdges({ actions, triggers: [] });
+    console.log({ workflowEdges });
+    generatedEdges = [...generatedEdges, ...workflowEdges];
+  }
+
+  console.log(generatedEdges);
 
   return generatedEdges;
 };
-const generateNode = (
+export const generateNode = (
   node: IAction & ITrigger,
   nodeType: string,
   nodes: IAction[] & ITrigger[],
   props: any,
-  generatedNodes: NodeType[]
+  generatedNodes: NodeType[],
+  parentId?: string
 ) => {
   const {
     isAvailableOptionalConnect,
@@ -107,7 +129,7 @@ const generateNode = (
     isCustom
   } = node;
 
-  return {
+  const doc: any = {
     id,
     data: {
       label,
@@ -121,15 +143,42 @@ const generateNode = (
     },
     position: generatNodePosition(nodes, node, generatedNodes),
     isConnectable: true,
-    type: 'primary',
+    type: node.type === 'workflow' ? 'workflow' : 'primary',
     style: {
       zIndex: -1
     }
   };
+
+  if (node.type === 'workflow') {
+    doc.style = {
+      backgroundColor: rgba(colors.colorPrimary, 0.12),
+      border: `1px solid ${colors.borderPrimary}`,
+      borderRadius: '8px',
+      zIndex: -1
+    };
+  }
+
+  if (parentId) {
+    doc.parentId = parentId;
+    doc.extent = 'parent';
+    doc.expandParent = true;
+    doc.draggable = false;
+    doc.selectable = false;
+  }
+
+  return doc;
 };
 
 export const generateNodes = (
-  { actions, triggers }: { actions: IAction[]; triggers: ITrigger[] },
+  {
+    actions,
+    triggers,
+    workFlowActions
+  }: {
+    actions: IAction[];
+    triggers: ITrigger[];
+    workFlowActions?: { workflowId: string; actions: IAction[] }[];
+  },
   props
 ) => {
   if (triggers.length === 0 && actions.length === 0) {
@@ -137,7 +186,7 @@ export const generateNodes = (
       {
         id: 'scratch-node',
         type: 'scratch',
-        data: { ...props },
+        data: props,
         position: { x: 0, y: 0 }
       }
     ];
@@ -156,10 +205,18 @@ export const generateNodes = (
     }
   }
 
+  for (const { workflowId, actions } of workFlowActions || []) {
+    for (const action of actions) {
+      generatedNodes.push(
+        generateNode(action, 'action', actions, props, [], workflowId)
+      );
+    }
+  }
+
   return generatedNodes;
 };
 
-const generatNodePosition = (
+export const generatNodePosition = (
   nodes: IAction[] & ITrigger[],
   node: IAction & ITrigger,
   generatedNodes: NodeType[]
@@ -167,7 +224,7 @@ const generatNodePosition = (
   if (node.position) {
     if (
       generatedNodes.find(
-        generatedNode =>
+        (generatedNode) =>
           generatedNode?.position?.x === node?.position?.x &&
           generatedNode?.position?.y === node?.position?.y
       )
@@ -182,7 +239,7 @@ const generatNodePosition = (
 
   const targetField = node.type === 'trigger' ? 'actionId' : 'nextActionId';
 
-  const prevNode = nodes.find(n => n[targetField] === node.id);
+  const prevNode = nodes.find((n) => n[targetField] === node.id);
 
   if (!prevNode) {
     return { x: 0, y: 0 };
@@ -200,7 +257,7 @@ export const checkNote = (automationNotes, activeId: string) => {
   const item = activeId.split('-');
   const type = item[0];
 
-  return (automationNotes || []).filter(note => {
+  return (automationNotes || []).filter((note) => {
     if (type === 'trigger' && note.triggerId !== item[1]) {
       return null;
     }

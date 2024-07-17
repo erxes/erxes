@@ -1,22 +1,20 @@
-import { AutomationConstants, IAutomation, IAutomationNote } from '../../types';
+import React, { memo, useState } from 'react';
+import { Handle, NodeProps, NodeToolbar, Position } from 'reactflow';
 import {
   BRANCH_HANDLE_OPTIONS,
   DEFAULT_HANDLE_OPTIONS,
   DEFAULT_HANDLE_STYLE
-} from './constants';
-import { ScratchNode as CommonScratchNode, Trigger } from './styles';
-import { Handle, NodeToolbar, Position } from 'reactflow';
-import React, { memo, useState } from 'react';
+} from '../constants';
+import { Trigger } from '../styles';
 
 import CommonForm from '@erxes/ui/src/components/form/Form';
-import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import NoteFormContainer from '../../containers/forms/NoteForm';
-import { __ } from '@erxes/ui/src/utils/core';
-import { checkNote } from './utils';
 import colors from '@erxes/ui/src/styles/colors';
-import { renderDynamicComponent } from '../../utils';
-import { ToolBarRemoveBtn, ToolbarNoteBtn } from '../../styles';
+import { __ } from '@erxes/ui/src/utils/core';
+import NoteFormContainer from '../../../containers/forms/NoteForm';
+import { ToolBarRemoveBtn, ToolbarNoteBtn } from '../../../styles';
+import { renderDynamicComponent } from '../../../utils';
+import { checkNote } from '../utils';
 
 const showHandler = (data, option) => {
   if (data.nodeType === 'trigger' && ['left'].includes(option.id)) {
@@ -26,53 +24,12 @@ const showHandler = (data, option) => {
   return true;
 };
 
-type Props = {
-  id: string;
-  data: {
-    automation: IAutomation;
-    automationNotes?: IAutomationNote[];
-    type: string;
-    nodeType: string;
-    actionType: string;
-    triggerType?: string;
-    icon: string;
-    label: string;
-    description: string;
-    config: any;
-    toggleDrawer: ({
-      type,
-      awaitingNodeId
-    }: {
-      type: string;
-      awaitingNodeId?: string;
-    }) => void;
-    onDoubleClick: (type: string, id: string) => void;
-    removeItem: (type: string, id: string) => void;
-    constants: AutomationConstants;
-    forceToolbarVisible: boolean;
-    toolbarPosition: Position;
-    additionalContent?: (id: string, type: string) => React.ReactNode;
-  };
-  selected: boolean;
-};
-
 type HandleProps = {
   id: string;
   position: any;
   style: any;
   label?: string;
   labelStyle?: any;
-};
-
-export const ScratchNode = ({ data }: Props) => {
-  const { toggleDrawer } = data;
-
-  return (
-    <CommonScratchNode onClick={toggleDrawer.bind(this, { type: 'triggers' })}>
-      <Icon icon="file-plus" size={25} />
-      <p>{__('How do you want to trigger this automation')}?</p>
-    </CommonScratchNode>
-  );
 };
 
 const renderTriggerContent = (
@@ -84,7 +41,7 @@ const renderTriggerContent = (
   if (nodeType !== 'trigger') {
     return null;
   }
-  const constant = (constants || []).find(c => c.type === type);
+  const constant = (constants || []).find((c) => c.type === type);
 
   if (!!constant?.isCustom) {
     return (
@@ -105,7 +62,7 @@ const renderTriggerContent = (
   return null;
 };
 
-export default memo(({ id, data, selected }: Props) => {
+export default memo(({ id, data, selected }: NodeProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const {
@@ -144,7 +101,7 @@ export default memo(({ id, data, selected }: Props) => {
     onDoubleClick(data.nodeType, id);
   };
 
-  const removeNode = e => {
+  const removeNode = (e) => {
     e.persist();
     removeItem(data.nodeType, id);
   };
@@ -155,7 +112,7 @@ export default memo(({ id, data, selected }: Props) => {
 
       return (
         <CommonForm
-          renderContent={formProps => (
+          renderContent={(formProps) => (
             <NoteFormContainer
               formProps={formProps}
               automationId={automation?._id || ''}
@@ -187,14 +144,14 @@ export default memo(({ id, data, selected }: Props) => {
     }
 
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
-      c => c.type === data[`${data.nodeType}Type`]
+      (c) => c.type === data[`${data.nodeType}Type`]
     );
 
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
 
-    const handle = optionalId => (
+    const handle = (optionalId) => (
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
@@ -267,10 +224,7 @@ export default memo(({ id, data, selected }: Props) => {
             {data.label}
           </div>
         </div>
-        <NodeToolbar
-          isVisible={data.forceToolbarVisible || undefined}
-          position={data.toolbarPosition}
-        ></NodeToolbar>
+
         {renderOptionalContent()}
         {renderTriggerContent(
           constants.triggersConst,
@@ -281,7 +235,7 @@ export default memo(({ id, data, selected }: Props) => {
         <p>{data.description}</p>
       </Trigger>
       {handleOptions.map(
-        option =>
+        (option) =>
           showHandler(data, option) && (
             <Handle
               key={option.id}
