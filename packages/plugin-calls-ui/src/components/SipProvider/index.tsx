@@ -57,7 +57,7 @@ export default class SipProvider extends React.Component<
     callUserIntegration: ICallConfigDoc;
     createSession: () => void;
     updateHistory: (
-      callId: string,
+      timeStamp: number,
       callStartTime: Date,
       callEndTime: Date,
       callStatus: string,
@@ -68,7 +68,7 @@ export default class SipProvider extends React.Component<
     ) => void;
     addHistory: (
       callStatus: string,
-      sessionId: string,
+      timeStamp: number,
       direction: string,
       customerPhone: string,
       callStartTime: Date,
@@ -420,7 +420,7 @@ export default class SipProvider extends React.Component<
 
   public playUnavailableAudio() {
     if (!this.ringbackTone) {
-      this.ringbackTone = new Audio('/sound/unAvialableCall.mp3');
+      this.ringbackTone = new Audio('/sound/unAvailableCall.mp3');
       this.ringbackTone.loop = false;
       this.ringbackTone
         .play()
@@ -468,7 +468,7 @@ export default class SipProvider extends React.Component<
       this.ringbackTone.loop = true;
 
       setTimeout(() => {
-        this.ringbackTone.play().catch(() => {
+        this.ringbackTone?.play().catch(() => {
           this.stopRingbackTone();
         });
       }, 4000);
@@ -657,7 +657,7 @@ export default class SipProvider extends React.Component<
           });
         }
         const diversionHeader = rtcRequest.getHeader('Diversion');
-
+        const timeStamp = rtcRequest.getHeader('Timestamp') || 0;
         const { rtcSession: rtcSessionInState } = this.state;
 
         let direction = 'OUTGOING';
@@ -709,13 +709,14 @@ export default class SipProvider extends React.Component<
           }
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'cancelled',
               direction,
               customerPhone,
               diversionHeader || '',
+              e.originator,
             );
           }
           this.setState({
@@ -753,7 +754,7 @@ export default class SipProvider extends React.Component<
           }
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'connected',
@@ -798,7 +799,7 @@ export default class SipProvider extends React.Component<
 
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'rejected',
@@ -836,7 +837,7 @@ export default class SipProvider extends React.Component<
           if (addHistory) {
             addHistory(
               'active',
-              this.state.rtcSession._id,
+              timeStamp,
               direction,
               customerPhone,
               this.state.rtcSession.start_time,

@@ -69,7 +69,7 @@ const types = `
     callEndTime: Date
     callType: String
     callStatus: String
-    sessionId: String
+    timeStamp: Int
     modifiedAt: Date
     createdAt: Date
     createdBy: String
@@ -91,7 +91,7 @@ const commonHistoryFields = `
   callEndTime: Date
   callType: String
   callStatus: String
-  sessionId: String
+  timeStamp: Int
   inboxIntegrationId: String
   transferedCallStatus: String
   endedBy: String
@@ -131,7 +131,7 @@ const mutations = `
   callDisconnect: String
   callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
   callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryEditStatus(callStatus: String, conversationId: String): String
+  callHistoryEditStatus(callStatus: String, timeStamp: Int): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
