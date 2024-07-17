@@ -186,7 +186,7 @@ export const mutations = `
   usersSetActiveStatus(_id: String!): User
   usersInvite(entries: [InvitationEntry]): Boolean
   usersResendInvitation(email: String!): String
-  usersConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String): User
+  usersConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String, operatorPhone: String): User
   usersSeenOnBoard: User
   usersConfigEmailSignatures(signatures: [EmailSignature]): User
   usersConfigGetNotificationByEmail(isAllowed: Boolean): User

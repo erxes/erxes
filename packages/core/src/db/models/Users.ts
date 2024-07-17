@@ -47,6 +47,7 @@ interface IConfirmParams {
   passwordConfirmation: string;
   fullName?: string;
   username?: string;
+  operatorPhone: string;
 }
 
 interface IInviteParams {
@@ -376,12 +377,14 @@ export const loadUserClass = (models: IModels) => {
       passwordConfirmation,
       fullName,
       username,
+      operatorPhone,
     }: {
       token: string;
       password: string;
       passwordConfirmation: string;
       fullName?: string;
       username?: string;
+      operatorPhone: string;
     }) {
       const user = await models.Users.findOne({
         registrationToken: token,
@@ -416,6 +419,7 @@ export const loadUserClass = (models: IModels) => {
               fullName,
               firstName: (fullName || '').split(' ')[0],
               lastName: (fullName || '').split(' ')[1] || '',
+              operatorPhone: (operatorPhone || '') || '',
             },
           },
         },

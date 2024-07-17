@@ -113,7 +113,7 @@ const List: React.FC<IProps> = (props) => {
 
     timer = setTimeout(() => {
       router.removeParams(navigate, location, "page");
-      router.setParams(navigate, location, { searchValue });
+      router.setParams(navigate, location, { searchValue, page: 1 });
     }, 500);
   };
 

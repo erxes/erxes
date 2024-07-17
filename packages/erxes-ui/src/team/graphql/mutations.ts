@@ -77,8 +77,8 @@ const usersSetActiveStatus = `
 `;
 
 const usersConfirmInvitation = `
-  mutation usersConfirmInvitation($token: String, $password: String, $passwordConfirmation: String, $fullName: String, $username: String) {
-    usersConfirmInvitation(token: $token, password: $password, passwordConfirmation: $passwordConfirmation, fullName: $fullName, username: $username) {
+  mutation usersConfirmInvitation($token: String, $password: String, $passwordConfirmation: String, $fullName: String, $username: String, $operatorPhone: String) {
+    usersConfirmInvitation(token: $token, password: $password, passwordConfirmation: $passwordConfirmation, fullName: $fullName, username: $username, operatorPhone: $operatorPhone) {
       _id
     }
   }
