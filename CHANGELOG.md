@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.14.0](https://github.com/erxes/erxes/compare/1.14.0-rc.10...1.14.0) (2024-07-17)
+
+
+### Features
+
+* **automations:** facebook comment bot ([4b14e6b](https://github.com/erxes/erxes/commit/4b14e6b23608e3599c44a5cabbcacbe50807af7d))
+* **calls:** added abandoned call ([9211675](https://github.com/erxes/erxes/commit/921167500cfebf48c4313a220f29bcdfbbb23b74))
+* **clientportal:** enable password reset for users from erxes ([6f3f3c6](https://github.com/erxes/erxes/commit/6f3f3c6cbb9acb0b88f98e533916a3e18111785e))
+
+
+### Bug Fixes
+
+* **cards:** cards move use on top bar and pipeline settings ([#5520](https://github.com/erxes/erxes/issues/5520)) ([188bc0b](https://github.com/erxes/erxes/commit/188bc0b661aaa0c3ded604caf0b2548284815243))
+* posclient check customer ([f8221c7](https://github.com/erxes/erxes/commit/f8221c73f13489b483b16d630e72e426e1faa9bd))
+
+## [1.13.6](https://github.com/erxes/erxes/compare/1.14.0-rc.10...1.14.0) (2024-07-05)
+
+
+### Reverts
+
+* fallback to AWS for marketing emails and SendGrid for transactional emails in SaaS version ([7d8d104](https://github.com/erxes/erxes/commit/7d8d10478b7ee11a4255d3551cf10fb45ab3eb65))
+
 ## [1.14.0-rc.10](https://github.com/erxes/erxes/compare/1.14.0-rc.9...1.14.0-rc.10) (2024-07-07)
 
 ### Bug Fixes
