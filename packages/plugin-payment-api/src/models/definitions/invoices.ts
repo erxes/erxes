@@ -40,7 +40,7 @@ export const invoiceSchema = new Schema({
   customerId: field({ type: String }),
   contentType: field({ type: String }),
   contentTypeId: field({ type: String }),
-  createdAt: field({ type: Date, default: new Date() }),
+  createdAt: field({ type: Date, default: Date.now }),
   resolvedAt: field({ type: Date }),
   data: field({ type: Schema.Types.Mixed }),
   apiResponse: field({ type: Schema.Types.Mixed }),

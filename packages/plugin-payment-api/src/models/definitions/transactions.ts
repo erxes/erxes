@@ -28,7 +28,7 @@ export const transactionSchema = new Schema({
   paymentKind: field({ type: String }),
   amount: field({ type: Number }),
   status: field({ type: String, default: PAYMENT_STATUS.PENDING }),
-  createdAt: field({ type: Date, default: new Date() }),
+  createdAt: field({ type: Date, default: Date.now }),
   updatedAt: field({ type: Date }),
   details: field({ type: Object }),
   description: field({ type: String }),
