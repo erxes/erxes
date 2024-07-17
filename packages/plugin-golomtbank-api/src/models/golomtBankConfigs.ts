@@ -29,15 +29,13 @@ export const loadGolomtBankConfigClass = (models: IModels) => {
     }
 
     public static async updateConfig(_id: string, doc: any) {
-
-
       await models.GolomtBankConfigs.updateOne({ _id }, { $set: doc });
 
       return models.GolomtBankConfigs.getConfig({ _id });
     }
 
     public static async removeConfig(_id: string) {
-      return "models.GolomtBankConfigs.remove({ _id });";
+      return models.GolomtBankConfigs.deleteOne({ _id });
     }
 
     public static async getConfig(doc: any) {

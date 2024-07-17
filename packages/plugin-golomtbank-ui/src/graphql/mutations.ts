@@ -1,6 +1,6 @@
 const addMutation = `
-mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String) {
-  golomtBankConfigsAdd(name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId) {
+mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String, $golomtCode: String) {
+  golomtBankConfigsAdd(name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId, golomtCode: $golomtCode) {
     _id
     name
     organizationName
@@ -10,13 +10,14 @@ mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientI
     configPassword
     registerId
     accountId
+    golomtCode
   }
 }
 `;
 
 const editMutation = `
-mutation GolomtBankConfigsEdit($_id: String!, $name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String) {
-  golomtBankConfigsEdit(_id: $_id, name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId) {
+mutation GolomtBankConfigsEdit($_id: String!, $name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String, $golomtCode: String) {
+  golomtBankConfigsEdit(_id: $_id, name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId, golomtCode: $golomtCode) {
     _id
     name
     organizationName
@@ -26,6 +27,7 @@ mutation GolomtBankConfigsEdit($_id: String!, $name: String, $organizationName: 
     configPassword
     registerId
     accountId
+    golomtCode
   }
 }
 `;
@@ -39,5 +41,5 @@ mutation GolomtBankConfigsRemove($_id: String) {
 export default {
   addMutation,
   editMutation,
-  removeMutation
+  removeMutation,
 };

@@ -4,7 +4,10 @@ import { useQuery, gql } from "@apollo/client";
 
 import Detail from "../components/Detail";
 import queries from "../graphql/queries";
-import { AccountDetailQueryResponse, AccountBalanceQueryResponse } from "../../../types/IGolomtAccount";
+import {
+  AccountDetailQueryResponse,
+  AccountBalanceQueryResponse,
+} from "../../../types/IGolomtAccount";
 
 type Props = {
   queryParams: any;
@@ -37,8 +40,8 @@ const DetailContainer = (props: Props) => {
   if (loading) {
     return <Spinner />;
   }
-  const detail = data && data.golomtBankAccountDetail ;
-  const balances = balance.data?.golomtBankAccountBalance ;
+  const detail = data && data.golomtBankAccountDetail;
+  const balances = balance.data?.golomtBankAccountBalance;
   if (!detail) {
     return null;
   }
@@ -48,11 +51,10 @@ const DetailContainer = (props: Props) => {
     loading,
     account: detail,
     balances: balances,
+    // accountList: accounts,
   };
 
-  return (
-      <Detail {...update} />
-  );
+  return <Detail {...update} />;
 };
 
 export default DetailContainer;
