@@ -57,14 +57,25 @@ module.exports = {
         ],
       },
       {
-        test: /\.(css)$/,
-        use: ['style-loader', 'css-loader'],
-        exclude: [/node_modules/],
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+            },
+          },
+        ],
+        exclude: /node_modules/,
       },
       {
-        test: /\.(css|scss)$/,
+        test: /\.scss$/,
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'node_modules/@nateradebaugh/react-datetime'),
+        ],
         use: ['style-loader', 'css-loader', 'sass-loader'],
-        exclude: [/node_modules/],
       },
       {
         test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
