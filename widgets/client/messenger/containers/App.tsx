@@ -1,4 +1,4 @@
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
+import '@nateradebaugh/react-datetime/scss/styles.scss';
 import * as React from 'react';
 import DumbApp from '../components/App';
 // import '../sass/style.min.css';
