@@ -155,16 +155,24 @@ export const repairIntegrations = async (
     throw new Error('Integration not found');
   }
 
-  for (const pageId of integration.facebookPageId || []) {
+  let pageId = integration.facebookPageId;
+
+  if (!pageId) {
+    throw new Error('Page ID not found');
+  }
+
+  try {
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
-
     await subscribePage(pageId, pageTokens[pageId]);
-
     await models.Integrations.deleteMany({
       erxesApiId: { $ne: integrationId },
-      facebookPageId: pageId,
+      facebookPageIds: pageId,
       kind: integration.kind
     });
+  } catch (e) {
+    debugError(
+      `Error ocurred while trying to get page access token with ${e.message}`
+    );
   }
 
   await models.Integrations.updateOne(
@@ -172,7 +180,9 @@ export const repairIntegrations = async (
     { $set: { healthStatus: 'healthy', error: '' } }
   );
 
-  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+  const ENDPOINT_URL = getEnv({
+    name: 'ENDPOINT_URL'
+  });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
   if (ENDPOINT_URL) {
@@ -182,8 +192,8 @@ export const repairIntegrations = async (
         method: 'POST',
         body: JSON.stringify({
           domain: `${DOMAIN}/gateway/pl:instagram`,
-          facebookPageId: integration.facebookPageId,
-          fbPageIds: integration.facebookPageId
+          instagramPageId: integration.instagramPageId,
+          igPageId: integration.instagramPageId
         }),
         headers: { 'Content-Type': 'application/json' }
       });
