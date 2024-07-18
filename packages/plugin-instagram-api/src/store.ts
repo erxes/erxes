@@ -150,7 +150,6 @@ export const getOrCreateCustomer = async (
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
   let customer = await models.Customers.findOne({ userId });
-
   if (customer) {
     return customer;
   }
