@@ -13,10 +13,10 @@ export const commonParams = `
 `;
 
 const checklistsAdd = `
-  mutation purchaseChecklistsAdd(
+  mutation purchasesChecklistsAdd(
     ${commonVariables}
   ) {
-    purchaseChecklistsAdd(
+    purchasesChecklistsAdd(
       ${commonParams}
     ) {
       ${checklistFields}
@@ -25,11 +25,11 @@ const checklistsAdd = `
 `;
 
 const checklistsEdit = `
-  mutation purchaseChecklistsEdit(
+  mutation purchasesChecklistsEdit(
     $_id: String!,
     ${commonVariables}
   ) {
-    purchaseChecklistsEdit(
+    purchasesChecklistsEdit(
       _id: $_id,
       ${commonParams}
     ) {
@@ -39,8 +39,8 @@ const checklistsEdit = `
 `;
 
 const checklistsRemove = `
-  mutation purchaseChecklistsRemove($_id: String!) {
-    purchaseChecklistsRemove(_id: $_id) {
+  mutation purchasesChecklistsRemove($_id: String!) {
+    purchasesChecklistsRemove(_id: $_id) {
       _id
     }
   }
@@ -75,11 +75,11 @@ const checklistItemsAdd = `
 `;
 
 const checklistItemsEdit = `
-  mutation purchaseChecklistItemsEdit(
+  mutation purchasesChecklistItemsEdit(
     $_id: String!,
     ${commonItemVariables}
   ) {
-    purchaseChecklistItemsEdit(
+    purchasesChecklistItemsEdit(
       _id: $_id,
       ${commonItemParams}
     ) {
@@ -91,16 +91,16 @@ const checklistItemsEdit = `
 `;
 
 const checklistItemsRemove = `
-  mutation purchaseChecklistItemsRemove($_id: String!) {
-    purchaseChecklistItemsRemove(_id: $_id) {
+  mutation purchasesChecklistItemsRemove($_id: String!) {
+    purchasesChecklistItemsRemove(_id: $_id) {
       _id
     }
   }
 `;
 
 const checklistItemsOrder = `
-  mutation purchaseChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
-    purchaseChecklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
+  mutation purchasesChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
+    purchasesChecklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
       _id
     }
   }

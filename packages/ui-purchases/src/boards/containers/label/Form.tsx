@@ -1,17 +1,17 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import * as React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import Form from '../../components/label/Form';
-import { mutations, queries } from '../../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
+import * as React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import Form from "../../components/label/Form";
+import { mutations, queries } from "../../graphql";
 import {
   AddPipelineLabelMutationResponse,
   PipelineLabelDetailQueryResponse,
   RemovePipelineLabelMutationResponse
-} from '../../types';
+} from "../../types";
 
 type Props = {
   pipelineId: string;
@@ -55,7 +55,7 @@ class FormContainer extends React.Component<FinalProps> {
 
     const remove = (pipelineLabelId: string) => {
       toggleConfirm(() => {
-        confirm('Are you sure? This cannot be undone.', {
+        confirm("Are you sure? This cannot be undone.", {
           beforeDismiss: () => {
             toggleConfirm();
           }
@@ -64,7 +64,7 @@ class FormContainer extends React.Component<FinalProps> {
             variables: { _id: pipelineLabelId }
           })
             .then(() => {
-              Alert.success('You successfully deleted a label.');
+              Alert.success("You successfully deleted a label.");
 
               if (selectedLabelIds.includes(pipelineLabelId)) {
                 const remained = selectedLabelIds.filter(
@@ -115,7 +115,7 @@ class FormContainer extends React.Component<FinalProps> {
           btnSize="small"
           block={!this.props.labelId && true}
           successMessage={`You successfully ${
-            object && object._id ? 'updated' : 'added'
+            object && object._id ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -127,7 +127,7 @@ class FormContainer extends React.Component<FinalProps> {
       showForm,
       remove,
       label: pipelineLabelDetailQuery
-        ? pipelineLabelDetailQuery.pipelineLabelDetail
+        ? pipelineLabelDetailQuery.purchasesPipelineLabelDetail
         : undefined
     };
 
@@ -140,17 +140,17 @@ export default withProps<Props>(
     graphql<Props, PipelineLabelDetailQueryResponse, { _id: string }>(
       gql(queries.pipelineLabelDetail),
       {
-        name: 'pipelineLabelDetailQuery',
+        name: "pipelineLabelDetailQuery",
         options: ({ labelId }) => ({
-          variables: { _id: labelId || '' },
-          fetchPolicy: 'network-only'
+          variables: { _id: labelId || "" },
+          fetchPolicy: "network-only"
         })
       }
     ),
     graphql<Props, RemovePipelineLabelMutationResponse, { _id: string }>(
       gql(mutations.pipelineLabelsRemove),
       {
-        name: 'removeMutation',
+        name: "removeMutation",
         options: ({ pipelineId }) => ({
           refetchQueries: getRefetchQueries(pipelineId)
         })

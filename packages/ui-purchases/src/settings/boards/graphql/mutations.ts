@@ -9,24 +9,24 @@ const commonParams = `
 `;
 
 const boardAdd = `
-  mutation boardsAdd(${commonParamsDef}) {
-    boardsAdd(${commonParams}) {
+  mutation purchasesBoardsAdd(${commonParamsDef}) {
+    purchasesBoardsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const boardEdit = `
-  mutation boardsEdit($_id: String!, ${commonParamsDef}) {
-    boardsEdit(_id: $_id, ${commonParams}) {
+  mutation purchasesBoardsEdit($_id: String!, ${commonParamsDef}) {
+    purchasesBoardsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
 `;
 
 const boardRemove = `
-  mutation boardsRemove($_id: String!) {
-    boardsRemove(_id: $_id)
+  mutation purchasesBoardsRemove($_id: String!) {
+    purchasesBoardsRemove(_id: $_id)
   }
 `;
 
@@ -77,48 +77,48 @@ const commonPipelineParams = `
 `;
 
 const pipelineAdd = `
-  mutation pipelinesAdd(${commonPipelineParamsDef}) {
-    pipelinesAdd(${commonPipelineParams}) {
+  mutation purchasesPipelinesAdd(${commonPipelineParamsDef}) {
+    purchasesPipelinesAdd(${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineEdit = `
-  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
-    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+  mutation purchasesPipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    purchasesPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineRemove = `
-  mutation pipelinesRemove($_id: String!) {
-    pipelinesRemove(_id: $_id)
+  mutation purchasesPipelinesRemove($_id: String!) {
+    purchasesPipelinesRemove(_id: $_id)
   }
 `;
 const pipelinesArchive = `
-  mutation pipelinesArchive($_id: String!) {
-    pipelinesArchive(_id: $_id)
+  mutation purchasesPipelinesArchive($_id: String!) {
+    purchasesPipelinesArchive(_id: $_id)
   }
 `;
 
 const pipelinesCopied = `
-  mutation pipelinesCopied($_id: String!) {
-    pipelinesCopied(_id: $_id)
+  mutation purchasesPipelinesCopied($_id: String!) {
+    purchasesPipelinesCopied(_id: $_id)
   }
 `;
 const pipelinesUpdateOrder = `
-  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
-    pipelinesUpdateOrder(orders: $orders) {
+  mutation purchasesPipelinesUpdateOrder($orders: [OrderItem]) {
+    purchasesPipelinesUpdateOrder(orders: $orders) {
       _id
     }
   }
 `;
 
 const manageExpenses = `
-  mutation manageExpenses($expenseDocs: [ExpenseInput]) {
-    manageExpenses(expenseDocs: $expenseDocs) {
+  mutation purchasesManageExpenses($expenseDocs: [ExpenseInput]) {
+    purchasesManageExpenses(expenseDocs: $expenseDocs) {
       _id,
       name,
       description,
@@ -138,5 +138,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder,
+  pipelinesUpdateOrder
 };

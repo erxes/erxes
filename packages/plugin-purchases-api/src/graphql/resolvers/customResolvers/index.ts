@@ -1,20 +1,16 @@
-import Board from "./board";
+import PurchasesBoard from "./board";
 
-import Pipeline from "./pipeline";
-import Stage from "./stage";
+import PurchasesPipeline from "./pipeline";
+import PurchasesStage from "./stage";
 import Purchase from "./purchase";
-import Checklist from "./checklists";
-import {
-  default as DealListItem,
-  default as PurchaseListItem
-} from "./commonListItem";
+import PurchasesChecklist from "./checklists";
+import { default as PurchaseListItem } from "./commonListItem";
 
 export {
-  Board,
-  Pipeline,
-  Stage,
+  PurchasesBoard,
+  PurchasesPipeline,
+  PurchasesStage,
   Purchase,
-  Checklist,
-  DealListItem,
+  PurchasesChecklist,
   PurchaseListItem
 };

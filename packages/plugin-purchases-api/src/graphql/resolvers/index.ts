@@ -1,11 +1,11 @@
 import customScalars from "@erxes/api-utils/src/customScalars";
 import {
-  Board,
-  Pipeline,
-  Stage,
+  PurchasesBoard,
+  PurchasesPipeline,
+  PurchasesStage,
   Purchase,
   PurchaseListItem,
-  Checklist
+  PurchasesChecklist
 } from "./customResolvers";
 import {
   Board as BoardMutations,
@@ -25,12 +25,12 @@ import {
 
 const resolvers: any = {
   ...customScalars,
-  Board,
-  Pipeline,
-  Stage,
+  PurchasesBoard,
+  PurchasesPipeline,
+  PurchasesStage,
   Purchase,
   PurchaseListItem,
-  Checklist,
+  PurchasesChecklist,
   Mutation: {
     ...BoardMutations,
     ...PurchaseMutations,

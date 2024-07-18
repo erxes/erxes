@@ -4,13 +4,11 @@ import {
   BOARD_TYPES,
   VISIBLITIES
 } from "../../../models/definitions/constants";
-import {
-  generateDealCommonFilters,
-  generatePurchaseCommonFilters
-} from "../queries/utils";
+import { generatePurchaseCommonFilters } from "../queries/utils";
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
+    console.log("pipeline", pipeline);
     if (!pipeline.userId) {
       return;
     }

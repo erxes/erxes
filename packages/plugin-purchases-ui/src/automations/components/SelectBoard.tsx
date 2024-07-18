@@ -103,8 +103,8 @@ export default class SelectBoard extends React.Component<Props, State> {
       >
         <Attributes>
           <React.Fragment>
-            <BoardSelect
-              type={type.includes("cards:") ? type.slice(6) : type}
+            {/* <BoardSelect
+              type={type.includes("purchases:") ? type.slice(6) : type}
               stageId={this.state.stageId}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}
@@ -112,7 +112,7 @@ export default class SelectBoard extends React.Component<Props, State> {
               onChangePipeline={plIdOnChange}
               onChangeBoard={brIdOnChange}
               autoSelectStage={false}
-            />
+            /> */}
           </React.Fragment>
         </Attributes>
       </Popover>

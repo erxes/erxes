@@ -8,7 +8,7 @@ import {
 } from "./common";
 
 export const types = ({ contacts, tags }) => `
-  type PurchasesListItem @key(fields: "_id") {
+  type PurchaseListItem @key(fields: "_id") {
     products: JSON
     unUsedAmount: JSON
     amount: JSON
@@ -16,7 +16,7 @@ export const types = ({ contacts, tags }) => `
     ${commonListTypes}
   }
 
-  type Purchases @key(fields: "_id") {
+  type Purchase @key(fields: "_id") {
     _id: String!
     unUsedAmount: JSON
     amount: JSON
@@ -38,7 +38,7 @@ export const types = ({ contacts, tags }) => `
     ${commonTypes}
   }
 
-  type PurchasesTotalCurrency {
+  type PurchaseTotalCurrency {
     amount: Float
     name: String
   }
@@ -53,17 +53,17 @@ export const types = ({ contacts, tags }) => `
   }
 
 
-  type PurchasesTotalForType {
+  type PurchaseTotalForType {
     _id: String
     name: String
-    currencies: [PurchasesTotalCurrency]
+    currencies: [PurchaseTotalCurrency]
   }
 
-  input PurchasesProductField {
+  input PurchaseProductField {
     productId : String
     quantity: Int
   }
-  input PurchasesExpenseInput {
+  input PurchaseExpenseInput {
     _id: String
     name: String
     description: String
@@ -140,22 +140,22 @@ const archivedPurchasesParams = `
  `;
 
 export const queries = `
- purchaseDetail(_id: String!): Purchases
- purchasecheckDiscount(_id: String!,products:[PurchasesProductField]):JSON
- purchases(${listQueryParams}): [PurchasesListItem]
+ purchaseDetail(_id: String!): Purchase
+ purchasecheckDiscount(_id: String!,products:[PurchaseProductField]):JSON
+ purchases(${listQueryParams}): [PurchaseListItem]
  purchasesTotalCount(${listQueryParams}): Int
  archivedPurchases(
    page: Int
    perPage: Int
    ${archivedPurchasesParams}
- ): [Purchases]
+ ): [Purchase]
  archivedPurchasesCount(
    ${archivedPurchasesParams}
  ): Int
  purchasesTotalAmounts(
    ${commonQueryParams}
    ${conformityQueryFields}
- ): [PurchasesTotalForType]
+ ): [PurchaseTotalForType]
   expenses: [Expense]
   expensesTotalCount: JSON
   expenseDetail(_id: String!): Expense
@@ -163,15 +163,15 @@ export const queries = `
 `;
 
 export const mutations = `
- purchasesAdd(name: String!, ${copyParams}, ${purchaseMutationParams}, ${commonMutationParams}): Purchases
- purchasesEdit(_id: String!, name: String, ${purchaseMutationParams}, ${commonMutationParams}): Purchases
- purchasesChange(${commonDragParams}): Purchases
- purchasesRemove(_id: String!): Purchases
- purchasesWatch(_id: String, isAdd: Boolean): Purchases
- purchasesCopy(_id: String!, proccessId: String): Purchases
+ purchasesAdd(name: String!, ${copyParams}, ${purchaseMutationParams}, ${commonMutationParams}): Purchase
+ purchasesEdit(_id: String!, name: String, ${purchaseMutationParams}, ${commonMutationParams}): Purchase
+ purchasesChange(${commonDragParams}): Purchase
+ purchasesRemove(_id: String!): Purchase
+ purchasesWatch(_id: String, isAdd: Boolean): Purchase
+ purchasesCopy(_id: String!, proccessId: String): Purchase
  purchasesArchive(stageId: String!, proccessId: String): String
  purchasesCreateProductsData(proccessId: String, purchaseId: String, docs: JSON): JSON
  purchasesEditProductData(proccessId: String, purchaseId: String, dataId: String, doc: JSON): JSON
  purchasesDeleteProductData(proccessId: String, purchaseId: String, dataId: String): JSON
- purchaseManageExpenses(expenseDocs: [PurchasesExpenseInput]): [Expense]
+ purchaseManageExpenses(expenseDocs: [PurchaseExpenseInput]): [Expense]
 `;

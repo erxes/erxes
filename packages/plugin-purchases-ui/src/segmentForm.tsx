@@ -68,7 +68,7 @@ class Form extends React.Component<any, any, any> {
       return <Spinner />;
     }
 
-    const boards = boardsQuery.boards || [];
+    const boards = boardsQuery.purchasesBoards || [];
 
     const options = boards.map(b => ({
       value: b._id,

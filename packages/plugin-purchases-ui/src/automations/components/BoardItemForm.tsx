@@ -70,7 +70,7 @@ class BoardItemForm extends React.Component<Props, State> {
           variables: { pipelineId: plId }
         })
         .then(data => {
-          this.setState({ pipelineLabels: data.data.pipelineLabels });
+          this.setState({ pipelineLabels: data.data.purchasesPipelineLabels });
         })
         .catch(e => {
           Alert.error(e.message);
@@ -117,7 +117,7 @@ class BoardItemForm extends React.Component<Props, State> {
     return (
       <Common config={this.state.config} {...this.props}>
         <BoardItemWrapper>
-          {this.renderSelect()}
+          {/* {this.renderSelect()} */}
           <PlaceHolderInput
             inputName="cardName"
             label="Name"

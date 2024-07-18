@@ -58,8 +58,8 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const stages = stagesQuery ? stagesQuery.stages : [];
-    const boards = boardsQuery.boards || [];
+    const stages = stagesQuery ? stagesQuery.purchasesStages : [];
+    const boards = boardsQuery.purchasesBoards || [];
     const departments = departmentsQuery.departments || [];
     const tags = tagsQuery.tags || [];
 

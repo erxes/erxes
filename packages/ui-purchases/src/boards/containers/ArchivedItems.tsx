@@ -4,7 +4,7 @@ import {
   Alert,
   confirm,
   renderWithProps,
-  router as routerUtils,
+  router as routerUtils
 } from "@erxes/ui/src/utils";
 import { IItemParams, IOptions, RemoveMutation, SaveMutation } from "../types";
 import { mutations, queries } from "../graphql";
@@ -56,7 +56,7 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
       const { setActiveItemMutation, archivedItemsQuery } = props;
 
       setActiveItemMutation({
-        variables: { _id: item._id, stageId: item.stageId, status: "active" },
+        variables: { _id: item._id, stageId: item.stageId, status: "active" }
       })
         .then(async () => {
           Alert.success("You successfully sent to a board");
@@ -64,14 +64,14 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
           await archivedItemsQuery.refetch();
           routerUtils.setParams(navigate, location, { key: Math.random() });
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     } else {
       const { setActiveStageMutation, archivedStagesQuery, options } = props;
 
       setActiveStageMutation({
-        variables: { _id: item._id, type: options.type, status: "active" },
+        variables: { _id: item._id, type: options.type, status: "active" }
       })
         .then(async () => {
           Alert.success("You successfully sent to a board");
@@ -80,7 +80,7 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
 
           routerUtils.setParams(navigate, location, { key: Math.random() });
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     }
@@ -92,14 +92,14 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
 
       confirm().then(() =>
         removeMutation({
-          variables: { _id: item._id },
+          variables: { _id: item._id }
         })
           .then(() => {
             Alert.success(`You successfully deleted a ${options.type}`);
 
             archivedItemsQuery.refetch();
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           })
       );
@@ -108,14 +108,14 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
 
       confirm().then(() =>
         removeStageMutation({
-          variables: { _id: item._id },
+          variables: { _id: item._id }
         })
           .then(() => {
             Alert.success("You successfully deleted a stage");
 
             archivedStagesQuery.refetch();
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           })
       );
@@ -132,7 +132,7 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
       archivedItemsQuery,
       archivedStagesQuery,
       itemFilters,
-      type,
+      type
     } = props;
 
     let query;
@@ -163,13 +163,13 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
         pipelineId,
         search,
         perPage: 20,
-        page: items.length,
+        page: items.length
       };
 
       if (type === "item") {
         variables = {
           ...variables,
-          ...itemFilters,
+          ...itemFilters
         };
       }
 
@@ -181,7 +181,7 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
           }
 
           const prevItems = prev[itemName] || [];
-          const prevItemIds = prevItems.map((m) => m._id);
+          const prevItemIds = prevItems.map(m => m._id);
 
           const fetchedItems = [] as any;
 
@@ -193,9 +193,9 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
 
           return {
             ...prev,
-            [itemName]: [...prevItems, ...fetchedItems],
+            [itemName]: [...prevItems, ...fetchedItems]
           };
-        },
+        }
       });
     }
   };
@@ -206,7 +206,7 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
     archivedItemsCountQuery,
     archivedStagesCountQuery,
     options,
-    type,
+    type
   } = props;
 
   let items;
@@ -218,8 +218,9 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
       archivedItemsCountQuery[options.queriesName.archivedItemsCountQuery] >
       items.length;
   } else {
-    items = archivedStagesQuery.archivedStages || [];
-    hasMore = archivedStagesCountQuery.archivedStagesCount > items.length;
+    items = archivedStagesQuery.purchasesArchivedStages || [];
+    hasMore =
+      archivedStagesCountQuery.purchasesArchivedStagesCount > items.length;
   }
 
   const updatedProps = {
@@ -229,7 +230,7 @@ const ArchivedItemsContainer = (props: IFinalProps) => {
     type,
     options,
     hasMore,
-    loadMore: loadMore,
+    loadMore: loadMore
   };
 
   return <ArchivedItems {...updatedProps} />;
@@ -246,32 +247,32 @@ export default (props: IProps) => {
         skip: ({ type }) => type === "item",
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: "network-only"
+        })
       }),
       graphql<IProps>(gql(options.queries.archivedItemsQuery), {
         name: "archivedItemsQuery",
         skip: ({ type }) => type === "list",
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search, perPage: 20, ...itemFilters },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: "network-only"
+        })
       }),
       graphql<IProps>(gql(queries.archivedStagesCount), {
         name: "archivedStagesCountQuery",
         skip: ({ type }) => type === "item",
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: "network-only"
+        })
       }),
       graphql<IProps>(gql(options.queries.archivedItemsCountQuery), {
         name: "archivedItemsCountQuery",
         skip: ({ type }) => type === "list",
         options: ({ pipelineId, search }) => ({
           variables: { pipelineId, search, ...itemFilters },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: "network-only"
+        })
       }),
       graphql<IProps, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),
@@ -279,22 +280,22 @@ export default (props: IProps) => {
           name: "setActiveItemMutation",
           skip: ({ type }) => type === "list",
           options: () => ({
-            refetchQueries: ["archivedItemsQuery"],
-          }),
+            refetchQueries: ["archivedItemsQuery"]
+          })
         }
       ),
       graphql<IProps, SaveMutation, IItemParams>(gql(mutations.stagesEdit), {
         name: "setActiveStageMutation",
-        skip: ({ type }) => type === "item",
+        skip: ({ type }) => type === "item"
       }),
       graphql<IProps, RemoveMutation, { _id: string }>(
         gql(options.mutations.removeMutation),
         {
-          name: "removeMutation",
+          name: "removeMutation"
         }
       ),
       graphql<IProps>(gql(mutations.stagesRemove), {
-        name: "removeStageMutation",
+        name: "removeStageMutation"
       })
     )(ArchivedItemsContainer)
   );

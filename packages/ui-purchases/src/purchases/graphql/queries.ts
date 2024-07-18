@@ -13,7 +13,7 @@ const commonParams = `
   $labelIds: [String],
   $search: String,
   $priority: [String],
-  $date: ItemDate,
+  $date: PurchasesItemDate,
   $pipelineId: String,
   $parentId: String,
   $closeDateType: String,
@@ -214,7 +214,7 @@ const productDetail = `
 `;
 
 const checkDiscount = `
-  query checkDiscount($_id: String!, $products: [ProductField]) {
+  query checkDiscount($_id: String!, $products: [PurchasesProductField]) {
     checkDiscount(_id: $_id, products: $products)
   }
 `;

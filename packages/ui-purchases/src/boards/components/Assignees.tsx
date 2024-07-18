@@ -1,7 +1,7 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { getUserAvatar } from '@erxes/ui/src/utils';
-import React from 'react';
-import styled from 'styled-components';
+import { IUser } from "@erxes/ui/src/auth/types";
+import { getUserAvatar } from "@erxes/ui/src/utils";
+import React from "react";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   > img {
@@ -19,7 +19,7 @@ type Props = {
 
 function Assignees(props: Props) {
   const getFullName = (user: IUser) => {
-    return user.details ? user.details.fullName : 'Unknown';
+    return user.details ? user.details.fullName : "Unknown";
   };
 
   const { users = [], limit = 3 } = props;

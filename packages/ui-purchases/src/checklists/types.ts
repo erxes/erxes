@@ -18,7 +18,7 @@ export interface IChecklistsParam {
 }
 
 export type ChecklistsQueryResponse = {
-  checklists: IChecklist[];
+  purchasesChecklists: IChecklist[];
   loading: boolean;
   refetch: () => void;
   subscribeToMore: any;

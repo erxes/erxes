@@ -17,7 +17,7 @@ interface IChecklistItemsEdit extends IChecklistItem {
 
 const checklistsChanged = (checklist: IChecklistsEdit) => {
   graphqlPubsub.publish(
-    `checklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
+    `purchasesChecklistsChanged:${checklist.contentType}:${checklist.contentTypeId}`,
     {
       checklistsChanged: {
         _id: checklist._id,
@@ -28,9 +28,9 @@ const checklistsChanged = (checklist: IChecklistsEdit) => {
   );
 };
 
-const checklistDetailChanged = (_id: string) => {
-  graphqlPubsub.publish(`checklistDetailChanged:${_id}`, {
-    checklistDetailChanged: {
+const purchasesChecklistDetailChanged = (_id: string) => {
+  graphqlPubsub.publish(`purchasesChecklistDetailChanged:${_id}`, {
+    purchasesChecklistDetailChanged: {
       _id
     }
   });
@@ -86,7 +86,7 @@ const checklistMutations = {
       user
     );
 
-    checklistDetailChanged(_id);
+    purchasesChecklistDetailChanged(_id);
 
     return updated;
   },
@@ -138,7 +138,7 @@ const checklistMutations = {
       user
     );
 
-    checklistDetailChanged(checklistItem.checklistId);
+    purchasesChecklistDetailChanged(checklistItem.checklistId);
 
     return checklistItem;
   },
@@ -166,7 +166,7 @@ const checklistMutations = {
       user
     );
 
-    checklistDetailChanged(updated.checklistId);
+    purchasesChecklistDetailChanged(updated.checklistId);
 
     return updated;
   },
@@ -189,7 +189,7 @@ const checklistMutations = {
       user
     );
 
-    checklistDetailChanged(checklistItem.checklistId);
+    purchasesChecklistDetailChanged(checklistItem.checklistId);
 
     return removed;
   },

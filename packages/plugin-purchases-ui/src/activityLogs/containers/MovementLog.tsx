@@ -24,7 +24,7 @@ class MovementLogContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const contentDetail = boardLogsQuery.boardLogs || {};
+    const contentDetail = boardLogsQuery.purchasesBoardLogs || {};
 
     const updatedProps = {
       ...this.props,

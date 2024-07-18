@@ -73,6 +73,7 @@ class MainActionBar extends React.Component<Props, State> {
 
   renderBoards() {
     const { currentBoard, boards } = this.props;
+
     if ((currentBoard && boards.length === 1) || boards.length === 0) {
       return (
         <EmptyState icon="web-grid-alt" text="No other boards" size="small" />
@@ -478,7 +479,7 @@ class MainActionBar extends React.Component<Props, State> {
 
         {isEnabled("segments") && (
           <TemporarySegment
-            contentType={`cards:${type}`}
+            contentType={`purchases:${type}`}
             serviceConfig={{
               boardId: currentBoard?._id,
               pipelineId: currentPipeline?._id

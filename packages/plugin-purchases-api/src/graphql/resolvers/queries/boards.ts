@@ -93,7 +93,7 @@ const boardQueries = {
       { $match: { ...commonQuerySelector, type } },
       {
         $lookup: {
-          from: "pipelines",
+          from: "purchases_pipelines",
           let: { boardId: "$_id" },
           pipeline: [
             {

@@ -1,4 +1,4 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IChecklistDoc {
   contentType: string;
@@ -20,7 +20,7 @@ export interface IChecklistsParam {
 }
 
 export type ChecklistsQueryResponse = {
-  checklists: IChecklist[];
+  purchasesChecklists: IChecklist[];
   loading: boolean;
   refetch: () => void;
   subscribeToMore: any;

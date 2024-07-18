@@ -1,12 +1,12 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { queries as boardQueries } from '../../graphql';
-import { IOptions, IPipeline, StagesQueryResponse } from '../../types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import Move from '../../components/editForm/Move';
-import { IItem } from '../../types';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { queries as boardQueries } from "../../graphql";
+import { IOptions, IPipeline, StagesQueryResponse } from "../../types";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
+import Move from "../../components/editForm/Move";
+import { IItem } from "../../types";
 
 type Props = {
   item: IItem;
@@ -16,13 +16,13 @@ type Props = {
 };
 
 class MoveContainer extends React.Component<{
-  stagesQuery: any;
+  stagesQuery: StagesQueryResponse;
   options: IOptions;
 }> {
   render() {
     const { stagesQuery } = this.props;
 
-    const stages = stagesQuery.stages || [];
+    const stages = stagesQuery.purchasesStages || [];
 
     const updatedProps = {
       ...this.props,
@@ -40,7 +40,7 @@ export default withProps<Props>(
       StagesQueryResponse,
       { pipelineId: string }
     >(gql(boardQueries.stages), {
-      name: 'stagesQuery',
+      name: "stagesQuery",
       options: ({ item: { pipeline } }) => ({
         variables: {
           pipelineId: pipeline._id

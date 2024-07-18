@@ -8,9 +8,9 @@ export default {
     {},
     { user, models, subdomain }: IContext
   ) {
-    if (board.pipelines) {
-      return board.pipelines;
-    }
+    // if (board.pipelines) {
+    //   return board.pipelines;
+    // }
 
     if (user.isOwner) {
       return models.Pipelines.find({

@@ -12,13 +12,13 @@ const pipelineLabelFields = `
 `;
 
 const archivedStages = `
-  query purchaseArchivedStages(
+  query purchasesArchivedStages(
     $pipelineId: String!,
     $search: String,
     $page: Int,
     $perPage: Int,
   ) {
-    purchaseArchivedStages(
+    purchasesArchivedStages(
       pipelineId: $pipelineId,
       search: $search,
       page: $page,
@@ -31,8 +31,8 @@ const archivedStages = `
 `;
 
 const boardGetLast = `
-  query purchaseBoardGetLast($type: String!) {
-    purchaseBoardGetLast(type: $type) {
+  query purchasesBoardGetLast($type: String!) {
+    purchasesBoardGetLast(type: $type) {
       _id
       name
       pipelines {
@@ -44,8 +44,8 @@ const boardGetLast = `
 `;
 
 const boardDetail = `
-  query purchaseBoardDetail($_id: String!) {
-    purchaseBoardDetail(_id: $_id) {
+  query purchasesBoardDetail($_id: String!) {
+    purchasesBoardDetail(_id: $_id) {
       _id
       name
       pipelines {
@@ -73,11 +73,11 @@ const boardDetail = `
 `;
 
 const archivedStagesCount = `
-  query purchaseArchivedStagesCount(
+  query purchasesArchivedStagesCount(
     $pipelineId: String!,
     $search: String
   ) {
-    purchaseArchivedStagesCount(
+    purchasesArchivedStagesCount(
       pipelineId: $pipelineId,
       search: $search
     )
@@ -85,8 +85,8 @@ const archivedStagesCount = `
 `;
 
 const pipelineAssignedUsers = `
-  query purchasePipelineAssignedUsers($_id: String!) {
-    purchasePipelineAssignedUsers(_id: $_id) {
+  query purchasesPipelineAssignedUsers($_id: String!) {
+    purchasesPipelineAssignedUsers(_id: $_id) {
       _id
       details {
         avatar
@@ -97,16 +97,16 @@ const pipelineAssignedUsers = `
 `;
 
 const pipelineLabelDetail = `
-  query purchasePipelineLabelDetail($_id: String!) {
-    purchasePipelineLabelDetail(_id: $_id) {
+  query purchasesPipelineLabelDetail($_id: String!) {
+    purchasesPipelineLabelDetail(_id: $_id) {
       ${pipelineLabelFields}
     }
   }
 `;
 
 const boards = `
-  query purchaseBoards($type: String!) {
-    purchaseBoards(type: $type) {
+  query purchasesBoards($type: String!) {
+    purchasesBoards(type: $type) {
       _id
       name
 
@@ -119,8 +119,8 @@ const boards = `
 `;
 
 const pipelines = `
-  query purchasePipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
-    purchasePipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
+  query purchasesPipelines($boardId: String, $type: String, $perPage: Int, $page: Int) {
+    purchasesPipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page) {
       _id
       name
       boardId
@@ -205,10 +205,10 @@ const stageCommon = `
 `;
 
 const stages = `
-  query purchaseStages(
+  query purchasesStages(
     ${stageParams}
   ) {
-    purchaseStages(
+    purchasesStages(
       ${stageParamDefs}
     ) {
       ${stageCommon}
@@ -217,16 +217,16 @@ const stages = `
 `;
 
 const pipelineLabels = `
-  query purchasePipelineLabels($pipelineId: String!) {
-    purchasePipelineLabels(pipelineId: $pipelineId) {
+  query purchasesPipelineLabels($pipelineId: String!) {
+    purchasesPipelineLabels(pipelineId: $pipelineId) {
       ${pipelineLabelFields}
     }
   }
 `;
 
 const pipelineDetail = `
-  query purchasePipelineDetail($_id: String!) {
-    purchasePipelineDetail(_id: $_id) {
+  query purchasesPipelineDetail($_id: String!) {
+    purchasesPipelineDetail(_id: $_id) {
       _id
       name
       bgColor
@@ -238,17 +238,17 @@ const pipelineDetail = `
 `;
 
 const itemsCountBySegments = `
-  query purchaseItemsCountBySegments($type: String!, $boardId: String, $pipelineId: String) {
-    purchaseItemsCountBySegments(type: $type, boardId: $boardId, pipelineId: $pipelineId)
+  query purchasesItemsCountBySegments($type: String!, $boardId: String, $pipelineId: String) {
+    purchasesItemsCountBySegments(type: $type, boardId: $boardId, pipelineId: $pipelineId)
   }
 `;
 
 const stageDetail = `
-  query purchaseStageDetail(
+  query purchasesStageDetail(
     $_id: String!,
     ${commonParams}
   ) {
-    purchaseStageDetail(
+    purchasesStageDetail(
       _id: $_id,
       ${commonParamDefs}
     ) {
@@ -262,8 +262,8 @@ const stageDetail = `
 `;
 
 const boardCounts = `
-  query purchaseBoardCounts($type: String!) {
-    purchaseBoardCounts(type: $type) {
+  query purchasesBoardCounts($type: String!) {
+    purchasesBoardCounts(type: $type) {
       _id
       name
       count
@@ -272,8 +272,8 @@ const boardCounts = `
 `;
 
 const itemsCountByAssignedUser = `
-  query purchaseItemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
-    purchaseItemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
+  query purchasesItemsCountByAssignedUser($pipelineId: String!, $type: String!, $stackBy: String) {
+    purchasesItemsCountByAssignedUser(pipelineId: $pipelineId, type: $type, stackBy: $stackBy)
   }
 `;
 
@@ -335,10 +335,10 @@ const internalNotesByAction = `
 `;
 
 const conversionStages = `
-  query purchaseStages(
+  query purchasesStages(
     ${stageParams}
   ) {
-    purchaseStages(
+    purchasesStages(
       ${stageParamDefs}
     ) {
       ${stageCommon}
@@ -390,14 +390,14 @@ const purchases = `
 `;
 
 const boardContentTypeDetail = `
-  query purchaseBoardContentTypeDetail($contentType: String, $contentId: String){
-    purchaseBoardContentTypeDetail(contentType: $contentType, contentId: $contentId)
+  query purchasesBoardContentTypeDetail($contentType: String, $contentId: String){
+    purchasesBoardContentTypeDetail(contentType: $contentType, contentId: $contentId)
   }
 `;
 
 const boardLogs = `
-  query purchaseBoardLogs($action: String, $content: JSON, $contentType: String, $contentId: String){
-    purchaseBoardLogs(action: $action, content: $content, contentType: $contentType, contentId: $contentId)
+  query purchasesBoardLogs($action: String, $content: JSON, $contentType: String, $contentId: String){
+    purchasesBoardLogs(action: $action, content: $content, contentType: $contentType, contentId: $contentId)
   }
 `;
 

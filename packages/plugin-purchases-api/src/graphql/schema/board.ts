@@ -10,7 +10,7 @@ export const types = ({ tags }) => `
     _id: String!
     name: String!
     ${commonTypes}
-    purchasesPipelines: [PurchasesPipeline]
+    pipelines: [PurchasesPipeline]
   }
 
   type PurchasesPipeline @key(fields: "_id") {
@@ -131,12 +131,12 @@ const stageParams = `
 
 export const queries = `
   purchasesBoards(type: String!): [PurchasesBoard]
-  boardCounts(type: String!): [PurchasesBoardCount]
-  boardGetLast(type: String!): PurchasesBoard
-  boardDetail(_id: String!): PurchasesBoard
+  purchasesBoardCounts(type: String!): [PurchasesBoardCount]
+  purchasesBoardGetLast(type: String!): PurchasesBoard
+  purchasesBoardDetail(_id: String!): PurchasesBoard
   purchasesPipelines(boardId: String, type: String, isAll: Boolean, page: Int, perPage: Int): [PurchasesPipeline]
-  pipelineDetail(_id: String!): PurchasesPipeline
-  pipelineAssignedUsers(_id: String!): [User]
+  purchasesPipelineDetail(_id: String!): PurchasesPipeline
+  purchasesPipelineAssignedUsers(_id: String!): [User]
   purchasesStages(
     isNotLost: Boolean,
     isAll: Boolean,
@@ -144,17 +144,17 @@ export const queries = `
     pipelineIds: [String],
     ${stageParams}
   ): [PurchasesStage]
-  stageDetail(_id: String!, ${stageParams}): PurchasesStage
-  convertToInfo(conversationId: String!): PurchasesConvertTo
-  pipelineStateCount(boardId: String, type: String): JSON
-  archivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [PurchasesStage]
-  archivedStagesCount(pipelineId: String!, search: String): Int
-  itemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
-  itemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
-  cardsFields: JSON
-  boardContentTypeDetail(contentType: String, contentId: String): JSON
-  boardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
-  checkFreeTimes(pipelineId: String, intervals: [PurchasesInterval]): JSON
+  purchasesStageDetail(_id: String!, ${stageParams}): PurchasesStage
+  purchasesConvertToInfo(conversationId: String!): PurchasesConvertTo
+  purchasesPipelineStateCount(boardId: String, type: String): JSON
+  purchasesArchivedStages(pipelineId: String!, search: String, page: Int, perPage: Int): [PurchasesStage]
+  purchasesArchivedStagesCount(pipelineId: String!, search: String): Int
+  purchasesItemsCountBySegments(type: String!, boardId: String, pipelineId: String): JSON
+  purchasesItemsCountByAssignedUser(type: String!, pipelineId: String!, stackBy: String): JSON
+  purchasesCardsFields: JSON
+  purchasesBoardContentTypeDetail(contentType: String, contentId: String): JSON
+  purchasesBoardLogs(action: String, content:JSON, contentId: String, contentType: String): JSON
+  purchasesCheckFreeTimes(pipelineId: String, intervals: [PurchasesInterval]): JSON
 `;
 
 const commonParams = `
@@ -166,7 +166,7 @@ const pipelineParams = `
   name: String!,
   boardId: String!,
   type: String!,
-  purchasesStages: JSON,
+  stages: JSON,
   visibility: String!,
   memberIds: [String],
   tagId: String,

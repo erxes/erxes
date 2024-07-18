@@ -1,17 +1,17 @@
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { Alert, renderWithProps } from '@erxes/ui/src/utils';
-import { mutations } from '../../../conformity/graphql';
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { Alert, renderWithProps } from "@erxes/ui/src/utils";
+import { mutations } from "../../../conformity/graphql";
 import {
   EditConformityMutation,
   IConformityEdit
-} from '../../../conformity/types';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import AddForm from '../../components/portable/AddForm';
-import { mutations as boardMutations, queries } from '../../graphql';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+} from "../../../conformity/types";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import AddForm from "../../components/portable/AddForm";
+import { mutations as boardMutations, queries } from "../../graphql";
+import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import {
   ConvertToMutationResponse,
   ConvertToMutationVariables,
@@ -20,8 +20,8 @@ import {
   IOptions,
   SaveMutation,
   StagesQueryResponse
-} from '../../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+} from "../../types";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type IProps = {
   options: IOptions;
@@ -79,7 +79,7 @@ class AddFormContainer extends React.Component<FinalProps> {
 
     const proccessId = Math.random().toString();
 
-    localStorage.setItem('proccessId', proccessId);
+    localStorage.setItem("proccessId", proccessId);
 
     doc.proccessId = proccessId;
     doc.description = doc.description || description;
@@ -97,7 +97,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemName: doc.name,
           stageId: doc.stageId,
           bookingProductId,
-          _id: sourceConversationId || ''
+          _id: sourceConversationId || ""
         }
       })
         .then(({ data }) => {
@@ -181,7 +181,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       client
         .query({
           query: gql(queries[`${type}s`]),
-          fetchPolicy: 'network-only',
+          fetchPolicy: "network-only",
           variables: { stageId: item.stageId, _ids: [item._id] }
         })
         .then(({ data }: any) => {
@@ -196,13 +196,13 @@ class AddFormContainer extends React.Component<FinalProps> {
     }
   };
 
-  fetchCards = (stageId: string, callback: (cards: any) => void) => {
+  fetchCards = (stageId: string, callback: (purchases: any) => void) => {
     const { type } = this.props.options;
 
     client
       .query({
         query: gql(queries[`${type}s`]),
-        fetchPolicy: 'network-only',
+        fetchPolicy: "network-only",
         variables: { stageId, limit: 0 }
       })
       .then(({ data }: any) => {
@@ -218,7 +218,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       fields: fieldsQuery?.fields || [],
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
-      fetchCards: this.fetchCards,
+      fetchpurchases: this.fetchCards,
       stages: stagesQuery?.stages || []
     };
 
@@ -233,7 +233,7 @@ export default (props: IProps) =>
       graphql<IProps, SaveMutation, IItem>(
         gql(props.options.mutations.addMutation),
         {
-          name: 'addMutation',
+          name: "addMutation",
           options: ({ stageId }: { stageId?: string }) => {
             if (!stageId) {
               return {};
@@ -253,31 +253,31 @@ export default (props: IProps) =>
       graphql<IProps, ConvertToMutationResponse, ConvertToMutationVariables>(
         gql(boardMutations.conversationConvertToCard),
         {
-          name: 'conversationConvertToCard'
+          name: "conversationConvertToCard"
         }
       ),
       graphql<FinalProps, EditConformityMutation, IConformityEdit>(
         gql(mutations.conformityEdit),
         {
-          name: 'editConformity'
+          name: "editConformity"
         }
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
-        name: 'fieldsQuery',
-        skip: !isEnabled('forms'),
+        name: "fieldsQuery",
+        skip: !isEnabled("forms"),
         options: ({ options, pipelineId }) => ({
           variables: {
-            contentType: `cards:${options.type}`,
+            contentType: `purchases:${options.type}`,
             isVisibleToCreate: true,
             pipelineId
           }
         })
       }),
       graphql<FinalProps, StagesQueryResponse>(gql(queries.stages), {
-        name: 'stagesQuery',
+        name: "stagesQuery",
         options: (finalProps: FinalProps) => ({
           variables: {
-            pipelineId: finalProps.pipelineId || ''
+            pipelineId: finalProps.pipelineId || ""
           }
         })
       })
