@@ -80,7 +80,6 @@
     "react-apollo": "^2.1.9",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.3",
-    "react-loading-skeleton": "^3.4.0",
     "react-modal": "^3.12.1",
     "react-transition-group": "^2.4.0",
     "sass": "^1.77.6",

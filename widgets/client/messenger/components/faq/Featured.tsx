@@ -7,7 +7,6 @@ import {
   IconFeaturedSearch,
 } from '../../../icons/Icons';
 import { getMessengerData } from '../../utils/util';
-import LoadingSkeleton from '../common/Skeleton';
 import { useRouter } from '../../context/Router';
 import { IFaqCategory } from '../../types';
 
@@ -26,7 +25,7 @@ const Featured = () => {
   const handleArticleClick = (article: IFaqCategory) => {
     goToFaqCategory(article);
   };
-  if (loading) return <LoadingSkeleton />;
+  if (loading) return <div className="loader" />;
 
   return (
     <Card p="0.5rem">
