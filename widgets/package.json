@@ -16,7 +16,7 @@
     "dev-webpack": "webpack --mode development --watch --progress",
     "build": "yarn build-webpack && yarn build-server",
     "build-server": "tsc --project tsconfig.server.json && cp -r ./server/views/ ./dist/",
-    "build-webpack": "webpack --mode production --config=webpack.prod.config.js",
+    "build-webpack": "webpack --mode production --config=webpack.prod.config.js --progress --display-error-details",
     "start": "node dist"
   },
   "dependencies": {

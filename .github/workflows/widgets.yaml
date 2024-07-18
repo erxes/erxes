@@ -44,11 +44,20 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
+      - name: List installed packages
+        run: yarn list
+
+      - name: Clean Yarn cache
+        run: yarn cache clean
+
+      - name: Reinstall dependencies
+        run: |
+          rm -rf node_modules
+          yarn install
+
       - name: Build
         run: |
           cd widgets
-          rm -rf node_modules
-          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Build docker image
