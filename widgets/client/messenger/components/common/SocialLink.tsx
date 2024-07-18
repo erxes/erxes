@@ -1,9 +1,10 @@
-import * as React from "react";
-import { isValidURL } from "../../../utils";
+import * as React from 'react';
+import './Button/index.scss';
+import { isValidURL } from '../../../utils';
 
 type Props = {
   url?: string;
-  icon: string;
+  icon: React.ReactNode;
 };
 
 function SocialLink(props: Props) {
@@ -14,8 +15,9 @@ function SocialLink(props: Props) {
   }
 
   return (
-    <a href={url} target="_blank">
-      <img src={icon} />
+    <a href={url} target="_blank" className="social-link">
+      {/* <img src={icon} /> */}
+      {icon && <div className="icon-container">{icon}</div>}
     </a>
   );
 }

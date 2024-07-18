@@ -37,6 +37,38 @@ const messageFields = `
     type
   }
 `;
+const MESSAGE_FIELDS = `
+  _id
+  conversationId
+  customerId
+  user {
+    _id
+    details {
+      ${userDetailFields}
+    }
+  }
+  content
+  createdAt
+  internal
+  fromBot
+  contentType
+
+  engageData {
+    content
+    kind
+    sentAs
+    messageId
+    brandId
+  }
+  botData
+  messengerAppData
+  attachments {
+    url
+    name
+    size
+    type
+  }
+`;
 
 const userFields = `
   _id
@@ -55,15 +87,14 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
       _id
       messages {
         ${messageFields}
-        ${
-          isDailycoEnabled
-            ? `
+        ${isDailycoEnabled
+    ? `
         videoCallData {
           url
           status
         }`
-            : ''
-        }
+    : ''
+  }
       }
 
       operatorStatus
@@ -99,15 +130,14 @@ const conversationMessageInserted = (isDailycoEnabled: boolean) => `
   subscription conversationMessageInserted($_id: String!) {
     conversationMessageInserted(_id: $_id) {
       ${messageFields}
-      ${
-        isDailycoEnabled
-          ? `
+      ${isDailycoEnabled
+    ? `
       videoCallData {
         url
         status
       }`
-          : ''
-      }
+    : ''
+  }
     }
   }
 `;
@@ -303,4 +333,6 @@ export default {
   integrationsFetchApi,
   conversationBotTypingStatus,
   getEngageMessage,
+  MESSAGE_FIELDS
 };
+export { MESSAGE_FIELDS }

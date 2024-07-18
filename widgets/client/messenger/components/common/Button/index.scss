@@ -1,0 +1,53 @@
+.base-button {
+  outline: none;
+  border-radius: 100px;
+  border: none;
+  display: flex;
+  height: fit-content;
+  padding: 0.25rem;
+  background: transparent;
+  cursor: pointer;
+  &:hover {
+    background-color: #ffffff10;
+  }
+}
+.main-button {
+  display: flex;
+  gap: 0.75rem;
+  outline: none;
+  border-radius: 100px;
+  border: none;
+  background: linear-gradient(
+    170deg,
+    rgba(141, 148, 255, 1) 0%,
+    rgba(79, 51, 175, 1) 36%,
+    rgba(102, 60, 248, 1) 63%,
+    rgba(139, 115, 189, 1) 100%
+  );
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  color: white;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  &:hover {
+    background-color: none;
+  }
+}
+.social-link {
+  display: inline-block;
+  outline: none;
+  border-radius: 0.75rem;
+  &:hover {
+    background-color: aliceblue;
+  }
+}
+.icon-container {
+  padding: 0.875rem;
+  svg {
+    display: block;
+  }
+}
+.w-full {
+  width: 100%;
+}
