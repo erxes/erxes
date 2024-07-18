@@ -44,9 +44,6 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
-      - name: List installed packages
-        run: yarn list
-
       - name: Clean Yarn cache
         run: yarn cache clean
 
@@ -54,6 +51,9 @@ jobs:
         run: |
           rm -rf node_modules
           yarn install
+
+      - name: List installed packages
+        run: yarn list
 
       - name: Build
         run: |
