@@ -59,16 +59,13 @@ jobs:
         #  --frozen-lockfile
 
       - name: Verify ts-loader installation
-        run: |
-          yarn list --pattern ts-loader
-          ls node_modules | grep ts-loader
+        run: yarn list --pattern ts-loader
+
+      - name: Explicitly install ts-loader
+        run: yarn add ts-loader --dev
 
       - name: List installed packages
         run: yarn list
-
-      - name: Explicitly install ts-loader (if needed)
-        if: failure()
-        run: yarn add ts-loader --dev
 
       - name: Build
         run: |
