@@ -72,7 +72,7 @@ module.exports = {
       {
         test: /\.scss$/,
         include: [
-          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'client'),
           path.resolve(__dirname, 'node_modules/@nateradebaugh/react-datetime'),
         ],
         use: ['style-loader', 'css-loader', 'sass-loader'],
