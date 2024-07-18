@@ -4,24 +4,14 @@ import { IParticipator, IUser } from '../../types';
 import { __ } from '../../utils';
 import MessageSender from '../containers/MessageSender';
 import MessagesList from '../containers/MessagesList';
-import TopBar from '../containers/TopBar';
 import { IMessage } from '../types';
 import ConversationHeadContent from './ConversationHeadContent';
 import Container from './common/Container';
-import Profile from './common/Profile';
 import { useConversation } from '../context/Conversation';
-import { useConfig } from '../context/Config';
 import { getUiOptions } from '../utils/util';
 import { connection } from '../connection';
-import {
-  IconCamera,
-  IconMore,
-  IconPhone,
-  iconClose,
-  iconMore,
-} from '../../icons/Icons';
+import { IconCamera, IconMore, IconPhone, iconClose } from '../../icons/Icons';
 import Dropdown from './common/Dropdown';
-import Skeleton from './common/Skeleton';
 import Button from './common/Button';
 import { useMessage } from '../context/Message';
 
@@ -96,28 +86,12 @@ const ConversationDetail: React.FC<Props> = ({
     setIsFocused(false);
   };
 
-  // const onWheel = (e: any) => {
-  //   if (e.nativeEvent.wheelDelta > 0) {
-  //     if (!isFullHead) {
-  //       setIsFullHead(true);
-  //     }
-  //   } else {
-  //     if (isFullHead) {
-  //       setIsFullHead(false);
-  //     }
-  //   }
-  // };
-
   const toggleLauncher = () => {
     toggle(true);
   };
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
-  };
-
-  const toggleDropdown = () => {
-    setIsVisibleDropdown(!isVisibleDropdown);
   };
 
   const renderRightButton = () => {
@@ -192,13 +166,6 @@ const ConversationDetail: React.FC<Props> = ({
           <div className="loader" />
         ) : (
           <div className="flex flex-1 justify-between">
-            {/* <Profile
-            
-              user={participators[0] || supporters[0]}
-              isOnline={isOnline}
-              isExpanded={true}
-              showTimezone={showTimezone}
-            /> */}
             <ConversationHeadContent
               supporters={supporters}
               participators={participators}
@@ -214,24 +181,6 @@ const ConversationDetail: React.FC<Props> = ({
       backRoute="allConversations"
     >
       <div className="erxes-conversation-detail">
-        {/* <TopBar
-            middle={
-              <ConversationHeadContent
-                supporters={supporters}
-                participators={participators}
-                showTimezone={showTimezone}
-                isOnline={isOnline}
-                color={color}
-                loading={loading}
-                expanded={this.state.isFullHead}
-                toggleExpand={this.toggleExpand}
-              />
-            }
-            toggleHead={this.toggleHead}
-            isExpanded={this.state.expanded}
-            onLeftButtonClick={handleLeftClick}
-          /> */}
-
         <div className="erxes-conversation-content">
           <div id="page-root" className={rootClasses}>
             <MessagesList
