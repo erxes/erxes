@@ -19,12 +19,14 @@ type PropsWithConsumer = {
 };
 
 const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
-  const { isBotTyping, setIsBotTyping } = useConversation();
   const {
+    isBotTyping,
+    setIsBotTyping,
     activeConversationId: conversationId,
     goToConversationList,
     endConversation,
   } = useConversation();
+
   const { errorMessage } = useMessage();
 
   const { data, loading, subscribeToMore } = useQuery(
@@ -43,7 +45,9 @@ const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
   const { isOnline, forceLogoutWhenResolve } = getMessengerData();
 
   useEffect(() => {
-    if (!data || !conversationId || loading) return;
+    if (!data || !conversationId || loading) {
+      return;
+    }
 
     // listen for bot message typing
     const botTypingSubscription = client

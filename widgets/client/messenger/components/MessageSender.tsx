@@ -52,7 +52,9 @@ const MessageSender: React.FC<Props> = (props) => {
     const textarea = textareaRef.current;
     const form = formRef.current;
 
-    if (!textarea || !form) return;
+    if (!textarea || !form) {
+      return;
+    }
 
     // Reset textarea height to calculate scrollHeight correctly
     textarea.style.height = '0';
@@ -69,7 +71,7 @@ const MessageSender: React.FC<Props> = (props) => {
       textareaHeight = heightInPx;
     } else {
       // Use scrollHeight to adjust to content size
-      const scrollHeight = textarea.scrollHeight;
+      const { scrollHeight } = textarea;
       formHeight = `${scrollHeight}px`;
       textareaHeight = `${scrollHeight - 1}px`;
     }
@@ -139,7 +141,7 @@ const MessageSender: React.FC<Props> = (props) => {
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
-      const files = e.currentTarget.files;
+      const { files } = e.currentTarget;
       if (files && files.length > 0) {
         sendFile(files[0]);
       }

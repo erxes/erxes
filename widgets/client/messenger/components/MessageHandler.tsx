@@ -8,11 +8,10 @@ const MessageHandler = ({ children }: { children: React.ReactNode }) => {
   const handleMessage = useCallback(
     (event: MessageEvent) => {
       const { data } = event;
-      if (data?.fromPublisher) {
+
+      if (data?.fromPublisher && data.action === 'showMessenger') {
         // Receive show messenger command from publisher
-        if (data.action === 'showMessenger') {
-          toggle(false);
-        }
+        toggle(false);
       }
     },
     [toggle]

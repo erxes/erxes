@@ -34,7 +34,7 @@ const Notifier = ({ browserInfo }: Props) => {
 
   const showUnreadMessage = () => {
     if (message._id) {
-      const engageData = message.engageData;
+      const { engageData } = message;
 
       if (engageData && engageData.sentAs === 'fullMessage') {
         toggleNotifierFull();

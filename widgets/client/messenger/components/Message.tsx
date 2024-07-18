@@ -84,8 +84,8 @@ class Message extends React.Component<Props> {
     });
 
     const messageBackground = {
-      backgroundColor: !user ? color : '',
-      color: !user ? textColor : '',
+      backgroundColor: user ? '' : color,
+      color: user ? '' : textColor,
     };
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {

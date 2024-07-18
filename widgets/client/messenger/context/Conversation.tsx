@@ -217,7 +217,7 @@ export const ConversationProvider = ({
   };
 
   const endConversation = () => {
-    const setting = connection.setting;
+    const { setting } = connection;
 
     // ignore this action for inapp
     if (setting.email) {

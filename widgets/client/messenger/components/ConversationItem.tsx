@@ -17,7 +17,9 @@ dayjs.updateLocale('en', {
   relativeTime: {
     past: (input: string) => {
       // Return "Just now" if the input is 'a few seconds'
-      if (input === 'a few seconds') return 'Just now';
+      if (input === 'a few seconds') {
+        return 'Just now';
+      }
       return `${input} ago`;
     },
     s: 'a few seconds',

@@ -54,7 +54,7 @@ const ConversationDetail: React.FC<Props> = ({
     useConversation();
   const { sendMessage } = useMessage();
 
-  const color = getUiOptions().color;
+  const { color } = getUiOptions();
   const textColor = getUiOptions().textColor || '#fff';
   const isChat = Boolean(!connection.setting.email);
 

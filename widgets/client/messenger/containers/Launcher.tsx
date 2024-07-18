@@ -8,10 +8,14 @@ import { useConversation } from '../context/Conversation';
 import { getUiOptions } from '../utils/util';
 
 const Launcher = () => {
-  const { browserInfo, isBrowserInfoSaved } = useConversation();
-
-  const { isMessengerVisible, unreadCount, setUnreadCount, toggle } =
-    useConversation();
+  const {
+    browserInfo,
+    isBrowserInfoSaved,
+    isMessengerVisible,
+    unreadCount,
+    setUnreadCount,
+    toggle,
+  } = useConversation();
 
   const { data, subscribeToMore, loading } = useQuery(
     gql(graphqlTypes.totalUnreadCountQuery),

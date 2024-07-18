@@ -250,7 +250,7 @@ export default class Field extends React.Component<Props, State> {
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
+    const { files } = e.currentTarget;
 
     const self = this;
     const attachments: any[] = [];
@@ -669,11 +669,14 @@ export default class Field extends React.Component<Props, State> {
         });
 
       case 'location':
-        return Field.renderSelect(COUNTRIES.map(c => c.name), {
-          onChange: this.onSelectChange,
-          id: field._id,
-          value: String(value),
-        });
+        return Field.renderSelect(
+          COUNTRIES.map((c) => c.name),
+          {
+            onChange: this.onSelectChange,
+            id: field._id,
+            value: String(value),
+          }
+        );
 
       case 'industry':
         return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, {
