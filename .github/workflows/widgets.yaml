@@ -44,6 +44,8 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
+      - name: Delete lock file
+        run: rm yarn.lock
       - name: Clean cache
         run: yarn cache clean
 
