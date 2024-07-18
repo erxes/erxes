@@ -13,7 +13,7 @@ type Props = {
   toggleHead?: () => void;
 };
 
-const container = (props: Props) => {
+const Container = (props: Props) => {
   const { activeConversationId, toggle, endConversation, exportConversation } =
     useConversation();
 
@@ -35,4 +35,4 @@ const container = (props: Props) => {
   );
 };
 
-export default container;
+export default Container;

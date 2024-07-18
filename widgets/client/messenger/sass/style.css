@@ -2320,7 +2320,6 @@ select.form-control:focus,
   text-overflow: ellipsis;
 
   /* header/title */
-  font-family: Inter;
   font-size: 1.125rem;
   font-style: normal;
   font-weight: 600;
@@ -2408,7 +2407,6 @@ select.form-control:focus,
   h6 {
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Inter;
     font-size: 0.9375rem;
     font-style: normal;
     font-weight: 400;
@@ -2429,7 +2427,6 @@ select.form-control:focus,
     align-self: stretch;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Inter;
     font-size: 0.9375rem;
     font-style: normal;
     font-weight: 400;
@@ -2441,7 +2438,6 @@ select.form-control:focus,
   .description {
     overflow: hidden;
     text-overflow: ellipsis;
-    font-family: Inter;
     font-size: 0.9375rem;
     font-style: normal;
     font-weight: 400;
@@ -2466,7 +2462,6 @@ select.form-control:focus,
   font-feature-settings:
     'clig' off,
     'liga' off;
-  font-family: Inter;
   font-size: 0.9375rem;
   font-style: normal;
   font-weight: 400;
@@ -2637,7 +2632,7 @@ select.form-control:focus,
   font-feature-settings:
     'clig' off,
     'liga' off;
-  font-family: Inter;
+  font-family: 'Inter';
   font-size: 0.9375rem;
   line-height: 135%;
   background: #fff;
@@ -3243,7 +3238,6 @@ select.form-control:focus,
       overflow: hidden;
       color: #000;
       text-overflow: ellipsis;
-      font-family: Inter;
       font-size: 0.9375rem;
       font-style: normal;
       font-weight: 400;
@@ -3266,7 +3260,6 @@ select.form-control:focus,
       overflow: hidden;
       color: #737376;
       text-overflow: ellipsis;
-      font-family: Inter;
       font-size: 0.9375rem;
       font-style: normal;
       font-weight: 400;
@@ -3409,7 +3402,6 @@ select.form-control:focus,
   margin: 0;
   position: relative;
   color: #000;
-  font-family: Inter;
   font-size: 0.75rem;
   font-style: normal;
   font-weight: 400;
