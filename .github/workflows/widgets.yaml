@@ -50,7 +50,7 @@ jobs:
       - name: Reinstall dependencies
         run: |
           rm -rf node_modules
-          yarn install --frozen-lockfile
+          yarn install --force
 
       - name: Verify ts-loader installation
         run: yarn list --pattern ts-loader
