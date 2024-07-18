@@ -2,8 +2,7 @@ import { debugError } from './debuggers';
 import { sendInboxMessage } from './messageBroker';
 import { getInstagramUser } from './utils';
 import { IModels } from './connectionResolver';
-import { INTEGRATION_KINDS } from './constants';
-import { getPostDetails, getPostLink } from './utils';
+import { getPostLink } from './utils';
 import { IIntegrationDocument } from './models/Integrations';
 import { ICustomerDocument } from './models/definitions/customers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
@@ -150,7 +149,6 @@ export const getOrCreateCustomer = async (
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
   let customer = await models.Customers.findOne({ userId });
-
   if (customer) {
     return customer;
   }

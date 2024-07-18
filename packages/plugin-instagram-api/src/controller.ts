@@ -4,7 +4,7 @@ import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
 import { getPageList } from './utils';
-import { INSTAGRAM_POST_TYPES, INTEGRATION_KINDS } from './constants';
+import { INTEGRATION_KINDS } from './constants';
 import receiveComment from './receiveComment';
 
 import {
@@ -82,13 +82,26 @@ const init = async (app) => {
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
-        const messageData = entry.messaging[0];
-        try {
-          await receiveMessage(models, subdomain, messageData);
+        const pageId = entry.id;
+        const integration = await models.Integrations.getIntegration({
+          $and: [
+            { facebookPageIds: { $in: pageId } },
+            { kind: INTEGRATION_KINDS.MESSENGER }
+          ]
+        });
+        if (integration) {
+          await models.Accounts.getAccount({ _id: integration.accountId });
+          const messageData = entry.messaging[0];
 
-          return res.send('success');
-        } catch (e) {
-          return res.send('success');
+          try {
+            await receiveMessage(models, subdomain, messageData);
+
+            return res.send('success');
+          } catch (e) {
+            return res.send('error' + e);
+          }
+        } else {
+          throw new Error('no integration found');
         }
       }
 
@@ -112,8 +125,6 @@ const init = async (app) => {
         }
       }
     }
-
-    next();
   });
 };
 
