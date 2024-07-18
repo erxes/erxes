@@ -50,16 +50,25 @@ jobs:
         run: yarn cache clean
 
       - name: Remove node_modules
-        run: rm -rf node_modules
+        run: |
+          rm -rf node_modules
+          rm yarn.lock
 
       - name: Reinstall dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
+        #  --frozen-lockfile
 
       - name: Verify ts-loader installation
-        run: yarn list --pattern ts-loader
+        run: |
+          yarn list --pattern ts-loader
+          ls node_modules | grep ts-loader
 
       - name: List installed packages
         run: yarn list
+
+      - name: Explicitly install ts-loader (if needed)
+        if: failure()
+        run: yarn add ts-loader --dev
 
       - name: Build
         run: |

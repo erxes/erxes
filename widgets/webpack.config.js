@@ -36,7 +36,7 @@ module.exports = {
             },
           },
         ],
-        exclude: [/node_modules/],
+        exclude: /node_modules/,
       },
       // addition - add source-map support
       {
@@ -85,5 +85,6 @@ module.exports = {
 
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json'],
+    modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
   },
 };
