@@ -2,7 +2,6 @@
   height: 100%;
   position: relative;
   flex: 1;
-  padding-bottom: 2rem;
 }
 
 .greeting-info {
@@ -74,12 +73,12 @@
 
 .main-contents {
   display: flex;
-  flex-direction: column;
   gap: 1.25rem;
   position: absolute;
   padding: 0 1rem;
   top: 263px;
-  flex-flow: wrap;
+  flex-flow: row wrap;
+  padding-bottom: 5rem;
 }
 .gradient-bg {
   position: absolute;

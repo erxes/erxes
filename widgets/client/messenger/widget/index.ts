@@ -144,12 +144,12 @@ window.addEventListener("message", async (event: MessageEvent) => {
 
       clearTimer();
 
-      if (isVisible) {
-        erxesContainer.className = "erxes-messenger-shown";
-      } else {
-        erxesContainer.className = "erxes-messenger-shown";
-        // delaydSetClass("erxes-messenger-hidden");
-      }
+      // if (isVisible) {
+      //   erxesContainer.className = "erxes-messenger-shown";
+      // } else {
+      //   erxesContainer.className = "erxes-messenger-shown";
+      //   // delaydSetClass("erxes-messenger-hidden");
+      // }
 
       erxesContainer.classList.toggle("small", isSmallContainer);
       document.body.classList.toggle("messenger-widget-shown", isVisible);
@@ -170,12 +170,12 @@ window.addEventListener("message", async (event: MessageEvent) => {
       clearTimer();
 
       // add class and hide notifier
-      if (isVisible) {
-        erxesContainer.className += " erxes-notifier-shown fullMessage";
-      } else {
-        erxesContainer.className += " erxes-notifier-shown fullMessage";
-        // delaydSetClass("erxes-messenger-hidden");
-      }
+      // if (isVisible) {
+      //   erxesContainer.className += " erxes-notifier-shown fullMessage";
+      // } else {
+      //   erxesContainer.className += " erxes-notifier-shown fullMessage";
+      //   // delaydSetClass("erxes-messenger-hidden");
+      // }
     }
   }
 });

@@ -59,12 +59,13 @@ export const MessageProvider = ({
     attachments?: IAttachment[]
   ) => {
     // current conversation
+    const array = new Uint32Array(1);
 
     const optimisticResponse = {
       __typename: 'Mutation',
       widgetsInsertMessage: {
         __typename: 'ConversationMessage',
-        _id: Math.round(Math.random() * -1000000),
+        _id: crypto.getRandomValues(array).join(' '),
         contentType: MESSAGE_TYPES.TEXT,
         conversationId: activeConversationId,
         customerId: connection.data.customerId,
