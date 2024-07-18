@@ -22,12 +22,12 @@ const DumbForm = asyncComponent(
 );
 interface IProps {
   isSubmitting?: boolean;
-  integration: IIntegration;
-  form: IForm;
-  currentStatus: ICurrentStatus;
-  onSubmit: (doc: IFormDoc, formCode: string) => void;
-  onCreateNew: () => void;
-  sendEmail: (params: IEmailParams) => void;
+  integration?: IIntegration;
+  form?: IForm;
+  currentStatus?: ICurrentStatus;
+  onSubmit?: (doc: IFormDoc, formCode: string) => void;
+  onCreateNew?: () => void;
+  sendEmail?: (params: IEmailParams) => void;
   formCode: string;
 }
 
@@ -35,8 +35,9 @@ const LeadContent: React.FC<IProps> = (props) => {
   const { data, loading } = useQuery(gql(formDetailQuery(false)), {
     fetchPolicy: 'network-only',
     variables: {
-      _id: props.form._id,
+      _id: props?.form?._id,
     },
+    skip: Boolean(props?.form?._id),
   });
 
   if (!data || loading) {

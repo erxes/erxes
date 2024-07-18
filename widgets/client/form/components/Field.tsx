@@ -354,7 +354,7 @@ export default class Field extends React.Component<Props, State> {
         value={this.state.dateValue}
         viewDate={new Date()}
         defaultValue={defaultValue}
-        onChange={this.onDateChange}
+        onChange={this.onDateChange as any}
         dateFormat="YYYY/MM/DD"
         timeFormat={false}
       />
@@ -385,7 +385,7 @@ export default class Field extends React.Component<Props, State> {
         value={this.state.dateTimeValue}
         viewDate={new Date()}
         defaultValue={defaultValue}
-        onChange={this.onDateTimeChange}
+        onChange={this.onDateTimeChange as any}
         timeFormat="HH:mm"
         dateFormat="YYYY/MM/DD"
       />

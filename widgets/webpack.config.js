@@ -28,14 +28,7 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx|js)$/,
-        use: [
-          {
-            loader: 'ts-loader',
-            options: {
-              transpileOnly: true,
-            },
-          },
-        ],
+        loader: 'ts-loader',
         exclude: /node_modules/,
       },
       // addition - add source-map support
