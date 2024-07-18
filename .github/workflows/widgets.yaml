@@ -44,6 +44,12 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
+      - name: Clean cache
+        run: yarn cache clean
+
+      - name: Install dependencies
+        run: yarn install --force
+
       - name: Build
         run: |
           cd widgets
