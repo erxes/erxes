@@ -586,7 +586,7 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
   integrity sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==
 
-"@nateradebaugh/react-datetime@^4.0.0-rc.10":
+"@nateradebaugh/react-datetime@^4.6.0":
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/@nateradebaugh/react-datetime/-/react-datetime-4.6.0.tgz#c8a200cd6da90cf9e7aeec39271c643377126586"
   integrity sha512-C51hs2s94kjd/PVJcKctrOZ6nT2ZfS4T43yAr4n4AeVtSXSgUjDw15G5cKLh4RuL1SPz3S8XxJ4KVIs8sHWpfw==
