@@ -171,11 +171,19 @@ export const connection = (
 
     if (trigger) {
       trigger.actionId = actionId;
+
+      if (info?.workflowId) {
+        trigger.workflowId = info.workflowId;
+      }
     }
   } else {
     const sourceAction = actions.find((a) => a.id.toString() === sourceId);
 
     if (sourceAction) {
+      if (info?.workflowId) {
+        sourceAction.workflowId = info.workflowId;
+      }
+
       if (sourceAction.type === 'if') {
         if (!sourceAction.config) {
           sourceAction.config = {};

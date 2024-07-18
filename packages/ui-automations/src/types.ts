@@ -10,6 +10,7 @@ export type IAction = {
   config?: any;
   position?: any;
   isAvailableOptionalConnect?: boolean;
+  workflowId?: string;
 
   count?: number;
 };

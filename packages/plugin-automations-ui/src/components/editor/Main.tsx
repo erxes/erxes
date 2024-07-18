@@ -158,7 +158,8 @@ class Editor extends React.Component<Props, State> {
           description: t.description,
           actionId: t.actionId,
           position: t.position,
-          isCustom: t.isCustom
+          isCustom: t.isCustom,
+          workflowId: t.workflowId
         })),
         actions: actions.map((a) => ({
           id: a.id,
@@ -168,7 +169,8 @@ class Editor extends React.Component<Props, State> {
           icon: a.icon,
           label: a.label,
           description: a.description,
-          position: a.position
+          position: a.position,
+          workflowId: a.workflowId
         }))
       };
 

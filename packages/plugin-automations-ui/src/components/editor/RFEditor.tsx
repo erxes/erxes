@@ -158,6 +158,13 @@ function AutomationEditor({
       }
     }
 
+    const workflow = workFlowActions?.find(({ actions }) =>
+      actions.some((action) => action.id === info.targetId)
+    );
+    if (workflow) {
+      info.workflowId = workflow.workflowId;
+    }
+
     return info;
   };
 

@@ -94,6 +94,16 @@ export const generateEdges = ({
           edgeObj.target = undefined;
         }
       }
+
+      if (
+        edge?.workflowId &&
+        !(workFlowActions || [])?.some(
+          (workFlowAction) => workFlowAction?.workflowId === edge?.workflowId
+        )
+      ) {
+        edgeObj.target = edge?.workflowId;
+      }
+
       if (!edgeObj?.target) {
         continue;
       }
@@ -103,11 +113,8 @@ export const generateEdges = ({
   }
   for (const { actions } of workFlowActions || []) {
     const workflowEdges = generateEdges({ actions, triggers: [] });
-    console.log({ workflowEdges });
     generatedEdges = [...generatedEdges, ...workflowEdges];
   }
-
-  console.log(generatedEdges);
 
   return generatedEdges;
 };
