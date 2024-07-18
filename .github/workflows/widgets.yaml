@@ -47,25 +47,36 @@ jobs:
       #       ${{ runner.os }}-yarn-
 
       - name: Clean Yarn cache
-        run: yarn cache clean
+        run: |
+          cd widgets
+          yarn cache clean
 
       - name: Remove node_modules
         run: |
+          cd widgets
           rm -rf node_modules
           rm yarn.lock
 
       - name: Reinstall dependencies
-        run: yarn install
+        run: |
+          cd widgets
+          yarn install
         #  --frozen-lockfile
 
       - name: Verify ts-loader installation
-        run: yarn list --pattern ts-loader
+        run: |
+          cd widgets
+          yarn list --pattern ts-loader
 
       - name: Explicitly install ts-loader
-        run: yarn add ts-loader --dev
+        run: |
+          cd widgets
+          yarn add ts-loader --dev -W
 
       - name: List installed packages
-        run: yarn list
+        run: |
+          cd widgets
+          yarn list
 
       - name: Build
         run: |
