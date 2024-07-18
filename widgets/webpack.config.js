@@ -46,10 +46,6 @@ module.exports = {
         exclude: [/node_modules/],
       },
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
         test: /\.(png|woff|woff2|eot|ttf)$/,
         use: [
           {
@@ -61,7 +57,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.scss$/,
+        test: /\.(css|scss)$/,
         use: ['style-loader', 'css-loader', 'sass-loader'],
         exclude: [/node_modules/],
       },
