@@ -29,7 +29,7 @@ module.exports = {
       {
         test: /\.(ts|tsx|js)$/,
         loader: 'ts-loader',
-        exclude: /node_modules/,
+        exclude: [/node_modules/],
       },
       // addition - add source-map support
       {
