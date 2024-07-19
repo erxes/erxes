@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.15.0-rc.1](https://github.com/erxes/erxes/compare/1.15.0-rc.0...1.15.0-rc.1) (2024-07-19)
+
+
+### Features
+
+* **cards:** name auto field  ([174f482](https://github.com/erxes/erxes/commit/174f482e1ef59de83dc3e3b589454d008d303eb2))
+* **timeclock:** timeclock config update ([0eadd60](https://github.com/erxes/erxes/commit/0eadd606b83898d51881c1b09d68d3cbcca956f0))
+
+
+### Bug Fixes
+
+* fix instagram post & messenger config ([3eaf7d9](https://github.com/erxes/erxes/commit/3eaf7d92628406f0f5a692f79ce7691678fe4af6))
+* **riskassessment:** can't calculate correct when using calculate method by percent ([cd32ca4](https://github.com/erxes/erxes/commit/cd32ca465923ecd9e05b9404e95ba5a93fc05741))
+
 ## [1.15.0-rc.0](https://github.com/erxes/erxes/compare/1.14.0...1.15.0-rc.0) (2024-07-17)
 
 
