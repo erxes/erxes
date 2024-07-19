@@ -7,6 +7,7 @@ on:
       - master
       - rc
       - staging
+      - feat-widgets-messenger
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
@@ -15,6 +16,7 @@ on:
       - master
       - rc
       - dev
+      - feat-widgets-messenger
     paths:
       - 'widgets/**'
 
@@ -44,11 +46,41 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
-      - name: Build
+      - name: Clean Yarn cache
+        run: |
+          cd widgets
+          yarn cache clean
+
+      - name: Remove node_modules
         run: |
           cd widgets
           rm -rf node_modules
-          yarn install --frozen-lockfile --production
+          rm yarn.lock
+
+      - name: Reinstall dependencies
+        run: |
+          cd widgets
+          yarn install
+        #  --frozen-lockfile
+
+      - name: Verify ts-loader installation
+        run: |
+          cd widgets
+          yarn list --pattern ts-loader
+
+      - name: Explicitly install ts-loader
+        run: |
+          cd widgets
+          yarn add ts-loader --dev -W
+
+      - name: List installed packages
+        run: |
+          cd widgets
+          yarn list
+
+      - name: Build
+        run: |
+          cd widgets
           yarn build
 
       - name: Build docker image
