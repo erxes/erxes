@@ -19,7 +19,7 @@ const loginMiddleware = async (req, res) => {
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
+  const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const INSTAGRAM_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'INSTAGRAM_LOGIN_REDIRECT_URL',
@@ -103,7 +103,7 @@ const loginMiddleware = async (req, res) => {
         uid: userAccount.id
       });
     }
-    const reactAppUrl = !DOMAIN.includes('ngrok')
+    const reactAppUrl = !DOMAIN.includes('zrok')
       ? DOMAIN
       : 'http://localhost:3000';
     const url = `${reactAppUrl}/settings/ig-authorization?igAuthorized=true`;
