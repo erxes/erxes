@@ -1,10 +1,9 @@
 import {
   Alert,
   BarItems,
-  Bulk,
   Button,
   DataWithLoader,
-  FormControl,
+  ModalTrigger,
   Pagination,
   SortHandler,
   Table,
@@ -13,7 +12,6 @@ import {
   confirm,
 } from "@erxes/ui/src";
 
-import Dropdown from "@erxes/ui/src/components/Dropdown";
 import { INonBalanceTransaction } from "../types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import NonBalanceTransactionForm from "../containers/Form";
@@ -79,17 +77,11 @@ class List extends React.Component<IProps> {
       <TableWrapper>
         <Table $whiteSpace="nowrap" $bordered={true} $hover={true} $striped>
           <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentclass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              {tableHeadName.map((head) => (
-                <th key={head}>{head || ""}</th>
-              ))}
+            
+          <tr>
+                {tableHeadName.map((head) => (
+                  <th key={head}>{head || ''}</th>
+                 ))}
               <th>
                 <SortHandler
                   sortField={"nonBalanceTransaction.createdAt"}
@@ -140,59 +132,36 @@ class List extends React.Component<IProps> {
       );
     }
 
-    const setType = (type) => {
-      const content = (props) => {
-        return (
-          <NonBalanceTransactionForm
-            {...props}
-            closeModal={closeModal}
-            transactionType={type}
-            queryParams={queryParams}
-          />
-        );
-      };
-      return <Bulk content={content} />;
+ 
+    const content = props => {
+      return (
+        <NonBalanceTransactionForm
+          {...props}
+          queryParams={queryParams}
+        />
+      );
     };
 
-    const menuItems = [
-      {
-        title: "collateral",
-        trigger: <a href="#collateral">{__("Collateral")}</a>,
-        content: () => setType("collateral"),
-        additionalModalProps: { size: "lg" },
-      },
-      {
-        title: "Interest Change",
-        trigger: <a href="#InterestChange">{__("Interest Change")}</a>,
-        content: () => setType("interest"),
-        additionalModalProps: { size: "lg" },
-      },
-      {
-        title: "Loan",
-        trigger: <a href="#Loan">{__("Loan")}</a>,
-        content: () => setType("loan"),
-        additionalModalProps: { size: "lg" },
-      },
-    ];
+const addTrigger = (
+  <Button btnStyle="success" icon="plus-circle">
+    {__('Add Non Balance')}
+  </Button>
+);
 
     const actionBarRight = (
       <BarItems>
-        {can("manageTransactions", currentUser) && (
-          <Dropdown
-            toggleComponent={
-              <Button btnStyle="success" size="medium" icon="add">
-                {__("Add Non Balance")}
-              </Button>
-            }
-            modalMenuItems={menuItems}
+        
+       
+          <ModalTrigger
+            title={`${__('New Non Balance')}`}
+            trigger={addTrigger}
+            size="xl"
+            content={content}
+            backDrop="static"
           />
-        )}
       </BarItems>
     );
-
-    const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
-    );
+    const actionBar = (<Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />);
 
     return (
       <Wrapper

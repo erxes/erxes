@@ -216,17 +216,19 @@ const generateScore = async ({
   target,
   scoreString
 }) => {
+  const data = {
+    target,
+    config: {
+      scoreString
+    }
+  };
+
   if (scoreString.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
     const replacedContent = await sendCommonMessage({
       serviceName,
       subdomain,
       action: 'automations.replacePlaceHolders',
-      data: {
-        target,
-        config: {
-          scoreString
-        }
-      },
+      data,
       isRPC: true,
       defaultValue: {}
     });
@@ -235,7 +237,11 @@ const generateScore = async ({
   }
 
   if (scoreString.match(/[+\-*/]/)) {
-    return eval(scoreString);
+    try {
+      return eval(scoreString);
+    } catch (error) {
+      throw new Error(`Error occurred while calculating score ${scoreString}`);
+    }
   }
   return scoreString;
 };
@@ -298,7 +304,14 @@ const addScore = async ({
       return 'done';
     }
     const data = {
-      target: execution?.target,
+      target: {
+        ...execution?.target,
+        customers: null,
+        companies: null,
+        type: contentType.includes('.')
+          ? contentType.split('.')[0]
+          : contentType
+      },
       config: {},
       relatedValueProps: {}
     };
@@ -318,6 +331,7 @@ const addScore = async ({
       isRPC: true,
       defaultValue: {}
     });
+
 
     if (replacedContent['customers']) {
       await models.ScoreLogs.changeOwnersScore({
@@ -349,6 +363,10 @@ const addScore = async ({
         ...teamMemberIds,
         ...(await generateIds(replacedContent[key]))
       ];
+    }
+
+    if (!teamMemberIds?.length) {
+      return 'done';
     }
 
     await models.ScoreLogs.changeOwnersScore({

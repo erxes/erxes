@@ -7,6 +7,7 @@ import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
 import { debugError } from './debuggers';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   if (message?.payload) {
@@ -110,8 +111,8 @@ const receiveMessage = async (
   }
 
   const formattedAttachments = (attachments || [])
-    .filter((att) => att.type !== 'fallback')
-    .map((att) => ({
+    .filter(att => att.type !== 'fallback')
+    .map(att => ({
       type: att.type,
       url: att.payload ? att.payload.url : ''
     }));
@@ -190,8 +191,16 @@ const receiveMessage = async (
             }
           ]
         },
+        isRPC: true,
         defaultValue: null
-      }).catch((err) => debugError(err.message));
+      })
+        .catch(err => {
+          debugError(`Error sending automation message: ${err.message}`);
+          throw err;
+        })
+        .then(() => {
+          debugInfo(`Sent message successfully`);
+        });
     } catch (e) {
       throw new Error(
         e.message.includes('duplicate')

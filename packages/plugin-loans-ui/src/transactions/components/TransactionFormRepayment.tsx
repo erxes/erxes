@@ -6,22 +6,21 @@ import {
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ITransaction } from '../types';
-import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Form from '@erxes/ui/src/components/form/Form';
+} from "@erxes/ui/src";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { ITransaction } from "../types";
+import Button from "@erxes/ui/src/components/Button";
+import DateControl from "@erxes/ui/src/components/form/DateControl";
+import Form from "@erxes/ui/src/components/form/Form";
 
-import { Amount } from '../../contracts/styles';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import React, { useEffect, useMemo, useState } from 'react';
-import { __ } from 'coreui/utils';
-import SelectContracts from '../../contracts/components/common/SelectContract';
-import dayjs from 'dayjs';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
-import { queries } from '../graphql';
+import { Amount } from "../../contracts/styles";
+import { DateContainer } from "@erxes/ui/src/styles/main";
+import React, { useEffect, useMemo, useState } from "react";
+import { __ } from "coreui/utils";
+import SelectContracts from "../../contracts/components/common/SelectContract";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
+import { queries } from "../graphql";
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -63,7 +62,7 @@ function TransactionFormNew(props: Props) {
   const [isPrePayment, setIsPrePayment] = useState<boolean>();
   const [payDate, setPayDate] = useState(new Date());
   const [calcDate, setCalcDate] = useState(new Date());
-  const [description, setDescription] = useState<string>('');
+  const [description, setDescription] = useState<string>("");
 
   const [total, setTotal] = useState(0);
   const [payment, setPayment] = useState(0);
@@ -79,17 +78,18 @@ function TransactionFormNew(props: Props) {
           query: gql(queries.getPaymentInfo),
           variables: {
             id: contractId,
-            payDate: dayjs(calcDate).format('YYYY-MM-DD')
+            scheduleDate: calcDate,
+            payDate: payDate
           }
         })
         .then(({ data }) => {
           setPaymentInfo({ ...data.getPaymentInfo });
         });
-  }, [contractId, calcDate]);
+  }, [contractId, calcDate, payDate]);
 
   const onChangeValue = (key: string, value: number, setValue: any) => {
     switch (key) {
-      case 'total':
+      case "total":
         if (paymentInfo) {
           let total = value;
           const loss = getValue(paymentInfo.loss, total);
@@ -118,23 +118,23 @@ function TransactionFormNew(props: Props) {
         }
 
         break;
-      case 'payment':
+      case "payment":
         setTotal(
           value + storedInterest + calcInterest + loss + commitmentInterest
         );
         break;
-      case 'storedInterest':
+      case "storedInterest":
         setTotal(payment + value + calcInterest + loss + commitmentInterest);
         break;
-      case 'calcInterest':
+      case "calcInterest":
         setTotal(payment + storedInterest + value + loss + commitmentInterest);
         break;
-      case 'loss':
+      case "loss":
         setTotal(
           payment + storedInterest + calcInterest + value + commitmentInterest
         );
         break;
-      case 'commitmentInterest':
+      case "commitmentInterest":
         setTotal(payment + storedInterest + calcInterest + loss + value);
         break;
       default:
@@ -170,7 +170,7 @@ function TransactionFormNew(props: Props) {
   ]);
 
   const renderRowTr = (label, key, value, onChange, main, max?: number) => {
-    if (!paymentInfo || !key || !paymentInfo?.[key]) return '';
+    if (!paymentInfo || !key || !paymentInfo?.[key]) return "";
 
     return (
       <FormWrapper>
@@ -182,7 +182,7 @@ function TransactionFormNew(props: Props) {
         </FormColumn>
         <FormColumn>
           <FormControl
-            type={'number'}
+            type={"number"}
             useNumberFormat
             fixed={2}
             name="total"
@@ -206,26 +206,21 @@ function TransactionFormNew(props: Props) {
             <FormWrapper>
               <FormColumn>
                 <FormGroup>
-                  <ControlLabel>{__('Pay Date')}</ControlLabel>
+                  <ControlLabel>{__("Pay Date")}</ControlLabel>
                   <DateControl
                     required={true}
                     name="payDate"
                     dateFormat="YYYY/MM/DD"
                     value={payDate}
                     onChange={(value: any) => {
-                      if (isPrePayment) {
-                        setPayDate(value);
-                      } else {
-                        setPayDate(value);
-                        setCalcDate(value);
-                      }
+                      setPayDate(value);
                     }}
                   />
                 </FormGroup>
                 <FormGroup>
-                  <ControlLabel>{__('Is Pre Payment')}</ControlLabel>
+                  <ControlLabel>{__("Is Pre Payment")}</ControlLabel>
                   <FormControl
-                    type={'checkbox'}
+                    type={"checkbox"}
                     componentclass="checkbox"
                     useNumberFormat
                     fixed={0}
@@ -241,7 +236,7 @@ function TransactionFormNew(props: Props) {
                 </FormGroup>
                 {isPrePayment && (
                   <FormGroup>
-                    <ControlLabel>{__('Calc Date')}</ControlLabel>
+                    <ControlLabel>{__("Calc Date")}</ControlLabel>
                     <DateContainer>
                       <DateControl
                         required={false}
@@ -249,7 +244,6 @@ function TransactionFormNew(props: Props) {
                         dateFormat="YYYY/MM/DD"
                         value={calcDate}
                         onChange={(value: any) => {
-                          console.log('value', value);
                           setCalcDate(value);
                         }}
                       />
@@ -258,13 +252,13 @@ function TransactionFormNew(props: Props) {
                 )}
                 {!props.contractId && (
                   <FormGroup>
-                    <ControlLabel>{__('Contract')}</ControlLabel>
+                    <ControlLabel>{__("Contract")}</ControlLabel>
                     <SelectContracts
-                      label={__('Choose an contract')}
+                      label={__("Choose an contract")}
                       name="contractId"
                       initialValue={contractId}
                       onSelect={(v) => {
-                        if (typeof v === 'string') {
+                        if (typeof v === "string") {
                           setContractId(v);
                         }
                       }}
@@ -273,7 +267,7 @@ function TransactionFormNew(props: Props) {
                   </FormGroup>
                 )}
                 <FormGroup>
-                  <ControlLabel>{__('Description')}</ControlLabel>
+                  <ControlLabel>{__("Description")}</ControlLabel>
                   <DateContainer>
                     <FormControl
                       required={false}
@@ -287,7 +281,7 @@ function TransactionFormNew(props: Props) {
                   <>
                     <FormWrapper>
                       <FormColumn>
-                        <ControlLabel>{__('Type')}</ControlLabel>
+                        <ControlLabel>{__("Type")}</ControlLabel>
                       </FormColumn>
                       <FormColumn>
                         <ControlLabel>Must pay</ControlLabel>
@@ -298,45 +292,45 @@ function TransactionFormNew(props: Props) {
                     </FormWrapper>
 
                     {renderRowTr(
-                      'Payment',
-                      'payment',
+                      "Payment",
+                      "payment",
                       payment,
                       setPayment,
                       paymentInfo.payment,
                       paymentInfo.balance
                     )}
                     {renderRowTr(
-                      'Stored Interest',
-                      'storedInterest',
+                      "Stored Interest",
+                      "storedInterest",
                       storedInterest,
                       setStoredInterest,
                       paymentInfo.storedInterest
                     )}
                     {renderRowTr(
-                      'Calc Interest',
-                      'calcInterest',
+                      "Calc Interest",
+                      "calcInterest",
                       calcInterest,
                       setCalcInterest,
                       paymentInfo.calcInterest
                     )}
 
                     {renderRowTr(
-                      'Commitment interest',
-                      'commitmentInterest',
+                      "Commitment interest",
+                      "commitmentInterest",
                       commitmentInterest,
                       setCommitmentInterest,
                       paymentInfo.commitmentInterest
                     )}
                     {renderRowTr(
-                      'Loss',
-                      'loss',
+                      "Loss",
+                      "loss",
                       loss,
                       setLoss,
                       paymentInfo.loss
                     )}
                     {renderRowTr(
-                      'Total must pay',
-                      'total',
+                      "Total must pay",
+                      "total",
                       total,
                       setTotal,
                       paymentInfo.total,
@@ -354,11 +348,11 @@ function TransactionFormNew(props: Props) {
               onClick={props.closeModal}
               icon="cancel-1"
             >
-              {__('Close')}
+              {__("Close")}
             </Button>
 
             {props.renderButton({
-              name: 'transaction',
+              name: "transaction",
               values: doc,
               isSubmitted,
               object: props.transaction

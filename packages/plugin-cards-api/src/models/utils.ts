@@ -48,7 +48,7 @@ export const bulkUpdateOrders = async ({
         status: { $ne: BOARD_STATUSES.ARCHIVED },
         ...additionFilter,
       },
-      { _id: 1, order: 1 },
+      { _id: 1, order: 1 }
     )
     .sort(sort);
 
@@ -131,7 +131,7 @@ export const watchItem = async (
   collection: any,
   _id: string,
   isAdd: boolean,
-  userId: string,
+  userId: string
 ) => {
   const item = await collection.findOne({ _id });
 
@@ -152,7 +152,7 @@ export const watchItem = async (
 
 export const fillSearchTextItem = (
   doc: IItemCommonFields,
-  item?: IItemCommonFields,
+  item?: IItemCommonFields
 ) => {
   const document = item || { name: '', description: '' };
   Object.assign(document, doc);
@@ -223,7 +223,7 @@ export const getItem = async (models: IModels, type: string, doc: any) => {
 export const getCompanyIds = async (
   subdomain: string,
   mainType: string,
-  mainTypeId: string,
+  mainTypeId: string
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
@@ -237,13 +237,13 @@ export const getCompanyIds = async (
     defaultValue: [],
   });
 
-  return conformities.map((c) => c.relTypeId);
+  return conformities.map(c => c.relTypeId);
 };
 
 export const getCustomerIds = async (
   subdomain: string,
   mainType: string,
-  mainTypeId: string,
+  mainTypeId: string
 ): Promise<string[]> => {
   const conformities = await sendCoreMessage({
     subdomain,
@@ -257,13 +257,13 @@ export const getCustomerIds = async (
     defaultValue: [],
   });
 
-  return conformities.map((c) => c.relTypeId);
+  return conformities.map(c => c.relTypeId);
 };
 
 export const getInternalNoteIds = async (
   subdomain: string,
   contentType: string,
-  contentTypeId: string,
+  contentTypeId: string
 ): Promise<string[]> => {
   const internalNotes = await sendInternalNotesMessage({
     subdomain,
@@ -284,7 +284,7 @@ export const destroyBoardItemRelations = async (
   models: IModels,
   subdomain: string,
   contentTypeId: string,
-  contentType: string,
+  contentType: string
 ) => {
   await putActivityLog(subdomain, {
     action: 'removeActivityLog',
@@ -305,7 +305,10 @@ export const destroyBoardItemRelations = async (
   await sendInternalNotesMessage({
     subdomain,
     action: 'removeInternalNotes',
-    data: { contentType: `cards:${contentType}`, contentTypeIds: [contentTypeId] },
+    data: {
+      contentType: `cards:${contentType}`,
+      contentTypeIds: [contentTypeId],
+    },
   });
 };
 
@@ -313,7 +316,7 @@ export const destroyBoardItemRelations = async (
 export const getBoardItemLink = async (
   models: IModels,
   stageId: string,
-  itemId: string,
+  itemId: string
 ) => {
   const stage = await models.Stages.getStage(stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
@@ -346,21 +349,21 @@ export const boardNumberGenerator = async (
   config: string,
   size: string,
   skip: boolean,
-  type?: string,
+  fieldName: string,
+  type?: string
 ) => {
   const replacedConfig = await configReplacer(config);
   const re = replacedConfig + '[0-9]+$';
-
   let number;
 
   if (!skip) {
     const pipeline = await models.Pipelines.findOne({
-      lastNum: new RegExp(re),
+      [fieldName]: new RegExp(re),
       type,
     });
 
-    if (pipeline?.lastNum) {
-      const lastNum = pipeline.lastNum;
+    if (pipeline && pipeline[fieldName]) {
+      const lastNum = pipeline[fieldName];
 
       const lastGeneratedNumber = lastNum.slice(replacedConfig.length);
 
@@ -374,13 +377,12 @@ export const boardNumberGenerator = async (
 
   number =
     replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
-
   return number;
 };
 
-export const generateBoardNumber = async (
+export const generateBoardAutoFields = async (
   models: IModels,
-  doc: IItemCommonFields,
+  doc: IItemCommonFields
 ) => {
   const stage = await models.Stages.getStage(doc.stageId);
   const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
@@ -393,12 +395,25 @@ export const generateBoardNumber = async (
       numberConfig,
       numberSize,
       false,
-      pipeline.type,
+      'lastNum',
+      pipeline.type
     );
 
     doc.number = number;
   }
+  if (pipeline.numberSizeName) {
+    const { numberSizeName, nameConfig = '' } = pipeline;
 
+    const name = await boardNumberGenerator(
+      models,
+      nameConfig,
+      numberSizeName,
+      false,
+      'lastNumForName',
+      pipeline.type
+    );
+    doc.name = name;
+  }
   return { updatedDoc: doc, pipeline };
 };
 
@@ -406,11 +421,11 @@ export const createBoardItem = async (
   models: IModels,
   subdomain: string,
   doc: IItemCommonFields,
-  type: string,
+  type: string
 ) => {
   const { collection } = await getCollection(models, type);
 
-  const response = await generateBoardNumber(models, doc);
+  const response = await generateBoardAutoFields(models, doc);
 
   const { pipeline, updatedDoc } = response;
 
@@ -432,17 +447,25 @@ export const createBoardItem = async (
     }
   }
 
-  // update numberConfig of the same configed pipelines
+  // update numberConfig of the same configured pipelines
   if (doc.number) {
     await models.Pipelines.updateMany(
       {
         numberConfig: pipeline.numberConfig,
         type: pipeline.type,
       },
-      { $set: { lastNum: doc.number } },
+      { $set: { lastNum: doc.number } }
     );
   }
-
+  if (doc.name) {
+    await models.Pipelines.updateMany(
+      {
+        nameConfig: pipeline.nameConfig,
+        type: pipeline.type,
+      },
+      { $set: { lastNumForName: doc.name } }
+    );
+  }
   let action = 'create';
   let content = '';
 
@@ -518,7 +541,7 @@ const checkBookingConvert = async (subdomain: string, productId: string) => {
 export const conversationConvertToCard = async (
   models: IModels,
   subdomain: string,
-  args,
+  args
 ) => {
   const {
     _id,
@@ -539,7 +562,7 @@ export const conversationConvertToCard = async (
     if (bookingProductId) {
       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
         subdomain,
-        bookingProductId,
+        bookingProductId
       );
 
       oldItem.productsData.push({
@@ -588,7 +611,7 @@ export const conversationConvertToCard = async (
 
     const relTypeIds: string[] = [];
 
-    sourceConversationIds.forEach(async (conversationId) => {
+    sourceConversationIds.forEach(async conversationId => {
       const con = await sendInboxMessage({
         subdomain,
         action: 'getConversation',
@@ -630,7 +653,7 @@ export const conversationConvertToCard = async (
     if (bookingProductId) {
       const { product, dealUOM, dealCurrency } = await checkBookingConvert(
         subdomain,
-        bookingProductId,
+        bookingProductId
       );
 
       doc.productsData = [

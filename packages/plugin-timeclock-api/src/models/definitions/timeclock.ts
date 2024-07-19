@@ -56,6 +56,8 @@ export interface IAbsenceType {
   name: string;
 
   requestType?: string;
+  requestToType?: string;
+  requestToWhomType?: string;
   requestTimeType?: string;
   requestHoursPerDay: number;
 
@@ -119,6 +121,8 @@ export interface IScheduleConfig {
   lunchBreakInMins: number;
   shiftStart?: string;
   shiftEnd?: string;
+  locations?: any;
+  hasOvertime?: boolean;
 }
 
 export interface IScheduleConfigDocument extends IScheduleConfig, Document {
@@ -368,6 +372,10 @@ export const scheduleSchema = new Schema({
   note: field({
     type: String,
     label: 'Note'
+  }),
+  overtimeExists: field({
+    type: Boolean,
+    label: 'Whether include overtime'
   })
 });
 
@@ -444,6 +452,11 @@ export const scheduleConfigSchema = new Schema({
   shiftEnd: field({
     type: String,
     label: 'ending time of shift'
+  }),
+
+  locations: field({
+    type: JSON,
+    label: 'additional locations of schedule config'
   })
 });
 
