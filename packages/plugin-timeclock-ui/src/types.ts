@@ -55,6 +55,8 @@ export interface IAbsenceType {
   shiftRequest: boolean;
 
   requestType: string;
+  requestToType: string;
+  requestToWhomType: string;
   requestTimeType: string;
   requestHoursPerDay?: number;
 }
