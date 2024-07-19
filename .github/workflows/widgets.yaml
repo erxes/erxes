@@ -7,7 +7,6 @@ on:
       - master
       - rc
       - staging
-      - feat-widgets-messenger
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
@@ -16,7 +15,6 @@ on:
       - master
       - rc
       - dev
-      - feat-widgets-messenger
     paths:
       - 'widgets/**'
 
@@ -33,54 +31,24 @@ jobs:
           node-version: 18.17.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
-      # - name: Get yarn cache directory path
-      #   id: yarn-cache-dir-path
-      #   run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      # - uses: actions/cache@v4
-      #   id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      #   with:
-      #     path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-      #     key: ${{ runner.os }}-yarn-widgets-${{ hashFiles('yarn.lock', 'widgets/yarn.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-yarn-widgets-
-      #       ${{ runner.os }}-yarn-
-
-      - name: Clean Yarn cache
-        run: |
-          cd widgets
-          yarn cache clean
-
-      - name: Remove node_modules
-        run: |
-          cd widgets
-          rm -rf node_modules
-          rm yarn.lock
-
-      - name: Reinstall dependencies
-        run: |
-          cd widgets
-          yarn install
-        #  --frozen-lockfile
-
-      - name: Verify ts-loader installation
-        run: |
-          cd widgets
-          yarn list --pattern ts-loader
-
-      - name: Explicitly install ts-loader
-        run: |
-          cd widgets
-          yarn add ts-loader --dev -W
-
-      - name: List installed packages
-        run: |
-          cd widgets
-          yarn list
+      - uses: actions/cache@v4
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-widgets-${{ hashFiles('yarn.lock', 'widgets/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-widgets-
+            ${{ runner.os }}-yarn-
 
       - name: Build
         run: |
           cd widgets
+          rm -rf node_modules
+          yarn install --frozen-lockfile --production
           yarn build
 
       - name: Build docker image
