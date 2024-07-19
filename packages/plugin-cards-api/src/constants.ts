@@ -305,6 +305,13 @@ export const CARD_PROPERTIES_INFO = {
 
   ALL: [
     {
+      label: 'Name',
+      field: 'name',
+      canHide: false,
+      validation: null,
+      type: 'textarea',
+    },
+    {
       label: 'Priority',
       field: 'priority',
       canHide: false,
