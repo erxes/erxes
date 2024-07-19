@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.2](https://github.com/erxes/erxes/compare/1.15.0-rc.1...1.15.0-rc.2) (2024-07-19)
+
+
+### Bug Fixes
+
+* **widget:** revert widgets.yaml ([1bb09ad](https://github.com/erxes/erxes/commit/1bb09ad2182d304d6dcf043c4d12f65af6937bec))
+
 ## [1.15.0-rc.1](https://github.com/erxes/erxes/compare/1.15.0-rc.0...1.15.0-rc.1) (2024-07-19)
 
 
