@@ -1,43 +1,22 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import DumbCategories from "../components/Categories";
-import { connection } from "../connection";
-import { IKbTopic } from "../types";
-import queries from "./graphql";
+import * as React from 'react';
+import DumbCategories from '../components/Categories';
+import { connection } from '../connection';
+import queries from './graphql';
+import { gql, useQuery } from '@apollo/client';
 
-const Categories = (props: ChildProps<{}, QueryResponse>) => {
-  const { data } = props;
+const Categories = () => {
+  const { data, loading } = useQuery(gql(queries.getKbTopicQuery), {
+    variables: {
+      _id: connection.setting.topic_id,
+    },
+    fetchPolicy: 'network-only',
+  });
 
-  if (!data) {
-    return null;
-  }
-  if (data.loading) {
+  if (loading) {
     return <div className="loader bigger top-space" />;
   }
 
-  const extendedProps = {
-    ...props,
-    kbTopic: data.widgetsKnowledgeBaseTopicDetail
-  };
-
-  return <DumbCategories {...extendedProps} />;
+  return <DumbCategories kbTopic={data?.widgetsKnowledgeBaseTopicDetail} />;
 };
 
-type QueryResponse = {
-  widgetsKnowledgeBaseTopicDetail: IKbTopic;
-};
-
-const CategoriesWithData = graphql<{}, QueryResponse>(
-  gql(queries.getKbTopicQuery),
-  {
-    options: () => ({
-      fetchPolicy: "network-only",
-      variables: {
-        _id: connection.setting.topic_id
-      }
-    })
-  }
-)(Categories);
-
-export default CategoriesWithData;
+export default Categories;

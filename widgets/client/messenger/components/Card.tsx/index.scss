@@ -1,0 +1,12 @@
+.card {
+  width: 100%;
+  background-color: white;
+  padding: 1rem 1.25rem;
+  padding-bottom: 0.75rem;
+  border-radius: 10px;
+  filter: drop-shadow;
+  box-shadow:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.08),
+    0px 2px 8px 0px rgba(0, 0, 0, 0.06);
+  height: fit-content;
+}

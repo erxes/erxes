@@ -6,7 +6,7 @@
 }
 
 #erxes-messenger-container:after {
-  content: "";
+  content: '';
   position: absolute;
   opacity: 0;
   width: 300px;
@@ -31,7 +31,7 @@
   z-index: 2147483647;
 }
 
-.erxes-messenger-hidden>iframe {
+.erxes-messenger-hidden > iframe {
   width: 72px;
   height: 72px;
   max-width: none;
@@ -49,7 +49,7 @@
 }
 
 .erxes-messenger-shown:after {
-  opacity: .9 !important;
+  opacity: 0.9 !important;
   right: -20px !important;
   bottom: -20px !important;
 }
@@ -58,8 +58,8 @@
   max-height: 310px;
 }
 
-.erxes-messenger-shown>iframe,
-.erxes-notifier-shown>iframe {
+.erxes-messenger-shown > iframe,
+.erxes-notifier-shown > iframe {
   width: 100% !important;
   height: 100% !important;
   max-width: none;

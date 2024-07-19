@@ -1,30 +1,18 @@
-import * as React from "react";
-import * as RTG from "react-transition-group";
-import asyncComponent from "../../AsyncComponent";
-
-const Launcher = asyncComponent(() => 
-  import(/* webpackChunkName: "MessengerLauncher" */ '../containers/Launcher')
-);
-
-const Messenger = asyncComponent(() => 
-  import(/* webpackChunkName: "MessengerMain" */ '../containers/Messenger')
-);
+import * as React from 'react';
+import { CSSTransition } from 'react-transition-group';
+import asyncComponent from '../../AsyncComponent';
+import { useConversation } from '../context/Conversation';
+import Launcher from '../containers/Launcher';
+import MessengerContainer from '../containers/Messenger';
 
 type Props = {
-  isMessengerVisible: boolean;
   showLauncher: boolean;
-  saveBrowserInfo: () => void;
 };
 
-export default class App extends React.Component<Props> {
-  componentDidMount() {
-    // call save browser info mutation
-    this.props.saveBrowserInfo();
-  }
+const App: React.FC<Props> = ({ showLauncher }) => {
+  const { isMessengerVisible } = useConversation();
 
-  renderLauncher = () => {
-    const { showLauncher } = this.props;
-
+  const renderLauncher = () => {
     if (!showLauncher) {
       return null;
     }
@@ -32,24 +20,31 @@ export default class App extends React.Component<Props> {
     return <Launcher />;
   };
 
-  render() {
-    const { isMessengerVisible } = this.props;
+  if (isMessengerVisible) return <MessengerContainer />;
+  return renderLauncher();
+};
 
-    return (
-      <div className="erxes-widget">
-        <RTG.CSSTransition
+{
+  /* // <div className="erxes-widget">
+         <CSSTransition
           in={isMessengerVisible}
           timeout={300}
           classNames="scale-in"
           unmountOnExit={true}
-        >
-          <div className="erxes-messenger">
-            <Messenger />
-          </div>
-        </RTG.CSSTransition>
-
-        {this.renderLauncher()}
-      </div>
-    );
-  }
+        > */
 }
+{
+  /* <div className="erxes-messenger"> */
+}
+
+{
+  /* </div> */
+}
+{
+  /* </CSSTransition> */
+}
+{
+  /* {this.renderLauncher()} 
+      // </div>*/
+}
+export default App;
