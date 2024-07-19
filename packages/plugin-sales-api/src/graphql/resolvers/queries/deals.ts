@@ -1,9 +1,9 @@
 import {
   checkPermission,
   moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
-import dealResolvers from '../customResolvers/deal';
-import { IListParams } from './boards';
+} from "@erxes/api-utils/src/permissions";
+import dealResolvers from "../customResolvers/deal";
+import { IListParams } from "./boards";
 import {
   archivedItems,
   archivedItemsCount,
@@ -11,13 +11,13 @@ import {
   generateDealCommonFilters,
   getItemList,
   IArchiveArgs
-} from './utils';
-import { IContext } from '../../../connectionResolver';
+} from "./utils";
+import { IContext } from "../../../connectionResolver";
 import {
   sendCoreMessage,
   sendLoyaltiesMessage,
   sendProductsMessage
-} from '../../../messageBroker';
+} from "../../../messageBroker";
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -47,7 +47,7 @@ const dealQueries = {
       filter,
       args,
       user,
-      'deal',
+      "deal",
       { productsData: 1 },
       getExtraFields,
       serverTiming
@@ -62,11 +62,11 @@ const dealQueries = {
       return [];
     });
 
-    serverTiming.startTime('sendProductsMessage');
+    serverTiming.startTime("sendProductsMessage");
 
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "find",
       data: {
         query: {
           _id: { $in: [...new Set(dealProductIds)] }
@@ -76,7 +76,7 @@ const dealQueries = {
       defaultValue: []
     });
 
-    serverTiming.endTime('sendProductsMessage');
+    serverTiming.endTime("sendProductsMessage");
 
     for (const deal of deals) {
       let pd = deal.productsData;
@@ -96,7 +96,7 @@ const dealQueries = {
         }
 
         deal.products.push({
-          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          ...(typeof pData.toJSON === "function" ? pData.toJSON() : pData),
           product: products.find(p => p._id === pData.productId) || {}
         });
       }
@@ -105,7 +105,7 @@ const dealQueries = {
       if (deal.productsData.length > pd.length) {
         deal.products.push({
           product: {
-            name: '...More'
+            name: "...More"
           }
         });
       }
@@ -161,13 +161,13 @@ const dealQueries = {
       },
       {
         $lookup: {
-          from: 'stages',
-          let: { letStageId: '$stageId' },
+          from: "sales_stages",
+          let: { letStageId: "$stageId" },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $eq: ['$_id', '$$letStageId']
+                  $eq: ["$_id", "$$letStageId"]
                 }
               }
             },
@@ -177,32 +177,32 @@ const dealQueries = {
                   $cond: {
                     if: {
                       $or: [
-                        { $eq: ['$probability', 'Won'] },
-                        { $eq: ['$probability', 'Lost'] }
+                        { $eq: ["$probability", "Won"] },
+                        { $eq: ["$probability", "Lost"] }
                       ]
                     },
-                    then: '$probability',
-                    else: 'In progress'
+                    then: "$probability",
+                    else: "In progress"
                   }
                 }
               }
             }
           ],
-          as: 'stageProbability'
+          as: "stageProbability"
         }
       },
       {
-        $unwind: '$productsData'
+        $unwind: "$productsData"
       },
       {
-        $unwind: '$stageProbability'
+        $unwind: "$stageProbability"
       },
       {
         $project: {
-          amount: '$productsData.amount',
-          currency: '$productsData.currency',
-          type: '$stageProbability.probability',
-          tickUsed: '$productsData.tickUsed'
+          amount: "$productsData.amount",
+          currency: "$productsData.currency",
+          type: "$stageProbability.probability",
+          tickUsed: "$productsData.tickUsed"
         }
       },
       {
@@ -210,16 +210,16 @@ const dealQueries = {
       },
       {
         $group: {
-          _id: { currency: '$currency', type: '$type' },
+          _id: { currency: "$currency", type: "$type" },
 
-          amount: { $sum: '$amount' }
+          amount: { $sum: "$amount" }
         }
       },
       {
         $group: {
-          _id: '$_id.type',
+          _id: "$_id.type",
           currencies: {
-            $push: { amount: '$amount', name: '$_id.currency' }
+            $push: { amount: "$amount", name: "$_id.currency" }
           }
         }
       },
@@ -266,15 +266,15 @@ const dealQueries = {
     },
     { subdomain }: IContext
   ) {
-    let ownerId = '';
-    let ownerType = '';
+    let ownerId = "";
+    let ownerType = "";
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'deal',
+        mainType: "deal",
         mainTypeId: _id,
-        relTypes: ['customer']
+        relTypes: ["customer"]
       },
       isRPC: true,
       defaultValue: []
@@ -282,24 +282,24 @@ const dealQueries = {
 
     if (customerIds.length) {
       ownerId = customerIds[0];
-      ownerType = 'customer';
+      ownerType = "customer";
     }
 
     if (!ownerId) {
       const companyIds = await sendCoreMessage({
         subdomain,
-        action: 'conformities.savedConformity',
+        action: "conformities.savedConformity",
         data: {
-          mainType: 'deal',
+          mainType: "deal",
           mainTypeId: _id,
-          relTypes: ['company']
+          relTypes: ["company"]
         },
         isRPC: true,
         defaultValue: []
       });
       if (companyIds.length) {
         ownerId = companyIds[0];
-        ownerType = 'company';
+        ownerType = "company";
       }
     }
 
@@ -309,7 +309,7 @@ const dealQueries = {
 
     return await sendLoyaltiesMessage({
       subdomain,
-      action: 'checkLoyalties',
+      action: "checkLoyalties",
       data: {
         ownerType,
         ownerId,
@@ -322,6 +322,6 @@ const dealQueries = {
 
 moduleRequireLogin(dealQueries);
 
-checkPermission(dealQueries, 'deals', 'showDeals', []);
+checkPermission(dealQueries, "deals", "showDeals", []);
 
 export default dealQueries;

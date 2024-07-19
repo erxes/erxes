@@ -1,9 +1,9 @@
 import {
   checkPermission,
   moduleRequireLogin
-} from '@erxes/api-utils/src/permissions';
-import purchaseResolvers from '../customResolvers/purchase';
-import { IListParams } from './boards';
+} from "@erxes/api-utils/src/permissions";
+import purchaseResolvers from "../customResolvers/purchase";
+import { IListParams } from "./boards";
 import {
   archivedItems,
   archivedItemsCount,
@@ -11,13 +11,13 @@ import {
   generatePurchaseCommonFilters,
   getItemList,
   IArchiveArgs
-} from './utils';
-import { IContext } from '../../../connectionResolver';
+} from "./utils";
+import { IContext } from "../../../connectionResolver";
 import {
   sendCoreMessage,
   sendLoyaltiesMessage,
   sendProductsMessage
-} from '../../../messageBroker';
+} from "../../../messageBroker";
 
 interface IPurchaseListParams extends IListParams {
   productIds?: [string];
@@ -26,7 +26,7 @@ interface IPurchaseListParams extends IListParams {
 const purchaseQueries = {
   // list expense
   async expenses(_root, _args, { models }: IContext) {
-    return models.Expenses.find({ status: 'active' }).lean();
+    return models.Expenses.find({ status: "active" }).lean();
   },
 
   // count expense
@@ -64,7 +64,7 @@ const purchaseQueries = {
       filter,
       args,
       user,
-      'purchase',
+      "purchase",
       { productsData: 1 },
       getExtraFields,
       serverTiming
@@ -81,7 +81,7 @@ const purchaseQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "find",
       data: {
         query: {
           _id: { $in: [...new Set(purchaseProductIds)] }
@@ -109,7 +109,7 @@ const purchaseQueries = {
         }
 
         purchase.products.push({
-          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+          ...(typeof pData.toJSON === "function" ? pData.toJSON() : pData),
           product: products.find(p => p._id === pData.productId) || {}
         });
       }
@@ -118,7 +118,7 @@ const purchaseQueries = {
       if (purchase.productsData.length > pd.length) {
         purchase.products.push({
           product: {
-            name: '...More'
+            name: "...More"
           }
         });
       }
@@ -149,7 +149,11 @@ const purchaseQueries = {
     return archivedItems(models, args, models.Purchases);
   },
 
-  async archivedpurchasesCount(_root, args: IArchiveArgs, { models }: IContext) {
+  async archivedpurchasesCount(
+    _root,
+    args: IArchiveArgs,
+    { models }: IContext
+  ) {
     return archivedItemsCount(models, args, models.Purchases);
   },
 
@@ -174,13 +178,13 @@ const purchaseQueries = {
       },
       {
         $lookup: {
-          from: 'stages',
-          let: { letStageId: '$stageId' },
+          from: "purchases_stages",
+          let: { letStageId: "$stageId" },
           pipeline: [
             {
               $match: {
                 $expr: {
-                  $eq: ['$_id', '$$letStageId']
+                  $eq: ["$_id", "$$letStageId"]
                 }
               }
             },
@@ -190,32 +194,32 @@ const purchaseQueries = {
                   $cond: {
                     if: {
                       $or: [
-                        { $eq: ['$probability', 'Won'] },
-                        { $eq: ['$probability', 'Lost'] }
+                        { $eq: ["$probability", "Won"] },
+                        { $eq: ["$probability", "Lost"] }
                       ]
                     },
-                    then: '$probability',
-                    else: 'In progress'
+                    then: "$probability",
+                    else: "In progress"
                   }
                 }
               }
             }
           ],
-          as: 'stageProbability'
+          as: "stageProbability"
         }
       },
       {
-        $unwind: '$productsData'
+        $unwind: "$productsData"
       },
       {
-        $unwind: '$stageProbability'
+        $unwind: "$stageProbability"
       },
       {
         $project: {
-          amount: '$productsData.amount',
-          currency: '$productsData.currency',
-          type: '$stageProbability.probability',
-          tickUsed: '$productsData.tickUsed'
+          amount: "$productsData.amount",
+          currency: "$productsData.currency",
+          type: "$stageProbability.probability",
+          tickUsed: "$productsData.tickUsed"
         }
       },
       {
@@ -223,16 +227,16 @@ const purchaseQueries = {
       },
       {
         $group: {
-          _id: { currency: '$currency', type: '$type' },
+          _id: { currency: "$currency", type: "$type" },
 
-          amount: { $sum: '$amount' }
+          amount: { $sum: "$amount" }
         }
       },
       {
         $group: {
-          _id: '$_id.type',
+          _id: "$_id.type",
           currencies: {
-            $push: { amount: '$amount', name: '$_id.currency' }
+            $push: { amount: "$amount", name: "$_id.currency" }
           }
         }
       },
@@ -263,7 +267,7 @@ const purchaseQueries = {
     return checkItemPermByUser(models, user, purchase);
   },
 
-  async purchasecheckDiscount(
+  async purchaseCheckDiscount(
     _root,
     {
       _id,
@@ -274,15 +278,15 @@ const purchaseQueries = {
     },
     { subdomain }: IContext
   ) {
-    let ownerId = '';
-    let ownerType = '';
+    let ownerId = "";
+    let ownerType = "";
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'purchase',
+        mainType: "purchase",
         mainTypeId: _id,
-        relTypes: ['customer']
+        relTypes: ["customer"]
       },
       isRPC: true,
       defaultValue: []
@@ -290,24 +294,24 @@ const purchaseQueries = {
 
     if (customerIds.length) {
       ownerId = customerIds[0];
-      ownerType = 'customer';
+      ownerType = "customer";
     }
 
     if (!ownerId) {
       const companyIds = await sendCoreMessage({
         subdomain,
-        action: 'conformities.savedConformity',
+        action: "conformities.savedConformity",
         data: {
-          mainType: 'purchase',
+          mainType: "purchase",
           mainTypeId: _id,
-          relTypes: ['company']
+          relTypes: ["company"]
         },
         isRPC: true,
         defaultValue: []
       });
       if (companyIds.length) {
         ownerId = companyIds[0];
-        ownerType = 'company';
+        ownerType = "company";
       }
     }
 
@@ -317,7 +321,7 @@ const purchaseQueries = {
 
     return await sendLoyaltiesMessage({
       subdomain,
-      action: 'checkLoyalties',
+      action: "checkLoyalties",
       data: {
         ownerType,
         ownerId,
@@ -335,7 +339,7 @@ const purchaseQueries = {
     const result: { productId: string; price: number }[] = [];
     for (const productId of productIds) {
       const lastPurchase = await models.Purchases.findOne({
-        'productsData.productId': productIds,
+        "productsData.productId": productIds,
         _id: { $ne: purchaseId }
       }).sort({ modifiedAt: -1 });
       if (!lastPurchase) {
@@ -359,6 +363,6 @@ const purchaseQueries = {
 
 moduleRequireLogin(purchaseQueries);
 
-checkPermission(purchaseQueries, 'purchases', 'showPurchases', []);
+checkPermission(purchaseQueries, "purchases", "showPurchases", []);
 
 export default purchaseQueries;

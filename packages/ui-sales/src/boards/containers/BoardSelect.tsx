@@ -1,16 +1,16 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import BoardSelect from '../components/BoardSelect';
-import { queries } from '../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { Alert, withProps } from "@erxes/ui/src/utils";
+import BoardSelect from "../components/BoardSelect";
+import { queries } from "../graphql";
 import {
   BoardsQueryResponse,
   IStage,
   PipelinesQueryResponse,
   StagesQueryResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   type: string;
@@ -39,7 +39,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     this.props.pipelinesQuery
       .refetch({ boardId })
       .then(({ data }) => {
-        const pipelines = data.pipelines;
+        const pipelines = data.salesPipelines;
 
         if (pipelines.length > 0) {
           this.onChangePipeline(pipelines[0]._id);
@@ -62,7 +62,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
 
         if (
           stages.length > 0 &&
-          typeof this.props.autoSelectStage === 'undefined'
+          typeof this.props.autoSelectStage === "undefined"
         ) {
           this.onChangeStage(stages[0]._id);
         }
@@ -85,9 +85,9 @@ class BoardSelectContainer extends React.Component<FinalProps> {
   render() {
     const { boardsQuery, pipelinesQuery, stagesQuery } = this.props;
 
-    const boards = boardsQuery.boards || [];
-    const pipelines = pipelinesQuery.pipelines || [];
-    const stages = stagesQuery.stages || [];
+    const boards = boardsQuery.salesBoards || [];
+    const pipelines = pipelinesQuery.salesPipelines || [];
+    const stages = stagesQuery.salesStages || [];
 
     const extendedProps = {
       ...this.props,
@@ -106,7 +106,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
         variables: { type }
       })
@@ -114,8 +114,8 @@ export default withProps<Props>(
     graphql<Props, PipelinesQueryResponse, { boardId: string }>(
       gql(queries.pipelines),
       {
-        name: 'pipelinesQuery',
-        options: ({ boardId = '' }) => ({
+        name: "pipelinesQuery",
+        options: ({ boardId = "" }) => ({
           variables: { boardId }
         })
       }
@@ -123,8 +123,8 @@ export default withProps<Props>(
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
-        name: 'stagesQuery',
-        options: ({ pipelineId = '' }) => ({
+        name: "stagesQuery",
+        options: ({ pipelineId = "" }) => ({
           variables: { pipelineId }
         })
       }

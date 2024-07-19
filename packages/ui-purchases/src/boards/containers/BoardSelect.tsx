@@ -39,7 +39,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
     this.props.pipelinesQuery
       .refetch({ boardId })
       .then(({ data }) => {
-        const pipelines = data.pipelines;
+        const pipelines = data.purchasesPipelines;
 
         if (pipelines.length > 0) {
           this.onChangePipeline(pipelines[0]._id);

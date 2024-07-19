@@ -929,7 +929,7 @@ export const getItemList = async (
     },
     {
       $lookup: {
-        from: "stages",
+        from: "sales_stages",
         localField: "stageId",
         foreignField: "_id",
         as: "stages_doc"

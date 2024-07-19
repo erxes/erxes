@@ -24,7 +24,8 @@ class ConvertLogContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const contentDetail = contentTypeDetailsQuery.boardContentTypeDetail || {};
+    const contentDetail =
+      contentTypeDetailsQuery.salesBoardContentTypeDetail || {};
 
     const updatedProps = {
       ...this.props,

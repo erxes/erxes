@@ -961,7 +961,7 @@ export const getItemList = async (
     },
     {
       $lookup: {
-        from: "stages",
+        from: "purchases_stages",
         localField: "stageId",
         foreignField: "_id",
         as: "stages_doc"

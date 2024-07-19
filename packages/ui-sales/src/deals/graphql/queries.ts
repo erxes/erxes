@@ -1,9 +1,9 @@
-import { queries } from '@erxes/ui-products/src/graphql';
-import { commonFields, commonListFields } from '../../boards/graphql/mutations';
+import { queries } from "@erxes/ui-products/src/graphql";
+import { commonFields, commonListFields } from "../../boards/graphql/mutations";
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '../../conformity/graphql/queries';
+} from "../../conformity/graphql/queries";
 
 const commonParams = `
   $_ids: [String]
@@ -14,7 +14,7 @@ const commonParams = `
   $labelIds: [String],
   $search: String,
   $priority: [String],
-  $date: ItemDate,
+  $date: SalesItemDate,
   $pipelineId: String,
   $parentId: String,
   $closeDateType: String,
@@ -215,8 +215,8 @@ const productDetail = `
 `;
 
 const checkDiscount = `
-  query checkDiscount($_id: String!, $products: [ProductField]) {
-    checkDiscount(_id: $_id, products: $products)
+  query salesCheckDiscount($_id: String!, $products: [SalesProductField]) {
+    salesCheckDiscount(_id: $_id, products: $products)
   }
 `;
 

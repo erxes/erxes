@@ -36,7 +36,7 @@ function BoardsContainer(props: FinalProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const boards = boardsQuery.boards || [];
+  const boards = boardsQuery.salesBoards || [];
 
   const removeHash = () => {
     if (location.hash.includes("showBoardModal")) {

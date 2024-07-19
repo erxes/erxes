@@ -25,10 +25,10 @@ export const checklistFields = `
 `;
 
 const checklists = `
-  query checklists(
+  query salesChecklists(
     ${commonParams}
   ) {
-    checklists(
+    salesChecklists(
       ${commonParamDefs}
     ) {
       _id
@@ -37,8 +37,8 @@ const checklists = `
 `;
 
 const checklistDetail = `
-  query checklistDetail($_id: String!) {
-    checklistDetail(_id: $_id) {
+  query salesChecklistDetail($_id: String!) {
+    salesChecklistDetail(_id: $_id) {
       ${checklistFields}
     }
   }

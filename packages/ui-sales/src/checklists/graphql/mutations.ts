@@ -1,4 +1,4 @@
-import { checklistFields } from './queries';
+import { checklistFields } from "./queries";
 
 export const commonVariables = `
   $contentType: String,
@@ -13,10 +13,10 @@ export const commonParams = `
 `;
 
 const checklistsAdd = `
-  mutation checklistsAdd(
+  mutation salesChecklistsAdd(
     ${commonVariables}
   ) {
-    checklistsAdd(
+    salesChecklistsAdd(
       ${commonParams}
     ) {
       ${checklistFields}
@@ -25,11 +25,11 @@ const checklistsAdd = `
 `;
 
 const checklistsEdit = `
-  mutation checklistsEdit(
+  mutation salesChecklistsEdit(
     $_id: String!,
     ${commonVariables}
   ) {
-    checklistsEdit(
+    salesChecklistsEdit(
       _id: $_id,
       ${commonParams}
     ) {
@@ -39,8 +39,8 @@ const checklistsEdit = `
 `;
 
 const checklistsRemove = `
-  mutation checklistsRemove($_id: String!) {
-    checklistsRemove(_id: $_id) {
+  mutation salesChecklistsRemove($_id: String!) {
+    salesChecklistsRemove(_id: $_id) {
       _id
     }
   }
@@ -75,11 +75,11 @@ const checklistItemsAdd = `
 `;
 
 const checklistItemsEdit = `
-  mutation checklistItemsEdit(
+  mutation salesChecklistItemsEdit(
     $_id: String!,
     ${commonItemVariables}
   ) {
-    checklistItemsEdit(
+    salesChecklistItemsEdit(
       _id: $_id,
       ${commonItemParams}
     ) {
@@ -91,16 +91,16 @@ const checklistItemsEdit = `
 `;
 
 const checklistItemsRemove = `
-  mutation checklistItemsRemove($_id: String!) {
-    checklistItemsRemove(_id: $_id) {
+  mutation salesChecklistItemsRemove($_id: String!) {
+    salesChecklistItemsRemove(_id: $_id) {
       _id
     }
   }
 `;
 
 const checklistItemsOrder = `
-  mutation checklistItemsOrder($_id: String!, $destinationIndex: Int) {
-    checklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
+  mutation salesChecklistItemsOrder($_id: String!, $destinationIndex: Int) {
+    salesChecklistItemsOrder(_id: $_id destinationIndex: $destinationIndex) {
       _id
     }
   }

@@ -1,13 +1,13 @@
-import { IDealDocument } from '../../../models/definitions/deals';
-import { boardId } from '../../utils';
-import { IContext } from '../../../connectionResolver';
+import { IDealDocument } from "../../../models/definitions/deals";
+import { boardId } from "../../utils";
+import { IContext } from "../../../connectionResolver";
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
   sendNotificationsMessage,
   sendProductsMessage
-} from '../../../messageBroker';
+} from "../../../messageBroker";
 
 export const generateProducts = async (
   subdomain: string,
@@ -25,7 +25,7 @@ export const generateProducts = async (
 
   const allProducts = await sendProductsMessage({
     subdomain,
-    action: 'find',
+    action: "find",
     data: { query: { _id: { $in: productIds } }, limit: productsData.length },
     isRPC: true,
     defaultValue: []
@@ -52,7 +52,7 @@ export const generateProducts = async (
 
     const fields = await sendFormsMessage({
       subdomain,
-      action: 'fields.find',
+      action: "fields.find",
       data: {
         query: {
           _id: { $in: fieldIds }
@@ -76,7 +76,7 @@ export const generateProducts = async (
     product.customFieldsData = customFields;
 
     products.push({
-      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
       product
     });
   }
@@ -124,11 +124,11 @@ export default {
   ) {
     const companyIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'deal',
+        mainType: "deal",
         mainTypeId: deal._id,
-        relTypes: ['company']
+        relTypes: ["company"]
       },
       isRPC: true,
       defaultValue: []
@@ -136,7 +136,7 @@ export default {
 
     const activeCompanies = await sendContactsMessage({
       subdomain,
-      action: 'companies.findActiveCompanies',
+      action: "companies.findActiveCompanies",
       data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
       defaultValue: []
@@ -147,7 +147,7 @@ export default {
     }
 
     return (activeCompanies || []).map(c => ({
-      __typename: 'Company',
+      __typename: "Company",
       _id: c._id
     }));
   },
@@ -160,11 +160,11 @@ export default {
   ) {
     const customerIds = await sendCoreMessage({
       subdomain,
-      action: 'conformities.savedConformity',
+      action: "conformities.savedConformity",
       data: {
-        mainType: 'deal',
+        mainType: "deal",
         mainTypeId: deal._id,
-        relTypes: ['customer']
+        relTypes: ["customer"]
       },
       isRPC: true,
       defaultValue: []
@@ -172,7 +172,7 @@ export default {
 
     const activeCustomers = await sendContactsMessage({
       subdomain,
-      action: 'customers.findActiveCustomers',
+      action: "customers.findActiveCustomers",
       data: { selector: { _id: { $in: customerIds } } },
       isRPC: true,
       defaultValue: []
@@ -183,7 +183,7 @@ export default {
     }
 
     return (activeCustomers || []).map(c => ({
-      __typename: 'Customer',
+      __typename: "Customer",
       _id: c._id
     }));
   },
@@ -211,7 +211,7 @@ export default {
     if (isSubscription && deal.assignedUserIds?.length) {
       return sendCoreMessage({
         subdomain,
-        action: 'users.find',
+        action: "users.find",
         data: {
           query: {
             _id: { $in: deal.assignedUserIds }
@@ -224,7 +224,7 @@ export default {
     return (deal.assignedUserIds || [])
       .filter(e => e)
       .map(_id => ({
-        __typename: 'User',
+        __typename: "User",
         _id
       }));
   },
@@ -256,7 +256,7 @@ export default {
   async hasNotified(deal: IDealDocument, _args, { user, subdomain }: IContext) {
     const response = await sendNotificationsMessage({
       subdomain,
-      action: 'checkIfRead',
+      action: "checkIfRead",
       data: {
         userId: user._id,
         itemId: deal._id
@@ -273,7 +273,7 @@ export default {
   },
 
   async tags(deal: IDealDocument) {
-    return (deal.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return (deal.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
   },
 
   createdUser(deal: IDealDocument) {
@@ -281,6 +281,6 @@ export default {
       return;
     }
 
-    return { __typename: 'User', _id: deal.userId };
+    return { __typename: "User", _id: deal.userId };
   }
 };

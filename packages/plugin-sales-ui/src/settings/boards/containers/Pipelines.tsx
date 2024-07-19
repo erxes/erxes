@@ -73,7 +73,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     return <Spinner />;
   }
 
-  const pipelines = pipelinesData?.pipelines || [];
+  const pipelines = pipelinesData?.salesPipelines || [];
 
   const archive = (pipelineId: string, status: string) => {
     let message = `This will archive the current pipeline. Are you absolutely sure?`;
@@ -188,7 +188,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     copied,
     renderButton,
     updateOrder,
-    currentBoard: boardDetailData ? boardDetailData.boardDetail : undefined
+    currentBoard: boardDetailData ? boardDetailData.salesBoardDetail : undefined
   };
 
   return <Pipelines {...extendedProps} />;

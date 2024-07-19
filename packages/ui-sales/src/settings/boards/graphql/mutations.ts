@@ -9,24 +9,24 @@ const commonParams = `
 `;
 
 const boardAdd = `
-  mutation boardsAdd(${commonParamsDef}) {
-    boardsAdd(${commonParams}) {
+  mutation salesBoardsAdd(${commonParamsDef}) {
+    salesBoardsAdd(${commonParams}) {
       _id
     }
   }
 `;
 
 const boardEdit = `
-  mutation boardsEdit($_id: String!, ${commonParamsDef}) {
-    boardsEdit(_id: $_id, ${commonParams}) {
+  mutation salesBoardsEdit($_id: String!, ${commonParamsDef}) {
+    salesBoardsEdit(_id: $_id, ${commonParams}) {
       _id
     }
   }
 `;
 
 const boardRemove = `
-  mutation boardsRemove($_id: String!) {
-    boardsRemove(_id: $_id)
+  mutation salesBoardsRemove($_id: String!) {
+    salesBoardsRemove(_id: $_id)
   }
 `;
 
@@ -77,48 +77,48 @@ const commonPipelineParams = `
 `;
 
 const pipelineAdd = `
-  mutation pipelinesAdd(${commonPipelineParamsDef}) {
-    pipelinesAdd(${commonPipelineParams}) {
+  mutation salesPipelinesAdd(${commonPipelineParamsDef}) {
+    salesPipelinesAdd(${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineEdit = `
-  mutation pipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
-    pipelinesEdit(_id: $_id, ${commonPipelineParams}) {
+  mutation salesPipelinesEdit($_id: String!, ${commonPipelineParamsDef}) {
+    salesPipelinesEdit(_id: $_id, ${commonPipelineParams}) {
       _id
     }
   }
 `;
 
 const pipelineRemove = `
-  mutation pipelinesRemove($_id: String!) {
-    pipelinesRemove(_id: $_id)
+  mutation salesPipelinesRemove($_id: String!) {
+    salesPipelinesRemove(_id: $_id)
   }
 `;
 const pipelinesArchive = `
-  mutation pipelinesArchive($_id: String!) {
-    pipelinesArchive(_id: $_id)
+  mutation salesPipelinesArchive($_id: String!) {
+    salesPipelinesArchive(_id: $_id)
   }
 `;
 
 const pipelinesCopied = `
-  mutation pipelinesCopied($_id: String!) {
-    pipelinesCopied(_id: $_id)
+  mutation salesPipelinesCopied($_id: String!) {
+    salesPipelinesCopied(_id: $_id)
   }
 `;
 const pipelinesUpdateOrder = `
-  mutation pipelinesUpdateOrder($orders: [OrderItem]) {
-    pipelinesUpdateOrder(orders: $orders) {
+  mutation salesPipelinesUpdateOrder($orders: [OrderItem]) {
+    salesPipelinesUpdateOrder(orders: $orders) {
       _id
     }
   }
 `;
 
 const manageExpenses = `
-  mutation manageExpenses($expenseDocs: [ExpenseInput]) {
-    manageExpenses(expenseDocs: $expenseDocs) {
+  mutation salesManageExpenses($expenseDocs: [ExpenseInput]) {
+    salesManageExpenses(expenseDocs: $expenseDocs) {
       _id,
       name,
       description,
@@ -138,5 +138,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder,
+  pipelinesUpdateOrder
 };

@@ -39,7 +39,7 @@ function Board(props: Props & WrapperProps) {
     return <Spinner />;
   }
 
-  if (!data || !data.pipelineDetail) {
+  if (!data || !data.salesPipelineDetail) {
     const type = options.type;
 
     if (type === "deal") {
@@ -56,7 +56,7 @@ function Board(props: Props & WrapperProps) {
     );
   }
 
-  const pipeline = data.pipelineDetail;
+  const pipeline = data.salesPipelineDetail;
 
   if (viewType === "activity") {
     return (

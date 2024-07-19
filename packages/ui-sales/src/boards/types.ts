@@ -164,6 +164,13 @@ export interface IConversionStage extends IStage {
   compareNextStage: IStageComparisonInfo;
 }
 
+export interface IConversionStagePurchase extends IStage {
+  initialPurchasesTotalCount: number;
+  inProcessPurchasesTotalCount: number;
+  stayedPurchasesTotalCount: number;
+  compareNextStagePurchase: IStageComparisonInfo;
+}
+
 export interface IPipelineLabel {
   _id?: string;
   name: string;
@@ -259,7 +266,7 @@ export interface IItemMap {
 }
 
 export type BoardsQueryResponse = {
-  boards: IBoard[];
+  salesBoards: IBoard[];
 } & QueryResponse;
 
 export interface IBoardCount {
@@ -269,11 +276,11 @@ export interface IBoardCount {
 }
 
 export type BoardCountsQueryResponse = {
-  boardCounts: IBoardCount[];
+  salesBoardCounts: IBoardCount[];
 } & QueryResponse;
 
 export type PipelinesQueryResponse = {
-  pipelines: IPipeline[];
+  salesPipelines: IPipeline[];
   loading: boolean;
   refetch: ({
     boardId,
@@ -285,29 +292,29 @@ export type PipelinesQueryResponse = {
 };
 
 export type StagesQueryResponse = {
-  stages: IStage[];
+  salesStages: IStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
 export type ConversionStagesQueryResponse = {
-  stages: IConversionStage[];
+  salesStages: IConversionStage[];
   loading: boolean;
   refetch: ({ pipelineId }: { pipelineId?: string }) => Promise<any>;
 };
 
 export type BoardsGetLastQueryResponse = {
-  boardGetLast: IBoard;
+  salesBoardGetLast: IBoard;
   loading: boolean;
 };
 
 export type BoardDetailQueryResponse = {
-  boardDetail: IBoard;
+  salesBoardDetail: IBoard;
   loading: boolean;
 };
 
 export type PipelineDetailQueryResponse = {
-  pipelineDetail: IPipeline;
+  salesPipelineDetail: IPipeline;
   loading: boolean;
   subscribeToMore: any;
 };
@@ -354,11 +361,11 @@ export type DetailQueryResponse = {
 
 // query response
 export type PipelineLabelsQueryResponse = {
-  pipelineLabels: IPipelineLabel[];
+  salesPipelineLabels: IPipelineLabel[];
 } & QueryResponse;
 
 export type PipelineLabelDetailQueryResponse = {
-  pipelineLabelDetail: IPipelineLabel;
+  salesPipelineLabelDetail: IPipelineLabel;
 } & QueryResponse;
 
 // mutation response

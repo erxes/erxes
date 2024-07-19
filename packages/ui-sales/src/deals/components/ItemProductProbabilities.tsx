@@ -1,9 +1,9 @@
-import { renderAmount, renderPercentedAmount } from '../../boards/utils';
+import { renderAmount, renderPercentedAmount } from "../../boards/utils";
 
-import { IDeal } from '../types';
-import React from 'react';
-import { StageInfo } from '../../boards/styles/stage';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IDeal } from "../types";
+import React from "react";
+import { StageInfo } from "../../boards/styles/stage";
+import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   totalAmount?: any;
@@ -19,7 +19,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
 
     return (
       <div>
-        <span>{__('Forecasted') + `(${probabilityPercentage}%)`}</span>
+        <span>{__("Forecasted") + `(${probabilityPercentage}%)`}</span>
         {renderPercentedAmount(totalAmount, probabilityPercentage)}
       </div>
     );
@@ -41,17 +41,17 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
       <div key={index}>
         {sumByName[key].toLocaleString(undefined, {
           maximumFractionDigits: 0
-        })}{' '}
+        })}{" "}
         <span>
           {key}
-          {index < Object.keys(sumByName).length - 1 && ','}&nbsp;
+          {index < Object.keys(sumByName).length - 1 && ","}&nbsp;
         </span>
       </div>
     ));
   }
 
   renderPercentage = value => {
-    return value === 'Won' ? '100%' : value === 'Lost' ? '0%' : value;
+    return value === "Won" ? "100%" : value === "Lost" ? "0%" : value;
   };
 
   renderInfo = () => {
@@ -95,19 +95,19 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
         <StageInfo>
           {Object.keys(totalAmount).length > 0 && (
             <div>
-              <span>{__('Total')}</span>
+              <span>{__("Total")}</span>
               {renderAmount(totalAmount)}
             </div>
           )}
           {unusedTotalAmount && Object.keys(unusedTotalAmount).length > 0 && (
             <div>
-              <span>{__('Unused Total')}</span>
+              <span>{__("Unused Total")}</span>
               {renderAmount(unusedTotalAmount)}
             </div>
           )}
           {probability &&
-            (window.location.pathname.includes('deal/board') ||
-              window.location.pathname.includes('deal/calendar')) &&
+            (window.location.pathname.includes("deal/board") ||
+              window.location.pathname.includes("deal/calendar")) &&
             this.renderForecast(
               parseInt(this.renderPercentage(probability), 10)
             )}
@@ -122,7 +122,7 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
           {this.renderSum(totalAmountArray)}
         </li>
         {forecastArray.length > 0 &&
-          window.location.pathname.includes('deal/calendar') && (
+          window.location.pathname.includes("deal/calendar") && (
             <li>
               <span>Forecasted </span>
               {this.renderSum(forecastArray)}

@@ -3,7 +3,7 @@ import * as compose from "lodash.flowright";
 import {
   BoardDetailQueryResponse,
   BoardsGetLastQueryResponse,
-  BoardsQueryResponse,
+  BoardsQueryResponse
 } from "../types";
 import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "../constants";
 import { router as routerUtils, withProps } from "@erxes/ui/src/utils";
@@ -54,7 +54,7 @@ const FILTER_PARAMS = [
   "startDateStartDate",
   "startDateEndDate",
   "closeDateStartDate",
-  "closeDateEndDate",
+  "closeDateEndDate"
 ];
 
 export const getBoardId = () => {
@@ -73,7 +73,7 @@ function Main(props: FinalProps) {
     boardGetLastQuery,
     boardDetailQuery,
     type,
-    middleContent,
+    middleContent
   } = props;
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,7 +107,7 @@ function Main(props: FinalProps) {
 
   const clearFilter = () => {
     const remainedParams = Object.keys(queryParams).filter(
-      (key) => !defaultParams.includes(key)
+      key => !defaultParams.includes(key)
     );
 
     routerUtils.removeParams(navigate, location, ...remainedParams);
@@ -142,21 +142,21 @@ function Main(props: FinalProps) {
     return <Spinner />;
   }
 
-  const lastBoard = boardGetLastQuery && boardGetLastQuery.boardGetLast;
-  const currentBoard = boardDetailQuery && boardDetailQuery.boardDetail;
+  const lastBoard = boardGetLastQuery && boardGetLastQuery.salesBoardGetLast;
+  const currentBoard = boardDetailQuery && boardDetailQuery.salesBoardDetail;
 
   // if there is no boardId in queryparams and there is one in localstorage
   // then put those in queryparams
   const [defaultBoardId, defaultPipelineId] = [
     defaultBoards[type],
-    defaultPipelines[type],
+    defaultPipelines[type]
   ];
   const hasBoardId = queryParams._id || false;
 
   if (!boardId && defaultBoardId && !hasBoardId) {
     routerUtils.setParams(navigate, location, {
       id: defaultBoardId,
-      pipelineId: defaultPipelineId,
+      pipelineId: defaultPipelineId
     });
 
     return null;
@@ -174,7 +174,7 @@ function Main(props: FinalProps) {
 
     routerUtils.setParams(navigate, location, {
       id: lastBoard._id,
-      pipelineId: firstPipeline._id,
+      pipelineId: firstPipeline._id
     });
 
     return null;
@@ -199,7 +199,7 @@ function Main(props: FinalProps) {
   const pipelines = currentBoard ? currentBoard.pipelines || [] : [];
 
   const currentPipeline = pipelineId
-    ? pipelines.find((pipe) => pipe._id === pipelineId)
+    ? pipelines.find(pipe => pipe._id === pipelineId)
     : pipelines[0];
 
   const updatedProps = {
@@ -209,7 +209,7 @@ function Main(props: FinalProps) {
     history,
     currentBoard,
     currentPipeline,
-    boards: boardsQuery.boards || [],
+    boards: boardsQuery.salesBoards || []
   };
 
   const extendedProps = {
@@ -217,7 +217,7 @@ function Main(props: FinalProps) {
     type,
     onSelect,
     isFiltered,
-    clearFilter,
+    clearFilter
   };
 
   const Component = props.component;
@@ -230,15 +230,15 @@ const MainActionBarContainer = withProps<Props>(
     graphql<Props, BoardsQueryResponse>(gql(queries.boards), {
       name: "boardsQuery",
       options: ({ type }) => ({
-        variables: { type },
-      }),
+        variables: { type }
+      })
     }),
     graphql<Props, BoardsGetLastQueryResponse>(gql(queries.boardGetLast), {
       name: "boardGetLastQuery",
       skip: getBoardId,
       options: ({ type }) => ({
-        variables: { type },
-      }),
+        variables: { type }
+      })
     }),
     graphql<Props, BoardDetailQueryResponse, { _id: string }>(
       gql(queries.boardDetail),
@@ -246,8 +246,8 @@ const MainActionBarContainer = withProps<Props>(
         name: "boardDetailQuery",
         skip: () => !getBoardId(),
         options: () => ({
-          variables: { _id: getBoardId() },
-        }),
+          variables: { _id: getBoardId() }
+        })
       }
     )
   )(Main)

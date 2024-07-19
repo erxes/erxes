@@ -1,25 +1,25 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import {
   IItemMap,
   IOptions,
   IPipeline,
   IStageMap,
-  StagesQueryResponse,
-} from '../types';
-import { PipelineConsumer, PipelineProvider } from './PipelineContext';
-import React, { Component } from 'react';
+  StagesQueryResponse
+} from "../types";
+import { PipelineConsumer, PipelineProvider } from "./PipelineContext";
+import React, { Component } from "react";
 
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Stage from './Stage';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../graphql';
-import styled from 'styled-components';
-import { withProps } from '@erxes/ui/src/utils';
-import { useLocation, useNavigate } from 'react-router-dom';
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import Stage from "./Stage";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../graphql";
+import styled from "styled-components";
+import { withProps } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   height: 100%;
@@ -71,7 +71,7 @@ class WithStages extends Component<WithStagesQueryProps> {
       queryParams,
       stagesQuery,
       navigate,
-      location,
+      location
     } = this.props;
 
     const stagesCount = this.countStages(stageMap);
@@ -108,7 +108,7 @@ class WithStages extends Component<WithStagesQueryProps> {
             refetchStage,
             onLoadStage,
             onAddItem,
-            onRemoveItem,
+            onRemoveItem
           }) => (
             <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
               <Droppable
@@ -117,7 +117,7 @@ class WithStages extends Component<WithStagesQueryProps> {
                 direction="horizontal"
                 ignoreContainerClipping={true}
               >
-                {(provided) => (
+                {provided => (
                   <Container
                     ref={provided.innerRef}
                     {...provided.droppableProps}
@@ -173,7 +173,7 @@ const WithStagesQuery = (props: WithStagesQueryProps) => {
     return <Spinner />;
   }
 
-  const stages = stagesQuery.stages || [];
+  const stages = stagesQuery.salesStages || [];
 
   const itemMap: IItemMap = {};
   const stageMap: IStageMap = {};
@@ -199,12 +199,12 @@ type WithQueryProps = Props & { abortController };
 const WithQuery = withProps<WithQueryProps>(
   compose(
     graphql<WithQueryProps, StagesQueryResponse>(gql(queries.stages), {
-      name: 'stagesQuery',
+      name: "stagesQuery",
       options: ({
         pipeline,
         queryParams,
         options: { getExtraParams },
-        abortController,
+        abortController
       }) => ({
         variables: {
           pipelineId: pipeline._id,
@@ -220,14 +220,14 @@ const WithQuery = withProps<WithQueryProps>(
           branchIds: queryParams.branchIds,
           departmentIds: queryParams.departmentIds,
           segment: queryParams.segment,
-          segmentData: queryParams.segmentData,
+          segmentData: queryParams.segmentData
         },
         context: {
-          fetchOptions: { signal: abortController && abortController.signal },
-        },
-      }),
-    }),
-  )(WithStagesQuery),
+          fetchOptions: { signal: abortController && abortController.signal }
+        }
+      })
+    })
+  )(WithStagesQuery)
 );
 
 class WithData extends React.Component<Props> {
@@ -246,7 +246,7 @@ class WithData extends React.Component<Props> {
   render() {
     const updatedProps = {
       ...this.props,
-      abortController: this.abortController,
+      abortController: this.abortController
     };
 
     return <WithQuery {...updatedProps} />;

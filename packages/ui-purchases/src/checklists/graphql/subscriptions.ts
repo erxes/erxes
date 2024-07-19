@@ -1,14 +1,14 @@
 const checklistsChanged = `
-  subscription purchaseChecklistsChanged($contentType: String!, $contentTypeId: String!) {
-    purchaseChecklistsChanged(contentType: $contentType, contentTypeId: $contentTypeId) {
+  subscription purchasesChecklistDetailChanged($contentType: String!, $contentTypeId: String!) {
+    purchasesChecklistDetailChanged(contentType: $contentType, contentTypeId: $contentTypeId) {
       _id
     }
   }
 `;
 
 const checklistDetailChanged = `
-  subscription purchaseChecklistDetailChanged($_id: String!) {
-    purchaseChecklistDetailChanged(_id: $_id) {
+  subscription purchasesChecklistDetailChanged($_id: String!) {
+    purchasesChecklistDetailChanged(_id: $_id) {
       _id
     }
   }

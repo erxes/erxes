@@ -148,10 +148,10 @@ function Pipelines(props: Props) {
     const pipelineName = options?.pipelineName || "pipeline";
 
     if (pipelines.length === 0) {
-      if (type === "deal" || type === "task") {
+      if (type === "deal") {
         return (
           <EmptyContent
-            content={type === "deal" || EMPTY_CONTENT_DEAL_PIPELINE}
+            content={EMPTY_CONTENT_DEAL_PIPELINE}
             maxItemWidth="420px"
           />
         );

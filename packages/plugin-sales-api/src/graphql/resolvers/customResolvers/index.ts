@@ -1,9 +1,16 @@
-import Board from "./board";
+import SalesBoard from "./board";
 
-import Pipeline from "./pipeline";
-import Stage from "./stage";
+import SalesPipeline from "./pipeline";
+import SalesStage from "./stage";
 import Deal from "./deal";
-import Checklist from "./checklists";
+import SalesChecklist from "./checklists";
 import { default as DealListItem } from "./commonListItem";
 
-export { Board, Pipeline, Stage, Deal, Checklist, DealListItem };
+export {
+  SalesBoard,
+  SalesPipeline,
+  SalesStage,
+  Deal,
+  SalesChecklist,
+  DealListItem
+};
