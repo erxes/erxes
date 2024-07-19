@@ -29,8 +29,8 @@ const checklistsChanged = (checklist: IChecklistsEdit) => {
 };
 
 const checklistDetailChanged = (_id: string) => {
-  graphqlPubsub.publish(`checklistDetailChanged:${_id}`, {
-    checklistDetailChanged: {
+  graphqlPubsub.publish(`salesChecklistDetailChanged:${_id}`, {
+    salesChecklistDetailChanged: {
       _id
     }
   });
