@@ -98,7 +98,10 @@ export interface IPipeline extends ICommonFields {
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
+  nameConfig?: string;
+  numberSizeName?: string;
   lastNum?: string;
+  lastNumForName?: string;
   departmentIds?: string[];
   tagId?: string;
 }
@@ -138,7 +141,7 @@ export const attachmentSchema = new Schema(
     size: field({ type: Number, optional: true }),
     duration: field({ type: Number, optional: true }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 // Mongoose schemas =======================
@@ -168,7 +171,7 @@ const timeTrackSchema = new Schema(
       default: TIME_TRACK_TYPES.STOPPED,
     }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 const relationSchema = new Schema(
@@ -177,7 +180,7 @@ const relationSchema = new Schema(
     start: field({ type: String }),
     end: field({ type: String }),
   },
-  { _id: false },
+  { _id: false }
 );
 
 export const commonItemFieldsSchema = {
@@ -186,7 +189,7 @@ export const commonItemFieldsSchema = {
   userId: field({ type: String, optional: true, esType: 'keyword' }),
   createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
   order: field({ type: Number, index: true }),
-  name: field({ type: String, label: 'Name' }),
+  name: field({ type: String, optional: true, label: 'Name' }),
   startDate: field({ type: Date, label: 'Start date', esType: 'date' }),
   closeDate: field({ type: Date, label: 'Close date', esType: 'date' }),
   stageChangedDate: field({
@@ -281,7 +284,7 @@ export const boardSchema = schemaWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     ...commonFieldsSchema,
-  }),
+  })
 );
 
 export const pipelineSchema = new Schema({
@@ -340,10 +343,21 @@ export const pipelineSchema = new Schema({
   }),
   numberConfig: field({ type: String, optional: true, label: 'Number config' }),
   numberSize: field({ type: String, optional: true, label: 'Number count' }),
+  nameConfig: field({ type: String, optional: true, label: 'Name config' }),
+  numberSizeName: field({
+    type: String,
+    optional: true,
+    label: 'Number count for name',
+  }),
   lastNum: field({
     type: String,
     optional: true,
     label: 'Last generated number',
+  }),
+  lastNumForName: field({
+    type: String,
+    optional: true,
+    label: 'Last generated number for name',
   }),
   departmentIds: field({
     type: [String],
