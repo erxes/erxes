@@ -50,7 +50,7 @@ const Featured = () => {
                   </div>
                 </div>
               </li>:
-          data?.knowledgeBaseTopicDetail?.categories?.map(
+          data?.knowledgeBaseTopicDetail?.categories?.slice(2)?.map(
             (category: IFaqCategory) => (
               <li key={category._id}>
                 <div
