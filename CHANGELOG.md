@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.3](https://github.com/erxes/erxes/compare/1.15.0-rc.2...1.15.0-rc.3) (2024-07-20)
+
+
+### Bug Fixes
+
+* widgets messenger minified css applies correctly ([392db80](https://github.com/erxes/erxes/commit/392db807dc8672bc3627161cc7efb3cb0f4ac2a3))
+
 ## [1.15.0-rc.2](https://github.com/erxes/erxes/compare/1.15.0-rc.1...1.15.0-rc.2) (2024-07-19)
 
 
