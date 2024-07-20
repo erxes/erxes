@@ -26,7 +26,6 @@ import SocialLink from './../common/SocialLink';
 import Supporters from './../common/Supporters';
 import Card from './../Card.tsx';
 import Button from './../common/Button';
-import './index.scss';
 import { useConversation } from '../../context/Conversation';
 import Featured from '../faq/Featured';
 import Container from '../common/Container';

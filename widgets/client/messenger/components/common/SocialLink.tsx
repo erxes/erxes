@@ -1,5 +1,4 @@
 import * as React from 'react';
-import './Button/index.scss';
 import { isValidURL } from '../../../utils';
 
 type Props = {

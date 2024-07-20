@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { IconChevronLeft } from '../../../../icons/Icons';
-import './index.scss';
 import BottomNavBar from '../../BottomNavBar';
 import { useRouter } from '../../../context/Router';
 

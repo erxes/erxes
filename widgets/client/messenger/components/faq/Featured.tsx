@@ -25,7 +25,6 @@ const Featured = () => {
   const handleArticleClick = (article: IFaqCategory) => {
     goToFaqCategory(article);
   };
-  if (loading) return <div className="loader" />;
 
   return (
     <Card p="0.5rem">
@@ -39,7 +38,19 @@ const Featured = () => {
           <IconFeaturedSearch />
         </button>
         <ul className="featured-list-container">
-          {data?.knowledgeBaseTopicDetail?.categories?.map(
+          {loading?  <li >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="featured-list-item"
+                >
+                  <div className="item-title"></div>
+                  <div className="icon-wrapper">
+                    <IconFeaturedChevronRight />
+                  </div>
+                </div>
+              </li>:
+          data?.knowledgeBaseTopicDetail?.categories?.map(
             (category: IFaqCategory) => (
               <li key={category._id}>
                 <div
@@ -55,7 +66,8 @@ const Featured = () => {
                 </div>
               </li>
             )
-          )}
+          )
+          }
         </ul>
       </div>
     </Card>
