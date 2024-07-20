@@ -1,8 +1,8 @@
 import '@nateradebaugh/react-datetime/scss/styles.scss';
 import * as React from 'react';
 import DumbApp from '../components/App';
-// import '../sass/style.min.css';
-import '../sass/style.css';
+import '../sass/style.min.css';
+// import '../sass/style.css';
 
 import * as dayjs from 'dayjs';
 import * as localizedFormat from 'dayjs/plugin/localizedFormat';
