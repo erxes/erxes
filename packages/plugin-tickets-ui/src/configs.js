@@ -1,6 +1,6 @@
 module.exports = {
   srcDir: __dirname,
-  name: "purchases",
+  name: "tickets",
   port: 3021,
   scope: "sales",
   url: "http://localhost:3021/remoteEntry.js",
@@ -17,7 +17,7 @@ module.exports = {
   },
   routes: {
     url: "http://localhost:3021/remoteEntry.js",
-    scope: "purchases",
+    scope: "tickets",
     module: "./routes"
   },
   propertyGroupForm: "./propertyGroupForm",
@@ -29,19 +29,19 @@ module.exports = {
   selectRelation: "./selectRelation",
   menus: [
     {
-      text: "Purchases Pipeline",
+      text: "Tickets Pipeline",
       url: "/purchase",
       icon: "icon-bag-alt",
       location: "mainNavigation",
-      permission: "showPurchases"
+      permission: "showTickets"
     },
     {
-      text: "Purchases Pipelines",
+      text: "Tickets Pipelines",
       to: "/settings/boards/purchase",
       image: "/images/icons/erxes-25.png",
       location: "settings",
-      scope: "purchases",
-      action: "purchasesAll",
+      scope: "tickets",
+      action: "ticketsAll",
       permissions: [
         "purchaseBoardsAdd",
         "purchaseBoardsEdit",

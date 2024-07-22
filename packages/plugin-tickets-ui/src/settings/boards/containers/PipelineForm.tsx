@@ -3,18 +3,18 @@ import * as compose from "lodash.flowright";
 import {
   BoardsQueryResponse,
   StagesQueryResponse
-} from "@erxes/ui-purchases/src/boards/types";
+} from "@erxes/ui-tickets/src/boards/types";
 
 import { DepartmentsQueryResponse } from "@erxes/ui/src/team/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { IOption } from "../types";
-import { IPipeline } from "@erxes/ui-purchases/src/boards/types";
+import { IPipeline } from "@erxes/ui-tickets/src/boards/types";
 import PipelineForm from "../components/PipelineForm";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "@erxes/ui-purchases/src/settings/boards/graphql";
+import { queries } from "@erxes/ui-tickets/src/settings/boards/graphql";
 import { queries as teamQueries } from "@erxes/ui/src/team/graphql";
 import { queries as tagQueries } from "@erxes/ui-tags/src/graphql";
 import { TagsQueryResponse } from "@erxes/ui-tags/src/types";
@@ -58,8 +58,8 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const stages = stagesQuery ? stagesQuery.purchasesStages : [];
-    const boards = boardsQuery.purchasesBoards || [];
+    const stages = stagesQuery ? stagesQuery.ticketsStages : [];
+    const boards = boardsQuery.ticketsBoards || [];
     const departments = departmentsQuery.departments || [];
     const tags = tagsQuery.tags || [];
 

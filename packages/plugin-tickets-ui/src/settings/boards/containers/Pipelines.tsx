@@ -10,19 +10,19 @@ import {
 import {
   BoardDetailQueryResponse,
   PipelinesQueryResponse
-} from "@erxes/ui-purchases/src/boards/types";
+} from "@erxes/ui-tickets/src/boards/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import {
   mutations,
   queries
-} from "@erxes/ui-purchases/src/settings/boards/graphql";
+} from "@erxes/ui-tickets/src/settings/boards/graphql";
 
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import Pipelines from "../components/Pipelines";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
-import { queries as boardQueries } from "@erxes/ui-purchases/src/boards/graphql";
-import { getWarningMessage } from "@erxes/ui-purchases/src/boards/utils";
+import { queries as boardQueries } from "@erxes/ui-tickets/src/boards/graphql";
+import { getWarningMessage } from "@erxes/ui-tickets/src/boards/utils";
 import { gql, useQuery, useMutation } from "@apollo/client";
 
 type Props = {
@@ -73,7 +73,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     return <Spinner />;
   }
 
-  const pipelines = pipelinesData?.purchasesPipelines || [];
+  const pipelines = pipelinesData?.ticketsPipelines || [];
 
   const archive = (pipelineId: string, status: string) => {
     let message = `This will archive the current pipeline. Are you absolutely sure?`;
@@ -189,7 +189,7 @@ const PipelinesContainer: React.FC<Props> = (props: Props) => {
     renderButton,
     updateOrder,
     currentBoard: boardDetailData
-      ? boardDetailData.purchasesBoardDetail
+      ? boardDetailData.ticketsBoardDetail
       : undefined
   };
 

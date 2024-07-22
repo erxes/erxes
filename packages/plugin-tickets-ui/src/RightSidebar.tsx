@@ -22,17 +22,17 @@ const PortableTasks = asyncComponent(
     )
 );
 
-const PortableTickets = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-cards/src/tickets/components/PortableTickets"
-    )
-);
-
 const PortablePurchases = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "PortablePurchases" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
+      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
+    )
+);
+
+const PortableTickets = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-tickets/src/tickets/components/PortableTickets"
     )
 );
 
@@ -45,14 +45,14 @@ export default class RightSidebar extends React.Component<Props> {
         {isEnabled("cards") && (
           <PortableTasks mainType="user" mainTypeId={user._id} />
         )}
-        {isEnabled("cards") && (
-          <PortableTickets mainType="user" mainTypeId={user._id} />
+        {isEnabled("purchases") && (
+          <PortablePurchases mainType="user" mainTypeId={user._id} />
         )}
         {isEnabled("sales") && (
           <PortableDeals mainType="user" mainTypeId={user._id} />
         )}
 
-        <PortablePurchases mainType="user" mainTypeId={user._id} />
+        <PortableTickets mainType="user" mainTypeId={user._id} />
       </Sidebar>
     );
   }

@@ -1,4 +1,4 @@
-import { IPipeline } from "@erxes/ui-purchases/src/boards/types";
+import { IPipeline } from "@erxes/ui-tickets/src/boards/types";
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
 import Button from "@erxes/ui/src/components/Button";
 import Tip from "@erxes/ui/src/components/Tip";

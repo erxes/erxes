@@ -8,7 +8,7 @@ import {
 
 import CheckListItem from "./ChecklistItem";
 import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
-import { IChecklist } from "@erxes/ui-purchases/src/checklists/types";
+import { IChecklist } from "@erxes/ui-tickets/src/checklists/types";
 import React from "react";
 import Tip from "@erxes/ui/src/components/Tip";
 import dayjs from "dayjs";

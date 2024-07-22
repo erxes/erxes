@@ -3,7 +3,7 @@ import {
   EMPTY_CONTENT_PURCHASE_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE
 } from "@erxes/ui-settings/src/constants";
-import { IBoard, IPipeline } from "@erxes/ui-purchases/src/boards/types";
+import { IBoard, IPipeline } from "@erxes/ui-tickets/src/boards/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { __, router } from "coreui/utils";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { IOption } from "../types";
 import { Link } from "react-router-dom";
-import { PipelineCount } from "@erxes/ui-purchases/src/settings/boards/styles";
+import { PipelineCount } from "@erxes/ui-tickets/src/settings/boards/styles";
 import PipelineForm from "../containers/PipelineForm";
 import PipelineRow from "./PipelineRow";
 import React, { useState, useEffect } from "react";

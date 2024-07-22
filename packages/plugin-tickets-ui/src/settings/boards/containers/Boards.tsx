@@ -7,15 +7,15 @@ import { IOption, RemoveBoardMutationResponse } from "../types";
 import {
   mutations,
   queries
-} from "@erxes/ui-purchases/src/settings/boards/graphql";
+} from "@erxes/ui-tickets/src/settings/boards/graphql";
 
 import Boards from "../components/Boards";
-import { BoardsQueryResponse } from "@erxes/ui-purchases/src/boards/types";
+import { BoardsQueryResponse } from "@erxes/ui-tickets/src/boards/types";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import React from "react";
-import { STORAGE_BOARD_KEY } from "@erxes/ui-purchases/src/boards/constants";
-import { getDefaultBoardAndPipelines } from "@erxes/ui-purchases/src/boards/utils";
-import { getWarningMessage } from "@erxes/ui-purchases/src/boards/utils";
+import { STORAGE_BOARD_KEY } from "@erxes/ui-tickets/src/boards/constants";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-tickets/src/boards/utils";
+import { getWarningMessage } from "@erxes/ui-tickets/src/boards/utils";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -36,7 +36,7 @@ function BoardsContainer(props: FinalProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const boards = boardsQuery.purchasesBoards || [];
+  const boards = boardsQuery.ticketsBoards || [];
 
   const removeHash = () => {
     if (location.hash.includes("showBoardModal")) {

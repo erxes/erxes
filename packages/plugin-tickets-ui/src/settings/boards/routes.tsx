@@ -8,13 +8,13 @@ const Home = asyncComponent(
     import(/* webpackChunkName: "Settings - Board Home"  */ "./containers/Home")
 );
 
-const PurchaseHome = () => {
-  return <Home type="purchase" title="Purchase" options={purchaseOptions} />;
+const TicketHome = () => {
+  return <Home type="purchase" title="Ticket" options={purchaseOptions} />;
 };
 
 const routes = () => (
   <Routes>
-    <Route path="/settings/boards/purchase" element={<PurchaseHome />} />
+    <Route path="/settings/boards/purchase" element={<TicketHome />} />
   </Routes>
 );
 

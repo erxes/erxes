@@ -1,4 +1,4 @@
-import { IBoard } from "@erxes/ui-purchases/src/boards/types";
+import { IBoard } from "@erxes/ui-tickets/src/boards/types";
 import Button from "@erxes/ui/src/components/Button";
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";

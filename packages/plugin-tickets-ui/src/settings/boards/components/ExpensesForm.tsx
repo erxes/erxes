@@ -4,7 +4,7 @@ import { Alert, confirm } from "@erxes/ui/src/utils";
 import {
   mutations,
   queries
-} from "@erxes/ui-purchases/src/settings/boards/graphql";
+} from "@erxes/ui-tickets/src/settings/boards/graphql";
 import Button from "@erxes/ui/src/components/Button";
 import Icon from "@erxes/ui/src/components/Icon";
 import { LinkButton } from "@erxes/ui/src/styles/main";

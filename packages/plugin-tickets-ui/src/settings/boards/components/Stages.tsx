@@ -1,12 +1,12 @@
 import { IDepartment } from "@erxes/ui/src/team/types";
 import { IOption } from "../types";
-import { IStage } from "@erxes/ui-purchases/src/boards/types";
+import { IStage } from "@erxes/ui-tickets/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { LinkButton } from "@erxes/ui/src/styles/main";
 import React from "react";
 import SortableList from "@erxes/ui/src/components/SortableList";
 import StageItem from "./StageItem";
-import { StageList } from "@erxes/ui-purchases/src/settings/boards/styles";
+import { StageList } from "@erxes/ui-tickets/src/settings/boards/styles";
 import { __ } from "coreui/utils";
 
 type Props = {

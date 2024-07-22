@@ -1,12 +1,12 @@
 import { Alert, __ } from "coreui/utils";
 
 import { Attributes } from "@erxes/ui-automations/src/components/forms/actions/styles";
-import BoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
-import { IStage } from "@erxes/ui-purchases/src/boards/types";
+import BoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import { IStage } from "@erxes/ui-tickets/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import Popover from "@erxes/ui/src/components/Popover";
 import React from "react";
-import { queries as boardQueries } from "@erxes/ui-purchases/src/boards/graphql";
+import { queries as boardQueries } from "@erxes/ui-tickets/src/boards/graphql";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
 
@@ -104,7 +104,7 @@ export default class SelectBoard extends React.Component<Props, State> {
         <Attributes>
           <React.Fragment>
             {/* <BoardSelect
-              type={type.includes("purchases:") ? type.slice(6) : type}
+              type={type.includes("tickets:") ? type.slice(6) : type}
               stageId={this.state.stageId}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}

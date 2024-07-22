@@ -1,17 +1,17 @@
 import { Alert } from "@erxes/ui/src/utils";
 import { BoardItemWrapper } from "../styles";
-import BoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
+import BoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
 import { IAction } from "@erxes/ui-automations/src/types";
-import { IPipelineLabel } from "@erxes/ui-purchases/src/boards/types";
+import { IPipelineLabel } from "@erxes/ui-tickets/src/boards/types";
 import { IUser } from "@erxes/ui/src/auth/types";
-import { PRIORITIES } from "@erxes/ui-purchases/src/boards/constants";
+import { PRIORITIES } from "@erxes/ui-tickets/src/boards/constants";
 import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
 import React from "react";
 import SelectFields from "@erxes/ui-automations/src/containers/forms/actions/SelectFields";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
-import { queries as pipelineQuery } from "@erxes/ui-purchases/src/boards/graphql";
+import { queries as pipelineQuery } from "@erxes/ui-tickets/src/boards/graphql";
 type Props = {
   closeModal: () => void;
   activeAction: IAction;
@@ -70,7 +70,7 @@ class BoardItemForm extends React.Component<Props, State> {
           variables: { pipelineId: plId }
         })
         .then(data => {
-          this.setState({ pipelineLabels: data.data.purchasesPipelineLabels });
+          this.setState({ pipelineLabels: data.data.ticketsPipelineLabels });
         })
         .catch(e => {
           Alert.error(e.message);

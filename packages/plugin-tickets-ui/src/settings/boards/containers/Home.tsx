@@ -3,7 +3,7 @@ import * as compose from "lodash.flowright";
 import {
   BoardsGetLastQueryResponse,
   IBoard
-} from "@erxes/ui-purchases/src/boards/types";
+} from "@erxes/ui-tickets/src/boards/types";
 import { router as routerUtils, withProps } from "@erxes/ui/src/utils";
 
 import Home from "../components/Home";
@@ -12,7 +12,7 @@ import React, { useEffect } from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "@erxes/ui-purchases/src/settings/boards/graphql";
+import { queries } from "@erxes/ui-tickets/src/settings/boards/graphql";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type HomeContainerProps = {
@@ -52,7 +52,7 @@ const LastBoard = (props: LastBoardProps & Props) => {
     return <Spinner objective={true} />;
   }
 
-  const lastBoard = boardGetLastQuery.purchasesBoardGetLast || ({} as IBoard);
+  const lastBoard = boardGetLastQuery.ticketsBoardGetLast || ({} as IBoard);
 
   const extendedProps = {
     ...props,

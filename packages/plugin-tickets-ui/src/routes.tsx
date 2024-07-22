@@ -1,11 +1,11 @@
 import BoardSettings from "./settings/boards/routes";
-import PurchaseRotes from "./purchases/routes";
+import TicketRotes from "./tickets/routes";
 import React from "react";
 
 const routes = () => {
   return (
     <>
-      <PurchaseRotes />
+      <TicketRotes />
       <BoardSettings />
     </>
   );
