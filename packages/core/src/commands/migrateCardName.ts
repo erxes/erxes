@@ -30,7 +30,6 @@ const command = async () => {
     contentType: { $regex: 'cards' },
   }).toArray();
   for (const group of groups) {
-    // console.log(x.contentType);
     const isCreated = await Fields.findOne({
       groupId: group._id,
       text: 'Name',
@@ -49,7 +48,6 @@ const command = async () => {
       });
     }
   }
-  // console.log(groups);
   console.log(`Process finished at: ${new Date()}`);
 
   process.exit();

@@ -292,10 +292,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      * Validate per field according to it's validation and type
      * fixes values if necessary
      */
-    public static async clean(
-      _id: string,
-      _value: string | Date | number | any
-    ) {
+    public static async clean(_id: string, _value: any) {
       const field = await models.Fields.findOne({ _id });
 
       let value = _value;
