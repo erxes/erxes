@@ -5,21 +5,32 @@ import {
   commonMutationParams,
   commonMutationVariables
 } from "../../boards/graphql/mutations";
+import { ticketFields } from "./queries";
 
-const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds: [String]`;
-const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
+const ticketMutationVariables = `
+  $source: String,
+`;
+
+const ticketMutationParams = `
+  source: $source,
+`;
+
+const copyVariables = `$customerIds: [String], $companyIds: [String], $labelIds: [String]`;
+const copyParams = `customerIds: $customerIds, companyIds: $companyIds, labelIds: $labelIds`;
 
 const ticketsAdd = `
-  mutation ticketsAdd($name: String!, ${copyVariables}, ${commonMutationVariables}) {
-    ticketsAdd(name: $name, ${copyParams}, ${commonMutationParams}) {
+  mutation ticketsAdd($name: String!, ${copyVariables}, ${ticketMutationVariables}, ${commonMutationVariables}) {
+    ticketsAdd(name: $name, ${copyParams}, ${ticketMutationParams}, ${commonMutationParams}) {
+      ${ticketFields}
       ${commonFields}
     }
   }
 `;
 
 const ticketsEdit = `
-  mutation ticketsEdit($_id: String!, $name: String, ${commonMutationVariables}) {
-    ticketsEdit(_id: $_id, name: $name, ${commonMutationParams}) {
+  mutation ticketsEdit($_id: String!, $name: String, ${ticketMutationVariables}, ${commonMutationVariables}) {
+    ticketsEdit(_id: $_id, name: $name, ${ticketMutationParams}, ${commonMutationParams}) {
+      ${ticketFields}
       ${commonFields}
     }
   }
@@ -60,6 +71,7 @@ const ticketsCopy = `
   mutation ticketsCopy($_id: String!, $proccessId: String) {
     ticketsCopy(_id: $_id, proccessId: $proccessId) {
       ${commonFields}
+      ${ticketFields}
     }
   }
 `;

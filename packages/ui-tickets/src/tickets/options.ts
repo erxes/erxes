@@ -1,34 +1,33 @@
-import { toArray } from "../boards/utils";
-import TicketEditForm from "./components/TicketEditForm";
-import TicketItem from "./components/TicketItem";
-import { mutations, queries } from "./graphql";
+import { toArray } from '../boards/utils';
+import TicketEditForm from './components/TicketEditForm';
+import TicketItem from './components/TicketItem';
+import { mutations, queries } from './graphql';
 
 const options = {
   EditForm: TicketEditForm,
   Item: TicketItem,
-  type: "task",
-  title: "Ticket",
+  type: 'ticket',
+  title: 'Ticket',
   queriesName: {
-    itemsQuery: "tickets",
-    itemsTotalCountQuery: "ticketsTotalCount",
-    detailQuery: "taskDetail",
-    archivedItemsQuery: "archivedTickets",
-    archivedItemsCountQuery: "archivedTicketsCount"
+    itemsQuery: 'tickets',
+    itemsTotalCountQuery: 'ticketsTotalCount',
+    detailQuery: 'ticketDetail',
+    archivedItemsQuery: 'archivedTickets',
+    archivedItemsCountQuery: 'archivedTicketsCount'
   },
   mutationsName: {
-    addMutation: "ticketsAdd",
-    editMutation: "ticketsEdit",
-    removeMutation: "ticketsRemove",
-    changeMutation: "ticketsChange",
-    watchMutation: "ticketsWatch",
-    archiveMutation: "ticketsArchive",
-    copyMutation: "ticketsCopy",
-    updateTimeTrackMutation: "updateTimeTrack"
+    addMutation: 'ticketsAdd',
+    editMutation: 'ticketsEdit',
+    removeMutation: 'ticketsRemove',
+    changeMutation: 'ticketsChange',
+    watchMutation: 'ticketsWatch',
+    archiveMutation: 'ticketsArchive',
+    copyMutation: 'ticketsCopy'
   },
   queries: {
     itemsQuery: queries.tickets,
     itemsTotalCountQuery: queries.ticketsTotalCount,
-    detailQuery: queries.taskDetail,
+    detailQuery: queries.ticketDetail,
     archivedItemsQuery: queries.archivedTickets,
     archivedItemsCountQuery: queries.archivedTicketsCount
   },
@@ -42,16 +41,17 @@ const options = {
     copyMutation: mutations.ticketsCopy
   },
   texts: {
-    addText: "Add a task",
-    updateSuccessText: "You successfully updated a task",
-    deleteSuccessText: "You successfully deleted a task",
-    copySuccessText: "You successfully copied a task",
-    changeSuccessText: "You successfully changed a task"
+    addText: 'Add a ticket',
+    updateSuccessText: 'You successfully updated a ticket',
+    deleteSuccessText: 'You successfully deleted a ticket',
+    copySuccessText: 'You successfully copied a ticket',
+    changeSuccessText: 'You successfully changed a ticket'
   },
   isMove: true,
   getExtraParams: (queryParams: any) => {
     const {
       priority,
+      source,
       userIds,
       startDate,
       endDate,
@@ -68,6 +68,10 @@ const options = {
 
     if (priority) {
       extraParams.priority = toArray(priority);
+    }
+
+    if (source) {
+      extraParams.source = toArray(source);
     }
 
     if (userIds) {

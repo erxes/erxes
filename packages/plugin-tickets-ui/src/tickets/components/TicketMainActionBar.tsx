@@ -29,21 +29,21 @@ const TicketMainActionBar = (props: Props) => {
 
   const viewType = getBoardViewType();
 
-  const sourceValues = INTEGRATION_KINDS.ALL.map((kind) => ({
+  const sourceValues = INTEGRATION_KINDS.ALL.map(kind => ({
     label: kind.text,
-    value: kind.value,
+    value: kind.value
   }));
 
   sourceValues.push({
     label: "Other",
-    value: "other",
+    value: "other"
   });
 
   const sources = queryParams ? queryParams.source : [];
 
   const onSourceSelect = (ops: OnChangeValue<IOption, true>) =>
     onSelect(
-      ops.map((option) => option.value),
+      ops.map(option => option.value),
       "source"
     );
 
@@ -51,7 +51,7 @@ const TicketMainActionBar = (props: Props) => {
     <>
       <Select
         placeholder={__("Choose a source")}
-        value={sourceValues.filter((s) => (sources || "").includes(s.value))}
+        value={sourceValues.filter(s => (sources || "").includes(s.value))}
         options={sourceValues}
         name="source"
         onChange={onSourceSelect}
@@ -82,7 +82,7 @@ const TicketMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
-    link: `/ticket/${viewType}`,
+    link: `/ticket/${viewType}`
   };
 
   return <MainActionBar viewType={viewType} {...extendedProps} />;

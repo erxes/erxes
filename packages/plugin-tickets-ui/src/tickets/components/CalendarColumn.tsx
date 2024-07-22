@@ -2,16 +2,16 @@ import {
   ColumnContainer,
   ColumnContentBody,
   ColumnFooter
-} from '@erxes/ui-cards/src/boards/components/Calendar';
-import { AddNew } from '@erxes/ui-cards/src/boards/styles/stage';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IDateColumn } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import options from '@erxes/ui-cards/src/tickets/options';
-import { ITicket } from '@erxes/ui-cards/src/tickets/types';
-import Ticket from '@erxes/ui-cards/src/tickets/components/TicketItem';
+} from "@erxes/ui-cards/src/boards/components/Calendar";
+import { AddNew } from "@erxes/ui-cards/src/boards/styles/stage";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import Icon from "@erxes/ui/src/components/Icon";
+import { IDateColumn } from "@erxes/ui/src/types";
+import { __ } from "@erxes/ui/src/utils/core";
+import React from "react";
+import options from "@erxes/ui-cards/src/tickets/options";
+import { ITicket } from "@erxes/ui-cards/src/tickets/types";
+import Ticket from "@erxes/ui-cards/src/tickets/components/TicketItem";
 
 type Props = {
   tickets: ITicket[];
@@ -50,7 +50,7 @@ class TicketColumn extends React.Component<Props, {}> {
     return (
       <ColumnFooter>
         <AddNew onClick={this.onLoadMore}>
-          <Icon icon="refresh" /> {__('Load more')}
+          <Icon icon="refresh" /> {__("Load more")}
         </AddNew>
       </ColumnFooter>
     );

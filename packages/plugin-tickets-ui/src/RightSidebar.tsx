@@ -42,7 +42,7 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar>
-        {isEnabled("cards") && (
+        {isEnabled("tasks") && (
           <PortableTasks mainType="user" mainTypeId={user._id} />
         )}
         {isEnabled("purchases") && (

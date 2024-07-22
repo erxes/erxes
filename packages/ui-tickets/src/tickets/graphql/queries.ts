@@ -1,16 +1,17 @@
-import { commonFields, commonListFields } from "../../boards/graphql/mutations";
+import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from "../../conformity/graphql/queries";
+} from '../../conformity/graphql/queries';
 
 const commonParams = `
   $companyIds: [String],
-  $customerIds: [String],
   $parentId: String,
+  $customerIds: [String],
   $assignedUserIds: [String],
   $closeDateType: String,
   $priority: [String],
+  $source: [String],
   $labelIds: [String],
   $sortField: String,
   $sortDirection: Int,
@@ -20,8 +21,7 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
-  $hasStartAndCloseDate: Boolean
-  $noSkipArchive: Boolean
+  $noSkipArchive: Boolean,
   $branchIds:[String]
   $departmentIds:[String]
   ${conformityQueryFields}
@@ -36,23 +36,23 @@ const commonParams = `
 `;
 
 const commonParamDefs = `
-  companyIds: $companyIds
-  customerIds: $customerIds
-  parentId: $parentId
-  assignedUserIds: $assignedUserIds
-  closeDateType: $closeDateType
-  priority: $priority
-  labelIds: $labelIds
-  sortField: $sortField
-  sortDirection: $sortDirection
-  userIds: $userIds
-  segment: $segment
+  companyIds: $companyIds,
+  customerIds: $customerIds,
+  parentId: $parentId,
+  assignedUserIds: $assignedUserIds,
+  closeDateType: $closeDateType,
+  priority: $priority,
+  source: $source,
+  labelIds: $labelIds,
+  sortField: $sortField,
+  sortDirection: $sortDirection,
+  userIds: $userIds,
+  segment: $segment,
   segmentData: $segmentData,
-  assignedToMe: $assignedToMe
-  startDate: $startDate
-  endDate: $endDate
-  hasStartAndCloseDate: $hasStartAndCloseDate
-  noSkipArchive: $noSkipArchive
+  assignedToMe: $assignedToMe,
+  startDate: $startDate,
+  endDate: $endDate,
+  noSkipArchive: $noSkipArchive,
   branchIds: $branchIds,
   departmentIds: $departmentIds,
   ${conformityQueryFieldDefs}
@@ -64,6 +64,10 @@ const commonParamDefs = `
   startDateEndDate: $startDateEndDate
   closeDateStartDate: $closeDateStartDate
   closeDateEndDate: $closeDateEndDate
+`;
+
+export const ticketFields = `
+  source
 `;
 
 const tickets = `
@@ -91,7 +95,7 @@ const tickets = `
 `;
 
 const ticketsTotalCount = `
-  query tickets(
+  query ticketsTotalCount(
     $pipelineId: String,
     $stageId: String,
     $date: ItemDate,
@@ -110,10 +114,24 @@ const ticketsTotalCount = `
   }
 `;
 
-const taskDetail = `
-  query taskDetail($_id: String!) {
-    taskDetail(_id: $_id) {
+const ticketDetail = `
+  query ticketDetail($_id: String!) {
+    ticketDetail(_id: $_id) {
+      ${ticketFields}
       ${commonFields}
+    }
+  }
+`;
+
+const clientPortalComments = `
+  query clientPortalComments($typeId: String!, $type: String!) {
+    clientPortalComments(typeId: $typeId, type: $type) {
+      _id
+      content
+      createdUser 
+      createdAt
+      userType
+      type
     }
   }
 `;
@@ -129,6 +147,7 @@ const archivedTicketsParams = `
   $customerIds: [String]
   $startDate: String
   $endDate: String
+  $sources: [String]
 `;
 
 const archivedTicketsArgs = `
@@ -142,6 +161,7 @@ const archivedTicketsArgs = `
   customerIds: $customerIds
   startDate: $startDate
   endDate: $endDate
+  sources: $sources
 `;
 
 const archivedTickets = `
@@ -151,10 +171,11 @@ const archivedTickets = `
     ${archivedTicketsParams}
   ) {
     archivedTickets(
-      page: $page
-      perPage: $perPage
-     ${archivedTicketsArgs}
+      page: $page,
+      perPage: $perPage,
+      ${archivedTicketsArgs}
     ) {
+      source
       ${commonFields}
     }
   }
@@ -173,7 +194,8 @@ const archivedTicketsCount = `
 export default {
   tickets,
   ticketsTotalCount,
-  taskDetail,
+  ticketDetail,
   archivedTickets,
-  archivedTicketsCount
+  archivedTicketsCount,
+  clientPortalComments
 };
