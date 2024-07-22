@@ -84,7 +84,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
         });
       } else {
         try {
-          await validateRequest(doc);
+          validateRequest(doc);
         } catch (e) {
           throw new Error(e.message);
         }
