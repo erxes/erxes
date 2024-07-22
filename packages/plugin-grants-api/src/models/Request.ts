@@ -135,7 +135,7 @@ export const loadRequestsClass = (models: IModels, subdomain: string) => {
     public static async editGrantRequest(doc, user) {
       let { contentTypeId, contentType, userIds, scope, action, params } = doc;
       try {
-        await validateRequest(doc);
+        validateRequest(doc);
       } catch (e) {
         throw new Error(e.message);
       }
