@@ -1,5 +1,5 @@
-import { field } from '@erxes/api-utils/src/definitions/utils';
-import { Document, Schema } from 'mongoose';
+import { field } from "@erxes/api-utils/src/definitions/utils";
+import { Document, Schema } from "mongoose";
 export interface IGolomtBankConfig {
   registerId: string;
   name: string;
@@ -8,7 +8,9 @@ export interface IGolomtBankConfig {
   ivKey: string;
   sessionKey: string;
   configPassword: string;
-  accountId: string
+  accountId: string;
+  golomtCode: string;
+  apiUrl: string;
 }
 
 export interface IGolomtBankConfigDocument extends IGolomtBankConfig, Document {
@@ -26,5 +28,7 @@ export const golomtBankConfigSchema = new Schema({
   sessionKey: field({ type: String, required: true }),
   configPassword: field({ type: String, required: true }),
   accountId: field({ type: String, required: true }),
+  golomtCode: field({ type: String, required: true }),
+  apiUrl: field({ type: String, required: true }),
   createdAt: field({ type: Date, default: Date.now }),
 });

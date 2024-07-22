@@ -11,26 +11,14 @@ query GolomtBankConfigsList($page: Int, $perPage: Int) {
         registerId
         configPassword
         accountId
+        golomtCode
+        apiUrl
       }
       totalCount
     }
   }
 `;
-const ratesQuery = `
-query KhanbankRates {
-  khanbankRates {
-    sellRate
-    number
-    name
-    midRate
-    currency
-    cashSellRate
-    cashBuyRate
-    buyRate
-  }
-}
-`;
+
 export default {
   listQuery,
-  ratesQuery
 };
