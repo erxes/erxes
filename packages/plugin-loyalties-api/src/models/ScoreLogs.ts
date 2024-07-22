@@ -16,6 +16,7 @@ import {
 
 import { IScoreParams } from './definitions/common';
 import { paginate } from '@erxes/api-utils/src';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 const OWNER_TYPES = {
   customer: {
@@ -92,6 +93,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const score = Number(changeScore);
       const ownerFilter = { _id: { $in: ownerIds } };
 
+      console.log({ ownerType, ownerIds, changeScore });
+
       const owners = await sendCommonMessage({
         subdomain,
         serviceName,
@@ -102,7 +105,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             : { ...ownerFilter },
         isRPC: true,
         defaultValue: []
-      });
+      }).catch(error => debugError(error.message));
 
       if (!owners?.length) {
         throw new Error('Not found owners');

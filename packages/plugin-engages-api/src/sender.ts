@@ -7,7 +7,6 @@ import {
   CAMPAIGN_KINDS
 } from './constants';
 import { prepareEmailParams } from './emailUtils';
-import { sendWithSendgrid } from './engageUtils';
 import {
   getTelnyxInfo,
   handleMessageCallback,
@@ -56,16 +55,9 @@ export const start = async (
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      if (VERSION === 'saas') {
-        await sendWithSendgrid(
-          subdomain,
-          prepareEmailParams(customer, data, configs.configSet)
-        );
-      } else {
-        await transporter.sendMail(
-          prepareEmailParams(customer, data, configs.configSet)
-        );
-      }
+      await transporter.sendMail(
+        prepareEmailParams(customer, data, configs.configSet),
+      );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
@@ -78,7 +70,7 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+        `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`,
       );
     }
   };

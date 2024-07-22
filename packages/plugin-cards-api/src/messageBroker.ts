@@ -22,6 +22,7 @@ import {
   consumeQueue,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
@@ -197,7 +198,8 @@ export const setupMessageConsumers = async () => {
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const deals = await models.Deals.createDeal(data);
+
+    const deal = await models.Deals.createDeal(data);
 
     const { customerId = '' } = data;
 
@@ -205,12 +207,31 @@ export const setupMessageConsumers = async () => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: 'deal',
-        mainTypeId: deals._id,
+        mainTypeId: deal._id,
       });
     }
+
+    const isAutomationsAvailable = await isEnabled('automations');
+
+    if (isAutomationsAvailable) {
+      setTimeout(async () => {
+        await sendAutomationsMessage({
+          subdomain,
+          action: 'trigger',
+          data: {
+            type: `cards:deal`,
+            targets: [deal],
+            withDelay:true
+          },
+          isRPC: true,
+          defaultValue: null,
+        });
+      }, 10000);
+    }
+
     return {
       status: 'success',
-      data: deals,
+      data: deal,
     };
   });
 
@@ -907,6 +928,15 @@ export const sendTagsMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
+    ...args,
+  });
+};
+
+export const sendAutomationsMessage = async (
+  args: MessageArgsOmitService,
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'automations',
     ...args,
   });
 };

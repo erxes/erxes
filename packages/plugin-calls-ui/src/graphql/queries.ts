@@ -124,7 +124,7 @@ const callHistories = `
     callEndTime
     callType
     callStatus
-    sessionId
+    timeStamp
     modifiedAt
     createdAt
     createdBy
