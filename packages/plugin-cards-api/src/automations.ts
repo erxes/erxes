@@ -398,7 +398,7 @@ export default {
       subdomain,
       getRelatedValue,
       actionData: config,
-      target,
+      target: { ...target, customer: null, companies: null },
       relatedValueProps,
       complexFields: ['productsData']
     });

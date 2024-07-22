@@ -25,5 +25,5 @@ export const paymentSchema = new Schema({
   }),
   status: field({ type: String, label: 'Status' }),
   config: field({ type: Object, label: 'Config' }),
-  createdAt: field({ type: Date, default: new Date(), label: 'Created at' })
+  createdAt: field({ type: Date, default: Date.now, label: 'Created at' })
 });

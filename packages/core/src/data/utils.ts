@@ -63,7 +63,7 @@ const applyTemplate = async (data: any, templateName: string) => {
 export const sendEmail = async (
   subdomain: string,
   params: IEmailParams,
-  models?: IModels
+  models?: IModels,
 ) => {
   const {
     toEmails = [],
@@ -82,25 +82,25 @@ export const sendEmail = async (
   const DEFAULT_EMAIL_SERVICE = await getConfig(
     'DEFAULT_EMAIL_SERVICE',
     'SES',
-    models
+    models,
   );
   const defaultTemplate = await getConfig('COMPANY_EMAIL_TEMPLATE', '', models);
   const defaultTemplateType = await getConfig(
     'COMPANY_EMAIL_TEMPLATE_TYPE',
     '',
-    models
+    models,
   );
   const COMPANY_EMAIL_FROM = await getConfig('COMPANY_EMAIL_FROM', '', models);
   const AWS_SES_CONFIG_SET = await getConfig('AWS_SES_CONFIG_SET', '', models);
   const AWS_SES_ACCESS_KEY_ID = await getConfig(
     'AWS_SES_ACCESS_KEY_ID',
     '',
-    models
+    models,
   );
   const AWS_SES_SECRET_ACCESS_KEY = await getConfig(
     'AWS_SES_SECRET_ACCESS_KEY',
     '',
-    models
+    models,
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
@@ -119,25 +119,10 @@ export const sendEmail = async (
   try {
     transporter = await createTransporter(
       { ses: DEFAULT_EMAIL_SERVICE === 'SES' },
-      models
+      models,
     );
 
-    if (VERSION === 'saas') {
-      const serverId = getEnv({ name: 'SOCKETLABS_SERVER_ID' });
-      const password = getEnv({ name: 'SOCKETLABS_PASSWORD' });
-
-      transporter = nodemailer.createTransport({
-        host: 'smtp.socketlabs.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: `server${serverId}`,
-          pass: password,
-        },
-      });
-    }
-
-    if (transportMethod === 'sendgrid') {
+    if (transportMethod === 'sendgrid' || (VERSION && VERSION === 'saas')) {
       sendgridMail = require('@sendgrid/mail');
 
       const SENDGRID_API_KEY = getEnv({ name: 'SENDGRID_API_KEY', subdomain });
@@ -239,24 +224,12 @@ export const sendEmail = async (
     mailOptions.headers = headers;
 
     try {
-      if (VERSION === 'saas' && mailOptions.subject === 'Reset password') {
-        sendgridMail = require('@sendgrid/mail');
-        const SENDGRID_API_KEY = getEnv({
-          name: 'SENDGRID_API_KEY',
-          subdomain,
-        });
-
-        sendgridMail.setApiKey(SENDGRID_API_KEY);
+      if (sendgridMail) {
         return sendgridMail.send(mailOptions);
       }
 
       return transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          debugError(`Error sending email: ${error}`);
-        }
-        if (info) {
-          debugBase(`Email sent: ${info.response}`);
-        }
+        debugError(`Error sending email: ${error}`);
       });
     } catch (e) {
       debugError(e);

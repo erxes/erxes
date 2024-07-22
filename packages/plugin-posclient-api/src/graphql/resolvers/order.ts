@@ -19,6 +19,10 @@ export default {
       return null;
     }
 
+    if (order.customerType === 'visitor') {
+      return null;
+    }
+
     if (order.customerType === 'company') {
       const company = await sendContactsMessage({
         subdomain,
@@ -27,6 +31,10 @@ export default {
         isRPC: true,
         defaultValue: {}
       });
+
+      if (!company?._id) {
+        return null;
+      }
 
       return {
         _id: company._id,
@@ -47,6 +55,10 @@ export default {
         defaultValue: {}
       });
 
+      if (!user?._id) {
+        return null;
+      }
+
       return {
         _id: user._id,
         code: user.code,
@@ -54,6 +66,7 @@ export default {
         primaryEmail: user.email,
         firstName: `${user.firstName || ''} ${user.lastName || ''}`,
         lastName: user.username
+
       };
     }
 
@@ -64,6 +77,10 @@ export default {
       isRPC: true,
       defaultValue: {}
     });
+
+    if (!customer?._id) {
+      return null;
+    }
 
     return {
       _id: customer._id,

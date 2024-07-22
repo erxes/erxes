@@ -57,8 +57,8 @@ const clientPortalUsersInvite = `
 `;
 
 const clientPortalUsersEdit = `
-  mutation clientPortalUsersEdit($_id: String!, ${commonUserFields}) {
-    clientPortalUsersEdit(_id: $_id, ${commonUserVariables}) {
+  mutation clientPortalUsersEdit($_id: String!, ${commonUserFields}, $password: String) {
+    clientPortalUsersEdit(_id: $_id, ${commonUserVariables}, password: $password) {
       ${clientPortalUserFields}
     }
   }

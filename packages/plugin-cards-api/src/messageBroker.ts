@@ -207,28 +207,31 @@ export const setupMessageConsumers = async () => {
       await createConformity(subdomain, {
         customerIds: [customerId],
         mainType: 'deal',
-        mainTypeId: deal._id
+        mainTypeId: deal._id,
       });
     }
 
-  const isAutomationsAvailable = await isEnabled('automations');
+    const isAutomationsAvailable = await isEnabled('automations');
 
-  if (isAutomationsAvailable) {
-    await sendAutomationsMessage({
-      subdomain,
-      action: 'trigger',
-      data: {
-        type: `cards:deal`,
-        targets: [deal]
-      },
-      isRPC: true,
-      defaultValue: null
-    });
-  }
+    if (isAutomationsAvailable) {
+      setTimeout(async () => {
+        await sendAutomationsMessage({
+          subdomain,
+          action: 'trigger',
+          data: {
+            type: `cards:deal`,
+            targets: [deal],
+            withDelay:true
+          },
+          isRPC: true,
+          defaultValue: null,
+        });
+      }, 10000);
+    }
 
     return {
       status: 'success',
-      data: deal
+      data: deal,
     };
   });
 
@@ -930,10 +933,10 @@ export const sendTagsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: MessageArgsOmitService
+  args: MessageArgsOmitService,
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',
-    ...args
+    ...args,
   });
 };

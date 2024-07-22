@@ -3,7 +3,7 @@ import {
   commonDragVariables,
   commonFields,
   commonMutationParams,
-  commonMutationVariables
+  commonMutationVariables,
 } from '../../boards/graphql/mutations';
 import { dealFields } from './queries';
 
@@ -21,7 +21,7 @@ const copyVariables = `$companyIds: [String], $customerIds: [String], $labelIds:
 const copyParams = `companyIds: $companyIds, customerIds: $customerIds, labelIds: $labelIds`;
 
 const dealsAdd = `
-  mutation dealsAdd($name: String!, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {
+  mutation dealsAdd($name: String, ${copyVariables}, ${dealMutationVariables} ${commonMutationVariables}) {
     dealsAdd(name: $name, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}) {
       ${dealFields}
       ${commonFields}
@@ -92,5 +92,5 @@ export default {
   dealsWatch,
   dealsArchive,
   dealsCopy,
-  confirmLoyalties
+  confirmLoyalties,
 };

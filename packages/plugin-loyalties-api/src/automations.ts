@@ -233,8 +233,6 @@ const generateScore = async ({
       defaultValue: {}
     });
 
-    console.log({ replacedContent });
-
     scoreString = replacedContent?.scoreString || 0;
   }
 
@@ -333,6 +331,7 @@ const addScore = async ({
       isRPC: true,
       defaultValue: {}
     });
+
 
     if (replacedContent['customers']) {
       await models.ScoreLogs.changeOwnersScore({

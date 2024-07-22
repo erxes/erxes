@@ -320,8 +320,12 @@ export const actionCreateMessage = async (
   action,
   execution
 ) => {
-  const { target } = execution || {};
+  const { target, triggerType } = execution || {};
   const { config } = action || {};
+
+  if (!['facebook:messages', 'facebook:comments'].includes(triggerType)) {
+    throw new Error('Unsupported trigger type');
+  }
 
   const conversation = await models.Conversations.findOne({
     _id: target?.conversationId
