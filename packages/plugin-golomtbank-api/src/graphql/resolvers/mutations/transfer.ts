@@ -1,6 +1,5 @@
 import { IContext } from "../../../connectionResolver";
 import GolomtBank from "../../../golomtBank/golomtBank";
-import { toPreferTransferfTemp } from "../../../utils/preTemplate";
 
 const mutations = {
   golomtBankTransfer: async (

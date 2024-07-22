@@ -1,4 +1,3 @@
-import { toPreferTransferfTemp } from "../../utils/preTemplate";
 import { TransferParams } from "../types";
 import { BaseApi } from "./base";
 
@@ -27,7 +26,7 @@ export class TransferApi extends BaseApi {
 
    * @return {object} - Returns a response object
    */
-  async transfer(transfer: TransferParams, registerId: String) {
+  async transfer(transfer: TransferParams, registerId: string) {
     try {
       return await this.request({
         method: "POST",

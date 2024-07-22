@@ -30,10 +30,13 @@ function generateNumber(
   const data = Buffer.alloc(8);
   let value = Math.floor(timeMillis / 1000 / timeStepSeconds);
 
-  for (let i = 7; value > 0; i--) {
+  let i = 7;
+  while (value > 0) {
     data[i] = value & 0xff;
     value >>= 8;
+    i--;
   }
+
   const signKey = Buffer.from(key);
   const hmac = createHmac("sha1", signKey);
   hmac.update(data);

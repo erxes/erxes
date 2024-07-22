@@ -20,7 +20,11 @@ const ConfigForm = (props: Props) => {
 
   const [configObject, setConfigObject] = useState<
     IGolomtBankConfigsItem | undefined
-  >(Object.assign({}, config));
+  >(
+    config && {
+      ...config,
+    }
+  );
 
   const generateDoc = () => {
     const finalValues: any = {};
