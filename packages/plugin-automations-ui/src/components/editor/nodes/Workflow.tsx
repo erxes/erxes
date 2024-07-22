@@ -1,20 +1,25 @@
 import { gql, useQuery } from '@apollo/client';
 import { IAction } from '@erxes/ui-automations/src/types';
-import { __, Spinner } from '@erxes/ui/src';
+import { __, color, colors, Spinner } from '@erxes/ui/src';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React, { memo, useState } from 'react';
 import { Handle, NodeToolbar, Position } from 'reactflow';
 import NoteFormContainer from '../../../containers/forms/NoteForm';
 import { queries } from '../../../graphql';
-import { ToolbarNoteBtn, ToolBarRemoveBtn } from '../../../styles';
+import { ToolbarBtn, ToolBarRemoveBtn, ToolbarText } from '../../../styles';
 import { IAutomation } from '../../../types';
 import { DEFAULT_HANDLE_OPTIONS, DEFAULT_HANDLE_STYLE } from '../constants';
 import { Trigger } from '../styles';
 import { NodeProps } from '../types';
 import { checkNote } from '../utils';
+import { useNavigate } from 'react-router-dom';
 
 const calculateWorkflowNodeHeightWidth = (actions: IAction[]) => {
+  if (actions?.length === 1) {
+    return { width: 350, height: 200 };
+  }
+
   const initialExtents = {
     largestX: -Infinity,
     lowestX: Infinity,
@@ -23,7 +28,7 @@ const calculateWorkflowNodeHeightWidth = (actions: IAction[]) => {
   };
 
   const extents = actions.reduce((acc, action) => {
-    const { x, y } = action.position;
+    const { x, y } = action.position || {};
 
     // Update general extents
     acc.largestX = Math.max(acc.largestX, x);
@@ -48,7 +53,8 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
   const {
     data: queryData,
     loading,
-    error
+    error,
+    refetch
   } = useQuery(gql(queries.automationDetail), {
     variables: { _id: config.workflowId }
   });
@@ -63,18 +69,35 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
 
   const { actions, name } = (queryData?.automationDetail || {}) as IAutomation;
 
-  const addWorkflowNodes = (width: number, height: number) => {
-    const centerX = width / 2;
+  const addWorkflowNodes = (height: number) => {
     const centerY = height / 2;
 
-    const updatedActions = actions.map((action, i) => {
-      return {
-        ...action,
-        position: {
-          x: centerX + xPos + action?.position?.x,
-          y: (action?.position?.y + centerY) * -1
-        }
-      };
+    let updatedActions: any[] = [];
+
+    const sortedActionsByX = [...actions].sort((a, b) => {
+      if (a?.position?.x === b?.position?.x) {
+        return a?.position?.y - b?.position?.y;
+      }
+      return a?.position?.x - b?.position?.x;
+    });
+
+    sortedActionsByX.forEach((action, i) => {
+      if (i === 0) {
+        updatedActions.push({
+          ...action,
+          position: { x: xPos, y: (action.position.y + centerY) * -1 }
+        });
+      } else {
+        const prevAction = updatedActions[i - 1];
+
+        updatedActions.push({
+          ...action,
+          position: {
+            x: prevAction.position.x + 350,
+            y: (action.position.y + centerY) * -1
+          }
+        });
+      }
     });
 
     addWorkFlowAction && addWorkFlowAction(id, updatedActions);
@@ -84,9 +107,9 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
     removeWorkFlowAction && removeWorkFlowAction(id);
   };
 
-  const { width, height } = calculateWorkflowNodeHeightWidth(actions || []);
+  const { height } = calculateWorkflowNodeHeightWidth(actions || []);
 
-  const removeNode = (e) => {
+  const removeNode = e => {
     e.persist();
     removeWorkflowNodes();
     data.removeItem(data.nodeType, id);
@@ -94,7 +117,7 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
 
   const handleExpand = () => {
     if (!isExpanded) {
-      addWorkflowNodes(width, height);
+      addWorkflowNodes(height);
     } else {
       removeWorkflowNodes();
     }
@@ -108,7 +131,7 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
 
       return (
         <CommonForm
-          renderContent={(formProps) => (
+          renderContent={formProps => (
             <NoteFormContainer
               formProps={formProps}
               automationId={automation?._id || ''}
@@ -123,9 +146,10 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
     };
 
     const trigger = (
-      <ToolbarNoteBtn
+      <ToolbarBtn
         className="icon-notes add-note"
         title={__('Write Note')}
+        $color={colors.colorSecondary}
       />
     );
 
@@ -134,19 +158,56 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
     );
   };
 
+  const refreshActions = () => {
+    refetch().then(() => {
+      addWorkflowNodes(height);
+    });
+  };
+
   return (
     <>
-      <NodeToolbar isVisible={true} position={Position.Top}>
-        <ToolbarNoteBtn
-          onClick={handleExpand}
-          className={
-            isExpanded ? 'icon-compress-arrows' : 'icon-expand-arrows-alt'
-          }
-        />
-      </NodeToolbar>
+      {!selected && (
+        <NodeToolbar
+          isVisible={true}
+          position={Position.Top}
+          align={isExpanded ? 'start' : 'center'}
+        >
+          <ToolbarBtn
+            onClick={handleExpand}
+            className={
+              isExpanded ? 'icon-compress-arrows' : 'icon-expand-arrows-alt'
+            }
+            $color={colors.colorSecondary}
+            title={isExpanded ? 'Compress' : `Expand`}
+          />
+
+          {isExpanded && (
+            <>
+              <ToolbarBtn
+                onClick={() =>
+                  window.open(
+                    `/automations/details/${config.workflowId}`,
+                    '__blank'
+                  )
+                }
+                className="icon-edit-1"
+                $color={colors.colorPrimary}
+                title="Edit"
+              />
+              <ToolbarBtn
+                onClick={refreshActions}
+                className="icon-refresh"
+                $color={colors.colorCoreBlack}
+                title="Refresh"
+              />
+              <ToolbarText>{name}</ToolbarText>
+            </>
+          )}
+        </NodeToolbar>
+      )}
       {!isExpanded && (
         <>
-          <Trigger type="trigger" style={{ marginLeft: 0 }}>
+          <Trigger type="workflow" style={{ marginLeft: 0 }}>
             <div className="header">
               <NodeToolbar
                 isVisible={data.forceToolbarVisible || undefined}
@@ -166,7 +227,7 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
             </div>
             <p>{name}</p>
           </Trigger>
-          {DEFAULT_HANDLE_OPTIONS.map((option) => (
+          {DEFAULT_HANDLE_OPTIONS.map(option => (
             <Handle
               key={option.id}
               type="source"

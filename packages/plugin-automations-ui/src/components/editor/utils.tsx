@@ -87,7 +87,7 @@ export const generateEdges = ({
 
       if (edgeObj.type === 'workflow') {
         const workflow = (workFlowActions || [])?.some(({ actions }) =>
-          actions.some((action) => action.id !== edge[targetField])
+          actions.some(action => action.id !== edge[targetField])
         );
 
         if (workflow) {
@@ -98,7 +98,7 @@ export const generateEdges = ({
       if (
         edge?.workflowId &&
         !(workFlowActions || [])?.some(
-          (workFlowAction) => workFlowAction?.workflowId === edge?.workflowId
+          workFlowAction => workFlowAction?.workflowId === edge?.workflowId
         )
       ) {
         edgeObj.target = edge?.workflowId;
@@ -231,7 +231,7 @@ export const generatNodePosition = (
   if (node.position) {
     if (
       generatedNodes.find(
-        (generatedNode) =>
+        generatedNode =>
           generatedNode?.position?.x === node?.position?.x &&
           generatedNode?.position?.y === node?.position?.y
       )
@@ -246,7 +246,7 @@ export const generatNodePosition = (
 
   const targetField = node.type === 'trigger' ? 'actionId' : 'nextActionId';
 
-  const prevNode = nodes.find((n) => n[targetField] === node.id);
+  const prevNode = nodes.find(n => n[targetField] === node.id);
 
   if (!prevNode) {
     return { x: 0, y: 0 };
@@ -264,7 +264,7 @@ export const checkNote = (automationNotes, activeId: string) => {
   const item = activeId.split('-');
   const type = item[0];
 
-  return (automationNotes || []).filter((note) => {
+  return (automationNotes || []).filter(note => {
     if (type === 'trigger' && note.triggerId !== item[1]) {
       return null;
     }

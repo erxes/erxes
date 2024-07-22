@@ -12,7 +12,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import colors from '@erxes/ui/src/styles/colors';
 import { __ } from '@erxes/ui/src/utils/core';
 import NoteFormContainer from '../../../containers/forms/NoteForm';
-import { ToolBarRemoveBtn, ToolbarNoteBtn } from '../../../styles';
+import { ToolBarRemoveBtn, ToolbarBtn } from '../../../styles';
 import { renderDynamicComponent } from '../../../utils';
 import { checkNote } from '../utils';
 
@@ -41,7 +41,7 @@ const renderTriggerContent = (
   if (nodeType !== 'trigger') {
     return null;
   }
-  const constant = (constants || []).find((c) => c.type === type);
+  const constant = (constants || []).find(c => c.type === type);
 
   if (!!constant?.isCustom) {
     return (
@@ -101,7 +101,7 @@ export default memo(({ id, data, selected }: NodeProps) => {
     onDoubleClick(data.nodeType, id);
   };
 
-  const removeNode = (e) => {
+  const removeNode = e => {
     e.persist();
     removeItem(data.nodeType, id);
   };
@@ -112,7 +112,7 @@ export default memo(({ id, data, selected }: NodeProps) => {
 
       return (
         <CommonForm
-          renderContent={(formProps) => (
+          renderContent={formProps => (
             <NoteFormContainer
               formProps={formProps}
               automationId={automation?._id || ''}
@@ -127,9 +127,10 @@ export default memo(({ id, data, selected }: NodeProps) => {
     };
 
     const trigger = (
-      <ToolbarNoteBtn
+      <ToolbarBtn
         className="icon-notes add-note"
         title={__('Write Note')}
+        $color={colors.colorSecondary}
       />
     );
 
@@ -144,14 +145,14 @@ export default memo(({ id, data, selected }: NodeProps) => {
     }
 
     const constant = (constants[`${data.nodeType}sConst`] || []).find(
-      (c) => c.type === data[`${data.nodeType}Type`]
+      c => c.type === data[`${data.nodeType}Type`]
     );
 
     if (!constant || !constant?.isAvailableOptionalConnect) {
       return null;
     }
 
-    const handle = (optionalId) => (
+    const handle = optionalId => (
       <Handle
         key={`${id}-${optionalId}-right`}
         id={`${id}-${optionalId}-right`}
@@ -235,7 +236,7 @@ export default memo(({ id, data, selected }: NodeProps) => {
         <p>{data.description}</p>
       </Trigger>
       {handleOptions.map(
-        (option) =>
+        option =>
           showHandler(data, option) && (
             <Handle
               key={option.id}

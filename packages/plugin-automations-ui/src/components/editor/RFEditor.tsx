@@ -67,10 +67,10 @@ function arraysAreNotIdentical(arr1, arr2) {
 }
 
 const onDisConnection = ({ nodes, edge, setEdges, onConnect }) => {
-  setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+  setEdges(eds => eds.filter(e => e.id !== edge.id));
   let info: any = { source: edge.source, target: undefined };
 
-  const sourceNode = nodes.find((n) => n.id === edge.source);
+  const sourceNode = nodes.find(n => n.id === edge.source);
 
   if (edge.sourceHandle.includes(sourceNode?.id)) {
     const [_action, _sourceId, optionalConnectId] = (edge.id || '').split('-');
@@ -98,7 +98,7 @@ function AutomationEditor({
       triggers,
       actions,
       workFlowActions,
-      onDisconnect: (edge) =>
+      onDisconnect: edge =>
         onDisConnection({ nodes, edge, setEdges, onConnect })
     })
   );
@@ -112,8 +112,8 @@ function AutomationEditor({
       props
     );
 
-    const mergedArray = updatedNodes.map((node1) => {
-      let node2 = nodes.find((o) => o.id === node1.id);
+    const mergedArray = updatedNodes.map(node1 => {
+      let node2 = nodes.find(o => o.id === node1.id);
 
       if (node2) {
         return { ...node1, position: { ...node1.position, ...node2.position } };
@@ -126,7 +126,7 @@ function AutomationEditor({
         triggers,
         actions,
         workFlowActions,
-        onDisconnect: (edge) =>
+        onDisconnect: edge =>
           onDisConnection({ nodes, edge, setEdges, onConnect })
       })
     );
@@ -159,7 +159,7 @@ function AutomationEditor({
     }
 
     const workflow = workFlowActions?.find(({ actions }) =>
-      actions.some((action) => action.id === info.targetId)
+      actions.some(action => action.id === info.targetId)
     );
     if (workflow) {
       info.workflowId = workflow.workflowId;
@@ -169,9 +169,9 @@ function AutomationEditor({
   };
 
   const onConnect = useCallback(
-    (params) => {
-      const source = nodes.find((node) => node.id === params.source);
-      setEdges((eds) => {
+    params => {
+      const source = nodes.find(node => node.id === params.source);
+      setEdges(eds => {
         const updatedEdges = addEdge({ ...params }, eds);
 
         onConnection(generateConnect(params, source));
@@ -184,7 +184,7 @@ function AutomationEditor({
 
   const onEdgeUpdate = useCallback((oldEdge, newConnection) => {
     edgeUpdateSuccessful.current = true;
-    setEdges((els) => updateEdge(oldEdge, newConnection, els));
+    setEdges(els => updateEdge(oldEdge, newConnection, els));
   }, []);
 
   const onEdgeUpdateEnd = useCallback((_, edge) => {
@@ -200,8 +200,8 @@ function AutomationEditor({
   }, []);
 
   const isValidConnection = useCallback(
-    (connection) => {
-      const target = nodes.find((node) => node.id === connection.target);
+    connection => {
+      const target = nodes.find(node => node.id === connection.target);
       const hasCycle = (node, visited = new Set()) => {
         if (node?.dta?.nodeType === 'trigger') return true;
         if (visited.has(node.id)) return false;
@@ -229,10 +229,10 @@ function AutomationEditor({
     if (
       arraysAreNotIdentical(
         selectedNodes,
-        nodes.map((node) => node.id)
+        nodes.map(node => node.id)
       )
     ) {
-      setSelectedNodes(nodes.map((node) => node.id));
+      setSelectedNodes(nodes.map(node => node.id));
     }
   };
 
@@ -253,7 +253,7 @@ function AutomationEditor({
       Alert.warning('Please hide drawer before paste');
       return;
     }
-    const copyPastedActions = actions.filter((action) =>
+    const copyPastedActions = actions.filter(action =>
       copiedNodes.includes(action.id)
     );
 
@@ -268,7 +268,7 @@ function AutomationEditor({
   };
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = event => {
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
           case 'c':
