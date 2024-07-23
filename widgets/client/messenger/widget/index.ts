@@ -24,7 +24,7 @@ let viewportMeta: any;
 let newViewportMeta: any;
 let hideDelayTimer: any;
 
-const delay = 350;
+const delay = 1500;
 
 if (isMobile) {
   viewportMeta = document.querySelector('meta[name="viewport"]');
@@ -76,7 +76,7 @@ const container = "erxes-messenger-container";
 // container
 const erxesContainer = document.createElement("div");
 erxesContainer.id = container;
-// erxesContainer.className = "erxes-messenger-hidden";
+erxesContainer.className = "erxes-messenger-hidden";
 
 // add iframe
 const iframe: any = document.createElement("iframe");
@@ -92,8 +92,8 @@ document.body.appendChild(erxesContainer);
 // after iframe load send connection info
 iframe.onload = async () => {
   iframe.style.display = "block";
-  iframe.style.height = "691px";
-  iframe.style.width = "400px";
+  // iframe.style.height = "691px";
+  // iframe.style.width = "400px";
 
   const contentWindow = iframe.contentWindow;
 
@@ -144,27 +144,25 @@ window.addEventListener("message", async (event: MessageEvent) => {
 
       clearTimer();
 
-      // if (isVisible) {
-      //   erxesContainer.className = "erxes-messenger-shown";
-      // } else {
-      //   erxesContainer.className = "erxes-messenger-shown";
-      //   // delaydSetClass("erxes-messenger-hidden");
-      // }
+      if (isVisible) {
+        erxesContainer.className = "erxes-messenger-shown";
+      } else {
+        erxesContainer.className = "erxes-messenger-hidden";
+      }
 
       erxesContainer.classList.toggle("small", isSmallContainer);
       document.body.classList.toggle("messenger-widget-shown", isVisible);
     }
 
-    if (message === "notifier") {
-      clearTimer();
-      delaydToggleClass("erxes-notifier-shown", isVisible);
+    // if (message === "notifier") {
+    //   clearTimer();
+    //   delaydToggleClass("erxes-notifier-shown", isVisible);
 
-      // change container div dimension
-      if (!isVisible) {
-        delaydToggleClass("erxes-notifier-shown", isVisible);
-        // delaydSetClass("erxes-messenger-hidden");
-      }
-    }
+    //   // change container div dimension
+    //   if (!isVisible) {
+    //     delaydSetClass("erxes-messenger-hidden");
+    //   }
+    // }
 
     if (message === "notifierFull") {
       clearTimer();

@@ -3194,6 +3194,30 @@ select.form-control:focus,
     }
   }
 }
+.conversation-list-empty-container {
+  display: flex;
+  flex-direction: column;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 0px 35px;
+  min-height: 100%;
+  h2 {
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+    margin: 0;
+  }
+  span {
+    font-weight: 400;
+    line-height: 20px;
+    font-size: 14px;
+    text-align: center;
+  }
+}
+
 .conversation-list-container {
   padding: 0 0 1.25rem;
   flex: 1;
@@ -3423,16 +3447,12 @@ select.form-control:focus,
 }
 
 .launcher-container {
-  position: fixed;
-  bottom: 75px;
-  left: auto;
   margin-left: auto;
-  margin-top: auto;
-  right: 35px;
-  top: auto;
+  position: fixed;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  inset: 0;
 }
 .erxes-launcher {
   animation: pop 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1;
@@ -3802,7 +3822,7 @@ select.form-control:focus,
   flex-direction: column;
   gap: 0.75rem;
   span {
-    font-size: 14;
+    font-size: 0.875rem;
     font-weight: 500;
     color: 'black';
   }
@@ -3819,7 +3839,7 @@ select.form-control:focus,
   flex-direction: column;
   gap: 0.625rem;
   > span {
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 500;
   }
   .getting-started-content-wrapper {

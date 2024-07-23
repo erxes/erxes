@@ -95,25 +95,27 @@ function Launcher(props: Props) {
   };
 
   return (
-    <div
-      className={`launcher-container ${shouldShowControls ? '' : 'launcher-hovered'}`}
-      onMouseLeave={() => setShouldShowControls(false)}
-    >
-      <a
-        className={launcherClasses}
-        onClick={clickHandler}
-        style={{
-          backgroundColor: color,
-          color,
-          backgroundImage: logo ? `url(${readFile(logo, 30)})` : '',
-          backgroundSize: logo ? '' : '20px',
-        }}
-        onMouseEnter={toggleControlList}
-      ></a>
-      {/* {renderUnreadCount()} */}
-      {renderHoverControls()}
-      {renderNotifier()}
-    </div>
+    <>
+      <div
+        className={`launcher-container ${shouldShowControls ? '' : 'launcher-hovered'}`}
+        onMouseLeave={() => setShouldShowControls(false)}
+      >
+        <a
+          className={launcherClasses}
+          onClick={clickHandler}
+          style={{
+            backgroundColor: color,
+            color,
+            backgroundImage: logo ? `url(${readFile(logo, 30)})` : '',
+            backgroundSize: logo ? '' : '20px',
+          }}
+          onMouseEnter={toggleControlList}
+        ></a>
+        {/* {renderUnreadCount()} */}
+        {renderNotifier()}
+        {renderHoverControls()}
+      </div>
+    </>
   );
 }
 

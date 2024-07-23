@@ -87,12 +87,24 @@ const Home: React.FC<Props> = ({
     return (
       <Card>
         <div className="contact-channels">
-          <span>Talk us on your favourite channels</span>
+          <span>{__('Talk us on your favourite channels')}</span>
           <div className="channel-list">
             {Object.entries(links).map(([key, url]) => {
               if (url && icons[key as keyof IIntegrationLink]) {
                 const Icon = icons[key as keyof IIntegrationLink];
-                return <SocialLink key={key} url={url} icon={Icon} />;
+                return (
+                  <SocialLink
+                    key={key}
+                    url={url}
+                    icon={
+                      <img
+                        height={32}
+                        width={32}
+                        src={`https://s2.googleusercontent.com/s2/favicons?domain=${url}&sz=${32}`}
+                      />
+                    }
+                  />
+                );
               }
               return null;
             })}
@@ -105,7 +117,7 @@ const Home: React.FC<Props> = ({
     return (
       <Card>
         <div className="getting-started-wrapper">
-          <span>Getting started</span>
+          <span>{__('Getting started')}</span>
           <div className="getting-started-content-wrapper">
             <div className="supporters-info-wrapper">
               <Supporters
@@ -115,7 +127,7 @@ const Home: React.FC<Props> = ({
                 isOnline={isOnline}
               />
               <div className="schedule-info-wrapper">
-                <span>Our usually reply time</span>
+                <span>{__('Our usually reply time')}</span>
                 <span className="response-rate">
                   💬 {messengerData.responseRate}
                 </span>
@@ -123,7 +135,7 @@ const Home: React.FC<Props> = ({
             </div>
             <div>
               <Button icon={<IconEnvelope />} onClick={createConversation}>
-                <span className="font-semibold">Send us a message</span>
+                <span className="font-semibold">{__('Send us a message')}</span>
               </Button>
             </div>
           </div>
