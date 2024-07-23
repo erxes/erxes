@@ -3829,9 +3829,11 @@ select.form-control:focus,
 
   .channel-list {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.25rem;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
   }
 }
 .getting-started-wrapper {

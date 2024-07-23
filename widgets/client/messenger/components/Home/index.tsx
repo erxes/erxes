@@ -76,37 +76,27 @@ const Home: React.FC<Props> = ({
   );
 
   const renderAssistBar = (messengerData: IIntegrationMessengerData) => {
-    const links = messengerData.links || ({} as IIntegrationLink);
-    const icons = {
-      facebook: FacebookIcon,
-      instagram: InstagramIcon,
-      twitter: TwitterIcon,
-      youtube: YoutubeIcon,
-    };
+    const links = messengerData.externalLinks || [];
 
     return (
       <Card>
         <div className="contact-channels">
           <span>{__('Talk us on your favourite channels')}</span>
           <div className="channel-list">
-            {Object.entries(links).map(([key, url]) => {
-              if (url && icons[key as keyof IIntegrationLink]) {
-                const Icon = icons[key as keyof IIntegrationLink];
-                return (
-                  <SocialLink
-                    key={key}
-                    url={url}
-                    icon={
-                      <img
-                        height={32}
-                        width={32}
-                        src={`https://s2.googleusercontent.com/s2/favicons?domain=${url}&sz=${32}`}
-                      />
-                    }
-                  />
-                );
-              }
-              return null;
+            {Object.entries(links).map(([key, { url }]) => {
+              return (
+                <SocialLink
+                  key={key}
+                  url={url}
+                  icon={
+                    <img
+                      height={32}
+                      width={32}
+                      src={`https://s2.googleusercontent.com/s2/favicons?domain=${url}&sz=${32}`}
+                    />
+                  }
+                />
+              );
             })}
           </div>
         </div>
