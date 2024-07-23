@@ -18,6 +18,7 @@ import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
 import { IUser } from './models/definitions/clientPortalUser';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { isContext } from 'vm';
 
 export const getConfig = async (
   code: string,
@@ -691,3 +692,108 @@ export const getUserCards = async (
 
   return cards;
 };
+
+export const validate = (value, error) => {
+  if(!value) {
+    throw Error(error)
+  }
+}
+
+export const getPhone = async (models, clientPortal, config) => {
+  const testPhoneCode =
+    await models.ClientPortalUsers.imposeVerificationCode({
+      clientPortalId: clientPortal._id,
+      codeLength: config.codeLength,
+      phone: clientPortal?.testUserPhone,
+      expireAfter: config.expireAfter,
+      testUserOTP: clientPortal?.testUserOTP,
+    });
+
+  const body = getPhoneRegex(config, testPhoneCode)
+    
+  return body
+}
+
+export const getPhoneRegex = (config, number) => {
+  return config.content.replace(/{.*}/, number) ||
+  `Your verification code is ${number}`;
+}
+
+ export const phone = async (
+  models, subdomain,
+  clientPortal,
+  doc,
+  deviceToken) => {
+    const loginPassword = await models.ClientPortalUsers.loginWithoutPassword(
+      subdomain,
+      clientPortal,
+      doc,
+      deviceToken
+    );
+return loginPassword
+  }
+  
+
+ export const getSmsContent = async (models, clientPortal, config) => {
+  const testPhoneCode = await models.ClientPortalUsers.imposeVerificationCode({
+    clientPortalId: clientPortal._id,
+    codeLength: config.codeLength,
+    phone: clientPortal?.testUserPhone,
+    expireAfter: config.expireAfter,
+    testUserOTP: clientPortal?.testUserOTP,
+  });
+
+  return config.content.replace(/{.*}/, testPhoneCode) || `Your code is ${testPhoneCode}`;
+ }
+
+ export const getPhonecode = async (models, config ,clientPortal, cpUser) => {
+  const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
+    clientPortalId: clientPortal._id,
+    codeLength: config.codeLength,
+    phone: cpUser.phone,
+    expireAfter: config.expireAfter,
+  });
+
+  const body = getPhoneRegex (config, phoneCode)
+    
+  return body
+ } 
+
+
+ export const getEmailCode = async (models, config ,clientPortal, cpUser) => {
+  const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
+    clientPortalId: clientPortal._id,
+    codeLength: config.codeLength,
+    email: cpUser.email,
+    expireAfter: config.expireAfter,
+  });
+
+ return emailCode
+
+ }
+
+ export const getEmail = async (models,  subdomain, clientPortal, doc, deviceToken ) => {
+  const user = await models.ClientPortalUsers.loginWithoutPassword(
+    subdomain,
+    clientPortal,
+    doc,
+    deviceToken
+ );
+ return user
+  
+ }
+
+ export const getTestEmailCode = async (models,clientPortal,config) => {
+  const testEmailCode =
+  await models.ClientPortalUsers.imposeVerificationCode({
+    clientPortalId: clientPortal._id,
+    codeLength: config.codeLength,
+    email: clientPortal?.testUserEmail,
+    expireAfter: config.expireAfter,
+    testUserOTP: clientPortal?.testUserOTP,
+  });
+  const body =
+              config.content.replace(/{.*}/, testEmailCode) ||
+              `Your OTP is ${testEmailCode}`;
+              return body
+ }

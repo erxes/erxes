@@ -13,12 +13,11 @@ import {
   ITwoFactorDevice,
 } from '../../../models/definitions/clientPortalUser';
 import redis from '../../../redis';
-import { sendSms } from '../../../utils';
+import { getEmail, getEmailCode, getPhone, getPhoneRegex, getSmsContent, getTestEmailCode, sendSms, validate } from '../../../utils';
 import { sendCommonMessage } from './../../../messageBroker';
 import * as jwt from 'jsonwebtoken';
 import { fetchUserFromSocialpay } from '../../../socialpayUtils';
 import fetch from 'node-fetch';
-import { TwoFactorConfig } from '../../../models/definitions/clientPortal';
 
 export interface IVerificationParams {
   userId: string;
@@ -137,7 +136,7 @@ const clientPortalUserMutations = {
 
     const optConfig = clientPortal.otpConfig;
 
-    if (optConfig && optConfig.loginWithOTP) {
+    if (optConfig?.loginWithOTP) {
       return tokenHandler(user, clientPortal, res, false);
     }
 
@@ -191,7 +190,7 @@ const clientPortalUserMutations = {
           })
       ).then(r => r.json());
 
-      if (!response || !response.id) {
+      if (!response?.id) {
         throw new Error('Facebook authentication failed');
       }
 
@@ -232,7 +231,7 @@ const clientPortalUserMutations = {
           firstName: first_name,
           lastName: last_name,
           clientPortalId,
-          isEmailVerified: email ? true : false,
+          isEmailVerified: !email ,
         });
       }
 
@@ -252,7 +251,7 @@ const clientPortalUserMutations = {
         });
       }
 
-      if (customer && customer._id) {
+      if (customer?._id) {
         user.erxesCustomerId = customer._id;
         await models.ClientPortalUsers.updateOne(
           { _id: user._id },
@@ -348,7 +347,7 @@ const clientPortalUserMutations = {
     const response = await getGoogleOauthToken({ authCode: code });
 
     // Use the token to get the User
-    const { name, email, picture, id, family_name, given_name } =
+    const { email, picture, id, family_name, given_name } =
       await getGoogleUser({
         id_token: response.id_token,
         access_token: response.access_token,
@@ -425,7 +424,7 @@ const clientPortalUserMutations = {
       });
     }
 
-    if (customer && customer._id) {
+    if (customer?._id) {
       user.erxesCustomerId = customer._id;
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
@@ -475,7 +474,7 @@ const clientPortalUserMutations = {
     { cpUser, models }: IContext
   ) {
     return models.ClientPortalUsers.changePassword({
-      _id: (cpUser && cpUser._id) || '',
+      _id: (cpUser?._id) || '',
       ...args,
     });
   },
@@ -615,7 +614,7 @@ const clientPortalUserMutations = {
   clientPortalLoginWithPhone: async (
     _root,
     args: { phone: string; clientPortalId: string; deviceToken },
-    { models, subdomain, res }: IContext
+    { models, subdomain }: IContext
   ) => {
     const { phone, clientPortalId, deviceToken } = args;
 
@@ -666,18 +665,7 @@ const clientPortalUserMutations = {
             clientPortal?.testUserOTP &&
             config.codeLength === clientPortal?.testUserOTP?.toString().length
           ) {
-            const testPhoneCode =
-              await models.ClientPortalUsers.imposeVerificationCode({
-                clientPortalId: clientPortal._id,
-                codeLength: config.codeLength,
-                phone: clientPortal?.testUserPhone,
-                expireAfter: config.expireAfter,
-                testUserOTP: clientPortal?.testUserOTP,
-              });
-
-            const body =
-              config.content.replace(/{.*}/, testPhoneCode) ||
-              `Your verification code is ${testPhoneCode}`;
+            const body = await getSmsContent(models, clientPortal, config)
 
             await sendSms(
               subdomain,
@@ -728,9 +716,8 @@ const clientPortalUserMutations = {
     },
     { models, subdomain, res, cpUser }: IContext
   ) => {
-    if (!cpUser) {
-      throw new Error('User is not logged in');
-    }
+    validate(cpUser, "User is not logged in")
+
     const { byPhone, byEmail, deviceToken } = args;
 
     const clientPortal = await models.ClientPortals.getConfig(
@@ -759,34 +746,16 @@ const clientPortalUserMutations = {
         });
 
         if (cpUser) {
-          if (!clientPortal?.testUserOTP) {
-            throw new Error('Test user phone otp not provided!');
-          }
+          validate(clientPortal?.testUserOTP, 'Test user phone otp not provided!')
 
-          if (
-            config.codeLength !== clientPortal?.testUserOTP?.toString().length
-          ) {
-            throw new Error(
-              'Client portal otp config and test user otp does not same length!'
-            );
-          }
+          validate(config.codeLength !== clientPortal?.testUserOTP?.toString().length, 'Client portal otp config and test user otp does not same length!')
 
           if (
             clientPortal?.testUserOTP &&
             config.codeLength === clientPortal?.testUserOTP?.toString().length
           ) {
-            const testPhoneCode =
-              await models.ClientPortalUsers.imposeVerificationCode({
-                clientPortalId: clientPortal._id,
-                codeLength: config.codeLength,
-                phone: clientPortal?.testUserPhone,
-                expireAfter: config.expireAfter,
-                testUserOTP: clientPortal?.testUserOTP,
-              });
-
-            const body =
-              config.content.replace(/{.*}/, testPhoneCode) ||
-              `Your verification code is ${testPhoneCode}`;
+            
+            const body = await getPhone(models, clientPortal, config)
 
             await sendSms(
               subdomain,
@@ -808,18 +777,11 @@ const clientPortalUserMutations = {
       if (!cpUser.phone) {
         throw new Error("User doesn't have phone");
       }
-      const phoneCode = await models.ClientPortalUsers.imposeVerificationCode({
-        clientPortalId: clientPortal._id,
-        codeLength: config.codeLength,
-        phone: cpUser.phone,
-        expireAfter: config.expireAfter,
-      });
+      const phoneCode = await models.ClientPortalUsers.imposeVerificationCode 
 
       if (phoneCode) {
-        const body =
-          config.content.replace(/{.*}/, phoneCode) ||
-          `Your verification code is ${phoneCode}`;
-
+        const body = getPhoneRegex(config, phoneCode)
+         
         await sendSms(
           subdomain,
           config.smsTransporterType ? config.smsTransporterType : 'messagePro',
@@ -834,12 +796,7 @@ const clientPortalUserMutations = {
       if (!cpUser.email) {
         throw new Error("User doesn't have email");
       }
-      const emailCode = await models.ClientPortalUsers.imposeVerificationCode({
-        clientPortalId: clientPortal._id,
-        codeLength: config.codeLength,
-        email: cpUser.email,
-        expireAfter: config.expireAfter,
-      });
+      const emailCode = getEmailCode(models, config ,clientPortal, cpUser )
 
       if (emailCode) {
         const body =
@@ -949,12 +906,7 @@ const clientPortalUserMutations = {
 
     const doc = { email };
 
-    const user = await models.ClientPortalUsers.loginWithoutPassword(
-      subdomain,
-      clientPortal,
-      doc,
-      deviceToken
-    );
+    const user = getEmail(models,  subdomain, clientPortal, doc, deviceToken)
 
     try {
       if (clientPortal?.testUserEmail && clientPortal._id) {
@@ -979,18 +931,10 @@ const clientPortalUserMutations = {
             clientPortal?.testUserOTP &&
             config.codeLength === clientPortal?.testUserOTP?.toString().length
           ) {
-            const testEmailCode =
-              await models.ClientPortalUsers.imposeVerificationCode({
-                clientPortalId: clientPortal._id,
-                codeLength: config.codeLength,
-                email: clientPortal?.testUserEmail,
-                expireAfter: config.expireAfter,
-                testUserOTP: clientPortal?.testUserOTP,
-              });
+            const testEmailCode = getTestEmailCode(models,clientPortal,config)
+            const body = testEmailCode
 
-            const body =
-              config.content.replace(/{.*}/, testEmailCode) ||
-              `Your OTP is ${testEmailCode}`;
+          
 
             await sendCoreMessage({
               subdomain,
