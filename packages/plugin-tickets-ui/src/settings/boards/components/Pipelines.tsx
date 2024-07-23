@@ -1,8 +1,4 @@
-import {
-  EMPTY_CONTENT_DEAL_PIPELINE,
-  EMPTY_CONTENT_PURCHASE_PIPELINE,
-  EMPTY_CONTENT_TASK_PIPELINE
-} from "@erxes/ui-settings/src/constants";
+import { EMPTY_CONTENT_TACKETS_PIPELINE } from "@erxes/ui-settings/src/constants";
 import { IBoard, IPipeline } from "@erxes/ui-tickets/src/boards/types";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
 import { __, router } from "coreui/utils";
@@ -152,11 +148,7 @@ function Pipelines(props: Props) {
     if (pipelines.length === 0) {
       return (
         <EmptyContent
-          content={
-            type === "purchase"
-              ? EMPTY_CONTENT_PURCHASE_PIPELINE
-              : EMPTY_CONTENT_TASK_PIPELINE
-          }
+          content={EMPTY_CONTENT_TACKETS_PIPELINE}
           maxItemWidth="420px"
         />
       );

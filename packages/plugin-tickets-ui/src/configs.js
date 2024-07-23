@@ -2,7 +2,7 @@ module.exports = {
   srcDir: __dirname,
   name: "tickets",
   port: 3021,
-  scope: "sales",
+  scope: "tickets",
   url: "http://localhost:3021/remoteEntry.js",
   exposes: {
     "./routes": "./src/routes.tsx",
@@ -30,32 +30,32 @@ module.exports = {
   menus: [
     {
       text: "Tickets Pipeline",
-      url: "/purchase",
+      url: "/ticket",
       icon: "icon-bag-alt",
       location: "mainNavigation",
       permission: "showTickets"
     },
     {
       text: "Tickets Pipelines",
-      to: "/settings/boards/purchase",
+      to: "/settings/boards/ticket",
       image: "/images/icons/erxes-25.png",
       location: "settings",
       scope: "tickets",
       action: "ticketsAll",
       permissions: [
-        "purchaseBoardsAdd",
-        "purchaseBoardsEdit",
-        "purchaseBoardsRemove",
-        "purchasePipelinesAdd",
-        "purchasePipelinesEdit",
-        "purchasePipelinesUpdateOrder",
-        "purchasePipelinesRemove",
-        "purchasePipelinesArchive",
-        "purchasePipelinesArchive",
-        "purchaseStagesAdd",
-        "purchaseStagesEdit",
-        "purchaseStagesUpdateOrder",
-        "purchaseStagesRemove"
+        "ticketBoardsAdd",
+        "ticketBoardsEdit",
+        "ticketBoardsRemove",
+        "ticketPipelinesAdd",
+        "ticketPipelinesEdit",
+        "ticketPipelinesUpdateOrder",
+        "ticketPipelinesRemove",
+        "ticketPipelinesArchive",
+        "ticketPipelinesArchive",
+        "ticketStagesAdd",
+        "ticketStagesEdit",
+        "ticketStagesUpdateOrder",
+        "ticketStagesRemove"
       ]
     }
   ]

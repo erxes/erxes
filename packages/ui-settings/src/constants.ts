@@ -383,18 +383,18 @@ export const EMPTY_CONTENT_PURCHASE_PIPELINE = {
   ]
 };
 
-export const EMPTY_CONTENT_TASK_PIPELINE = {
-  title: __("Getting Started with Sales Pipeline"),
+export const EMPTY_CONTENT_TACKETS_PIPELINE = {
+  title: __("Getting Started with Tickets Pipeline"),
   description: __(
     "Drive leads to a successful close with our Kanban-style boards"
   ),
   steps: [
     {
-      title: __("Create your first Task Board"),
+      title: __("Create your first ticket Board"),
       description: __(
         "Tip: This could be equivalent to your departments and/or you can organize by year/project/etc."
       ),
-      url: "/settings/boards/task#showBoardModal=true",
+      url: "/settings/boards/ticket#showBoardModal=true",
       urlText: "Create a Board"
     },
     {
@@ -403,7 +403,7 @@ export const EMPTY_CONTENT_TASK_PIPELINE = {
         "Tip: This could be a bit more granular than the Board and/or you can organize by period/project/etc."
       ),
       urlText: "Create a Pipeline",
-      url: "/settings/boards/task#showPipelineModal=true"
+      url: "/settings/boards/ticket#showPipelineModal=true"
     }
   ]
 };

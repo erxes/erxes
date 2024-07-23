@@ -16,7 +16,7 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
 import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
 import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
-import PortableTasks from "../../tasks/components/PortableTasks";
+import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
 import queryString from "query-string";

@@ -10,7 +10,6 @@ import EditForm from "../../boards/components/editForm/EditForm";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
-import PortableTickets from "../../tickets/components/PortableTickets";
 import React from "react";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
@@ -19,6 +18,7 @@ import queryString from "query-string";
 import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
 import PortablePurchases from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
 
 type Props = {
   options: IOptions;
@@ -70,7 +70,9 @@ export default class TaskEditForm extends React.Component<Props, State> {
           <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
         )}
 
-        <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
+        {isEnabled("tickets") ?? (
+          <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
+        )}
 
         {loadDynamicComponent(
           "taskRightSidebarSection",
