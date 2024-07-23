@@ -62,6 +62,14 @@ const ContractChooser = (props: Props & WrapperProps) => {
     renderForm: (formProps) => (
       <ContractForm
         {...formProps}
+        data={ {
+          _id: data._id,
+          name: renderName(data),
+          datas: data.contracts,
+          mainTypeId: data.mainTypeId,
+          mainType: data.mainType,
+          relType: 'contract',
+        }}
         getAssociatedContract={getAssociatedContract}
       />
     ),
