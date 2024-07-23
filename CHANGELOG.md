@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.15.0-rc.4](https://github.com/erxes/erxes/compare/1.15.0-rc.3...1.15.0-rc.4) (2024-07-23)
+
+
+### Bug Fixes
+
+* **cards:** properties remove from card when close modal ([08b8ce4](https://github.com/erxes/erxes/commit/08b8ce4da849e2f0eb4155a89a7f83b6dc18e3a9))
+* **inbox:** mail widget loading ([7d027df](https://github.com/erxes/erxes/commit/7d027df593258b4d398de5cec80079fcc59b569e))
+* **pos:** pos create form ([#5529](https://github.com/erxes/erxes/issues/5529)) ([47dd26e](https://github.com/erxes/erxes/commit/47dd26e6e741d3873ebe8d2ab7ab71ec3d884efb))
+
 ## [1.15.0-rc.3](https://github.com/erxes/erxes/compare/1.15.0-rc.2...1.15.0-rc.3) (2024-07-20)
 
 
