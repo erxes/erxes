@@ -120,12 +120,14 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
             filter: {}
           });
 
+          const formPercentWeight = form.percentWeight || 0;
+
           resultScore += Number(
-            (sumNumber * (form.percentWeight || 0 / 100)).toFixed(2)
+            (sumNumber * (formPercentWeight / 100)).toFixed(2)
           );
-          totalPercent += form.percentWeight || 0 / 100;
+          totalPercent += formPercentWeight / 100;
           maxScoreAviable += Number(
-            (scoreAviable * (form.percentWeight || 0 / 100)).toFixed(2)
+            (scoreAviable * (formPercentWeight / 100)).toFixed(2)
           );
         }
 
@@ -254,12 +256,15 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
               generalcalculateMethod: calculateMethod,
               filter: { ...filter, riskAssessmentId: _id }
             });
+
+          const formPercentWeight = form.percentWeight || 0;
+
           totalCount += Number(
-            (sumNumber * (form.percentWeight || 0 / 100)).toFixed(2)
+            (sumNumber * (formPercentWeight / 100)).toFixed(2)
           );
-          totalPercent += form.percentWeight || 0 / 100;
+          totalPercent += formPercentWeight / 100;
           maxScoreAviable += Number(
-            (scoreAviable * (form.percentWeight || 0 / 100)).toFixed(2)
+            (scoreAviable * (formPercentWeight / 100)).toFixed(2)
           );
           await models.RiskFormSubmissions.insertMany(submissions);
         }

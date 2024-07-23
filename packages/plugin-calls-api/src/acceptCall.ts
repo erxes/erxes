@@ -28,7 +28,7 @@ const acceptCall = async (
     callStartTime,
     callType,
     callStatus,
-    sessionId,
+    timeStamp,
     inboxIntegrationId,
     queueName,
   } = params;
@@ -50,7 +50,7 @@ const acceptCall = async (
       callStartTime,
       callType,
       callStatus,
-      sessionId,
+      timeStamp,
       inboxIntegrationId,
       createdAt: new Date(),
       createdBy: user._id,
@@ -61,6 +61,11 @@ const acceptCall = async (
     });
 
     try {
+      await models.CallHistory.deleteMany({
+        timeStamp,
+        callStatus: { $eq: 'cancelled' },
+      });
+
       await history.save();
     } catch (error) {
       await models.CallHistory.deleteOne({ _id: history._id });

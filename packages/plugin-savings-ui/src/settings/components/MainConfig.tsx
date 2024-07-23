@@ -175,7 +175,7 @@ class MainConfig extends React.Component<Props, State> {
             <FormControl
               defaultValue={config["transactionConfigId"]}
               type="password"
-              onChange={this.onChangeInputNumber.bind(
+              onChange={this.onChangeInput.bind(
                 this,
                 "transactionConfigId"
               )}
@@ -187,7 +187,7 @@ class MainConfig extends React.Component<Props, State> {
             <FormControl
               defaultValue={config["transactionLoginName"]}
               type="password"
-              onChange={this.onChangeInputNumber.bind(
+              onChange={this.onChangeInput.bind(
                 this,
                 "transactionLoginName"
               )}
@@ -199,7 +199,7 @@ class MainConfig extends React.Component<Props, State> {
             <FormControl
               defaultValue={config["transactionPassword"]}
               type="password"
-              onChange={this.onChangeInputNumber.bind(
+              onChange={this.onChangeInput.bind(
                 this,
                 "transactionPassword"
               )}

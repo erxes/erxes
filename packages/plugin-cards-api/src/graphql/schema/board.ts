@@ -41,6 +41,8 @@ export const types = ({ tags }) => `
     excludeCheckUserIds: [String]
     numberConfig: String
     numberSize: String
+    nameConfig: String
+    numberSizeName: String
     ${commonTypes}
   }
 
@@ -189,6 +191,8 @@ const pipelineParams = `
   excludeCheckUserIds: [String],
   numberConfig: String,
   numberSize: String,
+  nameConfig: String,
+  numberSizeName: String,
   departmentIds: [String],
 `;
 

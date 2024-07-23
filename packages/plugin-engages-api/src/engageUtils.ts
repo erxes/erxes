@@ -511,12 +511,8 @@ export const checkCampaignDoc = async (
       throw new Error(`From user email is not specified: ${user.username}`);
     }
 
-    const VERSION = getEnv({ name: 'VERSION' });
-
     const verifiedEmails: any =
-      VERSION === 'saas'
-        ? await sendgridVerifiedEmails(subdomain)
-        : (await awsRequests.getVerifiedEmails(models)) || [];
+      (await awsRequests.getVerifiedEmails(models)) || [];
 
     if (!verifiedEmails.includes(user.email)) {
       throw new Error(`From user email "${user.email}" is not verified in AWS`);
@@ -685,58 +681,4 @@ export const checkCustomerExists = async (
   });
 
   return customers.length > 0;
-};
-
-export const sendgridVerifiedEmails = async (subdomain) => {
-  const sendgrid = await sendgridClient(subdomain)
-
-  const request = {
-    url: `/v3/marketing/senders`,
-    method: 'GET',
-  };
-
-  const [body] = await sendgrid.request(request);
-
-  const result = body.body;
-
-  return result
-    .filter((e) => e.verified.status === true && e.locked === false)
-    .map((e) => {
-      return e.from.email;
-    });
-};
-
-export const sendWithSendgrid = async (subdomain, doc) => {
-  const sendgridMail = require('@sendgrid/mail');
-  const SENDGRID_API_KEY = await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code: 'SENDGRID_API_KEY' },
-    isRPC: true,
-  });
-
-  sendgridMail.setApiKey(SENDGRID_API_KEY);
-
-  try {
-    const [response] = await sendgridMail.send(doc);
-
-    return response.headers
-  } catch (e) {
-    console.error(e)
-    return;
-  }
-};
-
-export const sendgridClient = async (subdomain) => {
-  const client = require('@sendgrid/client');
-  const SENDGRID_CLIENT_KEY = await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code: 'SENDGRID_CLIENT_KEY' },
-    isRPC: true,
-  });
-
-  client.setApiKey(SENDGRID_CLIENT_KEY);
-
-  return client;
 };

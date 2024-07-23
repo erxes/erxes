@@ -13,8 +13,7 @@ import {
   sendTagsMessage,
 } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
-import { sendgridVerifiedEmails } from '../../engageUtils';
-import { getEnv } from '@erxes/api-utils/src';
+
 interface IPaged {
   page?: number;
   perPage?: number;
@@ -62,7 +61,7 @@ const tagQueryBuilder = (tagId: string) => ({ tagIds: tagId });
 // status query builder
 const statusQueryBuilder = (
   status: string,
-  user?
+  user?,
 ): IStatusQueryBuilder | undefined => {
   if (status === 'live') {
     return { isLive: true };
@@ -92,7 +91,7 @@ const countsByKind = async (models: IModels, commonSelector) => ({
 const countsByStatus = async (
   models: IModels,
   commonSelector,
-  { kind, user }: { kind: string; user }
+  { kind, user }: { kind: string; user },
 ): Promise<ICount> => {
   const query: IQuery = commonSelector;
 
@@ -124,7 +123,7 @@ const countsByTag = async (
     kind: string;
     status: string;
     user;
-  }
+  },
 ): Promise<ICount> => {
   let query: any = commonSelector;
 
@@ -163,7 +162,7 @@ const listQuery = async (
   subdomain: string,
   commonSelector,
   { kind, status, tag, ids }: IListArgs,
-  user
+  user,
 ) => {
   let query = commonSelector;
 
@@ -212,7 +211,7 @@ const engageQueries = {
   async engageMessageCounts(
     _root,
     { name, kind, status }: ICountParams,
-    { user, commonQuerySelector, subdomain, models }: IContext
+    { user, commonQuerySelector, subdomain, models }: IContext,
   ) {
     if (name === 'kind') {
       return countsByKind(models, commonQuerySelector);
@@ -235,7 +234,7 @@ const engageQueries = {
   async engageMessages(
     _root,
     args: IListArgs,
-    { user, commonQuerySelector, models, subdomain }: IContext
+    { user, commonQuerySelector, models, subdomain }: IContext,
   ) {
     const query = await listQuery(subdomain, commonQuerySelector, args, user);
 
@@ -243,7 +242,7 @@ const engageQueries = {
       models.EngageMessages.find(query).sort({
         createdAt: -1,
       }),
-      { ...args, ids: args.ids ? args.ids.split(',') : [] }
+      { ...args, ids: args.ids ? args.ids.split(',') : [] },
     );
   },
 
@@ -264,7 +263,7 @@ const engageQueries = {
   async engageReportsList(
     _root,
     params: IReportParams,
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     const { page, perPage, customerId, status, searchValue } = params;
     const _page = Number(page || '1');
@@ -326,7 +325,7 @@ const engageQueries = {
   async engageMessagesTotalCount(
     _root,
     args: IListArgs,
-    { user, commonQuerySelector, subdomain, models }: IContext
+    { user, commonQuerySelector, subdomain, models }: IContext,
   ) {
     const query = await listQuery(subdomain, commonQuerySelector, args, user);
     return models.EngageMessages.find(query).countDocuments();
@@ -336,8 +335,6 @@ const engageQueries = {
    * Get all verified emails
    */
   async engageVerifiedEmails(_root, _args, { models, subdomain }: IContext) {
-    const VERSION = getEnv({ name: 'VERSION' });
-  
     const users = await sendCoreMessage({
       subdomain,
       action: 'users.find',
@@ -348,9 +345,7 @@ const engageQueries = {
 
     const userEmails = users.map((u) => u.email);
     const allVerifiedEmails: any =
-      VERSION === 'saas'
-        ? (await sendgridVerifiedEmails(subdomain))
-        : (await awsRequests.getVerifiedEmails(models)) || [];
+      (await awsRequests.getVerifiedEmails(models)) || [];
 
     if (!allVerifiedEmails) {
       return [];
@@ -376,14 +371,14 @@ const engageQueries = {
       models.Logs.find({ engageMessageId: args.engageMessageId }).sort({
         createdAt: -1,
       }),
-      { ...args }
+      { ...args },
     );
   },
 
   async engageSmsDeliveries(
     _root,
     params: ISmsDeliveryParams,
-    { models }: IContext
+    { models }: IContext,
   ) {
     const { type, to, page, perPage } = params;
 

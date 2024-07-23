@@ -371,11 +371,11 @@ export const buildMatchFilter = async (filter, subdomain) => {
 
     // DATE FILTER
     if (dateRange) {
-        const { startDate, endDate } = filter;
+        const { startDate, endDate, dateRangeType = 'createdAt' } = filter;
         const dateFilter = returnDateRange(dateRange, startDate, endDate);
 
         if (Object.keys(dateFilter).length) {
-            matchfilter['createdAt'] = dateFilter;
+            matchfilter[dateRangeType] = dateFilter;
         }
     }
 
