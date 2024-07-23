@@ -32,7 +32,7 @@ export interface IMessengerOnlineHours {
 
 export interface IMessengerOnlineHoursDocument
   extends IMessengerOnlineHours,
-    Document {}
+  Document { }
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -66,6 +66,7 @@ export interface IMessengerData {
   showTimezone?: boolean;
   messages?: IMessageDataMessages;
   links?: ILink;
+  externalLinks?: IExternalLink[]
   showChat?: boolean;
   showLauncher?: boolean;
   hideWhenOffline?: boolean;
@@ -74,7 +75,7 @@ export interface IMessengerData {
   showVideoCallRequest?: boolean;
 }
 
-export interface IMessengerDataDocument extends IMessengerData, Document {}
+export interface IMessengerDataDocument extends IMessengerData, Document { }
 
 export interface ICallout extends Document {
   title?: string;
@@ -168,7 +169,7 @@ export interface IUiOptions {
 }
 
 // subdocument schema for messenger UiOptions
-export interface IUiOptionsDocument extends IUiOptions, Document {}
+export interface IUiOptionsDocument extends IUiOptions, Document { }
 
 export interface IIntegration {
   kind: string;
@@ -186,6 +187,10 @@ export interface IIntegration {
   bookingData?: IBookingData;
   departmentIds?: string[];
   visibility?: string;
+}
+
+export interface IExternalLink {
+  url: String
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {
@@ -245,6 +250,7 @@ const messengerDataSchema = new Schema(
       twitter: String,
       youtube: String,
     },
+    externalLinks: field({ type: Object, optional: true }),
     requireAuth: field({ type: Boolean, default: true }),
     showChat: field({ type: Boolean, default: true }),
     showLauncher: field({ type: Boolean, default: true }),
