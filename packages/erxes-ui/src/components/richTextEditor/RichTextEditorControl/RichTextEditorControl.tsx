@@ -35,7 +35,6 @@ export const RichTextEditorControl = forwardRef<
   return (
     <EditorControl
       {...others}
-      type="button"
       disabled={isSourceControl ? false : disabled || isSourceEnabled}
       data-rich-text-editor-control={true}
       tabIndex={interactive ? 0 : -1}
