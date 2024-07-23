@@ -1,6 +1,5 @@
 {
     "Basic information" : "",
-    "Basic information of a ${type}" : "",
     "Download template" : "",
     "Add Group" : "",
     "Add Property" : "",
@@ -8,7 +7,6 @@
     "Add Group & Field " : "",
     "Settings" : "",
     "Properties" : "",
-    "${currentType} properties" : "",
     "properties": "",
     "The quick view finder helps you to view basic information on both companies and customers alike" : "",
     "Add groups and fields of the exact information you want to see" : "",
