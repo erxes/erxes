@@ -309,7 +309,7 @@ export const CARD_PROPERTIES_INFO = {
       field: 'name',
       canHide: false,
       validation: null,
-      type: 'textarea',
+      type: 'text',
     },
     {
       label: 'Priority',

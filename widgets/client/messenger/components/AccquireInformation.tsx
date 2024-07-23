@@ -78,7 +78,6 @@ class AccquireInformation extends React.PureComponent<Props, State> {
     return emailRegex.test(email);
   }
 
-
   save(e: React.FormEvent) {
     e.preventDefault();
 
