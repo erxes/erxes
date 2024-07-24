@@ -50,13 +50,36 @@ const StageList = styled.div`
 `;
 
 const StageItemContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
   background-color: ${colors.colorWhite};
   padding: 0;
   align-items: center;
+  min-width: 100%;
 
+  > *:not(button) {
+    margin-right: 10px;
+  }
+
+  .Select {
+    width: 100px;
+  }
+
+  button {
+    padding: 3px;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  button:hover {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
+const StageItemRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex: 1;  
+  padding: 0;
+  align-items: center;
   > *:not(button) {
     margin-right: 10px;
   }
@@ -143,6 +166,7 @@ export {
   BoardItem,
   StageList,
   StageItemContainer,
+  StageItemRow,
   SelectMemberStyled,
   PipelineCount,
   Attributes,
