@@ -1973,8 +1973,7 @@ select.form-control:focus,
   background: linear-gradient(
     119deg,
     #8d94ff 2.96%,
-    #4f33af 37.66%,
-    #663cf8 64.47%,
+    #6335ff 51.52%,
     #8b73bd 100.08%
   );
   color: #fff;
@@ -2638,8 +2637,17 @@ select.form-control:focus,
   bottom: 1.25rem;
   right: 1.25rem;
   display: flex;
+  align-items: center;
   gap: 0.75rem;
   label {
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  button {
     padding: 0;
     margin: 0;
     outline: none;
@@ -3035,19 +3043,19 @@ select.form-control:focus,
       h3 {
         width: 80%;
         margin: 0;
-        margin-top: 2rem;
+        margin-top: 1.5rem;
         color: #000;
         text-align: center;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-style: normal;
         font-weight: 400;
       }
       p {
         margin: 0;
-        margin-top: 0.8rem;
+        margin-top: 0.75rem;
         color: #333;
         text-align: center;
-        font-size: 1rem;
+        font-size: 0.875rem;
       }
     }
   }
@@ -3659,7 +3667,7 @@ select.form-control:focus,
 .card {
   width: 100%;
   background-color: white;
-  padding: 1rem 1.25rem;
+  padding: 1.125rem 1.25rem;
   padding-bottom: 0.75rem;
   border-radius: 10px;
   filter: drop-shadow;
@@ -3670,6 +3678,7 @@ select.form-control:focus,
 }
 
 .base-button {
+  font-family: 'Inter', sans-serif;
   outline: none;
   border-radius: 100px;
   border: none;
@@ -3689,11 +3698,10 @@ select.form-control:focus,
   border-radius: 100px;
   border: none;
   background: linear-gradient(
-    170deg,
-    rgba(141, 148, 255, 1) 0%,
-    rgba(79, 51, 175, 1) 36%,
-    rgba(102, 60, 248, 1) 63%,
-    rgba(139, 115, 189, 1) 100%
+    119deg,
+    #8d94ff 2.96%,
+    #6335ff 51.52%,
+    #8b73bd 100.08%
   );
   padding: 0.75rem 1.5rem;
   font-size: 0.875rem;
@@ -3715,7 +3723,8 @@ select.form-control:focus,
 }
 .icon-container {
   padding: 0.875rem;
-  svg {
+  svg,
+  img {
     display: block;
   }
 }
@@ -3755,15 +3764,14 @@ select.form-control:focus,
   background: linear-gradient(
     119deg,
     #8d94ff 2.96%,
-    #4f33af 37.66%,
-    #663cf8 64.47%,
+    #6335ff 51.52%,
     #8b73bd 100.08%
   );
 }
 .top-nav {
   position: relative;
   display: flex;
-  padding: 1.75rem 0;
+  padding: 1.5rem 0;
   align-items: center;
   align-self: stretch;
   gap: 0.75rem;
@@ -3786,7 +3794,7 @@ select.form-control:focus,
 }
 .persistent-footer {
   flex-shrink: 0;
-  margin: 1.25rem;
+  margin: 1.25rem 2.25rem;
 }
 .extra-content {
   width: 100%;
@@ -3807,7 +3815,8 @@ select.form-control:focus,
   width: 85%;
   h3 {
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: 600;
+    letter-spacing: 0.045rem;
     margin: 0;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -3824,16 +3833,15 @@ select.form-control:focus,
   span {
     font-size: 0.875rem;
     font-weight: 500;
-    color: 'black';
+    color: black;
   }
 
   .channel-list {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.438rem;
     align-items: center;
     flex-wrap: wrap;
     align-content: flex-start;
-    justify-content: center;
   }
 }
 .getting-started-wrapper {
@@ -3843,6 +3851,7 @@ select.form-control:focus,
   > span {
     font-size: 0.875rem;
     font-weight: 500;
+    letter-spacing: -0.00875rem;
   }
   .getting-started-content-wrapper {
     display: flex;
@@ -3908,5 +3917,8 @@ select.form-control:focus,
 .header-top {
   display: flex;
   width: 100%;
-  justify-content: space-between;
+}
+
+.opacity-50 {
+  opacity: 0.5;
 }

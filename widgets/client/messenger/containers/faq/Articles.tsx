@@ -14,19 +14,24 @@ type Props = {
 const Articles = (props: Props) => {
   const { topicId, searchString, articles } = props;
 
-  // const { data, loading } = useQuery(gql(queries.faqSearchArticlesQuery), {
-  //   fetchPolicy: 'network-only',
-  //   variables: {
-  //     topicId: topicId,
-  //     searchString: searchString,
-  //   },
-  // });
+  // const { data, loading, error } = useQuery(
+  //   gql(queries.faqSearchArticlesQuery),
+  //   {
+  //     fetchPolicy: 'network-only',
+  //     variables: {
+  //       topicId,
+  //       searchString,
+  //     },
+  //   }
+  // );
 
-  // if (!data) {
-  //   return null;
-  // }
-
-  return <DumbArticles articles={articles || []} />;
+  return (
+    <DumbArticles
+      articles={articles || []}
+      // articles={articles || data?.widgetsKnowledgeBaseArticles}
+      // loading={loading}
+    />
+  );
 };
 
 export default Articles;

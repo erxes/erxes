@@ -153,7 +153,6 @@ const Home: React.FC<Props> = ({
         <div className="home-header-wrapper">
           <div className="header-top">
             <IconErxes />
-            <Button icon={<IconMinus />} onClick={handleHideWidget} />
           </div>
           {renderGreetings()}
         </div>

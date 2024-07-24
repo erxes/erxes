@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { iconAttach, iconVideo } from '../../icons/Icons';
+import { iconAttach, IconSend, iconVideo } from '../../icons/Icons';
 import { __ } from '../../utils';
 import { MESSAGE_TYPES } from '../constants';
 import { connection } from '../connection';
@@ -179,6 +179,18 @@ const MessageSender: React.FC<Props> = (props) => {
     );
   };
 
+  const renderSendButton = () => {
+    if (!message.length) {
+      return null;
+    }
+
+    return (
+      <button type="submit" form="message-sending-form">
+        <IconSend />
+      </button>
+    );
+  };
+
   const renderVideoCallRequest = () => {
     if (!showVideoCallRequest || !connection.enabledServices.dailyco) {
       return null;
@@ -216,6 +228,7 @@ const MessageSender: React.FC<Props> = (props) => {
       className="erxes-message-sender"
       ref={formRef}
       onSubmit={handleSubmit}
+      id="message-sending-form"
     >
       <textarea
         ref={textareaRef}
@@ -238,6 +251,7 @@ const MessageSender: React.FC<Props> = (props) => {
           }}
         />
         {renderFileUploader()}
+        {renderSendButton()}
       </div>
     </form>
   );

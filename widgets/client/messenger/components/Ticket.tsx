@@ -65,11 +65,11 @@ const Ticket: React.FC<Props> = ({
       persistentFooter={
         !isSubmitted ? (
           <Button form="ticket-form" type="submit" full>
-            {submitText}
+            <span className="font-semibold">{submitText}</span>
           </Button>
         ) : (
           <Button full onClick={handleButtonClick}>
-            {continueText}
+            <span className="font-semibold">{continueText}</span>
           </Button>
         )
       }

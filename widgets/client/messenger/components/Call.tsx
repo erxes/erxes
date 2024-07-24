@@ -28,7 +28,9 @@ const Call: React.FC<Props> = () => {
               <input autoFocus placeholder="(201) 555-0123" />
             </div>
           </div>
-          <Button full>{__('Continue')}</Button>
+          <Button full>
+            <span className="font-semibold">{__('Continue')}</span>
+          </Button>
         </div>
       </div>
     </Container>

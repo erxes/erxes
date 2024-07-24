@@ -22,15 +22,12 @@ const Button: React.FC<ButtonProps> = ({
     {
       'main-button': withDefaultStyle || children,
     },
-    { 'w-full': full }
+    { 'w-full': full },
+    buttonProps.className
   );
 
   return (
-    <button
-      className={`${buttonClassNames} ${buttonProps.className}`}
-      type={type}
-      {...buttonProps}
-    >
+    <button className={buttonClassNames} type={type} {...buttonProps}>
       {children}
       {icon}
     </button>

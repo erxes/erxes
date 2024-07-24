@@ -160,7 +160,7 @@ const ConversationDetail: React.FC<Props> = ({
   return (
     <Container
       withBottomNavBar={false}
-      containerStyle={{ padding: '1.25rem 0' }}
+      containerStyle={{ padding: '1.12rem 0' }}
       title={
         isLoading ? (
           <div className="loader" />

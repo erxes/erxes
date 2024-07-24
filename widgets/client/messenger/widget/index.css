@@ -43,7 +43,8 @@
 }
 
 .erxes-messenger-shown {
-  width: 400px;
+  /* 400px width of messenger + scrollbar width */
+  width: 408px;
   height: 100%;
   height: calc(100% - 20px);
   max-height: 700px;

@@ -49,7 +49,7 @@ const Categories: React.FC<Props> = ({ faqTopics, loading }) => {
     const childrens = group[currentCategory._id] || [];
 
     return (
-      <div className="fade-in">
+      <div className="fade-in faq-collection-container">
         <button
           className="back-category-button left"
           onClick={() => setCurrentCategory(undefined)}
