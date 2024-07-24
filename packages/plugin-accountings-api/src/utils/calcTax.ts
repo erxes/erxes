@@ -2,11 +2,13 @@ import { nanoid } from 'nanoid';
 import { IModels } from "../connectionResolver";
 import { JOURNALS, TR_SIDES } from "../models/definitions/constants";
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
+import { IVatRow } from '../models/definitions/vatRow';
+import { ICtaxRow } from '../models/definitions/ctaxRow';
 
 
 export default class calcTax {
   private models: IModels;
-  private doc: ITransaction;
+  private doc: ITransactionDocument;
   private mainAmount: number;
   private side: 'dt' | 'ct';
 
@@ -14,6 +16,8 @@ export default class calcTax {
   private vatRecAccountId?: string;
   private ctaxPayAccountId?: string;
   private taxPercent: number = 0;
+  private vatRow?: IVatRow;
+  private ctaxRow?: ICtaxRow;
 
   private vatTrDoc?: ITransaction;
 
@@ -24,10 +28,6 @@ export default class calcTax {
     this.doc = doc;
     this.mainAmount = mainAmount;
     this.side = side;
-  }
-
-  public checkValidationCurrency = async () => {
-
   }
 
   public getTaxValues = async () => {
@@ -49,8 +49,7 @@ export default class calcTax {
         this.vatPayAccountId = accs.VatAfterPayableAccount;
         this.vatRecAccountId = accs.VatAfterReceivableAccount
       }
-      const vatRow = await this.models.VatRows.getVatRow({ _id: this.doc.vatRowId });
-      taxPercent += vatRow.percent;
+      taxPercent += this.vatRow?.percent || 0;
     }
     if (hasCtax && this.doc.hasCtax) {
       const accs = await this.models.AccountingConfigs.getConfigs([
@@ -59,8 +58,8 @@ export default class calcTax {
 
       this.ctaxPayAccountId = accs.CtaxPayableAccount;
 
-      const ctaxRow = await this.models.CtaxRows.getCtaxRow({ _id: this.doc.ctaxRowId });
-      taxPercent += ctaxRow.percent;
+      this.ctaxRow = await this.models.CtaxRows.getCtaxRow({ _id: this.doc.ctaxRowId });
+      taxPercent += this.ctaxRow.percent;
     }
 
     this.taxPercent = taxPercent;
@@ -80,11 +79,9 @@ export default class calcTax {
       throw new Error('must choose vat row')
     }
 
-    let side = detail.side;
-    if (amount < 0) {
-      side = TR_SIDES.DEBIT === detail.side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
-      amount = -1 * amount;
-    }
+    const sumValue = this.doc.sumDt + this.doc.sumCt;
+    this.vatRow = await this.models.VatRows.getVatRow({ _id: this.doc.vatRowId });
+    const vatValue = sumValue / this.taxPercent * (this.vatRow.percent || 0)
 
     this.vatTrDoc = {
       ptrId: this.doc.ptrId,
@@ -100,8 +97,8 @@ export default class calcTax {
       details: [{
         _id: nanoid(),
         accountId: detail.followInfos.currencyDiffAccountId,
-        side,
-        amount
+        side: this.side,
+        amount: vatValue
       }],
     }
 
