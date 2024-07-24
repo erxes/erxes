@@ -8,7 +8,7 @@ export default {
   callback: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    if (data.contentType !== 'third:order' || data.status !== 'paid') {
+    if (data.contentType !== 'syncerkhet:third' || data.status !== 'paid') {
       return;
     }
 
