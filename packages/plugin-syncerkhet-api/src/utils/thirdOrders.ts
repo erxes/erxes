@@ -89,36 +89,6 @@ export const getPostData = async (subdomain, userEmail, order) => {
     throw new Error('overpayment')
   }
 
-  let customerCode = '';
-  if (order.customerId) {
-    const customerType = order.customerType || 'customer';
-    if (customerType === 'company') {
-      customerCode = (
-        (await sendContactsMessage({
-          subdomain,
-          action: 'companies.findOne',
-          data: {
-            _id: order.customerId
-          },
-          isRPC: true,
-          defaultValue: {}
-        })) || {}
-      ).code;
-    } else {
-      customerCode = (
-        (await sendContactsMessage({
-          subdomain,
-          action: 'customers.findOne',
-          data: {
-            _id: order.customerId
-          },
-          isRPC: true,
-          defaultValue: {}
-        })) || {}
-      ).code;
-    }
-  }
-
   const orderInfos = [
     {
       date: getPureDate(order.paidDate)
@@ -128,7 +98,7 @@ export const getPostData = async (subdomain, userEmail, order) => {
       hasVat: order.hasVat,
       hasCitytax: order.hasCitytax,
       billType: order.billType,
-      customerCode,
+      customerCode: order.customerCode,
       description: order.description,
       number: order.number,
       details,
