@@ -12,9 +12,8 @@ export const getPostData = async (subdomain, userEmail, order) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret
+    !erkhetConfig?.apiKey ||
+    !erkhetConfig?.apiSecret
   ) {
     return;
   }
