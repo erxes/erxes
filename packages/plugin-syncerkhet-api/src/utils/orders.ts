@@ -106,8 +106,8 @@ export const getPostData = async (subdomain, pos, order) => {
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        }))
+      )?.code;
     } else {
       customerCode = (
         (await sendContactsMessage({
@@ -118,8 +118,8 @@ export const getPostData = async (subdomain, pos, order) => {
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        }))
+      )?.code;
     }
   }
 

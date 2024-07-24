@@ -1,7 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { IModels, generateModels } from '../connectionResolver';
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage
 } from '../messageBroker';
