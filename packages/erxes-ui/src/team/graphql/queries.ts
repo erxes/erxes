@@ -341,6 +341,10 @@ const userDetail = `
       branchIds
       departmentIds
       positionIds
+      positions {
+        _id
+        title
+      }
 
       details {
         ${detailFields}

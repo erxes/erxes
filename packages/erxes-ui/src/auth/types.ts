@@ -127,6 +127,7 @@ export interface IUser extends IUserDoc {
   branchIds: string[];
   departmentIds: string[];
   positionIds: string[];
+  positions?: any[];
   customFieldsData?: {
     [key: string]: any;
   };
