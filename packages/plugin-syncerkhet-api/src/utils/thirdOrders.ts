@@ -1,4 +1,5 @@
-import { generateModels } from '../connectionResolver';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { IModels, generateModels } from '../connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -7,15 +8,13 @@ import {
 import { sendRPCMessage } from '../messageBrokerErkhet';
 import { getConfig, getPureDate } from './utils';
 
-export const getPostData = async (subdomain, pos, order) => {
+export const getPostData = async (subdomain, userEmail, order) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||
     !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !pos.erkhetConfig ||
-    !pos.erkhetConfig.isSyncErkhet
+    !erkhetConfig.apiSecret
   ) {
     return;
   }
@@ -35,7 +34,7 @@ export const getPostData = async (subdomain, pos, order) => {
       ).email) ||
     '';
 
-  const productsIds = order.items.map(item => item.productId);
+  const productsIds = order.details.map(item => item.productId);
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
@@ -51,7 +50,7 @@ export const getPostData = async (subdomain, pos, order) => {
 
   let sumSaleAmount = 0;
 
-  for (const item of order.items) {
+  for (const item of order.details) {
     // if wrong productId then not sent
     if (!productCodeById[item.productId]) {
       continue;
@@ -68,29 +67,27 @@ export const getPostData = async (subdomain, pos, order) => {
     });
   }
 
-  const payments: any = {};
+  const { payments } = order;
+  const allowKeys = [
+    'cardAmount',
+    'card2Amount',
+    'cashAmount',
+    'mobileAmount',
+    'debtBarterAmount'
+    // 'debtAmount',
+  ];
 
-  if (order.cashAmount) {
-    payments.cashAmount = order.cashAmount;
-    sumSaleAmount -= order.cashAmount;
-  }
-  if (order.mobileAmount) {
-    payments.mobileAmount = order.mobileAmount;
-    sumSaleAmount -= order.mobileAmount;
-  }
 
-  for (const paidAmount of order.paidAmounts || []) {
-    const erkhetType = pos.erkhetConfig[`_${paidAmount.type}`];
-    if (!erkhetType) {
-      continue;
+  for (const key of payments) {
+    if (allowKeys.includes(key)) {
+      sumSaleAmount -= payments[key];
     }
-
-    payments[erkhetType] = (payments[erkhetType] || 0) + paidAmount.amount;
-    sumSaleAmount -= paidAmount.amount;
   }
 
-  if (sumSaleAmount > 0.005 || sumSaleAmount < -0.005) {
-    payments[pos.erkhetConfig.defaultPay] = (payments[pos.erkhetConfig.defaultPay] || 0) + sumSaleAmount;
+  if (sumSaleAmount > 0.005) {
+    payments.debtAmount = sumSaleAmount;
+  } else if (sumSaleAmount < -0.005) {
+    throw new Error('overpayment')
   }
 
   let customerCode = '';
@@ -129,26 +126,16 @@ export const getPostData = async (subdomain, pos, order) => {
         .toISOString()
         .slice(0, 10),
       orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
-        ? true
-        : false,
-      hasCitytax: order.taxInfo
-        ? order.taxInfo.hasCitytax
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
-        ? true
-        : false,
+      hasVat: order.hasVat,
+      hasCitytax: order.hasCitytax,
       billType: order.billType,
       customerCode,
-      description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
+      description: order.description,
+      number: order.number,
       details,
       ...payments
     }
   ];
-
-  let userEmail = pos.erkhetConfig.userEmail;
 
   return {
     userEmail,
@@ -159,61 +146,59 @@ export const getPostData = async (subdomain, pos, order) => {
   };
 };
 
-export const orderDeleteToErkhet = async (subdomain, pos, order) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-  const models = await generateModels(subdomain);
-
-  if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !pos.erkhetConfig.isSyncErkhet
-  ) {
-    return;
-  }
-
-  const syncLog = await models.SyncLogs.syncLogsAdd({
+export const thirdOrderToErkhet = async (subdomain: string, models: IModels, data) => {
+  const { userEmail, order } = data;
+  const syncLogDoc = {
     contentType: 'pos:order',
     createdAt: new Date(),
+    createdBy: order.userId,
+  };
+  const syncLog = await models.SyncLogs.syncLogsAdd({
+    ...syncLogDoc,
     contentId: order._id,
     consumeData: order,
-    consumeStr: JSON.stringify(order)
+    consumeStr: JSON.stringify(order),
   });
   try {
-    const orderInfos = [
-      {
-        date: order.paidDate,
-        orderId: order._id,
-        returnKind: 'hard'
-      }
-    ];
+    const postData = await getPostData(subdomain, userEmail, order);
+    if (!postData) {
+      return {
+        status: 'success',
+        data: {},
+      };
+    }
 
-    let userEmail = pos.erkhetConfig.userEmail;
-
-    const postData = {
-      userEmail,
-      token: erkhetConfig.apiToken,
-      apiKey: erkhetConfig.apiKey,
-      apiSecret: erkhetConfig.apiSecret,
-      orderInfos: JSON.stringify(orderInfos)
+    return {
+      status: 'success',
+      data: await sendRPCMessage(
+        models,
+        syncLog,
+        'rpc_queue:erxes-automation-erkhet',
+        {
+          action: 'get-response-send-order-info',
+          isEbarimt: false,
+          payload: JSON.stringify(postData),
+          thirdService: true,
+          isJson: true,
+        },
+      ),
     };
-
-    return await sendRPCMessage(
-      models,
-      syncLog,
-      'rpc_queue:erxes-automation-erkhet',
-      {
-        action: 'get-response-return-order',
-        isJson: true,
-        isEbarimt: false,
-        payload: JSON.stringify(postData),
-        thirdService: true
-      }
-    );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } }
+      { $set: { error: e.message } },
     );
+    return {
+      status: 'success',
+      data: { error: e.message },
+    };
   }
-};
+}
+
+export const thirdOrder = async (req, res) => {
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const { body } = req;
+  thirdOrderToErkhet(subdomain, models, body);
+}
