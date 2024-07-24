@@ -4,8 +4,8 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-  copyParams,
-} from './common';
+  copyParams
+} from "./common";
 
 export const types = ({ contacts, tags, clientPortal }) => `
   type TicketListItem {
@@ -22,11 +22,11 @@ export const types = ({ contacts, tags, clientPortal }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
+        : ""
     }
 
-    ${tags ? `tags: [Tag]` : ''}
-    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ''}
+    ${tags ? `tags: [Tag]` : ""}
+    ${clientPortal ? `vendorCustomers: [ClientPortalUser]` : ""}
 
     ${commonTypes}
   }
@@ -43,7 +43,7 @@ const listQueryParams = `
   customerIds: [String]
   vendorCustomerIds: [String]
   companyIds: [String]
-  date: ItemDate
+  date: TicketsItemDate
   skip: Int
   limit: Int
   search: String

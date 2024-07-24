@@ -193,25 +193,6 @@ const gatherTicketFieldNames = async (
 
   options = await gatherBoardItemFieldNames(models, subdomain, doc, options);
 
-  if (doc.productsData && doc.productsData.length > 0) {
-    options = await gatherNames({
-      foreignKey: "productId",
-      prevList: options,
-      nameFields: ["name"],
-      items: await sendProductsMessage({
-        subdomain,
-        action: "find",
-        data: {
-          query: {
-            _id: { $in: doc.productsData.map(p => p.productId) }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      })
-    });
-  }
-
   return options;
 };
 

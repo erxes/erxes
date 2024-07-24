@@ -8,10 +8,7 @@ import {
   checklistItemSchema,
   checklistSchema
 } from "./models/definitions/checklists";
-import {
-  ticketSchema,
-  ticketproductDataSchema
-} from "./models/definitions/tickets";
+import { ticketSchema } from "./models/definitions/tickets";
 import {
   pipelineTemplateSchema,
   stageSchema
@@ -195,7 +192,7 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
   },
   {
     name: MODULE_NAMES.TICKET,
-    schemas: [ticketSchema, ticketproductDataSchema]
+    schemas: [ticketSchema]
   },
   {
     name: MODULE_NAMES.PIPELINE_LABEL,

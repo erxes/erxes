@@ -1,11 +1,11 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { ConformityQueryResponse, ISavedConformity } from '../types';
+import { ConformityQueryResponse, ISavedConformity } from "../types";
 
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { renderWithProps } from '@erxes/ui/src/utils/core';
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { renderWithProps } from "@erxes/ui/src/utils/core";
 
 type IProps = {
   mainType?: string;
@@ -63,7 +63,7 @@ export default (props: IProps) =>
       graphql<IProps, ConformityQueryResponse, ISavedConformity>(
         gql(props.itemsQuery),
         {
-          name: 'itemsQuery',
+          name: "itemsQuery",
           skip: ({ mainType, mainTypeId, relType, alreadyItems }) =>
             (!mainType && !mainTypeId && !relType) ||
             alreadyItems !== undefined,
@@ -77,13 +77,13 @@ export default (props: IProps) =>
             };
 
             // conformity with mainType "user" is not saved
-            if (mainType === 'user') {
+            if (mainType === "user") {
               variables.assignedUserIds = [mainTypeId];
               variables.isSaved = false;
             }
 
             // add archived items in contacts side bar
-            if (mainType === 'customer' || mainType === 'company') {
+            if (mainType === "customer" || mainType === "company") {
               variables.noSkipArchive = true;
             }
 

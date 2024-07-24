@@ -57,7 +57,7 @@ class BoardItemForm extends React.Component<Props, State> {
   };
 
   renderSelect() {
-    const type = "purchase";
+    const type = "ticket";
 
     const { stageId, pipelineId, boardId } = this.state.config;
 

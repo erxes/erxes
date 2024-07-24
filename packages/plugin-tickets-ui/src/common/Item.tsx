@@ -23,16 +23,16 @@ const dealQuery = gql`
 `;
 
 const taskQuery = gql`
-    query deal($_id: String!) {
-        dealDetail(_id: $_id) {
+    query task($_id: String!) {
+        taskDetail(_id: $_id) {
             ${fields}
         }
     }
 `;
 
 const ticketQuery = gql`
-    query deal($_id: String!) {
-        dealDetail(_id: $_id) {
+    query ticket($_id: String!) {
+        ticketDetail(_id: $_id) {
             ${fields}
         }
     }
@@ -44,7 +44,9 @@ const Item = ({ invoice }) => {
   }
 
   if (
-    !["sales:deal", "cards:task", "cards:ticket"].includes(invoice.contentType)
+    !["sales:deal", "cards:task", "tickets:ticket"].includes(
+      invoice.contentType
+    )
   ) {
     return null;
   }
@@ -60,7 +62,7 @@ const Item = ({ invoice }) => {
     case "cards:task":
       qry = taskQuery;
       break;
-    case "cards:ticket":
+    case "tickets:ticket":
       qry = ticketQuery;
       break;
     default:

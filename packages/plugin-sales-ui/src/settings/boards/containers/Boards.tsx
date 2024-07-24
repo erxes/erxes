@@ -109,7 +109,7 @@ function BoardsContainer(props: FinalProps) {
 }
 
 const getRefetchQueries = () => {
-  return ["boards", "boardGetLast", "pipelines"];
+  return ["salesBoards", "salesBoardGetLast", "salesPipelines"];
 };
 
 const generateOptions = () => ({

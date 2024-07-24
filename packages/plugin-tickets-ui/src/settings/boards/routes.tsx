@@ -1,7 +1,6 @@
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import { purchaseOptions } from "./options";
 
 const Home = asyncComponent(
   () =>
@@ -9,12 +8,12 @@ const Home = asyncComponent(
 );
 
 const TicketHome = () => {
-  return <Home type="purchase" title="Ticket" options={purchaseOptions} />;
+  return <Home type="ticket" title="Ticket" />;
 };
 
 const routes = () => (
   <Routes>
-    <Route path="/settings/boards/purchase" element={<TicketHome />} />
+    <Route path="/settings/boards/ticket" element={<TicketHome />} />
   </Routes>
 );
 

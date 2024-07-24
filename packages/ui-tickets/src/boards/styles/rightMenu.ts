@@ -4,7 +4,8 @@ import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
 const FilterBox = styled.div`
-  .css-13cymwt-control, .css-t3ipsp-control {
+  .css-13cymwt-control,
+  .css-t3ipsp-control {
     margin-bottom: 15px;
   }
 
@@ -41,9 +42,9 @@ const CustomRangeContainer = styled.div`
 
 const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   padding: 5px 20px;
-  background: ${(props) =>
+  background: ${props =>
     props.selected ? colors.colorSecondary : colors.bgActive};
-  color: ${(props) =>
+  color: ${props =>
     props.selected ? colors.colorWhite : colors.textSecondary};
   line-height: 20px;
   width: 100%;
@@ -56,7 +57,7 @@ const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   transition: all 0.3s ease;
 
   &:hover {
-    background: ${(props) =>
+    background: ${props =>
       props.selected ? colors.colorPrimaryDark : colors.bgGray};
     cursor: pointer;
   }
@@ -74,7 +75,8 @@ export const RightMenuContainer = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
+  box-shadow:
+    0 12px 24px -6px rgba(9, 30, 66, 0.25),
     0 0 0 1px rgba(9, 30, 66, 0.08);
 
   ${TabContainer} {
@@ -167,5 +169,5 @@ export {
   LoadMore,
   CustomRangeContainer,
   BoardItem,
-  ArchiveWrapper,
+  ArchiveWrapper
 };

@@ -22,17 +22,17 @@ const PortableTasks = asyncComponent(
     )
 );
 
-const PortablePurchases = asyncComponent(
-  () =>
-    import(
-      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
-    )
-);
-
 const PortableTickets = asyncComponent(
   () =>
     import(
       /* webpackChunkName: "PortableTickets" */ "@erxes/ui-tickets/src/tickets/components/PortableTickets"
+    )
+);
+
+const PortablePurchases = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "PortableTickets" */ "@erxes/ui-purchases/src/purchases/components/PortablePurchases"
     )
 );
 

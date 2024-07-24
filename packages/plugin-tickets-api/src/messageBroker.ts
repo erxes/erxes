@@ -19,10 +19,6 @@ import {
   consumeQueue,
   consumeRPCQueue
 } from "@erxes/api-utils/src/messageBroker";
-import {
-  generateAmounts,
-  generateProducts
-} from "./graphql/resolvers/customResolvers/ticket";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("tickets:tickets.create", async ({ subdomain, data }) => {
@@ -271,20 +267,6 @@ export const setupMessageConsumers = async () => {
       data: await models.Tickets.findOne(data).lean()
     };
   });
-
-  consumeRPCQueue("tickets:tickets.generateAmounts", async productsData => {
-    return { data: generateAmounts(productsData), status: "success" };
-  });
-
-  consumeRPCQueue(
-    "tickets:tickets.generateProducts",
-    async ({ subdomain, data }) => {
-      return {
-        data: await generateProducts(subdomain, data),
-        status: "success"
-      };
-    }
-  );
 
   consumeRPCQueue("tickets:findItem", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

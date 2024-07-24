@@ -1,11 +1,13 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import { SidebarListItem } from "@erxes/ui-settings/src/styles";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
-const BoardItem = styledTS<{ $isActive: boolean, $withOverflow?: boolean }>(styled(SidebarListItem))`
+const BoardItem = styledTS<{ $isActive: boolean; $withOverflow?: boolean }>(
+  styled(SidebarListItem)
+)`
   ${props => !props.$withOverflow && `overflow: hidden;`}
   
   > button {
@@ -147,5 +149,5 @@ export {
   PipelineCount,
   Attributes,
   BoardHeader,
-  HeaderContent,
+  HeaderContent
 };
