@@ -183,7 +183,7 @@ export const DUE_TYPES = [
   { label: "Overdue", value: "overdue" }
 ];
 
-export const PROBABILITY_DEAL = [
+export const PROBABILITY_TICKET = [
   { label: "10%", value: "10%" },
   { label: "20%", value: "20%" },
   { label: "30%", value: "30%" },
@@ -193,8 +193,7 @@ export const PROBABILITY_DEAL = [
   { label: "70%", value: "70%" },
   { label: "80%", value: "80%" },
   { label: "90%", value: "90%" },
-  { label: "Won", value: "Won" },
-  { label: "Lost", value: "Lost" }
+  { label: "Resolved", value: "Resolved" }
 ];
 
 export const ATTACHMENT_TYPES = [

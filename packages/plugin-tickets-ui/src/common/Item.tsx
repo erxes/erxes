@@ -44,7 +44,7 @@ const Item = ({ invoice }) => {
   }
 
   if (
-    !["sales:deal", "cards:task", "tickets:ticket"].includes(
+    !["sales:deal", "tickets:task", "tickets:ticket"].includes(
       invoice.contentType
     )
   ) {
@@ -59,7 +59,7 @@ const Item = ({ invoice }) => {
     case "sales:deal":
       qry = dealQuery;
       break;
-    case "cards:task":
+    case "tasks:task":
       qry = taskQuery;
       break;
     case "tickets:ticket":

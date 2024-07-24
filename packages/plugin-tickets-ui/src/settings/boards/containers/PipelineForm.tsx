@@ -84,7 +84,7 @@ export default withProps<Props>(
     graphql(gql(tagQueries.tags), {
       name: "tagsQuery",
       options: (props: Props) => ({
-        variables: { type: `cards:${props.type}` }
+        variables: { type: `tickets:${props.type}` }
       })
     }),
 

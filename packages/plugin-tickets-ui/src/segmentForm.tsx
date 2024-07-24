@@ -108,27 +108,36 @@ class Form extends React.Component<any, any, any> {
     if (component === "filter") {
       if (
         propertyType &&
-        !["sales:deal", "cards:ticket", "cards:task", "sales:ticket"].includes(
-          propertyType
-        )
+        ![
+          "sales:deal",
+          "tickets:ticket",
+          "cards:task",
+          "purchases:purchase"
+        ].includes(propertyType)
       ) {
         return null;
       }
 
       if (
         !hideDetailForm &&
-        ["sales:deal", "cards:ticket", "cards:task", "sales:ticket"].includes(
-          type
-        )
+        [
+          "sales:deal",
+          "tickets:ticket",
+          "cards:task",
+          "purchases:purchase"
+        ].includes(type)
       ) {
         return null;
       }
 
       return content;
     } else if (
-      ["sales:deal", "cards:ticket", "cards:task", "sales:ticket"].includes(
-        type
-      )
+      [
+        "sales:deal",
+        "tickets:ticket",
+        "cards:task",
+        "purchases:purchase"
+      ].includes(type)
     ) {
       return content;
     }
@@ -137,7 +146,12 @@ class Form extends React.Component<any, any, any> {
 
 const generateVariable = (type, propertyType) => {
   if (
-    ["sales:deal", "cards:ticket", "cards:task", "sales:ticket"].includes(type)
+    [
+      "sales:deal",
+      "tickets:ticket",
+      "cards:task",
+      "purchases:purchase"
+    ].includes(type)
   ) {
     return { type: type.split(":")[1] };
   }
