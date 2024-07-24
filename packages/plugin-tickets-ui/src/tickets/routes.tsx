@@ -1,4 +1,4 @@
-import { getDefaultBoardAndPipelines } from "@erxes/ui-cards/src/boards/utils";
+import { getDefaultBoardAndPipelines } from "@erxes/ui-tickets/src/boards/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import queryString from "query-string";
 import React from "react";
@@ -12,7 +12,7 @@ const TicketBoard = asyncComponent(
 const Calendar = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Calendar" */ "@erxes/ui-cards/src/boards/components/Calendar"
+      /* webpackChunkName: "Calendar" */ "@erxes/ui-tickets/src/boards/components/Calendar"
     )
 );
 
