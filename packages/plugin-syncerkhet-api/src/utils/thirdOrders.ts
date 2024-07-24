@@ -94,7 +94,7 @@ export const getPostData = async (subdomain, userEmail, order) => {
   if (order.customerId) {
     const customerType = order.customerType || 'customer';
     if (customerType === 'company') {
-      customerCode = customerCode = (
+      customerCode = (
         (await sendContactsMessage({
           subdomain,
           action: 'companies.findOne',
