@@ -77,6 +77,7 @@ const Categories: React.FC<Props> = ({ faqTopics, loading }) => {
             childrens={childrens}
             getCurrentItem={getCurrentItem}
             category={category}
+            isParent
           />
         );
       })}
