@@ -13,7 +13,6 @@ import { DEFAULT_HANDLE_OPTIONS, DEFAULT_HANDLE_STYLE } from '../constants';
 import { Trigger } from '../styles';
 import { NodeProps } from '../types';
 import { checkNote } from '../utils';
-import { useNavigate } from 'react-router-dom';
 
 const calculateWorkflowNodeHeightWidth = (actions: IAction[]) => {
   if (actions?.length === 1) {
@@ -50,6 +49,26 @@ function WorkflowNode({ id, data, selected, xPos, yPos }: NodeProps) {
 
   const [isExpanded, setExpand] = useState(false);
 
+  if (!config?.workflowId) {
+    return (
+      <Trigger type="workflow" style={{ marginLeft: 0 }}>
+        <div className="header">
+          <NodeToolbar
+            isVisible={data.forceToolbarVisible || undefined}
+            position={data.toolbarPosition}
+          >
+            <ToolBarRemoveBtn
+              onClick={() => data.removeItem(data.nodeType, id)}
+              className="icon-trash-alt"
+              title={__('Delete')}
+            />
+          </NodeToolbar>
+          {__(`Can't load workflow`)}
+        </div>
+        <p>{__('Please select workflow after check workflow exists')}</p>
+      </Trigger>
+    );
+  }
   const {
     data: queryData,
     loading,

@@ -49,7 +49,11 @@ export const generateEdges = ({
         }
       };
 
-      const { optionalConnects = [], ...config } = edge?.config || {};
+      const {
+        optionalConnects = [],
+        workflowConnections = [],
+        ...config
+      } = edge?.config || {};
 
       if (edge.type === 'if') {
         const { yes, no } = config;
@@ -86,15 +90,31 @@ export const generateEdges = ({
       }
 
       if (edgeObj.type === 'workflow') {
-        const workflow = (workFlowActions || [])?.some(({ actions }) =>
-          actions.some(action => action.id !== edge[targetField])
-        );
-
-        if (workflow) {
-          edgeObj.target = undefined;
+        if (
+          workFlowActions?.find(
+            ({ workflowId }) => edge.workflowId === workflowId
+          ) &&
+          workflowConnections.length
+        ) {
+          for (const conn of workflowConnections) {
+            generatedEdges.push({
+              ...edgeObj,
+              id: `${edge.workflowId}-${conn.id}`,
+              target: conn.targetId,
+              source: conn.sourceId,
+              animated: true,
+              style: { ...commonStyle, color: colors.colorPrimary }
+            });
+          }
+        } else {
+          const workflow = (workFlowActions || [])?.some(({ actions }) =>
+            actions.some(action => action.id !== edge[targetField])
+          );
+          if (workflow) {
+            edgeObj.target = undefined;
+          }
         }
       }
-
       if (
         edge?.workflowId &&
         !(workFlowActions || [])?.some(
@@ -171,6 +191,7 @@ export const generateNode = (
     doc.expandParent = true;
     doc.draggable = false;
     doc.selectable = false;
+    doc.connectable = false;
   }
 
   return doc;
