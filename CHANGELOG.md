@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.14.1](https://github.com/erxes/erxes/compare/1.14.0...1.14.1) (2024-07-25)
+
+
+### Features
+
+* payment invoice paid then to syncerkhet from third systems data ([#5543](https://github.com/erxes/erxes/issues/5543)) ([dd95a4a](https://github.com/erxes/erxes/commit/dd95a4a1a35c9fe66c8eaa916d16b1e400929404))
+
+
+### Bug Fixes
+
+* inbox hooks ([1716603](https://github.com/erxes/erxes/commit/17166034412e24a0c5fb214642d3781e134f652e))
+* pos orders filter ([5a96f58](https://github.com/erxes/erxes/commit/5a96f58263b382e440e8fd196ba757202dce99b5))
+
 ## [1.14.0](https://github.com/erxes/erxes/compare/1.14.0-rc.10...1.14.0) (2024-07-17)
 
 
