@@ -246,10 +246,10 @@ export default class PurchaseEditForm extends React.Component<Props, State> {
     const { item } = this.props;
     return (
       <>
-        {isEnabled("cards") && (
+        {isEnabled("tickets") && (
           <PortableTickets mainType="purchase" mainTypeId={item._id} />
         )}
-        {isEnabled("cards") && (
+        {isEnabled("tasks") && (
           <PortableTasks mainType="purchase" mainTypeId={item._id} />
         )}
 

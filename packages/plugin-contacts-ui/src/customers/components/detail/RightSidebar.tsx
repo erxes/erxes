@@ -81,13 +81,18 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CompanySection mainType="customer" mainTypeId={customer._id} />
-        {isEnabled("cards") && (
+        {isEnabled("tickets") && (
           <>
             <PortableTickets
               mainType="customer"
               mainTypeId={customer._id}
               mainTypeName={mainTypeName}
             />
+          </>
+        )}
+
+        {isEnabled("tasks") && (
+          <>
             <PortableTasks
               mainType="customer"
               mainTypeId={customer._id}

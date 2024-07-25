@@ -22,7 +22,7 @@ import {
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue("cards:tickets.create", async ({ subdomain, data }) => {
+  consumeRPCQueue("tickets:tickets.create", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const ticket = await models.Tickets.createTicket(data);
@@ -43,7 +43,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("cards:tasks.create", async ({ subdomain, data }) => {
+  consumeRPCQueue("tasks:tasks.create", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const task = await models.Tasks.createTask(data);
@@ -161,7 +161,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    "cards:tasks.remove",
+    "tasks:tasks.remove",
     async ({ subdomain, data: { _ids } }) => {
       const models = await generateModels(subdomain);
 
@@ -172,7 +172,7 @@ export const setupMessageConsumers = async () => {
     }
   );
 
-  consumeRPCQueue("cards:tickets.find", async ({ subdomain, data }) => {
+  consumeRPCQueue("tickets:tickets.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     if (!data.query) {
@@ -190,7 +190,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("cards:tickets.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("tickets:tickets.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -200,7 +200,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    "cards:tickets.remove",
+    "tickets:tickets.remove",
     async ({ subdomain, data: { _ids } }) => {
       const models = await generateModels(subdomain);
 
@@ -229,7 +229,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("cards:tasks.find", async ({ subdomain, data }) => {
+  consumeRPCQueue("tasks:tasks.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -238,7 +238,7 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue("cards:tasks.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("tasks:tasks.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -287,7 +287,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    "cards:growthHacks.count",
+    "gh:growthHacks.count",
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
@@ -326,7 +326,7 @@ export const setupMessageConsumers = async () => {
   });
 
   consumeRPCQueue(
-    "cards:tickets.updateMany",
+    "tickets:tickets.updateMany",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
@@ -338,7 +338,7 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeRPCQueue(
-    "cards:tasks.updateMany",
+    "tasks:tasks.updateMany",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 

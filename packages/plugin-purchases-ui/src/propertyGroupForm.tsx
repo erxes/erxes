@@ -1,5 +1,5 @@
-import React from 'react';
-import SelectBoards from '@erxes/ui-forms/src/settings/properties/containers/SelectBoardPipeline';
+import React from "react";
+import SelectBoards from "@erxes/ui-forms/src/settings/properties/containers/SelectBoardPipeline";
 class Form extends React.Component<any, any> {
   constructor(props) {
     super(props);
@@ -33,7 +33,7 @@ class Form extends React.Component<any, any> {
       <SelectBoards
         isRequired={false}
         onChangeItems={this.itemsChange}
-        type={this.props.type.replace('cards:', '')}
+        type={this.props.type.replace("purchases:", "")}
         selectedItems={this.state.selectedItems}
       />
     );

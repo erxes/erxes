@@ -293,11 +293,11 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
           <PortablePurchases mainType="customer" mainTypeId={customer._id} />
         )}
 
-        {isEnabled("cards") && (
+        {isEnabled("tickets") && (
           <PortableTickets mainType="customer" mainTypeId={customer._id} />
         )}
 
-        {isEnabled("cards") && (
+        {isEnabled("tasks") && (
           <PortableTasks mainType="customer" mainTypeId={customer._id} />
         )}
       </>

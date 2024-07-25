@@ -401,7 +401,7 @@ export default {
   constants: {
     triggers: [
       {
-        type: "cards:task",
+        type: "tasks:task",
         img: "automation3.svg",
         icon: "file-plus-alt",
         label: "Task",
@@ -409,7 +409,7 @@ export default {
           "Start with a blank workflow that enrolls and is triggered off task"
       },
       {
-        type: "cards:ticket",
+        type: "tickets:ticket",
         img: "automation3.svg",
         icon: "file-plus",
         label: "Ticket",
@@ -417,7 +417,7 @@ export default {
           "Start with a blank workflow that enrolls and is triggered off ticket"
       },
       {
-        type: "cards:ticket",
+        type: "tickets:ticket",
         img: "automation3.svg",
         icon: "file-plus",
         label: "Ticket",
@@ -425,7 +425,7 @@ export default {
           "Start with a blank workflow that enrolls and is triggered off ticket"
       },
       {
-        type: "cards:deal",
+        type: "sales:deal",
         img: "automation3.svg",
         icon: "piggy-bank",
         label: "Sales pipeline",
@@ -433,7 +433,7 @@ export default {
           "Start with a blank workflow that enrolls and is triggered off sales pipeline item"
       },
       {
-        type: "cards:deal.probability",
+        type: "sales:deal.probability",
         img: "automation3.svg",
         icon: "piggy-bank",
         label: "Sales pipelines stage probability based",
@@ -444,14 +444,14 @@ export default {
     ],
     actions: [
       {
-        type: "cards:task.create",
+        type: "tasks:task.create",
         icon: "file-plus-alt",
         label: "Create task",
         description: "Create task",
         isAvailable: true
       },
       {
-        type: "cards:ticket.create",
+        type: "tickets:ticket.create",
         icon: "file-plus",
         label: "Create ticket",
         description: "Create ticket",

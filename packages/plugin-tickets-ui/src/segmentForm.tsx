@@ -111,7 +111,7 @@ class Form extends React.Component<any, any, any> {
         ![
           "sales:deal",
           "tickets:ticket",
-          "cards:task",
+          "tasks:task",
           "purchases:purchase"
         ].includes(propertyType)
       ) {
@@ -123,7 +123,7 @@ class Form extends React.Component<any, any, any> {
         [
           "sales:deal",
           "tickets:ticket",
-          "cards:task",
+          "tasks:task",
           "purchases:purchase"
         ].includes(type)
       ) {
@@ -135,7 +135,7 @@ class Form extends React.Component<any, any, any> {
       [
         "sales:deal",
         "tickets:ticket",
-        "cards:task",
+        "tasks:task",
         "purchases:purchase"
       ].includes(type)
     ) {
@@ -149,7 +149,7 @@ const generateVariable = (type, propertyType) => {
     [
       "sales:deal",
       "tickets:ticket",
-      "cards:task",
+      "tasks:task",
       "purchases:purchase"
     ].includes(type)
   ) {

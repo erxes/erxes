@@ -61,7 +61,7 @@ const RightSidebar = (props: Props) => {
         </>
       )}
 
-      {isEnabled("cards") && (
+      {isEnabled("sales") && (
         <>
           <DealSection mainType="car" mainTypeId={car._id} />
         </>

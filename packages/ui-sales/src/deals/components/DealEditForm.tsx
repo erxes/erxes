@@ -239,10 +239,10 @@ export default class DealEditForm extends React.Component<Props, State> {
     const { item } = this.props;
     return (
       <>
-        {isEnabled("cards") && (
+        {isEnabled("tickets") && (
           <PortableTickets mainType="deal" mainTypeId={item._id} />
         )}
-        {isEnabled("cards") && (
+        {isEnabled("tasks") && (
           <PortableTasks mainType="deal" mainTypeId={item._id} />
         )}
 

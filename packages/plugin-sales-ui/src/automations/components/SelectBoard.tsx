@@ -104,7 +104,7 @@ export default class SelectBoard extends React.Component<Props, State> {
         <Attributes>
           <React.Fragment>
             <BoardSelect
-              type={type.includes("cards:") ? type.slice(6) : type}
+              type={type.includes("sales:") ? type.slice(6) : type}
               stageId={this.state.stageId}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}

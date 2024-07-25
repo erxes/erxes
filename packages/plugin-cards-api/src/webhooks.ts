@@ -6,42 +6,42 @@ export default {
     {
       label: "Task created",
       action: "create",
-      type: "cards:task"
+      type: "tasks:task"
     },
     {
       label: "Task updated",
       action: "update",
-      type: "cards:task"
+      type: "tasks:task"
     },
     {
       label: "Task deleted",
       action: "delete",
-      type: "cards:task"
+      type: "tasks:task"
     },
     {
       label: "Task moved",
       action: "createBoardItemMovementLog",
-      type: "cards:task"
+      type: "tasks:task"
     },
     {
       label: "Ticket created",
       action: "create",
-      type: "cards:ticket"
+      type: "tickets:ticket"
     },
     {
       label: "Ticket updated",
       action: "update",
-      type: "cards:ticket"
+      type: "tickets:ticket"
     },
     {
       label: "Ticket deleted",
       action: "delete",
-      type: "cards:ticket"
+      type: "tickets:ticket"
     },
     {
       label: "Ticket moved",
       action: "createBoardItemMovementLog",
-      type: "cards:ticket"
+      type: "tickets:ticket"
     }
   ],
   getInfo: async ({

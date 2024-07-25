@@ -1,7 +1,7 @@
-import BoardItemCreatedLog from '../containers/BoardItemCreatedLog';
-import CheckListLog from '../containers/CheckListLog';
-import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
-import React from 'react';
+import BoardItemCreatedLog from "../containers/BoardItemCreatedLog";
+import CheckListLog from "../containers/CheckListLog";
+import { IActivityLogItemProps } from "@erxes/ui-log/src/activityLogs/types";
+import React from "react";
 
 class CreatedLog extends React.Component<IActivityLogItemProps> {
   render() {
@@ -9,7 +9,7 @@ class CreatedLog extends React.Component<IActivityLogItemProps> {
     const { contentType } = activity;
 
     switch (contentType) {
-      case 'cards:checklist':
+      case "sales:checklist":
         return <CheckListLog activity={activity} />;
       default:
         return <BoardItemCreatedLog activity={activity} />;

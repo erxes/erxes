@@ -1,8 +1,8 @@
-import { Document, Model, Schema } from 'mongoose';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-import { IModels } from '../connectionResolver';
-import { compareObjects } from '../utils';
-import { field } from './utils';
+import { Document, Model, Schema } from "mongoose";
+import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
+import { IModels } from "../connectionResolver";
+import { compareObjects } from "../utils";
+import { field } from "./utils";
 
 export interface ILogDoc {
   createdAt: Date;
@@ -32,54 +32,54 @@ export interface ILogModel extends Model<ILogDocument> {
 export const schema = new Schema({
   createdAt: field({
     type: Date,
-    label: 'Created date',
+    label: "Created date",
     index: true,
-    default: new Date(),
+    default: new Date()
   }),
-  createdBy: field({ type: String, label: 'Performer of the action' }),
+  createdBy: field({ type: String, label: "Performer of the action" }),
   type: field({
     type: String,
-    label: 'Service & module name which has been changed, i.e cards:deal',
+    label: "Service & module name which has been changed, i.e sales:deal"
   }),
   action: field({
     type: String,
-    label: 'Action, one of (create|update|delete)',
+    label: "Action, one of (create|update|delete)"
   }),
-  ipAddress: field({ type: String, optional: true, label: 'IP address' }),
-  objectId: field({ type: String, index: true, label: 'Collection row id' }),
-  unicode: field({ type: String, label: 'Performer username' }),
+  ipAddress: field({ type: String, optional: true, label: "IP address" }),
+  objectId: field({ type: String, index: true, label: "Collection row id" }),
+  unicode: field({ type: String, label: "Performer username" }),
   description: field({
     type: String,
-    label: 'Description',
+    label: "Description",
     index: true,
     optional: true,
-    default: '',
+    default: ""
   }),
   // restore db from these if disaster happens
   oldData: field({
     type: String,
-    label: 'Data before changes',
-    optional: true,
+    label: "Data before changes",
+    optional: true
   }),
-  newData: field({ type: String, label: 'Data to be changed', optional: true }),
+  newData: field({ type: String, label: "Data to be changed", optional: true }),
   // processed data to show in front side
   addedData: field({
     type: String,
-    label: 'Newly added fields',
-    optional: true,
+    label: "Newly added fields",
+    optional: true
   }),
   unchangedData: field({
     type: String,
-    label: 'Unchanged fields',
-    optional: true,
+    label: "Unchanged fields",
+    optional: true
   }),
-  changedData: field({ type: String, label: 'Changed fields', optional: true }),
-  removedData: field({ type: String, label: 'Removed fields', optional: true }),
+  changedData: field({ type: String, label: "Changed fields", optional: true }),
+  removedData: field({ type: String, label: "Removed fields", optional: true }),
   extraDesc: field({
     type: String,
-    label: 'Extra description',
-    optional: true,
-  }),
+    label: "Extra description",
+    optional: true
+  })
 });
 
 schema.index({ type: 1, action: 1, createdBy: 1 });
@@ -87,7 +87,7 @@ schema.index({ type: 1, action: 1, createdBy: 1 });
 export const loadLogClass = (models: IModels) => {
   class Log {
     public static createLog(doc: ILogDoc) {
-      const { object = '{}', newData } = doc;
+      const { object = "{}", newData } = doc;
       const logDoc = { ...doc };
 
       let oldData;
@@ -101,7 +101,7 @@ export const loadLogClass = (models: IModels) => {
         }
       } catch (e) {
         debugError(`JSON parsing error: ${e.message}`);
-        oldData = JSON.parse(object.replace('\n', ''));
+        oldData = JSON.parse(object.replace("\n", ""));
       }
 
       if (oldData._id) {
@@ -111,10 +111,10 @@ export const loadLogClass = (models: IModels) => {
       let checkUpdate = true;
 
       switch (doc.action) {
-        case 'create':
+        case "create":
           logDoc.addedData = JSON.stringify(parsedNewData);
           break;
-        case 'update':
+        case "update":
           if (oldData && newData) {
             try {
               const comparison = compareObjects(oldData, parsedNewData);
@@ -130,9 +130,9 @@ export const loadLogClass = (models: IModels) => {
               logDoc.removedData = JSON.stringify(comparison.removed);
 
               if (
-                logDoc.addedData === '{}' &&
-                logDoc.changedData === '{}' &&
-                logDoc.removedData === '{}'
+                logDoc.addedData === "{}" &&
+                logDoc.changedData === "{}" &&
+                logDoc.removedData === "{}"
               ) {
                 checkUpdate = false;
               }
@@ -142,7 +142,7 @@ export const loadLogClass = (models: IModels) => {
           }
 
           break;
-        case 'delete':
+        case "delete":
           logDoc.oldData = JSON.stringify(oldData);
           logDoc.removedData = JSON.stringify(oldData);
           break;

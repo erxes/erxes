@@ -1,19 +1,19 @@
 import {
   IConversation,
   IMail,
-  IMessage,
+  IMessage
 } from "@erxes/ui-inbox/src/inbox/types";
 
 import Button from "@erxes/ui/src/components/Button";
-import DealConvertTrigger from "@erxes/ui-cards/src/deals/components/DealConvertTrigger";
+import DealConvertTrigger from "@erxes/ui-sales/src/deals/components/DealConvertTrigger";
 import Dropdown from "react-bootstrap/Dropdown";
 import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 import Icon from "@erxes/ui/src/components/Icon";
-import PurchaseConvertTrigger from "@erxes/ui-cards/src/purchases/components/PurchaseConvertTrigger";
+import PurchaseConvertTrigger from "@erxes/ui-purchases/src/purchases/components/PurchaseConvertTrigger";
 import React from "react";
-import TaskConvertTrigger from "@erxes/ui-cards/src/tasks/components/TaskConvertTrigger";
-import TicketConvertTrigger from "@erxes/ui-cards/src/tickets/components/TicketConvertTrigger";
-import { __ } from "@erxes/ui/src/utils/core";
+import TaskConvertTrigger from "@erxes/ui-tasks/src/tasks/components/TaskConvertTrigger";
+import TicketConvertTrigger from "@erxes/ui-tickets/src/tickets/components/TicketConvertTrigger";
+import { __, isEnabled } from "@erxes/ui/src/utils/core";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -54,7 +54,7 @@ export default function ConvertTo(props: Props) {
     relType: "customer",
     sourceConversationId,
     subject: mailData.subject ? mailData.subject : "",
-    refetch,
+    refetch
   };
 
   return (
@@ -66,28 +66,42 @@ export default function ConvertTo(props: Props) {
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          <li key="ticket">
-            <TicketConvertTrigger
-              {...triggerProps}
-              url={convertToInfo.ticketUrl}
-            />
-          </li>
-          <li key="deal">
-            <DealConvertTrigger
-              {...triggerProps}
-              bookingProductId={conversation.bookingProductId}
-              url={convertToInfo.dealUrl}
-            />
-          </li>
-          <li key="task">
-            <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
-          </li>
-          <li key="purchase">
-            <PurchaseConvertTrigger
-              {...triggerProps}
-              url={convertToInfo.purchaseUrl}
-            />
-          </li>
+          {isEnabled("tickets") && (
+            <li key="ticket">
+              <TicketConvertTrigger
+                {...triggerProps}
+                url={convertToInfo.ticketUrl}
+              />
+            </li>
+          )}
+
+          {isEnabled("sales") && (
+            <li key="deal">
+              <DealConvertTrigger
+                {...triggerProps}
+                bookingProductId={conversation.bookingProductId}
+                url={convertToInfo.dealUrl}
+              />
+            </li>
+          )}
+
+          {isEnabled("tasks") && (
+            <li key="task">
+              <TaskConvertTrigger
+                {...triggerProps}
+                url={convertToInfo.taskUrl}
+              />
+            </li>
+          )}
+
+          {isEnabled("purchases") && (
+            <li key="purchase">
+              <PurchaseConvertTrigger
+                {...triggerProps}
+                url={convertToInfo.purchaseUrl}
+              />
+            </li>
+          )}
         </Dropdown.Menu>
       </Dropdown>
     </Container>

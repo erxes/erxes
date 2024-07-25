@@ -231,7 +231,7 @@ export const collectItems = async (
     defaultValue: []
   });
 
-  if (contentType !== "cards:task") {
+  if (contentType !== "tasks:task") {
     tasks = await models.Tasks.aggregate([
       {
         $match: {
@@ -242,7 +242,7 @@ export const collectItems = async (
         }
       },
       {
-        $addFields: { contentType: "cards:taskDetail" }
+        $addFields: { contentType: "tasks:taskDetail" }
       },
       {
         $project: {
@@ -268,7 +268,7 @@ export const collectItems = async (
   return tasks;
 };
 
-// contentType should come with "cards:task|ticket|growthHack" format
+// contentType should come with "tasks:task|ticket|growthHack" format
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }

@@ -4,12 +4,12 @@ import {
   GOAL_STRUCTURE,
   GOAL_TYPE,
   METRIC,
-  SPECIFIC_PERIOD_GOAL,
+  SPECIFIC_PERIOD_GOAL
 } from "../../constants";
 import {
   DateContainer,
   FormColumn,
-  FormWrapper,
+  FormWrapper
 } from "@erxes/ui/src/styles/main";
 import { FormContent, FormFooter } from "../../styles";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
@@ -95,10 +95,10 @@ const Form = (props: Props) => {
     }>
   >(goal.specificPeriodGoals || []);
 
-  const generateOptions = (options) => {
-    return (options || []).map((option) => ({
+  const generateOptions = options => {
+    return (options || []).map(option => ({
       label: option.name,
-      value: option.value,
+      value: option.value
     }));
   };
 
@@ -129,14 +129,14 @@ const Form = (props: Props) => {
       periodGoal,
       startDate,
       endDate,
-      target,
+      target
     };
   };
 
   const onChangeTarget = (date, event) => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
-    const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal) =>
+    const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal =>
       goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal
     );
 
@@ -145,21 +145,21 @@ const Form = (props: Props) => {
         ? mapMonths(startDate, endDate)
         : mapWeeks(startDate, endDate);
 
-    periods.forEach((period) => {
+    periods.forEach(period => {
       const exists = updatedSpecificPeriodGoals.some(
-        (goal) => goal.addMonthly === period
+        goal => goal.addMonthly === period
       );
       if (!exists) {
         updatedSpecificPeriodGoals.push({
           _id: Math.random().toString(),
           addMonthly: period,
-          addTarget: NaN,
+          addTarget: NaN
         });
       }
     });
 
     const filteredGoals = updatedSpecificPeriodGoals.filter(
-      (goal) =>
+      goal =>
         (periodGoal === "Monthly" && goal.addMonthly.includes("Month")) ||
         (periodGoal === "Weekly" && goal.addMonthly.includes("Week"))
     );
@@ -180,8 +180,8 @@ const Form = (props: Props) => {
             <ControlLabel>{__("Choose Entity")}</ControlLabel>
             <Select
               placeholder={__("Choose a entity")}
-              value={generateOptions(ENTITY).find((o) => o.value === entity)}
-              onChange={(selectedOption) => setEntity(selectedOption.value)}
+              value={generateOptions(ENTITY).find(o => o.value === entity)}
+              onChange={selectedOption => setEntity(selectedOption.value)}
               options={generateOptions(ENTITY)}
               isClearable={false}
             />
@@ -193,7 +193,7 @@ const Form = (props: Props) => {
               componentclass="checkbox"
               name="stageRadio"
               checked={stageRadio}
-              onChange={(e) =>
+              onChange={e =>
                 setStageRadio((e.target as HTMLInputElement).checked)
               }
               inline={true}
@@ -205,7 +205,7 @@ const Form = (props: Props) => {
               componentclass="checkbox"
               name="segmentRadio"
               checked={segmentRadio}
-              onChange={(e) =>
+              onChange={e =>
                 setSegmentRadio((e.target as HTMLInputElement).checked)
               }
               inline={true}
@@ -222,7 +222,7 @@ const Form = (props: Props) => {
                 contentTypes={[`cards:${entity}`]}
                 initialValue={segmentIds}
                 multi={true}
-                onSelect={(segmentIds) => setSegmentIds(segmentIds)}
+                onSelect={segmentIds => setSegmentIds(segmentIds)}
               />
             </FormGroup>
           )}
@@ -234,9 +234,9 @@ const Form = (props: Props) => {
                 stageId={stageId}
                 pipelineId={pipelineId}
                 boardId={boardId}
-                onChangeStage={(id) => setstageId(id)}
-                onChangePipeline={(id) => setpipelineId(id)}
-                onChangeBoard={(id) => setboardId(id)}
+                onChangeStage={id => setstageId(id)}
+                onChangePipeline={id => setpipelineId(id)}
+                onChangeBoard={id => setboardId(id)}
               />
             </FormGroup>
           )}
@@ -250,7 +250,7 @@ const Form = (props: Props) => {
                   required={false}
                   name="startDate"
                   value={startDate}
-                  onChange={(date) => setStartDate(date as any)}
+                  onChange={date => setStartDate(date as any)}
                 />
               </DateContainer>
               <EndDateContainer>
@@ -260,7 +260,7 @@ const Form = (props: Props) => {
                     required={false}
                     name="endDate"
                     value={endDate}
-                    onChange={(date) => setEndDate(date as any)}
+                    onChange={date => setEndDate(date as any)}
                   />
                 </DateContainer>
               </EndDateContainer>
@@ -273,9 +273,9 @@ const Form = (props: Props) => {
             <Select
               placeholder={__("Choose goal type")}
               value={generateOptions(GOAL_TYPE).find(
-                (o) => o.value === goalTypeChoose
+                o => o.value === goalTypeChoose
               )}
-              onChange={(selectedOption) =>
+              onChange={selectedOption =>
                 setGoalTypeChoose(selectedOption.value)
               }
               options={generateOptions(GOAL_TYPE)}
@@ -289,9 +289,9 @@ const Form = (props: Props) => {
             <Select
               placeholder={__("Choose a contribution type")}
               value={generateOptions(CONTRIBUTION).find(
-                (o) => o.value === contributionType
+                o => o.value === contributionType
               )}
-              onChange={(selectedOption) =>
+              onChange={selectedOption =>
                 setContributionType(selectedOption.value)
               }
               options={generateOptions(CONTRIBUTION)}
@@ -307,7 +307,7 @@ const Form = (props: Props) => {
                 name="userId"
                 customOption={{ label: "Choose user", value: "" }}
                 initialValue={contribution || ""}
-                onSelect={(userId) => setContribution(userId)}
+                onSelect={userId => setContribution(userId)}
                 multi={false}
               />
             </FormGroup>
@@ -319,9 +319,9 @@ const Form = (props: Props) => {
               <Select
                 placeholder={__("Choose Structure")}
                 value={generateOptions(GOAL_STRUCTURE).find(
-                  (o) => o.value === teamGoalType
+                  o => o.value === teamGoalType
                 )}
-                onChange={(selectedOption) =>
+                onChange={selectedOption =>
                   setTeamGoalType(selectedOption.value)
                 }
                 options={generateOptions(GOAL_STRUCTURE)}
@@ -337,7 +337,7 @@ const Form = (props: Props) => {
                 name="branchId"
                 label={__("Choose Departments")}
                 initialValue={department}
-                onSelect={(selectedOption) => setDepartment(selectedOption)}
+                onSelect={selectedOption => setDepartment(selectedOption)}
                 multi={false}
               />
             </FormGroup>
@@ -350,7 +350,7 @@ const Form = (props: Props) => {
                 name="branchId"
                 label={__("Choose Units")}
                 initialValue={unit}
-                onSelect={(selectedOption) => setUnit(selectedOption)}
+                onSelect={selectedOption => setUnit(selectedOption)}
                 multi={false}
               />
             </FormGroup>
@@ -363,7 +363,7 @@ const Form = (props: Props) => {
                 name="branchId"
                 label={__("Choose Branches")}
                 initialValue={branch}
-                onSelect={(selectedOption) => setBranch(selectedOption)}
+                onSelect={selectedOption => setBranch(selectedOption)}
                 multi={false}
               />
             </FormGroup>
@@ -374,8 +374,8 @@ const Form = (props: Props) => {
 
             <Select
               placeholder={__("choose metric")}
-              value={generateOptions(METRIC).find((o) => o.value === metric)}
-              onChange={(selectedOption) => setMetric(selectedOption.value)}
+              value={generateOptions(METRIC).find(o => o.value === metric)}
+              onChange={selectedOption => setMetric(selectedOption.value)}
               options={generateOptions(METRIC)}
               isClearable={false}
             />
@@ -388,7 +388,7 @@ const Form = (props: Props) => {
                 type="number"
                 name="target"
                 value={target}
-                onChange={(e) => setTarget(parseInt((e.target as any).value))}
+                onChange={e => setTarget(parseInt((e.target as any).value))}
               />
             </FormGroup>
           </FormGroup>
@@ -399,9 +399,9 @@ const Form = (props: Props) => {
             <Select
               placeholder={__("choose specific period goals")}
               value={generateOptions(SPECIFIC_PERIOD_GOAL).find(
-                (o) => o.value === periodGoal
+                o => o.value === periodGoal
               )}
-              onChange={(selectedOption) => setPeriodGoal(selectedOption.value)}
+              onChange={selectedOption => setPeriodGoal(selectedOption.value)}
               options={generateOptions(SPECIFIC_PERIOD_GOAL)}
               isClearable={false}
             />
@@ -409,7 +409,7 @@ const Form = (props: Props) => {
 
           {periodGoal === "Monthly" && (
             <div>
-              {months.map((month) => (
+              {months.map(month => (
                 <FormWrapper key={month}>
                   <FormColumn>
                     <ControlLabel>{__("Period (Monthly)")}</ControlLabel>
@@ -425,10 +425,10 @@ const Form = (props: Props) => {
                         name="target"
                         value={
                           specificPeriodGoals.find(
-                            (goal) => goal.addMonthly === month
+                            goal => goal.addMonthly === month
                           )?.addTarget || 0
                         }
-                        onChange={(event) => onChangeTarget(month, event)}
+                        onChange={event => onChangeTarget(month, event)}
                       />
                     </FormGroup>
                   </FormColumn>
@@ -438,7 +438,7 @@ const Form = (props: Props) => {
           )}
           {periodGoal === "Weekly" && (
             <div>
-              {weeks.map((week) => (
+              {weeks.map(week => (
                 <FormWrapper key={week}>
                   <FormColumn>
                     <ControlLabel>{__("Period (Weekly)")}</ControlLabel>
@@ -454,10 +454,10 @@ const Form = (props: Props) => {
                         name="target"
                         value={
                           specificPeriodGoals.find(
-                            (goal) => goal.addMonthly === week
+                            goal => goal.addMonthly === week
                           )?.addTarget || 0
                         }
-                        onChange={(event) => onChangeTarget(week, event)}
+                        onChange={event => onChangeTarget(week, event)}
                       />
                     </FormGroup>
                   </FormColumn>
@@ -475,7 +475,7 @@ const Form = (props: Props) => {
             name: "Goal",
             values: generateDoc(values),
             isSubmitted,
-            object: props.goal,
+            object: props.goal
           })}
         </FormFooter>
       </>
@@ -503,7 +503,7 @@ const mapMonths = (startDate: Date, endDate: Date): string[] => {
     "September",
     "October",
     "November",
-    "December",
+    "December"
   ];
   const months: string[] = [];
 

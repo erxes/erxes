@@ -1,18 +1,18 @@
-import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
-import BasicInfo from '../../containers/detail/BasicInfo';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { IField } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import InfoSection from '../common/InfoSection';
-import LeftSidebar from './LeftSidebar';
-import React from 'react';
-import RightSidebar from './RightSidebar';
-import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import PrintAction from '@erxes/ui-contacts/src/customers/components/common/PrintAction';
+import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
+import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
+import BasicInfo from "../../containers/detail/BasicInfo";
+import { ICompany } from "@erxes/ui-contacts/src/companies/types";
+import { IField } from "@erxes/ui/src/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import InfoSection from "../common/InfoSection";
+import LeftSidebar from "./LeftSidebar";
+import React from "react";
+import RightSidebar from "./RightSidebar";
+import { UserHeader } from "@erxes/ui-contacts/src/customers/styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import PrintAction from "@erxes/ui-contacts/src/customers/components/common/PrintAction";
 
 type Props = {
   company: ICompany;
@@ -25,10 +25,10 @@ class CompanyDetails extends React.Component<Props> {
   render() {
     const { company, taggerRefetchQueries } = this.props;
 
-    const title = company.primaryName || 'Unknown';
+    const title = company.primaryName || "Unknown";
 
     const breadcrumb = [
-      { title: __('Companies'), link: '/companies' },
+      { title: __("Companies"), link: "/companies" },
       { title }
     ];
 
@@ -40,12 +40,12 @@ class CompanyDetails extends React.Component<Props> {
           toEmails={company.emails}
           showEmail={false}
         />
-        {isEnabled('logs') && (
+        {isEnabled("logs") && (
           <ActivityLogs
-            target={company.primaryName || ''}
+            target={company.primaryName || ""}
             contentId={company._id}
             contentType="contacts:company"
-            extraTabs={[{ name: 'cards:task', label: 'Task' }]}
+            extraTabs={[{ name: "tasks:task", label: "Task" }]}
           />
         )}
       </>
@@ -57,7 +57,7 @@ class CompanyDetails extends React.Component<Props> {
         mainHead={
           <UserHeader>
             <InfoSection company={company}>
-              {isEnabled('documents') && (
+              {isEnabled("documents") && (
                 <PrintAction coc={company} contentType="contacts:company" />
               )}
               <BasicInfo company={company} />

@@ -110,8 +110,8 @@ class Form extends React.Component<any, any, any> {
         propertyType &&
         ![
           "sales:deal",
-          "cards:ticket",
-          "cards:task",
+          "tickets:ticket",
+          "tasks:task",
           "purchases:purchase"
         ].includes(propertyType)
       ) {
@@ -122,8 +122,8 @@ class Form extends React.Component<any, any, any> {
         !hideDetailForm &&
         [
           "sales:deal",
-          "cards:ticket",
-          "cards:task",
+          "tickets:ticket",
+          "tasks:task",
           "purchases:purchase"
         ].includes(type)
       ) {
@@ -134,8 +134,8 @@ class Form extends React.Component<any, any, any> {
     } else if (
       [
         "sales:deal",
-        "cards:ticket",
-        "cards:task",
+        "tickets:ticket",
+        "tasks:task",
         "purchases:purchase"
       ].includes(type)
     ) {
@@ -146,9 +146,12 @@ class Form extends React.Component<any, any, any> {
 
 const generateVariable = (type, propertyType) => {
   if (
-    ["sales:deal", "cards:ticket", "cards:task", "purchases:purchase"].includes(
-      type
-    )
+    [
+      "sales:deal",
+      "tickets:ticket",
+      "tasks:task",
+      "purchases:purchase"
+    ].includes(type)
   ) {
     return { type: type.split(":")[1] };
   }

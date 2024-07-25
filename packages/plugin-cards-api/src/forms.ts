@@ -16,12 +16,12 @@ const relations = type => {
     {
       name: "ticketIds",
       label: "Tickets",
-      relationType: "cards:ticket"
+      relationType: "tickets:ticket"
     },
     {
       name: "taskIds",
       label: "Tasks",
-      relationType: "cards:task"
+      relationType: "tasks:task"
     }
   ].filter(r => r.relationType !== type);
 };
@@ -31,12 +31,12 @@ export default {
     {
       description: "Tickets",
       type: "ticket",
-      relations: relations("cards:ticket")
+      relations: relations("tickets:ticket")
     },
     {
       description: "Tasks",
       type: "task",
-      relations: relations("cards:task")
+      relations: relations("tasks:task")
     }
   ],
   fields: generateFields,

@@ -35,7 +35,7 @@ const Item = ({ invoice }) => {
     return null;
   }
 
-  if (!["cards:task", "cards:ticket"].includes(invoice.contentType)) {
+  if (!["tasks:task", "tickets:ticket"].includes(invoice.contentType)) {
     return null;
   }
 
@@ -44,10 +44,10 @@ const Item = ({ invoice }) => {
   let link = "";
 
   switch (invoice.contentType) {
-    case "cards:task":
+    case "tasks:task":
       qry = taskQuery;
       break;
-    case "cards:ticket":
+    case "tickets:ticket":
       qry = ticketQuery;
       break;
     default:
