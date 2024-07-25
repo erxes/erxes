@@ -1,21 +1,21 @@
 var { withFilter } = require("graphql-subscriptions");
 
 module.exports = {
-  name: "tickets",
+  name: "tasks",
   typeDefs: `
-      ticketsPipelinesChanged(_id: String!): TicketsPipelineChangeResponse
+      tasksPipelinesChanged(_id: String!): TicketsPipelineChangeResponse
 
-      ticketsChecklistsChanged(contentType: String!, contentTypeId: String!): TicketsChecklist
-      ticketsChecklistDetailChanged(_id: String!): TicketsChecklist
-      ticketsProductsDataChanged(_id: String!): TicketsProductsDataChangeResponse
+      tasksChecklistsChanged(contentType: String!, contentTypeId: String!): TicketsChecklist
+      tasksChecklistDetailChanged(_id: String!): TicketsChecklist
+      tasksProductsDataChanged(_id: String!): TicketsProductsDataChangeResponse
 		`,
   generateResolvers: graphqlPubsub => {
     return {
-      ticketsPipelinesChanged: {
+      tasksPipelinesChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`ticketsPipelinesChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`tasksPipelinesChanged:${_id}`)
       },
-      ticketsChecklistsChanged: {
+      tasksChecklistsChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
@@ -23,7 +23,7 @@ module.exports = {
             queryVariables: { _id: payload.checklistsChanged._id },
             buildQueryUsingSelections: selections => `
               query Subscription_TicketsGetChecklist($_id: String!) {
-                ticketsChecklistDetail(_id: $_id) {
+                tasksChecklistDetail(_id: $_id) {
                   ${selections}
                 }
               }
@@ -32,11 +32,11 @@ module.exports = {
         },
         subscribe: (_, { contentType, contentTypeId }) =>
           graphqlPubsub.asyncIterator(
-            `ticketsChecklistsChanged:${contentType}:${contentTypeId}`
+            `tasksChecklistsChanged:${contentType}:${contentTypeId}`
           )
       },
 
-      ticketsChecklistDetailChanged: {
+      tasksChecklistDetailChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {
           return gatewayDataSource.queryAndMergeMissingData({
             payload,
@@ -44,7 +44,7 @@ module.exports = {
             queryVariables: { _id: payload.checklistDetailChanged._id },
             buildQueryUsingSelections: selections => `
               query Subscription_TicketsGetChecklist($_id: String!) {
-                ticketsChecklistDetail(_id: $_id) {
+                tasksChecklistDetail(_id: $_id) {
                   ${selections}
                 }
               }
@@ -52,12 +52,12 @@ module.exports = {
           });
         },
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`ticketsChecklistDetailChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`tasksChecklistDetailChanged:${_id}`)
       },
 
-      ticketsProductsDataChanged: {
+      tasksProductsDataChanged: {
         subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`ticketsProductsDataChanged:${_id}`)
+          graphqlPubsub.asyncIterator(`tasksProductsDataChanged:${_id}`)
       }
     };
   }

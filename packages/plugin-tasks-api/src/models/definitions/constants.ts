@@ -98,12 +98,13 @@ export const NOTIFICATION_TYPES = {
 };
 
 export const ACTIVITY_CONTENT_TYPES = {
-  DEAL: "deal",
-  TICKET: "task",
+  TICKET: "ticket",
+  TASK: "task",
   PRODUCT: "product",
+  GROWTH_HACK: "growthHack",
   CHECKLIST: "checklist",
 
-  ALL: ["deal", "task", "product", "checklist"]
+  ALL: ["ticket", "task", "product", "growthHack", "checklist"]
 };
 
 export const EXPENSE_DIVIDE_TYPES = {

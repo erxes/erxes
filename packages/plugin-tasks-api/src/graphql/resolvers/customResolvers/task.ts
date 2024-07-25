@@ -1,6 +1,5 @@
 import { IContext } from "../../../connectionResolver";
 import {
-  sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendNotificationsMessage
@@ -31,7 +30,7 @@ export default {
       defaultValue: []
     });
 
-    const companies = await sendContactsMessage({
+    const activeCompanies = await sendContactsMessage({
       subdomain,
       action: "companies.findActiveCompanies",
       data: { selector: { _id: { $in: companyIds } } },
@@ -40,10 +39,21 @@ export default {
     });
 
     if (isSubscription) {
-      return companies;
+      return activeCompanies;
     }
 
-    return (companies || []).map(({ _id }) => ({ __typename: "Company", _id }));
+    return (activeCompanies || []).map(({ _id }) => ({
+      __typename: "Company",
+      _id
+    }));
+  },
+
+  createdUser(task: ITaskDocument) {
+    if (!task.userId) {
+      return;
+    }
+
+    return { __typename: "User", _id: task.userId };
   },
 
   async customers(
@@ -154,40 +164,15 @@ export default {
     });
   },
 
+  async tags(task: ITaskDocument) {
+    return (task.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+  },
+
   async labels(
     task: ITaskDocument,
     _args,
     { models: { PipelineLabels } }: IContext
   ) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
-  },
-
-  async tags(task: ITaskDocument) {
-    return (task.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
-  },
-
-  createdUser(task: ITaskDocument) {
-    if (!task.userId) {
-      return;
-    }
-
-    return { __typename: "User", _id: task.userId };
-  },
-  async vendorCustomers(
-    task: ITaskDocument,
-    _args,
-    { subdomain }: IContext,
-    { isSubscription }
-  ) {
-    return sendCommonMessage({
-      subdomain,
-      serviceName: "clientportal",
-      action: "clientPortalUserCards.users",
-      data: {
-        contentType: "task",
-        contentTypeId: task.id
-      },
-      isRPC: true
-    });
   }
 };
