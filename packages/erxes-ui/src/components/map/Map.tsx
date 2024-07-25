@@ -4,7 +4,6 @@ import { ILocationOption } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
-import { ITrackingData } from '../../../../plugin-tumentech-ui/src/types';
 
 export interface IMapProps extends google.maps.MapOptions {
   id: string;
@@ -16,7 +15,7 @@ export interface IMapProps extends google.maps.MapOptions {
   googleMapPath?: string | string[];
   mode?: 'view' | 'config';
   fullHeight?: boolean;
-  trackingData?: ITrackingData[];
+  trackingData?: any[];
   startPoints?: ILocationOption[];
   endPoints?: ILocationOption[];
   onChangeMarker?: (location: ILocationOption) => void;

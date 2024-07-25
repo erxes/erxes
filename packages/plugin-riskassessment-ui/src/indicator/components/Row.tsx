@@ -73,12 +73,18 @@ const TableRow = (props: IProps) => {
           </FormContainer>
         </td>
       )}
-      <Tip text={generateDate(createdAt, true)} placement="bottom">
-        <td>{generateDate(createdAt)}</td>
-      </Tip>
-      <Tip text={generateDate(modifiedAt, true)} placement="bottom">
-        <td>{generateDate(modifiedAt)}</td>
-      </Tip>
+
+      <td>
+        <Tip text={generateDate(createdAt, true)} placement="bottom">
+          {generateDate(createdAt)}{" "}
+        </Tip>
+      </td>
+
+      <td>
+        <Tip text={generateDate(modifiedAt, true)} placement="bottom">
+          {generateDate(modifiedAt)}
+        </Tip>
+      </td>
       <td onClick={onclick}>{renderActions()}</td>
     </tr>
   );

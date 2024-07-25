@@ -3,13 +3,13 @@ import { debugError } from './debuggers';
 import {
   getFileUploadConfigs,
   sendAutomationsMessage,
-  sendInboxMessage,
+  sendInboxMessage
 } from './messageBroker';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
   getPostLink,
-  uploadMedia,
+  uploadMedia
 } from './utils';
 import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
@@ -34,7 +34,7 @@ export const generatePostDoc = async (
   postParams: IPostParams,
   pageId: string,
   userId: string,
-  subdomain: string,
+  subdomain: string
 ) => {
   const {
     post_id,
@@ -44,7 +44,7 @@ export const generatePostDoc = async (
     created_time,
     message,
     photo_id,
-    video_id,
+    video_id
   } = postParams;
   let generatedMediaUrls: any[] = [];
 
@@ -59,7 +59,7 @@ export const generatePostDoc = async (
         generatedMediaUrls = (await uploadMedia(
           subdomain,
           mediaLink,
-          true,
+          true
         )) as any;
       }
 
@@ -67,14 +67,14 @@ export const generatePostDoc = async (
         generatedMediaUrls = (await uploadMedia(
           subdomain,
           mediaLink,
-          false,
+          false
         )) as any;
       }
     }
 
     if (mediaUrls.length > 0) {
       generatedMediaUrls = await Promise.all(
-        mediaUrls.map((url) => uploadMedia(subdomain, url, false)),
+        mediaUrls.map((url) => uploadMedia(subdomain, url, false))
       );
     }
   }
@@ -84,7 +84,7 @@ export const generatePostDoc = async (
     content: message || '...',
     recipientId: pageId,
     senderId: userId,
-    permalink_url: '',
+    permalink_url: ''
   };
 
   if (link) {
@@ -112,7 +112,7 @@ const generateCommentDoc = (
   commentParams: ICommentParams,
   pageId: string,
   userId: string,
-  customerId?: string,
+  customerId?: string
 ) => {
   const {
     photo,
@@ -123,7 +123,7 @@ const generateCommentDoc = (
     created_time,
     message,
     restoredCommentCreatedAt,
-    post,
+    post
   } = commentParams;
 
   const doc: IDoc = {
@@ -133,7 +133,7 @@ const generateCommentDoc = (
     senderId: userId,
     content: message || '...',
     permalink_url: '',
-    customerId,
+    customerId
   };
 
   if (post_id !== parent_id) {
@@ -170,17 +170,17 @@ export const getOrCreatePostConversation = async (
   postId: string,
   integration: IIntegrationDocument,
   customer: ICustomerDocument,
-  params: ICommentParams,
+  params: ICommentParams
 ) => {
   let postConversation = await models.PostConversations.findOne({
-    postId,
+    postId
   });
   if (!postConversation) {
     const integration = await models.Integrations.findOne({
       $and: [
         { facebookPageIds: { $in: pageId } },
-        { kind: INTEGRATION_KINDS.POST },
-      ],
+        { kind: INTEGRATION_KINDS.POST }
+      ]
     });
     if (!integration) {
       throw new Error('Integration not found');
@@ -189,7 +189,7 @@ export const getOrCreatePostConversation = async (
     const getPostDetail = await getPostDetails(
       pageId,
       facebookPageTokensMap,
-      params.post_id || '',
+      params.post_id || ''
     );
 
     const facebookPost = {
@@ -198,7 +198,7 @@ export const getOrCreatePostConversation = async (
       recipientId: pageId,
       senderId: pageId,
       permalink_url: getPostDetail.permalink_url,
-      timestamp: getPostDetail.created_time,
+      timestamp: getPostDetail.created_time
     };
     postConversation = await models.PostConversations.create(facebookPost);
   }
@@ -211,7 +211,7 @@ export const getOrCreatePost = async (
   subdomain: string,
   postParams: IPostParams,
   pageId: string,
-  userId: string,
+  userId: string
 ) => {
   const { post_id } = postParams;
 
@@ -220,7 +220,7 @@ export const getOrCreatePost = async (
   }
 
   let post = await models.PostConversations.findOne({
-    postId: postParams.post_id,
+    postId: postParams.post_id
   });
 
   if (post) {
@@ -230,8 +230,8 @@ export const getOrCreatePost = async (
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: pageId } },
-      { kind: INTEGRATION_KINDS.POST },
-    ],
+      { kind: INTEGRATION_KINDS.POST }
+    ]
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -239,7 +239,7 @@ export const getOrCreatePost = async (
   const postUrl = await getPostLink(
     pageId,
     facebookPageTokensMap,
-    postParams.post_id || '',
+    postParams.post_id || ''
   );
   const doc = await generatePostDoc(postParams, pageId, userId, subdomain);
   if (!doc.attachments && doc.content === '...') {
@@ -261,22 +261,22 @@ export const getOrCreateComment = async (
   userId: string,
   verb: string,
   integration: IIntegrationDocument,
-  customer: ICustomerDocument,
+  customer: ICustomerDocument
 ) => {
   const mainConversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: commentParams.comment_id
   });
   const parentConversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.parent_id,
+    comment_id: commentParams.parent_id
   });
   const replyConversation = await models.CommentConversationReply.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: commentParams.comment_id
   });
   if (mainConversation || replyConversation) {
     return;
   }
   const post = await models.PostConversations.findOne({
-    postId: commentParams.post_id,
+    postId: commentParams.post_id
   });
   let attachment: any[] = [];
   if (commentParams.photo) {
@@ -284,9 +284,9 @@ export const getOrCreateComment = async (
       {
         name: 'Photo', // You can set a name for the attachment
         url: commentParams.photo,
-        type: 'image', // You can set the type based on your requirements
+        type: 'image' // You can set the type based on your requirements
         // You may want to include other properties like size, duration if applicable
-      },
+      }
     ];
   }
   if (!post) {
@@ -301,26 +301,27 @@ export const getOrCreateComment = async (
     comment_id: commentParams.comment_id,
     content: commentParams.message,
     customerId: customer.erxesApiId,
-    parentId: commentParams.parent_id,
+    parentId: commentParams.parent_id
   };
   if (parentConversation) {
     await models.CommentConversationReply.create({
-      ...doc,
+      ...doc
     });
   } else {
     await models.CommentConversation.create({
-      ...doc,
+      ...doc
     });
   }
   let conversation;
   conversation = await models.CommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: commentParams.comment_id
   });
   if (conversation === null) {
     conversation = await models.CommentConversation.findOne({
-      comment_id: commentParams.parent_id,
+      comment_id: commentParams.parent_id
     });
   }
+
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -332,16 +333,16 @@ export const getOrCreateComment = async (
           integrationId: integration.erxesApiId,
           content: commentParams.message,
           attachments: attachment,
-          conversationId: conversation.erxesApiId,
-        }),
+          conversationId: conversation.erxesApiId
+        })
       },
-      isRPC: true,
+      isRPC: true
     });
     conversation.erxesApiId = apiConversationResponse?._id;
     await conversation.save();
   } catch (error) {
     await models.CommentConversation.deleteOne({
-      _id: conversation?._id,
+      _id: conversation?._id
     });
     throw new Error(error.message);
   }
@@ -351,33 +352,48 @@ export const getOrCreateComment = async (
       action: 'conversationClientMessageInserted',
       data: {
         ...conversation?.toObject(),
-        conversationId: conversation.erxesApiId,
-      },
+        conversationId: conversation.erxesApiId
+      }
     });
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
           ...conversation?.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
-      },
+          conversationId: conversation.erxesApiId
+        }
+      }
     );
   } catch {
     throw new Error(
-      `Failed to update the database with the Erxes API response for this conversation.`,
+      `Failed to update the database with the Erxes API response for this conversation.`
     );
   }
 
   if (conversation) {
+    const target = (
+      parentConversation
+        ? await models.CommentConversationReply.findOne({
+            comment_id: commentParams.comment_id,
+            parentId: commentParams.parent_id
+          })
+        : conversation
+    ).toObject();
+
     await sendAutomationsMessage({
       subdomain,
       action: 'trigger',
       data: {
         type: `facebook:comments`,
-        targets: [conversation?.toObject()],
+        targets: [
+          {
+            ...target,
+            postId: conversation.postId,
+            erxesApiId: conversation.erxesApiId
+          }
+        ]
       },
-      defaultValue: null,
+      defaultValue: null
     }).catch((err) => debugError(err.message));
   }
 };
@@ -387,10 +403,10 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   pageId: string,
   userId: string,
-  kind: string,
+  kind: string
 ) => {
   const integration = await models.Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind }],
+    $and: [{ facebookPageIds: { $in: pageId } }, { kind }]
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -412,13 +428,20 @@ export const getOrCreateCustomer = async (
     debugError(`Error during get customer info: ${e.message}`);
   }
 
-  const fbUserProfilePic = await getFacebookUserProfilePic(
+  const fbUserProfilePic: string | null = await getFacebookUserProfilePic(
     pageId,
     facebookPageTokensMap,
     userId,
-    subdomain,
+    subdomain
   );
 
+  let profile: string; // Declare profile as a string
+
+  if (fbUserProfilePic) {
+    profile = fbUserProfilePic; // Assign fbUserProfilePic to profile
+  } else {
+    profile = fbUser.profile_pic; // Assign fbUser.profile_pic to profile
+  }
   // save on integrations db
   try {
     customer = await models.Customers.create({
@@ -426,13 +449,13 @@ export const getOrCreateCustomer = async (
       firstName: fbUser.first_name || fbUser.name,
       lastName: fbUser.last_name,
       integrationId: integration.erxesApiId,
-      profilePic: fbUserProfilePic,
+      profilePic: profile
     });
   } catch (e) {
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: customer duplication'
-        : e,
+        : e
     );
   }
 
@@ -447,11 +470,11 @@ export const getOrCreateCustomer = async (
           integrationId: integration.erxesApiId,
           firstName: fbUser.first_name || fbUser.name,
           lastName: fbUser.last_name,
-          avatar: fbUserProfilePic,
-          isUser: true,
-        }),
+          avatar: profile,
+          isUser: true
+        })
       },
-      isRPC: true,
+      isRPC: true
     });
 
     customer.erxesApiId = apiCustomerResponse._id;

@@ -1,12 +1,12 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { Contents } from '@erxes/ui/src/layout/styles';
-import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
-import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { Contents } from "@erxes/ui/src/layout/styles";
+import { DateWrapper } from "@erxes/ui-forms/src/forms/styles";
+import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
+import { RightMenuContainer } from "@erxes/ui-saas/src/boards/styles/rightMenu";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -466,7 +466,7 @@ export const EmptyContent = styled.div`
 export const EnrollmentWrapper = styledTS<{ noMargin?: boolean }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
-  margin: ${props => (props.noMargin ? '0 0 10px' : '10px 0 0')};
+  margin: ${props => (props.noMargin ? "0 0 10px" : "10px 0 0")};
   border-radius: 5px;
 
   > div {
@@ -633,7 +633,7 @@ export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
   text-align: center;
   background: ${props =>
     props.disabled ? colors.bgActive : colors.colorWhite};
-  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
   margin: 0;
   transition: all ease .3s;
 

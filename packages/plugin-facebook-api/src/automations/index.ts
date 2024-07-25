@@ -4,7 +4,7 @@ import { actionCreateComment, checkCommentTrigger } from './comments';
 import { actionCreateMessage, checkMessageTrigger } from './messages';
 import {
   replacePlaceHolders,
-  setProperty
+  setProperty,
 } from '@erxes/api-utils/src/automations';
 import { sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core';
 
@@ -12,7 +12,7 @@ const getItems = (
   subdomain: string,
   module: string,
   execution: any,
-  triggerType: string
+  triggerType: string,
 ) => {
   const { target } = execution;
   if (module === triggerType) {
@@ -33,8 +33,15 @@ export default {
         label: 'Send Facebook Message',
         description: 'Send Facebook Message',
         isAvailable: true,
-        isAvailableOptionalConnect: true
-      }
+        isAvailableOptionalConnect: true,
+      },
+      {
+        type: 'facebook:comments.create',
+        icon: 'comments-alt',
+        label: 'Send Facebook Comment',
+        description: 'Send Facebook Comments',
+        isAvailable: true,
+      },
     ],
     triggers: [
       {
@@ -50,21 +57,21 @@ export default {
             type: 'getStarted',
             label: 'Get Started',
             icon: 'messenger',
-            description: 'User click on get started on the messenger'
+            description: 'User click on get started on the messenger',
           },
           {
             type: 'persistentMenu',
             label: 'Persistent menu',
             icon: 'menu-2',
-            description: 'User click on persistent menu on the messenger'
+            description: 'User click on persistent menu on the messenger',
           },
           {
             type: 'direct',
             icon: 'messenger',
             label: 'Direct Message',
-            description: 'User sends direct message with keyword'
-          }
-        ]
+            description: 'User sends direct message with keyword',
+          },
+        ],
       },
       {
         type: 'facebook:comments',
@@ -73,13 +80,13 @@ export default {
         label: 'Facebook Comments',
         description:
           'Start with a blank workflow that enrolls and is triggered off facebook comments',
-        isCustom: true
-      }
-    ]
+        isCustom: true,
+      },
+    ],
   },
   receiveActions: async ({
     subdomain,
-    data: { action, execution, actionType, collectionType, triggerType }
+    data: { action, execution, actionType, collectionType, triggerType },
   }) => {
     const models = await generateModels(subdomain);
 
@@ -90,14 +97,14 @@ export default {
             models,
             subdomain,
             action,
-            execution
+            execution,
           );
         case 'comments':
           return await actionCreateComment(
             models,
             subdomain,
             action,
-            execution
+            execution,
           );
 
         default:
@@ -111,7 +118,7 @@ export default {
         subdomain,
         module,
         execution,
-        triggerType
+        triggerType,
       );
 
       return setProperty({
@@ -123,7 +130,7 @@ export default {
         execution,
         sendCommonMessage,
         relatedItems,
-        triggerType
+        triggerType,
       });
     }
 
@@ -131,7 +138,7 @@ export default {
   },
   replacePlaceHolders: async ({
     subdomain,
-    data: { target, config, relatedValueProps }
+    data: { target, config, relatedValueProps },
   }) => {
     const models = generateModels(subdomain);
 
@@ -141,7 +148,7 @@ export default {
       getRelatedValue,
       actionData: config,
       target,
-      relatedValueProps
+      relatedValueProps,
     });
 
     return content;
@@ -155,9 +162,9 @@ export default {
       case 'messages':
         return checkMessageTrigger(subdomain, data);
       case 'comments':
-        return checkCommentTrigger(subdomain, data);
+        return await checkCommentTrigger(subdomain, data);
       default:
         return false;
     }
-  }
+  },
 };

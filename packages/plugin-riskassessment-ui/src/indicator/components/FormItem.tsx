@@ -130,9 +130,9 @@ class Item extends React.Component<Props, State> {
       );
     };
     const afterDbSave = (formId: string) => {
-      this.setState((prev) => ({
+      this.setState({
         isReadyToSave: false,
-      }));
+      });
       this.props.handleChange({ ...this.props.doc, formId });
       closeModal();
     };

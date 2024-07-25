@@ -147,7 +147,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  dealsAdd(name: String!, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}): Deal
+  dealsAdd(name: String, ${copyParams}, ${dealMutationParams}, ${commonMutationParams}): Deal
   dealsEdit(_id: String!, name: String, ${dealMutationParams}, ${commonMutationParams}): Deal
   dealsChange(${commonDragParams}): Deal
   dealsRemove(_id: String!): Deal

@@ -239,8 +239,6 @@ const generateScore = async ({
       defaultValue: {}
     });
 
-    console.log({ replacedContent });
-
     scoreString = replacedContent?.scoreString || 0;
   }
 

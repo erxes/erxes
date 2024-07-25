@@ -1,12 +1,12 @@
-import { HeaderButton } from '@erxes/ui-cards/src/boards/styles/header';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
+import { HeaderButton } from "@erxes/ui-sales/src/boards/styles/header";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import { colors } from "@erxes/ui/src/styles";
 
 const rowHeight = 40;
-const borderColor = '#D9E2EC';
-const textColor = '#486581';
+const borderColor = "#D9E2EC";
+const textColor = "#486581";
 
 const CalendarWrapper = styled.div`
   z-index: auto;
@@ -45,9 +45,9 @@ const ColumnHeader = styledTS<{ isCurrent?: boolean; isWeek?: boolean }>(
   font-size: 11px;
   line-height: 20px;
   color: ${props => (props.isCurrent ? colors.colorSecondary : textColor)};
-  font-weight: ${props => (props.isCurrent ? 'bold' : '500')};
+  font-weight: ${props => (props.isCurrent ? "bold" : "500")};
   text-transform: uppercase;
-  transform: ${props => props.isWeek && 'translateY(5px)'};
+  transform: ${props => props.isWeek && "translateY(5px)"};
 
   strong {
     display: block;
@@ -114,7 +114,7 @@ const Day = styledTS<{ isSelectedDate?: boolean; isSameMonth: boolean }>(
   white-space: nowrap;
   width: max-content;
   min-width: 22px;
-  color: ${props => (props.isSameMonth ? textColor : '#9FB3C8')};
+  color: ${props => (props.isSameMonth ? textColor : "#9FB3C8")};
   line-height: 22px;
   border-radius: 8px;
   position: relative;
@@ -287,7 +287,7 @@ const EventTitle = styledTS<{
       position: absolute;
       top: ${(rowHeight + 1) * props.start + 1}px;
       width: 100%;  
-      left: ${props.order > 0 ? `${(100 / props.count) * props.order}%` : '0'};
+      left: ${props.order > 0 ? `${(100 / props.count) * props.order}%` : "0"};
       width: ${100 / props.count}%;
       height: ${rowHeight * props.height + props.height - 1}px;
       min-height: ${rowHeight / 2}px;

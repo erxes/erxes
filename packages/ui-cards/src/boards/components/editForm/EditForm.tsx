@@ -64,15 +64,10 @@ function EditForm(props: Props) {
 
   const onChangeStage = (stageId: string) => {
     setStageId(stageId)
-    const { item, saveItem, onUpdate } = props;
+    const { item } = props;
 
     if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId)
-      saveItem({ stageId }, updatedItem => {
-        if (onUpdate) {
-          onUpdate(updatedItem, prevStageId);
-        }
-      });
+      setPrevStageId(item.stageId) 
     }
   };
 
