@@ -17,8 +17,9 @@ import fetch from 'node-fetch';
 import * as admin from 'firebase-admin';
 import { CLOSE_DATE_TYPES } from './constants';
 import { IUser } from './models/definitions/clientPortalUser';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import { isContext } from 'vm';
+import { sendMessage } from '@erxes/api-utils/src/messageBroker';
 
 export const getConfig = async (
   code: string,
@@ -797,3 +798,23 @@ return loginPassword
               `Your OTP is ${testEmailCode}`;
               return body
  }
+
+export const setFilter = (document,clientPortalId, customer,
+  
+) => {
+
+  let qry: any = {}
+  
+  const trimmedMail = (document.email || '').toLowerCase().trim();
+
+   (document.email)
+    qry = { email: trimmedMail };
+  
+
+  (document.phone) 
+    qry = { phone: document.phone };
+    (customer)
+    qry = { erxesCustomerId: customer._id, clientPortalId };
+  qry.clientPortalId = clientPortalId;
+return qry
+}

@@ -6,6 +6,7 @@ import {
 import { IModels } from '../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { setFilter } from '../utils';
 
 export interface IContactsParams {
   subdomain: string;
@@ -19,20 +20,10 @@ export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
   const { type = 'customer' } = document;
 
-  let qry: any = {};
   let user: any;
 
   const trimmedMail = (document.email || '').toLowerCase().trim();
 
-  if (document.email) {
-    qry = { email: trimmedMail };
-  }
-
-  if (document.phone) {
-    qry = { phone: document.phone };
-  }
-
-  qry.clientPortalId = clientPortalId;
 
   if (type === 'customer') {
     let customer = await sendContactsMessage({
@@ -43,11 +34,11 @@ export const handleContacts = async (args: IContactsParams) => {
         customerPrimaryPhone: document.phone,
       },
       isRPC: true,
-    });
+    }); 
 
-    if (customer) {
-      qry = { erxesCustomerId: customer._id, clientPortalId };
-    }
+  
+
+    const qry = setFilter(document,clientPortalId, customer)
 
     user = await models.ClientPortalUsers.findOne(qry);
 
