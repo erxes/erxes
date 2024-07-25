@@ -1,17 +1,17 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { graphql, ChildProps } from '@apollo/client/react/hoc';
+import { graphql, ChildProps } from "@apollo/client/react/hoc";
 
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import SelectBoards from '../components/SelectBoardPipeline';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { mutations } from '@erxes/ui-cards/src/settings/boards/graphql';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import { BoardsQueryResponse } from "@erxes/ui-cards/src/boards/types";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import SelectBoards from "../components/SelectBoardPipeline";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { mutations } from "@erxes/ui-cards/src/settings/boards/graphql";
+import { queries } from "@erxes/ui-cards/src/boards/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   onChangeItems: (items: any) => any;
@@ -82,7 +82,7 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, BoardsQueryResponse, { type: string }>(gql(queries.boards), {
-      name: 'boardsQuery',
+      name: "boardsQuery",
       options: ({ type }) => ({
         variables: {
           type
