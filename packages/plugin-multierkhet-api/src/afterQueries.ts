@@ -11,7 +11,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
   const models = await generateModels(subdomain);
 
   if (queryName !== 'products') {
-    return results;
+    return args;
   }
 
   const { pipelineId } = args;
