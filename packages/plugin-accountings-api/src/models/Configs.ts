@@ -38,7 +38,7 @@ export const loadAccountingConfigClass = (models) => {
       const configs = await models.AccountingConfigs.find({ code: { $in: codes } });
       const result: any = {};
       for (const code of codes) {
-        result[code] = configs.find(c => c.code === code)
+        result[code] = configs.find(c => c.code === code)?.value;
       }
       return result;
     }

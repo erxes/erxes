@@ -1,6 +1,7 @@
 import { IModels } from "../connectionResolver";
 import { ITransaction, ITransactionDocument } from "../models/definitions/transaction";
 import CurrencyTr from "./currencyTr";
+import TaxTrs from "./taxTrs";
 
 export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: ITransactionDocument) => {
   let mainTr: ITransactionDocument | null = null;
@@ -17,9 +18,13 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
       break;
     }
     case 'cash': {
+      const detail = doc.details[0] || {}
       let currencyTr;
       const currencyTrClass = new CurrencyTr(models, doc);
       await currencyTrClass.checkValidationCurrency();
+
+      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
+      taxTrsClass.checkTaxValidation();
 
       const transaction =
         await models.Transactions.updateTransaction(oldTr._id, { ...doc });
@@ -31,7 +36,14 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
         otherTrs.push(currencyTr)
       }
 
-      
+      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
+
+      if (taxTrs?.length) {
+        for (const taxTr of taxTrs) {
+          otherTrs.push(taxTr)
+        }
+      }
+
       break;
     }
   }

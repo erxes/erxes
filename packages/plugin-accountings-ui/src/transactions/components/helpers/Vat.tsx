@@ -7,11 +7,8 @@ import {
   FormWrapper
 } from "@erxes/ui/src/styles/main";
 import React, { useEffect, useMemo, useState } from 'react';
-import SelectAccount from '../../../settings/accounts/containers/SelectAccount';
-import { IConfigsMap, GetRateQueryResponse } from '../../../settings/configs/types';
+import { IConfigsMap } from '../../../settings/configs/types';
 import { ITransaction } from '../../types';
-import { gql, useLazyQuery } from '@apollo/client';
-import { queries as configsQueries } from '../../../settings/configs/graphql'
 import SelectVatRow from '../../../settings/vatRows/containers/SelectVatRow';
 
 type Props = {
