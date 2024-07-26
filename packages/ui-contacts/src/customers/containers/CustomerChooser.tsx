@@ -1,26 +1,26 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   AddMutationResponse,
   CustomersQueryResponse,
   ICustomer,
   ICustomerDoc
-} from '../types';
-import { mutations, queries } from '../graphql';
-import { renderFullName, withProps } from '@erxes/ui/src/utils';
+} from "../types";
+import { mutations, queries } from "../graphql";
+import { renderFullName, withProps } from "@erxes/ui/src/utils";
 
-import CustomerForm from './CustomerForm';
-import React from 'react';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import CustomerForm from "./CustomerForm";
+import React from "react";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ConformityChooser = asyncComponent(
   () =>
-    isEnabled('cards') &&
+    isEnabled("cards") &&
     import(
-      /* webpackChunkName: "ConformityChooser" */ '@erxes/ui-cards/src/conformity/containers/ConformityChooser'
+      /* webpackChunkName: "ConformityChooser" */ "@erxes/ui-sales/src/conformity/containers/ConformityChooser"
     )
 );
 
@@ -51,7 +51,7 @@ class CustomerChooser extends React.Component<
   };
 
   render() {
-    if (!isEnabled('cards')) {
+    if (!isEnabled("cards")) {
       return null;
     }
 
@@ -69,11 +69,11 @@ class CustomerChooser extends React.Component<
         datas: data.customers,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: data.relType || 'customer'
+        relType: data.relType || "customer"
       },
       search,
-      clearState: () => search(''),
-      title: 'Customer',
+      clearState: () => search(""),
+      title: "Customer",
       renderName: renderFullName,
       renderForm: formProps => (
         <CustomerForm
@@ -98,7 +98,7 @@ const WithQuery = withProps<Props>(
       CustomersQueryResponse,
       { searchValue: string; perPage: number }
     >(gql(queries.customers), {
-      name: 'customersQuery',
+      name: "customersQuery",
       options: ({ searchValue, perPage, data }) => {
         return {
           variables: {
@@ -108,10 +108,10 @@ const WithQuery = withProps<Props>(
             mainTypeId: data.mainTypeId,
             isRelated: data.isRelated,
             relType: data.relType,
-            sortField: 'createdAt',
+            sortField: "createdAt",
             sortDirection: -1
           },
-          fetchPolicy: data.isRelated ? 'network-only' : 'cache-first'
+          fetchPolicy: data.isRelated ? "network-only" : "cache-first"
         };
       }
     }),
@@ -119,10 +119,10 @@ const WithQuery = withProps<Props>(
     graphql<Props, AddMutationResponse, ICustomerDoc>(
       gql(mutations.customersAdd),
       {
-        name: 'customersAdd',
+        name: "customersAdd",
         options: () => {
           return {
-            refetchQueries: ['customersMain', 'customers', 'customerCounts']
+            refetchQueries: ["customersMain", "customers", "customerCounts"]
           };
         }
       }
@@ -154,7 +154,7 @@ export default class Wrapper extends React.Component<
   constructor(props) {
     super(props);
 
-    this.state = { perPage: 20, searchValue: '' };
+    this.state = { perPage: 20, searchValue: "" };
   }
 
   search = (value, loadmore) => {

@@ -10,7 +10,7 @@ import { HeaderContentSmall } from "../../boards/styles/item";
 import { IProduct } from "@erxes/ui-products/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import Left from "../../boards/components/editForm/Left";
-import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
+import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
 import PortablePurchase from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
 import ProductSection from "./ProductSection";
 import React from "react";
@@ -18,7 +18,7 @@ import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
 import queryString from "query-string";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
+import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
 
 type Props = {
   options: IOptions;

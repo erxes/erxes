@@ -102,7 +102,7 @@ export const getUsageByPluginType = async (args: {
     }
 
     if (actionName === "growthHackBoardsAdd") {
-      pluginType = "gh:growthHacks";
+      pluginType = "growthhacks:growthHacks";
     }
   }
 
@@ -220,7 +220,7 @@ export const getUsageByPluginType = async (args: {
     }
   }
 
-  if (pluginType === "gh:growthHacks") {
+  if (pluginType === "growthhacks:growthHacks") {
     if (models) {
       totalUsage = await models.GrowthHacks.find({}).countDocuments();
     } else {

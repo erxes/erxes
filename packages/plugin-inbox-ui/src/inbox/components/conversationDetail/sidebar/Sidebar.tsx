@@ -48,14 +48,14 @@ const PortableDeals = asyncComponent(
 const PortableTasks = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ "@erxes/ui-cards/src/tasks/components/PortableTasks"
+      /* webpackChunkName:"Inbox-Sidebar-PortableTasks" */ "@erxes/ui-tasks/src/tasks/components/PortableTasks"
     )
 );
 
 const PortableTickets = asyncComponent(
   () =>
     import(
-      /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ "@erxes/ui-cards/src/tickets/components/PortableTickets"
+      /* webpackChunkName:"Inbox-Sidebar-PortableTickets" */ "@erxes/ui-tickets/src/tickets/components/PortableTickets"
     )
 );
 const PortablePurchases = asyncComponent(

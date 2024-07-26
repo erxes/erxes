@@ -19,7 +19,7 @@ import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import Button from "@erxes/ui/src/components/Button";
 import { Form as CommonForm } from "@erxes/ui/src/components/form";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { CustomRangeContainer } from "@erxes/ui-cards/src/boards/styles/rightMenu";
+import { CustomRangeContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import { EndDateContainer } from "@erxes/ui-forms/src/forms/styles";
 import { FilterContainer } from "@erxes/ui-settings/src/styles";

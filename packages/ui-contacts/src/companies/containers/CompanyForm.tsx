@@ -1,16 +1,16 @@
-import { mutations, queries } from '../graphql';
-import { mutations as conformityMutations } from '@erxes/ui-cards/src/conformity/graphql';
+import { mutations, queries } from "../graphql";
+import { mutations as conformityMutations } from "@erxes/ui-sales/src/conformity/graphql";
 
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import CompanyForm from '../components/CompanyForm';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ICompany } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import client from '@erxes/ui/src/apolloClient';
-import { gql } from '@apollo/client';
+import { AppConsumer } from "@erxes/ui/src/appContext";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import CompanyForm from "../components/CompanyForm";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { ICompany } from "../types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import React from "react";
+import { UsersQueryResponse } from "@erxes/ui/src/auth/types";
+import client from "@erxes/ui/src/apolloClient";
+import { gql } from "@apollo/client";
 
 type Props = {
   company: ICompany;
@@ -41,7 +41,7 @@ const CompanyFromContainer = (props: FinalProps) => {
             client.mutate({
               mutation: gql(conformityMutations.conformityEdit),
               variables: {
-                mainType: 'company',
+                mainType: "company",
                 mainTypeId: data.companiesAdd._id,
                 relType: key,
                 relTypeIds: relationData[key]
@@ -67,7 +67,7 @@ const CompanyFromContainer = (props: FinalProps) => {
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
-          object ? 'updated' : 'added'
+          object ? "updated" : "added"
         } a ${name}`}
       />
     );
@@ -93,11 +93,11 @@ const CompanyFromContainer = (props: FinalProps) => {
 
 const getRefetchQueries = () => {
   return [
-    'companiesMain',
-    'companyDetail',
+    "companiesMain",
+    "companyDetail",
     // companies for customer detail company associate
-    'companies',
-    'companyCounts'
+    "companies",
+    "companyCounts"
   ];
 };
 

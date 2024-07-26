@@ -6,10 +6,12 @@ import { mutations, queries } from "../graphql";
 
 import { AppConsumer } from "coreui/appContext";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import { ChannelsCountQueryResponse } from "../types";
+import {
+  ChannelsCountQueryResponse,
+  ChannelsRemoveMutationResponse
+} from "../types";
 import { ChannelsQueryResponse } from "@erxes/ui-inbox/src/settings/channels/types";
 import React from "react";
-import { RemovePipelineLabelMutationResponse } from "@erxes/ui-cards/src/boards/types";
 import Sidebar from "../components/Sidebar";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
@@ -26,7 +28,7 @@ type FinalProps = {
   channelsQuery: ChannelsQueryResponse;
   channelsCountQuery: ChannelsCountQueryResponse;
 } & Props &
-  RemovePipelineLabelMutationResponse;
+  ChannelsRemoveMutationResponse;
 
 const SidebarContainer = (props: FinalProps) => {
   const {
@@ -35,26 +37,26 @@ const SidebarContainer = (props: FinalProps) => {
     removeMutation,
     queryParams,
     currentChannelId,
-    currentUserId,
+    currentUserId
   } = props;
   const navigate = useNavigate();
   const channels = channelsQuery.channels || [];
   const channelsTotalCount = channelsCountQuery.channelsTotalCount || 0;
 
   // remove action
-  const remove = (channelId) => {
+  const remove = channelId => {
     confirm("This will permanently delete are you absolutely sure?", {
-      hasDeleteConfirm: true,
+      hasDeleteConfirm: true
     }).then(() => {
       removeMutation({
-        variables: { _id: channelId },
+        variables: { _id: channelId }
       })
         .then(() => {
           Alert.success("You successfully deleted a channel.");
 
           navigate("/settings/channels");
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     });
@@ -65,7 +67,7 @@ const SidebarContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     callback,
-    object,
+    object
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
@@ -92,7 +94,7 @@ const SidebarContainer = (props: FinalProps) => {
     channelsTotalCount,
     remove,
     renderButton,
-    loading: channelsQuery.loading,
+    loading: channelsQuery.loading
   };
 
   return <Sidebar {...updatedProps} />;
@@ -107,26 +109,26 @@ const getRefetchQueries = (
     {
       query: gql(queries.channels),
       variables: {
-        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
-      },
+        perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
+      }
     },
     {
       query: gql(queries.channels),
-      variables: {},
+      variables: {}
     },
     {
       query: gql(queries.integrationsCount),
-      variables: {},
+      variables: {}
     },
     {
       query: gql(queries.channelDetail),
-      variables: { _id: currentChannelId || "" },
+      variables: { _id: currentChannelId || "" }
     },
     { query: gql(queries.channelsCount) },
     {
       query: gql(inboxQueries.channelList),
-      variables: { memberIds: [currentUserId] },
-    },
+      variables: { memberIds: [currentUserId] }
+    }
   ];
 };
 
@@ -138,14 +140,14 @@ const WithProps = withProps<Props>(
         name: "channelsQuery",
         options: ({ queryParams }: { queryParams: any }) => ({
           variables: {
-            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20,
+            perPage: queryParams.limit ? parseInt(queryParams.limit, 10) : 20
           },
-          fetchPolicy: "network-only",
-        }),
+          fetchPolicy: "network-only"
+        })
       }
     ),
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
-      name: "channelsCountQuery",
+      name: "channelsCountQuery"
     }),
     graphql<Props, RemovePipelineLabelMutationResponse, MutationVariables>(
       gql(mutations.channelRemove),
@@ -156,8 +158,8 @@ const WithProps = withProps<Props>(
             queryParams,
             currentChannelId,
             currentUserId
-          ),
-        }),
+          )
+        })
       }
     )
   )(SidebarContainer)

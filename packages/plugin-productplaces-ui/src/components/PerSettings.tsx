@@ -1,10 +1,10 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup,
+  FormGroup
 } from "@erxes/ui/src/components";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
@@ -39,7 +39,7 @@ const PerSettings = (props: Props) => {
     setConfig({ ...config, stageId });
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
     const key = config.stageId;
 
@@ -48,7 +48,7 @@ const PerSettings = (props: Props) => {
     save(configsMap);
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(currentConfigKey);
@@ -69,30 +69,30 @@ const PerSettings = (props: Props) => {
 
   const addCondition = () => {
     conditions.push({
-      id: Math.random().toString(),
+      id: Math.random().toString()
     });
     setconditions(conditions);
     onChangeConfig("conditions", conditions);
   };
 
   const renderConditions = () => {
-    const remove = (id) => {
-      setconditions(conditions.filter((c) => c.id !== id));
+    const remove = id => {
+      setconditions(conditions.filter(c => c.id !== id));
       onChangeConfig(
         "conditions",
-        conditions.filter((c) => c.id !== id)
+        conditions.filter(c => c.id !== id)
       );
     };
 
     const editCondition = (id, condition) => {
-      const updated = (conditions || []).map((c) =>
+      const updated = (conditions || []).map(c =>
         c.id === id ? condition : c
       );
       setconditions(updated);
       onChangeConfig("conditions", updated);
     };
 
-    return (conditions || []).map((c) => (
+    return (conditions || []).map(c => (
       <PerConditions
         key={c.id}
         condition={c}

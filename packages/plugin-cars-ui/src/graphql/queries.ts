@@ -1,8 +1,8 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from '@erxes/ui-cards/src/conformity/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+  conformityQueryFields
+} from "@erxes/ui-sales/src/conformity/graphql/queries";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const carCategoryFields = `
   _id
@@ -144,7 +144,7 @@ export const carDetail = `
     carDetail(_id: $_id) {
       ${carFields}
       ${
-        isEnabled('contacts')
+        isEnabled("contacts")
           ? `
             customers {
               _id
@@ -187,5 +187,5 @@ export default {
   carCategories,
   carCategoriesCount,
   carCategoryDetail,
-  carCountByTags,
+  carCountByTags
 };

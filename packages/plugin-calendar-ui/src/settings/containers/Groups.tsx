@@ -1,16 +1,16 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import { queries as calendarQueries } from '../graphql';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
-import { __, Alert, confirm, getEnv, withProps } from 'coreui/utils';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { INTEGRATIONS } from '../constants';
-import Groups from '../components/Groups';
-import { mutations, queries } from '../graphql';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import { queries as calendarQueries } from "../graphql";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { IButtonMutateProps, MutationVariables } from "@erxes/ui/src/types";
+import { __, Alert, confirm, getEnv, withProps } from "coreui/utils";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { getWarningMessage } from "@erxes/ui-sales/src/boards/utils";
+import { INTEGRATIONS } from "../constants";
+import Groups from "../components/Groups";
+import { mutations, queries } from "../graphql";
 import {
   BoardDetailQueryResponse,
   GroupsQueryResponse,
@@ -19,7 +19,7 @@ import {
   RemoveCalendarMutationResponse,
   RemoveCalendarMutationVariables,
   RemoveGroupMutationResponse
-} from '../types';
+} from "../types";
 
 type Props = {
   boardId: string;
@@ -52,7 +52,7 @@ class GroupsContainer extends React.Component<FinalProps> {
 
     // remove action
     const remove = (calendar: IGroup) => {
-      confirm(getWarningMessage('Group'), { hasDeleteConfirm: true }).then(
+      confirm(getWarningMessage("Group"), { hasDeleteConfirm: true }).then(
         () => {
           removeMutation({
             variables: {
@@ -63,7 +63,7 @@ class GroupsContainer extends React.Component<FinalProps> {
               groupsQuery.refetch({ boardId });
 
               const msg = `${__(`You successfully deleted a`)} ${__(
-                'calendar'
+                "calendar"
               )}.`;
 
               Alert.success(msg);
@@ -101,7 +101,7 @@ class GroupsContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -111,8 +111,9 @@ class GroupsContainer extends React.Component<FinalProps> {
       const { REACT_APP_API_URL } = getEnv();
       const integration = INTEGRATIONS.find(i => i.kind === kind);
 
-      const url = `${REACT_APP_API_URL}/connect-integration?link=${integration &&
-        integration.createUrl}&kind=${kind}&type=calendar`;
+      const url = `${REACT_APP_API_URL}/connect-integration?link=${
+        integration && integration.createUrl
+      }&kind=${kind}&type=calendar`;
 
       window.location.replace(url);
     };
@@ -121,7 +122,7 @@ class GroupsContainer extends React.Component<FinalProps> {
 
     // remove action
     const removeCalendar = (calendar: ICalendar) => {
-      confirm(getWarningMessage('Calendar'), { hasDeleteConfirm: true }).then(
+      confirm(getWarningMessage("Calendar"), { hasDeleteConfirm: true }).then(
         () => {
           removeCalendarMutation({
             variables: {
@@ -134,7 +135,7 @@ class GroupsContainer extends React.Component<FinalProps> {
               getRefetchQueries(boardId, calendar.groupId);
 
               const msg = `${__(`You successfully deleted a`)} ${__(
-                'calendar'
+                "calendar"
               )}.`;
 
               Alert.success(msg);
@@ -158,7 +159,7 @@ class GroupsContainer extends React.Component<FinalProps> {
         getRefetchQueries(boardId);
 
         if (!object) {
-          return this.props.navigate('/settings/calendars');
+          return this.props.navigate("/settings/calendars");
         }
 
         if (callback) {
@@ -178,7 +179,7 @@ class GroupsContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={`You successfully ${
-            object ? 'updated' : 'added'
+            object ? "updated" : "added"
           } a ${name}`}
         />
       );
@@ -231,23 +232,23 @@ const getRefetchQueries = (boardId: string, groupId?: string) => {
 export default withProps<Props>(
   compose(
     graphql<Props, GroupsQueryResponse>(gql(queries.groups), {
-      name: 'groupsQuery',
-      options: ({ boardId = '' }: { boardId: string }) => ({
+      name: "groupsQuery",
+      options: ({ boardId = "" }: { boardId: string }) => ({
         variables: { boardId },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<Props, BoardDetailQueryResponse>(gql(queries.boardDetail), {
-      name: 'boardDetailQuery',
+      name: "boardDetailQuery",
       options: ({ boardId }: { boardId: string }) => ({
         variables: { _id: boardId },
-        fetchPolicy: 'network-only'
+        fetchPolicy: "network-only"
       })
     }),
     graphql<Props, RemoveGroupMutationResponse, MutationVariables>(
       gql(mutations.groupRemove),
       {
-        name: 'removeMutation'
+        name: "removeMutation"
       }
     ),
     graphql<
@@ -255,7 +256,7 @@ export default withProps<Props>(
       RemoveCalendarMutationResponse,
       RemoveCalendarMutationVariables
     >(gql(mutations.calendarRemove), {
-      name: 'removeCalendarMutation'
+      name: "removeCalendarMutation"
     })
   )(GroupsContainer)
 );

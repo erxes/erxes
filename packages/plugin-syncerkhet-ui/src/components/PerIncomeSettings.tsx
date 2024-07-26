@@ -9,7 +9,7 @@ import {
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
 import { BlockRow } from "../styles";
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
 import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";

@@ -15,8 +15,8 @@ import React from "react";
 import Sidebar from "../../boards/components/editForm/Sidebar";
 import Top from "../../boards/components/editForm/Top";
 import queryString from "query-string";
-import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
-import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
+import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
+import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
 

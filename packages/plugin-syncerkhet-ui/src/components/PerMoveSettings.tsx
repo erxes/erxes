@@ -8,7 +8,7 @@ import {
 } from "@erxes/ui/src/components";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 import { IConfigsMap } from "../types";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";

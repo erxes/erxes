@@ -1,24 +1,24 @@
-import { __, urlParser } from '@erxes/ui/src/utils';
+import { __, urlParser } from "@erxes/ui/src/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
-import CompanyChooser from '../containers/CompanyChooser';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICompany } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
+import Box from "@erxes/ui/src/components/Box";
+import { ButtonRelated } from "@erxes/ui/src/styles/main";
+import CompanyChooser from "../containers/CompanyChooser";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ICompany } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { queries } from "../graphql";
 
 const GetConformity = asyncComponent(
   () =>
-    isEnabled('cards') &&
+    isEnabled("cards") &&
     import(
-      /* webpackChunkName: "GetConformity" */ '@erxes/ui-cards/src/conformity/containers/GetConformity'
+      /* webpackChunkName: "GetConformity" */ "@erxes/ui-sales/src/conformity/containers/GetConformity"
     )
 );
 
@@ -37,8 +37,8 @@ function Component(
   {
     name,
     items = [],
-    mainType = '',
-    mainTypeId = '',
+    mainType = "",
+    mainTypeId = "",
     onSelect,
     collapseCallback,
     title
@@ -72,7 +72,7 @@ function Component(
 
   const relCompanyTrigger = (
     <ButtonRelated>
-      <span>{__('See related companies')}</span>
+      <span>{__("See related companies")}</span>
     </ButtonRelated>
   );
 
@@ -113,7 +113,7 @@ function Component(
       {items.map((company, index) => (
         <SectionBodyItem key={index}>
           <Link to={`/companies/details/${company._id}`}>
-            {company.primaryName || 'Unknown'}
+            {company.primaryName || "Unknown"}
           </Link>
           {renderExternaleWebsite(company.links)}
         </SectionBodyItem>
@@ -125,7 +125,7 @@ function Component(
 
   return (
     <Box
-      title={__(`${title || 'Companies'}`)}
+      title={__(`${title || "Companies"}`)}
       name="showCompanies"
       extraButtons={quickButtons}
       isOpen={true}
@@ -146,7 +146,7 @@ type IProps = {
 };
 
 export default (props: IProps) => {
-  if (!isEnabled('cards')) {
+  if (!isEnabled("cards")) {
     return null;
   }
 
