@@ -507,8 +507,8 @@ const boardMutations = {
 
     const stage = await models.Stages.getStage(stageId);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`ticketsPipelinesChanged:${stage.pipelineId}`, {
+      ticketsPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "reOrdered",

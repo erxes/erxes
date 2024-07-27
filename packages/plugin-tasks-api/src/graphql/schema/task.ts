@@ -5,7 +5,7 @@ import {
   commonTypes,
   conformityQueryFields,
   copyParams
-} from './common';
+} from "./common";
 
 export const types = ({ contacts, tags }) => `
   type TaskListItem {
@@ -21,10 +21,10 @@ export const types = ({ contacts, tags }) => `
       companies: [Company]
       customers: [Customer]
       `
-        : ''
+        : ""
     }
 
-    ${tags ? `tags: [Tag]` : ''}
+    ${tags ? `tags: [Tag]` : ""}
 
     ${commonTypes}
   }
@@ -38,7 +38,7 @@ const listQueryParams = `
     stageId: String
     customerIds: [String]
     companyIds: [String]
-    date: ItemDate
+    date: TasksItemDate
     skip: Int
     limit: Int
     search: String

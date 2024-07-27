@@ -13,7 +13,7 @@ import {
   IStageDocument
 } from "../../../models/definitions/boards";
 import { BOARD_STATUSES } from "../../../models/definitions/constants";
-import { ITask, ITaskDocument } from "../../../models/definitions/tasks";
+import { ITaskDocument } from "../../../models/definitions/tasks";
 
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import {
@@ -76,7 +76,7 @@ export const itemResolver = async (
 export const itemsAdd = async (
   models: IModels,
   subdomain: string,
-  doc: (ITask | IItemCommonFields) & {
+  doc: (IItemCommonFields | IItemCommonFields) & {
     proccessId: string;
     aboveItemId: string;
   },
@@ -148,8 +148,8 @@ export const itemsAdd = async (
     );
   }
 
-  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-    pipelinesChanged: {
+  graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+    tasksPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: doc.proccessId,
       action: "itemAdd",
@@ -183,8 +183,8 @@ export const changeItemStatus = async (
   }
 ) => {
   if (status === "archived") {
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+      tasksPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemRemove",
@@ -225,8 +225,8 @@ export const changeItemStatus = async (
     }
   );
 
-  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-    pipelinesChanged: {
+  graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+    tasksPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
       action: "itemAdd",
@@ -384,16 +384,16 @@ export const itemsEdit = async (
   const updatedStage = await models.Stages.getStage(updatedItem.stageId);
 
   if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+      tasksPipelinesChanged: {
         _id: stage.pipelineId
       }
     });
   }
 
   if (updatedStage.pipelineId !== stage.pipelineId) {
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+      tasksPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemRemove",
@@ -403,8 +403,8 @@ export const itemsEdit = async (
         }
       }
     });
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+      tasksPipelinesChanged: {
         _id: updatedStage.pipelineId,
         proccessId,
         action: "itemAdd",
@@ -419,8 +419,8 @@ export const itemsEdit = async (
       }
     });
   } else {
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+      tasksPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemUpdate",
@@ -628,8 +628,8 @@ export const itemsChange = async (
     }
   });
 
-  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-    pipelinesChanged: {
+  graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+    tasksPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
       action: "orderUpdated",
@@ -737,8 +737,8 @@ export const itemsCopy = async (
   // order notification
   const stage = await models.Stages.getStage(clone.stageId);
 
-  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-    pipelinesChanged: {
+  graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+    tasksPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
       action: "itemAdd",
@@ -797,8 +797,8 @@ export const itemsArchive = async (
       }
     });
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+      tasksPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemsRemove",
@@ -817,8 +817,8 @@ export const publishHelperItemsConformities = async (
   item: ITaskDocument,
   stage: IStageDocument
 ) => {
-  graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-    pipelinesChanged: {
+  graphqlPubsub.publish(`tasksPipelinesChanged:${stage.pipelineId}`, {
+    tasksPipelinesChanged: {
       _id: stage.pipelineId,
       proccessId: Math.random().toString(),
       action: "itemOfConformitiesUpdate",

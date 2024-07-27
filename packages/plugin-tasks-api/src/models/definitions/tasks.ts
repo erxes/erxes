@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { commonItemFieldsSchema, IItemCommonFields } from './boards';
+import { Document, Schema } from "mongoose";
+import { commonItemFieldsSchema, IItemCommonFields } from "./boards";
 
 export interface ITaskDocument extends IItemCommonFields, Document {
   _id: string;

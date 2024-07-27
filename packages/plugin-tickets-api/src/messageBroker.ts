@@ -396,10 +396,10 @@ export const setupMessageConsumers = async () => {
   );
 
   consumeQueue(
-    "tickets:pipelinesChanged",
+    "tickets:ticketsPipelinesChanged",
     async ({ subdomain, data: { pipelineId, action, data } }) => {
-      graphqlPubsub.publish("pipelinesChanged", {
-        pipelinesChanged: {
+      graphqlPubsub.publish("ticketsPipelinesChanged", {
+        ticketsPipelinesChanged: {
           _id: pipelineId,
           proccessId: Math.random(),
           action,

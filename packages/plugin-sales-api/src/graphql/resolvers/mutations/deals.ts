@@ -214,8 +214,8 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
+      salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemUpdate",
@@ -291,8 +291,8 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
+      salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemUpdate",
@@ -363,8 +363,8 @@ const dealMutations = {
     const updatedItem =
       (await models.Deals.findOne({ _id: dealId })) || ({} as any);
 
-    graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
-      pipelinesChanged: {
+    graphqlPubsub.publish(`salesPipelinesChanged:${stage.pipelineId}`, {
+      salesPipelinesChanged: {
         _id: stage.pipelineId,
         proccessId,
         action: "itemUpdate",
