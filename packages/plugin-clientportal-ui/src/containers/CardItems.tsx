@@ -2,11 +2,11 @@ import React from "react";
 import { useQuery } from "@apollo/client";
 import queries from "../graphql/queries";
 import { gql } from "@apollo/client";
-import PortableItems from "@erxes/ui-cards/src/boards/components/portable/Items";
-import ticketOptions from "@erxes/ui-cards/src/tickets/options";
+import PortableItems from "@erxes/ui-sales/src/boards/components/portable/Items";
+import ticketOptions from "@erxes/ui-tickets/src/tickets/options";
 import dealOptions from "@erxes/ui-sales/src/deals/options";
-import taskOptions from "@erxes/ui-cards/src/tasks/options";
-import purchaseOptions from "@erxes/ui-cards/src/purchases/options";
+import taskOptions from "@erxes/ui-tasks/src/tasks/options";
+import purchaseOptions from "@erxes/ui-purchases/src/purchases/options";
 
 type Props = {
   userId: string;
