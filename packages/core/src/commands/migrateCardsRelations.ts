@@ -53,7 +53,7 @@ const command = async () => {
   db = client.db() as Db;
 
   Segments = db.collection("segments");
-  Fields = db.collection("fields");
+  Fields = db.collection("form_fields");
   FieldGroups = db.collection("fields_groups");
   Tags = db.collection("tags");
   InternalNotes = db.collection("internal_notes");
