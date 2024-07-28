@@ -85,7 +85,7 @@ export const loadClasses = (
     loadStageClass(models, subdomain)
   );
   models.Deals = db.model<IDealDocument, IDealModel>(
-    "sales_deals",
+    "deals",
     loadDealClass(models, subdomain)
   );
 

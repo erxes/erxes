@@ -278,7 +278,7 @@ const boardItemsSaveForGanttTimeline = `
 `;
 
 const stagesUpdateOrder = `
-  mutation purchasesStagesUpdateOrder($orders: [OrderItem]) {
+  mutation purchasesStagesUpdateOrder($orders: [PurchasesOrderItem]) {
     purchasesStagesUpdateOrder(orders: $orders) {
       _id
     }

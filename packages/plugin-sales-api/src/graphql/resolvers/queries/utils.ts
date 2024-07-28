@@ -937,7 +937,7 @@ export const getItemList = async (
     },
     {
       $lookup: {
-        from: "pipeline_labels",
+        from: "sales_pipeline_labels",
         localField: "labelIds",
         foreignField: "_id",
         as: "labels_doc"

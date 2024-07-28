@@ -1,8 +1,8 @@
-import { commonFields, commonListFields } from '../../boards/graphql/mutations';
+import { commonFields, commonListFields } from "../../boards/graphql/mutations";
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '../../conformity/graphql/queries';
+} from "../../conformity/graphql/queries";
 
 const commonParams = `
   $companyIds: [String],
@@ -74,7 +74,7 @@ const tickets = `
   query tickets(
     $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
+    $date: TicketsItemDate,
     $skip: Int,
     $limit: Int,
     $search: String,
@@ -98,7 +98,7 @@ const ticketsTotalCount = `
   query ticketsTotalCount(
     $pipelineId: String,
     $stageId: String,
-    $date: ItemDate,
+    $date: TicketsItemDate,
     $skip: Int,
     $search: String,
     ${commonParams}

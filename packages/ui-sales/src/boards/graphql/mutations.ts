@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const createTicketComment = `
   mutation createTicketComment(
@@ -77,8 +77,8 @@ export const commonDragParams = `
 export const commonListFields = `
   _id
   name
-  ${isEnabled('contacts') ? `companies` : ``}
-  ${isEnabled('contacts') ? `customers` : ``}
+  ${isEnabled("contacts") ? `companies` : ``}
+  ${isEnabled("contacts") ? `customers` : ``}
   assignedUsers
   labels
   stage
@@ -110,7 +110,7 @@ export const commonFields = `
     isCheckDate
 
     ${
-      isEnabled('tags')
+      isEnabled("tags")
         ? `
         tag {
           order
@@ -121,7 +121,7 @@ export const commonFields = `
   }
   boardId
   ${
-    isEnabled('contacts')
+    isEnabled("contacts")
       ? `
     ... @defer {
       companies {
@@ -134,7 +134,7 @@ export const commonFields = `
       : ``
   }
   ${
-    isEnabled('contacts')
+    isEnabled("contacts")
       ? `
     ... @defer {
       customers {
@@ -151,7 +151,7 @@ export const commonFields = `
       : ``
   }
   ${
-    isEnabled('tags')
+    isEnabled("tags")
       ? `
   tags {
     _id
@@ -292,7 +292,7 @@ const boardItemsSaveForGanttTimeline = `
 `;
 
 const stagesUpdateOrder = `
-  mutation stagesUpdateOrder($orders: [OrderItem]) {
+  mutation stagesUpdateOrder($orders: [SalesOrderItem]) {
     stagesUpdateOrder(orders: $orders) {
       _id
     }
@@ -348,5 +348,5 @@ export default {
   pipelineLabelsLabel,
   boardItemsSaveForGanttTimeline,
   stagesUpdateOrder,
-  conversationConvertToCard,
+  conversationConvertToCard
 };

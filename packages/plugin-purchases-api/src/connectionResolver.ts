@@ -85,7 +85,7 @@ export const loadClasses = (
     loadStageClass(models, subdomain)
   );
   models.Purchases = db.model<IPurchaseDocument, IPurchaseModel>(
-    "purchases_purchases",
+    "purchases",
     loadPurchaseClass(models, subdomain)
   );
 

@@ -109,7 +109,7 @@ const pipelinesCopied = `
   }
 `;
 const pipelinesUpdateOrder = `
-  mutation ticketsPipelinesUpdateOrder($orders: [OrderItem]) {
+  mutation ticketsPipelinesUpdateOrder($orders: [TicketsOrderItem]) {
     ticketsPipelinesUpdateOrder(orders: $orders) {
       _id
     }

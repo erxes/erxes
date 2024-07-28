@@ -89,7 +89,7 @@ const clientPortalGetPurchase = `
 `;
 
 const clientPortalTasks = `
-  query clientPortalTasks($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate) {
+  query clientPortalTasks($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: TasksItemDate) {
     clientPortalTasks(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
     }
@@ -97,7 +97,7 @@ const clientPortalTasks = `
 `;
 
 const clientPortalTickets = `
-  query clientPortalTickets ($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate){
+  query clientPortalTickets ($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: TicketsItemDate){
     clientPortalTickets(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
     }
@@ -105,7 +105,7 @@ const clientPortalTickets = `
 `;
 
 const clientPortalDeals = `
-  query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate) {
+  query clientPortalDeals($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: SalesItemDate) {
     clientPortalDeals(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
       productsData  
@@ -114,7 +114,7 @@ const clientPortalDeals = `
 `;
 
 const clientPortalPurchases = `
-  query clientPortalPurchases($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: ItemDate) {
+  query clientPortalPurchases($priority: [String], $labelIds: [String], $stageId: String, $closeDateType: String, $userIds: [String], $date: PurhcasesItemDate) {
     clientPortalPurchases(priority: $priority, labelIds: $labelIds, stageId: $stageId, closeDateType: $closeDateType, userIds: $userIds, date: $date) {
       ${itemFields}
     }

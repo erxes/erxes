@@ -76,7 +76,7 @@ export const loadClasses = (
     loadStageClass(models, subdomain)
   );
   models.Tickets = db.model<ITicketDocument, ITicketModel>(
-    "tickets_tickets",
+    "tickets",
     loadTicketClass(models, subdomain)
   );
 

@@ -23,7 +23,7 @@ ${
     _id: String! @external
   }
    `
-    : ''
+    : ""
 }
 
 ${
@@ -37,7 +37,7 @@ ${
     _id: String! @external
   }
    `
-    : ''
+    : ""
 }
 
 ${
@@ -47,7 +47,7 @@ ${
       _id: String! @external
     }
   `
-    : ''
+    : ""
 }
 
 ${
@@ -57,7 +57,7 @@ ${
       _id: String! @external
     }
     `
-    : ''
+    : ""
 }
 
   type OTPConfig {
@@ -363,17 +363,17 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
       ? `
   clientPortalGetAllowedFields(_id: String!): [Field]
   `
-      : ''
+      : ""
   }
   ${
     cardAvailable
       ? `
     clientPortalGetTaskStages: [Stage]
     clientPortalGetTasks(stageId: String!): [Task]
-    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Ticket]
-    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Deal]
-    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Purchase]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: ItemDate): [Task]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurhcasesItemDate): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
     clientPortalTicket(_id: String!): Ticket
     clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
     clientPortalUserTickets(userId: String): [Ticket]
@@ -383,7 +383,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
     clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
     clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
    `
-      : ''
+      : ""
   }
 
   ${
@@ -393,7 +393,7 @@ export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
     clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): 
 [KnowledgeBaseArticle]
    `
-      : ''
+      : ""
   }
 `;
 
@@ -439,6 +439,6 @@ export const mutations = cardAvailable => `
         offeredAmount: Float,
         hasVat: Boolean):ClientPortalParticipant
      `
-      : ''
+      : ""
   }
 `;

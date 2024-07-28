@@ -969,7 +969,7 @@ export const getItemList = async (
     },
     {
       $lookup: {
-        from: "pipeline_labels",
+        from: "tasks_pipeline_labels",
         localField: "labelIds",
         foreignField: "_id",
         as: "labels_doc"
@@ -1018,6 +1018,8 @@ export const getItemList = async (
   }
 
   const list = await collection.aggregate(pipelines);
+
+  console.log(list);
 
   if (serverTiming) {
     serverTiming.endTime("getItemsPipelineAggregate");

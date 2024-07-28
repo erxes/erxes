@@ -76,7 +76,7 @@ export const loadClasses = (
     loadStageClass(models, subdomain)
   );
   models.Tasks = db.model<ITaskDocument, ITaskModel>(
-    "tasks_tasks",
+    "tasks",
     loadTaskClass(models, subdomain)
   );
 
