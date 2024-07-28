@@ -78,6 +78,8 @@ export const types = () => `
     modifiedBy: String
 
     permission: String
+    vatRow: VatRow
+    ctaxRow: CtaxRow
     followTrs: [CommonTransaction]
   }
 

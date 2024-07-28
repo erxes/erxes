@@ -12,4 +12,20 @@ export default {
 
     return transaction.follows.map(f => dataLoaders.transaction.load(f.id))
   },
+
+  async vatRow(transaction: ITransactionDocument, _, { models }: IContext) {
+    if (!transaction.vatRowId) {
+      return;
+    }
+
+    return await models.VatRows.findOne({ _id: transaction.vatRowId });
+  },
+
+  async ctaxRow(transaction: ITransactionDocument, _, { models }: IContext) {
+    if (!transaction.ctaxRowId) {
+      return;
+    }
+
+    return await models.CtaxRows.findOne({ _id: transaction.ctaxRowId });
+  },
 };

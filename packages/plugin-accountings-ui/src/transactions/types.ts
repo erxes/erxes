@@ -1,5 +1,7 @@
 import { IAccount } from "../settings/accounts/types"
 import { QueryResponse } from '@erxes/ui/src/types';
+import { IVatRow } from "../settings/vatRows/types";
+import { ICtaxRow } from "../settings/ctaxRows/types";
 
 export interface ITrInput {
   ptrId: string
@@ -35,6 +37,9 @@ export interface ITrDetail {
   currencyAmount?: number;
   customRate?: number;
   assignedUserId?: string;
+
+  excludeVat?: boolean;
+  excludeCtax?: boolean;
 
   productId?: string;
   count?: number;
@@ -79,11 +84,13 @@ export interface ITransaction {
   afterVat?: boolean;
   isHandleVat?: boolean;
   vatAmount?: number;
+  vatRow?: IVatRow;
 
   hasCtax?: boolean;
   ctaxRowId?: string;
   isHandleCtax?: boolean;
   ctaxAmount?: number;
+  ctaxRow?: ICtaxRow;
 
   sumDt: number;
   sumCt: number;

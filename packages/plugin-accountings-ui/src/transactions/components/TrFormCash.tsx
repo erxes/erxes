@@ -19,7 +19,7 @@ import { IAccount } from '../../settings/accounts/types';
 import { IConfigsMap } from '../../settings/configs/types';
 import { ITransaction } from '../types';
 import CurrencyFields from './helpers/CurrencyFields';
-import VatFields from './helpers/Vat';
+import TaxFields from './helpers/TaxFields';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -208,9 +208,10 @@ const TrFormMain = (props: Props) => {
           </FormGroup>
         </FormColumn>
       </FormWrapper>
-      <VatFields
+      <TaxFields
         {...props}
         onChangeDetail={onChangeDetail}
+        isWithTax={true}
       />
     </>
   );

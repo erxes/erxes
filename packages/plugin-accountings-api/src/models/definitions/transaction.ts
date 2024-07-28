@@ -21,6 +21,9 @@ export interface ITrDetail {
 
   assignedUserId?: string;
 
+  excludeVat?: boolean;
+  excludeCtax?: boolean;
+
   productId?: string;
   count?: number;
   unitPrice?: number;

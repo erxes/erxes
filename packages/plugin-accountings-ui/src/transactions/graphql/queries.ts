@@ -1,4 +1,6 @@
 import { accountFields } from "../../settings/accounts/graphql/queries";
+import { ctaxRowFields } from "../../settings/ctaxRows/graphql/queries";
+import { vatRowFields } from "../../settings/vatRows/graphql/queries";
 
 const followTrType = `
   type
@@ -86,11 +88,17 @@ export const commonTransactionFields = `
   afterVat
   isHandleVat
   vatAmount
+  vatRow {
+    ${vatRowFields}
+  }
 
   hasCtax
   ctaxRowId
   isHandleCtax
   ctaxAmount
+  ctaxRow {
+    ${ctaxRowFields}
+  }
 
   permission
 `;

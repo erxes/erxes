@@ -26,7 +26,7 @@ const resolvers: any = {
   ...customScalars,
   Account,
   AccountCategory,
-  Transaction,
+  CommonTransaction: Transaction,
   TrDetail,
   Mutation: {
     ...MutationsAccountCategory,
