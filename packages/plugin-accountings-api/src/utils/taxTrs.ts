@@ -183,6 +183,7 @@ class TaxTrs {
     if (!this.vatTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          $set: { vatAmount: 0 },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -201,6 +202,7 @@ class TaxTrs {
       } else {
         vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          $set: { vatAmount: this.vatTrDoc.details[0].amount },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -218,6 +220,7 @@ class TaxTrs {
     } else {
       vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
+        $set: { vatAmount: this.vatTrDoc.details[0].amount },
         $addToSet: {
           follows: [{
             type: 'currencyDiff',
@@ -237,6 +240,7 @@ class TaxTrs {
     if (!this.ctaxTrDoc) {
       if (oldFollowInfo) {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          $set: { ctaxAmount: 0 },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -255,6 +259,7 @@ class TaxTrs {
       } else {
         ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
+          $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
           $pull: {
             follows: { ...oldFollowInfo }
           }
@@ -272,6 +277,7 @@ class TaxTrs {
     } else {
       ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
       await this.models.Transactions.updateOne({ _id: transaction._id }, {
+        $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
         $addToSet: {
           follows: [{
             type: 'currencyDiff',
