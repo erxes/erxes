@@ -1,4 +1,4 @@
-import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { IBoard, IPipeline } from "@erxes/ui-sales/src/boards/types";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { IOption } from "@erxes/ui/src/types";

@@ -15,7 +15,7 @@ import { FormContent, FormFooter } from "../../styles";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import React, { useState } from "react";
 
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import Button from "@erxes/ui/src/components/Button";
 import { Form as CommonForm } from "@erxes/ui/src/components/form";
 import ControlLabel from "@erxes/ui/src/components/form/Label";

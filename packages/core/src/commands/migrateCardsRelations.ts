@@ -20,6 +20,7 @@ let FieldGroups: Collection<any>;
 let Tags: Collection<any>;
 let InternalNotes: Collection<any>;
 let Webhooks: Collection<any>;
+let ActivityLogs: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -57,77 +58,84 @@ const command = async () => {
   FieldGroups = db.collection("fields_groups");
   Tags = db.collection("tags");
   InternalNotes = db.collection("internal_notes");
+  ActivityLogs = db.collection("activity_logs");
   Webhooks = db.collection("webhooks");
 
   try {
-    await Segments.find({}).forEach(doc => {
-      console.log(doc);
+    // await Segments.find({}).forEach(doc => {
+    //   console.log(doc);
+    //   const contentType = switchContentType(doc.contentType);
+
+    //   Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
+
+    //   const updatedConditions: any = [];
+
+    //   for (const condition of doc.conditions || []) {
+    //     if (condition.propertyType) {
+    //       condition.propertyType = switchContentType(condition.propertyType);
+    //     }
+
+    //     updatedConditions.push(condition);
+    //   }
+
+    //   Segments.updateOne(
+    //     { _id: doc._id },
+    //     { $set: { conditions: updatedConditions } }
+    //   );
+    // });
+
+    // await FieldGroups.find({}).forEach(doc => {
+    //   const contentType = switchContentType(doc.contentType);
+
+    //   FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
+    // });
+
+    // await Fields.find({}).forEach(doc => {
+    //   const contentType = switchContentType(doc.contentType);
+
+    //   Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
+    // });
+
+    await ActivityLogs.find({}).forEach(doc => {
       const contentType = switchContentType(doc.contentType);
 
-      Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
-
-      const updatedConditions: any = [];
-
-      for (const condition of doc.conditions || []) {
-        if (condition.propertyType) {
-          condition.propertyType = switchContentType(condition.propertyType);
-        }
-
-        updatedConditions.push(condition);
-      }
-
-      Segments.updateOne(
-        { _id: doc._id },
-        { $set: { conditions: updatedConditions } }
-      );
+      ActivityLogs.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
-    await FieldGroups.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
+    // await Tags.find({}).forEach(doc => {
+    //   const contentType = switchContentType(doc.type);
 
-      FieldGroups.updateOne({ _id: doc._id }, { $set: { contentType } });
-    });
+    //   Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
+    // });
 
-    await Fields.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
+    // await InternalNotes.find({}).forEach(doc => {
+    //   const contentType = switchContentType(doc.contentType);
 
-      Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
-    });
+    //   InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
+    // });
 
-    await Tags.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.type);
+    // await Webhooks.find({}).forEach(webhook => {
+    //   const actions = webhook.actions || [];
+    //   const fixedActions = [] as any;
 
-      Tags.updateOne({ _id: doc._id }, { $set: { type: contentType } });
-    });
+    //   for (const action of actions) {
+    //     const type = switchContentType(action.type);
 
-    await InternalNotes.find({}).forEach(doc => {
-      const contentType = switchContentType(doc.contentType);
+    //     fixedActions.push({
+    //       ...action,
+    //       type
+    //     });
+    //   }
 
-      InternalNotes.updateOne({ _id: doc._id }, { $set: { contentType } });
-    });
-
-    await Webhooks.find({}).forEach(webhook => {
-      const actions = webhook.actions || [];
-      const fixedActions = [] as any;
-
-      for (const action of actions) {
-        const type = switchContentType(action.type);
-
-        fixedActions.push({
-          ...action,
-          type
-        });
-      }
-
-      Webhooks.updateOne(
-        { _id: webhook._id },
-        {
-          $set: {
-            actions: fixedActions
-          }
-        }
-      );
-    });
+    //   Webhooks.updateOne(
+    //     { _id: webhook._id },
+    //     {
+    //       $set: {
+    //         actions: fixedActions
+    //       }
+    //     }
+    //   );
+    // });
   } catch (e) {
     console.log(`Error occurred: ${e.message}`);
   }
