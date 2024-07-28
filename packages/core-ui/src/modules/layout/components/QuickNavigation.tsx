@@ -16,6 +16,7 @@ import Search from "../containers/Search";
 import { SubMenu } from "modules/saas/navigation/styles";
 import Usage from "modules/saas/settings/plans/components/Usage";
 import asyncComponent from "modules/common/components/AsyncComponent";
+import Tip from "modules/common/components/Tip";
 import { getVersion } from "@erxes/ui/src/utils/core";
 import { pluginsOfTopNavigations } from "pluginUtils";
 import styled from "styled-components";
@@ -71,7 +72,7 @@ export const NavItem = styled.div`
   [id^="headlessui-menu-items-"] {
     min-width: 220px;
   }
-  
+
   [id^="headlessui-menu-items-"] button {
     border: none;
     background: none;
@@ -114,12 +115,16 @@ const QuickNavigation = ({
   onChangeBrands: (value: string) => void;
   release: string;
 }) => {
-  const passContent = (props) => <ChangePassword {...props} />;
-  const signatureContent = (props) => <Signature {...props} />;
+  const onFeedbackClick = () => {
+    (window as any).Userback.open();
+  };
+
+  const passContent = props => <ChangePassword {...props} />;
+  const signatureContent = props => <Signature {...props} />;
 
   const brands = currentUser.brands || [];
 
-  const brandOptions = brands.map((brand) => ({
+  const brandOptions = brands.map(brand => ({
     value: brand._id,
     label: brand.name || "",
   }));
@@ -147,6 +152,15 @@ const QuickNavigation = ({
       <NavItem>
         <Search />
       </NavItem>
+
+      <NavItem>
+        <Tip text={__("Userback feedback widget")} placement="bottom">
+          <a href="#feedback" onClick={onFeedbackClick}>
+            <Icon icon="feedback" size={20} />
+          </a>
+        </Tip>
+      </NavItem>
+
       {pluginsOfTopNavigations()}
       <NavItem>
         <Menu as="div" className="relative">
