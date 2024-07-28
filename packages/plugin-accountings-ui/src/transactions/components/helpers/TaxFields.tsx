@@ -30,12 +30,16 @@ const TaxFields = (props: Props) => {
 
 
   const [sumPercent, setSumPercent] = useState(
-    (trDoc.vatRow?.percent || 0) + (trDoc.ctaxRow?.percent || 0)
+    (trDoc.hasVat ? (trDoc.vatRow?.percent || 0) : 0) +
+    (trDoc.hasCtax ? (trDoc.ctaxRow?.percent || 0) : 0)
   );
 
   useEffect(() => {
-    setSumPercent((trDoc.vatRow?.percent || 0) + (trDoc.ctaxRow?.percent || 0))
-  }, [trDoc.vatRowId, trDoc.ctaxRowId]);
+    setSumPercent(
+      (trDoc.hasVat ? (trDoc.vatRow?.percent || 0) : 0) +
+      (trDoc.hasCtax ? (trDoc.ctaxRow?.percent || 0) : 0)
+    )
+  }, [trDoc.vatRowId, trDoc.ctaxRowId, trDoc.hasVat, trDoc.hasCtax]);
 
   const onVatRowChange = (vatRowId: string, obj?: IVatRow) => {
     setTrDoc({
