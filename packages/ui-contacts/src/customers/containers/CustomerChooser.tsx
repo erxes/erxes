@@ -14,11 +14,9 @@ import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ConformityChooser = asyncComponent(
   () =>
-    isEnabled("cards") &&
     import(
       /* webpackChunkName: "ConformityChooser" */ "@erxes/ui-sales/src/conformity/containers/ConformityChooser"
     )
@@ -51,10 +49,6 @@ class CustomerChooser extends React.Component<
   };
 
   render() {
-    if (!isEnabled("cards")) {
-      return null;
-    }
-
     const { data, customersQuery, search } = this.props;
 
     const getAssociatedCustomer = (newCustomer: ICustomer) => {

@@ -64,7 +64,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       );
     }
 
-    if (currentTab === "ticket" && isEnabled("cards")) {
+    if (currentTab === "ticket" && isEnabled("sales")) {
       return (
         <TicketCommentForm
           contentType={`${contentType}_comment`}

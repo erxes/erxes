@@ -18,7 +18,6 @@ import { withProps } from "@erxes/ui/src/utils";
 
 const ConformityChooser = asyncComponent(
   () =>
-    isEnabled("cards") &&
     import(
       /* webpackChunkName: "ConformityChooser" */ "@erxes/ui-sales/src/conformity/containers/ConformityChooser"
     )
@@ -52,10 +51,6 @@ class CompanyChooser extends React.Component<
   };
 
   render() {
-    if (!isEnabled("cards")) {
-      return null;
-    }
-
     const { data, companiesQuery, search } = this.props;
 
     const renderName = company => {

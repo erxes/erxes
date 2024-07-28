@@ -63,14 +63,14 @@ export default class TaskEditForm extends React.Component<Props, State> {
   renderItems = () => {
     return (
       <>
-        {isEnabled("sales") ?? (
+        {isEnabled("sales") && (
           <PortableDeals mainType="task" mainTypeId={this.props.item._id} />
         )}
-        {isEnabled("purchases") ?? (
+        {isEnabled("purchases") && (
           <PortablePurchases mainType="task" mainTypeId={this.props.item._id} />
         )}
 
-        {isEnabled("tickets") ?? (
+        {isEnabled("tickets") && (
           <PortableTickets mainType="task" mainTypeId={this.props.item._id} />
         )}
 

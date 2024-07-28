@@ -16,7 +16,6 @@ import { queries } from "../graphql";
 
 const GetConformity = asyncComponent(
   () =>
-    isEnabled("cards") &&
     import(
       /* webpackChunkName: "GetConformity" */ "@erxes/ui-sales/src/conformity/containers/GetConformity"
     )
@@ -146,10 +145,6 @@ type IProps = {
 };
 
 export default (props: IProps) => {
-  if (!isEnabled("cards")) {
-    return null;
-  }
-
   return (
     <GetConformity
       {...props}

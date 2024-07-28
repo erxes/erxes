@@ -739,7 +739,7 @@ const boardQueries = {
     }
   },
 
-  async purchaseCardsFields(_root, _args, { models, subdomain }: IContext) {
+  async purchasesCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
     for (const ct of ["purchase"]) {

@@ -739,7 +739,7 @@ const boardQueries = {
     }
   },
 
-  async taskCardsFields(_root, _args, { models, subdomain }: IContext) {
+  async tasksCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
     for (const ct of ["task"]) {

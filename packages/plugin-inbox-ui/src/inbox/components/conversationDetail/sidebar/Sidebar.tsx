@@ -334,14 +334,13 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
                 {__("Activity")}
               </TabTitle>
             )}
-            {isEnabled("cards") && (
-              <TabTitle
-                className={currentSubTab === "related" ? "active" : ""}
-                onClick={relatedOnClick}
-              >
-                {__("Related")}
-              </TabTitle>
-            )}
+
+            <TabTitle
+              className={currentSubTab === "related" ? "active" : ""}
+              onClick={relatedOnClick}
+            >
+              {__("Related")}
+            </TabTitle>
           </Tabs>
           {this.renderTabSubContent()}
         </>

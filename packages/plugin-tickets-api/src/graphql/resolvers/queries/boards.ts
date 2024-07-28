@@ -739,7 +739,7 @@ const boardQueries = {
     }
   },
 
-  async ticketCardsFields(_root, _args, { models, subdomain }: IContext) {
+  async ticketsCardsFields(_root, _args, { models, subdomain }: IContext) {
     const result = {};
 
     for (const ct of ["ticket"]) {

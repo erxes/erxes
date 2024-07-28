@@ -12,12 +12,10 @@ import React from "react";
 import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "../graphql";
 
 const GetConformity = asyncComponent(
   () =>
-    isEnabled("cards") &&
     import(
       /* webpackChunkName: "GetConformity" */ "@erxes/ui-sales/src/conformity/containers/GetConformity"
     )
@@ -147,10 +145,6 @@ export type ICustomerSectionProps = {
 };
 
 export default (props: ICustomerSectionProps) => {
-  if (!isEnabled("cards")) {
-    return null;
-  }
-
   return (
     <GetConformity
       {...props}

@@ -48,7 +48,7 @@ export default function Options(props: Props) {
   );
 
   const renderBoardForm = () => {
-    if (isEnabled("cards"))
+    if (isEnabled("sales"))
       return (
         <Block>
           <h4>{__("Stage")}</h4>
