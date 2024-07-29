@@ -21,7 +21,9 @@ const receiveComment = async (
       { kind: INTEGRATION_KINDS.POST }
     ]
   });
-
+  if (!integration) {
+    throw new Error('Instagram Integration not found ');
+  }
   if (userId === pageId) {
     return;
   }

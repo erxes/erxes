@@ -112,8 +112,6 @@ const init = async (app) => {
         }
       }
     }
-
-    next();
   });
 };
 

@@ -125,7 +125,6 @@ export const removeAccount = async (
   const integrations = await models.Integrations.find({
     accountId: account._id
   });
-
   if (integrations.length > 0) {
     for (const integration of integrations) {
       try {
@@ -325,7 +324,7 @@ export const instagramCreateIntegration = async (
     }
   } else {
     // Handle the case where facebookPageId is null
-    throw new Error('facebookPageId is nullsss');
+    throw new Error('facebookPageId is null');
   }
 
   integration.facebookPageTokensMap = facebookPageTokensMap;
