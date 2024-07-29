@@ -21,6 +21,7 @@ let Tags: Collection<any>;
 let InternalNotes: Collection<any>;
 let Webhooks: Collection<any>;
 let ActivityLogs: Collection<any>;
+let Charts: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -60,10 +61,10 @@ const command = async () => {
   InternalNotes = db.collection("internal_notes");
   ActivityLogs = db.collection("activity_logs");
   Webhooks = db.collection("webhooks");
+  Charts = db.collection("insight_charts");
 
   try {
     await Segments.find({}).forEach(doc => {
-      console.log(doc);
       const contentType = switchContentType(doc.contentType);
 
       Segments.updateOne({ _id: doc._id }, { $set: { contentType } });
@@ -136,6 +137,26 @@ const command = async () => {
         }
       );
     });
+
+    await Charts.updateMany(
+      { templateType: { $regex: new RegExp("Deal") } },
+      { $set: { serviceName: "sales" } }
+    );
+
+    await Charts.updateMany(
+      { templateType: { $regex: new RegExp("Ticket") } },
+      { $set: { serviceName: "tickets" } }
+    );
+
+    await Charts.updateMany(
+      { templateType: { $regex: new RegExp("Task") } },
+      { $set: { serviceName: "tasks" } }
+    );
+
+    await Charts.updateMany(
+      { templateType: { $regex: new RegExp("Purchase") } },
+      { $set: { serviceName: "purchases" } }
+    );
   } catch (e) {
     console.log(`Error occurred: ${e.message}`);
   }
