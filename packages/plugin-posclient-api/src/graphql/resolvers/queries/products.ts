@@ -304,7 +304,7 @@ const productQueries = {
     }
 
     if (groupedSimilarity) {
-      return await getSimilaritiesProducts(models, filter, {
+      return await getSimilaritiesProducts(models, filter, sortParams, {
         groupedSimilarity,
         ...paginationArgs
       });
