@@ -91,8 +91,9 @@ export interface IIntegrationMessengerOnlineHours {
 }
 
 export interface IIntegrationLink {
-  twitter?: string;
   facebook?: string;
+  instagram?: string;
+  twitter?: string;
   youtube?: string;
 }
 

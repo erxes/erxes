@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.15.0-rc.4](https://github.com/erxes/erxes/compare/1.15.0-rc.3...1.15.0-rc.4) (2024-07-23)
+
+
+### Bug Fixes
+
+* **cards:** properties remove from card when close modal ([08b8ce4](https://github.com/erxes/erxes/commit/08b8ce4da849e2f0eb4155a89a7f83b6dc18e3a9))
+* **inbox:** mail widget loading ([7d027df](https://github.com/erxes/erxes/commit/7d027df593258b4d398de5cec80079fcc59b569e))
+* **pos:** pos create form ([#5529](https://github.com/erxes/erxes/issues/5529)) ([47dd26e](https://github.com/erxes/erxes/commit/47dd26e6e741d3873ebe8d2ab7ab71ec3d884efb))
+
+## [1.15.0-rc.3](https://github.com/erxes/erxes/compare/1.15.0-rc.2...1.15.0-rc.3) (2024-07-20)
+
+
+### Bug Fixes
+
+* widgets messenger minified css applies correctly ([392db80](https://github.com/erxes/erxes/commit/392db807dc8672bc3627161cc7efb3cb0f4ac2a3))
+
+## [1.15.0-rc.2](https://github.com/erxes/erxes/compare/1.15.0-rc.1...1.15.0-rc.2) (2024-07-19)
+
+
+### Bug Fixes
+
+* **widget:** revert widgets.yaml ([1bb09ad](https://github.com/erxes/erxes/commit/1bb09ad2182d304d6dcf043c4d12f65af6937bec))
+
 ## [1.15.0-rc.1](https://github.com/erxes/erxes/compare/1.15.0-rc.0...1.15.0-rc.1) (2024-07-19)
 
 
@@ -15,12 +38,14 @@
 * **riskassessment:** can't calculate correct when using calculate method by percent ([cd32ca4](https://github.com/erxes/erxes/commit/cd32ca465923ecd9e05b9404e95ba5a93fc05741))
 
 ## [1.15.0-rc.0](https://github.com/erxes/erxes/compare/1.14.0...1.15.0-rc.0) (2024-07-17)
+## [1.14.1](https://github.com/erxes/erxes/compare/1.14.0...1.14.1) (2024-07-25)
 
 
 ### Features
 
 * Add golomt transaction ([#5459](https://github.com/erxes/erxes/issues/5459)) ([6803fbf](https://github.com/erxes/erxes/commit/6803fbf06dfe4e752c1d317d8be0d9d845a11292))
 * Pos split order and confirm edited order ([#5411](https://github.com/erxes/erxes/issues/5411)) ([2220380](https://github.com/erxes/erxes/commit/2220380df029eeb9351086045926df2a1804ec00))
+* payment invoice paid then to syncerkhet from third systems data ([#5543](https://github.com/erxes/erxes/issues/5543)) ([dd95a4a](https://github.com/erxes/erxes/commit/dd95a4a1a35c9fe66c8eaa916d16b1e400929404))
 
 
 ### Bug Fixes
@@ -36,6 +61,8 @@
 * pos slots query ([#5473](https://github.com/erxes/erxes/issues/5473)) ([a909dde](https://github.com/erxes/erxes/commit/a909dde6fa09f0e30b10541d37efd645480e95dd))
 * scoring bug ([#5460](https://github.com/erxes/erxes/issues/5460)) ([dc9b7b3](https://github.com/erxes/erxes/commit/dc9b7b3b76c624eea26f567c7a6a45e0c765e005))
 * **verifier:** add missing enum in mongoose schema ([4133372](https://github.com/erxes/erxes/commit/4133372507bd9adb51d3f2002d9bd9689be566a0))
+* inbox hooks ([1716603](https://github.com/erxes/erxes/commit/17166034412e24a0c5fb214642d3781e134f652e))
+* pos orders filter ([5a96f58](https://github.com/erxes/erxes/commit/5a96f58263b382e440e8fd196ba757202dce99b5))
 
 ## [1.14.0](https://github.com/erxes/erxes/compare/1.14.0-rc.10...1.14.0) (2024-07-17)
 

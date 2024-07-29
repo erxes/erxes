@@ -1,67 +1,75 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, compose, graphql } from "react-apollo";
-import client from "../../apollo-client";
-import { getLocalStorageItem } from "../../common";
-import { IParticipator, IUser } from "../../types";
-import DumbComponent from "../components/ConversationDetail";
-import { connection } from "../connection";
-import graphqlTypes from "../graphql";
-import { IConversation, IMessage } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import { useEffect } from 'react';
+import client from '../../apollo-client';
+import { getLocalStorageItem } from '../../common';
+import { IParticipator, IUser } from '../../types';
+import ConversationDetail from '../components/ConversationDetail';
+import { connection } from '../connection';
+import graphqlTypes from '../graphql';
+import { IMessage } from '../types';
+import { useQuery } from '@apollo/react-hooks';
+import { useConversation } from '../context/Conversation';
+import { getMessengerData } from '../utils/util';
+import { useMessage } from '../context/Message';
 
-type Props = {
-  conversationId: string;
-  color?: string;
-  goToConversationList: () => void;
-  setBotTyping: (typing: boolean) => void;
-  endConversation: (conversationId: string) => void;
+type PropsWithConsumer = {
   supporters: IUser[];
   loading?: boolean;
-  isOnline?: boolean;
-  forceLogoutWhenResolve?: boolean;
-  errorMessage: string;
 };
 
-type QueryResponse = {
-  widgetsConversationDetail: IConversation;
-};
+const ConversationDetailContainer: React.FC<PropsWithConsumer> = (props) => {
+  const {
+    isBotTyping,
+    setIsBotTyping,
+    activeConversationId: conversationId,
+    goToConversationList,
+    endConversation,
+  } = useConversation();
 
-class ConversationDetail extends React.Component<
-  ChildProps<Props, QueryResponse>,
-  {}
-> {
-  componentWillMount() {
-    const {
-      data,
-      endConversation,
-      setBotTyping,
-      conversationId,
-      forceLogoutWhenResolve
-    } = this.props;
+  const { errorMessage } = useMessage();
 
-    if (!data || !conversationId) {
+  const { data, loading, subscribeToMore } = useQuery(
+    gql(
+      graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)
+    ),
+    {
+      variables: {
+        _id: conversationId,
+        integrationId: connection.data.integrationId,
+      },
+      fetchPolicy: 'network-only',
+    }
+  );
+
+  const { isOnline, forceLogoutWhenResolve } = getMessengerData();
+
+  useEffect(() => {
+    if (!data || !conversationId || loading) {
       return;
     }
 
     // listen for bot message typing
-    client
+    const botTypingSubscription = client
       .subscribe({
         query: gql(graphqlTypes.conversationBotTypingStatus),
         variables: { _id: conversationId },
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only',
       })
       .subscribe({
         next({ data: { conversationBotTypingStatus } }) {
           const { typing } = conversationBotTypingStatus;
-
-          return setBotTyping(typing);
-        }
+          setIsBotTyping(typing);
+        },
       });
 
     // lister for new message
-    data.subscribeToMore({
-      document: gql(graphqlTypes.conversationMessageInserted(connection.enabledServices.dailyco)),
+    const messageSubscription = subscribeToMore({
+      document: gql(
+        graphqlTypes.conversationMessageInserted(
+          connection.enabledServices.dailyco
+        )
+      ),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
         const message = subscriptionData.data.conversationMessageInserted;
@@ -85,16 +93,16 @@ class ConversationDetail extends React.Component<
           ...prev,
           widgetsConversationDetail: {
             ...widgetsConversationDetail,
-            messages: [...messages, message]
-          }
+            messages: [...messages, message],
+          },
         };
 
         return next;
-      }
+      },
     });
 
     // lister for conversation status change
-    data.subscribeToMore({
+    const statusSubscription = subscribeToMore({
       document: gql(graphqlTypes.conversationChanged),
       variables: { _id: conversationId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -102,123 +110,71 @@ class ConversationDetail extends React.Component<
         const conversationChanged = subData.conversationChanged || {};
         const type = conversationChanged.type;
 
-        if (forceLogoutWhenResolve && type === "closed") {
-          endConversation(conversationId);
+        if (forceLogoutWhenResolve && type === 'closed') {
+          endConversation();
         }
-      }
+      },
+    });
+
+    return () => {
+      botTypingSubscription.unsubscribe();
+      messageSubscription();
+      statusSubscription();
+    };
+  }, [
+    conversationId,
+    data,
+    endConversation,
+    forceLogoutWhenResolve,
+    isBotTyping,
+    subscribeToMore,
+    loading,
+  ]);
+
+  let messages: IMessage[] = [];
+  let participators: IParticipator[] = [];
+  let state: boolean = isOnline || false;
+  let operatorStatus;
+  let refetchConversationDetail;
+
+  if (data && data.widgetsConversationDetail) {
+    const conversationDetail = data.widgetsConversationDetail;
+    messages = conversationDetail.messages;
+    participators = conversationDetail.participatedUsers || [];
+    state = conversationDetail.isOnline;
+    operatorStatus = conversationDetail.operatorStatus;
+    refetchConversationDetail = data.refetch;
+  }
+
+  const { messengerData }: any = JSON.parse(
+    getLocalStorageItem('messengerDataJson')
+  );
+
+  if (!messengerData.showLauncher && connection.enabledServices.engages) {
+    client.query({
+      query: gql(graphqlTypes.getEngageMessage),
+      variables: {
+        integrationId: connection.data.integrationId,
+        customerId: connection.data.customerId,
+        visitorId: connection.data.visitorId,
+        browserInfo: {},
+      },
     });
   }
 
-  render() {
-    const { data, isOnline } = this.props;
-
-    let messages: IMessage[] = [];
-    let participators: IParticipator[] = [];
-    let state: boolean = isOnline || false;
-    let operatorStatus;
-    let refetchConversationDetail;
-
-    if (data && data.widgetsConversationDetail) {
-      const conversationDetail = data.widgetsConversationDetail;
-      messages = conversationDetail.messages;
-      participators = conversationDetail.participatedUsers || [];
-      state = conversationDetail.isOnline;
-      operatorStatus = conversationDetail.operatorStatus;
-      refetchConversationDetail = data.refetch;
-    }
-
-    const { messengerData }: any = JSON.parse(
-      getLocalStorageItem("messengerDataJson")
-    );
-
-    if (!messengerData.showLauncher && connection.enabledServices.engages) {
-      client.query({
-        query: gql(graphqlTypes.getEngageMessage),
-        variables: {
-          integrationId: connection.data.integrationId,
-          customerId: connection.data.customerId,
-          visitorId: connection.data.visitorId,
-          browserInfo: {}
-        },
-      });
-    }
-
-    return (
-      <DumbComponent
-        {...this.props}
-        operatorStatus={operatorStatus}
-        messages={messages}
-        isOnline={state}
-        participators={participators}
-        refetchConversationDetail={refetchConversationDetail}
-      />
-    );
-  }
-}
-
-const query = compose(
-  graphql<{ conversationId: string }>(
-    gql(graphqlTypes.conversationDetailQuery(connection.enabledServices.dailyco)),
-    {
-      options: ownProps => ({
-        variables: {
-          _id: ownProps.conversationId,
-          integrationId: connection.data.integrationId
-        },
-        fetchPolicy: "network-only"
-      })
-    }
-  )
-);
-
-const WithQuery = query(ConversationDetail);
-
-type PropsWithConsumer = {
-  supporters: IUser[];
-  loading?: boolean;
-};
-
-const WithConsumer = (props: PropsWithConsumer) => {
   return (
-    <AppConsumer>
-      {({
-        activeConversation,
-        goToConversationList,
-        endConversation,
-        getColor,
-        setBotTyping,
-        getMessengerData,
-        getBotInitialMessage,
-        errorMessage
-      }) => {
-        const key = activeConversation || "create";
-        const {
-          isOnline,
-          forceLogoutWhenResolve,
-          botShowInitialMessage,
-          showTimezone
-        } = getMessengerData();
-
-        return (
-          <WithQuery
-            {...props}
-            key={key}
-            isOnline={isOnline}
-            forceLogoutWhenResolve={forceLogoutWhenResolve}
-            conversationId={activeConversation}
-            goToConversationList={goToConversationList}
-            getBotInitialMessage={getBotInitialMessage}
-            botShowInitialMessage={botShowInitialMessage}
-            showTimezone={showTimezone}
-            setBotTyping={setBotTyping}
-            endConversation={endConversation}
-            errorMessage={errorMessage}
-            color={getColor()}
-          />
-        );
-      }}
-    </AppConsumer>
+    <ConversationDetail
+      goToConversationList={goToConversationList}
+      supporters={props.supporters}
+      errorMessage={errorMessage}
+      operatorStatus={operatorStatus}
+      messages={messages}
+      isOnline={state}
+      participators={participators}
+      refetchConversationDetail={refetchConversationDetail}
+      isLoading={loading}
+    />
   );
 };
 
-export default WithConsumer;
+export default ConversationDetailContainer;

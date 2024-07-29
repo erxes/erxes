@@ -1,12 +1,11 @@
 export const types = ({ products, tags, forms }) => `
-  ${
-    forms
-      ? `
+  ${forms
+    ? `
       extend type Form @key(fields: "_id") {
         _id: String! @external
       }
     `
-      : ''
+    : ''
   }
 
   input InputRule {
@@ -69,13 +68,12 @@ export const types = ({ products, tags, forms }) => `
 
     categoryTree: JSON
 
-    ${
-      products
-        ? `
+    ${products
+    ? `
         mainProductCategory: ProductCategory
       `
-        : ''
-    }
+    : ''
+  }
 
     navigationText: String
     bookingFormText: String
@@ -161,6 +159,10 @@ export const types = ({ products, tags, forms }) => `
     youtube: String
   }
 
+  input IntegrationExternalLinks {
+    url: String
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -176,6 +178,7 @@ export const types = ({ products, tags, forms }) => `
     messages: JSON
     knowledgeBaseTopicId: String
     links: IntegrationLinks
+    externalLinks: [IntegrationExternalLinks]
     supporterIds: [String]
     requireAuth: Boolean
     showChat: Boolean

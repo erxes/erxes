@@ -26,6 +26,7 @@ export interface IArticle {
   reactionCounts?: { [key: string]: number };
   categoryId?: string;
   topicId?: string;
+  publishedUserId?: string;
 
   forms?: IFormCodes[];
 }
@@ -113,6 +114,7 @@ export const articleSchema = new Schema({
   reactionCounts: field({ type: Object, label: 'Reaction counts' }),
   topicId: field({ type: String, optional: true, label: 'Topic' }),
   categoryId: field({ type: String, optional: true, label: 'Category' }),
+  publishedUserId:field({ type: String, optional: true, label: 'Published user'}),
 
   forms: field({ type: [formcodesSchema], label: 'Forms' }),
   ...commonFields,
