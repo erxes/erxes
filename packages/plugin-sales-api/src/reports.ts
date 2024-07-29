@@ -1,11 +1,7 @@
 import * as dayjs from "dayjs";
 
 import { IModels, generateModels } from "./connectionResolver";
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendTagsMessage
-} from "./messageBroker";
+import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -212,9 +208,9 @@ const chartTemplates = [
         let flattenedTagIds = tagsCount.flat();
         let tagId = tagIds || flattenedTagIds; // Assigns tagIds if it exists, otherwise uses flattenedTagIds
         // Use the flattenedTagIds to query tag information
-        const tagInfo = await sendTagsMessage({
+        const tagInfo = await sendCoreMessage({
           subdomain,
-          action: "find",
+          action: "tagFind",
           data: {
             _id: { $in: tagId || [] } // Use flattenedTagIds here
           },

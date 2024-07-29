@@ -6,7 +6,7 @@ import { afterQueryWrapper, paginate } from "@erxes/api-utils/src";
 import { PRODUCT_STATUSES } from "../../../models/definitions/products";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
 import { IContext, IModels } from "../../../connectionResolver";
-import { sendSalesMessage, sendTagsMessage } from "../../../messageBroker";
+import { sendSalesMessage, sendCoreMessage } from "../../../messageBroker";
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount
@@ -457,9 +457,9 @@ const productQueries = {
     const counts = {};
 
     // Count products by tag =========
-    const tags = await sendTagsMessage({
+    const tags = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "tagFind",
       data: {
         type: "products:product"
       },

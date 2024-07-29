@@ -1,16 +1,15 @@
-import * as _ from 'lodash';
+import * as _ from "lodash";
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendProductsMessage,
-  sendSegmentsMessage,
-  sendTagsMessage
-} from '../messageBroker';
+  sendSegmentsMessage
+} from "../messageBroker";
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: 'getConfig',
+    action: "getConfig",
     data: { code, defaultValue },
     isRPC: true
   });
@@ -19,7 +18,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendProductsMessage({
     subdomain,
-    action: 'categories.withChilds',
+    action: "categories.withChilds",
     data: { ids: categoryIds },
     isRPC: true,
     defaultValue: []
@@ -30,9 +29,9 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
 };
 
 export const getChildTags = async (subdomain: string, tagIds) => {
-  const childs = await sendTagsMessage({
+  const childs = await sendCoreMessage({
     subdomain,
-    action: 'withChilds',
+    action: "tagWithChilds",
     data: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     isRPC: true,
     defaultValue: []
@@ -107,8 +106,8 @@ export const checkCondition = async (
       if (ratio) {
         const checkCount = Math.round((1 / ratio) * 100) / 100;
         if (
-          (condition.subUomType === 'lt' && pdata.quantity < checkCount) ||
-          (condition.subUomType === 'gte' && pdata.quantity >= checkCount)
+          (condition.subUomType === "lt" && pdata.quantity < checkCount) ||
+          (condition.subUomType === "gte" && pdata.quantity >= checkCount)
         ) {
           checkUomRes = true;
         }
@@ -160,7 +159,7 @@ export const checkCondition = async (
       if (
         await sendSegmentsMessage({
           subdomain,
-          action: 'isInSegment',
+          action: "isInSegment",
           data: { segmentId, idToCheck: pdata.productId }
         })
       ) {
@@ -179,7 +178,7 @@ export const checkCondition = async (
 
 const getCustomerName = customer => {
   if (!customer) {
-    return '';
+    return "";
   }
 
   if (customer.firstName && customer.lastName) {
@@ -202,14 +201,14 @@ const getCustomerName = customer => {
     return customer.primaryPhone;
   }
 
-  return '';
+  return "";
 };
 
 export const getCustomer = async (subdomain, deal) => {
   const companyIds = await sendCoreMessage({
     subdomain,
-    action: 'conformities.savedConformity',
-    data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    action: "conformities.savedConformity",
+    data: { mainType: "deal", mainTypeId: deal._id, relTypes: ["company"] },
     isRPC: true,
     defaultValue: []
   });
@@ -217,7 +216,7 @@ export const getCustomer = async (subdomain, deal) => {
   if (companyIds.length > 0) {
     const companies = await sendContactsMessage({
       subdomain,
-      action: 'companies.findActiveCompanies',
+      action: "companies.findActiveCompanies",
       data: {
         selector: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1, primaryName: 1 }
@@ -238,8 +237,8 @@ export const getCustomer = async (subdomain, deal) => {
 
   const customerIds = await sendCoreMessage({
     subdomain,
-    action: 'conformities.savedConformity',
-    data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+    action: "conformities.savedConformity",
+    data: { mainType: "deal", mainTypeId: deal._id, relTypes: ["customer"] },
     isRPC: true,
     defaultValue: []
   });
@@ -247,7 +246,7 @@ export const getCustomer = async (subdomain, deal) => {
   if (customerIds.length > 0) {
     const customers = await sendContactsMessage({
       subdomain,
-      action: 'customers.findActiveCustomers',
+      action: "customers.findActiveCustomers",
       data: {
         selector: { _id: { $in: customerIds } },
         fields: {
@@ -267,14 +266,14 @@ export const getCustomer = async (subdomain, deal) => {
 
     if (customer) {
       return {
-        customerCode: customer.code || '',
+        customerCode: customer.code || "",
         customerName: getCustomerName(customer)
       };
     } else {
       if (customers.length) {
         customer = customers[0];
         return {
-          customerCode: customer.code || '',
+          customerCode: customer.code || "",
           customerName: getCustomerName(customer)
         };
       }

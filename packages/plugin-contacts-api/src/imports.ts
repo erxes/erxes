@@ -1,16 +1,11 @@
-import * as _ from 'underscore';
-import { generateModels } from './connectionResolver';
-import { IMPORT_EXPORT_TYPES } from './constants';
-import { generatePronoun } from './importUtils';
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendTagsMessage,
-} from './messageBroker';
+import * as _ from "underscore";
+import { generateModels } from "./connectionResolver";
+import { IMPORT_EXPORT_TYPES } from "./constants";
+import { generatePronoun } from "./importUtils";
+import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
 
 export default {
   insertImportItems: async ({ subdomain, data }) => {
-    console.log('========');
     const models = await generateModels(subdomain);
     const { docs, user, contentType } = data;
 
@@ -21,7 +16,7 @@ export default {
     const updateDocs: any = [];
 
     try {
-      if (contentType === 'customer' || contentType === 'lead') {
+      if (contentType === "customer" || contentType === "lead") {
         for (const doc of docs) {
           if (!doc.ownerId && user) {
             doc.ownerId = user._id;
@@ -71,7 +66,7 @@ export default {
 
               const updatedCustomer = await models.Customers.updateOne(
                 { _id: previousCustomer._id },
-                { $set: { ...doc } },
+                { $set: { ...doc } }
               );
 
               updateDocs.push(updatedCustomer);
@@ -88,7 +83,7 @@ export default {
         }
       }
 
-      if (contentType === 'company') {
+      if (contentType === "company") {
         for (const doc of docs) {
           if (!doc.ownerId && user) {
             doc.ownerId = user._id;
@@ -100,13 +95,13 @@ export default {
 
           if (doc.primaryEmail) {
             const previousCompany = await models.Companies.findOne({
-              $or: [{ primaryEmail: doc.primaryEmail }],
+              $or: [{ primaryEmail: doc.primaryEmail }]
             });
 
             if (previousCompany) {
               await models.Companies.updateOne(
                 { _id: previousCompany._id },
-                { $set: { ...doc } },
+                { $set: { ...doc } }
               );
 
               updated++;
@@ -130,7 +125,7 @@ export default {
   },
   importExportTypes: IMPORT_EXPORT_TYPES,
   prepareImportDocs: async ({ subdomain, data }) => {
-    console.log('---------');
+    console.log("---------");
     const { scopeBrandIds, result, contentType, properties } = data;
 
     const bulkDoc: any = [];
@@ -139,109 +134,109 @@ export default {
     for (const fieldValue of result) {
       const doc: any = {
         scopeBrandIds,
-        customFieldsData: [],
+        customFieldsData: []
       };
 
       let colIndex: number = 0;
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || '').toString();
+        const value = (fieldValue[colIndex] || "").toString();
 
-        if (contentType === 'customer') {
-          doc.state = 'customer';
+        if (contentType === "customer") {
+          doc.state = "customer";
         }
-        if (contentType === 'lead') {
-          doc.state = 'lead';
+        if (contentType === "lead") {
+          doc.state = "lead";
         }
 
         switch (property.name) {
-          case 'customProperty':
+          case "customProperty":
             {
               doc.customFieldsData.push({
                 field: property.id,
-                value: fieldValue[colIndex],
+                value: fieldValue[colIndex]
               });
 
               doc.customFieldsData = await sendFormsMessage({
                 subdomain,
-                action: 'fields.prepareCustomFieldsData',
+                action: "fields.prepareCustomFieldsData",
                 data: doc.customFieldsData,
                 isRPC: true,
                 defaultValue: doc.customFieldsData,
-                timeout: 60 * 1000, // 1 minute
+                timeout: 60 * 1000 // 1 minute
               });
             }
             break;
 
-          case 'customData':
+          case "customData":
             {
               doc[property.name] = value;
             }
             break;
 
-          case 'ownerEmail':
+          case "ownerEmail":
             {
               const userEmail = value;
 
               const owner = await sendCoreMessage({
                 subdomain,
-                action: 'users.findOne',
+                action: "users.findOne",
                 data: {
-                  email: userEmail,
+                  email: userEmail
                 },
-                isRPC: true,
+                isRPC: true
               });
 
-              doc.ownerId = owner ? owner._id : '';
+              doc.ownerId = owner ? owner._id : "";
             }
             break;
 
-          case 'pronoun':
+          case "pronoun":
             {
               doc.sex = generatePronoun(value);
             }
             break;
 
-          case 'companiesPrimaryNames':
+          case "companiesPrimaryNames":
             {
-              doc.companiesPrimaryNames = value.split(',');
+              doc.companiesPrimaryNames = value.split(",");
             }
             break;
 
-          case 'companiesPrimaryEmails':
+          case "companiesPrimaryEmails":
             {
-              doc.companiesPrimaryEmails = value.split(',');
+              doc.companiesPrimaryEmails = value.split(",");
             }
             break;
 
-          case 'customersPrimaryEmails':
-            doc.customersPrimaryEmails = value.split(',');
+          case "customersPrimaryEmails":
+            doc.customersPrimaryEmails = value.split(",");
             break;
 
-          case 'vendorCode':
+          case "vendorCode":
             doc.vendorCode = value;
             break;
 
-          case 'tag':
+          case "tag":
             {
-              const type = contentType === 'lead' ? 'customer' : contentType;
+              const type = contentType === "lead" ? "customer" : contentType;
 
               const tagName = value;
 
-              let tag = await sendTagsMessage({
+              let tag = await sendCoreMessage({
                 subdomain,
-                action: 'findOne',
+                action: "tagFindOne",
                 data: { name: tagName, type: `contacts:${type}` },
-                isRPC: true,
+                isRPC: true
               });
 
               if (!tag) {
-                tag = await sendTagsMessage({
+                tag = await sendCoreMessage({
                   subdomain,
-                  action: 'createTag',
+                  action: "createTag",
                   data: { name: tagName, type: `contacts:${type}` },
-                  isRPC: true,
+                  isRPC: true
                 });
               }
 
@@ -250,15 +245,15 @@ export default {
 
             break;
 
-          case 'assignedUserEmail':
+          case "assignedUserEmail":
             {
               const assignedUser = await sendCoreMessage({
                 subdomain,
-                action: 'users.findOne',
+                action: "users.findOne",
                 data: {
-                  email: value,
+                  email: value
                 },
-                isRPC: true,
+                isRPC: true
               });
 
               doc.assignedUserIds = assignedUser ? [assignedUser._id] : [];
@@ -270,39 +265,39 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === 'createdAt' && value) {
+              if (property.name === "createdAt" && value) {
                 doc.createdAt = new Date(value);
               }
 
-              if (property.name === 'modifiedAt' && value) {
+              if (property.name === "modifiedAt" && value) {
                 doc.modifiedAt = new Date(value);
               }
 
-              if (property.name === 'primaryName' && value) {
+              if (property.name === "primaryName" && value) {
                 doc.names = [value];
               }
 
-              if (property.name === 'primaryEmail' && value) {
+              if (property.name === "primaryEmail" && value) {
                 doc.emails = [value];
               }
 
-              if (property.name === 'primaryPhone' && value) {
+              if (property.name === "primaryPhone" && value) {
                 doc.phones = [value];
               }
 
-              if (property.name === 'phones' && value) {
-                doc.phones = value.split(',');
+              if (property.name === "phones" && value) {
+                doc.phones = value.split(",");
               }
 
-              if (property.name === 'emails' && value) {
-                doc.emails = value.split(',');
+              if (property.name === "emails" && value) {
+                doc.emails = value.split(",");
               }
 
-              if (property.name === 'names' && value) {
-                doc.names = value.split(',');
+              if (property.name === "names" && value) {
+                doc.names = value.split(",");
               }
 
-              if (property.name === 'isComplete') {
+              if (property.name === "isComplete") {
                 doc.isComplete = Boolean(value);
               }
             }
@@ -313,17 +308,17 @@ export default {
       } // end properties for loop
 
       if (
-        (contentType === 'customer' || contentType === 'lead') &&
+        (contentType === "customer" || contentType === "lead") &&
         !doc.emailValidationStatus
       ) {
-        doc.emailValidationStatus = 'unknown';
+        doc.emailValidationStatus = "unknown";
       }
 
       if (
-        (contentType === 'customer' || contentType === 'lead') &&
+        (contentType === "customer" || contentType === "lead") &&
         !doc.phoneValidationStatus
       ) {
-        doc.phoneValidationStatus = 'unknown';
+        doc.phoneValidationStatus = "unknown";
       }
 
       // set board item created user
@@ -332,7 +327,7 @@ export default {
     }
 
     return bulkDoc;
-  },
+  }
 };
 
 // tslint:disable-next-line

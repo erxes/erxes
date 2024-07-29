@@ -587,12 +587,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true
   });
-
-export const sendTagsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "tags",
-    ...args
-  });
-};

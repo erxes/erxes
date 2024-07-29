@@ -374,10 +374,6 @@ export const sendPricingMessage = async (
   return sendMessageWrapper("pricing", args);
 };
 
-export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
-  return sendMessageWrapper("tags", args);
-};
-
 export const sendSegmentsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

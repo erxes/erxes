@@ -1,6 +1,6 @@
-import { IContext } from '../../connectionResolver';
-import { sendTagsMessage } from '../../messageBroker';
-import { IRiskIndicatorsDocument } from '../../models/definitions/indicator';
+import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
+import { IRiskIndicatorsDocument } from "../../models/definitions/indicator";
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -8,9 +8,9 @@ export default {
   },
 
   async tags(indicator: IRiskIndicatorsDocument, {}, { subdomain }: IContext) {
-    return sendTagsMessage({
+    return sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "tagFind",
       data: {
         _id: { $in: indicator.tagIds }
       },

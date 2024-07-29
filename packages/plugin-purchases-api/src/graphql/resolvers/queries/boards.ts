@@ -10,8 +10,7 @@ import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
-  sendSegmentsMessage,
-  sendTagsMessage
+  sendSegmentsMessage
 } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 import { getContentTypeDetail } from "../../../utils";
@@ -819,9 +818,9 @@ const boardQueries = {
       return intervals;
     }
 
-    const tags = await sendTagsMessage({
+    const tags = await sendCoreMessage({
       subdomain,
-      action: "withChilds",
+      action: "tagWithChilds",
       data: {
         query: {
           _id: pipeline.tagId

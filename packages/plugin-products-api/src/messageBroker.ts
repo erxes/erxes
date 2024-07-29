@@ -402,13 +402,6 @@ export const sendContactsMessage = (
   });
 };
 
-export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
-  return sendMessage({
-    serviceName: "tags",
-    ...args
-  });
-};
-
 export const sendSegmentsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

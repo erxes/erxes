@@ -64,8 +64,9 @@ import {
 } from "./db/models/InstallationLog";
 import { IInstallationLogDocument } from "./db/models/definitions/installationLogs";
 import { IUserMovementDocument } from "./db/models/definitions/users";
-import { ICustomerDocument } from "./db/models/definitions/customers";
-import { ICompanyDocument } from "./db/models/definitions/companies";
+import { ITagDocument } from "./db/models/definitions/tags";
+import { ITagModel, loadTagClass } from "./db/models/Tags";
+
 export interface IModels {
   Users: IUserModel;
   Brands: IBrandModel;
@@ -83,6 +84,7 @@ export interface IModels {
   Apps: IAppModel;
   InstallationLogs: IInstallationLogModel;
   UserMovements: IUserMovemmentModel;
+  Tags: ITagModel;
 }
 
 export interface IContext extends IMainContext {
@@ -163,6 +165,8 @@ export const loadClasses = (
     IInstallationLogDocument,
     IInstallationLogModel
   >("installation_logs", loadInstallationLogClass(models));
+
+  models.Tags = db.model<ITagDocument, ITagModel>("tags", loadTagClass(models));
 
   return models;
 };

@@ -656,6 +656,69 @@ export const setupMessageConsumers = async (): Promise<void> => {
     status: "success",
     data: await isEnabled(data)
   }));
+
+  //tags
+  consumeRPCQueue("core:tagFind", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Tags.find(data).lean(),
+      status: "success"
+    };
+  });
+
+  consumeRPCQueue("core:tagFindOne", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Tags.findOne(data).lean(),
+      status: "success"
+    };
+  });
+
+  consumeRPCQueue("core:createTag", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Tags.createTag(data)
+    };
+  });
+
+  consumeRPCQueue(
+    "core:tagWithChilds",
+    async ({ subdomain, data: { query, fields } }) => {
+      const models = await generateModels(subdomain);
+
+      const tags = await models.Tags.find(query);
+
+      if (!tags.length) {
+        return {
+          data: [],
+          status: "success"
+        };
+      }
+
+      const orderQry: any[] = [];
+      for (const tag of tags) {
+        orderQry.push({
+          order: { $regex: new RegExp(`^${escapeRegExp(tag.order || "")}`) }
+        });
+      }
+
+      return {
+        data: await models.Tags.find(
+          {
+            $or: orderQry
+          },
+          fields || {}
+        )
+          .sort({ order: 1 })
+          .lean(),
+        status: "success"
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {

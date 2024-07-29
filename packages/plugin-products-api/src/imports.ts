@@ -1,11 +1,11 @@
-import { generateModels } from './connectionResolver';
-import { sendFormsMessage, sendTagsMessage } from './messageBroker';
+import { generateModels } from "./connectionResolver";
+import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Product & Services',
-    contentType: 'product',
-    icon: 'server-alt'
+    text: "Product & Services",
+    contentType: "product",
+    icon: "server-alt"
   }
 ];
 export default {
@@ -53,7 +53,7 @@ export default {
     const models = await generateModels(subdomain);
     const { result, properties } = data;
 
-    const defaultUom = await models.ProductsConfigs.getConfig('defaultUOM', '');
+    const defaultUom = await models.ProductsConfigs.getConfig("defaultUOM", "");
 
     const bulkDoc: any = [];
 
@@ -69,10 +69,10 @@ export default {
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || '').toString();
+        const value = (fieldValue[colIndex] || "").toString();
 
         switch (property.name) {
-          case 'customProperty':
+          case "customProperty":
             {
               doc.customFieldsData.push({
                 field: property.id,
@@ -81,7 +81,7 @@ export default {
 
               doc.customFieldsData = await sendFormsMessage({
                 subdomain,
-                action: 'fields.prepareCustomFieldsData',
+                action: "fields.prepareCustomFieldsData",
                 data: doc.customFieldsData,
                 isRPC: true,
                 defaultValue: doc.customFieldsData,
@@ -90,32 +90,32 @@ export default {
             }
             break;
 
-          case 'categoryName':
+          case "categoryName":
             {
               const category = await models.ProductCategories.findOne({
-                name: { $regex: new RegExp(`^${value}$`, 'i') }
+                name: { $regex: new RegExp(`^${value}$`, "i") }
               });
 
-              doc.categoryId = category ? category._id : '';
+              doc.categoryId = category ? category._id : "";
             }
 
             break;
 
-          case 'tag':
+          case "tag":
             {
               const tagName = value;
 
-              let tag = await sendTagsMessage({
+              let tag = await sendCoreMessage({
                 subdomain,
-                action: 'findOne',
+                action: "tagFindOne",
                 data: { name: tagName, type: `products:product` },
                 isRPC: true
               });
 
               if (!tag) {
-                tag = await sendTagsMessage({
+                tag = await sendCoreMessage({
                   subdomain,
-                  action: 'createTag',
+                  action: "createTag",
                   data: { name: tagName, type: `products:product` },
                   isRPC: true
                 });
@@ -126,28 +126,28 @@ export default {
 
             break;
 
-          case 'barcodes':
+          case "barcodes":
             {
               doc.barcodes = value
-                .replace(/\s/g, '')
-                .split(',')
+                .replace(/\s/g, "")
+                .split(",")
                 .filter(br => br);
             }
             break;
 
-          case 'subUoms.uom':
+          case "subUoms.uom":
             {
-              subUomNames = value.replace(/\s/g, '').split(',');
+              subUomNames = value.replace(/\s/g, "").split(",");
             }
             break;
 
-          case 'subUoms.ratio':
+          case "subUoms.ratio":
             {
-              ratios = value.replace(/\s/g, '').split(',');
+              ratios = value.replace(/\s/g, "").split(",");
             }
             break;
 
-          case 'uom':
+          case "uom":
             {
               doc.uom = value || defaultUom;
             }
@@ -157,15 +157,15 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === 'createdAt' && value) {
+              if (property.name === "createdAt" && value) {
                 doc.createdAt = new Date(value);
               }
 
-              if (property.name === 'modifiedAt' && value) {
+              if (property.name === "modifiedAt" && value) {
                 doc.modifiedAt = new Date(value);
               }
 
-              if (property.name === 'isComplete') {
+              if (property.name === "isComplete") {
                 doc.isComplete = Boolean(value);
               }
             }
