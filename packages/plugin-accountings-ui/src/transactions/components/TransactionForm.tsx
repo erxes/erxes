@@ -134,7 +134,7 @@ const TransactionForm = (props: Props) => {
     if (!journalConfigMaps[journal]) {
       return Alert.error("wron cho");
     }
-    const trData = journalConfigMaps[journal]?.defaultData(state.date);
+    const trData = journalConfigMaps[journal]?.defaultData(state.date, balance.diff);
     trDocs?.push(trData);
     setTrDocs(trDocs);
     setCurrentTransaction(trData);

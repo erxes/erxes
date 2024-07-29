@@ -38,7 +38,17 @@ export const journalConfigMaps: {
   'cash': {
     component: TrFormCash,
     title: '',
-    defaultData: (date) => { return { ...commonData('cash', date) } },
+    defaultData: (date, diff) => {
+      const data = { ...commonData('cash', date) };
+      if ((diff || 0) > 0) {
+        data.details[0].amount = diff;
+        data.details[0].side = TR_SIDES.CREDIT;
+      } else {
+        data.details[0].amount = -1 * (diff || 0);
+        data.details[0].side = TR_SIDES.DEBIT;
+      }
+      return data;
+    },
     generateDoc: () => { },
   }
 }
