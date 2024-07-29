@@ -1,8 +1,8 @@
-import { conformityQueryFields } from './company';
+import { conformityQueryFields } from "./company";
 
 // TODO: remove customer's email and phone field after customCommand
 
-export const types = (tagsEnabled, inboxEnabled) => `
+export const types = inboxEnabled => `
   type CustomerConnectionChangedResponse {
     _id: String!
     status: String!
@@ -57,8 +57,8 @@ export const types = (tagsEnabled, inboxEnabled) => `
     links: JSON
     companies: [Company]
 
-    ${tagsEnabled ? 'getTags: [Tag]' : ''}
-    ${inboxEnabled ? 'integration: Integration' : ''}
+     getTags: [Tag]
+    ${inboxEnabled ? "integration: Integration" : ""}
     
     owner: User
     score: Float

@@ -7,36 +7,32 @@ import {
   gatherNames,
   gatherUsernames,
   IDescriptions,
-  getSchemaLabels,
-} from '@erxes/api-utils/src/logUtils';
-import { ICompanyDocument } from './models/definitions/companies';
-import {
-  sendCoreMessage,
-  sendInboxMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import { LOG_MAPPINGS, MODULE_NAMES } from './constants';
-import { ICustomerDocument } from './models/definitions/customers';
-import { IModels } from './connectionResolver';
+  getSchemaLabels
+} from "@erxes/api-utils/src/logUtils";
+import { ICompanyDocument } from "./models/definitions/companies";
+import { sendCoreMessage, sendInboxMessage } from "./messageBroker";
+import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
+import { ICustomerDocument } from "./models/definitions/customers";
+import { IModels } from "./connectionResolver";
 
 export const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete"
 };
 
 const findUsers = async (subdomain, ids: string[]) => {
   return (
     sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: {
-          _id: { $in: ids },
-        },
+          _id: { $in: ids }
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     }) || []
   );
 };
@@ -45,7 +41,7 @@ const gatherCompanyFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: ICompanyDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -55,45 +51,45 @@ const gatherCompanyFieldNames = async (
 
   if (doc.parentCompanyId) {
     options = await gatherNames({
-      foreignKey: 'parentCompanyId',
+      foreignKey: "parentCompanyId",
       prevList: options,
-      nameFields: ['primaryName'],
+      nameFields: ["primaryName"],
       items: await models.Companies.find({
-        _id: { $in: [doc.parentCompanyId] },
-      }).lean(),
+        _id: { $in: [doc.parentCompanyId] }
+      }).lean()
     });
   }
 
   if (doc.ownerId) {
     options = await gatherUsernames({
-      foreignKey: 'ownerId',
+      foreignKey: "ownerId",
       prevList: options,
-      items: await findUsers(subdomain, [doc.ownerId]),
+      items: await findUsers(subdomain, [doc.ownerId])
     });
   }
 
   if (doc.mergedIds && doc.mergedIds.length > 0) {
     options = await gatherNames({
-      foreignKey: 'mergedIds',
+      foreignKey: "mergedIds",
       prevList: options,
-      nameFields: ['primaryName'],
+      nameFields: ["primaryName"],
       items: await models.Companies.find({
-        _id: { $in: doc.mergedIds },
-      }).lean(),
+        _id: { $in: doc.mergedIds }
+      }).lean()
     });
   }
 
   if (doc.tagIds && doc.tagIds.length > 0) {
     options = await gatherNames({
-      foreignKey: 'tagIds',
+      foreignKey: "tagIds",
       prevList: options,
-      nameFields: ['name'],
-      items: await sendTagsMessage({
+      nameFields: ["name"],
+      items: await sendCoreMessage({
         subdomain,
-        action: 'find',
+        action: "tagFind",
         data: { _id: { $in: doc.tagIds } },
-        isRPC: true,
-      }),
+        isRPC: true
+      })
     });
   }
 
@@ -104,7 +100,7 @@ const gatherCustomerFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: ICustomerDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -114,47 +110,47 @@ const gatherCustomerFieldNames = async (
 
   if (doc.ownerId) {
     options = await gatherUsernames({
-      foreignKey: 'ownerId',
+      foreignKey: "ownerId",
       prevList: options,
-      items: await findUsers(subdomain, [doc.ownerId]),
+      items: await findUsers(subdomain, [doc.ownerId])
     });
   }
 
   if (doc.integrationId) {
     options = await gatherNames({
-      foreignKey: 'integrationId',
+      foreignKey: "integrationId",
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ["name"],
       items: await sendInboxMessage({
         subdomain,
-        action: 'integrations.find',
+        action: "integrations.find",
         data: { _id: { $in: [doc.integrationId] } },
-        isRPC: true,
-      }),
+        isRPC: true
+      })
     });
   }
 
   if (doc.tagIds && doc.tagIds.length > 0) {
     options = await gatherNames({
-      foreignKey: 'tagIds',
+      foreignKey: "tagIds",
       prevList: options,
-      nameFields: ['name'],
-      items: await sendTagsMessage({
+      nameFields: ["name"],
+      items: await sendCoreMessage({
         subdomain,
-        action: 'find',
-        data: { _id: { $in: doc.tagIds } },
-      }),
+        action: "tagFind",
+        data: { _id: { $in: doc.tagIds } }
+      })
     });
   }
 
   if (doc.mergedIds) {
     options = await gatherNames({
-      foreignKey: 'mergedIds',
+      foreignKey: "mergedIds",
       prevList: options,
-      nameFields: ['firstName'],
+      nameFields: ["firstName"],
       items: await models.Customers.find({
-        _id: { $in: doc.mergedIds },
-      }).lean(),
+        _id: { $in: doc.mergedIds }
+      }).lean()
     });
   }
 
@@ -164,12 +160,12 @@ const gatherCustomerFieldNames = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any,
+  params: any
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
   let extraDesc: LogDesc[] = [];
-  let description: string = '';
+  let description: string = "";
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
@@ -180,7 +176,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc,
+          extraDesc
         );
       }
 
@@ -194,7 +190,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc,
+          extraDesc
         );
       }
 
@@ -213,21 +209,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE,
-    },
+      action: LOG_ACTIONS.DELETE
+    }
   );
 
   await commonPutDeleteLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `contacts:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -235,21 +231,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE,
-    },
+      action: LOG_ACTIONS.UPDATE
+    }
   );
 
   await commonPutUpdateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `contacts:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -257,48 +253,48 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE,
-    },
+      action: LOG_ACTIONS.CREATE
+    }
   );
 
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `contacts:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export const putActivityLog = async (
   subdomain: string,
-  params: { action: string; data: any },
+  params: { action: string; data: any }
 ) => {
   const { data } = params;
 
   const updatedParams = {
     ...params,
     subdomain,
-    data: { ...data, contentType: `contacts:${data.contentType}` },
+    data: { ...data, contentType: `contacts:${data.contentType}` }
   };
 
   return commonPutActivityLog(subdomain, {
-    ...updatedParams,
+    ...updatedParams
   });
 };
 
-export const prepareCocLogData = (coc) => {
+export const prepareCocLogData = coc => {
   // condition logic was in ActivityLogs model before
-  let action = 'create';
+  let action = "create";
   let content: string[] = [];
 
   if (coc.mergedIds && coc.mergedIds.length > 0) {
-    action = 'merge';
+    action = "merge";
     content = coc.mergedIds;
   }
 
@@ -306,13 +302,13 @@ export const prepareCocLogData = (coc) => {
     createdBy: coc.ownerId || coc.integrationId,
     action,
     content,
-    contentId: coc._id,
+    contentId: coc._id
   };
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
-    status: 'success',
-    data: getSchemaLabels(type, LOG_MAPPINGS),
-  }),
+    status: "success",
+    data: getSchemaLabels(type, LOG_MAPPINGS)
+  })
 };

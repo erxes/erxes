@@ -8,7 +8,7 @@ import { IContext } from "../../../connectionResolver";
 import {
   getConfig,
   getFieldObject,
-  sendCardsMessage,
+  sendSalesMessage,
   sendCoreMessage,
   sendMessageBroker
 } from "../../../messageBroker";
@@ -219,7 +219,7 @@ const contractMutations = {
       return contract;
     }
 
-    const deals = await sendCardsMessage({
+    const deals = await sendSalesMessage({
       subdomain,
       action: "deals.find",
       data: { _id: { $in: dealIds } },
@@ -227,7 +227,7 @@ const contractMutations = {
     });
 
     const oldCollateralIds = contract.collateralsData.map(
-      (item) => item.collateralId
+      item => item.collateralId
     );
 
     const collateralsData: ICollateralData[] = contract.collateralsData;
@@ -461,7 +461,7 @@ const contractMutations = {
     if (customerCreditAmount > 0 && maxLeaseAmountField) {
       const index =
         customer.customFieldsData?.findIndex(
-          (a) => a.field == maxLeaseAmountField._id
+          a => a.field == maxLeaseAmountField._id
         ) || -1;
       if (index == -1) {
         customer.customFieldsData = [

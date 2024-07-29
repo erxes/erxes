@@ -22,7 +22,7 @@ const depNames = [
   "react-router-dom",
   "react-transition-group",
   "styled-components",
-  "styled-components-ts",
+  "styled-components-ts"
 ];
 
 const deps = require("./package.json").dependencies;
@@ -35,11 +35,11 @@ for (const name of depNames) {
 module.exports = (env, args) => {
   return {
     resolve: {
-      extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
+      extensions: [".tsx", ".ts", ".jsx", ".js", ".json"]
     },
     output: {
       publicPath: "/",
-      chunkFilename: "[id].[contenthash].js",
+      chunkFilename: "[id].[contenthash].js"
     },
 
     devServer: {
@@ -47,8 +47,8 @@ module.exports = (env, args) => {
       allowedHosts: "all",
       historyApiFallback: true,
       client: {
-        overlay: false,
-      },
+        overlay: false
+      }
     },
 
     module: {
@@ -57,12 +57,12 @@ module.exports = (env, args) => {
           test: /\.m?js/,
           type: "javascript/auto",
           resolve: {
-            fullySpecified: false,
-          },
+            fullySpecified: false
+          }
         },
         {
           test: /\.(css|s[ac]ss)$/i,
-          use: ["style-loader", "css-loader", "postcss-loader"],
+          use: ["style-loader", "css-loader", "postcss-loader"]
         },
         {
           test: /\.(ts|tsx|js|jsx)$/,
@@ -77,7 +77,11 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../ui-forms/src"),
             path.resolve(__dirname, "../ui-inbox/src"),
             path.resolve(__dirname, "../ui-products/src"),
-            path.resolve(__dirname, "../ui-cards/src"),
+            path.resolve(__dirname, "../ui-sales/src"),
+            path.resolve(__dirname, "../ui-purchases/src"),
+            path.resolve(__dirname, "../ui-tasks/src"),
+            path.resolve(__dirname, "../ui-tickets/src"),
+            path.resolve(__dirname, "../ui-growthhacks/src"),
             path.resolve(__dirname, "../ui-knowledgebase/src"),
             path.resolve(__dirname, "../ui-notifications/src"),
             path.resolve(__dirname, "../ui-calendar/src"),
@@ -86,7 +90,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../ui-leads/src"),
             path.resolve(__dirname, "../ui-tags/src"),
             path.resolve(__dirname, "../ui-emailtemplates/src"),
-            path.resolve(__dirname, "../ui-template/src"),
+            path.resolve(__dirname, "../ui-template/src")
           ],
           use: {
             loader: "babel-loader",
@@ -94,19 +98,19 @@ module.exports = (env, args) => {
               presets: [
                 "@babel/preset-typescript",
                 "@babel/preset-react",
-                "@babel/preset-env",
+                "@babel/preset-env"
               ],
-              plugins: [["@babel/transform-runtime"]],
-            },
-          },
+              plugins: [["@babel/transform-runtime"]]
+            }
+          }
         },
         {
           test: /\.json$/,
           use: {
-            loader: "json-loader",
-          },
-        },
-      ],
+            loader: "json-loader"
+          }
+        }
+      ]
     },
 
     resolve: {
@@ -115,7 +119,7 @@ module.exports = (env, args) => {
         path: require.resolve("path-browserify"),
         timers: require.resolve("timers-browserify"),
         util: require.resolve("util/"),
-        process: "process/browser",
+        process: "process/browser"
       },
       alias: {
         "coreui/apolloClient": path.resolve(__dirname, "./src/apolloClient.ts"),
@@ -125,26 +129,26 @@ module.exports = (env, args) => {
         "coreui/withPermission": path.resolve(
           __dirname,
           "./src/modules/common/components/WithPermission"
-        ),
+        )
       },
-      extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
+      extensions: ["*", ".js", ".jsx", ".ts", ".tsx"]
     },
 
     plugins: [
       new InterpolateHtmlPlugin({
         ...envs.parsed,
-        PUBLIC_URL: "",
+        PUBLIC_URL: ""
       }),
       new webpack.ProvidePlugin({
         // Make a global `process` variable that points to the `process` package,
         // because the `util` package expects there to be a global variable named `process`.
         // Thanks to https://stackoverflow.com/a/65018686/14239942
-        process: "process/browser",
+        process: "process/browser"
       }),
       new HtmlWebPackPlugin({
         template: path.resolve(__dirname, "public/index.html"),
         filename: "index.html",
-        inject: true,
+        inject: true
       }),
       new ModuleFederationPlugin({
         name: "coreui",
@@ -154,41 +158,41 @@ module.exports = (env, args) => {
           "./apolloClient": "./src/apolloClient",
           "./withPermission": "./src/modules/common/components/WithPermission",
           "./utils": "./src/modules/common/utils",
-          "./pluginUtils": "./src/pluginUtils",
+          "./pluginUtils": "./src/pluginUtils"
         },
         shared: {
           ...shared,
           "@erxes/ui": {
             requiredVersion: "1.0.0",
-            singleton: true,
+            singleton: true
           },
           dayjs: {
             requiredVersion: deps["dayjs"],
-            singleton: true,
+            singleton: true
           },
           react: {
             requiredVersion: deps["react"],
             singleton: true,
-            eager: true,
+            eager: true
           },
           "@headlessui/react": {
             requiredVersion: deps["@headlessui/react"],
-            singleton: true,
+            singleton: true
           },
           "./src/appContext": {},
           "./src/apolloClient": {},
           "./src/modules/common/components/WithPermission": {},
           "./src/modules/common/utils": {},
-          "./src/pluginUtils": {},
-        },
+          "./src/pluginUtils": {}
+        }
       }),
       args.mode === "development"
         ? new MFLiveReloadPlugin({
             port: 3000, // the port your app runs on
             container: "coreui", // the name of your app, must be unique
-            standalone: false, // false uses chrome extention
+            standalone: false // false uses chrome extention
           })
-        : false,
-    ].filter(Boolean),
+        : false
+    ].filter(Boolean)
   };
 };

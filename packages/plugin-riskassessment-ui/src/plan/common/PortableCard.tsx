@@ -1,14 +1,14 @@
-import React from 'react';
-import * as compose from 'lodash.flowright';
-import { graphql } from '@apollo/client/react/hoc';
-import { gql } from '@apollo/client';
-import TicketItem from '@erxes/ui-cards/src/tickets/components/TicketItem';
-import TaskItem from '@erxes/ui-cards/src/tasks/components/TaskItem';
-import ticketOptions from '@erxes/ui-cards/src/tickets/options';
-import taskOptions from '@erxes/ui-cards/src/tasks/options';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { Spinner } from '@erxes/ui/src';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
+import React from "react";
+import * as compose from "lodash.flowright";
+import { graphql } from "@apollo/client/react/hoc";
+import { gql } from "@apollo/client";
+import TicketItem from "@erxes/ui-tickets/src/tickets/components/TicketItem";
+import TaskItem from "@erxes/ui-tasks/src/tasks/components/TaskItem";
+import ticketOptions from "@erxes/ui-tickets/src/tickets/options";
+import taskOptions from "@erxes/ui-tasks/src/tasks/options";
+import { withProps } from "@erxes/ui/src/utils/core";
+import { Spinner } from "@erxes/ui/src";
+import { IItem } from "@erxes/ui-tasks/src/boards/types";
 
 type Props = {
   type: string;
@@ -28,7 +28,7 @@ class PortableTask extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      openItemId: ''
+      openItemId: ""
     };
   }
 
@@ -39,11 +39,11 @@ class PortableTask extends React.Component<FinalProps, State> {
     let Component;
 
     switch (type) {
-      case 'ticket':
+      case "ticket":
         options = ticketOptions;
         Component = TicketItem;
         break;
-      case 'task':
+      case "task":
         options = taskOptions;
         Component = TaskItem;
         break;
@@ -69,7 +69,7 @@ class PortableTask extends React.Component<FinalProps, State> {
       this.setState({ openItemId: item._id });
     };
     const beforePopupClose = () => {
-      this.setState({ openItemId: '' });
+      this.setState({ openItemId: "" });
     };
 
     return (
@@ -88,15 +88,15 @@ class PortableTask extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(ticketOptions.queries.detailQuery), {
-      name: 'detailQuery',
-      skip: ({ id, type }) => !id || type !== 'ticket',
+      name: "detailQuery",
+      skip: ({ id, type }) => !id || type !== "ticket",
       options: ({ id }) => ({
         variables: { _id: id }
       })
     }),
     graphql<Props>(gql(taskOptions.queries.detailQuery), {
-      name: 'detailQuery',
-      skip: ({ id, type }) => !id || type !== 'task',
+      name: "detailQuery",
+      skip: ({ id, type }) => !id || type !== "task",
       options: ({ id }) => ({
         variables: { _id: id }
       })

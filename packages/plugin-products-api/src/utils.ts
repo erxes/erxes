@@ -1,15 +1,14 @@
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { ICustomField } from '@erxes/api-utils/src/types';
-import * as _ from 'underscore';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-import { IModels } from './connectionResolver';
+import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
+import { ICustomField } from "@erxes/api-utils/src/types";
+import * as _ from "underscore";
+import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
+import { IModels } from "./connectionResolver";
 import {
   fetchSegment,
-  sendFormsMessage,
   sendSegmentsMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import { IProductCategory, productSchema } from './models/definitions/products';
+  sendCoreMessage
+} from "./messageBroker";
+import { IProductCategory, productSchema } from "./models/definitions/products";
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -22,7 +21,7 @@ export const getEsTypes = () => {
 
   const typesMap: { [key: string]: any } = {};
 
-  schema.eachPath((name) => {
+  schema.eachPath(name => {
     const path = schema.paths[name];
     typesMap[name] = path.options.esType;
   });
@@ -33,7 +32,7 @@ export const getEsTypes = () => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
@@ -41,17 +40,17 @@ export const countBySegment = async (
 
   segments = await sendSegmentsMessage({
     subdomain,
-    action: 'find',
+    action: "find",
     data: { contentType, name: { $exists: true } },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const s of segments) {
     try {
       await qb.buildAllQueries();
       await qb.segmentFilter(s);
-      counts[s._id] = await qb.runQueries('count');
+      counts[s._id] = await qb.runQueries("count");
     } catch (e) {
       debugError(`Error during segment count ${e.message}`);
       counts[s._id] = 0;
@@ -64,23 +63,23 @@ export const countBySegment = async (
 export const countByTag = async (
   subdomain: string,
   type: string,
-  qb,
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const tags = await sendTagsMessage({
+  const tags = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "tagFind",
     data: { type },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const tag of tags) {
     await qb.buildAllQueries();
     await qb.tagFilter(tag._id);
 
-    counts[tag._id] = await qb.runQueries('count');
+    counts[tag._id] = await qb.runQueries("count");
   }
 
   return counts;
@@ -99,10 +98,10 @@ export class Builder {
   public models: IModels;
   public subdomain: string;
 
-  private contentType: 'products';
+  private contentType: "products";
 
   constructor(models: IModels, subdomain: string, params: IListArgs, context) {
-    this.contentType = 'products';
+    this.contentType = "products";
     this.context = context;
     this.params = params;
     this.models = models;
@@ -116,7 +115,7 @@ export class Builder {
   }
 
   public resetNegativeList() {
-    this.negativeList = [{ term: { status: 'deleted' } }];
+    this.negativeList = [{ term: { status: "deleted" } }];
   }
 
   public resetPositiveList() {
@@ -133,14 +132,14 @@ export class Builder {
       this.subdomain,
       segment._id,
       { returnSelector: true },
-      segmentData,
+      segmentData
     );
 
     this.positiveList = [...this.positiveList, selector];
   }
 
   public getRelType() {
-    return 'product';
+    return "product";
   }
 
   /*
@@ -161,33 +160,33 @@ export class Builder {
     if (this.params.segment) {
       const segment = await sendSegmentsMessage({
         isRPC: true,
-        action: 'findOne',
+        action: "findOne",
         subdomain: this.subdomain,
-        data: { _id: this.params.segment },
+        data: { _id: this.params.segment }
       });
 
       await this.segmentFilter(segment);
     }
   }
 
-  public async runQueries(action = 'search'): Promise<any> {
+  public async runQueries(action = "search"): Promise<any> {
     const queryOptions: any = {
       query: {
         bool: {
           must: this.positiveList,
-          must_not: this.negativeList,
-        },
-      },
+          must_not: this.negativeList
+        }
+      }
     };
 
     let totalCount = 0;
 
     const totalCountResponse = await fetchEs({
       subdomain: this.subdomain,
-      action: 'count',
+      action: "count",
       index: this.contentType,
       body: queryOptions,
-      defaultValue: 0,
+      defaultValue: 0
     });
 
     totalCount = totalCountResponse.count;
@@ -196,19 +195,19 @@ export class Builder {
       subdomain: this.subdomain,
       action,
       index: this.contentType,
-      body: queryOptions,
+      body: queryOptions
     });
 
-    const list = response.hits.hits.map((hit) => {
+    const list = response.hits.hits.map(hit => {
       return {
         _id: hit._id,
-        ...hit._source,
+        ...hit._source
       };
     });
 
     return {
       list,
-      totalCount,
+      totalCount
     };
   }
 }

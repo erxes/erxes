@@ -1,17 +1,26 @@
-import { getSchemaLabels } from '@erxes/api-utils/src/logUtils';
+import {
+  putCreateLog as commonPutCreateLog,
+  putUpdateLog as commonPutUpdateLog,
+  putDeleteLog as commonPutDeleteLog,
+  putActivityLog as commonPutActivityLog,
+  getSchemaLabels,
+  IDescriptions,
+  LogDesc
+} from "@erxes/api-utils/src/logUtils";
 
-import { MODULE_NAMES } from './data/constants';
+import { MODULE_NAMES } from "./data/constants";
 import {
   brandEmailConfigSchema,
   brandSchema
-} from './db/models/definitions/brands';
+} from "./db/models/definitions/brands";
 import {
   permissionSchema,
   userGroupSchema
-} from './db/models/definitions/permissions';
-import { IUserDocument, userSchema } from './db/models/definitions/users';
-import { generateModels } from './connectionResolver';
-import { configSchema } from './db/models/definitions/configs';
+} from "./db/models/definitions/permissions";
+import { IUserDocument, userSchema } from "./db/models/definitions/users";
+import { generateModels, IModels } from "./connectionResolver";
+import { configSchema } from "./db/models/definitions/configs";
+import { ITagDocument } from "./db/models/definitions/tags";
 // import { sendLogsMessage } from './messageBroker';
 
 const LOG_MAPPINGS = [
@@ -37,12 +46,124 @@ const LOG_MAPPINGS = [
   }
 ];
 
+export const LOG_ACTIONS = {
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete"
+};
+
+const gatherTagNames = async (
+  models: IModels,
+  doc: ITagDocument,
+  prevList?: LogDesc[]
+) => {
+  const options: LogDesc[] = prevList ? prevList : [];
+
+  if (doc.parentId) {
+    const parent = await models.Tags.findOne({ _id: doc.parentId });
+
+    options.push({ parentId: doc.parentId, name: parent && parent.name });
+  }
+
+  if (doc.relatedIds) {
+    const children = await models.Tags.find({
+      _id: { $in: doc.relatedIds }
+    }).lean();
+
+    if (children.length > 0) {
+      options.push({
+        relatedIds: doc.relatedIds,
+        name: children.map(c => c.name)
+      });
+    }
+  }
+
+  return options;
+};
+
+const gatherDescriptions = async (
+  models: IModels,
+  params: any
+): Promise<IDescriptions> => {
+  const { action, object, updatedDocument } = params;
+
+  const description = `"${object.name}" has been ${action}d`;
+  let extraDesc: LogDesc[] = await gatherTagNames(models, object);
+
+  if (updatedDocument) {
+    extraDesc = await gatherTagNames(models, updatedDocument, extraDesc);
+  }
+
+  return { extraDesc, description };
+};
+
+export const putDeleteLog = async (models, subdomain, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
+    ...logDoc,
+    action: LOG_ACTIONS.DELETE
+  });
+
+  await commonPutDeleteLog(
+    subdomain,
+    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    user
+  );
+};
+
+export const putUpdateLog = async (models, subdomain, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
+    ...logDoc,
+    action: LOG_ACTIONS.UPDATE
+  });
+
+  await commonPutUpdateLog(
+    subdomain,
+    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    user
+  );
+};
+
+export const putCreateLog = async (models, subdomain, logDoc, user) => {
+  const { description, extraDesc } = await gatherDescriptions(models, {
+    ...logDoc,
+    action: LOG_ACTIONS.CREATE
+  });
+
+  await commonPutCreateLog(
+    subdomain,
+    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    user
+  );
+};
+
+export const putActivityLog = async (
+  subdomain: string,
+  params: { action: string; data: any }
+) => {
+  const { data } = params;
+
+  const updatedParams = {
+    ...params,
+    data: {
+      ...data,
+      contentType: `tags:${data.contentType}`,
+      automations: {
+        type: data.contentType
+      }
+    }
+  };
+
+  return commonPutActivityLog(subdomain, {
+    ...updatedParams
+  });
+};
+
 export default {
   getActivityContent: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { action, content } = data;
 
-    if (action === 'assignee') {
+    if (action === "assignee") {
       let addedUsers: IUserDocument[] = [];
       let removedUsers: IUserDocument[] = [];
 
@@ -58,53 +179,38 @@ export default {
 
       return {
         data: { addedUsers, removedUsers },
-        status: 'success'
+        status: "success"
+      };
+    }
+
+    if (action === "tagged") {
+      let tags: ITagDocument[] = [];
+
+      if (content) {
+        tags = await models.Tags.find({ _id: { $in: content.tagIds } });
+      }
+
+      return {
+        data: tags,
+        status: "success"
       };
     }
 
     return {
-      status: 'error',
-      data: 'wrong activity action'
+      status: "error",
+      data: "wrong activity action"
     };
   },
+
   collectItems: async ({}) => {
-    // if (contentId === 'aaa') {
-    //   const deliveries = await sendLogsMessage({
-    //     subdomain,
-    //     action: 'emailDeliveries.find',
-    //     data: {
-    //       query: {
-    //         customerId: contentId
-    //       }
-    //     },
-    //     isRPC: true,
-    //     defaultValue: []
-    //   });
-
-    //   const results: any[] = [];
-
-    //   for (const d of deliveries) {
-    //     results.push({
-    //       _id: d._id,
-    //       contentType: 'email',
-    //       contentId,
-    //       createdAt: d.createdAt
-    //     });
-    //   }
-
-    //   return {
-    //     status: 'success',
-    //     data: results
-    //   };
-    // }
-
     return {
-      status: 'success',
+      status: "success",
       data: {}
     };
   },
+
   getSchemaLabels: ({ data: { type } }) => ({
-    status: 'success',
+    status: "success",
     data: getSchemaLabels(type, LOG_MAPPINGS)
   })
 };

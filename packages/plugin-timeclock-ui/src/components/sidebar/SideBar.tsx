@@ -6,7 +6,7 @@ import {
   Trigger
 } from '../../styles';
 import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -69,6 +69,10 @@ const LeftSideBar = (props: Props) => {
     { label: 'This Week', value: 'thisWeek' },
     { label: 'This Month', value: 'thisMonth' }
   ];
+
+  useEffect(() => {
+    resetParams();
+  }, []);
 
   const returnTotalUserOptions = () => {
     const totalUserOptions: string[] = [];
@@ -182,7 +186,6 @@ const LeftSideBar = (props: Props) => {
 
   const onEndDateChange = date => {
     setEndDate(date);
-
     setParams('endDate', date);
   };
 

@@ -1,42 +1,41 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import * as moment from 'moment';
+import * as xlsxPopulate from "xlsx-populate";
+import * as moment from "moment";
 
 import {
   findSchemaLabels,
-  getCustomFieldsData,
-} from '@erxes/api-utils/src/exporter';
-import { IColumnLabel, IUserDocument } from '@erxes/api-utils/src/types';
+  getCustomFieldsData
+} from "@erxes/api-utils/src/exporter";
+import { IColumnLabel, IUserDocument } from "@erxes/api-utils/src/types";
 import {
   COMPANY_BASIC_INFOS,
   CUSTOMER_BASIC_INFOS,
-  MODULE_NAMES,
-} from './constants';
+  MODULE_NAMES
+} from "./constants";
 import {
   companySchema,
-  ICompanyDocument,
-} from './models/definitions/companies';
+  ICompanyDocument
+} from "./models/definitions/companies";
 import {
   customerSchema,
-  ICustomerDocument,
-} from './models/definitions/customers';
+  ICustomerDocument
+} from "./models/definitions/customers";
 import {
   fetchSegment,
   sendCoreMessage,
   sendFormsMessage,
-  sendInboxMessage,
-  sendTagsMessage,
-} from './messageBroker';
+  sendInboxMessage
+} from "./messageBroker";
 
 import {
   Builder as CompanyBuildQuery,
-  IListArgs as ICompanyListArgs,
-} from './coc/companies';
+  IListArgs as ICompanyListArgs
+} from "./coc/companies";
 import {
   Builder as CustomerBuildQuery,
-  IListArgs as ICustomerListArgs,
-} from './coc/customers';
-import { IModels } from './connectionResolver';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
+  IListArgs as ICustomerListArgs
+} from "./coc/customers";
+import { IModels } from "./connectionResolver";
+import { debugInfo } from "@erxes/api-utils/src/debuggers";
 
 export const createXlsFile = async () => {
   // Generating blank workbook
@@ -68,23 +67,23 @@ export const fillHeaders = (itemType: string): IColumnLabel[] => {
 };
 
 const getCellValue = (item, colName) => {
-  const names = colName.split('.');
+  const names = colName.split(".");
 
   if (names.length === 1) {
     return item[colName];
-  } else if (names[0] === 'trackedData') {
+  } else if (names[0] === "trackedData") {
     const trackedDatas = item.trackedData || [];
 
     if (trackedDatas[0]) {
-      const foundedData = trackedDatas.find((data) => data.field === names[1]);
-      return foundedData ? foundedData.value : '';
+      const foundedData = trackedDatas.find(data => data.field === names[1]);
+      return foundedData ? foundedData.value : "";
     }
 
-    return '';
+    return "";
   } else {
     const value = item[names[0]];
 
-    return value ? value[names[1]] : '';
+    return value ? value[names[1]] : "";
   }
 };
 /**
@@ -99,9 +98,9 @@ export const fillCellValue = async (
   models: IModels,
   subdomain: string,
   colName: string,
-  item: any,
+  item: any
 ): Promise<string> => {
-  const emptyMsg = '-';
+  const emptyMsg = "-";
 
   if (!item) {
     return emptyMsg;
@@ -109,99 +108,99 @@ export const fillCellValue = async (
 
   let cellValue: any = getCellValue(item, colName);
 
-  if (typeof item[colName] === 'boolean') {
-    cellValue = item[colName] ? 'Yes' : 'No';
+  if (typeof item[colName] === "boolean") {
+    cellValue = item[colName] ? "Yes" : "No";
   }
 
   switch (colName) {
-    case 'createdAt':
-      cellValue = moment(cellValue).format('YYYY-MM-DD HH:mm');
+    case "createdAt":
+      cellValue = moment(cellValue).format("YYYY-MM-DD HH:mm");
       break;
 
-    case 'modifiedAt':
-      cellValue = moment(cellValue).format('YYYY-MM-DD HH:mm');
+    case "modifiedAt":
+      cellValue = moment(cellValue).format("YYYY-MM-DD HH:mm");
 
       break;
 
     // customer fields
 
-    case 'emails':
-      cellValue = (item.emails || []).join(', ');
+    case "emails":
+      cellValue = (item.emails || []).join(", ");
       break;
-    case 'phones':
-      cellValue = (item.phones || []).join(', ');
+    case "phones":
+      cellValue = (item.phones || []).join(", ");
       break;
-    case 'mergedIds':
+    case "mergedIds":
       const customers: ICustomerDocument[] | null = await models.Customers.find(
         {
-          _id: { $in: item.mergedIds },
-        },
+          _id: { $in: item.mergedIds }
+        }
       );
 
       cellValue = customers
-        .map((cus) => cus.firstName || cus.primaryEmail)
-        .join(', ');
+        .map(cus => cus.firstName || cus.primaryEmail)
+        .join(", ");
 
       break;
     // company fields
-    case 'names':
-      cellValue = (item.names || []).join(', ');
+    case "names":
+      cellValue = (item.names || []).join(", ");
 
       break;
-    case 'parentCompanyId':
+    case "parentCompanyId":
       const parent: ICompanyDocument | null = await models.Companies.findOne({
-        _id: item.parentCompanyId,
+        _id: item.parentCompanyId
       });
 
-      cellValue = parent ? parent.primaryName : '';
+      cellValue = parent ? parent.primaryName : "";
 
       break;
 
-    case 'tag':
-      const tags = await sendTagsMessage({
+    case "tag":
+      const tags = await sendCoreMessage({
         subdomain,
-        action: 'find',
+        action: "tagFind",
         data: {
-          _id: { $in: item.tagIds },
+          _id: { $in: item.tagIds }
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      let tagNames = '';
+      let tagNames = "";
 
       for (const tag of tags) {
-        tagNames = tagNames.concat(tag.name, ', ');
+        tagNames = tagNames.concat(tag.name, ", ");
       }
 
-      cellValue = tags ? tagNames : '';
+      cellValue = tags ? tagNames : "";
 
       break;
 
-    case 'relatedIntegrationIds':
+    case "relatedIntegrationIds":
       const integration = await sendInboxMessage({
         subdomain,
-        action: 'integrations.findOne',
+        action: "integrations.findOne",
         data: { _id: item.integrationId },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
-      cellValue = integration ? integration.name : '';
+      cellValue = integration ? integration.name : "";
 
       break;
 
-    case 'ownerEmail':
+    case "ownerEmail":
       const owner: IUserDocument | null = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
-          _id: item.ownerId,
+          _id: item.ownerId
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      cellValue = owner ? owner.email : '';
+      cellValue = owner ? owner.email : "";
 
       break;
 
@@ -216,11 +215,11 @@ export const fillCellValue = async (
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any[]> => {
   const { type, unlimited = false, segmentData } = query;
 
-  const contentType = type.split(':')[0];
+  const contentType = type.split(":")[0];
 
   let data: any[] = [];
 
@@ -229,9 +228,9 @@ const prepareData = async (
   if (segmentData) {
     const itemIds = await fetchSegment(
       subdomain,
-      '',
+      "",
       {},
-      JSON.parse(segmentData),
+      JSON.parse(segmentData)
     );
 
     boardItemsFilter._id = { $in: itemIds };
@@ -245,37 +244,37 @@ const prepareData = async (
         models,
         subdomain,
         companyParams,
-        {},
+        {}
       );
       await companyQb.buildAllQueries();
 
-      const companyResponse = await companyQb.runQueries('search', unlimited);
+      const companyResponse = await companyQb.runQueries("search", unlimited);
 
       data = companyResponse.list;
 
       break;
 
-    case 'lead':
+    case "lead":
       const leadParams: ICustomerListArgs = query;
       const leadQp = new CustomerBuildQuery(models, subdomain, leadParams, {});
       await leadQp.buildAllQueries();
 
-      const leadResponse = await leadQp.runQueries('search', unlimited);
+      const leadResponse = await leadQp.runQueries("search", unlimited);
 
       data = leadResponse.list;
       break;
 
-    case 'visitor':
+    case "visitor":
       const visitorParams: ICustomerListArgs = query;
       const visitorQp = new CustomerBuildQuery(
         models,
         subdomain,
         visitorParams,
-        {},
+        {}
       );
       await visitorQp.buildAllQueries();
 
-      const visitorResponse = await visitorQp.runQueries('search', unlimited);
+      const visitorResponse = await visitorQp.runQueries("search", unlimited);
 
       data = visitorResponse.list;
       break;
@@ -284,19 +283,19 @@ const prepareData = async (
       const customerParams: ICustomerListArgs = query;
 
       if (customerParams.form && customerParams.popupData) {
-        debugInfo('Start an query for popups export');
+        debugInfo("Start an query for popups export");
 
         const fields = await sendFormsMessage({
           subdomain,
-          action: 'fields.find',
+          action: "fields.find",
           data: {
             query: {
-              contentType: 'form',
-              contentTypeId: customerParams.form,
-            },
+              contentType: "form",
+              contentTypeId: customerParams.form
+            }
           },
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         });
 
         if (fields.length === 0) {
@@ -304,22 +303,22 @@ const prepareData = async (
         }
 
         const messageQuery: any = {
-          'formWidgetData._id': { $in: fields.map((field) => field._id) },
-          customerId: { $exists: true },
+          "formWidgetData._id": { $in: fields.map(field => field._id) },
+          customerId: { $exists: true }
         };
 
         const messages = await sendInboxMessage({
           subdomain,
-          action: 'conversationMessages.find',
+          action: "conversationMessages.find",
           data: messageQuery,
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         });
 
         const messagesMap: { [key: string]: any[] } = {};
 
         for (const message of messages) {
-          const customerId = message.customerId || '';
+          const customerId = message.customerId || "";
 
           if (!messagesMap[customerId]) {
             messagesMap[customerId] = [];
@@ -328,29 +327,29 @@ const prepareData = async (
           messagesMap[customerId].push({
             datas: message.formWidgetData,
             createdInfo: {
-              _id: 'created',
-              type: 'input',
-              validation: 'date',
-              text: 'Created',
-              value: message.createdAt,
-            },
+              _id: "created",
+              type: "input",
+              validation: "date",
+              text: "Created",
+              value: message.createdAt
+            }
           });
         }
 
         const formSubmissions = await sendFormsMessage({
           subdomain,
-          action: 'submissions.find',
+          action: "submissions.find",
           data: {
             query: {
-              formId: customerParams.form,
-            },
+              formId: customerParams.form
+            }
           },
           isRPC: true,
-          defaultValue: [],
+          defaultValue: []
         });
 
         const customerIds = formSubmissions.map(
-          (submission) => submission.customerId,
+          submission => submission.customerId
         );
 
         const uniqueCustomerIds = [...new Set(customerIds)] as any;
@@ -369,7 +368,7 @@ const prepareData = async (
           }
         }
 
-        debugInfo('End an query for popups export');
+        debugInfo("End an query for popups export");
 
         data = formDatas;
       } else {
@@ -377,11 +376,11 @@ const prepareData = async (
           models,
           subdomain,
           customerParams,
-          {},
+          {}
         );
         await qb.buildAllQueries();
 
-        const customerResponse = await qb.runQueries('search', unlimited);
+        const customerResponse = await qb.runQueries("search", unlimited);
 
         data = customerResponse.list;
       }
@@ -400,12 +399,12 @@ const addCell = (
   value: string,
   sheet: any,
   columnNames: string[],
-  rowIndex: number,
+  rowIndex: number
 ): void => {
   let fixedValue = value;
 
   if (Array.isArray(fixedValue)) {
-    fixedValue = '';
+    fixedValue = "";
   }
 
   // Checking if existing column
@@ -427,25 +426,25 @@ const fillLeadHeaders = async (subdomain: string, formId: string) => {
 
   const fields = await sendFormsMessage({
     subdomain,
-    action: 'fields.find',
+    action: "fields.find",
     data: {
       query: {
-        contentType: 'form',
-        contentTypeId: formId,
+        contentType: "form",
+        contentTypeId: formId
       },
       sort: {
-        order: 1,
-      },
+        order: 1
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const field of fields) {
     headers.push({ name: field._id, label: field.text });
   }
 
-  headers.push({ name: 'created', label: 'Created' });
+  headers.push({ name: "created", label: "Created" });
 
   return headers;
 };
@@ -456,29 +455,29 @@ const buildLeadFile = async (
   formId: string,
   sheet: any,
   columnNames: string[],
-  rowIndex: number,
+  rowIndex: number
 ) => {
   debugInfo(`Start building an excel file for popups export`);
 
   const headers: IColumnLabel[] = await fillLeadHeaders(subdomain, formId);
 
-  const displayValue = (item) => {
+  const displayValue = item => {
     if (!item) {
-      return '';
+      return "";
     }
 
-    if (item.validation === 'date') {
-      return moment(item.value).format('YYYY/MM/DD HH:mm');
+    if (item.validation === "date") {
+      return moment(item.value).format("YYYY/MM/DD HH:mm");
     }
 
-    if (item.type === 'file' && Array.isArray(item.value) && item.value[0]) {
+    if (item.type === "file" && Array.isArray(item.value) && item.value[0]) {
       return item.value[0].url;
     }
 
-    if (item.type === 'select') {
+    if (item.type === "select") {
       return item.value && item.value.value
         ? item.value.value
-        : item.value || '';
+        : item.value || "";
     }
 
     return item.value;
@@ -489,9 +488,9 @@ const buildLeadFile = async (
     // Iterating through basic info columns
     for (const column of headers) {
       const item = await data.find(
-        (obj) =>
+        obj =>
           obj._id === column.name ||
-          (obj.text || '').trim() === (column.label || '').trim(),
+          (obj.text || "").trim() === (column.label || "").trim()
       );
 
       const cellValue = displayValue(item);
@@ -500,13 +499,13 @@ const buildLeadFile = async (
     }
   }
 
-  debugInfo('End building an excel file for popups export');
+  debugInfo("End building an excel file for popups export");
 };
 
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   let type = query.type;
@@ -526,15 +525,15 @@ export const buildFile = async (
       query.form,
       sheet,
       columnNames,
-      rowIndex,
+      rowIndex
     );
 
-    type = 'Forms';
+    type = "Forms";
   } else {
     let headers: IColumnLabel[] = fillHeaders(type);
 
     if (configs) {
-      headers = JSON.parse(configs).map((config) => {
+      headers = JSON.parse(configs).map(config => {
         return { name: config, label: config };
       });
     }
@@ -543,20 +542,20 @@ export const buildFile = async (
       rowIndex++;
       // Iterating through basic info columns
       for (const column of headers) {
-        if (column.name.startsWith('customFieldsData')) {
+        if (column.name.startsWith("customFieldsData")) {
           const { field, value } = await getCustomFieldsData(
-            (selector) =>
+            selector =>
               sendFormsMessage({
                 subdomain,
-                action: 'fields.findOne',
+                action: "fields.findOne",
                 data: {
-                  query: selector,
+                  query: selector
                 },
-                isRPC: true,
+                isRPC: true
               }),
             item,
             column,
-            type,
+            type
           );
 
           if (field && value) {
@@ -565,7 +564,7 @@ export const buildFile = async (
               value,
               sheet,
               columnNames,
-              rowIndex,
+              rowIndex
             );
           }
         } else {
@@ -573,7 +572,7 @@ export const buildFile = async (
             models,
             subdomain,
             column.name,
-            item,
+            item
           );
 
           addCell(column, cellValue, sheet, columnNames, rowIndex);
@@ -585,7 +584,7 @@ export const buildFile = async (
   }
 
   return {
-    name: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
-    response: await generateXlsx(workbook),
+    name: `${type} - ${moment().format("YYYY-MM-DD HH:mm")}`,
+    response: await generateXlsx(workbook)
   };
 };

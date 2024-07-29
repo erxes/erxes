@@ -1,45 +1,44 @@
-import { Transform } from 'stream';
+import { Transform } from "stream";
 
-import { chunkArray } from '@erxes/api-utils/src/core';
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
-import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import { chunkArray } from "@erxes/api-utils/src/core";
+import EditorAttributeUtil from "@erxes/api-utils/src/editorAttributeUtils";
+import { generateFieldsFromSchema } from "@erxes/api-utils/src/fieldUtils";
 
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { customFieldsDataByFieldCode } from '@erxes/api-utils/src/fieldUtils';
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
-import { ICustomField, ILink } from '@erxes/api-utils/src/types';
-import { generateModels, IModels } from './connectionResolver';
+import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
+import { customFieldsDataByFieldCode } from "@erxes/api-utils/src/fieldUtils";
+import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { ICustomField, ILink } from "@erxes/api-utils/src/types";
+import { generateModels, IModels } from "./connectionResolver";
 import {
   COMPANY_INFO,
   CUSTOMER_BASIC_INFO,
   DEVICE_PROPERTIES_INFO,
   EMAIL_VALIDATION_STATUSES,
-  MODULE_NAMES,
-} from './constants';
+  MODULE_NAMES
+} from "./constants";
 import {
-  sendCoreMessage,
   sendEngagesMessage,
   sendFormsMessage,
   sendInboxMessage,
-  sendTagsMessage,
-} from './messageBroker';
-import { companySchema } from './models/definitions/companies';
+  sendCoreMessage
+} from "./messageBroker";
+import { companySchema } from "./models/definitions/companies";
 import {
   customerSchema,
   ICustomerDocument,
   locationSchema,
-  visitorContactSchema,
-} from './models/definitions/customers';
+  visitorContactSchema
+} from "./models/definitions/customers";
 
 const EXTEND_FIELDS = {
   CUSTOMER: [
-    { name: 'companiesPrimaryNames', label: 'Company Primary Names' },
-    { name: 'companiesPrimaryEmails', label: 'Company Primary Emails' },
+    { name: "companiesPrimaryNames", label: "Company Primary Names" },
+    { name: "companiesPrimaryEmails", label: "Company Primary Emails" }
   ],
   ALL: [
-    { name: 'tag', label: 'Tag' },
-    { name: 'ownerEmail', label: 'Owner email' },
-  ],
+    { name: "tag", label: "Tag" },
+    { name: "ownerEmail", label: "Owner email" }
+  ]
 };
 
 export const findCustomer = async (
@@ -49,15 +48,15 @@ export const findCustomer = async (
 ) => {
   let customer;
 
-  const defaultFilter = { status: { $ne: 'deleted' } };
+  const defaultFilter = { status: { $ne: "deleted" } };
 
   if (doc.customerPrimaryEmail) {
     customer = await Customers.findOne({
       ...defaultFilter,
       $or: [
         { emails: { $in: [doc.customerPrimaryEmail] } },
-        { primaryEmail: doc.customerPrimaryEmail },
-      ],
+        { primaryEmail: doc.customerPrimaryEmail }
+      ]
     }).lean();
   }
 
@@ -66,22 +65,22 @@ export const findCustomer = async (
       ...defaultFilter,
       $or: [
         { phones: { $in: [doc.customerPrimaryPhone] } },
-        { primaryPhone: doc.customerPrimaryPhone },
-      ],
+        { primaryPhone: doc.customerPrimaryPhone }
+      ]
     }).lean();
   }
 
   if (!customer && doc.customerCode) {
     customer = await Customers.findOne({
       ...defaultFilter,
-      code: doc.customerCode,
+      code: doc.customerCode
     }).lean();
   }
 
   if (!customer && doc._id) {
     customer = await Customers.findOne({
       ...defaultFilter,
-      _id: doc._id,
+      _id: doc._id
     }).lean();
   }
 
@@ -106,36 +105,36 @@ export const findCompany = async (
 ) => {
   let company;
 
-  const defaultFilter = { status: { $ne: 'deleted' } };
+  const defaultFilter = { status: { $ne: "deleted" } };
 
   if (doc.companyPrimaryName) {
     company = await Companies.findOne({
       ...defaultFilter,
       $or: [
         { names: { $in: [doc.companyPrimaryName] } },
-        { primaryName: doc.companyPrimaryName },
-      ],
+        { primaryName: doc.companyPrimaryName }
+      ]
     }).lean();
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }],
+      $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
     }).lean();
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }],
+      $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
     }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
       ...defaultFilter,
-      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }],
+      $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
     }).lean();
   }
 
@@ -144,8 +143,8 @@ export const findCompany = async (
       ...defaultFilter,
       $or: [
         { emails: { $in: [doc.companyPrimaryEmail] } },
-        { primaryEmail: doc.companyPrimaryEmail },
-      ],
+        { primaryEmail: doc.companyPrimaryEmail }
+      ]
     }).lean();
   }
 
@@ -154,22 +153,22 @@ export const findCompany = async (
       ...defaultFilter,
       $or: [
         { phones: { $in: [doc.companyPrimaryPhone] } },
-        { primaryPhone: doc.companyPrimaryPhone },
-      ],
+        { primaryPhone: doc.companyPrimaryPhone }
+      ]
     }).lean();
   }
 
   if (!company && doc.companyCode) {
     company = await Companies.findOne({
       ...defaultFilter,
-      code: doc.companyCode,
+      code: doc.companyCode
     }).lean();
   }
 
   if (!company && doc._id) {
     company = await Companies.findOne({
       ...defaultFilter,
-      _id: doc._id,
+      _id: doc._id
     }).lean();
   }
 
@@ -195,16 +194,16 @@ const generateUsersOptions = async (
 ) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
-      query: {},
+      query: {}
     },
-    isRPC: true,
+    isRPC: true
   });
 
-  const options: Array<{ label: string; value: any }> = users.map((user) => ({
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,
-    label: user.username || user.email || '',
+    label: user.username || user.email || ""
   }));
 
   return {
@@ -212,7 +211,7 @@ const generateUsersOptions = async (
     name,
     label,
     type,
-    selectOptions: options,
+    selectOptions: options
   };
 };
 
@@ -224,16 +223,16 @@ const generateBrandsOptions = async (
 ) => {
   const brands = await sendCoreMessage({
     subdomain,
-    action: 'brands.find',
+    action: "brands.find",
     data: {
-      query: {},
+      query: {}
     },
-    isRPC: true,
+    isRPC: true
   });
 
-  const options: Array<{ label: string; value: any }> = brands.map((brand) => ({
+  const options: Array<{ label: string; value: any }> = brands.map(brand => ({
     value: brand._id,
-    label: brand.name,
+    label: brand.name
   }));
 
   return {
@@ -241,21 +240,19 @@ const generateBrandsOptions = async (
     name,
     label,
     type,
-    selectOptions: options,
+    selectOptions: options
   };
 };
 
 const getTags = async (type: string, subdomain: string) => {
-  const tags = await sendTagsMessage({
+  const tags = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "tagFind",
     data: {
-      type: `contacts:${
-        ['lead', 'visitor'].includes(type) ? 'customer' : type
-      }`,
+      type: `contacts:${["lead", "visitor"].includes(type) ? "customer" : type}`
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const selectOptions: Array<{ label: string; value: any }> = [];
@@ -263,26 +260,26 @@ const getTags = async (type: string, subdomain: string) => {
   for (const tag of tags) {
     selectOptions.push({
       value: tag._id,
-      label: tag.name,
+      label: tag.name
     });
   }
 
   return {
     _id: Math.random(),
-    name: 'tagIds',
-    label: 'Tag',
-    type: 'tag',
-    selectOptions,
+    name: "tagIds",
+    label: "Tag",
+    type: "tag",
+    selectOptions
   };
 };
 
 const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
-    action: 'integrations.find',
+    action: "integrations.find",
     data: { query: {} },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   const selectOptions: Array<{ label: string; value: any }> = [];
@@ -290,33 +287,33 @@ const getIntegrations = async (subdomain: string) => {
   for (const integration of integrations) {
     selectOptions.push({
       value: integration._id,
-      label: integration.name,
+      label: integration.name
     });
   }
 
   return {
     _id: Math.random(),
-    name: 'relatedIntegrationIds',
-    label: 'Related integration',
-    selectOptions,
+    name: "relatedIntegrationIds",
+    label: "Related integration",
+    selectOptions
   };
 };
 
 const getFormSubmissionFields = async (subdomain, config) => {
   const fields = await sendFormsMessage({
     subdomain,
-    action: 'fields.fieldsCombinedByContentType',
+    action: "fields.fieldsCombinedByContentType",
     data: {
-      contentType: 'forms:form_submission',
-      config,
+      contentType: "forms:form_submission",
+      config
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
-  return fields.map((field) => ({
+  return fields.map(field => ({
     ...field,
-    label: `form_submission:${field?.label || ''}`,
+    label: `form_submission:${field?.label || ""}`
   }));
 };
 
@@ -340,21 +337,21 @@ export const generateFields = async ({ subdomain, data }) => {
   }> = [];
 
   switch (type) {
-    case 'lead':
+    case "lead":
       schema = Customers.schema;
 
-    case 'customer':
+    case "customer":
       schema = Customers.schema;
       break;
 
-    case 'company':
+    case "company":
       schema = Companies.schema;
       break;
   }
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -363,37 +360,37 @@ export const generateFields = async ({ subdomain, data }) => {
       if (path.schema) {
         fields = [
           ...fields,
-          ...(await generateFieldsFromSchema(path.schema, `${name}.`)),
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
         ];
       }
     }
   }
 
-  if (!usageType || usageType === 'export') {
+  if (!usageType || usageType === "export") {
     const aggre = await fetchEs({
       subdomain,
-      action: 'search',
-      index: type === 'company' ? 'companies' : 'customers',
+      action: "search",
+      index: type === "company" ? "companies" : "customers",
       body: {
         size: 0,
         _source: false,
         aggs: {
           trackedDataKeys: {
             nested: {
-              path: 'trackedData',
+              path: "trackedData"
             },
             aggs: {
               fieldKeys: {
                 terms: {
-                  field: 'trackedData.field',
-                  size: 10000,
-                },
-              },
-            },
-          },
-        },
+                  field: "trackedData.field",
+                  size: 10000
+                }
+              }
+            }
+          }
+        }
       },
-      defaultValue: { aggregations: { trackedDataKeys: {} } },
+      defaultValue: { aggregations: { trackedDataKeys: {} } }
     });
 
     const aggregations = aggre.aggregations || { trackedDataKeys: {} };
@@ -404,15 +401,15 @@ export const generateFields = async ({ subdomain, data }) => {
       fields.push({
         _id: Math.random(),
         name: `trackedData.${bucket.key}`,
-        label: bucket.key,
+        label: bucket.key
       });
     }
   }
 
   const ownerOptions = await generateUsersOptions(
-    'ownerId',
-    'Owner',
-    'user',
+    "ownerId",
+    "Owner",
+    "user",
     subdomain
   );
 
@@ -420,7 +417,7 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, tags];
 
-  if (type === 'customer' || type === 'lead') {
+  if (type === "customer" || type === "lead") {
     const { config } = data;
 
     const integrations = await getIntegrations(subdomain);
@@ -435,26 +432,26 @@ export const generateFields = async ({ subdomain, data }) => {
 
     fields = [...fields, integrations];
 
-    if (usageType === 'import') {
+    if (usageType === "import") {
       fields.push({
         _id: Math.random(),
-        name: 'companiesPrimaryNames',
-        label: 'Company Primary Names',
+        name: "companiesPrimaryNames",
+        label: "Company Primary Names"
       });
 
       fields.push({
         _id: Math.random(),
-        name: 'companiesPrimaryEmails',
-        label: 'Company Primary Emails',
+        name: "companiesPrimaryEmails",
+        label: "Company Primary Emails"
       });
     }
   }
 
   if (process.env.USE_BRAND_RESTRICTIONS) {
     const brandsOptions = await generateBrandsOptions(
-      'scopeBrandIds',
-      'Brands',
-      'brand',
+      "scopeBrandIds",
+      "Brands",
+      "brand",
       subdomain
     );
 
@@ -463,11 +460,11 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, ownerOptions];
 
-  if (usageType === 'import') {
+  if (usageType === "import") {
     for (const extendField of EXTEND_FIELDS.ALL) {
       fields.push({
         _id: Math.random(),
-        ...extendField,
+        ...extendField
       });
     }
   }
@@ -481,14 +478,14 @@ export const getContentItem = async (
 ) => {
   const { action, contentType, content } = activityLog;
 
-  if (action === 'merge') {
+  if (action === "merge") {
     let result = {};
 
     switch (contentType) {
-      case 'company':
+      case "company":
         result = await Companies.find({ _id: { $in: content } }).lean();
         break;
-      case 'customer':
+      case "customer":
         result = await Customers.find({ _id: { $in: content } }).lean();
         break;
       default:
@@ -526,20 +523,20 @@ export const prepareEngageCustomers = async (
     replacers: Array<{ key: string; value: string }>;
   }> = [];
 
-  const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
-  const emailContent = emailConf.content || '';
+  const emailConf = engageMessage.email ? engageMessage.email : { content: "" };
+  const emailContent = emailConf.content || "";
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
   const customerFields =
     await editorAttributeUtil.getCustomerFields(emailContent);
 
-  const exists = { $exists: true, $nin: [null, '', undefined] };
+  const exists = { $exists: true, $nin: [null, "", undefined] };
   // make sure email & phone are valid
-  if (engageMessage.method === 'email') {
+  if (engageMessage.method === "email") {
     customersSelector.primaryEmail = exists;
     customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
-  if (engageMessage.method === 'sms') {
+  if (engageMessage.method === "sms") {
     customersSelector.primaryPhone = exists;
     customersSelector.phoneValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
   }
@@ -547,8 +544,8 @@ export const prepareEngageCustomers = async (
   const onFinishPiping = async () => {
     await sendEngagesMessage({
       subdomain,
-      action: 'pre-notification',
-      data: { engageMessage, customerInfos },
+      action: "pre-notification",
+      data: { engageMessage, customerInfos }
     });
 
     if (customerInfos.length > 0) {
@@ -556,14 +553,14 @@ export const prepareEngageCustomers = async (
         ...engageMessage,
         customers: [],
         fromEmail: user.email,
-        engageMessageId: engageMessage._id,
+        engageMessageId: engageMessage._id
       };
 
-      if (engageMessage.method === 'email' && engageMessage.email) {
+      if (engageMessage.method === "email" && engageMessage.email) {
         const replacedContent = await editorAttributeUtil.replaceAttributes({
           customerFields,
           content: emailContent,
-          user,
+          user
         });
 
         engageMessage.email.content = replacedContent;
@@ -575,17 +572,17 @@ export const prepareEngageCustomers = async (
 
       for (const chunk of chunks) {
         data.customers = chunk;
-                
+
         await sendEngagesMessage({
           subdomain,
-          action: 'notification',
-          data: { action, data },
+          action: "notification",
+          data: { action, data }
         });
       }
     }
   };
 
-  const customersItemsMapping = JSON.parse('{}');
+  const customersItemsMapping = JSON.parse("{}");
 
   const customerTransformerStream = new Transform({
     objectMode: true,
@@ -598,7 +595,7 @@ export const prepareEngageCustomers = async (
           content: emailContent,
           customer,
           item,
-          customerFields,
+          customerFields
         });
 
         customerInfos.push({
@@ -607,13 +604,13 @@ export const prepareEngageCustomers = async (
           emailValidationStatus: customer.emailValidationStatus,
           phoneValidationStatus: customer.phoneValidationStatus,
           primaryPhone: customer.primaryPhone,
-          replacers,
+          replacers
         });
       }
 
       // signal upstream that we are ready to take more data
       callback();
-    },
+    }
   });
 
   // generate fields option =======
@@ -621,7 +618,7 @@ export const prepareEngageCustomers = async (
     primaryEmail: 1,
     emailValidationStatus: 1,
     phoneValidationStatus: 1,
-    primaryPhone: 1,
+    primaryPhone: 1
   };
 
   for (const field of customerFields || []) {
@@ -635,14 +632,14 @@ export const prepareEngageCustomers = async (
   return new Promise((resolve, reject) => {
     const pipe = customersStream.pipe(customerTransformerStream);
 
-    pipe.on('finish', async () => {
+    pipe.on("finish", async () => {
       try {
         await onFinishPiping();
       } catch (e) {
         return reject(e);
       }
 
-      resolve({ status: 'done', customerInfos });
+      resolve({ status: "done", customerInfos });
     });
   });
 };
@@ -650,9 +647,9 @@ export const prepareEngageCustomers = async (
 export const generateSystemFields = ({ data: { groupId } }) => {
   const contactsFields: any = [];
 
-  const serviceName = 'contacts';
+  const serviceName = "contacts";
 
-  CUSTOMER_BASIC_INFO.ALL.map((e) => {
+  CUSTOMER_BASIC_INFO.ALL.map(e => {
     contactsFields.push({
       text: e.label,
       type: e.field,
@@ -660,11 +657,11 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       validation: e.validation,
       groupId,
       contentType: `${serviceName}:customer`,
-      isDefinedByErxes: true,
+      isDefinedByErxes: true
     });
   });
 
-  COMPANY_INFO.ALL.map((e) => {
+  COMPANY_INFO.ALL.map(e => {
     contactsFields.push({
       text: e.label,
       type: e.field,
@@ -672,17 +669,17 @@ export const generateSystemFields = ({ data: { groupId } }) => {
       validation: e.validation,
       groupId,
       contentType: `${serviceName}:company`,
-      isDefinedByErxes: true,
+      isDefinedByErxes: true
     });
   });
 
-  DEVICE_PROPERTIES_INFO.ALL.map((e) => {
+  DEVICE_PROPERTIES_INFO.ALL.map(e => {
     contactsFields.push({
       text: e.label,
       type: e.field,
       groupId,
       contentType: `${serviceName}:device`,
-      isDefinedByErxes: true,
+      isDefinedByErxes: true
     });
   });
 
@@ -709,8 +706,8 @@ export const updateContactsField = async (
 
   let cachedCustomer;
 
-  const customerSchemaLabels = await getSchemaLabels('customer');
-  const companySchemaLabels = await getSchemaLabels('company');
+  const customerSchemaLabels = await getSchemaLabels("customer");
+  const companySchemaLabels = await getSchemaLabels("company");
 
   for (const groupId of Object.keys(submissionsGrouped)) {
     const customerLinks: ILink = {};
@@ -723,32 +720,32 @@ export const updateContactsField = async (
     const phones: string[] = [];
 
     for (const submission of submissionsGrouped[groupId]) {
-      const submissionType = submission.type || '';
+      const submissionType = submission.type || "";
 
-      if (submissionType.includes('customerLinks')) {
+      if (submissionType.includes("customerLinks")) {
         customerLinks[getSocialLinkKey(submissionType)] = submission.value;
         continue;
       }
 
-      if (submissionType.includes('companyLinks')) {
+      if (submissionType.includes("companyLinks")) {
         companyLinks[getSocialLinkKey(submissionType)] = submission.value;
         continue;
       }
 
-      if (['phone', 'internationalPhone'].includes(submissionType)) {
+      if (["phone", "internationalPhone"].includes(submissionType)) {
         phones.push(submission.value);
         continue;
       }
 
-      if (submissionType === 'pronoun') {
+      if (submissionType === "pronoun") {
         switch (submission.value) {
-          case 'Male':
+          case "Male":
             customerDoc.pronoun = 1;
             break;
-          case 'Female':
+          case "Female":
             customerDoc.pronoun = 2;
             break;
-          case 'Not applicable':
+          case "Not applicable":
             customerDoc.pronoun = 9;
             break;
           default:
@@ -759,10 +756,10 @@ export const updateContactsField = async (
       }
 
       if (
-        customerSchemaLabels.findIndex((e) => e.name === submissionType) !== -1
+        customerSchemaLabels.findIndex(e => e.name === submissionType) !== -1
       ) {
         if (
-          submissionType === 'avatar' &&
+          submissionType === "avatar" &&
           submission.value &&
           submission.value.length > 0
         ) {
@@ -774,9 +771,9 @@ export const updateContactsField = async (
         continue;
       }
 
-      if (submissionType.includes('company_')) {
+      if (submissionType.includes("company_")) {
         if (
-          submissionType === 'company_avatar' &&
+          submissionType === "company_avatar" &&
           submission.value &&
           submission.value.length > 0
         ) {
@@ -784,13 +781,13 @@ export const updateContactsField = async (
           continue;
         }
 
-        const key = submissionType.split('_')[1];
+        const key = submissionType.split("_")[1];
         companyDoc[key] = submission.value;
         continue;
       }
 
       if (
-        companySchemaLabels.findIndex((e) => e.name === submissionType) !== -1
+        companySchemaLabels.findIndex(e => e.name === submissionType) !== -1
       ) {
         companyDoc[submissionType] = submission.value;
         continue;
@@ -799,25 +796,25 @@ export const updateContactsField = async (
       if (
         submission.associatedFieldId &&
         [
-          'input',
-          'select',
-          'multiSelect',
-          'file',
-          'textarea',
-          'radio',
-          'check',
-          'map',
+          "input",
+          "select",
+          "multiSelect",
+          "file",
+          "textarea",
+          "radio",
+          "check",
+          "map"
         ].includes(submissionType)
       ) {
         const field = await sendFormsMessage({
           subdomain,
-          action: 'fields.findOne',
+          action: "fields.findOne",
           data: {
             query: {
-              _id: submission.associatedFieldId,
-            },
+              _id: submission.associatedFieldId
+            }
           },
-          isRPC: true,
+          isRPC: true
         });
 
         if (!field) {
@@ -826,37 +823,37 @@ export const updateContactsField = async (
 
         const fieldGroup = await sendFormsMessage({
           subdomain,
-          action: 'fieldsGroups.findOne',
+          action: "fieldsGroups.findOne",
           data: {
             query: {
-              _id: field.groupId,
-            },
+              _id: field.groupId
+            }
           },
-          isRPC: true,
+          isRPC: true
         });
 
-        if (fieldGroup && fieldGroup.contentType === 'contacts:company') {
+        if (fieldGroup && fieldGroup.contentType === "contacts:company") {
           companyCustomData.push({
             field: submission.associatedFieldId,
-            value: submission.value,
+            value: submission.value
           });
         }
 
-        if (fieldGroup && fieldGroup.contentType === 'contacts:customer') {
+        if (fieldGroup && fieldGroup.contentType === "contacts:customer") {
           customFieldsData.push({
             field: submission.associatedFieldId,
-            value: submission.value,
+            value: submission.value
           });
         }
       }
     }
 
-    if (groupId === 'default') {
+    if (groupId === "default") {
       cachedCustomer = await models.Customers.getWidgetCustomer({
         integrationId: integration._id,
         cachedCustomerId,
-        email: customerDoc.email || '',
-        phone: customerDoc.phone || '',
+        email: customerDoc.email || "",
+        phone: customerDoc.phone || ""
       });
 
       if (!cachedCustomer) {
@@ -864,7 +861,7 @@ export const updateContactsField = async (
           models,
           integration._id,
           { ...customerDoc, phones },
-          integration.brandId || '',
+          integration.brandId || "",
           leadData.saveAsCustomer
         );
       }
@@ -877,7 +874,7 @@ export const updateContactsField = async (
           customFieldsData,
           links: customerLinks,
           phones,
-          scopeBrandIds: [integration.brandId || ''],
+          scopeBrandIds: [integration.brandId || ""]
         },
         cachedCustomer
       );
@@ -886,12 +883,12 @@ export const updateContactsField = async (
 
       conformityIds[groupId] = {
         customerId: cachedCustomer._id,
-        companyId: '',
+        companyId: ""
       };
     } else {
       let customer = await findCustomer(models, subdomain, {
-        customerPrimaryEmail: customerDoc.email || '',
-        customerPrimaryPhone: customerDoc.phone || '',
+        customerPrimaryEmail: customerDoc.email || "",
+        customerPrimaryPhone: customerDoc.phone || ""
       });
 
       if (!customer) {
@@ -899,7 +896,7 @@ export const updateContactsField = async (
           models,
           integration._id,
           customerDoc,
-          integration.brandId || ''
+          integration.brandId || ""
         );
       }
 
@@ -911,12 +908,12 @@ export const updateContactsField = async (
           customFieldsData,
           links: customerLinks,
           phones,
-          scopeBrandIds: [integration.brandId || ''],
+          scopeBrandIds: [integration.brandId || ""]
         },
         customer
       );
 
-      conformityIds[groupId] = { customerId: customer._id, companyId: '' };
+      conformityIds[groupId] = { customerId: customer._id, companyId: "" };
     }
 
     if (
@@ -930,13 +927,13 @@ export const updateContactsField = async (
     }
 
     let company = await findCompany(models, subdomain, {
-      companyPrimaryName: companyDoc.primaryName || '',
-      companyPrimaryEmail: companyDoc.primaryEmail || '',
-      companyPrimaryPhone: companyDoc.primaryPhone || '',
+      companyPrimaryName: companyDoc.primaryName || "",
+      companyPrimaryEmail: companyDoc.primaryEmail || "",
+      companyPrimaryPhone: companyDoc.primaryPhone || ""
     });
 
-    companyDoc.scopeBrandIds = [integration.brandId || ''];
-    companyDoc.names = [companyDoc.primaryName || ''];
+    companyDoc.scopeBrandIds = [integration.brandId || ""];
+    companyDoc.names = [companyDoc.primaryName || ""];
 
     if (!company) {
       company = await models.Companies.createCompany(companyDoc);
@@ -971,7 +968,7 @@ export const updateContactsField = async (
 
     // if company scopeBrandIds does not contain brandId
     if (
-      company.scopeBrandIds.findIndex((e) => e === integration.brandId) === -1
+      company.scopeBrandIds.findIndex(e => e === integration.brandId) === -1
     ) {
       await models.Companies.updateOne(
         { _id: company._id },
@@ -981,50 +978,50 @@ export const updateContactsField = async (
 
     conformityIds[groupId] = {
       companyId: company._id,
-      customerId: conformityIds[groupId].customerId,
+      customerId: conformityIds[groupId].customerId
     };
   }
 
-  let mainCompanyId = '';
+  let mainCompanyId = "";
   const relTypeIds: string[] = [];
 
   for (const key of Object.keys(conformityIds)) {
     const { companyId, customerId } = conformityIds[key];
 
-    if (key === 'default' && companyId && customerId) {
+    if (key === "default" && companyId && customerId) {
       mainCompanyId = companyId;
       relTypeIds.push(customerId);
     }
 
-    if (key !== 'default' && companyId && customerId) {
+    if (key !== "default" && companyId && customerId) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformities',
+        action: "conformities.addConformities",
         data: {
-          mainType: 'company',
+          mainType: "company",
           mainTypeId: companyId,
-          relType: 'customer',
-          relTypeId: customerId,
-        },
+          relType: "customer",
+          relTypeId: customerId
+        }
       });
     }
 
-    if (key !== 'default' && !companyId && customerId) {
+    if (key !== "default" && !companyId && customerId) {
       relTypeIds.push(customerId);
     }
   }
 
-  if (mainCompanyId !== '' && relTypeIds.length > 0) {
+  if (mainCompanyId !== "" && relTypeIds.length > 0) {
     for (const relTypeId of relTypeIds) {
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.addConformity',
+        action: "conformities.addConformity",
         data: {
-          mainType: 'company',
+          mainType: "company",
           mainTypeId: mainCompanyId,
-          relType: 'customer',
-          relTypeId,
-        },
+          relType: "customer",
+          relTypeId
+        }
       });
     }
   }
@@ -1051,13 +1048,13 @@ export const updateCustomerFromForm = async (
       ? {}
       : {
           emails: [doc.email],
-          primaryEmail: doc.email,
+          primaryEmail: doc.email
         }),
     ...(customer.primaryPhone
       ? {}
       : {
-          primaryPhone: doc.phone,
-        }),
+          primaryPhone: doc.phone
+        })
   };
 
   if (!customer.customFieldsData) {
@@ -1099,7 +1096,7 @@ const prepareCustomFieldsData = (
   }
 
   for (const data of submissionData) {
-    const existingData = customerData.find((e) => e.field === data.field);
+    const existingData = customerData.find(e => e.field === data.field);
 
     if (existingData) {
       if (Array.isArray(existingData.value)) {
@@ -1124,30 +1121,30 @@ const createCustomer = async (
 ) => {
   const doc: any = {
     integrationId,
-    primaryEmail: customerDoc.email || '',
-    emails: [customerDoc.email || ''],
-    firstName: customerDoc.firstName || '',
-    lastName: customerDoc.lastName || '',
-    middleName: customerDoc.middleName || '',
-    primaryPhone: customerDoc.phone || '',
-    scopeBrandIds: [brandId || ''],
+    primaryEmail: customerDoc.email || "",
+    emails: [customerDoc.email || ""],
+    firstName: customerDoc.firstName || "",
+    lastName: customerDoc.lastName || "",
+    middleName: customerDoc.middleName || "",
+    primaryPhone: customerDoc.phone || "",
+    scopeBrandIds: [brandId || ""]
   };
 
   if (saveAsCustomer) {
-    doc.state = 'customer';
+    doc.state = "customer";
   }
 
   return models.Customers.createCustomer(doc);
 };
 
 const getSocialLinkKey = (type: string) => {
-  return type.substring(type.indexOf('_') + 1);
+  return type.substring(type.indexOf("_") + 1);
 };
 
 export const getSchemaLabels = async (type: string) => {
   let fieldNames: any[] = [];
 
-  const found: any = LOG_MAPPINGS.find((m) => m.name === type);
+  const found: any = LOG_MAPPINGS.find(m => m.name === type);
 
   if (found) {
     const schemas: any = found.schemas || [];
@@ -1164,7 +1161,7 @@ export const getSchemaLabels = async (type: string) => {
         }
 
         // nested object field names
-        if (typeof field === 'object' && field.type && field.type.obj) {
+        if (typeof field === "object" && field.type && field.type.obj) {
           fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
         }
       }
@@ -1180,7 +1177,7 @@ export const buildLabelList = (obj = {}): any[] => {
 
   for (const name of fieldNames) {
     const field: any = obj[name];
-    const label: string = field && field.label ? field.label : '';
+    const label: string = field && field.label ? field.label : "";
 
     list.push({ name, label });
   }
@@ -1191,10 +1188,10 @@ export const buildLabelList = (obj = {}): any[] => {
 const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.CUSTOMER,
-    schemas: [customerSchema, locationSchema, visitorContactSchema],
+    schemas: [customerSchema, locationSchema, visitorContactSchema]
   },
   {
     name: MODULE_NAMES.COMPANY,
-    schemas: [companySchema],
-  },
+    schemas: [companySchema]
+  }
 ];

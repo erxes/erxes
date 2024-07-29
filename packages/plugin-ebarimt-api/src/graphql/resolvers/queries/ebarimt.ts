@@ -124,7 +124,7 @@ const generateFilter = async (subdomain, params, commonQuerySelector) => {
   }
 
   if (params.billType) {
-    filter.billType = params.billType;
+    filter.type = params.billType;
   }
 
   const createdQry: any = {};

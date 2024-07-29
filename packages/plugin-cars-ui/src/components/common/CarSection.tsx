@@ -5,14 +5,14 @@ import {
   ModalTrigger,
   MainStyleButtonRelated as ButtonRelated,
   __,
-  SectionBodyItem,
-} from '@erxes/ui/src';
-import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CarChooser from '../../containers/CarChooser';
-import { queries } from '../../graphql';
-import { ICar } from '../../types';
+  SectionBodyItem
+} from "@erxes/ui/src";
+import GetConformity from "@erxes/ui-sales/src/conformity/containers/GetConformity";
+import React from "react";
+import { Link } from "react-router-dom";
+import CarChooser from "../../containers/CarChooser";
+import { queries } from "../../graphql";
+import { ICar } from "../../types";
 
 type Props = {
   name: string;
@@ -28,13 +28,13 @@ function Component(
   {
     name,
     items = [],
-    mainType = '',
-    mainTypeId = '',
+    mainType = "",
+    mainTypeId = "",
     onSelect,
-    collapseCallback,
-  }: Props,
+    collapseCallback
+  }: Props
 ) {
-  const renderCarChooser = (props) => {
+  const renderCarChooser = props => {
     return (
       <CarChooser
         {...props}
@@ -44,7 +44,7 @@ function Component(
     );
   };
 
-  const renderRelatedCarChooser = (props) => {
+  const renderRelatedCarChooser = props => {
     return (
       <CarChooser
         {...props}
@@ -62,7 +62,7 @@ function Component(
 
   const relCarTrigger = (
     <ButtonRelated>
-      <span>{__('See related cars..')}</span>
+      <span>{__("See related cars..")}</span>
     </ButtonRelated>
   );
 
@@ -89,8 +89,8 @@ function Component(
       const categoryId = items[0].category?.productCategoryId;
 
       localStorage.setItem(
-        'erxes_products:chooser_filter',
-        JSON.stringify({ categoryId }),
+        "erxes_products:chooser_filter",
+        JSON.stringify({ categoryId })
       );
     }
 
@@ -101,7 +101,7 @@ function Component(
             <Link to={`/erxes-plugin-car/details/${car._id}`}>
               <Icon icon="arrow-to-right" />
             </Link>
-            <span>{car.plateNumber || 'Unknown'}</span>
+            <span>{car.plateNumber || "Unknown"}</span>
           </SectionBodyItem>
         ))}
         {items.length === 0 && <EmptyState icon="building" text="No car" />}
@@ -112,7 +112,7 @@ function Component(
 
   return (
     <Box
-      title={__('Cars')}
+      title={__("Cars")}
       name="showCars"
       extraButtons={quickButtons}
       isOpen={true}

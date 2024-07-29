@@ -32,7 +32,7 @@ type Props = {
 };
 
 export default function RightSidebar(props: Props) {
-  const renderPlan = (contract) => {
+  const renderPlan = contract => {
     if (!contract.plan) {
       return null;
     }
@@ -73,7 +73,7 @@ export default function RightSidebar(props: Props) {
             name={"Contract"}
           />
 
-          {isEnabled("cards") && <DealSection contract={contract} />}
+          {isEnabled("sales") && <DealSection contract={contract} />}
         </>
       )}
       {isEnabled("loans") && !!contract.loansOfForeclosed?.length && (

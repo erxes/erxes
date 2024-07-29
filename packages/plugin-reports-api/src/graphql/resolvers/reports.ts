@@ -1,6 +1,6 @@
-import { IContext } from '../../connectionResolver';
-import { sendTagsMessage } from '../../messageBroker';
-import { IReportDocument } from '../../models/definitions/reports';
+import { IContext } from "../../connectionResolver";
+import { sendCoreMessage } from "../../messageBroker";
+import { IReportDocument } from "../../models/definitions/reports";
 
 export default {
   async charts(
@@ -27,7 +27,7 @@ export default {
   createdBy(report: IReportDocument) {
     return (
       report.createdBy && {
-        __typename: 'User',
+        __typename: "User",
         _id: report.createdBy
       }
     );
@@ -36,7 +36,7 @@ export default {
   updatedBy(report: IReportDocument) {
     return (
       report.updatedBy && {
-        __typename: 'User',
+        __typename: "User",
         _id: report.updatedBy
       }
     );
@@ -44,15 +44,15 @@ export default {
 
   members(report: IReportDocument) {
     return (report.assignedUserIds || []).map(_id => ({
-      __typename: 'User',
+      __typename: "User",
       _id
     }));
   },
 
   async tags(report: IReportDocument, _, { subdomain }: IContext) {
-    return sendTagsMessage({
+    return sendCoreMessage({
       subdomain,
-      action: 'find',
+      action: "tagFind",
       data: {
         _id: { $in: report.tagIds }
       },

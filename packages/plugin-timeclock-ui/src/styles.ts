@@ -255,9 +255,9 @@ const ToggleButton = styled(SimpleButton)`
 `;
 
 const FlexRow = styledTS<{
-  gapPx?: number;
+  $gapPx?: number;
 }>(styled.div)`
-  gap: ${props => (props.gapPx ? `${props.gapPx}px` : 'auto')};
+  gap: ${props => (props.$gapPx ? `${props.$gapPx}px` : 'auto')};
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -265,10 +265,10 @@ const FlexRow = styledTS<{
 `;
 
 const FlexRowJustifyStart = styledTS<{
-  widthPercent?: number;
+  $widthPercent?: number;
 }>(styled.div)`
   width: ${props =>
-    props.widthPercent ? `${props.widthPercent}%` : 'fit-content'}
+    props.$widthPercent ? `${props.$widthPercent}%` : 'fit-content'};
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -330,7 +330,7 @@ const FlexColumnMargined = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-direction: column;
-  gap: ${props => props.$marginNum}px
+  gap: ${props => props.$marginNum}px;
   margin-top:${props => props.$marginNum * 2}px;
 `;
 

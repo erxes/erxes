@@ -1,7 +1,7 @@
 import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
 import {
   PropertyConsumer,
-  PropertyProvider,
+  PropertyProvider
 } from "@erxes/ui-contacts/src/customers/propertyContext";
 import { mutations, queries } from "../graphql";
 
@@ -13,7 +13,7 @@ import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React, { useState } from "react";
 import client from "@erxes/ui/src/apolloClient";
-import { mutations as conformityMutations } from "@erxes/ui-cards/src/conformity/graphql";
+import { mutations as conformityMutations } from "@erxes/ui-sales/src/conformity/graphql";
 import { gql } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
@@ -44,9 +44,9 @@ const CustomerFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     object,
-    resetSubmit,
+    resetSubmit
   }: IButtonMutateProps) => {
-    const afterSave = (data) => {
+    const afterSave = data => {
       if (values.relationData && Object.keys(values.relationData).length > 0) {
         const { relationData } = values;
 
@@ -58,8 +58,8 @@ const CustomerFormContainer = (props: FinalProps) => {
                 mainType: "customer",
                 mainTypeId: data.customersAdd._id,
                 relType: key,
-                relTypeIds: relationData[key],
-              },
+                relTypeIds: relationData[key]
+              }
             });
           }
         }
@@ -80,7 +80,7 @@ const CustomerFormContainer = (props: FinalProps) => {
       if (redirectType === "new") {
         navigate(`/contacts`);
         navigate(`${currentLocation}#showCustomerModal=true`, {
-          replace: true,
+          replace: true
         });
       }
     };
@@ -110,7 +110,7 @@ const CustomerFormContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     changeRedirectType,
-    renderButton,
+    renderButton
   };
 
   return (

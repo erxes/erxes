@@ -1,6 +1,3 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-const tagsAvailable = isEnabled('tags') ? true : false;
-
 const pipelineLabelFields = `
   _id
   name
@@ -130,14 +127,10 @@ const reportsList = `
             filterType
           }
         }
-        ${
-          tagsAvailable
-            ? `tags  {
-            _id
-            name
-            colorCode
-          }`
-            : ``
+        tags  {
+          _id
+          name
+          colorCode
         }
       }
 
@@ -202,14 +195,10 @@ const reportDetail = `
           }
         }
 
-        ${
-          tagsAvailable
-            ? `tags  {
-            _id
-            name
-            colorCode
-          }`
-            : ``
+        tags  {
+          _id
+          name
+          colorCode
         }
 
         assignedDepartmentIds
@@ -359,5 +348,5 @@ export default {
   pipelines,
   pipelineLabels,
   stages,
-  fieldsGroups,
+  fieldsGroups
 };

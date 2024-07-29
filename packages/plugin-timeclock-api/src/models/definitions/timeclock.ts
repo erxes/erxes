@@ -452,6 +452,11 @@ export const scheduleConfigSchema = new Schema({
   shiftEnd: field({
     type: String,
     label: 'ending time of shift'
+  }),
+
+  locations: field({
+    type: JSON,
+    label: 'additional locations of schedule config'
   })
 });
 

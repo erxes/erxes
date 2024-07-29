@@ -3,7 +3,7 @@ import {
   SidebarList,
   Box,
   FormControl,
-  DataWithLoader,
+  DataWithLoader
 } from "@erxes/ui/src";
 import { __, router } from "coreui/utils";
 import React from "react";
@@ -18,31 +18,33 @@ type Props = {
 // consider both ends when changing
 const moduleOptions = [
   // cards service items
-  { value: "cards:board", label: "Boards" },
-  { value: "cards:dealBoards", label: "Deal boards" },
-  { value: "cards:purchaseBoards", label: "Purchase boards" },
-  { value: "cards:taskBoards", label: "Task boards" },
-  { value: "cards:ticketBoards", label: "Ticket boards" },
-  { value: "cards:growthHackBoards", label: "Growth hack boards" },
-  { value: "cards:dealPipelines", label: "Deal pipelines" },
-  { value: "cards:purchasePipelines", label: "Purchase pipelines" },
-  { value: "cards:taskPipelines", label: "Task pipelines" },
-  { value: "cards:ticketPipelines", label: "Ticket pipelines" },
-  { value: "cards:growthHackPipelines", label: "Growth hack pipelines" },
+  { value: "sales:dealBoards", label: "Deal boards" },
+  { value: "purchases:purchaseBoards", label: "Purchase boards" },
+  { value: "tasks:taskBoards", label: "Task boards" },
+  { value: "tickets:ticketBoards", label: "Ticket boards" },
+  { value: "growthhacks:growthHackBoards", label: "Growth hack boards" },
+  { value: "sales:dealPipelines", label: "Deal pipelines" },
+  { value: "purchases:purchasePipelines", label: "Purchase pipelines" },
+  { value: "tasks:taskPipelines", label: "Task pipelines" },
+  { value: "tickets:ticketPipelines", label: "Ticket pipelines" },
+  { value: "growthhacks:growthHackPipelines", label: "Growth hack pipelines" },
   { value: "cards:checklist", label: "Checklists" },
-  { value: "cards:checkListItem", label: "Checklist items" },
-  { value: "cards:deal", label: "Deals" },
-  { value: "cards:purchase", label: "Purchases" },
-  { value: "cards:task", label: "Tasks" },
-  { value: "cards:ticket", label: "Tickets" },
-  { value: "cards:pipelineLabel", label: "Pipeline labels" },
-  { value: "cards:pipelineTemplate", label: "Pipeline templates" },
-  { value: "cards:growthHack", label: "Growth hacks" },
-  { value: "cards:dealStages", label: "Deal stages" },
-  { value: "cards:purchaseStages", label: "Purchase stages" },
-  { value: "cards:taskStages", label: "Task stages" },
-  { value: "cards:ticketStages", label: "Ticket stages" },
-  { value: "cards:growthHackStages", label: "Growth hack stages" },
+  { value: "growthhacks:growthHackheckListItem", label: "Checklist items" },
+  { value: "sales:deal", label: "Deals" },
+  { value: "purchases:purchase", label: "Purchases" },
+  { value: "tasks:task", label: "Tasks" },
+  { value: "tickets:ticket", label: "Tickets" },
+  { value: "growthhacks:growthHackPipelineLabel", label: "Pipeline labels" },
+  {
+    value: "growthhacks:growthHackipelineTemplate",
+    label: "Pipeline templates"
+  },
+  { value: "growthhacks:growthHack", label: "Growth hacks" },
+  { value: "sales:dealStages", label: "Deal stages" },
+  { value: "purchases:purchaseStages", label: "Purchase stages" },
+  { value: "tasks:taskStages", label: "Task stages" },
+  { value: "tickets:ticketStages", label: "Ticket stages" },
+  { value: "growthhacks:growthHackstages", label: "Growth hack stages" },
   // core-api service items
   { value: "core:brand", label: "Brands" },
   { value: "core:permission", label: "Permissions" },
@@ -62,11 +64,11 @@ const moduleOptions = [
   { value: "knowledgebase:knowledgeBaseTopic", label: "Knowledgebase topics" },
   {
     value: "knowledgebase:knowledgeBaseCategory",
-    label: "Knowledgebase categories",
+    label: "Knowledgebase categories"
   },
   {
     value: "knowledgebase:knowledgeBaseArticle",
-    label: "Knowledgebase articles",
+    label: "Knowledgebase articles"
   },
   // others
   { value: "engages:engage", label: "Campaigns" },
@@ -77,7 +79,7 @@ const moduleOptions = [
   { value: "emailTemplate", label: "Email templates" },
   { value: "importHistory", label: "Import histories" },
   { value: "script", label: "Scripts" },
-  { value: "pricing:pricingPlan", label: "PricingPlan" },
+  { value: "pricing:pricingPlan", label: "PricingPlan" }
 ];
 
 function ModuleFilter({ queryParams }: Props) {
@@ -105,7 +107,7 @@ function ModuleFilter({ queryParams }: Props) {
 
   const applyModuleFilter = (value: string) => {
     setSearchValue(value);
-    const filteredModules = moduleOptions.filter((module) =>
+    const filteredModules = moduleOptions.filter(module =>
       module.label.toLowerCase().includes(value.toLowerCase())
     );
     setModules(filteredModules);
@@ -115,7 +117,7 @@ function ModuleFilter({ queryParams }: Props) {
     router.setParams(navigate, location, { type: module.value });
   };
 
-  const searchModule = (e) => {
+  const searchModule = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }

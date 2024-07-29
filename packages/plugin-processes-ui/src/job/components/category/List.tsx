@@ -34,7 +34,7 @@ const List = (props: IProps) => {
     trigger: React.ReactNode,
     category?: IJobCategory
   ) => {
-    const content = (props) => (
+    const content = props => (
       <CategoryForm
         {...props}
         category={category}
@@ -174,8 +174,9 @@ const List = (props: IProps) => {
         {renderCategoryList()}
       </Section>
       {/* <CategoryStatusFilter /> */}
-      {/* <ProductTypeFilter />
-        {isEnabled('tags') && <TagFilter />} */}
+      {/* <ProductTypeFilter /> */}
+
+      {/* <TagFilter /> */}
     </Sidebar>
   );
 };

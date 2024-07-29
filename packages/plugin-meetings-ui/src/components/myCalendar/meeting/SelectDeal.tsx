@@ -1,9 +1,9 @@
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
 
-import React, { useEffect, useState } from 'react';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import queries from '../../../graphql/queries';
+import React, { useEffect, useState } from "react";
+import SelectWithSearch from "@erxes/ui/src/components/SelectWithSearch";
+import { IDeal } from "@erxes/ui-sales/src/deals/types";
+import queries from "../../../graphql/queries";
 
 function generateDealOptions(array: IDeal[] = []): IOption[] {
   return array.map(item => {

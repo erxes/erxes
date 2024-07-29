@@ -1,77 +1,68 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage,
-} from '@erxes/api-utils/src/core';
-import { afterMutationHandlers } from './afterMutations';
-import { consumeQueue } from '@erxes/api-utils/src/messageBroker';
+  sendMessage
+} from "@erxes/api-utils/src/core";
+import { afterMutationHandlers } from "./afterMutations";
+import { consumeQueue } from "@erxes/api-utils/src/messageBroker";
 
 export const setupMessageConsumers = async () => {
-  consumeQueue('productplaces:afterMutation', async ({ subdomain, data }) => {
+  consumeQueue("productplaces:afterMutation", async ({ subdomain, data }) => {
     await afterMutationHandlers(subdomain, data);
     return;
   });
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'products',
-    ...args,
-  });
-};
-
-export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'tags',
-    ...args,
+    serviceName: "products",
+    ...args
   });
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'contacts',
-    ...args,
+    serviceName: "contacts",
+    ...args
   });
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
-    ...args,
+    serviceName: "cards",
+    ...args
   });
 };
 
 export const sendPricingMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'pricing',
-    ...args,
+    serviceName: "pricing",
+    ...args
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'segments',
-    ...args,
+    serviceName: "segments",
+    ...args
   });
 };

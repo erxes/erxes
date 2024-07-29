@@ -4,13 +4,17 @@ import {
   BlockRowTitle,
   Features,
   IconWrap,
-  ToggleWrap,
+  ToggleWrap
 } from "../../styles";
-import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { IBoard, IPipeline } from "@erxes/ui-sales/src/boards/types";
 import React, { useState } from "react";
 import { __, isEnabled } from "@erxes/ui/src/utils/core";
 
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
+
 import { ClientPortalConfig } from "../../types";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { FlexContent } from "@erxes/ui/src/layout/styles";
@@ -90,7 +94,7 @@ function General({
   purchaseToggle,
   ticketToggle,
   vendorParentProductCategoryId,
-  kind,
+  kind
 }: Props) {
   const [show, setShow] = useState<boolean>(false);
 
@@ -109,9 +113,9 @@ function General({
       return [];
     }
 
-    return options.map((option) => ({
+    return options.map(option => ({
       value: option[valueKey],
-      label: option[labelKey],
+      label: option[labelKey]
     }));
   }
 
@@ -120,7 +124,7 @@ function General({
     stageId,
     boardId,
     pipelineId,
-    toggle,
+    toggle
   }: {
     type: string;
     stageId?: string;
@@ -128,25 +132,76 @@ function General({
     pipelineId?: string;
     toggle?: boolean;
   }) {
-    const onChangeStage = (stgId) => handleFormChange(`${type}StageId`, stgId);
-    const onChangePipeline = (plId) =>
+    const onChangeStage = stgId => handleFormChange(`${type}StageId`, stgId);
+    const onChangePipeline = plId =>
       handleFormChange(`${type}PipelineId`, plId);
-    const onChangeBoard = (brId) => handleFormChange(`${type}BoardId`, brId);
+    const onChangeBoard = brId => handleFormChange(`${type}BoardId`, brId);
 
-    return isEnabled("cards") ? (
-      <BoardSelect
-        isRequired={toggle}
-        type={type}
-        stageId={stageId}
-        boardId={boardId || ""}
-        pipelineId={pipelineId || ""}
-        onChangeStage={onChangeStage}
-        onChangePipeline={onChangePipeline}
-        onChangeBoard={onChangeBoard}
-        autoSelectStage={false}
-        callback={handleToggleBoardSelect}
-      />
-    ) : null;
+    switch (type) {
+      case "deal":
+        return (
+          <SalesBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+
+      case "ticket":
+        return (
+          <TicketsBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+
+      case "purchase":
+        return (
+          <PurchasesBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+
+      case "task":
+        return (
+          <TasksBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+    }
   }
 
   function renderControl({
@@ -161,7 +216,7 @@ function General({
     stageId,
     pipelineId,
     boardId,
-    className,
+    className
   }: ControlItem) {
     const handleChange = (e: React.FormEvent) => {
       const value = (e.target as HTMLInputElement).value;
@@ -195,7 +250,7 @@ function General({
                   type: boardType,
                   stageId,
                   boardId,
-                  pipelineId,
+                  pipelineId
                 })}
               </Popover>
             )}
@@ -214,7 +269,7 @@ function General({
       return (
         <Select
           value={generateOptions(options, "_id", "name").find(
-            (o) => o.value === value
+            o => o.value === value
           )}
           isClearable={true}
           onChange={handleSelect}
@@ -246,7 +301,7 @@ function General({
           subtitle: "Shown name on menu",
           formValueName: "taskPublicLabel",
           formValue: taskPublicLabel,
-          placeholder: "Please enter a label for Public Task",
+          placeholder: "Please enter a label for Public Task"
         })}
         <div>
           <FormGroup>
@@ -276,8 +331,8 @@ function General({
             formValueName: "name",
             formValue: name,
             formProps: {
-              autoFocus: true,
-            },
+              autoFocus: true
+            }
           })}
 
           {renderControl({
@@ -285,14 +340,14 @@ function General({
             subtitle: "Displayed in the header area",
             className: "description",
             formValueName: "description",
-            formValue: description,
+            formValue: description
           })}
 
           {renderControl({
             label: "Website",
             subtitle: "Redirect URL to the main website",
             formValueName: "url",
-            formValue: url,
+            formValue: url
           })}
         </BlockRow>
       </Block>
@@ -317,7 +372,7 @@ function General({
               onChange={() => onChangeToggle(toggleName, !toggle)}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
+                unchecked: <span>No</span>
               }}
             />
           </FormGroup>
@@ -337,7 +392,7 @@ function General({
     );
 
     const renderTrigger = () => {
-      const content = (props) => <CategoryForm {...props} categories={[]} />;
+      const content = props => <CategoryForm {...props} categories={[]} />;
       return (
         <ModalTrigger
           title="Manage category"
@@ -356,7 +411,7 @@ function General({
             label="Choose product category"
             name="productCategoryId"
             initialValue={vendorParentProductCategoryId || ""}
-            onSelect={(categoryId) =>
+            onSelect={categoryId =>
               handleFormChange(
                 "vendorParentProductCategoryId",
                 categoryId as string
@@ -373,7 +428,10 @@ function General({
   const renderFeatures = () => {
     if (
       !isEnabled("knowledgebase") &&
-      !isEnabled("cards") &&
+      !isEnabled("sales") &&
+      !isEnabled("purchases") &&
+      !isEnabled("tickets") &&
+      !isEnabled("tasks") &&
       !isEnabled("inbox") &&
       !isEnabled("products")
     ) {
@@ -391,7 +449,7 @@ function General({
                 subtitle: "Shown name on menu",
                 formValueName: "knowledgeBaseLabel",
                 formValue: knowledgeBaseLabel,
-                placeholder: "Please enter a label for Knowledge base",
+                placeholder: "Please enter a label for Knowledge base"
               })}
               <FormGroup>
                 <ControlLabel required={true}>
@@ -401,7 +459,7 @@ function General({
                 <Select
                   placeholder="Select a knowledge base topic"
                   value={generateOptions(topics, "_id", "title").find(
-                    (o) => o.value === knowledgeBaseTopicId
+                    o => o.value === knowledgeBaseTopicId
                   )}
                   isClearable={true}
                   options={generateOptions(topics, "_id", "title")}
@@ -412,7 +470,7 @@ function General({
             "kbToggle",
             kbToggle || false
           )}
-        {isEnabled("cards") &&
+        {isEnabled("tasks") &&
           renderFeatureBlock(
             "publicTask",
             renderTaskPipelines(),
@@ -420,7 +478,7 @@ function General({
             publicTaskToggle || false
           )}
 
-        {isEnabled("cards") &&
+        {isEnabled("tickets") &&
           renderFeatureBlock(
             "tickets",
             <>
@@ -429,21 +487,21 @@ function General({
                 subtitle: "Shown name on menu",
                 formValueName: "ticketLabel",
                 formValue: ticketLabel,
-                placeholder: "Please enter a label for Ticket",
+                placeholder: "Please enter a label for Ticket"
               })}
               {renderBoardSelect({
                 type: "ticket",
                 stageId: ticketStageId,
                 pipelineId: ticketPipelineId,
                 boardId: ticketBoardId,
-                toggle: ticketToggle || false,
+                toggle: ticketToggle || false
               })}
             </>,
             "ticketToggle",
             ticketToggle || false
           )}
 
-        {isEnabled("cards") &&
+        {isEnabled("sales") &&
           renderFeatureBlock(
             "deals",
             <>
@@ -452,20 +510,20 @@ function General({
                 subtitle: "Shown name on menu",
                 formValueName: "dealLabel",
                 formValue: dealLabel,
-                placeholder: "Please enter a label for Deal",
+                placeholder: "Please enter a label for Deal"
               })}
               {renderBoardSelect({
                 type: "deal",
                 stageId: dealStageId,
                 pipelineId: dealPipelineId,
-                boardId: dealBoardId,
+                boardId: dealBoardId
               })}
             </>,
             "dealToggle",
             dealToggle || false
           )}
 
-        {isEnabled("cards") &&
+        {isEnabled("purchases") &&
           renderFeatureBlock(
             "purchases",
             <>
@@ -474,20 +532,20 @@ function General({
                 subtitle: "Shown name on menu",
                 formValueName: "purchaseLabel",
                 formValue: purchaseLabel,
-                placeholder: "Please enter a label for Purchase",
+                placeholder: "Please enter a label for Purchase"
               })}
               {renderBoardSelect({
                 type: "purchase",
                 stageId: purchaseStageId,
                 pipelineId: purchasePipelineId,
-                boardId: purchaseBoardId,
+                boardId: purchaseBoardId
               })}
             </>,
             "purchaseToggle",
             purchaseToggle || false
           )}
 
-        {isEnabled("cards") &&
+        {isEnabled("tasks") &&
           renderFeatureBlock(
             "tasks",
             <>
@@ -496,13 +554,13 @@ function General({
                 subtitle: "Shown name on menu",
                 formValueName: "taskLabel",
                 formValue: taskLabel,
-                placeholder: "Please enter a label for Task",
+                placeholder: "Please enter a label for Task"
               })}
               {renderBoardSelect({
                 type: "task",
                 stageId: taskStageId,
                 pipelineId: taskPipelineId,
-                boardId: taskBoardId,
+                boardId: taskBoardId
               })}
             </>,
             "taskToggle",
@@ -513,7 +571,7 @@ function General({
             label: "Messenger brand code",
             subtitle: "Brand code in messenger install script",
             formValueName: "messengerBrandCode",
-            formValue: messengerBrandCode,
+            formValue: messengerBrandCode
           })}
 
         {isEnabled("products") && kind === "vendor" && renderSelectCategory()}

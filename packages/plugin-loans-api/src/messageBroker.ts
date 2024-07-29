@@ -105,7 +105,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: "success",
         data: await models.Transactions.find({
-          contractId: { $in: contracts.map((c) => c._id) }
+          contractId: { $in: contracts.map(c => c._id) }
         }).lean()
       };
     }
@@ -167,7 +167,7 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendCardsMessage = async (
+export const sendSalesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
@@ -217,7 +217,7 @@ export const getFieldObject = async (
     defaultValue: []
   });
 
-  return fields.find((row) => row.code === code);
+  return fields.find(row => row.code === code);
 };
 
 export const getConfig = async (

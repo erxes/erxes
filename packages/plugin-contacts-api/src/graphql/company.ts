@@ -6,7 +6,7 @@ export const conformityQueryFields = `
   conformityIsSaved: Boolean
 `;
 
-export const types = tagsEnabled => `
+export const types = () => `
 
   type Company @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
@@ -46,7 +46,7 @@ export const types = tagsEnabled => `
     trackedData: JSON
 
     customers: [Customer]
-    ${tagsEnabled ? 'getTags: [Tag]' : ''}
+    getTags: [Tag]
     code: String
     location: String
     score: Float

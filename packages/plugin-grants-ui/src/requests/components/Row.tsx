@@ -2,7 +2,7 @@ import React from "react";
 import { IGrantRequest } from "../../common/type";
 import { Button, FormControl, Icon, Label, ModalTrigger } from "@erxes/ui/src";
 import { LinkButton } from "@erxes/ui/src/styles/main";
-import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import Assignees from "@erxes/ui-sales/src/boards/components/Assignees";
 import Form from "../containers/Form";
 import moment from "moment";
 
@@ -12,7 +12,7 @@ type Props = {
   onChange: (id: string) => void;
 };
 
-const Row: React.FC<Props> = (props) => {
+const Row: React.FC<Props> = props => {
   const { request, selecteRequests, onChange } = props;
 
   const lblStyle = () => {
@@ -35,10 +35,10 @@ const Row: React.FC<Props> = (props) => {
     </Button>
   );
 
-  const content = (props) => {
+  const content = props => {
     const updatedProps = {
       ...props,
-      _id,
+      _id
     };
     return <Form {...updatedProps} />;
   };
@@ -52,7 +52,7 @@ const Row: React.FC<Props> = (props) => {
     />
   );
 
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
   };
 

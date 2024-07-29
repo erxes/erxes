@@ -1,17 +1,17 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import RGL, { WidthProvider } from 'react-grid-layout';
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import RGL, { WidthProvider } from "react-grid-layout";
 
-import { ContentBox, Contents } from '@erxes/ui/src/layout/styles';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { ContentBox, Contents } from "@erxes/ui/src/layout/styles";
+import { RightMenuContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
+import { lighten, rgba } from "@erxes/ui/src/styles/ecolor";
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
 const ReactGridLayout = WidthProvider(RGL);
 
 const DragField = styledTS<{ haveChart?: boolean } & any>(
-  styled(ReactGridLayout),
+  styled(ReactGridLayout)
 )`
 
   background-image: radial-gradient(
@@ -19,7 +19,7 @@ const DragField = styledTS<{ haveChart?: boolean } & any>(
     ${colors.colorWhite} 20%
   );
 
-  ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
+  ${props => (props.haveChart ? "" : "height: 100% !important")};
   min-height: 100% !important;
   
   background-size: 10px 10px;
@@ -212,18 +212,17 @@ const ChartTitle = styled.div`
 `;
 
 const RightDrawerContainer = styledTS<{ width?: number } & any>(
-  styled(RightMenuContainer),
+  styled(RightMenuContainer)
 )`
   background: ${colors.colorWhite};
-  width: ${(props) =>
-    props.width ? `calc(100% - ${props.width}px)` : '500px'};
+  width: ${props => (props.width ? `calc(100% - ${props.width}px)` : "500px")};
   padding: ${dimensions.unitSpacing}px;
   z-index: 10;
   top: 0;
 `;
 
 const MarginY = styledTS<{ margin: number }>(styled.div)`
-  margin: ${(props) => props.margin}px 0;
+  margin: ${props => props.margin}px 0;
 `;
 
 const Description = styled.div`
@@ -438,7 +437,7 @@ const TemplateBox = styledTS<{ showMore: boolean }>(styled.div)`
   }
 
   > ul {
-    ${(props) => !props.showMore && 'height: 88px'};
+    ${props => !props.showMore && "height: 88px"};
     transition: 0.5s ease;
     overflow: hidden;
     margin: unset;
@@ -488,7 +487,7 @@ const SectionListItem = styledTS<{
   backgroundColor?: string;
 }>(styled.li)`
   position: relative;
-  background: ${(props) =>
+  background: ${props =>
     (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
@@ -508,18 +507,18 @@ const SectionListItem = styledTS<{
   }
 
   span, i {
-    color: ${(props) => props.isActive && colors.colorPrimary} !important;
+    color: ${props => props.isActive && colors.colorPrimary} !important;
   }
   
   a {
     white-space: normal;
     padding: 0;
-    color: ${(props) => props.isActive && colors.colorPrimary} !important;
-    font-weight: ${(props) => (props.isActive ? 500 : 400)};
+    color: ${props => props.isActive && colors.colorPrimary} !important;
+    font-weight: ${props => (props.isActive ? 500 : 400)};
 
     &:hover {
       background: none;
-      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
     }
 
     &:focus {
@@ -561,14 +560,14 @@ const SectionListItem = styledTS<{
   &:hover {
 
     cursor: pointer;
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${props => !props.isActive && colors.bgLight};
     
     ${ActionButtons} {
       position:absolute;
       right : 0;
       width: 40px;
       z-index: 1;
-      background: ${(props) => (props.isActive ? '#e2dcf2' : colors.bgLight)};
+      background: ${props => (props.isActive ? "#e2dcf2" : colors.bgLight)};
     }
   }
 `;
@@ -577,8 +576,8 @@ const Title = styledTS<{ isOpen: boolean }>(styled.p)`
   max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${(props) =>
-    props.isOpen ? 'overflow-wrap: break-word' : 'white-space: nowrap'};
+  ${props =>
+    props.isOpen ? "overflow-wrap: break-word" : "white-space: nowrap"};
   margin: unset;
 `;
 
@@ -633,5 +632,5 @@ export {
   SectionListItem,
   Title,
   FormChart,
-  FormWrapper,
+  FormWrapper
 };

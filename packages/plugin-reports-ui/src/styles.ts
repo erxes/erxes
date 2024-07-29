@@ -1,12 +1,12 @@
-import { Contents, FlexContent } from '@erxes/ui/src/layout/styles';
-import RGL, { WidthProvider } from 'react-grid-layout';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { Contents, FlexContent } from "@erxes/ui/src/layout/styles";
+import RGL, { WidthProvider } from "react-grid-layout";
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { lighten } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import { RightMenuContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
+import { lighten } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -15,7 +15,7 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
       ${colors.bgActive} 20%,
       ${colors.colorWhite} 20%
     );
-    ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
+    ${props => (props.haveChart ? "" : "height: 100% !important")};
     min-height: 100%;
     
     background-size: 10px 10px;
@@ -207,8 +207,8 @@ const BoxContainer = styled.div`
   border: 1px solid #eee;
 
   &:before {
-    content: '\\ec35';
-    font-family: 'erxes';
+    content: "\\ec35";
+    font-family: "erxes";
     position: absolute;
     color: ${colors.colorCoreDarkBlue};
     font-size: 196px;
@@ -224,7 +224,7 @@ const BoxContainer = styled.div`
   border-width: 2px;
 
   &:before {
-    content: '';
+    content: "";
   }
 
   &:hover {
@@ -315,7 +315,7 @@ const MenuFooter = styled.footer`
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${(props) => props.isActive && colors.bgActive};
+  background: ${props => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -343,7 +343,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
   &:hover {
     cursor: pointer;
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${props => !props.isActive && colors.bgLight};
     ${ActionButtons} {
       width: 35px;
     }
@@ -356,20 +356,20 @@ const SideList = styledTS<{
 }>(styled(SidebarListItem))`
   white-space: normal !important;
   border: 0;
-  padding-left: ${(props) => `${(props.level || 0) * 30 + 20}px !important`};
+  padding-left: ${props => `${(props.level || 0) * 30 + 20}px !important`};
 
   > span {
     width: 90%;
     display: flex;
-    color: ${(props) => props.$isActive && colors.colorPrimary};
+    color: ${props => props.$isActive && colors.colorPrimary};
 
     &:hover {
-      color: ${(props) => !props.$isActive && lighten(colors.textPrimary, 40)};
+      color: ${props => !props.$isActive && lighten(colors.textPrimary, 40)};
     }
 
     > i {
       margin-right: 5px;
-      color: ${(props) =>
+      color: ${props =>
         props.$isActive
           ? colors.colorPrimary
           : !props.level || props.level === 0
@@ -379,7 +379,7 @@ const SideList = styledTS<{
   }
 
   &:hover {
-    background: ${(props) => !props.$isActive && colors.bgLight};
+    background: ${props => !props.$isActive && colors.bgLight};
   }
 `;
 
@@ -498,11 +498,11 @@ const DateName = styled.div`
 `;
 
 const MarginY = styledTS<{ margin: number }>(styled.div)`
-  margin: ${(props) => props.margin}px 0;
+  margin: ${props => props.margin}px 0;
 `;
 
 const MarginX = styledTS<{ margin: number }>(styled.span)`
-  margin: 0 ${(props) => props.margin}px;
+  margin: 0 ${props => props.margin}px;
 `;
 
 export {
@@ -532,5 +532,5 @@ export {
   FlexRow,
   DateName,
   MarginY,
-  MarginX,
+  MarginX
 };

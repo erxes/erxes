@@ -11,7 +11,7 @@ import {
   JumpTo,
   LogWrapper,
   Row,
-  Title,
+  Title
 } from "@erxes/ui-log/src/activityLogs/styles";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -19,18 +19,18 @@ import ControlLabel from "@erxes/ui/src/components/form/Label";
 import Datetime from "@nateradebaugh/react-datetime";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IItem } from "@erxes/ui-cards/src/boards/types";
+import { IItem } from "@erxes/ui-sales/src/boards/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { Link } from "react-router-dom";
 import Popover from "@erxes/ui/src/components/Popover";
-import { REMINDER_MINUTES } from "@erxes/ui-cards/src/boards/constants";
+import { REMINDER_MINUTES } from "@erxes/ui-tasks/src/boards/constants";
 import React from "react";
 import Select from "react-select";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "@erxes/ui/src/utils";
 import dayjs from "dayjs";
-import { selectOptions } from "@erxes/ui-cards/src/boards/utils";
+import { selectOptions } from "@erxes/ui-sales/src/boards/utils";
 
 type Props = {
   task: IItem;
@@ -58,7 +58,7 @@ class Task extends React.Component<Props, State> {
       name: task.name || "",
       closeDate: task.closeDate || dayjs(),
       showDetail: false,
-      isComplete: task.isComplete || false,
+      isComplete: task.isComplete || false
     };
   }
 
@@ -75,7 +75,7 @@ class Task extends React.Component<Props, State> {
     this.setState({ [key]: !this.state[key] } as any);
   };
 
-  handleInputChange = (e) => {
+  handleInputChange = e => {
     e.preventDefault();
 
     this.setState({ name: e.target.value });
@@ -87,7 +87,7 @@ class Task extends React.Component<Props, State> {
     this.props.save(
       {
         _id: task._id,
-        [key]: value,
+        [key]: value
       },
       () => {
         this.setState({ editing: false });
@@ -151,7 +151,7 @@ class Task extends React.Component<Props, State> {
               <Select
                 required={true}
                 value={selectOptions(REMINDER_MINUTES).find(
-                  (option) =>
+                  option =>
                     option.value === this.props.task.reminderMinute.toString()
                 )}
                 onChange={minuteOnChange}
@@ -168,7 +168,7 @@ class Task extends React.Component<Props, State> {
   renderCloseDate() {
     const { closeDate } = this.state;
 
-    const onDateChange = (date) => {
+    const onDateChange = date => {
       this.setState({ closeDate: date }, () => {
         this.saveItem("closeDate", closeDate);
       });
@@ -206,9 +206,9 @@ class Task extends React.Component<Props, State> {
   renderContent() {
     const { task } = this.props;
 
-    const assignedUserIds = (task.assignedUsers || []).map((user) => user._id);
+    const assignedUserIds = (task.assignedUsers || []).map(user => user._id);
 
-    const onAssignedUserSelect = (usrs) => {
+    const onAssignedUserSelect = usrs => {
       this.saveItem("assignedUserIds", usrs);
     };
 

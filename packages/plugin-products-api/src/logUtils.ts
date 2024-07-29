@@ -5,34 +5,34 @@ import {
   LogDesc,
   gatherNames,
   IDescriptions,
-  getSchemaLabels,
-} from '@erxes/api-utils/src/logUtils';
+  getSchemaLabels
+} from "@erxes/api-utils/src/logUtils";
 
-import { IModels } from './connectionResolver';
-import { sendTagsMessage } from './messageBroker';
+import { IModels } from "./connectionResolver";
+import { sendCoreMessage } from "./messageBroker";
 import {
   IProductDocument,
   productSchema,
-  productCategorySchema,
-} from './models/definitions/products';
+  productCategorySchema
+} from "./models/definitions/products";
 
 export const LOG_ACTIONS = {
-  CREATE: 'create',
-  UPDATE: 'update',
-  DELETE: 'delete',
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete"
 };
 
 export const MODULE_NAMES = {
-  PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'productCategory',
-  UOM: 'uom',
+  PRODUCT: "product",
+  PRODUCT_CATEGORY: "productCategory",
+  UOM: "uom"
 };
 
 const gatherProductFieldNames = async (
   models: IModels,
   subdomain: string,
   doc: IProductDocument,
-  prevList?: LogDesc[],
+  prevList?: LogDesc[]
 ): Promise<LogDesc[]> => {
   let options: LogDesc[] = [];
 
@@ -42,29 +42,29 @@ const gatherProductFieldNames = async (
 
   if (doc.tagIds && doc.tagIds.length > 0) {
     options = await gatherNames({
-      foreignKey: 'tagIds',
+      foreignKey: "tagIds",
       prevList: options,
-      nameFields: ['name'],
-      items: await sendTagsMessage({
+      nameFields: ["name"],
+      items: await sendCoreMessage({
         subdomain,
-        action: 'find',
+        action: "tagFind",
         data: {
-          _id: { $in: doc.tagIds },
+          _id: { $in: doc.tagIds }
         },
         isRPC: true,
-        defaultValue: [],
-      }),
+        defaultValue: []
+      })
     });
   }
 
   if (doc.categoryId) {
     options = await gatherNames({
-      foreignKey: 'categoryId',
+      foreignKey: "categoryId",
       prevList: options,
-      nameFields: ['name'],
+      nameFields: ["name"],
       items: await models.ProductCategories.find({
-        _id: { $in: [doc.categoryId] },
-      }).lean(),
+        _id: { $in: [doc.categoryId] }
+      }).lean()
     });
   }
 
@@ -74,7 +74,7 @@ const gatherProductFieldNames = async (
 const gatherDescriptions = async (
   models: IModels,
   subdomain: string,
-  params: any,
+  params: any
 ): Promise<IDescriptions> => {
   const { action, type, object, updatedDocument } = params;
 
@@ -90,7 +90,7 @@ const gatherDescriptions = async (
           models,
           subdomain,
           updatedDocument,
-          extraDesc,
+          extraDesc
         );
       }
 
@@ -108,11 +108,11 @@ const gatherDescriptions = async (
 
       if (parentIds.length > 0) {
         extraDesc = await gatherNames({
-          foreignKey: 'parentId',
-          nameFields: ['name'],
+          foreignKey: "parentId",
+          nameFields: ["name"],
           items: await models.ProductCategories.find({
-            _id: { $in: parentIds },
-          }).lean(),
+            _id: { $in: parentIds }
+          }).lean()
         });
       }
 
@@ -128,21 +128,21 @@ export const putDeleteLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.DELETE,
-    },
+      action: LOG_ACTIONS.DELETE
+    }
   );
 
   await commonPutDeleteLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -150,21 +150,21 @@ export const putUpdateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.UPDATE,
-    },
+      action: LOG_ACTIONS.UPDATE
+    }
   );
 
   await commonPutUpdateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user,
+    user
   );
 };
 
@@ -172,30 +172,30 @@ export const putCreateLog = async (
   models: IModels,
   subdomain: string,
   logDoc,
-  user,
+  user
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
     subdomain,
     {
       ...logDoc,
-      action: LOG_ACTIONS.CREATE,
-    },
+      action: LOG_ACTIONS.CREATE
+    }
   );
 
   await commonPutCreateLog(
     subdomain,
     { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
-    user,
+    user
   );
 };
 
 export default {
   getSchemaLabels: ({ data: { type } }) => ({
-    status: 'success',
+    status: "success",
     data: getSchemaLabels(type, [
-      { name: 'product', schemas: [productSchema] },
-      { name: 'productCategory', schemas: [productCategorySchema] },
-    ]),
-  }),
+      { name: "product", schemas: [productSchema] },
+      { name: "productCategory", schemas: [productCategorySchema] }
+    ])
+  })
 };

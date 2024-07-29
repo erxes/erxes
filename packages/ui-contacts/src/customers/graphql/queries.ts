@@ -1,9 +1,9 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '@erxes/ui-cards/src/conformity/graphql/queries';
+} from "@erxes/ui-sales/src/conformity/graphql/queries";
 
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const basicFields = `
   _id
@@ -60,7 +60,7 @@ export const customerFields = `
 
   tagIds
   ${
-    isEnabled('tags')
+    isEnabled("tags")
       ? `
       getTags {
         _id
@@ -160,7 +160,7 @@ const customerDetail = `
       ${customerFields}
       urlVisits
       ${
-        isEnabled('inbox')
+        isEnabled("inbox")
           ? `
         integration {
           kind

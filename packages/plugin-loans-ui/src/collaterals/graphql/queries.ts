@@ -1,7 +1,7 @@
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '@erxes/ui-cards/src/conformity';
+} from "@erxes/ui-sales/src/conformity";
 
 const collateralFields = `
   _id
@@ -101,7 +101,7 @@ export const collateralTypesMain = `
       }
     }
   }
-`
+`;
 
 export const collateralTypes = `
   query collateralTypes($page: Int, $perPage: Int) {
@@ -120,7 +120,7 @@ export const collateralTypes = `
       }
     }
   }
-`
+`;
 
 export const collateralTypeDetail = `
 query collateralTypeDetail($id: String!) {
@@ -166,7 +166,7 @@ query collateralTypeDetail($id: String!) {
     }
   }
 }
-`
+`;
 
 export default {
   collateralsMain,

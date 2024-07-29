@@ -10,7 +10,7 @@ import {
   MenusContainer,
   Row,
   RowTitle,
-  Divider,
+  Divider
 } from "@erxes/ui-settings/src/main/styles";
 import { getVersion } from "@erxes/ui/src/utils/core";
 
@@ -20,14 +20,14 @@ const permissionActions = [
   "showPermissions",
   "showPermissionModules",
   "showPermissionActions",
-  "exportPermissions",
+  "exportPermissions"
 ];
 const teamPermissions = [
   "showUsers",
   "usersEdit",
   "usersInvite",
   "usersSetActiveStatus",
-  "exportUsers",
+  "exportUsers"
 ];
 
 class Settings extends React.PureComponent {
@@ -175,6 +175,14 @@ class Settings extends React.PureComponent {
               "/settings/structure",
               "usersAll",
               teamPermissions
+            )}
+
+            {this.renderBox(
+              "Tags",
+              "/images/icons/erxes-18.svg",
+              "/settings/tags",
+              "tagsAll",
+              ["showTags", "manageTags"]
             )}
           </div>
         </Row>

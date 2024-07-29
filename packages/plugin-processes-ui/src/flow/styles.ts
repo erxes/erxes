@@ -1,13 +1,13 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
-import { Contents } from '@erxes/ui/src/layout/styles';
-import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
-import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
-import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { Contents } from "@erxes/ui/src/layout/styles";
+import { DateWrapper } from "@erxes/ui-forms/src/forms/styles";
+import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
+import { HeaderContent } from "@erxes/ui-sales/src/boards/styles/item";
+import { RightMenuContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -339,8 +339,10 @@ export const TypeBox = styled(FlexContent)`
 
   &:hover {
     border-color: ${colors.colorSecondary};
-    box-shadow: 0px 8px 20px rgba(79, 51, 175, 0.24),
-      0px 2px 6px rgba(79, 51, 175, 0.16), 0px 0px 1px rgba(79, 51, 175, 0.08);
+    box-shadow:
+      0px 8px 20px rgba(79, 51, 175, 0.24),
+      0px 2px 6px rgba(79, 51, 175, 0.16),
+      0px 0px 1px rgba(79, 51, 175, 0.08);
   }
 `;
 
@@ -458,7 +460,7 @@ export const FlowJobTabs = styled.div`
 `;
 
 export const Description = styledTS<{ noMargin?: boolean }>(styled.div)`
-  margin: ${props => !props.noMargin && '20px 10px 10px'};
+  margin: ${props => !props.noMargin && "20px 10px 10px"};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -530,7 +532,7 @@ export const EmptyContent = styled.div`
 export const EnrollmentWrapper = styledTS<{ noMargin?: boolean }>(styled.div)`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px;
-  margin: ${props => (props.noMargin ? '0 0 10px' : '10px 0 0')};
+  margin: ${props => (props.noMargin ? "0 0 10px" : "10px 0 0")};
   border-radius: 5px;
 
   > div {
@@ -703,7 +705,7 @@ export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
   text-align: center;
   background: ${props =>
     props.disabled ? colors.bgActive : colors.colorWhite};
-  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${props => (props.disabled ? "not-allowed" : "pointer")};
   margin: 0;
   transition: all ease .3s;
 

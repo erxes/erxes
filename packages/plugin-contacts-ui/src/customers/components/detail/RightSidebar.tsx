@@ -7,10 +7,10 @@ import EmptyState from "@erxes/ui/src/components/EmptyState";
 import { ICustomer } from "../../types";
 import Icon from "@erxes/ui/src/components/Icon";
 import { List } from "../../../companies/styles";
-import PortabelPurchases from "@erxes/ui-cards/src/purchases/components/PortablePurchases";
-import PortableDeals from "@erxes/ui-cards/src/deals/components/PortableDeals";
-import PortableTasks from "@erxes/ui-cards/src/tasks/components/PortableTasks";
-import PortableTickets from "@erxes/ui-cards/src/tickets/components/PortableTickets";
+import PortabelPurchases from "@erxes/ui-purchases/src/purchases/components/PortablePurchases";
+import PortableDeals from "@erxes/ui-sales/src/deals/components/PortableDeals";
+import PortableTasks from "@erxes/ui-tasks/src/tasks/components/PortableTasks";
+import PortableTickets from "@erxes/ui-tickets/src/tickets/components/PortableTickets";
 import React from "react";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import Tip from "@erxes/ui/src/components/Tip";
@@ -81,23 +81,38 @@ export default class RightSidebar extends React.Component<Props> {
     return (
       <Sidebar>
         <CompanySection mainType="customer" mainTypeId={customer._id} />
-        {isEnabled("cards") && (
+        {isEnabled("tickets") && (
+          <>
+            <PortableTickets
+              mainType="customer"
+              mainTypeId={customer._id}
+              mainTypeName={mainTypeName}
+            />
+          </>
+        )}
+
+        {isEnabled("tasks") && (
+          <>
+            <PortableTasks
+              mainType="customer"
+              mainTypeId={customer._id}
+              mainTypeName={mainTypeName}
+            />
+          </>
+        )}
+
+        {isEnabled("sales") && (
           <>
             <PortableDeals
               mainType="customer"
               mainTypeId={customer._id}
               mainTypeName={mainTypeName}
             />
-            <PortableTickets
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
-            <PortableTasks
-              mainType="customer"
-              mainTypeId={customer._id}
-              mainTypeName={mainTypeName}
-            />
+          </>
+        )}
+
+        {isEnabled("purchases") && (
+          <>
             <PortabelPurchases
               mainType="customer"
               mainTypeId={customer._id}
