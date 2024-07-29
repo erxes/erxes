@@ -1019,8 +1019,6 @@ export const getItemList = async (
 
   const list = await collection.aggregate(pipelines);
 
-  console.log(list);
-
   if (serverTiming) {
     serverTiming.endTime("getItemsPipelineAggregate");
   }

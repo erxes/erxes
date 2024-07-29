@@ -2347,7 +2347,7 @@ export const ticketCharts = [
         },
         {
           $lookup: {
-            from: "stages",
+            from: "tickets_stages",
             let: { stageId: "$_id" },
             pipeline: [
               {

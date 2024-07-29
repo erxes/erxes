@@ -22,6 +22,7 @@ let InternalNotes: Collection<any>;
 let Webhooks: Collection<any>;
 let ActivityLogs: Collection<any>;
 let Charts: Collection<any>;
+let Reports: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -62,6 +63,7 @@ const command = async () => {
   ActivityLogs = db.collection("activity_logs");
   Webhooks = db.collection("webhooks");
   Charts = db.collection("insight_charts");
+  Reports = db.collection("reports");
 
   try {
     await Segments.find({}).forEach(doc => {
@@ -155,6 +157,26 @@ const command = async () => {
 
     await Charts.updateMany(
       { templateType: { $regex: new RegExp("Purchase") } },
+      { $set: { serviceName: "purchases" } }
+    );
+
+    await Reports.updateMany(
+      { serviceType: "task" },
+      { $set: { serviceName: "tasks" } }
+    );
+
+    await Reports.updateMany(
+      { serviceType: "ticket" },
+      { $set: { serviceName: "tickets" } }
+    );
+
+    await Reports.updateMany(
+      { serviceType: "deal" },
+      { $set: { serviceName: "sales" } }
+    );
+
+    await Reports.updateMany(
+      { serviceType: "purchase" },
       { $set: { serviceName: "purchases" } }
     );
   } catch (e) {

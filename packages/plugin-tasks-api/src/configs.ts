@@ -22,6 +22,7 @@ import tags from "./tags";
 import exporter from "./exporter";
 import cronjobs from "./cronjobs/common";
 import dashboards from "./dashboards";
+import reports from "./reports/reports";
 import app from "@erxes/api-utils/src/app";
 
 import { NOTIFICATION_MODULES } from "./constants";
@@ -44,6 +45,7 @@ export default {
 
   meta: {
     cronjobs,
+    reports,
     forms,
     logs: { providesActivityLog: true, consumers: logs },
     segments,

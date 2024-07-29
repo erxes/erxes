@@ -223,7 +223,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -532,7 +532,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -823,7 +823,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -1116,7 +1116,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -1425,7 +1425,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -1728,7 +1728,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -2033,7 +2033,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -2352,7 +2352,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {
@@ -2733,7 +2733,7 @@ export const taskCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "task"}`,
-        fieldLabel: "Select board"
+        fieldLabel: "SELECT BOARD"
       },
       // PIPELINE FILTER
       {

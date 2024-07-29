@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 // Fields
 
@@ -318,7 +318,7 @@ const reportList = `
           }
         }
         ${
-          isEnabled('tags')
+          isEnabled("tags")
             ? `tags  {
             _id
             name
@@ -373,7 +373,7 @@ const reportDetail = `
         }
 
         ${
-          isEnabled('tags')
+          isEnabled("tags")
             ? `tags  {
             _id
             name
@@ -463,9 +463,9 @@ const tags = `
   }
 `;
 
-const boards = `
-  query boards($type: String!) {
-    boards(type: $type) {
+const salesBoards = `
+  query salesBoards($type: String!) {
+    salesBoards(type: $type) {
       _id
       name
 
@@ -475,10 +475,11 @@ const boards = `
       }
     }
   }
+
 `;
-const stages = `
-  query stages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
-    stages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
+const salesStages = `
+  query salesStages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
+    salesStages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
       _id
       name
       probability
@@ -496,9 +497,10 @@ const stages = `
     }
   }
 `;
-const pipelines = `
-  query pipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
-    pipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
+
+const salesPipelines = `
+  query salesPipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
+    salesPipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
       _id
       name
       boardId
@@ -510,9 +512,9 @@ const pipelines = `
   }
 `;
 
-const pipelineLabels = `
-  query pipelineLabels($pipelineId: String, $pipelineIds: [String]) {
-    pipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
+const salesPipelineLabels = `
+  query salesPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
+    salesPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
       ${pipelineLabelFields}
     }
   }
@@ -623,6 +625,177 @@ const branchesMain = `
       }
       totalCount
       totalUsersCount
+    }
+  }
+`;
+
+const tasksBoards = `
+  query tasksBoards($type: String!) {
+    tasksBoards(type: $type) {
+      _id
+      name
+
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+
+`;
+const tasksStages = `
+  query tasksStages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
+    tasksStages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
+      _id
+      name
+      probability
+      visibility
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      pipelineId
+      formId
+      status
+      code
+      age
+      defaultTick
+    }
+  }
+`;
+
+const tasksPipelines = `
+  query tasksPipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
+    tasksPipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
+      _id
+      name
+      boardId
+      state
+      startDate
+      endDate
+      itemsTotalCount
+    }
+  }
+`;
+
+const tasksPipelineLabels = `
+  query tasksPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
+    tasksPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
+
+const ticketsBoards = `
+  query ticketsBoards($type: String!) {
+    ticketsBoards(type: $type) {
+      _id
+      name
+
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+
+`;
+const ticketsStages = `
+  query ticketsStages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
+    ticketsStages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
+      _id
+      name
+      probability
+      visibility
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      pipelineId
+      formId
+      status
+      code
+      age
+      defaultTick
+    }
+  }
+`;
+
+const ticketsPipelines = `
+  query ticketsPipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
+    ticketsPipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
+      _id
+      name
+      boardId
+      state
+      startDate
+      endDate
+      itemsTotalCount
+    }
+  }
+`;
+
+const ticketsPipelineLabels = `
+  query ticketsPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
+    ticketsPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
+
+const purchasesBoards = `
+  query purchasesBoards($type: String!) {
+    purchasesBoards(type: $type) {
+      _id
+      name
+
+      pipelines {
+        _id
+        name
+      }
+    }
+  }
+
+`;
+const purchasesStages = `
+  query purchasesStages($pipelineId: String, $isAll: Boolean, $pipelineIds: [String]) {
+    purchasesStages(pipelineId: $pipelineId, isAll: $isAll, pipelineIds: $pipelineIds) {
+      _id
+      name
+      probability
+      visibility
+      memberIds
+      canMoveMemberIds
+      canEditMemberIds
+      departmentIds
+      pipelineId
+      formId
+      status
+      code
+      age
+      defaultTick
+    }
+  }
+`;
+
+const purchasesPipelines = `
+  query purchasesPipelines($boardId: String, $type: String, $perPage: Int, $page: Int, $isAll: Boolean) {
+    purchasesPipelines(boardId: $boardId, type: $type, perPage: $perPage, page: $page, isAll: $isAll) {
+      _id
+      name
+      boardId
+      state
+      startDate
+      endDate
+      itemsTotalCount
+    }
+  }
+`;
+
+const purchasesPipelineLabels = `
+  query purchasesPipelineLabels($pipelineId: String, $pipelineIds: [String]) {
+    purchasesPipelineLabels(pipelineId: $pipelineId, pipelineIds: $pipelineIds) {
+      ${pipelineLabelFields}
     }
   }
 `;
@@ -771,10 +944,26 @@ export default {
   tags,
   channels,
   assets,
-  boards,
-  stages,
-  pipelines,
-  pipelineLabels,
+
+  salesBoards,
+  salesStages,
+  salesPipelines,
+  salesPipelineLabels,
+
+  tasksBoards,
+  tasksStages,
+  tasksPipelines,
+  tasksPipelineLabels,
+
+  ticketsBoards,
+  ticketsStages,
+  ticketsPipelines,
+  ticketsPipelineLabels,
+
+  purchasesBoards,
+  purchasesStages,
+  purchasesPipelines,
+  purchasesPipelineLabels,
 
   fields,
   fieldsGroups,
@@ -788,5 +977,5 @@ export default {
   unitsMain,
   departmentsMain,
   fieldsGetTypes,
-  tagsGetTypes,
+  tagsGetTypes
 };

@@ -339,7 +339,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: "tasks_stages",
           localField: "stageId",
           foreignField: "_id",
           as: "stage"
@@ -355,7 +355,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: "tasks_stages",
           localField: "stageId",
           foreignField: "_id",
           as: "stage"
@@ -366,7 +366,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
       },
       {
         $lookup: {
-          from: "pipelines",
+          from: "tasks_pipelines",
           localField: "stage.pipelineId",
           foreignField: "_id",
           as: "pipeline"
@@ -724,7 +724,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "stages",
+          from: "tasks_stages",
           let: { fieldId: "$_id.stageId" },
           pipeline: [
             {
@@ -746,7 +746,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "pipelines",
+          from: "tasks_pipelines",
           let: { fieldId: "$_id.pipelineId" },
           pipeline: [
             {
@@ -768,7 +768,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push(
       {
         $lookup: {
-          from: "boards",
+          from: "tasks_boards",
           let: { fieldId: "$_id.boardId" },
           pipeline: [
             {
@@ -1952,7 +1952,7 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
         },
         {
           $lookup: {
-            from: "stages",
+            from: "tasks_stages",
             localField: "_id",
             foreignField: "_id",
             as: "stage"
@@ -1982,7 +1982,7 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
         },
         {
           $lookup: {
-            from: "stages",
+            from: "tasks_stages",
             localField: "stageId",
             foreignField: "_id",
             as: "stage"
@@ -1999,7 +1999,7 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
         },
         {
           $lookup: {
-            from: "pipelines",
+            from: "tasks_pipelines",
             localField: "_id",
             foreignField: "_id",
             as: "pipeline"
@@ -2029,7 +2029,7 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
         },
         {
           $lookup: {
-            from: "stages",
+            from: "tasks_stages",
             localField: "stageId",
             foreignField: "_id",
             as: "stage"
@@ -2040,7 +2040,7 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
         },
         {
           $lookup: {
-            from: "pipelines",
+            from: "tasks_pipelines",
             localField: "stage.pipelineId",
             foreignField: "_id",
             as: "pipeline"
@@ -2057,7 +2057,7 @@ export const getDimensionPipeline = async (filter, type, subdomain, models) => {
         },
         {
           $lookup: {
-            from: "boards",
+            from: "tasks_boards",
             localField: "_id",
             foreignField: "_id",
             as: "board"

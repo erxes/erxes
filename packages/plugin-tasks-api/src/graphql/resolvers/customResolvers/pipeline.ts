@@ -8,7 +8,6 @@ import { generateTaskCommonFilters } from "../queries/utils";
 
 export default {
   createdUser(pipeline: IPipelineDocument) {
-    console.log("pipeline", pipeline);
     if (!pipeline.userId) {
       return;
     }

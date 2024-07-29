@@ -196,9 +196,6 @@ const boardQueries = {
     },
     { user, models: { Pipelines }, subdomain }: IContext
   ) {
-    console.log("---");
-    const sda = await Pipelines.find({});
-    console.log(sda);
     const query: any =
       user.isOwner || isAll
         ? {}
@@ -252,8 +249,6 @@ const boardQueries = {
     if (type) {
       query.type = type;
     }
-
-    console.log(query);
 
     if (page && perPage) {
       return paginate(

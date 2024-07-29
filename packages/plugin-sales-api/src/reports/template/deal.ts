@@ -44,7 +44,7 @@ const DIMENSION_OPTIONS = [
 export const dealCharts = [
   {
     templateType: "DealCountByTag",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deal Count By Tag",
     chartTypes: [
       "bar",
@@ -194,7 +194,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -205,7 +205,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -234,13 +234,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -341,7 +341,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealCountByLabel",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deal Count By Label",
     chartTypes: [
       "bar",
@@ -495,7 +495,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -506,7 +506,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -535,12 +535,12 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -558,7 +558,7 @@ export const dealCharts = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -643,7 +643,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealCountByCustomProperties",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deal Count By Custom Properties",
     chartTypes: [
       "bar",
@@ -816,7 +816,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -827,7 +827,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -856,12 +856,12 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -962,7 +962,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealAverageAmountByRep",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Deal Average Amount By Rep",
     chartTypes: [
       "bar",
@@ -1140,7 +1140,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -1151,7 +1151,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -1180,12 +1180,12 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -1286,7 +1286,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealRevenueByStage",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deal Amount By Stage",
     chartTypes: [
       "bar",
@@ -1334,7 +1334,7 @@ export const dealCharts = [
         },
         {
           $lookup: {
-            from: "stages",
+            from: "sales_stages",
             let: { stageId: "$_id" },
             pipeline: [
               {
@@ -1456,7 +1456,7 @@ export const dealCharts = [
       {
         fieldName: "boardId",
         fieldType: "select",
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -1467,7 +1467,7 @@ export const dealCharts = [
       {
         fieldName: "pipelineIds",
         fieldType: "select",
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -1497,12 +1497,12 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
         fieldParentVariable: "pipelineId",
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         multi: true,
         logics: [
           {
@@ -1604,7 +1604,7 @@ export const dealCharts = [
   },
   {
     templateType: "ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deal Count And Amount By Frequency",
     chartTypes: [
       "bar",
@@ -1857,7 +1857,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -1868,7 +1868,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -1897,13 +1897,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -2013,7 +2013,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealsClosedLostByRep",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Lost Deal Count By Rep",
     chartTypes: [
       "bar",
@@ -2047,7 +2047,7 @@ export const dealCharts = [
         },
         {
           $lookup: {
-            from: "stages",
+            from: "sales_stages",
             localField: "stageId",
             foreignField: "_id",
             as: "stage"
@@ -2193,7 +2193,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -2204,7 +2204,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -2233,13 +2233,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -2340,7 +2340,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealsClosedWonByRep",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Won Deal Count By Rep",
     chartTypes: [
       "bar",
@@ -2374,7 +2374,7 @@ export const dealCharts = [
         },
         {
           $lookup: {
-            from: "stages",
+            from: "sales_stages",
             localField: "stageId",
             foreignField: "_id",
             as: "stage"
@@ -2520,7 +2520,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -2531,7 +2531,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -2560,13 +2560,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -2667,7 +2667,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealLeaderBoardAmountClosedByRep",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Closed Deal Amount By Rep",
     chartTypes: [
       "bar",
@@ -2840,7 +2840,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -2851,7 +2851,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -2880,13 +2880,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -2987,7 +2987,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealsTotalCount",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deals Count",
     chartTypes: [
       "bar",
@@ -3157,7 +3157,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -3168,7 +3168,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -3197,13 +3197,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -3304,7 +3304,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealsTotalCountByDueDate",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Total Deal Count By Due Date",
     chartTypes: [
       "bar",
@@ -3544,7 +3544,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -3555,7 +3555,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -3584,13 +3584,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
@@ -3707,7 +3707,7 @@ export const dealCharts = [
   },
   {
     templateType: "DealAverageTimeSpentInEachStage",
-    serviceType: "cards",
+    serviceType: "sales",
     name: "Deal Average Time Spent In Each Stage",
     chartTypes: [
       "bar",
@@ -3750,7 +3750,7 @@ export const dealCharts = [
         },
         {
           $lookup: {
-            from: "stages",
+            from: "sales_stages",
             let: { stageId: "$_id" },
             pipeline: [
               {
@@ -3875,7 +3875,7 @@ export const dealCharts = [
         fieldName: "boardId",
         fieldType: "select",
         multi: false,
-        fieldQuery: "boards",
+        fieldQuery: "salesBoards",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -3886,7 +3886,7 @@ export const dealCharts = [
         fieldName: "pipelineIds",
         fieldType: "select",
         multi: true,
-        fieldQuery: "pipelines",
+        fieldQuery: "salesPipelines",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldQueryVariables: `{"type": "deal"}`,
@@ -3915,13 +3915,13 @@ export const dealCharts = [
       {
         fieldName: "stageIds",
         fieldType: "select",
-        fieldQuery: "stages",
+        fieldQuery: "salesStages",
         multi: true,
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "pipelineId",
         fieldQueryVariables: `{"type": "deal"}`,
-        fieldParentQuery: "pipelines",
+        fieldParentQuery: "salesPipelines",
         logics: [
           {
             logicFieldName: "pipelineIds",
