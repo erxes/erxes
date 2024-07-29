@@ -2,7 +2,7 @@ import { getConfig, sendCardInfo } from "../../../utils/utils";
 import { getPostData as getPostDataOrders } from "../../../utils/orders";
 import { getMoveData, getPostData } from "../../../utils/ebarimtData";
 import { generateModels, IContext } from "../../../connectionResolver";
-import { sendCardsMessage, sendPosMessage } from "../../../messageBroker";
+import { sendPosMessage, sendSalesMessage } from "../../../messageBroker";
 import { sendRPCMessage, sendTRPCMessage } from "../../../messageBrokerErkhet";
 
 const checkSyncedMutations = {
@@ -73,7 +73,7 @@ const checkSyncedMutations = {
 
     const models = await generateModels(subdomain);
 
-    const deals = await sendCardsMessage({
+    const deals = await sendSalesMessage({
       subdomain,
       action: "deals.find",
       data: { _id: { $in: dealIds } },

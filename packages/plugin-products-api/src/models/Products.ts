@@ -1,8 +1,8 @@
-import { ICustomField } from '@erxes/api-utils/src/types';
-import { Model } from 'mongoose';
-import * as _ from 'lodash';
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendContactsMessage } from '../messageBroker';
+import { ICustomField } from "@erxes/api-utils/src/types";
+import { Model } from "mongoose";
+import * as _ from "lodash";
+import { IModels } from "../connectionResolver";
+import { sendSalesMessage, sendContactsMessage } from "../messageBroker";
 import {
   IProduct,
   IProductCategory,
@@ -10,14 +10,14 @@ import {
   IProductDocument,
   productCategorySchema,
   productSchema,
-  PRODUCT_STATUSES,
-} from './definitions/products';
+  PRODUCT_STATUSES
+} from "./definitions/products";
 import {
   checkCodeMask,
   checkSameMaskConfig,
-  initCustomField,
-} from '../maskUtils';
-import { escapeRegExp } from '@erxes/api-utils/src/core';
+  initCustomField
+} from "../maskUtils";
+import { escapeRegExp } from "@erxes/api-utils/src/core";
 
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
@@ -26,7 +26,7 @@ export interface IProductModel extends Model<IProductDocument> {
   removeProducts(_ids: string[]): Promise<{ n: number; ok: number }>;
   mergeProducts(
     productIds: string[],
-    productFields: IProduct,
+    productFields: IProduct
   ): Promise<IProductDocument>;
 }
 
@@ -41,7 +41,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       const product = await models.Products.findOne(selector).lean();
 
       if (!product) {
-        throw new Error('Product not found');
+        throw new Error("Product not found");
       }
 
       return product;
@@ -50,23 +50,23 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     static async checkCodeDuplication(code: string) {
       const product = await models.Products.findOne({
         code,
-        status: { $ne: PRODUCT_STATUSES.DELETED },
+        status: { $ne: PRODUCT_STATUSES.DELETED }
       });
 
       if (product) {
-        throw new Error('Code must be unique');
+        throw new Error("Code must be unique");
       }
     }
 
     static fixBarcodes(barcodes?, variants?) {
       if (barcodes && barcodes.length) {
         barcodes = barcodes
-          .filter((bc) => bc)
-          .map((bc) => bc.replace(/\s/g, '').replace(/_/g, ''));
+          .filter(bc => bc)
+          .map(bc => bc.replace(/\s/g, "").replace(/_/g, ""));
 
         if (variants) {
           const undefinedVariantCodes = Object.keys(variants).filter(
-            (key) => !(barcodes || []).includes(key),
+            key => !(barcodes || []).includes(key)
           );
           if (undefinedVariantCodes.length) {
             for (const unDefCode of undefinedVariantCodes) {
@@ -84,16 +84,16 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      */
     public static async createProduct(doc: IProduct) {
       doc.code = doc.code
-        .replace(/\*/g, '')
-        .replace(/_/g, '')
-        .replace(/ /g, '');
+        .replace(/\*/g, "")
+        .replace(/_/g, "")
+        .replace(/ /g, "");
       await this.checkCodeDuplication(doc.code);
 
       doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
       if (doc.categoryCode) {
         const category = await models.ProductCategories.getProductCategory({
-          code: doc.categoryCode,
+          code: doc.categoryCode
         });
         doc.categoryId = category._id;
       }
@@ -101,27 +101,27 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       if (doc.vendorCode) {
         const vendor = await sendContactsMessage({
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: {
             $or: [
               { code: doc.vendorCode },
               { primaryEmail: doc.vendorCode },
               { primaryPhone: doc.vendorCode },
-              { primaryName: doc.vendorCode },
-            ],
+              { primaryName: doc.vendorCode }
+            ]
           },
-          isRPC: true,
+          isRPC: true
         });
 
         doc.vendorId = vendor?._id;
       }
 
       const category = await models.ProductCategories.getProductCategory({
-        _id: doc.categoryId,
+        _id: doc.categoryId
       });
 
       if (!(await checkCodeMask(category, doc.code))) {
-        throw new Error('Code is not validate of category mask');
+        throw new Error("Code is not validate of category mask");
       }
 
       doc.sameMasks = await checkSameMaskConfig(models, doc);
@@ -133,7 +133,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code,
         [],
-        doc.customFieldsData,
+        doc.customFieldsData
       );
 
       return models.Products.create({ ...doc, createdAt: new Date() });
@@ -146,11 +146,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       const product = await models.Products.getProduct({ _id });
 
       const category = await models.ProductCategories.getProductCategory({
-        _id: doc.categoryId || product.categoryId,
+        _id: doc.categoryId || product.categoryId
       });
 
       if (doc.code) {
-        doc.code = doc.code.replace(/\*/g, '');
+        doc.code = doc.code.replace(/\*/g, "");
         doc.uom = await models.Uoms.checkUOM(doc);
         doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
 
@@ -159,7 +159,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         }
 
         if (!(await checkCodeMask(category, doc.code))) {
-          throw new Error('Code is not validate of category mask');
+          throw new Error("Code is not validate of category mask");
         }
       }
 
@@ -168,11 +168,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         category,
         doc.code || product.code,
         product.customFieldsData,
-        doc.customFieldsData,
+        doc.customFieldsData
       );
       doc.sameMasks = await checkSameMaskConfig(models, {
         ...product,
-        ...doc,
+        ...doc
       });
 
       await models.Products.updateOne({ _id }, { $set: doc });
@@ -184,19 +184,19 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
      * Remove products
      */
     public static async removeProducts(_ids: string[]) {
-      const dealProductIds = await sendCardsMessage({
+      const dealProductIds = await sendSalesMessage({
         subdomain,
-        action: 'findDealProductIds',
+        action: "findDealProductIds",
         data: {
-          _ids,
+          _ids
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
-      let response = 'deleted';
+      let response = "deleted";
 
       for (const id of _ids) {
         if (!dealProductIds.includes(id)) {
@@ -210,10 +210,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await models.Products.updateMany(
           { _id: { $in: usedIds } },
           {
-            $set: { status: PRODUCT_STATUSES.DELETED },
-          },
+            $set: { status: PRODUCT_STATUSES.DELETED }
+          }
         );
-        response = 'updated';
+        response = "updated";
       }
 
       await models.Products.deleteMany({ _id: { $in: unUsedIds } });
@@ -227,14 +227,14 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
     public static async mergeProducts(
       productIds: string[],
-      productFields: IProduct,
+      productFields: IProduct
     ) {
-      const fields = ['name', 'code', 'unitPrice', 'categoryId', 'type'];
+      const fields = ["name", "code", "unitPrice", "categoryId", "type"];
 
       for (const field of fields) {
         if (!productFields[field]) {
           throw new Error(
-            `Can not merge products. Must choose ${field} field.`,
+            `Can not merge products. Must choose ${field} field.`
           );
         }
       }
@@ -242,13 +242,13 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       let customFieldsData: ICustomField[] = [];
       let tagIds: string[] = [];
       let barcodes: string[] = [];
-      const name: string = productFields.name || '';
-      const shortName: string = productFields.shortName || '';
-      const type: string = productFields.type || '';
-      const description: string = productFields.description || '';
-      const barcodeDescription: string = productFields.barcodeDescription || '';
-      const categoryId: string = productFields.categoryId || '';
-      const vendorId: string = productFields.vendorId || '';
+      const name: string = productFields.name || "";
+      const shortName: string = productFields.shortName || "";
+      const type: string = productFields.type || "";
+      const description: string = productFields.description || "";
+      const barcodeDescription: string = productFields.barcodeDescription || "";
+      const categoryId: string = productFields.categoryId || "";
+      const vendorId: string = productFields.vendorId || "";
       const usedIds: string[] = [];
 
       for (const productId of productIds) {
@@ -261,7 +261,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         // merge custom fields data
         customFieldsData = [
           ...customFieldsData,
-          ...(productObj.customFieldsData || []),
+          ...(productObj.customFieldsData || [])
         ];
 
         // Merging products tagIds
@@ -273,8 +273,8 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         await models.Products.findByIdAndUpdate(productId, {
           $set: {
             status: PRODUCT_STATUSES.DELETED,
-            code: Math.random().toString().concat('^', productObj.code),
-          },
+            code: Math.random().toString().concat("^", productObj.code)
+          }
         });
       }
 
@@ -298,16 +298,16 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         uom: await models.Uoms.checkUOM({ ...productFields }),
         description,
         categoryId,
-        vendorId,
+        vendorId
       });
 
-      const dealProductIds = await sendCardsMessage({
+      const dealProductIds = await sendSalesMessage({
         subdomain,
-        action: 'findDealProductIds',
+        action: "findDealProductIds",
         data: {
-          _ids: productIds,
+          _ids: productIds
         },
-        isRPC: true,
+        isRPC: true
       });
 
       for (const deal of dealProductIds) {
@@ -316,18 +316,18 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await sendCardsMessage({
+      await sendSalesMessage({
         subdomain,
-        action: 'deals.updateMany',
+        action: "deals.updateMany",
         data: {
           selector: {
-            'productsData.productId': { $in: usedIds },
+            "productsData.productId": { $in: usedIds }
           },
           modifier: {
-            $set: { 'productsData.$.productId': product._id },
-          },
+            $set: { "productsData.$.productId": product._id }
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
 
       return product;
@@ -342,11 +342,11 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 export interface IProductCategoryModel extends Model<IProductCategoryDocument> {
   getProductCategory(selector: any): Promise<IProductCategoryDocument>;
   createProductCategory(
-    doc: IProductCategory,
+    doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
   updateProductCategory(
     _id: string,
-    doc: IProductCategory,
+    doc: IProductCategory
   ): Promise<IProductCategoryDocument>;
   removeProductCategory(_id: string): void;
 }
@@ -362,23 +362,23 @@ export const loadProductCategoryClass = (models: IModels) => {
       const productCategory = await models.ProductCategories.findOne(selector);
 
       if (!productCategory) {
-        throw new Error('Product & service category not found');
+        throw new Error("Product & service category not found");
       }
 
       return productCategory;
     }
 
     static async checkCodeDuplication(code: string) {
-      if (code.includes('/')) {
+      if (code.includes("/")) {
         throw new Error('The "/" character is not allowed in the code');
       }
 
       const category = await models.ProductCategories.findOne({
-        code,
+        code
       });
 
       if (category) {
-        throw new Error('Code must be unique');
+        throw new Error("Code must be unique");
       }
     }
 
@@ -389,7 +389,7 @@ export const loadProductCategoryClass = (models: IModels) => {
       await this.checkCodeDuplication(doc.code);
 
       const parentCategory = await models.ProductCategories.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
 
       // Generatingg order
@@ -403,10 +403,10 @@ export const loadProductCategoryClass = (models: IModels) => {
      */
     public static async updateProductCategory(
       _id: string,
-      doc: IProductCategory,
+      doc: IProductCategory
     ) {
       const category = await models.ProductCategories.getProductCategory({
-        _id,
+        _id
       });
 
       if (category.code !== doc.code) {
@@ -414,11 +414,11 @@ export const loadProductCategoryClass = (models: IModels) => {
       }
 
       const parentCategory = await models.ProductCategories.findOne({
-        _id: doc.parentId,
+        _id: doc.parentId
       }).lean();
 
       if (parentCategory && parentCategory.parentId === _id) {
-        throw new Error('Cannot change category');
+        throw new Error("Cannot change category");
       }
 
       // Generatingg  order
@@ -427,21 +427,21 @@ export const loadProductCategoryClass = (models: IModels) => {
       const childCategories = await models.ProductCategories.find({
         $and: [
           { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
-          { _id: { $ne: _id } },
-        ],
+          { _id: { $ne: _id } }
+        ]
       });
 
       await models.ProductCategories.updateOne({ _id }, { $set: doc });
 
       // updating child categories order
-      childCategories.forEach(async (childCategory) => {
+      childCategories.forEach(async childCategory => {
         let order = childCategory.order;
 
         order = order.replace(category.order, doc.order);
 
         await models.ProductCategories.updateOne(
           { _id: childCategory._id },
-          { $set: { order } },
+          { $set: { order } }
         );
       });
 
@@ -456,7 +456,7 @@ export const loadProductCategoryClass = (models: IModels) => {
 
       let count = await models.Products.countDocuments({
         categoryId: _id,
-        status: { $ne: PRODUCT_STATUSES.DELETED },
+        status: { $ne: PRODUCT_STATUSES.DELETED }
       });
       count += await models.ProductCategories.countDocuments({ parentId: _id });
 
@@ -472,7 +472,7 @@ export const loadProductCategoryClass = (models: IModels) => {
      */
     public static async generateOrder(
       parentCategory: IProductCategory | null | undefined,
-      doc: IProductCategory,
+      doc: IProductCategory
     ) {
       const order = parentCategory
         ? `${parentCategory.order}${doc.code}/`
