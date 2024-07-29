@@ -196,9 +196,7 @@ class TaxTrs {
     if (oldFollowInfo) {
       const oldvatTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
       if (oldvatTr) {
-        await this.models.Transactions.updateTransaction(oldvatTr._id, { ...this.vatTrDoc, originId: transaction._id });
-        vatTr = this.models.Transactions.findOne({ _id: oldvatTr._id });
-
+        vatTr = await this.models.Transactions.updateTransaction(oldvatTr._id, { ...this.vatTrDoc, originId: transaction._id });
       } else {
         vatTr = await this.models.Transactions.createTransaction({ ...this.vatTrDoc, originId: transaction._id });
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
@@ -253,9 +251,7 @@ class TaxTrs {
     if (oldFollowInfo) {
       const oldctaxTr = await this.models.Transactions.findOne({ _id: oldFollowInfo.id });
       if (oldctaxTr) {
-        await this.models.Transactions.updateTransaction(oldctaxTr._id, { ...this.ctaxTrDoc, originId: transaction._id });
-        ctaxTr = this.models.Transactions.findOne({ _id: oldctaxTr._id });
-
+        ctaxTr = await this.models.Transactions.updateTransaction(oldctaxTr._id, { ...this.ctaxTrDoc, originId: transaction._id });
       } else {
         ctaxTr = await this.models.Transactions.createTransaction({ ...this.ctaxTrDoc, originId: transaction._id });
         await this.models.Transactions.updateOne({ _id: transaction._id }, {

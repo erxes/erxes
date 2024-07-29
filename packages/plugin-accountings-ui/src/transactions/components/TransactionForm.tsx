@@ -185,7 +185,7 @@ const TransactionForm = (props: Props) => {
           <TrFormTBalance
             balance={balance}
             queryParams={queryParams}
-            transactions={trDocs}
+            transactions={transactions || []}
           />
         </Box>
       )
@@ -201,7 +201,7 @@ const TransactionForm = (props: Props) => {
       return renderEmptyBox('Уучлаарай. Идэвхитэй баримт сонгогдоогүй байна. Зөв табаа сонгоно уу.', '30')
     }
 
-    const transactions = trDocs.filter(
+    const originTrs = trDocs.filter(
       (tr) => tr.originId === currentTransaction._id
     )
     return (
@@ -209,7 +209,7 @@ const TransactionForm = (props: Props) => {
         <Component
           key={currentTransaction._id}
           configsMap={configsMap}
-          transactions={transactions}
+          transactions={originTrs}
           trDoc={trDoc}
           setTrDoc={onEditTr}
         />

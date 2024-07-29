@@ -24,7 +24,7 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
       await currencyTrClass.checkValidationCurrency();
 
       const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
-      taxTrsClass.checkTaxValidation();
+      await taxTrsClass.checkTaxValidation();
 
       const transaction =
         await models.Transactions.updateTransaction(oldTr._id, { ...doc });

@@ -138,6 +138,7 @@ const PosContainer = (props: Props) => {
         } else {
           Alert.success("You successfully updated transactions");
           transactions = data.data.transactionUpdate as ITransaction[];
+          trDetailQuery.refetch()
         }
       })
 
