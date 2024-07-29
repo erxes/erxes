@@ -1,4 +1,4 @@
-// mixins
+/* // mixins
 
 @mixin prefix($declarations, $prefixes: ()) {
   @each $property, $value in $declarations {
@@ -10,7 +10,7 @@
   }
 }
 
-@mixin keyframe ($animation-name) {
+@mixin keyframe($animation-name) {
   @-webkit-keyframes #{$animation-name} {
     @content;
   }
@@ -24,7 +24,13 @@
   }
 }
 
-@mixin animation ($delay, $duration, $animation, $timing: ease, $count: initial) {
+@mixin animation(
+  $delay,
+  $duration,
+  $animation,
+  $timing: ease,
+  $count: initial
+) {
   -webkit-animation-delay: $delay;
   -webkit-animation-duration: $duration;
   -webkit-animation-name: $animation;
@@ -42,4 +48,4 @@
   animation-name: $animation;
   animation-iteration-count: $count;
   animation-timing-function: $timing;
-}
+} */

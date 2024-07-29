@@ -1,10 +1,10 @@
-import * as React from "react";
-import { sendEmail } from "../../form/containers/utils";
-import { ICurrentStatus, ISaveFormResponse } from "../../form/types";
-import { IEmailParams, IIntegration } from "../../types";
-import { connection } from "../connection";
-import { IBookingData } from "../types";
-import { saveBooking } from "./utils";
+import * as React from 'react';
+import { sendEmail } from '../../form/containers/utils';
+import { ICurrentStatus, ISaveFormResponse } from '../../form/types';
+import { IEmailParams, IIntegration } from '../../types';
+import { connection } from '../connection';
+import { IBookingData } from '../types';
+import { saveBooking } from './utils';
 
 interface IState {
   activeRoute: string;
@@ -41,59 +41,62 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<
+  { children: React.ReactNode },
+  IState
+> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
 
     this.state = {
-      activeRoute: "INTRO",
+      activeRoute: 'INTRO',
       activeBooking: null,
       activeCategory: null,
       activeProduct: null,
       isFormVisible: false,
       isPopupVisible: false,
-      currentStatus: { status: "INITIAL" },
+      currentStatus: { status: 'INITIAL' },
       isSubmitting: false,
-      selectedItem: ""
+      selectedItem: '',
     };
   }
 
   goToIntro = () => {
     this.setState({
-      activeRoute: "INTRO",
-      activeBooking: null
+      activeRoute: 'INTRO',
+      activeBooking: null,
     });
   };
 
   goToBooking = (booking: any) => {
     this.setState({
-      activeRoute: "BOOKING",
+      activeRoute: 'BOOKING',
       activeBooking: booking,
-      selectedItem: ""
+      selectedItem: '',
     });
   };
 
   goToBookings = () => {
     this.setState({
-      activeRoute: "BOOKING",
+      activeRoute: 'BOOKING',
       activeCategory: null,
-      selectedItem: ""
+      selectedItem: '',
     });
   };
 
   goToCategory = (categoryId: any) => {
     this.setState({
-      activeRoute: "CATEGORY_DETAIL",
+      activeRoute: 'CATEGORY_DETAIL',
       activeCategory: categoryId,
-      selectedItem: categoryId
+      selectedItem: categoryId,
     });
   };
 
   goToProduct = (productId: string) => {
     this.setState({
-      activeRoute: "PRODUCT_DETAIL",
+      activeRoute: 'PRODUCT_DETAIL',
       activeProduct: productId,
-      selectedItem: productId
+      selectedItem: productId,
     });
   };
 
@@ -107,7 +110,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
   showForm = () => {
     this.setState({
-      isFormVisible: true
+      isFormVisible: true,
     });
   };
 
@@ -128,11 +131,11 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState({
       isPopupVisible: false,
-      isFormVisible: false
+      isFormVisible: false,
     });
 
-    if (currentStatus.status === "SUCCESS") {
-      this.setState({ activeRoute: "INTRO", selectedItem: "" });
+    if (currentStatus.status === 'SUCCESS') {
+      this.setState({ activeRoute: 'INTRO', selectedItem: '' });
     }
   };
 
@@ -140,7 +143,7 @@ export class AppProvider extends React.Component<{}, IState> {
    * Redisplay form component after submission
    */
   createNew = () => {
-    this.setState({ currentStatus: { status: "INITIAL" } });
+    this.setState({ currentStatus: { status: 'INITIAL' } });
   };
 
   /**
@@ -164,7 +167,7 @@ export class AppProvider extends React.Component<{}, IState> {
         this.setState({
           isSubmitting: false,
         });
-      }
+      },
     });
   };
 
@@ -190,7 +193,7 @@ export class AppProvider extends React.Component<{}, IState> {
           sendEmail,
           save: this.save,
           getIntegration: this.getIntegration,
-          onChangeCurrentStatus: this.onChangeCurrentStatus
+          onChangeCurrentStatus: this.onChangeCurrentStatus,
         }}
       >
         {this.props.children}

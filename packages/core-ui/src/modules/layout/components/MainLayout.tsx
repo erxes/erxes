@@ -85,7 +85,7 @@ class MainLayout extends React.Component<IProps, State> {
               organizationName: name,
               organizationSubDomain: subdomain,
               organizationExpierence: experienceName,
-              organizationBundles: bundleNames.map((b) => b).join(", "),
+              organizationBundles: bundleNames.map(b => b).join(", "),
               organizationPlan: plan,
               organizationIsPaid: isPaid ? "true" : "false",
               organizationIsExpired:
@@ -182,6 +182,25 @@ class MainLayout extends React.Component<IProps, State> {
       wootricScript.onload = () => {
         (window as any).wootric("run");
       };
+
+      // Userback code
+      (window as any).Userback = {
+        access_token:
+          "6472|21123|TunTSMTJVrfaq926JJ4H5PqgrGAW1R9UG8VWTZNfuooH7ed2NU",
+        email: currentUser.email,
+        widget_settings: {
+          autohide: true,
+        },
+      };
+
+      const userBackScript = document.createElement("script");
+
+      userBackScript.src = "https://static.userback.io/widget/v1.js";
+
+      document.body.appendChild(userBackScript);
+
+      // click-jack attack defense
+      bustIframe();
     } // end currentUser checking
 
     if (enabledServices && Object.keys(enabledServices).length !== 0) {
