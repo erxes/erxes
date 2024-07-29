@@ -91,7 +91,7 @@ const typeDefs = async () => {
       `
         : ""
     }
-    ${boardTypes(isEnabledTable)}
+    ${boardTypes()}
     ${ticketTypes(isEnabledTable)}
 
     ${plTypes}

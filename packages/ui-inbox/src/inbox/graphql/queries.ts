@@ -1,7 +1,7 @@
-import conversationFields from './conversationFields';
-import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import messageFields from './messageFields';
+import conversationFields from "./conversationFields";
+import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import messageFields from "./messageFields";
 
 export const paramsDef = `
   $channelId: String
@@ -82,7 +82,7 @@ const sidebarConversations = `
         }
       }
       ${
-        isEnabled('contacts')
+        isEnabled("contacts")
           ? `
       customer {
         _id
@@ -99,16 +99,10 @@ const sidebarConversations = `
           : ``
       }
       tagIds
-      ${
-        isEnabled('tags')
-          ? `
       tags {
         _id
         name
         colorCode
-      }
-      `
-          : ``
       }
       readUserIds
     }
@@ -215,7 +209,7 @@ const tagsQueryCount = `
 const tagList = `
   query tags($type: String, $page: Int, $perPage: Int) {
     ${
-      isEnabled('tags')
+      isEnabled("tags")
         ? `
     tags(type: $type, page: $page, perPage: $perPage) {
       _id
@@ -235,7 +229,7 @@ const tagList = `
 const segmentList = `
   query segments($contentTypes: [String]!) {
     ${
-      isEnabled('segments')
+      isEnabled("segments")
         ? `
         segments(contentTypes: $contentTypes) {
           _id
@@ -315,7 +309,7 @@ const convertToInfo = `
   }
 `;
 
-const generateCustomerDetailQuery = (params) => {
+const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
     showTrackedData = false,
@@ -359,7 +353,7 @@ const generateCustomerDetailQuery = (params) => {
     fields = `
       ${fields}
       ${
-        isEnabled('contacts')
+        isEnabled("contacts")
           ? `companies {
           _id
           primaryName
@@ -383,7 +377,7 @@ const generateCustomerDetailQuery = (params) => {
       ${fields}
       tagIds
       ${
-        isEnabled('tags')
+        isEnabled("tags")
           ? `
           getTags {
             _id

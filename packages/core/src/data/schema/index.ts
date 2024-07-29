@@ -1,53 +1,59 @@
 import {
   mutations as BrandMutations,
   queries as BrandQueries,
-  types as BrandTypes,
-} from './brand';
+  types as BrandTypes
+} from "./brand";
 import {
   mutations as ConfigMutations,
   queries as ConfigQueries,
-  types as ConfigTypes,
-} from './config';
+  types as ConfigTypes
+} from "./config";
 import {
   mutations as ConformityMutations,
-  types as ConformityTypes,
-} from './conformity';
+  types as ConformityTypes
+} from "./conformity";
 import {
   mutations as PermissionMutations,
   queries as PermissionQueries,
-  types as PermissionTypes,
-} from './permission';
+  types as PermissionTypes
+} from "./permission";
 import {
   mutations as RobotMutations,
   queries as RobotQueries,
-  types as RobotTypes,
-} from './robot';
+  types as RobotTypes
+} from "./robot";
 import {
   mutations as UserMutations,
   queries as UserQueries,
-  types as UserTypes,
-} from './user';
+  types as UserTypes
+} from "./user";
 import {
   mutations as StructureMutations,
   queries as StructureQueries,
-  types as StructureTypes,
-} from './structure';
+  types as StructureTypes
+} from "./structure";
 import {
   types as AppTypes,
   mutations as AppMutations,
-  queries as AppQueries,
-} from './app';
+  queries as AppQueries
+} from "./app";
 
-import { queries as ChargeQueries, types as ChargeTypes } from './charge';
+import {
+  types as TagTypes,
+  mutations as TagMutations,
+  queries as TagQueries
+} from "./tag";
+
+import { queries as ChargeQueries, types as ChargeTypes } from "./charge";
 import {
   mutations as PromoCodeMutations,
-  types as PromoCodeTypes,
-} from '../schema/promoCode';
-import { queries as PluginQueries, types as PluginTypes } from './plugins';
+  types as PromoCodeTypes
+} from "../schema/promoCode";
+import { queries as PluginQueries, types as PluginTypes } from "./plugins";
 import {
   queries as OnboardingQueries,
-  mutations as OnboardingMutations,
-} from './organizations';
+  mutations as OnboardingMutations
+} from "./organizations";
 
 export let types = `
   scalar JSON
@@ -75,6 +81,7 @@ export let types = `
   ${ChargeTypes}
   ${PromoCodeTypes}
   ${PluginTypes}
+  ${TagTypes}
 `;
 
 export let queries = `
@@ -89,6 +96,7 @@ export let queries = `
   ${ChargeQueries}
   ${PluginQueries}
   ${OnboardingQueries}
+  ${TagQueries}
 `;
 
 export let mutations = `
@@ -102,6 +110,7 @@ export let mutations = `
   ${AppMutations}
   ${PromoCodeMutations}
   ${OnboardingMutations}
+  ${TagMutations}
 `;
 
 export let subscriptions = `

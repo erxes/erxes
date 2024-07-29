@@ -1,9 +1,9 @@
 import {
   attachmentInput,
   attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
+} from "@erxes/api-utils/src/commonTypeDefs";
 
-const productFields = (tagsAvailable, contactsAvailable) => {
+const productFields = contactsAvailable => {
   return `
     _id: String!
     name: String
@@ -20,7 +20,7 @@ const productFields = (tagsAvailable, contactsAvailable) => {
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
     createdAt: Date
-    ${tagsAvailable ? `getTags: [Tag]` : ''}
+    getTags: [Tag]
     tagIds: [String]
     attachment: Attachment
     attachmentMore: [Attachment]
@@ -30,26 +30,22 @@ const productFields = (tagsAvailable, contactsAvailable) => {
     subUoms: JSON
 
     category: ProductCategory
-    ${contactsAvailable ? 'vendor: Company' : ''}
+    ${contactsAvailable ? "vendor: Company" : ""}
     taxType: String
     taxCode: String
     hasSimilarity: Boolean
-  `
-}
+  `;
+};
 
-export const types = (tagsAvailable, contactsAvailable) => `
+export const types = contactsAvailable => `
   ${attachmentType}
   ${attachmentInput}
 
-  ${
-    tagsAvailable
-      ? `
+
         extend type Tag @key(fields: "_id") {
           _id: String! @external
         }
-      `
-      : ''
-  }
+
 
   ${
     contactsAvailable
@@ -58,7 +54,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
           _id: String! @external
         }
       `
-      : ''
+      : ""
   }
 
   type ProductCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -81,11 +77,11 @@ export const types = (tagsAvailable, contactsAvailable) => `
   }
 
   type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
-    ${productFields(tagsAvailable, contactsAvailable)}
+    ${productFields(contactsAvailable)}
   }
 
   type ProductsUsedPipeline @key(fields: "_id") @cacheControl(maxAge: 3) {
-    ${productFields(tagsAvailable, contactsAvailable)}
+    ${productFields(contactsAvailable)}
     usedCount: Int
   }
 

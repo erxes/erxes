@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export default `
   _id
@@ -12,14 +12,14 @@ export default `
   mentionedUserIds
   conversationId
   ${
-    isEnabled('dailyco')
+    isEnabled("dailyco")
       ? `  videoCallData {
     url
     status
     recordingLinks
     name
   }`
-      : ''
+      : ""
   }
 
   internal
@@ -43,7 +43,7 @@ export default `
     }
   }
   ${
-    isEnabled('contacts')
+    isEnabled("contacts")
       ? `
       customer {
         _id
@@ -63,16 +63,10 @@ export default `
         customFieldsData
 
         tagIds
-        ${
-          isEnabled('tags')
-            ? `
-            getTags {
-              _id
-              name
-              colorCode
-            }
-          `
-            : ``
+        getTags {
+          _id
+          name
+          colorCode
         }
       }
     `

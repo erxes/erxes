@@ -1,4 +1,4 @@
-export const types = ({ products, tags, forms }) => `
+export const types = ({ products, forms }) => `
   ${
     forms
       ? `
@@ -6,7 +6,7 @@ export const types = ({ products, tags, forms }) => `
         _id: String! @external
       }
     `
-      : ''
+      : ""
   }
 
   input InputRule {
@@ -28,7 +28,7 @@ export const types = ({ products, tags, forms }) => `
     tagIds: [String]
     createdAt: Date
 
-    ${tags ? `tags: [Tag]` : ''}
+    tags: [Tag]
     
     leadData: JSON
     messengerData: JSON
@@ -39,7 +39,7 @@ export const types = ({ products, tags, forms }) => `
 
     brand: Brand
 
-    ${forms ? `form: Form` : ''}
+    ${forms ? `form: Form` : ""}
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]
@@ -74,7 +74,7 @@ export const types = ({ products, tags, forms }) => `
         ? `
         mainProductCategory: ProductCategory
       `
-        : ''
+        : ""
     }
 
     navigationText: String

@@ -1,11 +1,10 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-const externalId = '_id: String! @external';
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+const externalId = "_id: String! @external";
 const keyFields = '@key(fields: "_id")';
 
 export const types = async () => {
-  const enabledTags = isEnabled('tags');
-  const enabledContacts = isEnabled('contacts');
-  const enabledSegments = isEnabled('segments');
+  const enabledContacts = isEnabled("contacts");
+  const enabledSegments = isEnabled("segments");
 
   return `
     extend type User ${keyFields} {
@@ -23,16 +22,12 @@ export const types = async () => {
             ${externalId}
           }
         `
-        : ''
+        : ""
     }
 
-    ${
-      enabledTags
-        ? `extend type Tag ${keyFields} {
+    ${`extend type Tag ${keyFields} {
       ${externalId}
-    }`
-        : ''
-    }
+    }`}
 
     ${
       enabledContacts
@@ -41,7 +36,7 @@ export const types = async () => {
           ${externalId}
         }
       `
-        : ''
+        : ""
     }
 
     type EngageMessage ${keyFields} {
@@ -77,14 +72,14 @@ export const types = async () => {
 
       scheduleDate: EngageScheduleDate
 
-      ${enabledSegments ? 'segments: [Segment]' : ''}
+      ${enabledSegments ? "segments: [Segment]" : ""}
       ${
         enabledTags
           ? `
         customerTags: [Tag]
         getTags: [Tag]
         `
-          : ''
+          : ""
       }
       brands: [Brand]
       fromUser: User

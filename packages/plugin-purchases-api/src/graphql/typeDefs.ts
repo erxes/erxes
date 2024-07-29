@@ -31,14 +31,12 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
   const contactsEnabled = await isEnabled("contacts");
-  const tagsEnabled = await isEnabled("tags");
   const formsEnabled = await isEnabled("forms");
   const clientPortalEnabled = await isEnabled("clientportal");
 
   const isEnabledTable = {
     contacts: contactsEnabled,
     forms: formsEnabled,
-    tags: tagsEnabled,
     clientPortal: clientPortalEnabled
   };
 
@@ -72,14 +70,11 @@ const typeDefs = async () => {
         : ""
     }
 
-    ${
-      tagsEnabled
-        ? `
+
         extend type Tag @key(fields: "_id") {
           _id: String! @external
         }
-      `
-        : ""
+
     }
     
     ${
@@ -91,7 +86,7 @@ const typeDefs = async () => {
       `
         : ""
     }
-    ${boardTypes(isEnabledTable)}
+    ${boardTypes()}
     ${purchaseTypes(isEnabledTable)}
 
     ${plTypes}

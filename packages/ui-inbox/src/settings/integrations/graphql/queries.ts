@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const users = `
   query users {
@@ -99,19 +99,13 @@ const integrations = `
       leadData
       formId
       tagIds
-      ${
-        isEnabled('tags')
-          ? `
-        tags {
-          _id
-          colorCode
-          name
-        }
-      `
-          : ``
+      tags {
+        _id
+        colorCode
+        name
       }
       ${
-        isEnabled('forms')
+        isEnabled("forms")
           ? `
               form {
                 _id
@@ -119,7 +113,7 @@ const integrations = `
                 code
               }
             `
-          : ''
+          : ""
       }
       details
       healthStatus

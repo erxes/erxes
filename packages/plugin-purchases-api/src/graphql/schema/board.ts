@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = ({ tags }) => `
+export const types = () => `
 
   type PurchasesBoard @key(fields: "_id") {
     _id: String!
@@ -19,7 +19,7 @@ export const types = ({ tags }) => `
     status: String
     boardId: String!
     tagId: String
-    ${tags ? `tag: Tag` : ""}
+    tag: Tag
     visibility: String!
     memberIds: [String]
     departmentIds: [String]

@@ -7,7 +7,7 @@ import {
   copyParams
 } from "./common";
 
-export const types = ({ contacts, tags }) => `
+export const types = ({ contacts }) => `
   type TaskListItem {
     customPropertiesData:JSON,
     ${commonListTypes}
@@ -24,7 +24,7 @@ export const types = ({ contacts, tags }) => `
         : ""
     }
 
-    ${tags ? `tags: [Tag]` : ""}
+    tags: [Tag]
 
     ${commonTypes}
   }
