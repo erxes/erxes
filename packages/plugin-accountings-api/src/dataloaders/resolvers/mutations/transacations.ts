@@ -28,7 +28,7 @@ const transactionsMutations = {
    */
   async transactionsUpdate(
     _root,
-    { parentId, trDocs }: { parentId: string, trDocs: ITransaction[] },
+    { parentId, trDocs }: { parentId: string, trDocs: (ITransaction & { _id?: string })[] },
     { user, models }: IContext,
   ) {
     const transactions = await models.Transactions.updatePTransaction(parentId, trDocs, user);

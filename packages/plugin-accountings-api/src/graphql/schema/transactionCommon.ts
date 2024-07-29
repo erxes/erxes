@@ -91,6 +91,7 @@ export const types = () => `
   }
 
   input TransactionInput {
+    _id: String
     ${transactionFields}
 
     details: [CommonTrDetailInput]

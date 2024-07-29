@@ -173,7 +173,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string) => {
     /**
      * Create a perfect transactions
      */
-    public static async updatePTransaction(parentId: string, docs: ITransaction[], user: IUserDocument) {
+    public static async updatePTransaction(parentId: string, docs: (ITransaction & { _id?: string })[], user: IUserDocument) {
       const oldTrs = await models.Transactions.find({ parentId, $or: [{ originId: { $exists: false } }, { originId: { $ne: '' } }] }).lean();
       if (!oldTrs.length) {
         throw new Error('Not found old transactions')

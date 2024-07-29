@@ -57,7 +57,7 @@ const PosContainer = (props: Props) => {
   for (const config of configs) {
     configsMap[config.code] = config.value;
   }
-  
+
   const save = (docs) => {
     setLoading(true);
 
@@ -67,6 +67,7 @@ const PosContainer = (props: Props) => {
 
     for (const doc of docs) {
       const trDoc: any = {
+        _id: doc._id,
         ptrId: doc.ptrId,
         parentId,
         number: doc.number,
