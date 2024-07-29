@@ -121,7 +121,6 @@ export const removeAccount = async (
   const integrations = await models.Integrations.find({
     accountId: account._id
   });
-
   if (integrations.length > 0) {
     for (const integration of integrations) {
       try {
