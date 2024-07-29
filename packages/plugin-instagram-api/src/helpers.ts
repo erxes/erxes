@@ -40,32 +40,30 @@ export const removeIntegration = async (
       throw new Error('Account not found');
     }
 
-    let pageTokenResponse;
-    let pageId = integration.facebookPageId;
+    for (const pageId of integration.facebookPageId || []) {
+      let pageTokenResponse;
 
-    if (!pageId) {
-      throw new Error('Page ID not found');
-    }
-    try {
-      pageTokenResponse = await getPageAccessToken(pageId, account.token);
-    } catch (e) {
-      debugError(
-        `Error ocurred while trying to get page access token with ${e.message}`
-      );
-    }
+      try {
+        pageTokenResponse = await getPageAccessToken(pageId, account.token);
+      } catch (e) {
+        debugError(
+          `Error ocurred while trying to get page access token with ${e.message}`
+        );
+      }
 
-    await models.PostConversations.deleteMany({ recipientId: pageId });
-    await models.CommentConversation.deleteMany({ recipientId: pageId });
+      await models.PostConversations.deleteMany({ recipientId: pageId });
+      await models.CommentConversation.deleteMany({ recipientId: pageId });
 
-    try {
-      await unsubscribePage(pageId, pageTokenResponse);
-    } catch (e) {
-      debugError(
-        `Error occured while trying to unsubscribe page pageId: ${pageId}`
-      );
+      try {
+        await unsubscribePage(pageId, pageTokenResponse);
+      } catch (e) {
+        debugError(
+          `Error occured while trying to unsubscribe page pageId: ${pageId}`
+        );
+      }
     }
 
-    integrationRemoveBy = { igPageId: integration.facebookPageId };
+    integrationRemoveBy = { fbPageIds: integration.facebookPageId };
 
     const conversationIds =
       await models.Conversations.find(selector).distinct('_id');
@@ -85,7 +83,6 @@ export const removeIntegration = async (
   // Remove from core =========
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {
@@ -244,70 +241,69 @@ export const instagramCreateIntegration = async (
   subdomain: string,
   models: IModels,
   { accountId, integrationId, data, kind }
-): Promise<RPSuccess> => {
+): Promise<{ status: 'success' }> => {
   const account = await models.Accounts.getAccount({ _id: accountId });
-  const instagramPageId = JSON.parse(data).pageIds;
-  const getInstagramPageId = instagramPageId[0].replace(/'/g, '');
-  const facebookPageId = await getFacebookPageIdsForInsta(
+  if (!account) {
+    throw new Error('Account not found');
+  }
+  const instagramPageIds = JSON.parse(data).pageIds;
+  const instagramPageId = Array.isArray(instagramPageIds)
+    ? instagramPageIds[0]
+    : instagramPageIds;
+  const facebookPageIds = await getFacebookPageIdsForInsta(
     account.token,
-    getInstagramPageId
+    instagramPageId
   );
-  let integration;
-  try {
-    integration = await models.Integrations.create({
+
+  if (facebookPageIds) {
+    const integration = await models.Integrations.create({
       kind,
       accountId,
       erxesApiId: integrationId,
-      instagramPageId: getInstagramPageId,
-      facebookPageId
+      instagramPageId: instagramPageId.toString(),
+      facebookPageId: facebookPageIds.toString() // Ensure it's a string
     });
-  } catch (error) {
-    // You can also throw the error again or perform additional error handling here
-    throw error;
-  }
 
-  const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
-  const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+    const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
 
-  let domain = `${DOMAIN}/gateway/pl:instagram`;
+    let domain = `${DOMAIN}/gateway/pl:instagram`;
 
-  if (process.env.NODE_ENV !== 'production') {
-    domain = `${DOMAIN}/pl:instagram`;
-  }
-
-  if (ENDPOINT_URL) {
-    // send domain to core endpoints
-    try {
-      await fetch(`${ENDPOINT_URL}/register-endpoint`, {
-        method: 'POST',
-        body: JSON.stringify({
-          domain,
-          instagramPageId,
-          igPageId: instagramPageId
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } catch (e) {
-      await models.Integrations.deleteOne({ _id: integration._id });
-      throw e;
+    if (process.env.NODE_ENV !== 'production') {
+      domain = `${DOMAIN}/pl:instagram`;
     }
-  }
 
-  const facebookPageTokensMap: { [key: string]: string } = {};
+    if (ENDPOINT_URL) {
+      // Send domain to core endpoints
+      try {
+        await fetch(`${ENDPOINT_URL}/register-endpoint`, {
+          method: 'POST',
+          body: JSON.stringify({
+            domain,
+            instagramPageId,
+            igPageId: instagramPageId
+          }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (e) {
+        await models.Integrations.deleteOne({ _id: integration._id });
+        throw e;
+      }
+    }
 
-  if (facebookPageId !== null) {
-    // Directly use facebookPageId as it's a string
-    const pageId = facebookPageId;
+    const facebookPageTokensMap: { [key: string]: string } = {};
 
-    // Rest of your code
     try {
-      const pageAccessToken = await getPageAccessToken(pageId, account.token);
+      const pageAccessToken = await getPageAccessToken(
+        facebookPageIds,
+        account.token
+      );
 
-      facebookPageTokensMap[pageId] = pageAccessToken;
+      facebookPageTokensMap[facebookPageIds] = pageAccessToken;
 
       try {
-        await subscribePage(pageId, pageAccessToken);
-        debugInstagram(`Successfully subscribed page ${pageId}`);
+        await subscribePage(facebookPageIds, pageAccessToken);
+        debugInstagram(`Successfully subscribed page ${facebookPageIds}`);
       } catch (e) {
         debugError(
           `Error occurred while trying to subscribe page ${e.message || e}`
@@ -320,16 +316,16 @@ export const instagramCreateIntegration = async (
           e.message || e
         }`
       );
+
       throw e;
     }
+
+    integration.facebookPageTokensMap = facebookPageTokensMap;
+
+    await integration.save();
+
+    return { status: 'success' };
   } else {
-    // Handle the case where facebookPageId is null
-    throw new Error('facebookPageId is null');
+    throw new Error('No Facebook Page ID found');
   }
-
-  integration.facebookPageTokensMap = facebookPageTokensMap;
-
-  await integration.save();
-
-  return { status: 'success' };
 };
