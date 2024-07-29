@@ -1,8 +1,8 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from '@erxes/ui-cards/src/conformity/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+  conformityQueryFields
+} from "@erxes/ui-sales/src/conformity/graphql/queries";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 export const commonFields = `
   _id
@@ -258,7 +258,7 @@ const clientPortalUserDetail = `
   query clientPortalUserDetail($_id: String!) {
     clientPortalUserDetail(_id: $_id) {
       ${clientPortalUserFields}
-      ${isEnabled('forum') ? 'forumSubscriptionEndsAfter' : ''}
+      ${isEnabled("forum") ? "forumSubscriptionEndsAfter" : ""}
       customer {
         firstName
         lastName
@@ -448,5 +448,5 @@ export default {
   ticketsOfUser,
   purchasesOfUser,
   clientPortalParticipantDetail,
-  clientPortalParticipants,
+  clientPortalParticipants
 };

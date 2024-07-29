@@ -1,6 +1,6 @@
 import { queries as dealQueries } from "@erxes/ui-sales/src/deals/graphql";
-import { queries as taskQueries } from "@erxes/ui-cards/src/tasks/graphql";
-import { queries as ticketQueries } from "@erxes/ui-cards/src/tickets/graphql";
+import { queries as taskQueries } from "@erxes/ui-tasks/src/tasks/graphql";
+import { queries as ticketQueries } from "@erxes/ui-tickets/src/tickets/graphql";
 import {
   CollapseContent,
   ControlLabel,

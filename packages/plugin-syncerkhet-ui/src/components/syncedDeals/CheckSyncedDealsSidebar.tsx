@@ -1,4 +1,4 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import Datetime from "@nateradebaugh/react-datetime";
 import dayjs from "dayjs";
 import Button from "@erxes/ui/src/components/Button";
@@ -35,7 +35,7 @@ const CheckerSidebar = (props: IProps) => {
     stageChangedEndDate: queryParams.stageChangedEndDate,
     dateType: queryParams.dateType,
     search: queryParams.search,
-    number: queryParams.number,
+    number: queryParams.number
   });
 
   const onFilter = () => {
@@ -49,7 +49,7 @@ const CheckerSidebar = (props: IProps) => {
       stageChangedEndDate,
       dateType,
       search,
-      number,
+      number
     } = state;
 
     router.setParams(navigate, location, {
@@ -63,15 +63,15 @@ const CheckerSidebar = (props: IProps) => {
       stageChangedEndDate,
       dateType,
       search,
-      number,
+      number
     });
   };
 
   const onChangeRangeFilter = (kind, date) => {
     const cDate = dayjs(date).format("YYYY-MM-DD HH:mm");
-    setState((prevState) => ({
+    setState(prevState => ({
       ...prevState,
-      [kind]: cDate,
+      [kind]: cDate
     }));
   };
 
@@ -128,42 +128,42 @@ const CheckerSidebar = (props: IProps) => {
     configStageId,
     dateType,
     search,
-    number,
+    number
   } = state;
 
   const onChangeBoard = (boardId: string) => {
-    setState((prevState) => ({ ...prevState, boardId }));
+    setState(prevState => ({ ...prevState, boardId }));
   };
 
   const onChangePipeline = (pipelineId: string) => {
-    setState((prevState) => ({ ...prevState, pipelineId }));
+    setState(prevState => ({ ...prevState, pipelineId }));
   };
 
   const onChangeStage = (stageId: string) => {
-    setState((prevState) => ({ ...prevState, stageId }));
+    setState(prevState => ({ ...prevState, stageId }));
   };
 
   const onChangeConfigStage = (stageId: string) => {
-    setState((prevState) => ({ ...prevState, configStageId: stageId }));
+    setState(prevState => ({ ...prevState, configStageId: stageId }));
   };
 
-  const onUserChange = (userId) => {
-    setState((prevState) => ({ ...prevState, userId }));
+  const onUserChange = userId => {
+    setState(prevState => ({ ...prevState, userId }));
   };
 
   const onChangeType = (e: React.FormEvent<HTMLElement>) => {
-    setState((prevState) => ({
+    setState(prevState => ({
       ...prevState,
-      dateType: (e.currentTarget as HTMLInputElement).value,
+      dateType: (e.currentTarget as HTMLInputElement).value
     }));
   };
 
   const onChangeInput = (e: React.FormEvent<HTMLElement>) => {
     const value = (e.currentTarget as HTMLInputElement).value;
     const name = (e.currentTarget as HTMLInputElement).name;
-    setState((prevState) => ({
+    setState(prevState => ({
       ...prevState,
-      [name]: value,
+      [name]: value
     }));
   };
 

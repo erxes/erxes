@@ -6,11 +6,15 @@ import {
   IconWrap,
   ToggleWrap
 } from "../../styles";
-import { IBoard, IPipeline } from "@erxes/ui-cards/src/boards/types";
+import { IBoard, IPipeline } from "@erxes/ui-sales/src/boards/types";
 import React, { useState } from "react";
 import { __, isEnabled } from "@erxes/ui/src/utils/core";
 
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
+
 import { ClientPortalConfig } from "../../types";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { FlexContent } from "@erxes/ui/src/layout/styles";
@@ -133,20 +137,71 @@ function General({
       handleFormChange(`${type}PipelineId`, plId);
     const onChangeBoard = brId => handleFormChange(`${type}BoardId`, brId);
 
-    return isEnabled("cards") ? (
-      <BoardSelect
-        isRequired={toggle}
-        type={type}
-        stageId={stageId}
-        boardId={boardId || ""}
-        pipelineId={pipelineId || ""}
-        onChangeStage={onChangeStage}
-        onChangePipeline={onChangePipeline}
-        onChangeBoard={onChangeBoard}
-        autoSelectStage={false}
-        callback={handleToggleBoardSelect}
-      />
-    ) : null;
+    switch (type) {
+      case "deal":
+        return (
+          <SalesBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+
+      case "ticket":
+        return (
+          <TicketsBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+
+      case "purchase":
+        return (
+          <PurchasesBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+
+      case "task":
+        return (
+          <TasksBoardSelect
+            isRequired={toggle}
+            type={type}
+            stageId={stageId}
+            boardId={boardId || ""}
+            pipelineId={pipelineId || ""}
+            onChangeStage={onChangeStage}
+            onChangePipeline={onChangePipeline}
+            onChangeBoard={onChangeBoard}
+            autoSelectStage={false}
+            callback={handleToggleBoardSelect}
+          />
+        );
+    }
   }
 
   function renderControl({

@@ -277,7 +277,7 @@ const RightMenu: React.FC<Props> = props => {
             onChange={onChangeInput}
           >
             <option value="">{__("All")}</option>
-            {isEnabled("cards") && <option value="deal">{__("Deal")}</option>}
+            {isEnabled("sales") && <option value="deal">{__("Deal")}</option>}
             {isEnabled("pos") && <option value="pos">{__("Pos")}</option>}
             {isEnabled("loans") && (
               <option value="loans:transaction">
