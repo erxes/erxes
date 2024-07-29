@@ -20,7 +20,7 @@ const emailTemplateMutations = {
   ) {
     const modifiedDoc = docModifier(doc);
 
-    const template = await models.EmailTemplates.createEmailTemplate(
+    const template = models.EmailTemplates.createEmailTemplate(
       modifiedDoc,
       user
     );
