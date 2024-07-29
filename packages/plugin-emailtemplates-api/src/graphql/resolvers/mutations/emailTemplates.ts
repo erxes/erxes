@@ -47,8 +47,8 @@ const emailTemplateMutations = {
     { _id, ...fields }: IEmailTemplatesEdit,
     { models, subdomain, user }: IContext
   ) {
-    const template = await models.EmailTemplates.getEmailTemplate(_id);
-    const updated = await models.EmailTemplates.updateEmailTemplate(
+    const template = models.EmailTemplates.getEmailTemplate(_id);
+    const updated = models.EmailTemplates.updateEmailTemplate(
       _id,
       fields
     );
@@ -77,7 +77,7 @@ const emailTemplateMutations = {
     { _id, status }: IEmailTemplatesEdit,
     { models, subdomain, user }: IContext
   ) {
-    const emailTemplate = await models.EmailTemplates.getEmailTemplate(_id);
+    const emailTemplate = models.EmailTemplates.getEmailTemplate(_id);
 
     await models.EmailTemplates.updateOne({ _id }, { $set: { status } });
 
@@ -105,8 +105,8 @@ const emailTemplateMutations = {
     { _id }: { _id: string },
     { models, subdomain, user }: IContext
   ) {
-    const template = await models.EmailTemplates.getEmailTemplate(_id);
-    const removed = await models.EmailTemplates.removeEmailTemplate(_id);
+    const template = models.EmailTemplates.getEmailTemplate(_id);
+    const removed = models.EmailTemplates.removeEmailTemplate(_id);
 
     await putDeleteLog(
       subdomain,
@@ -129,7 +129,7 @@ const emailTemplateMutations = {
     { _id }: { _id: string },
     { models, user }: IContext
   ) {
-    const template = await models.EmailTemplates.duplicateEmailTemplate(
+    const template = models.EmailTemplates.duplicateEmailTemplate(
       _id,
       user
     );
