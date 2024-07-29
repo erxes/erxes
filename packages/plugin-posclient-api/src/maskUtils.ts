@@ -57,7 +57,7 @@ export const groupBySameMasksAggregator = (isCount = false) => {
 
   return [
     ...sameArr,
-    { $sort: { 'sameSort': -1, code: 1 } },
+    { $sort: { 'sameSort': -1 } },
     {
       $group: {
         _id: { sameMasks: '$sameMasks' },
@@ -122,7 +122,6 @@ export const groupByCategoryAggregator = (isCount = false) => {
         product: { $first: '$$ROOT' }
       }
     },
-    { $sort: { 'product.code': 1 } }
   ];
 };
 
@@ -131,15 +130,23 @@ export const aggregatePaginator = params => {
   return [{ $skip: perPage * (page - 1) }, { $limit: perPage }];
 };
 
-export const getSimilaritiesProducts = async (models, filter, params) => {
+export const getSimilaritiesProducts = async (models, filter, sortParams, params) => {
+  const sortKey: string = Object.keys(sortParams)[0] || 'code';
+  const productSort = {
+    [`product.${sortKey}`]: sortParams[sortKey] || 1
+  };
+
   const aggregates =
     params.groupedSimilarity === 'config'
       ? groupBySameMasksAggregator()
       : groupByCategoryAggregator();
+
   const groupedData = await models.Products.aggregate([
     { $match: filter },
+    { $sort: sortParams },
     ...aggregates,
-    ...aggregatePaginator(params)
+    ...aggregatePaginator(params),
+    { $sort: productSort },
   ]);
 
   return groupedData.map(gd => ({
