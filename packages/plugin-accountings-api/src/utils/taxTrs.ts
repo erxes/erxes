@@ -210,7 +210,7 @@ class TaxTrs {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $addToSet: {
             follows: {
-              type: 'currencyDiff',
+              type: 'vat',
               id: vatTr._id
             }
           }
@@ -223,7 +223,7 @@ class TaxTrs {
         $set: { vatAmount: this.vatTrDoc.details[0].amount },
         $addToSet: {
           follows: [{
-            type: 'currencyDiff',
+            type: 'vat',
             id: vatTr._id
           }]
         }
@@ -235,7 +235,7 @@ class TaxTrs {
 
   private doCtaxTr = async (transaction: ITransactionDocument) => {
     let ctaxTr;
-    const oldFollowInfo = (transaction.follows || []).find(f => f.type === 'vat');
+    const oldFollowInfo = (transaction.follows || []).find(f => f.type === 'ctax');
 
     if (!this.ctaxTrDoc) {
       if (oldFollowInfo) {
@@ -267,7 +267,7 @@ class TaxTrs {
         await this.models.Transactions.updateOne({ _id: transaction._id }, {
           $addToSet: {
             follows: {
-              type: 'currencyDiff',
+              type: 'ctax',
               id: ctaxTr._id
             }
           }
@@ -280,7 +280,7 @@ class TaxTrs {
         $set: { ctaxAmount: this.ctaxTrDoc.details[0].amount },
         $addToSet: {
           follows: [{
-            type: 'currencyDiff',
+            type: 'ctax',
             id: ctaxTr._id
           }]
         }
