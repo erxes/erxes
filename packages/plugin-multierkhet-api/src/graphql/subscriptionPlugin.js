@@ -1,4 +1,4 @@
-var { withFilter } = require('graphql-subscriptions');
+let{ withFilter } = require('graphql-subscriptions');
 
 module.exports = {
   name: 'multierkhet',
