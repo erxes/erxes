@@ -15,6 +15,7 @@ export const removeIntegration = async (
   models: IModels,
   integrationErxesApiId: string
 ): Promise<string> => {
+  // Remove from core =========
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationErxesApiId
   });
@@ -30,25 +31,23 @@ export const removeIntegration = async (
 
   const account = await models.Accounts.findOne({ _id: accountId });
 
+  if (!account) {
+    throw new Error('Account not found');
+  }
+
   const selector = { integrationId: _id };
 
   if (kind.includes('instagram')) {
     debugInstagram('Removing entries');
 
-    if (!account) {
-      throw new Error('Account not found');
+    const pageId = integration.facebookPageId;
+
+    if (!pageId) {
+      throw new Error('Facebook page ID not found');
     }
 
-    for (const pageId of integration.facebookPageId || []) {
-      let pageTokenResponse;
-
-      try {
-        pageTokenResponse = await getPageAccessToken(pageId, account.token);
-      } catch (e) {
-        debugError(
-          `Error ocurred while trying to get page access token with ${e.message}`
-        );
-      }
+    try {
+      const pageTokenResponse = await getPageAccessToken(pageId, account.token);
 
       await models.PostConversations.deleteMany({ recipientId: pageId });
       await models.CommentConversation.deleteMany({ recipientId: pageId });
@@ -57,9 +56,13 @@ export const removeIntegration = async (
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`
+          `Error occurred while trying to unsubscribe page pageId: ${pageId}`
         );
       }
+    } catch (e) {
+      debugError(
+        `Error occurred while trying to get page access token with ${e.message}`
+      );
     }
 
     integrationRemoveBy = { fbPageIds: integration.facebookPageId };
@@ -67,10 +70,7 @@ export const removeIntegration = async (
     const conversationIds =
       await models.Conversations.find(selector).distinct('_id');
 
-    await models.Customers.deleteMany({
-      integrationId: integrationErxesApiId
-    });
-
+    await models.Customers.deleteMany({ integrationId: integrationErxesApiId });
     await models.Conversations.deleteMany(selector);
     await models.ConversationMessages.deleteMany({
       conversationId: { $in: conversationIds }
@@ -78,8 +78,6 @@ export const removeIntegration = async (
 
     await models.Integrations.deleteOne({ _id });
   }
-
-  // Remove from core =========
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
   if (ENDPOINT_URL) {

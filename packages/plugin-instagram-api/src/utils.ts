@@ -174,7 +174,7 @@ export const getPageList = async (
   }
 
   const pages: any[] = [];
-
+  console.log(response, 'response');
   for (const page of response.data) {
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
