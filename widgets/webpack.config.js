@@ -25,9 +25,6 @@ module.exports = {
 
   plugins: [
     new Dotenv(),
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-    }),
     new webpack.DefinePlugin({
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
     }),
@@ -98,8 +95,5 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json'],
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
-    alias: {
-      process: 'process/browser',
-    },
   },
 };
