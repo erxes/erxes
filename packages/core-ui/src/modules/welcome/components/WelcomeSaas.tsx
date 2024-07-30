@@ -9,7 +9,7 @@ import {
   SmallBox,
   WelcomeWrapper,
 } from "../stylesSaas";
-import { Community, Learn, Setups } from "../constants";
+import { Community, GeneralTasks, Learn, Setups } from "../constants";
 
 import Drawer from "@erxes/ui/src/components/Drawer";
 import DrawerContent from "../container/DrawerContent";
@@ -28,6 +28,8 @@ type Props = {
 };
 
 function Welcome({ currentUser }: Props) {
+  const { currentOrganization = {} } = currentUser || ({} as IUser);
+
   const renderLeftContent = () => {
     const currentDate = dayjs().format("MMM D, YYYY");
 
@@ -67,7 +69,16 @@ function Welcome({ currentUser }: Props) {
   };
 
   const renderSetupItem = (item) => {
-    const { id, title, image, desc, totalStep, comingSoon } = item;
+    const { id, title, type, image, desc, totalStep, comingSoon } = item;
+
+    const operationTasks = [];
+
+    const tasks =
+      type === "general"
+        ? GeneralTasks
+        : type === "operational"
+          ? operationTasks
+          : [];
 
     return (
       <SetupBox key={id} comingSoon={comingSoon}>
@@ -83,7 +94,9 @@ function Welcome({ currentUser }: Props) {
             width={35}
             btnStyle="link"
           >
-            {(setShow) => <DrawerContent content={item} setShow={setShow} />}
+            {(setShow) => (
+              <DrawerContent content={item} setShow={setShow} tasks={tasks} />
+            )}
           </Drawer>
           {!comingSoon && <span>0/{totalStep} steps</span>}
         </SetupSteps>

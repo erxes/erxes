@@ -8,17 +8,16 @@ import {
 } from "../stylesSaas";
 
 import Icon from "@erxes/ui/src/components/Icon";
-import { MarketingTasks } from "../constants";
 import React from "react";
 import { __ } from "@erxes/ui/src/utils/core";
 
 type Props = {
   content: any;
+  tasks: any;
   setShow: any;
 };
 
-function DrawerContent({ content, setShow }: Props) {
-  console.log("sss", setShow);
+function DrawerContent({ content, setShow, tasks }: Props) {
   const { title, image, desc } = content;
 
   const renderTask = (task) => {
@@ -49,7 +48,7 @@ function DrawerContent({ content, setShow }: Props) {
         </div>
         <h4>{title}</h4>
         <p>{desc}</p>
-        <Tasks>{MarketingTasks.map((task) => renderTask(task))}</Tasks>
+        <Tasks>{tasks.map((task) => renderTask(task))}</Tasks>
       </DrawerBody>
     </DrawerContainer>
   );

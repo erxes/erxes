@@ -236,7 +236,7 @@ const DrawerBody = styled.div`
 
   > h4 {
     font-size: 16px;
-    padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px;
+    padding: ${dimensions.unitSpacing + 5}px 0 ${dimensions.unitSpacing - 5}px;
   }
 
   > p {

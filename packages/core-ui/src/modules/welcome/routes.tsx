@@ -5,7 +5,7 @@ import WelcomeOs from "./container/WelcomeOs";
 import WelcomeSaas from "./components/WelcomeSaas";
 import { getVersion } from "@erxes/ui/src/utils/core";
 
-const routes = (currentUser) => {
+const routes = ({ currentUser }) => {
   const { VERSION } = getVersion();
 
   return (

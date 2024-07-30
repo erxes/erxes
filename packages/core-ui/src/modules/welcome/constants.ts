@@ -218,6 +218,7 @@ export const Setups = [
   {
     id: 1,
     image: '/images/welcome/item-4.png',
+    type: 'general',
     title: 'General configurations',
     desc: 'Adjust and fine-tune your settings and preferences for a customized experience.',
     totalStep: 8
@@ -225,6 +226,7 @@ export const Setups = [
   {
     id: 2,
     image: '/images/welcome/item-2.png',
+    type: 'operational',
     title: 'Operational Setup',
     desc: 'Establish your digital workplace for efficient and streamlined operations.',
     totalStep: 4
@@ -286,6 +288,52 @@ export const Community = [
     url: 'https://x.com/erxeshq'
   }
 ];
+
+export const GeneralTasks = [
+  {
+    id: 1,
+    icon: 'user-plus',
+    title: 'Invite Team Members',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 2,
+    icon: 'sitemap-1',
+    title: 'Establish Organizational Structures',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 3,
+    icon: 'file-plus-alt',
+    title: 'Import Customer Data',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 4,
+    icon: 'tag-alt',
+    title: 'Create Brand',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 5,
+    icon: 'layers',
+    title: 'Create Channels',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 6,
+    icon: 'building',
+    title: 'Establish Company Branding',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 7,
+    icon: 'graph-bar',
+    title: 'Create your Insight',
+    desc: 'Connect with erxes Community'
+  }
+];
+
 
 export const MarketingTasks = [
   {
@@ -368,3 +416,257 @@ export const MarketingTasks = [
   }
 ];
 
+export const SalesTasks = [
+  {
+    id: 1,
+    icon: 'envelope-shield',
+    title: 'Set up Sales Processes',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 2,
+    icon: 'layer-group',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 3,
+    icon: 'document',
+    title: 'Organize Documents',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 4,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 5,
+    icon: 'monitor-1',
+    title: 'Set up Client Portal',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 6,
+    icon: 'arrow-growth',
+    title: 'Create Segments',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 7,
+    icon: 'megaphone',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 8,
+    icon: 'comments',
+    title: 'Configure Task Management',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 9,
+    icon: 'comment-alt-heart',
+    title: 'Set up Ticket Management',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 10,
+    icon: 'instagram',
+    title: 'Implement Loyalty Programs',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 11,
+    icon: 'book-open',
+    title: 'Implement Operational Automations',
+    desc: 'Where everything happens'
+  }
+];
+
+export const FrontlineTasks = [
+  {
+    id: 1,
+    icon: 'envelope-shield',
+    title: 'Install erxes Messenger',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 2,
+    icon: 'layer-group',
+    title: 'Set up Ticket Management',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 3,
+    icon: 'document',
+    title: 'Integrate Facebook Messenger',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 4,
+    icon: 'book-open',
+    title: 'Integrate Facebook Post',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 5,
+    icon: 'monitor-1',
+    title: 'Connect IMAP',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 6,
+    icon: 'arrow-growth',
+    title: 'Integrate Instagram',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 7,
+    icon: 'megaphone',
+    title: 'Create Call',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 8,
+    icon: 'comments',
+    title: 'Use Team Inbox',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 9,
+    icon: 'comment-alt-heart',
+    title: 'Create Team Inbox Responses',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 10,
+    icon: 'instagram',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 11,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 12,
+    icon: 'book-open',
+    title: 'Set up Client Portal',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 13,
+    icon: 'book-open',
+    title: 'Create Segments',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 14,
+    icon: 'book-open',
+    title: 'Integrate Viber',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 15,
+    icon: 'book-open',
+    title: 'Phone verification',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 16,
+    icon: 'book-open',
+    title: 'Email verification',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 17,
+    icon: 'book-open',
+    title: 'Implement Operational Automations',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 18,
+    icon: 'book-open',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'Where everything happens'
+  }
+];
+
+export const OperationTasks = [
+  {
+    id: 1,
+    icon: 'envelope-shield',
+    title: 'Configure Task Management',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 2,
+    icon: 'layer-group',
+    title: 'Set up Ticket Management',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 3,
+    icon: 'document',
+    title: 'Set up Sales Processes',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 4,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 5,
+    icon: 'monitor-1',
+    title: 'Manage Files with the File Manager',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 6,
+    icon: 'arrow-growth',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 7,
+    icon: 'megaphone',
+    title: 'Set up Client Portal',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 8,
+    icon: 'comments',
+    title: 'Organize Documents',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 9,
+    icon: 'comment-alt-heart',
+    title: 'Create Segments',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 10,
+    icon: 'instagram',
+    title: 'Track Time with Timeclock',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 11,
+    icon: 'book-open',
+    title: 'Implement Operational Automations',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 12,
+    icon: 'book-open',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'Where everything happens'
+  }
+];

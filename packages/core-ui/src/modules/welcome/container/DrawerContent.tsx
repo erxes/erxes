@@ -9,6 +9,7 @@ import React from "react";
 
 type Props = {
   content: any;
+  tasks: any;
   setShow: any;
 };
 
@@ -19,9 +20,7 @@ type Props = {
 
 class DrawerContentContainer extends React.Component<Props> {
   render() {
-    const { setShow, content } = this.props;
-
-    return <DrawerContent content={content} setShow={setShow} />;
+    return <DrawerContent {...this.props} />;
   }
 }
 
