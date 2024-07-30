@@ -79,6 +79,7 @@ const init = async (app) => {
     if (data.object !== 'instagram') {
       return;
     }
+    console.log(data, 'data');
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
