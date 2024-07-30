@@ -1,5 +1,6 @@
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
+const webpack = require('webpack');
 
 module.exports = {
   entry: {
@@ -22,7 +23,15 @@ module.exports = {
     chunkFilename: '[name].[contenthash].js',
   },
 
-  plugins: [new Dotenv()],
+  plugins: [
+    new Dotenv(),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.API_URL': JSON.stringify(process.env.API_URL),
+    }),
+  ],
 
   module: {
     rules: [
@@ -89,5 +98,8 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json'],
     modules: [path.resolve(__dirname, 'node_modules'), 'node_modules'],
+    alias: {
+      process: 'process/browser',
+    },
   },
 };
