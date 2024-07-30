@@ -79,16 +79,36 @@ const init = async (app) => {
     if (data.object !== 'instagram') {
       return;
     }
-    console.log(`instagram message ${JSON.stringify(data)} `);
+    console.log(data.entry[0].standby, 'standby');
     for (const entry of data.entry) {
       // receive chat
+      console.log(data, 'data');
+
       if (entry.messaging) {
         const messageData = entry.messaging[0];
-        try {
-          await receiveMessage(models, subdomain, messageData);
-          return res.send('success');
-        } catch (e) {
-          return res.send('error' + e);
+
+        if (messageData) {
+          try {
+            await receiveMessage(models, subdomain, messageData);
+            return res.send('success');
+          } catch (e) {
+            return res.send('error ' + e);
+          }
+        }
+      } else {
+        // Handle standby data if entry.messaging does not exist
+        const standbyData = entry.standby;
+
+        if (standbyData) {
+          try {
+            // Assuming standbyData is an array and you want to process each item
+            for (const data of standbyData) {
+              await receiveMessage(models, subdomain, data);
+            }
+            return res.send('success');
+          } catch (e) {
+            return res.send('error ' + e);
+          }
         }
       }
 

@@ -12,12 +12,14 @@ const receiveMessage = async (
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
+  console.log(messageData, 'messageData');
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: [recipient.id] } },
       { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
+
   if (!integration) {
     throw new Error('Instagram Integration not found ');
   }
