@@ -1,3 +1,16 @@
+@font-face {
+  font-family: 'Neue Haas Grotesk Display Pro';
+  font-style: normal;
+  font-weight: 500;
+  src: url('./fonts/NeueHaas/NeueHaasDisplayThin.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Neue Haas Grotesk Display Pro';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./fonts/NeueHaas/NeueHaasDisplayXXThin.ttf') format('truetype');
+}
+
 .fade-enter {
   opacity: 0;
 }
@@ -1691,8 +1704,7 @@ select.form-control:focus,
   background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNjEyIDQ1NCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNjEyIDQ1NDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+LnN0MHtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+PHBhdGggaWQ9Inl0cC1pZC0yMyIgY2xhc3M9InN0MCIgZD0iTTI4MiwyNDJoMTM2VjE0MEgyODJWMjQyTDI4MiwyNDJ6IE0xMTksMTA2djIzOC4zYzAsMTguNywxNS4zLDMzLjcsMzQsMzMuN2gzMDZjMTguNywwLDM0LTE1LDM0LTMzLjdWMTA2YzAtMTguNy0xNS4zLTM0LTM0LTM0SDE1M0MxMzQuMyw3MiwxMTksODcuMywxMTksMTA2TDExOSwxMDZ6IE0xNTMsMTA1LjdoMzA2djIzOC45SDE1M1YxMDUuN0wxNTMsMTA1Ljd6Ii8+PC9zdmc+);
 }
 #page-root.mini-video #erxes-video-container {
-  width: 290px;
-  height: 220px;
+  height: 285px;
   right: 8px;
   overflow: hidden;
   box-shadow: 0 0 6px 1px rgba(0, 0, 0, 0.1);
@@ -1970,7 +1982,7 @@ select.form-control:focus,
   text-align: right;
   span {
     color: #fff;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     display: block;
     text-align: initial;
   }
@@ -1981,7 +1993,7 @@ select.form-control:focus,
 .erxes-message.from-customer.gray {
   background-color: #eaebed;
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   margin-bottom: 0;
 }
 .erxes-message.attachment {
@@ -1995,7 +2007,7 @@ select.form-control:focus,
   margin: 0;
   word-break: break-word;
   color: #000;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
 }
 .erxes-message p:last-child {
   margin-bottom: 0;
@@ -2097,6 +2109,7 @@ select.form-control:focus,
 .erxes-avatar img {
   height: 100%;
   width: 100%;
+  object-fit: cover;
 }
 .erxes-avatar.top {
   top: 0;
@@ -3250,6 +3263,8 @@ select.form-control:focus,
       width: 2.625rem;
       height: 2.625rem;
       flex-shrink: 0;
+      border-radius: 2rem;
+      object-fit: cover;
     }
     .conversation-last-message {
       overflow: hidden;
@@ -3839,21 +3854,29 @@ select.form-control:focus,
 }
 
 .greeting-info {
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
   color: white;
   width: 85%;
+  font-family: 'Neue Haas Grotesk Display Pro', sans-serif;
+  word-spacing: -0.125rem;
   h3 {
     font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 0.045rem;
     margin: 0;
+    margin-right: 1rem;
     text-overflow: ellipsis;
     overflow: hidden;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
   }
   div {
     font-size: 0.875rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
   }
 }
 
@@ -3916,13 +3939,13 @@ select.form-control:focus,
   gap: 1.25rem;
   position: absolute;
   padding: 0 1rem;
-  top: 263px;
   flex-flow: row wrap;
   padding-bottom: 5rem;
 }
 .gradient-bg {
   position: absolute;
   top: 0;
+  z-index: 0;
   height: 400px;
   width: 100%;
   background: linear-gradient(
@@ -3941,13 +3964,10 @@ select.form-control:focus,
 }
 
 .home-header-wrapper {
-  position: absolute;
-  z-index: 2;
-  padding: 2.25rem 2rem 0.5rem;
+  padding: 2.25rem 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 210px;
 }
 
 .header-top {
@@ -3957,7 +3977,7 @@ select.form-control:focus,
     height: 45px;
     width: 90px;
     max-width: 90px;
-    object-fit: cover;
+    object-fit: contain;
   }
 }
 

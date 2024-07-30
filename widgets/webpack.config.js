@@ -1,6 +1,5 @@
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
-const webpack = require('webpack');
 
 module.exports = {
   entry: {
@@ -23,12 +22,7 @@ module.exports = {
     chunkFilename: '[name].[contenthash].js',
   },
 
-  plugins: [
-    new Dotenv(),
-    new webpack.DefinePlugin({
-      'process.env.API_URL': JSON.stringify(process.env.API_URL),
-    }),
-  ],
+  plugins: [new Dotenv()],
 
   module: {
     rules: [
@@ -82,6 +76,8 @@ module.exports = {
             options: {
               limit: 30000,
               name: '[name]-[hash].[ext]',
+              outputPath: 'fonts/',
+              publicPath: '/fonts/',
             },
           },
         ],

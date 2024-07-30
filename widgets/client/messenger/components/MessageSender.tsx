@@ -37,7 +37,6 @@ const MessageSender: React.FC<Props> = (props) => {
     readMessages,
     onTextInputBlur,
     collapseHead,
-    showVideoCallRequest,
     isAttachingFile,
     placeholder,
   } = props;
@@ -203,22 +202,6 @@ const MessageSender: React.FC<Props> = (props) => {
     );
   };
 
-  const renderVideoCallRequest = () => {
-    if (!showVideoCallRequest || !connection.enabledServices.dailyco) {
-      return null;
-    }
-
-    return (
-      <label
-        title="Video call request"
-        className="ctrl-item"
-        onClick={sendVideoCallRequest}
-      >
-        {iconVideo()}
-      </label>
-    );
-  };
-
   return (
     <form
       className="erxes-message-sender"
@@ -239,7 +222,6 @@ const MessageSender: React.FC<Props> = (props) => {
         disabled={(conversationId || '').length > 0 ? false : inputDisabled}
       />
       <div className="messenger-action-buttons">
-        {renderVideoCallRequest()}
         <EmojiPicker
           onEmojiSelect={(emoji: any) => {
             setMessage((prevMessage) => prevMessage + emoji.native);
