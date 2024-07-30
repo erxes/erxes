@@ -25,19 +25,4 @@ const App: React.FC<Props> = ({ showLauncher }) => {
   ) : null;
 };
 
-{
-  /* <div className="erxes-widget">
-    <CSSTransition
-      in={isMessengerVisible}
-      timeout={300}
-      classNames="scale-in"
-      unmountOnExit={true}
-    >
-      <div className="erxes-messenger"></div>
-    </CSSTransition>
-
-    {this.renderLauncher()}
-  </div>; */
-}
-
 export default App;

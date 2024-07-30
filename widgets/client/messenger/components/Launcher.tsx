@@ -110,9 +110,7 @@ function Launcher(props: Props) {
         }}
         onMouseEnter={toggleControlList}
       ></a>
-      {/* {renderUnreadCount()} */}
       {renderNotifier()}
-      {/* {renderHoverControls()} */}
     </div>
   );
 }

@@ -780,16 +780,12 @@ select.form-control:focus,
   width: 100%;
 }
 .erxes-messenger {
-  /* box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.2); */
   border-radius: 1rem;
-  height: 100%;
   height: 100%;
   overflow: visible;
   position: absolute;
   width: 100%;
   z-index: 2147483647;
-  /* bottom: 76px;
-  right: 8px; */
 }
 
 .erxes-messenger div.visible {
@@ -803,18 +799,6 @@ select.form-control:focus,
   display: none;
   visibility: hidden;
 }
-
-/* @media only screen and (max-width: 420px) {
-  .erxes-messenger {
-    border: none !important;
-    border-radius: 0;
-    bottom: 0;
-    height: 100%;
-    max-height: none;
-    right: 0;
-    width: 100%;
-  }
-} */
 
 .erxes-topbar {
   background: #673fbd;

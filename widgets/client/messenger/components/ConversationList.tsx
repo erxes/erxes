@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { iconPlus, iconSearch } from '../../icons/Icons';
 import { __ } from '../../utils';
 import ConversationItem from '../containers/ConversationItem';
 import { IConversation } from '../types';
@@ -61,22 +60,6 @@ function ConversationList(props: Props) {
     loading,
     createConversation,
   } = props;
-
-  const [searchValue, setSearchValue] = React.useState<string>('');
-
-  React.useEffect(() => {
-    // if (searchValue) {
-    //   setConversationList((result) =>
-    //     result.filter(
-    //       (conv) =>
-    //         conv.content
-    //           .toString()
-    //           .toLowerCase()
-    //           .indexOf(searchValue.toLowerCase()) > -1
-    //     )
-    //   );
-    // }
-  }, []);
 
   const renderList = () => {
     if (conversationList.length === 0) {

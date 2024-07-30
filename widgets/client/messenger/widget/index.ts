@@ -76,7 +76,6 @@ const container = 'erxes-messenger-container';
 // container
 const erxesContainer = document.createElement('div');
 erxesContainer.id = container;
-// erxesContainer.className = 'erxes-messenger-hidden';
 
 // add iframe
 const iframeContainer = document.createElement('div');
@@ -217,11 +216,10 @@ launcherIframe.onload = async () => {
     iframeDocument.body.appendChild(div);
     const handleLauncherEvent = (event: Event) => {
       // Check if the event is a KeyboardEvent and the key is 'Enter'
-      if (event.type === 'keyup' && (event as KeyboardEvent).key === 'Enter') {
-        postMessageToContentWindow();
-      }
-      // Handle click event
-      else if (event.type === 'click') {
+      if (
+        (event.type === 'keyup' && (event as KeyboardEvent).key === 'Enter') ||
+        event.type === 'click'
+      ) {
         postMessageToContentWindow();
       }
     };

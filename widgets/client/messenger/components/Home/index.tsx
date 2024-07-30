@@ -99,6 +99,7 @@ const Home: React.FC<Props> = ({
                     <img
                       height={32}
                       width={32}
+                      alt={url}
                       src={`https://s2.googleusercontent.com/s2/favicons?domain=${url}&sz=${32}`}
                     />
                   }
@@ -177,7 +178,11 @@ const Home: React.FC<Props> = ({
         </div>
         <div className="home-header-wrapper">
           <div className="header-top">
-            {logo ? <img src={readFile(logo, 90)} /> : <IconErxes />}
+            {logo ? (
+              <img alt="head-logo" src={readFile(logo, 90)} />
+            ) : (
+              <IconErxes />
+            )}
           </div>
           {renderGreetings()}
         </div>

@@ -3,7 +3,7 @@ import { useEffect, useCallback } from 'react';
 import { useConversation } from '../context/Conversation';
 
 const MessageHandler = ({ children }: { children: React.ReactNode }) => {
-  const { toggle, isMessengerVisible } = useConversation();
+  const { toggle } = useConversation();
 
   const handleMessage = useCallback(
     (event: MessageEvent) => {
