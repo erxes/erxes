@@ -145,9 +145,12 @@ export const getOrCreateCustomer = async (
   kind: string,
   facebookPageTokensMap?: { [key: string]: string }
 ) => {
-  const integration = await models.Integrations.getIntegration({
+  const integration = await models.Integrations.findOne({
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
+  if (!integration) {
+    throw new Error('Instagram Integration not found ');
+  }
   let customer = await models.Customers.findOne({ userId });
   if (customer) {
     return customer;

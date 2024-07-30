@@ -192,6 +192,10 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
         matchStage['inboxIntegrationId'] = { $ne: null }
     }
 
+    if ((dimensions || []).includes('createdAt')) {
+        matchStage['createdAt'] = { $ne: null }
+    }
+
     if ((dimensions || []).includes('type')) {
         matchStage['callType'] = { $ne: null }
     }
@@ -247,6 +251,10 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
 
     if ((dimensions || []).includes('teamMember')) {
         groupStage.$group._id['teamMember'] = "$createdBy"
+    }
+
+    if ((dimensions || []).includes('createdAt')) {
+        groupStage.$group._id['createdAt'] = "$createdAt"
     }
 
     if ((dimensions || []).includes('type')) {
@@ -377,12 +385,16 @@ export const buildPipeline = (filter: any, matchFilter: any) => {
         }
     }
 
-    measures.forEach((measure) => {
+    measures?.forEach((measure) => {
         projectStage.$project[measure] = 1;
     });
 
     if ((dimensions || []).includes('teamMember')) {
         projectStage.$project['teamMember'] = "$user"
+    }
+
+    if ((dimensions || []).includes('createdAt')) {
+        projectStage.$project['createdAt'] = "$_id.createdAt"
     }
 
     if ((dimensions || []).includes('type')) {
@@ -446,6 +458,12 @@ export const formatData = (data, frequencyType) => {
             const frequency = item['frequency']
 
             item['frequency'] = formatFrequency(frequencyType, frequency)
+        }
+
+        if (item.hasOwnProperty('createdAt')) {
+            const createdAt = item['createdAt']
+
+            item['createdAt'] = dayjs(createdAt).format('YYYY/MM/DD h:mm A')
         }
 
         ['type', 'status', 'endedBy'].map(key => {

@@ -13,7 +13,7 @@ import {
   AuthorName,
   ReactionCount,
   ReactionCounts,
-  RowArticle,
+  RowArticle
 } from "./styles";
 import { ActionButtons } from "@erxes/ui-settings/src/styles";
 import { Column } from "@erxes/ui/src/styles/main";
@@ -30,6 +30,7 @@ type Props = {
 const ArticleRow = (props: Props) => {
   const { article, queryParams, currentCategoryId, topicId, remove } = props;
   const user = article.createdUser;
+  const publishedUser = article?.publishedUser;
 
   const handleRemove = () => {
     remove(article._id);
@@ -42,14 +43,14 @@ const ArticleRow = (props: Props) => {
       <ReactionCounts>
         {reactions.map(([key, value]) => (
           <ReactionCount key={key}>
-            <img src={key} alt="reaction" /> {value}
+            <img src={key} alt="reaction" /> {`${value}`}
           </ReactionCount>
         ))}
       </ReactionCounts>
     );
   };
 
-  const renderForm = (formProps) => (
+  const renderForm = formProps => (
     <ArticleForm
       {...formProps}
       article={article}
@@ -104,6 +105,26 @@ const ArticleRow = (props: Props) => {
                 user.username ||
                 user.email)}
           </AuthorName>
+          {publishedUser && (
+            <>
+              <img
+                alt={
+                  (publishedUser &&
+                    publishedUser.details &&
+                    publishedUser.details.fullName) ||
+                  "author"
+                }
+                src={getUserAvatar(publishedUser)}
+              />
+              {__("Published By")}
+              <AuthorName>
+                {publishedUser &&
+                  ((publishedUser.details && publishedUser.details.fullName) ||
+                    publishedUser.username ||
+                    publishedUser.email)}
+              </AuthorName>
+            </>
+          )}
           <Icon icon="clock-eight" /> {__("Created")}{" "}
           {dayjs(article.createdDate).format("ll")}
           {renderReactions()}

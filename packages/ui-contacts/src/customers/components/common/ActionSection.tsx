@@ -19,6 +19,8 @@ import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx
 import TargetMerge from "./TargetMerge";
 import Tip from "@erxes/ui/src/components/Tip";
 import { isEnabled } from "@erxes/ui/src/utils/core";
+import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
 
 type Props = {
   coc: ICustomer | ICompany;
@@ -89,29 +91,6 @@ class ActionSection extends React.Component<
           </Button>
         </Tip>
       </>
-    );
-  }
-
-  renderEditButton() {
-    const { cocType, coc } = this.props;
-
-    const customerForm = (props) => {
-      return <CustomerForm {...props} size="lg" customer={coc} />;
-    };
-
-    const companyForm = (props) => {
-      return <CompanyForm {...props} size="lg" company={coc} />;
-    };
-
-    return (
-      <Menu.Item>
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<a>{__("Edit")}</a>}
-          size="lg"
-          content={cocType === "company" ? companyForm : customerForm}
-        />
-      </Menu.Item>
     );
   }
 
@@ -208,44 +187,58 @@ class ActionSection extends React.Component<
       }));
     };
 
-    const MenuButton = React.forwardRef(function (props, ref) {
-      return <Button size="small" btnStyle="default" {...props} />;
-    });
+    const customerForm = (props) => {
+      return <CustomerForm {...props} size="lg" customer={coc} />;
+    };
+
+    const companyForm = (props) => {
+      return <CompanyForm {...props} size="lg" company={coc} />;
+    };
+
+    const menuItems = [
+      {
+        title: "Edit basic info",
+        trigger: <a href="#edit">{__("Edit Profile")}</a>,
+        content: cocType === "company" ? companyForm : customerForm,
+        additionalModalProps: { size: "lg" },
+      },
+    ];
 
     return (
-      <Menu as="div" className="relative">
-        <Menu.Button as={MenuButton}>
-          {this.props.isSmall ? (
-            <Icon icon="ellipsis-h" />
-          ) : (
-            <>
-              {__("Action")} <Icon icon="angle-down" />
-            </>
-          )}
-        </Menu.Button>
-        <Menu.Items className="absolute" unmount={false}>
-          {this.renderEditButton()}
-          <Menu.Item>
-            <TargetMerge
-              onSave={merge}
-              object={coc}
-              searchObject={search}
-              mergeForm={
-                cocType === "customer" ? CustomersMerge : CompaniesMerge
-              }
-              generateOptions={
-                cocType === "customer" ? generateOptions : targetMergeOptions
-              }
-            />
-          </Menu.Item>
-          <Menu.Item>
-            <a href="#delete" onClick={onClick}>
-              {__("Delete")}
-            </a>
-          </Menu.Item>
-          <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
-        </Menu.Items>
-      </Menu>
+      <Dropdown
+        as={DropdownToggle}
+        toggleComponent={
+          <Button size="small" btnStyle="default">
+            {this.props.isSmall ? (
+              <Icon icon="ellipsis-h" />
+            ) : (
+              <>
+                {__("Action")} <Icon icon="angle-down" />
+              </>
+            )}
+          </Button>
+        }
+        modalMenuItems={menuItems}
+        unmount={false}
+      >
+        <Menu.Item>
+          <TargetMerge
+            onSave={merge}
+            object={coc}
+            searchObject={search}
+            mergeForm={cocType === "customer" ? CustomersMerge : CompaniesMerge}
+            generateOptions={
+              cocType === "customer" ? generateOptions : targetMergeOptions
+            }
+          />
+        </Menu.Item>
+        <Menu.Item>
+          <a href="#delete" onClick={onClick}>
+            {__("Delete")}
+          </a>
+        </Menu.Item>
+        <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
+      </Dropdown>
     );
   }
 

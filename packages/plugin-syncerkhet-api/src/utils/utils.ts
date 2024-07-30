@@ -17,6 +17,12 @@ export const toErkhet = (models, syncLog, config, sendData, action) => {
   });
 };
 
+export const getPureDate = (date: Date) => {
+  const ndate = new Date(date);
+  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,

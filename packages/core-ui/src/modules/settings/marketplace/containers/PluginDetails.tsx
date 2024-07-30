@@ -36,8 +36,8 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
   async componentDidMount() {
     const url =
       process.env.NODE_ENV === 'production'
-        ? `https://erxes.io/pluginDetail/${this.props.id}`
-        : `http://127.0.0.1:3500/pluginDetail/${this.props.id}`;
+        ? `https://erxes.io/api/pluginDetail?id=${this.props.id}`
+        : `http://127.0.0.1:3500/api/pluginDetail?id=${this.props.id}`;
 
     fetch(url)
       .then(async response => {
@@ -51,8 +51,8 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
 
     const pluginsUrl =
       process.env.NODE_ENV === 'production'
-        ? 'https://erxes.io/plugins'
-        : 'http://127.0.0.1:3500/plugins';
+        ? 'https://erxes.io/api/plugins'
+        : 'http://127.0.0.1:3500/api/plugins';
 
     fetch(pluginsUrl)
       .then(async response => {

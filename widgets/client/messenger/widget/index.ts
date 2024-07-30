@@ -76,7 +76,7 @@ const container = "erxes-messenger-container";
 // container
 const erxesContainer = document.createElement("div");
 erxesContainer.id = container;
-erxesContainer.className = "erxes-messenger-hidden";
+// erxesContainer.className = "erxes-messenger-hidden";
 
 // add iframe
 const iframe: any = document.createElement("iframe");
@@ -92,6 +92,8 @@ document.body.appendChild(erxesContainer);
 // after iframe load send connection info
 iframe.onload = async () => {
   iframe.style.display = "block";
+  iframe.style.height = "691px";
+  iframe.style.width = "400px";
 
   const contentWindow = iframe.contentWindow;
 
@@ -142,11 +144,12 @@ window.addEventListener("message", async (event: MessageEvent) => {
 
       clearTimer();
 
-      if (isVisible) {
-        erxesContainer.className = "erxes-messenger-shown";
-      } else {
-        delaydSetClass("erxes-messenger-hidden");
-      }
+      // if (isVisible) {
+      //   erxesContainer.className = "erxes-messenger-shown";
+      // } else {
+      //   erxesContainer.className = "erxes-messenger-shown";
+      //   // delaydSetClass("erxes-messenger-hidden");
+      // }
 
       erxesContainer.classList.toggle("small", isSmallContainer);
       document.body.classList.toggle("messenger-widget-shown", isVisible);
@@ -158,7 +161,8 @@ window.addEventListener("message", async (event: MessageEvent) => {
 
       // change container div dimension
       if (!isVisible) {
-        delaydSetClass("erxes-messenger-hidden");
+        delaydToggleClass("erxes-notifier-shown", isVisible);
+        // delaydSetClass("erxes-messenger-hidden");
       }
     }
 
@@ -166,11 +170,12 @@ window.addEventListener("message", async (event: MessageEvent) => {
       clearTimer();
 
       // add class and hide notifier
-      if (isVisible) {
-        erxesContainer.className += " erxes-notifier-shown fullMessage";
-      } else {
-        delaydSetClass("erxes-messenger-hidden");
-      }
+      // if (isVisible) {
+      //   erxesContainer.className += " erxes-notifier-shown fullMessage";
+      // } else {
+      //   erxesContainer.className += " erxes-notifier-shown fullMessage";
+      //   // delaydSetClass("erxes-messenger-hidden");
+      // }
     }
   }
 });
