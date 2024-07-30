@@ -213,3 +213,77 @@ export const VIDEO = [
     url: 'https://www.youtube.com/embed/olfky0vuHmU?si=2BYdB2JT9_f681nd'
   }
 ];
+
+export const Setups = [
+  {
+    id: 1,
+    image: '/images/welcome/item-4.png',
+    title: 'General configurations',
+    desc: 'Adjust and fine-tune your settings and preferences for a customized experience.',
+    totalStep: 8
+  },
+  {
+    id: 2,
+    image: '/images/welcome/item-2.png',
+    title: 'Operational Setup',
+    desc: 'Establish your digital workplace for efficient and streamlined operations.',
+    totalStep: 4
+  },
+  {
+    id: 3,
+    image: '/images/welcome/item-3.png',
+    title: 'Set up permissions',
+    desc: 'Set up Insight to gain valuable data and analytics for informed decisions.',
+    totalStep: 2,
+    comingSoon: true
+  }
+];
+
+export const Learn = [
+  {
+    id: 1,
+    image: '/images/welcome/icons/1.png',
+    title: 'User Documentation',
+    desc: 'Get started in no time',
+    url: 'https://docs.erxes.io'
+  },
+  {
+    id: 2,
+    image: '/images/welcome/icons/2.png',
+    title: 'Plugin',
+    desc: 'Find complete information about plugins',
+    url: 'https://erxes.io/marketplace'
+  },
+  {
+    id: 3,
+    image: '/images/welcome/icons/3.png',
+    title: 'Blog',
+    desc: 'Stay up-to-do-date on all the latest devlopments',
+    url: 'https://erxes.io/resources/blog',
+  }
+];
+
+export const Community = [
+  {
+    id: 1,
+    image: '/images/welcome/icons/discord.png',
+    title: 'Discord',
+    desc: 'Connect with erxes Community',
+    url: 'https://discord.com/invite/aaGzy3gQK5'
+  },
+  {
+    id: 2,
+    image: '/images/welcome/icons/github.png',
+    title: 'Github',
+    desc: 'Where everything happens',
+    url: 'https://github.com/erxes/erxes'
+  },
+  {
+    id: 3,
+    image: '/images/welcome/icons/twitter.png',
+    title: 'Twitter',
+    desc: 'Get the latest news',
+    url: 'https://x.com/erxeshq'
+  }
+];
+

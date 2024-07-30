@@ -8,17 +8,19 @@ import styledTS from "styled-components-ts";
 
 type Props = {
   children: React.ReactNode;
-  side?: "right" | "left" | "bottom" | "top";
   title: string;
+  side?: "right" | "left" | "bottom" | "top";
   icon?: string;
   width?: number;
   height?: number;
+  btnStyle?: string;
 };
 
 const Drawer: React.FC<Props> = ({
   children,
   title,
   icon,
+  btnStyle,
   side = "right",
   width = 20,
   height = 25,
@@ -29,26 +31,26 @@ const Drawer: React.FC<Props> = ({
   const showDrawer = () => {
     if (visible === "none") {
       setVisible("flex");
-      setShow(true);
+      setShow(!show);
     }
-
+    console.log("sss", show);
     setVisible("none");
-    setShow(false);
+    setShow(!show);
   };
 
-  const DrawerBox = styledTS(styled.div)`
-    display: ${visible};
+  const DrawerOverlay = styledTS(styled.div)`
     position: fixed;
-    z-index: 1;
-    opacity: 0;
+    z-index: 100;
     height: 100vh;
     width: 100vw;
     top: 0;
     right: 0;
+    background: rgba(0,0,0,.4);
+    display: ${show ? "block" : "none"};
+    transition: all ease .3s;
 `;
 
   const DrawerContainer = styledTS(styled.div)`
-    width: 20vw;
     display: flex;
     justify-content: ${side === "right" || side === "left" ? "flex-end" : "flex-start"};
     align-items: ${side === "right" || side === "left" ? "flex-start" : "flex-end"};
@@ -56,18 +58,17 @@ const Drawer: React.FC<Props> = ({
 `;
 
   const DrawerContent = styledTS(styled.div)`
-    display: ${visible};
+    display: block;
     background-color: ${colors.bgLight};
     position: fixed;
-    z-index: 2;
+    z-index: 200;
     padding: 12px 24px;
     white-space: normal;
     overflow: hidden;
-    height: ${side === "right" || side === "left" ? "95vh" : height + "vh"};
+    height: ${side === "right" || side === "left" ? "100vh" : height + "vh"};
     width: ${side === "right" || side === "left" ? width + "vw" : "96vw"};
     flex-direction: ${side === "bottom" || side === "top" ? "column" : "row"}; 
-    margin-top: ${side === "bottom" ? "0" : "50px"}
-    margin-left: ${side === "right" ? "0" : "70px"}
+    margin-left: ${side === "right" ? "0" : "70px"};
     ${side === "right" ? "right: 0;" : "left: 0;"}
     ${side === "bottom" ? "bottom: 0;" : "top: 0;"}
     box-shadow: 4px 0px 15px 0px ${colors.colorCoreGray};
@@ -75,10 +76,14 @@ const Drawer: React.FC<Props> = ({
 
   return (
     <DrawerContainer>
-      <Button icon={icon} onClick={showDrawer}>
+      <Button
+        btnStyle={btnStyle || "simple"}
+        icon={icon}
+        onClick={() => showDrawer()}
+      >
         {title}
       </Button>
-      <DrawerBox onClick={showDrawer}></DrawerBox>
+      <DrawerOverlay onClick={() => showDrawer()} />
       <CSSTransition
         appear={true}
         in={show}
