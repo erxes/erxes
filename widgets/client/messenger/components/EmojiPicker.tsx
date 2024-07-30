@@ -10,9 +10,9 @@ type Props = {
 
 const EmojiPicker: React.FC<Props> = ({ onEmojiSelect }) => {
   const [isVisible, setIsVisible] = React.useState(false);
-  const showPicker = (e: React.MouseEvent) => {
+  const togglePicker = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsVisible(true);
+    setIsVisible(!isVisible);
   };
   const hidePicker = () => {
     setIsVisible(false);
@@ -20,7 +20,7 @@ const EmojiPicker: React.FC<Props> = ({ onEmojiSelect }) => {
 
   return (
     <div className="emoji-picker-wrapper">
-      <button title="Choose an emoji" onClick={showPicker} type="button">
+      <button title="Choose an emoji" onClick={togglePicker} type="button">
         {iconEmoji}
       </button>
       {isVisible ? (

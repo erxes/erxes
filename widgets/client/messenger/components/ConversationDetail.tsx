@@ -14,6 +14,7 @@ import { IconCamera, IconMore, IconPhone, iconClose } from '../../icons/Icons';
 import Dropdown from './common/Dropdown';
 import Button from './common/Button';
 import { useMessage } from '../context/Message';
+import { MESSAGE_TYPES } from '../constants';
 
 type Props = {
   messages: IMessage[];
@@ -62,12 +63,7 @@ const ConversationDetail: React.FC<Props> = ({
   const [isVisibleDropdown, setIsVisibleDropdown] = React.useState(true);
   const [isFocused, setIsFocused] = React.useState(true);
   const [isExpanded, setIsExpanded] = React.useState(true);
-  const [isFullHead, setIsFullHead] = React.useState(true);
   const [isMinimizeVideoCall, setIsMinimizeVideoCall] = React.useState(true);
-
-  const toggleHead = () => {
-    setIsFullHead(!isFullHead);
-  };
 
   const toggleVideoCall = () => {
     setIsMinimizeVideoCall(!isMinimizeVideoCall);
@@ -79,7 +75,6 @@ const ConversationDetail: React.FC<Props> = ({
 
   const inputFocus = () => {
     setIsFocused(true);
-    setIsFullHead(false);
   };
 
   const onTextInputBlur = () => {
@@ -103,21 +98,18 @@ const ConversationDetail: React.FC<Props> = ({
       );
     }
 
-    //   VIDEO_CALL: 'videoCall',
-    // VIDEO_CALL_REQUEST: 'videoCallRequest',
-    // TEXT: 'text',
-    // ALL: ['videoCall', 'videoCallRequest', 'text'],
-
     return (
       <div className="conversation-btn-list">
         <Button
           icon={<IconPhone size="1.4375rem" />}
-          onClick={() => sendMessage('videoCall', 'videoCall')}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          className="bg-none"
         />
 
         <Button
           icon={<IconCamera size="1.6875rem" />}
-          onClick={() => sendMessage('videoCallRequest', 'bonjour')}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          className="bg-none"
         />
         <Dropdown
           trigger={<IconMore size="1.5rem" />}

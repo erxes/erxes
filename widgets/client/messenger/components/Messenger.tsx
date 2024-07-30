@@ -3,8 +3,6 @@ import { IUser } from '../../types';
 import asyncComponent from '../../AsyncComponent';
 import FaqCategories from './faq/FaqCategories';
 import { getMessengerData } from '../utils/util';
-import ContainerWithTopBar from './common/Container';
-import Container from './common/Container';
 import TicketContainer from '../containers/TicketContainer';
 import CallContainer from '../containers/CallContainer';
 import AccquireInformationContainer from '../containers/AccquireInformation';

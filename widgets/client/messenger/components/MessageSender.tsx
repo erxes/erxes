@@ -48,6 +48,22 @@ const MessageSender: React.FC<Props> = (props) => {
     }
   };
 
+  useEffect(() => {
+    if (textareaRef.current && window.innerWidth > 415) {
+      textareaRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isParentFocused && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isParentFocused]);
+
+  useEffect(() => {
+    return () => clearTimeoutInstance();
+  }, []);
+
   const setHeight = (height?: number | 'auto') => {
     const textarea = textareaRef.current;
     const form = formRef.current;
@@ -162,10 +178,6 @@ const MessageSender: React.FC<Props> = (props) => {
   }, [sendMessage]);
 
   const renderFileUploader = () => {
-    if (isAttachingFile) {
-      return <div className="loader" />;
-    }
-
     return (
       <label title="File upload" htmlFor="file-upload">
         {iconAttach}
@@ -206,22 +218,6 @@ const MessageSender: React.FC<Props> = (props) => {
       </label>
     );
   };
-
-  useEffect(() => {
-    if (textareaRef.current && window.innerWidth > 415) {
-      textareaRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isParentFocused && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [isParentFocused]);
-
-  useEffect(() => {
-    return () => clearTimeoutInstance();
-  }, []);
 
   return (
     <form

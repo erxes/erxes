@@ -21,6 +21,11 @@ const Featured: React.FC = () => {
     skip: !topicId,
   });
 
+  const handleFeaturedCategoryClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveRoute('faqCategories');
+  };
+
   const handleArticleClick = (article: IFaqCategory) => {
     goToFaqCategory(article);
   };
@@ -84,7 +89,7 @@ const Featured: React.FC = () => {
       <div className="featured-container">
         <button
           className="featured-search"
-          onClick={() => setActiveRoute('faqCategories')}
+          onClick={handleFeaturedCategoryClick}
         >
           <span>{__('Search for help')}</span>
           <IconFeaturedSearch />

@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { iconLeft } from '../../../icons/Icons';
 import { __ } from '../../../utils';
-import TopBar from '../../containers/TopBar';
 import { IWebsiteApp } from '../../types';
+import Container from '../common/Container';
 
 type Props = {
   websiteApp: IWebsiteApp;
@@ -12,17 +11,13 @@ type Props = {
 
 export default class WebsiteAppDetail extends React.PureComponent<Props> {
   render() {
-    const { changeRoute, websiteApp, loading } = this.props;
-
-    const onClick = () => changeRoute('home');
+    const { websiteApp, loading } = this.props;
 
     return (
-      <>
-        <TopBar
-          middle={loading ? '' : websiteApp.credentials.description}
-          buttonIcon={iconLeft()}
-          onLeftButtonClick={onClick}
-        />
+      <Container
+        title={websiteApp.credentials.description}
+        withBottomNavBar={false}
+      >
         <div className="erxes-content">
           {loading ? (
             <div className="loader" />
@@ -30,7 +25,7 @@ export default class WebsiteAppDetail extends React.PureComponent<Props> {
             <iframe src={websiteApp.credentials.url} className="websiteApp" />
           )}
         </div>
-      </>
+      </Container>
     );
   }
 }

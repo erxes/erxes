@@ -55,64 +55,29 @@ type Props = {
 };
 
 function ConversationList(props: Props) {
-  const { conversations, goToConversation, loading, createConversation } =
-    props;
+  const {
+    conversations: conversationList,
+    goToConversation,
+    loading,
+    createConversation,
+  } = props;
 
   const [searchValue, setSearchValue] = React.useState<string>('');
-  const [conversationList, setConversationList] = React.useState<
-    IConversation[]
-  >([]);
 
   React.useEffect(() => {
-    if (!loading) {
-      setConversationList(conversations);
-    }
+    // if (searchValue) {
+    //   setConversationList((result) =>
+    //     result.filter(
+    //       (conv) =>
+    //         conv.content
+    //           .toString()
+    //           .toLowerCase()
+    //           .indexOf(searchValue.toLowerCase()) > -1
+    //     )
+    //   );
+    // }
+  }, []);
 
-    if (searchValue) {
-      setConversationList((result) =>
-        result.filter(
-          (conv) =>
-            conv.content
-              .toString()
-              .toLowerCase()
-              .indexOf(searchValue.toLowerCase()) > -1
-        )
-      );
-    }
-  }, [searchValue, loading, conversations]);
-
-  const createButton = () => {
-    return (
-      <ul className="erxes-last-section">
-        <li onClick={createConversation} className="erxes-create-btn">
-          <span>{iconPlus}</span>
-          <span className="erxes-start-text">
-            {__('Start new conversation')}
-          </span>
-        </li>
-      </ul>
-    );
-  };
-
-  const searchButton = () => {
-    return (
-      <li className="erxes-list-item">
-        <div className="erxes-left-side">
-          <span>{iconSearch}</span>
-        </div>
-        <div className="erxes-right-side">
-          <div className="erxes-name">
-            <input
-              type="text"
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search for a conversation..."
-              value={searchValue}
-            />
-          </div>
-        </div>
-      </li>
-    );
-  };
   const renderList = () => {
     if (conversationList.length === 0) {
       return (
@@ -135,6 +100,7 @@ function ConversationList(props: Props) {
       </ul>
     );
   };
+
   return (
     <Container
       withBottomNavBar={false}

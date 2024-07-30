@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { CSSTransition } from 'react-transition-group';
-import asyncComponent from '../../AsyncComponent';
 import { useConversation } from '../context/Conversation';
 import Launcher from '../containers/Launcher';
 import MessengerContainer from '../containers/Messenger';
@@ -20,31 +18,26 @@ const App: React.FC<Props> = ({ showLauncher }) => {
     return <Launcher />;
   };
 
-  if (isMessengerVisible) return <MessengerContainer />;
-  return renderLauncher();
+  return isMessengerVisible ? (
+    <div className="erxes-messenger">
+      <MessengerContainer />
+    </div>
+  ) : null;
 };
 
 {
-  /* // <div className="erxes-widget">
-         <CSSTransition
-          in={isMessengerVisible}
-          timeout={300}
-          classNames="scale-in"
-          unmountOnExit={true}
-        > */
-}
-{
-  /* <div className="erxes-messenger"> */
+  /* <div className="erxes-widget">
+    <CSSTransition
+      in={isMessengerVisible}
+      timeout={300}
+      classNames="scale-in"
+      unmountOnExit={true}
+    >
+      <div className="erxes-messenger"></div>
+    </CSSTransition>
+
+    {this.renderLauncher()}
+  </div>; */
 }
 
-{
-  /* </div> */
-}
-{
-  /* </CSSTransition> */
-}
-{
-  /* {this.renderLauncher()} 
-      // </div>*/
-}
 export default App;
