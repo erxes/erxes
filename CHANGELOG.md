@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.15.0-rc.6](https://github.com/erxes/erxes/compare/1.15.0-rc.5...1.15.0-rc.6) (2024-07-30)
+
+
+### Features
+
+* **messenger:** enable dynamic configuration for external links ([4bce69a](https://github.com/erxes/erxes/commit/4bce69a88618a9578a80c770999ec8d4f35e7b1b))
+
+
+### Bug Fixes
+
+* **messenger:** differentiate parent & child category count labels ([fa9d632](https://github.com/erxes/erxes/commit/fa9d632dd6c4a9347ecba6ab93368c069328a2bd))
+* **messenger:** ui ([d91a26d](https://github.com/erxes/erxes/commit/d91a26d5ba1830281d0c26eb1647af82b2d154c4))
+* **widgets:** separate messenger launcher iframe from content iframe & apply ui color's settings ([251da0a](https://github.com/erxes/erxes/commit/251da0a4b0aac6b81a7c028fdb8abecfc4ef632c))
+
 ## [1.15.0-rc.5](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-30)
 
 
