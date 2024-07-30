@@ -287,3 +287,84 @@ export const Community = [
   }
 ];
 
+export const MarketingTasks = [
+  {
+    id: 1,
+    icon: 'envelope-shield',
+    title: 'Verify your email',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 2,
+    icon: 'file-info-alt',
+    title: 'Create Email template',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 3,
+    icon: 'megaphone',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 4,
+    icon: 'layer-group',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 5,
+    icon: 'monitor-1',
+    title: 'Set up Client Portal',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 6,
+    icon: 'arrow-growth',
+    title: 'Create Segments',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 7,
+    icon: 'list-ul',
+    title: 'Configure Task Management',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 8,
+    icon: 'comments',
+    title: 'Integrate Facebook Messenger',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 9,
+    icon: 'comment-alt-heart',
+    title: 'Integrate Facebook Post',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 10,
+    icon: 'instagram',
+    title: 'Integrate Instagram',
+    desc: 'Connect with erxes Community'
+  },
+  {
+    id: 11,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'Where everything happens'
+  },
+  {
+    id: 12,
+    icon: 'chat',
+    title: 'Use Team Inbox',
+    desc: 'Get the latest news'
+  },
+  {
+    id: 13,
+    icon: 'files-landscapes',
+    title: 'Create Team Inbox Responses',
+    desc: 'Get the latest news'
+  }
+];
+

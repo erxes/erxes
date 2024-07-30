@@ -185,6 +185,112 @@ const SmallBox = styled.a`
   }
 `;
 
+const DrawerContainer = styled.div`
+  position: relative;
+`;
+
+const DrawerHeader = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+
+  > i {
+    width: 32px;
+    height: 32px;
+    background: #F2F4F7;
+    color: #5D75C5;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+
+    &:before {
+      font-weight: 700;
+    }
+  }
+`;
+
+const DrawerBody = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  overflow: auto;
+  height: calc(100vh - 60px);
+  
+  .drawer-img {
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(119.44deg, #8D94FF 2.96%, #6335FF 51.52%, #8B73BD 100.08%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: ${dimensions.unitSpacing}px;
+
+    > img {
+      max-width: 250px;
+      max-height: 130px;
+    }
+  }
+
+  > h4 {
+    font-size: 16px;
+    padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px;
+  }
+
+  > p {
+    padding: 0 !important;
+  }
+`;
+
+const Tasks = styled.div`
+  border-radius: 12px;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const TaskItem = styled.div`
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.unitSpacing}px;
+  cursor: pointer;
+  transition: all ease .3s;
+
+  > div {
+    h4 {
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      color: #101828;
+    }
+
+    span {
+      color: #667085;
+    }
+  }
+
+  &:hover {
+    background: ${colors.bgActive};
+  }
+`;
+
+const TaskItemIcon = styled.div`
+  background: #F2F4F7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  margin-right: ${dimensions.unitSpacing}px;
+
+  > i {
+    color: #5D75C5;
+    font-size: 20px;
+  }
+`;
+
 export {
   WelcomeWrapper,
   LeftSideContent,
@@ -194,5 +300,11 @@ export {
   SetupBox,
   SetupSteps,
   SetupBoxes,
-  SmallBox
+  SmallBox,
+  DrawerContainer,
+  DrawerHeader,
+  DrawerBody,
+  Tasks,
+  TaskItem,
+  TaskItemIcon
 };

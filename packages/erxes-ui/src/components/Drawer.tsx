@@ -7,7 +7,7 @@ import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
 type Props = {
-  children: React.ReactNode;
+  children: any;
   title: string;
   side?: "right" | "left" | "bottom" | "top";
   icon?: string;
@@ -62,7 +62,6 @@ const Drawer: React.FC<Props> = ({
     background-color: ${colors.bgLight};
     position: fixed;
     z-index: 200;
-    padding: 12px 24px;
     white-space: normal;
     overflow: hidden;
     height: ${side === "right" || side === "left" ? "100vh" : height + "vh"};
@@ -91,7 +90,7 @@ const Drawer: React.FC<Props> = ({
         classNames={`slide-in-${side}`}
         unmountOnExit={true}
       >
-        <DrawerContent>{children}</DrawerContent>
+        <DrawerContent>{children(setShow)}</DrawerContent>
       </CSSTransition>
     </DrawerContainer>
   );

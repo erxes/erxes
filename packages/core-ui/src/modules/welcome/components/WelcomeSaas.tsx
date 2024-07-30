@@ -12,6 +12,7 @@ import {
 import { Community, Learn, Setups } from "../constants";
 
 import Drawer from "@erxes/ui/src/components/Drawer";
+import DrawerContent from "../container/DrawerContent";
 import { IUser } from "modules/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
@@ -22,11 +23,11 @@ import dayjs from "dayjs";
 
 type Props = {
   currentUser: IUser;
-  branchesLength: number;
-  departmentLength: number;
+  // branchesLength: number;
+  // departmentLength: number;
 };
 
-function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
+function Welcome({ currentUser }: Props) {
   const renderLeftContent = () => {
     const currentDate = dayjs().format("MMM D, YYYY");
 
@@ -67,7 +68,7 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
 
   const renderSetupItem = (item) => {
     const { id, title, image, desc, totalStep, comingSoon } = item;
-    console.log("ccc", comingSoon);
+
     return (
       <SetupBox key={id} comingSoon={comingSoon}>
         <div>
@@ -79,10 +80,10 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
           <Drawer
             title={comingSoon ? "Coming soon" : "Get Started"}
             side="right"
-            width={40}
+            width={35}
             btnStyle="link"
           >
-            <div>hi</div>
+            {(setShow) => <DrawerContent content={item} setShow={setShow} />}
           </Drawer>
           {!comingSoon && <span>0/{totalStep} steps</span>}
         </SetupSteps>
