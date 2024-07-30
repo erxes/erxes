@@ -2,7 +2,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { INTEGRATION_KINDS } from '../../constants';
 import { sendInboxMessage } from '../../messageBroker';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
-import { getPageList } from '../../utils';
+import { getPageList, getPostLink } from '../../utils';
 
 interface IKind {
   kind: string;
@@ -296,6 +296,11 @@ const instagramQueries = {
     { erxesApiId }: IDetailParams,
     { models }: IContext
   ) {
+    const getPostDetail = await getPostLink(
+      'EAAJY9ZCKNG8IBO595Lac6AKBS9m34CfBvybOedpLYaafJIaelJstwrf0ZCsrJtmZC0ZAQARbSYHzZAU5CEdukQgv72tUDDMRqMdFQpvi53Ms6ZCiPGM0uwEAl3QSEdCCKtTMsFHoDS0MpqZBgG1ZBIfh2z5mbp53MCVCaSxPHxd2Bu6poevzSZAY70COnhQ1IohXUpRxcKNcK1pRi6pZCLyMMrzQ6b2wVWPJ9TppOgW32kVy0TKWXTprRA',
+      '18038249149965077'
+    );
+
     const comment = await models.CommentConversation.findOne({
       erxesApiId: erxesApiId
     });

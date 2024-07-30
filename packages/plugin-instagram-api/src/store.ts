@@ -141,27 +141,27 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   pageId: string,
   userId: string,
-  facebookPageId: string | undefined,
   kind: string,
-  facebookPageTokensMap?: { [key: string]: string }
+  params: any
 ) => {
+  // Find the integration
   const integration = await models.Integrations.findOne({
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
+
   if (!integration) {
-    throw new Error('Instagram Integration not found');
+    throw new Error('Integration not found');
   }
 
+  // Check if the customer already exists
   let customer = await models.Customers.findOne({ userId });
   if (customer) {
     return customer;
   }
-  // create customer
-  let instagramUser = {} as {
-    name: string;
-    profile_pic: string;
-    id: string;
-  };
+
+  // Fetch Instagram user details
+  let instagramUser;
+  const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
   try {
     instagramUser = await getInstagramUser(
@@ -172,7 +172,7 @@ export const getOrCreateCustomer = async (
   } catch (e) {
     if (
       e.message.includes(
-        '(#200) The account owner has disabled access to instagram direct messages'
+        '(200) The account owner has disabled access to instagram direct messages'
       )
     ) {
       throw new Error(
@@ -183,23 +183,58 @@ export const getOrCreateCustomer = async (
     }
   }
 
-  // save on integrations db
-  try {
-    customer = await models.Customers.create({
-      userId,
-      firstName: instagramUser.name,
-      integrationId: integration.erxesApiId,
-      profilePic: instagramUser.profile_pic
+  // Create a new customer if Instagram user details are unavailable
+  if (!instagramUser) {
+    const account = await models.Accounts.findOne({
+      _id: integration.accountId
     });
-  } catch (e) {
-    throw new Error(
-      e.message.includes('duplicate')
-        ? 'Concurrent request: customer duplication'
-        : e
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
+    const { id } = params;
+    const post_id = params.media.id;
+
+    const getPostDetail = await getPostLink(account.token, post_id);
+
+    const specificComment = getPostDetail.comments.data.find(
+      (comment) => comment.id === id
     );
+
+    const username = specificComment ? specificComment.username : '';
+
+    try {
+      customer = await models.Customers.create({
+        userId,
+        firstName: username,
+        integrationId: integration.erxesApiId
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: customer duplication'
+          : e.message
+      );
+    }
+  } else {
+    // Create or update customer with Instagram details
+    try {
+      customer = await models.Customers.create({
+        userId,
+        firstName: instagramUser.name,
+        integrationId: integration.erxesApiId,
+        profilePic: instagramUser.profile_pic
+      });
+    } catch (e) {
+      throw new Error(
+        e.message.includes('duplicate')
+          ? 'Concurrent request: customer duplication'
+          : e.message
+      );
+    }
   }
 
-  // save on api
+  // Save customer details to the API
   try {
     const apiCustomerResponse = await sendInboxMessage({
       subdomain,
@@ -208,8 +243,8 @@ export const getOrCreateCustomer = async (
         action: 'get-create-update-customer',
         payload: JSON.stringify({
           integrationId: integration.erxesApiId,
-          firstName: instagramUser.name,
-          avatar: instagramUser.profile_pic,
+          firstName: instagramUser ? instagramUser.name : customer.firstName,
+          avatar: instagramUser ? instagramUser.profile_pic : undefined,
           isUser: true
         })
       },
@@ -219,7 +254,8 @@ export const getOrCreateCustomer = async (
     await customer.save();
   } catch (e) {
     await models.Customers.deleteOne({ _id: customer._id });
-    throw new Error(e);
+    throw new Error(e.message);
   }
+
   return customer;
 };

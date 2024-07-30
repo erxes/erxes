@@ -145,11 +145,11 @@ export const handleInstagramMessage = async (
     strippedContent = strippedContent.replace(/&amp;/g, '&');
 
     const { senderId } = conversation;
-
+    let localMessage;
     try {
-      if (content) {
+      if (strippedContent) {
         try {
-          await sendReply(
+          const resp = await sendReply(
             'me/messages',
             {
               recipient: { id: senderId },
@@ -159,9 +159,22 @@ export const handleInstagramMessage = async (
             integrationId,
             models
           );
-
+          if (resp) {
+            localMessage = await models.ConversationMessages.addMessage(
+              {
+                ...doc,
+                // inbox conv id comes, so override
+                conversationId: conversation._id,
+                mid: resp.message_id
+              },
+              doc.userId
+            );
+          }
           return { status: 'success' };
         } catch (e) {
+          await models.ConversationMessages.deleteOne({
+            _id: localMessage && localMessage._id
+          });
           throw new Error(e.message);
         }
       }
@@ -186,101 +199,4 @@ export const handleInstagramMessage = async (
       throw new Error(e.message);
     }
   }
-
-  // if (action === 'reply-messenger') {
-  //   const {
-  //     integrationId,
-  //     conversationId,
-  //     content = '',
-  //     attachments = [],
-  //     extraInfo
-  //   } = doc;
-  //   const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
-
-  //   // Extract image URLs from content
-  //   const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
-  //   const images: string[] = (content.match(regex) || []).map((m) =>
-  //     m.replace(regex, '$1')
-  //   );
-
-  //   images.forEach((img) => {
-  //     attachments.push({ type: 'image', url: img });
-  //   });
-
-  //   // Clean up content
-  //   let strippedContent = strip(content);
-  //   strippedContent = strippedContent.replace(/&amp;/g, '&');
-
-  //   let localMessage;
-  //   try {
-  //     // Get conversation details
-  //     const conversation = await models.Conversations.getConversation({
-  //       erxesApiId: conversationId
-  //     });
-  //     const { recipientId, senderId } = conversation;
-
-  //     // Send text reply if there's content
-  //     if (strippedContent) {
-  //       try {
-  //         const resp = await sendReply(
-  //           models,
-  //           'me/messages',
-  //           {
-  //             recipient: { id: senderId },
-  //             message: { text: strippedContent },
-  //             tag
-  //           },
-  //           recipientId,
-  //           integrationId
-  //         );
-
-  //         if (resp) {
-  //           localMessage = await models.ConversationMessages.addMessage(
-  //             {
-  //               ...doc,
-  //               conversationId: conversation._id,
-  //               mid: resp.message_id
-  //             },
-  //             doc.userId
-  //           );
-  //         }
-  //       } catch (e) {
-  //         // Clean up if text reply fails
-  //         if (localMessage) {
-  //           await models.ConversationMessages.deleteOne({
-  //             _id: localMessage._id
-  //           });
-  //         }
-  //         throw new Error(e.message);
-  //       }
-  //     }
-
-  //     // Send attachment messages
-  //     const generatedAttachments = generateAttachmentMessages(
-  //       subdomain,
-  //       attachments
-  //     );
-  //     for (const message of generatedAttachments) {
-  //       try {
-  //         await sendReply(
-  //           models,
-  //           'me/messages',
-  //           { recipient: { id: senderId }, message, tag },
-  //           recipientId,
-  //           integrationId
-  //         );
-  //       } catch (e) {
-  //         throw new Error(e.message);
-  //       }
-  //     }
-  //   } catch (e) {
-  //     // Catch any other errors
-  //     throw new Error(e.message);
-  //   }
-
-  //   return {
-  //     status: 'success',
-  //     data: { ...localMessage.toObject(), conversationId }
-  //   };
-  // }
 };

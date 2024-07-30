@@ -28,36 +28,42 @@ const receiveComment = async (
     throw new Error('Integration not found');
   }
   const { facebookPageTokensMap, facebookPageId } = integration;
-
-  const customer = await getOrCreateCustomer(
-    models,
-    subdomain,
-    pageId,
-    userId,
-    facebookPageId,
-    INTEGRATION_KINDS.POST,
-    facebookPageTokensMap
-  );
-  if (customer) {
-    const postConversation = await getOrCreatePostConversation(
-      models,
-      pageId,
-      subdomain,
-      postId,
-      integration,
-      customer,
-      params
-    );
-    await getOrCreateComment(
+  if (facebookPageId && facebookPageTokensMap) {
+    const customer = await getOrCreateCustomer(
       models,
       subdomain,
-      postConversation,
-      params,
       pageId,
       userId,
-      integration,
-      customer
+      INTEGRATION_KINDS.POST,
+      params
     );
+    if (customer) {
+      const postConversation = await getOrCreatePostConversation(
+        models,
+        pageId,
+        subdomain,
+        postId,
+        integration,
+        customer,
+        params
+      );
+      await getOrCreateComment(
+        models,
+        subdomain,
+        postConversation,
+        params,
+        pageId,
+        userId,
+        integration,
+        customer
+      );
+    } else {
+      return {
+        message: 'Both facebookPageTokensMap and facebookPageId are required.',
+        facebookPageTokensMap: facebookPageTokensMap,
+        facebookPageId: facebookPageId
+      };
+    }
   }
 };
 

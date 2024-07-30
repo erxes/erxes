@@ -51,7 +51,7 @@ export const getPostDetails = async (
 
   try {
     const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url,message,created_time`,
+      `/${postId}?fields=permalink_url,message,created_time,`,
       pageAccessToken
     );
 
@@ -64,7 +64,7 @@ export const getPostDetails = async (
 export const getPostLink = async (accessToken: string, post_id: string) => {
   try {
     const response = await graphRequest.get(
-      `${post_id}/?fields=permalink,caption,media_url,media_type,comments,username,comments_count,id,ig_id,timestamp`,
+      `${post_id}/?fields=permalink,caption,media_url,media_type,comments{username,text,id},username,ig_id,timestamp`,
       accessToken
     );
     return response;
@@ -174,7 +174,6 @@ export const getPageList = async (
   }
 
   const pages: any[] = [];
-  console.log(response, 'response');
   for (const page of response.data) {
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
@@ -199,13 +198,19 @@ export const getPageList = async (
   return pages;
 };
 
+// export const getPageAccessTokenFromMap = (
+//   pageId: string,
+//   pageTokens: { [key: string]: string }
+// ): string | undefined => {
+//   return pageTokens[pageId];
+// };
+
 export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string }
-): string | undefined => {
-  return pageTokens[pageId];
+): string => {
+  return (pageTokens || {})[pageId];
 };
-
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
@@ -220,7 +225,6 @@ export const getInstagramUser = async (
       `${userId}?fields=name,profile_pic`,
       token
     );
-
     return accounInfo;
   } else {
     throw new Error(
@@ -235,10 +239,13 @@ export const sendReply = async (
   integrationId: string,
   models: IModels
 ) => {
-  const integration = await models.Integrations.getIntegration({
+  const integration = await models.Integrations.findOne({
     erxesApiId: integrationId
   });
 
+  if (!integration) {
+    throw new Error('Integration not found');
+  }
   const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
   let pageAccessToken: string | undefined;
@@ -258,7 +265,6 @@ export const sendReply = async (
     }
 
     // Continue processing with `pageAccessToken`
-    console.log('Access Token:', pageAccessToken);
   } catch (e) {
     debugError(
       `Error occurred while trying to get page access token: ${e.message}`
@@ -284,72 +290,6 @@ export const sendReply = async (
     throw new Error(e.message);
   }
 };
-// export const sendReply = async (
-//   models: IModels,
-//   url: string,
-//   data: any,
-//   recipientId: string,
-//   integrationId: string
-// ) => {
-//   let integration;
-//   try {
-//     integration = await models.Integrations.getIntegration({
-//       erxesApiId: integrationId
-//     });
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-
-//   const { facebookPageTokensMap = {}, facebookPageId } = integration;
-
-//   let pageAccessToken;
-
-//   try {
-//     pageAccessToken = getPageAccessTokenFromMap(
-//       facebookPageId,
-//       facebookPageTokensMap
-//     );
-//   } catch (e) {
-//     debugError(
-//       `Error ocurred while trying to get page access token with ${e.message}`
-//     );
-//     return e;
-//   }
-
-//   try {
-//     const response = await graphRequest.post(`${url}`, pageAccessToken, {
-//       ...data
-//     });
-//     debugInstagram(
-//       `Successfully sent data to Instagram ${JSON.stringify(data)}`
-//     );
-//     return response;
-//   } catch (e) {
-//     debugError(
-//       `Error ocurred while trying to send post request to facebook ${
-//         e.message
-//       } data: ${JSON.stringify(data)}`
-//     );
-
-//     if (e.message.includes('access token')) {
-//       await models.Integrations.updateOne(
-//         { _id: integration._id },
-//         { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-//       );
-//     } else if (e.code !== 10) {
-//       await models.Integrations.updateOne(
-//         { _id: integration._id },
-//         { $set: { healthStatus: 'account-token', error: `${e.message}` } }
-//       );
-//     }
-//     if (e.message.includes('does not exist')) {
-//       throw new Error('Comment has been deleted by the customer');
-//     }
-
-//     throw new Error(e.message);
-//   }
-// };
-
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[]

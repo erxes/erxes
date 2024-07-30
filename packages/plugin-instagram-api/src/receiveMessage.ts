@@ -12,7 +12,6 @@ const receiveMessage = async (
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
-  console.log(messageData, 'messageData');
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: [recipient.id] } },
@@ -34,9 +33,8 @@ const receiveMessage = async (
       subdomain,
       pageId,
       userId,
-      facebookPageId,
       INTEGRATION_KINDS.MESSENGER,
-      facebookPageTokensMap
+      null
     );
 
     // get conversation
