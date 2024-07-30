@@ -365,6 +365,6 @@ export const instagramCreateIntegration = async (
     return { status: 'success' };
   } else {
     // Handle the case where facebookPageId is null
-    throw new Error('facebookPageId is null');
+    throw new Error('Select Instagram Pages');
   }
 };
