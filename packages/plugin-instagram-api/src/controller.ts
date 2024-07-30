@@ -79,12 +79,12 @@ const init = async (app) => {
     if (data.object !== 'instagram') {
       return;
     }
-    console.log(data, 'data');
+    console.log(`instagram message ${JSON.stringify(data)} `);
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
+        const messageData = entry.messaging[0];
         try {
-          const messageData = entry.messaging[0];
           await receiveMessage(models, subdomain, messageData);
           return res.send('success');
         } catch (e) {

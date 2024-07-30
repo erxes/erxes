@@ -238,7 +238,7 @@ export const sendReply = async (
 ) => {
   let integration;
   try {
-    integration = await models.Integrations.findOne({
+    integration = await models.Integrations.getIntegration({
       erxesApiId: integrationId
     });
   } catch (error) {
