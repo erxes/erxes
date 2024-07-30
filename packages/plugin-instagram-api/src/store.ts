@@ -149,8 +149,9 @@ export const getOrCreateCustomer = async (
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
   if (!integration) {
-    throw new Error('Instagram Integration not found ');
+    throw new Error('Instagram Integration not found');
   }
+
   let customer = await models.Customers.findOne({ userId });
   if (customer) {
     return customer;
@@ -169,8 +170,19 @@ export const getOrCreateCustomer = async (
       facebookPageTokensMap
     );
   } catch (e) {
-    debugError(`Error during get customer info: ${e.message}`);
+    if (
+      e.message.includes(
+        '(#200) The account owner has disabled access to instagram direct messages'
+      )
+    ) {
+      throw new Error(
+        'The account owner has disabled access to Instagram direct messages. Please enable access and try again.'
+      );
+    } else {
+      debugError(`Error during get customer info: ${e.message}`);
+    }
   }
+
   // save on integrations db
   try {
     customer = await models.Customers.create({
