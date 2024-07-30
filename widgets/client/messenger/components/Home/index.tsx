@@ -1,19 +1,6 @@
 import * as React from 'react';
 import * as RTG from 'react-transition-group';
-import {
-  IconEnvelope,
-  IconErxes,
-  IconMinus,
-  discord,
-  messenger,
-  skype,
-  telegram,
-  whatsapp,
-  facebook as FacebookIcon,
-  instagram as InstagramIcon,
-  twitter as TwitterIcon,
-  youtube as YoutubeIcon,
-} from '../../../icons/Icons';
+import { IconEnvelope, IconErxes } from '../../../icons/Icons';
 
 import {
   IIntegrationLink,
@@ -21,7 +8,7 @@ import {
   IIntegrationMessengerDataMessagesItem,
   IUser,
 } from '../../../types';
-import { __ } from '../../../utils';
+import { __, readFile } from '../../../utils';
 import SocialLink from './../common/SocialLink';
 import Supporters from './../common/Supporters';
 import Card from './../Card.tsx';
@@ -29,6 +16,8 @@ import Button from './../common/Button';
 import { useConversation } from '../../context/Conversation';
 import Featured from '../faq/Featured';
 import Container from '../common/Container';
+import { getUiOptions } from '../../utils/util';
+import WebsiteApp from '../../containers/websiteApp/WebsiteApp';
 
 type Props = {
   supporters: IUser[];
@@ -50,6 +39,20 @@ const Home: React.FC<Props> = ({
   const headerRef = React.useRef<HTMLDivElement | null>(null);
   const [headHeight, setHeadHeight] = React.useState(120);
   const [activeSupport, setActiveSupport] = React.useState(true);
+
+  const style = color
+    ? {
+        background: `linear-gradient(
+        119deg,
+        ${color} 2.96%,
+        ${color} 51.52%,
+        #fff 100.08%
+      )`,
+      }
+    : {};
+
+  const { logo } = getUiOptions() || {};
+
   const topicId = messengerData.knowledgeBaseTopicId;
   const messages =
     messengerData.messages || ({} as IIntegrationMessengerDataMessagesItem);
@@ -76,36 +79,44 @@ const Home: React.FC<Props> = ({
   );
 
   const renderAssistBar = (messengerData: IIntegrationMessengerData) => {
-    const links = messengerData.links || ({} as IIntegrationLink);
-    const icons = {
-      facebook: FacebookIcon,
-      instagram: InstagramIcon,
-      twitter: TwitterIcon,
-      youtube: YoutubeIcon,
-    };
+    const links = messengerData.externalLinks || [];
+
+    if (links.length === 0) {
+      return null;
+    }
 
     return (
       <Card>
         <div className="contact-channels">
-          <span>Talk us on your favourite channels</span>
+          <span>{__('Talk us on your favourite channels')}</span>
           <div className="channel-list">
-            {Object.entries(links).map(([key, url]) => {
-              if (url && icons[key as keyof IIntegrationLink]) {
-                const Icon = icons[key as keyof IIntegrationLink];
-                return <SocialLink key={key} url={url} icon={Icon} />;
-              }
-              return null;
+            {Object.entries(links).map(([key, { url }]) => {
+              return (
+                <SocialLink
+                  key={key}
+                  url={url}
+                  icon={
+                    <img
+                      height={32}
+                      width={32}
+                      alt={url}
+                      src={`https://s2.googleusercontent.com/s2/favicons?domain=${url}&sz=${32}`}
+                    />
+                  }
+                />
+              );
             })}
           </div>
         </div>
       </Card>
     );
   };
+
   const renderGettingStarted = () => {
     return (
       <Card>
         <div className="getting-started-wrapper">
-          <span>Getting started</span>
+          <span>{__('Getting started')}</span>
           <div className="getting-started-content-wrapper">
             <div className="supporters-info-wrapper">
               <Supporters
@@ -115,7 +126,7 @@ const Home: React.FC<Props> = ({
                 isOnline={isOnline}
               />
               <div className="schedule-info-wrapper">
-                <span>Our usually reply time</span>
+                <span>{__('Our usually reply time')}</span>
                 <span className="response-rate">
                   💬 {messengerData.responseRate}
                 </span>
@@ -123,7 +134,7 @@ const Home: React.FC<Props> = ({
             </div>
             <div>
               <Button icon={<IconEnvelope />} onClick={createConversation}>
-                <span className="font-semibold">Send us a message</span>
+                <span className="font-semibold">{__('Send us a message')}</span>
               </Button>
             </div>
           </div>
@@ -132,12 +143,29 @@ const Home: React.FC<Props> = ({
     );
   };
 
+  const renderWebsiteApps = () => {
+    const { websiteApps } = messengerData;
+
+    if (!websiteApps) {
+      return null;
+    }
+
+    return websiteApps.map((websiteApp) => {
+      return (
+        <Card key={websiteApp._id}>
+          <WebsiteApp websiteApp={websiteApp} />
+        </Card>
+      );
+    });
+  };
+
   const renderHead = () => {
     return (
       <div className="main-contents">
         {renderGettingStarted()}
         {renderAssistBar(messengerData)}
         <Featured />
+        {renderWebsiteApps()}
       </div>
     );
   };
@@ -145,13 +173,16 @@ const Home: React.FC<Props> = ({
   return (
     <Container>
       <div className="home-container">
-        <div className="gradient-bg">
+        <div className="gradient-bg" style={style}>
           <div className="absorbed" />
         </div>
         <div className="home-header-wrapper">
           <div className="header-top">
-            <IconErxes />
-            <Button icon={<IconMinus />} onClick={handleHideWidget} />
+            {logo ? (
+              <img alt="head-logo" src={readFile(logo, 90)} />
+            ) : (
+              <IconErxes />
+            )}
           </div>
           {renderGreetings()}
         </div>

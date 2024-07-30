@@ -10,8 +10,10 @@ import {
 import { __, readFile, striptags } from '../../utils';
 import { IConversation } from '../types';
 import * as updateLocale from 'dayjs/plugin/updateLocale';
+import * as relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(updateLocale);
+dayjs.extend(relativeTime);
 
 dayjs.updateLocale('en', {
   relativeTime: {
