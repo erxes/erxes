@@ -90,6 +90,7 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
       activeFaqCategory || category ? 'faqCategory' : 'conversationList'
     );
   };
+
   const goToHome = () => {
     setActiveRoute('home');
   };

@@ -8,7 +8,7 @@ import { IMessage } from '../types';
 import ConversationHeadContent from './ConversationHeadContent';
 import Container from './common/Container';
 import { useConversation } from '../context/Conversation';
-import { getUiOptions } from '../utils/util';
+import { getMessengerData, getUiOptions } from '../utils/util';
 import { connection } from '../connection';
 import { IconCamera, IconMore, IconPhone, iconClose } from '../../icons/Icons';
 import Dropdown from './common/Dropdown';
@@ -89,28 +89,47 @@ const ConversationDetail: React.FC<Props> = ({
     setIsModalOpen(!isModalOpen);
   };
 
-  const renderRightButton = () => {
-    if (!isChat) {
-      return (
-        <a onClick={toggleLauncher} title="Close">
-          {iconClose(textColor)}
-        </a>
-      );
+  const renderCallButtons = () => {
+    if (
+      !(isOnline && getMessengerData().showVideoCallRequest) ||
+      !connection.enabledServices.dailyco
+    ) {
+      return null;
     }
 
     return (
-      <div className="conversation-btn-list">
+      <>
         <Button
+          title="Audio call"
           icon={<IconPhone size="1.4375rem" />}
           onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
           className="bg-none"
         />
 
         <Button
+          title="Video call"
           icon={<IconCamera size="1.6875rem" />}
           onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
           className="bg-none"
         />
+      </>
+    );
+  };
+
+  const renderRightButton = () => {
+    if (!isChat) {
+      return (
+        <Button
+          icon={iconClose(textColor)}
+          onClick={toggleLauncher}
+          title="Close"
+        />
+      );
+    }
+
+    return (
+      <div className="conversation-btn-list">
+        {renderCallButtons()}
         <Dropdown
           trigger={<IconMore size="1.5rem" />}
           menu={[

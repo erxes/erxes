@@ -17,7 +17,7 @@ const items = [
     route: 'home',
   },
   { icon: IconChat, route: 'allConversations' },
-  { icon: IconPhone, route: 'call' },
+  // { icon: IconPhone, route: 'call' },
   // { icon: IconTicket, route: 'ticket' },
   {
     label: 'Help',
