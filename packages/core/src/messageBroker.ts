@@ -502,7 +502,16 @@ export const setupMessageConsumers = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue("core:branches.aggregate", async ({ subdomain, data }) => {
+  consumeRPCQueue("core:brands.create", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Brands.createBrand(data)
+    };
+  });
+
+  consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { pipeline } = data;
