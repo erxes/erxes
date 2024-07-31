@@ -63,6 +63,7 @@ export const types = `
     onboardingDone: Boolean
     contactRemaining: Boolean
     experienceName: String
+    experience: JSON
     bundleNames: [String]
   
     charge: JSON

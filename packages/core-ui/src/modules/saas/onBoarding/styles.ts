@@ -1,7 +1,8 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from 'modules/common/styles/color';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -10,19 +11,21 @@ const MainContent = styledTS<{ flexStart?: boolean; full?: boolean }>(
   styled.div,
 )`
   display: flex;
-  width: 60%;
   flex-direction: column;
   align-items: center;
+  border-radius: 24px;
+  margin: ${unitSpace};
+  background: linear-gradient(119.44deg, #8D94FF 2.96%, #6335FF 51.52%, #8B73BD 100.08%);
   justify-content: ${(props) => (props.flexStart ? 'start' : 'center')};
-  overflow: auto;
   padding: ${(props) => (props.full ? '0' : `${dimensions.headerSpacing}px`)};
 `;
 
 const Content = styled.div`
   background: ${colors.colorWhite};
   color: #444;
-  display: flex;
-  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  width: 100%;
   height: 100%;
   overflow: hidden;
 `;
@@ -56,17 +59,15 @@ const CarouselWrapper = styled.div`
 
   .carousel-caption {
     position: relative;
-    color: #444;
+    color: #fff;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 42px 0 15%;
-    text-align: left;
+    text-align: center;
 
     p {
-      line-height: 26px;
       font-size: 14px;
-      color: rgba(25, 27, 31, 0.6);
+      color: #fff;
     }
   }
 
@@ -89,7 +90,7 @@ const CarouselWrapper = styled.div`
     }
 
     .image-wrapper {
-      height: 350px;
+      height: 300px;
       width: 100%;
 
       img {
@@ -147,8 +148,7 @@ const SuccessContent = styled.div`
 
 const LeftSidebar = styledTS<{ showStar?: boolean }>(styled.div)`
   position: relative;
-  background: #f5f5f5;
-  width: 40%;
+  width: 100%;
   flex-shrink: 0;
   overflow: hidden;
   padding: ${dimensions.headerSpacing}px;
@@ -181,6 +181,10 @@ const LeftSidebar = styledTS<{ showStar?: boolean }>(styled.div)`
     right: 0;
     bottom: 100px;
     transform: scaleX(-1);
+  }
+
+  button {
+    height: 40px;
   }
 `;
 
@@ -216,7 +220,7 @@ const WelcomeContainer = styled.div`
 
   h1 {
     color: rgba(0, 0, 0, 0.7);
-    background: #f5f5f5;
+    background: #fff;
     font-size: 36px;
 
     @media (min-width: 1500px) {
