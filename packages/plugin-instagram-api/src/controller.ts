@@ -79,12 +79,10 @@ const init = async (app) => {
     if (data.object !== 'instagram') {
       return;
     }
-    console.log(data, '************');
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
         const messageData = entry.messaging[0];
-
         if (messageData) {
           try {
             await receiveMessage(models, subdomain, messageData);
@@ -96,12 +94,12 @@ const init = async (app) => {
       } else {
         // Handle standby data if entry.messaging does not exist
         const standbyData = entry.standby;
-
         if (standbyData) {
+          const messageData = standbyData[0];
           try {
             // Assuming standbyData is an array and you want to process each item
             for (const data of standbyData) {
-              await receiveMessage(models, subdomain, data);
+              await receiveMessage(models, subdomain, messageData);
             }
             return res.send('success');
           } catch (e) {
@@ -109,7 +107,6 @@ const init = async (app) => {
           }
         }
       }
-
       if (entry.changes) {
         for (const event of entry.changes) {
           if (event.field === 'comments') {

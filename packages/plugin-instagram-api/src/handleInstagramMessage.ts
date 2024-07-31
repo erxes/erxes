@@ -98,10 +98,10 @@ export const handleInstagramMessage = async (
         data: { query: { _id: conversationId } }
       });
       await sendReply(
+        models,
         `${id}/replies`,
         data,
-        inboxConversation && inboxConversation.integrationId,
-        models
+        inboxConversation && inboxConversation.integrationId
       );
 
       const user = await sendCoreMessage({
@@ -134,30 +134,35 @@ export const handleInstagramMessage = async (
   }
 
   if (action === 'reply-messenger') {
-    const { integrationId, conversationId, content, attachments } = doc;
-
+    const { integrationId, conversationId, content, attachments, extraInfo } =
+      doc;
+    const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
+    const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
+    const images: string[] = (content.match(regex) || []).map((m) =>
+      m.replace(regex, '$1')
+    );
+    images.forEach((img) => {
+      attachments.push({ type: 'image', url: img });
+    });
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId
     });
-
     let strippedContent = strip(content);
-
     strippedContent = strippedContent.replace(/&amp;/g, '&');
-
-    const { senderId } = conversation;
+    const { senderId, recipientId } = conversation;
     let localMessage;
     try {
       if (strippedContent) {
         try {
           const resp = await sendReply(
+            models,
             'me/messages',
             {
               recipient: { id: senderId },
               message: { text: strippedContent },
-              tag: 'HUMAN_AGENT'
+              tag
             },
-            integrationId,
-            models
+            integrationId
           );
           if (resp) {
             localMessage = await models.ConversationMessages.addMessage(
@@ -185,10 +190,10 @@ export const handleInstagramMessage = async (
       )) {
         try {
           await sendReply(
+            models,
             'me/messages',
             { recipient: { id: senderId }, message },
-            integrationId,
-            models
+            integrationId
           );
         } catch (e) {
           throw new Error(e.message);

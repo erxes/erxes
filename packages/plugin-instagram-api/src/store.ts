@@ -6,6 +6,7 @@ import { getPostLink } from './utils';
 import { IIntegrationDocument } from './models/Integrations';
 import { ICustomerDocument } from './models/definitions/customers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { INTEGRATION_KINDS } from './constants';
 
 export const getOrCreatePostConversation = async (
   models: IModels,
@@ -54,8 +55,8 @@ export const getOrCreateComment = async (
   commentParams: any,
   pageId: string,
   userId: string,
-  integration: any,
-  customer: any
+  integration: IIntegrationDocument,
+  customer: ICustomerDocument
 ) => {
   const { parent_id, id, text } = commentParams;
   const post_id = commentParams.media.id;
@@ -141,27 +142,27 @@ export const getOrCreateCustomer = async (
   subdomain: string,
   pageId: string,
   userId: string,
+  facebookPageId: string | undefined,
   kind: string,
-  params: any
+  facebookPageTokensMap?: { [key: string]: string }
 ) => {
-  // Find the integration
   const integration = await models.Integrations.findOne({
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
-
   if (!integration) {
-    throw new Error('Integration not found');
+    throw new Error('Instagram Integration not found ');
   }
-
-  // Check if the customer already exists
   let customer = await models.Customers.findOne({ userId });
   if (customer) {
     return customer;
   }
-
-  // Fetch Instagram user details
-  let instagramUser;
-  const { facebookPageTokensMap = {}, facebookPageId } = integration;
+  // create customer
+  let instagramUser = {} as {
+    name: string;
+    username: string;
+    profile_pic: string;
+    id: string;
+  };
 
   try {
     instagramUser = await getInstagramUser(
@@ -170,71 +171,27 @@ export const getOrCreateCustomer = async (
       facebookPageTokensMap
     );
   } catch (e) {
-    if (
-      e.message.includes(
-        '(200) The account owner has disabled access to instagram direct messages'
-      )
-    ) {
-      throw new Error(
-        'The account owner has disabled access to Instagram direct messages. Please enable access and try again.'
-      );
-    } else {
-      debugError(`Error during get customer info: ${e.message}`);
-    }
+    debugError(`Error during get customer info: ${e.message}`);
   }
+  // save on integrations db
+  const firstName = instagramUser.name || instagramUser.username;
 
-  // Create a new customer if Instagram user details are unavailable
-  if (!instagramUser) {
-    const account = await models.Accounts.findOne({
-      _id: integration.accountId
+  try {
+    customer = await models.Customers.create({
+      userId,
+      firstName,
+      integrationId: integration.erxesApiId,
+      profilePic: instagramUser.profile_pic
     });
-    if (!account) {
-      throw new Error('Account not found');
-    }
-
-    const { id } = params;
-    const post_id = params.media.id;
-
-    const getPostDetail = await getPostLink(account.token, post_id);
-
-    const specificComment = getPostDetail.comments.data.find(
-      (comment) => comment.id === id
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: customer duplication'
+        : e.message
     );
-
-    const username = specificComment ? specificComment.username : '';
-
-    try {
-      customer = await models.Customers.create({
-        userId,
-        firstName: username,
-        integrationId: integration.erxesApiId
-      });
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: customer duplication'
-          : e.message
-      );
-    }
-  } else {
-    // Create or update customer with Instagram details
-    try {
-      customer = await models.Customers.create({
-        userId,
-        firstName: instagramUser.name,
-        integrationId: integration.erxesApiId,
-        profilePic: instagramUser.profile_pic
-      });
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: customer duplication'
-          : e.message
-      );
-    }
   }
 
-  // Save customer details to the API
+  // save on api
   try {
     const apiCustomerResponse = await sendInboxMessage({
       subdomain,
@@ -243,8 +200,8 @@ export const getOrCreateCustomer = async (
         action: 'get-create-update-customer',
         payload: JSON.stringify({
           integrationId: integration.erxesApiId,
-          firstName: instagramUser ? instagramUser.name : customer.firstName,
-          avatar: instagramUser ? instagramUser.profile_pic : undefined,
+          firstName: firstName,
+          avatar: instagramUser.profile_pic,
           isUser: true
         })
       },
@@ -254,8 +211,55 @@ export const getOrCreateCustomer = async (
     await customer.save();
   } catch (e) {
     await models.Customers.deleteOne({ _id: customer._id });
+    throw new Error(e);
+  }
+  return customer;
+};
+
+export const customerCreated = async (
+  userId: string,
+  firstName: string,
+  integrationId: any,
+  profilePic: any,
+  subdomain: any,
+  models: IModels,
+  customer: any,
+  integration: any
+) => {
+  try {
+    customer = await models.Customers.create({
+      userId,
+      firstName: firstName,
+      integrationId: integrationId,
+      profilePic: profilePic
+    });
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: customer duplication'
+        : e.message
+    );
+  }
+  try {
+    const apiCustomerResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'get-create-update-customer',
+        payload: JSON.stringify({
+          integrationId: integration.erxesApiId,
+          firstName: firstName,
+          avatar: profilePic,
+          isUser: true
+        })
+      },
+      isRPC: true
+    });
+    customer.erxesApiId = apiCustomerResponse._id;
+    await customer.save();
+  } catch (e) {
+    // Delete the customer if saving to the API fails
+    await models.Customers.deleteOne({ _id: customer._id });
     throw new Error(e.message);
   }
-
-  return customer;
 };

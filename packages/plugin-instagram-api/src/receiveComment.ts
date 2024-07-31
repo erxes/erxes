@@ -15,6 +15,7 @@ const receiveComment = async (
 ) => {
   const userId = params.from.id;
   const postId = params.media.id;
+
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: pageId } },
@@ -28,42 +29,36 @@ const receiveComment = async (
     throw new Error('Integration not found');
   }
   const { facebookPageTokensMap, facebookPageId } = integration;
-  if (facebookPageId && facebookPageTokensMap) {
-    const customer = await getOrCreateCustomer(
+  const customer = await getOrCreateCustomer(
+    models,
+    subdomain,
+    pageId,
+    userId,
+    facebookPageId,
+    INTEGRATION_KINDS.POST,
+    facebookPageTokensMap
+  );
+
+  if (customer) {
+    const postConversation = await getOrCreatePostConversation(
       models,
-      subdomain,
       pageId,
-      userId,
-      INTEGRATION_KINDS.POST,
+      subdomain,
+      postId,
+      integration,
+      customer,
       params
     );
-    if (customer) {
-      const postConversation = await getOrCreatePostConversation(
-        models,
-        pageId,
-        subdomain,
-        postId,
-        integration,
-        customer,
-        params
-      );
-      await getOrCreateComment(
-        models,
-        subdomain,
-        postConversation,
-        params,
-        pageId,
-        userId,
-        integration,
-        customer
-      );
-    } else {
-      return {
-        message: 'Both facebookPageTokensMap and facebookPageId are required.',
-        facebookPageTokensMap: facebookPageTokensMap,
-        facebookPageId: facebookPageId
-      };
-    }
+    await getOrCreateComment(
+      models,
+      subdomain,
+      postConversation,
+      params,
+      pageId,
+      userId,
+      integration,
+      customer
+    );
   }
 };
 

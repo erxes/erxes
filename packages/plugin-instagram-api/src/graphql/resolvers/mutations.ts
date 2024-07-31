@@ -107,10 +107,10 @@ const instagramMutations = {
       });
 
       await sendReply(
+        models,
         `${id}/comments`,
         data,
-        inboxConversation && inboxConversation.integrationId,
-        models
+        inboxConversation && inboxConversation.integrationId
       );
 
       sendInboxMessage({
