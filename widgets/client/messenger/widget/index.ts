@@ -118,9 +118,6 @@ iframe.onload = async () => {
 
   const contentWindow = iframe.contentWindow;
 
-  if (iframe && iframe.contentWindow && iframe.contentWindow.erxesEnv) {
-    baseUrl = iframe.contentWindow.erxesEnv.API_URL || "";
-  }
 
   if (!contentWindow) {
     return;
@@ -196,6 +193,11 @@ launcherIframe.onload = async () => {
 // Listen for messages from the iframe
 window.addEventListener('message', async (event: MessageEvent) => {
   const { data } = event;
+
+  if (data.fromErxes && data.message === 'connected' && data.apiUrl) {
+    baseUrl = data.apiUrl
+  }
+
   if (data.fromErxes && data.connectionInfo) {
     const { connectionInfo } = data;
     const { widgetsMessengerConnect } = connectionInfo;
