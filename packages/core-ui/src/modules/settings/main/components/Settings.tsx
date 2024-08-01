@@ -42,7 +42,7 @@ class Settings extends React.PureComponent {
   ) {
     const box = (
       <Box color={color}>
-        <Link to={to || "#"}>
+        <Link to={to || "#"} id={`${name.replace(/\s+/g, "")}`}>
           {type && <em>{type}</em>}
           <img src={image} alt={name} />
           <BoxName>{__(name)}</BoxName>

@@ -113,8 +113,9 @@ function List({
       </thead>
       <tbody id={"TagsShowing"}>
         {tags.map((tag) => {
-          const order = tag.order || "";
-          const foundedString = order.match(/[/]/gi);
+          const parts = (tag.order || "").split('/');
+          const slashCount = parts.length - 1;
+          const hasTextOnBothSides = parts.every(part => part.trim() !== '');
 
           return (
             <Row
@@ -123,7 +124,7 @@ function List({
               count={tag.objectCount}
               type={tagType}
               types={types}
-              space={foundedString ? foundedString.length : 0}
+              space={(hasTextOnBothSides && slashCount) ? slashCount : 0}
               remove={remove}
               merge={merge}
               renderButton={renderButton}
