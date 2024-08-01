@@ -1,6 +1,6 @@
-import { IContext } from '../../../connectionResolver';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { getContentIds } from '../../../messageBroker';
+import { IContext } from "../../../connectionResolver";
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
+import { getContentIds } from "../../../messageBroker";
 
 interface IParams {
   contentType: string;
@@ -60,7 +60,7 @@ const internalNoteQueries = {
     for (const note of internalNotes) {
       list.push({
         _id: note._id,
-        action: 'addNote',
+        action: "addNote",
         contentType: note.contentType,
         contentId: note.contentTypeId,
         createdAt: note.createdAt,
@@ -86,7 +86,7 @@ const internalNoteQueries = {
     return notes.map(n => ({
       ...n,
       contentId: contentTypeId,
-      contentType: 'note'
+      contentType: "note"
     }));
   }
 };

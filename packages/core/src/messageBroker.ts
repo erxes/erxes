@@ -511,7 +511,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue('core:branches.aggregate', async ({ subdomain, data }) => {
+  consumeRPCQueue("core:branches.aggregate", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { pipeline } = data;
@@ -809,3 +809,36 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true
   });
+
+export const sendNotificationsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "notifications",
+    ...args
+  });
+};
+
+const checkService = async (serviceName: string, needsList?: boolean) => {
+  const enabled = await isEnabled(serviceName);
+
+  if (!enabled) {
+    return needsList ? [] : null;
+  }
+
+  return;
+};
+
+export const getContentIds = async (subdomain: string, data) => {
+  const [serviceName] = data.contentType.split(":");
+
+  await checkService(serviceName, true);
+
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "logs.getContentIds",
+    data,
+    isRPC: true
+  });
+};

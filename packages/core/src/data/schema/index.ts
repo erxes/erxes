@@ -44,6 +44,12 @@ import {
   queries as TagQueries
 } from "./tag";
 
+import {
+  types as InternalNoteTypes,
+  mutations as InternalNoteMutations,
+  queries as InternalNoteQueries
+} from "./internalNote";
+
 import { queries as ChargeQueries, types as ChargeTypes } from "./charge";
 import {
   mutations as PromoCodeMutations,
@@ -82,6 +88,7 @@ export let types = `
   ${PromoCodeTypes}
   ${PluginTypes}
   ${TagTypes}
+  ${InternalNoteTypes}
 `;
 
 export let queries = `
@@ -97,6 +104,7 @@ export let queries = `
   ${PluginQueries}
   ${OnboardingQueries}
   ${TagQueries}
+  ${InternalNoteQueries}
 `;
 
 export let mutations = `
@@ -111,6 +119,7 @@ export let mutations = `
   ${PromoCodeMutations}
   ${OnboardingMutations}
   ${TagMutations}
+  ${InternalNoteMutations}
 `;
 
 export let subscriptions = `

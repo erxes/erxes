@@ -14,6 +14,7 @@ import App from "./app";
 import UserMovement from "./userMovements";
 import Position from "./positions";
 import Tag from "./tags";
+import InternalNote from "./internalNote";
 
 const resolvers: any = {
   ...customScalars,
@@ -34,7 +35,8 @@ const resolvers: any = {
   Branch,
   App,
   UserMovement,
-  Position
+  Position,
+  InternalNote
 };
 
 export default resolvers;

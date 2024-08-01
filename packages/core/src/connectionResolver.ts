@@ -67,6 +67,13 @@ import { IUserMovementDocument } from "./db/models/definitions/users";
 import { ITagDocument } from "./db/models/definitions/tags";
 import { ITagModel, loadTagClass } from "./db/models/Tags";
 
+import {
+  IInternalNoteModel,
+  loadInternalNoteClass
+} from "./db/models/InternalNotes";
+
+import { IInternalNoteDocument } from "./db/models/definitions/internalNotes";
+
 export interface IModels {
   Users: IUserModel;
   Brands: IBrandModel;
@@ -85,6 +92,7 @@ export interface IModels {
   InstallationLogs: IInstallationLogModel;
   UserMovements: IUserMovemmentModel;
   Tags: ITagModel;
+  InternalNotes: IInternalNoteModel;
 }
 
 export interface IContext extends IMainContext {
@@ -167,6 +175,11 @@ export const loadClasses = (
   >("installation_logs", loadInstallationLogClass(models));
 
   models.Tags = db.model<ITagDocument, ITagModel>("tags", loadTagClass(models));
+
+  models.InternalNotes = db.model<IInternalNoteDocument, IInternalNoteModel>(
+    "internal_notes",
+    loadInternalNoteClass(models)
+  );
 
   return models;
 };

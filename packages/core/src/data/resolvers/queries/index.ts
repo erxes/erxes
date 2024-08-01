@@ -12,6 +12,7 @@ import charge from "./charge";
 import plugins from "./plugins";
 import organizations from "./organizations";
 import tags from "./tags";
+import internalNotes from "./internalNote";
 
 export default {
   ...users,
@@ -25,5 +26,6 @@ export default {
   ...charge,
   ...plugins,
   ...organizations,
-  ...tags
+  ...tags,
+  ...internalNotes
 };

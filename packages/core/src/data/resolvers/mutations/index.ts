@@ -11,6 +11,7 @@ import structures from "./structures";
 import apps from "./apps";
 import organizations from "./organizations";
 import tags from "./tags";
+import internalNotes from "./internalNotes";
 
 export default {
   ...users,
@@ -23,5 +24,6 @@ export default {
   ...structures,
   ...apps,
   ...organizations,
-  ...tags
+  ...tags,
+  internalNotes
 };
