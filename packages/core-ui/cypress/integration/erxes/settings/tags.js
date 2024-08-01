@@ -4,64 +4,38 @@ import { SignIn, waitTilDisappear } from "../utils";
 
 SignIn;
 
+Cypress.Commands.add('addTag', (name, color) => {
+  cy.get("#AddTagButton").click();
+  cy.get("input[name=name]").type(name);
+  cy.get("label")
+    .contains("Color")
+    .parent()
+    .children()
+    .eq(1)
+    .children()
+    .eq(0)
+    .click();
+  cy.get('[style="position: relative;"] > input').clear().type(color);
+  cy.get("label").contains("Color").parent().children().eq(1).click();
+  cy.get("#AddTagButtons").children().eq(1).click();
+
+  waitTilDisappear('div[class="modal-dialog"]');
+});
+
 context("Tags", () => {
   beforeEach(() => {
     cy.visit("/");
+    cy.signIn();
+    cy.visit("/settings/tags");
   });
 
-  it("Tags", () => {
-    cy.signIn();
+  it("Add test tags", () => {
+    cy.addTag("name", "#000000")
+    cy.addTag("name2", "#EECCEE")
+    cy.addTag("name3", "#b4a8e3")
+  });
 
-    cy.get("#Settings").click();
-    cy.get("#Tags").click();
-    cy.url().should("include", "/settings/tags");
-
-    cy.get("#AddTagButton").click();
-    cy.get("input[name=name]").type("name");
-    cy.get("label")
-      .contains("Color")
-      .parent()
-      .children()
-      .eq(1)
-      .children()
-      .eq(0)
-      .click();
-    cy.get('[style="position: relative;"] > input').clear().type("#000000");
-    cy.get("label").contains("Color").parent().children().eq(1).click();
-    cy.get("#AddTagButtons").children().eq(1).click();
-
-    waitTilDisappear('div[class="modal-dialog"]');
-
-    cy.get("#AddTagButton").click();
-    cy.get("input[name=name]").type("name2");
-    cy.get("label")
-      .contains("Color")
-      .parent()
-      .children()
-      .eq(1)
-      .children()
-      .eq(0)
-      .click();
-    cy.get('[style="position: relative;"] > input').clear().type("#EECCEE");
-    cy.get("label").contains("Color").parent().children().eq(1).click();
-    cy.get("#AddTagButtons").children().eq(1).click();
-
-    waitTilDisappear('div[class="modal-dialog"]');
-
-    cy.get("#AddTagButton").click();
-    cy.get("input[name=name]").type("name3");
-    cy.get("label")
-      .contains("Color")
-      .parent()
-      .children()
-      .eq(1)
-      .children()
-      .eq(0)
-      .click();
-    cy.get('[style="position: relative;"] > input').clear().type("#555555");
-    cy.get("label").contains("Color").parent().children().eq(1).click();
-    cy.get("#AddTagButtons").children().eq(1).click();
-
+  it("Check tag actions", () => {
     cy.get("#TagsSidebar").children().eq(0).children().click();
 
     cy.contains("span", "name2")
@@ -114,15 +88,17 @@ context("Tags", () => {
       });
     cy.contains("span", "Yes, I am").click();
 
-    cy.get('input[placeholder="Type to search"]').type('mlml');
-    cy.get('table tbody tr').each(($row) => {
+    cy.get('input[placeholder="Type to search"]').type("mlml");
+    cy.get("table tbody tr").each(($row) => {
       cy.wrap($row).within(() => {
-        cy.get('td').eq(0).then(($td) => {
-          const tagName = $td.text().trim().toLowerCase();
-          expect(tagName).to.contain('mlml');
-        });
+        cy.get("td")
+          .eq(0)
+          .then(($td) => {
+            const tagName = $td.text().trim().toLowerCase();
+            expect(tagName).to.contain("mlml");
+          });
       });
     });
-    cy.get('table tbody tr').should('have.length', 2); 
+    cy.get("table tbody tr").should("have.length", 2);
   });
 });
