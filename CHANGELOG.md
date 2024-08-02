@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.7](https://github.com/erxes/erxes/compare/1.15.0-rc.6...1.15.0-rc.7) (2024-08-02)
+
+
+### Bug Fixes
+
+* **core:** remove return into for loop in sendmail ([233546d](https://github.com/erxes/erxes/commit/233546df1bcce37666c7be7fa82bd94ef35ac598))
+
 ## [1.15.0-rc.6](https://github.com/erxes/erxes/compare/1.15.0-rc.5...1.15.0-rc.6) (2024-07-30)
 
 
