@@ -129,8 +129,6 @@ const sendNotification = async (
     }
   };
 
-  console.log({ recipients, toEmails, receiverIds });
-
   sendCoreMessage({
     subdomain,
     action: 'sendEmail',

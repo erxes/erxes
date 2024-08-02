@@ -20,7 +20,7 @@ import {
   sendLogsMessage,
 } from '../messageBroker';
 import { graphqlPubsub } from '../pubsub';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { getService, getServices, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 import redis from '@erxes/api-utils/src/redis';
 import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
 import { randomAlphanumeric } from '@erxes/api-utils/src/random';
@@ -197,7 +197,7 @@ export const sendEmail = async (
     let headers: { [key: string]: string } = {};
 
     if (models && subdomain) {
-      const emailDelivery = await sendLogsMessage({
+      const emailDelivery = isEnabled('logs') ? await sendLogsMessage({
         subdomain,
         action: 'emailDeliveries.create',
         data: {
@@ -209,7 +209,7 @@ export const sendEmail = async (
           status: 'pending',
         },
         isRPC: true,
-      });
+      }) : null;
 
       headers = {
         'X-SES-CONFIGURATION-SET': AWS_SES_CONFIG_SET || 'erxes',
@@ -225,14 +225,12 @@ export const sendEmail = async (
 
     try {
       if (sendgridMail) {
-        return sendgridMail.send(mailOptions);
+        sendgridMail.send(mailOptions);
+      } else {
+        transporter.sendMail(mailOptions);
       }
-
-      return transporter.sendMail(mailOptions, (error, info) => {
-        debugError(`Error sending email: ${error}`);
-      });
     } catch (e) {
-      debugError(e);
+      debugError(`Error sending email: ${e.message}`);
     }
   }
 };
