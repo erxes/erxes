@@ -48,10 +48,10 @@ export default class RightSidebar extends React.Component<Props> {
         {isEnabled("tickets") && (
           <PortableTickets mainType="user" mainTypeId={user._id} />
         )}
-        <PortableDeals mainType="user" mainTypeId={user._id} />
         {isEnabled("purchases") && (
           <PortablePurchases mainType="user" mainTypeId={user._id} />
         )}
+        <PortableDeals mainType="user" mainTypeId={user._id} />
       </Sidebar>
     );
   }

@@ -15,6 +15,66 @@ export const configReplacer = config => {
     .replace(/\{day}/g, `0${now.getDate().toString()}`.slice(-2));
 };
 
+export const collectItems = async (
+  models: IModels,
+  subdomain: string,
+  { contentType, contentId }
+) => {
+  let tasks: any[] = [];
+
+  if (contentType === "activity") {
+    return;
+  }
+
+  // const relatedTaskIds = await sendCoreMessage({
+  //   subdomain,
+  //   action: "conformities.savedConformity",
+  //   data: {
+  //     mainType: contentType.split(":")[1],
+  //     mainTypeId: contentId,
+  //     relTypes: ["task"]
+  //   },
+  //   isRPC: true,
+  //   defaultValue: []
+  // });
+
+  // if (contentType !== "cards:task") {
+  //   tasks = await models.Tasks.aggregate([
+  //     {
+  //       $match: {
+  //         $and: [
+  //           { _id: { $in: relatedTaskIds } },
+  //           { status: { $ne: "archived" } }
+  //         ]
+  //       }
+  //     },
+  //     {
+  //       $addFields: { contentType: "cards:taskDetail" }
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 1,
+  //         contentType: 1,
+  //         createdAt: {
+  //           $switch: {
+  //             branches: [
+  //               {
+  //                 case: { $gt: ["$closeDate", null] },
+  //                 then: "$closeDate"
+  //               }
+  //             ],
+  //             default: "$createdAt"
+  //           }
+  //         }
+  //       }
+  //     },
+  //     { $sort: { closeDate: 1 } }
+  //   ]);
+  // }
+
+  return tasks;
+};
+
 export const generateConditionStageIds = async (
   models: IModels,
   {

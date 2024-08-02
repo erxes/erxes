@@ -232,6 +232,8 @@ const putLog = async (
 
   const isLoggerAvailable = await isEnabled('logs');
 
+  console.log(isLoggerAvailable, 'isLoggerAvailable');
+
   if (!isLoggerAvailable) {
     return;
   }

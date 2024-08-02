@@ -22,6 +22,7 @@ import {
 } from "./messageBroker";
 import { IModels, generateModels } from "./connectionResolver";
 import {
+  collectItems,
   getCardContentIds,
   getContentItem,
   getContentTypeDetail

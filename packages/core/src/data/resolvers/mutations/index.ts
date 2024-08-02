@@ -25,5 +25,5 @@ export default {
   ...apps,
   ...organizations,
   ...tags,
-  internalNotes
+  ...internalNotes
 };

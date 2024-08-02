@@ -1,4 +1,7 @@
-import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
+import {
+  moduleRequireLogin,
+  requireLogin
+} from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
@@ -45,7 +48,7 @@ const sendNotificationOfItems = async (
   graphqlPubsub.publish("activityLogsChanged", {});
 };
 
-const internalNoteMutations = () => ({
+const internalNoteMutations = {
   /**
    * Adds internalNote object and also adds an activity log
    */
@@ -182,8 +185,10 @@ const internalNoteMutations = () => ({
 
     return removed;
   }
-});
+};
 
-moduleRequireLogin(internalNoteMutations);
+requireLogin(internalNoteMutations, "internalNotesAdd");
+requireLogin(internalNoteMutations, "internalNotesEdit");
+requireLogin(internalNoteMutations, "internalNotesRemove");
 
 export default internalNoteMutations;

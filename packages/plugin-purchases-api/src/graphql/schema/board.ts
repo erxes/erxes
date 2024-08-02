@@ -5,7 +5,6 @@ const commonTypes = `
 `;
 
 export const types = () => `
-
   type PurchasesBoard @key(fields: "_id") {
     _id: String!
     name: String!
