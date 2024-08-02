@@ -521,7 +521,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const {
       brandCode,
@@ -694,6 +694,15 @@ const widgetMutations = {
         { _id: integration._id },
         { $set: { isConnected: true } }
       );
+
+      await sendCoreMessage({
+        subdomain,
+        action: "registerOnboardHistory",
+        data: {
+          type: "erxesMessagerConnect",
+          user
+        }
+      });
     }
 
     return {

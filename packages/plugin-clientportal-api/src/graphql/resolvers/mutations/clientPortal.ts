@@ -1,10 +1,8 @@
-import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
+import { sendCoreMessage } from '../../../messageBroker';
 
 import { IClientPortal } from '../../../models/definitions/clientPortal';
 import { IContext } from '../../../connectionResolver';
 import { checkPermission } from '@erxes/api-utils/src';
-import { putActivityLog } from '../../../logUtils';
-import { getUserName } from '../../../utils';
 import { participantEditRelation, createCard } from '../../../models/utils';
 
 export interface IVerificationParams {
@@ -17,7 +15,7 @@ const clientPortalMutations = {
   async clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     try {
       const cpUser = await models.ClientPortalUsers.findOne({
@@ -59,10 +57,27 @@ const clientPortalMutations = {
       console.log(e.message);
     }
 
-    return models.ClientPortals.createOrUpdateConfig(config);
+    const cp = await models.ClientPortals.createOrUpdateConfig(config);
+
+    if (cp) {
+      await sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: 'clientPortalSetup',
+          user,
+        },
+      });
+    }
+
+    return cp;
   },
 
-  async clientPortalRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+  async clientPortalRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
     return models.ClientPortals.deleteOne({ _id });
   },
 
