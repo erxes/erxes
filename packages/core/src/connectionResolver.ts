@@ -74,6 +74,23 @@ import {
 
 import { IInternalNoteDocument } from "./db/models/definitions/internalNotes";
 
+import { IVisitorModel, loadVisitorClass } from "./db/models/Visitors";
+import {
+  IActivityLogModel,
+  loadActivityLogClass
+} from "./db/models/ActivityLogs";
+import { ILogModel, loadLogClass } from "./db/models/Logs";
+
+import { IVisitorDocument } from "./db/models/definitions/visitors";
+import { ILogDocument } from "./db/models/definitions/logs";
+import { IActivityLogDocument } from "./db/models/definitions/ActivityLogs";
+import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass
+} from "./db/models/EmailDeliveries";
+
+import { IEmailDeliveriesDocument } from "./db/models/definitions/emailDeliveries";
+
 export interface IModels {
   Users: IUserModel;
   Brands: IBrandModel;
@@ -93,6 +110,10 @@ export interface IModels {
   UserMovements: IUserMovemmentModel;
   Tags: ITagModel;
   InternalNotes: IInternalNoteModel;
+  Visitors: IVisitorModel;
+  ActivityLogs: IActivityLogModel;
+  Logs: ILogModel;
+  EmailDeliveries: IEmailDeliveryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -180,6 +201,23 @@ export const loadClasses = (
     "internal_notes",
     loadInternalNoteClass(models)
   );
+
+  models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogModel>(
+    "activity_logs",
+    loadActivityLogClass(models, subdomain)
+  );
+
+  models.Logs = db.model<ILogDocument, ILogModel>("logs", loadLogClass(models));
+
+  models.Visitors = db.model<IVisitorDocument, IVisitorModel>(
+    "visitors",
+    loadVisitorClass(models)
+  );
+
+  models.EmailDeliveries = db.model<
+    IEmailDeliveriesDocument,
+    IEmailDeliveryModel
+  >("email_deliveries", loadEmailDeliveryClass(models));
 
   return models;
 };
