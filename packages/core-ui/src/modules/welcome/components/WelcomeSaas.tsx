@@ -9,10 +9,20 @@ import {
   SmallBox,
   WelcomeWrapper,
 } from "../stylesSaas";
-import { Community, GeneralTasks, Learn, Setups } from "../constants";
+import {
+  Community,
+  FrontlineTasks,
+  GeneralTasks,
+  Learn,
+  MarketingTasks,
+  OperationTasks,
+  SalesTasks,
+  Setups,
+} from "../constants";
 
 import Drawer from "@erxes/ui/src/components/Drawer";
 import DrawerContent from "../container/DrawerContent";
+import { IOrganization } from "@erxes/ui/src/auth/types";
 import { IUser } from "modules/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
@@ -28,7 +38,9 @@ type Props = {
 };
 
 function Welcome({ currentUser }: Props) {
-  const { currentOrganization = {} } = currentUser || ({} as IUser);
+  const { currentOrganization = {} as IOrganization } =
+    currentUser || ({} as IUser);
+  const { experience = {} as any } = currentOrganization;
 
   const renderLeftContent = () => {
     const currentDate = dayjs().format("MMM D, YYYY");
@@ -70,8 +82,18 @@ function Welcome({ currentUser }: Props) {
 
   const renderSetupItem = (item) => {
     const { id, title, type, image, desc, totalStep, comingSoon } = item;
+    const eCode = experience.customCode || "";
 
-    const operationTasks = [];
+    const operationTasks =
+      eCode === "marketing"
+        ? MarketingTasks
+        : eCode === "sales"
+          ? SalesTasks
+          : eCode === "frontline"
+            ? FrontlineTasks
+            : eCode === "operation"
+              ? OperationTasks
+              : [];
 
     const tasks =
       type === "general"
@@ -148,9 +170,7 @@ function Welcome({ currentUser }: Props) {
   );
 
   return (
-    <>
-      <Wrapper content={content} transparent={true} initialOverflow={true} />
-    </>
+    <Wrapper content={content} transparent={true} initialOverflow={true} />
   );
 }
 

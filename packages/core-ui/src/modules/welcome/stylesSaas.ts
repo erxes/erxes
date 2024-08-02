@@ -277,8 +277,10 @@ const TaskItem = styled.div`
 
 const TaskItemIcon = styled.div`
   background: #F2F4F7;
+  border: 1px solid ${colors.borderPrimary};
   border-radius: 50%;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 45px;
