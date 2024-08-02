@@ -11,6 +11,7 @@
   z-index: 2147483647;
   height: 100%;
   width: 100%;
+  border-radius: 1rem;
 }
 
 .erxes-messenger-hidden {
@@ -36,7 +37,7 @@
 
 .erxes-messenger-shown {
   position: fixed;
-  height: min(720px, 100% - 20px);
+  height: min(690px, 100% - 20px);
   min-height: 80px;
   /* 400px width of messenger + scrollbar width */
   width: 408px;

@@ -52,7 +52,7 @@ const GET_WIDGET_EXPORT_MESSENGER_DATA = gql`
 
 const GET_FAQ_TOPIC = gql`query knowledgeBaseTopicDetail($_id: String!) {
     knowledgeBaseTopicDetail(_id: $_id) {
-      categories {
+      parentCategories {
         _id
         title
       }
