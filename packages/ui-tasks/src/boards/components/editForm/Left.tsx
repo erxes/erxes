@@ -223,7 +223,7 @@ const Left = (props: Props) => {
         showEmail={false}
       />
 
-      {isEnabled("logs") && (
+      {
         <ActivityLogs
           target={item.name}
           contentId={item._id}
@@ -234,7 +234,7 @@ const Left = (props: Props) => {
               : [{ name: "tasks:task", label: "Task" }]
           }
         />
-      )}
+      }
     </LeftContainer>
   );
 };

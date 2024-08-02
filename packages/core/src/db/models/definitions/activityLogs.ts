@@ -24,7 +24,7 @@ export interface IActivityLogDocument extends IActivityLog, Document {
 }
 
 export const activityLogSchema = new Schema({
-  _id: { type: String, default: () => nanoid() },
+  _id: field({ pkey: true }),
   contentId: field({ type: String, index: true }),
   contentType: field({ type: String, index: true }),
   action: field({ type: String, index: true }),

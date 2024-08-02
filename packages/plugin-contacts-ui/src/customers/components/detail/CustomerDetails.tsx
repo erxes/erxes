@@ -97,7 +97,7 @@ class CustomerDetails extends React.Component<Props> {
           showEmail={false}
           extraTabs={this.renderExtraTabs()}
         />
-        {isEnabled("logs") && (
+        {
           <ActivityLogs
             target={customer.firstName}
             contentId={customer._id}
@@ -110,7 +110,7 @@ class CustomerDetails extends React.Component<Props> {
               { name: "engages:campaign", label: "Campaign" }
             ]}
           />
-        )}
+        }
       </>
     );
 

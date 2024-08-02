@@ -13,6 +13,9 @@ import plugins from "./plugins";
 import organizations from "./organizations";
 import tags from "./tags";
 import internalNotes from "./internalNotes";
+import activityLogs from "./activityLogs";
+import emailDeliveries from "./emailDeliveries";
+import logs from "./logs";
 
 export default {
   ...users,
@@ -27,5 +30,8 @@ export default {
   ...plugins,
   ...organizations,
   ...tags,
-  ...internalNotes
+  ...internalNotes,
+  ...activityLogs,
+  ...emailDeliveries,
+  ...logs
 };

@@ -1,6 +1,7 @@
 import {
   InterMessage,
-  connectToMessageBroker
+  connectToMessageBroker,
+  sendRPCMessage
 } from "@erxes/api-utils/src/messageBroker";
 import { sendMessage } from "@erxes/api-utils/src/core";
 import type {
@@ -36,6 +37,8 @@ import {
   consumeRPCQueue,
   consumeRPCQueueMq
 } from "@erxes/api-utils/src/messageBroker";
+
+import { IActivityLogDocument } from "./db/models/definitions/activityLogs";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -840,5 +843,58 @@ export const getContentIds = async (subdomain: string, data) => {
     action: "logs.getContentIds",
     data,
     isRPC: true
+  });
+};
+
+export const fetchService = async (
+  subdomain: string,
+  contentType: string,
+  action: string,
+  data,
+  defaultValue?
+) => {
+  const [serviceName, type] = contentType.split(":");
+
+  return sendMessage({
+    subdomain,
+    isRPC: true,
+    serviceName,
+    action: `logs.${action}`,
+    data: {
+      ...data,
+      type
+    },
+    defaultValue
+  });
+};
+
+export const getDbSchemaLabels = async (serviceName: string, args) => {
+  const enabled = await isEnabled(serviceName);
+
+  return enabled
+    ? sendRPCMessage(`${serviceName}:logs.getSchemaLabels`, args)
+    : [];
+};
+
+export const getContentTypeDetail = async (
+  subdomain: string,
+  activityLog: IActivityLogDocument
+) => {
+  const [serviceName] = activityLog.contentType.split(":");
+
+  const enabled = await isEnabled(serviceName);
+
+  return enabled
+    ? sendRPCMessage(`${serviceName}:logs.getContentTypeDetail`, {
+        subdomain,
+        data: activityLog
+      })
+    : null;
+};
+
+export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
+  return sendMessage({
+    serviceName: "clientportal",
+    ...args
   });
 };

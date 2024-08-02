@@ -110,8 +110,7 @@ export default withProps<Props>(
             ...commonParams(queryParams, options),
             action: queryParams.action
           }
-        }),
-        skip: !isEnabled("logs")
+        })
       }
     ),
     graphql<Props>(gql(queries.internalNotesByAction), {

@@ -83,7 +83,7 @@ import { ILogModel, loadLogClass } from "./db/models/Logs";
 
 import { IVisitorDocument } from "./db/models/definitions/visitors";
 import { ILogDocument } from "./db/models/definitions/logs";
-import { IActivityLogDocument } from "./db/models/definitions/ActivityLogs";
+import { IActivityLogDocument } from "./db/models/definitions/activityLogs";
 import {
   IEmailDeliveryModel,
   loadEmailDeliveryClass

@@ -297,5 +297,15 @@ export const moduleObjects = {
         description: "Show tags"
       }
     ]
+  },
+  logs: {
+    name: "logs",
+    description: "Logs",
+    actions: [
+      {
+        name: "viewLogs",
+        description: "View logs"
+      }
+    ]
   }
 };

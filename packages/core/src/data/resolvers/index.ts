@@ -15,6 +15,8 @@ import UserMovement from "./userMovements";
 import Position from "./positions";
 import Tag from "./tags";
 import InternalNote from "./internalNote";
+import ActivityLog from "./activityLog";
+import ActivityLogByAction from "./activityLogByAction";
 
 const resolvers: any = {
   ...customScalars,
@@ -36,7 +38,9 @@ const resolvers: any = {
   App,
   UserMovement,
   Position,
-  InternalNote
+  InternalNote,
+  ActivityLog,
+  ActivityLogByAction
 };
 
 export default resolvers;

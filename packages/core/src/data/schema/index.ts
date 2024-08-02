@@ -56,10 +56,23 @@ import {
   types as PromoCodeTypes
 } from "../schema/promoCode";
 import { queries as PluginQueries, types as PluginTypes } from "./plugins";
+
 import {
   queries as OnboardingQueries,
   mutations as OnboardingMutations
 } from "./organizations";
+
+import { types as LogTypes, queries as LogQueries } from "./logs";
+
+import {
+  types as EmailDeliveryTypes,
+  queries as EmailDeliveryQueries
+} from "./emailDeliveries";
+
+import {
+  types as ActivityLogTypes,
+  queries as ActivityLogQueries
+} from "./activityLogs";
 
 export let types = `
   scalar JSON
@@ -89,6 +102,9 @@ export let types = `
   ${PluginTypes}
   ${TagTypes}
   ${InternalNoteTypes}
+  ${LogTypes}
+  ${EmailDeliveryTypes}
+  ${ActivityLogTypes}
 `;
 
 export let queries = `
@@ -105,6 +121,9 @@ export let queries = `
   ${OnboardingQueries}
   ${TagQueries}
   ${InternalNoteQueries}
+  ${LogQueries}
+  ${EmailDeliveryQueries}
+  ${ActivityLogQueries}
 `;
 
 export let mutations = `

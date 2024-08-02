@@ -34,7 +34,7 @@ export const EMAIL_DELIVERY_STATUS = {
 };
 
 export const emailDeliveriesSchema = new Schema({
-  _id: { type: String, default: () => nanoid() },
+  _id: field({ pkey: true }),
   subject: field({ type: String }),
   body: field({ type: String }),
   to: field({ type: [String] }),

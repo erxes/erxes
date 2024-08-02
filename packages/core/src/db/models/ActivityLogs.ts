@@ -4,7 +4,7 @@ import {
   activityLogSchema,
   IActivityLogDocument,
   IActivityLogInput
-} from "./definitions/ActivityLogs";
+} from "./definitions/activityLogs";
 
 export interface IActivityLogModel extends Model<IActivityLogDocument> {
   addActivityLog(doc: IActivityLogInput): Promise<IActivityLogDocument>;

@@ -1,6 +1,6 @@
-import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
-import { IActivityLogDocument } from "./models/ActivityLogs";
-import { IModels } from "./connectionResolver";
+import { debugInfo } from "@erxes/api-utils/src/debuggers";
+import { IModels } from "../../connectionResolver";
+import { IActivityLogDocument } from "../models/definitions/activityLogs";
 
 /**
  * Takes 2 arrays and detect changes between them.
