@@ -249,7 +249,7 @@ const Tasks = styled.div`
   border: 1px solid ${colors.borderPrimary};
 `;
 
-const TaskItem = styled.div`
+const TaskItem = styled.a`
   display: flex;
   align-items: center;
   border-bottom: 1px solid ${colors.borderPrimary};
@@ -275,8 +275,8 @@ const TaskItem = styled.div`
   }
 `;
 
-const TaskItemIcon = styled.div`
-  background: #F2F4F7;
+const TaskItemIcon = styledTS<{ isDone?: boolean }>(styled.div)`
+  background: ${props => props.isDone ? colors.colorCoreGreen : '#F2F4F7'};
   border: 1px solid ${colors.borderPrimary};
   border-radius: 50%;
   display: flex;
@@ -288,7 +288,7 @@ const TaskItemIcon = styled.div`
   margin-right: ${dimensions.unitSpacing}px;
 
   > i {
-    color: #5D75C5;
+    color: ${props => props.isDone ? colors.colorWhite : '#5D75C5'};
     font-size: 20px;
   }
 `;

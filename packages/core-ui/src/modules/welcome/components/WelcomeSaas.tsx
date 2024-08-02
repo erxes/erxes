@@ -19,10 +19,10 @@ import {
   SalesTasks,
   Setups,
 } from "../constants";
+import { IOnboardingHistory, IOrganization } from "@erxes/ui/src/auth/types";
 
 import Drawer from "@erxes/ui/src/components/Drawer";
 import DrawerContent from "../container/DrawerContent";
-import { IOrganization } from "@erxes/ui/src/auth/types";
 import { IUser } from "modules/auth/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import React from "react";
@@ -38,9 +38,12 @@ type Props = {
 };
 
 function Welcome({ currentUser }: Props) {
-  const { currentOrganization = {} as IOrganization } =
-    currentUser || ({} as IUser);
+  const {
+    currentOrganization = {} as IOrganization,
+    onboardingHistory = {} as IOnboardingHistory,
+  } = currentUser || ({} as IUser);
   const { experience = {} as any } = currentOrganization;
+  const { completedSteps = [] as string[] } = onboardingHistory;
 
   const renderLeftContent = () => {
     const currentDate = dayjs().format("MMM D, YYYY");
@@ -80,8 +83,13 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
+  const renderTotal = (totalStep: number, action?: string) => {
+    // const completedCount = completedSteps.filter(c => c === action) || [];
+    return <span>0/{totalStep} steps</span>;
+  };
+
   const renderSetupItem = (item) => {
-    const { id, title, type, image, desc, totalStep, comingSoon } = item;
+    const { id, title, type, image, desc, comingSoon } = item;
     const eCode = experience.customCode || "";
 
     const operationTasks =
@@ -117,10 +125,20 @@ function Welcome({ currentUser }: Props) {
             btnStyle="link"
           >
             {(setShow) => (
-              <DrawerContent content={item} setShow={setShow} tasks={tasks} />
+              <DrawerContent
+                content={item}
+                setShow={setShow}
+                tasks={tasks}
+                completedSteps={completedSteps}
+              />
             )}
           </Drawer>
-          {!comingSoon && <span>0/{totalStep} steps</span>}
+          {!comingSoon &&
+            renderTotal(
+              type === "general"
+                ? GeneralTasks.length || 0
+                : operationTasks.length || 0
+            )}
         </SetupSteps>
       </SetupBox>
     );

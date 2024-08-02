@@ -11,6 +11,7 @@ type Props = {
   content: any;
   tasks: any;
   setShow: any;
+  completedSteps: string[];
 };
 
 // type FinalProps = {

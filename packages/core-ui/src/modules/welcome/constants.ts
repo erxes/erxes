@@ -221,7 +221,6 @@ export const Setups = [
     type: 'general',
     title: 'General configurations',
     desc: 'Configure your settings and preferences for a customized experience.',
-    totalStep: 8
   },
   {
     id: 2,
@@ -229,7 +228,6 @@ export const Setups = [
     type: 'operational',
     title: 'Operational Setup',
     desc: 'Establish your digital workplace for efficient and streamlined operations.',
-    totalStep: 4
   },
   {
     id: 3,
@@ -304,7 +302,7 @@ export const GeneralTasks = [
     title: 'Establish Organizational Structures',
     desc: 'Establishing organizational structures involves defining roles, responsibilities, and efficient decision-making within a company.',
     url: '/settings/structure',
-    action: ''
+    action: 'EstablishOrganizationalStructure'
   },
   {
     id: 3,
@@ -312,7 +310,7 @@ export const GeneralTasks = [
     title: 'Import Customer Data',
     desc: 'The Contacts plugin is integral to inserting, tracking, and registering all connected data and to being able to categorize them for better use.',
     url: '/settings/import',
-    action: ''
+    action: 'ImportCustomerData'
   },
   {
     id: 4,
@@ -328,7 +326,7 @@ export const GeneralTasks = [
     title: 'Create Channels',
     desc: 'Channels are important to know how and where your team members are spread out.Manage your channels and stay at the top of your game',
     url: '/settings/channels#showChannelAddModal=true',
-    action: 'channelCreate'
+    action: 'ChannelCreate'
   },
   {
     id: 6,
@@ -336,7 +334,7 @@ export const GeneralTasks = [
     title: 'Create your Insight',
     desc: 'Optimize sales and marketing with interactive dashboards. Easy to use, become a data wizard fast.',
     url: '/insight#addDashboard',
-    action: ''
+    action: 'InsightCreate'
   }
 ];
 

@@ -15,18 +15,20 @@ type Props = {
   content: any;
   tasks: any;
   setShow: any;
+  completedSteps: string[];
 };
 
-function DrawerContent({ content, setShow, tasks }: Props) {
+function DrawerContent({ content, setShow, tasks, completedSteps }: Props) {
   const { title, image, desc } = content;
 
   const renderTask = (task) => {
-    const { id, icon, title, desc } = task;
+    const { id, icon, title, desc, url, action } = task;
+    const isDone = completedSteps.includes(action);
 
     return (
-      <TaskItem key={id}>
-        <TaskItemIcon>
-          <Icon icon={icon} />
+      <TaskItem href={url} key={id}>
+        <TaskItemIcon isDone={isDone}>
+          <Icon icon={isDone ? "check-1" : icon} />
         </TaskItemIcon>
         <div>
           <h4>{title}</h4>
