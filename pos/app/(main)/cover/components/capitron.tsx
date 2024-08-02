@@ -6,25 +6,22 @@ import {
   method,
   objToString,
 } from "@/modules/checkout/hooks/useTDB"
-import { coverConfigAtom } from "@/store/config.store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { capitronResponseAtom } from "@/store/cover.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { BANK_CARD_TYPES } from "@/lib/constants"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import BankAmountUi from "./bank-amount-ui"
 
 const Capitron = () => {
   const [capitronResponse, setCapitronResponse] = useAtom(capitronResponseAtom)
   const [loading, setLoading] = useState(false)
-  const config = useAtomValue(coverConfigAtom)
-  const { onError } = useToast()
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
   const { getLabel } = usePaymentLabel()
 
-  const bank = config?.paymentTypes.find(
-    (pt) => BANK_CARD_TYPES.CAPITRON === pt.type
-  )
+  const bank = paymentTypes.find((pt) => BANK_CARD_TYPES.CAPITRON === pt.type)
 
   const getCapitronCover = () => {
     setLoading(true)
@@ -43,14 +40,12 @@ const Capitron = () => {
         if (res?.ecrResult?.RespCode === "00") {
           setCapitronResponse(JSON.stringify(res.ecrResult))
         } else {
-          onError({
-            message: `${res.ecrResult.RespCode} - Unexpected error occured`,
-          })
+          onError(`${res.ecrResult.RespCode} - Unexpected error occured`)
         }
         setLoading(false)
       })
       .catch((e) => {
-        onError(e)
+        onError(e?.message)
         setLoading(false)
       })
   }

@@ -1,7 +1,6 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import useConfig from "@/modules/auth/hooks/useConfig"
 import {
   isCoverAmountsFetchedAtom,
   setCoverDetailAtom,
@@ -11,7 +10,7 @@ import { useSetAtom } from "jotai"
 
 import Loader from "@/components/ui/loader"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useToast } from "@/components/ui/use-toast"
+import { onError } from "@/components/ui/use-toast"
 
 import Amounts from "../components/amounts"
 import Dates from "../components/cover-detail-dates"
@@ -21,11 +20,8 @@ import { queries } from "../graphql"
 const CoverDetail = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
-  const { onError } = useToast()
   const setCover = useSetAtom(setCoverDetailAtom)
   const setIsFetched = useSetAtom(isCoverAmountsFetchedAtom)
-
-  const { loading: loadingConfig } = useConfig("cover")
 
   const { loading } = useQuery(queries.coverDetail, {
     variables: { id },
@@ -36,12 +32,12 @@ const CoverDetail = () => {
       setCover(coverDetail || {})
       setIsFetched(true)
     },
-    onError,
+    onError({ message }) {
+      onError(message)
+    },
   })
 
-  if (loading || loadingConfig) {
-    return <Loader />
-  }
+  if (loading) return <Loader />
 
   return (
     <div className="flex-auto overflow-hidden ">

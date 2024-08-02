@@ -32,12 +32,13 @@ export const verifyJwtToken = token => {
   }
 };
 
-// The variable "isPassed2FA" is True when user approved their otp code
+// The variable "isPassed2FA" is True, when user approved their otp code
 export const tokenHandler = async (
   user: IUserDocument,
   clientPortal: IClientPortal,
   res,
-  isPassed2FA = false
+  isEnableTwoFactor = false,
+  isPassed2FA = true
 ) => {
   const cookieOptions: any = {};
 
@@ -52,14 +53,14 @@ export const tokenHandler = async (
   const payload = {
     userId: user._id,
     type: user.type,
-    isEnableTwoFactor: clientPortal.twoFactorConfig?.enableTwoFactor,
+    isEnableTwoFactor,
     isPassed2FA,
   };
 
   const { token, refreshToken } = createJwtToken(payload, clientPortal);
 
   if (tokenPassMethod === 'header') {
-    return { token, refreshToken };
+    return { token, refreshToken, ...(isEnableTwoFactor && { isPassed2FA }) };
   }
 
   const { tokenExpiration } = clientPortal;
@@ -72,5 +73,5 @@ export const tokenHandler = async (
 
   res.cookie('client-auth-token', token, options);
 
-  return { refreshToken };
+  return { refreshToken, ...(isEnableTwoFactor && { isPassed2FA }) };
 };

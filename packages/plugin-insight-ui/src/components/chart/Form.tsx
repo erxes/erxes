@@ -133,22 +133,16 @@ const Form = (props: Props) => {
   };
 
   const setFilter = (fieldName: string, value: any) => {
-    if (value === undefined || value === null) {
-      delete filters[fieldName];
-      setFilters({ ...filters });
-      return;
-    }
 
-    if (Array.isArray(value) && !value.length) {
-      delete filters[fieldName];
-      setFilters({ ...filters });
-      return;
-    }
+    setFilters((prevFilters) => {
+      if (value === undefined || value === null || (Array.isArray(value) && !value.length)) {
+        const { [fieldName]: omitted, ...updatedFilters } = prevFilters;
+        return updatedFilters;
+      }
 
-    filters[fieldName] = value;
-
-    setFilters({ ...filters });
-    return;
+      const updatedFilters = { ...prevFilters, [fieldName]: value };
+      return updatedFilters;
+    });
   };
 
   const renderFilterTypeFields = () => {
@@ -162,6 +156,7 @@ const Form = (props: Props) => {
           <ChartFormField
             initialValue={filters[f.fieldName]}
             filterType={f}
+            chartType={chartType}
             fieldValues={filters}
             key={f.fieldName}
             setFilter={setFilter}

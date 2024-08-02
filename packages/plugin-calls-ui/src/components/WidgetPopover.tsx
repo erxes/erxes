@@ -14,10 +14,16 @@ type Props = {
   autoOpenTab: string;
   callUserIntegrations?: ICallConfigDoc[];
   setConfig?: any;
+  currentCallConversationId: string;
 };
 
 const WidgetPopover = (
-  { autoOpenTab, callUserIntegrations, setConfig }: Props,
+  {
+    autoOpenTab,
+    callUserIntegrations,
+    setConfig,
+    currentCallConversationId,
+  }: Props,
   context
 ) => {
   const phone = extractPhoneNumberFromCounterpart(context?.call?.counterpart);
@@ -47,7 +53,12 @@ const WidgetPopover = (
 
   const renderContent = () => {
     if (currentTab === "History") {
-      return <HistoryContainer changeMainTab={changeTab} />;
+      return (
+        <HistoryContainer
+          changeMainTab={changeTab}
+          callUserIntegrations={callUserIntegrations}
+        />
+      );
     }
 
     if (currentTab === "Contact") {
@@ -59,10 +70,13 @@ const WidgetPopover = (
         callUserIntegrations={callUserIntegrations}
         setConfig={setConfig}
         phoneNumber={phoneNumber}
+        currentCallConversationId={currentCallConversationId}
       />
     );
   };
-
+  if (context?.call?.direction === "callDirection/INCOMING") {
+    return;
+  }
   return (
     <>
       <TabContent>{renderContent()}</TabContent>

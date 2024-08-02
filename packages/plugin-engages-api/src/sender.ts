@@ -1,11 +1,11 @@
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { sendMessage } from '@erxes/api-utils/src/messageBroker';
+import { getEnv } from '@erxes/api-utils/src';
 import { IModels } from './connectionResolver';
 import {
   ACTIVITY_CONTENT_TYPES,
-  ACTIVITY_LOG_ACTIONS,
-  CAMPAIGN_KINDS,
+  CAMPAIGN_KINDS
 } from './constants';
-import { debugInfo, debugError } from '@erxes/api-utils/src/debuggers';
 import { prepareEmailParams } from './emailUtils';
 import {
   getTelnyxInfo,
@@ -23,7 +23,7 @@ import {
 export const start = async (
   models: IModels,
   subdomain: string,
-  data: IEmailParams,
+  data: IEmailParams
 ) => {
   const {
     engageMessageId,
@@ -39,7 +39,7 @@ export const start = async (
   await models.Stats.findOneAndUpdate(
     { engageMessageId },
     { engageMessageId },
-    { upsert: true },
+    { upsert: true }
   );
 
   if (!(fromEmail || email.sender)) {
@@ -51,6 +51,7 @@ export const start = async (
   }
 
   const transporter = await createTransporter(models);
+  const VERSION = getEnv({ name: 'VERSION' });
 
   const sendCampaignEmail = async (customer: ICustomer) => {
     try {
@@ -76,7 +77,7 @@ export const start = async (
 
   const unverifiedEmailsLimit = parseInt(
     configs.unverifiedEmailsLimit || '100',
-    10,
+    10
   );
 
   let filteredCustomers: ICustomer[] = [];
@@ -86,11 +87,11 @@ export const start = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`,
+      `Unverified emails limit exceeded ${unverifiedEmailsLimit}. Customers who have unverified emails will be eliminated.`
     );
 
     filteredCustomers = customers.filter(
-      (c) => c.primaryEmail && c.emailValidationStatus === 'valid',
+      (c) => c.primaryEmail && c.emailValidationStatus === 'valid'
     );
   } else {
     filteredCustomers = customers;
@@ -104,13 +105,13 @@ export const start = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `The following (${malformedEmails.length}) emails were malformed and will be ignored: ${malformedEmails}`,
+      `The following (${malformedEmails.length}) emails were malformed and will be ignored: ${malformedEmails}`
     );
   }
 
   // customer email can come as malformed
   filteredCustomers = filteredCustomers.filter((c) =>
-    c.primaryEmail.includes('@'),
+    c.primaryEmail.includes('@')
   );
 
   // finalized email list
@@ -119,7 +120,7 @@ export const start = async (
   await models.Logs.createLog(
     engageMessageId,
     'regular',
-    `Preparing to send emails to ${emails.length}: ${emails}`,
+    `Preparing to send emails to ${emails.length}: ${emails}`
   );
 
   // set finalized count of the campaign
@@ -140,7 +141,7 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'regular',
-        `Email has already been sent to ${delivery.email} before. (${delivery.customerId} / ${delivery.customerName})`,
+        `Email has already been sent to ${delivery.email} before. (${delivery.customerId} / ${delivery.customerName})`
       );
 
       continue;
@@ -172,7 +173,7 @@ export const start = async (
       await models.Logs.createLog(
         engageMessageId,
         'regular',
-        `Error occured while creating activity log "${customer.primaryEmail}"`,
+        `Error occured while creating activity log "${customer.primaryEmail}"`
       );
     }
   } // end for loop
@@ -182,7 +183,7 @@ export const start = async (
 export const sendBulkSms = async (
   models: IModels,
   subdomain: string,
-  data: ISmsParams,
+  data: ISmsParams
 ) => {
   const { customers, engageMessageId, shortMessage, createdBy, title, kind } =
     data;
@@ -191,7 +192,7 @@ export const sendBulkSms = async (
   const smsLimit = await getConfig(models, 'smsLimit', 0);
 
   const validCustomers = customers.filter(
-    (c) => c.primaryPhone && c.phoneValidationStatus === 'valid',
+    (c) => c.primaryPhone && c.phoneValidationStatus === 'valid'
   );
 
   if (kind === CAMPAIGN_KINDS.AUTO) {
@@ -199,7 +200,7 @@ export const sendBulkSms = async (
       await models.Logs.createLog(
         engageMessageId,
         'regular',
-        `Auto campaign SMS limit is not set: "${smsLimit}"`,
+        `Auto campaign SMS limit is not set: "${smsLimit}"`
       );
 
       return;
@@ -209,7 +210,7 @@ export const sendBulkSms = async (
       await models.Logs.createLog(
         engageMessageId,
         'regular',
-        `Chosen "${validCustomers.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`,
+        `Chosen "${validCustomers.length}" customers exceeded sms limit "${smsLimit}". Campaign will not run.`
       );
 
       return;
@@ -220,7 +221,7 @@ export const sendBulkSms = async (
     await models.Logs.createLog(
       engageMessageId,
       'regular',
-      `Preparing to send SMS to "${validCustomers.length}" customers`,
+      `Preparing to send SMS to "${validCustomers.length}" customers`
     );
   }
 
@@ -249,13 +250,13 @@ export const sendBulkSms = async (
             engageMessageId,
             msg,
           });
-        },
+        }
       ); // end sms creation
     } catch (e) {
       await models.Logs.createLog(
         engageMessageId,
         'failure',
-        `${e.message} while sending to "${msg.to}"`,
+        `${e.message} while sending to "${msg.to}"`
       );
     }
 
@@ -279,7 +280,7 @@ export const sendBulkSms = async (
       await models.Logs.createLog(
         engageMessageId,
         'regular',
-        `Error occured while creating activity log "${customer.primaryPhone}"`,
+        `Error occured while creating activity log "${customer.primaryPhone}"`
       );
     }
   } // end customers loop
@@ -292,13 +293,13 @@ export const sendEmail = async (models: IModels, data: any) => {
 
   try {
     await transporter.sendMail(
-      prepareEmailParams(customer, data, configs.configSet),
+      prepareEmailParams(customer, data, configs.configSet)
     );
 
     debugInfo(`Sent email to: ${customer?.primaryEmail}`);
   } catch (e) {
     debugError(
-      `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`,
+      `Error occurred while sending email to ${customer?.primaryEmail}: ${e.message}`
     );
   }
 };

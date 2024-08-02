@@ -1,32 +1,34 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
+import { paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { moduleRequireLogin } from "@erxes/api-utils/src/permissions";
 
 const generateFilter = async (params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
     filter.$or = [
-      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } }
+      { name: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { code: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } }
     ];
   }
 
-  // if (params.ids) {
-  //   filter._id = { $in: params.ids };
-  // }
+  if (params.productId) {
+    filter.productId = params.productId;
+  }
 
-  if(params.productId)
-    filter.productId = params.productId
+  if (params.productType) {
+    filter.productType = params.productType;
+  }
 
-  if(params.productType)
-    filter.productType = params.productType
+  if (params.leaseType) {
+    filter.leaseType = params.leaseType;
+  }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -46,7 +48,7 @@ const contractTypeQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.ContractTypes.find(
         await generateFilter(params, commonQuerySelector)
       ),
@@ -69,14 +71,14 @@ const contractTypeQueries = {
     const filter = await generateFilter(params, commonQuerySelector);
 
     return {
-      list: paginate(
+      list: await paginate(
         models.ContractTypes.find(filter).sort(sortBuilder(params)),
         {
           page: params.page,
           perPage: params.perPage
         }
       ),
-      totalCount: models.ContractTypes.find(filter).count()
+      totalCount: await models.ContractTypes.find(filter).countDocuments()
     };
   },
 

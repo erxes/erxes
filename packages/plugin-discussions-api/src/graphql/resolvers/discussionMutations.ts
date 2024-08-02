@@ -2,7 +2,7 @@ const discussionMutations = {
   /**
    * Save discussion configuration
    */
-  discussionsSave(_root, args, { cpUser, models }) {
+  async discussionsSave(_root, args, { cpUser, models }) {
     const { _id, ...doc } = args;
 
     if (!cpUser) {
@@ -29,7 +29,7 @@ const discussionMutations = {
     return models.Discussions.deleteOne({ _id });
   },
 
-  discussionsVote(_root, args, { cpUser, models }) {
+  async discussionsVote(_root, args, { cpUser, models }) {
     const { _id, ...doc } = args;
 
     if (!cpUser) {

@@ -58,9 +58,9 @@ export interface IUserDoc {
   configs?: any;
   configsConstants?: any;
   score?: number;
-  branchIds: string[];
-  departmentIds: string[];
-  positionIds: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
+  positionIds?: string[];
   employeeId?: string;
 }
 
@@ -127,6 +127,7 @@ export interface IUser extends IUserDoc {
   branchIds: string[];
   departmentIds: string[];
   positionIds: string[];
+  positions?: any[];
   customFieldsData?: {
     [key: string]: any;
   };

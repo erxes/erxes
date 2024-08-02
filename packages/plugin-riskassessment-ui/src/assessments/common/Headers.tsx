@@ -180,14 +180,19 @@ export const headers = (queryParams) => {
           Object.keys(queryParams || {}).includes("status") &&
           clearButton("status"),
         main: (
-          <Container row>
+          <Container $row={true}>
             {statusColorConstant.map((status) => (
               <StatusBox
                 selected={queryParams.Status === status.name}
                 onClick={() => selectStatus(status.name)}
                 key={status.color}
               >
-                <Container justifyCenter row gap align="center">
+                <Container
+                  $justifyCenter={true}
+                  $row={true}
+                  $gap={true}
+                  align="center"
+                >
                   <Tip placement="bottom" text={status.label}>
                     <ColorBox color={status.color} />
                   </Tip>

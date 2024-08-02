@@ -4,7 +4,7 @@ import { sendInboxMessage } from '../../messageBroker';
 import { IPaymentConfig } from '../../models/definitions/paymentConfigs';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
+  async __resolveReference({ _id }, { models }: IContext) {
     return models.PaymentConfigs.findOne({ _id });
   },
 
@@ -30,6 +30,6 @@ export default {
   },
 
   async payments(config: IPaymentConfig, {}, { models }: IContext) {
-    return models.Payments.find({ _id: { $in: config.paymentIds } }).lean();
-  },
+    return models.PaymentMethods.find({ _id: { $in: config.paymentIds } }).lean();
+  }
 };

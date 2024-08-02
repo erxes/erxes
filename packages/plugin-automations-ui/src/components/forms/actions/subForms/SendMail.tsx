@@ -6,27 +6,32 @@ import {
   EmptyState,
   FormControl,
   FormGroup,
-  HelpPopover,
   Icon,
+  Label,
   ModalTrigger,
   SelectTeamMembers,
   TabTitle,
   Tabs,
   __,
-} from "@erxes/ui/src";
+  colors
+} from '@erxes/ui/src';
 
-import AddTemplateForm from "@erxes/ui-emailtemplates/src/containers/Form";
-import { Avatar } from "@erxes/ui/src/components/SelectWithSearch";
-import { BackIcon } from "@erxes/ui-automations/src/styles";
-import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
-import { DrawerDetail } from "@erxes/ui-automations/src/styles";
-import { IAction } from "@erxes/ui-automations/src/types";
-import { Padding } from "../styles";
-import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
-import React from "react";
-import SelectEmailTemplates from "@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import { renderDynamicComponent } from "../../../../utils";
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
+import { DrawerDetail, ItemRowHeader } from '@erxes/ui-automations/src/styles';
+import { IAction } from '@erxes/ui-automations/src/types';
+import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
+import AddTemplateForm from '@erxes/ui-emailtemplates/src/containers/Form';
+import SelectEmailTemplates from '@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate';
+import { FlexRow } from '@erxes/ui-settings/src/styles';
+import Popover from '@erxes/ui/src/components/Popover';
+import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
+import { PopoverContent } from '@erxes/ui/src/components/filterableList/styles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
+import { renderDynamicComponent } from '../../../../utils';
+import { Padding } from '../styles';
+import { ItemRow } from '@erxes/ui-automations/src/components/forms/actions/ItemRow';
 
 type Props = {
   activeAction: any;
@@ -37,304 +42,31 @@ type Props = {
   actionsConst: any[];
 };
 
-type State = {
-  selectedTab: string;
-  searchValue: string;
-  config?: any;
+const checkToFieldConfigured = (emailRecipientsConst, config) => {
+  const keys = emailRecipientsConst.map(({ name }) => name);
+  const configKeys = Object.keys(config);
+
+  return keys.some(key =>
+    Array.isArray(config[key])
+      ? (config[key] || [])?.length
+      : config[key] && configKeys.includes(key)
+  );
 };
 
-class SendMail extends React.Component<Props, State> {
-  private timer?: NodeJS.Timer;
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      searchValue: "",
-      selectedTab: "general",
-      config: props?.activeAction?.config || null,
-    };
-  }
-
-  renderCustomMailInput() {
-    const { config } = this.state;
-    const onChange = (e) => {
-      const { value } = e.currentTarget as HTMLInputElement;
-      if (
-        e.key === "Enter" &&
-        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-      ) {
-        this.setState({
-          config: {
-            ...config,
-            customMails: (config?.customMails || []).concat(value),
-          },
-        });
-        e.currentTarget.value = "";
-      }
-    };
-
-    const removeMail = (mail) => {
-      this.setState({
-        config: {
-          ...config,
-          customMails: (config?.customMails || []).filter(
-            (value) => value !== mail
-          ),
-        },
-      });
-    };
-
-    return (
-      <FormGroup>
-        <ControlLabel>{__("Custom Mail")}</ControlLabel>
-        {(config?.customMails || []).map((customMail) => (
-          <Chip
-            key={customMail}
-            onClick={removeMail.bind(this, customMail)}
-            frontContent={<Avatar src="/images/avatar-colored.svg" />}
-          >
-            {customMail}
-          </Chip>
-        ))}
-        <FormControl onKeyPress={onChange} placeholder="enter a some email" />
-      </FormGroup>
-    );
-  }
-
-  renderAttrubutionInput() {
-    const { triggerType, triggerConfig } = this.props;
-    const { config } = this.state;
-
-    const onChange = (updatedConfig) => {
-      this.setState({
-        config: updatedConfig,
-      });
-    };
-
-    const isAviableTriggerExcutor = ["contacts", "user"].some((c) =>
-      triggerType.includes(c)
-    );
-
-    const customAttributions = isAviableTriggerExcutor
-      ? [
-          {
-            _id: String(Math.random()),
-            label: "Trigger Executors",
-            name: "triggerExecutors",
-            type: "segment",
-          },
-        ]
-      : [];
-
-    return (
-      <>
-        <PlaceHolderInput
-          config={config}
-          triggerType={triggerType}
-          inputName="attributionMails"
-          label="Attribution Mails"
-          attrTypes={["user", "contact", "segment"]}
-          attrWithSegmentConfig={triggerType === "forms:form_submission"}
-          triggerConfig={triggerConfig}
-          onChange={onChange}
-          customAttributions={customAttributions}
-          additionalContent={
-            <HelpPopover>
-              <br>
-                This type does not include (From Mail) and (Not Verified mails)
-              </br>
-            </HelpPopover>
-          }
-        />
-      </>
-    );
-  }
-
-  renderSegmentInput(key, onSelect) {
-    const { config } = this.state;
-    const { triggerType } = this.props;
-
-    if (["contacts", "user"].every((c) => !triggerType.includes(c))) {
-      return null;
-    }
-
-    return (
-      <FormGroup>
-        <ControlLabel>{__("Segment based mails")}</ControlLabel>
-        <FormControl
-          componentclass="checkbox"
-          checked={config[key]}
-          onClick={() => onSelect(!config[key], key)}
-        />
-      </FormGroup>
-    );
-  }
-
-  renderRecipientTypeComponent({ serviceName, label, name, type }, onSelect) {
-    const { config } = this.state;
-
-    if (serviceName) {
-      return renderDynamicComponent(
-        {
-          componentType: "selectRecipients",
-          type,
-          value: config[name],
-          label,
-          name,
-          onSelect,
-        },
-        `${serviceName}:${type}`
-      );
-    }
-
-    switch (type) {
-      case "customMail":
-        return this.renderCustomMailInput();
-      case "teamMember":
-        return (
-          <FormGroup>
-            <ControlLabel>{__(label)}</ControlLabel>
-            <SelectTeamMembers
-              name={name}
-              initialValue={config[name]}
-              label={label}
-              onSelect={onSelect}
-              filterParams={{
-                status: "Verified",
-              }}
-            />
-          </FormGroup>
-        );
-      default:
-        return null;
-    }
-  }
-
-  renderToEmailsContent(emailRecipientsConst, onSelect) {
-    const { selectedTab } = this.state;
-
-    if (selectedTab === "general") {
-      return this.renderAttrubutionInput();
-    }
-
-    if (selectedTab === "static") {
-      return (emailRecipientsConst || []).map((emailRType) =>
-        this.renderRecipientTypeComponent(emailRType, onSelect)
-      );
-    }
-
-    return null;
-  }
-
-  renderConfig(emailRecipientsConst) {
-    const { config, selectedTab } = this.state;
-    const { addAction, activeAction, closeModal, triggerType } = this.props;
-
-    const onBackAction = () => {
-      this.setState({ config: null });
-    };
-
-    const onSelect = (value, name) => {
-      this.setState({ config: { ...config, [name]: value } });
-    };
-
-    const onChange = (e) => {
-      const { value, name } = e.currentTarget as HTMLInputElement;
-
-      this.setState({ config: { ...config, [name]: value } });
-    };
-
-    const onAddAction = () => {
-      addAction(activeAction, activeAction.id, config);
-      closeModal();
-    };
-
-    const handleSelectTab = (name) => {
-      this.setState({ selectedTab: name });
-    };
-
-    return (
-      <Common
-        closeModal={closeModal}
-        addAction={onAddAction}
-        activeAction={activeAction}
-        config={config}
-      >
-        <DrawerDetail>
-          <BackIcon onClick={onBackAction}>
-            <Icon icon="angle-left" size={20} /> {__("Back")}
-          </BackIcon>
-          <FormGroup>
-            <ControlLabel>{"From"}</ControlLabel>
-            <SelectTeamMembers
-              name="fromUserId"
-              initialValue={config?.fromUserId}
-              label="Select from user"
-              onSelect={onSelect}
-              filterParams={{
-                status: "Verified",
-              }}
-              multi={false}
-            />
-          </FormGroup>
-
-          <PlaceHolderInput
-            inputName="sender"
-            label="Sender"
-            config={config}
-            onChange={() => null}
-            onKeyPress={onChange}
-            triggerType={triggerType}
-          />
-
-          <PlaceHolderInput
-            inputName="subject"
-            label="Email Subject"
-            config={config}
-            onChange={() => null}
-            onKeyPress={onChange}
-            triggerType={triggerType}
-          />
-          <FormGroup>
-            <ControlLabel>{__("To Emails")}</ControlLabel>
-            <DrawerDetail>
-              <Tabs full>
-                <TabTitle
-                  className={selectedTab === "general" ? "active" : ""}
-                  onClick={handleSelectTab.bind(this, "general")}
-                >
-                  {__("General")}
-                </TabTitle>
-                <TabTitle
-                  className={selectedTab === "static" ? "active" : ""}
-                  onClick={handleSelectTab.bind(this, "static")}
-                >
-                  {__("Static")}
-                </TabTitle>
-              </Tabs>
-              <Padding>
-                {this.renderToEmailsContent(emailRecipientsConst, onSelect)}
-              </Padding>
-            </DrawerDetail>
-          </FormGroup>
-        </DrawerDetail>
-      </Common>
-    );
-  }
-
-  renderAddTemplate() {
-    const { triggerType } = this.props;
-
+const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
+  const [searchValue, setSearchValue] = useState('');
+  const addTemplateForm = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__("Add template")}
+        {__('Add template')}
       </Button>
     );
+
     const content = ({ closeModal }) => {
       const updatedProps = {
         closeModal,
         contentType: triggerType,
-        params: { searchValue: this.state.searchValue },
+        params: { searchValue }
       };
 
       return <AddTemplateForm {...updatedProps} />;
@@ -342,76 +74,407 @@ class SendMail extends React.Component<Props, State> {
 
     return (
       <ModalTrigger
-        title="Add New"
+        title="Add new email template"
         content={content}
         trigger={trigger}
         size="lg"
       />
     );
-  }
+  };
 
-  render() {
-    const { searchValue, config } = this.state;
-    const { actionsConst } = this.props;
-    const { emailRecipientsConst = [] } =
-      actionsConst.find((action) => action.type === "sendEmail") || {};
+  const onSearch = e => {
+    const { value } = e.currentTarget as HTMLInputElement;
 
-    const onSearch = (e) => {
-      if (this.timer) {
-        clearTimeout(this.timer);
-      }
+    setSearchValue(value);
+  };
 
-      const searchValue = e.target.value;
+  const selectTemplate = (id: string) => {
+    onChangeConfig('templateId', id);
+  };
 
-      this.setState({ searchValue });
-    };
+  return (
+    <>
+      <FormGroup>
+        <ControlLabel>{__('Search')}</ControlLabel>
+        <BarItems>
+          <FormControl
+            name="searchValue"
+            placeholder="Type to search"
+            value={searchValue}
+            onChange={onSearch}
+          />
+          {addTemplateForm()}
+        </BarItems>
+      </FormGroup>
+      <SelectEmailTemplates
+        searchValue={searchValue}
+        handleSelect={selectTemplate}
+      />
+    </>
+  );
+};
 
-    const selectTemplate = (id) => {
-      this.setState({ config: { ...config, templateId: id } });
-    };
+const RecipientsForm = ({
+  emailRecipientsConst,
+  triggerType,
+  triggerConfig,
+  config,
+  onChangeConfig
+}) => {
+  const [selectedTab, setTab] = useState('general');
 
-    if (!isEnabled("emailtemplates")) {
-      return (
-        <EmptyState
-          image="/images/actions/33.svg"
-          text=""
-          extra={
-            <span>
-              The send email action is not available.
-              <br />
-              Because the email template plugin is not working
-            </span>
+  const onSelect = (value, name) => {
+    onChangeConfig({ ...config, [name]: value });
+  };
+
+  const renderAttrubutionInput = () => {
+    const onChange = updatedConfig => onChangeConfig(updatedConfig);
+
+    const isAvailableTriggerExecutor = ['contacts', 'user'].some(c =>
+      triggerType.includes(c)
+    );
+
+    const customAttributions = isAvailableTriggerExecutor
+      ? [
+          {
+            _id: String(Math.random()),
+            label: 'Trigger Executors',
+            name: 'triggerExecutors',
+            type: 'segment'
           }
-        />
+        ]
+      : [];
+
+    return (
+      <PlaceHolderInput
+        config={config}
+        triggerType={triggerType}
+        inputName="attributionMails"
+        placeholder="Please select  some attributes from attributes section"
+        label="Dynamic mails"
+        attrTypes={['user', 'contact', 'segment']}
+        attrWithSegmentConfig={triggerType === 'forms:form_submission'}
+        triggerConfig={triggerConfig}
+        onChange={onChange}
+        customAttributions={customAttributions}
+        additionalContent={
+          <Popover
+            placement="auto"
+            trigger={
+              <Icon color={colors.colorCoreRed} icon="question-circle" />
+            }
+          >
+            <PopoverContent style={{ width: '200px', padding: '10px' }}>
+              This type does not include (From Mail) and (Not Verified mails)
+            </PopoverContent>
+          </Popover>
+        }
+      />
+    );
+  };
+
+  const renderCustomMailInput = () => {
+    const onChange = e => {
+      const { value } = e.currentTarget;
+      if (
+        e.key === 'Enter' &&
+        value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      ) {
+        onSelect((config?.customMails || []).concat(value), 'customMails');
+        e.currentTarget.value = '';
+      }
+    };
+
+    const removeMail = mail => {
+      onSelect(
+        (config?.customMails || []).filter(value => value !== mail),
+        'customMails'
+      );
+    };
+
+    return (
+      <FormGroup>
+        <ControlLabel>{__('Custom Mail')}</ControlLabel>
+        {(config?.customMails || []).map(customMail => (
+          <Chip
+            key={customMail}
+            onClick={() => removeMail(customMail)}
+            frontContent={<Avatar src="/images/avatar-colored.svg" />}
+          >
+            {customMail}
+          </Chip>
+        ))}
+        <FormControl onKeyPress={onChange} placeholder="Enter some email" />
+      </FormGroup>
+    );
+  };
+
+  const renderRecipientTypeComponent = ({ serviceName, label, name, type }) => {
+    if (serviceName) {
+      return renderDynamicComponent(
+        {
+          componentType: 'selectRecipients',
+          type,
+          value: config[name],
+          label,
+          name,
+          onSelect
+        },
+        `${serviceName}:${type}`
       );
     }
 
-    if (config?.templateId) {
-      return this.renderConfig(emailRecipientsConst);
+    switch (type) {
+      case 'customMail':
+        return renderCustomMailInput();
+      case 'teamMember':
+        return (
+          <FormGroup>
+            <ControlLabel>{__(label)}</ControlLabel>
+            <SelectTeamMembers
+              name={name}
+              initialValue={config[name] || ''}
+              label={label}
+              onSelect={onSelect}
+              filterParams={{
+                status: 'Verified'
+              }}
+            />
+          </FormGroup>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderToEmailsContent = () => {
+    if (selectedTab === 'general') {
+      return renderAttrubutionInput();
     }
 
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>{__("Search")}</ControlLabel>
-          <BarItems>
-            <FormControl
-              name="searchValue"
-              placeholder="type a search"
-              value={searchValue}
-              onChange={onSearch}
-            />
-            {this.renderAddTemplate()}
-          </BarItems>
-        </FormGroup>
-        <SelectEmailTemplates
-          searchValue={searchValue}
-          handleSelect={selectTemplate}
-          selectedTemplateId={config?.templateId}
+    if (selectedTab === 'static') {
+      return (emailRecipientsConst || []).map(emailRType =>
+        renderRecipientTypeComponent(emailRType)
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <FormGroup>
+      <ControlLabel>{__('To Emails')}</ControlLabel>
+      <DrawerDetail>
+        <Tabs full>
+          <TabTitle
+            className={selectedTab === 'general' ? 'active' : ''}
+            onClick={() => setTab('general')}
+          >
+            {__('General')}
+            {config?.attributionMails && (
+              <Label lblStyle="danger">
+                <Icon icon="check" />
+              </Label>
+            )}
+          </TabTitle>
+          <TabTitle
+            className={selectedTab === 'static' ? 'active' : ''}
+            onClick={() => setTab('static')}
+          >
+            {__('Static')}
+            {checkToFieldConfigured(emailRecipientsConst, config) && (
+              <Label lblStyle="danger" shake={true} ignoreTrans={true}>
+                {`${emailRecipientsConst
+                  .filter(({ name }) => name !== 'attributionMails')
+                  .reduce((acc, item) => {
+                    if (
+                      config.hasOwnProperty(item.name) &&
+                      Array.isArray(config[item.name])
+                        ? (config[item.name] || []).length
+                        : config[item.name]
+                    ) {
+                      acc++;
+                    }
+                    return acc;
+                  }, 0)}`}
+              </Label>
+            )}
+          </TabTitle>
+        </Tabs>
+        <Padding>{renderToEmailsContent()}</Padding>
+      </DrawerDetail>
+    </FormGroup>
+  );
+};
+
+const ConfigForm = ({
+  emailRecipientsConst,
+  config,
+  addAction,
+  activeAction,
+  closeModal,
+  triggerConfig,
+  setConfig,
+  triggerType
+}) => {
+  const onSelect = (value, name) => {
+    setConfig({ ...config, [name]: value });
+  };
+
+  return (
+    <Common
+      closeModal={closeModal}
+      addAction={addAction}
+      activeAction={activeAction}
+      config={config}
+    >
+      <DrawerDetail>
+        <ItemRow
+          title={'Sender'}
+          description="Who is sending email"
+          buttonText="sender"
+          isDone={config?.fromUserId}
+          config={config}
+          content={(doc, onChange) => (
+            <FormGroup>
+              <ControlLabel>{'Sender'}</ControlLabel>
+              <SelectTeamMembers
+                name="fromUserId"
+                initialValue={doc?.fromUserId || config?.fromUserId}
+                label="Select sender user"
+                onSelect={(value, name) => onChange({ ...doc, [name]: value })}
+                filterParams={{
+                  status: 'Verified'
+                }}
+                multi={false}
+              />
+            </FormGroup>
+          )}
+          onSave={({ fromUserId }) => onSelect(fromUserId, 'fromUserId')}
+          subContent={config?.fromUserId ? '' : 'Select Sender'}
         />
-      </>
+        <ItemRow
+          title={'Reciepent'}
+          description=""
+          buttonText="select recipients"
+          config={config}
+          isDone={checkToFieldConfigured(emailRecipientsConst, config)}
+          content={(doc, onChange) => (
+            <RecipientsForm
+              config={doc}
+              onChangeConfig={onChange}
+              emailRecipientsConst={emailRecipientsConst}
+              triggerConfig={triggerConfig}
+              triggerType={triggerType}
+            />
+          )}
+          onSave={setConfig}
+          subContent={config?.to ? '' : 'Select recipients'}
+        />
+        <ItemRow
+          title={'Subject'}
+          description="Configure the subject of the email"
+          buttonText="subject"
+          config={config}
+          isDone={config?.subject}
+          content={(doc, onChange) => (
+            <PlaceHolderInput
+              inputName="subject"
+              label="Email Subject"
+              config={doc}
+              onChange={() => null}
+              onKeyPress={(e: any) => {
+                const { name, value } = e.currentTarget as HTMLInputElement;
+                onChange({ [name]: value });
+              }}
+              triggerType={triggerType}
+            />
+          )}
+          subContent={config?.subject ? '' : 'Enter subject'}
+          onSave={doc => setConfig({ ...config, ...doc })}
+        />
+
+        <FlexRow $justifyContent="space-between">
+          <FlexRow $alignItems="baseline">
+            <ItemRowHeader>{__('Selected Email Template')}</ItemRowHeader>
+            <Icon
+              color={colors.colorCoreGreen}
+              icon="check-circle"
+              style={{ paddingLeft: '6px' }}
+            />
+          </FlexRow>
+          <ModalTrigger
+            title="Email Templates"
+            size="xl"
+            trigger={
+              <Button btnStyle="white">{`Change email template`}</Button>
+            }
+            content={() => (
+              <EmailTemplatesList
+                triggerType={triggerType}
+                onChangeConfig={(name, value) => {
+                  setConfig({ ...config, [name]: value });
+                }}
+              />
+            )}
+          />
+        </FlexRow>
+        <EmailTemplate templateId={config?.templateId} onlyPreview />
+      </DrawerDetail>
+    </Common>
+  );
+};
+
+export default function SendEmail({
+  triggerType,
+  actionsConst,
+  addAction,
+  activeAction,
+  closeModal,
+  triggerConfig
+}: Props) {
+  if (!isEnabled('emailtemplates')) {
+    return (
+      <EmptyState
+        image="/images/actions/33.svg"
+        text=""
+        extra={
+          <span>
+            The send email action is not available.
+            <br />
+            Because the email template plugin is not working
+          </span>
+        }
+      />
     );
   }
-}
 
-export default SendMail;
+  const [config, setConfig] = useState<any>(activeAction?.config || {});
+
+  if (config?.templateId) {
+    const { emailRecipientsConst = [] } =
+      actionsConst.find(action => action.type === 'sendEmail') || {};
+
+    const updatedProps = {
+      emailRecipientsConst,
+      config,
+      addAction,
+      activeAction,
+      closeModal,
+      triggerConfig,
+      setConfig,
+      triggerType
+    };
+
+    return <ConfigForm {...updatedProps} />;
+  }
+
+  return (
+    <EmailTemplatesList
+      triggerType={triggerType}
+      onChangeConfig={(name, value) => {
+        setConfig({ ...config, [name]: value });
+      }}
+    />
+  );
+}

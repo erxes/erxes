@@ -260,7 +260,7 @@ const customerMutations = {
     );
   },
 
-  customersChangeStateBulk(
+  async customersChangeStateBulk(
     _root,
     { _ids, value }: IStateParams,
     { models }: IContext,

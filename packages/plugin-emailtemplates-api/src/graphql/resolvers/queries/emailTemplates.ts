@@ -36,7 +36,7 @@ const emailTemplateQueries = {
   /**
    * Email templates list
    */
-  emailTemplates(
+  async emailTemplates(
     _root,
     args: IListParams,
     { commonQuerySelector, models }: IContext
@@ -52,7 +52,7 @@ const emailTemplateQueries = {
   /**
    * Get all email templates count. We will use it in pager
    */
-  emailTemplatesTotalCount(_root, { searchValue }, { models }: IContext) {
+  async emailTemplatesTotalCount(_root, { searchValue }, { models }: IContext) {
     const filter: any = {};
 
     if (searchValue) {
@@ -62,7 +62,7 @@ const emailTemplateQueries = {
     return models.EmailTemplates.find(filter).countDocuments();
   },
 
-  emailTemplate(_root, { _id }, { models }: IContext) {
+  async emailTemplate(_root, { _id }, { models }: IContext) {
     return models.EmailTemplates.findOne({ _id }).lean();
   }
 };

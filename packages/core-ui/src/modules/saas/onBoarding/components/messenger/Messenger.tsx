@@ -7,7 +7,9 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "modules/common/components/Button";
-import Form from "react-bootstrap/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormLabel from "@erxes/ui/src/components/form/Label";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import Icon from "modules/common/components/Icon";
 import TwitterPicker from "react-color/lib/Twitter";
@@ -59,19 +61,19 @@ function Messenger(props: Props) {
   return (
     <>
       <SidebarContent>
-        <Form.Group className={active ? "active" : ""} controlId="messenger">
-          <Form.Label>Brand name</Form.Label>
-          <Form.Control
+        <FormGroup className={`form-group ${active ? "active" : ""}`} controlId="messenger">
+          <FormLabel uppercase={false}>Brand name</FormLabel>
+          <FormControl
             defaultValue={brandName}
             name="name"
             onFocus={() => setActive(true)}
             onBlur={() => !brandName && setActive(false)}
             onChange={(e) => setBrandName((e.target as HTMLInputElement).value)}
           />
-        </Form.Group>
+        </FormGroup>
 
-        <Form.Group className="color-accent">
-          <Form.Label>Color accent:</Form.Label>
+        <FormGroup className="form-group color-accent">
+          <FormLabel uppercase={false}>Color accent:</FormLabel>
           <ColorChooserWrapper>
             <TwitterPicker
               color={color}
@@ -79,7 +81,7 @@ function Messenger(props: Props) {
               triangle="hide"
             />
           </ColorChooserWrapper>
-        </Form.Group>
+        </FormGroup>
       </SidebarContent>
 
       <ButtonContainer>

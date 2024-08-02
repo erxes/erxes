@@ -38,6 +38,7 @@ interface MentionNodeAttrs {
   label?: string | null;
   avatar?: string;
   username?: string;
+  email?: string;
   fullName?: string;
   title?: string;
 }
@@ -63,7 +64,12 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
 
       const mentionItem = {
         id: item.id,
-        label: (item.fullName || item.username || "").trim(),
+        label: (
+          item.fullName ||
+          item.username ||
+          item.email ||
+          "Username not found"
+        ).trim(),
       };
 
       if (item) {
@@ -121,8 +127,14 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
       }
 
       return items.map((item: MentionNodeAttrs, index: number) => {
-        const { id, username = "", fullName = "", title = "" } = item || {};
-
+        const {
+          id,
+          username = "",
+          fullName = "",
+          title = "",
+          email = "",
+        } = item || {};
+        const displayName = (fullName || username || email).trim();
         return (
           <VariableListBtn
             key={id}
@@ -134,16 +146,14 @@ export const MentionList = forwardRef<SuggestionListRef, SuggestionListProps>(
               <div className="mentionSuggestionsEntryContainerLeft">
                 <img
                   src={item.avatar || "/images/avatar-colored.svg"}
-                  alt={username}
-                  title={(fullName || username).trim()}
+                  alt={displayName}
+                  title={displayName}
                   role="presentation"
                   className="mentionSuggestionsEntryAvatar"
                 />
               </div>
               <div className="mentionSuggestionsEntryContainerRight">
-                <div className="mentionSuggestionsEntryText">
-                  {(fullName || username).trim()}
-                </div>
+                <div className="mentionSuggestionsEntryText">{displayName}</div>
                 <div className="mentionSuggestionsEntryTitle">{title}</div>
               </div>
             </FlexCenter>

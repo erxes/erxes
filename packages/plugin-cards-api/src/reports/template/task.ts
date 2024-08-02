@@ -1,10 +1,9 @@
 import { IModels } from "../../connectionResolver";
 import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_CLOSED, PROBABILITY_TASK, STATUS_TYPES, USER_TYPES } from "../constants";
-import { buildMatchFilter, getDimensionPipeline, getStageIds } from "../utils";
+import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getStageIds } from "../utils";
+const util = require('util')
 
 const DIMENSION_OPTIONS = [
-    { label: 'Total count', value: 'count' },
-    { label: 'Team members', value: 'teamMember' },
     { label: 'Departments', value: 'department' },
     { label: 'Branches', value: 'branch' },
     { label: 'Companies', value: 'company' },
@@ -12,12 +11,28 @@ const DIMENSION_OPTIONS = [
     { label: 'Boards', value: 'board' },
     { label: 'Pipelines', value: 'pipeline' },
     { label: 'Stages', value: 'stage' },
+    { label: 'Card', value: 'card' },
     { label: 'Tags', value: 'tag' },
     { label: 'Labels', value: 'label' },
     { label: 'Frequency (day, week, month)', value: 'frequency' },
     { label: 'Status', value: 'status' },
     { label: 'Priority', value: 'priority' },
+    { label: 'Item number', value: 'number' },
+    { label: 'Description', value: 'description' },
+    { label: 'Is Complete', value: 'isComplete' },
+    { label: 'Created by', value: 'createdBy' },
+    { label: 'Modified by', value: 'modifiedBy' },
+    { label: 'Assigned to', value: 'assignedTo' },
+    { label: 'Created at', value: 'createdAt' },
+    { label: 'Modified at', value: 'modifiedAt' },
+    { label: 'Stage changed at', value: 'stageChangedDate' },
+    { label: 'Start Date', value: 'startDate' },
+    { label: 'Close Date', value: 'closeDate' },
 ]
+
+const MEASURE_OPTIONS = [
+    { label: 'Total Count', value: 'count' },
+];
 
 export const taskCharts = [
     // TaskCustomProperties
@@ -29,7 +44,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -331,49 +346,48 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
-            const matchFilter = await buildMatchFilter(filter, 'task', subdomain, models)
+            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
-            const pipeline = await getDimensionPipeline(filter, 'task', subdomain, models)
+            const matchFilter = await buildMatchFilter(filter, 'task', subdomain, models)
 
             let tasks
 
-            if (pipeline.length === 0) {
-                const tasksCount = await models.Tasks.find(matchFilter).count()
+            if (chartType === "number") {
+                const tasksCount = await models.Tasks.find(matchFilter).countDocuments()
 
-                tasks = [
-                    {
-                        key: "Total Count",
-                        count: tasksCount
-                    }
-                ]
+                tasks = { labels: "Total Count", data: tasksCount }
             } else {
+                const pipeline = buildPipeline(filter, "task", matchFilter)
+
                 tasks = await models.Tasks.aggregate(pipeline)
             }
 
-            const totalCountByLabel = (tasks || []).reduce((acc, { count, key }) => {
-                acc[key] = count;
-                return acc;
-            }, {});
-
-            const data = Object.values(totalCountByLabel);
-            const labels = Object.keys(totalCountByLabel);
             const title = 'Total Tasks Count';
 
-            return { title, data, labels };
+            return { title, ...buildData({ chartType, data: tasks, measure, dimension }) };
         },
         filterTypes: [
             // DIMENSION FILTER
             {
                 fieldName: 'dimension',
                 fieldType: 'select',
-                multi: false,
+                multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: 'count',
+                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
+            },
+            // MEASURE FILTER
+            {
+                fieldName: 'measure',
+                fieldType: 'select',
+                multi: true,
+                fieldOptions: MEASURE_OPTIONS,
+                fieldDefaultValue: ['count'],
+                fieldLabel: 'Select measure',
             },
             // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
             {
@@ -626,7 +640,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -904,7 +918,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -1183,7 +1197,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { userType = "userId" } = filter
@@ -1476,7 +1490,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -1762,7 +1776,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -2048,7 +2062,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { userType = "userId" } = filter
@@ -2349,7 +2363,7 @@ export const taskCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 

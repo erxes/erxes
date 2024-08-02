@@ -41,7 +41,7 @@ export const loadDynamicComponent = (
   pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
-  const filteredPlugins = plugins.filter((plugin) => plugin[componentName]);
+  const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
   const renderDynamicComp = (plugin: any) => (
     <ErrorBoundary key={plugin.scope}>
       <RenderDynamicComponent
@@ -55,11 +55,11 @@ export const loadDynamicComponent = (
     return null;
   }
   if (multi) {
-    return filteredPlugins.map((plugin) => renderDynamicComp(plugin));
+    return filteredPlugins.map(plugin => renderDynamicComp(plugin));
   }
   if (pluginName) {
     const withPluginName = filteredPlugins.filter(
-      (plugin) => plugin.name === pluginName
+      plugin => plugin.name === pluginName
     );
     return renderDynamicComp(withPluginName[0]);
   }
@@ -143,7 +143,7 @@ export const renderFullName = (data, noPhone?: boolean) => {
   return "Unknown";
 };
 
-export const renderUserFullName = (data) => {
+export const renderUserFullName = data => {
   const { details } = data;
   if (details && details.fullName) {
     return details.fullName;
@@ -195,10 +195,10 @@ export const reorder = (
 export const generateRandomColorCode = () => {
   return `#${Math.random().toString(16).slice(2, 8)}`;
 };
-const isNumeric = (n) => {
+const isNumeric = n => {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
-export const isTimeStamp = (timestamp) => {
+export const isTimeStamp = timestamp => {
   const newTimestamp = new Date(timestamp).getTime();
   return isNumeric(newTimestamp);
 };
@@ -208,15 +208,15 @@ export const range = (start: number, stop: number) => {
 };
 // Return the list of values that are the intersection of two arrays
 export const intersection = (array1: any[], array2: any[]) => {
-  return array1.filter((n) => array2.includes(n));
+  return array1.filter(n => array2.includes(n));
 };
 // Computes the union of the passed-in arrays: the list of unique items
 export const union = (array1: any[], array2: any[]) => {
-  return array1.concat(array2.filter((n) => !array1.includes(n)));
+  return array1.concat(array2.filter(n => !array1.includes(n)));
 };
 // Similar to without, but returns the values from array that are not present in the other arrays.
 export const difference = (array1: any[], array2: any[]) => {
-  return array1.filter((n) => !array2.includes(n));
+  return array1.filter(n => !array2.includes(n));
 };
 export const can = (actionName: string, currentUser: IUser): boolean => {
   if (!currentUser) {
@@ -295,7 +295,7 @@ export function renderWithProps<Props>(
 ) {
   return <Wrapped {...props} />;
 }
-export const isValidDate = (date) => {
+export const isValidDate = date => {
   const parsedDate = Date.parse(date);
   // Checking if it is date
   if (isNaN(date) && !isNaN(parsedDate)) {
@@ -304,21 +304,24 @@ export const isValidDate = (date) => {
   return false;
 };
 export const extractAttachment = (attachments: IAttachment[]) => {
-  return attachments.map((file) => ({
-    name: file.name,
-    type: file.type,
-    url: file.url,
-    size: file.size,
-    duration: file.duration,
-  }));
+  return attachments
+    .filter(file => file)
+    .map(file => ({
+      name: file.name,
+      type: file.type,
+      url: file.url,
+      size: file.size,
+      duration: file.duration
+    }));
 };
+
 export const setCookie = (cname: string, cvalue: string, exdays = 100) => {
   const d = new Date();
   d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
   const expires = `expires=${d.toUTCString()}`;
   document.cookie = `${cname}=${cvalue};${expires};path=/`;
 };
-export const getCookie = (cname) => {
+export const getCookie = cname => {
   const name = `${cname}=`;
   const ca = document.cookie.split(";");
 
@@ -369,7 +372,7 @@ export const sendDesktopNotification = (doc: {
     const notification = new Notification(doc.title, {
       body: doc.content,
       icon: "/favicon.png",
-      dir: "ltr",
+      dir: "ltr"
     });
 
     // notify by sound
@@ -392,7 +395,7 @@ export const sendDesktopNotification = (doc: {
   }
 
   if (Notification.permission !== "denied") {
-    Notification.requestPermission((permission) => {
+    Notification.requestPermission(permission => {
       if (!("permission" in Notification)) {
         (Notification as any).permission = permission;
       }
@@ -403,7 +406,7 @@ export const sendDesktopNotification = (doc: {
     });
   }
 };
-export const roundToTwo = (value) => {
+export const roundToTwo = value => {
   if (!value) {
     return 0;
   }
@@ -420,7 +423,7 @@ function createLinkFromUrl(url) {
   if (!url.includes("http")) {
     url = "http://" + url;
   }
-  const onClick = (e) => {
+  const onClick = e => {
     e.stopPropagation();
     window.open(url);
   };
@@ -514,13 +517,13 @@ export const getConstantFromStore = (
   const constant = JSON.parse(localStorage.getItem(`config:${key}`) || "[]");
 
   if (isFlat) {
-    return constant.map((element) => element.value);
+    return constant.map(element => element.value);
   }
   if (!isMap) {
     return constant;
   }
   const map = {};
-  constant.forEach((element) => {
+  constant.forEach(element => {
     map[element.value] = element.label;
   });
   return map;
@@ -550,12 +553,12 @@ export const getVersion = () => {
     envMapsDic[map.name] = map.processValue;
   }
 
-  const getItem = (name) => env[name] || envMapsDic[name] || "";
+  const getItem = name => env[name] || envMapsDic[name] || "";
 
   const VERSION = getItem("REACT_APP_VERSION");
 
   const result = {
-    VERSION,
+    VERSION
   };
   return result;
 };
@@ -568,7 +571,7 @@ export const getEnv = () => {
     envMapsDic[map.name] = map.processValue;
   }
 
-  const getItem = (name) => env[name] || envMapsDic[name] || "";
+  const getItem = name => env[name] || envMapsDic[name] || "";
 
   const VERSION = getItem("REACT_APP_VERSION");
 
@@ -591,6 +594,7 @@ export const getEnv = () => {
     "<subdomain>",
     subdomain
   )}`;
+
   const result = {
     VERSION,
     STRIPE_KEY: getItem("REACT_APP_STRIPE_KEY"),
@@ -606,7 +610,15 @@ export const getEnv = () => {
       "<subdomain>",
       subdomain
     )}`,
+    REACT_APP_SENTRY_URL: getItem("REACT_APP_SENTRY_URL"),
+    REACT_APP_SENTRY_PROJECT_NAME: getItem("REACT_APP_SENTRY_PROJECT_NAME"),
+    REACT_APP_RELEASE: getItem("REACT_APP_RELEASE"),
+    REACT_APP_PUBLIC_POSTHOG_KEY: getItem("REACT_APP_PUBLIC_POSTHOG_KEY"),
+    REACT_APP_PUBLIC_POSTHOG_HOST: getItem("REACT_APP_PUBLIC_POSTHOG_HOST"),
+    REACT_APP_FARO_COLLECTOR_URL: getItem("REACT_APP_FARO_COLLECTOR_URL"),
+    REACT_APP_FARO_APP_NAME: getItem("REACT_APP_FARO_APP_NAME")
   };
+
   return result;
 };
 
@@ -638,7 +650,7 @@ export const generateTree = (
   level = -1,
   parentKey = "parentId"
 ) => {
-  const filtered = list.filter((c) => c[parentKey] === parentId);
+  const filtered = list.filter(c => c[parentKey] === parentId);
   if (filtered.length > 0) {
     level++;
   } else {
@@ -648,7 +660,7 @@ export const generateTree = (
     return [
       ...tree,
       callback(node, level),
-      ...generateTree(list, node._id, callback, level, parentKey),
+      ...generateTree(list, node._id, callback, level, parentKey)
     ];
   }, []);
 };
@@ -658,11 +670,11 @@ export const removeTypename = (obj?: any[] | any) => {
     return rest;
   };
   if (Array.isArray(obj)) {
-    return obj.map((item) => deleteType(item));
+    return obj.map(item => deleteType(item));
   }
   return deleteType(obj);
 };
-export const publicUrl = (path) => {
+export const publicUrl = path => {
   const { REACT_APP_PUBLIC_PATH } = window.env || {};
 
   let prefix = "";
@@ -672,11 +684,11 @@ export const publicUrl = (path) => {
   }
   return `${prefix}${path}`;
 };
-export const getThemeItem = (code) => {
+export const getThemeItem = code => {
   const configs = JSON.parse(
     localStorage.getItem("erxes_theme_configs") || "[]"
   );
-  const config = configs.find((c) => c.code === `THEME_${code.toUpperCase()}`);
+  const config = configs.find(c => c.code === `THEME_${code.toUpperCase()}`);
 
   return config ? config.value : "";
 };
@@ -686,7 +698,7 @@ const DATE_OPTIONS = {
   h: 1000 * 60 * 60,
   m: 1000 * 60,
   s: 1000,
-  ms: 1,
+  ms: 1
 };
 const CHARACTERS =
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!@#$%^&*()-=+{}[]<>.,:;"`|/?';
@@ -748,6 +760,6 @@ export const shortStrToDate = (
   }
   return intgr;
 };
-export const getGqlString = (doc) => {
+export const getGqlString = doc => {
   return doc.loc && doc.loc.source.body;
 };

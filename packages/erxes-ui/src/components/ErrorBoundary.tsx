@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 
 const ErrorFallback = ({ error }: { error: Error | null }) => (
   <p>Something went wrong. ({error?.message})</p>
@@ -14,7 +14,7 @@ const ErrorBoundary: React.FC<{ children: any; pluginName?: string }> = ({
 
   const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
     // You can also log the error to an error reporting service
-    console.error(error, errorInfo);
+    console.error(error, errorInfo, pluginName);
     setHasError(true);
   };
 

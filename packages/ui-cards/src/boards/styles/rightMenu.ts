@@ -4,7 +4,7 @@ import styled from "styled-components";
 import styledTS from "styled-components-ts";
 
 const FilterBox = styled.div`
-  .Select {
+  .css-13cymwt-control, .css-t3ipsp-control {
     margin-bottom: 15px;
   }
 
@@ -87,7 +87,7 @@ export const RightMenuContainer = styled.div`
 `;
 
 export const TabContent = styled.div`
-  padding: 15px 20px 0px 20px;
+  padding: 15px 20px 20px 20px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;

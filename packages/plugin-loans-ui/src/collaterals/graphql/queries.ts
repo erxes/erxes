@@ -85,6 +85,92 @@ export const collateralsMain = `
   }
 `;
 
+export const collateralTypesMain = `
+  query CollateralTypesMain($page: Int, $perPage: Int) {
+    collateralTypesMain(page: $page, perPage: $perPage) {
+      list {
+        _id
+        code
+        name
+        description
+        type
+        startDate
+        endDate
+        status
+        currency
+      }
+    }
+  }
+`
+
+export const collateralTypes = `
+  query collateralTypes($page: Int, $perPage: Int) {
+    collateralTypes(page: $page, perPage: $perPage) {
+      _id
+      code
+      name
+      description
+      type
+      startDate
+      endDate
+      status
+      currency
+      config{
+        defaultPercent
+      }
+    }
+  }
+`
+
+export const collateralTypeDetail = `
+query collateralTypeDetail($id: String!) {
+  collateralTypeDetail(_id: $id) {
+    _id
+    code
+    name
+    description
+    type
+    startDate
+    endDate
+    status
+    currency
+    config {
+      collateralType
+      defaultPercent
+      maxPercent
+      minPercent
+      riskClosePercent
+    }
+    property {
+      sizeSquare
+      sizeSquareUnit
+      cntRoom
+      startDate
+      endDate
+      quality
+      purpose
+      mark
+      color
+      power
+      frameNumber
+      importedDate
+      factoryDate
+      courtOrderDate
+      mrtConfirmedDate
+      cmrtRegisteredDate
+      mrtRegisteredDate
+      courtOrderNo
+      mrtOrg
+      registeredToAuthority
+      causeToShiftTo
+    }
+  }
+}
+`
+
 export default {
-  collateralsMain
+  collateralsMain,
+  collateralTypesMain,
+  collateralTypeDetail,
+  collateralTypes
 };

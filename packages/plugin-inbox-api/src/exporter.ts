@@ -66,7 +66,7 @@ const prepareDataCount = async (
     conversationsFilter._id = { $in: itemIds };
   }
 
-  data = await models.Conversations.find(conversationsFilter).count();
+  data = await models.Conversations.find(conversationsFilter).countDocuments();
 
   return data;
 };

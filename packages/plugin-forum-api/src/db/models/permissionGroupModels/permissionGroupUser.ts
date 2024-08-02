@@ -1,16 +1,22 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import {
+  Document,
+  Schema,
+  Model,
+  Connection,
+  Types,
+  HydratedDocument,
+} from 'mongoose';
 import { IModels } from '../index';
 import * as _ from 'lodash';
 import { PermissionGroupDocument } from './permissionGroup';
 
-const { ObjectId } = Types;
-
 export interface IPermissionGroupUser {
-  permissionGroupId: string;
+  permissionGroupId: Types.ObjectId;
   userId: string;
 }
 
-export type PermissionGroupUserDocument = IPermissionGroupUser & Document;
+export type PermissionGroupUserDocument =
+  HydratedDocument<IPermissionGroupUser>;
 
 export interface IPermissionGroupUserModel
   extends Model<PermissionGroupUserDocument> {
@@ -19,61 +25,59 @@ export interface IPermissionGroupUserModel
 
   addUsersToPermissionGroups(
     userIds: string[],
-    permissionGroupIds: string[]
+    permissionGroupIds: string[],
   ): Promise<void>;
   removeUsersFromPermissionGroups(
     userIds: string[],
-    permissionGroupIds: string[]
+    permissionGroupIds: string[],
   ): Promise<void>;
 
   setUsers(
     permissionGroupId: string,
-    cpUserIds: string[] | undefined | null
+    cpUserIds: string[] | undefined | null,
   ): Promise<boolean>;
 }
 
-export const permissionGroupUserSchema = new Schema<
-  PermissionGroupUserDocument
->({
-  permissionGroupId: { type: Types.ObjectId, required: true },
-  userId: { type: String, required: true }
+export const permissionGroupUserSchema = new Schema<IPermissionGroupUser>({
+  permissionGroupId: { type: Schema.Types.ObjectId, required: true },
+  userId: { type: String, required: true },
 });
 
 permissionGroupUserSchema.index(
   { permissionGroupId: 1, userId: 1 },
-  { unique: true }
+  { unique: true },
 );
 permissionGroupUserSchema.index({ userId: 1 });
 
 export const generatePermissionGroupUserModel = (
   subdomain: string,
   con: Connection,
-  models: IModels
+  models: IModels,
 ): void => {
   class PermissionGroupUserModelStatics {
     public static async getUserIdsOfPermissionGroup(
-      permissionGroupId: string
+      permissionGroupId: string,
     ): Promise<string[]> {
       const rels = await models.PermissionGroupUser.find({
-        permissionGroupId: ObjectId(permissionGroupId)
+        permissionGroupId: new Types.ObjectId(permissionGroupId),
       });
-      return (rels || []).map(rel => rel.userId);
+      return (rels || []).map((rel) => rel.userId);
     }
     public static async getGroupsOfUser(
-      userId: string
+      userId: string,
     ): Promise<PermissionGroupDocument[]> {
       const rels = await models.PermissionGroupUser.find({ userId });
       const permissionGroupIds = rels.map(
-        ({ permissionGroupId }) => permissionGroupId
+        ({ permissionGroupId }) => permissionGroupId,
       );
       const permissionGroups = await models.PermissionGroup.find({
-        _id: { $in: permissionGroupIds }
+        _id: { $in: permissionGroupIds },
       });
       return permissionGroups;
     }
     public static async addUsersToPermissionGroups(
       userIds: string[],
-      permissionGroupIds: string[]
+      permissionGroupIds: string[],
     ): Promise<void> {
       const rels: IPermissionGroupUser[] = [];
 
@@ -81,7 +85,7 @@ export const generatePermissionGroupUserModel = (
         for (const permissionGroupId of permissionGroupIds) {
           rels.push({
             userId,
-            permissionGroupId
+            permissionGroupId: new Types.ObjectId(permissionGroupId),
           });
         }
       }
@@ -90,38 +94,40 @@ export const generatePermissionGroupUserModel = (
     }
     public static async removeUsersFromPermissionGroups(
       userIds: string[],
-      permissionGroupIds: string[]
+      permissionGroupIds: string[],
     ): Promise<void> {
       await models.PermissionGroupUser.deleteMany({
         userId: { $in: userIds },
-        permissionGroupId: { $in: permissionGroupIds.map(ObjectId) }
+        permissionGroupId: {
+          $in: permissionGroupIds.map((x) => new Types.ObjectId(x)),
+        },
       });
     }
 
     public static async setUsers(
       permissionGroupId: string,
-      cpUserIds: string[] | undefined | null
+      cpUserIds: string[] | undefined | null,
     ): Promise<boolean> {
       // await models.PermissionGroupUser.deleteMany({
       //   userId: { $nin: cpUserIds || [] },
       //   permissionGroupId,
       // });
 
-      const ops: any[] = (cpUserIds || []).map(userId => ({
+      const ops: any[] = (cpUserIds || []).map((userId) => ({
         updateOne: {
           filter: { userId, permissionGroupId },
           update: { $set: { userId, permissionGroupId } },
-          upsert: true
-        }
+          upsert: true,
+        },
       }));
 
       ops.push({
         deleteMany: {
           filter: {
             userId: { $nin: cpUserIds || [] },
-            permissionGroupId
-          }
-        }
+            permissionGroupId,
+          },
+        },
       });
 
       await models.PermissionGroupUser.bulkWrite(ops);
@@ -132,7 +138,7 @@ export const generatePermissionGroupUserModel = (
 
   permissionGroupUserSchema.loadClass(PermissionGroupUserModelStatics);
   models.PermissionGroupUser = con.model<
-    PermissionGroupUserDocument,
+    IPermissionGroupUser,
     IPermissionGroupUserModel
   >('forum_permission_group_users', permissionGroupUserSchema);
 };

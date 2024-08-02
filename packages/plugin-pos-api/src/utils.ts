@@ -14,7 +14,7 @@ import {
   sendProductsMessage,
   sendSyncerkhetMessage,
 } from './messageBroker';
-import { IPosOrder } from './models/definitions/orders';
+import { IPosOrder, IPosOrderDocument } from './models/definitions/orders';
 import { IPosDocument } from './models/definitions/pos';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
@@ -193,9 +193,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -287,8 +286,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
           lng: marker.longitude || marker.lng,
           description: 'location',
         },
-        stringValue: `${marker.longitude || marker.lng},${
-          marker.latitude || marker.lat
+        stringValue: `${marker.longitude || marker.lng},${marker.latitude || marker.lat
           }`,
       },
     ];
@@ -427,7 +425,7 @@ export const statusToDone = async ({
   };
 };
 
-const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
+const createDealPerOrder = async ({ subdomain, models, pos, newOrder }: { subdomain: string, models: IModels, pos: IPosDocument, newOrder: IPosOrderDocument }) => {
   // ===> sync cards config then
   const { cardsConfig } = pos;
 
@@ -443,16 +441,20 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
       data: {
         name: `Cards: ${newOrder.number}`,
         startDate: newOrder.createdAt,
-        description: newOrder.deliveryInfo ? newOrder.deliveryInfo.address : '',
+        description: JSON.stringify(newOrder.deliveryInfo || '{}', undefined, 2).replace(
+          /\n( *)/g, (_, p1) => {
+            return '<br>' + '&nbsp;'.repeat(p1.length);
+          }
+        ),
         stageId: currentCardsConfig.stageId,
         assignedUserIds: currentCardsConfig.assignedUserIds,
-        productsData: newOrder.items.map((i) => ({
+        productsData: (newOrder.items || []).map((i) => ({
           productId: i.productId,
           uom: 'PC',
           currency: 'MNT',
           quantity: i.count,
           unitPrice: i.unitPrice,
-          amount: i.count * i.unitPrice,
+          amount: i.count * (i.unitPrice || 0),
           tickUsed: true,
         })),
       },
@@ -487,7 +489,7 @@ const createDealPerOrder = async ({ subdomain, pos, newOrder }) => {
       },
     });
 
-    await newOrder.updateOne({ _id: newOrder._id }, { $set: { convertDealId: cardDeal._id } });
+    await models.PosOrders.updateOne({ _id: newOrder._id }, { $set: { convertDealId: cardDeal._id } });
     return cardDeal._id
   }
   // end sync cards config then <
@@ -709,7 +711,7 @@ export const syncOrderFromClient = async ({
   await confirmLoyalties(subdomain, newOrder);
   await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
 
-  const convertDealId = await createDealPerOrder({ subdomain, pos, newOrder });
+  const convertDealId = await createDealPerOrder({ subdomain, models, pos, newOrder });
 
   if (pos.isOnline && newOrder.subBranchId) {
     const toPos = await models.Pos.findOne({
@@ -747,7 +749,7 @@ export const syncOrderFromClient = async ({
           subdomain,
           action: 'erxes-posclient-to-pos-api-remove',
           data: {
-            order: { ...newOrder, posToken, subToken: toPos.token },
+            order: { ...newOrder, posToken, subToken: toCancelPos.token },
           },
           pos: toCancelPos,
         });

@@ -1,6 +1,6 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
 } from '@erxes/api-utils/src/permissions';
 
 import { PAYMENTS } from '../../../api/constants';
@@ -34,16 +34,14 @@ const generateFilterQuery = (params: IParam) => {
 };
 
 const queries = {
-  payments(_root, args, { models }: IContext) {
+  async payments(_root, args, { models }: IContext) {
     const filter: any = {};
 
     if (args.status) {
       filter.status = args.status;
     }
 
-    return models.Payments.find(filter)
-      .sort({ type: 1 })
-      .lean();
+    return models.PaymentMethods.find(filter).sort({ type: 1 }).lean();
   },
 
   async paymentsTotalCount(
@@ -58,15 +56,15 @@ const queries = {
     const counts = {
       total: 0,
       byKind: {},
-      byStatus: { active: 0, archived: 0 }
+      byStatus: { active: 0, archived: 0 },
     };
 
     const qry = {
-      ...(await generateFilterQuery(args))
+      ...(await generateFilterQuery(args)),
     };
 
-    const count = async query => {
-      return models.Payments.find(query).countDocuments();
+    const count = async (query) => {
+      return models.PaymentMethods.find(query).countDocuments();
     };
 
     for (const kind of PAYMENTS.ALL) {
@@ -74,8 +72,8 @@ const queries = {
       counts.byKind[kind] = !args.kind
         ? countQueryResult
         : args.kind === kind
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     counts.byStatus.active = await count({ isActive: true, ...qry });
@@ -95,13 +93,21 @@ const queries = {
   },
 
   async qpayGetMerchant(_root, args, { models }: IContext) {
+    // const api = new QPayQuickQrAPI({
+    //   username: process.env.QUICK_QR_USERNAME || '',
+    //   password: process.env.QUICK_QR_PASSWORD || ''
+    // });
+    // return api.get(args._id);
+  },
+
+  async qpayGetDistricts(_root, args) {
     const api = new QPayQuickQrAPI({
       username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || ''
+      password: process.env.QUICK_QR_PASSWORD || '',
     });
 
-    return api.get(args._id);
-  }
+    return api.getDistricts(args.cityCode);
+  },
 };
 
 requireLogin(queries, 'payments');

@@ -1299,6 +1299,7 @@ const chartTemplates = [
             'radar',
             'polarArea',
             'table',
+            'number'
         ],
         getChartResult: async (
             models: IModels,

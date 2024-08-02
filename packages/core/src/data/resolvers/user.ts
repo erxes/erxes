@@ -10,7 +10,7 @@ import { getUserActionsMap } from '@erxes/api-utils/src';
 import { getConfigs, getEnv } from '../utils';
 import {
   coreModelExperiences,
-  getOrgPromoCodes,
+  // getOrgPromoCodes,
   getOrganizationDetail,
   getPlugin,
 } from '@erxes/api-utils/src/saas/saas';
@@ -23,7 +23,7 @@ export default {
     return user;
   },
 
-  status(user: IUserDocument) {
+  async status(user: IUserDocument) {
     if (user.registrationToken) {
       return 'Not verified';
     }
@@ -54,13 +54,13 @@ export default {
         type: 'contacts',
       })) || {};
 
-    const orgPromoCodes = await getOrgPromoCodes(organization);
+    // const orgPromoCodes = await getOrgPromoCodes(organization);
 
     contactPlugin.usage = await calcUsage({
       subdomain,
       pluginType: contactPlugin.type,
       organization,
-      orgPromoCodes,
+      // orgPromoCodes,
     });
 
     const remainingAmount = contactPlugin.usage.remainingAmount;
@@ -145,7 +145,7 @@ export default {
   async configsConstants(_user, _args, { models }: IContext) {
     const results: any[] = [];
     const configs = await getConfigs(models);
-    const constants = models.Configs.constants();
+    const constants = await models.Configs.constants();
 
     for (const key of Object.keys(constants)) {
       const configValues = configs[key] || [];
@@ -200,7 +200,7 @@ export default {
       (await models.Users.find({
         score: { $gt: user.score || 0 },
         role: { $ne: USER_ROLES.SYSTEM },
-      }).count()) + 1
+      }).countDocuments()) + 1
     );
   },
 };

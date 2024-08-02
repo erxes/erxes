@@ -1,7 +1,7 @@
 import { IContext } from '../../connectionResolver';
 
 const ClientPortalCompany = {
-  __resolveReference: ({ _id }, { models }: IContext) => {
+  __resolveReference: async ({ _id }, { models }: IContext) => {
     return models.Companies.findOne({ _id });
   },
 

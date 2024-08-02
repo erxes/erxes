@@ -54,7 +54,7 @@ const facebookQueries = {
     return models.Integrations.find({ kind });
   },
 
-  facebookGetIntegrationDetail(
+  async facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext
@@ -62,7 +62,7 @@ const facebookQueries = {
     return models.Integrations.findOne({ erxesApiId });
   },
 
-  facebookGetConfigs(_root, _args, { models }: IContext) {
+  async facebookGetConfigs(_root, _args, { models }: IContext) {
     return models.Configs.find({}).lean();
   },
 
@@ -211,16 +211,16 @@ const facebookQueries = {
     return pages;
   },
 
-  facebookConversationDetail(
+  async facebookConversationDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    let conversation = models.Conversations.findOne({ _id }) as any;
-    if (!conversation) {
-      conversation = models.CommentConversation.findOne({ _id });
+    const conversation = await models.Conversations.findOne({ _id });
+    if(conversation) {
+      return conversation;
     }
-    return conversation;
+    return await models.CommentConversation.findOne({ _id });
   },
 
   async facebookConversationMessages(
@@ -237,7 +237,7 @@ const facebookQueries = {
     const query = await buildSelector(conversationId, models.Conversations);
     if (conversation) {
       if (limit) {
-        const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+        const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
         messages = await models.ConversationMessages.find(query)
           .sort(sort)
@@ -254,7 +254,7 @@ const facebookQueries = {
       return messages.reverse();
     } else {
       let comment: any[] = [];
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
       comment = await models.CommentConversation.find({
         erxesApiId: conversationId
       })
@@ -384,7 +384,7 @@ const facebookQueries = {
     const query = await buildSelector(conversationId, models.PostConversations);
 
     if (limit) {
-      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
 
       messages = await models.CommentConversation.find(query)
         .sort(sort)
@@ -405,7 +405,7 @@ const facebookQueries = {
     return await models.Bots.find({});
   },
   async facebootMessengerBotsTotalCount(_root, _args, { models }: IContext) {
-    return await models.Bots.find({}).count();
+    return await models.Bots.find({}).countDocuments();
   },
   async facebootMessengerBot(_root, { _id }, { models }: IContext) {
     return await models.Bots.findOne({ _id });

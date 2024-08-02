@@ -12,13 +12,10 @@ const SipProvider = asyncComponent(
     import(/* webpackChunkName: "Widget - Calls" */ './containers/SipProvider'),
 );
 
-const Dashboard = asyncComponent(
-  () =>
-    import(
-       './components/dashboard'
-    ),
+const Dashboard = asyncComponent(() => import('./components/dashboard'));
+const DashboardDetail = asyncComponent(
+  () => import('./containers/switchboard/Detail'),
 );
-const DashboardDetail = asyncComponent(() => import('./containers/switchboard/Detail'));
 
 const Statistics = asyncComponent(() => import('./components/statistics/List'));
 
@@ -27,9 +24,7 @@ const CreateConnection = () => {
   const queryParams = queryString.parse(location.search);
   const { type } = queryParams;
 
-  return (
-    <SipProvider typeId={type} />
-  );
+  return <SipProvider typeId={type} />;
 };
 
 const ShowDashboard = () => {

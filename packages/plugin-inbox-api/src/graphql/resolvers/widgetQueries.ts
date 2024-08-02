@@ -79,7 +79,7 @@ const getWidgetMessages = (models: IModels, conversationId: string) => {
 };
 
 export default {
-  widgetsGetMessengerIntegration(
+  async widgetsGetMessengerIntegration(
     _root,
     args: { brandCode: string },
     { models }: IContext
@@ -90,7 +90,7 @@ export default {
     );
   },
 
-  widgetsConversations(
+  async widgetsConversations(
     _root,
     args: { integrationId: string; customerId?: string; visitorId?: string },
     { models }: IContext
@@ -147,7 +147,7 @@ export default {
     };
   },
 
-  widgetsMessages(
+  async widgetsMessages(
     _root,
     args: { conversationId: string },
     { models }: IContext
@@ -157,7 +157,7 @@ export default {
     return getWidgetMessages(models, conversationId);
   },
 
-  widgetsUnreadCount(
+  async widgetsUnreadCount(
     _root,
     args: { conversationId: string },
     { models }: IContext

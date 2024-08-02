@@ -123,8 +123,6 @@ const DateTimePicker = (props: Props) => {
           onChange={val => onTimeChange(val, 'start')}
         />
       )}
-
-      {overnightShift ? 'Overnight' : ''}
     </div>
   );
 };

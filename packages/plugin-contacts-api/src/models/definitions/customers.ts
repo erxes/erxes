@@ -20,14 +20,14 @@ export interface ILocation {
   userAgent: string;
 }
 
-export interface ILocationDocument extends ILocation, Document {}
+export interface ILocationDocument extends ILocation, Document { }
 
 export interface IVisitorContact {
   email?: string;
   phone?: string;
 }
 
-export interface IVisitorContactDocument extends IVisitorContact, Document {}
+export interface IVisitorContactDocument extends IVisitorContact, Document { }
 
 export interface IAddress {
   id: string; // lng_lat || random
@@ -366,6 +366,7 @@ export const customerSchema = schemaWrapper(
       optional: true,
       esType: 'number'
     }),
-    visitorId: field({ type: String, optional: true })
+    visitorId: field({ type: String, optional: true }),
+    data: field({ type: Object, optional: true })
   })
 );

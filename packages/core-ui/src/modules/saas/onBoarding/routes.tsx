@@ -7,12 +7,7 @@ const routes = ({ currentUser }) => {
   const Onboarding = () => {
     const location = useLocation();
     const queryParams = queryString.parse(location.search);
-    return (
-      <OnBoarding
-        currentUser={currentUser}
-        queryParams={queryParams}
-      />
-    );
+    return <OnBoarding currentUser={currentUser} queryParams={queryParams} />;
   };
 
   return (

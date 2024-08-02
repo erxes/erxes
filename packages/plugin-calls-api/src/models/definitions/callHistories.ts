@@ -9,7 +9,7 @@ export interface ICallHistory {
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  sessionId: string;
+  timeStamp: number;
   modifiedAt: Date;
   createdAt: Date;
   createdBy: string;
@@ -17,6 +17,7 @@ export interface ICallHistory {
   conversationId: string;
   acceptedUserId: string;
   recordUrl: string;
+  endedBy: string;
 }
 
 export interface ICallHistoryDocument extends ICallHistory, Document {}
@@ -35,14 +36,27 @@ export const callHistorySchema = new Schema({
   callStatus: field({
     type: String,
     label: 'status',
-    enum: ['missed', 'connected', 'rejected', 'cancelled', 'active'],
+    enum: [
+      'missed',
+      'connected',
+      'rejected',
+      'cancelled',
+      'active',
+      'transfered',
+      'cancelledToAnswered',
+    ],
     default: 'missed',
   }),
   acceptedUserId: field({
     type: String,
     label: 'call accepted operator id',
   }),
-  sessionId: field({ type: String, label: 'call session id' }),
+  timeStamp: field({
+    type: Number,
+    label: 'call timestamp',
+    unique: true,
+    index: true,
+  }),
   modifiedAt: field({ type: Date, label: 'modified date' }),
   createdAt: field({ type: Date, label: 'created date', default: new Date() }),
   createdBy: field({ type: String, label: 'created By' }),
@@ -51,4 +65,9 @@ export const callHistorySchema = new Schema({
   conversationId: field({ type: String, label: 'erxes conversation id' }),
   inboxIntegrationId: field({ type: String, label: 'erxes integration id' }),
   recordUrl: field({ type: String, label: 'record url' }),
+  endedBy: field({
+    type: String,
+    label: `'Local' indicates the call was ended by Erxes, while 'remote' indicates the call was ended by the customer`,
+  }),
+  queueName: field({ type: String, label: 'queue name' }),
 });

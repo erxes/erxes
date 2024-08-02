@@ -123,7 +123,7 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     };
 
     if (categoryId) {
-      query.categoryId = Types.ObjectId(categoryId);
+      query.categoryId = new Types.ObjectId(categoryId);
     }
 
     const aggregationStates: any[] = [
@@ -168,7 +168,7 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     };
 
     if (categoryId) {
-      query.categoryId = Types.ObjectId(categoryId);
+      query.categoryId = new Types.ObjectId(categoryId as string);
     }
 
     const aggregationStates: any[] = [

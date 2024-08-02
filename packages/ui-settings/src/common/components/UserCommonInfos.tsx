@@ -1,5 +1,7 @@
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
+import React, { useState } from "react";
 import { __, getConstantFromStore } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
 import CollapseContent from "@erxes/ui/src/components/CollapseContent";
@@ -8,12 +10,10 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IFormProps } from "@erxes/ui/src/types";
 import { IUser } from "@erxes/ui/src/auth/types";
-import React, { useState } from "react";
 import SelectPositions from "@erxes/ui/src/team/containers/SelectPositions";
 import dayjs from "dayjs";
 import { router } from "@erxes/ui/src";
 import timezones from "@erxes/ui/src/constants/timezones";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   user: IUser;
@@ -46,7 +46,7 @@ const UserCommonInfos = (props: Props) => {
   };
 
   const { user, onAvatarUpload, formProps } = props;
-  console.log(user, "init");
+
   const details = user.details || {};
 
   const handlePositionChange = (val) => {

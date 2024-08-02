@@ -2,14 +2,18 @@ const params = `
   $name: String,
   $accountId: String,
   $pageId: String,
-  $persistentMenus: [BotPersistentMenuInput]
+  $persistentMenus: [BotPersistentMenuInput],
+  $greetText: String,
+  $tag: String
 `;
 
 const paramsDef = `
   name: $name,
   accountId: $accountId,
   pageId: $pageId,
-  persistentMenus: $persistentMenus
+  persistentMenus: $persistentMenus,
+  greetText: $greetText
+  tag: $tag
 `;
 
 const addBot = `

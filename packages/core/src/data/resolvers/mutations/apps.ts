@@ -20,7 +20,7 @@ export default {
       throw new Error(e);
     }
   },
-  appsEdit(
+  async appsEdit(
     _root,
     { _id, name, userGroupId }: IEditParams,
     { models }: IContext

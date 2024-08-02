@@ -250,7 +250,7 @@ export default class Field extends React.Component<Props, State> {
   };
 
   handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
+    const { files } = e.currentTarget;
 
     const self = this;
     const attachments: any[] = [];
@@ -354,7 +354,7 @@ export default class Field extends React.Component<Props, State> {
         value={this.state.dateValue}
         viewDate={new Date()}
         defaultValue={defaultValue}
-        onChange={this.onDateChange}
+        onChange={this.onDateChange as any}
         dateFormat="YYYY/MM/DD"
         timeFormat={false}
       />
@@ -385,7 +385,7 @@ export default class Field extends React.Component<Props, State> {
         value={this.state.dateTimeValue}
         viewDate={new Date()}
         defaultValue={defaultValue}
-        onChange={this.onDateTimeChange}
+        onChange={this.onDateTimeChange as any}
         timeFormat="HH:mm"
         dateFormat="YYYY/MM/DD"
       />
@@ -631,21 +631,13 @@ export default class Field extends React.Component<Props, State> {
     }
 
     switch (field.type) {
-      case 'phone':
+      case 'internationalPhone':
         const updatedProps = {
           value: value || '',
           onChange: this.onChange,
           id: field._id,
         };
         return <PhoneInput {...updatedProps} />;
-
-      case 'company_primaryPhone': 
-        const updatedPropsCompany = {
-          value: value,
-          onChange: this.onChange,
-          id: field._id,
-        };
-        return <PhoneInput {...updatedPropsCompany} />;
 
       case 'select':
         return Field.renderSelect(options, {
@@ -677,11 +669,14 @@ export default class Field extends React.Component<Props, State> {
         });
 
       case 'location':
-        return Field.renderSelect(COUNTRIES.map(c => c.name), {
-          onChange: this.onSelectChange,
-          id: field._id,
-          value: String(value),
-        });
+        return Field.renderSelect(
+          COUNTRIES.map((c) => c.name),
+          {
+            onChange: this.onSelectChange,
+            id: field._id,
+            value: String(value),
+          }
+        );
 
       case 'industry':
         return Field.renderSelect(DEFAULT_COMPANY_INDUSTRY_TYPES, {

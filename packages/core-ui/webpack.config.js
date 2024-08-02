@@ -86,6 +86,7 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../ui-leads/src"),
             path.resolve(__dirname, "../ui-tags/src"),
             path.resolve(__dirname, "../ui-emailtemplates/src"),
+            path.resolve(__dirname, "../ui-template/src"),
           ],
           use: {
             loader: "babel-loader",
@@ -169,6 +170,10 @@ module.exports = (env, args) => {
             requiredVersion: deps["react"],
             singleton: true,
             eager: true,
+          },
+          "@headlessui/react": {
+            requiredVersion: deps["@headlessui/react"],
+            singleton: true,
           },
           "./src/appContext": {},
           "./src/apolloClient": {},

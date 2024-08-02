@@ -1,10 +1,5 @@
 import { BranchesMainQueryResponse, IBranch } from "@erxes/ui/src/team/types";
-import {
-  FilterContainer,
-  InputBar,
-  LeftActionBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { LeftActionBar, Title } from "@erxes/ui-settings/src/styles";
 import { __, router } from "@erxes/ui/src/utils";
 
 import ActionButtons from "@erxes/ui/src/components/ActionButtons";
@@ -107,19 +102,14 @@ const MainList = (props: Props) => {
     };
 
     return (
-      <FilterContainer $marginRight={true}>
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FormControl
-            type="text"
-            placeholder={__("Type to search")}
-            onChange={search}
-            value={searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </InputBar>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
     );
   };
 

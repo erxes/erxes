@@ -42,6 +42,7 @@ class GroupList extends React.Component<IProps> {
         autoOpenKey={object ? "newUserGroup" : "showUserGroupAddModal"}
         trigger={trigger}
         content={content}
+        tipText={object && "Edit"}
       />
     );
   }
@@ -64,9 +65,7 @@ class GroupList extends React.Component<IProps> {
   renderEditAction(object: IUserGroupDocument) {
     const trigger = (
       <Button btnStyle="link">
-        <Tip text={__("Edit")} placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
+        <Icon icon="edit" />
       </Button>
     );
 
@@ -77,11 +76,11 @@ class GroupList extends React.Component<IProps> {
     const { remove } = this.props;
 
     return (
-      <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
-        <Tip text={__("Remove")} placement="bottom">
+      <Tip text={__("Remove")} placement="bottom">
+        <Button btnStyle="link" onClick={remove.bind(null, object._id)}>
           <Icon icon="cancel-1" />
-        </Tip>
-      </Button>
+        </Button>
+      </Tip>
     );
   }
 
@@ -92,11 +91,11 @@ class GroupList extends React.Component<IProps> {
     const tipText = "Copies user group along with the permissions & users";
 
     return (
-      <Button btnStyle="link" onClick={onCopy}>
-        <Tip text={tipText} placement="bottom">
+      <Tip text={tipText} placement="bottom">
+        <Button btnStyle="link" onClick={onCopy}>
           <Icon icon="copy" />
-        </Tip>
-      </Button>
+        </Button>
+      </Tip>
     );
   }
 

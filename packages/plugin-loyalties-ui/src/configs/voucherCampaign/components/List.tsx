@@ -9,20 +9,15 @@ import {
   Table,
 } from "@erxes/ui/src/components";
 import {
-  FilterContainer,
-  FlexItem,
-  FlexRow,
-  InputBar,
   Title,
 } from "@erxes/ui-settings/src/styles";
 
 import Form from "../containers/Form";
 import { IVoucherCampaign } from "../types";
-import Icon from "@erxes/ui/src/components/Icon";
 import React, { useState } from "react";
 import Row from "./Row";
 import Sidebar from "../../general/components/Sidebar";
-import { Wrapper } from "@erxes/ui/src/layout";
+import { Wrapper, BarItems } from "@erxes/ui/src/layout";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -136,30 +131,23 @@ const VoucherCampaigns = (props: Props) => {
     );
 
     return (
-      <FilterContainer>
-        <FlexRow>
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={search}
-                value={searchValue}
-                autoFocus={true}
-                onFocus={moveCursorAtTheEnd}
-              />
-            </FlexItem>
-          </InputBar>
-          <ModalTrigger
-            size={"lg"}
-            title="Add voucher campaign"
-            trigger={trigger}
-            autoOpenKey="showProductModal"
-            content={modalContent}
-          />
-        </FlexRow>
-      </FilterContainer>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__("Type to search")}
+          onChange={search}
+          value={searchValue}
+          autoFocus={true}
+          onFocus={moveCursorAtTheEnd}
+        />
+        <ModalTrigger
+          size={"lg"}
+          title="Add voucher campaign"
+          trigger={trigger}
+          autoOpenKey="showProductModal"
+          content={modalContent}
+        />
+      </BarItems>
     );
   };
 

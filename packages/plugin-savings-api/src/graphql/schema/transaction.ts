@@ -49,6 +49,9 @@ const queryParams = `
   contractHasnt: String
   sortField: String
   sortDirection: Int
+  transactionType: String
+  description: String
+  total: Float
 `;
 
 export const queries = `

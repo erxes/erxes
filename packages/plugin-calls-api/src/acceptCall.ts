@@ -28,9 +28,15 @@ const acceptCall = async (
     callStartTime,
     callType,
     callStatus,
-    sessionId,
+    timeStamp,
     inboxIntegrationId,
+    queueName,
   } = params;
+
+  let queue = queueName as any;
+  if (queueName === '') {
+    queue = null; // or set a default value
+  }
 
   let customer = await models.Customers.findOne({
     primaryPhone: customerPhone,
@@ -44,16 +50,22 @@ const acceptCall = async (
       callStartTime,
       callType,
       callStatus,
-      sessionId,
+      timeStamp,
       inboxIntegrationId,
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id,
       callDuration: 0,
       extentionNumber,
+      queueName: queue,
     });
 
     try {
+      await models.CallHistory.deleteMany({
+        timeStamp,
+        callStatus: { $eq: 'cancelled' },
+      });
+
       await history.save();
     } catch (error) {
       await models.CallHistory.deleteOne({ _id: history._id });

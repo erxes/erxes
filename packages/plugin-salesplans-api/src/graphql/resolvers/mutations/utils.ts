@@ -219,7 +219,7 @@ export const getPublicLabels = async ({
 
   const publicLabelIds = publicLabels.map(pl => pl._id);
 
-  const dayLabelsOfMonth = await models.DayLabels.find({
+  const dayLabelsOfMonth: any[] = await models.DayLabels.find({
     date: {
       $gte: new Date(year, month, 1),
       $lte: new Date(year, month, dayInMonth, 23, 59, 59)

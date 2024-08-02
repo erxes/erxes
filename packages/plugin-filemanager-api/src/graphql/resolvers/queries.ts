@@ -22,7 +22,7 @@ const queries = {
       parentId: ''
     };
 
-    const sort = { createdAt: -1 };
+    const sort: any = { createdAt: -1 };
 
     if (parentId) {
       selector.parentId = parentId;
@@ -105,7 +105,7 @@ const queries = {
 
     return models.Files.find(selector).sort({
       [sortField ? sortField : 'createdAt']: sortDirection || -1
-    });
+    } as any);
   },
 
   async filemanagerFileDetail(

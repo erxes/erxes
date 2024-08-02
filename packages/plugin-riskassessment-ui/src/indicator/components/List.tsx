@@ -97,7 +97,7 @@ class ListComp extends React.Component<Props, IState> {
     return (
       <FormControl
         type="text"
-        placeholder="type a search"
+        placeholder="Type to search"
         onChange={this.handleSearch}
         value={this.state.searchValue}
       />

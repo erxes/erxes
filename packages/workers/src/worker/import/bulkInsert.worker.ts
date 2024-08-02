@@ -133,7 +133,7 @@ const main = async () => {
       },
     };
 
-    await models.ImportHistory.update({ _id: importHistoryId }, modifier);
+    await models.ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
     console.log(`Worker done`);
 

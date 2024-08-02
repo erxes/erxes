@@ -1,24 +1,24 @@
 import * as React from 'react';
 import WebsiteAppDetail from '../../components/websiteApp/WebsiteAppDetail';
-import { AppConsumer } from '../AppContext';
+import { useRouter } from '../../context/Router';
+import { getMessengerData } from '../../utils/util';
 
-const WebsiteAppDetailContainer = () => {
+const WebsiteAppDetailContainer = ({ loading }: { loading: boolean }) => {
+  const { setRoute, currentWebsiteApp } = useRouter();
+  const websiteApp = (getMessengerData().websiteApps || []).find(
+    (app) => app._id === currentWebsiteApp
+  );
+
+  if (!websiteApp) {
+    return null;
+  }
+
   return (
-    <AppConsumer>
-      {({ changeRoute, getMessengerData, currentWebsiteApp }) => {
-        const websiteApp = (getMessengerData().websiteApps || []).find(
-          app => app._id === currentWebsiteApp
-        );
-
-        if (!websiteApp) {
-          return null;
-        }
-
-        return (
-          <WebsiteAppDetail changeRoute={changeRoute} websiteApp={websiteApp} />
-        );
-      }}
-    </AppConsumer>
+    <WebsiteAppDetail
+      loading={loading}
+      changeRoute={setRoute}
+      websiteApp={websiteApp}
+    />
   );
 };
 

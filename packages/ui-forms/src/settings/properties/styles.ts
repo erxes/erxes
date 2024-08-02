@@ -156,7 +156,7 @@ const RowField = styled.div`
 
 const PropertyTableRow = styled.div`
   display: flex;
-  flex 1;
+  flex: 1;
 
   &:hover {
     ${RowField} {

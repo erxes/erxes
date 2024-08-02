@@ -4,6 +4,7 @@ import {
   IFieldGroupDocument,
 } from './models/definitions/fields';
 import {
+  IForm,
   IFormDocument,
   IFormSubmissionDocument,
 } from './models/definitions/forms';
@@ -48,7 +49,7 @@ export const loadClasses = (
     'fields_groups',
     loadGroupClass(models),
   );
-  models.Forms = db.model<IFormDocument, IFormModel>(
+  models.Forms = db.model<IForm, IFormModel>(
     'forms',
     loadFormClass(models),
   );

@@ -70,13 +70,13 @@ export const loadInternalNoteClass = (models: IModels) => {
      * Remove internalNote
      */
     public static async removeInternalNote(_id: string) {
-      const internalNoteObj = await models.InternalNotes.findOne({ _id });
+      const internalNoteObj = await models.InternalNotes.findOneAndDelete({ _id });
 
       if (!internalNoteObj) {
         throw new Error(`InternalNote not found with id ${_id}`);
       }
 
-      return internalNoteObj.remove();
+      return internalNoteObj;
     }
 
     /**

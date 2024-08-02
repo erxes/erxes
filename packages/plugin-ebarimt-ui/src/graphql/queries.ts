@@ -50,37 +50,47 @@ const listParamsValue = `
   paidDate: $paidDate
 `;
 
-const responseFields = `
+export const responseFields = `
   _id
-  createdAt
-  modifiedAt
+  number
+
   contentType
   contentId
-  number
-  success
-  billId
-  date
-  macAddress
-  internalCode
-  billType
-  lotteryWarningMsg
-  errorCode
-  message
+
+  totalAmount
+  totalVAT
+  totalCityTax
+  districtCode
+  branchNo
+  merchantTin
+  posNo
+  customerTin
+  customerName
+  consumerNo
+  type
+  inactiveId
+  invoiceId
+  reportMonth
+  data
+  receipts
+  payments
+
+  easy
+
   getInformation
-  taxType
+  sendInfo
+  state
+
+  createdAt
+  modifiedAt
+
+  id
+  posId
+  status
+  message
   qrData
   lottery
-  amount
-  cityTax
-  vat
-  cashAmount
-  nonCashAmount
-  returnBillId
-  sendInfo
-  stocks
-  registerNo
-  customerNo
-  customerName
+  date
 `;
 
 const putResponses = `

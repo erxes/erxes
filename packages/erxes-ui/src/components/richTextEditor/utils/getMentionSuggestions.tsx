@@ -94,8 +94,10 @@ export function getMentionSuggestions({
             return;
           }
 
-          popup?.[0].destroy();
-          component.destroy();
+          setTimeout(() => {
+            popup?.[0].destroy();
+            component.destroy();
+          });
         },
       };
     },

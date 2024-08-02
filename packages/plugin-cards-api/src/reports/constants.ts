@@ -51,6 +51,57 @@ export const DIMENSION_OPTIONS = [
     { label: 'Priority', value: 'priority' },
 ];
 
+export const DIMENSION_MAP = {
+    teamMember: "userId",
+    department: "departmentId",
+    branch: "branchId",
+    company: "companyId",
+    customer: "customerId",
+    product: "productId",
+    board: "boardId",
+    pipeline: "pipelineId",
+    stage: "stageId",
+    tag: "tagId",
+    label: "labelId",
+    frequency: "frequency",
+    status: "status",
+    priority: "priority",
+}
+
+export const COLLECTION_MAP = {
+    teamMember: "users",
+    department: "departments",
+    branch: "branches",
+    company: "companies",
+    customer: "customers",
+    product: "products",
+    board: "boards",
+    pipeline: "pipelines",
+    stage: "stages",
+    tag: "tags",
+    label: "pipeline_labels",
+    // frequency: "frequency",
+    // status: "status",
+    // priority: "priority",
+}
+
+export const FIELD_MAP = {
+    teamMember: "userId",
+    department: "departmentIds",
+    branch: "branchIds",
+    // company : "companyId", 
+    // customer : "customerId", 
+    product: "productsData",
+    // board : "boardId", 
+    // pipeline : "pipelineId", 
+    stage: "stageId",
+    tag: "tagIds",
+    label: "labelIds",
+    // frequency : "frequency", 
+    status: "status",
+    // priority : "priority", 
+}
+
 export const CUSTOM_DATE_FREQUENCY_TYPES = [
     { label: 'By week', value: '%V' },
     { label: 'By month', value: '%m' },

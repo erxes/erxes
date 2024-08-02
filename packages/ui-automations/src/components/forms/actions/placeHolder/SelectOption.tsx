@@ -35,13 +35,7 @@ export default class SelectOption extends React.Component<Props, State> {
     };
   }
 
-  hideContent = () => {
-    this.overlay.hide();
-  };
-
-  onChange = (item) => {
-    this.overlay.hide();
-
+  onChange = (item, close) => {
     const { config, setConfig, inputName = "value" } = this.props;
 
     if (this.props.isMulti) {
@@ -61,6 +55,7 @@ export default class SelectOption extends React.Component<Props, State> {
     }
 
     setConfig(config);
+    close();
   };
 
   render() {
@@ -78,6 +73,30 @@ export default class SelectOption extends React.Component<Props, State> {
         new RegExp(searchValue, "i").test(option.label)
       );
     }
+
+    const lists = (close) => {
+      return (
+        <Attributes>
+          <React.Fragment>
+            <FormGroup>
+              <ControlLabel>{__("Search")}</ControlLabel>
+              <FormControl placeholder="Type to search" onChange={onSearch} />
+            </FormGroup>
+            <li>
+              <b>Default Options</b>
+            </li>
+            {options.map((item) => (
+              <li
+                key={item.label}
+                onClick={this.onChange.bind(this, item, close)}
+              >
+                {item.label}
+              </li>
+            ))}
+          </React.Fragment>
+        </Attributes>
+      );
+    };
     return (
       <Popover
         innerRef={this.overlay}
@@ -87,23 +106,9 @@ export default class SelectOption extends React.Component<Props, State> {
           </span>
         }
         placement="top"
+        closeAfterSelect={true}
       >
-        <Attributes>
-          <React.Fragment>
-            <FormGroup>
-              <ControlLabel>{__("Search")}</ControlLabel>
-              <FormControl placeholder="type a search" onChange={onSearch} />
-            </FormGroup>
-            <li>
-              <b>Default Options</b>
-            </li>
-            {options.map((item) => (
-              <li key={item.label} onClick={this.onChange.bind(this, item)}>
-                {item.label}
-              </li>
-            ))}
-          </React.Fragment>
-        </Attributes>
+        {lists}
       </Popover>
     );
   }

@@ -1,15 +1,15 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import styled, { css } from 'styled-components';
+import { colors, dimensions } from "@erxes/ui/src/styles";
+import styled, { css } from "styled-components";
 
-import Button from '@erxes/ui/src/components/Button';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { FormContainer } from '../styles/common';
-import { StageInfo } from './stage';
-import { borderRadius } from './common';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styledTS from 'styled-components-ts';
+import Button from "@erxes/ui/src/components/Button";
+import { Flex } from "@erxes/ui/src/styles/main";
+import { FormContainer } from "../styles/common";
+import { StageInfo } from "./stage";
+import { borderRadius } from "./common";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styledTS from "styled-components-ts";
 
-const buttonColor = '#0a1e3c';
+const buttonColor = "#0a1e3c";
 
 export const Content = styled.div`
   padding: 12px 22px;
@@ -82,7 +82,7 @@ export const LastUpdate = styled.div`
 
 export const ColumnChild = styled.td`
   &:first-child {
-    width: 500px;
+    max-width: 400px;
   }
 
   &:last-child {
@@ -91,7 +91,7 @@ export const ColumnChild = styled.td`
 `;
 
 export const LabelColumn = styled.td`
-  width: 300px;
+  max-width: 200px;
 `;
 
 export const StageColumn = styled.td`
@@ -152,9 +152,9 @@ export const AddContent = styled.div`
     margin-right: ${dimensions.coreSpacing}px;
 
     &:before {
-      content: '\\e9a8';
+      content: "\\e9a8";
       font-style: normal;
-      font-family: 'erxes';
+      font-family: "erxes";
       font-size: 16px;
       position: absolute;
       color: #777;
@@ -250,7 +250,7 @@ export const HeaderContentSmall = styled.div`
 export const FormFooter = styled.div`
   text-align: right;
   margin-top: 20px;
-  width: max-content;
+  width: 100%;
 `;
 
 export const SpaceContent = styled(Flex)`
@@ -261,6 +261,7 @@ export const SpaceContent = styled(Flex)`
 export const LeftContainer = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   flex: 1;
+  width: 60%;
   textarea {
     resize: none;
   }
@@ -322,13 +323,18 @@ export const MoveContainer = styled(Flex)`
 `;
 
 export const MoveContainerWidth = styled(Flex)`
-  @media (min-width: 1200px){width: 720px;}
+  @media (min-width: 1200px) {
+    width: 720px;
+  }
 `;
 
 export const ActionContainer = styled(MoveContainer)`
   flex-wrap: wrap;
   > div {
     margin: 0 ${dimensions.unitSpacing / 2}px ${dimensions.unitSpacing / 2}px 0;
+  }
+  [id^="headlessui-menu-items-"] {
+    padding: 7px 0;
   }
 `;
 

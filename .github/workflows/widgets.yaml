@@ -6,6 +6,7 @@ on:
       - dev
       - master
       - rc
+      - staging
     paths:
       - 'widgets/**'
       - '.github/workflows/widgets.yaml'
@@ -14,8 +15,6 @@ on:
       - master
       - rc
       - dev
-      - master
-      - rc
     paths:
       - 'widgets/**'
 
@@ -49,7 +48,7 @@ jobs:
         run: |
           cd widgets
           rm -rf node_modules
-          yarn install --frozen-lockfile --production
+          yarn install --frozen-lockfile 
           yarn build
 
       - name: Build docker image

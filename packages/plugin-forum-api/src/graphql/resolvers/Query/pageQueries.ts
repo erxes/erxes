@@ -2,10 +2,10 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 
 const pageQueries: IObjectTypeResolver<any, IContext> = {
-  forumPage(_, { _id }, { models: { Page } }) {
+  async forumPage(_, { _id }, { models: { Page } }) {
     return Page.findByIdOrThrow(_id);
   },
-  forumPages(_, params, { models: { Page } }) {
+  async forumPages(_, params, { models: { Page } }) {
     const { code, customQuery = {}, sort = {}, limit = 0, offset = 0 } = params;
 
     const query: any = {};

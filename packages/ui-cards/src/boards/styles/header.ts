@@ -113,6 +113,7 @@ export const BarItems = styled(BarItemsCommon)`
     overflow: auto;
     background: ${colors.colorWhite};
     padding: 0.5rem 0;
+    width: max-content;
 
     li {
       display: flex;

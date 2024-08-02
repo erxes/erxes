@@ -55,6 +55,8 @@ export interface IAbsenceType {
   shiftRequest: boolean;
 
   requestType: string;
+  requestToType: string;
+  requestToWhomType: string;
   requestTimeType: string;
   requestHoursPerDay?: number;
 }
@@ -263,7 +265,10 @@ export type ScheduleConfigQueryResponse = {
 export type DepartmentsQueryResponse = {
   timeclockDepartments: IDepartment[];
   departments: IDepartment[];
-};
+} & QueryResponse;
+export type DepartmentsQueryAdminResponse = {
+  departments: IDepartment[];
+} & QueryResponse;
 export type DeviceConfigsQueryResponse = {
   deviceConfigs: { list: IDeviceConfig[]; totalCount: number };
 } & QueryResponse;
@@ -275,6 +280,10 @@ export type ScheduleQueryResponse = {
 export type BranchesQueryResponse = {
   branches: IBranch[];
   timeclockBranches: IBranch[];
+} & QueryResponse;
+
+export type BranchesQueryAdminResponse = {
+  branches: IBranch[];
 } & QueryResponse;
 
 export type ReportsQueryResponse = {

@@ -48,8 +48,9 @@ export const types = `
     customer: Customer,
     company: Company,
     calcedInfo: CalcedInfo
-    currency:String
-    ebarimt:JSON
+    currency: String
+    ebarimt: JSON
+    transactionType: String
   }
 
   type TransactionsListResponse {
@@ -72,6 +73,9 @@ const queryParams = `
   contractHasnt: String
   sortField: String
   sortDirection: Int
+  description: String
+  transactionType: String
+  total: Float
 `;
 
 export const queries = `
@@ -117,8 +121,13 @@ const changeFields = `
   debtTenor: Float
 `;
 
+const clientFields = `
+  secondaryPassword: String
+`;
+
 export const mutations = `
   transactionsAdd(${commonFields}): LoanTransaction
+  clientTransactionsAdd(${commonFields}${clientFields}): LoanTransaction
   transactionsEdit(_id: String!, ${commonFields}): LoanTransaction
   transactionsChange(_id: String!, ${changeFields}): LoanTransaction
   transactionsRemove(transactionIds: [String]): [String]

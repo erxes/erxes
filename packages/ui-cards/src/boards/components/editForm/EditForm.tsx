@@ -1,17 +1,17 @@
-import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
-import { __, router as routerUtils } from "@erxes/ui/src/utils";
-
-import { ArchiveStatus } from "../../styles/item";
-import { CloseModal } from "@erxes/ui/src/styles/main";
-import Icon from "@erxes/ui/src/components/Icon";
-import React, { useState, useEffect, Fragment } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
   ModalOverlay,
 } from "@erxes/ui/src/styles/main";
+import { IEditFormContent, IItem, IItemParams, IOptions } from "../../types";
+import React, { Fragment, useEffect, useState } from "react";
+import { __, router as routerUtils } from "@erxes/ui/src/utils";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { ArchiveStatus } from "../../styles/item";
+import { CloseModal } from "@erxes/ui/src/styles/main";
+import Icon from "@erxes/ui/src/components/Icon";
 import styled from "styled-components";
 
 const Relative = styled.div`
@@ -44,6 +44,7 @@ function EditForm(props: Props) {
     beforePopupClose,
     refresh,
   } = props;
+
   const location = useLocation();
   const navigate = useNavigate();
   const [stageId, setStageId] = useState(item.stageId);
@@ -62,17 +63,18 @@ function EditForm(props: Props) {
     }
   }, [stageId]);
 
+  useEffect(() => {
+    if (props.item !== updatedItem) {
+      setUpdatedItem(props.item);
+    }
+  }, [item]);
+
   const onChangeStage = (stageId: string) => {
-    setStageId(stageId)
-    const { item, saveItem, onUpdate } = props;
+    setStageId(stageId);
+    const { item } = props;
 
     if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId)
-      saveItem({ stageId }, updatedItem => {
-        if (onUpdate) {
-          onUpdate(updatedItem, prevStageId);
-        }
-      });
+      setPrevStageId(item.stageId);
     }
   };
 

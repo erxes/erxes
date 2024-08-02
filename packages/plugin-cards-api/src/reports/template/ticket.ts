@@ -1,9 +1,8 @@
 import { IModels } from "../../connectionResolver";
 import { MONTH_NAMES, PROBABILITY_CLOSED, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_TYPES, DATERANGE_BY_TYPES, ATTACHMENT_TYPES, PRIORITY, STATUS_TYPES, PROBABILITY_TICKET, USER_TYPES, INTEGRATION_OPTIONS } from "../constants";
-import { buildMatchFilter, getDimensionPipeline, getIntegrationsKinds, getStageIds } from "../utils";
+import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getIntegrationsKinds, getStageIds } from "../utils";
 
 const DIMENSION_OPTIONS = [
-    { label: 'Total count', value: 'count' },
     { label: 'Team members', value: 'teamMember' },
     { label: 'Departments', value: 'department' },
     { label: 'Branches', value: 'branch' },
@@ -13,12 +12,27 @@ const DIMENSION_OPTIONS = [
     { label: 'Boards', value: 'board' },
     { label: 'Pipelines', value: 'pipeline' },
     { label: 'Stages', value: 'stage' },
+    { label: 'Card', value: 'card' },
     { label: 'Tags', value: 'tag' },
     { label: 'Labels', value: 'label' },
     { label: 'Frequency (day, week, month)', value: 'frequency' },
     { label: 'Status', value: 'status' },
     { label: 'Priority', value: 'priority' },
+    { label: 'Description', value: 'description' },
+    { label: 'Is Complete', value: 'isComplete' },
+    { label: 'Created by', value: 'createdBy' },
+    { label: 'Modified by', value: 'modifiedBy' },
+    { label: 'Assigned to', value: 'assignedTo' },
+    { label: 'Created at', value: 'createdAt' },
+    { label: 'Modified at', value: 'modifiedAt' },
+    { label: 'Stage changed at', value: 'stageChangedDate' },
+    { label: 'Start Date', value: 'startDate' },
+    { label: 'Close Date', value: 'closeDate' },
 ]
+
+const MEASURE_OPTIONS = [
+    { label: 'Total Count', value: 'count' },
+];
 
 export const ticketCharts = [
     // TicketCustomProperties
@@ -30,7 +44,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
@@ -331,7 +345,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -707,7 +721,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -984,7 +998,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -1261,7 +1275,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { userType = "userId" } = filter
@@ -1553,7 +1567,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
@@ -1868,7 +1882,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
             const { userType = "userId" } = filter
@@ -2168,7 +2182,7 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
 
@@ -2455,49 +2469,47 @@ export const ticketCharts = [
         getChartResult: async (
             models: IModels,
             filter: any,
-            dimension: any,
+            chartType: string,
             subdomain: string,
         ) => {
+            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
 
-            const pipeline = await getDimensionPipeline(filter, 'ticket', subdomain, models)
-
             let tickets
 
-            if (pipeline.length === 0) {
-                const ticketsCount = await models.Tickets.find(matchFilter).count()
+            if (chartType === "number") {
+                const ticketsCount = await models.Tickets.find(matchFilter).countDocuments()
 
-                tickets = [
-                    {
-                        key: "Total Count",
-                        count: ticketsCount
-                    }
-                ]
+                tickets = { labels: "Total Count", data: ticketsCount }
             } else {
+                const pipeline = buildPipeline(filter, "ticket", matchFilter)
+
                 tickets = await models.Tickets.aggregate(pipeline)
             }
 
-            const totalCountByLabel = (tickets || []).reduce((acc, { count, key }) => {
-                acc[key] = count;
-                return acc;
-            }, {});
-
-            const data = Object.values(totalCountByLabel);
-            const labels = Object.keys(totalCountByLabel);
             const title = 'Total Tickets Count';
 
-            return { title, data, labels };
+            return { title, ...buildData({ chartType, data: tickets, measure, dimension }) };
         },
         filterTypes: [
             // DIMENSION FILTER
             {
                 fieldName: 'dimension',
                 fieldType: 'select',
-                multi: false,
+                multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: 'count',
+                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
+            },
+            // MEASURE FILTER
+            {
+                fieldName: 'measure',
+                fieldType: 'select',
+                multi: true,
+                fieldOptions: MEASURE_OPTIONS,
+                fieldDefaultValue: ['count'],
+                fieldLabel: 'Select measure',
             },
             // FREQUENCY TYPE FILTER BASED DIMENSION FILTER
             {

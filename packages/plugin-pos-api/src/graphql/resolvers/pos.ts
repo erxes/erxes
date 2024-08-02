@@ -1,7 +1,7 @@
 import { sendCoreMessage } from '../../messageBroker';
 
 const resolvers = {
-  user: (pos, {}, { subdomain }) => {
+  user: async (pos, {}, { subdomain }) => {
     if (!pos.userId) {
       return null;
     }

@@ -33,7 +33,7 @@ const FormSchema = z.object({
 const Dates = () => {
   const beginDate = useAtomValue(beginDateAtom)
   const [endDate, setEndDate] = useAtom(endDateAtom)
-  
+
   const { getCoverAmounts, loading } = useCoverAmounts()
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -59,9 +59,9 @@ const Dates = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex items-start space-x-2">
+        <div className="flex items-start gap-2 flex-wrap">
           {!!beginDate && (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel className="block">Эхлэх огноо</FormLabel>
               <FormControl>
                 <Input

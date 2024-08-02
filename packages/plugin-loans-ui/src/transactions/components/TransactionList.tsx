@@ -6,12 +6,11 @@ import {
   DropdownToggle,
   FormControl,
   Icon,
-  ModalTrigger,
   Pagination,
   SortHandler,
   Table,
   Wrapper,
-  confirm,
+  confirm
 } from "@erxes/ui/src";
 import { ORGANIZATION_TYPE, menuContracts } from "../../constants";
 
@@ -65,7 +64,7 @@ const TransactionsList = (props: IProps) => {
     onSearch,
     isFiltered,
     clearFilter,
-    currentUser,
+    currentUser
   } = props;
 
   const onChange = () => {
@@ -206,8 +205,35 @@ const TransactionsList = (props: IProps) => {
     onSearch,
     isFiltered,
     clearFilter,
-    queryParams,
+    queryParams
   };
+
+  const menuItems = [
+    {
+      title: "Repayment Transaction",
+      trigger: <a href="#Repayment">{__("Repayment Transaction")}</a>,
+      content: repaymentForm,
+      additionalModalProps: { size: "lg" }
+    },
+    {
+      title: "Give Transaction",
+      trigger: <a href="#give">{__("Give Transaction")}</a>,
+      content: giveForm,
+      additionalModalProps: { size: "lg" }
+    },
+    {
+      title: "Interest Change",
+      trigger: <a href="#interest">{__("Interest Change")}</a>,
+      content: interestChangeForm,
+      additionalModalProps: { size: "lg" }
+    },
+    {
+      title: "Interest Return",
+      trigger: <a href="#return">{__("Interest Return")}</a>,
+      content: interestReturnForm,
+      additionalModalProps: { size: "lg" }
+    }
+  ];
 
   const actionBarRight = (
     <BarItems>
@@ -220,41 +246,8 @@ const TransactionsList = (props: IProps) => {
               <Icon icon="angle-down" />
             </Button>
           }
-          unmount={false}
-        >
-          <li>
-            <ModalTrigger
-              title={`${__("Repayment Transaction")}`}
-              trigger={<a href="#Repayment">{__("Repayment Transaction")}</a>}
-              size="lg"
-              content={repaymentForm}
-            />
-          </li>
-          <li>
-            <ModalTrigger
-              title={`${__("Give Transaction")}`}
-              trigger={<a href="#Give">{__("Give Transaction")}</a>}
-              size="lg"
-              content={giveForm}
-            />
-          </li>
-          <li>
-            <ModalTrigger
-              title={__("Interest Change")}
-              trigger={<a href="#Interest Change">{__("Interest Change")}</a>}
-              size="lg"
-              content={interestChangeForm}
-            />
-          </li>
-          <li>
-            <ModalTrigger
-              title={__("Interest Return")}
-              trigger={<a href="#Interest Return">{__("Interest Return")}</a>}
-              size="lg"
-              content={interestReturnForm}
-            />
-          </li>
-        </Dropdown>
+          modalMenuItems={menuItems}
+        />
       )}
 
       <RightMenu {...rightMenuProps} />

@@ -2,7 +2,7 @@ import { IModels } from './connectionResolver';
 import { sendProductsMessage } from './messageBroker';
 
 export default {
-  contacts: ['productsRemove']
+  products: ['productsRemove']
 };
 
 export const beforeResolverHandlers = async (

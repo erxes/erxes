@@ -51,11 +51,13 @@ const typeDefs = async () => {
   const contactsEnabled = await isEnabled('contacts');
   const tagsEnabled = await isEnabled('tags');
   const formsEnabled = await isEnabled('forms');
+  const clientPortalEnabled = await isEnabled('clientportal');
 
   const isEnabledTable = {
     contacts: contactsEnabled,
     forms: formsEnabled,
     tags: tagsEnabled,
+    clientPortal: clientPortalEnabled,
   };
 
   return gql`
@@ -98,6 +100,15 @@ const typeDefs = async () => {
         : ''
     }
     
+    ${
+      clientPortalEnabled
+        ? `
+        extend type ClientPortalUser @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
+        : ''
+    }
     ${boardTypes(isEnabledTable)}
     ${dealTypes(isEnabledTable)}
     ${purchaseTypes(isEnabledTable)}

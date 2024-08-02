@@ -131,8 +131,9 @@ const ListGroupBy = (props: Props) => {
               <th>{groupType === "priority" ? __("Label") : __("Priority")}</th>
               <th>{__("Due Date")}</th>
               {groupType !== "assignee" && <th>{__("Assignee")}</th>}
-              {options.type === "deal" ||
-                (options.type === "purchase" && <th>{__("Products")}</th>)}
+              {(options.type === "deal" || options.type === "purchase") && (
+                <th>{__("Products")}</th>
+              )}
               <th>{__("Associated Customer")}</th>
               <ColumnLastChild>{__("Associated Company")}</ColumnLastChild>
             </tr>

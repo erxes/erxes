@@ -3,7 +3,7 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IPost } from '../../db/models/post';
 import { IComment } from '../../db/models/comment';
 
-const ForumComment: IObjectTypeResolver<IComment, IContext> = {
+const ForumComment  = {
   async post({ postId }, _, { models: { Post } }) {
     return Post.findById(postId).lean();
   },

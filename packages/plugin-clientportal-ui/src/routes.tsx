@@ -87,7 +87,6 @@ const UserDetail = () => {
   return (
     <ClientPortalUserDetails
       id={id}
-      
       queryParams={queryParams}
     />
   );
@@ -112,7 +111,6 @@ const List = () => {
   return (
     <ClientPortalUserList
       queryParams={queryParams}
-      
       kind={kind}
     />
   );

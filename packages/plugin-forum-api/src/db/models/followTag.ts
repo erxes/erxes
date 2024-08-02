@@ -1,8 +1,8 @@
-import { Document, Schema, Model, Connection } from 'mongoose';
+import { Document, Schema, Model, Connection, HydratedDocument, Types } from 'mongoose';
 import { IModels } from './index';
 
 export interface IFollowTag {
-  _id: any;
+  _id: Types.ObjectId;
   tagId: string;
   followerId: string;
 }
@@ -11,7 +11,7 @@ const OMIT_FROM_INPUT = ['_id'] as const;
 
 export type FollowTag = Omit<IFollowTag, typeof OMIT_FROM_INPUT[number]>;
 
-export type FollowTagDocument = IFollowTag & Document;
+export type FollowTagDocument = HydratedDocument<IFollowTag>;
 
 export interface IFollowTagModel extends Model<FollowTagDocument> {
   follow(tagId: string, followerId: string): Promise<boolean>;
@@ -23,7 +23,7 @@ export interface IFollowTagModel extends Model<FollowTagDocument> {
   ): Promise<string[]>;
 }
 
-export const followTagSchema = new Schema<FollowTagDocument>({
+export const followTagSchema = new Schema<IFollowTag>({
   tagId: { type: String, required: true },
   followerId: { type: String, required: true }
 });
@@ -83,7 +83,7 @@ export const generateFollowTagModel = (
   }
   followTagSchema.loadClass(FollowTagModel);
 
-  models.FollowTag = con.model<FollowTagDocument, IFollowTagModel>(
+  models.FollowTag = con.model<IFollowTag, IFollowTagModel>(
     'forum_follow_tag',
     followTagSchema
   );

@@ -29,11 +29,11 @@ class CategoryMaskContainer extends React.Component<FinalProps> {
   render() {
     const { fieldsGroupsQuery } = this.props;
 
-    if (fieldsGroupsQuery.loading) {
+    if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
       return null;
     }
 
-    const fieldGroups = fieldsGroupsQuery.fieldsGroups || [];
+    const fieldGroups = fieldsGroupsQuery?.fieldsGroups ?? [];
 
     const updatedProps = {
       ...this.props,

@@ -208,7 +208,7 @@ const engageQueries = {
   /**
    * Group engage messages counts by kind, status, tag
    */
-  engageMessageCounts(
+  async engageMessageCounts(
     _root,
     { name, kind, status }: ICountParams,
     { user, commonQuerySelector, subdomain, models }: IContext,
@@ -249,14 +249,14 @@ const engageQueries = {
   /**
    * Get one message
    */
-  engageMessageDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async engageMessageDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.EngageMessages.findOne({ _id });
   },
 
   /**
    * Config detail
    */
-  engagesConfigDetail(_root, _args, { models }: IContext) {
+  async engagesConfigDetail(_root, _args, { models }: IContext) {
     return models.Configs.find({});
   },
 
@@ -366,7 +366,7 @@ const engageQueries = {
     }
   },
 
-  engageLogs(_root, args, { models }: IContext) {
+  async engageLogs(_root, args, { models }: IContext) {
     return paginate(
       models.Logs.find({ engageMessageId: args.engageMessageId }).sort({
         createdAt: -1,

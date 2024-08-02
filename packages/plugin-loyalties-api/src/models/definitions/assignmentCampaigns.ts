@@ -10,6 +10,7 @@ export interface IAssignmentCampaign extends ICommonCampaignFields {
   segmentIds: string[];
   fieldId: string;
   voucherCampaignId: string;
+  allowMultiWin?: boolean;
 }
 
 export interface IAssignmentCampaignDocument

@@ -125,13 +125,13 @@ export const loadClass = (models: IModels, subdomain: string) => {
      * Delete script
      */
     public static async removeScript(_id: string) {
-      const scriptObj = await models.Scripts.findOne({ _id });
+      const scriptObj = await models.Scripts.findOneAndDelete({ _id });
 
       if (!scriptObj) {
         throw new Error(`Script not found with id ${_id}`);
       }
 
-      return scriptObj.remove();
+      return scriptObj;
     }
   }
 

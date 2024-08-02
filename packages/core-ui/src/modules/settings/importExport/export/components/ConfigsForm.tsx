@@ -125,7 +125,7 @@ class ConfigsForm extends React.Component<Props, State> {
           <FormGroup>
             <SubHeading>{__("Properties to export")}</SubHeading>
 
-            <FormControl placeholder={__("Search")} onChange={this.onSearch} />
+            <FormControl placeholder={__("Type to search")} onChange={this.onSearch} />
           </FormGroup>
 
           <FormWrapper>{this.renderOperators(results)}</FormWrapper>

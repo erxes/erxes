@@ -34,7 +34,8 @@
     "migrateClientPortalUsers": "node_modules/.bin/ts-node src/commands/migrateClientPortalUsers.ts",
     "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts",
-    "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts"
+    "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts",
+    "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
@@ -50,7 +51,7 @@
     "csv-parser": "^3.0.0",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
-    "firebase-admin": "^8.6.1",
+    "firebase-admin": "^12.1.1",
     "formidable": "1.2.6",
     "fs-extra": "^9.0.1",
     "handlebars": "^4.7.3",

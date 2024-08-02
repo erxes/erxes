@@ -1,5 +1,5 @@
 import { Alert, __, confirm, formatValue } from "@erxes/ui/src/utils";
-import { Button, SortHandler, Table } from "@erxes/ui/src/components";
+import { Button, Table } from "@erxes/ui/src/components";
 
 import { IPutResponse } from "../types";
 import PerResponse from "./PerResponse";
@@ -87,7 +87,7 @@ class DetailDuplicated extends React.Component<IProps, State> {
         <tbody id="putResponses">
           {(putResponses || []).map((putResponse) => (
             <tr key={putResponse._id}>
-              <td key={"BillID"}>{putResponse.billId} </td>
+              <td key={"BillID"}>{putResponse.id} </td>
               <td key={"number"}>{putResponse.number} </td>
               <td key={"Date"}>
                 {dayjs(
@@ -106,8 +106,8 @@ class DetailDuplicated extends React.Component<IProps, State> {
               <td key={"billType"}>{displayValue(putResponse, "billType")}</td>
               <td key={"taxType"}>{displayValue(putResponse, "taxType")}</td>
               <td key={"amount"}>{displayValue(putResponse, "amount")}</td>
-              <td key={"ReturnBillId"}>
-                {putResponse.sendInfo?.returnBillId}{" "}
+              <td key={"inactiveId"}>
+                {putResponse.sendInfo?.inactiveId}{" "}
               </td>
               <td key={"actions"}>
                 <Button

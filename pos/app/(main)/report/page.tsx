@@ -28,7 +28,7 @@ const Report = () => {
     )
 
   return (
-    <div className="flex flex-auto w-full px-5 py-4 print:w-[72mm] print:px-0 print:py-0 print:overflow-visible overflow-hidden print:block">
+    <div className="md:flex flex-auto w-full px-5 py-4 print:w-[72mm] print:px-0 print:py-0 print:overflow-visible overflow-hidden print:block">
       <ReportForm getReport={getReport} loading={loading} />
       <Receipt report={report} />
     </div>

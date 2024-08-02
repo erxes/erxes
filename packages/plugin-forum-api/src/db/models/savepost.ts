@@ -1,29 +1,29 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, HydratedDocument } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
 import { ICpUser } from '../../graphql';
 import { LoginRequiredError } from '../../customErrors';
 
 export interface SavedPost {
-  _id: any;
-  postId: string;
+  _id: Types.ObjectId;
+  postId: Types.ObjectId;
   cpUserId: string;
   createdAt: Date;
 }
 
-export type SavedPostDocument = SavedPost & Document;
+export type SavedPostDocument = HydratedDocument<SavedPost>;
 
 const OMIT_FROM_INPUT = ['_id', 'createdAt'] as const;
 
 export type SavePostInput = Omit<SavedPost, typeof OMIT_FROM_INPUT[number]>;
 
-export interface SavedPostModel extends Model<SavedPostDocument> {
+export interface SavedPostModel extends Model<SavedPost> {
   savePost(postId: string, cpUser?: ICpUser): Promise<SavedPostDocument>;
   unsavePost(postId: string, cpUser?: ICpUser): Promise<SavedPostDocument>;
   deleteSavedPost(_id: string, cpUser?: ICpUser): Promise<SavedPostDocument>;
 }
 
-export const savedPostSchema = new Schema<SavedPostDocument>({
+export const savedPostSchema = new Schema<SavedPost>({
   postId: { type: Schema.Types.ObjectId, required: true },
   cpUserId: { type: String, required: true },
   createdAt: { type: Date, default: () => new Date(), required: true }
@@ -47,7 +47,7 @@ export const generateSavedPostModel = (
       const existing = await models.SavedPost.findOne({
         postId,
         cpUserId: cpUser.userId
-      }).lean();
+      });
       if (existing) return existing;
 
       const created = await models.SavedPost.create({
@@ -67,7 +67,7 @@ export const generateSavedPostModel = (
       });
       if (!existing) throw new Error(`Saved post not found`);
 
-      await existing.remove();
+      await existing.deleteOne();
       return existing;
     }
     public static async deleteSavedPost(
@@ -78,13 +78,13 @@ export const generateSavedPostModel = (
       const savedPost = await models.SavedPost.findById(_id);
       if (!savedPost) throw new Error('Saved post not found');
       if (savedPost.cpUserId !== cpUser.userId) throw new Error('Unauthorized');
-      await savedPost.remove();
+      await savedPost.deleteOne();
       return savedPost;
     }
   }
   savedPostSchema.loadClass(SavedPostStatics);
 
-  models.SavedPost = con.model<SavedPostDocument, SavedPostModel>(
+  models.SavedPost = con.model<SavedPost, SavedPostModel>(
     'forum_saved_posts',
     savedPostSchema
   );

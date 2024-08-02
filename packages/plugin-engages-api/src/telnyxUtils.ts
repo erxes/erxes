@@ -8,7 +8,6 @@ import {
   sendClientPortalMessage,
 } from './messageBroker';
 import { ICallbackParams, IMessageParams, ITelnyxMessageParams } from './types';
-// import { getEnv } from './utils';
 
 dotenv.config();
 
@@ -55,7 +54,7 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
 
         statuses.push({ date: new Date(), status: receiver.status });
 
-        await models.SmsRequests.updateRequest(initialRequest._id, {
+        await models.SmsRequests.updateRequest(initialRequest._id.toString(), {
           status: receiver.status,
           responseData: JSON.stringify(data.payload),
           statusUpdates: statuses,
@@ -113,7 +112,6 @@ export const prepareMessage = async ({
   to,
   integrations,
 }: IMessageParams): Promise<ITelnyxMessageParams> => {
-  // const MAIN_API_DOMAIN = getEnv({ name: 'MAIN_API_DOMAIN' });
   const { content, from, fromIntegrationId } = shortMessage;
 
   const integration = integrations.find(
@@ -168,7 +166,7 @@ export const handleMessageCallback = async (
       );
     }
 
-    await models.SmsRequests.updateRequest(request._id, {
+    await models.SmsRequests.updateRequest(request._id.toString(), {
       errorMessages: [err.message],
       status: 'error',
     });
@@ -185,7 +183,7 @@ export const handleMessageCallback = async (
       );
     }
 
-    await models.SmsRequests.updateRequest(request._id, {
+    await models.SmsRequests.updateRequest(request._id.toString(), {
       status: receiver && receiver.status,
       responseData: JSON.stringify(res.data),
       telnyxId: res.data.id,

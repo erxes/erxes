@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { getConfig } from '../../../utils';
+import { getConfig, returnResponse } from '../../../utils';
 
 const ebarimtMutations = {
   async putResponseReturnBill(_root, args, { models, subdomain }: IContext) {
@@ -17,24 +17,15 @@ const ebarimtMutations = {
     const config: any = await getConfig(subdomain, 'EBARIMT', {})
     const url = config.ebarimtUrl || '';
 
-    let rd = putResponse.registerNo;
-    if (!rd) {
-      throw new Error('not found putResponses register number')
-    }
+    const { id, date } = putResponse;
 
-    if (rd.length === 12) {
-      rd = rd.slice(-8);
-    }
-
-    const { billId, date } = putResponse;
-
-    if (!billId || !date) {
-      throw new Error('not found putResponses billId or date')
+    if (!id || !date) {
+      throw new Error('not found putResponses id or date')
     }
 
     const data = {
-      returnBillId: billId,
-      date: date,
+      id,
+      date,
     };
 
     const resObj = await models.PutResponses.createPutResponse({
@@ -42,34 +33,74 @@ const ebarimtMutations = {
       contentId: putResponse.contentId,
       contentType: putResponse.contentType,
       number: putResponse.number,
-      returnBillId: billId,
+      inactiveId: id,
+      type: putResponse.type
     });
 
-    const response = await fetch(`${url}/returnBill?lib=${rd}`, {
-      method: 'POST',
-      body: JSON.stringify({ data }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then((r) => r.json());
+    const delResponse = await returnResponse(url, data)
 
-    if (['true', true].includes(response.success)) {
+    if (delResponse.status === 200) {
       await models.PutResponses.updateOne(
         { _id: putResponse._id },
-        { $set: { status: 'inactive' } },
+        { $set: { state: 'inactive' } },
       );
-    }
-
-    await models.PutResponses.updatePutResponse(resObj._id, {
-      ...response,
-    });
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { status: 'SUCCESS', modifiedAt: new Date() } })
+    } else {
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { message: delResponse.message, date: delResponse.date, status: 'ERROR', modifiedAt: new Date() } })
+    };
 
     return models.PutResponses.findOne({ _id: resObj._id })
       .lean();
   },
 
+  async putResponseReReturn(_root, args, { models, subdomain }: IContext) {
+    const { _id } = args;
+
+    const putResponse = await models.PutResponses.findOne({ _id }).lean();
+    if (!putResponse) {
+      throw new Error('not found put response')
+    }
+    if (putResponse.id || !putResponse.inactiveId) {
+      throw new Error('this response is not return bill')
+    }
+
+    const config = await getConfig(subdomain, 'EBARIMT', {});
+
+    const url = config.ebarimtUrl || '';
+    if (!url) {
+      throw new Error('not found config')
+    }
+
+    const resObj = await models.PutResponses.createPutResponse({
+      sendInfo: putResponse.sendInfo,
+      contentId: putResponse.contentId,
+      contentType: putResponse.contentType,
+      number: putResponse.number,
+      inactiveId: putResponse.inactiveId,
+    });
+
+    const delResponse = await returnResponse(url, putResponse.sendInfo)
+
+    if (delResponse.status === 200) {
+      await models.PutResponses.updateOne(
+        { _id: putResponse._id },
+        { $set: { state: 'inactive' } },
+      );
+      await models.PutResponses.updateOne(
+        { id: putResponse.inactiveId },
+        { $set: { state: 'inactive' } },
+      );
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { status: 'SUCCESS', modifiedAt: new Date() } })
+    } else {
+      await models.PutResponses.updateOne({ _id: resObj._id }, { $set: { message: delResponse.message, date: delResponse.date, status: 'ERROR', modifiedAt: new Date() } })
+    };
+
+    return await models.PutResponses.find({ _id: resObj._id })
+      .lean();
+  }
 };
 
 checkPermission(ebarimtMutations, 'putResponseReturnBill', 'specialReturnBill');
+checkPermission(ebarimtMutations, 'putResponseReReturn', 'reReturnBill');
 
 export default ebarimtMutations;

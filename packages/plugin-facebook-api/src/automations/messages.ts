@@ -1,16 +1,18 @@
+import * as moment from 'moment';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
 import { sendInboxMessage } from '../messageBroker';
+import { IBotDocument } from '../models/definitions/bots';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
 import { sendReply } from '../utils';
+import { Message } from './types';
 import {
+  checkContentConditions,
   generateBotData,
   generatePayloadString,
-  checkContentConditions,
+  getUrl
 } from './utils';
-import * as moment from 'moment';
-import { getEnv } from '../commonUtils';
 
 const generateMessages = async (
   subdomain: string,
@@ -26,12 +28,12 @@ const generateMessages = async (
     for (const button of buttons) {
       const obj: any = {
         type: 'postback',
-        title: button.text,
+        title: (button.text || '').trim(),
         payload: generatePayloadString(
           conversation,
           button,
-          customer?.erxesApiId,
-        ),
+          customer?.erxesApiId
+        )
       };
 
       if (button.link) {
@@ -46,28 +48,8 @@ const generateMessages = async (
     return generatedButtons;
   };
 
-  const getUrl = (key) => {
-    const DOMAIN = getEnv({
-      name: 'DOMAIN',
-      subdomain,
-    });
-
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (NODE_ENV !== 'production') {
-      return `${DOMAIN}/read-file?key=${key}`;
-    }
-
-    if (VERSION === 'saas') {
-      return `${DOMAIN}/api/read-file?key=${key}`;
-    }
-
-    return `${DOMAIN}/gateway/read-file?key=${key}`;
-  };
-
   const quickRepliesIndex = messages.findIndex(
-    ({ type }) => type === 'quickReplies',
+    ({ type }) => type === 'quickReplies'
   );
 
   if (quickRepliesIndex !== -1) {
@@ -85,22 +67,22 @@ const generateMessages = async (
     image = '',
     video = '',
     audio = '',
-    input,
+    input
   } of messages) {
-    const botData = generateBotData({
+    const botData = generateBotData(subdomain, {
       type,
       buttons,
       text,
       cards,
       quickReplies,
-      image,
+      image
     });
 
     if (['text', 'input'].includes(type) && !buttons?.length) {
       generatedMessages.push({
         text: input ? input.text : text,
         botData,
-        inputData: input,
+        inputData: input
       });
     }
 
@@ -110,12 +92,12 @@ const generateMessages = async (
           type: 'template',
           payload: {
             template_type: 'button',
-            text: input ? input.text : text,
-            buttons: generateButtons(buttons),
-          },
+            text: (input ? input.text : text || '').trim(),
+            buttons: generateButtons(buttons)
+          }
         },
         botData,
-        inputData: input,
+        inputData: input
       });
     }
 
@@ -129,29 +111,29 @@ const generateMessages = async (
               ({ title = '', subtitle = '', image = '', buttons = [] }) => ({
                 title,
                 subtitle,
-                image_url: getUrl(image),
-                buttons: generateButtons(buttons),
-              }),
-            ),
-          },
+                image_url: getUrl(subdomain, image),
+                buttons: generateButtons(buttons)
+              })
+            )
+          }
         },
-        botData,
+        botData
       });
     }
 
     if (type === 'quickReplies') {
       generatedMessages.push({
         text: text || '',
-        quick_replies: quickReplies.map((quickReply) => ({
+        quick_replies: quickReplies.map(quickReply => ({
           content_type: 'text',
           title: quickReply?.text || '',
           payload: generatePayloadString(
             conversation,
             quickReply,
-            customer?.erxesApiId,
-          ),
+            customer?.erxesApiId
+          )
         })),
-        botData,
+        botData
       });
     }
 
@@ -163,10 +145,10 @@ const generateMessages = async (
           attachment: {
             type,
             payload: {
-              url: getUrl(url),
-            },
+              url: getUrl(subdomain, url)
+            }
           },
-          botData,
+          botData
         });
     }
   }
@@ -184,7 +166,7 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
     isSelected,
     type,
     persistentMenuIds,
-    conditions: directMessageCondtions = [],
+    conditions: directMessageCondtions = []
   } of conditions) {
     if (isSelected) {
       if (type === 'getStarted' && target.content === 'Get Started') {
@@ -215,7 +197,7 @@ const generateObjectToWait = ({
   messages = [],
   optionalConnects = [],
   conversation,
-  customer,
+  customer
 }: {
   messages: any[];
   optionalConnects: any[];
@@ -225,13 +207,13 @@ const generateObjectToWait = ({
   const obj: any = {};
   const general: any = {
     conversationId: conversation._id,
-    customerId: customer.erxesApiId,
+    customerId: customer.erxesApiId
   };
   let propertyName = 'payload.btnId';
 
-  if (messages.some((msg) => msg.type === 'input')) {
+  if (messages.some(msg => msg.type === 'input')) {
     const inputMessageConfig =
-      messages.find((msg) => msg.type === 'input')?.input || {};
+      messages.find(msg => msg.type === 'input')?.input || {};
 
     if (inputMessageConfig.timeType === 'day') {
       obj.startWaitingDate = moment()
@@ -252,56 +234,126 @@ const generateObjectToWait = ({
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        (connect) => connect?.optionalConnectId === 'ifNotReply',
+        connect => connect?.optionalConnectId === 'ifNotReply'
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
 
     propertyName = 'botId';
-  }else{
-    obj.startWaitingDate = moment().add(24,'hours').toDate()
-    obj.waitingActionId = null
+  } else {
+    obj.startWaitingDate = moment().add(24, 'hours').toDate();
+    obj.waitingActionId = null;
   }
 
   return {
     ...obj,
     objToCheck: {
       propertyName,
-      general,
-    },
+      general
+    }
   };
+};
+
+const sendMessage = async (
+  models,
+  bot: IBotDocument,
+  { senderId, recipientId, integration, message, tag }: Message,
+  isLoop?: boolean
+) => {
+  try {
+    await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: senderId },
+        sender_action: 'typing_on',
+        tag
+      },
+      recipientId,
+      integration.erxesApiId
+    );
+    const resp = await sendReply(
+      models,
+      'me/messages',
+      {
+        recipient: { id: senderId },
+        message,
+        tag
+      },
+      recipientId,
+      integration.erxesApiId
+    );
+    if (!resp) {
+      return;
+    }
+    return resp;
+  } catch (error) {
+    if (
+      error.message.includes(
+        'This message is sent outside of allowed window'
+      ) &&
+      bot?.tag &&
+      !isLoop
+    ) {
+      await sendMessage(
+        models,
+        bot,
+        {
+          senderId,
+          recipientId,
+          integration,
+          message,
+          tag: bot?.tag
+        },
+        true
+      );
+    }
+
+    debugError(error.message);
+    throw new Error(error.message);
+  }
 };
 
 export const actionCreateMessage = async (
   models: IModels,
   subdomain,
   action,
-  execution,
+  execution
 ) => {
-  const { target } = execution || {};
+  const { target, triggerType } = execution || {};
   const { config } = action || {};
 
+  if (!['facebook:messages', 'facebook:comments'].includes(triggerType)) {
+    throw new Error('Unsupported trigger type');
+  }
+
   const conversation = await models.Conversations.findOne({
-    _id: target?.conversationId,
+    _id: target?.conversationId
   });
 
   if (!conversation) {
-    return;
+    throw new Error('Conversation not found');
   }
 
   const integration = await models.Integrations.findOne({
-    _id: conversation.integrationId,
+    _id: conversation.integrationId
   });
 
   if (!integration) {
-    return;
+    throw new Error('Integration not found');
   }
   const { recipientId, senderId, botId } = conversation;
 
   const customer = await models.Customers.findOne({ userId: senderId }).lean();
 
   if (!customer) {
-    return;
+    throw new Error(`Customer not found`);
+  }
+
+  const bot = await models.Bots.findOne({ _id: botId }, { tag: 1 }).lean();
+
+  if (!bot) {
+    throw new Error(`Bot not found`);
   }
 
   let result: any[] = [];
@@ -311,7 +363,7 @@ export const actionCreateMessage = async (
       subdomain,
       config,
       conversation,
-      customer,
+      customer
     );
 
     if (!messages?.length) {
@@ -319,30 +371,22 @@ export const actionCreateMessage = async (
     }
 
     for (const { botData, inputData, ...message } of messages) {
-      await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          sender_action: 'typing_on',
-        },
-        recipientId,
-        integration.erxesApiId,
-      );
+      let resp;
 
-      const resp = await sendReply(
-        models,
-        'me/messages',
-        {
-          recipient: { id: senderId },
-          message,
-        },
-        recipientId,
-        integration.erxesApiId,
-      );
+      try {
+        resp = await sendMessage(models, bot, {
+          senderId,
+          recipientId,
+          integration,
+          message
+        });
+      } catch (error) {
+        debugError(error.message);
+        throw new Error(error.message);
+      }
 
       if (!resp) {
-        return;
+        throw new Error('Something went wrong to send this message');
       }
 
       const conversationMessage = await models.ConversationMessages.addMessage({
@@ -352,17 +396,16 @@ export const actionCreateMessage = async (
         mid: resp.message_id,
         botId,
         botData,
-        fromBot: true,
+        fromBot: true
       });
 
-      await sendInboxMessage({
+      sendInboxMessage({
         subdomain,
         action: 'conversationClientMessageInserted',
         data: {
           ...conversationMessage.toObject(),
-          conversationId: conversation.erxesApiId,
-        },
-        isRPC:true
+          conversationId: conversation.erxesApiId
+        }
       });
 
       result.push(conversationMessage);
@@ -379,10 +422,11 @@ export const actionCreateMessage = async (
         messages: config?.messages || [],
         conversation,
         customer,
-        optionalConnects,
-      }),
+        optionalConnects
+      })
     };
   } catch (error) {
     debugError(error.message);
+    throw new Error(error.message);
   }
 };

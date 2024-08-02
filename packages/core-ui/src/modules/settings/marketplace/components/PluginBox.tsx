@@ -80,26 +80,28 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   render() {
-    const { plugin } = this.props;
+    const { plugin = {} } = this.props;
+
+    const { _id, avatar, image, icon, title, shortDescription, price } = plugin;
 
     return (
       <ItemBox>
-        <Link to={`marketplace/details/${plugin._id}`}>
+        <Link to={`details/${_id}`}>
           <PluginContent>
             <PluginBoxHeader>
               <div className="image-wrapper">
                 <img
-                  src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
-                  alt={plugin.title}
+                  src={avatar || image || icon || '/images/no-plugin.png'}
+                  alt={title}
                 />
               </div>
-              {this.renderPrice(plugin.prices)}
+              {this.renderPrice(price)}
             </PluginBoxHeader>
-            <h5>{__(plugin.title)}</h5>
+            <h5>{__(title)}</h5>
             <div
               className="short-desc"
               dangerouslySetInnerHTML={{
-                __html: plugin.shortDescription
+                __html: shortDescription
               }}
             />
           </PluginContent>

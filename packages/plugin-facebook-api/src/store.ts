@@ -1,6 +1,10 @@
 import { ICommentParams, IPostParams } from './types';
 import { debugError } from './debuggers';
-import { getFileUploadConfigs, sendInboxMessage } from './messageBroker';
+import {
+  getFileUploadConfigs,
+  sendAutomationsMessage,
+  sendInboxMessage,
+} from './messageBroker';
 import {
   getFacebookUser,
   getFacebookUserProfilePic,
@@ -11,7 +15,6 @@ import { IModels } from './connectionResolver';
 import { INTEGRATION_KINDS } from './constants';
 import { ICustomerDocument } from './models/definitions/customers';
 import { IIntegrationDocument } from './models/Integrations';
-import { putCreateLog } from './logUtils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { getPostDetails } from './utils';
 interface IDoc {
@@ -318,6 +321,7 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
+
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -364,6 +368,33 @@ export const getOrCreateComment = async (
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,
     );
+  }
+
+  if (conversation) {
+    const target = (
+      parentConversation
+        ? await models.CommentConversationReply.findOne({
+            comment_id: commentParams.comment_id,
+            parentId: commentParams.parent_id,
+          })
+        : conversation
+    ).toObject();
+
+    await sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `facebook:comments`,
+        targets: [
+          {
+            ...target,
+            postId: conversation.postId,
+            erxesApiId: conversation.erxesApiId,
+          },
+        ],
+      },
+      defaultValue: null,
+    }).catch((err) => debugError(err.message));
   }
 };
 

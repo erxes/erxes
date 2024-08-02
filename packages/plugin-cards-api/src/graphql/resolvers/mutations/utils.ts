@@ -54,7 +54,7 @@ export const itemResolver = async (
   subdomain: string,
   user: any,
   type: string,
-  item: IItemCommonFields,
+  item: IItemCommonFields
 ) => {
   let resolverType = '';
 
@@ -87,7 +87,7 @@ export const itemResolver = async (
         item,
         {},
         { models, subdomain, user },
-        { isSubscription: true },
+        { isSubscription: true }
       );
     } catch (unused) {
       continue;
@@ -107,7 +107,7 @@ export const itemsAdd = async (
   type: string,
   createModel: any,
   user?: IUserDocument,
-  docModifier?: any,
+  docModifier?: any
 ) => {
   const { collection } = getCollection(models, type);
 
@@ -168,7 +168,7 @@ export const itemsAdd = async (
         newData: extendedDoc,
         object: item,
       },
-      user,
+      user
     );
   }
 
@@ -204,7 +204,7 @@ export const changeItemStatus = async (
     status: string;
     proccessId: string;
     stage: IStageDocument;
-  },
+  }
 ) => {
   if (status === 'archived') {
     graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
@@ -246,7 +246,7 @@ export const changeItemStatus = async (
         stageId: item.stageId,
         aboveItemId,
       }),
-    },
+    }
   );
 
   graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
@@ -275,7 +275,7 @@ export const itemsEdit = async (
   doc: any,
   proccessId: string,
   user: IUserDocument,
-  modelUpate,
+  modelUpate
 ) => {
   const extendedDoc = {
     ...doc,
@@ -347,7 +347,7 @@ export const itemsEdit = async (
   if (doc.assignedUserIds) {
     const { addedUserIds, removedUserIds } = checkUserIds(
       oldItem.assignedUserIds,
-      doc.assignedUserIds,
+      doc.assignedUserIds
     );
 
     const activityContent = { addedUserIds, removedUserIds };
@@ -376,8 +376,9 @@ export const itemsEdit = async (
       action: 'sendMobileNotification',
       data: {
         title: notificationDoc?.item?.name,
-        body: `${user?.details?.fullName || user?.details?.shortName
-          } has updated`,
+        body: `${
+          user?.details?.fullName || user?.details?.shortName
+        } has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
           type,
@@ -389,7 +390,7 @@ export const itemsEdit = async (
 
   // exclude [null]
   if (doc.tagIds && doc.tagIds.length) {
-    doc.tagIds = doc.tagIds.filter((ti) => ti);
+    doc.tagIds = doc.tagIds.filter(ti => ti);
   }
 
   putUpdateLog(
@@ -401,7 +402,7 @@ export const itemsEdit = async (
       newData: extendedDoc,
       updatedDocument: updatedItem,
     },
-    user,
+    user
   );
 
   const updatedStage = await models.Stages.getStage(updatedItem.stageId);
@@ -468,7 +469,7 @@ export const itemsEdit = async (
     user._id,
     oldItem,
     type,
-    updatedItem.stageId,
+    updatedItem.stageId
   );
 
   await sendNotifications(models, subdomain, {
@@ -494,7 +495,7 @@ const itemMover = async (
     | ITicketDocument
     | IGrowthHackDocument,
   contentType: string,
-  destinationStageId: string,
+  destinationStageId: string
 ) => {
   const oldStageId = item.stageId;
 
@@ -553,7 +554,7 @@ const itemMover = async (
 
 export const checkMovePermission = (
   stage: IStageDocument,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   if (
     stage.canMoveMemberIds &&
@@ -570,7 +571,7 @@ export const itemsChange = async (
   doc: IItemDragCommonFields,
   type: string,
   user: IUserDocument,
-  modelUpdate: any,
+  modelUpdate: any
 ) => {
   const { collection } = getCollection(models, type);
 
@@ -609,7 +610,7 @@ export const itemsChange = async (
     user._id,
     item,
     type,
-    destinationStageId,
+    destinationStageId
   );
 
   await sendNotifications(models, subdomain, {
@@ -646,7 +647,7 @@ export const itemsChange = async (
       newData: extendedDoc,
       updatedDocument: updatedItem,
     },
-    user,
+    user
   );
 
   // order notification
@@ -682,7 +683,7 @@ export const itemsRemove = async (
   subdomain: string,
   _id: string,
   type: string,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   const item = await getItem(models, type, { _id });
 
@@ -713,7 +714,9 @@ export const itemsRemove = async (
 
   await destroyBoardItemRelations(models, subdomain, item._id, type);
 
-  const removed = await item.remove();
+  const removed = await getCollection(models, type).collection.findOneAndDelete(
+    { _id: item._id }
+  );
 
   await putDeleteLog(models, subdomain, { type, object: item }, user);
 
@@ -728,7 +731,7 @@ export const itemsCopy = async (
   type: string,
   user: IUserDocument,
   extraDocParam: string[],
-  modelCreate: any,
+  modelCreate: any
 ) => {
   const { collection } = getCollection(models, type);
   const item = await collection.findOne({ _id }).lean();
@@ -790,7 +793,7 @@ export const itemsArchive = async (
   stageId: string,
   type: string,
   proccessId: string,
-  user: IUserDocument,
+  user: IUserDocument
 ) => {
   const { collection } = getCollection(models, type);
 
@@ -803,7 +806,7 @@ export const itemsArchive = async (
 
   await collection.updateMany(
     { stageId },
-    { $set: { status: BOARD_STATUSES.ARCHIVED } },
+    { $set: { status: BOARD_STATUSES.ARCHIVED } }
   );
 
   // order notification
@@ -846,7 +849,7 @@ export const publishHelperItemsConformities = async (
     | ITicketDocument
     | ITaskDocument
     | IGrowthHackDocument,
-  stage: IStageDocument,
+  stage: IStageDocument
 ) => {
   graphqlPubsub.publish(`pipelinesChanged:${stage.pipelineId}`, {
     pipelinesChanged: {
@@ -865,7 +868,7 @@ export const publishHelperItemsConformities = async (
 export const publishHelper = async (
   subdomain: string,
   type: string,
-  itemId: string,
+  itemId: string
 ) => {
   const models = await generateModels(subdomain);
 

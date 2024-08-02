@@ -1,6 +1,7 @@
 import React from 'react';
 import dayjs from 'dayjs';
-import Form from 'react-bootstrap/Form';
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
 import {
@@ -49,13 +50,13 @@ function GreetingContent(props: Props) {
       <ContentBox>
         <h4>{__('Do you want to learn more?')}</h4>
 
-        <Form.Group>
-          <Form.Control
+        <FormGroup className='form-group'>
+          <FormControl
             name="firstName"
             placeholder="Enter your email adress:"
             disabled={true}
           />
-        </Form.Group>
+        </FormGroup>
       </ContentBox>
 
       <TextContainer>

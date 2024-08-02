@@ -18,7 +18,7 @@ import {
   RPResult,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
-
+import { Types} from 'mongoose';
 dotenv.config();
 
 export const setupMessageConsumers = async () => {
@@ -122,14 +122,14 @@ export const setupMessageConsumers = async () => {
       await Customers.deleteMany({ inboxIntegrationId: integrationId });
       await Integrations.deleteMany({ inboxId: integrationId });
 
-      const conversationIds: string[] = [];
+      const conversationIds: Types.ObjectId[] = [];
 
-      const conversationIdsKeys: IConversation[] = await Conversations.find(
+      const conversationIdsKeys = await Conversations.find(
         { integrationId },
         '_id',
       );
 
-      conversationIdsKeys.map((key: IConversation): void => {
+      conversationIdsKeys.map((key): void => {
         conversationIds.push(key._id);
       });
 

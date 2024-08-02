@@ -7,7 +7,6 @@ import {
   EditPosMutationResponse,
   GroupsBulkInsertMutationResponse,
   GroupsQueryResponse,
-  IProductGroup,
   PosDetailQueryResponse,
   PosEnvQueryResponse,
   SlotsBulkUpdateMutationResponse,
@@ -55,7 +54,7 @@ const PosContainer = (props: Props) => {
     }
   );
 
-  const slotsQuery = useQuery<SlotsQueryResponse>(gql(queries.productGroups), {
+  const slotsQuery = useQuery<SlotsQueryResponse>(gql(queries.posSlots), {
     skip: !posId,
     fetchPolicy: "network-only",
     variables: {
@@ -112,7 +111,10 @@ const PosContainer = (props: Props) => {
         slotsBulkUpdateMutation({
           variables: {
             posId: posId || data.data.posAdd._id,
-            slots: doc.posSlots,
+            slots: doc.posSlots.map((slot) => ({
+              ...slot,
+              posId: slot.posId || posId || data.data.posAdd._id,
+            })),
           },
         });
       })

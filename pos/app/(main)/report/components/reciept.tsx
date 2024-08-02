@@ -1,5 +1,5 @@
-import useConfig from "@/modules/auth/hooks/useConfig"
 import { reportDateAtom } from "@/store"
+import { paymentTypesAtom } from "@/store/config.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
@@ -17,10 +17,12 @@ const Flex = ({
 }) => <div className="flex items-center justify-between">{children}</div>
 
 const Receipt = ({ date, report }: any) => {
-  const { config, loading } = useConfig("cover")
+  const paymentTypes = useAtomValue(paymentTypesAtom)
   const reportDate = useAtomValue(reportDateAtom)
 
-  if (!report || loading) return null
+  if (!report) {
+    return null
+  }
 
   const excludeTypes = [
     "_id",
@@ -34,7 +36,7 @@ const Receipt = ({ date, report }: any) => {
 
   const renderAmounts = (amounts: any) => {
     return (
-      <div>
+      <div className="pt-4 md:pt-0">
         <Flex>
           {`Бэлнээр: `}
           <span>{formatNum(amounts.cashAmount)}</span>
@@ -61,7 +63,7 @@ const Receipt = ({ date, report }: any) => {
             <Flex key={type}>
               {`${
                 (
-                  (config.paymentTypes || []).find(
+                  (paymentTypes || []).find(
                     (t: IPaymentType) => t.type === type
                   ) || {
                     title: type,

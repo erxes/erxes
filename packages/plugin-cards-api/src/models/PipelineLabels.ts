@@ -70,7 +70,7 @@ export const loadPipelineLabelClass = (models: IModels) => {
     }: ILabelObjectParams) {
       const prevLabelsCount = await models.PipelineLabels.find({
         _id: { $in: labelIds }
-      }).count();
+      }).countDocuments();
 
       if (prevLabelsCount !== labelIds.length) {
         throw new Error('Label not found');

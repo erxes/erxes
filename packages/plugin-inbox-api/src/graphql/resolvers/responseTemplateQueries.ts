@@ -35,7 +35,7 @@ const responseTemplateQueries = {
   /**
    * Response templates list
    */
-  responseTemplates(
+  async responseTemplates(
     _root,
     args: IListParams,
     { commonQuerySelector, models }: IContext
@@ -48,7 +48,7 @@ const responseTemplateQueries = {
   /**
    * Get all response templates count. We will use it in pager
    */
-  responseTemplatesTotalCount(
+  async responseTemplatesTotalCount(
     _root,
     args: IListParams,
     { commonQuerySelector, models }: IContext

@@ -71,7 +71,7 @@ const List = (props: Props) => {
     return (
       <FormControl
         type="text"
-        placeholder="type a search"
+        placeholder="Type to search"
         onChange={handleSearch}
         value={searchValue}
       />

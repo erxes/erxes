@@ -16,6 +16,7 @@ import {
 
 import { IScoreParams } from './definitions/common';
 import { paginate } from '@erxes/api-utils/src';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 const OWNER_TYPES = {
   customer: {
@@ -69,13 +70,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreParams) {
-      const { order, orderType } = doc;
+      const { order = -1, orderType = 'createdAt' } = doc;
       const filter = generateFilter(doc);
-      const list = paginate(
-        models.ScoreLogs.find(filter).sort({ [orderType]: order }),
+      const list = await paginate(
+        models.ScoreLogs.find(filter).sort({ [orderType]: order } as any),
         doc
       );
-      const total = await models.ScoreLogs.find(filter).count();
+      const total = await models.ScoreLogs.find(filter).countDocuments();
       return { list, total };
     }
 
@@ -92,6 +93,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const score = Number(changeScore);
       const ownerFilter = { _id: { $in: ownerIds } };
 
+      console.log({ ownerType, ownerIds, changeScore });
+
       const owners = await sendCommonMessage({
         subdomain,
         serviceName,
@@ -102,7 +105,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             : { ...ownerFilter },
         isRPC: true,
         defaultValue: []
-      });
+      }).catch(error => debugError(error.message));
 
       if (!owners?.length) {
         throw new Error('Not found owners');

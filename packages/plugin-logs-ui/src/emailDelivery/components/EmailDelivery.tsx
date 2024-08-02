@@ -12,8 +12,7 @@ import Select, { OnChangeValue } from "react-select";
 import { EMAIL_TYPES } from "../containers/EmailDelivery";
 import Row from "./Row";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import { FlexItem, FlexRow, InputBar } from "@erxes/ui-settings/src/styles";
-import Icon from "@erxes/ui/src/components/Icon";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
@@ -130,45 +129,34 @@ function EmailDelivery({
 
     const content = (
       <BarItems>
-        <FlexRow>
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={handleSearch}
-                value={search}
-              />
-            </FlexItem>
-          </InputBar>
+        <FlexRow $alignItems="flex-end">
+          <FormControl
+            type="text"
+            placeholder={__("Type to search")}
+            onChange={handleSearch}
+            value={search}
+          />
 
           <React.Fragment>
             {isEnabled("engages") && (
-              <InputBar type="selectBar">
-                <Select
-                  placeholder={__("Choose Email type")}
-                  value={emailTypeOptions.find(
-                    (option) => option.value === emailType
-                  )}
-                  options={emailTypeOptions}
-                  onChange={handleEmailtype}
-                  isClearable={false}
-                />
-              </InputBar>
+              <Select
+                placeholder={__("Choose Email type")}
+                value={emailTypeOptions.find(
+                  (option) => option.value === emailType
+                )}
+                options={emailTypeOptions}
+                onChange={handleEmailtype}
+                isClearable={false}
+              />
             )}
             {isTransaction ? null : (
-              <InputBar type="selectBar">
-                <Select
-                  placeholder={__("Choose status")}
-                  value={STATUS_OPTIONS.find(
-                    (option) => option.value === status
-                  )}
-                  isClearable={true}
-                  options={STATUS_OPTIONS}
-                  onChange={handleStatusChange}
-                />
-              </InputBar>
+              <Select
+                placeholder={__("Choose status")}
+                value={STATUS_OPTIONS.find((option) => option.value === status)}
+                isClearable={true}
+                options={STATUS_OPTIONS}
+                onChange={handleStatusChange}
+              />
             )}
           </React.Fragment>
         </FlexRow>

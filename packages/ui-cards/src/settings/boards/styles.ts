@@ -5,8 +5,8 @@ import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const BoardItem = styledTS<{ $isActive: boolean }>(styled(SidebarListItem))`
-  overflow: hidden;
+const BoardItem = styledTS<{ $isActive: boolean, $withOverflow?: boolean }>(styled(SidebarListItem))`
+  ${props => !props.$withOverflow && `overflow: hidden;`}
   
   > button {
     padding: 10px 15px 10px 20px;
@@ -50,13 +50,36 @@ const StageList = styled.div`
 `;
 
 const StageItemContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex: 1;
   background-color: ${colors.colorWhite};
   padding: 0;
   align-items: center;
+  min-width: 100%;
 
+  > *:not(button) {
+    margin-right: 10px;
+  }
+
+  .Select {
+    width: 100px;
+  }
+
+  button {
+    padding: 3px;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  button:hover {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
+const StageItemRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex: 1;  
+  padding: 0;
+  align-items: center;
   > *:not(button) {
     margin-right: 10px;
   }
@@ -97,6 +120,8 @@ const Attributes = styled.ul`
   overflow: auto;
   padding: ${dimensions.unitSpacing}px;
   border-radius: ${dimensions.unitSpacing - 5}px;
+  display: flex;
+  flex-direction: column;
 
   > div {
     padding: 0;
@@ -107,12 +132,15 @@ const Attributes = styled.ul`
     color: black;
   }
 
-  li {
+  button {
     color: ${colors.colorCoreGray};
     padding-bottom: ${dimensions.unitSpacing - 5}px;
     cursor: pointer;
     font-weight: 400;
     transition: all ease 0.3s;
+    border: none;
+    background: none;
+    text-align: left;
 
     &:hover {
       color: ${colors.textPrimary};
@@ -138,6 +166,7 @@ export {
   BoardItem,
   StageList,
   StageItemContainer,
+  StageItemRow,
   SelectMemberStyled,
   PipelineCount,
   Attributes,

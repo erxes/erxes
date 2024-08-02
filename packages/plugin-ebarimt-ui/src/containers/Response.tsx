@@ -62,10 +62,5 @@ const ReturnResponseBody = ({ currentUser }: Props) => {
   return <></>;
 };
 
-const WithCurrentUser = withCurrentUser(ReturnResponseBody);
+export default withCurrentUser(ReturnResponseBody);
 
-const ReturnResponse = () => {
-  return <WithCurrentUser />;
-};
-
-export default ReturnResponse;

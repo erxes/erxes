@@ -132,16 +132,6 @@ const mutations = {
           isRPC: true
         });
 
-        const doc: ICallRecord = {
-          contentTypeId,
-          contentType,
-          roomName: roomResponse.name,
-          privacy: roomResponse.privacy,
-          token: tokenResponse.token,
-          status: 'ongoing',
-          messageId: message._id
-        };
-
         const updatedMessage = {
           ...message,
           videoCallData: callData

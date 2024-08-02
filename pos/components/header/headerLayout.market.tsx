@@ -1,6 +1,5 @@
-import ActiveOrders from "@/modules/orders/ActiveOrders.market"
-import { currentUserAtom } from "@/store/config.store"
-import { useAtom } from "jotai"
+import { userLabelAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
 
 import HeaderMenu from "@/components/headerMenu"
 
@@ -13,22 +12,18 @@ const HeaderLayout = ({
   children?: React.ReactNode
   hideUser?: boolean
 }) => {
-  const [currentUser] = useAtom(currentUserAtom)
-  const { details, email } = currentUser || {}
-  const { fullName, position } = details || {}
-
+  const label = useAtomValue(userLabelAtom)
   return (
     <header className="flex flex-none items-center border-b px-5 py-1.5 print:hidden">
-      <div className="pr-2 w-2/3 sm:pr-4">{children}</div>
-      <div className="flex w-auto items-center justify-end  sm:w-1/3">
+      <div className="pr-2 flex-auto xl:flex-none xl:w-2/3 sm:pr-4">
+        {children}
+      </div>
+      <div className="flex w-auto items-center justify-end flex-none xl:flex-auto">
         {!hideUser && (
-          <p className="hidden flex-auto text-center text-black/60 sm:block">
-            {fullName
-              ? `${fullName} ${position ? `(${position})` : ""}`
-              : email}
+          <p className="hidden flex-none text-center text-black/60 sm:block px-2">
+            {label}
           </p>
         )}
-        <ActiveOrders />
         <Logo />
         <HeaderMenu />
       </div>

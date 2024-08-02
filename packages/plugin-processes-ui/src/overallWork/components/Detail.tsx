@@ -231,6 +231,7 @@ class OverallWorkDetail extends React.Component<Props, State> {
         }
         content={mainContent}
         footer={<Pagination count={performsCount} />}
+        hasBorder={true}
       />
     );
   }

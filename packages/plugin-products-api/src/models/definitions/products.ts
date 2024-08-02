@@ -12,7 +12,8 @@ export const PRODUCT_TYPES = {
   PRODUCT: 'product',
   SERVICE: 'service',
   UNIQUE: 'unique',
-  ALL: ['product', 'service', 'unique']
+  SUBSCRIPTION: 'subscription',
+  ALL: ['product', 'service', 'unique', 'subscription']
 };
 
 export const PRODUCT_STATUSES = {
@@ -54,7 +55,6 @@ export interface IProduct {
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
-  productId?: string;
   tagIds?: string[];
   attachment?: IAttachment;
   attachmentMore?: IAttachment[];

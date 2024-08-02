@@ -61,7 +61,7 @@ class SettingsContainer extends React.Component<Props> {
     const verifyEmail = (email: string) => {
       engagesVerifyEmailMutation({
         variables: {
-          email,
+          email
         },
       })
         .then(() => {

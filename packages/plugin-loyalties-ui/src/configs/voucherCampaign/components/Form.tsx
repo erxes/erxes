@@ -166,7 +166,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>bonus Count</ControlLabel>
+              <ControlLabel required={true}>Bonus Count</ControlLabel>
               <FormControl
                 {...formProps}
                 name="bonusCount"
@@ -207,7 +207,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>lottery Count</ControlLabel>
+              <ControlLabel required={true}>Lottery Count</ControlLabel>
               <FormControl
                 {...formProps}
                 name="lotteryCount"
@@ -248,7 +248,7 @@ class Form extends React.Component<Props, State> {
           </FormColumn>
           <FormColumn>
             <FormGroup>
-              <ControlLabel required={true}>spin Count</ControlLabel>
+              <ControlLabel required={true}>Spin Count</ControlLabel>
               <FormControl
                 {...formProps}
                 name="spinCount"
@@ -324,7 +324,7 @@ class Form extends React.Component<Props, State> {
         </FormColumn>
         <FormColumn>
           <FormGroup>
-            <ControlLabel required={true}>discount percent</ControlLabel>
+            <ControlLabel required={true}>Discount percent</ControlLabel>
             <FormControl
               {...formProps}
               name="discountPercent"
@@ -357,7 +357,7 @@ class Form extends React.Component<Props, State> {
           <FormWrapper>
             <FormColumn>
               <FormGroup>
-                <ControlLabel required={true}>title</ControlLabel>
+                <ControlLabel required={true}>Title</ControlLabel>
                 <FormControl
                   {...formProps}
                   name="title"

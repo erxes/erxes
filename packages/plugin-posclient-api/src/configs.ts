@@ -57,7 +57,7 @@ export default {
       context.config = req.posConfig;
     } else {
       if (models) {
-        if ((await models.Configs.find({ status: { $ne: 'deleted' } }).count()) === 1) {
+        if ((await models.Configs.find({ status: { $ne: 'deleted' } }).countDocuments()) === 1) {
           context.config = await models.Configs.findOne({ status: { $ne: 'deleted' } }).lean();
         }
       }

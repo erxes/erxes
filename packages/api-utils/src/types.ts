@@ -113,8 +113,7 @@ export const customFieldSchema = new Schema(
       coordinates: {
         type: [Number],
         optional: true
-      },
-      required: false
+      }
     }
   },
   { _id: false }

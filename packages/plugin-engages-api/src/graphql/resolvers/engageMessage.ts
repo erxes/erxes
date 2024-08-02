@@ -4,7 +4,7 @@ import { prepareSmsStats, prepareNotificationStats } from '../../telnyxUtils';
 import { sendCoreMessage } from '../../messageBroker';
 
 export default {
-  __resolveReference(
+  async __resolveReference(
     { _id }: IEngageMessageDocument,
     _args,
     { models }: IContext,
@@ -55,7 +55,7 @@ export default {
     return null;
   },
 
-  stats({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
+  async stats({ _id }: IEngageMessageDocument, _args, { models }: IContext) {
     return models.Stats.findOne({ engageMessageId: _id });
   },
 
@@ -63,7 +63,7 @@ export default {
     return prepareSmsStats(models, _id);
   },
 
-  notificationStats(
+  async notificationStats(
     { _id }: IEngageMessageDocument,
     _args,
     { subdomain }: IContext,
@@ -106,7 +106,7 @@ export default {
     return user.username || user.email || user._id;
   },
 
-  logs(engageMessage: IEngageMessageDocument, _args, { models }: IContext) {
+  async logs(engageMessage: IEngageMessageDocument, _args, { models }: IContext) {
     return models.Logs.find({ engageMessageId: engageMessage._id }).lean();
   },
 };

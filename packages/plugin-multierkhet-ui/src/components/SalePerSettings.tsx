@@ -201,7 +201,7 @@ const PerSettings = (props: Props) => {
             </FormColumn>
             <FormColumn>
               <FormGroup>
-                <ControlLabel>default Pay</ControlLabel>
+                <ControlLabel>Default Pay</ControlLabel>
                 <Select
                   value={options.find(
                     (o) => o.value === brandRules[key].defaultPay

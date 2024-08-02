@@ -18,7 +18,8 @@ export interface IRichTextEditorContentProps {
   autoGrowMinHeight?: number | string;
 }
 export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
-  const { editor, isSourceEnabled, codeMirrorRef } = useRichTextEditorContext();
+  const { editor, isSourceEnabled, codeMirrorRef, onChange } =
+    useRichTextEditorContext();
   const {
     height = 120,
     autoGrowMinHeight = 120,
@@ -40,7 +41,7 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
   }
 
   const shouldShow = useCallback(
-    ({ editor, view, state, from, to }: BubbleMenuShowProps) => {
+    ({ view, state, from, to }: BubbleMenuShowProps) => {
       if (
         state.selection.$anchor.node(1) &&
         state.selection.$anchor.node(1).type.name === 'table'
@@ -62,7 +63,7 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
 
   return (
     <ProseMirrorWrapper
-      data-promise-mirror-editor={true}
+      data-prose-mirror-editor={true}
       $height={autoGrow ? undefined : convertToPx(height)}
       $autoGrow={autoGrow}
       $minHeight={convertToPx(autoGrow ? autoGrowMinHeight : height)}
@@ -79,6 +80,9 @@ export const RichTextEditorContent = (props: IRichTextEditorContentProps) => {
         extensions={[
           html({ matchClosingTags: true, selfClosingTags: true }).extension,
         ]}
+        onChange={(value) => {
+          onChange && onChange(value);
+        }}
       />
       <EditorContent
         hidden={isSourceEnabled}

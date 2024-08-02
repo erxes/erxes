@@ -10,6 +10,7 @@ import PeriodLock from './periodLock';
 import LoanTransaction from './transaction';
 import Classification from './classification';
 import LoanNonBalanceTransaction from './nonBalanceTransaction';
+import CollateralType from './collateralType';
 import Mutation from './mutations';
 import Query from './queries';
 
@@ -25,6 +26,7 @@ const resolvers: any = async () => ({
   LoanTransaction,
   LoanNonBalanceTransaction,
   Classification,
+  CollateralType,
   Mutation,
   Query
 });

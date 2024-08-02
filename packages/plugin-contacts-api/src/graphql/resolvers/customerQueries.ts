@@ -175,7 +175,7 @@ const customerQueries = {
   /**
    * Get one customer
    */
-  customerDetail(
+  async customerDetail(
     _root,
     { _id }: { _id: string },
     { models: { Customers } }: IContext

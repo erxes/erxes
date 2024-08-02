@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { Model } from 'mongoose';
 
 import {
   checklistItemSchema,
@@ -7,17 +7,17 @@ import {
   IChecklistDocument,
   IChecklistItem,
   IChecklistItemDocument,
-} from "./definitions/checklists";
-import { putChecklistActivityLog } from "../logUtils";
-import { IUserDocument } from "@erxes/api-utils/src/types";
-import { IModels } from "../connectionResolver";
+} from './definitions/checklists';
+import { putChecklistActivityLog } from '../logUtils';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IModels } from '../connectionResolver';
 
 export interface IChecklistModel extends Model<IChecklistDocument> {
   getChecklist(_id: string): Promise<IChecklistDocument>;
   removeChecklists(contentType: string, contentTypeIds: string[]): void;
   createChecklist(
     { contentType, contentTypeId, ...fields }: IChecklist,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<IChecklistDocument>;
 
   updateChecklist(_id: string, doc: IChecklist): Promise<IChecklistDocument>;
@@ -29,16 +29,16 @@ export interface IChecklistItemModel extends Model<IChecklistItemDocument> {
   getChecklistItem(_id: string): Promise<IChecklistItemDocument>;
   createChecklistItem(
     { checklistId, ...fields }: IChecklistItem,
-    user: IUserDocument
+    user: IUserDocument,
   ): Promise<IChecklistItemDocument>;
   updateChecklistItem(
     _id: string,
-    doc: IChecklistItem
+    doc: IChecklistItem,
   ): Promise<IChecklistItemDocument>;
   removeChecklistItem(_id: string): void;
   updateItemOrder(
     _id: string,
-    destinationOrder: number
+    destinationOrder: number,
   ): Promise<IChecklistItemDocument>;
 }
 
@@ -48,7 +48,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const checklist = await models.Checklists.findOne({ _id });
 
       if (!checklist) {
-        throw new Error("Checklist not found");
+        throw new Error('Checklist not found');
       }
 
       return checklist;
@@ -56,7 +56,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static async removeChecklists(
       contentType: string,
-      contentTypeIds: string[]
+      contentTypeIds: string[],
     ) {
       const checklists = await models.Checklists.find({
         contentType,
@@ -67,7 +67,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         return;
       }
 
-      const checklistIds = checklists.map(list => list._id);
+      const checklistIds = checklists.map((list) => list._id);
 
       await models.ChecklistItems.deleteMany({
         checklistId: { $in: checklistIds },
@@ -81,7 +81,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async createChecklist(
       { contentType, contentTypeId, ...fields }: IChecklist,
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       const checklist = await models.Checklists.create({
         contentType,
@@ -93,8 +93,8 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       putChecklistActivityLog(subdomain, {
         item: checklist,
-        contentType: "checklist",
-        action: "create",
+        contentType: 'checklist',
+        action: 'create',
       });
 
       return checklist;
@@ -125,11 +125,13 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
       await putChecklistActivityLog(subdomain, {
         item: checklistObj,
-        contentType: "checklist",
-        action: "delete",
+        contentType: 'checklist',
+        action: 'delete',
       });
 
-      return checklistObj.remove();
+      await checklistObj.deleteOne();
+
+      return checklistObj;
     }
   }
 
@@ -144,7 +146,7 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
       const checklistItem = await models.ChecklistItems.findOne({ _id });
 
       if (!checklistItem) {
-        throw new Error("Checklist item not found");
+        throw new Error('Checklist item not found');
       }
 
       return checklistItem;
@@ -155,11 +157,11 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
      */
     public static async createChecklistItem(
       { checklistId, ...fields }: IChecklistItem,
-      user: IUserDocument
+      user: IUserDocument,
     ) {
       const itemsCount = await models.ChecklistItems.find({
         checklistId,
-      }).count();
+      }).countDocuments();
 
       const checklistItem = await models.ChecklistItems.create({
         checklistId,
@@ -171,8 +173,8 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
 
       await putChecklistActivityLog(subdomain, {
         item: checklistItem,
-        contentType: "checklistItem",
-        action: "create",
+        contentType: 'checklistItem',
+        action: 'create',
       });
 
       return checklistItem;
@@ -185,11 +187,11 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
       await models.ChecklistItems.updateOne({ _id }, { $set: doc });
 
       const checklistItem = await models.ChecklistItems.findOne({ _id });
-      const activityAction = doc.isChecked ? "checked" : "unChecked";
+      const activityAction = doc.isChecked ? 'checked' : 'unChecked';
 
       await putChecklistActivityLog(subdomain, {
         item: checklistItem,
-        contentType: "checklistItem",
+        contentType: 'checklistItem',
         action: activityAction,
       });
 
@@ -200,7 +202,9 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
      * Remove checklist
      */
     public static async removeChecklistItem(_id: string) {
-      const checklistItem = await models.ChecklistItems.findOne({ _id });
+      const checklistItem = await models.ChecklistItems.findOneAndDelete({
+        _id,
+      });
 
       if (!checklistItem) {
         throw new Error(`Checklist's item not found with id ${_id}`);
@@ -208,24 +212,28 @@ export const loadItemClass = (models: IModels, subdomain: string) => {
 
       await putChecklistActivityLog(subdomain, {
         item: checklistItem,
-        contentType: "checklistItem",
-        action: "delete",
+        contentType: 'checklistItem',
+        action: 'delete',
       });
 
-      return checklistItem.remove();
+      return checklistItem;
     }
 
     public static async updateItemOrder(_id: string, destinationOrder: number) {
       const currentItem = await models.ChecklistItems.findOne({ _id }).lean();
 
+      if (!currentItem) {
+        throw new Error(`ChecklistItems _id = ${_id} not found`);
+      }
+
       await models.ChecklistItems.updateOne(
         { checklistId: currentItem.checklistId, order: destinationOrder },
-        { $set: { order: currentItem.order } }
+        { $set: { order: currentItem.order } },
       );
 
       await models.ChecklistItems.updateOne(
         { _id },
-        { $set: { order: destinationOrder } }
+        { $set: { order: destinationOrder } },
       );
 
       return models.ChecklistItems.findOne({ _id }).lean();

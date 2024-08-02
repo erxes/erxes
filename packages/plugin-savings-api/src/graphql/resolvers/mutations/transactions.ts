@@ -1,11 +1,11 @@
-import { checkPermission } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
-import { sendMessageBroker } from '../../../messageBroker';
+import { checkPermission } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
+import { sendMessageBroker } from "../../../messageBroker";
 import {
   ITransaction,
   ITransactionDocument
-} from '../../../models/definitions/transactions';
-import { createLog, deleteLog, updateLog } from '../../../logUtils';
+} from "../../../models/definitions/transactions";
+import { createLog, deleteLog, updateLog } from "../../../logUtils";
 
 const transactionMutations = {
   savingsTransactionsAdd: async (
@@ -13,10 +13,13 @@ const transactionMutations = {
     doc: ITransaction,
     { user, models, subdomain }: IContext
   ) => {
-    const transaction = await models.Transactions.createTransaction(doc,subdomain);
+    const transaction = await models.Transactions.createTransaction(
+      doc,
+      subdomain
+    );
 
     const logData = {
-      type: 'transaction',
+      type: "transaction",
       newData: doc,
       object: transaction,
       extraParams: { models }
@@ -28,30 +31,33 @@ const transactionMutations = {
   },
   clientSavingsTransactionsAdd: async (
     _root,
-    doc: ITransaction & {secondaryPassword:string},
+    doc: ITransaction & { secondaryPassword: string },
     { user, models, subdomain }: IContext
   ) => {
-
     const validate = await sendMessageBroker(
       {
         subdomain,
-        action:'clientPortalUsers.validatePassword',
-        data:{
-          userId:doc.customerId,
-          password:doc.secondaryPassword,
-          secondary:true
+        action: "clientPortalUsers.validatePassword",
+        data: {
+          userId: doc.customerId,
+          password: doc.secondaryPassword,
+          secondary: true
         }
-      },'clientportal'
-    )
+      },
+      "clientportal"
+    );
 
-    if(validate.status === 'error'){
-      throw new Error(validate.errorMessage)
+    if (validate?.status === "error") {
+      throw new Error(validate.errorMessage);
     }
 
-    const transaction = await models.Transactions.createTransaction(doc,subdomain);
+    const transaction = await models.Transactions.createTransaction(
+      doc,
+      subdomain
+    );
 
     const logData = {
-      type: 'transaction',
+      type: "transaction",
       newData: doc,
       object: transaction,
       extraParams: { models }
@@ -78,7 +84,7 @@ const transactionMutations = {
     const updated = await models.Transactions.updateTransaction(_id, doc);
 
     const logData = {
-      type: 'transaction',
+      type: "transaction",
       object: transaction,
       newData: { ...doc },
       updatedDocument: updated,
@@ -106,7 +112,7 @@ const transactionMutations = {
     const updated = await models.Transactions.changeTransaction(_id, doc);
 
     const logData = {
-      type: 'transaction',
+      type: "transaction",
       object: transaction,
       newData: { ...doc },
       updatedDocument: updated,
@@ -129,8 +135,7 @@ const transactionMutations = {
   ) => {
     // TODO: contracts check
     const transactions = await models.Transactions.find({
-      _id: { $in: transactionIds },
-      isManual: true
+      _id: transactionIds
     }).lean();
 
     await models.Transactions.removeTransactions(
@@ -139,24 +144,25 @@ const transactionMutations = {
 
     for (const transaction of transactions) {
       const logData = {
-        type: 'transaction',
+        type: "transaction",
         object: transaction,
         extraParams: { models }
       };
 
-      if (transaction.ebarimt && transaction.isManual)
-        await sendMessageBroker(
-          {
-            action: 'putresponses.returnBill',
-            data: {
-              contentType: 'savings:transaction',
-              contentId: transaction._id,
-              number: transaction.number
-            },
-            subdomain
-          },
-          'ebarimt'
-        );
+      // if (transaction.ebarimt && transaction.isManual){
+      //   await sendMessageBroker(
+      //     {
+      //       action: 'putresponses.returnBill',
+      //       data: {
+      //         contentType: 'savings:transaction',
+      //         contentId: transaction._id,
+      //         number: transaction.number
+      //       },
+      //       subdomain
+      //     },
+      //     'ebarimt'
+      //   );
+      // }
 
       await deleteLog(subdomain, user, logData);
     }
@@ -164,17 +170,17 @@ const transactionMutations = {
     return transactionIds;
   }
 };
-checkPermission(transactionMutations, 'transactionsAdd', 'manageTransactions');
-checkPermission(transactionMutations, 'transactionsEdit', 'manageTransactions');
+checkPermission(transactionMutations, "transactionsAdd", "manageTransactions");
+checkPermission(transactionMutations, "transactionsEdit", "manageTransactions");
 checkPermission(
   transactionMutations,
-  'transactionsChange',
-  'manageTransactions'
+  "transactionsChange",
+  "manageTransactions"
 );
 checkPermission(
   transactionMutations,
-  'transactionsRemove',
-  'transactionsRemove'
+  "transactionsRemove",
+  "transactionsRemove"
 );
 
 export default transactionMutations;

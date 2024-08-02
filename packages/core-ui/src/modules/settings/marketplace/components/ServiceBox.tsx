@@ -29,7 +29,7 @@ class ServiceBox extends React.Component<Props, { showMore: boolean }> {
       return null;
     }
 
-    const { prices, shortDescription, title } = plugin || {};
+    const { price, shortDescription, title } = plugin || {};
     // const domain = window.location.host;
     const showmore = shortDescription.includes('<ul');
 
@@ -42,13 +42,13 @@ class ServiceBox extends React.Component<Props, { showMore: boolean }> {
         <div>
           <h5>{title}</h5>
           <Price>
-            ${prices ? prices.oneTime || prices.monthly : 0}
+            ${price ? price.oneTime || price.monthly : 0}
             <span>
-              {prices && prices.oneTime
+              {price && price.oneTime
                 ? '/ One Time'
-                : prices && prices.monthly
-                ? '/ Monthly'
-                : ''}
+                : price && price.monthly
+                  ? '/ Monthly'
+                  : ''}
             </span>
           </Price>
           <ServiceText showMore={this.state.showMore}>

@@ -8,7 +8,6 @@ import React from "react";
 import asyncComponent from "modules/common/components/AsyncComponent";
 import dayjs from "dayjs";
 import { getVersion } from "@erxes/ui/src/utils/core";
-import { pluginsInnerWidgets } from "pluginUtils";
 
 const MainBar = asyncComponent(
   () =>
@@ -86,7 +85,7 @@ class MainLayout extends React.Component<IProps, State> {
               organizationName: name,
               organizationSubDomain: subdomain,
               organizationExpierence: experienceName,
-              organizationBundles: bundleNames.map((b) => b).join(", "),
+              organizationBundles: bundleNames.map(b => b).join(", "),
               organizationPlan: plan,
               organizationIsPaid: isPaid ? "true" : "false",
               organizationIsExpired:
@@ -161,15 +160,15 @@ class MainLayout extends React.Component<IProps, State> {
           const entry = document.getElementsByTagName("script")[0];
           (entry as any).parentNode.insertBefore(script, entry);
         }
-        pluginsInnerWidgets();
       }
 
       (window as any).wootricSettings = {
         email: currentUser.email, // Required to uniquely identify a user. Email is recommended but this can be any unique identifier.
         created_at: Math.floor(
-          (currentUser.createdAt
-            ? new Date(currentUser.createdAt)
-            : new Date()
+          new Date(
+            currentUser.createdAt ||
+              currentOrganization?.createdAt ||
+              `${dayjs(new Date()).format("YYYY-MM-DD")}`
           ).getTime() / 1000
         ),
         account_token: "NPS-477ee032", // This is your unique account token.
@@ -183,6 +182,25 @@ class MainLayout extends React.Component<IProps, State> {
       wootricScript.onload = () => {
         (window as any).wootric("run");
       };
+
+      // Userback code
+      (window as any).Userback = {
+        access_token:
+          "6472|21123|TunTSMTJVrfaq926JJ4H5PqgrGAW1R9UG8VWTZNfuooH7ed2NU",
+        email: currentUser.email,
+        widget_settings: {
+          autohide: true,
+        },
+      };
+
+      const userBackScript = document.createElement("script");
+
+      userBackScript.src = "https://static.userback.io/widget/v1.js";
+
+      document.body.appendChild(userBackScript);
+
+      // click-jack attack defense
+      bustIframe();
     } // end currentUser checking
 
     if (enabledServices && Object.keys(enabledServices).length !== 0) {

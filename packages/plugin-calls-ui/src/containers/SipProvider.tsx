@@ -7,6 +7,7 @@ import { mutations, queries, subscriptions } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import { CALL_DIRECTION_INCOMING } from '../lib/enums';
 import CallIntegrationForm from '../components/Form';
+import { CallWrapper } from '../styles';
 import IncomingCallContainer from './IncomingCall';
 import { ModalTrigger } from '@erxes/ui/src/components';
 import SipProvider from '../components/SipProvider';
@@ -23,6 +24,9 @@ const SipProviderContainer = (props) => {
     localStorage.getItem('isConnectCallRequested') || '{}',
   );
   const [historyId, setHistoryId] = useState('');
+  const [hideIncomingCall, setHideIncomingCall] = useState(false);
+  const [currentCallConversationId, setCurrentCallConversationId] =
+    useState('');
 
   const { data, loading, error } = useQuery(gql(queries.callUserIntegrations));
   const { data: callConfigData, loading: callConfigLoading } = useQuery(
@@ -73,13 +77,16 @@ const SipProviderContainer = (props) => {
       });
   };
   const updateHistory = (
-    sessionId: string,
+    timeStamp: number,
     callStartTime: Date,
     callEndTime: Date,
     callStatus: string,
     direction: string,
     customerPhone: string,
+    transferStatus?: string,
+    endedBy?: string,
   ) => {
+    const transferedCallStatus = localStorage.getItem('transferedCallStatus');
     let duration = 0;
     if (callStartTime && callEndTime) {
       const startedMoment = moment(callStartTime);
@@ -90,17 +97,26 @@ const SipProviderContainer = (props) => {
       updateHistoryMutation({
         variables: {
           id: historyId,
-          sessionId,
+          timeStamp: parseInt(timeStamp.toString()),
           callStartTime,
           callEndTime,
           callDuration: duration,
           callStatus,
           callType: direction,
+          customerPhone,
+          transferedCallStatus: transferStatus
+            ? 'remote'
+            : transferedCallStatus,
+          endedBy,
         },
         refetchQueries: ['callHistories'],
       })
-        .then()
+        .then(() => {
+          setHistoryId('');
+        })
         .catch((e) => {
+          setHistoryId('');
+
           if (e.message !== 'You cannot edit') {
             Alert.error(e.message);
           }
@@ -109,7 +125,7 @@ const SipProviderContainer = (props) => {
       if (callStatus === 'cancelled') {
         updateHistoryMutation({
           variables: {
-            sessionId,
+            timeStamp: parseInt(timeStamp.toString()),
             callStartTime,
             callEndTime,
             callDuration: duration,
@@ -117,11 +133,16 @@ const SipProviderContainer = (props) => {
             inboxIntegrationId: config?.inboxId || '',
             customerPhone,
             callType: direction,
+            endedBy,
           },
           refetchQueries: ['callHistories'],
         })
-          .then()
+          .then(() => {
+            setHistoryId('');
+          })
           .catch((e) => {
+            setHistoryId('');
+
             if (e.message !== 'You cannot edit') {
               Alert.error(e.message);
             }
@@ -133,24 +154,29 @@ const SipProviderContainer = (props) => {
   };
   const addHistory = (
     callStatus: string,
-    sessionId: string,
+    timeStamp: number,
     direction: string,
     customerPhone: string,
     callStartTime: Date,
+    queueName?: string | null,
   ) => {
     addHistoryMutation({
       variables: {
-        sessionId: sessionId || '',
+        timeStamp: parseInt(timeStamp.toString()),
         callType: direction,
         callStatus,
         customerPhone,
         inboxIntegrationId: config?.inboxId || '',
         callStartTime,
+        queueName,
       },
     })
       .then(({ data }: any) => {
         const callHistoryId = data?.callHistoryAdd?._id;
+        const callConversationId = data?.callHistoryAdd?.conversationId;
         setHistoryId(callHistoryId);
+        setCurrentCallConversationId(callConversationId);
+
         Alert.success('Successfully updated status');
       })
       .catch((e) => {
@@ -194,11 +220,13 @@ const SipProviderContainer = (props) => {
 
   if (!config.isAvailable) {
     return (
-      <WidgetContainer
-        {...props}
-        callUserIntegrations={callUserIntegrations}
-        setConfig={handleSetConfig}
-      />
+      <CallWrapper>
+        <WidgetContainer
+          {...props}
+          callUserIntegrations={callUserIntegrations}
+          setConfig={handleSetConfig}
+        />
+      </CallWrapper>
     );
   }
 
@@ -208,7 +236,7 @@ const SipProviderContainer = (props) => {
   const defaultIntegration = config || filteredIntegration;
 
   const { wsServer, operators } = defaultIntegration || {};
-  const [host, port] = wsServer?.split(':');
+  const [host = 'call.erxes.io', port = '8089'] = wsServer?.split(':');
 
   const operator = operators?.[0];
   const { gsUsername, gsPassword } = operator || {};
@@ -235,40 +263,47 @@ const SipProviderContainer = (props) => {
     port: parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
-        urls: `stun:${STUN_SERVER_URL}` || '',
-      },
-      {
         urls: `turn:${TURN_SERVER_URL}` || '',
         username: TURN_SERVER_USERNAME || '',
         credential: TURN_SERVER_CREDENTIAL || '',
+      },
+      {
+        urls: `stun:${STUN_SERVER_URL}` || '',
       },
     ],
   };
 
   return (
-    <SipProvider
-      {...sipConfig}
-      createSession={createSession}
-      updateHistory={updateHistory}
-      addHistory={addHistory}
-      callUserIntegration={filteredIntegration}
-    >
-      {(state) => (
-        <>
-          {state?.callDirection === CALL_DIRECTION_INCOMING && (
-            <IncomingCallContainer
+    <CallWrapper>
+      <SipProvider
+        {...sipConfig}
+        createSession={createSession}
+        updateHistory={updateHistory}
+        addHistory={addHistory}
+        callUserIntegration={filteredIntegration}
+      >
+        {(state) => (
+          <>
+            {state?.callDirection === CALL_DIRECTION_INCOMING && (
+              <IncomingCallContainer
+                {...props}
+                callUserIntegrations={callUserIntegrations}
+                hideIncomingCall={hideIncomingCall}
+                currentCallConversationId={currentCallConversationId || ''}
+              />
+            )}
+            <WidgetContainer
               {...props}
               callUserIntegrations={callUserIntegrations}
+              setConfig={handleSetConfig}
+              setHideIncomingCall={setHideIncomingCall}
+              hideIncomingCall={hideIncomingCall}
+              currentCallConversationId={currentCallConversationId || ''}
             />
-          )}
-          <WidgetContainer
-            {...props}
-            callUserIntegrations={callUserIntegrations}
-            setConfig={handleSetConfig}
-          />
-        </>
-      )}
-    </SipProvider>
+          </>
+        )}
+      </SipProvider>
+    </CallWrapper>
   );
 };
 

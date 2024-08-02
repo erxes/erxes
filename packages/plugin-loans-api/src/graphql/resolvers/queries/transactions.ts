@@ -1,15 +1,19 @@
-import { checkPermission, paginate } from '@erxes/api-utils/src';
-import { IContext } from '../../../connectionResolver';
+import { checkPermission, paginate } from "@erxes/api-utils/src";
+import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (models, params, commonQuerySelector) => {
   const filter: any = commonQuerySelector;
 
   if (params.searchValue) {
     const contracts = await models.Contracts.find(
-      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, 'i')] } },
+      { number: { $in: [new RegExp(`.*${params.searchValue}.*`, "i")] } },
       { _id: 1 }
     );
-    filter.contractId = { $in: contracts.map(item => item._id) };
+    filter.$or = [
+      { contractId: { $in: contracts.map((item) => item._id) } },
+      { description: new RegExp(`.*${params.searchValue}.*`, "i") },
+      { total: params.searchValue }
+    ];
   }
 
   if (params.ids) {
@@ -28,6 +32,10 @@ const generateFilter = async (models, params, commonQuerySelector) => {
     filter.customerId = params.customerId;
   }
 
+  if (params.transactionType) {
+    filter.transactionType = params.transactionType;
+  }
+
   if (params.startDate) {
     filter.payDate = {
       $gte: new Date(params.startDate)
@@ -42,25 +50,33 @@ const generateFilter = async (models, params, commonQuerySelector) => {
 
   if (params.startDate && params.endDate) {
     filter.payDate = {
-      $and: [
-        { $gte: new Date(params.startDate) },
-        { $lte: new Date(params.endDate) }
-      ]
+      $gte: new Date(params.startDate),
+      $lte: new Date(params.endDate)
     };
   }
 
-  if (params.payDate === 'today') {
-    filter.payDate = { $and: [{ $gte: new Date() }, { $lte: new Date() }] };
+  if (params.payDate === "today") {
+    filter.payDate = { $gte: new Date(), $lte: new Date() };
   }
 
   if (params.contractHasnt) {
-    filter.contractId = { $in: ['', null] };
+    filter.contractId = { $in: ["", null] };
+  }
+
+  if (params.description) {
+    filter.description = {
+      $in: [new RegExp(`.*${params.description}.*`, "i")]
+    };
+  }
+
+  if (params.total) {
+    filter.total = params.total;
   }
 
   return filter;
 };
 
-export const sortBuilder = params => {
+export const sortBuilder = (params) => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -80,7 +96,7 @@ const transactionQueries = {
     params,
     { commonQuerySelector, models }: IContext
   ) => {
-    return paginate(
+    return await paginate(
       models.Transactions.find(
         await generateFilter(models, params, commonQuerySelector)
       ),
@@ -110,7 +126,7 @@ const transactionQueries = {
           perPage: params.perPage
         }
       ),
-      totalCount: await models.Transactions.find(filter).count()
+      totalCount: await models.Transactions.find(filter).countDocuments()
     };
   },
 
@@ -135,8 +151,8 @@ const transactionQueries = {
   }
 };
 
-checkPermission(transactionQueries, 'transactions', 'showTransactions');
-checkPermission(transactionQueries, 'transactionsMain', 'showTransactions');
-checkPermission(transactionQueries, 'transactionDetail', 'showTransactions');
+checkPermission(transactionQueries, "transactions", "showTransactions");
+checkPermission(transactionQueries, "transactionsMain", "showTransactions");
+checkPermission(transactionQueries, "transactionDetail", "showTransactions");
 
 export default transactionQueries;

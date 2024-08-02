@@ -1,5 +1,4 @@
-import { toErkhet } from './utils';
-import fetch from 'node-fetch';
+import { getCompanyInfo, toErkhet } from './utils';
 
 export const customerToErkhet = async (
   models,
@@ -40,7 +39,7 @@ export const customerToErkhet = async (
 };
 
 export const validCompanyCode = async (config, companyCode) => {
-  let result = false;
+  let result = '';
   if (
     !config ||
     !config.checkCompanyUrl ||
@@ -49,17 +48,13 @@ export const validCompanyCode = async (config, companyCode) => {
     return result;
   }
 
-  const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
+  const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)|(^\d{11}$)|(^\d{12}$)/gui;
 
   if (re.test(companyCode)) {
-    const response = await fetch(
-      config.checkCompanyUrl +
-        '?' +
-        new URLSearchParams({ regno: companyCode }),
-    ).then((res) => res.json());
+    const response = await getCompanyInfo({checkTaxpayerUrl: config.checkCompanyUrl, no: companyCode})
 
-    if (response.found) {
-      result = response.name;
+    if (response.status === 'checked' && response.tin) {
+      result = response.result?.data?.name;
     }
   }
   return result;

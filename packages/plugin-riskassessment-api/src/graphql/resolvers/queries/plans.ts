@@ -92,7 +92,7 @@ const RiskAssessmentPlansQueries = {
   async riskAssessmentPlansTotalCount(_root, args, { models }: IContext) {
     const filter = generateFilters(args);
 
-    return await models.Plans.find(filter).count();
+    return await models.Plans.find(filter).countDocuments();
   },
   async riskAssessmentPlan(_root, { _id }, { models }: IContext) {
     return await models.Plans.findOne({ _id });

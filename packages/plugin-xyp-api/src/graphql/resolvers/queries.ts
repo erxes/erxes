@@ -8,14 +8,14 @@ export interface IXypConfig {
 }
 
 const xypQueries = {
-  xypDataList(_root, { contentType, contentTypeIds }, { models }: IContext) {
+  async xypDataList(_root, { contentType, contentTypeIds }, { models }: IContext) {
     let query = {};
     if (contentType) query['contentType'] = contentType;
     if (contentTypeIds) query['contentTypeId'] = { $in: contentTypeIds };
     return models.XypData.find(query);
   },
 
-  xypDataDetail(
+  async xypDataDetail(
     _root,
     { _id, contentType, contentTypeId },
     { models }: IContext,
@@ -23,7 +23,7 @@ const xypQueries = {
     return models.XypData.findOne({ contentType, contentTypeId });
   },
 
-  xypsTotalCount(_root, _args, { models }: IContext) {
+  async xypsTotalCount(_root, _args, { models }: IContext) {
     return models.XypData.countDocuments();
   },
 

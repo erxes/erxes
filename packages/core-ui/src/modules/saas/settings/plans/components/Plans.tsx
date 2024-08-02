@@ -6,7 +6,6 @@ import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import OrganizationProfile from '../containers/OrganizationProfile';
-import PromoCodeForm from '../containers/PromoCodeForm';
 import { IOrganization } from '../types';
 import Overview from './Overview';
 import { StatusBox, StatusTitle, CenterFlexRow } from '../styles';
@@ -62,10 +61,9 @@ class Plans extends React.Component<Props> {
         action="editOrganizationInfo"
         fallbackComponent={fallbackComponent}
       >
-        <FullContent center={true}>
-          <MiddleContent transparent={true}>
+        <FullContent $center={true}>
+          <MiddleContent $transparent={true}>
             <OrganizationProfile currentOrganization={currentOrganization} />
-            <PromoCodeForm />
             <Overview
               currentUser={currentUser}
               currentOrganization={currentOrganization}

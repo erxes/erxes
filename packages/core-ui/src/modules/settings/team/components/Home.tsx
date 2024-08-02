@@ -1,11 +1,8 @@
 import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
-import {
-  FilterContainer,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
-import { FlexItem, FlexRow } from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { FlexItem } from "@erxes/ui-settings/src/styles";
 import React, { useState } from "react";
+import { BarItems } from "@erxes/ui/src/layout/styles";
 
 import Button from "@erxes/ui/src/components/Button";
 import { IButtonMutateProps } from "@erxes/ui/src/types";
@@ -13,26 +10,15 @@ import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import Pagination from "modules/common/components/pagination/Pagination";
-import Select, { OnChangeValue, StylesConfig } from "react-select";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import Sidebar from "./Sidebar";
 import UserInvitationForm from "../containers/UserInvitationForm";
 import UserList from "../containers/UserList";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "modules/common/utils";
-import { colors } from "@erxes/ui/src/styles";
 import { router } from "@erxes/ui/src/utils";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
 import { useLocation, useNavigate } from "react-router-dom";
-
-const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
-  background: ${(props) =>
-    props.active === true ? colors.colorCoreGreen : colors.colorCoreYellow};
-  border-radius: 50%;
-  height: 10px;
-  width: 10px;
-  `;
+import Dropdown from "@erxes/ui/src/components/Dropdown";
 
 type Props = {
   queryParams: any;
@@ -78,11 +64,9 @@ export default function Home(props: Props) {
     e.target.value = tmpValue;
   };
 
-  const onStatusChange = (
-    status: OnChangeValue<{ label: string; value: boolean }, false>
-  ) => {
-    router.setParams(navigate, location, { isActive: status?.value });
-    setActive(status?.value && (!status?.value ? status?.value : true));
+  const onStatusChange = (status: boolean) => {
+    router.setParams(navigate, location, { isActive: status });
+    setActive(status && (!status ? status : true));
   };
 
   const renderBrandChooser = () => {
@@ -134,87 +118,43 @@ export default function Home(props: Props) {
     </Button>
   );
 
-  const statusOptions = [
-    {
-      value: true,
-      label: __("Active"),
-    },
-    {
-      value: false,
-      label: __("Deactivated"),
-    },
-  ];
-
-  const colourStyles: StylesConfig = {
-    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
-      return {
-        ...styles,
-        backgroundColor: isDisabled
-          ? undefined
-          : isSelected
-            ? "rgb(237, 242, 250)"
-            : isFocused
-              ? "#f0f0f0"
-              : undefined,
-        color: isDisabled ? "#ccc" : "#333",
-        cursor: isDisabled ? "not-allowed" : "default",
-
-        ":active": {
-          ...styles[":active"],
-          backgroundColor: !isDisabled
-            ? isSelected
-              ? "rgb(237, 242, 250)"
-              : "#f0f0f0"
-            : undefined,
-        },
-      };
-    },
-  };
-
   const righActionBar = (
-    <FilterContainer>
-      <FlexRow>
-        {renderBrandChooser()}
-        <InputBar type="searchBar">
-          <Icon icon="search-1" size={20} />
-          <FlexItem>
-            <FormControl
-              placeholder={__("Search")}
-              name="searchValue"
-              onChange={search}
-              value={searchValue}
-              autoFocus={true}
-              onFocus={moveCursorAtTheEnd}
-            />
-          </FlexItem>
-        </InputBar>
-        <InputBar type="active">
-          <ActiveColor active={active} />
-          <FlexItem>
-            <Select
-              placeholder={__("Choose status")}
-              value={statusOptions.find(
-                (o) =>
-                  o.value === (queryParams.isActive === "false" ? false : true)
-              )}
-              onChange={onStatusChange}
-              isClearable={false}
-              options={statusOptions}
-              className="basic-multi-select"
-              isSearchable={false}
-              styles={colourStyles}
-            />
-          </FlexItem>
-        </InputBar>
-        <ModalTrigger
-          content={renderInvitationForm}
-          size="xl"
-          title="Invite team members"
-          autoOpenKey="showMemberInviteModal"
-          trigger={trigger}
-        />
-      </FlexRow>
-    </FilterContainer>
+    <BarItems>
+      {renderBrandChooser()}
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={search}
+        value={searchValue}
+        autoFocus={true}
+        onFocus={moveCursorAtTheEnd}
+      />
+      <Dropdown
+        toggleComponent={
+          <Button btnStyle="simple" size="small">
+            {__(active ? "Active" : "Deactivated")} <Icon icon="angle-down" />
+          </Button>
+        }
+      >
+        <li>
+          <a href="#" onClick={() => onStatusChange(true)}>
+            Active
+          </a>
+        </li>
+        <li>
+          <a href="#" onClick={() => onStatusChange(false)}>
+            Deactivated
+          </a>
+        </li>
+      </Dropdown>
+      <ModalTrigger
+        content={renderInvitationForm}
+        size="xl"
+        title="Invite team members"
+        autoOpenKey="showMemberInviteModal"
+        trigger={trigger}
+      />
+    </BarItems>
   );
 
   const actionBar = (

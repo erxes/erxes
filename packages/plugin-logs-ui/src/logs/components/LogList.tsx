@@ -1,19 +1,12 @@
 import * as React from "react";
 
-import {
-  FilterContainer,
-  FlexItem,
-  FlexRow,
-  InputBar,
-  Title,
-} from "@erxes/ui-settings/src/styles";
+import { Title } from "@erxes/ui-settings/src/styles";
 import { __, router } from "@erxes/ui/src/utils";
 
 import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import { ILog } from "../types";
-import Icon from "@erxes/ui/src/components/Icon";
 import LogRow from "./LogRow";
 import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Sidebar from "./Sidebar";
@@ -101,22 +94,13 @@ const LogList = (props: Props) => {
 
   const actionBarRight = () => {
     return (
-      <FilterContainer>
-        <FlexRow>
-          <InputBar type="searchBar">
-            <Icon icon="search-1" size={20} />
-            <FlexItem>
-              <FormControl
-                type="text"
-                placeholder={__("Type to search")}
-                onChange={searchHandler}
-                autoFocus={true}
-                value={searchValue}
-              />
-            </FlexItem>
-          </InputBar>
-        </FlexRow>
-      </FilterContainer>
+      <FormControl
+        type="text"
+        placeholder={__("Type to search")}
+        onChange={searchHandler}
+        autoFocus={true}
+        value={searchValue}
+      />
     );
   };
 

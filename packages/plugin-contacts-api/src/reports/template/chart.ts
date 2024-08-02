@@ -1,6 +1,6 @@
 import { IModels } from '../../connectionResolver';
 import { sendClientPortalMessage } from '../../messageBroker';
-import { BUSINESSPORTAL_STATE_TYPES, CONTACT_STATES, CONTACT_STATE_TYPES, DATERANGE_TYPES, INTEGRATION_TYPES } from '../constants';
+import { BUSINESSPORTAL_STATE_TYPES, CONTACT_STATES, CONTACT_STATE_TYPES, DATERANGE_BY_TYPES, DATERANGE_BY_TYPES_COMPANIES, DATERANGE_TYPES, INTEGRATION_TYPES } from '../constants';
 import { buildMatchFilter, getBusinessPortalCount, getBusinnesPortalPipeline, getIntegrationsKinds } from '../utils';
 
 const chartTemplates = [
@@ -24,11 +24,11 @@ const chartTemplates = [
 
             if (stateType === "customer" || stateType === "lead" || stateType === "visitor") {
                 totalCounts = {
-                    'Total Customer Count': await models.Customers.find({ ...matchFilter, state: { $eq: stateType }, status: "Active" }).count(),
+                    'Total Customer Count': await models.Customers.find({ ...matchFilter, state: { $eq: stateType }, status: "Active" }).countDocuments(),
                 };
             } else if (stateType === "company") {
                 totalCounts = {
-                    'Total Company Count': await models.Companies.find(matchFilter).count(),
+                    'Total Company Count': await models.Companies.find(matchFilter).countDocuments(),
                 };
             } else if (stateType === "client-portal" || stateType === "vendor-portal") {
                 const kind = stateType === "client-portal" ? "client" : "vendor";
@@ -44,8 +44,8 @@ const chartTemplates = [
                 const pipeline = getBusinnesPortalPipeline(matchFilter, 'all');
 
                 const [companiesCount, customersCount, businessPortalsCount] = await Promise.all([
-                    models.Companies.find(matchFilter).count(),
-                    models.Customers.find(matchFilter).count(),
+                    models.Companies.find(matchFilter).countDocuments(),
+                    models.Customers.find(matchFilter).countDocuments(),
                     getBusinessPortalCount(pipeline, 0, subdomain)
                 ]);
 
@@ -110,6 +110,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -123,16 +132,16 @@ const chartTemplates = [
             dimension: any,
             subdomain: string,
         ) => {
-            const { stateType } = filter;
+            const { stateType, dateRangeType = 'createdAt' } = filter;
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
             const pipeline = [
                 {
-                    $match: { ...matchFilter, createdAt: { $ne: null } }
+                    $match: { ...matchFilter, [dateRangeType]: { $ne: null } }
                 },
                 {
                     $group: {
-                        _id: { $year: { $toDate: "$createdAt" } },
+                        _id: { $year: { $toDate: `$${dateRangeType}` } },
                         count: { $sum: 1 }
                     }
                 },
@@ -237,6 +246,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -375,6 +393,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -524,6 +551,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
 
@@ -545,7 +581,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const customersCount = await models.Customers.find({ ...matchFilter, state: "customer", status: "Active" }).count()
+            const customersCount = await models.Customers.find({ ...matchFilter, state: "customer", status: "Active" }).countDocuments()
 
             const totalCount = {
                 'Total Count': customersCount
@@ -646,6 +682,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -660,15 +705,17 @@ const chartTemplates = [
             subdomain: string,
         ) => {
 
+            const { dateRangeType = 'createdAt' } = filter
             const matchFilter = await buildMatchFilter(filter, subdomain)
+
 
             const pipeline = [
                 {
-                    $match: { ...matchFilter, state: "customer", createdAt: { $ne: null } }
+                    $match: { ...matchFilter, state: "customer", [dateRangeType]: { $ne: null } }
                 },
                 {
                     $group: {
-                        _id: { $year: { $toDate: "$createdAt" } },
+                        _id: { $year: { $toDate: `$${dateRangeType}` } },
                         count: { $sum: 1 }
                     }
                 },
@@ -783,6 +830,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -950,6 +1006,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -1109,6 +1174,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -1290,6 +1364,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
 
@@ -1311,7 +1394,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const customersCount = await models.Customers.find({ ...matchFilter, state: "lead" }).count()
+            const customersCount = await models.Customers.find({ ...matchFilter, state: "lead" }).countDocuments()
 
             const totalCount = {
                 'Total Count': customersCount
@@ -1412,6 +1495,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -1425,16 +1517,16 @@ const chartTemplates = [
             dimension: any,
             subdomain: string,
         ) => {
-
+            const { dateRangeType = '$createdAt' } = filter
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
             const pipeline = [
                 {
-                    $match: { ...matchFilter, state: "lead", createdAt: { $ne: null } }
+                    $match: { ...matchFilter, state: "lead", [dateRangeType]: { $ne: null } }
                 },
                 {
                     $group: {
-                        _id: { $year: { $toDate: "$createdAt" } },
+                        _id: { $year: { $toDate: `$${dateRangeType}` } },
                         count: { $sum: 1 }
                     }
                 },
@@ -1549,6 +1641,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -1714,6 +1815,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -1873,6 +1983,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -2054,6 +2173,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
 
@@ -2075,7 +2203,7 @@ const chartTemplates = [
 
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
-            const customersCount = await models.Companies.find(matchFilter).count()
+            const customersCount = await models.Companies.find(matchFilter).countDocuments()
 
             const totalCount = {
                 'Total Count': customersCount
@@ -2139,6 +2267,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -2152,16 +2289,16 @@ const chartTemplates = [
             dimension: any,
             subdomain: string,
         ) => {
-
+            const { dateRangeType = 'createdAt' } = filter
             const matchFilter = await buildMatchFilter(filter, subdomain)
 
             const pipeline = [
                 {
-                    $match: { ...matchFilter, createdAt: { $ne: null } }
+                    $match: { ...matchFilter, [dateRangeType]: { $ne: null } }
                 },
                 {
                     $group: {
-                        _id: { $year: { $toDate: "$createdAt" } },
+                        _id: { $year: { $toDate: `$${dateRangeType}` } },
                         count: { $sum: 1 }
                     }
                 },
@@ -2239,6 +2376,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -2359,6 +2505,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -2502,6 +2657,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
 
@@ -2570,6 +2734,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -2635,6 +2808,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
 
@@ -2703,6 +2885,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
     {
@@ -2767,6 +2958,15 @@ const chartTemplates = [
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
             },
+            {
+                fieldName: 'dateRangeType',
+                fieldType: 'select',
+                multi: false,
+                fieldQuery: 'date',
+                fieldOptions: DATERANGE_BY_TYPES_COMPANIES,
+                fieldLabel: 'Select date range type',
+                fieldDefaultValue: "createdAt"
+            }
         ]
     },
 

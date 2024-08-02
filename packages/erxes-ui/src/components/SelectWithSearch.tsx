@@ -1,15 +1,15 @@
 import * as compose from "lodash.flowright";
 
+import Select, {
+  MultiValueProps,
+  OnChangeValue,
+  components,
+} from "react-select";
 import { __, confirm, readFile, withProps } from "../utils";
 
 import { IOption } from "../types";
 import Icon from "./Icon";
 import React from "react";
-import Select, {
-  OnChangeValue,
-  components,
-  MultiValueProps,
-} from "react-select";
 import colors from "../styles/colors";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
@@ -20,7 +20,7 @@ export const SelectValue = styled.div`
   justify-content: center;
   align-items: center;
   margin-left: -2px;
-  padding-left: 25px;
+  padding-left: 18px;
 
   img {
     position: absolute;
@@ -151,6 +151,7 @@ class SelectWithSearch extends React.Component<
       const uniqueLoadedOptions = generateOptions(
         datas.filter((data) => !totalOptionsValues.includes(data._id))
       );
+
       const updatedTotalOptions = [...totalOptions, ...uniqueLoadedOptions];
 
       const selectedOptions = updatedTotalOptions.filter((option) =>
@@ -199,6 +200,8 @@ class SelectWithSearch extends React.Component<
       multi,
       customOption,
       showAvatar = true,
+      menuPortalTarget,
+      customStyles,
     } = this.props;
 
     const { totalOptions, selectedOptions } = this.state;
@@ -277,6 +280,8 @@ class SelectWithSearch extends React.Component<
         onInputChange={onSearch}
         options={selectOptions}
         isMulti={multi}
+        styles={customStyles}
+        menuPortalTarget={menuPortalTarget}
       />
     );
   }
@@ -345,6 +350,8 @@ type WrapperProps = {
   generateOptions: (datas: any[]) => IOption[];
   customQuery?: any;
   multi?: boolean;
+  menuPortalTarget?: any;
+  customStyles?: any;
   filterParams?: any;
   showAvatar?: boolean;
   customOption?: {

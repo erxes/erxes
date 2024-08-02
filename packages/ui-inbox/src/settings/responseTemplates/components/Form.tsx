@@ -1,16 +1,18 @@
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IFormProps } from '@erxes/ui/src/types';
-import { IResponseTemplate } from '../types';
-import React from 'react';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+
+import CommonForm from "@erxes/ui-settings/src/common/components/Form";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { ICommonFormProps } from "@erxes/ui-settings/src/common/types";
+import { IResponseTemplate } from "../types";
+import React from "react";
+import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
+import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
 
 type Props = {
   object?: IResponseTemplate;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type State = {
@@ -24,7 +26,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
     const object = props.object || {};
 
     this.state = {
-      content: object.content || ''
+      content: object.content || "",
     };
   }
 
@@ -44,7 +46,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
       _id: finalValues._id,
       brandId: finalValues.brandId,
       name: finalValues.name,
-      content: this.state.content
+      content: this.state.content,
     };
   };
 
@@ -79,7 +81,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             onChange={this.onChange}
             height={300}
             isSubmitted={formProps.isSaved}
-            name={`responseTemplates_${object._id || 'create'}`}
+            name={`responseTemplates_${object._id || "create"}`}
           />
         </FormGroup>
       </>

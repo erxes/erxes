@@ -38,12 +38,13 @@ export interface ITag {
 export interface IHistoryDoc {
   operatorPhone: string;
   customerPhone: string;
+  conversationId: string;
   callDuration: number;
   callStartTime: Date;
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  sessionId: string;
+  timeStamp: number;
   updatedAt: Date;
   createdAt: Date;
   createdBy: string;

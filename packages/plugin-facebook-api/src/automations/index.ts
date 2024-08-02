@@ -1,3 +1,4 @@
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from '../connectionResolver';
 import { actionCreateComment, checkCommentTrigger } from './comments';
 import { actionCreateMessage, checkMessageTrigger } from './messages';
@@ -34,6 +35,13 @@ export default {
         isAvailable: true,
         isAvailableOptionalConnect: true,
       },
+      {
+        type: 'facebook:comments.create',
+        icon: 'comments-alt',
+        label: 'Send Facebook Comment',
+        description: 'Send Facebook Comments',
+        isAvailable: true,
+      },
     ],
     triggers: [
       {
@@ -42,7 +50,7 @@ export default {
         icon: 'messenger',
         label: 'Facebook Message',
         description:
-          'Start with a blank workflow that enralls and is triggered off facebook messages',
+          'Start with a blank workflow that enrolls and is triggered off facebook messages',
         isCustom: true,
         conditions: [
           {
@@ -71,7 +79,7 @@ export default {
         icon: 'comments',
         label: 'Facebook Comments',
         description:
-          'Start with a blank workflow that enralls and is triggered off facebook comments',
+          'Start with a blank workflow that enrolls and is triggered off facebook comments',
         isCustom: true,
       },
     ],
@@ -148,11 +156,13 @@ export default {
   checkCustomTrigger: async ({ subdomain, data }) => {
     const { collectionType } = data;
 
+    debugInfo(`Recieved:${JSON.stringify(data)}`);
+
     switch (collectionType) {
       case 'messages':
         return checkMessageTrigger(subdomain, data);
       case 'comments':
-        return checkCommentTrigger(subdomain, data);
+        return await checkCommentTrigger(subdomain, data);
       default:
         return false;
     }

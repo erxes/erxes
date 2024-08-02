@@ -1,4 +1,5 @@
 import Button from "@erxes/ui/src/components/Button";
+import dayjs from 'dayjs';
 import { IPutResponse } from "../types";
 import PerResponse from "./PerResponse";
 import React from "react";
@@ -12,6 +13,7 @@ import queries from "../graphql/queries";
 type Props = {
   putResponse: IPutResponse;
   history: any;
+  onReReturn: (_id: string) => void;
 };
 
 export const displayValue = (putResponse, name) => {
@@ -19,7 +21,7 @@ export const displayValue = (putResponse, name) => {
   return formatValue(value);
 };
 
-const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
+const PutResponseRow: React.FC<Props> = ({ putResponse, history, onReReturn }: Props) => {
   const onClick = () => {
     client
       .query({
@@ -31,6 +33,10 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
       });
   };
 
+  const onClickReReturn = () => {
+    onReReturn(putResponse._id)
+  }
+
   const onPrint = () => {
     const printContent = PerResponse(putResponse);
     const printMianContent = Response(printContent);
@@ -40,34 +46,48 @@ const PutResponseRow: React.FC<Props> = ({ putResponse, history }: Props) => {
   };
 
   return (
-    <tr>
-      <td key={"BillID"}>{putResponse.billId} </td>
+    <tr key={putResponse._id}>
+      <td key={'BillID'}>{putResponse.id} </td>
       <td key={"number"}>{putResponse.number} </td>
-      <td key={"Date"}>{putResponse.date}</td>
-      <td key={"success"}>{displayValue(putResponse, "success")}</td>
-      <td key={"billType"}>{displayValue(putResponse, "billType")}</td>
-      <td key={"taxType"}>{displayValue(putResponse, "taxType")}</td>
-      <td key={"amount"}>{displayValue(putResponse, "amount")}</td>
-      <td key={"message"}>{displayValue(putResponse, "message")}</td>
-      <td key={"ReturnBillId"}>{putResponse.sendInfo?.returnBillId} </td>
+      <td key={'Date'}>
+        {putResponse.date ||
+          dayjs(putResponse.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+      </td>
+      <td key={'success'}>{displayValue(putResponse, 'status')}</td>
+      <td key={'billType'}>{displayValue(putResponse, 'type')}</td>
+      <td key={'taxType'}>{displayValue(putResponse.receipts, 'length')}</td>
+      <td key={'amount'}>{displayValue(putResponse, 'totalAmount')}</td>
+      <td key={'message'}>{displayValue(putResponse, 'message')}</td>
+      <td key={'inactiveId'}>{putResponse.inactiveId} </td>
       <td key={"actions"}>
-        {putResponse.contentType === "deal" && (
+        {(putResponse.contentType === "deal") && (
           <Button
             btnStyle="link"
             size="small"
             icon="external-link-alt"
             onClick={onClick}
           >
-            Show Deal
+            Deal
           </Button>
         )}
 
-        <Button
+        {(!putResponse.id && putResponse.inactiveId) && (
+          <Button
+            btnStyle="link"
+            size="small"
+            icon="repeat"
+            onClick={onClickReReturn}
+          >
+            ReReturn
+          </Button>
+        )}
+
+        {putResponse.id && (<Button
           btnStyle="link"
           size="small"
           icon="print"
           onClick={onPrint}
-        ></Button>
+        >Print</Button>)}
       </td>
     </tr>
   );

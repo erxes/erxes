@@ -9,7 +9,9 @@ const ProductSimilarityConfig = () => {
   const [type, setType] = useAtom(similarityConfigAtom)
   const mode = useAtomValue(modeAtom)
 
-  if (mode !== "coffee-shop") return null
+  if (mode !== "coffee-shop") {
+    return null
+  }
 
   return (
     <div className="w-full pb-5">

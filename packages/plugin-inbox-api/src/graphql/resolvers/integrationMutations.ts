@@ -140,7 +140,7 @@ const integrationMutations = {
     doc: IOnboardingPramsEdit,
     { user, models, subdomain }: IContext
   ) {
-    const integrationsCount = await models.Integrations.find({}).count();
+    const integrationsCount = await models.Integrations.find({}).countDocuments();
 
     if (integrationsCount > 0) {
       return models.Integrations.findOne();

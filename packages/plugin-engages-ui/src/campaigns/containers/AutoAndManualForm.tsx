@@ -16,14 +16,14 @@ import { IConfig } from "@erxes/ui-settings/src/general/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { IntegrationsQueryResponse } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { queries as clientPortalQueries } from "@erxes/plugin-clientportal-ui/src/graphql";
-import { gql } from "@apollo/client";
+import { gql, useQuery, useLazyQuery } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries as integrationQueries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "@erxes/ui-engage/src/graphql";
-import { useLazyQuery } from "@apollo/client";
 import withFormMutations from "./withFormMutations";
 import { withProps } from "@erxes/ui/src/utils";
+import { queries as segmentQueries } from "@erxes/ui-segments/src/graphql";
 
 type Props = {
   kind?: string;
@@ -72,6 +72,16 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     [businessPortalKind]
   );
 
+  const segmentsQuery = useQuery(gql(segmentQueries.getTypes), {
+    fetchPolicy: "network-only",
+    skip: !isEnabled('segments')
+  });
+
+  const segmentsTypes =
+    segmentsQuery && segmentsQuery.data && segmentsQuery.data.segmentsGetTypes
+      ? segmentsQuery.data.segmentsGetTypes
+      : [];
+
   const configs =
     integrationsConfigsQuery && integrationsConfigsQuery.integrationsGetConfigs
       ? integrationsConfigsQuery.integrationsGetConfigs
@@ -115,6 +125,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     businessPortalKind,
     handleClientPortalKindChange,
     loading,
+    segmentsTypes,
   };
 
   const content = (formProps) => (

@@ -121,7 +121,7 @@ const ContractTypesList = (props: IProps) => {
           {contractTypes.map((contractType) => (
             <ContractTypeRow
               contractType={contractType}
-              isChecked={bulk.includes(contractType)}
+              isChecked={bulk?.includes(contractType)}
               key={contractType._id}
               toggleBulk={toggleBulk}
             />
