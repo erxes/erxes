@@ -582,6 +582,12 @@ export default {
     return sendSuccess(await getCardContentIds(models, data));
   },
 
+  collectItems: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return sendSuccess(await collectItems(models, subdomain, data));
+  },
+
   getSchemaLabels: ({ data: { type } }) => {
     return sendSuccess(getSchemaLabels(type, LOG_MAPPINGS));
   }

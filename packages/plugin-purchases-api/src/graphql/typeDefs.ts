@@ -70,22 +70,10 @@ const typeDefs = async () => {
         : ""
     }
 
-
-        extend type Tag @key(fields: "_id") {
+      extend type Tag @key(fields: "_id") {
           _id: String! @external
-        }
+        } 
 
-    }
-    
-    ${
-      clientPortalEnabled
-        ? `
-        extend type ClientPortalUser @key(fields: "_id") {
-          _id: String! @external
-        }
-      `
-        : ""
-    }
     ${boardTypes()}
     ${purchaseTypes(isEnabledTable)}
 

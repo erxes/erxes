@@ -120,8 +120,7 @@ export default withProps<Props>(
         variables: {
           ...commonParams(queryParams, options)
         }
-      }),
-      skip: !isEnabled("internalnotes")
+      })
     })
   )(ActivityList)
 );

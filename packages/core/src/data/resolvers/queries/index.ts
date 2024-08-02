@@ -12,7 +12,7 @@ import charge from "./charge";
 import plugins from "./plugins";
 import organizations from "./organizations";
 import tags from "./tags";
-import internalNotes from "./internalNote";
+import internalNotes from "./internalNotes";
 
 export default {
   ...users,
