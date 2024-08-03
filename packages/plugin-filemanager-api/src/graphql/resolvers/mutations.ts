@@ -36,7 +36,9 @@ const mutations = {
       throw new Error('Access denied');
     }
 
-    const filesCount = await models.Files.find({ folderId: _id }).countDocuments();
+    const filesCount = await models.Files.find({
+      folderId: _id
+    }).countDocuments();
 
     if (filesCount > 0) {
       throw new Error('This folder contains files');
@@ -53,9 +55,22 @@ const mutations = {
     return models.Folders.deleteOne({ _id });
   },
 
-  async filemanagerFileCreate(_root, doc, { models, user }: IContext) {
+  async filemanagerFileCreate(
+    _root,
+    doc,
+    { models, user, subdomain }: IContext
+  ) {
     const result = await models.Files.saveFile({
       doc: { ...doc, createdUserId: user._id }
+    });
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'fileManagerFileCreate',
+        user
+      }
     });
 
     await models.Logs.createLog({
@@ -126,7 +141,7 @@ const mutations = {
       contentTypeId: _id,
       userId: user._id,
       description: `Shared with ${sharedUsers
-        .map(u => u.username || u.email)
+        .map((u) => u.username || u.email)
         .join(' ')}`
     });
 
