@@ -1,8 +1,16 @@
 import { DropNav, Setup, UserHelper } from "../styles";
+import {
+  FrontlineTasks,
+  GeneralTasks,
+  MarketingTasks,
+  OperationTasks,
+  SalesTasks,
+} from "modules/welcome/constants";
 import { colors, dimensions } from "modules/common/styles";
 
 import BrandChooser from "./BrandChooser";
 import Button from "@erxes/ui/src/components/Button";
+import { IOrganization } from "@erxes/ui/src/auth/types";
 import { IUser } from "modules/auth/types";
 import Icon from "modules/common/components/Icon";
 import { Link } from "react-router-dom";
@@ -128,7 +136,9 @@ const QuickNavigation = ({
 
   const passContent = (props) => <ChangePassword {...props} />;
   const signatureContent = (props) => <Signature {...props} />;
-
+  const completedSteps = currentUser.onboardingHistory
+    ? currentUser.onboardingHistory.completedSteps || []
+    : [];
   const brands = currentUser.brands || [];
 
   const brandOptions = brands.map((brand) => ({
@@ -152,16 +162,58 @@ const QuickNavigation = ({
 
   const { VERSION } = getVersion();
 
+  const compareStepsWithActions = (completedSteps, tasks) => {
+    return tasks.map((task) => ({
+      ...task,
+      isCompleted: completedSteps.includes(task.action),
+    }));
+  };
+
+  const calculateCompletionPercentage = (tasks) => {
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter((task) => task.isCompleted).length;
+
+    return (completedTasks / totalTasks) * 100;
+  };
+
   const renderProcess = () => {
+    const { experience } =
+      currentUser.currentOrganization || ({} as IOrganization);
+    const eCode = experience.customCode || "marketing";
+
+    const operationTasks =
+      eCode === "marketing"
+        ? MarketingTasks
+        : eCode === "sales"
+          ? SalesTasks
+          : eCode === "frontline"
+            ? FrontlineTasks
+            : eCode === "operation"
+              ? OperationTasks
+              : [];
+
+    const allTasks = [...GeneralTasks, ...operationTasks];
+
+    const tasksWithCompletionStatus = compareStepsWithActions(
+      completedSteps,
+      allTasks
+    );
+    const completionPercentage = calculateCompletionPercentage(
+      tasksWithCompletionStatus
+    );
+
+    // const steps = completedSteps.includes('');
+    const percentage = Number(completionPercentage.toFixed(1)) || 0;
+
     return (
       <ProgressBar
-        percentage={50}
+        percentage={percentage}
         type="circle"
         height="28"
         color="#32D583"
         strokeWidthNumber={5}
       >
-        <span>50%</span>
+        <span>{percentage}%</span>
       </ProgressBar>
     );
   };
@@ -174,7 +226,7 @@ const QuickNavigation = ({
         <NavItem center={true}>
           <Button size="small" href="https://erxes.io/add-ons">
             <Icon icon="star" />
-            <span>{__(`Plan Free Upgrade`)}</span>
+            <span>{__(`Upgrade your plan`)}</span>
           </Button>
 
           <Button

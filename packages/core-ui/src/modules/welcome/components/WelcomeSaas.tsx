@@ -43,7 +43,8 @@ function Welcome({ currentUser }: Props) {
     onboardingHistory = {} as IOnboardingHistory,
   } = currentUser || ({} as IUser);
   const { experience = {} as any } = currentOrganization;
-  const { completedSteps = [] as string[] } = onboardingHistory;
+  const { completedSteps = [] as string[] } =
+    onboardingHistory || ({} as IOnboardingHistory);
 
   const renderLeftContent = () => {
     const currentDate = dayjs().format("MMM D, YYYY");
@@ -83,9 +84,15 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
-  const renderTotal = (totalStep: number, action?: string) => {
-    // const completedCount = completedSteps.filter(c => c === action) || [];
-    return <span>0/{totalStep} steps</span>;
+  const renderTotal = (totalStep: number, tasks) => {
+    const completedCount =
+      (tasks || []).filter((task) => completedSteps.includes(task.action))
+        .length || 0;
+    return (
+      <span>
+        {completedCount}/{totalStep} steps
+      </span>
+    );
   };
 
   const renderSetupItem = (item) => {
@@ -137,7 +144,8 @@ function Welcome({ currentUser }: Props) {
             renderTotal(
               type === "general"
                 ? GeneralTasks.length || 0
-                : operationTasks.length || 0
+                : operationTasks.length || 0,
+              type === "general" ? GeneralTasks : operationTasks
             )}
         </SetupSteps>
       </SetupBox>
