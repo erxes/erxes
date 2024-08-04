@@ -97,7 +97,7 @@ function Welcome({ currentUser }: Props) {
 
   const renderSetupItem = (item) => {
     const { id, title, type, image, desc, comingSoon } = item;
-    const eCode = experience.customCode || "";
+    const eCode = experience?.customCode || "";
 
     const operationTasks =
       eCode === "marketing"

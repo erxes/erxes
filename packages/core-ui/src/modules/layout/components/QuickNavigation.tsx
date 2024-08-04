@@ -178,8 +178,8 @@ const QuickNavigation = ({
 
   const renderProcess = () => {
     const { experience } =
-      currentUser.currentOrganization || ({} as IOrganization);
-    const eCode = experience.customCode || "marketing";
+      currentUser?.currentOrganization || ({} as IOrganization);
+    const eCode = experience?.customCode || "marketing";
 
     const operationTasks =
       eCode === "marketing"
