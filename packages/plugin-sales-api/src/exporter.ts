@@ -5,7 +5,6 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendLogsMessage,
   sendProductsMessage
 } from "./messageBroker";
 import * as moment from "moment";
@@ -428,7 +427,7 @@ const fillValue = async (
       break;
 
     case "stageMovedUser":
-      const activities = await sendLogsMessage({
+      const activities = await sendCoreMessage({
         subdomain,
         action: "activityLogs.findMany",
         data: {

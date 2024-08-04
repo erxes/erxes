@@ -490,15 +490,6 @@ export const sendKnowledgeBaseMessage = (
   });
 };
 
-export const sendLogsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "logs",
-    ...args
-  });
-};
-
 export const sendAutomationsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

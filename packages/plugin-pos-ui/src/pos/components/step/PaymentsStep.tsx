@@ -5,7 +5,7 @@ import {
   FormGroup,
   Icon,
   Tip,
-  __,
+  __
 } from "@erxes/ui/src";
 import { LeftItem } from "@erxes/ui/src/components/step/styles";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
@@ -41,14 +41,14 @@ const PaymentsStep = (props: Props) => {
     onChange(name, value);
   };
 
-  const onChangePayments = (ids) => {
+  const onChangePayments = ids => {
     onChangeFunction("pos", { ...pos, paymentIds: ids });
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     onChangeFunction("pos", {
       ...pos,
-      [e.target.id]: (e.currentTarget as HTMLInputElement).value,
+      [e.target.id]: (e.currentTarget as HTMLInputElement).value
     });
   };
 
@@ -59,7 +59,7 @@ const PaymentsStep = (props: Props) => {
       _id: Math.random().toString(),
       type: "",
       title: "",
-      icon: "",
+      icon: ""
     });
 
     onChange("pos", { ...pos, paymentTypes });
@@ -76,7 +76,7 @@ const PaymentsStep = (props: Props) => {
     return <SelectValue>{content(option)}</SelectValue>;
   };
 
-  const Option = (props) => {
+  const Option = props => {
     return (
       <components.Option {...props}>
         {selectItemRenderer(props.data)}
@@ -84,7 +84,7 @@ const PaymentsStep = (props: Props) => {
     );
   };
 
-  const SingleValue = (props) => (
+  const SingleValue = props => (
     <components.SingleValue {...props}>
       {selectItemRenderer(props.data)}
     </components.SingleValue>
@@ -93,30 +93,29 @@ const PaymentsStep = (props: Props) => {
   const renderPaymentType = (paymentType: any) => {
     const editPayment = (name, value) => {
       let paymentTypes = [...(pos.paymentTypes || [])];
-      paymentTypes = (paymentTypes || []).map((p) =>
+      paymentTypes = (paymentTypes || []).map(p =>
         p._id === paymentType._id ? { ...p, [name]: value } : p
       );
       onChange("pos", { ...pos, paymentTypes });
     };
 
-    const onChangeInput = (e) => {
+    const onChangeInput = e => {
       const name = e.target.name;
       const value = e.target.value;
       editPayment(name, value);
     };
 
-    const onChangeSelect = (option) => {
-      console.log(option);
+    const onChangeSelect = option => {
       editPayment("icon", option.value);
     };
 
     const removePayment = () => {
       const paymentTypes =
-        (pos.paymentTypes || []).filter((m) => m._id !== paymentType._id) || [];
+        (pos.paymentTypes || []).filter(m => m._id !== paymentType._id) || [];
       onChange("pos", { ...pos, paymentTypes });
     };
 
-    const getTipText = (type) => {
+    const getTipText = type => {
       if (type === "golomtCard") return "continue";
       if (type === "TDBCard" || type === "capitron")
         return 'must config: "{port: 8078}"';
@@ -125,10 +124,10 @@ const PaymentsStep = (props: Props) => {
       return "";
     };
 
-    const iconOptions = PAYMENT_TYPE_ICONS.map((icon) => ({
+    const iconOptions = PAYMENT_TYPE_ICONS.map(icon => ({
       value: icon,
       label: icon,
-      avatar: `${icon}`,
+      avatar: `${icon}`
     }));
 
     return (
@@ -160,7 +159,7 @@ const PaymentsStep = (props: Props) => {
                 name="icon"
                 components={{ Option, SingleValue }}
                 value={iconOptions.find(
-                  (o) => o.value === (paymentType.icon || "")
+                  o => o.value === (paymentType.icon || "")
                 )}
                 onChange={onChangeSelect}
                 options={iconOptions}
@@ -202,7 +201,7 @@ const PaymentsStep = (props: Props) => {
             <>
               {loadDynamicComponent("selectPayments", {
                 defaultValue: pos.paymentIds || [],
-                onChange: (ids: string[]) => onChangePayments(ids),
+                onChange: (ids: string[]) => onChangePayments(ids)
               })}
 
               <Block>
@@ -258,7 +257,7 @@ const PaymentsStep = (props: Props) => {
                   <FormColumn></FormColumn>
                 </FormWrapper>
               </div>
-              {(pos.paymentTypes || []).map((item) => renderPaymentType(item))}
+              {(pos.paymentTypes || []).map(item => renderPaymentType(item))}
             </FormGroup>
             <Button
               btnStyle="primary"

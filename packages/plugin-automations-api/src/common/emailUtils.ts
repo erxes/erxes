@@ -2,7 +2,6 @@ import {
   sendCommonMessage,
   sendCoreMessage,
   sendEmailTemplateMessage,
-  sendLogsMessage,
   sendSegmentsMessage
 } from "../messageBroker";
 import { EMAIL_RECIPIENTS_TYPES } from "../constants";
@@ -503,7 +502,7 @@ const sendEmails = async ({
     let headers: { [key: string]: string } = {};
 
     if (!!AWS_SES_ACCESS_KEY_ID?.length && !!AWS_SES_SECRET_ACCESS_KEY.length) {
-      const emailDelivery = await sendLogsMessage({
+      const emailDelivery = await sendCoreMessage({
         subdomain,
         action: "emailDeliveries.create",
         data: {

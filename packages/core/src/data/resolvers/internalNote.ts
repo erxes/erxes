@@ -1,12 +1,8 @@
+import { IContext } from "../../connectionResolver";
 import { IInternalNoteDocument } from "../../db/models/definitions/internalNotes";
 
 export default {
-  createdUser(note: IInternalNoteDocument) {
-    return (
-      note.createdUserId && {
-        __typename: "User",
-        _id: note.createdUserId
-      }
-    );
+  async createdUser(note: IInternalNoteDocument, _args, { models }: IContext) {
+    return models.Users.findOne({ _id: note.createdUserId });
   }
 };

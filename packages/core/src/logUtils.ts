@@ -21,7 +21,6 @@ import { IUserDocument, userSchema } from "./db/models/definitions/users";
 import { generateModels, IModels } from "./connectionResolver";
 import { configSchema } from "./db/models/definitions/configs";
 import { ITagDocument } from "./db/models/definitions/tags";
-// import { sendLogsMessage } from './messageBroker';
 
 const LOG_MAPPINGS = [
   {
@@ -146,7 +145,7 @@ export const putActivityLog = async (
     ...params,
     data: {
       ...data,
-      contentType: `tags:${data.contentType}`,
+      contentType: `${data.contentType}`,
       automations: {
         type: data.contentType
       }

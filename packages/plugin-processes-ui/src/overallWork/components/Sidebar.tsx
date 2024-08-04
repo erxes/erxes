@@ -31,7 +31,7 @@ interface Props {
 
 const { Section } = Wrapper.Sidebar;
 
-const generateQueryParams = (location) => {
+const generateQueryParams = location => {
   return queryString.parse(location.search);
 };
 
@@ -59,7 +59,7 @@ const Sidebar = (props: Props) => {
           "inBranchId",
           "inDepartmentId",
           "outBranchId",
-          "outDepartmentId",
+          "outDepartmentId"
         ].includes(param)
       ) {
         return true;
@@ -75,11 +75,10 @@ const Sidebar = (props: Props) => {
   };
 
   const setFilter = (name, value) => {
-    console.log(name, value);
     setFilterParams({ ...filterParams, [name]: value });
   };
 
-  const onInputChange = (e) => {
+  const onInputChange = e => {
     e.preventDefault();
 
     if (timer) {
@@ -119,9 +118,9 @@ const Sidebar = (props: Props) => {
               initialValue={filterParams.productCategoryId || ""}
               customOption={{
                 value: "",
-                label: "...Clear product category filter",
+                label: "...Clear product category filter"
               }}
-              onSelect={(categoryId) =>
+              onSelect={categoryId =>
                 setFilter("productCategoryId", categoryId)
               }
               multi={false}
@@ -137,9 +136,9 @@ const Sidebar = (props: Props) => {
                 initialValue={filterParams.jobReferId || ""}
                 customOption={{
                   value: "",
-                  label: "...Clear jobRefer filter",
+                  label: "...Clear jobRefer filter"
                 }}
-                onSelect={(jobReferId) => setFilter("jobReferId", jobReferId)}
+                onSelect={jobReferId => setFilter("jobReferId", jobReferId)}
                 filterParams={{ types: ["end"] }}
                 multi={false}
               />
@@ -154,9 +153,9 @@ const Sidebar = (props: Props) => {
                 initialValue={filterParams.jobReferId || ""}
                 customOption={{
                   value: "",
-                  label: "...Clear jobRefer filter",
+                  label: "...Clear jobRefer filter"
                 }}
-                onSelect={(jobReferId) => setFilter("jobReferId", jobReferId)}
+                onSelect={jobReferId => setFilter("jobReferId", jobReferId)}
                 filterParams={{ types: ["job"] }}
                 multi={false}
               />
@@ -176,11 +175,9 @@ const Sidebar = (props: Props) => {
             initialValue={filterParams.productCategoryId || ""}
             customOption={{
               value: "",
-              label: "...Clear product category filter",
+              label: "...Clear product category filter"
             }}
-            onSelect={(categoryId) =>
-              setFilter("productCategoryId", categoryId)
-            }
+            onSelect={categoryId => setFilter("productCategoryId", categoryId)}
             multi={false}
           />
         </FormGroup>
@@ -192,9 +189,9 @@ const Sidebar = (props: Props) => {
             initialValue={filterParams.productIds || []}
             customOption={{
               value: "",
-              label: "...Clear product filter",
+              label: "...Clear product filter"
             }}
-            onSelect={(productIds) => setFilter("productIds", productIds)}
+            onSelect={productIds => setFilter("productIds", productIds)}
             multi={true}
           />
         </FormGroup>
@@ -206,9 +203,9 @@ const Sidebar = (props: Props) => {
             initialValue={filterParams.vendorIds || []}
             customOption={{
               value: "",
-              label: "...Clear product filter",
+              label: "...Clear product filter"
             }}
-            onSelect={(vendorIds) => setFilter("vendorIds", vendorIds)}
+            onSelect={vendorIds => setFilter("vendorIds", vendorIds)}
             multi={true}
           />
         </FormGroup>
@@ -239,12 +236,12 @@ const Sidebar = (props: Props) => {
               componentclass="select"
               value={filterParams.type}
               required={false}
-              onChange={(e) =>
+              onChange={e =>
                 setFilter("type", (e.currentTarget as HTMLInputElement).value)
               }
             >
               <option value="">All type</option>
-              {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
+              {Object.keys(JOB_TYPE_CHOISES).map(jt => (
                 <option value={jt} key={Math.random()}>
                   {JOB_TYPE_CHOISES[jt]}
                 </option>
@@ -260,9 +257,9 @@ const Sidebar = (props: Props) => {
               initialValue={filterParams.inBranchId || ""}
               customOption={{
                 value: "",
-                label: "...Clear branch filter",
+                label: "...Clear branch filter"
               }}
-              onSelect={(branchId) => setFilter("inBranchId", branchId)}
+              onSelect={branchId => setFilter("inBranchId", branchId)}
               multi={false}
             />
           </FormGroup>
@@ -274,9 +271,9 @@ const Sidebar = (props: Props) => {
               initialValue={filterParams.inDepartmentId || ""}
               customOption={{
                 value: "",
-                label: "...Clear department filter",
+                label: "...Clear department filter"
               }}
-              onSelect={(departmentId) =>
+              onSelect={departmentId =>
                 setFilter("inDepartmentId", departmentId)
               }
               multi={false}
@@ -290,9 +287,9 @@ const Sidebar = (props: Props) => {
               initialValue={filterParams.outBranchId || ""}
               customOption={{
                 value: "",
-                label: "...Clear branch filter",
+                label: "...Clear branch filter"
               }}
-              onSelect={(branchId) => setFilter("outBranchId", branchId)}
+              onSelect={branchId => setFilter("outBranchId", branchId)}
               multi={false}
             />
           </FormGroup>
@@ -304,9 +301,9 @@ const Sidebar = (props: Props) => {
               initialValue={filterParams.outDepartmentId || ""}
               customOption={{
                 value: "",
-                label: "...Clear department filter",
+                label: "...Clear department filter"
               }}
-              onSelect={(departmentId) =>
+              onSelect={departmentId =>
                 setFilter("outDepartmentId", departmentId)
               }
               multi={false}
@@ -324,7 +321,7 @@ const Sidebar = (props: Props) => {
                   filterParams.startDate ||
                   moment(new Date(new Date().setHours(0, 0, 0)))
                 }
-                onChange={(value) => onSelectDate(value, "startDate")}
+                onChange={value => onSelectDate(value, "startDate")}
               />
             </DateContainer>
           </FormGroup>
@@ -342,7 +339,7 @@ const Sidebar = (props: Props) => {
                     new Date(new Date().setHours(0, 0, 0) + 24 * 60 * 60 * 1000)
                   )
                 }
-                onChange={(value) => onSelectDate(value, "endDate")}
+                onChange={value => onSelectDate(value, "endDate")}
               />
             </DateContainer>
           </FormGroup>

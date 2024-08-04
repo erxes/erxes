@@ -27,10 +27,30 @@ const activityLogQueries = {
   async activityLogs(_root, doc: IListArgs, { models, subdomain }: IContext) {
     const { contentId, contentType, activityType } = doc;
 
-    const activities: IActivityLogDocument[] = [];
+    const activities: any[] = [];
 
     if (activityType && activityType !== "activity") {
       const serviceName = activityType.split(":")[0];
+
+      if (serviceName === "core") {
+        const logType = activityType.split(":")[1];
+
+        switch (logType) {
+          case "internalNote":
+            const notes = await models.InternalNotes.find({
+              contentTypeId: contentId
+            }).sort({ createdAt: -1 });
+
+            for (const note of notes) {
+              note.contentType = "core:internalNote";
+            }
+
+            return notes;
+
+          default:
+            break;
+        }
+      }
 
       const result = await fetchService(
         subdomain,
@@ -73,6 +93,19 @@ const activityLogQueries = {
           }
         }
       }
+    }
+
+    const notes =
+      (await models.InternalNotes.find({
+        contentTypeId: contentId
+      })
+        .lean()
+        .sort({ createdAt: -1 })) || [];
+
+    for (const note of notes) {
+      note.contentType = "core:internalNote";
+
+      activities.push(note);
     }
 
     activities.push(...activityLogs);

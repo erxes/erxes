@@ -39,6 +39,7 @@ import {
 } from "@erxes/api-utils/src/messageBroker";
 
 import { IActivityLogDocument } from "./db/models/definitions/activityLogs";
+import { receivePutLogCommand } from "./db/utils/logUtils";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -731,6 +732,149 @@ export const setupMessageConsumers = async (): Promise<void> => {
       };
     }
   );
+
+  consumeQueue("putLog", async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    try {
+      await receivePutLogCommand(models, data);
+    } catch (e) {
+      throw new Error(`Error occurred when receiving putLog message: ${e}`);
+    }
+  });
+
+  consumeQueue("core:visitor.createOrUpdate", async ({ data, subdomain }) => {
+    const models = await generateModels(subdomain);
+
+    await models.Visitors.createOrUpdateVisitorLog(data);
+  });
+
+  consumeQueue(
+    "core:visitor.convertRequest",
+    async ({ data: { visitorId }, subdomain }) => {
+      const models = await generateModels(subdomain);
+      const visitor = await models.Visitors.getVisitorLog(visitorId);
+
+      await sendInboxMessage({
+        subdomain,
+        action: "visitor.convertResponse",
+        data: visitor
+      });
+    }
+  );
+
+  consumeQueue(
+    "core:visitor.updateEntry",
+    async ({ data: { visitorId, location: browserInfo }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      await models.Visitors.updateVisitorLog({
+        visitorId,
+        location: browserInfo
+      });
+    }
+  );
+
+  consumeQueue(
+    "core:visitor.removeEntry",
+    async ({ data: { visitorId }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      await models.Visitors.removeVisitorLog(visitorId);
+    }
+  );
+
+  consumeQueue("putActivityLog", async args => {
+    const { data: obj, subdomain } = args;
+
+    const models = await generateModels(subdomain);
+
+    const { data, action } = obj;
+
+    switch (action) {
+      case "removeActivityLogs": {
+        const { type, itemIds } = data;
+
+        return models.ActivityLogs.removeActivityLogs(type, itemIds);
+      }
+      case "removeActivityLog": {
+        const { contentTypeId } = data;
+
+        return models.ActivityLogs.removeActivityLog(contentTypeId);
+      }
+      default:
+        if (action) {
+          return models.ActivityLogs.addActivityLog(data);
+        }
+
+        break;
+    }
+  });
+
+  consumeQueue(
+    "core:activityLogs.updateMany",
+    async ({ data: { query, modifier }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      if (query && modifier) {
+        await models.ActivityLogs.updateMany(query, modifier);
+      }
+    }
+  );
+
+  consumeQueue(
+    "core:delete.old",
+    async ({ data: { months = 1 }, subdomain }) => {
+      const models = await generateModels(subdomain);
+      const now = new Date();
+
+      await models.Logs.deleteMany({
+        createdAt: {
+          $lte: new Date(
+            now.getFullYear(),
+            now.getMonth() - months,
+            now.getDate()
+          )
+        }
+      });
+    }
+  );
+
+  consumeRPCQueue(
+    "core:activityLogs.findMany",
+    async ({ data: { query, options }, subdomain }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ActivityLogs.find(query, options).lean(),
+        status: "success"
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:emailDeliveries.create",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.EmailDeliveries.createEmailDelivery(data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:emailDeliveries.find",
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.EmailDeliveries.find(query).lean()
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
@@ -762,13 +906,6 @@ export const sendCardsMessage = (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "cards",
-    ...args
-  });
-};
-
-export const sendLogsMessage = (args: MessageArgsOmitService): Promise<any> => {
-  return sendMessage({
-    serviceName: "logs",
     ...args
   });
 };

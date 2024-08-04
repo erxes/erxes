@@ -28,7 +28,7 @@ const moduleOptions = [
   { value: "tasks:taskPipelines", label: "Task pipelines" },
   { value: "tickets:ticketPipelines", label: "Ticket pipelines" },
   { value: "growthhacks:growthHackPipelines", label: "Growth hack pipelines" },
-  { value: "cards:checklist", label: "Checklists" },
+  { value: "sales:checklist", label: "Checklists" },
   { value: "growthhacks:growthHackheckListItem", label: "Checklist items" },
   { value: "sales:deal", label: "Deals" },
   { value: "purchases:purchase", label: "Purchases" },
@@ -72,7 +72,7 @@ const moduleOptions = [
   },
   // others
   { value: "engages:engage", label: "Campaigns" },
-  { value: "internalnotes:internalNote", label: "Internal notes" },
+  { value: "core:internalNote", label: "Internal notes" },
   { value: "tags:tag", label: "Tags" },
   { value: "segments:segment", label: "Segments" },
   { value: "responseTemplate", label: "Response templates" },

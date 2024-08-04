@@ -17,7 +17,6 @@ import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
 import {
   sendCoreMessage,
   sendFormsMessage,
-  sendLogsMessage,
   sendProductsMessage
 } from "./messageBroker";
 import { IModels, generateModels } from "./connectionResolver";
@@ -550,7 +549,7 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
   };
 
   if (action === "delete") {
-    sendLogsMessage({
+    sendCoreMessage({
       subdomain,
       action: "activityLogs.updateMany",
       data: {

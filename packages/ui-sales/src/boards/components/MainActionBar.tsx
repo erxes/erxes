@@ -496,7 +496,7 @@ class MainActionBar extends React.Component<Props, State> {
 
         {isEnabled("segments") && (
           <TemporarySegment
-            contentType={`cards:${type}`}
+            contentType={`sales:${type}`}
             serviceConfig={{
               boardId: currentBoard?._id,
               pipelineId: currentPipeline?._id
