@@ -15,15 +15,13 @@ const receiveComment = async (
 ) => {
   const userId = params.from.id;
   const postId = params.media.id;
+
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: pageId } },
       { kind: INTEGRATION_KINDS.POST }
     ]
   });
-  if (!integration) {
-    throw new Error('Instagram Integration not found ');
-  }
   if (userId === pageId) {
     return;
   }
@@ -31,7 +29,6 @@ const receiveComment = async (
     throw new Error('Integration not found');
   }
   const { facebookPageTokensMap, facebookPageId } = integration;
-
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
@@ -41,25 +38,28 @@ const receiveComment = async (
     INTEGRATION_KINDS.POST,
     facebookPageTokensMap
   );
-  const postConversation = await getOrCreatePostConversation(
-    models,
-    pageId,
-    subdomain,
-    postId,
-    integration,
-    customer,
-    params
-  );
-  await getOrCreateComment(
-    models,
-    subdomain,
-    postConversation,
-    params,
-    pageId,
-    userId,
-    integration,
-    customer
-  );
+
+  if (customer) {
+    const postConversation = await getOrCreatePostConversation(
+      models,
+      pageId,
+      subdomain,
+      postId,
+      integration,
+      customer,
+      params
+    );
+    await getOrCreateComment(
+      models,
+      subdomain,
+      postConversation,
+      params,
+      pageId,
+      userId,
+      integration,
+      customer
+    );
+  }
 };
 
 export default receiveComment;

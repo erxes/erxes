@@ -37,7 +37,7 @@ interface IRequestParams {
 export const getEnv = ({
   name,
   subdomain,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   subdomain?: string;

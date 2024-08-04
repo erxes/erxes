@@ -2,11 +2,11 @@ import { debugError } from './debuggers';
 import { sendInboxMessage } from './messageBroker';
 import { getInstagramUser } from './utils';
 import { IModels } from './connectionResolver';
-import { INTEGRATION_KINDS } from './constants';
-import { getPostDetails, getPostLink } from './utils';
+import { getPostLink } from './utils';
 import { IIntegrationDocument } from './models/Integrations';
 import { ICustomerDocument } from './models/definitions/customers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { INTEGRATION_KINDS } from './constants';
 
 export const getOrCreatePostConversation = async (
   models: IModels,
@@ -55,8 +55,8 @@ export const getOrCreateComment = async (
   commentParams: any,
   pageId: string,
   userId: string,
-  integration: any,
-  customer: any
+  integration: IIntegrationDocument,
+  customer: ICustomerDocument
 ) => {
   const { parent_id, id, text } = commentParams;
   const post_id = commentParams.media.id;
@@ -153,13 +153,13 @@ export const getOrCreateCustomer = async (
     throw new Error('Instagram Integration not found ');
   }
   let customer = await models.Customers.findOne({ userId });
-
   if (customer) {
     return customer;
   }
   // create customer
   let instagramUser = {} as {
     name: string;
+    username: string;
     profile_pic: string;
     id: string;
   };
@@ -174,10 +174,12 @@ export const getOrCreateCustomer = async (
     debugError(`Error during get customer info: ${e.message}`);
   }
   // save on integrations db
+  const firstName = instagramUser.name || instagramUser.username;
+
   try {
     customer = await models.Customers.create({
       userId,
-      firstName: instagramUser.name,
+      firstName,
       integrationId: integration.erxesApiId,
       profilePic: instagramUser.profile_pic
     });
@@ -185,7 +187,7 @@ export const getOrCreateCustomer = async (
     throw new Error(
       e.message.includes('duplicate')
         ? 'Concurrent request: customer duplication'
-        : e
+        : e.message
     );
   }
 
@@ -198,7 +200,7 @@ export const getOrCreateCustomer = async (
         action: 'get-create-update-customer',
         payload: JSON.stringify({
           integrationId: integration.erxesApiId,
-          firstName: instagramUser.name,
+          firstName: firstName,
           avatar: instagramUser.profile_pic,
           isUser: true
         })
@@ -212,4 +214,52 @@ export const getOrCreateCustomer = async (
     throw new Error(e);
   }
   return customer;
+};
+
+export const customerCreated = async (
+  userId: string,
+  firstName: string,
+  integrationId: any,
+  profilePic: any,
+  subdomain: any,
+  models: IModels,
+  customer: any,
+  integration: any
+) => {
+  try {
+    customer = await models.Customers.create({
+      userId,
+      firstName: firstName,
+      integrationId: integrationId,
+      profilePic: profilePic
+    });
+  } catch (e) {
+    throw new Error(
+      e.message.includes('duplicate')
+        ? 'Concurrent request: customer duplication'
+        : e.message
+    );
+  }
+  try {
+    const apiCustomerResponse = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.receive',
+      data: {
+        action: 'get-create-update-customer',
+        payload: JSON.stringify({
+          integrationId: integration.erxesApiId,
+          firstName: firstName,
+          avatar: profilePic,
+          isUser: true
+        })
+      },
+      isRPC: true
+    });
+    customer.erxesApiId = apiCustomerResponse._id;
+    await customer.save();
+  } catch (e) {
+    // Delete the customer if saving to the API fails
+    await models.Customers.deleteOne({ _id: customer._id });
+    throw new Error(e.message);
+  }
 };

@@ -31,8 +31,9 @@ export default async () => {
   };
 
   const projectPath = process.cwd();
-  const packageVersion = require(path.join(projectPath, 'package.json'))
-    .version;
+  const packageVersion = require(
+    path.join(projectPath, 'package.json')
+  ).version;
 
   return {
     os: osStatus,

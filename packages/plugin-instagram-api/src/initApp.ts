@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 
-import { debugFacebook, debugRequest } from './debuggers';
+import { debugInstagram, debugRequest } from './debuggers';
 import initFacebook from './controller';
 import systemStatus from './systemStatus';
 import userMiddleware from './middlewares/userMiddleware';
@@ -21,8 +21,8 @@ const initApp = async () => {
     bodyParser.urlencoded({
       limit: '10mb',
       verify: rawBodySaver,
-      extended: true,
-    }),
+      extended: true
+    })
   );
   app.use(bodyParser.json({ limit: '10mb', verify: rawBodySaver }));
 
@@ -31,7 +31,7 @@ const initApp = async () => {
   app.use(bodyParser.raw({ limit: '10mb', verify: rawBodySaver, type: '*/*' }));
 
   app.use((req, _res, next) => {
-    debugRequest(debugFacebook, req);
+    debugRequest(debugInstagram, req);
 
     next();
   });
