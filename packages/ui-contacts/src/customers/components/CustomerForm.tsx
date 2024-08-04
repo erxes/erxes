@@ -232,30 +232,6 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onEmailVerificationStatusChange = (e) => {
-    const { changeVerificationStatus } = this.props;
-
-    if (changeVerificationStatus) {
-      changeVerificationStatus(true);
-    }
-  };
-
-  onPhoneVerificationStatusChange = (e) => {
-    const { changeVerificationStatus } = this.props;
-
-    if (changeVerificationStatus) {
-      changeVerificationStatus(true);
-    }
-  };
-
-  hasEmail = () => {
-    const customer = this.props.customer || ({} as ICustomer);
-
-    const { emails = [] } = customer;
-
-    return this.getVisitorInfo(customer, "email") || emails.length > 0;
-  };
-
   renderLink(formProps, link, index) {
     const { customer } = this.props;
     const links = (customer ? customer.links : {}) || {};
@@ -488,7 +464,7 @@ class CustomerForm extends React.Component<Props, State> {
             <FormWrapper>
               <FormColumn>
                 {getConstantFromStore("social_links").map((link, index) => (
-                  <React.Fragment key={index}>
+                  <React.Fragment key={index.id}>
                     {this.renderLink(formProps, link, index)}
                   </React.Fragment>
                 ))}

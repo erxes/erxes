@@ -36,7 +36,7 @@ class WebsiteActivity extends React.Component<Props> {
     super(props, context);
 
     props.urlVisits.map(visitPage => {
-      return (this.totalVisits = this.totalVisits + visitPage.count);
+      return (this.totalVisits + this.totalVisits + visitPage.count);
     });
   }
 
