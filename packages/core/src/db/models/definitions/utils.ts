@@ -1,5 +1,5 @@
-import { nanoid } from 'nanoid';
-import redis from '@erxes/api-utils/src/redis';
+import { nanoid } from "nanoid";
+import redis from "@erxes/api-utils/src/redis";
 
 /*
  * Mongoose field options wrapper
@@ -27,14 +27,14 @@ export const schemaWrapper = schema => {
 };
 
 const hookList = [
-  'save',
-  'remove',
-  'update',
-  'updateOne',
-  'updateMany',
-  'deleteOne',
-  'deleteMany',
-  'findOneAndUpdate'
+  "save",
+  "remove",
+  "update",
+  "updateOne",
+  "updateMany",
+  "deleteOne",
+  "deleteMany",
+  "findOneAndUpdate"
 ];
 
 export const schemaHooksWrapper = (schema, cacheKey: string) => {

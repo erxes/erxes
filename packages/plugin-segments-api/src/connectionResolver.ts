@@ -1,8 +1,8 @@
-import * as mongoose from 'mongoose';
-import { ISegmentDocument } from './models/definitions/segments';
-import { ISegmentModel, loadClass } from './models/Segments';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+import * as mongoose from "mongoose";
+import { ISegmentDocument } from "./models/definitions/segments";
+import { ISegmentModel, loadClass } from "./models/Segments";
+import { IContext as IMainContext } from "@erxes/api-utils/src";
+import { createGenerateModels } from "@erxes/api-utils/src/core";
 
 export interface IModels {
   Segments: ISegmentModel;
@@ -16,8 +16,8 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
   models.Segments = db.model<ISegmentDocument, ISegmentModel>(
-    'segments',
-    loadClass(models),
+    "segments",
+    loadClass(models)
   );
 
   return models;

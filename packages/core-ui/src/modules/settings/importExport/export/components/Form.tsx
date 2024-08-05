@@ -1,16 +1,17 @@
-import { Content, LeftContent, ImportHeader } from '../../styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
-import ConfigsForm from '../containers/ConfigsForm';
-import React from 'react';
-import TypeForm from '../containers/TypeForm';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { Alert, __ } from 'modules/common/utils';
-import { FlexPad } from 'modules/common/components/step/styles';
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { loadDynamicComponent } from 'modules/common/utils';
-import { StepButton } from '@erxes/ui/src/components/step/styles';
-import Details from './Details';
-import Button from 'modules/common/components/Button';
+import { Content, LeftContent, ImportHeader } from "../../styles";
+import { Step, Steps } from "@erxes/ui/src/components/step";
+import ConfigsForm from "../containers/ConfigsForm";
+import React from "react";
+import TypeForm from "../containers/TypeForm";
+import Wrapper from "modules/layout/components/Wrapper";
+import { Alert, __ } from "modules/common/utils";
+import { FlexPad } from "modules/common/components/step/styles";
+import { Description, SubHeading } from "@erxes/ui-settings/src/styles";
+import { loadDynamicComponent } from "modules/common/utils";
+import { StepButton } from "@erxes/ui/src/components/step/styles";
+import Details from "./Details";
+import Button from "modules/common/components/Button";
+import SegmentsForm from "@erxes/ui-segments/src/containers/form/SegmentsForm";
 
 type Props = {
   count: string;
@@ -34,9 +35,9 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       segmentData: {},
-      contentType: props.contentType || '',
+      contentType: props.contentType || "",
       disclaimer: false,
-      name: '',
+      name: "",
       columns: [],
       skipFilter: false
     };
@@ -116,11 +117,11 @@ class Form extends React.Component<Props, State> {
 
           this.setState({ segmentData: data });
 
-          Alert.success('Success');
+          Alert.success("Success");
         }}
         icon="filter"
       >
-        {'Apply Filter'}
+        {"Apply Filter"}
       </Button>
     );
   };
@@ -128,11 +129,11 @@ class Form extends React.Component<Props, State> {
   render() {
     const { contentType, disclaimer, name, skipFilter } = this.state;
 
-    const title = __('Export');
+    const title = __("Export");
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Import & Export'), link: '/settings/importHistories' },
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Import & Export"), link: "/settings/importHistories" },
       { title }
     ];
 
@@ -156,7 +157,7 @@ class Form extends React.Component<Props, State> {
                 <ImportHeader>{__(`Choose your content type`)}</ImportHeader>
                 <ImportHeader fontSize="small">
                   {__(
-                    'Before you choose content fields, make sure your content type is ready to be selected.'
+                    "Before you choose content fields, make sure your content type is ready to be selected."
                   )}
                 </ImportHeader>
                 <ConfigsForm
@@ -174,17 +175,18 @@ class Form extends React.Component<Props, State> {
                   thinner={true}
                   vh={70}
                 >
-                  <SubHeading>{__('Filter')}</SubHeading>
+                  <SubHeading>{__("Filter")}</SubHeading>
                   <Description>
-                    {__('Skip this step if you wish to export all items')}
+                    {__("Skip this step if you wish to export all items")}
                   </Description>
-                  {loadDynamicComponent('importExportFilterForm', {
-                    ...this.props,
-                    contentType,
-                    closeModal: this.segmentCloseModal,
-                    filterContent: this.filterContent,
-                    hideDetailForm: true
-                  })}
+
+                  <SegmentsForm
+                    {...this.props}
+                    contentType={contentType}
+                    closeModal={this.segmentCloseModal}
+                    filterContent={this.filterContent}
+                    hideDetailForm={true}
+                  />
                 </FlexPad>
               </Step>
             )}
@@ -205,7 +207,7 @@ class Form extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('')} breadcrumb={breadcrumb} />}
+        header={<Wrapper.Header title={__("")} breadcrumb={breadcrumb} />}
         content={content}
         transparent={true}
       />

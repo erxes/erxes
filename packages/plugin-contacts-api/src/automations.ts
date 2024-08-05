@@ -1,45 +1,45 @@
 import {
   replacePlaceHolders,
   setProperty
-} from '@erxes/api-utils/src/automations';
-import { generateModels, IModels } from './connectionResolver';
-import { sendCommonMessage, sendCoreMessage } from './messageBroker';
+} from "@erxes/api-utils/src/automations";
+import { generateModels, IModels } from "./connectionResolver";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
 
 const getRelatedValue = async (
-  models: IModels,
+  _models: IModels,
   subdomain: string,
   target,
   targetKey
 ) => {
   if (
     [
-      'userId',
-      'assignedUserId',
-      'closedUserId',
-      'ownerId',
-      'createdBy'
+      "userId",
+      "assignedUserId",
+      "closedUserId",
+      "ownerId",
+      "createdBy"
     ].includes(targetKey)
   ) {
     const user = await sendCoreMessage({
       subdomain,
-      action: 'users.findOne',
+      action: "users.findOne",
       data: { _id: target[targetKey] },
       isRPC: true
     });
 
     return (
-      (user && ((user.detail && user.detail.fullName) || user.email)) || ''
+      (user && ((user.detail && user.detail.fullName) || user.email)) || ""
     );
   }
 
   if (
-    ['participatedUserIds', 'assignedUserIds', 'watchedUserIds'].includes(
+    ["participatedUserIds", "assignedUserIds", "watchedUserIds"].includes(
       targetKey
     )
   ) {
     const users = await sendCoreMessage({
       subdomain,
-      action: 'users.find',
+      action: "users.find",
       data: {
         query: {
           _id: { $in: target[targetKey] }
@@ -51,18 +51,18 @@ const getRelatedValue = async (
     return (
       users.map(user => (user.detail && user.detail.fullName) || user.email) ||
       []
-    ).join(', ');
+    ).join(", ");
   }
 
-  if (targetKey === 'tagIds') {
+  if (targetKey === "tagIds") {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: 'tags',
-      action: 'find',
+      serviceName: "tags",
+      action: "find",
       data: { _id: { $in: target[targetKey] } }
     });
 
-    return (tags.map(tag => tag.name) || []).join(', ');
+    return (tags.map(tag => tag.name) || []).join(", ");
   }
 
   return false;
@@ -85,22 +85,22 @@ const getItems = async (
 
   let model: any = models.Customers;
 
-  if (module.includes('company')) {
+  if (module.includes("company")) {
     model = models.Companies;
   }
 
-  const [moduleService] = module.split(':');
-  const [triggerService] = triggerType.split(':');
+  const [moduleService] = module.split(":");
+  const [triggerService] = triggerType.split(":");
 
   if (moduleService === triggerService) {
     const relTypeIds = await sendCommonMessage({
       subdomain,
-      serviceName: 'core',
-      action: 'conformities.savedConformity',
+      serviceName: "core",
+      action: "conformities.savedConformity",
       data: {
-        mainType: triggerType.split(':')[1],
+        mainType: triggerType.split(":")[1],
         mainTypeId: target._id,
-        relTypes: [module.split(':')[1]]
+        relTypes: [module.split(":")[1]]
       },
       isRPC: true
     });
@@ -112,7 +112,7 @@ const getItems = async (
   const filter = await sendCommonMessage({
     subdomain,
     serviceName: triggerService,
-    action: 'getModuleRelation',
+    action: "getModuleRelation",
     data: {
       module,
       triggerType,
@@ -132,7 +132,7 @@ export default {
   }) => {
     const models = await generateModels(subdomain);
 
-    if (actionType === 'set-property') {
+    if (actionType === "set-property") {
       const { module, rules } = action.config;
 
       const relatedItems = await getItems(
@@ -146,7 +146,7 @@ export default {
         models,
         subdomain,
         getRelatedValue,
-        module: module.includes('lead') ? 'contacts:customer' : module,
+        module: module.includes("lead") ? "contacts:customer" : module,
         rules,
         execution,
         sendCommonMessage,
@@ -181,13 +181,13 @@ export default {
     const CONTACT_TYPES = {
       lead: {
         model: models.Customers,
-        filter: { ...commonFilter, state: 'lead' }
+        filter: { ...commonFilter, state: "lead" }
       },
       customer: {
         model: models.Customers,
         filter: {
           ...commonFilter,
-          state: 'customer'
+          state: "customer"
         }
       },
       company: {
@@ -198,50 +198,50 @@ export default {
 
     const { model, filter } = CONTACT_TYPES[type];
 
-    return await model.find(filter).distinct('primaryEmail');
+    return await model.find(filter).distinct("primaryEmail");
   },
   constants: {
     triggers: [
       {
-        type: 'contacts:customer',
-        img: 'automation2.svg',
-        icon: 'users-alt',
-        label: 'Customer',
+        type: "contacts:customer",
+        img: "automation2.svg",
+        icon: "users-alt",
+        label: "Customer",
         description:
-          'Start with a blank workflow that enrolls and is triggered off Customers'
+          "Start with a blank workflow that enrolls and is triggered off Customers"
       },
       {
-        type: 'contacts:lead',
-        img: 'automation2.svg',
-        icon: 'users-alt',
-        label: 'Lead',
+        type: "contacts:lead",
+        img: "automation2.svg",
+        icon: "users-alt",
+        label: "Lead",
         description:
-          'Start with a blank workflow that enrolls and is triggered off Leads'
+          "Start with a blank workflow that enrolls and is triggered off Leads"
       },
       {
-        type: 'contacts:company',
-        img: 'automation2.svg',
-        icon: 'university',
-        label: 'Company',
+        type: "contacts:company",
+        img: "automation2.svg",
+        icon: "university",
+        label: "Company",
         description:
-          'Start with a blank workflow that enrolls and is triggered off company'
+          "Start with a blank workflow that enrolls and is triggered off company"
       }
     ],
     emailRecipientTypes: [
       {
-        type: 'lead',
-        name: 'leadIds',
-        label: 'Leads'
+        type: "lead",
+        name: "leadIds",
+        label: "Leads"
       },
       {
-        type: 'customer',
-        name: 'customerIds',
-        label: 'Customers'
+        type: "customer",
+        name: "customerIds",
+        label: "Customers"
       },
       {
-        type: 'company',
-        name: 'companyIds',
-        label: 'Companies'
+        type: "company",
+        name: "companyIds",
+        label: "Companies"
       }
     ]
   }

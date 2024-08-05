@@ -48,7 +48,7 @@ const SegmentsEditForm = () => {
   return <SegmentsForm id={id} history={navigate} contentType={contentType} />;
 };
 
-const routes = () => {
+const SegmentRoutes = () => {
   return (
     <Routes>
       <Route key="/segments/" path="/segments/" element={<Segments />} />
@@ -68,4 +68,4 @@ const routes = () => {
   );
 };
 
-export default routes;
+export default SegmentRoutes;

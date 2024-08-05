@@ -91,6 +91,9 @@ import {
 
 import { IEmailDeliveriesDocument } from "./db/models/definitions/emailDeliveries";
 
+import { ISegmentDocument } from "./db/models/definitions/segments";
+import { ISegmentModel, loadSegmentClass } from "./db/models/Segments";
+
 export interface IModels {
   Users: IUserModel;
   Brands: IBrandModel;
@@ -114,6 +117,7 @@ export interface IModels {
   ActivityLogs: IActivityLogModel;
   Logs: ILogModel;
   EmailDeliveries: IEmailDeliveryModel;
+  Segments: ISegmentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -218,6 +222,11 @@ export const loadClasses = (
     IEmailDeliveriesDocument,
     IEmailDeliveryModel
   >("email_deliveries", loadEmailDeliveryClass(models));
+
+  models.Segments = db.model<ISegmentDocument, ISegmentModel>(
+    "segments",
+    loadSegmentClass(models)
+  );
 
   return models;
 };
