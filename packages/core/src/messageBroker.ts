@@ -40,6 +40,10 @@ import {
 
 import { IActivityLogDocument } from "./db/models/definitions/activityLogs";
 import { receivePutLogCommand } from "./db/utils/logUtils";
+import {
+  fetchSegment,
+  isInSegment
+} from "./data/resolvers/queries/segmentsQueryBuilder";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -875,19 +879,119 @@ export const setupMessageConsumers = async (): Promise<void> => {
       };
     }
   );
+
+  //segments
+
+  consumeRPCQueue("core:segmentFindOne", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Segments.findOne(data).lean(),
+      status: "success"
+    };
+  });
+
+  consumeRPCQueue("core:segmentFind", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return { data: await models.Segments.find(data).lean(), status: "success" };
+  });
+
+  consumeRPCQueue(
+    "core:segmentCount",
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Segments.find(selector).countDocuments(),
+        status: "success"
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fetchSegment",
+    async ({ subdomain, data: { segmentId, options, segmentData } }) => {
+      const models = await generateModels(subdomain);
+
+      const segment = segmentData
+        ? segmentData
+        : await models.Segments.findOne({ _id: segmentId }).lean();
+
+      return {
+        data: await fetchSegment(models, subdomain, segment, options),
+        status: "success"
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:isInSegment",
+    async ({ subdomain, data: { segmentId, idToCheck, options } }) => {
+      const models = await generateModels(subdomain);
+
+      const data = await isInSegment(
+        models,
+        subdomain,
+        segmentId,
+        idToCheck,
+        options
+      );
+
+      return { data, status: "success" };
+    }
+  );
+
+  consumeQueue(
+    "core:removeSegment",
+    async ({ subdomain, data: { segmentId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Segments.removeSegment(segmentId)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:findSubSegments",
+    async ({ subdomain, data: { segmentIds } }) => {
+      const models = await generateModels(subdomain);
+
+      const segments = await models.Segments.find({ _id: { $in: segmentIds } });
+
+      if (!segments?.length) {
+        return {
+          status: "error",
+          errorMessage: "Segments not found"
+        };
+      }
+
+      let subSegmentIds: string[] = [];
+
+      for (const { conditions } of segments || []) {
+        for (const { subSegmentId } of conditions || []) {
+          if (subSegmentId) {
+            subSegmentIds.push(subSegmentId);
+          }
+        }
+      }
+
+      return {
+        status: "success",
+        data: await models.Segments.find({
+          _id: {
+            $in: subSegmentIds
+          }
+        })
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   return sendMessage({
-    ...args
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "segments",
     ...args
   });
 };
@@ -936,19 +1040,6 @@ export const sendFormsMessage = (
     ...args
   });
 };
-
-export const fetchSegment = (
-  subdomain: string,
-  segmentId: string,
-  options?,
-  segmentData?: any
-) =>
-  sendSegmentsMessage({
-    subdomain,
-    action: "fetchSegment",
-    data: { segmentId, options, segmentData },
-    isRPC: true
-  });
 
 export const sendNotificationsMessage = async (
   args: MessageArgsOmitService

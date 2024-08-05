@@ -1,8 +1,8 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../../connectionResolver";
 import { putUpdateLog, putCreateLog, putDeleteLog } from "../../../logUtils";
-import { sendCoreMessage } from "../../../messageBroker";
-import { ISegment } from "../../../models/definitions/segments";
+import { ISegment } from "../../../db/models/definitions/segments";
+import { registerOnboardHistory } from "../../modules/robot";
 
 interface ISegmentsEdit extends ISegment {
   _id: string;
@@ -28,17 +28,11 @@ const segmentMutations = {
     );
 
     if (doc.subOf) {
-      sendCoreMessage({
-        subdomain,
-        action: "registerOnboardHistory",
-        data: {
-          type: "subSegmentCreate",
-          user
-        }
-      });
+      await registerOnboardHistory(models, "subSegmentCreate", user);
     }
 
     await putCreateLog(
+      models,
       subdomain,
       {
         type: "segment",
@@ -69,6 +63,7 @@ const segmentMutations = {
     );
 
     await putUpdateLog(
+      models,
       subdomain,
       {
         type: "segment",
@@ -93,7 +88,12 @@ const segmentMutations = {
     const segment = await models.Segments.getSegment(_id);
     const removed = await models.Segments.removeSegment(_id);
 
-    await putDeleteLog(subdomain, { type: "segment", object: segment }, user);
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: "segment", object: segment },
+      user
+    );
 
     return removed;
   }

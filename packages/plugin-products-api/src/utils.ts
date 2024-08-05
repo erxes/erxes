@@ -3,12 +3,8 @@ import { ICustomField } from "@erxes/api-utils/src/types";
 import * as _ from "underscore";
 import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
 import { IModels } from "./connectionResolver";
-import {
-  fetchSegment,
-  sendSegmentsMessage,
-  sendCoreMessage
-} from "./messageBroker";
-import { IProductCategory, productSchema } from "./models/definitions/products";
+import { fetchSegment, sendCoreMessage } from "./messageBroker";
+import { productSchema } from "./models/definitions/products";
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 
@@ -38,9 +34,9 @@ export const countBySegment = async (
 
   let segments: any[] = [];
 
-  segments = await sendSegmentsMessage({
+  segments = await sendCoreMessage({
     subdomain,
-    action: "find",
+    action: "segmentFind",
     data: { contentType, name: { $exists: true } },
     isRPC: true,
     defaultValue: []
@@ -158,7 +154,7 @@ export class Builder {
 
     // filter by segment
     if (this.params.segment) {
-      const segment = await sendSegmentsMessage({
+      const segment = await sendCoreMessage({
         isRPC: true,
         action: "findOne",
         subdomain: this.subdomain,

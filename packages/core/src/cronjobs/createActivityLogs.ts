@@ -1,8 +1,9 @@
 import * as dotenv from "dotenv";
 import * as schedule from "node-schedule";
 import { IModels } from "../connectionResolver";
-import { fetchSegment } from "../graphql/resolvers/queries/queryBuilder";
+
 import { putActivityLog } from "../logUtils";
+import { fetchSegment } from "../data/resolvers/queries/segmentsQueryBuilder";
 
 /**
  * Send conversation messages to customer

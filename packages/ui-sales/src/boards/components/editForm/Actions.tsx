@@ -70,8 +70,7 @@ class Actions extends React.Component<Props> {
       </ColorButton>
     );
 
-    const TAG_TYPE =
-      options.type === "deal" ? TAG_TYPES.DEAL : TAG_TYPES.PURCHASE;
+    const TAG_TYPE = TAG_TYPES.DEAL;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -117,16 +116,15 @@ class Actions extends React.Component<Props> {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
         />
-        {isEnabled("tags") && (
-          <TaggerPopover
-            type={TAG_TYPE}
-            trigger={tagTrigger}
-            refetchQueries={["dealDetail"]}
-            targets={[item]}
-            parentTagId={pipelineTagId}
-            singleSelect={true}
-          />
-        )}
+
+        <TaggerPopover
+          type={TAG_TYPE}
+          trigger={tagTrigger}
+          refetchQueries={["dealDetail"]}
+          targets={[item]}
+          parentTagId={pipelineTagId}
+          singleSelect={true}
+        />
 
         {loadDynamicComponent(
           "cardDetailAction",

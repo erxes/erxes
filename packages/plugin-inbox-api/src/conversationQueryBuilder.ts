@@ -1,6 +1,6 @@
 import * as _ from "underscore";
 
-import { sendCoreMessage, sendSegmentsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
 import { IModels } from "./connectionResolver";
@@ -89,7 +89,7 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const selector = await sendSegmentsMessage({
+    const selector = await sendCoreMessage({
       subdomain: this.subdomain,
       action: "fetchSegment",
       data: {

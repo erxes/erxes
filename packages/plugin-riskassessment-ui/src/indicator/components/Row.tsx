@@ -45,7 +45,7 @@ const TableRow = (props: IProps) => {
 
   const { _id, name, modifiedAt, createdAt, tags } = indicator;
 
-  const onclick = (e) => {
+  const onclick = e => {
     e.stopPropagation();
   };
 
@@ -62,17 +62,15 @@ const TableRow = (props: IProps) => {
         />
       </td>
       <td>{name}</td>
-      {isEnabled("tags") && (
-        <td>
-          <FormContainer $gapBetween={5} $row $maxItemsRow={3}>
-            {(tags || []).map((tag) => (
-              <Label key={tag._id} lblColor={tag.colorCode}>
-                {tag.name}
-              </Label>
-            ))}
-          </FormContainer>
-        </td>
-      )}
+      <td>
+        <FormContainer $gapBetween={5} $row $maxItemsRow={3}>
+          {(tags || []).map(tag => (
+            <Label key={tag._id} lblColor={tag.colorCode}>
+              {tag.name}
+            </Label>
+          ))}
+        </FormContainer>
+      </td>
 
       <td>
         <Tip text={generateDate(createdAt, true)} placement="bottom">

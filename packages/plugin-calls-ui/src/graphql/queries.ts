@@ -128,18 +128,12 @@ const callHistories = `
       avatar
       email
       firstName
-      ${
-        isEnabled("tags")
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
+      getTags {
+        _id
+        name
+        colorCode
+        type
 
-          }
-        `
-          : ``
       }
       phone
       primaryEmail

@@ -53,12 +53,3 @@ export const sendCardsMessage = (
     ...args
   });
 };
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "segments",
-    ...args
-  });
-};

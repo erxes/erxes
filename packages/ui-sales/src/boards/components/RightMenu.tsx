@@ -367,13 +367,11 @@ export default class RightMenu extends React.Component<Props, State> {
 
         {this.renderDates()}
 
-        {isEnabled("segments") && (
-          <SegmentFilter
-            type={`sales:${options.type}`}
-            boardId={queryParams.id || ""}
-            pipelineId={queryParams.pipelineId || ""}
-          />
-        )}
+        <SegmentFilter
+          type={`sales:${options.type}`}
+          boardId={queryParams.id || ""}
+          pipelineId={queryParams.pipelineId || ""}
+        />
       </FilterBox>
     );
   }

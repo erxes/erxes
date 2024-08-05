@@ -117,11 +117,11 @@ export const sendProductsMessage = async (
   });
 };
 
-export const sendSegmentsMessage = async (
+export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "segments",
+    serviceName: "core",
     ...args
   });
 };

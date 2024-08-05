@@ -81,17 +81,11 @@ const integrationsTotalCount = `
 `;
 const tags = `
   query tags($type: String) {
-    ${
-      isEnabled("tags")
-        ? `
-        tags(type: $type) {
-          _id
-          name
-          type
-          colorCode
-        }
-    `
-        : ``
+    tags(type: $type) {
+        _id
+        name
+        type
+        colorCode
     }
   }
 `;

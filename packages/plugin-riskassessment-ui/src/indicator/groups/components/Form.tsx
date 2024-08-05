@@ -5,12 +5,12 @@ import {
   FormControl,
   FormGroup,
   __,
-  confirm,
+  confirm
 } from "@erxes/ui/src";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter,
+  ModalFooter
 } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 
@@ -36,7 +36,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      detail: props.detail || {},
+      detail: props.detail || {}
     };
 
     this.renderContent = this.renderContent.bind(this);
@@ -54,7 +54,7 @@ class Form extends React.Component<Props, State> {
         ...group,
         calculateLogics: (group?.calculateLogics || []).map(
           ({ __typename, ...logic }: any) => logic
-        ),
+        )
       };
     });
 
@@ -77,15 +77,15 @@ class Form extends React.Component<Props, State> {
       this.props.closeModal();
     };
 
-    const handleChange = (doc) => {
+    const handleChange = doc => {
       this.setState({ detail: { ...this.props.detail, ...doc } });
     };
 
     const handleSelect = (values, name) => {
-      this.setState((prev) => ({ detail: { ...prev.detail, [name]: values } }));
+      this.setState(prev => ({ detail: { ...prev.detail, [name]: values } }));
     };
 
-    const toggleProperty = (e) => {
+    const toggleProperty = e => {
       const { name } = e.currentTarget as HTMLInputElement;
       this.setState({ detail: { ...detail, [name]: !detail[name] } });
     };
@@ -112,18 +112,16 @@ class Form extends React.Component<Props, State> {
             required
           />
         </FormGroup>
-        {isEnabled("tags") && (
-          <FormGroup>
-            <ControlLabel>{__("Tag")}</ControlLabel>
-            <SelectTags
-              name="tagIds"
-              label="Choose Tag"
-              initialValue={detail.tagIds}
-              onSelect={handleSelect}
-              multi
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>{__("Tag")}</ControlLabel>
+          <SelectTags
+            name="tagIds"
+            label="Choose Tag"
+            initialValue={detail.tagIds}
+            onSelect={handleSelect}
+            multi
+          />
+        </FormGroup>
         <FormWrapper>
           <FormColumn>
             <FormGroup>
@@ -146,7 +144,7 @@ class Form extends React.Component<Props, State> {
           indicatorGroups={detail.groups}
           generalConfig={{
             calculateLogics: detail.calculateLogics,
-            calculateMethod: detail.calculateMethod,
+            calculateMethod: detail.calculateMethod
           }}
         />
         <ModalFooter>
@@ -158,7 +156,7 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             callback: () => this.props.closeModal(),
-            object: this.props.detail,
+            object: this.props.detail
           })}
         </ModalFooter>
       </FormContainer>

@@ -572,15 +572,6 @@ export const sendNotificationsMessage = async (
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "segments",
-    ...args
-  });
-};
-
 export const sendLoyaltiesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -602,7 +593,7 @@ export const fetchSegment = (
   options?,
   segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
     action: "fetchSegment",
     data: { segmentId, options, segmentData },

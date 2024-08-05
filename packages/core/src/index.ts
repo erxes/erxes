@@ -46,7 +46,6 @@ import automations from "./automations";
 import imports from "./imports";
 import exporter from "./exporter";
 import { moduleObjects } from "./data/permissions/actions/permission";
-import dashboards from "./dashboards";
 import { getEnabledServices } from "@erxes/api-utils/src/serviceDiscovery";
 import { applyInspectorEndpoints } from "@erxes/api-utils/src/inspect";
 import { handleCoreLogin, handleMagiclink, ssocallback } from "./saas";
@@ -273,16 +272,6 @@ app.use((error, _req, res, _next) => {
   res.status(500).send(error.message);
 });
 
-app.get("/dashboard", async (req, res) => {
-  const headers = req.rawHeaders;
-
-  const index = headers.indexOf("schemaName") + 1;
-
-  const schemaName = headers[index];
-
-  res.sendFile(path.join(__dirname, `./dashboardSchemas/${schemaName}.js`));
-});
-
 app.get("/get-import-file/:fileName", async (req, res) => {
   const fileName = req.params.fileName;
 
@@ -343,7 +332,6 @@ httpServer.listen(PORT, async () => {
       permissions: moduleObjects,
       imports,
       exporter,
-      dashboards,
       cronjobs: {
         handle10MinutelyJobAvailable: VERSION === "saas" ? true : false
       }

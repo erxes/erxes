@@ -8,7 +8,7 @@ import { IModels } from "./connectionResolver";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const validRiskIndicators = async (models: IModels, params) => {
-  if (isEnabled("tags") && !params?.tagIds?.length) {
+  if (!params?.tagIds?.length) {
     throw new Error("Please select some tags");
   }
   if (await models?.RiskIndicators.findOne({ name: params.name })) {

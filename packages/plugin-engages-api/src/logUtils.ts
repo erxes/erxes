@@ -15,11 +15,7 @@ import {
   IEngageMessageDocument,
   IEngageMessage
 } from "./models/definitions/engages";
-import {
-  sendSegmentsMessage,
-  sendCoreMessage,
-  sendEmailTemplatesMessage
-} from "./messageBroker";
+import { sendCoreMessage, sendEmailTemplatesMessage } from "./messageBroker";
 import configs from "./configs";
 
 export const LOG_ACTIONS = {
@@ -45,8 +41,8 @@ const gatherEngageFieldNames = async (
 
   if (doc.segmentIds && doc.segmentIds.length > 0) {
     const segments = await sendRPCMessage(
-      { action: "find", data: { _id: { $in: doc.segmentIds } } },
-      sendSegmentsMessage
+      { action: "segmentFind", data: { _id: { $in: doc.segmentIds } } },
+      sendCoreMessage
     );
 
     options = await gatherNames({

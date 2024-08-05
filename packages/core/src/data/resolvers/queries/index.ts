@@ -16,6 +16,7 @@ import internalNotes from "./internalNotes";
 import activityLogs from "./activityLogs";
 import emailDeliveries from "./emailDeliveries";
 import logs from "./logs";
+import segments from "./segments";
 
 export default {
   ...users,
@@ -33,5 +34,6 @@ export default {
   ...internalNotes,
   ...activityLogs,
   ...emailDeliveries,
-  ...logs
+  ...logs,
+  ...segments
 };

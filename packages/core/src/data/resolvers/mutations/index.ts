@@ -12,6 +12,7 @@ import apps from "./apps";
 import organizations from "./organizations";
 import tags from "./tags";
 import internalNotes from "./internalNotes";
+import segments from "./segments";
 
 export default {
   ...users,
@@ -25,5 +26,6 @@ export default {
   ...apps,
   ...organizations,
   ...tags,
-  ...internalNotes
+  ...internalNotes,
+  ...segments
 };

@@ -201,19 +201,17 @@ class AutomationsList extends React.Component<IProps, State> {
           >
             {queryParams.status === "archived" ? "Restore" : "Archive"}
           </Button>
-          {isEnabled("tags") && (
-            <TaggerPopover
-              type={TAG_TYPES.AUTOMATION}
-              successCallback={emptyBulk}
-              singleSelect
-              targets={bulk}
-              trigger={
-                <Button btnStyle="simple" size="small" icon="tag-alt">
-                  Tag
-                </Button>
-              }
-            />
-          )}
+          <TaggerPopover
+            type={TAG_TYPES.AUTOMATION}
+            successCallback={emptyBulk}
+            singleSelect
+            targets={bulk}
+            trigger={
+              <Button btnStyle="simple" size="small" icon="tag-alt">
+                Tag
+              </Button>
+            }
+          />
         </BarItems>
       );
     }

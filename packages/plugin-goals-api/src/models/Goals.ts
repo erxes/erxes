@@ -1,8 +1,8 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendSegmentsMessage } from '../messageBroker';
-import { goalSchema, IGoal, IGoalDocument } from './definitions/goals';
-import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from '../constants';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { sendCardsMessage, sendCoreMessage } from "../messageBroker";
+import { goalSchema, IGoal, IGoalDocument } from "./definitions/goals";
+import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../constants";
 export interface IGoalModel extends Model<IGoalDocument> {
   getGoal(_id: string): Promise<IGoalDocument>;
   createGoal(doc: IGoal): Promise<IGoalDocument>;
@@ -28,7 +28,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       });
 
       if (!goal) {
-        throw new Error('goal not found');
+        throw new Error("goal not found");
       }
       return goal;
     }
@@ -77,7 +77,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         return data === true ? true : false;
       } catch (error) {
         // Handle the error appropriately
-        console.error('Error fetching progress IDs goals:', error);
+        console.error("Error fetching progress IDs goals:", error);
         return []; // Return an empty array or handle the error accordingly
       }
     }
@@ -118,7 +118,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       // Send the request
       amount = await sendCardsMessage({
         subdomain,
-        action: item.entity + 's.find',
+        action: item.entity + "s.find",
         data: {
           ...requestData, // Spread the requestData to include its properties
           stageId: item.stageId
@@ -131,10 +131,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       try {
         // Assuming 'item' is the object containing segmentIds
         for (const segment of item.segmentIds || []) {
-          const cIds = await sendSegmentsMessage({
+          const cIds = await sendCoreMessage({
             isRPC: true,
             subdomain,
-            action: 'fetchSegment',
+            action: "fetchSegment",
             data: { segmentId: segment }
           });
 
@@ -161,12 +161,12 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
       let progress;
       let amountData;
 
-      if (item.metric === 'Value') {
+      if (item.metric === "Value") {
         let mobileAmountsData;
         let data;
         let totalAmount = 0;
         for (const items of amount) {
-          if (items.productsData && items.status === 'active') {
+          if (items.productsData && items.status === "active") {
             const productsData = items.productsData;
 
             productsData.forEach(item => {
@@ -241,8 +241,8 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             }
           );
         }
-      } else if (item.metric === 'Count') {
-        const activeElements = amount.filter(item => item.status === 'active');
+      } else if (item.metric === "Count") {
+        const activeElements = amount.filter(item => item.status === "active");
         current = activeElements.length;
         progress = await differenceFunction(current, item.target);
 

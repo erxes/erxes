@@ -74,6 +74,12 @@ import {
   queries as ActivityLogQueries
 } from "./activityLogs";
 
+import {
+  types as SegmentTypes,
+  queries as SegmentQueries,
+  mutations as SegmentMutations
+} from "./segment";
+
 export let types = `
   scalar JSON
   scalar Date
@@ -105,6 +111,7 @@ export let types = `
   ${LogTypes}
   ${EmailDeliveryTypes}
   ${ActivityLogTypes}
+  ${SegmentTypes}
 `;
 
 export let queries = `
@@ -124,6 +131,7 @@ export let queries = `
   ${LogQueries}
   ${EmailDeliveryQueries}
   ${ActivityLogQueries}
+  ${SegmentQueries}
 `;
 
 export let mutations = `
@@ -139,6 +147,7 @@ export let mutations = `
   ${OnboardingMutations}
   ${TagMutations}
   ${InternalNoteMutations}
+  ${SegmentMutations}
 `;
 
 export let subscriptions = `

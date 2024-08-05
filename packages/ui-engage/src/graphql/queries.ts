@@ -82,16 +82,10 @@ const engageMessages = `
         name
       }
 
-      ${
-        isEnabled("segments")
-          ? `
-              segments {
+       segments {
                 _id
                 name
-              }
-            `
-          : ""
-      }
+        }
 
         getTags {
             ${tagFields}
@@ -136,24 +130,13 @@ export const engageDetailFields = `
 
   ${isEnabled("clientportal") ? "cpId" : ""}
 
-  ${
-    isEnabled("tags")
-      ? `
-          customerTags {
-            ${tagFields}
-          }
-        `
-      : ""
+  customerTags {
+    ${tagFields}
   }
 
-  ${
-    isEnabled("segments")
-      ? `
-          segments {
-            contentType
-          }
-        `
-      : ""
+  segments {
+      contentType
+   }
   }
 `;
 

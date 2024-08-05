@@ -1,21 +1,22 @@
 const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Team member',
-    contentType: 'user',
-    icon: 'user-square',
-  },
+    text: "Team member",
+    contentType: "user",
+    icon: "user-square"
+  }
 ];
 
-import * as moment from 'moment';
-import { generateModels, IModels } from './connectionResolver';
-import { IUserDocument } from './db/models/definitions/users';
-import { fetchSegment, sendFormsMessage } from './messageBroker';
-import { InterMessage } from '@erxes/api-utils/src/messageBroker';
+import * as moment from "moment";
+import { generateModels, IModels } from "./connectionResolver";
+import { IUserDocument } from "./db/models/definitions/users";
+import { sendFormsMessage } from "./messageBroker";
+import { InterMessage } from "@erxes/api-utils/src/messageBroker";
+import { fetchSegment } from "./data/resolvers/queries/segmentsQueryBuilder";
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
@@ -26,7 +27,10 @@ const prepareData = async (
   let data: any[] = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(subdomain, '', { page, perPage }, segmentData);
+    itemIds = await fetchSegment(models, subdomain, segmentData, {
+      page,
+      perPage
+    });
 
     boardItemsFilter._id = { $in: itemIds };
   }
@@ -46,7 +50,7 @@ const prepareData = async (
 const prepareDataCount = async (
   models: IModels,
   subdomain: string,
-  query: any,
+  query: any
 ): Promise<any> => {
   const { segmentData } = query;
 
@@ -55,12 +59,11 @@ const prepareDataCount = async (
   const contactsFilter: any = {};
 
   if (segmentData.conditions) {
-    const itemIds = await fetchSegment(
-      subdomain,
-      '',
-      { scroll: true, page: 1, perPage: 10000 },
-      segmentData,
-    );
+    const itemIds = await fetchSegment(models, subdomain, segmentData, {
+      scroll: true,
+      page: 1,
+      perPage: 10000
+    });
 
     contactsFilter._id = { $in: itemIds };
   }
@@ -79,7 +82,7 @@ const getCustomFieldsData = async (item, fieldId) => {
         value = customFeild.value;
 
         if (Array.isArray(value)) {
-          value = value.join(', ');
+          value = value.join(", ");
         }
 
         return { value };
@@ -94,9 +97,9 @@ export const fillValue = async (
   models: IModels,
   _subdomain: string,
   column: string,
-  item: IUserDocument,
+  item: IUserDocument
 ): Promise<string> => {
-  const [splitedColumn, detail] = column.split('.');
+  const [splitedColumn, detail] = column.split(".");
 
   let value = item[column];
 
@@ -105,30 +108,30 @@ export const fillValue = async (
   }
 
   switch (column) {
-    case 'createdAt':
-      value = moment(value).format('YYYY-MM-DD');
+    case "createdAt":
+      value = moment(value).format("YYYY-MM-DD");
       break;
 
-    case 'branches':
+    case "branches":
       const branches = await models.Branches.find({
-        _id: item.branchIds,
+        _id: item.branchIds
       }).lean();
 
-      value = branches.map((branch) => branch.title).join(', ');
+      value = branches.map(branch => branch.title).join(", ");
 
       break;
 
-    case 'departments':
+    case "departments":
       const departments = await models.Departments.find({
-        _id: item.departmentIds,
+        _id: item.departmentIds
       }).lean();
 
-      value = departments.map((department) => department.title).join(', ');
+      value = departments.map(department => department.title).join(", ");
 
       break;
 
-    case 'password':
-      value = '';
+    case "password":
+      value = "";
 
       break;
 
@@ -136,7 +139,7 @@ export const fillValue = async (
       break;
   }
 
-  return value || '-';
+  return value || "-";
 };
 
 export default {
@@ -157,15 +160,15 @@ export default {
       totalCount = results;
 
       for (const column of columnsConfig) {
-        if (column.startsWith('customFieldsData')) {
-          const fieldId = column.split('.')[1];
+        if (column.startsWith("customFieldsData")) {
+          const fieldId = column.split(".")[1];
           const field = await sendFormsMessage({
             subdomain,
-            action: 'fields.findOne',
+            action: "fields.findOne",
             data: {
-              query: { _id: fieldId },
+              query: { _id: fieldId }
             },
-            isRPC: true,
+            isRPC: true
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -175,15 +178,15 @@ export default {
       }
 
       for (const header of headers) {
-        if (header.startsWith('customFieldsData')) {
-          excelHeader.push(header.split('.')[1]);
+        if (header.startsWith("customFieldsData")) {
+          excelHeader.push(header.split(".")[1]);
         } else {
           excelHeader.push(header);
         }
       }
     } catch (e) {
       return {
-        error: e.message,
+        error: e.message
       };
     }
     return { totalCount, excelHeader };
@@ -201,15 +204,15 @@ export default {
       const results = await prepareData(models, subdomain, data);
 
       for (const column of columnsConfig) {
-        if (column.startsWith('customFieldsData')) {
-          const fieldId = column.split('.')[1];
+        if (column.startsWith("customFieldsData")) {
+          const fieldId = column.split(".")[1];
           const field = await sendFormsMessage({
             subdomain,
-            action: 'fields.findOne',
+            action: "fields.findOne",
             data: {
-              query: { _id: fieldId },
+              query: { _id: fieldId }
             },
-            isRPC: true,
+            isRPC: true
           });
 
           headers.push(`customFieldsData.${field.text}.${fieldId}`);
@@ -222,17 +225,17 @@ export default {
         const result = {};
 
         for (const column of headers) {
-          if (column.startsWith('customFieldsData')) {
-            const fieldId = column.split('.')[2];
-            const fieldName = column.split('.')[1];
+          if (column.startsWith("customFieldsData")) {
+            const fieldId = column.split(".")[2];
+            const fieldName = column.split(".")[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[fieldName] = value || '-';
+            result[fieldName] = value || "-";
           } else {
             const value = await fillValue(models, subdomain, column, item);
 
-            result[column] = value || '-';
+            result[column] = value || "-";
           }
         }
 
@@ -242,5 +245,5 @@ export default {
       return { error: e.message };
     }
     return { docs };
-  },
+  }
 };

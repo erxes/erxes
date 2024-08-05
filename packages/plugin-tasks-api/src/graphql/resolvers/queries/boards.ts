@@ -9,8 +9,7 @@ import { getCloseDateByType } from "./utils";
 import {
   fetchSegment,
   sendCoreMessage,
-  sendFormsMessage,
-  sendSegmentsMessage
+  sendFormsMessage
 } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 import { getContentTypeDetail } from "../../../utils";
@@ -636,9 +635,9 @@ const boardQueries = {
     }: { type: string; boardId: string; pipelineId: string },
     { subdomain }: IContext
   ) {
-    const segments = await sendSegmentsMessage({
+    const segments = await sendCoreMessage({
       subdomain,
-      action: "find",
+      action: "segmentFind",
       data: {
         contentType: type,
         config: {

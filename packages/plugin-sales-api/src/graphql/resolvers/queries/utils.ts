@@ -13,8 +13,7 @@ import {
   sendContactsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendNotificationsMessage,
-  sendSegmentsMessage
+  sendNotificationsMessage
 } from "../../../messageBroker";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { IModels } from "../../../connectionResolver";
@@ -543,9 +542,9 @@ export const generateCommonFilters = async (
   }
 
   if (segment) {
-    const segmentObj = await sendSegmentsMessage({
+    const segmentObj = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "segmentFindOne",
       data: { _id: segment },
       isRPC: true
     });

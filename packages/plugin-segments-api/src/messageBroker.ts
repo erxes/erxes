@@ -1,54 +1,54 @@
 import {
   MessageArgs,
   MessageArgsOmitService,
-  sendMessage as sendMessageCore,
-} from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
+  sendMessage as sendMessageCore
+} from "@erxes/api-utils/src/core";
+import { generateModels } from "./connectionResolver";
 import {
   fetchSegment,
-  isInSegment,
-} from './graphql/resolvers/queries/queryBuilder';
+  isInSegment
+} from "./graphql/resolvers/queries/queryBuilder";
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 
-const sendSuccessMessage = (data) => ({ data, status: 'success' });
+const sendSuccessMessage = data => ({ data, status: "success" });
 const sendErrorMessage = (message?) => ({
-  status: 'error',
-  message,
+  status: "error",
+  message
 });
 
 export const setupMessageConsumers = async () => {
-  consumeRPCQueue('segments:findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue("core:segmentFindOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       data: await models.Segments.findOne(data).lean(),
-      status: 'success',
+      status: "success"
     };
   });
 
-  consumeRPCQueue('segments:find', async ({ subdomain, data }) => {
+  consumeRPCQueue("core:segmentFind", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return { data: await models.Segments.find(data).lean(), status: 'success' };
+    return { data: await models.Segments.find(data).lean(), status: "success" };
   });
 
   consumeRPCQueue(
-    'segments:count',
+    "core:segmentCount",
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
       return {
         data: await models.Segments.find(selector).countDocuments(),
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'segments:fetchSegment',
+    "core:fetchSegment",
     async ({ subdomain, data: { segmentId, options, segmentData } }) => {
       const models = await generateModels(subdomain);
 
@@ -58,13 +58,13 @@ export const setupMessageConsumers = async () => {
 
       return {
         data: await fetchSegment(models, subdomain, segment, options),
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'segments:isInSegment',
+    "core:isInSegment",
     async ({ subdomain, data: { segmentId, idToCheck, options } }) => {
       const models = await generateModels(subdomain);
 
@@ -73,27 +73,27 @@ export const setupMessageConsumers = async () => {
         subdomain,
         segmentId,
         idToCheck,
-        options,
+        options
       );
 
-      return { data, status: 'success' };
-    },
+      return { data, status: "success" };
+    }
   );
 
   consumeQueue(
-    'segments:removeSegment',
+    "core:removeSegment",
     async ({ subdomain, data: { segmentId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await models.Segments.removeSegment(segmentId),
+        status: "success",
+        data: await models.Segments.removeSegment(segmentId)
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'segments:findSubSegments',
+    "core:findSubSegments",
     async ({ subdomain, data: { segmentIds } }) => {
       const models = await generateModels(subdomain);
 
@@ -101,8 +101,8 @@ export const setupMessageConsumers = async () => {
 
       if (!segments?.length) {
         return {
-          status: 'error',
-          errorMessage: 'Segments not found',
+          status: "error",
+          errorMessage: "Segments not found"
         };
       }
 
@@ -117,14 +117,14 @@ export const setupMessageConsumers = async () => {
       }
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Segments.find({
           _id: {
-            $in: subSegmentIds,
-          },
-        }),
+            $in: subSegmentIds
+          }
+        })
       };
-    },
+    }
   );
 };
 
@@ -134,7 +134,7 @@ export const sendMessage = async (args: MessageArgs): Promise<any> => {
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessageCore({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };

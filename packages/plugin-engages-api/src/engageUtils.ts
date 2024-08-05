@@ -9,7 +9,6 @@ import { isUsingElk } from "./utils";
 import {
   sendInboxMessage,
   sendCoreMessage,
-  sendSegmentsMessage,
   sendContactsMessage,
   sendClientPortalMessage
 } from "./messageBroker";
@@ -72,9 +71,9 @@ export const generateCustomerSelector = async (
   }
 
   if (segmentIds.length > 0) {
-    const segments = await sendSegmentsMessage({
+    const segments = await sendCoreMessage({
       ...commonParams,
-      action: "find",
+      action: "segmentFind",
       data: { _id: { $in: segmentIds } }
     });
 
@@ -90,7 +89,7 @@ export const generateCustomerSelector = async (
         };
       }
 
-      const cIds = await sendSegmentsMessage({
+      const cIds = await sendCoreMessage({
         ...commonParams,
         action: "fetchSegment",
         data: {
@@ -638,7 +637,7 @@ export const checkCustomerExists = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
-      const cIds = await sendSegmentsMessage({
+      const cIds = await sendCoreMessage({
         isRPC: true,
         subdomain,
         action: "fetchSegment",

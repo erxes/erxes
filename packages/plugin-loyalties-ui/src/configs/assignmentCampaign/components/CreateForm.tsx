@@ -7,18 +7,18 @@ import {
   FormGroup,
   DateControl,
   Uploader,
-  DataWithLoader,
+  DataWithLoader
 } from "@erxes/ui/src/components";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
 import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
-  MainStyleDateContainer as DateContainer,
+  MainStyleDateContainer as DateContainer
 } from "@erxes/ui/src/styles/eindex";
 import {
   IAttachment,
   IButtonMutateProps,
-  IFormProps,
+  IFormProps
 } from "@erxes/ui/src/types";
 import { IAssignmentCampaign } from "../types";
 import { extractAttachment, __ } from "@erxes/ui/src/utils";
@@ -59,39 +59,39 @@ const CreateForm = (props: Props) => {
 
     return {
       ...finalValues,
-      ...assignmentCampaign,
+      ...assignmentCampaign
     };
   };
 
   const onChangeDescription = (content: string) => {
     setAssignmentCampaign({
       ...assignmentCampaign,
-      description: content,
+      description: content
     });
   };
 
   const onChangeAttachment = (files: IAttachment[]) => {
     setAssignmentCampaign({
       ...assignmentCampaign,
-      attachment: files.length ? files[0] : undefined,
+      attachment: files.length ? files[0] : undefined
     });
   };
 
   const onDateInputChange = (type: string, date) => {
     setAssignmentCampaign({
       ...assignmentCampaign,
-      [type]: date,
+      [type]: date
     });
   };
 
-  const onInputChange = (e) => {
+  const onInputChange = e => {
     e.preventDefault();
     const value = e.target.value;
     const name = e.target.name;
 
     setAssignmentCampaign({
       ...assignmentCampaign,
-      [name]: value,
+      [name]: value
     });
   };
 
@@ -99,19 +99,19 @@ const CreateForm = (props: Props) => {
     const { renderButton } = props;
     const { values, isSubmitted } = formProps;
 
-    const onChangeVoucherCampaign = (selected) => {
+    const onChangeVoucherCampaign = selected => {
       const value = (selected || {}).value;
 
       setAssignmentCampaign({
         ...assignmentCampaign,
-        voucherCampaignId: value,
+        voucherCampaignId: value
       });
     };
 
-    const onChangeSegments = (segmentIds) => {
+    const onChangeSegments = segmentIds => {
       setAssignmentCampaign({
         ...assignmentCampaign,
-        segmentIds,
+        segmentIds
       });
     };
 
@@ -124,9 +124,9 @@ const CreateForm = (props: Props) => {
       navigate(`/erxes-plugin-loyalty/settings/assignment`);
     };
 
-    const selectOptions = props.voucherCampaigns.map((voucher) => ({
+    const selectOptions = props.voucherCampaigns.map(voucher => ({
       label: `${voucher.title}`,
-      value: voucher._id,
+      value: voucher._id
     }));
 
     return (
@@ -192,7 +192,7 @@ const CreateForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled("segments") && isEnabled("contacts") && (
+        {isEnabled("contacts") && (
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
@@ -212,7 +212,7 @@ const CreateForm = (props: Props) => {
           <Select
             placeholder={__("Choose voucher campaign")}
             value={selectOptions.find(
-              (o) => o.value === assignmentCampaign.voucherCampaignId
+              o => o.value === assignmentCampaign.voucherCampaignId
             )}
             isClearable={true}
             options={selectOptions}
@@ -237,7 +237,7 @@ const CreateForm = (props: Props) => {
               "link",
               "unlink",
               "|",
-              "image",
+              "image"
             ]}
           />
         </FormGroup>
@@ -268,7 +268,7 @@ const CreateForm = (props: Props) => {
             values: generateDoc(values),
             isSubmitted,
             object: assignmentCampaign,
-            callback: onSave,
+            callback: onSave
           })}
         </FormFooter>
       </>
@@ -277,7 +277,7 @@ const CreateForm = (props: Props) => {
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Assignment Campaign") },
+    { title: __("Assignment Campaign") }
   ];
 
   const content = (

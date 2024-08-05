@@ -84,16 +84,20 @@ const gatherDescriptions = async (
   models: IModels,
   params: any
 ): Promise<IDescriptions> => {
-  const { action, object, updatedDocument } = params;
+  const { action, object, updatedDocument, type } = params;
 
-  const description = `"${object.name}" has been ${action}d`;
-  let extraDesc: LogDesc[] = await gatherTagNames(models, object);
+  if (type && type === "tag") {
+    const description = `"${object.name}" has been ${action}d`;
+    let extraDesc: LogDesc[] = await gatherTagNames(models, object);
 
-  if (updatedDocument) {
-    extraDesc = await gatherTagNames(models, updatedDocument, extraDesc);
+    if (updatedDocument) {
+      extraDesc = await gatherTagNames(models, updatedDocument, extraDesc);
+    }
+
+    return { extraDesc, description };
   }
 
-  return { extraDesc, description };
+  return { description: "", extraDesc: [] };
 };
 
 export const putDeleteLog = async (models, subdomain, logDoc, user) => {

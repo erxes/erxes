@@ -63,16 +63,11 @@ const messageFields = `
         primaryPhone
 
         tagIds
-        ${
-          isEnabled("tags")
-            ? `
-            getTags {
+        getTags {
               _id
               name
               colorCode
-            }
-          `
-            : ``
+         }
         }
       }
     `

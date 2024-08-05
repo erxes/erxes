@@ -31,7 +31,7 @@ interface IProps {
   brandsLoading: boolean;
 }
 
-const List: React.FC<IProps> = (props) => {
+const List: React.FC<IProps> = props => {
   const { productCategories, loading, queryParams, remove } = props;
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +40,7 @@ const List: React.FC<IProps> = (props) => {
     trigger: React.ReactNode,
     category?: IProductCategory
   ) => {
-    const content = (props) => (
+    const content = props => (
       <CategoryForm
         {...props}
         category={category}
@@ -121,9 +121,8 @@ const List: React.FC<IProps> = (props) => {
 
       <SidebarList>{renderContent()}</SidebarList>
 
-      {isEnabled("segments") && (
-        <SegmentFilter loadingMainQuery={props.loading} />
-      )}
+      <SegmentFilter loadingMainQuery={props.loading} />
+
       <CategoryStatusFilter />
       <ProductTypeFilter />
       <BrandFilter
@@ -131,7 +130,7 @@ const List: React.FC<IProps> = (props) => {
         brands={props.brands}
         loading={props.brandsLoading}
       />
-      {isEnabled("tags") && <TagFilter />}
+      <TagFilter />
     </Sidebar>
   );
 };

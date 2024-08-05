@@ -374,12 +374,6 @@ export const sendPricingMessage = async (
   return sendMessageWrapper("pricing", args);
 };
 
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessageWrapper("segments", args);
-};
-
 export const sendFormsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -398,7 +392,7 @@ export const fetchSegment = (
   options?,
   segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
     action: "fetchSegment",
     data: { segmentId, options, segmentData },

@@ -244,14 +244,12 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
             />
             <ConversationCustomFieldsSection conversation={conversation} />
           </Box>
-          {isEnabled("tags") && (
-            <TaggerSection
-              data={customer}
-              type="contacts:customer"
-              refetchQueries={taggerRefetchQueries}
-              collapseCallback={toggleSection}
-            />
-          )}
+          <TaggerSection
+            data={customer}
+            type="contacts:customer"
+            refetchQueries={taggerRefetchQueries}
+            collapseCallback={toggleSection}
+          />
 
           {this.renderTrackedData({ customer, kind, toggleSection })}
           {this.renderDeviceProperties({

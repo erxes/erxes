@@ -3,8 +3,7 @@ import {
   sendClientPortalMessage,
   sendCommonMessage,
   sendContactsMessage,
-  sendCoreMessage,
-  sendSegmentsMessage
+  sendCoreMessage
 } from "./messageBroker";
 
 export default {

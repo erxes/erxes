@@ -109,14 +109,8 @@ export const commonFields = `
     tagId
     isCheckDate
 
-    ${
-      isEnabled("tags")
-        ? `
-        tag {
-          order
-        }
-    `
-        : ``
+    tag {
+      order
     }
   }
   boardId
@@ -150,17 +144,13 @@ export const commonFields = `
   `
       : ``
   }
-  ${
-    isEnabled("tags")
-      ? `
+
   tags {
     _id
     name
     colorCode
   }
-  `
-      : ``
-  }
+    
   tagIds
   startDate
   closeDate

@@ -317,14 +317,11 @@ const reportList = `
             filterType
           }
         }
-        ${
-          isEnabled("tags")
-            ? `tags  {
-            _id
-            name
-            colorCode
-          }`
-            : ``
+        tags  {
+          _id
+          name
+          colorCode
+         }
         }
       }
 
@@ -372,14 +369,10 @@ const reportDetail = `
           }
         }
 
-        ${
-          isEnabled("tags")
-            ? `tags  {
+        tags  {
             _id
             name
             colorCode
-          }`
-            : ``
         }
 
         assignedDepartmentIds

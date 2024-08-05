@@ -17,6 +17,7 @@ import Tag from "./tags";
 import InternalNote from "./internalNote";
 import ActivityLog from "./activityLog";
 import ActivityLogByAction from "./activityLogByAction";
+import Segment from "./segments";
 
 const resolvers: any = {
   ...customScalars,
@@ -40,7 +41,8 @@ const resolvers: any = {
   Position,
   InternalNote,
   ActivityLog,
-  ActivityLogByAction
+  ActivityLogByAction,
+  Segment
 };
 
 export default resolvers;

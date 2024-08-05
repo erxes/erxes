@@ -1,6 +1,6 @@
-import { IModels } from './connectionResolver';
-import { sendProductsMessage, sendSegmentsMessage } from './messageBroker';
-import { VOUCHER_STATUS } from './models/definitions/constants';
+import { IModels } from "./connectionResolver";
+import { sendCoreMessage, sendProductsMessage } from "./messageBroker";
+import { VOUCHER_STATUS } from "./models/definitions/constants";
 
 interface IProductD {
   productId: string;
@@ -10,7 +10,7 @@ interface IProductD {
 export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendProductsMessage({
     subdomain,
-    action: 'categories.withChilds',
+    action: "categories.withChilds",
     data: { ids: categoryIds },
     isRPC: true,
     defaultValue: []
@@ -30,7 +30,7 @@ export const checkVouchersSale = async (
   const result = {};
 
   if (!ownerId && !ownerId && !products) {
-    return 'No Data';
+    return "No Data";
   }
 
   const now = new Date();
@@ -39,8 +39,8 @@ export const checkVouchersSale = async (
   for (const productId of productsIds) {
     if (!Object.keys(result).includes(productId)) {
       result[productId] = {
-        voucherCampaignId: '',
-        voucherId: '',
+        voucherCampaignId: "",
+        voucherId: "",
         potentialBonus: 0,
         discount: 0,
         sumDiscount: 0
@@ -57,16 +57,16 @@ export const checkVouchersSale = async (
 
     ownerType: 1,
     ownerId: 1,
-    campaign: { $arrayElemAt: ['$campaign_doc', 0] }
+    campaign: { $arrayElemAt: ["$campaign_doc", 0] }
   };
   const lookup = {
-    from: 'voucher_campaigns',
-    localField: 'campaignId',
-    foreignField: '_id',
-    as: 'campaign_doc'
+    from: "voucher_campaigns",
+    localField: "campaignId",
+    foreignField: "_id",
+    as: "campaign_doc"
   };
 
-  const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
+  const voucherFilter = { ownerType, ownerId, status: { $in: ["new"] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
 
@@ -80,7 +80,7 @@ export const checkVouchersSale = async (
   // bonus
   const bonusCampaign = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['bonus'] }
+    voucherType: { $in: ["bonus"] }
   }).lean();
 
   const bonusVouchers = await models.Vouchers.aggregate([
@@ -112,7 +112,7 @@ export const checkVouchersSale = async (
             (sum, i) => sum + i.usedCount,
             0
           );
-        result[productId].type = 'bonus';
+        result[productId].type = "bonus";
         result[productId].discount = 100;
         result[productId].bonusName = bonusVoucher.campaign.title;
       }
@@ -122,7 +122,7 @@ export const checkVouchersSale = async (
   // discount
   const discountCampaigns = await models.VoucherCampaigns.find({
     ...campaignFilter,
-    voucherType: { $in: ['discount'] }
+    voucherType: { $in: ["discount"] }
   }).lean();
 
   const discountVouchers = await models.Vouchers.aggregate([
@@ -162,7 +162,7 @@ export const checkVouchersSale = async (
 
   const limit = await sendProductsMessage({
     subdomain,
-    action: 'count',
+    action: "count",
     data: {
       query: { categoryId: { $in: allCatIds } }
     },
@@ -172,7 +172,7 @@ export const checkVouchersSale = async (
 
   const catProducts = await sendProductsMessage({
     subdomain,
-    action: 'find',
+    action: "find",
     data: {
       query: { categoryId: { $in: allCatIds } },
       sort: { _id: 1, categoryId: 1 },
@@ -210,7 +210,7 @@ export const checkVouchersSale = async (
             voucherId: discountVoucher._id,
             discount: discountVoucher.campaign.discountPercent,
             voucherName: discountVoucher.campaign.title,
-            type: 'discount'
+            type: "discount"
           };
         }
         result[productId].sumDiscount +=
@@ -275,9 +275,9 @@ export const isInSegment = async (
   segmentId: string,
   targetId: string
 ) => {
-  const response = await sendSegmentsMessage({
+  const response = await sendCoreMessage({
     subdomain,
-    action: 'isInSegment',
+    action: "isInSegment",
     data: { segmentId, idToCheck: targetId },
     isRPC: true
   });
