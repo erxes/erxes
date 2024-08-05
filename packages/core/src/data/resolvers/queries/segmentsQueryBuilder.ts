@@ -119,6 +119,7 @@ export const fetchSegment = async (
 
     const getType = type =>
       type
+        .replace("core:", "")
         .replace("contacts:", "")
         .replace("tickets:", "")
         .replace("tasks:", "")
