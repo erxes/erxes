@@ -57,14 +57,13 @@ export const customerFields = `
 
   customFieldsData
   trackedData
-
   tagIds
   getTags {
     _id
     name
     colorCode
-    }
   }
+  
 `;
 
 const listParamsDef = `
