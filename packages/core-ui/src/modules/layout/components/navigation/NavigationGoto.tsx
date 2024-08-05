@@ -19,6 +19,7 @@ import WithPermission from "modules/common/components/WithPermission";
 import _ from "lodash";
 import { __ } from "modules/common/utils";
 import { pluginNavigations } from "./utils";
+import { Plugin, Action, GeneralSetting } from "./types";
 
 type Props = {
   navCollapse: number;
@@ -27,16 +28,18 @@ type Props = {
 type State = {
   show: boolean;
   keysPressed: any;
-  plugins: any[];
-  filteredPlugins: any[];
+  plugins: Plugin[];
+  filteredPlugins: Plugin[];
   searchValue: string;
   cursor: number;
 };
 
 export default class NavigationGoto extends React.Component<Props, State> {
-  private searchFormInput: any;
-  private actions: any[] = ACTIONS ? ACTIONS : [];
-  private generalSettings: any[] = GENERAL_SETTINGS ? GENERAL_SETTINGS : [];
+  private searchFormInput: React.RefObject<HTMLInputElement>;
+  private actions: Action[] = ACTIONS ? ACTIONS : [];
+  private generalSettings: GeneralSetting[] = GENERAL_SETTINGS
+    ? GENERAL_SETTINGS
+    : [];
   constructor(props: Props) {
     super(props);
 
@@ -67,11 +70,11 @@ export default class NavigationGoto extends React.Component<Props, State> {
     document.addEventListener("keyup", this.handleKeyUp);
     document.addEventListener("keydown", this.handleArrowSelection);
 
-    const plugins: any[] = pluginNavigations() || [];
-    const totalPlugins: any[] = [];
+    const plugins: Plugin[] = pluginNavigations() || [];
+    const totalPlugins: Plugin[] = [];
 
     if (plugins.length !== 0) {
-      plugins[0].children.map((child: any, index: number) => {
+      (plugins[0].children || []).map((child: Plugin) => {
         child.icon = "icon-settings";
         child.name = child.scope;
 
@@ -94,19 +97,19 @@ export default class NavigationGoto extends React.Component<Props, State> {
     document.removeEventListener("keydown", this.handleArrowSelection);
   }
 
-  handleKeyDown = (event: any) => {
+  handleKeyDown = (event: KeyboardEvent) => {
     const key = event.key;
 
     this.setState({ keysPressed: { ...this.state.keysPressed, [key]: true } });
   };
 
-  handleKeyUp = (event: any) => {
+  handleKeyUp = (event: KeyboardEvent) => {
     delete this.state.keysPressed[event.key];
 
     this.setState({ keysPressed: { ...this.state.keysPressed } });
   };
 
-  handleArrowSelection = (event: any) => {
+  handleArrowSelection = (event: KeyboardEvent) => {
     const { plugins, filteredPlugins, searchValue, cursor } = this.state;
 
     let maxCursor: number = 0;
@@ -156,24 +159,16 @@ export default class NavigationGoto extends React.Component<Props, State> {
     }
 
     this.setState({ show: !this.state.show, keysPressed: {} });
-
-    if (this.searchFormInput.current !== null) {
-      console.log(this.searchFormInput.current);
-    }
   };
 
-  handleSearch = (event: any) => {
-    let filteredPlugins: any[] = [];
+  handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let filteredPlugins: Plugin[] = [];
     const searchValue: string = event.target.value;
-    const allPlugins: any[] = [...this.state.plugins, ...this.actions];
-
-    if (event.keyCode === 38 || event.keyCode === 40) {
-      event.preventDefault();
-    }
+    const allPlugins: Plugin[] = [...this.state.plugins, ...this.actions];
 
     this.setState({ searchValue, cursor: 0 });
 
-    filteredPlugins = allPlugins.filter((plugin: any) => {
+    filteredPlugins = allPlugins.filter((plugin: Plugin) => {
       if (searchValue.length === 0) {
         return;
       }
@@ -197,7 +192,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       return (
         <>
           <GotoCategory>Actions</GotoCategory>
-          {this.actions.map((item: any, index: number) => {
+          {this.actions.map((item: Action, index: number) => {
             return (
               <NavLink
                 id={"nav-item-" + index}
@@ -227,7 +222,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       return (
         <>
           <GotoCategory>Navigations</GotoCategory>
-          {this.state.plugins.map((plugin: any, index: number) => {
+          {this.state.plugins.map((plugin: Plugin, index: number) => {
             const navItemIndex = this.actions.length + index;
 
             return (
@@ -239,7 +234,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
                 <NavLink
                   id={"nav-item-" + navItemIndex}
                   onClick={this.handleShow}
-                  to={plugin.url ? plugin.url : plugin.to}
+                  to={plugin.url || plugin.to || ""}
                 >
                   <GotoItem
                     className={
@@ -279,7 +274,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
       return (
         <>
           <GotoCategory>Search results</GotoCategory>
-          {filteredPlugins.map((plugin: any, index: number) => {
+          {filteredPlugins.map((plugin: Plugin, index: number) => {
             const { permission, permissions, icon, text, name, to, url } =
               plugin;
 
@@ -292,7 +287,7 @@ export default class NavigationGoto extends React.Component<Props, State> {
                 <NavLink
                   id={"nav-item-" + index}
                   onClick={this.handleShow}
-                  to={url ? url : to}
+                  to={url || to || ""}
                 >
                   <GotoItem className={cursor === index ? " active" : ""}>
                     <i className={icon} />

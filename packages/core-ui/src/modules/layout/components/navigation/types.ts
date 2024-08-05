@@ -9,7 +9,7 @@ export type ChildPlugin = {
 
 export type Plugin = {
   text: string;
-  url: string;
+  url?: string;
   icon?: string;
   name?: string;
   permission?: string;
@@ -17,4 +17,24 @@ export type Plugin = {
   children?: ChildPlugin[];
   label?: React.ReactNode;
   isPinned?: boolean;
+  location?: string;
+  action?: string;
+  image?: string;
+  to?: string;
+  scope?: string;
 };
+
+export type Action = {
+  name: string,
+  text: string,
+  icon: string,
+  url: string,
+  type?: string
+}
+
+export type GeneralSetting = {
+  name: string,
+  text: string,
+  icon: string,
+  url:string
+}
