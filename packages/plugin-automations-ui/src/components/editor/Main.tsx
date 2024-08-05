@@ -251,9 +251,9 @@ class Editor extends React.Component<Props, State> {
   };
 
   onConnection = (info) => {
-    const { triggers, actions } = this.state;
+    const { triggers, actions, workFlowActions } = this.state;
 
-    connection(triggers, actions, info, info.targetId);
+    connection(triggers, actions, info, info.targetId, workFlowActions);
 
     this.setState({ triggers, actions });
   };

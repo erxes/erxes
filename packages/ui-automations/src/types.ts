@@ -10,7 +10,7 @@ type OptionalConnect = {
 };
 
 type IConfig = {
-  workflowConnections?: WorkflowConnection[];
+  workflowConnection?: WorkflowConnection;
   optionalConnect?: OptionalConnect[];
   [key: string]: any;
 };

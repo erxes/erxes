@@ -230,7 +230,7 @@ function AutomationEditor({
         if (
           workflow &&
           [connection?.source, target.id].every(id =>
-            (workflow.actions || []).find(action => action.id)
+            (workflow.actions || []).find(action => action.id === id)
           )
         ) {
           return false;
