@@ -1,13 +1,12 @@
 import * as dotenv from 'dotenv';
 const crypto = require('crypto');
 
-// dotenv.config();
+dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
 
-// let { MONGO_URL } = process.env;
-let MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true';
-// mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false&authSource=erxes
+let { MONGO_URL } = process.env;
+
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }

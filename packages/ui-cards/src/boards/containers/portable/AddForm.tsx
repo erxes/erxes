@@ -98,7 +98,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemName: doc.name,
           stageId: doc.stageId,
           bookingProductId,
-          _id: sourceConversationId || '',
+          _id: sourceConversationId,
         },
       })
         .then(({ data }) => {

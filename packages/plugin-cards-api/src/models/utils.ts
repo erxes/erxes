@@ -662,7 +662,7 @@ export const updateName = async (
 ) => {
   const models = await generateModels(subdomain);
 
-  const { collection, create, update } = getCollection(models, type);
+  const { collection } = getCollection(models, type);
 
   if (itemId) {
     const item = await collection.findOne({ _id: itemId }).lean();
@@ -750,13 +750,11 @@ export const updateName = async (
               }
             }
             if (serviceName === 'company') {
-              switch (pattern[1]) {
-                case 'name':
-                  replacedName = replacedName?.replace(
-                    match,
-                    companies[0]?.primaryName || ''
-                  );
-                  break;
+              if (pattern[1] === 'name') {
+                replacedName = replacedName?.replace(
+                  match,
+                  companies[0]?.primaryName || ''
+                );
               }
             }
           }
