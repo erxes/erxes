@@ -192,15 +192,13 @@ const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   }
 
   // generate new number by new numberConfig
-  const generatedNum = await boardNumberGenerator(
+  return await boardNumberGenerator(
     models,
     doc.numberConfig || '',
     doc.numberSize || '',
     true,
     'lastNum'
   );
-
-  return generatedNum;
 };
 
 export interface IBoardModel extends Model<IBoardDocument> {

@@ -30,7 +30,7 @@ export default function Attribution(props: Props) {
   };
 
   const { attributions } = props;
-  console.log('attributions', attributions);
+
   const content = close => {
     return (
       <Attributes>

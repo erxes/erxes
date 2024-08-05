@@ -220,8 +220,9 @@ class AddFormContainer extends React.Component<FinalProps> {
         group => group.name === 'Basic information'
       );
 
-    const defaultShowName =
-      one && one?.fields.find(field => field.text === 'Name') ? false : true;
+    const defaultShowName = !(
+      one && one?.fields.find(field => field.text === 'Name')
+    );
 
     const extendedProps = {
       ...this.props,

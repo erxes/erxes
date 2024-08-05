@@ -1,11 +1,12 @@
 import * as dotenv from 'dotenv';
+const crypto = require('crypto');
 
-dotenv.config();
+// dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
 
-let { MONGO_URL } = process.env;
-// let MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true';
+// let { MONGO_URL } = process.env;
+let MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true';
 // mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=false&authSource=erxes
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
@@ -19,14 +20,7 @@ let Fields: Collection<any>;
 let FieldsGroup: Collection<any>;
 function generateMongoId() {
   const timestamp = ((new Date().getTime() / 1000) | 0).toString(16);
-  const objectId =
-    timestamp +
-    'xxxxxxxxxxxxxxxx'
-      .replace(/[x]/g, function () {
-        return ((Math.random() * 16) | 0).toString(16);
-      })
-      .toLowerCase();
-  return objectId;
+  return timestamp + crypto.randomBytes(16).toString('hex');
 }
 const command = async () => {
   await client.connect();

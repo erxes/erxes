@@ -103,8 +103,6 @@ function PlaceHolderInput(props: Props) {
             </div>
             <FormControl
               value={converted}
-              // onKeyPress={onKeyPress}
-              // onKeyDown={onKeyPress}
               onChange={(e: any) => onChangeConfig(e.target.value)}
               placeholder='Choose an attribute or any number you prefer'
             />
