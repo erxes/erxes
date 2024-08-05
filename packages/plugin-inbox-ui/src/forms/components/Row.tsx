@@ -54,7 +54,7 @@ class Row extends React.Component<Props> {
       </Button>
     );
 
-    const content = (props) => <Manage integration={integration} {...props} />;
+    const content = props => <Manage integration={integration} {...props} />;
 
     return (
       <ModalTrigger
@@ -174,7 +174,7 @@ class Row extends React.Component<Props> {
 
     const createdUser = form.createdUser || {
       _id: "",
-      details: { fullName: "" },
+      details: { fullName: "" }
     };
     const tags = integration.tags;
 
@@ -182,7 +182,7 @@ class Row extends React.Component<Props> {
       ? lead.conversionRate.toString()
       : "0.00";
 
-    const onChange = (e) => {
+    const onChange = e => {
       if (toggleBulk) {
         toggleBulk(integration, e.target.checked);
       }
@@ -237,11 +237,9 @@ class Row extends React.Component<Props> {
           <Icon icon="calender" />{" "}
           <DateWrapper>{dayjs(form.createdDate).format("ll")}</DateWrapper>
         </td>
-        {isEnabled("tags") && (
-          <td>
-            <Tags tags={tags} limit={2} />
-          </td>
-        )}
+        <td>
+          <Tags tags={tags} limit={2} />
+        </td>
         <td>
           <Label lblStyle="simple">{integration.leadData.loadType}</Label>
         </td>

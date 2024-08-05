@@ -378,9 +378,7 @@ const CustomersList: React.FC<IProps> = props => {
 
       {dateFilter}
 
-      {isEnabled("segments") && (
-        <TemporarySegment contentType={`contacts:${type}`} />
-      )}
+      <TemporarySegment contentType={`contacts:${type}`} />
 
       <Menu as="div" className="relative">
         <Menu.Button>

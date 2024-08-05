@@ -208,9 +208,6 @@ const tagsQueryCount = `
 
 const tagList = `
   query tags($type: String, $page: Int, $perPage: Int) {
-    ${
-      isEnabled("tags")
-        ? `
     tags(type: $type, page: $page, perPage: $perPage) {
       _id
       name
@@ -219,26 +216,17 @@ const tagList = `
       parentId
       relatedIds
     }
-    `
-        : ``
-    }
   }
 `;
 
 // subOf alais as parentId
 const segmentList = `
   query segments($contentTypes: [String]!) {
-    ${
-      isEnabled("segments")
-        ? `
-        segments(contentTypes: $contentTypes) {
-          _id
-          contentType
-          name
-          parentId: subOf
-        }
-    `
-        : ``
+    segments(contentTypes: $contentTypes) {
+        _id
+        contentType
+        name
+        parentId: subOf
     }
   }
 `;
@@ -376,16 +364,11 @@ const generateCustomerDetailQuery = params => {
     fields = `
       ${fields}
       tagIds
-      ${
-        isEnabled("tags")
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-          }
-        `
-          : ``
+      getTags {
+          _id
+          name
+          colorCode
+       }
       }
     `;
   }

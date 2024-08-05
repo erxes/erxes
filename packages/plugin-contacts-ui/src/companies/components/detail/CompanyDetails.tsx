@@ -40,14 +40,14 @@ class CompanyDetails extends React.Component<Props> {
           toEmails={company.emails}
           showEmail={false}
         />
-        {isEnabled("logs") && (
+        {
           <ActivityLogs
             target={company.primaryName || ""}
             contentId={company._id}
             contentType="contacts:company"
             extraTabs={[{ name: "tasks:task", label: "Task" }]}
           />
-        )}
+        }
       </>
     );
 

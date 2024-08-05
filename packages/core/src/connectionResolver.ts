@@ -67,6 +67,33 @@ import { IUserMovementDocument } from "./db/models/definitions/users";
 import { ITagDocument } from "./db/models/definitions/tags";
 import { ITagModel, loadTagClass } from "./db/models/Tags";
 
+import {
+  IInternalNoteModel,
+  loadInternalNoteClass
+} from "./db/models/InternalNotes";
+
+import { IInternalNoteDocument } from "./db/models/definitions/internalNotes";
+
+import { IVisitorModel, loadVisitorClass } from "./db/models/Visitors";
+import {
+  IActivityLogModel,
+  loadActivityLogClass
+} from "./db/models/ActivityLogs";
+import { ILogModel, loadLogClass } from "./db/models/Logs";
+
+import { IVisitorDocument } from "./db/models/definitions/visitors";
+import { ILogDocument } from "./db/models/definitions/logs";
+import { IActivityLogDocument } from "./db/models/definitions/activityLogs";
+import {
+  IEmailDeliveryModel,
+  loadEmailDeliveryClass
+} from "./db/models/EmailDeliveries";
+
+import { IEmailDeliveriesDocument } from "./db/models/definitions/emailDeliveries";
+
+import { ISegmentDocument } from "./db/models/definitions/segments";
+import { ISegmentModel, loadSegmentClass } from "./db/models/Segments";
+
 export interface IModels {
   Users: IUserModel;
   Brands: IBrandModel;
@@ -85,6 +112,12 @@ export interface IModels {
   InstallationLogs: IInstallationLogModel;
   UserMovements: IUserMovemmentModel;
   Tags: ITagModel;
+  InternalNotes: IInternalNoteModel;
+  Visitors: IVisitorModel;
+  ActivityLogs: IActivityLogModel;
+  Logs: ILogModel;
+  EmailDeliveries: IEmailDeliveryModel;
+  Segments: ISegmentModel;
 }
 
 export interface IContext extends IMainContext {
@@ -167,6 +200,33 @@ export const loadClasses = (
   >("installation_logs", loadInstallationLogClass(models));
 
   models.Tags = db.model<ITagDocument, ITagModel>("tags", loadTagClass(models));
+
+  models.InternalNotes = db.model<IInternalNoteDocument, IInternalNoteModel>(
+    "internal_notes",
+    loadInternalNoteClass(models)
+  );
+
+  models.ActivityLogs = db.model<IActivityLogDocument, IActivityLogModel>(
+    "activity_logs",
+    loadActivityLogClass(models, subdomain)
+  );
+
+  models.Logs = db.model<ILogDocument, ILogModel>("logs", loadLogClass(models));
+
+  models.Visitors = db.model<IVisitorDocument, IVisitorModel>(
+    "visitors",
+    loadVisitorClass(models)
+  );
+
+  models.EmailDeliveries = db.model<
+    IEmailDeliveriesDocument,
+    IEmailDeliveryModel
+  >("email_deliveries", loadEmailDeliveryClass(models));
+
+  models.Segments = db.model<ISegmentDocument, ISegmentModel>(
+    "segments",
+    loadSegmentClass(models)
+  );
 
   return models;
 };

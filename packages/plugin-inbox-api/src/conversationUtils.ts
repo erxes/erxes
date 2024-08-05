@@ -2,7 +2,7 @@ import * as _ from "underscore";
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
 import { IListArgs } from "./conversationQueryBuilder";
 import { fixDate } from "@erxes/api-utils/src";
-import { sendCoreMessage, sendSegmentsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { IModels } from "./connectionResolver";
 import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import { getIntegrationsKinds } from "./utils";
@@ -112,9 +112,9 @@ export const countBySegment = async (
   // Count cocs by segments
   let segments: any[] = [];
 
-  segments = await sendSegmentsMessage({
+  segments = await sendCoreMessage({
     subdomain,
-    action: "find",
+    action: "segmentFind",
     data: {
       contentType: "inbox:conversation"
     },
@@ -205,7 +205,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const selector = await sendSegmentsMessage({
+    const selector = await sendCoreMessage({
       subdomain: this.subdomain,
       action: "fetchSegment",
       data: {

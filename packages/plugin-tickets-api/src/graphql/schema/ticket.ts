@@ -7,7 +7,7 @@ import {
   copyParams
 } from "./common";
 
-export const types = ({ contacts, tags, clientPortal }) => `
+export const types = ({ contacts, clientPortal }) => `
   type TicketListItem {
     customPropertiesData:JSON,
     ${commonListTypes}

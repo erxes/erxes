@@ -2,11 +2,7 @@ import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import { generateFieldsFromSchema } from "@erxes/api-utils/src";
 import * as _ from "underscore";
 import { generateModels, IModels } from "./connectionResolver";
-import {
-  fetchSegment,
-  sendCoreMessage,
-  sendSegmentsMessage
-} from "./messageBroker";
+import { fetchSegment, sendCoreMessage } from "./messageBroker";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export interface ICountBy {
@@ -219,9 +215,9 @@ export const countBySegment = async (
 
   let segments: any[] = [];
 
-  segments = await sendSegmentsMessage({
+  segments = await sendCoreMessage({
     subdomain,
-    action: "find",
+    action: "segmentFind",
     data: { contentType, name: { $exists: true } },
     isRPC: true,
     defaultValue: []
@@ -334,9 +330,9 @@ export class Builder {
 
     // filter by segment
     if (this.params.segment) {
-      const segment = await sendSegmentsMessage({
+      const segment = await sendCoreMessage({
         isRPC: true,
-        action: "findOne",
+        action: "segmentFindOne",
         subdomain: this.subdomain,
         data: { _id: this.params.segment }
       });

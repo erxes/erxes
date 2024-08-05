@@ -56,7 +56,7 @@ interface IProps {
   perPage: number;
 }
 
-const CompaniesList: React.FC<IProps> = (props) => {
+const CompaniesList: React.FC<IProps> = props => {
   const navigate = useNavigate();
   const location = useLocation();
   let timer;
@@ -70,7 +70,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     toggleAll(companies, "companies");
   };
 
-  const search = (e) => {
+  const search = e => {
     if (timer) {
       clearTimeout(timer);
     }
@@ -84,17 +84,17 @@ const CompaniesList: React.FC<IProps> = (props) => {
     }, 500);
   };
 
-  const removeCompanies = (companies) => {
+  const removeCompanies = companies => {
     const companyIds: string[] = [];
 
-    companies.forEach((company) => {
+    companies.forEach(company => {
       companyIds.push(company._id);
     });
 
     props.removeCompanies({ companyIds }, props.emptyBulk);
   };
 
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = "";
     e.target.value = tmpValue;
@@ -122,7 +122,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     isExpand,
     renderExpandButton,
     perPage,
-    page,
+    page
   } = props;
 
   const mainContent = (
@@ -188,7 +188,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
 
   let actionBarLeft: React.ReactNode;
 
-  const companiesMerge = (props) => {
+  const companiesMerge = props => {
     return <CompaniesMerge {...props} objects={bulk} save={mergeCompanies} />;
   };
 
@@ -204,26 +204,24 @@ const CompaniesList: React.FC<IProps> = (props) => {
         .then(() => {
           removeCompanies(bulk);
         })
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
 
     const refetchQuery = {
       query: gql(queries.companyCounts),
-      variables: { only: "byTag" },
+      variables: { only: "byTag" }
     };
 
     actionBarLeft = (
       <BarItems>
-        {isEnabled("tags") && (
-          <TaggerPopover
-            type={TAG_TYPES.COMPANY}
-            successCallback={afterTag}
-            targets={bulk}
-            trigger={tagButton}
-            refetchQueries={[refetchQuery]}
-          />
-        )}
+        <TaggerPopover
+          type={TAG_TYPES.COMPANY}
+          successCallback={afterTag}
+          targets={bulk}
+          trigger={tagButton}
+          refetchQueries={[refetchQuery]}
+        />
 
         {bulk.length === 2 && (
           <ModalTrigger
@@ -247,7 +245,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     );
   }
 
-  const manageColumns = (props) => {
+  const manageColumns = props => {
     return (
       <ManageColumns
         {...props}
@@ -258,7 +256,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
     );
   };
 
-  const companyForm = (props) => {
+  const companyForm = props => {
     return <CompanyForm {...props} queryParams={queryParams} />;
   };
 
@@ -275,9 +273,7 @@ const CompaniesList: React.FC<IProps> = (props) => {
 
       {renderExpandButton()}
 
-      {isEnabled("segments") && (
-        <TemporarySegment contentType={`contacts:company`} />
-      )}
+      <TemporarySegment contentType={`contacts:company`} />
 
       <Menu as="div" className="relative">
         <Menu.Button>

@@ -14,6 +14,10 @@ import App from "./app";
 import UserMovement from "./userMovements";
 import Position from "./positions";
 import Tag from "./tags";
+import InternalNote from "./internalNote";
+import ActivityLog from "./activityLog";
+import ActivityLogByAction from "./activityLogByAction";
+import Segment from "./segments";
 
 const resolvers: any = {
   ...customScalars,
@@ -34,7 +38,11 @@ const resolvers: any = {
   Branch,
   App,
   UserMovement,
-  Position
+  Position,
+  InternalNote,
+  ActivityLog,
+  ActivityLogByAction,
+  Segment
 };
 
 export default resolvers;

@@ -14,14 +14,10 @@ import {
 } from "@erxes/api-utils/src/logUtils";
 import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
 import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendLogsMessage,
-  sendProductsMessage
-} from "./messageBroker";
+import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
 import { IModels, generateModels } from "./connectionResolver";
 import {
+  collectItems,
   getCardContentIds,
   getContentItem,
   getContentTypeDetail
@@ -574,7 +570,7 @@ export const putChecklistActivityLog = async (subdomain: string, params) => {
   };
 
   if (action === "delete") {
-    sendLogsMessage({
+    sendCoreMessage({
       subdomain,
       action: "activityLogs.updateMany",
       data: {
@@ -599,6 +595,12 @@ export default {
 
   getContentTypeDetail: async ({ subdomain, data }) => {
     return getContentTypeDetail(subdomain, data);
+  },
+
+  collectItems: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return sendSuccess(await collectItems(models, subdomain, data));
   },
 
   getContentIds: async ({ subdomain, data }) => {

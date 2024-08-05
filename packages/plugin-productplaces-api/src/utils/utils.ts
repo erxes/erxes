@@ -2,8 +2,7 @@ import * as _ from "lodash";
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
-  sendSegmentsMessage
+  sendProductsMessage
 } from "../messageBroker";
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
@@ -157,7 +156,7 @@ export const checkCondition = async (
     segmentRes = false;
     for (const segmentId of condition.segmentIds) {
       if (
-        await sendSegmentsMessage({
+        await sendCoreMessage({
           subdomain,
           action: "isInSegment",
           data: { segmentId, idToCheck: pdata.productId }

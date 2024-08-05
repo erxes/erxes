@@ -28,7 +28,6 @@ const command = async () => {
 
   const migrateItems = async (contentType, collection, targetCollection) => {
     try {
-      console.log(123121);
       const DB_COLLECTION = db.collection(collection);
 
       let TARGET_COLLECTION = db.collection(targetCollection);

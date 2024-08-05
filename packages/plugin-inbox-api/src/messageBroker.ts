@@ -463,15 +463,6 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendSegmentsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "segments",
-    ...args
-  });
-};
-
 export const sendNotificationsMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -486,15 +477,6 @@ export const sendKnowledgeBaseMessage = (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "knowledgebase",
-    ...args
-  });
-};
-
-export const sendLogsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "logs",
     ...args
   });
 };
@@ -514,7 +496,7 @@ export const fetchSegment = (
   options?,
   segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
     action: "fetchSegment",
     data: { segmentId, options, segmentData },

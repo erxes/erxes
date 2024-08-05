@@ -1,9 +1,5 @@
 import * as _ from "lodash";
-import {
-  sendProductsMessage,
-  sendSegmentsMessage,
-  sendCoreMessage
-} from "../messageBroker";
+import { sendProductsMessage, sendCoreMessage } from "../messageBroker";
 import { IPricingPlanDocument } from "../models/definitions/pricingPlan";
 
 /**
@@ -83,7 +79,7 @@ export const getAllowedProducts = async (
       let productIdsInSegments: string[] = [];
       for (const segment of plan.segments || []) {
         productIdsInSegments = productIdsInSegments.concat(
-          await sendSegmentsMessage({
+          await sendCoreMessage({
             subdomain,
             action: "fetchSegment",
             data: { segmentId: segment },

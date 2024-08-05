@@ -1,47 +1,46 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
+import typeDefs from "./graphql/typeDefs";
+import resolvers from "./graphql/resolvers";
 
-import { setupMessageConsumers, sendSegmentsMessage } from './messageBroker';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './exporterByUrl';
-import segments from './segments';
-import dashboards from './dashboards';
-import forms from './forms';
-import { generateModels } from './connectionResolver';
-import logs from './logUtils';
-import imports from './imports';
-import tags from './tags';
-import internalNotes from './internalNotes';
-import automations from './automations';
-import search from './search';
-import * as permissions from './permissions';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import webhooks from './webhooks';
+import { setupMessageConsumers, sendSegmentsMessage } from "./messageBroker";
+import { routeErrorHandling } from "@erxes/api-utils/src/requests";
+import { buildFile } from "./exporterByUrl";
+import segments from "./segments";
+import forms from "./forms";
+import { generateModels } from "./connectionResolver";
+import logs from "./logUtils";
+import imports from "./imports";
+import tags from "./tags";
+import internalNotes from "./internalNotes";
+import automations from "./automations";
+import search from "./search";
+import * as permissions from "./permissions";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import webhooks from "./webhooks";
 import {
   updateContactsValidationStatus,
-  updateContactValidationStatus,
-} from './verifierUtils';
-import exporter from './exporter';
-import documents from './documents';
-import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from './constants';
-import app from '@erxes/api-utils/src/app';
-import reports from './reports/reports'
+  updateContactValidationStatus
+} from "./verifierUtils";
+import exporter from "./exporter";
+import documents from "./documents";
+import { EMAIL_VALIDATION_STATUSES, NOTIFICATION_MODULES } from "./constants";
+import app from "@erxes/api-utils/src/app";
+import reports from "./reports/reports";
 
 export default {
-  name: 'contacts',
+  name: "contacts",
   permissions,
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers,
+      resolvers
     };
   },
 
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(
+  subscriptionPluginPath: require("path").resolve(
     __dirname,
-    'graphql',
-    'subscriptionPlugin.js',
+    "graphql",
+    "subscriptionPlugin.js"
   ),
 
   meta: {
@@ -55,12 +54,11 @@ export default {
     search,
     internalNotes,
     webhooks,
-    dashboards,
     exporter,
     documents,
     // for fixing permissions
     permissions,
-    notificationModules: NOTIFICATION_MODULES,
+    notificationModules: NOTIFICATION_MODULES
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -71,7 +69,7 @@ export default {
 
   onServerInit: async () => {
     app.get(
-      '/file-export',
+      "/file-export",
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
         const { segment } = query;
@@ -86,8 +84,8 @@ export default {
           try {
             sendSegmentsMessage({
               subdomain,
-              action: 'removeSegment',
-              data: { segmentId: segment },
+              action: "removeSegment",
+              data: { segmentId: segment }
             });
           } catch (e) {
             console.log((e as Error).message);
@@ -95,7 +93,7 @@ export default {
         }
 
         return res.send(result.response);
-      }),
+      })
     );
 
     app.post(
@@ -108,22 +106,22 @@ export default {
         if (email) {
           await updateContactValidationStatus(models, email);
         } else if (emails) {
-          await updateContactsValidationStatus(models, 'email', emails);
+          await updateContactsValidationStatus(models, "email", emails);
         } else if (phone) {
           await updateContactValidationStatus(models, phone);
         } else if (phones) {
-          await updateContactsValidationStatus(models, 'phone', phones);
+          await updateContactsValidationStatus(models, "phone", phones);
         }
 
-        return res.send('success');
-      }),
+        return res.send("success");
+      })
     );
 
-    app.get('/verify', async (req, res) => {
+    app.get("/verify", async (req, res) => {
       const { p } = req.query;
 
       const data = JSON.parse(
-        Buffer.from(p as string, 'base64').toString('utf8'),
+        Buffer.from(p as string, "base64").toString("utf8")
       );
 
       const { email, customerId } = data;
@@ -134,24 +132,24 @@ export default {
       const customer = await models.Customers.findOne({ _id: customerId });
 
       if (!customer) {
-        return res.send('Can not find customer');
+        return res.send("Can not find customer");
       }
 
       if (customer.primaryEmail !== email) {
-        return res.send('Customer email does not match');
+        return res.send("Customer email does not match");
       }
 
-      if (customer.emails?.findIndex((e) => e === email) === -1) {
-        return res.send('Customer email does not match');
+      if (customer.emails?.findIndex(e => e === email) === -1) {
+        return res.send("Customer email does not match");
       }
 
       await models.Customers.updateOne(
         { _id: customerId },
-        { $set: { primaryEmail: email, emailValidationStatus: 'valid' } },
+        { $set: { primaryEmail: email, emailValidationStatus: "valid" } }
       );
 
-      return res.send('Successfully verified, you can close this tab now');
+      return res.send("Successfully verified, you can close this tab now");
     });
   },
-  setupMessageConsumers,
+  setupMessageConsumers
 };

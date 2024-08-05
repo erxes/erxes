@@ -4,7 +4,7 @@ import {
   EmptyState,
   Icon,
   SidebarList,
-  Spinner,
+  Spinner
 } from "@erxes/ui/src";
 import { generateTree, isEnabled } from "@erxes/ui/src/utils/core";
 import { gql, useQuery } from "@apollo/client";
@@ -19,22 +19,15 @@ export function TagsSection({
   location,
   navigate,
   queryParams,
-  type,
+  type
 }: {
   location: any;
   navigate: any;
   queryParams: any;
   type: string;
 }) {
-  if (!isEnabled("tags")) {
-    return (
-      <Box name="tags" title="Filter by Tags">
-        <EmptyState text="Not Aviable Tags" icon="info-circle" />
-      </Box>
-    );
-  }
   const { data, error, loading } = useQuery(gql(queries.tags), {
-    variables: { type },
+    variables: { type }
   });
 
   if (loading) {
@@ -51,11 +44,11 @@ export function TagsSection({
     removeParams(navigate, location, "tagIds");
   };
 
-  const handleSetParams = (_id) => {
+  const handleSetParams = _id => {
     let tagIds = queryParams?.tagIds || [];
     tagIds = typeof tagIds === "string" ? [tagIds] : tagIds;
-    if (tagIds.find((tagId) => tagId === _id)) {
-      tagIds = tagIds.filter((tagId) => tagId !== _id);
+    if (tagIds.find(tagId => tagId === _id)) {
+      tagIds = tagIds.filter(tagId => tagId !== _id);
     } else {
       tagIds = [...tagIds, _id];
     }
@@ -83,9 +76,7 @@ export function TagsSection({
     <Box name="tags" title="Filter by Tags" extraButtons={extraButtons} isOpen>
       <SidebarList>
         {generateTree(
-          tags.map((tag) =>
-            !tag?.parentId ? { ...tag, parentId: null } : tag
-          ),
+          tags.map(tag => (!tag?.parentId ? { ...tag, parentId: null } : tag)),
           null,
           ({ _id, colorCode, name }, level) => {
             return (

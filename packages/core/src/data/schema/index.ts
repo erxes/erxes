@@ -44,16 +44,41 @@ import {
   queries as TagQueries
 } from "./tag";
 
+import {
+  types as InternalNoteTypes,
+  mutations as InternalNoteMutations,
+  queries as InternalNoteQueries
+} from "./internalNote";
+
 import { queries as ChargeQueries, types as ChargeTypes } from "./charge";
 import {
   mutations as PromoCodeMutations,
   types as PromoCodeTypes
 } from "../schema/promoCode";
 import { queries as PluginQueries, types as PluginTypes } from "./plugins";
+
 import {
   queries as OnboardingQueries,
   mutations as OnboardingMutations
 } from "./organizations";
+
+import { types as LogTypes, queries as LogQueries } from "./logs";
+
+import {
+  types as EmailDeliveryTypes,
+  queries as EmailDeliveryQueries
+} from "./emailDeliveries";
+
+import {
+  types as ActivityLogTypes,
+  queries as ActivityLogQueries
+} from "./activityLogs";
+
+import {
+  types as SegmentTypes,
+  queries as SegmentQueries,
+  mutations as SegmentMutations
+} from "./segment";
 
 export let types = `
   scalar JSON
@@ -82,6 +107,11 @@ export let types = `
   ${PromoCodeTypes}
   ${PluginTypes}
   ${TagTypes}
+  ${InternalNoteTypes}
+  ${LogTypes}
+  ${EmailDeliveryTypes}
+  ${ActivityLogTypes}
+  ${SegmentTypes}
 `;
 
 export let queries = `
@@ -97,6 +127,11 @@ export let queries = `
   ${PluginQueries}
   ${OnboardingQueries}
   ${TagQueries}
+  ${InternalNoteQueries}
+  ${LogQueries}
+  ${EmailDeliveryQueries}
+  ${ActivityLogQueries}
+  ${SegmentQueries}
 `;
 
 export let mutations = `
@@ -111,6 +146,8 @@ export let mutations = `
   ${PromoCodeMutations}
   ${OnboardingMutations}
   ${TagMutations}
+  ${InternalNoteMutations}
+  ${SegmentMutations}
 `;
 
 export let subscriptions = `

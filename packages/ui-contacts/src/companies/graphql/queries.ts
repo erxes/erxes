@@ -42,16 +42,11 @@ export const companyFields = `
   customFieldsData
   trackedData
   tagIds
-  ${
-    isEnabled("tags")
-      ? `
-    getTags {
+  
+  getTags {
       _id
       name
       colorCode
-    }
-  `
-      : ``
   }
   score
 `;

@@ -36,7 +36,6 @@ import {
   sendCoreMessage,
   sendFormsMessage,
   sendIntegrationsMessage,
-  sendLogsMessage,
   sendProductsMessage
 } from "../../messageBroker";
 import { solveSubmissions } from "../../widgetUtils";
@@ -203,7 +202,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
     isRPC: true
   });
 
-  await sendLogsMessage({
+  await sendCoreMessage({
     subdomain,
     action: "visitor.convertRequest",
     data: {
@@ -615,7 +614,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendLogsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "visitor.createOrUpdate",
         data: {
@@ -1079,7 +1078,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendLogsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "visitor.updateEntry",
         data: {

@@ -4,7 +4,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from "../styles/rightMenu";
 import { DATERANGES, PRIORITIES } from "../constants";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
@@ -60,7 +60,7 @@ export default class RightMenu extends React.Component<Props, State> {
       currentTab: "Filter",
       dateRangeType: null,
       showMenu: false,
-      dateRange: {} as any,
+      dateRange: {} as any
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -79,7 +79,7 @@ export default class RightMenu extends React.Component<Props, State> {
     document.removeEventListener("click", this.handleClickOutside, true);
   }
 
-  handleClickOutside = (event) => {
+  handleClickOutside = event => {
     if (
       this.wrapperRef &&
       !this.wrapperRef.contains(event.target) &&
@@ -104,36 +104,36 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ [name]: value } as Pick<StringState, keyof StringState>);
   };
 
-  onTypeChange = (type) => {
+  onTypeChange = type => {
     return this.setState({ dateRangeType: type }, () => {
       switch (this.state.dateRangeType?.value) {
         case "createdAt":
           return this.setState({
             dateRange: {
               startDate: "createdStartDate",
-              endDate: "createdEndDate",
-            },
+              endDate: "createdEndDate"
+            }
           });
         case "stageChangedDate":
           return this.setState({
             dateRange: {
               startDate: "stateChangedStartDate",
-              endDate: "stateChangedEndDate",
-            },
+              endDate: "stateChangedEndDate"
+            }
           });
         case "startDate":
           return this.setState({
             dateRange: {
               startDate: "startDateStartDate",
-              endDate: "startDateEndDate",
-            },
+              endDate: "startDateEndDate"
+            }
           });
         case "closeDate":
           return this.setState({
             dateRange: {
               startDate: "closeDateStartDate",
-              endDate: "closeDateEndDate",
-            },
+              endDate: "closeDateEndDate"
+            }
           });
       }
     });
@@ -237,7 +237,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 
@@ -253,19 +253,19 @@ export default class RightMenu extends React.Component<Props, State> {
     const { queryParams, onSelect, extraFilter, options } = this.props;
     const { dateRangeType, dateRange } = this.state;
 
-    const priorityValues = PRIORITIES.map((p) => ({
+    const priorityValues = PRIORITIES.map(p => ({
       label: p,
-      value: p,
+      value: p
     }));
-    const daterangeValues = DATERANGES.map((p) => ({
+    const daterangeValues = DATERANGES.map(p => ({
       label: p.name,
-      value: p.value,
+      value: p.value
     }));
     const priorities = queryParams ? queryParams.priority : [];
 
     const onPrioritySelect = (ops: OnChangeValue<IOption, true>) =>
       onSelect(
-        ops.map((option) => option.value),
+        ops.map(option => option.value),
         "priority"
       );
 
@@ -298,7 +298,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
         <Select
           placeholder={__("Filter by priority")}
-          value={priorityValues.filter((option) =>
+          value={priorityValues.filter(option =>
             (priorities || []).includes(option.value)
           )}
           options={priorityValues}
@@ -315,7 +315,7 @@ export default class RightMenu extends React.Component<Props, State> {
           onSelect={onSelect}
           customOption={{
             value: "",
-            label: "Assigned to no one",
+            label: "Assigned to no one"
           }}
         />
 
@@ -324,7 +324,7 @@ export default class RightMenu extends React.Component<Props, State> {
           name="labelIds"
           onSelect={onSelect}
           filterParams={{
-            pipelineId: queryParams.pipelineId || "",
+            pipelineId: queryParams.pipelineId || ""
           }}
           multi={true}
           customOption={{ value: "", label: "No label chosen" }}
@@ -348,7 +348,7 @@ export default class RightMenu extends React.Component<Props, State> {
             value={this.startDateValue()}
             required={false}
             name={dateRange.startDate}
-            onChange={(date) =>
+            onChange={date =>
               this.onChangeRangeFilter(dateRange.startDate, date)
             }
             placeholder={"Start date"}
@@ -360,22 +360,18 @@ export default class RightMenu extends React.Component<Props, State> {
             required={false}
             name={dateRange.endDate}
             placeholder={"End date"}
-            onChange={(date) =>
-              this.onChangeRangeFilter(dateRange.endDate, date)
-            }
+            onChange={date => this.onChangeRangeFilter(dateRange.endDate, date)}
             dateFormat={"YYYY-MM-DD"}
           />
         </CustomRangeContainer>
 
         {this.renderDates()}
 
-        {isEnabled("segments") && (
-          <SegmentFilter
-            type={`cards:${options.type}`}
-            boardId={queryParams.id || ""}
-            pipelineId={queryParams.pipelineId || ""}
-          />
-        )}
+        <SegmentFilter
+          type={`sales:${options.type}`}
+          boardId={queryParams.id || ""}
+          pipelineId={queryParams.pipelineId || ""}
+        />
       </FilterBox>
     );
   }

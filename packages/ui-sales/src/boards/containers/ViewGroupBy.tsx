@@ -213,7 +213,7 @@ export default withProps<Props>(
       skip: ({ pipeline }: Props) => pipeline.tagId === "",
       options: ({ pipeline, options }: Props) => ({
         variables: {
-          type: `cards:${options.type}`,
+          type: `sales:${options.type}`,
           parentId: pipeline.tagId
         }
       })

@@ -192,7 +192,7 @@ const LeftSidebar: React.FC<Props> = props => {
               />
             </FilterToggler>
 
-            {isEnabled("segments") && (
+            {
               <FilterToggler
                 groupText="Segments"
                 toggleName="showSegments"
@@ -215,7 +215,7 @@ const LeftSidebar: React.FC<Props> = props => {
                   setCounts={setCounts}
                 />
               </FilterToggler>
-            )}
+            }
 
             <FilterToggler
               groupText="Brands"

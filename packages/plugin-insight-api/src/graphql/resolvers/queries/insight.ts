@@ -92,7 +92,7 @@ const insightQueries = {
     {}: IContext
   ) {
     const service = await getService(serviceName);
-    console.log(service);
+
     const chartTemplates = service.config?.meta?.reports?.chartTemplates;
     return chartTemplates;
   },

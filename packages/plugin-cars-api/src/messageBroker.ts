@@ -40,22 +40,13 @@ export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "segments",
-    ...args
-  });
-};
-
 export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
   segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
     action: "fetchSegment",
     data: { segmentId, options, segmentData },

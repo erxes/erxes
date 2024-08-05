@@ -57,19 +57,13 @@ export const customerFields = `
 
   customFieldsData
   trackedData
-
   tagIds
-  ${
-    isEnabled("tags")
-      ? `
-      getTags {
-        _id
-        name
-        colorCode
-      }
-    `
-      : ` `
+  getTags {
+    _id
+    name
+    colorCode
   }
+  
 `;
 
 const listParamsDef = `

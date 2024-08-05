@@ -154,15 +154,6 @@ export const sendInboxMessage = async (
   });
 };
 
-export const sendLogsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "logs",
-    ...args
-  });
-};
-
 export const sendSegmentsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

@@ -86,9 +86,7 @@ export default class ActionBar extends React.Component<Props> {
 
     const actionBarRight = (
       <BarItems>
-        {isEnabled("tags") && (
-          <Tagger targets={[currentConversation]} trigger={tagTrigger} />
-        )}
+        <Tagger targets={[currentConversation]} trigger={tagTrigger} />
         {(isEnabled("sales") ||
           isEnabled("tickets") ||
           isEnabled("tasks") ||

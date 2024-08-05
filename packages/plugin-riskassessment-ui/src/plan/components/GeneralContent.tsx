@@ -5,7 +5,7 @@ import {
   DateControl,
   FormControl,
   FormGroup,
-  __,
+  __
 } from "@erxes/ui/src";
 
 import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
@@ -30,7 +30,7 @@ class GeneralConfig extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      useGroup: false,
+      useGroup: false
     };
   }
 
@@ -65,11 +65,11 @@ class GeneralConfig extends React.Component<Props, State> {
           <Select
             name="structureType"
             placeholder={__("Select structure Type")}
-            value={STRUCTURETYPES.find((o) => o.value === plan?.structureType)}
+            value={STRUCTURETYPES.find(o => o.value === plan?.structureType)}
             options={STRUCTURETYPES}
             isMulti={false}
             isClearable={true}
-            onChange={(props) => onChange(props?.value, "structureType")}
+            onChange={props => onChange(props?.value, "structureType")}
           />
         </FormGroup>
         <SelectStructure
@@ -80,17 +80,15 @@ class GeneralConfig extends React.Component<Props, State> {
           onChange={onChange}
           multi={false}
         />
-        {isEnabled("tags") && (
-          <FormGroup>
-            <ControlLabel>{__("Tags")}</ControlLabel>
-            <SelectTags
-              name="tagId"
-              label="Choose Tags"
-              initialValue={plan.tagId}
-              onSelect={onChange}
-            />
-          </FormGroup>
-        )}
+        <FormGroup>
+          <ControlLabel>{__("Tags")}</ControlLabel>
+          <SelectTags
+            name="tagId"
+            label="Choose Tags"
+            initialValue={plan.tagId}
+            onSelect={onChange}
+          />
+        </FormGroup>
         {structureType && (
           <>
             <FormGroup>
@@ -98,11 +96,11 @@ class GeneralConfig extends React.Component<Props, State> {
               <Select
                 name="type"
                 placeholder={__("Select card type")}
-                value={CARDTYPES.find((o) => o.value === configs?.cardType)}
+                value={CARDTYPES.find(o => o.value === configs?.cardType)}
                 options={CARDTYPES}
                 isMulti={false}
                 isClearable={true}
-                onChange={(props) =>
+                onChange={props =>
                   onChange({ ...configs, cardType: props?.value }, "configs")
                 }
               />
@@ -113,11 +111,11 @@ class GeneralConfig extends React.Component<Props, State> {
                 boardId={configs?.boardId}
                 pipelineId={configs?.pipelineId}
                 stageId={configs?.stageId}
-                onChangeBoard={(value) => handleConfigChange(value, "boardId")}
-                onChangePipeline={(value) =>
+                onChangeBoard={value => handleConfigChange(value, "boardId")}
+                onChangePipeline={value =>
                   handleConfigChange(value, "pipelineId")
                 }
-                onChangeStage={(value) => handleConfigChange(value, "stageId")}
+                onChangeStage={value => handleConfigChange(value, "stageId")}
                 autoSelectStage
               />
             )}
@@ -133,7 +131,7 @@ class GeneralConfig extends React.Component<Props, State> {
                   name="createDate"
                   value={plan.createDate}
                   placeholder="select from create date "
-                  onChange={(date) => onChange(date, "createDate")}
+                  onChange={date => onChange(date, "createDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -146,7 +144,7 @@ class GeneralConfig extends React.Component<Props, State> {
                   name="startDate"
                   value={plan.startDate}
                   placeholder="select from start date "
-                  onChange={(date) => onChange(date, "startDate")}
+                  onChange={date => onChange(date, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -159,7 +157,7 @@ class GeneralConfig extends React.Component<Props, State> {
                   name="closeDate"
                   value={plan.closeDate}
                   placeholder="select from end date "
-                  onChange={(date) => onChange(date, "closeDate")}
+                  onChange={date => onChange(date, "closeDate")}
                 />
               </DateContainer>
             </FormGroup>

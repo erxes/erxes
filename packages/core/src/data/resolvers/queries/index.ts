@@ -12,6 +12,11 @@ import charge from "./charge";
 import plugins from "./plugins";
 import organizations from "./organizations";
 import tags from "./tags";
+import internalNotes from "./internalNotes";
+import activityLogs from "./activityLogs";
+import emailDeliveries from "./emailDeliveries";
+import logs from "./logs";
+import segments from "./segments";
 
 export default {
   ...users,
@@ -25,5 +30,10 @@ export default {
   ...charge,
   ...plugins,
   ...organizations,
-  ...tags
+  ...tags,
+  ...internalNotes,
+  ...activityLogs,
+  ...emailDeliveries,
+  ...logs,
+  ...segments
 };

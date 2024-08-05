@@ -4,7 +4,6 @@ const keyFields = '@key(fields: "_id")';
 
 export const types = async () => {
   const enabledContacts = isEnabled("contacts");
-  const enabledSegments = isEnabled("segments");
 
   return `
     extend type User ${keyFields} {
@@ -15,19 +14,15 @@ export const types = async () => {
       ${externalId}
     }
 
-    ${
-      enabledSegments
-        ? `
-          extend type Segment ${keyFields} {
-            ${externalId}
-          }
-        `
-        : ""
+
+    extend type Segment ${keyFields} {
+      ${externalId}
     }
 
-    ${`extend type Tag ${keyFields} {
+
+    extend type Tag ${keyFields} {
       ${externalId}
-    }`}
+    }
 
     ${
       enabledContacts

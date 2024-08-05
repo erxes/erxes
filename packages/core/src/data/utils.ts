@@ -14,11 +14,7 @@ import fetch from "node-fetch";
 import { IModels } from "../connectionResolver";
 import { IUserDocument } from "../db/models/definitions/users";
 import { debugBase, debugError } from "../debuggers";
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage
-} from "../messageBroker";
+import { sendCommonMessage, sendContactsMessage } from "../messageBroker";
 import { graphqlPubsub } from "../pubsub";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
@@ -273,20 +269,15 @@ export const sendEmail = async (
 
     let headers: { [key: string]: string } = {};
 
-    if (models && subdomain) {
-      const emailDelivery = await sendLogsMessage({
-        subdomain,
-        action: "emailDeliveries.create",
-        data: {
-          kind: "transaction",
-          to: toEmail,
-          from: mailOptions.from,
-          subject: title,
-          body: html,
-          status: "pending"
-        },
-        isRPC: true
-      });
+    if (models && subdomain && title) {
+      const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
+        kind: "transaction",
+        to: [toEmail],
+        from: mailOptions.from,
+        subject: title,
+        body: html,
+        status: "pending"
+      })) as any;
 
       headers = {
         "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",

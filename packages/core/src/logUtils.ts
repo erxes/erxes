@@ -21,7 +21,6 @@ import { IUserDocument, userSchema } from "./db/models/definitions/users";
 import { generateModels, IModels } from "./connectionResolver";
 import { configSchema } from "./db/models/definitions/configs";
 import { ITagDocument } from "./db/models/definitions/tags";
-// import { sendLogsMessage } from './messageBroker';
 
 const LOG_MAPPINGS = [
   {
@@ -85,16 +84,20 @@ const gatherDescriptions = async (
   models: IModels,
   params: any
 ): Promise<IDescriptions> => {
-  const { action, object, updatedDocument } = params;
+  const { action, object, updatedDocument, type } = params;
 
-  const description = `"${object.name}" has been ${action}d`;
-  let extraDesc: LogDesc[] = await gatherTagNames(models, object);
+  if (type && type === "tag") {
+    const description = `"${object.name}" has been ${action}d`;
+    let extraDesc: LogDesc[] = await gatherTagNames(models, object);
 
-  if (updatedDocument) {
-    extraDesc = await gatherTagNames(models, updatedDocument, extraDesc);
+    if (updatedDocument) {
+      extraDesc = await gatherTagNames(models, updatedDocument, extraDesc);
+    }
+
+    return { extraDesc, description };
   }
 
-  return { extraDesc, description };
+  return { description: "", extraDesc: [] };
 };
 
 export const putDeleteLog = async (models, subdomain, logDoc, user) => {
@@ -105,7 +108,7 @@ export const putDeleteLog = async (models, subdomain, logDoc, user) => {
 
   await commonPutDeleteLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    { ...logDoc, description, extraDesc },
     user
   );
 };
@@ -118,7 +121,7 @@ export const putUpdateLog = async (models, subdomain, logDoc, user) => {
 
   await commonPutUpdateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    { ...logDoc, description, extraDesc },
     user
   );
 };
@@ -131,7 +134,7 @@ export const putCreateLog = async (models, subdomain, logDoc, user) => {
 
   await commonPutCreateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `tags:${logDoc.type}` },
+    { ...logDoc, description, extraDesc },
     user
   );
 };
@@ -146,7 +149,7 @@ export const putActivityLog = async (
     ...params,
     data: {
       ...data,
-      contentType: `tags:${data.contentType}`,
+      contentType: `${data.contentType}`,
       automations: {
         type: data.contentType
       }

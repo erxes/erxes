@@ -113,7 +113,7 @@ export default function TicketEditForm(props: Props) {
     return (
       <>
         {isEnabled("sales") && (
-          <PortableDeals mainType="ticket" mainTypeId={this.props.item._id} />
+          <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         )}
         {isEnabled("purchases") && (
           <PortablePurchase mainType="ticket" mainTypeId={props.item._id} />

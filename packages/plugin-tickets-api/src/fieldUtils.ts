@@ -7,8 +7,7 @@ import {
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
-  sendSegmentsMessage
+  sendProductsMessage
 } from "./messageBroker";
 
 const generateProductsOptions = async (
@@ -361,9 +360,9 @@ export const generateFields = async ({ subdomain, data }) => {
 
   if (segmentId || pipelineId) {
     const segment = segmentId
-      ? await sendSegmentsMessage({
+      ? await sendCoreMessage({
           subdomain,
-          action: "findOne",
+          action: "segmentFindOne",
           data: { _id: segmentId },
           isRPC: true
         })

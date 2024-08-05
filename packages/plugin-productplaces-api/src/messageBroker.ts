@@ -1,8 +1,4 @@
-import {
-  MessageArgs,
-  MessageArgsOmitService,
-  sendMessage
-} from "@erxes/api-utils/src/core";
+import { MessageArgsOmitService, sendMessage } from "@erxes/api-utils/src/core";
 import { afterMutationHandlers } from "./afterMutations";
 import { consumeQueue } from "@erxes/api-utils/src/messageBroker";
 
@@ -54,15 +50,6 @@ export const sendCoreMessage = async (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
-  });
-};
-
-export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "segments",
     ...args
   });
 };

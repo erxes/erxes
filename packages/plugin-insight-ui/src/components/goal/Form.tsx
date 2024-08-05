@@ -213,7 +213,7 @@ const Form = (props: Props) => {
             {__("Segment")}
           </FormGroup>
 
-          {segmentRadio && isEnabled("segments") && isEnabled("contacts") && (
+          {segmentRadio && isEnabled("contacts") && (
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
               <SelectSegments

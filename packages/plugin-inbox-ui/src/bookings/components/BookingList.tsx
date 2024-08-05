@@ -48,7 +48,7 @@ function BookingList(props: Props) {
     totalCount,
     counts,
     archive,
-    integrations,
+    integrations
   } = props;
 
   const onChange = () => {
@@ -56,7 +56,7 @@ function BookingList(props: Props) {
   };
 
   const renderRow = () => {
-    return integrations.map((integration) => (
+    return integrations.map(integration => (
       <Row
         key={integration._id}
         integration={integration}
@@ -80,14 +80,12 @@ function BookingList(props: Props) {
 
     actionBarLeft = (
       <BarItems>
-        {isEnabled("tags") && (
-          <TaggerPopover
-            type={TAG_TYPES.INTEGRATION}
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-          />
-        )}
+        <TaggerPopover
+          type={TAG_TYPES.INTEGRATION}
+          successCallback={emptyBulk}
+          targets={bulk}
+          trigger={tagButton}
+        />
       </BarItems>
     );
   }

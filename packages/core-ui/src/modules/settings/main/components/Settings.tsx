@@ -184,6 +184,22 @@ class Settings extends React.PureComponent {
               "tagsAll",
               ["showTags", "manageTags"]
             )}
+
+            {this.renderBox(
+              "System Logs",
+              "/images/icons/erxes-33.png",
+              "/settings/logs",
+              "",
+              []
+            )}
+
+            {this.renderBox(
+              "Email Delivery Logs'",
+              "/images/icons/erxes-27.png",
+              "/settings/emailDelivery",
+              "",
+              []
+            )}
           </div>
         </Row>
         {this.renderPluginSettings()}
