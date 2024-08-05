@@ -1,6 +1,5 @@
 import { FormEvent, useState } from "react"
 import { mutations } from "@/modules/orders/graphql"
-import { resetAtom } from "@/store"
 import { orderPasswordAtom } from "@/store/config.store"
 import { openCancelDialogAtom, paymentDetailAtom } from "@/store/history.store"
 import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
@@ -63,7 +62,7 @@ const OrderCancel = ({
 }) => {
   const orderPassword = useAtomValue(orderPasswordAtom)
   const [open, changeOpen] = useAtom(openCancelDialogAtom)
-  const [activeOrderId, setActiveOrder] = useAtom(activeOrderIdAtom)
+  const activeOrderId = useAtomValue(activeOrderIdAtom)
   const reset = useSetAtom(setInitialAtom)
   const [value, setValue] = useState("")
   const [error, setError] = useState(false)
