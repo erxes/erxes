@@ -46,6 +46,7 @@ const ordersEdit = gql`
   mutation ordersEdit($_id: String!, ${addEditParamDefs}) {
     ordersEdit(_id: $_id, ${addEditParams}) {
       _id
+      isPre
     }
   }
 `

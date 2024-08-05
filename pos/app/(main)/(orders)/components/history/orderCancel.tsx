@@ -1,7 +1,9 @@
 import { FormEvent, useState } from "react"
 import { mutations } from "@/modules/orders/graphql"
+import { resetAtom } from "@/store"
 import { orderPasswordAtom } from "@/store/config.store"
 import { openCancelDialogAtom, paymentDetailAtom } from "@/store/history.store"
+import { activeOrderIdAtom, setInitialAtom } from "@/store/order.store"
 import { useMutation } from "@apollo/client"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -19,7 +21,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { onError } from '@/components/ui/use-toast'
+import { onError } from "@/components/ui/use-toast"
 
 export const OrderCancelTrigger = ({
   loading,
@@ -61,6 +63,8 @@ const OrderCancel = ({
 }) => {
   const orderPassword = useAtomValue(orderPasswordAtom)
   const [open, changeOpen] = useAtom(openCancelDialogAtom)
+  const [activeOrderId, setActiveOrder] = useAtom(activeOrderIdAtom)
+  const reset = useSetAtom(setInitialAtom)
   const [value, setValue] = useState("")
   const [error, setError] = useState(false)
   const [ref, setFocus] = useFocus()
@@ -75,6 +79,7 @@ const OrderCancel = ({
       changeOpen(null)
       focus()
       !!onCompleted && onCompleted()
+      activeOrderId === _id && reset()
     },
     onError(error) {
       onError(error.message)

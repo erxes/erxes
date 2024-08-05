@@ -55,6 +55,7 @@ export const putResponsesAtom = atom<IPutResponse[]>([])
 export const printTypeAtom = atom<string | null>(null)
 
 // slot
+export const savedSlotCodeAtom = atom<string | null>(null)
 export const slotCodeAtom = atom<string | null>(null)
 
 // delivery
@@ -177,6 +178,7 @@ export const setInitialAtom = atom(
     set(registerNumberAtom, "")
     set(billTypeAtom, null)
     set(slotCodeAtom, null)
+    set(savedSlotCodeAtom, null)
     set(descriptionAtom, null)
     set(activeOrderIdAtom, null)
     set(cashAmountAtom, 0)
@@ -246,6 +248,7 @@ export const setOrderStatesAtom = atom(
     set(billTypeAtom, billType || "1")
     set(registerNumberAtom, registerNumber || "")
     set(slotCodeAtom, slotCode || null)
+    set(savedSlotCodeAtom, slotCode || null)
     set(descriptionAtom, description || null)
     set(cashAmountAtom, cashAmount || 0)
     set(mobileAmountAtom, mobileAmount || 0)

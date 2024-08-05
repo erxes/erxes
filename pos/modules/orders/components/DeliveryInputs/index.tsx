@@ -37,11 +37,26 @@ const DeliveryInputs = () => {
   const setInitialStates = useSetAtom(setInitialAtom)
   const setOpenCollapsible = useSetAtom(orderCollapsibleAtom)
 
-  const chageTimeOfDate = (date: string, time: string) =>
-    setMinutes(
-      setHours(date ? new Date(date) : new Date(), Number(time.split(":")[0])),
-      Number(time.split(":")[1])
+  const chageTimeOfDate = (date: string, time: string) => {
+    console.log(
+      setMinutes(
+        setHours(
+          date ? new Date(date) : new Date(),
+          Number(time.split(":")[0])
+        ),
+        Number(time.split(":")[1])
+      ),
+      "-d-d-d-d-d-d-gg-g-g-g-gg-g--g--g-g-g-g---g---g---g--g ",
+      time
+    )
+
+    const timeArr = time ? time.split(":") : ["00", ["00"]]
+
+    return setMinutes(
+      setHours(date ? new Date(date) : new Date(), Number(timeArr[0])),
+      Number(timeArr[1])
     ).toISOString()
+  }
 
   const changeDate = (date?: string) => {
     const formattedDate = !!dueDate
