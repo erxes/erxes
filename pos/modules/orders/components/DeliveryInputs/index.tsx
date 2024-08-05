@@ -38,18 +38,6 @@ const DeliveryInputs = () => {
   const setOpenCollapsible = useSetAtom(orderCollapsibleAtom)
 
   const chageTimeOfDate = (date: string, time: string) => {
-    console.log(
-      setMinutes(
-        setHours(
-          date ? new Date(date) : new Date(),
-          Number(time.split(":")[0])
-        ),
-        Number(time.split(":")[1])
-      ),
-      "-d-d-d-d-d-d-gg-g-g-g-gg-g--g--g-g-g-g---g---g---g--g ",
-      time
-    )
-
     const timeArr = time ? time.split(":") : ["00", ["00"]]
 
     return setMinutes(
