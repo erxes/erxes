@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { activeOrderIdAtom } from "@/store/order.store"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"

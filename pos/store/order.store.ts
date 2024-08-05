@@ -248,7 +248,7 @@ export const setOrderStatesAtom = atom(
     set(billTypeAtom, billType || "1")
     set(registerNumberAtom, registerNumber || "")
     set(slotCodeAtom, slotCode || null)
-    set(savedSlotCodeAtom, slotCode || null)
+    set(savedSlotCodeAtom, slotCode ?? null)
     set(descriptionAtom, description || null)
     set(cashAmountAtom, cashAmount || 0)
     set(mobileAmountAtom, mobileAmount || 0)

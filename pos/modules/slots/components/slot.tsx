@@ -1,4 +1,4 @@
-import { CSSProperties, forwardRef, memo } from "react"
+import { forwardRef, memo } from "react"
 import useOrderCU from "@/modules/orders/hooks/useOrderCU"
 import { slotFilterAtom } from "@/store"
 import {
@@ -12,7 +12,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { ISlot } from "@/types/slots.type"
 import { cn } from "@/lib/utils"
-import { Button, ButtonProps } from "@/components/ui/button"
+import { ButtonProps } from "@/components/ui/button"
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 
