@@ -17,7 +17,17 @@ let db: Db;
 
 let Fields: Collection<any>;
 let FieldsGroup: Collection<any>;
-
+function generateMongoId() {
+  const timestamp = ((new Date().getTime() / 1000) | 0).toString(16);
+  const objectId =
+    timestamp +
+    'xxxxxxxxxxxxxxxx'
+      .replace(/[x]/g, function () {
+        return ((Math.random() * 16) | 0).toString(16);
+      })
+      .toLowerCase();
+  return objectId;
+}
 const command = async () => {
   await client.connect();
   db = client.db() as Db;
@@ -34,10 +44,10 @@ const command = async () => {
       groupId: group._id,
       text: 'Name',
     });
-    console.log(isCreated);
+
     if (!isCreated) {
-      console.log('Create ', group.contentType);
       await Fields.insertOne({
+        _id: generateMongoId(),
         groupId: group._id,
         contentType: group.contentType,
         text: 'Name',

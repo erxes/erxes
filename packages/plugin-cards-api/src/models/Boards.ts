@@ -169,10 +169,9 @@ const createOrUpdatePipelineStages = async (
 const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
   const re = replacedConfig + '[0-9]+$';
-  const pField = type === 'number' ? 'lastNum' : 'lastNumForName';
 
   const pipeline = await models.Pipelines.findOne({
-    [pField]: new RegExp(re),
+    lastNum: new RegExp(re),
     type: doc.type,
   });
 
@@ -181,10 +180,10 @@ const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   }
 
   const { collection } = await getCollection(models, doc.type);
-  const fieldName = type === 'number' ? 'number' : 'name';
+
   const item = await collection
     .findOne({
-      [fieldName]: new RegExp(re),
+      number: new RegExp(re),
     })
     .sort({ createdAt: -1 });
 
@@ -193,14 +192,12 @@ const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   }
 
   // generate new number by new numberConfig
-  const config = type === 'number' ? doc.numberConfig : doc.nameConfig;
-  const numberSize = type === 'number' ? doc.numberSize : doc.numberSizeName;
   const generatedNum = await boardNumberGenerator(
     models,
-    config || '',
-    numberSize || '',
+    doc.numberConfig || '',
+    doc.numberSize || '',
     true,
-    type === 'number' ? 'lastNum' : 'lastNumForName'
+    'lastNum'
   );
 
   return generatedNum;
@@ -350,9 +347,6 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
       if (doc.numberSize) {
         doc.lastNum = await generateLastNum(models, doc, 'number');
       }
-      if (doc.numberSizeName) {
-        doc.lastNumForName = await generateLastNum(models, doc, 'name');
-      }
 
       const pipeline = await models.Pipelines.create(doc);
 
@@ -419,13 +413,6 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
 
         if (pipeline.numberConfig !== doc.numberConfig) {
           doc.lastNum = await generateLastNum(models, doc, 'number');
-        }
-      }
-      if (doc.numberSizeName) {
-        const pipeline = await models.Pipelines.getPipeline(_id);
-
-        if (pipeline.nameConfig !== doc.nameConfig) {
-          doc.lastNumForName = await generateLastNum(models, doc, 'name');
         }
       }
 

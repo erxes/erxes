@@ -1,8 +1,8 @@
-import { Attributes } from "@erxes/ui-cards/src/settings/boards/styles";
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import React from "react";
-import { __ } from "coreui/utils";
+import { Attributes } from '@erxes/ui-cards/src/settings/boards/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import Popover from '@erxes/ui/src/components/Popover';
+import React from 'react';
+import { __ } from 'coreui/utils';
 
 type Props = {
   config: string;
@@ -14,7 +14,7 @@ export default function Attribution(props: Props) {
   const onClickAttribute = (item, close) => {
     const { setConfig, config } = props;
 
-    const characters = ["_", "-", "/", " "];
+    const characters = ['_', '-', '/', ' '];
 
     const value = item.value;
     let changedConfig;
@@ -30,16 +30,19 @@ export default function Attribution(props: Props) {
   };
 
   const { attributions } = props;
-
-  const content = (close) => {
+  console.log('attributions', attributions);
+  const content = close => {
     return (
       <Attributes>
         <React.Fragment>
           <li>
-            <b>{__("Attributions")}</b>
+            <b>{__('Attributions')}</b>
           </li>
-          {attributions.map((item) => (
-            <button key={item.value} onClick={() => onClickAttribute(item, close)}>
+          {attributions.map(item => (
+            <button
+              key={item.value}
+              onClick={() => onClickAttribute(item, close)}
+            >
               {__(item.label)}
             </button>
           ))}
@@ -52,10 +55,10 @@ export default function Attribution(props: Props) {
     <Popover
       trigger={
         <span>
-          {__("Attribution")} <Icon icon="angle-down" />
+          {__('Attribution')} <Icon icon='angle-down' />
         </span>
       }
-      placement="top"
+      placement='top'
       closeAfterSelect
     >
       {content}
