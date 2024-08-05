@@ -117,7 +117,7 @@ class ManageIntegrations extends React.Component<Props, State> {
       <li key={integration._id} onClick={onClick}>
         <IntegrationName>
           {integration.name}
-          <Tip text={formatText(integration.kind)}>
+          <Tip text={formatText(integration.kind)} placement="right">
             <div>
               <IntegrationIcon integration={integration} size={18} />
             </div>
@@ -189,7 +189,7 @@ class ManageIntegrations extends React.Component<Props, State> {
             </ul>
           </Column>
           <Column>
-            <Title full={true}>
+            <Title>
               {current.name}
               &apos;s integration
               <span>({selectedIntegrations.length})</span>
