@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.0-rc.8](https://github.com/erxes/erxes/compare/1.15.0-rc.7...1.15.0-rc.8) (2024-08-05)
+
+
+### Bug Fixes
+
+* msdynamic show content ([ad4f1e2](https://github.com/erxes/erxes/commit/ad4f1e2d9b9966f4edc9e1b88c8d501f75154e7a))
+* **widgets:** replace AppConsumer and WithContext HOC with hooks for prop management ([e719371](https://github.com/erxes/erxes/commit/e719371d6ff7ebf8a12c64764e1919e73fd4a435))
+
 ## [1.15.0-rc.7](https://github.com/erxes/erxes/compare/1.15.0-rc.6...1.15.0-rc.7) (2024-08-02)
 
 
