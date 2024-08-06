@@ -1,21 +1,17 @@
-export const types = ({ contacts }) => `
-
-  ${SubmissionFilter}
-
-  ${
-    contacts
-      ? `
-        extend type Customer @key(fields: "_id") {
-          _id: String! @external
-        }
-
-        extend type Company @key(fields: "_id") {
-          _id: String! @external
-        }
-        `
-      : ''
+export const types = `
+   input SubmissionFilter {
+    operator: String
+    value: JSON
+    formFieldId: String
+  }
+  
+  extend type Customer @key(fields: "_id") {
+      _id: String! @external
   }
 
+  extend type Company @key(fields: "_id") {
+      _id: String! @external
+  }
 
   type Callout {
     title: String,
@@ -56,14 +52,7 @@ export const types = ({ contacts }) => `
     _id: String!
     contentTypeId: String
     customerId: String
-
-    ${
-      contacts
-        ? `
-        customer: Customer
-      `
-        : ''
-    }
+    customer: Customer
     createdAt: Date
     customFieldsData:JSON
     submissions: [FormSubmission]
@@ -74,12 +63,6 @@ export const types = ({ contacts }) => `
     value: JSON
   }
 `;
-
-export const SubmissionFilter = `input SubmissionFilter {
-  operator: String
-  value: JSON
-  formFieldId: String
-}`;
 
 const commonFields = `
   title: String,
@@ -98,11 +81,12 @@ const commonFormSubmissionFields = `
 `;
 
 const formSubmissionQueryParams = `
-tagId: String, 
-formId: String, 
-customerId: String,
-contentTypeIds: [String],
-filters: [SubmissionFilter]
+  tagId: String, 
+  formId: String, 
+  customerId: String,
+
+  contentTypeIds: [String],
+  filters: [SubmissionFilter]
 `;
 
 export const queries = `
@@ -110,7 +94,6 @@ export const queries = `
   forms: [Form]
   formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
-
   formSubmissionDetail(contentTypeId: String!): Submission
 `;
 

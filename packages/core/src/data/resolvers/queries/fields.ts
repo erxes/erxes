@@ -7,7 +7,7 @@ import {
   getContentTypes
 } from "../../../formUtils";
 
-import { fetchService } from "../../../messageBroker";
+import { fetchServiceForms } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 interface IFieldsDefaultColmns {
@@ -305,7 +305,7 @@ const fieldsGroupQueries = {
     }
 
     if (config) {
-      query = await fetchService(
+      query = await fetchServiceForms(
         subdomain,
         contentType,
         "groupsFilter",

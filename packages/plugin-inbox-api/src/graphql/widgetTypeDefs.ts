@@ -202,7 +202,6 @@ export const mutations = () => `
       cachedCustomerId: String
       productId: String
     ): SaveFormResponse
-  }
 
   widgetsSendEmail(
     toEmails: [String]

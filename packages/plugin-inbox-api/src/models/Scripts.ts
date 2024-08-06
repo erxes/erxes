@@ -75,7 +75,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
           const form = await sendCoreMessage({
             subdomain,
-            action: "findOne",
+            action: "formsFindOne",
             data: {
               _id: integration.formId
             },

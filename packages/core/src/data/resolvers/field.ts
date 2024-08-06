@@ -55,15 +55,17 @@ export const field = {
       return;
     }
 
-    const products = await models.Products.find({
-      categoryId: productCategoryId
-    });
+    // const products = await models.Products.find({
+    //   categoryId: productCategoryId
+    // });
 
-    return products.map(product => ({
-      _id: product._id,
-      name: product.name,
-      unitPrice: product.unitPrice
-    }));
+    // return products.map(product => ({
+    //   _id: product._id,
+    //   name: product.name,
+    //   unitPrice: product.unitPrice
+    // }));
+
+    return;
   }
 };
 

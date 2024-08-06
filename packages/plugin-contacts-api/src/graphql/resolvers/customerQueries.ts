@@ -12,7 +12,7 @@ import {
   moduleRequireLogin
 } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../connectionResolver";
-import { sendInboxMessage } from "../../messageBroker";
+import { sendInboxMessage, sendCoreMessage } from "../../messageBroker";
 interface ICountParams extends IListArgs {
   only: string;
   source: string;

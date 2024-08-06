@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import * as _ from "underscore";
 import { IModels } from "../connectionResolver";
-import { sendInboxMessage } from "../messageBroker";
+import { sendInboxMessage, sendCoreMessage } from "../messageBroker";
 import { CommonBuilder } from "./utils";
 import { generateElkIds } from "@erxes/api-utils/src/elasticsearch";
 

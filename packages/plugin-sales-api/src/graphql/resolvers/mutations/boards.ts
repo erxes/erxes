@@ -14,6 +14,7 @@ import { configReplacer } from "../../../utils";
 import { IContext } from "../../../connectionResolver";
 
 import { IOrderInput } from "@erxes/api-utils/src/commonUtils";
+import { sendCoreMessage } from "../../../messageBroker";
 
 interface IBoardsEdit extends IBoard {
   _id: string;

@@ -23,19 +23,9 @@ const fieldCommonFields = `
   isDefinedByErxes: Boolean
 `;
 
-export const fieldsTypes = ({ products }) => `
-  ${
-    products
-      ? `
-      extend type Product @key(fields: "_id") {
-        _id: String! @external
-      }
-      `
-      : ""
-  }
-
-  extend type User @key(fields: "_id") {
-    _id: String! @external
+export const fieldsTypes = `
+  extend type Product @key(fields: "_id") {
+      _id: String! @external
   }
 
   type Logic {
@@ -85,16 +75,7 @@ export const fieldsTypes = ({ products }) => `
     optionsValues: String
     subFieldIds: [String]
     subFields: [Field]
-
-    ${
-      products
-        ? `
-        products: [Product]
-      `
-        : ""
-    }
-    
-    ${fieldCommonFields}
+    products: [Product]
     logics: [Logic]
 
     relationType: String

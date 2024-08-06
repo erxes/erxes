@@ -33,7 +33,7 @@ export const types = ({ products }) => `
 
     brand: Brand
 
-    ${forms ? `form: Form` : ""}
+    form: Form
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]

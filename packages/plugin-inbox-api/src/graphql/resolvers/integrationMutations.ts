@@ -682,7 +682,7 @@ const integrationMutations = {
 
     const sourceForm = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { _id: sourceIntegration.formId },
       isRPC: true
     });

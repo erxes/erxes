@@ -17,7 +17,7 @@ const formMiddleware = async (req, res, _next) => {
 
   const form = await sendCoreMessage({
     subdomain,
-    action: "findOne",
+    action: "formsFindOne",
     data: { _id: formId },
     isRPC: true
   });

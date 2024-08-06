@@ -234,7 +234,7 @@ export const createFormConversation = async (
 
   const form = await sendCoreMessage({
     subdomain,
-    action: "findOne",
+    action: "formsFindOne",
     data: { _id: formId },
     isRPC: true
   });
@@ -399,7 +399,7 @@ const widgetMutations = {
 
     const form = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { code: args.formCode },
       isRPC: true
     });
@@ -1140,7 +1140,7 @@ const widgetMutations = {
 
     const form = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { _id: formId },
       isRPC: true
     });
