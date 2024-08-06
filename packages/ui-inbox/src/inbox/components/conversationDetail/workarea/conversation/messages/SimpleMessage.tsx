@@ -93,14 +93,12 @@ export default class SimpleMessage extends React.Component<Props, {}> {
     }
 
     return (
-      <>
         <MessageContent $staff={isStaff} $internal={message.internal}>
           <span
             dangerouslySetInnerHTML={{ __html: xss(urlify(message.content)) }}
           />
           {this.renderAttachment(hasAttachment)}
         </MessageContent>
-      </>
     );
   }
 
