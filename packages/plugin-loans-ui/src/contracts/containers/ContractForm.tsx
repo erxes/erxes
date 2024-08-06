@@ -1,17 +1,27 @@
+import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import ContractForm from '../components/list/ContractForm';
-import { mutations } from '../graphql';
+import { mutations, queries } from '../graphql';
 import { IContract } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
+
+type RelType = {
+  _id: string,
+  mainTypeId: string,
+  mainType: string,
+  relType: string,
+}
 
 type Props = {
   contract: IContract;
   getAssociatedContract?: (contractId: string) => void;
   closeModal: () => void;
+  data?:RelType
 };
 
 type FinalProps = {
@@ -19,7 +29,18 @@ type FinalProps = {
 } & Props;
 
 const ContractFromContainer = (props: FinalProps) => {
-  const { closeModal, getAssociatedContract, currentUser } = props;
+  const { closeModal, getAssociatedContract, data } = props;
+
+  const dealsContract = useQuery(
+    gql(queries.dealsToContract),
+    {
+      variables: {
+        dealsToContractId:data?.mainTypeId
+      },
+      fetchPolicy: "network-only",
+    }
+  );
+
   const renderButton = ({
     name,
     values,
@@ -27,6 +48,7 @@ const ContractFromContainer = (props: FinalProps) => {
     object,
     disabled,
   }: IButtonMutateProps & { disabled: boolean }) => {
+
     const afterSave = (data) => {
       closeModal();
 
@@ -56,6 +78,13 @@ const ContractFromContainer = (props: FinalProps) => {
     ...props,
     renderButton,
   };
+
+  if(data){
+    if(dealsContract.loading)
+      return 'Loading';
+    return <ContractForm {...updatedProps} contract={{...dealsContract.data.dealsToContract,_id:undefined}} />;
+  }
+
   return <ContractForm {...updatedProps} />;
 };
 

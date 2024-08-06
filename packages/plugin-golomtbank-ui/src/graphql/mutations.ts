@@ -1,6 +1,6 @@
 const addMutation = `
-mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String, $golomtCode: String) {
-  golomtBankConfigsAdd(name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId, golomtCode: $golomtCode) {
+mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String, $golomtCode: String, $apiUrl: String) {
+  golomtBankConfigsAdd(name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId, apiUrl: $apiUrl) {
     _id
     name
     organizationName
@@ -11,13 +11,14 @@ mutation GolomtBankConfigsAdd($name: String, $organizationName: String, $clientI
     registerId
     accountId
     golomtCode
+    apiUrl
   }
 }
 `;
 
 const editMutation = `
-mutation GolomtBankConfigsEdit($_id: String!, $name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String, $golomtCode: String) {
-  golomtBankConfigsEdit(_id: $_id, name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId, golomtCode: $golomtCode) {
+mutation GolomtBankConfigsEdit($_id: String!, $name: String, $organizationName: String, $clientId: String, $ivKey: String, $sessionKey: String, $configPassword: String, $registerId: String, $accountId: String, $golomtCode: String, $apiUrl: String) {
+  golomtBankConfigsEdit(_id: $_id, name: $name, organizationName: $organizationName, clientId: $clientId, ivKey: $ivKey, sessionKey: $sessionKey, configPassword: $configPassword, registerId: $registerId, accountId: $accountId, golomtCode: $golomtCode, apiUrl: $apiUrl) {
     _id
     name
     organizationName

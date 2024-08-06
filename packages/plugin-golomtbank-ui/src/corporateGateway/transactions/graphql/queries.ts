@@ -37,9 +37,14 @@ query GolomtBankAccountHolder($accountNumber: String!, $configId: String!, $bank
   }
 }
 `;
-
+const listQuery = `
+query GolomtBankAccounts($configId: String) {
+  golomtBankAccounts(configId: $configId)
+}
+`;
 export default {
   transactionsQuery,
   accountsQuery,
   accountHolderQuery,
+  listQuery,
 };

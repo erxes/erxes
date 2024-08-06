@@ -55,6 +55,7 @@ const Detail = (props: Props) => {
       {...modalProps}
       configId={queryParams._id}
       accountNumber={queryParams.account}
+      accountName={account.accountName}
     />
   );
   const renderAccount = () => {

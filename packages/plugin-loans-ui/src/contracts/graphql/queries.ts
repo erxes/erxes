@@ -372,6 +372,12 @@ export const scheduleYears = `
   }
 `;
 
+export const dealsToContract = `
+  query DealsToContract($dealsToContractId: String!) {
+    dealsToContract(id: $dealsToContractId)
+  }
+`
+
 export const closeInfo = `
   query closeInfo($contractId: String, $date: Date) {
     closeInfo(contractId: $contractId, date: $date) {
@@ -426,5 +432,6 @@ export default {
   documents,
   contractsAlert,
   savingContracts,
-  getPolarisData
+  getPolarisData,
+  dealsToContract
 };
