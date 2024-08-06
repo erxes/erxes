@@ -31,7 +31,7 @@ export class TransferApi extends BaseApi {
           tranPassword: args.password
         }
       });
-
+      
       return res;
     } catch (e) {
       console.error(e);
