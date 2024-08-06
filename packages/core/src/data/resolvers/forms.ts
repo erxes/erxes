@@ -1,24 +1,21 @@
-import { IContext } from '../../connectionResolver';
-import { IFormDocument } from '../../models/definitions/forms';
+import { IContext } from "../../connectionResolver";
+import { IFormDocument } from "../../db/models/definitions/forms";
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Forms.findOne({ _id });
   },
-  createdUser(form: IFormDocument, _params) {
+  createdUser(form: IFormDocument, _params, { models }: IContext) {
     if (!form.createdUserId) {
       return;
     }
 
-    return {
-      __typename: 'User',
-      _id: form.createdUserId
-    };
+    return models.Users.findOne({ _id: form.createdUserId });
   },
 
   async fields(form: IFormDocument, _params, { models }: IContext) {
     const fields = await models.Fields.find({
-      contentType: 'form',
+      contentType: "form",
       contentTypeId: form._id
     }).sort({
       order: 1

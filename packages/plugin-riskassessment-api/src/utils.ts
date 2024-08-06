@@ -1,8 +1,4 @@
-import {
-  sendCardsMessage,
-  sendCoreMessage,
-  sendFormsMessage
-} from "./messageBroker";
+import { sendCardsMessage, sendCoreMessage } from "./messageBroker";
 
 import { IModels } from "./connectionResolver";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
@@ -302,7 +298,7 @@ export const getFieldsGroupByForm = async ({
   formIds?: string[];
 }) => {
   let submissionForms: any[] = [];
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
     action: "fields.find",
     data: {
@@ -323,9 +319,9 @@ export const getFieldsGroupByForm = async ({
           : form
       );
     } else {
-      const { title } = await sendFormsMessage({
+      const { title } = await sendCoreMessage({
         subdomain,
-        action: "findOne",
+        action: "formsFindOne",
         data: { _id: field.contentTypeId },
         isRPC: true,
         defaultValue: {}
@@ -492,7 +488,7 @@ export const getIndicatorSubmissions = async ({
 
   for (const submission of submissions) {
     for (const field of submission.fields) {
-      const fieldDetail = await sendFormsMessage({
+      const fieldDetail = await sendCoreMessage({
         subdomain,
         action: "fields.findOne",
         data: {

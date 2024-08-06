@@ -4,7 +4,6 @@ import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from "./constants";
 import {
   fetchSegment,
   sendCoreMessage,
-  sendFormsMessage,
   sendInboxMessage
 } from "./messageBroker";
 import { ICompanyDocument } from "./models/definitions/companies";
@@ -298,7 +297,7 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
+          const field = await sendCoreMessage({
             subdomain,
             action: "fields.findOne",
             data: {
@@ -344,7 +343,7 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
+          const field = await sendCoreMessage({
             subdomain,
             action: "fields.findOne",
             data: {

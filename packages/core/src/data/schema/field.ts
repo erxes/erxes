@@ -31,7 +31,7 @@ export const fieldsTypes = ({ products }) => `
         _id: String! @external
       }
       `
-      : ''
+      : ""
   }
 
   extend type User @key(fields: "_id") {
@@ -91,7 +91,7 @@ export const fieldsTypes = ({ products }) => `
         ? `
         products: [Product]
       `
-        : ''
+        : ""
     }
     
     ${fieldCommonFields}

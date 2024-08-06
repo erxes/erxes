@@ -9,7 +9,6 @@ const IMPORT_EXPORT_TYPES = [
 import * as moment from "moment";
 import { generateModels, IModels } from "./connectionResolver";
 import { IUserDocument } from "./db/models/definitions/users";
-import { sendFormsMessage } from "./messageBroker";
 import { InterMessage } from "@erxes/api-utils/src/messageBroker";
 import { fetchSegment } from "./data/resolvers/queries/segmentsQueryBuilder";
 
@@ -162,16 +161,12 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
-            subdomain,
-            action: "fields.findOne",
-            data: {
-              query: { _id: fieldId }
-            },
-            isRPC: true
-          });
 
-          headers.push(`customFieldsData.${field.text}.${fieldId}`);
+          const field = await models.Fields.findOne({ _id: fieldId });
+
+          if (field) {
+            headers.push(`customFieldsData.${field.text}.${fieldId}`);
+          }
         } else {
           headers.push(column);
         }
@@ -206,16 +201,11 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
-            subdomain,
-            action: "fields.findOne",
-            data: {
-              query: { _id: fieldId }
-            },
-            isRPC: true
-          });
+          const field = await models.Fields.findOne({ _id: fieldId });
 
-          headers.push(`customFieldsData.${field.text}.${fieldId}`);
+          if (field) {
+            headers.push(`customFieldsData.${field.text}.${fieldId}`);
+          }
         } else {
           headers.push(column);
         }

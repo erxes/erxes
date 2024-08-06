@@ -1,11 +1,11 @@
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import { IContext } from '../../connectionResolver';
-import { sendProductsMessage } from '../../messageBroker';
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+import { IContext } from "../../connectionResolver";
+
 import {
   IField,
   IFieldDocument,
   IFieldGroupDocument
-} from '../../models/definitions/fields';
+} from "../../db/models/definitions/fields";
 
 export const field = {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -15,17 +15,14 @@ export const field = {
     return `erxes-form-field-${root._id}`;
   },
 
-  lastUpdatedUser(root: IFieldDocument) {
+  lastUpdatedUser(root: IFieldDocument, _params, { models }: IContext) {
     const { lastUpdatedUserId } = root;
 
     if (!lastUpdatedUserId) {
       return;
     }
 
-    return {
-      __typename: 'User',
-      _id: lastUpdatedUserId
-    };
+    return models.Users.findOne({ _id: lastUpdatedUserId });
   },
 
   async associatedField(root: IFieldDocument, _params, { models }: IContext) {
@@ -51,23 +48,15 @@ export const field = {
     return group && group.name;
   },
 
-  async products(root: IFieldDocument, _args, { subdomain }: IContext) {
+  async products(root: IFieldDocument, _args, { models }: IContext) {
     const { productCategoryId } = root;
 
     if (!productCategoryId) {
       return;
     }
 
-    const products = await sendProductsMessage({
-      subdomain,
-      action: 'find',
-      data: {
-        query: {
-          categoryId: productCategoryId
-        }
-      },
-      isRPC: true,
-      defaultValue: []
+    const products = await models.Products.find({
+      categoryId: productCategoryId
     });
 
     return products.map(product => ({
@@ -87,12 +76,12 @@ export const fieldsGroup = {
     }).sort({ order: 1 });
 
     // Splitting code to array
-    const splitted = root.code && root.code.split(':');
+    const splitted = root.code && root.code.split(":");
 
-    if (splitted && splitted.length === 3 && splitted[2] === 'relations') {
+    if (splitted && splitted.length === 3 && splitted[2] === "relations") {
       const enabledFields: IField[] = [];
       for (const f of fields) {
-        if (await isEnabled(f.relationType?.split(':')[0])) {
+        if (await isEnabled(f.relationType?.split(":")[0])) {
           enabledFields.push(f);
         }
       }
@@ -103,16 +92,17 @@ export const fieldsGroup = {
     return fields;
   },
 
-  lastUpdatedUser(fieldGroup: IFieldGroupDocument) {
+  lastUpdatedUser(
+    fieldGroup: IFieldGroupDocument,
+    _params,
+    { models }: IContext
+  ) {
     const { lastUpdatedUserId } = fieldGroup;
 
     if (!lastUpdatedUserId) {
       return;
     }
 
-    return {
-      __typename: 'User',
-      _id: lastUpdatedUserId
-    };
+    return models.Users.findOne({ _id: lastUpdatedUserId });
   }
 };

@@ -505,15 +505,6 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendFormsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendInboxMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

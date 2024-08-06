@@ -17,6 +17,11 @@ import activityLogs from "./activityLogs";
 import emailDeliveries from "./emailDeliveries";
 import logs from "./logs";
 import segments from "./segments";
+import {
+  fieldQueries as fields,
+  fieldsGroupQueries as fieldsgroups
+} from "./fields";
+import forms from "./forms";
 
 export default {
   ...users,
@@ -35,5 +40,8 @@ export default {
   ...activityLogs,
   ...emailDeliveries,
   ...logs,
-  ...segments
+  ...segments,
+  ...fields,
+  ...fieldsgroups,
+  ...forms
 };

@@ -1,7 +1,7 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { sendInboxMessage } from '../../../messageBroker';
-import { IForm } from '../../../models/definitions/forms';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { sendInboxMessage } from "../../../messageBroker";
+import { IForm } from "../../../db/models/definitions/forms";
 
 interface IFormsEdit extends IForm {
   _id: string;
@@ -85,7 +85,7 @@ const formMutations = {
 
     const conversation = await sendInboxMessage({
       subdomain,
-      action: 'findOne',
+      action: "findOne",
       data: {
         _id: contentTypeId,
         customerId
@@ -95,7 +95,7 @@ const formMutations = {
     });
 
     if (!conversation) {
-      throw new Error('Form submission not found !');
+      throw new Error("Form submission not found !");
     }
 
     for (const submission of submissions) {
@@ -122,7 +122,7 @@ const formMutations = {
     const { customerId, contentTypeId } = params;
     sendInboxMessage({
       subdomain,
-      action: 'removeConversation',
+      action: "removeConversation",
       data: {
         _id: contentTypeId
       }
@@ -132,10 +132,10 @@ const formMutations = {
   }
 };
 
-checkPermission(formMutations, 'formsAdd', 'manageForms');
-checkPermission(formMutations, 'formsEdit', 'manageForms');
-checkPermission(formMutations, 'formSubmissionsSave', 'manageForms');
-checkPermission(formMutations, 'formSubmissionsEdit', 'manageForms');
-checkPermission(formMutations, 'formSubmissionsRemove', 'manageForms');
+checkPermission(formMutations, "formsAdd", "manageForms");
+checkPermission(formMutations, "formsEdit", "manageForms");
+checkPermission(formMutations, "formSubmissionsSave", "manageForms");
+checkPermission(formMutations, "formSubmissionsEdit", "manageForms");
+checkPermission(formMutations, "formSubmissionsRemove", "manageForms");
 
 export default formMutations;

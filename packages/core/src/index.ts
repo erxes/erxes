@@ -43,6 +43,7 @@ import { generateModels } from "./connectionResolver";
 import { authCookieOptions, getSubdomain } from "@erxes/api-utils/src/core";
 import segments from "./segments";
 import automations from "./automations";
+import templates from "./templates";
 import imports from "./imports";
 import exporter from "./exporter";
 import { moduleObjects } from "./data/permissions/actions/permission";
@@ -129,6 +130,8 @@ app.get(
     const configs = await models.Configs.find({
       code: new RegExp(`.*THEME_.*`, "i")
     }).lean();
+
+    await models.FieldsGroups.createSystemGroupsFields();
 
     return res.json(configs);
   })
@@ -329,6 +332,7 @@ httpServer.listen(PORT, async () => {
       forms,
       segments,
       automations,
+      templates,
       permissions: moduleObjects,
       imports,
       exporter,

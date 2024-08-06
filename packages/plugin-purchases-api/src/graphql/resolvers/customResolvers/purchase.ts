@@ -4,7 +4,6 @@ import { IContext } from "../../../connectionResolver";
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage,
   sendNotificationsMessage,
   sendProductsMessage
 } from "../../../messageBroker";
@@ -50,7 +49,7 @@ export const generateProducts = async (
       fieldIds.push(customFieldData.field);
     }
 
-    const fields = await sendFormsMessage({
+    const fields = await sendCoreMessage({
       subdomain,
       action: "fields.find",
       data: {

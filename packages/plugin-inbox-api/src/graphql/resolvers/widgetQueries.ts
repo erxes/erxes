@@ -1,16 +1,12 @@
-import * as momentTz from 'moment-timezone';
+import * as momentTz from "moment-timezone";
 
-import { IIntegrationDocument } from '../../models/definitions/integrations';
+import { IIntegrationDocument } from "../../models/definitions/integrations";
 
-import { getOrCreateEngageMessage } from '../../widgetUtils';
+import { getOrCreateEngageMessage } from "../../widgetUtils";
 
-import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendKnowledgeBaseMessage
-} from '../../messageBroker';
-import { IContext, IModels } from '../../connectionResolver';
+import { IBrowserInfo } from "@erxes/api-utils/src/definitions/common";
+import { sendCoreMessage, sendKnowledgeBaseMessage } from "../../messageBroker";
+import { IContext, IModels } from "../../connectionResolver";
 
 const isMessengerOnline = async (
   models: IModels,
@@ -21,12 +17,8 @@ const isMessengerOnline = async (
     return false;
   }
 
-  const {
-    availabilityMethod,
-    isOnline,
-    onlineHours,
-    timezone
-  } = integration.messengerData;
+  const { availabilityMethod, isOnline, onlineHours, timezone } =
+    integration.messengerData;
 
   const modifiedIntegration = {
     ...(integration.toJSON ? integration.toJSON() : integration),
@@ -49,7 +41,7 @@ const fetchUsers = async (
 ) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: { query },
     isRPC: true,
     defaultValue: []
@@ -86,7 +78,7 @@ export default {
   ) {
     return models.Integrations.getWidgetIntegration(
       args.brandCode,
-      'messenger'
+      "messenger"
     );
   },
 
@@ -251,7 +243,7 @@ export default {
 
   async widgetsProductCategory(_root, { _id }: { _id: string }) {
     return {
-      __typename: 'ProductCategory',
+      __typename: "ProductCategory",
       _id
     };
   },
@@ -261,12 +253,12 @@ export default {
     { _id }: { _id: string },
     { subdomain }: IContext
   ) {
-    const fields = await sendFormsMessage({
+    const fields = await sendCoreMessage({
       subdomain,
-      action: 'fields.find',
+      action: "fields.find",
       data: {
         query: {
-          contentType: 'product'
+          contentType: "product"
         },
         sort: {
           order: 1
@@ -278,12 +270,12 @@ export default {
     return {
       fields: fields.map(field => {
         return {
-          __typename: 'Field',
+          __typename: "Field",
           _id: field._id
         };
       }),
       product: {
-        __typename: 'Product',
+        __typename: "Product",
         _id
       }
     };
@@ -299,16 +291,16 @@ export default {
     args: { topicId: string; searchString: string },
     { subdomain }: IContext
   ) {
-    const { topicId, searchString = '' } = args;
+    const { topicId, searchString = "" } = args;
 
     return sendKnowledgeBaseMessage({
       subdomain,
-      action: 'articles.find',
+      action: "articles.find",
       data: {
         query: {
           topicId,
-          content: { $regex: `.*${searchString.trim()}.*`, $options: 'i' },
-          status: 'publish'
+          content: { $regex: `.*${searchString.trim()}.*`, $options: "i" },
+          status: "publish"
         }
       },
       isRPC: true
@@ -327,7 +319,7 @@ export default {
 
     const topic = await sendKnowledgeBaseMessage({
       ...commonOptions,
-      action: 'topics.findOne',
+      action: "topics.findOne",
       data: {
         query: {
           _id
@@ -338,7 +330,7 @@ export default {
     if (topic && topic.createdBy) {
       const user = await sendCoreMessage({
         ...commonOptions,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: topic.createdBy
         },
@@ -347,9 +339,9 @@ export default {
 
       sendCoreMessage({
         subdomain,
-        action: 'registerOnboardHistory',
+        action: "registerOnboardHistory",
         data: {
-          type: 'knowledgeBaseInstalled',
+          type: "knowledgeBaseInstalled",
           user
         }
       });

@@ -1,17 +1,17 @@
-import { getService } from '@erxes/api-utils/src/serviceDiscovery';
-import { IModels } from './connectionResolver';
-import { fetchService, sendInboxMessage } from './messageBroker';
-import { IFormSubmissionFilter } from './models/definitions/forms';
-import { getRealIdFromElk } from '@erxes/api-utils/src/elasticsearch';
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
+import { IModels } from "./connectionResolver";
+import { fetchServiceForms, sendInboxMessage } from "./messageBroker";
+import { IFormSubmissionFilter } from "./db/models/definitions/forms";
+import { getRealIdFromElk } from "@erxes/api-utils/src/elasticsearch";
 
 export const getCustomFields = async (
   models: IModels,
   contentType: string,
-  validation?: string,
+  validation?: string
 ) => {
   const qry: any = {
     contentType,
-    isDefinedByErxes: false,
+    isDefinedByErxes: false
   };
 
   validation && (qry.validation = validation);
@@ -44,8 +44,8 @@ export const fieldsCombinedByContentType = async (
     excludedNames,
     segmentId,
     config,
-    onlyDates,
-  }: ICombinedParams,
+    onlyDates
+  }: ICombinedParams
 ) => {
   let fields: Array<{
     _id: number;
@@ -58,43 +58,43 @@ export const fieldsCombinedByContentType = async (
     selectOptions?: Array<{ label: string; value: string }>;
   }> = [];
 
-  fields = await fetchService(
+  fields = await fetchServiceForms(
     subdomain,
     contentType,
-    'getList',
+    "getList",
     {
       segmentId,
       usageType,
-      config: config || {},
+      config: config || {}
     },
-    [],
+    []
   );
 
   let validation;
 
   if (onlyDates) {
-    fields = fields.filter((f) => f.type === 'Date');
-    validation = 'date';
+    fields = fields.filter(f => f.type === "Date");
+    validation = "date";
   }
 
   const type = [
-    'contacts:visitor',
-    'contacts:lead',
-    'contacts:customer',
+    "contacts:visitor",
+    "contacts:lead",
+    "contacts:customer"
   ].includes(contentType)
-    ? 'contacts:customer'
+    ? "contacts:customer"
     : contentType;
 
   const customFields = await getCustomFields(models, type, validation);
 
-  const generateSelectOptions = (options) => {
+  const generateSelectOptions = options => {
     const selectOptions: Array<{ label: string; value: any }> = [];
 
     if (options && options.length > 0) {
       for (const option of options) {
         selectOptions.push({
           value: option,
-          label: option,
+          label: option
         });
       }
     }
@@ -104,7 +104,7 @@ export const fieldsCombinedByContentType = async (
 
   // extend fields list using custom fields data
   for (const customField of customFields) {
-    const group = await getFieldGroup(models, customField.groupId || '');
+    const group = await getFieldGroup(models, customField.groupId || "");
 
     if (
       group &&
@@ -119,14 +119,14 @@ export const fieldsCombinedByContentType = async (
         selectOptions: generateSelectOptions(customField.options),
         validation: customField.validation,
         type: customField.type,
-        group: group._id,
+        group: group._id
       });
     }
   }
 
   fields = [...fields];
 
-  return fields.filter((field) => !(excludedNames || []).includes(field.name));
+  return fields.filter(field => !(excludedNames || []).includes(field.name));
 };
 
 export const formSubmissionsQuery = async (
@@ -137,16 +137,16 @@ export const formSubmissionsQuery = async (
     tagId,
     contentTypeIds,
     customerId,
-    filters,
+    filters
   }: {
     formId: string;
     tagId: string;
     contentTypeIds: string[];
     customerId: string;
     filters: IFormSubmissionFilter[];
-  },
+  }
 ) => {
-  const integrationsSelector: any = { kind: 'lead', isActive: true };
+  const integrationsSelector: any = { kind: "lead", isActive: true };
   let conversationIds: string[] = [];
 
   if (formId) {
@@ -172,28 +172,28 @@ export const formSubmissionsQuery = async (
       const { formFieldId, value } = filter;
 
       switch (filter.operator) {
-        case 'eq':
+        case "eq":
           submissionFilters.push({ formFieldId, value: { $eq: value } });
           break;
 
-        case 'c':
+        case "c":
           submissionFilters.push({
             formFieldId,
-            value: { $regex: new RegExp(value) },
+            value: { $regex: new RegExp(value) }
           });
           break;
 
-        case 'gte':
+        case "gte":
           submissionFilters.push({
             formFieldId,
-            value: { $gte: value },
+            value: { $gte: value }
           });
           break;
 
-        case 'lte':
+        case "lte":
           submissionFilters.push({
             formFieldId,
-            value: { $lte: value },
+            value: { $lte: value }
           });
           break;
 
@@ -203,17 +203,17 @@ export const formSubmissionsQuery = async (
     }
 
     const subs = await models.FormSubmissions.find({
-      $and: submissionFilters,
+      $and: submissionFilters
     }).lean();
-    conversationIds = subs.map((e) => e.contentTypeId);
+    conversationIds = subs.map(e => e.contentTypeId);
   }
 
   const integration = await sendInboxMessage({
     subdomain,
-    action: 'integrations.findOne',
+    action: "integrations.findOne",
     data: integrationsSelector,
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
   if (!integration._id) {
@@ -229,9 +229,9 @@ export const formSubmissionsQuery = async (
   return convsSelector;
 };
 
-export const getContentTypes = async (serviceName) => {
+export const getContentTypes = async serviceName => {
   const service = await getService(serviceName);
   const meta = service.config.meta || {};
   const types = (meta.tags && meta.tags.types) || [];
-  return types.map((type) => `${serviceName}:${type.type}`);
-}
+  return types.map(type => `${serviceName}:${type.type}`);
+};

@@ -497,15 +497,6 @@ export const sendCoreMessage = async (
   });
 };
 
-export const sendFormsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendEngagesMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

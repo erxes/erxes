@@ -1,14 +1,22 @@
-import { generateFieldsFromSchema } from '@erxes/api-utils/src';
-import { generateModels } from './connectionResolver';
+import { generateFieldsFromSchema } from "@erxes/api-utils/src";
+import { generateModels, IModels } from "./connectionResolver";
 import {
   USER_EXPORT_EXTENDED_FIELDS,
   USER_EXTENDED_FIELDS,
   USER_PROPERTIES_INFO
-} from './constants';
+} from "./constants";
+
+export const getFormFields = async (models: IModels, formId: string) => {
+  return models.Fields.find({
+    contentType: "form",
+    isDefinedByErxes: false,
+    contentTypeId: formId
+  });
+};
 
 const generateFields = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
-  const { usageType } = data;
+  const { usageType, formId } = data;
 
   const { Users } = models;
 
@@ -26,17 +34,17 @@ const generateFields = async ({ subdomain, data }) => {
 
   schema = Users.schema;
 
-  if (usageType && usageType === 'import') {
+  if (usageType && usageType === "import") {
     fields = USER_EXTENDED_FIELDS;
   }
 
-  if (usageType && usageType === 'export') {
+  if (usageType && usageType === "export") {
     fields = USER_EXPORT_EXTENDED_FIELDS;
   }
 
   if (schema) {
     // generate list using customer or company schema
-    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ""))];
 
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
@@ -51,14 +59,31 @@ const generateFields = async ({ subdomain, data }) => {
     }
   }
 
+  if (formId) {
+    const formFieldsValues = await getFormFields(models, formId);
+    const form = await models.Forms.findOne({ _id: formId });
+
+    for (const formField of formFieldsValues) {
+      fields.push({
+        _id: Math.random(),
+        name: formField._id,
+        group: form ? form.title : "Fields",
+        label: formField.text,
+        options: formField.options,
+        validation: formField.validation,
+        type: formField.type
+      });
+    }
+  }
+
   return fields;
 };
 
 export default {
   types: [
     {
-      description: 'Team member',
-      type: 'user'
+      description: "Team member",
+      type: "user"
     }
   ],
   fields: generateFields,

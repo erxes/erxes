@@ -1,9 +1,9 @@
-import * as moment from 'moment';
-import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
-import { sendFormsMessage, sendInboxMessage } from '../messageBroker';
-import { CommonBuilder } from './utils';
-import { generateElkIds } from '@erxes/api-utils/src/elasticsearch';
+import * as moment from "moment";
+import * as _ from "underscore";
+import { IModels } from "../connectionResolver";
+import { sendInboxMessage } from "../messageBroker";
+import { CommonBuilder } from "./utils";
+import { generateElkIds } from "@erxes/api-utils/src/elasticsearch";
 
 interface ISortParams {
   [index: string]: number;
@@ -12,10 +12,10 @@ interface ISortParams {
 const findIntegrations = (subdomain: string, query, options?) =>
   sendInboxMessage({
     subdomain,
-    action: 'integrations.find',
+    action: "integrations.find",
     data: { query, options },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
 export interface IConformityQueryParams {
@@ -61,7 +61,7 @@ export interface IListArgs extends IConformityQueryParams {
 
 export class Builder extends CommonBuilder<IListArgs> {
   constructor(models: IModels, subdomain: string, params: IListArgs, context) {
-    super(models, subdomain, 'customers', params, context);
+    super(models, subdomain, "customers", params, context);
 
     this.addStateFilter();
   }
@@ -70,8 +70,8 @@ export class Builder extends CommonBuilder<IListArgs> {
     if (this.params.type) {
       this.positiveList.push({
         term: {
-          state: this.params.type,
-        },
+          state: this.params.type
+        }
       });
     }
   }
@@ -92,15 +92,15 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map((i) => i._id),
-      },
+        relatedIntegrationIds: integrations.map(i => i._id)
+      }
     });
   }
 
   // filter by integration
   public async integrationFilter(integration: string): Promise<void> {
     const integrations = await findIntegrations(this.subdomain, {
-      kind: integration,
+      kind: integration
     });
 
     /**
@@ -109,8 +109,8 @@ export class Builder extends CommonBuilder<IListArgs> {
      */
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map((i) => i._id),
-      },
+        relatedIntegrationIds: integrations.map(i => i._id)
+      }
     });
   }
 
@@ -120,8 +120,8 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        relatedIntegrationIds: integrations.map((i) => i._id),
-      },
+        relatedIntegrationIds: integrations.map(i => i._id)
+      }
     });
   }
 
@@ -129,37 +129,37 @@ export class Builder extends CommonBuilder<IListArgs> {
   public async dateFilters(filters: string): Promise<void> {
     const dateFilters = JSON.parse(filters);
 
-    const operators = ['gte', 'lte'];
+    const operators = ["gte", "lte"];
 
     for (const key of Object.keys(dateFilters)) {
-      if (key.includes('customFieldsData')) {
-        const field = key.split('.')[1];
+      if (key.includes("customFieldsData")) {
+        const field = key.split(".")[1];
 
         const nestedQry: any = {
           nested: {
-            path: 'customFieldsData',
+            path: "customFieldsData",
             query: {
               bool: {
                 must: [
                   {
                     term: {
-                      'customFieldsData.field': field,
-                    },
-                  },
-                ],
-              },
-            },
-          },
+                      "customFieldsData.field": field
+                    }
+                  }
+                ]
+              }
+            }
+          }
         };
 
         for (const operator of operators) {
           const value = new Date(dateFilters[key][operator]);
 
           const rangeQry: any = {
-            range: { 'customFieldsData.dateValue': {} },
+            range: { "customFieldsData.dateValue": {} }
           };
 
-          rangeQry.range['customFieldsData.dateValue'][operator] = value;
+          rangeQry.range["customFieldsData.dateValue"][operator] = value;
 
           nestedQry.nested.query.bool.must.push(rangeQry);
 
@@ -170,7 +170,7 @@ export class Builder extends CommonBuilder<IListArgs> {
           const value = new Date(dateFilters[key][operator]);
 
           const qry: any = {
-            range: { [key]: {} },
+            range: { [key]: {} }
           };
 
           qry.range[key][operator] = value;
@@ -188,18 +188,18 @@ export class Builder extends CommonBuilder<IListArgs> {
     subdomain: string,
     formId: string,
     startDate?: string,
-    endDate?: string,
+    endDate?: string
   ): Promise<void> {
-    const submissions = await sendFormsMessage({
+    const submissions = await sendCoreMessage({
       subdomain,
-      action: 'submissions.find',
+      action: "submissions.find",
       data: {
         query: {
-          formId,
-        },
+          formId
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const ids: string[] = [];
@@ -223,8 +223,8 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     this.positiveList.push({
       terms: {
-        _id: await generateElkIds(ids, this.subdomain),
-      },
+        _id: await generateElkIds(ids, this.subdomain)
+      }
     });
   }
 
@@ -233,24 +233,24 @@ export class Builder extends CommonBuilder<IListArgs> {
       this.subdomain,
       {},
       {
-        _id: 1,
-      },
+        _id: 1
+      }
     );
 
     const selector = {
       ...this.context.commonQuerySelector,
-      status: { $ne: 'deleted' },
-      state: this.params.type || 'customer',
+      status: { $ne: "deleted" },
+      state: this.params.type || "customer",
       $or: [
         {
-          integrationId: { $in: [null, undefined, ''] },
+          integrationId: { $in: [null, undefined, ""] }
         },
         {
           integrationId: {
-            $in: activeIntegrations.map((integration) => integration._id),
-          },
-        },
-      ],
+            $in: activeIntegrations.map(integration => integration._id)
+          }
+        }
+      ]
     };
 
     const customers = await this.models.Customers.find(selector)
@@ -261,7 +261,7 @@ export class Builder extends CommonBuilder<IListArgs> {
 
     return {
       list: customers,
-      totalCount: count,
+      totalCount: count
     };
   }
 
@@ -293,7 +293,7 @@ export class Builder extends CommonBuilder<IListArgs> {
           this.subdomain,
           this.params.form,
           this.params.startDate,
-          this.params.endDate,
+          this.params.endDate
         );
       } else {
         await this.formFilter(this.subdomain, this.params.form);

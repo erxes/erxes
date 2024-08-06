@@ -34,7 +34,6 @@ import {
   sendAutomationsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage,
   sendIntegrationsMessage,
   sendProductsMessage
 } from "../../messageBroker";
@@ -233,7 +232,7 @@ export const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await sendFormsMessage({
+  const form = await sendCoreMessage({
     subdomain,
     action: "findOne",
     data: { _id: formId },
@@ -244,7 +243,7 @@ export const createFormConversation = async (
     throw new Error("Form not found");
   }
 
-  const errors = await sendFormsMessage({
+  const errors = await sendCoreMessage({
     subdomain,
     action: "validate",
     data: {
@@ -337,7 +336,7 @@ export const createFormConversation = async (
     });
   }
 
-  await sendFormsMessage({
+  await sendCoreMessage({
     subdomain,
     action: "submissions.createFormSubmission",
     data: {
@@ -398,7 +397,7 @@ const widgetMutations = {
       defaultValue: {}
     });
 
-    const form = await sendFormsMessage({
+    const form = await sendCoreMessage({
       subdomain,
       action: "findOne",
       data: { code: args.formCode },
@@ -634,7 +633,7 @@ const widgetMutations = {
         isRPC: true
       });
 
-      const { customFieldsData, trackedData } = await sendFormsMessage({
+      const { customFieldsData, trackedData } = await sendCoreMessage({
         subdomain,
         action: "fields.generateCustomFieldsData",
         data: {
@@ -1139,7 +1138,7 @@ const widgetMutations = {
       isRPC: true
     });
 
-    const form = await sendFormsMessage({
+    const form = await sendCoreMessage({
       subdomain,
       action: "findOne",
       data: { _id: formId },

@@ -67,6 +67,9 @@ import { IUserMovementDocument } from "./db/models/definitions/users";
 import { ITagDocument } from "./db/models/definitions/tags";
 import { ITagModel, loadTagClass } from "./db/models/Tags";
 
+import { loadFieldClass, loadGroupClass } from "./db/models/Fields";
+import { loadFormClass, loadFormSubmissionClass } from "./db/models/Forms";
+
 import {
   IInternalNoteModel,
   loadInternalNoteClass
@@ -93,6 +96,13 @@ import { IEmailDeliveriesDocument } from "./db/models/definitions/emailDeliverie
 
 import { ISegmentDocument } from "./db/models/definitions/segments";
 import { ISegmentModel, loadSegmentClass } from "./db/models/Segments";
+import { IFieldGroupModel, IFieldModel } from "./db/models/Fields";
+import { IFormModel, IFormSubmissionModel } from "./db/models/Forms";
+import {
+  IFieldDocument,
+  IFieldGroupDocument
+} from "./db/models/definitions/fields";
+import { IForm, IFormSubmissionDocument } from "./db/models/definitions/forms";
 
 export interface IModels {
   Users: IUserModel;
@@ -118,6 +128,10 @@ export interface IModels {
   Logs: ILogModel;
   EmailDeliveries: IEmailDeliveryModel;
   Segments: ISegmentModel;
+  Fields: IFieldModel;
+  FieldsGroups: IFieldGroupModel;
+  Forms: IFormModel;
+  FormSubmissions: IFormSubmissionModel;
 }
 
 export interface IContext extends IMainContext {
@@ -227,6 +241,20 @@ export const loadClasses = (
     "segments",
     loadSegmentClass(models)
   );
+
+  models.Fields = db.model<IFieldDocument, IFieldModel>(
+    "form_fields",
+    loadFieldClass(models, subdomain)
+  );
+  models.FieldsGroups = db.model<IFieldGroupDocument, IFieldGroupModel>(
+    "fields_groups",
+    loadGroupClass(models)
+  );
+  models.Forms = db.model<IForm, IFormModel>("forms", loadFormClass(models));
+  models.FormSubmissions = db.model<
+    IFormSubmissionDocument,
+    IFormSubmissionModel
+  >("form_submissions", loadFormSubmissionClass(models));
 
   return models;
 };

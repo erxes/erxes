@@ -1,8 +1,9 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext, IModels } from '../../../connectionResolver';
-import { sendInboxMessage } from '../../../messageBroker';
-import { IFormSubmissionFilter } from '../../../models/definitions/forms';
-import { formSubmissionsQuery } from '../../../utils';
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext, IModels } from "../../../connectionResolver";
+import { sendInboxMessage } from "../../../messageBroker";
+
+import { formSubmissionsQuery } from "../../../formUtils";
+import { IFormSubmissionFilter } from "../../../db/models/definitions/forms";
 
 const formQueries = {
   /**
@@ -50,7 +51,7 @@ const formQueries = {
 
     const conversations = await sendInboxMessage({
       subdomain,
-      action: 'getConversationsList',
+      action: "getConversationsList",
       data: { query: convsSelector, listParams: { page, perPage } },
       isRPC: true,
       defaultValue: []
@@ -98,7 +99,7 @@ const formQueries = {
 
     return await sendInboxMessage({
       subdomain,
-      action: 'conversations.count',
+      action: "conversations.count",
       data: { query: convsSelector },
       isRPC: true,
       defaultValue: []
@@ -114,7 +115,7 @@ const formQueries = {
 
     const conversation = await sendInboxMessage({
       subdomain,
-      action: 'getConversation',
+      action: "getConversation",
       data: { conversationId: contentTypeId },
       isRPC: true,
       defaultValue: null
@@ -135,6 +136,6 @@ const formQueries = {
   }
 };
 
-checkPermission(formQueries, 'forms', 'showForms', []);
+checkPermission(formQueries, "forms", "showForms", []);
 
 export default formQueries;
