@@ -27,7 +27,7 @@ const configMutations = {
       const value = configsMap[code];
       const doc = { code, value };
 
-      await models.Configs.createOrUpdateConfig(doc);
+      models.Configs.createOrUpdateConfig(doc);
 
       const updatedConfig = await models.Configs.getConfig(code);
 
