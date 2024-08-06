@@ -1,17 +1,15 @@
 import { useEffect } from "react"
-import { selectedTabAtom, slotFilterAtom } from "@/store"
-import { slotCodeAtom } from "@/store/order.store"
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { selectedTabAtom } from "@/store"
+import { useAtomValue } from "jotai"
 
 import { ISlot } from "@/types/slots.type"
+import Loader from "@/components/ui/loader"
 
 import Slot from "./components/slot"
 import useSlots from "./hooks/useSlots"
 
 const Slots = () => {
   const { slots, loading, subToSlots } = useSlots()
-  const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
-  const setSlotFilter = useSetAtom(slotFilterAtom)
   const selectedTab = useAtomValue(selectedTabAtom)
 
   useEffect(() => {
@@ -23,7 +21,7 @@ const Slots = () => {
   }
 
   return (
-    <div className="w-full overflow-auto shadow-inner p-2">
+    <div className="w-full overflow-auto shadow-inner p-2 relative">
       <div
         className="relative min-h-[1000px] min-w-[1000px] w-full h-full"
         style={{
@@ -33,17 +31,11 @@ const Slots = () => {
           backgroundPosition: "-5px -5px",
         }}
       >
-        <div
-          className="absolute inset-0"
-          onClick={() => {
-            setActiveSlot(null)
-            setSlotFilter(null)
-          }}
-        />
         {(slots || []).map((slot: ISlot) => (
-          <Slot key={slot._id} {...slot} active={activeSlot === slot.code} />
+          <Slot key={slot._id} {...slot} />
         ))}
       </div>
+      {loading && <Loader className="absolute inset-0" />}
     </div>
   )
 }
