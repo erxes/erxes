@@ -2,6 +2,7 @@ import { getCloseInfo } from "../../../models/utils/closeUtils";
 import { getFullDate } from "../../../models/utils/utils";
 import { checkPermission, paginate } from "@erxes/api-utils/src";
 import { IContext } from "../../../connectionResolver";
+import { customFieldToObject, sendMessageBroker } from "../../../messageBroker";
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
@@ -237,6 +238,17 @@ const contractQueries = {
     }
 
     return alerts;
+  },
+
+  dealsToContract: async (_root, { id }, { subdomain }: IContext) => {
+    const deal = await sendMessageBroker({
+      subdomain,
+      action:'deals.findOne',
+      data:{_id:id},
+      isRPC:true,
+    },'cards')
+
+    return await customFieldToObject(subdomain,'cards:deal',deal)
   }
 };
 

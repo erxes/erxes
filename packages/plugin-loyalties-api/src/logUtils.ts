@@ -23,6 +23,7 @@ import {
 } from './models/definitions/spinCampaigns';
 import { assignmentCampaignSchema } from './models/definitions/assignmentCampaigns';
 import { voucherCampaignSchema } from './models/definitions/voucherCampaigns';
+import { sendCommonMessage } from './messageBroker';
 
 export const LOG_ACTIONS = {
   CREATE: 'create',
@@ -107,6 +108,16 @@ export const putCreateLog = async (
       action: LOG_ACTIONS.CREATE,
     },
   );
+
+  sendCommonMessage({
+    serviceName: 'core',
+    subdomain,
+    action: 'registerOnboardHistory',
+    data: {
+      type: `${logDoc.type}Create`,
+      user,
+    },
+  });
 
   await commonPutCreateLog(
     subdomain,
