@@ -16,6 +16,7 @@ import SAASAuthRoutes from "./modules/saas/auth/routes";
 import SettingsRoutes from "./modules/settings/routes";
 import TagRoutes from "./modules/tags/routes";
 import SegmentRoutes from "./modules/segments/routes";
+import FormRoutes from "./modules/forms/routes";
 import WelcomeRoutes from "./modules/welcome/routes";
 import asyncComponent from "modules/common/components/AsyncComponent";
 import { getVersion } from "@erxes/ui/src/utils/core";
@@ -148,6 +149,7 @@ const renderRoutes = currentUser => {
       <MainLayout currentUser={currentUser}>
         <SettingsRoutes />
         <TagRoutes />
+        <FormRoutes />
         <SegmentRoutes />
         <WelcomeRoutes currentUser={currentUser} />
         {pluginLayouts(currentUser)}
