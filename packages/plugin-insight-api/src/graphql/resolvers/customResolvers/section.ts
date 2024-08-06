@@ -5,7 +5,7 @@ import { IDashboardDocument } from '../../../models/definitions/insight';
 export default {
   async list(
     section: ISectionDocument,
-    {},
+    _,
     { models, subdomain }: IContext,
     { queryParams },
   ) {
@@ -26,7 +26,7 @@ export default {
   },
   async listCount(
     section: ISectionDocument,
-    {},
+    _,
     { models, subdomain }: IContext,
   ) {
     try {

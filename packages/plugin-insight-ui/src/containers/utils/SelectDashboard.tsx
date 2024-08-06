@@ -15,7 +15,7 @@ type Props = {
 };
 
 const SelectDashboardContainer = (props: Props) => {
-  const { queryParams, data } = props;
+  const { data } = props;
   const navigate = useNavigate();
 
   const sectionsQuery = useQuery<SectionsListQueryResponse>(
