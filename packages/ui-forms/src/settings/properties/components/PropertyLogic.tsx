@@ -112,7 +112,7 @@ function PropertyLogic(props: Props) {
               placeholder={__("pick a date")}
               value={logic.logicValue}
               timeFormat={
-                selectedField.validation === "datetime" ? true : false
+                selectedField.validation === "datetime"
               }
               onChange={onDateChange}
             />

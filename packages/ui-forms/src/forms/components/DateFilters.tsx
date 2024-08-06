@@ -17,7 +17,6 @@ import queryString from 'query-string';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface IProps {
-  counts: { [key: string]: number };
   fields: any[];
   loading: boolean;
   emptyText?: string;
