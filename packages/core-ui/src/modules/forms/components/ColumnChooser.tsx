@@ -1,13 +1,13 @@
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 
-const ManageColumns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ManageColumns" */ '@erxes/ui-forms/src/settings/properties/containers/ManageColumns'
-  )
+const ManageColumns = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "ManageColumns" */ "@erxes/ui-forms/src/settings/properties/containers/ManageColumns"
+    )
 );
 
 type Props = {
@@ -16,16 +16,12 @@ type Props = {
 
 class ColumnChooser extends React.Component<Props> {
   render() {
-    if (!isEnabled('forms')) {
-      return null;
-    }
-
     const manageColumns = props => {
       return (
         <ManageColumns
           {...props}
           contentType={this.props.contentType}
-          type={'import'}
+          type={"import"}
           isImport={true}
         />
       );

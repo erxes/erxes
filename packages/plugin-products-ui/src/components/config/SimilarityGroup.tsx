@@ -2,7 +2,7 @@ import {
   Button,
   EmptyState,
   HeaderDescription,
-  Spinner,
+  Spinner
 } from "@erxes/ui/src/components";
 import React, { useEffect, useState } from "react";
 
@@ -25,40 +25,38 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
   const [fieldGroups, setFieldGroups] = useState<IFieldGroup[]>([]);
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(fieldQueries.fieldsGroups),
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
-          },
-        })
-        .then(({ data }) => {
-          setFieldGroups(data ? data.fieldsGroups : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(fieldQueries.fieldsGroups),
+        variables: {
+          contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT
+        }
+      })
+      .then(({ data }) => {
+        setFieldGroups(data ? data.fieldsGroups : [] || []);
+      });
   }, []);
 
   useEffect(() => {
     setConfigsMap(initialConfigsMap);
   }, [initialConfigsMap]);
 
-  const add = (e) => {
+  const add = e => {
     e.preventDefault();
-    setConfigsMap((prevConfigsMap) => ({
+    setConfigsMap(prevConfigsMap => ({
       ...prevConfigsMap,
       similarityGroup: {
         ...prevConfigsMap.similarityGroup,
         newSimilarityGroup: {
           title: "New similiraty group",
           codeMask: "",
-          rules: [],
-        },
-      },
+          rules: []
+        }
+      }
     }));
   };
 
-  const deleteConfig = (currentConfigKey) => {
+  const deleteConfig = currentConfigKey => {
     const similarityGroup = { ...configsMap.similarityGroup };
     delete similarityGroup[currentConfigKey];
     delete similarityGroup["newSimilarityGroup"];
@@ -68,8 +66,8 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
     save(newMap);
   };
 
-  const renderConfigs = (configs) => {
-    return Object.keys(configs).map((key) => (
+  const renderConfigs = configs => {
+    return Object.keys(configs).map(key => (
       <PerSettings
         key={key}
         configsMap={configsMap}
@@ -108,7 +106,7 @@ const GeneralSettings = ({ save, configsMap: initialConfigsMap, loading }) => {
 
   const breadcrumb = [
     { title: __("Settings"), link: "/settings" },
-    { title: __("Products similarity group config") },
+    { title: __("Products similarity group config") }
   ];
 
   const actionButtons = (

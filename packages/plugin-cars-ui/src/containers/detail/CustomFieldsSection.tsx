@@ -22,7 +22,6 @@ const CustomFieldsSection = (props: Props) => {
   const fieldsGroupsQuery = useQuery<FieldsGroupsQueryResponse>(
     gql(fieldQueries.fieldsGroups),
     {
-      skip: !isEnabled("forms") ? true : false,
       variables: {
         contentType: "cars:car",
         isDefinedByErxes: false

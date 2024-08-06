@@ -22,6 +22,7 @@ import Select from "react-select";
 import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
 import { invalidateCache } from "../../utils";
 import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 
 type Props = {
   options: IOptions;
@@ -32,7 +33,6 @@ type Props = {
   mailSubject?: string;
   showSelect?: boolean;
   saveItem: (doc: IItemParams, callback: (item: IItem) => void) => void;
-  fetchtickets: (stageId: string, callback: (tickets: any) => void) => void;
   closeModal: () => void;
   callback?: (item?: IItem) => void;
   fields: IField[];
@@ -42,6 +42,7 @@ type Props = {
   startDate?: Date;
   closeDate?: Date;
   showStageSelect?: boolean;
+  fetchCards: (stageId: string, callback: (cards: any) => void) => void;
 };
 
 type State = {
@@ -50,7 +51,7 @@ type State = {
   disabled: boolean;
   boardId: string;
   pipelineId: string;
-  tickets: any;
+  cards: any;
   cardId: string;
   customFieldsData: any[];
   priority?: string;
@@ -76,7 +77,7 @@ class AddForm extends React.Component<Props, State> {
       pipelineId: props.pipelineId || "",
       stageId: props.stageId || "",
       cardId: props.cardId || "",
-      tickets: [],
+      cards: [],
       name:
         localStorage.getItem(`${props.options.type}Name`) ||
         props.mailSubject ||
@@ -91,10 +92,10 @@ class AddForm extends React.Component<Props, State> {
   onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
     if (name === "stageId") {
       const { fetchCards } = this.props;
-      fetchCards(String(value), (tickets: any) => {
+      fetchCards(String(value), (cards: any) => {
         if (cards) {
           this.setState({
-            tickets: (cards || []).map(c => ({ value: c._id, label: c.name }))
+            cards: (cards || []).map(c => ({ value: c._id, label: c.name }))
           });
         }
       });
@@ -393,11 +394,11 @@ class AddForm extends React.Component<Props, State> {
           fields={this.props.fields}
         />
 
-        {loadDynamicComponent("relationForm", {
-          ...this.props,
-          onChange: this.onRelationsChange,
-          contentType: `tickets:${type}`
-        })}
+        <RelationForm
+          {...this.props}
+          onChange={this.onRelationsChange}
+          contentType={`sales:${type}`}
+        />
 
         <FormFooter>
           <Button

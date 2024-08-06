@@ -38,18 +38,16 @@ const PerSettings = (props: Props) => {
   const { configsMap, currentConfigKey } = props;
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "sales:deal"
-          }
-        })
-        .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+      });
   }, [fieldsCombined]);
 
   const onChangeBoard = (boardId: string) => {

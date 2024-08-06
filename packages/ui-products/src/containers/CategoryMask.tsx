@@ -1,15 +1,15 @@
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
-import { withProps } from '@erxes/ui/src/utils';
-import CategoryMask from '../components/CategoryMask';
-import { IProductCategory } from '../types';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import React from "react";
+import { graphql } from "@apollo/client/react/hoc";
+import { withProps } from "@erxes/ui/src/utils";
+import CategoryMask from "../components/CategoryMask";
+import { IProductCategory } from "../types";
 
 type Props = {
   parentCategory?: IProductCategory;
@@ -49,7 +49,7 @@ export default withProps<Props>(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
       gql(fieldQueries.fieldsGroups),
       {
-        name: 'fieldsGroupsQuery',
+        name: "fieldsGroupsQuery",
         options: ({ parentCategory, categoryId }) => ({
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
@@ -59,8 +59,7 @@ export default withProps<Props>(
               isChosen: true
             }
           }
-        }),
-        skip: !isEnabled('forms')
+        })
       }
     )
   )(CategoryMaskContainer)

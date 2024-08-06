@@ -218,7 +218,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       fields: fieldsQuery?.fields || [],
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
-      fetchpurchases: this.fetchCards,
+      fetchCards: this.fetchCards,
       stages: stagesQuery?.purchasesStages || []
     };
 
@@ -264,7 +264,7 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: "fieldsQuery",
-        skip: !isEnabled("forms"),
+
         options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `purchases:${options.type}`,

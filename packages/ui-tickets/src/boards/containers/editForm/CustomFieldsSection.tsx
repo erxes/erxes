@@ -82,8 +82,7 @@ export default (props: Props) => {
               pipelineId: item.pipeline._id || ""
             }
           }
-        }),
-        skip: !isEnabled("forms") ? true : false
+        })
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),

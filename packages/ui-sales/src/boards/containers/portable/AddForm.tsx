@@ -264,7 +264,7 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: "fieldsQuery",
-        skip: !isEnabled("forms"),
+
         options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `sales:${options.type}`,

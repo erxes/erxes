@@ -1,16 +1,16 @@
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IField } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import React from 'react';
-import { useQuery } from '@apollo/client';
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { IField } from "@erxes/ui/src/types";
+import { gql } from "@apollo/client";
+import React from "react";
+import { useQuery } from "@apollo/client";
 
-import RelationForm from '../components/RelationForm';
-import queries from '../queries';
+import RelationForm from "../components/RelationForm";
+import queries from "../graphql/queries";
 
 type Props = {
   contentType: string;
   insertedId?: string;
-  onChange: (relations: any) => void;
+  onChange: (ids: string[], relationType: string) => void;
 };
 
 const Container = (props: Props) => {
