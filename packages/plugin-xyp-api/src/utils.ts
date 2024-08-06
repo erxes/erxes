@@ -99,7 +99,7 @@ export const convertToPropertyData = async (
       };
     }
 
-    const groups = await sendCommonMessage({
+    await sendCommonMessage({
       subdomain,
       serviceName: 'forms',
       action: 'fieldsGroups.find',
@@ -132,13 +132,11 @@ export const convertToPropertyData = async (
         if (existingIndex !== -1) {
           // replace existing value
           customFieldsData[existingIndex].value = dataRow[f.code];
-        } else {
-          if (dataRow[f.code])
+        } else if(dataRow[f.code])
             customFieldsData.push({
               field: f._id,
               value: dataRow[f.code],
             });
-        }
       }
     }
 

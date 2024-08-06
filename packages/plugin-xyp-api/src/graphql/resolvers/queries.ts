@@ -49,7 +49,7 @@ const xypQueries = {
       throw new Error('Config not found');
     }
 
-    const config: IXypConfig = xypConfigs && xypConfigs.value;
+    const config: IXypConfig = xypConfigs?.value;
 
     const response = await fetch(config.url + '/api', {
       method: 'post',
@@ -91,7 +91,7 @@ const xypQueries = {
       throw new Error('Config not found');
     }
 
-    const config: IXypConfig = xypConfigs && xypConfigs.value;
+    const config: IXypConfig = xypConfigs?.value;
 
     const response = await fetch(config.url + '/list', {
       method: 'post',
@@ -102,7 +102,7 @@ const xypQueries = {
     return response;
   },
 
-  async xypServiceListChoosen(_root, {}, { models, subdomain }: IContext) {
+  async xypServiceListChoosen(_root, _, { models, subdomain }: IContext) {
     const xypConfigs = await sendCommonMessage({
       subdomain,
       serviceName: 'core',
