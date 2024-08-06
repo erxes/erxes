@@ -1,6 +1,6 @@
 import { IModels } from '../../models';
 import { sendInboxMessage } from '../brokers';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { zaloGet } from '../../zalo';
 const querystring = require('querystring');
 

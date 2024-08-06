@@ -1,10 +1,10 @@
 import { RPResult } from '@erxes/api-utils/src/messageBroker';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import { IModels } from '../../models';
 import { convertAttachment } from '../../utils';
 import { zaloGet } from '../../zalo';
 import { createOrUpdateConversation } from './conversations';
-import { createOrUpdateCustomer, isFollowedUser } from './customers';
+import { createOrUpdateCustomer } from './customers';
 const querystring = require('querystring');
 
 export const zaloCreateIntegration = async (

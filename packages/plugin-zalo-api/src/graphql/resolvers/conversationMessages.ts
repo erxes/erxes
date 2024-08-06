@@ -1,6 +1,4 @@
 import { IConversationMessageDocument } from '../../models/ConversationMessages';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-import { IContext } from '../../models';
 
 export default {
   user(message: IConversationMessageDocument, _args, { models }) {

@@ -1,7 +1,6 @@
 import { IContext, IModels } from '../../models';
 import { IConversationMessageDocument } from '../../models/ConversationMessages';
 // import { Accounts, Messages } from '../../models';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 interface IKind {
   kind: string;
@@ -64,7 +63,7 @@ const queries = {
 
       messages = await models.ConversationMessages.find(query)
         .sort(sort)
-        .skip(skip || 0)
+        .skip(skip ?? 0)
         .limit(limit);
 
       return getFirst ? messages : messages.reverse();

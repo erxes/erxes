@@ -4,13 +4,10 @@ import { generateModels } from '../../models';
 import { IAccount, IAccountModel } from '../../models/Accounts';
 import {
   getAccessTokenByOauthCode,
-  getAPI,
   setZaloConfigs,
-  ZaloAccessToken,
   zaloGet,
-  ZaloRefreshToken,
 } from '../../zalo';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 export const connectAccount = async (req, res) => {
   const subdomain = getSubdomain(req);
