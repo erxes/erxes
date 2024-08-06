@@ -1,8 +1,8 @@
-import { getCloseInfo } from "../../../models/utils/closeUtils";
-import { getFullDate } from "../../../models/utils/utils";
-import { checkPermission, paginate } from "@erxes/api-utils/src";
-import { IContext } from "../../../connectionResolver";
-import { customFieldToObject, sendMessageBroker } from "../../../messageBroker";
+import { getCloseInfo } from '../../../models/utils/closeUtils';
+import { getFullDate } from '../../../models/utils/utils';
+import { checkPermission, paginate } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
+import { customFieldToObject, sendMessageBroker } from '../../../messageBroker';
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
