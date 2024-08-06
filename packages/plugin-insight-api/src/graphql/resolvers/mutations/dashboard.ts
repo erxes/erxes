@@ -3,6 +3,7 @@ import { IContext } from '../../../connectionResolver';
 import { IDashboard } from '../../../models/definitions/insight';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { compareArrays } from '../../../utils';
+import { sendCoreMessage } from '../../../messageBroker';
 
 interface IDashboardEdit extends IDashboard {
   _id: string;
@@ -53,7 +54,11 @@ const dashboardMutations = {
    * Creates a new dashboard
    */
 
-  async dashboardAdd(_root, doc: IDashboard, { models, user }: IContext) {
+  async dashboardAdd(
+    _root,
+    doc: IDashboard,
+    { models, user, subdomain }: IContext,
+  ) {
     const dashboard = await models.Dashboards.createDashboard({
       ...doc,
       createdBy: user._id,
@@ -69,6 +74,15 @@ const dashboardMutations = {
         await addChartsForDashboard(dashboard._id, serviceName, charts, models);
       }
     }
+
+    sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: `InsightCreate`,
+        user,
+      },
+    });
 
     return dashboard;
   },
@@ -157,7 +171,7 @@ const dashboardMutations = {
       throw new Error('Dashboard not found');
     }
 
-    const {_id:_, ...dup} = dashboard.toObject();
+    const { _id: _, ...dup } = dashboard.toObject();
 
     const duplicatedDashboard = await models.Dashboards.createDashboard({
       ...dup,
