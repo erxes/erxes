@@ -12,7 +12,6 @@ const receiveMessage = async (
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
-
   const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: [recipient.id] } },

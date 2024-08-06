@@ -4,10 +4,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { getEnv, sendToWebhook } from '@erxes/api-utils/src';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { CAMPAIGN_KINDS } from '../../constants';
-import {
-  checkCampaignDoc,
-  send,
-} from '../../engageUtils';
+import { checkCampaignDoc, send } from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -155,7 +152,7 @@ const engageMutations = {
   async engageMessageSetLive(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -164,6 +161,15 @@ const engageMutations = {
     }
 
     await checkCampaignDoc(models, subdomain, campaign);
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'setCampaignLive',
+        user,
+      },
+    });
 
     return models.EngageMessages.engageMessageSetLive(_id);
   },
@@ -228,7 +234,7 @@ const engageMutations = {
   async engageMessageVerifyEmail(
     _root,
     { email }: { email: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const response = await awsRequests.verifyEmail(models, email);
 
@@ -241,7 +247,7 @@ const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root,
     { email }: { email: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const response = await awsRequests.removeVerifiedEmail(models, email);
 
@@ -251,12 +257,12 @@ const engageMutations = {
   async engageMessageSendTestEmail(
     _root,
     args: ITestEmailParams,
-    { subdomain, models }: IContext
+    { subdomain, models }: IContext,
   ) {
     const { content, from, to, title } = args;
     if (!(content && from && to && title)) {
       throw new Error(
-        'Email content, title, from address or to address is missing'
+        'Email content, title, from address or to address is missing',
       );
     }
 
@@ -266,14 +272,14 @@ const engageMutations = {
       isRPC: true,
       subdomain,
       action: 'customers.findOne',
-      data: { customerPrimaryEmail: to }
+      data: { customerPrimaryEmail: to },
     });
 
     const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
       subdomain,
-      isRPC: true
+      isRPC: true,
     });
 
     const attributeUtil = await getEditorAttributeUtil(subdomain);
@@ -281,7 +287,7 @@ const engageMutations = {
     replacedContent = await attributeUtil.replaceAttributes({
       content,
       customer,
-      user: targetUser
+      user: targetUser,
     });
 
     try {
@@ -291,7 +297,7 @@ const engageMutations = {
         to,
         subject: title,
         html: content,
-        content: replacedContent
+        content: replacedContent,
       });
       return JSON.stringify(response);
     } catch (e) {

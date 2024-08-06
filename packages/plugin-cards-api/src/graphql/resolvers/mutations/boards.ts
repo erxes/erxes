@@ -12,7 +12,7 @@ import { checkPermission } from '../../utils';
 import { putCreateLog, putUpdateLog, putDeleteLog } from '../../../logUtils';
 import { configReplacer } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
-import { sendFormsMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendFormsMessage } from '../../../messageBroker';
 import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
 
 interface IBoardsEdit extends IBoard {
@@ -185,6 +185,15 @@ const boardMutations = {
       },
       user,
     );
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: `${doc.type}PipelineConfigured`,
+        user,
+      },
+    });
 
     return pipeline;
   },
@@ -371,7 +380,7 @@ const boardMutations = {
     const copied = await models.Pipelines.createPipeline(pipelineDoc);
 
     for (const stage of sourceStages) {
-      const { _id, ...rest} = stage;
+      const { _id, ...rest } = stage;
       await models.Stages.createStage({
         ...rest,
         probability: stage.probability || '10%',

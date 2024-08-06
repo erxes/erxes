@@ -1,6 +1,6 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { sendInboxMessage } from '../../../messageBroker';
+import { sendCommonMessage, sendInboxMessage } from '../../../messageBroker';
 import { IForm } from '../../../models/definitions/forms';
 
 interface IFormsEdit extends IForm {
@@ -19,7 +19,21 @@ const formMutations = {
   /**
    * Create a new form
    */
-  async formsAdd(_root, doc: IForm, { user, docModifier, models }: IContext) {
+  async formsAdd(
+    _root,
+    doc: IForm,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
+    await sendCommonMessage({
+      serviceName: 'core',
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'formCreate',
+        user
+      }
+    });
+
     return models.Forms.createForm(docModifier(doc), user._id);
   },
 
