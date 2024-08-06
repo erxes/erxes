@@ -43,11 +43,8 @@ type Name =
 
 type Props = {
   type: string;
-  color: string;
-  theme: string;
   thankTitle?: string;
   thankContent?: string;
-  successAction?: string;
   onChange: (name: Name, value: any) => void;
   leadData?: ILeadData;
   formId?: string;
