@@ -101,7 +101,7 @@ function Preview({ messages }) {
         {renderCard({ text } as any)}
         <QuickReplies>
           {quickReplies.map((quickReply) => (
-            <QuickReply>{quickReply.text}</QuickReply>
+            <QuickReply key={quickReply.id}>{quickReply.text}</QuickReply>
           ))}
         </QuickReplies>
       </div>
@@ -133,8 +133,8 @@ function Preview({ messages }) {
 
       return (
         <div>
-          {buttons.map((button, idx) => (
-            <div key={idx}>{renderButton(button)}</div>
+          {buttons.map((button) => (
+            <div key={button.id}>{renderButton(button)}</div>
           ))}
         </div>
       );
