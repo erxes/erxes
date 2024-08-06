@@ -375,7 +375,7 @@ export class Builder {
     });
 
     if (action === 'count') {
-      return response && response.count ? response.count : 0;
+      return response?.count ? response.count : 0;
     }
 
     const list = response.hits.hits.map((hit) => {

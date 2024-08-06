@@ -14,7 +14,7 @@ const cars = {
     }
   },
 
-  async customer(car: ICarDocument, { }, { models, subdomain }) {
+  async customer(car: ICarDocument, _, { models, subdomain }) {
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
