@@ -1,6 +1,6 @@
 import { Document, Model, Schema } from 'mongoose';
 import { field } from './utils';
-import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IModels } from '../connectionResolver';
 
 export interface ILocation {
@@ -14,7 +14,7 @@ export interface ILocation {
   userAgent: string;
 }
 
-export interface ILocationDocument extends ILocation, Document {}
+export interface ILocationDocument extends ILocation, Document { }
 
 export interface IVistiorDoc {
   visitorId: string;
@@ -43,7 +43,7 @@ export const locationSchema = new Schema(
   { _id: false },
 );
 
-export interface IVisitorDocument extends IVistiorDoc, Document {}
+export interface IVisitorDocument extends IVistiorDoc, Document { }
 
 export interface IVisitorModel extends Model<IVisitorDocument> {
   createOrUpdateVisitorLog(doc: IVistiorDoc): Promise<IVisitorDocument>;
