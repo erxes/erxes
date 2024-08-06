@@ -114,7 +114,8 @@ function List({
       <tbody id={"TagsShowing"}>
         {tags.map((tag) => {
           const order = tag.order || "";
-          const foundedString = order.match(/[/]/gi);
+          const foundedString = order.match(/\//gi);
+
 
           return (
             <Row
