@@ -6,8 +6,7 @@ import {
   GeneralWrapper,
   Logos,
   TeamPortal,
-} from "../styles";
-import { ColorPick, ColorPicker } from "../styles";
+ ColorPick, ColorPicker } from "../styles";
 import React, { useState } from "react";
 import Select, { OnChangeValue } from "react-select";
 
