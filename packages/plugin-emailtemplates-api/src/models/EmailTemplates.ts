@@ -79,7 +79,7 @@ export const loadEmailTemplateClass = (models: IModels) => {
      * Duplicate an email template
      */
     public static async duplicateEmailTemplate(_id: string, user: any) {
-      const template = await models.EmailTemplates.getEmailTemplate(_id);
+      const template = models.EmailTemplates.getEmailTemplate(_id);
 
       return models.EmailTemplates.createEmailTemplate(
         {
