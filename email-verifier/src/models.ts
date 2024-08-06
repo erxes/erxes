@@ -41,7 +41,8 @@ export const EMAIL_VALIDATION_SOURCES = {
   SENDGRID: 'sendgrid',
   TRUEMAIL: 'truemail',
   REACHER: 'reacher',
-  ALL: ['erxes', 'sendgrid', 'reacher', 'truemail', 'clearout'],
+  MAILSSO: 'mailsso',
+  ALL: ['erxes', 'sendgrid', 'reacher', 'truemail', 'clearout', 'mailsso'],
 };
 
 interface IEmail {

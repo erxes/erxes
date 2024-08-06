@@ -1,7 +1,6 @@
 import * as schedule from 'node-schedule';
 import { getBulkResult, getStatus } from '../apiPhoneVerifier';
-import { getProgressStatus, getResult } from '../api';
-import { debugCrons, getArray, setArray } from '../utils';
+import { debugCrons, getArray, getProgressStatus, getResult, setArray } from '../utils';
 
 schedule.scheduleJob('1 * * * * *', async () => {
   const listIds = await getArray('erxes_phone_verifier_list_ids');
