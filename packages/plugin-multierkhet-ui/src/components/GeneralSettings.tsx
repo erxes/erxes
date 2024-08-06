@@ -56,16 +56,19 @@ const GeneralSettings = (props: Props) => {
       },
     }));
   };
-
   const deleteHandler = (currentConfigKey: string) => {
-    delete configsMap.erkhetConfig[currentConfigKey];
-    delete configsMap.erkhetConfig['newBrandId'];
+    const newConfigsMap = {
+      ...configsMap,
+      erkhetConfig: {
+        ...configsMap.erkhetConfig
+      }
+    };
+    delete newConfigsMap.erkhetConfig[currentConfigKey];
+    delete newConfigsMap.erkhetConfig['newBrandId'];
 
-    setConfigsMap(configsMap);
-
-    props.save(configsMap);
+    setConfigsMap(newConfigsMap);
+    props.save(newConfigsMap);
   };
-
   const renderConfigs = (configs) => {
     return Object.keys(configs).map((key) => {
       return (

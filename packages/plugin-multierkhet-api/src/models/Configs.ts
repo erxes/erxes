@@ -15,7 +15,7 @@ export const loadConfigClass = (models: IModels, _subdomain) => {
     public static async getConfig(code: string, defaultValue: any) {
       const config = await models.Configs.findOne({ code });
 
-      if (!config || !config.code) {
+      if (!config?.code) {
         return defaultValue;
       }
 

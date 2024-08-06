@@ -58,11 +58,7 @@ export const customerToErkhet = async (models, params, action) => {
 
 export const validCompanyCode = async (config, companyCode) => {
   let result = '';
-  if (
-    !config ||
-    !config.checkCompanyUrl ||
-    !config.checkCompanyUrl.includes('http')
-  ) {
+  if (!config.checkCompanyUrl?.includes('http')) {
     return result;
   }
 

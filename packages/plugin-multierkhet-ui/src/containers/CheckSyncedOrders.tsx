@@ -96,7 +96,7 @@ const CheckSyncedOrdersContainer = (props: Props) => {
       variables: { orderIds },
     })
       .then((response) => {
-        const { skipped, error, success } = response?.data?.toMultiSyncOrders;
+        const { skipped, error, success } = response.data?.toMultiSyncOrders;
         const changed = unSyncedOrderIds.filter((u) => !orderIds.includes(u));
         setUnSyncedOrderIds(changed);
         Alert.success(
@@ -137,7 +137,6 @@ const CheckSyncedOrdersContainer = (props: Props) => {
 };
 
 const generateParams = ({ queryParams }) => {
-  const pageInfo = router.generatePaginationParams(queryParams || {});
 
   return {
     paidStartDate: queryParams.paidStartDate,

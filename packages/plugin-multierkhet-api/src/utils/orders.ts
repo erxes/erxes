@@ -17,13 +17,7 @@ export const getPostData = async (subdomain, pos, order) => {
 
   let erkhetConfig = await models.Configs.getConfig('ERKHET', {});
 
-  if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !pos.erkhetConfig ||
-    !pos.erkhetConfig.isMultiErkhet
-  ) {
+  if (!erkhetConfig.apiKey! ||!erkhetConfig.apiSecret ||!pos.erkhetConfig?.isMultiErkhet) {
     return;
   }
 
@@ -104,7 +98,7 @@ export const getPostData = async (subdomain, pos, order) => {
   if (order.customerId) {
     const customerType = order.customerType || 'customer';
     if (customerType === 'company') {
-      customerCode = customerCode = (
+      customerCode = (
         (await sendContactsMessage({
           subdomain,
           action: 'companies.findOne',
@@ -113,8 +107,8 @@ export const getPostData = async (subdomain, pos, order) => {
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        }))
+      )?.code;
     } else {
       customerCode = (
         (await sendContactsMessage({
@@ -125,36 +119,26 @@ export const getPostData = async (subdomain, pos, order) => {
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        }))
+      )?.code;
     }
   }
 
-  const orderInfos = [
-    {
-      date: getPureDate(order.paidDate)
-        .toISOString()
-        .slice(0, 10),
-      orderId: order._id,
-      hasVat: order.taxInfo
-        ? order.taxInfo.hasVat
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasVat
-        ? true
-        : false,
-      hasCitytax: order.taxInfo
-        ? order.taxInfo.hasCitytax
-        : pos.ebarimtConfig && pos.ebarimtConfig.hasCitytax
-        ? true
-        : false,
-      billType: order.billType,
-      customerCode,
-      description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
-      details,
-      ...payments
-    }
-  ];
-
+  const hasVat = order.taxInfo ? order.taxInfo.hasVat : !!pos.ebarimtConfig?.hasVat;
+  const hasCitytax = order.taxInfo ? order.taxInfo.hasCitytax : !!pos.ebarimtConfig?.hasCitytax;
+  const orderInfo = {
+    date: getPureDate(order.paidDate).toISOString().slice(0, 10),
+    orderId: order._id,
+    hasVat,
+    hasCitytax,
+    billType: order.billType,
+    customerCode,
+    description: `${pos.name}`,
+    number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
+    details,
+    ...payments
+  };
+  const orderInfos = [orderInfo];
   let userEmail = pos.erkhetConfig.userEmail;
 
   return {
