@@ -1,6 +1,5 @@
-import { Model } from 'mongoose';
+import { Model, Document, Schema } from 'mongoose';
 
-import { Document, Schema } from 'mongoose';
 
 interface IDocument {
   createdAt: Date;
@@ -31,7 +30,7 @@ const documentSchema = new Schema({
 
 });
 
-documentSchema.index({ code: 1}, { unique: true});
+documentSchema.index({ code: 1 }, { unique: true });
 
 export interface IDocumentModel extends Model<IDocumentDocument> {
   saveDocument({ _id, doc }): void;
