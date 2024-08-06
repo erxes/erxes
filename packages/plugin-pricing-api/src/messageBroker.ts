@@ -81,7 +81,7 @@ export const setupMessageConsumers = async () => {
 
         const unitPrice = product.unitPrice || 0;
         const prePrice =
-          (rulesByProductId[allowProductId] || {}).price || unitPrice;
+          rulesByProductId?.[allowProductId]?.price ?? unitPrice;
 
         const price =
           unitPrice -
