@@ -17,7 +17,6 @@ import AccquireInformation from './AccquireInformation';
 import Bot from './bot/Bot';
 import { OPERATOR_STATUS } from './bot/constants';
 import { connection } from '../connection';
-import Skeleton from './common/Skeleton';
 
 type Props = {
   messages: IMessage[];

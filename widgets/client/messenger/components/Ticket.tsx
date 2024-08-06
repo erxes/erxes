@@ -17,13 +17,16 @@ const Ticket: React.FC<Props> = ({
   isSubmitted,
   handleButtonClick,
 }) => {
+  const submitText = __('Submit');
+  const continueText = __('Continue');
+
   const renderSubmitted = () => {
     return (
       <div className="success-wrapper">
         <div className="message">
           <IconCheckInCircle />
-          <h3>Your message has been sent</h3>
-          <p>Thank you for sharing your thoughts</p>
+          <h3>{__('Your message has been sent')}</h3>
+          <p>{__('Thank you for sharing your thoughts')}</p>
         </div>
       </div>
     );
@@ -58,15 +61,15 @@ const Ticket: React.FC<Props> = ({
   return (
     <Container
       withBottomNavBar={false}
-      title="Ticket"
+      title={__('Ticket')}
       persistentFooter={
         !isSubmitted ? (
           <Button form="ticket-form" type="submit" full>
-            Submit
+            <span className="font-semibold">{submitText}</span>
           </Button>
         ) : (
           <Button full onClick={handleButtonClick}>
-            Continue
+            <span className="font-semibold">{continueText}</span>
           </Button>
         )
       }

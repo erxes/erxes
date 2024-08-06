@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, createContext, useContext } from 'react';
 import { connection } from '../connection';
-import { IAttachment, IMessage } from '../types';
+import { IAttachment } from '../types';
 import { setLocalStorageItem } from '../../common';
 import { MESSAGE_TYPES } from '../constants';
 import { newLineToBr } from '../../utils';
@@ -9,7 +9,6 @@ import {
   WIDGETS_INSERT_MESSAGE_MUTATION,
   WIDGET_BOT_REQUEST_MUTATION,
 } from '../graphql/mutations';
-import { GET_CONVERSATION_DETAIL } from '../graphql/queries';
 import { useConversation } from './Conversation';
 import { useConfig } from './Config';
 import { useMutation } from '@apollo/client';

@@ -1,30 +1,18 @@
 import * as React from 'react';
-import { iconLeft } from '../../../icons/Icons';
-import TopBar from '../../containers/TopBar';
 import Articles from '../../containers/faq/Articles';
 import { IFaqCategory } from '../../types';
 import SearchBar from './SearchBar';
 import { __ } from '../../../utils';
-import { useRouter } from '../../context/Router';
 import Container from '../common/Container';
+import CategoriesContainer from '../../containers/faq/Categories';
 
 type Props = {
   category: IFaqCategory;
-  goToCategories: () => void;
   loading: boolean;
   topicId: string;
 };
 
-interface IState {
-  searchString: string;
-}
-
-const CategoryDetail = ({
-  category,
-  loading,
-  topicId,
-  goToCategories,
-}: Props) => {
+const CategoryDetail = ({ category, loading, topicId }: Props) => {
   const [searchString, setSearchString] = React.useState('');
 
   const search = (searchString: string) => {
@@ -51,24 +39,27 @@ const CategoryDetail = ({
       return <div className="loader bigger" />;
     }
 
+    if (category.parentCategoryId) {
+      return (
+        <div className="scroll-wrapper">
+          <Articles
+            topicId={topicId}
+            articles={category.articles}
+            searchString={searchString}
+          />
+        </div>
+      );
+    }
     return (
       <div className="scroll-wrapper">
-        <Articles
+        <CategoriesContainer
           topicId={topicId}
-          articles={category.articles}
-          searchString={searchString}
+          searchString=""
+          initialCategory={category}
         />
       </div>
     );
   };
-  {
-    /* <TopBar
-    middle={}
-    buttonIcon={iconLeft()}
-    onLeftButtonClick={goToCategories}
-    
-  /> */
-  }
 
   return (
     <Container

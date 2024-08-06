@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { iconAttach, iconVideo } from '../../icons/Icons';
+import { iconAttach, IconSend, iconVideo } from '../../icons/Icons';
 import { __ } from '../../utils';
 import { MESSAGE_TYPES } from '../constants';
 import { connection } from '../connection';
@@ -37,7 +37,6 @@ const MessageSender: React.FC<Props> = (props) => {
     readMessages,
     onTextInputBlur,
     collapseHead,
-    showVideoCallRequest,
     isAttachingFile,
     placeholder,
   } = props;
@@ -47,6 +46,22 @@ const MessageSender: React.FC<Props> = (props) => {
       clearTimeout(inputTimeoutInstance);
     }
   };
+
+  useEffect(() => {
+    if (textareaRef.current && window.innerWidth > 415) {
+      textareaRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isParentFocused && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isParentFocused]);
+
+  useEffect(() => {
+    return () => clearTimeoutInstance();
+  }, []);
 
   const setHeight = (height?: number | 'auto') => {
     const textarea = textareaRef.current;
@@ -162,10 +177,6 @@ const MessageSender: React.FC<Props> = (props) => {
   }, [sendMessage]);
 
   const renderFileUploader = () => {
-    if (isAttachingFile) {
-      return <div className="loader" />;
-    }
-
     return (
       <label title="File upload" htmlFor="file-upload">
         {iconAttach}
@@ -179,43 +190,24 @@ const MessageSender: React.FC<Props> = (props) => {
     );
   };
 
-  const renderVideoCallRequest = () => {
-    if (!showVideoCallRequest || !connection.enabledServices.dailyco) {
+  const renderSendButton = () => {
+    if (!message.length) {
       return null;
     }
 
     return (
-      <label
-        title="Video call request"
-        className="ctrl-item"
-        onClick={sendVideoCallRequest}
-      >
-        {iconVideo()}
-      </label>
+      <button type="submit" form="message-sending-form">
+        <IconSend />
+      </button>
     );
   };
-
-  useEffect(() => {
-    if (textareaRef.current && window.innerWidth > 415) {
-      textareaRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isParentFocused && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [isParentFocused]);
-
-  useEffect(() => {
-    return () => clearTimeoutInstance();
-  }, []);
 
   return (
     <form
       className="erxes-message-sender"
       ref={formRef}
       onSubmit={handleSubmit}
+      id="message-sending-form"
     >
       <textarea
         ref={textareaRef}
@@ -230,7 +222,6 @@ const MessageSender: React.FC<Props> = (props) => {
         disabled={(conversationId || '').length > 0 ? false : inputDisabled}
       />
       <div className="messenger-action-buttons">
-        {renderVideoCallRequest()}
         <EmojiPicker
           onEmojiSelect={(emoji: any) => {
             setMessage((prevMessage) => prevMessage + emoji.native);
@@ -238,6 +229,7 @@ const MessageSender: React.FC<Props> = (props) => {
           }}
         />
         {renderFileUploader()}
+        {renderSendButton()}
       </div>
     </form>
   );

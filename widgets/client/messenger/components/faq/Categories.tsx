@@ -1,12 +1,13 @@
 import * as React from 'react';
 import Category from '../../containers/faq/Category';
 import { IFaqTopic, IFaqCategory } from '../../types';
-import { iconLeft } from '../../../icons/Icons';
+import { iconLeft, iconSearch } from '../../../icons/Icons';
 import { __ } from '../../../utils';
 
 type Props = {
   faqTopics?: IFaqTopic;
   loading: boolean;
+  initialCategory?: IFaqCategory;
 };
 
 type State = {
@@ -14,11 +15,21 @@ type State = {
   textColor: string;
 };
 
-const Categories: React.FC<Props> = ({ faqTopics, loading }) => {
+const Categories: React.FC<Props> = ({
+  faqTopics,
+  loading,
+  initialCategory,
+}) => {
   const [currentCategory, setCurrentCategory] = React.useState<
     IFaqCategory | undefined
   >(undefined);
   const [textColor, setTextColor] = React.useState('#888');
+
+  React.useEffect(() => {
+    if (initialCategory) {
+      setCurrentCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
   const groupByParent = (array: any[]) => {
     const key = 'parentCategoryId';
@@ -45,22 +56,37 @@ const Categories: React.FC<Props> = ({ faqTopics, loading }) => {
 
   const group = groupByParent(subFields);
 
-  if (currentCategory) {
-    const childrens = group[currentCategory._id] || [];
+  const renderChildrenCategories = () => {
+    if (currentCategory) {
+      const childrens = group[currentCategory._id] || [];
 
-    return (
-      <div className="fade-in">
-        <button
-          className="back-category-button left"
-          onClick={() => setCurrentCategory(undefined)}
-        >
-          {iconLeft(textColor)} {__('Back to FAQ')}
-        </button>
-        {childrens.map((child: IFaqCategory) => (
-          <Category key={child._id} category={child} />
-        ))}
-      </div>
-    );
+      if (childrens.length === 0) {
+        return (
+          <div className="empty-articles">
+            {iconSearch}
+            {__('No category found')}
+          </div>
+        );
+      }
+
+      return (
+        <div className="fade-in faq-collection-container">
+          <button
+            className="back-category-button left"
+            onClick={() => setCurrentCategory(undefined)}
+          >
+            {iconLeft(textColor)} {__('Back to FAQ')}
+          </button>
+          {childrens.map((child: IFaqCategory) => (
+            <Category key={child._id} category={child} />
+          ))}
+        </div>
+      );
+    }
+  };
+
+  if (currentCategory) {
+    return renderChildrenCategories();
   }
 
   return (
@@ -77,6 +103,7 @@ const Categories: React.FC<Props> = ({ faqTopics, loading }) => {
             childrens={childrens}
             getCurrentItem={getCurrentItem}
             category={category}
+            isParent
           />
         );
       })}

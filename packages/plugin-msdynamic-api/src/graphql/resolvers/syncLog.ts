@@ -6,7 +6,7 @@ export default {
     return models.SyncLogs.findOne({ _id });
   },
 
-  async createdUser(syncLog: ISyncLogDocument, _, { subdomain }: IContext) {
+  async createdUser(syncLog: ISyncLogDocument, {}, { subdomain }: IContext) {
     if (!syncLog.createdBy) {
       return;
     }
@@ -19,7 +19,7 @@ export default {
     });
   },
 
-  async content(syncLog: ISyncLogDocument, _, {}: IContext) {
+  async content(syncLog: ISyncLogDocument, {}, {}: IContext) {
     const { contentType, contentId } = syncLog;
 
     if (contentType === 'pos:order') {

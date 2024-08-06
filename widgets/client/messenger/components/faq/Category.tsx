@@ -8,6 +8,7 @@ type Props = {
   childrens?: IFaqCategory[];
   getCurrentItem?: (currentCategory: IFaqCategory) => void;
   onClick: (category?: IFaqCategory) => void;
+  isParent?: boolean;
 };
 
 const Category: React.FC<Props> = ({
@@ -15,6 +16,7 @@ const Category: React.FC<Props> = ({
   getCurrentItem,
   childrens,
   onClick,
+  isParent,
 }) => {
   const handleOnClick = (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -39,7 +41,7 @@ const Category: React.FC<Props> = ({
       <div className="category-detail">
         <h6>{category.title}</h6>
         <p>{category.description}</p>
-        <div className="description">{`${renderCount()} ${__('articles')}`}</div>
+        <div className="description">{`${renderCount()} ${__(isParent ? 'categories' : 'articles')}`}</div>
       </div>
       <IconChevronRight />
     </div>
