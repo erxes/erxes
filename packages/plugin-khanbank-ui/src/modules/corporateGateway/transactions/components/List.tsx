@@ -22,7 +22,6 @@ type Props = {
   loading: boolean;
   showLatest?: boolean;
   // onChangeDate: (date: string, type: 'startDate' | 'endDate') => void;
-  refetch?: () => void;
 };
 
 const List = (props: Props) => {
@@ -90,7 +89,6 @@ const List = (props: Props) => {
   );
 
   const rightActionBar = (
-    <>
       <BarItems>
         <CustomRangeContainer>
           <FormControl
@@ -140,7 +138,6 @@ const List = (props: Props) => {
           />
         </CustomRangeContainer>
       </BarItems>
-    </>
   );
 
   return (

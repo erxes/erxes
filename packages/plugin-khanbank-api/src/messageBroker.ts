@@ -4,7 +4,6 @@ import Khanbank from './khanbank/khanbank';
 import { generateModels } from './connectionResolver';
 import { TransferParams } from './khanbank/types';
 import {
-  InterMessage,
   consumeRPCQueue,
 } from '@erxes/api-utils/src/messageBroker';
 
@@ -14,7 +13,6 @@ export const setupMessageConsumers = async () => {
    * @param {string} subdomain
    * @param {string} configId
    * @return { Promise<any>}
-   * TODO: add return type
    */
   consumeRPCQueue('khanbank:accounts', async ({ subdomain, data }) => {
     const { configId } = data;
@@ -59,7 +57,6 @@ export const setupMessageConsumers = async () => {
    * @param {string} configId
    * @param {string} accountNumber
    * @return { Promise<any>}
-   * TODO: add return type
    */
   consumeRPCQueue('khanbank:accountDetail', async ({ subdomain, data }) => {
     const { configId, accountNumber } = data;
@@ -105,7 +102,6 @@ export const setupMessageConsumers = async () => {
    * @param {string} accountNumber
    * @param {string} bankCode
    * @return { Promise<any>}
-   * TODO: add return type
    */
   consumeRPCQueue('khanbank:accountHolder', async ({ subdomain, data }) => {
     const { configId, accountNumber, bankCode } = data;
@@ -153,7 +149,6 @@ export const setupMessageConsumers = async () => {
    * @param {number} perPage - per page
    * @param {number} record - record number
    * @return {[object]} - Returns an array of statements
-   * TODO: update return type
    */
   consumeRPCQueue('khanbank:statements', async ({ subdomain, data }) => {
     const { configId, accountNumber } = data;
@@ -244,7 +239,6 @@ export const setupMessageConsumers = async () => {
    * @param {string} toAccountName - to account name
    * @param {string} toBank - to bank
    * @return {object} - Returns a response object
-   * TODO: update return type
    */
   consumeRPCQueue('khanbank:interbankTransfer', async ({ subdomain, data }) => {
     const { configId, toCurrency, toAccountName, toBank } = data;
