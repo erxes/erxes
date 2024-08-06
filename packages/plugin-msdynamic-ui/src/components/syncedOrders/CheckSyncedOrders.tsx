@@ -37,10 +37,6 @@ type Props = {
 };
 
 class CheckSyncedOrders extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   renderRow = () => {
     const {
       orders,
