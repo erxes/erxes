@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
 import {
   Content,
   MainContent,
   SuccessContent,
 } from "modules/saas/onBoarding/styles";
-import WelcomeContent from "./welcome/WelcomeContent";
-import Sidebar from "./Sidebar";
-import MessengerPreview from "./messenger/MessengerPreview";
+import React, { useEffect, useState } from "react";
+
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { IUser } from "modules/auth/types";
 import InstallCode from "../container/messenger/InstallCode";
+import MessengerPreview from "./messenger/MessengerPreview";
 import ProfilePreview from "./profile/ProfilePreview";
-import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import Sidebar from "./Sidebar";
+import WelcomeContent from "./welcome/WelcomeContent";
 
 type Props = {
   currentUser: IUser;
@@ -126,6 +127,12 @@ const OnBoarding = ({
 
   return (
     <Content>
+      <MainContent
+        full={activeStep === totalSteps ? true : false}
+        flexStart={flexStart}
+      >
+        {renderMainContent()}
+      </MainContent>
       <Sidebar
         activeStep={activeStep}
         totalStep={totalSteps}
@@ -135,12 +142,6 @@ const OnBoarding = ({
         {...profileProps}
         {...messengerProps}
       />
-      <MainContent
-        full={activeStep === totalSteps ? true : false}
-        flexStart={flexStart}
-      >
-        {renderMainContent()}
-      </MainContent>
     </Content>
   );
 };

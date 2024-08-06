@@ -62,13 +62,16 @@ const ListContainer = (props: Props) => {
   const onFilter = (filterParams: IQueryParams) => {
     router.removeParams(navigate, location, "page");
 
-    for (const key of Object.keys(filterParams)) {
+    const setParams: any = {}
+
+    for (const key of new Set([...Object.keys(queryParams), ...Object.keys(filterParams)])) {
       if (filterParams[key]) {
-        router.setParams(navigate, location, { [key]: filterParams[key] });
+        setParams[key] = filterParams[key];
       } else {
-        router.removeParams(navigate, location, key);
+        setParams[key] = undefined;
       }
     }
+    router.setParams(navigate, location, { ...setParams });
 
     return router;
   };

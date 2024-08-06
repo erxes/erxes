@@ -1,8 +1,8 @@
-import { colors } from '../styles';
-import { stripe } from '../utils/animations';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+import React from "react";
+import { colors } from "../styles";
+import { stripe } from "../utils/animations";
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
 
 const ContentContainer = styled.div`
   position: relative;
@@ -16,7 +16,7 @@ const Wrapper = styledTS<{ height?: string }>(styled.div)`
   padding: 0px 30px;
   background: ${colors.bgMain};
   width: 100%;
-  height: ${props => (props.height ? props.height : '36px')};
+  height: ${(props) => (props.height ? props.height : "36px")};
   box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.05);
 
   a:hover {
@@ -35,7 +35,7 @@ const Wrapper = styledTS<{ height?: string }>(styled.div)`
 
 const Progress = styledTS<{ color?: string }>(styled.div)`
   position: absolute;
-  background: ${props => props.color};
+  background: ${(props) => props.color};
   left: 0;
   top: 0;
   bottom: 0;
@@ -67,15 +67,15 @@ const Circle = styled.circle`
 `;
 
 const FilledCircle: any = styledTS<{ color?: string }>(styled(Circle))`
-  stroke: ${props => props.color};
+  stroke: ${(props) => props.color};
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
   transition: stroke-dashoffset 0.5s ease-out;
 `;
 
-const Text = styledTS<{ color?: string }>(styled.div)`
+export const Text = styledTS<{ color?: string }>(styled.div)`
   align-items: center;
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   display: flex;
   font-weight: bold;
   height: 100%;
@@ -96,18 +96,20 @@ type Props = {
   color?: string;
   height?: string;
   type?: string;
+  strokeWidthNumber?: number;
 };
 
 function ProgressBar({
   percentage,
   children,
   close,
-  color = '#dddeff',
+  color = "#dddeff",
   height,
-  type
+  type,
+  strokeWidthNumber,
 }: Props) {
-  if (type === 'circle') {
-    const strokeWidth = 3;
+  if (type === "circle") {
+    const strokeWidth = strokeWidthNumber || 3;
     const radius = 100 / 2 - strokeWidth * 2;
     const circumference = radius * 2 * Math.PI;
     const offset = circumference - (percentage / 100) * circumference;
@@ -144,6 +146,7 @@ function ProgressBar({
       </Container>
     );
   }
+
   return (
     <Wrapper height={height}>
       <Progress style={{ width: `${percentage}%` }} color={color} />

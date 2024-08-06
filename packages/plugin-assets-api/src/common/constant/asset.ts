@@ -11,6 +11,12 @@ export const ASSET_STATUSES = {
   ALL: ['active', 'deleted']
 };
 
+export const ASSET_KB_ARTICLE_HISTORY_ACTIONS = {
+  ADDED: 'added',
+  REMOVED: 'removed',
+  ALL: ['added', 'removed']
+};
+
 export const ASSET_INFO = {
   code: 'Code',
   name: 'Name',

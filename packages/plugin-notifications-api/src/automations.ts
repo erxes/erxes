@@ -50,6 +50,9 @@ export default {
       target,
       customConfig: config?.customConfig
     };
+
+    console.log({ commonDoc });
+
     let teamMemberIds = [...(config?.teamMemberIds || [])];
     let customerIds = [...(config?.customerIds || [])];
 
@@ -59,7 +62,7 @@ export default {
         teamMemberIds: config.teamMemberIds
       });
     }
-    if (!!config?.teamMemberIds?.length) {
+    if (!!config?.customerIds?.length) {
       await handleCustomerAppNotifications({
         ...commonDoc,
         customerIds: config.customerIds
@@ -171,7 +174,7 @@ const generateSendToIds = async ({
     const obj = {};
 
     for (const attribute of attributes) {
-      obj[attribute] = null;
+      obj[attribute] = `{{ ${attribute} }}`;
     }
 
     const replacedContent = await sendCommonMessage({
@@ -179,8 +182,14 @@ const generateSendToIds = async ({
       serviceName,
       action: 'automations.replacePlaceHolders',
       data: {
-        target: { ...target, type },
-        config: obj
+        target: {
+          ...target,
+          customers: null,
+          companies: null,
+          type: type.includes('.') ? type.split('.')[0] : type
+        },
+        config: obj,
+        relatedValueProps: { key: '_id' }
       },
       isRPC: true,
       defaultValue: {}
@@ -233,15 +242,15 @@ const handleCustomerAppNotifications = async ({
   target,
   customConfig
 }) => {
-  const cpUsers = await sendClientPortalMessagge({
-    subdomain,
-    action: 'clientPortalUsers.find',
-    data: { erxesCustomerId: { $in: customerIds } },
-    isRPC: true,
-    defaultValue: []
-  });
-
   try {
+    const cpUsers = await sendClientPortalMessagge({
+      subdomain,
+      action: 'clientPortalUsers.find',
+      data: { erxesCustomerId: { $in: customerIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
     sendClientPortalMessagge({
       subdomain,
       action: 'sendNotification',
@@ -258,5 +267,6 @@ const handleCustomerAppNotifications = async ({
     });
   } catch (error) {
     debugError(error.message);
+    throw new Error(error.message);
   }
 };

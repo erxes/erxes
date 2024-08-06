@@ -12,7 +12,7 @@ const PluginDetails = asyncComponent(
 );
 
 const Detail = () => {
-  const id = useParams();
+  const { id } = useParams();
 
   return <PluginDetails id={id} />;
 };

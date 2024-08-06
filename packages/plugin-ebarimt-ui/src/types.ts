@@ -126,3 +126,9 @@ export type PutResponseReturnBillMutationResponse = {
     variables: { _id: string };
   }) => Promise<any>;
 };
+
+export type PutResponseReReturnMutationResponse = {
+  putResponseReReturn: (mutation: {
+    variables: { _id: string };
+  }) => Promise<any>;
+};

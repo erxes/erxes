@@ -4,14 +4,13 @@ import { useState } from "react"
 import { ebarimtConfigAtom } from "@/store/config.store"
 import { useAtomValue } from "jotai"
 
-import { useToast } from "@/components/ui/use-toast"
+import { onError, toast } from "@/components/ui/use-toast"
 
 import SettingsButton from "./components/Button"
 
 const SendData = () => {
   const { ebarimtUrl } = useAtomValue(ebarimtConfigAtom) || {}
   const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
 
   const handleClick = async () => {
     setLoading(true)
@@ -22,17 +21,9 @@ const SendData = () => {
         if (res.success) {
           return toast({ description: `Амжилттай.` })
         }
-        return toast({
-          description: `Амжилтгүй: ${res.message}.`,
-          variant: "destructive",
-        })
+        return onError(res.message)
       })
-      .catch((e) => {
-        toast({
-          description: e.message,
-          variant: "destructive",
-        })
-      })
+      .catch((e) => onError(e?.message))
       .then(() => {
         setLoading(false)
       })

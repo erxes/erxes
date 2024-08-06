@@ -321,6 +321,7 @@ export const getOrCreateComment = async (
       comment_id: commentParams.parent_id,
     });
   }
+
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
@@ -370,12 +371,27 @@ export const getOrCreateComment = async (
   }
 
   if (conversation) {
+    const target = (
+      parentConversation
+        ? await models.CommentConversationReply.findOne({
+            comment_id: commentParams.comment_id,
+            parentId: commentParams.parent_id,
+          })
+        : conversation
+    ).toObject();
+
     await sendAutomationsMessage({
       subdomain,
       action: 'trigger',
       data: {
         type: `facebook:comments`,
-        targets: [conversation?.toObject()],
+        targets: [
+          {
+            ...target,
+            postId: conversation.postId,
+            erxesApiId: conversation.erxesApiId,
+          },
+        ],
       },
       defaultValue: null,
     }).catch((err) => debugError(err.message));

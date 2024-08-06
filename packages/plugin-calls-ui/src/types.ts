@@ -44,7 +44,7 @@ export interface IHistoryDoc {
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  sessionId: string;
+  timeStamp: number;
   updatedAt: Date;
   createdAt: Date;
   createdBy: string;

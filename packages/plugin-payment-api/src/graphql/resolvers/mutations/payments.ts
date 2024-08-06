@@ -33,7 +33,7 @@ const mutations = {
       }
     }
 
-    const payment = await models.Payments.createPayment(doc);
+    const payment = await models.PaymentMethods.createPayment(doc);
 
     if (doc.kind === 'pocket') {
       const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -45,7 +45,7 @@ const mutations = {
       try {
         await pocketApi.resiterWebhook(payment._id);
       } catch (e) {
-        await models.Payments.removePayment(payment._id);
+        await models.PaymentMethods.removePayment(payment._id);
         throw new Error(`Error while registering pocket webhook: ${e.message}`);
       }
     }
@@ -54,7 +54,7 @@ const mutations = {
   },
 
   async paymentRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    const payment = await models.Payments.getPayment(_id);
+    const payment = await models.PaymentMethods.getPayment(_id);
 
     if (payment.kind === PAYMENTS.qpayQuickqr.kind) {
       const api = new QPayQuickQrAPI(payment.config);
@@ -66,7 +66,7 @@ const mutations = {
       }
     }
 
-    await models.Payments.removePayment(_id);
+    await models.PaymentMethods.removePayment(_id);
 
     return 'success';
   },
@@ -103,40 +103,13 @@ const mutations = {
       }
     }
 
-    return await models.Payments.updatePayment(_id, {
+    return await models.PaymentMethods.updatePayment(_id, {
       name,
       status,
       kind,
       config
     });
   },
-
-  async qpayRegisterMerchantCompany(_root, args, { models }: IContext) {
-    const api = new QPayQuickQrAPI({
-      username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || ''
-    });
-
-    return api.createCompany(args);
-  },
-
-  async qpayCreateInvoice(_root, args, { models }: IContext) {
-    const api = new QPayQuickQrAPI({
-      username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || ''
-    });
-
-    return api.createInvoice(args);
-  },
-
-  async qpayRegisterMerchantCustomer(_root, args, { models }: IContext) {
-    const api = new QPayQuickQrAPI({
-      username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || ''
-    });
-
-    return api.createCustomer(args);
-  }
 };
 
 requireLogin(mutations, 'paymentAdd');

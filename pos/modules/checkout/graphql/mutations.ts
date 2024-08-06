@@ -33,7 +33,7 @@ const ordersSettlePayment = gql`
   }
 `
 
-const generateInvoiceUrl = `
+const generateInvoiceUrl = gql`
   mutation GenerateInvoiceUrl(
     $amount: Float!
     $contentType: String
@@ -58,50 +58,6 @@ const generateInvoiceUrl = `
       phone: $phone
       data: $data
     )
-  }
-`
-
-const createInvoice = gql`
-  mutation InvoiceCreate(
-    $amount: Float!
-    $selectedPaymentId: String
-    $phone: String
-    $email: String
-    $description: String
-    $customerId: String
-    $customerType: String
-    $contentType: String
-    $contentTypeId: String
-    $couponCode: String
-    $data: JSON
-    $couponAmount: Int
-  ) {
-    invoiceCreate(
-      amount: $amount
-      selectedPaymentId: $selectedPaymentId
-      phone: $phone
-      email: $email
-      description: $description
-      customerId: $customerId
-      customerType: $customerType
-      contentType: $contentType
-      contentTypeId: $contentTypeId
-      couponCode: $couponCode
-      data: $data
-      couponAmount: $couponAmount
-    ) {
-      _id
-      amount
-      apiResponse
-      data
-      description
-      email
-      errorDescription
-      idOfProvider
-      paymentKind
-      phone
-      status
-    }
   }
 `
 
@@ -147,20 +103,12 @@ const ordersCancel = gql`
   }
 `
 
-const checkInvoice = gql`
-  mutation InvoicesCheck($id: String!) {
-    invoicesCheck(_id: $id)
-  }
-`
-
 const mutations = {
   ordersAddPayment,
   ordersSettlePayment,
   generateInvoiceUrl,
   ordersFinish,
   ordersCancel,
-  createInvoice,
-  checkInvoice,
 }
 
 export default mutations
