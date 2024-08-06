@@ -1,4 +1,4 @@
-import { IMeeting, MeetingsQueryResponse } from "../../types";
+import { IMeeting } from "../../types";
 import React, { useState } from "react";
 import { TabTitle, Tabs } from "@erxes/ui/src/components/tabs";
 
@@ -10,7 +10,6 @@ import PreviousDetail from "../../containers/myCalendar/meeting/PreviousDetail";
 type Props = {
   meetings?: IMeeting[];
   queryParams: any;
-  meetingQuery?: MeetingsQueryResponse;
   currentUser: IUser;
 };
 

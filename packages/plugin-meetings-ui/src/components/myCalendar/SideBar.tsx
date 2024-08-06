@@ -24,12 +24,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-  closeModal?: () => void;
-  afterSave?: () => void;
   meetings: IMeeting[];
   queryParams: any;
   loading: boolean;
-  participantUsers: IUser[];
   pinnedUsers: {
     pinnedUserIds: string[];
     userId: string;

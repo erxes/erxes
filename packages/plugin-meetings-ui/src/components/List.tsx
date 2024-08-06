@@ -34,28 +34,25 @@ function List(props: Props) {
   const routePath = location.pathname.split("/").slice(-1)[0];
 
   useEffect(() => {
-    switch (routePath) {
-      case "myMeetings":
-        <MyMeetings {...props} />;
-        break;
-      default:
-        setComponent(
-          <MyCalendarList
-            meetings={meetings}
-            queryParams={queryParams}
-            meetingQuery={meetingQuery}
-            currentUser={currentUser}
-          />
-        );
-        setLeftSideBar(
-          <SideBar
-            queryParams={queryParams}
-            meetings={meetings}
-            loading={loading}
-            currentUser={currentUser}
-          />
-        );
-        break;
+    if (routePath === "myMeetings") {
+      <MyMeetings {...props} />;
+    } else {
+      setComponent(
+        <MyCalendarList
+          meetings={meetings}
+          queryParams={queryParams}
+          meetingQuery={meetingQuery}
+          currentUser={currentUser}
+        />
+      );
+      setLeftSideBar(
+        <SideBar
+          queryParams={queryParams}
+          meetings={meetings}
+          loading={loading}
+          currentUser={currentUser}
+        />
+      );
     }
   }, [queryParams, meetings]);
 

@@ -1,21 +1,21 @@
-import { EndDateContainer, FlexColumnCustom } from "../../styles";
+import {
+  EndDateContainer,
+  FlexColumnCustom,
+  CustomRangeContainer,
+} from "../../styles";
 import React, { useState } from "react";
-import { __, router } from "@erxes/ui/src/utils";
+import { router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "@erxes/ui/src/components/Button";
-import { CustomRangeContainer } from "../../styles";
 import { DateContainer } from "@erxes/ui/src/styles/main";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
-import { IUser } from "@erxes/ui/src/auth/types";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import moment from "moment";
 
 type Props = {
-  currentUser: IUser;
-
   queryParams: any;
 };
 
@@ -23,7 +23,7 @@ const LeftSideBar = (props: Props) => {
   const { queryParams } = props;
   const [companyId, setCompanyId] = useState(queryParams?.companyId || "");
   const [userId, setUserId] = useState(queryParams?.ownerId || "");
-  const [createdAtFrom, setCreatedForm] = useState(
+  const [createdAtFrom, setCreatedAtFrom] = useState(
     queryParams.createdAtFrom || ""
   );
   const location = useLocation();
@@ -42,7 +42,7 @@ const LeftSideBar = (props: Props) => {
     );
     setCompanyId(undefined);
     setCreatedAtTo(undefined);
-    setCreatedForm(undefined);
+    setCreatedAtFrom(undefined);
     setUserId(undefined);
     removePageParams();
   };
@@ -68,7 +68,7 @@ const LeftSideBar = (props: Props) => {
     }
     if ("createdAtFrom" === name) {
       value = moment(value).format(`YYYY/MM/DD hh:mm`);
-      setCreatedForm(value);
+      setCreatedAtFrom(value);
     }
     value !== "Invalid date" &&
       router.setParams(navigate, location, { [name]: value });
