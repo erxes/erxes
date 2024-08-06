@@ -1,8 +1,5 @@
 import React from 'react';
-
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
 import Goals from '../containers/section/Goal';
 import Dashboard from '../containers/section/Dashboard';
 import Reports from '../containers/section/Report';

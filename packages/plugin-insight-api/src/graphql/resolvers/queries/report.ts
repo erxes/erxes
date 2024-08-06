@@ -2,11 +2,9 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 
 import { IContext } from '../../../connectionResolver';
 import {
-    sendCommonMessage,
     sendCoreMessage,
     sendTagsMessage,
 } from '../../../messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IListParams {
     searchValue: string;

@@ -5,7 +5,7 @@ import Button from "@erxes/ui/src/components/Button";
 import { FlexRow } from "@erxes/ui-settings/src/styles";
 
 import ChartTemplates from "../../containers/template/Chart";
-import { IDashboard, IReport, IReportTemplate } from "../../types";
+import {  IReportTemplate } from "../../types";
 import { FlexColumn, TemplateBox } from "../../styles";
 
 type Props = {
@@ -46,7 +46,7 @@ const ReportTemplate = (props: Props) => {
     <TemplateBox showMore={showMore}>
       <FlexRow alignItems="start" onClick={() => handleTemplateClick(template)}>
         <div>
-          <img src={template.img} width="200px" />
+          <img alt="template" src={template.img} width="200px" />
         </div>
         <FlexColumn>
           <h3>{template.title}</h3>
