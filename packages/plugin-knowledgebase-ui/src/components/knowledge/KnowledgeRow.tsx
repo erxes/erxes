@@ -40,14 +40,17 @@ const collapse = (id: string, click?: boolean, isCurrent?: boolean) => {
   if (data) {
     values = JSON.parse(data);
   }
-
+  
   if (click) {
-    values.includes(id)
-      ? (values = values.filter((key) => key !== id))
-      : values.push(id);
-
+    if (values.includes(id)) {
+      values = values.filter((key) => key !== id);
+    } else {
+      values.push(id);
+    }
+    
     localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
   }
+  
 
   return isCurrent ? true : values.includes(id);
 };
