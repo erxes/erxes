@@ -1,6 +1,5 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery , gql } from '@apollo/client';
 // local
 import { queries } from '../graphql';
 import RowModalContentComponent from '../components/RowModalContent';

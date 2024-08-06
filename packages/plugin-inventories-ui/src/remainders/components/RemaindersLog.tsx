@@ -207,7 +207,6 @@ const RemaindersLog = (props: Props) => {
   };
 
   const content = (
-    <>
       <iframe
         id="ifmcontentstoprint"
         style={{
@@ -216,9 +215,8 @@ const RemaindersLog = (props: Props) => {
           border: 'none',
           outline: 'none',
           backgroundColor: '#F0F0F0'
-        }}
+        }} title = "Content stop"
       />
-    </>
   );
 
   return (

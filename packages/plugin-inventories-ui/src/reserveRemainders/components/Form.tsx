@@ -2,7 +2,6 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import React, { useState } from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { __ } from '@erxes/ui/src/utils';
 import {
   Button,
   ControlLabel,

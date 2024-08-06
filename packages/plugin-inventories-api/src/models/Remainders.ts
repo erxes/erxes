@@ -138,7 +138,7 @@ export const loadRemainderClass = (models: IModels) => {
         ];
       }
 
-      const limit = params.perPage || 20;
+      const limit = params.perPage ?? 20;
       const skip = params.page ? (params.page - 1) * limit : 0;
 
       const products = await sendProductsMessage({
@@ -321,9 +321,9 @@ export const loadRemainderClass = (models: IModels) => {
       for (const data of productsData) {
         const product = productById[data.productId];
         const ratio = getRatio(product, data.uom || product.uom);
-        const diffCount = (data.diffCount || 0) / (ratio || 1);
-        const diffSoonIn = (data.diffSoonIn || 0) / (ratio || 1);
-        const diffSoonOut = (data.diffSoonOut || 0) / (ratio || 1);
+        const diffCount = (data.diffCount ?? 0) / (ratio || 1);
+        const diffSoonIn = (data.diffSoonIn ?? 0) / (ratio || 1);
+        const diffSoonOut = (data.diffSoonOut ?? 0) / (ratio || 1);
 
         if (!(diffCount || diffSoonIn || diffSoonOut)) {
           continue;

@@ -1,18 +1,16 @@
-import { gql } from '@apollo/client';
+import { gql , useQuery, useMutation } from '@apollo/client';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ReserveRems from '../components/List';
 import { Alert, router } from '@erxes/ui/src/utils';
 import { Bulk } from '@erxes/ui/src/components';
 import { mutations, queries } from '../graphql';
-import { IReserveRem } from '../types';
-import {
+import { IReserveRem ,
   ReserveRemsQueryResponse,
   ReserveRemsRemoveMutationResponse,
   ReserveRemsCountQueryResponse,
   ReserveRemsEditMutationResponse,
 } from '../types';
-import { useQuery, useMutation } from '@apollo/client';
 
 type Props = {
   queryParams: any;

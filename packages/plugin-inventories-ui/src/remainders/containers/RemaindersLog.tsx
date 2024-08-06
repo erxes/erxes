@@ -1,6 +1,5 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { gql } from '@apollo/client';
+import { useQuery , gql } from '@apollo/client';
 
 //erxes
 import Spinner from '@erxes/ui/src/components/Spinner';
