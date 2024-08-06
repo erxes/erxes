@@ -8,12 +8,13 @@ import { IMessage } from '../types';
 import ConversationHeadContent from './ConversationHeadContent';
 import Container from './common/Container';
 import { useConversation } from '../context/Conversation';
-import { getUiOptions } from '../utils/util';
+import { getMessengerData, getUiOptions } from '../utils/util';
 import { connection } from '../connection';
 import { IconCamera, IconMore, IconPhone, iconClose } from '../../icons/Icons';
 import Dropdown from './common/Dropdown';
 import Button from './common/Button';
 import { useMessage } from '../context/Message';
+import { MESSAGE_TYPES } from '../constants';
 
 type Props = {
   messages: IMessage[];
@@ -62,12 +63,7 @@ const ConversationDetail: React.FC<Props> = ({
   const [isVisibleDropdown, setIsVisibleDropdown] = React.useState(true);
   const [isFocused, setIsFocused] = React.useState(true);
   const [isExpanded, setIsExpanded] = React.useState(true);
-  const [isFullHead, setIsFullHead] = React.useState(true);
   const [isMinimizeVideoCall, setIsMinimizeVideoCall] = React.useState(true);
-
-  const toggleHead = () => {
-    setIsFullHead(!isFullHead);
-  };
 
   const toggleVideoCall = () => {
     setIsMinimizeVideoCall(!isMinimizeVideoCall);
@@ -79,7 +75,6 @@ const ConversationDetail: React.FC<Props> = ({
 
   const inputFocus = () => {
     setIsFocused(true);
-    setIsFullHead(false);
   };
 
   const onTextInputBlur = () => {
@@ -94,31 +89,47 @@ const ConversationDetail: React.FC<Props> = ({
     setIsModalOpen(!isModalOpen);
   };
 
+  const renderCallButtons = () => {
+    if (
+      !(isOnline && getMessengerData().showVideoCallRequest) ||
+      !connection.enabledServices.dailyco
+    ) {
+      return null;
+    }
+
+    return (
+      <>
+        <Button
+          title="Audio call"
+          icon={<IconPhone size="1.4375rem" />}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          className="bg-none"
+        />
+
+        <Button
+          title="Video call"
+          icon={<IconCamera size="1.6875rem" />}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          className="bg-none"
+        />
+      </>
+    );
+  };
+
   const renderRightButton = () => {
     if (!isChat) {
       return (
-        <a onClick={toggleLauncher} title="Close">
-          {iconClose(textColor)}
-        </a>
+        <Button
+          icon={iconClose(textColor)}
+          onClick={toggleLauncher}
+          title="Close"
+        />
       );
     }
 
-    //   VIDEO_CALL: 'videoCall',
-    // VIDEO_CALL_REQUEST: 'videoCallRequest',
-    // TEXT: 'text',
-    // ALL: ['videoCall', 'videoCallRequest', 'text'],
-
     return (
       <div className="conversation-btn-list">
-        <Button
-          icon={<IconPhone size="1.4375rem" />}
-          onClick={() => sendMessage('videoCall', 'videoCall')}
-        />
-
-        <Button
-          icon={<IconCamera size="1.6875rem" />}
-          onClick={() => sendMessage('videoCallRequest', 'bonjour')}
-        />
+        {renderCallButtons()}
         <Dropdown
           trigger={<IconMore size="1.5rem" />}
           menu={[
@@ -160,7 +171,7 @@ const ConversationDetail: React.FC<Props> = ({
   return (
     <Container
       withBottomNavBar={false}
-      containerStyle={{ padding: '1.25rem 0' }}
+      containerStyle={{ padding: '1.12rem 0' }}
       title={
         isLoading ? (
           <div className="loader" />

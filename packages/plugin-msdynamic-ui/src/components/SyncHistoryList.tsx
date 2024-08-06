@@ -1,18 +1,19 @@
+import { Title } from "@erxes/ui-settings/src/styles";
 import {
   DataWithLoader,
+  FormGroup,
   ModalTrigger,
   Pagination,
   Table,
 } from "@erxes/ui/src/components";
-
-import ChargeItem from "./ChargeItem";
-import React from "react";
-import SideBar from "./SideBar";
-import { Title } from "@erxes/ui-settings/src/styles";
 import { Wrapper } from "@erxes/ui/src/layout";
+import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils/core";
 import dayjs from "dayjs";
+import React from "react";
 import { menuDynamic } from "../constants";
+import ChargeItem from "./ChargeItem";
+import SideBar from "./SideBar";
 
 type Props = {
   queryParams: any;
@@ -33,7 +34,7 @@ const SyncHistoryList = ({
     const { No, Sell_to_Customer_No, Sell_to_Customer_Name, error } =
       item.responseData || {};
 
-    if (item?.responseSales && item.responseSales.length > 0) {
+    if (item?.contentType === 'pos:order') {
       const renderSales = () => {
         return (item?.responseSales || []).map((listItem, index: number) => {
           const jsonObject = JSON.parse(listItem);
@@ -44,34 +45,45 @@ const SyncHistoryList = ({
 
       return (
         <>
-          <Table $striped $bordered $responsive>
-            <thead>
-              <tr>
-                <th>{__("Error")}</th>
-                <th>{__("Order No")}</th>
-                <th>{__("Customer no")}</th>
-                <th>{__("Customer Name")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {" "}
-              <tr>
-                <td>{error?.message || ""}</td>
-                <td>{No || ""}</td>
-                <td>{Sell_to_Customer_No || ""}</td>
-                <td>{Sell_to_Customer_Name || ""}</td>
-              </tr>
-            </tbody>
-          </Table>
+          <FormWrapper>
+            <FormColumn>
+              <FormGroup>
+                {__("Number")}: {item.consumeData?.number || ""}
+              </FormGroup>
+              <FormGroup>
+                {__("Created Date")}: {dayjs(item.consumeData?.createdAt).format("lll") || ""}
+              </FormGroup>
+              <FormGroup>
+                {__("Paid Date")}: {dayjs(item?.consumeData?.paidDate).format("lll") || ""}
+              </FormGroup>
+              <FormGroup>
+                {__("Sync Date")}: {dayjs(item?.createdAt).format("lll") || ""}
+              </FormGroup>
+            </FormColumn>
+            <FormColumn>
+              <FormGroup>
+                {__("Order No")}: {No || ""}
+              </FormGroup>
+              <FormGroup>
+                {__("Customer no")}: {Sell_to_Customer_No || ""}
+              </FormGroup>
+              <FormGroup>
+                {__("Customer Name")}: {Sell_to_Customer_Name || ""}
+              </FormGroup>
+            </FormColumn>
+          </FormWrapper>
+          <FormGroup>
+            {__("Error")}: {error?.message || item.error || ""}
+          </FormGroup>
           <Table $striped $bordered $responsive key={item._id}>
             <thead>
               <tr>
-                <th>{__("Error")}</th>
                 <th>{__("Order No")}</th>
                 <th>{__("Product Name")}</th>
                 <th>{__("Product No")}</th>
                 <th>{__("Price")}</th>
                 <th>{__("Quantity")}</th>
+                <th>{__("Error")}</th>
               </tr>
             </thead>
             <tbody id="hurData">{renderSales()}</tbody>
@@ -95,7 +107,7 @@ const SyncHistoryList = ({
       <tbody id="orders">
         {(syncHistories || []).map((item) => (
           <ModalTrigger
-            title="Sync erkhet information"
+            title="Sync msdynamic information"
             trigger={
               <tr key={item._id}>
                 <td>{dayjs(item.createdAt).format("lll")}</td>

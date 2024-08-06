@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import client from './apollo-client';
+import { getEnv } from './utils';
 
 // base connect function for all widgets
 const widgetConnect = (params) => {
@@ -33,6 +34,7 @@ const widgetConnect = (params) => {
             ...postParams,
             message: 'connected',
             connectionInfo: data,
+            apiUrl: getEnv()?.API_URL || '',
             setting: event.data.setting,
           },
           '*'

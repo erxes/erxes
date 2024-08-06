@@ -13,6 +13,10 @@ const messageFields = `
     _id
     details {
       ${userDetailFields}
+      description
+      location
+      position
+      shortName
     }
   }
   content
@@ -45,6 +49,10 @@ const MESSAGE_FIELDS = `
     _id
     details {
       ${userDetailFields}
+      description
+      location
+      position
+      shortName
     }
   }
   content
@@ -75,8 +83,10 @@ const userFields = `
   isActive
   details {
     ${userDetailFields}
-    shortName
+    description
     location
+    position
+    shortName
   }
   isOnline
 `;
@@ -103,16 +113,20 @@ const conversationDetailQuery = (isDailycoEnabled: boolean) => `
         _id
         details {
           ${userDetailFields}
+          description
+          location
+          position
+          shortName
         }
       }
       participatedUsers {
         _id
         details {
           ${userDetailFields}
-          shortName
           description
-          position
           location
+          position
+          shortName
         }
         links
       }
@@ -196,6 +210,10 @@ const allConversations = `
       participatedUsers {
         details {
           ${userDetailFields}
+          description
+          location
+          position
+          shortName
         }
       }
     }

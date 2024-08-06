@@ -96,7 +96,7 @@ function Launcher(props: Props) {
 
   return (
     <div
-      className={`launcher-container ${shouldShowControls ? '' : 'launcher-hovered'}`}
+      className={`erxes-launcher-container ${shouldShowControls ? '' : 'launcher-hovered'}`}
       onMouseLeave={() => setShouldShowControls(false)}
     >
       <a
@@ -110,8 +110,6 @@ function Launcher(props: Props) {
         }}
         onMouseEnter={toggleControlList}
       ></a>
-      {/* {renderUnreadCount()} */}
-      {renderHoverControls()}
       {renderNotifier()}
     </div>
   );

@@ -97,6 +97,10 @@ export interface IIntegrationLink {
   youtube?: string;
 }
 
+export interface IIntegrationExternalLink {
+  url: string
+}
+
 export interface IIntegrationMessengerDataMessagesItem {
   greetings: { title?: string; message?: string };
   away?: string;
@@ -133,6 +137,7 @@ export interface IIntegrationMessengerData {
   showTimezone?: boolean;
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
+  externalLinks?: IIntegrationExternalLink[];
 }
 
 export interface IIntegrationLeadData {

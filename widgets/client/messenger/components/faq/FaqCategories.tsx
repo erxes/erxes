@@ -2,6 +2,7 @@ import * as React from 'react';
 import Categories from '../../containers/faq/Categories';
 import SearchBar from './SearchBar';
 import Container from '../common/Container';
+import { __ } from '../../../utils';
 
 type Props = {
   topicId: string;
@@ -19,7 +20,7 @@ const FaqCategories = (props: Props) => {
   return (
     <Container
       withTopBar
-      title="Help"
+      title={__('Help')}
       extra={<SearchBar onSearch={search} searchString={searchString} />}
     >
       <div className="scroll-wrapper">

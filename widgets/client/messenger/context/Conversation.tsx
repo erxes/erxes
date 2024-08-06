@@ -198,11 +198,11 @@ export const ConversationProvider = ({
   const toggle = (isVisible?: boolean) => {
     // notify parent window launcher state
     postMessage('fromMessenger', 'messenger', {
-      isVisible: !isVisible,
+      isVisible: !isMessengerVisible,
       isSmallContainer,
     });
 
-    setIsMessengerVisible(!isVisible);
+    setIsMessengerVisible(!isMessengerVisible);
 
     if (activeRoute.includes('conversation')) {
       prepareOpenLastConversation();

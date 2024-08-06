@@ -7,6 +7,7 @@ type Props = {
   category: IFaqCategory;
   childrens?: IFaqCategory[];
   getCurrentItem?: (currentCategory: IFaqCategory) => void;
+  isParent?: boolean;
 };
 
 const Container = (props: Props) => {

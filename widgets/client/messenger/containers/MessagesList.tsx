@@ -26,9 +26,12 @@ export default (props: Props) => {
     getBotInitialMessage,
     sendTypingInfo,
   } = useConversation();
+
   const { selectedSkill, onSelectSkill, isLoggedIn, changeOperatorStatus } =
     useConfig();
+
   const { replyAutoAnswer, sendMessage } = useMessage();
+
   return (
     <MessagesList
       {...props}
