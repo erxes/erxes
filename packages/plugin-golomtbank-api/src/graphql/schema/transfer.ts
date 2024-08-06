@@ -1,6 +1,6 @@
 export const types = `
 
-  input TransferInput {
+  input TransferInputGolomt {
     type: String!
     fromAccount: String!
     toAccount: String!
@@ -16,5 +16,5 @@ export const types = `
 `;
 
 export const mutations = `
-  golomtBankTransfer(configId: String!, transfer: TransferInput): JSON
+  golomtBankTransfer(configId: String!, transfer: TransferInputGolomt): JSON
 `;
