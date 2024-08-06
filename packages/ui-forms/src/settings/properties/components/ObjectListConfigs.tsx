@@ -29,18 +29,11 @@ function ObjectListConfigs(props: Props) {
   }, [options, onChange]);
 
   const onChangeOption = (option, index) => {
-    // find current editing one
-    const currentOption = options.find((l, i) => i === index);
-
-    // set new value
-    if (currentOption) {
-      options[index] = option;
-    }
-
-    setOptions(options);
-    onChange(options);
+    const updatedOptions = [...options];
+    updatedOptions[index] = option;
+    setOptions(updatedOptions);
+    onChange(updatedOptions);
   };
-
   const addOption = () => {
     const option: any = currentLocation || {
       key: '',

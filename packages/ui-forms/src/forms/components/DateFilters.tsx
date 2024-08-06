@@ -53,7 +53,7 @@ function DateFilters(props: IProps) {
   const onChangeRangeFilter = (key: string, op: 'gte' | 'lte', date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
 
-    const value: any = (filterParams[key] && filterParams[key]) || {
+    const value: any = (filterParams[key]) || {
       gte: '',
       lte: '',
     };

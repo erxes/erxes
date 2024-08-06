@@ -17,6 +17,12 @@ const GroupedField = (props: Props) => {
   const [subFieldIds, setSubFieldIds] = React.useState<string[]>(
     field?.subFieldIds || []
   );
+  
+  React.useEffect(() => {
+    if (props.field) {
+      setSubFieldIds(props.field.subFieldIds || []);
+    }
+  }, [props.field]);
 
   const otherFields = props.fields.filter((f) => {
     if (f.type === "parentField") {
@@ -33,12 +39,6 @@ const GroupedField = (props: Props) => {
   if (otherFields.length === 0) {
     return <p>There are no fields yet.</p>;
   }
-
-  React.useEffect(() => {
-    if (props.field) {
-      setSubFieldIds(props.field.subFieldIds || []);
-    }
-  }, [props.field]);
 
   const options = otherFields.map((f) => ({ label: f.text, value: f._id }));
 

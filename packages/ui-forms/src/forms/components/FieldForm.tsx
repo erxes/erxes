@@ -163,23 +163,23 @@ class FieldForm extends React.Component<Props, State> {
 
   onRegexChange = (e: any) => {
     if (e.target.value.length === 0) {
-      this.setState({
+      this.setState((prevState) => ({
         field: {
-          ...this.state.field,
+          ...prevState.field,
           regexValidation: "",
         },
-      });
+      }));
       return;
     }
 
     const regexPattern = stringToRegex(e.target.value);
 
-    this.setState({
+    this.setState((prevState) => ({
       field: {
-        ...this.state.field,
+        ...prevState.field,
         regexValidation: regexPattern,
       },
-    });
+    }));
   };
 
   onSubmit = (e) => {
@@ -213,7 +213,6 @@ class FieldForm extends React.Component<Props, State> {
     }
 
     const validation = (e) => {
-      const value = (e.currentTarget as HTMLInputElement).value;
       this.onFieldChange(
         "validation",
         (e.currentTarget as HTMLInputElement).value
@@ -647,43 +646,6 @@ class FieldForm extends React.Component<Props, State> {
             <option value={""} />
             <option value={"contacts:customer"}>Customer</option>
             <option value={"contacts:company"}>Company</option>
-          </FormControl>
-        </FormGroup>
-      </>
-    );
-  }
-
-  renderProductCategory() {
-    const { field } = this.state;
-    const { productCategories = [] } = this.props;
-
-    if (field.type !== "productCategory") {
-      return null;
-    }
-
-    const onCategoryChange = (e) => {
-      this.onFieldChange(
-        "productCategoryId",
-        (e.currentTarget as HTMLInputElement).value
-      );
-    };
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Categories:</ControlLabel>
-          <FormControl
-            id="productCategories"
-            componentclass="select"
-            defaultValue={field.productCategoryId || ""}
-            onChange={onCategoryChange}
-          >
-            <option>-</option>
-            {productCategories.map((category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
           </FormControl>
         </FormGroup>
       </>

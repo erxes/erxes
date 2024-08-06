@@ -81,7 +81,7 @@ export default class GenerateField extends React.Component<Props, State> {
     return state;
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(nextProps) {
     if (nextProps.defaultValue !== this.props.defaultValue) {
       this.setState(this.generateState(nextProps));
     }
@@ -126,7 +126,7 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderMultiSelect(options: string[] = [], attrs) {
+  renderMultiSelect(attrs,options: string[] = [],) {
     const onChange = (ops: OnChangeValue<IOption, true>) => {
       const { field, onValueChange } = this.props;
 
@@ -609,6 +609,7 @@ export default class GenerateField extends React.Component<Props, State> {
   onChange = (e, optionValue) => {
     const { field, onValueChange } = this.props;
     const { validation, type, regexValidation } = field;
+    let checkBoxValues = this.state.checkBoxValues || [];     
 
     if (!e.target && !optionValue) {
       return;
@@ -621,7 +622,7 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     if (type === "check") {
-      let checkBoxValues = this.state.checkBoxValues;
+
       const isChecked = e.target.checked;
       // if selected value is not already in list then add it
       if (isChecked && !checkBoxValues.includes(optionValue)) {
@@ -675,7 +676,7 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderSelect(options, attrs);
 
       case "multiSelect":
-        return this.renderMultiSelect(options, attrs);
+        return this.renderMultiSelect( attrs,options,);
 
       case "pronoun":
         return this.renderSelect(["Male", "Female", "Not applicable"], attrs);
@@ -709,15 +710,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
         } catch {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
-        }
-
-      case "company_isSubscribed":
-        attrs.name = Math.random().toString();
-        try {
-          return this.renderRadioOrCheckInputs(boolOptions, attrs);
-        } catch {
-          return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
-        }
+        };
 
       case "textarea":
         return this.renderTextarea(attrs);
@@ -838,14 +831,16 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     const onClick = () => {
-      const object = objectListConfigs.reduce((previousValue, currentValue) => {
-        previousValue[`${currentValue.key}`] = "";
-
-        return previousValue;
-      }, {});
-
-      this.setState({ value: [object, ...this.state.value] });
+      this.setState(prevState => {
+        const object = objectListConfigs.reduce((previousValue, currentValue) => {
+          previousValue[`${currentValue.key}`] = "";
+          return previousValue;
+        }, {});
+    
+        return { value: [object, ...prevState.value] };
+      });
     };
+    
 
     return (
       <Button btnStyle="link" onClick={onClick}>

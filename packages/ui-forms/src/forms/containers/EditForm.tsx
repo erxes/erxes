@@ -50,7 +50,7 @@ class EditFormContainer extends React.Component<FinalProps> {
     showMessage: true,
   };
 
-  componentWillReceiveProps(nextProps: FinalProps) {
+  componentDidUpdate(nextProps: FinalProps) {
     const { onInit, fieldsQuery } = this.props;
 
     if (fieldsQuery.loading && !nextProps.fieldsQuery.loading && onInit) {

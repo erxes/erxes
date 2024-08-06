@@ -42,12 +42,13 @@ export default function ObjectList(props: Props) {
   };
 
   const onClickRemove = () => {
-    objects.splice(currentIndex, 1);
-
-    setObjects(objects);
-    onChange(objects);
+    const updatedObjects = [...objects];
+    updatedObjects.splice(currentIndex, 1);
+    setObjects(updatedObjects);
+    onChange(updatedObjects);
     setEditing(false);
   };
+  
 
   const renderButtons = (index: number) => {
     if (
