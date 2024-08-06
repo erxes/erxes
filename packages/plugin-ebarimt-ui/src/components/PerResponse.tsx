@@ -100,7 +100,7 @@ export default (response, counter?) => {
 
         <div class="center barcode">
           <div class="lottery">
-            ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
+            ${'Сугалаа: ' + response.lottery || ''}
           </div>
           <div>
             ${response.qrData && `<canvas id="qrcode${response._id}"></canvas>` || ''}
