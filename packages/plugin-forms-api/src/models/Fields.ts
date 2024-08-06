@@ -606,7 +606,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      const trackedData = await this.generateTypedListFromMap(data);
+      const trackedData = this.generateTypedListFromMap(data);
 
       customFieldsData = await this.prepareCustomFieldsData(customFieldsData);
 
@@ -727,7 +727,7 @@ export const loadGroupClass = (models: IModels) => {
       const fields = await models.Fields.find({ groupId: _id });
 
       for (const field of fields) {
-        await models.Fields.removeField(field._id);
+        models.Fields.removeField(field._id);
       }
 
       await groupObj.deleteOne();
