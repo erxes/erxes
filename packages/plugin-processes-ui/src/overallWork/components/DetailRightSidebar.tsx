@@ -72,7 +72,7 @@ class DetailRightSidebar extends React.Component<Props, State> {
                   </thead>
                   <tbody id="overallWorks">
                     {(overallWork.needProductsData || []).map(data => (
-                      <tr key={Math.random()}>
+                      <tr key={overallWork._id}>
                         <td>
                           {data.product
                             ? `${data.product.code} - ${data.product.name}`
@@ -112,7 +112,7 @@ class DetailRightSidebar extends React.Component<Props, State> {
                   </thead>
                   <tbody id="overallWorks">
                     {(overallWork.resultProductsData || []).map(data => (
-                      <tr key={Math.random()}>
+                      <tr key={overallWork._id}>
                         <td>
                           {data.product
                             ? `${data.product.code} - ${data.product.name}`

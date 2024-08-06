@@ -321,7 +321,7 @@ class Form extends React.Component<Props, State> {
 
   renderViewInfo = (name: string, variable: number, uom: string) => {
     return (
-      <li key={Math.random()}>
+      <li key={name}>
         <FieldStyle>{__(name)}</FieldStyle>
         <SidebarCounter>
           {variable || 0} /${uom}/
@@ -335,7 +335,7 @@ class Form extends React.Component<Props, State> {
     const result: React.ReactNode[] = [];
 
     result.push(
-      <li key={Math.random()}>
+      <li key={name}>
         <FieldStyle>{__(name)}</FieldStyle>
         <SidebarCounter>{(products || []).length}</SidebarCounter>
       </li>
@@ -856,7 +856,7 @@ class Form extends React.Component<Props, State> {
               <SelectCompanies
                 label={__("Choose company")}
                 name="companyId"
-                initialValue={perform ? perform.companyId : "" || ""}
+                initialValue={perform?.companyId ?? ""}
                 onSelect={(companyId) =>
                   this.setStateWrapper({ companyId: companyId as string })
                 }
@@ -874,7 +874,7 @@ class Form extends React.Component<Props, State> {
               <SelectCustomers
                 label={__("Choose company")}
                 name="customerId"
-                initialValue={perform ? perform.customerId : "" || ""}
+                initialValue={perform?.customerId ?? ""}
                 onSelect={(customerId) =>
                   this.setStateWrapper({ customerId: customerId as string })
                 }
@@ -894,7 +894,7 @@ class Form extends React.Component<Props, State> {
 
   renderDocuments() {
     const { perform } = this.props;
-    if (!perform || !perform._id) {
+    if (!perform?._id) {
       return <></>;
     }
 
@@ -907,7 +907,7 @@ class Form extends React.Component<Props, State> {
 
   renderConfirmOrAbort() {
     const { perform } = this.props;
-    if (!perform || !perform._id) {
+    if (!perform?._id) {
       return <></>;
     }
 
@@ -1027,7 +1027,7 @@ class Form extends React.Component<Props, State> {
               <SelectTeamMembers
                 label={__("Choose team member")}
                 name="assignedUserIds"
-                initialValue={perform ? perform.assignedUserIds : [] || []}
+                initialValue={perform ? perform.assignedUserIds : []}
                 onSelect={(userIds) =>
                   this.setStateWrapper({ assignedUserIds: userIds as string[] })
                 }

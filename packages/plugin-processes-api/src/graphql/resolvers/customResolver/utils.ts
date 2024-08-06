@@ -34,7 +34,7 @@ export const getProductAndUoms = async (
 ) => {
   const productById = {};
 
-  if (!productsData || !productsData.length) {
+  if (!productsData?.length) {
     return { productById };
   }
 

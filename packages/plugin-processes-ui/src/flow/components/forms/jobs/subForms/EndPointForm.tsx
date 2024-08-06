@@ -51,14 +51,15 @@ class JobForm extends React.Component<Props, State> {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
-      this.setState({
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.activeFlowJob !== prevState.activeFlowJob) {
+      return {
         description: nextProps.activeFlowJob.description,
         jobReferId: nextProps.activeFlowJob.jobReferId,
         jobRefer: nextProps.jobRefer
-      });
+      };
     }
+    return null;
   }
 
   renderJobTrigger(job?: IJobRefer) {
@@ -168,7 +169,7 @@ class JobForm extends React.Component<Props, State> {
     return (
       <Common
         {...this.props}
-        name={(jobRefer && jobRefer.name) || 'Unknown'}
+        name={(jobRefer?.name) ?? 'Unknown'}
         description={description}
         jobRefer={jobRefer}
         config={{ jobReferId }}

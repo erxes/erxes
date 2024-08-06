@@ -7,12 +7,12 @@ export default {
     return models.Works.findOne({ _id });
   },
 
-  async flow(work: IWorkDocument, {}, { models }: IContext) {
+  async flow(work: IWorkDocument, _, { models }: IContext) {
     const { flowId } = work;
     return await models.Flows.findOne({ _id: flowId }).lean();
   },
 
-  async inBranch(work: IWorkDocument, {}, { subdomain }: IContext) {
+  async inBranch(work: IWorkDocument, _, { subdomain }: IContext) {
     const { inBranchId } = work;
 
     if (!inBranchId) {
@@ -27,7 +27,7 @@ export default {
     });
   },
 
-  async outBranch(work: IWorkDocument, {}, { subdomain }: IContext) {
+  async outBranch(work: IWorkDocument, _, { subdomain }: IContext) {
     const { outBranchId } = work;
 
     if (!outBranchId) {
@@ -42,7 +42,7 @@ export default {
     });
   },
 
-  async inDepartment(work: IWorkDocument, {}, { subdomain }: IContext) {
+  async inDepartment(work: IWorkDocument, _, { subdomain }: IContext) {
     const { inDepartmentId } = work;
 
     if (!inDepartmentId) {
@@ -57,7 +57,7 @@ export default {
     });
   },
 
-  async outDepartment(work: IWorkDocument, {}, { subdomain }: IContext) {
+  async outDepartment(work: IWorkDocument, _, { subdomain }: IContext) {
     const { outDepartmentId } = work;
 
     if (!outDepartmentId) {
