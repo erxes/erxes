@@ -23,14 +23,14 @@ function StatusFilter({ counts, emptyText }: IProps) {
 
   const data = (
     <SidebarList>
-      {statusFilters.map((status, index) => {
+      {statusFilters.map((status) => {
         const onClick = () => {
           router.setParams(navigate, location, { status: status.key });
           // router.removeParams(navigate, location, 'page');
         };
 
         return (
-          <li key={index}>
+          <li key={status.key}>
             <a
               href="#filter"
               tabIndex={0}
