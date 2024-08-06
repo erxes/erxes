@@ -19,6 +19,7 @@ import {
 
 import CreateSlot from "./createSlot"
 import PreDates from "./preDates"
+import SetSlot from "./setSlot"
 
 const statusIcons = {
   serving: CheckCircle2,
@@ -34,19 +35,12 @@ const SlotActions = ({
   children,
 }: ISlot & {
   status?: "serving" | "available" | "reserved"
-  active: boolean
   children: React.ReactNode
 }) => {
-  const [activeSlot, setActiveSlot] = useAtom(slotCodeAtom)
-  const activeOrderId = useAtomValue(activeOrderIdAtom)
-  const setSelectedTab = useSetAtom(selectedTabAtom)
   const setInitialState = useSetAtom(setInitialAtom)
   const setFilterSlots = useSetAtom(slotFilterAtom)
   const Icon = statusIcons[status || "available"]
-  const handleChoose = (checked: boolean) => {
-    setActiveSlot(checked ? code : null)
-    checked && setSelectedTab("products")
-  }
+
   return (
     <DropdownMenu>
       {children}
@@ -62,13 +56,7 @@ const SlotActions = ({
         </div>
 
         <DropdownMenuSeparator />
-        <DropdownMenuCheckboxItem
-          onCheckedChange={handleChoose}
-          checked={activeSlot === code}
-          disabled={!activeOrderId}
-        >
-          {activeSlot === code ? "Захиалгаас чөлөөлөх" : "Захиалгад оноох"}
-        </DropdownMenuCheckboxItem>
+        <SetSlot code={code} />
         <CreateSlot code={code} />
         <DropdownMenuItem
           className="flex items-center"
@@ -76,6 +64,7 @@ const SlotActions = ({
             setInitialState()
             setFilterSlots(code)
           }}
+          disabled={status === "available"}
         >
           <ListFilterIcon className="h-4 w-4 mr-2" />
           Захиалга сонгох
