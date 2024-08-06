@@ -1,17 +1,14 @@
-import { gql, useQuery } from '@apollo/client';
-import Segments from '@erxes/ui-segments/src/containers/Filter';
-import React from 'react';
-import { queries } from '../graphql';
-import { CountQueryResponse } from '../types';
+import { gql, useQuery } from "@apollo/client";
+import Segments from "@erxes/ui-segments/src/containers/Filter";
+import React from "react";
+import { queries } from "../graphql";
+import { CountQueryResponse } from "../types";
 
-const SegmentFilterContainer = (props: {
-  loadingMainQuery: boolean;
-  only?: string;
-}) => {
+const SegmentFilterContainer = (props: { loadingMainQuery: boolean }) => {
   const { loadingMainQuery } = props;
 
   const carsCountsQuery = useQuery<CountQueryResponse>(gql(queries.carCounts), {
-    variables: { only: 'bySegment' },
+    variables: { only: "bySegment" },
     skip: loadingMainQuery,
   });
 
