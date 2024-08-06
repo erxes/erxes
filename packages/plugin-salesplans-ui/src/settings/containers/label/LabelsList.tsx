@@ -1,17 +1,14 @@
-import * as compose from 'lodash.flowright';
-import { gql, useQuery, useMutation } from '@apollo/client';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import List from '../../components/label/LabelsList';
-import { Alert, router, withProps } from '@erxes/ui/src/utils';
-import { Bulk } from '@erxes/ui/src/components';
-import { graphql } from '@apollo/client/react/hoc';
-import { mutations, queries } from '../../graphql';
+import { gql, useQuery, useMutation } from "@apollo/client";
+import React from "react";
+import List from "../../components/label/LabelsList";
+import { Alert, router } from "@erxes/ui/src/utils";
+import { Bulk } from "@erxes/ui/src/components";
+import { mutations, queries } from "../../graphql";
 import {
   SPLabelsQueryResponse,
   SPLabelsRemoveMutationResponse,
   SPLabelsTotalCountQueryResponse,
-} from '../../types';
+} from "../../types";
 
 type Props = {
   queryParams: any;
@@ -22,22 +19,22 @@ const ListContainer = (props: Props) => {
 
   const spLabelQuery = useQuery<SPLabelsQueryResponse>(gql(queries.spLabels), {
     variables: generateParams({ queryParams }),
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
 
   const spLabelTotalCountQuery = useQuery<SPLabelsTotalCountQueryResponse>(
     gql(queries.spLabelsCount),
     {
       variables: generateParams({ queryParams }),
-      fetchPolicy: 'network-only',
-    },
+      fetchPolicy: "network-only",
+    }
   );
 
   const [spLabelsRemove] = useMutation<SPLabelsRemoveMutationResponse>(
     gql(mutations.spLabelsRemove),
     {
-      refetchQueries: ['spLabels', 'spLabelsCount'],
-    },
+      refetchQueries: ["spLabels", "spLabelsCount"],
+    }
   );
 
   const remove = ({ spLabelIds }, emptyBulk) => {
@@ -47,7 +44,7 @@ const ListContainer = (props: Props) => {
       .then(() => {
         emptyBulk();
 
-        Alert.success('You successfully deleted a labels');
+        Alert.success("You successfully deleted a labels");
       })
       .catch((e) => {
         Alert.error(e.message);
@@ -55,8 +52,8 @@ const ListContainer = (props: Props) => {
   };
 
   const labelList = (bulkProps) => {
-    const searchValue = queryParams.searchValue || '';
-    const filterStatus = queryParams.filterStatus || '';
+    const searchValue = queryParams.searchValue || "";
+    const filterStatus = queryParams.filterStatus || "";
     const minMultiplier = queryParams.minMultiplier;
     const maxMultiplier = queryParams.maxMultiplier;
 

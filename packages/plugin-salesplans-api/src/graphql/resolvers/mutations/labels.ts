@@ -7,7 +7,7 @@ import {
 import { sendProductsMessage } from '../../../messageBroker';
 
 const sortRules = async (subdomain: string, rules: ILabelRule[]) => {
-  const categoryIds = rules.map(r => r.productCategoryId || '');
+  const categoryIds = rules.map(r => r.productCategoryId ?? '');
   const categories = await sendProductsMessage({
     subdomain,
     action: 'categories.find',

@@ -4,8 +4,8 @@ import React from "react";
 import Row from "./TimesRow";
 import Sidebar from "./Sidebar";
 import SidebarWrapper from "../Sidebar";
-import { __, Alert, confirm, router } from "@erxes/ui/src/utils";
-import { BarItems, Wrapper } from "@erxes/ui/src/layout";
+import { __, Alert, confirm } from "@erxes/ui/src/utils";
+import { Wrapper } from "@erxes/ui/src/layout";
 import {
   Button,
   DataWithLoader,
