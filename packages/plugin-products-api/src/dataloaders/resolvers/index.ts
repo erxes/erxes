@@ -16,6 +16,7 @@ import {
 const resolvers: any = {
   ...customScalars,
   Product,
+  ProductsUsedPipeline: Product,
   ProductCategory,
   Uom,
   Mutation: {

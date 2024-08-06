@@ -5,21 +5,7 @@ import {
   sendProductsMessage
 } from '../messageBroker';
 import { sendRPCMessage } from '../messageBrokerErkhet';
-
-export const getPureDate = (date: Date) => {
-  const ndate = new Date(date);
-  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  return await sendCoreMessage({
-    subdomain,
-    action: 'getConfig',
-    data: { code, defaultValue },
-    isRPC: true
-  });
-};
+import { getConfig, getPureDate } from './utils';
 
 export const getPostData = async (subdomain, pos, order) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
@@ -103,15 +89,15 @@ export const getPostData = async (subdomain, pos, order) => {
     sumSaleAmount -= paidAmount.amount;
   }
 
-  if (sumSaleAmount > 0.005) {
-    payments[pos.erkhetConfig.defaultPay] = sumSaleAmount;
+  if (sumSaleAmount > 0.005 || sumSaleAmount < -0.005) {
+    payments[pos.erkhetConfig.defaultPay] = (payments[pos.erkhetConfig.defaultPay] || 0) + sumSaleAmount;
   }
 
   let customerCode = '';
   if (order.customerId) {
     const customerType = order.customerType || 'customer';
     if (customerType === 'company') {
-      customerCode = customerCode = (
+      customerCode = (
         (await sendContactsMessage({
           subdomain,
           action: 'companies.findOne',
@@ -120,8 +106,8 @@ export const getPostData = async (subdomain, pos, order) => {
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        }))
+      )?.code;
     } else {
       customerCode = (
         (await sendContactsMessage({
@@ -132,8 +118,8 @@ export const getPostData = async (subdomain, pos, order) => {
           },
           isRPC: true,
           defaultValue: {}
-        })) || {}
-      ).code;
+        }))
+      )?.code;
     }
   }
 

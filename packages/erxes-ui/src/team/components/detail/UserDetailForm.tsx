@@ -1,12 +1,12 @@
-import ActionSection from '../../containers/ActionSection';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IUser } from '@erxes/ui/src/auth/types';
-import InfoSection from './InfoSection';
-import LeftSidebar from './LeftSidebar';
-import React, { useState } from 'react';
-import { UserHeader, BoxWrapper } from './styles';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import ActionSection from "../../containers/ActionSection";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { IUser } from "@erxes/ui/src/auth/types";
+import InfoSection from "./InfoSection";
+import LeftSidebar from "./LeftSidebar";
+import React, { useState } from "react";
+import { UserHeader, BoxWrapper } from "./styles";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
 import {
   Box,
   ControlLabel,
@@ -15,14 +15,14 @@ import {
   Button,
   Form as CommonForm,
   ModalTrigger,
-} from '@erxes/ui/src';
-import { ButtonRelated, ModalFooter } from '@erxes/ui/src/styles/main';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import SelectPositions from '@erxes/ui/src/team/containers/SelectPositions';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { IButtonMutateProps } from '../../../types';
-import UserMovementForm from '../../containers/UserMovementForm';
+} from "@erxes/ui/src";
+import { ButtonRelated, ModalFooter } from "@erxes/ui/src/styles/main";
+import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
+import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
+import SelectPositions from "@erxes/ui/src/team/containers/SelectPositions";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { IButtonMutateProps } from "../../../types";
+import UserMovementForm from "../../containers/UserMovementForm";
 
 type Props = {
   user: IUser;
@@ -72,8 +72,8 @@ function UserDetails({
     isChanged: false,
   });
 
-  const title = details.fullName || 'Unknown';
-  const breadcrumb = [{ title: 'Users', link: '/settings/team' }, { title }];
+  const title = details ? details.fullName || "Unknown" : "Unknown";
+  const breadcrumb = [{ title: "Users", link: "/settings/team" }, { title }];
 
   if (!user._id) {
     return (
@@ -90,7 +90,7 @@ function UserDetails({
     isChanged: boolean,
     label: string,
     key: string,
-    handleState,
+    handleState
   ) => {
     let Selection;
 
@@ -98,14 +98,14 @@ function UserDetails({
       handleState({ ids: value, isChanged: true });
     };
 
-    if (key === 'department') {
+    if (key === "department") {
       Selection = SelectDepartments;
     }
-    if (key === 'branch') {
+    if (key === "branch") {
       Selection = SelectBranches;
     }
 
-    if (key === 'position') {
+    if (key === "position") {
       Selection = SelectPositions;
     }
     const content = (formProps) => {
@@ -120,7 +120,7 @@ function UserDetails({
         return {
           ...user,
           details: { ...(user.details || {}), __typename: undefined },
-          [`${key}Ids`]: ids
+          [`${key}Ids`]: ids,
         };
       };
 
@@ -165,10 +165,10 @@ function UserDetails({
           {isChanged && (
             <ModalFooter>
               <Button btnStyle="simple" onClick={handleCancel}>
-                {__('Cancel')}
+                {__("Cancel")}
               </Button>
               {renderButton({
-                text: 'user movement',
+                text: "user movement",
                 values: generateDoc(),
                 isSubmitted: formProps.isSubmitted,
                 callback,
@@ -185,27 +185,27 @@ function UserDetails({
   const leftSidebar = (
     <Sidebar>
       <Box title="Branches">
-        {list(branch.ids, branch.isChanged, 'Branches', 'branch', setBranchIds)}
+        {list(branch.ids, branch.isChanged, "Branches", "branch", setBranchIds)}
       </Box>
       <Box title="Departments">
         {list(
           department.ids,
           department.isChanged,
-          'Departments',
-          'department',
-          setDepartmentIds,
+          "Departments",
+          "department",
+          setDepartmentIds
         )}
       </Box>
       <Box title="Positions">
         {list(
           position.ids,
           position.isChanged,
-          'Positions',
-          'position',
-          setPositionIds,
+          "Positions",
+          "position",
+          setPositionIds
         )}
       </Box>
-      {loadDynamicComponent('contactDetailRightSidebar', { user })}
+      {loadDynamicComponent("contactDetailRightSidebar", { user })}
     </Sidebar>
   );
 
@@ -222,7 +222,7 @@ function UserDetails({
           >
             <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
-          {loadDynamicComponent('contactDetailHeader', { customer: user })}
+          {loadDynamicComponent("contactDetailHeader", { customer: user })}
         </UserHeader>
       }
       leftSidebar={
@@ -235,7 +235,7 @@ function UserDetails({
         />
       }
       rightSidebar={leftSidebar}
-      content={loadDynamicComponent('contactDetailContent', { contact: user })}
+      content={loadDynamicComponent("contactDetailContent", { contact: user })}
       transparent={true}
     />
   );

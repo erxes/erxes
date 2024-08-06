@@ -66,8 +66,19 @@ export type InvoicesCount = {
   byStatus: Counts;
 };
 
+export interface ITransaction {
+  _id: string;
+  amount: number;
+  status: string;
+  paymentKind: string;
+  paymentId: string;
+  payment: any;
+  details: any;
+}
+
 export interface IInvoice {
   _id: string;
+  invoiceNumber: string;
   amount: number;
   contentType: string;
   contentTypeId: string;
@@ -85,6 +96,7 @@ export interface IInvoice {
   errorDescription?: string;
   pluginData?: any;
   idOfProvider: string;
+  transactions: ITransaction[];
 }
 
 export interface IPaymentConfig {

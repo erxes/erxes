@@ -7,7 +7,6 @@ import {
   CALL_STATUS_ACTIVE,
   CALL_STATUS_IDLE,
   CALL_STATUS_STARTING,
-  CALL_STATUS_STOPPING,
   SIP_ERROR_TYPE_CONFIGURATION,
   SIP_ERROR_TYPE_CONNECTION,
   SIP_ERROR_TYPE_REGISTRATION,
@@ -58,7 +57,7 @@ export default class SipProvider extends React.Component<
     callUserIntegration: ICallConfigDoc;
     createSession: () => void;
     updateHistory: (
-      callId: string,
+      timeStamp: number,
       callStartTime: Date,
       callEndTime: Date,
       callStatus: string,
@@ -69,7 +68,7 @@ export default class SipProvider extends React.Component<
     ) => void;
     addHistory: (
       callStatus: string,
-      sessionId: string,
+      timeStamp: number,
       direction: string,
       customerPhone: string,
       callStartTime: Date,
@@ -139,6 +138,8 @@ export default class SipProvider extends React.Component<
     debug: false,
   };
   private ua;
+  private ringbackTone;
+
   private remoteAudio;
   private logger;
 
@@ -156,6 +157,7 @@ export default class SipProvider extends React.Component<
       callId: null,
     };
     this.ua = null;
+    this.ringbackTone = '';
 
     this.remoteAudio = window.document.getElementById('sip-provider-audio');
     this.remoteAudio?.remove();
@@ -386,7 +388,6 @@ export default class SipProvider extends React.Component<
     const options = {
       extraHeaders,
       mediaConstraints: { audio: true, video: false },
-      // rtcOfferConstraints: { iceRestart: this.props.iceRestart },
       pcConfig: {
         iceServers,
       },
@@ -401,7 +402,7 @@ export default class SipProvider extends React.Component<
   };
 
   public stopCall = () => {
-    this.setState({ callStatus: CALL_STATUS_STOPPING });
+    this.setState({ callStatus: CALL_STATUS_IDLE });
     this.ua?.terminateSessions();
   };
 
@@ -417,13 +418,87 @@ export default class SipProvider extends React.Component<
     }
   }
 
+  public playUnavailableAudio() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/unAvailableCall.mp3');
+      this.ringbackTone.loop = false;
+      this.ringbackTone
+        .play()
+        .catch(() => {
+          this.ringbackTone = null;
+        })
+        .then(() => {
+          this.ringbackTone = null;
+        });
+    }
+  }
+
+  public playBusyAudio() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/busyCall.mp3');
+      this.ringbackTone.loop = false;
+      this.ringbackTone
+        .play()
+        .catch(() => {
+          this.ringbackTone = null;
+        })
+        .then(() => {
+          this.ringbackTone = null;
+        });
+    }
+  }
+
+  public playHangupTone() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/hangup.mp3');
+      this.ringbackTone.loop = false;
+      this.ringbackTone
+        .play()
+        .catch(() => {
+          this.ringbackTone = null;
+        })
+        .then(() => {
+          this.ringbackTone = null;
+        });
+    }
+  }
+  public playRingbackTone() {
+    if (!this.ringbackTone) {
+      this.ringbackTone = new Audio('/sound/outgoingRingtone.mp3');
+      this.ringbackTone.loop = true;
+
+      setTimeout(() => {
+        this.ringbackTone?.play().catch(() => {
+          this.stopRingbackTone();
+        });
+      }, 4000);
+    } else {
+      this.stopRingbackTone();
+    }
+  }
+
+  public stopRingbackTone() {
+    if (this.ringbackTone) {
+      this.ringbackTone.pause();
+      this.ringbackTone.currentTime = 0;
+      this.ringbackTone = null;
+    }
+  }
+
   public reinitializeJsSIP() {
     if (this.ua) {
       this.ua.stop();
       this.ua = null;
     }
 
-    const { host, port, pathname, user, password, autoRegister } = this.props;
+    const {
+      host = 'call.erxes.io',
+      port = '8089',
+      pathname,
+      user,
+      password,
+      autoRegister,
+    } = this.props;
     if (!host || !port || !user) {
       this.setState({
         sipStatus: SIP_STATUS_DISCONNECTED,
@@ -445,26 +520,6 @@ export default class SipProvider extends React.Component<
       } as any;
 
       this.ua = new JsSIP.UA(options);
-
-      function reconnectWebSocket() {
-        console.log('Attempting to reconnect WebSocket...');
-        setTimeout(() => {
-          socket.connect();
-        }, 5000); // Retry after 5 seconds
-      }
-      socket.onconnect = () => {
-        console.log('WebSocket connected');
-      };
-
-      socket.ondisconnect = (error, code, reason) => {
-        console.log('error:', error);
-        console.log('Code:', code);
-        console.log('Reason:', reason);
-
-        if (code === 1006) {
-          reconnectWebSocket();
-        }
-      };
     } catch (error) {
       this.logger.debug('Error', error.message, error);
       this.setState({
@@ -510,14 +565,12 @@ export default class SipProvider extends React.Component<
       this.logger.debug('UA "disconnected" event');
 
       if (e.code === 1006) {
-        // Retry connection after a delay
-        setTimeout(this.reinitializeJsSIP, 5000); // Retry after 5 seconds
+        setTimeout(this.reinitializeJsSIP, 5000);
       }
       if (this.ua !== ua) {
         return;
       }
       setLocalStorage(false, false);
-      console.log('disconnected:', e);
       this.setState({
         sipStatus: SIP_STATUS_ERROR,
         sipErrorType: SIP_ERROR_TYPE_CONNECTION,
@@ -560,7 +613,6 @@ export default class SipProvider extends React.Component<
 
     ua.on('registrationFailed', (data) => {
       this.logger.debug('UA "registrationFailed" event');
-      console.log('registrationfailed:', data);
       if (this.ua !== ua) {
         return;
       }
@@ -580,7 +632,6 @@ export default class SipProvider extends React.Component<
         if (!this || this.ua !== ua) {
           return;
         }
-        // identify call direction
         if (originator === 'local') {
           const foundUri = rtcRequest.to.toString();
           const toDelimiterPosition = foundUri.indexOf(';') || null;
@@ -606,12 +657,12 @@ export default class SipProvider extends React.Component<
           });
         }
         const diversionHeader = rtcRequest.getHeader('Diversion');
-
+        const timeStamp = rtcRequest.getHeader('Timestamp') || 0;
         const { rtcSession: rtcSessionInState } = this.state;
 
         let direction = 'OUTGOING';
         let customerPhone = '';
-        // Avoid if busy or other incoming
+
         if (rtcSessionInState) {
           this.logger.debug('incoming call replied with 486 "Busy Here"');
           rtcSession.terminate({
@@ -621,10 +672,18 @@ export default class SipProvider extends React.Component<
           return;
         }
         this.setState({ rtcSession });
-        rtcSession.on('progress', function (data) {
-          if (data.originator === 'remote') data.response.body = null;
+        rtcSession.on('progress', (e) => {
+          if (
+            e.originator === 'remote' &&
+            e.response.status_code >= 180 &&
+            e.response.status_code <= 189
+          ) {
+            this.playRingbackTone();
+          }
         });
+
         rtcSession.on('failed', (e) => {
+          this.stopRingbackTone();
           this.logger.debug('UA failed event');
           if (this.ua !== ua) {
             return;
@@ -633,6 +692,12 @@ export default class SipProvider extends React.Component<
           const { updateHistory } = this.props;
           const { rtcSession: session } = this.state;
 
+          if (e.message?.status_code === 603) {
+            this.playUnavailableAudio();
+          }
+          if ([480, 486, 606, 607, 608].includes(e.message?.status_code)) {
+            this.playBusyAudio();
+          }
           if (this.state.callDirection) {
             direction = this.state.callDirection.split('/')[1];
             direction = direction?.toLowerCase();
@@ -644,13 +709,14 @@ export default class SipProvider extends React.Component<
           }
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'cancelled',
               direction,
               customerPhone,
               diversionHeader || '',
+              e.originator,
             );
           }
           this.setState({
@@ -663,15 +729,15 @@ export default class SipProvider extends React.Component<
 
           rtcSession = null;
         });
-        rtcSession.on('peerconnection', (e) => {
+
+        rtcSession.on('ended', (data) => {
+          this.stopRingbackTone();
           if (this.ua !== ua) {
             return;
           }
-        });
 
-        rtcSession.on('ended', (data) => {
-          if (this.ua !== ua) {
-            return;
+          if (data.cause === 'Terminated') {
+            this.playHangupTone();
           }
           console.log('ended:', data);
           const { updateHistory } = this.props;
@@ -688,7 +754,7 @@ export default class SipProvider extends React.Component<
           }
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'connected',
@@ -710,7 +776,6 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('bye', () => {
-          console.log('bye:');
           if (this.ua !== ua) {
             return;
           }
@@ -726,7 +791,6 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('rejected', function (e) {
-          console.log('rejected:', e);
           if (this.ua !== ua) {
             return;
           }
@@ -735,7 +799,7 @@ export default class SipProvider extends React.Component<
 
           if (updateHistory && session) {
             updateHistory(
-              session._id,
+              timeStamp,
               session.start_time,
               session.end_time,
               'rejected',
@@ -753,6 +817,8 @@ export default class SipProvider extends React.Component<
         });
 
         rtcSession.on('accepted', () => {
+          this.stopRingbackTone();
+
           if (this.ua !== ua) {
             return;
           }
@@ -771,7 +837,7 @@ export default class SipProvider extends React.Component<
           if (addHistory) {
             addHistory(
               'active',
-              this.state.rtcSession._id,
+              timeStamp,
               direction,
               customerPhone,
               this.state.rtcSession.start_time,

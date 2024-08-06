@@ -311,17 +311,12 @@ export const buildMatchFilter = async (filter, subdomain, models, field?) => {
         matchfilter[userFieldType] = { $in: userIds };
     }
 
-    // BRAND FILTER
-    if (brandIds && brandIds.length) {
-        const query = { brandId: { $in: brandIds } }
-        const integrationIds = await getIntegrationIds(query, models)
+    if (brandIds?.length || integrationTypes?.length) {
+        const query = {
+            ...(brandIds?.length && { brandId: { $in: brandIds } }),
+            ...(integrationTypes?.length && { kind: { $in: integrationTypes } })
+        }
 
-        matchfilter['integrationId'] = { $in: integrationIds };
-    }
-
-    // SOURCE FILTER
-    if (integrationTypes && integrationTypes.length) {
-        const query = { kind: { $in: integrationTypes } }
         const integrationIds = await getIntegrationIds(query, models)
 
         matchfilter['integrationId'] = { $in: integrationIds };

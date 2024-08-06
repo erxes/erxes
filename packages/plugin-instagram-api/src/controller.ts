@@ -4,7 +4,7 @@ import loginMiddleware from './middlewares/loginMiddleware';
 import receiveMessage from './receiveMessage';
 import { generateModels } from './connectionResolver';
 import { getPageList } from './utils';
-import { INSTAGRAM_POST_TYPES, INTEGRATION_KINDS } from './constants';
+import { INTEGRATION_KINDS } from './constants';
 import receiveComment from './receiveComment';
 
 import {
@@ -82,13 +82,12 @@ const init = async (app) => {
     for (const entry of data.entry) {
       // receive chat
       if (entry.messaging) {
-        const messageData = entry.messaging[0];
         try {
+          const messageData = entry.messaging[0];
           await receiveMessage(models, subdomain, messageData);
-
           return res.send('success');
         } catch (e) {
-          return res.send('success');
+          return res.send('error' + e);
         }
       }
 
@@ -112,8 +111,6 @@ const init = async (app) => {
         }
       }
     }
-
-    next();
   });
 };
 

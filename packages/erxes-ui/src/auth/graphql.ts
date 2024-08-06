@@ -51,6 +51,7 @@ export const currentUser = `
         onboardingDone
         contactRemaining
         experienceName
+        experience
         bundleNames
       }`
           : ``

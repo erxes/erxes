@@ -19,7 +19,7 @@ const CardsConfig = (props: Props) => {
   const { pos, onChange } = props;
 
   const [config, setConfig] = useState<IConfigsMap>(
-    pos && pos.cardsConfig ? pos.cardsConfig : {},
+    pos?.cardsConfig || {},
   );
 
   const [fieldsCombined, setFieldsCombined] = useState<FieldsCombinedByType[]>(
@@ -58,20 +58,32 @@ const CardsConfig = (props: Props) => {
   };
 
   const handleDelete = (currentConfigKey: string) => {
-    delete config[currentConfigKey];
+    const newConfig = {};
 
-    setConfig(config);
-    onChange('cardsConfig', config);
+    Object.keys(config).forEach((key)=> {
+      if (key !== currentConfigKey) {
+        newConfig[key] = config[key];
+      }
+    })
+
+    setConfig(newConfig);
+    onChange('cardsConfig', newConfig);
 
     Alert.success('You successfully deleted stage in cards settings.');
   };
 
-  const handleEdit = (key, currenConfig: any) => {
-    delete config[key];
-    config[currenConfig.branchId] = { ...currenConfig };
+  const handleEdit = (oldKey, currenConfig: any) => {
+    const newConfig = {};
 
-    setConfig(config);
-    onChange('cardsConfig', config);
+    Object.keys(config).forEach((key)=> {
+      if (key !== oldKey) {
+        newConfig[key] = config[key];
+      }
+    })
+
+    newConfig[currenConfig.branchId] = { ...currenConfig };
+    setConfig(newConfig);
+    onChange('cardsConfig', newConfig);
   };
 
   const renderCollapse = () => {

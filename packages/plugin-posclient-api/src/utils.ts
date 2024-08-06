@@ -26,7 +26,7 @@ import {
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import { IOrderDocument } from './models/definitions/orders';
 import { IConfigDocument } from './models/definitions/configs';
-import moment from 'moment';
+import * as moment from 'moment';
 import { IDoc } from './models/PutData';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
@@ -449,7 +449,7 @@ export const prepareSettlePayment = async (
       if (products.find((product) => product?.type === 'subscription')) {
         uoms = await sendProductsMessage({
           subdomain,
-          action: 'uoms.findOne',
+          action: 'uoms.find',
           data: {
             code: { $in: products.map((product) => product?.uom) },
           },

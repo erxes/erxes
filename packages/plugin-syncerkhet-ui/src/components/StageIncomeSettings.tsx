@@ -1,14 +1,14 @@
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __, confirm } from '@erxes/ui/src/utils';
-import { Button, DataWithLoader } from '@erxes/ui/src/components';
-import { Wrapper } from '@erxes/ui/src/layout';
-import React from 'react';
+import { Button, DataWithLoader } from "@erxes/ui/src/components";
+import { __, confirm } from "@erxes/ui/src/utils";
 
-import { ContentBox } from '../styles';
-import { IConfigsMap } from '../types';
-import Header from './Header';
-import PerSettings from './PerIncomeSettings';
-import Sidebar from './Sidebar';
+import { ContentBox } from "../styles";
+import Header from "./Header";
+import { IConfigsMap } from "../types";
+import PerSettings from "./PerIncomeSettings";
+import React from "react";
+import Sidebar from "./Sidebar";
+import { Title } from "@erxes/ui-settings/src/styles";
+import { Wrapper } from "@erxes/ui/src/layout";
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -25,7 +25,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap
+      configsMap: props.configsMap,
     };
   }
 
@@ -35,28 +35,35 @@ class GeneralSettings extends React.Component<Props, State> {
     }
   }
 
-  add = e => {
+  add = (e) => {
     e.preventDefault();
     const { configsMap } = this.state;
+
+    const newStageInIncomeConfig = { ...configsMap.stageInIncomeConfig };
 
     if (!configsMap.stageInIncomeConfig) {
       configsMap.stageInIncomeConfig = {};
     }
 
     // must save prev item saved then new item
-    configsMap.stageInIncomeConfig.newStageInIncomeConfig = {
-      title: 'New Erkhet Income Config',
-      boardId: '',
-      pipelineId: '',
-      stageId: '',
-      userEmail: ''
+    newStageInIncomeConfig.newStageInIncomeConfig = {
+      title: "New Erkhet Income Config",
+      boardId: "",
+      pipelineId: "",
+      stageId: "",
+      userEmail: "",
     };
 
-    this.setState({ configsMap });
+    this.setState({
+      configsMap: {
+        ...configsMap,
+        stageInIncomeConfig: newStageInIncomeConfig,
+      },
+    });
   };
 
   delete = (currentConfigKey: string) => {
-    confirm('This Action will delete this config are you sure?').then(() => {
+    confirm("This Action will delete this config are you sure?").then(() => {
       const { configsMap } = this.state;
       delete configsMap.stageInIncomeConfig[currentConfigKey];
       delete configsMap.stageInIncomeConfig.newStageInIncomeConfig;
@@ -68,7 +75,7 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   renderConfigs(configs) {
-    return Object.keys(configs).map(key => {
+    return Object.keys(configs).map((key) => {
       return (
         <PerSettings
           key={key}
@@ -87,7 +94,7 @@ class GeneralSettings extends React.Component<Props, State> {
     const configs = configsMap.stageInIncomeConfig || {};
 
     return (
-      <ContentBox id={'GeneralSettingsMenu'}>
+      <ContentBox id={"GeneralSettingsMenu"}>
         {this.renderConfigs(configs)}
       </ContentBox>
     );
@@ -99,8 +106,8 @@ class GeneralSettings extends React.Component<Props, State> {
     ).length;
 
     const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Erkhet income config') }
+      { title: __("Settings"), link: "/settings" },
+      { title: __("Erkhet income config") },
     ];
 
     const actionButtons = (
@@ -118,14 +125,14 @@ class GeneralSettings extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Erkhet income config')}
+            title={__("Erkhet income config")}
             breadcrumb={breadcrumb}
           />
         }
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Erkhet income configs')}</Title>}
+            left={<Title>{__("Erkhet income configs")}</Title>}
             right={actionButtons}
           />
         }
@@ -135,7 +142,7 @@ class GeneralSettings extends React.Component<Props, State> {
             data={this.renderContent()}
             loading={this.props.loading}
             count={configCount}
-            emptyText={__('There is no config') + '.'}
+            emptyText={__("There is no config") + "."}
             emptyImage="/images/actions/8.svg"
           />
         }
