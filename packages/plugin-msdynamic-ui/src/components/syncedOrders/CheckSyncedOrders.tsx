@@ -178,7 +178,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__(`Check erkhet`)}
+            title={__(`Check msdynamic`)}
             queryParams={queryParams}
             submenu={menuDynamic}
           />

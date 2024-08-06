@@ -148,10 +148,12 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                   display: 'flex',
                   alignItems: 'center',
                   height: '100%',
+                  flex: 1,
                 }}
               >
                 <input
-                  style={{ width: '100px' }}
+                  id="country-select-val"
+                  style={{ width: '80px', flex: 0 }}
                   value={country && `${country.emoji} ${country.dialCode}`}
                   readOnly={true}
                 />
@@ -168,7 +170,7 @@ class AccquireInformation extends React.PureComponent<Props, State> {
                     }
                     className="form-control"
                     style={{
-                      width: '120px',
+                      width: '80px',
                       opacity: 0,
                       position: 'absolute',
                       left: 0,

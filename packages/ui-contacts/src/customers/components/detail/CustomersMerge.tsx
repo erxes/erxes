@@ -219,6 +219,7 @@ class CustomersMerge extends React.Component<Props, State> {
             btnStyle="success"
             icon={mergeCustomerLoading ? undefined : 'check-circle'}
             disabled={mergeCustomerLoading}
+            onClick={this.save}
           >
             {mergeCustomerLoading && <SmallLoader />}
             Save
