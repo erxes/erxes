@@ -8,8 +8,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import React from 'react';
 import SelectBrand from '../components/SelectBrand';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { mutations as brandMutations } from '@erxes/ui/src/brands/graphql';
-import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
+import { mutations as brandMutations, queries as brandQueries } from '@erxes/ui/src/brands/graphql';
 import { gql } from '@apollo/client';
 
 type Props = {
