@@ -210,7 +210,7 @@ const PerSettings: React.FC<Props> = (props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={currentConfigKey === "newSimilarityGroup" ? true : false}
+      open={currentConfigKey === "newSimilarityGroup"}
       transparent={true}
       beforeTitle={<Icon icon="settings" />}
     >
@@ -267,8 +267,7 @@ const PerSettings: React.FC<Props> = (props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.codeMask ? false : true}
-        >
+          disabled={!config.codeMask}          >
           Save
         </Button>
       </ModalFooter>

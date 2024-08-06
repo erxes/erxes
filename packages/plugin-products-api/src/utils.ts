@@ -1,15 +1,12 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { ICustomField } from '@erxes/api-utils/src/types';
-import * as _ from 'underscore';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import { IModels } from './connectionResolver';
 import {
   fetchSegment,
-  sendFormsMessage,
   sendSegmentsMessage,
   sendTagsMessage,
 } from './messageBroker';
-import { IProductCategory, productSchema } from './models/definitions/products';
+import {productSchema } from './models/definitions/products';
 
 type TSortBuilder = { primaryName: number } | { [index: string]: number };
 

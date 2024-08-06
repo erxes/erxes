@@ -61,7 +61,6 @@ export const setPlace = async (
       if (await checkCondition(subdomain, pdata, condition, productById)) {
         pdata.branchId = condition.branchId;
         pdata.departmentId = condition.departmentId;
-        continue;
       }
     }
   }

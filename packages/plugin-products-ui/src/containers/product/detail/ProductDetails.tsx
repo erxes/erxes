@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql,useQuery } from '@apollo/client';
 import { IUser } from '@erxes/ui/src/auth/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -6,7 +6,6 @@ import { DetailQueryResponse, IProduct } from '../../../types';
 import React from 'react';
 import ProductDetails from '../../../components/product/detail/ProductDetails';
 import { queries } from '../../../graphql';
-import { useQuery } from '@apollo/client';
 
 type Props = {
   id: string;

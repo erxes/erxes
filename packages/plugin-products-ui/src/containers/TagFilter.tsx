@@ -3,11 +3,9 @@ import CountsByTag from '@erxes/ui/src/components/CountsByTag';
 import React from 'react';
 import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { gql } from '@apollo/client';
+import { gql,useQuery } from '@apollo/client';
 import { queries } from '../graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
-import { useQuery } from '@apollo/client';
-
 const TagFilterContainer = () => {
   const countByTagsQuery = useQuery<CountByTagsQueryResponse>(
     gql(queries.productCountByTags),

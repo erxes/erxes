@@ -17,7 +17,6 @@ import xss from 'xss';
 
 type Props = {
   email: IEmailDelivery;
-  emailType: string;
   activity: any;
 };
 

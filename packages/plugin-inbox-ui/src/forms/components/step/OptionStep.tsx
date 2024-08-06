@@ -31,10 +31,7 @@ type Props = {
       | "departmentIds",
     value: any
   ) => void;
-  type: string;
   formData: IFormData;
-  color: string;
-  theme: string;
   title?: string;
   language?: string;
   isRequireOnce?: boolean;
@@ -46,7 +43,6 @@ type Props = {
   departmentIds?: string[];
   integrationId?: string;
   isIntegrationSubmitted?: boolean;
-  onFieldEdit?: () => void;
   waitUntilFinish?: (obj: any) => void;
   onChildProcessFinished?: (component: string) => void;
 };
