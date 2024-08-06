@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import 'lodash';
 import * as dayjs from 'dayjs';
 import { IModels } from '../connectionResolver';
 import {
