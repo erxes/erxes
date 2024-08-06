@@ -74,7 +74,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           .limit(params.perPage);
 
         const data = await progressFunctionIds(doc);
-        return data === true ? true : false;
+        return data === true;
       } catch (error) {
         // Handle the error appropriately
         console.error('Error fetching progress IDs goals:', error);

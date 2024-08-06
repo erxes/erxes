@@ -1,16 +1,16 @@
-import { SelectWithSearch } from '@erxes/ui/src';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import React from 'react';
-import { queries } from '../graphql';
-import { IGoalType } from '../types';
+import { SelectWithSearch } from "@erxes/ui/src";
+import { IOption, IQueryParams } from "@erxes/ui/src/types";
+import React from "react";
+import { queries } from "../graphql";
+import { IGoalType } from "../types";
 
 export function generateGoalTypeOptions(array: IGoalType[] = []): IOption[] {
-  return array.map(item => {
+  return array.map((item) => {
     const goalType = item || ({} as IGoalType);
 
     return {
       value: goalType._id,
-      label: `${goalType.entity || ''}`
+      label: `${goalType.entity || ""}`,
     };
   });
 }
@@ -21,13 +21,12 @@ export default ({
   value,
   multi = true,
   label,
-  name
+  name,
 }: {
   queryParams?: IQueryParams;
   label: string;
   onSelect: (value: string[] | string, name: string) => void;
   multi?: boolean;
-  customOption?: IOption;
   value?: string | string[];
   name: string;
 }) => {
