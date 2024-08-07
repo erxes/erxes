@@ -80,6 +80,15 @@ const channelMutations = {
       console.log(e, 'eee');
     }
 
+    sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'ChannelCreate',
+        user,
+      },
+    });
+
     return channel;
   },
 

@@ -1,3 +1,4 @@
+import { IModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -6,6 +7,7 @@ import {
   sendProductsMessage,
 } from './messageBroker';
 import fetch from 'node-fetch';
+import { ISyncLogDocument } from './models/definitions/dynamic';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
@@ -562,6 +564,14 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   for (const brand of brands) {
     const config = configs[brand._id || 'noBrand'];
 
+    if (
+      !config?.customerApi ||
+      !config?.username ||
+      !config?.password
+    ) {
+      continue
+    }
+
     const customer = params;
 
     const sendData = getSendDataCustomer(subdomain, customer, config);
@@ -630,13 +640,10 @@ export const customerToDynamic = async (subdomain, syncLog, params, models) => {
   }
 };
 
-export const dealToDynamic = async (subdomain, syncLog, params, models) => {
+export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument, params: any, models: IModels) => {
   const brandId = params.scopeBrandIds[0];
   const configs = await getConfig(subdomain, 'DYNAMIC', {});
   const config = configs[brandId || 'noBrand'];
-
-
-
 
   const order = params;
   let msdCustomer: any = {};
@@ -646,11 +653,11 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
     let customer;
 
     if (
-      !config.customerApi ||
-      !config.salesApi ||
-      !config.salesLineApi ||
-      !config.username ||
-      !config.password
+      !config?.customerApi ||
+      !config?.salesApi ||
+      !config?.salesLineApi ||
+      !config?.username ||
+      !config?.password
     ) {
       throw new Error('MS Dynamic config not found.');
     }
@@ -847,7 +854,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
         if (responseSaleLine?.error && responseSaleLine?.error?.message) {
           const foundSyncLog = await models.SyncLogs.findOne({
             _id: syncLog._id,
-          });
+          }) || { error: '' };
 
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },

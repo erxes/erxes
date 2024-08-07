@@ -25,6 +25,7 @@ import { colors, dimensions } from '../common/styles';
 import styled, { css } from 'styled-components';
 
 import Dialog from '@erxes/ui/src/components/Dialog';
+import { Text } from '@erxes/ui/src/components/ProgressBar';
 import { getThemeItem } from '@erxes/ui/src/utils/core';
 import { rgba } from '../common/styles/color';
 import styledTS from 'styled-components-ts';
@@ -144,6 +145,26 @@ const AuthDescription = styled.div`
   }
   .not-found {
     margin-top: 0;
+  }
+`;
+
+const Setup = styled.div`
+  display: flex;
+  align-items: center;
+
+  > * {
+    margin-right: 5px;
+    font-weight: bold;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
+
+  ${Text} {
+    font-size: 9px;
+    font-weight: 800;
+    color: #24a464;
   }
 `;
 
@@ -845,4 +866,5 @@ export {
   GotoItem,
   GotoModal,
   GotoMenuItem,
+  Setup
 };
