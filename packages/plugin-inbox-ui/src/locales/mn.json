@@ -42,7 +42,7 @@
     "If your form style is embedded, additionally paste this code after the main code.": "Хэрэв таны маягтын загвар суулгагдсан бол үндсэн кодын ард энэ кодыг нэмж оруулна уу.",
     "If your form style is a popup, additionally paste this code after the main code.": "Хэрэв таны маягтын загвар попап байвал үндсэн кодын ард энэ кодыг нэмж оруулна уу.",
     "Paste this main code before the body tag on every page you want this form to appear.": "Энэ маягтыг харуулахыг хүссэн хуудас бүрийн үндсэн шошгоны өмнө энэ үндсэн кодыг буулгана уу.",
-    "Submitted at": "Оруулсан",
+    "Submitted at": "Илгээх",
     "Form responses": "Хариултуудыг маягт",
     "Responses": "Хариултууд",
     "Download responses": "Хариултуудыг татаж авах",
