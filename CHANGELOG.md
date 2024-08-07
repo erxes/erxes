@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.15.0-rc.9](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-07)
+
+
+### Bug Fixes
+
+* **core:** add error handler in experience customCode ([c4c4851](https://github.com/erxes/erxes/commit/c4c485142c2f441fca16d7226c26663d3788af59))
+
+## [1.14.2](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-04)
+
+
+### Bug Fixes
+
+* **core:** add ability create brand consumer in message broker ([02f1b80](https://github.com/erxes/erxes/commit/02f1b8051cae249eb96363856889685ccd4c63fb))
+* **instagram:** fix instagram crash on recieve ([01d0a04](https://github.com/erxes/erxes/commit/01d0a040739557362b4829143f85f70dd761f7ce))
+* **instagram:** fixed messenger receiver ([7e904fa](https://github.com/erxes/erxes/commit/7e904fa516856175f9bcb584c5eab1c7d9dfbfe4))
+
+
+### Performance Improvements
+
+* **welcome:** Add saas welcome ([#5558](https://github.com/erxes/erxes/issues/5558)) ([b1bf188](https://github.com/erxes/erxes/commit/b1bf188fe280d875dffde462f2ad2dfaccb7b264))
+
 ## [1.15.0-rc.8](https://github.com/erxes/erxes/compare/1.15.0-rc.7...1.15.0-rc.8) (2024-08-05)
 
 
