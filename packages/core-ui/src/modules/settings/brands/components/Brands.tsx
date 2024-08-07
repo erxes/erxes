@@ -16,7 +16,7 @@ import { __ } from '../../../common/utils';
 
 type Props = {
   brandsTotalCount: number;
-  queryParams: any;
+  queryParams: Record<string, string>;
   currentBrand: IBrand;
   loading: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;

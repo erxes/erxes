@@ -9,7 +9,7 @@ import ModuleFilter from "./filters/ModuleFilter";
 import DateFilter from "./filters/DateFilter";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 class Sidebar extends React.Component<Props> {

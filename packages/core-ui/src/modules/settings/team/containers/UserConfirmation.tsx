@@ -15,7 +15,7 @@ import { mutations } from "@erxes/ui/src/team/graphql";
 import { useNavigate } from "react-router-dom";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
   currentUser?: IUser;
 };
 

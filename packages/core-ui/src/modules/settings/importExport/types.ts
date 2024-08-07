@@ -1,5 +1,6 @@
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IUser } from 'modules/auth/types';
+import { IAttachment } from 'modules/common/types';
 
 export interface IImportHistory {
   _id: string;
@@ -7,13 +8,21 @@ export interface IImportHistory {
   updated: string;
   failed: string;
   total: string;
-  contentTypes: string;
+  contentTypes: {
+    text: string;
+    contentType: string;
+    icon: string;
+    skipFilter: boolean;
+  }[];
   date: Date;
   user: IUser;
   status: string;
   percentage: number;
+  name?: string;
   errorMsgs: string[];
   error: string;
+  attachments?: IAttachment[];
+  removed?: string[];
 }
 
 export interface IImportHistoryItem {
@@ -40,6 +49,7 @@ export interface IExportHistory {
   user: IUser;
   error: string;
   exportLink: string;
+  uploadType?: string;
 }
 
 export interface IExportHistoryItem {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { gql, useQuery } from "@apollo/client";
 
 import { AppConsumer } from "appContext";
@@ -8,18 +8,17 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import { generatePaginationParams } from "modules/common/utils/router";
 import { queries } from "../graphql";
 import { router } from "modules/common/utils";
-import { useLocation } from "react-router-dom";
+import { useLocation, Location } from "react-router-dom";
 
 type Props = {
-  queryParams: any;
-  location: any;
+  queryParams: Record<string, string>;
+  location: Location;
   showLoadingBar: (isRemovingImport: boolean) => void;
   closeLoadingBar: () => void;
   isDoneIndicatorAction: boolean;
 };
 
 const HistoriesContainer = (props: Props) => {
-  const [loading, setLoading] = useState(false);
   const location = useLocation();
 
   const historiesQuery = useQuery<ExportHistoriesQueryResponse>(
@@ -52,7 +51,7 @@ const HistoriesContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     histories: histories.list || [],
-    loading: historiesQuery.loading || loading,
+    loading: historiesQuery.loading || false,
     totalCount: histories.count || 0,
     currentType,
   };
