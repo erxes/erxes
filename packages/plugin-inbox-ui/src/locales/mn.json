@@ -7,7 +7,7 @@
     "This widget is based on your erxes Products and Services. Depending on your products, you may need to create custom Properties first. For example, you can display additional information such as Amenities, Services, etc. in the product detail page or as user filters.": "Энэхүү виджет нь таны erxes-ийн бүтээгдэхүүн, үйлчилгээнд тулгуурласан болно. Бүтээгдэхүүнээсээ хамааран та эхлээд хувийн шинж чанаруудыг үүсгэх хэрэгтэй байж магадгүй. Жишээлбэл, та бүтээгдэхүүний дэлгэрэнгүй хуудас эсвэл хэрэглэгчийн шүүлтүүр болгон тав тухтай байдал, үйлчилгээ гэх мэт нэмэлт мэдээллийг харуулах боломжтой.",
     "Organize Your Products": "Бүтээгдэхүүнээ зохион байгуул",
     "The number of pages in this widget depends on how many sub-categories you’ll create for your products and services. If you haven’t created or organized them yet, please go to Products & Services first.": "Энэ виджетийн хуудасны тоо нь таны бүтээгдэхүүн, үйлчилгээнд зориулж хэдэн дэд ангилал үүсгэхээс хамаарна. Хэрэв та тэдгээрийг үүсгээгүй эсвэл зохион байгуулаагүй бол эхлээд Бүтээгдэхүүн, үйлчилгээ рүү очно уу.",
-    "Bookings": "Захиалга",
+    "Bookings": "Захиалгууд",
     "Booking": "Захиалга",
     "You are": "Чи бол",
     "form": "хэлбэр",
