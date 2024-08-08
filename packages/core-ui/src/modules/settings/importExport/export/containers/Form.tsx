@@ -11,7 +11,7 @@ type Props = {
   contentType: string;
 };
 
-type FinalProps = {} & Props & ExportHistoryCreateMutationResponse;
+type FinalProps = Props & ExportHistoryCreateMutationResponse;
 
 type State = {
   loading: boolean;
