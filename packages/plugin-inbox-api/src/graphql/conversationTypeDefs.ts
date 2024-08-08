@@ -3,7 +3,7 @@ import {
   attachmentType
 } from "@erxes/api-utils/src/commonTypeDefs";
 
-export const types = ({ forms, contacts, dailyco, calls }) => `
+export const types = ({ contacts, dailyco, calls }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -180,16 +180,10 @@ export const types = ({ forms, contacts, dailyco, calls }) => `
     unreadCount: Int
   }
 
-  ${
-    forms
-      ? `
-        type InboxField {
-          customer: [Field]
-          conversation: [Field]
-          device: [Field]
-        }
-    `
-      : ""
+  type InboxField {
+    customer: [Field]
+    conversation: [Field]
+    device: [Field]
   }
 
   type UserConversationListResponse {
@@ -248,7 +242,7 @@ const filterParams = `
   ${mutationFilterParams}
 `;
 
-export const queries = ({ forms }) => `
+export const queries = () => `
   conversationMessage(_id: String!): ConversationMessage
   
   conversations(${filterParams}, skip: Int): [Conversation]
@@ -266,7 +260,7 @@ export const queries = ({ forms }) => `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-  ${forms ? `inboxFields: InboxField` : ""}
+  inboxFields: InboxField
   userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 

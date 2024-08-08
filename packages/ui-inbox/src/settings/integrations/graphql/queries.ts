@@ -104,16 +104,10 @@ const integrations = `
         colorCode
         name
       }
-      ${
-        isEnabled("forms")
-          ? `
-              form {
-                _id
-                title
-                code
-              }
-            `
-          : ""
+      form {
+        _id
+        title
+        code
       }
       details
       healthStatus

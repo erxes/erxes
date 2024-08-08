@@ -2,8 +2,7 @@ import { generateModels } from "./connectionResolver";
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendProductsMessage,
-  sendFormsMessage
+  sendProductsMessage
 } from "./messageBroker";
 import * as _ from "lodash";
 
@@ -15,7 +14,7 @@ const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
 
   for (const cardType of ["purchase"]) {
-    let items = await sendFormsMessage({
+    let items = await sendCoreMessage({
       subdomain,
       action: "fields.fieldsCombinedByContentType",
       isRPC: true,

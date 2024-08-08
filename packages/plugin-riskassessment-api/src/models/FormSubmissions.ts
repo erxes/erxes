@@ -1,18 +1,18 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendFormsMessage } from '../messageBroker';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage } from "../messageBroker";
 import {
   calculateFormResponses,
   calculateResult,
   getAsssignedUsers,
   roundResult
-} from '../utils';
-import { IRiskFormSubmissionParams } from './definitions/common';
+} from "../utils";
+import { IRiskFormSubmissionParams } from "./definitions/common";
 import {
   formSubmissionSchema,
   IRiskFormSubmissionDocument
-} from './definitions/confimity';
-import { IRiskAssessmentsDocument } from './definitions/riskassessment';
+} from "./definitions/confimity";
+import { IRiskAssessmentsDocument } from "./definitions/riskassessment";
 
 export interface IRiskFormSubmissionModel
   extends Model<IRiskFormSubmissionDocument> {
@@ -76,11 +76,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       const formIds = forms?.map(form => form.formId) || [];
 
-      const fields = await sendFormsMessage({
+      const fields = await sendCoreMessage({
         subdomain,
-        action: 'fields.find',
+        action: "fields.find",
         data: {
-          query: { contentType: 'form', contentTypeId: { $in: formIds } }
+          query: { contentType: "form", contentTypeId: { $in: formIds } }
         },
         isRPC: true,
         defaultValue: []
@@ -96,7 +96,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         });
 
         resultScore =
-          forms[0].calculateMethod === 'ByPercent'
+          forms[0].calculateMethod === "ByPercent"
             ? Number(((sumNumber / scoreAviable) * 100).toFixed(1))
             : sumNumber;
       }
@@ -132,7 +132,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         }
 
         switch (calculateMethod) {
-          case 'ByPercent':
+          case "ByPercent":
             resultScore = Number(
               ((resultScore / maxScoreAviable) * (totalPercent * 100)).toFixed(
                 1
@@ -175,11 +175,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       const riskAssessment = await models.RiskAssessments.findOne(commonFilter);
 
       if (!riskAssessment) {
-        throw new Error('Somethin went wrong');
+        throw new Error("Somethin went wrong");
       }
 
-      if (riskAssessment.status !== 'In Progress') {
-        throw new Error('Risk assessment is already closed');
+      if (riskAssessment.status !== "In Progress") {
+        throw new Error("Risk assessment is already closed");
       }
 
       const { _id, groupId } = riskAssessment;
@@ -205,11 +205,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       const formIds = forms?.map(form => form.formId) || {};
 
-      const fields = await sendFormsMessage({
+      const fields = await sendCoreMessage({
         subdomain,
-        action: 'fields.find',
+        action: "fields.find",
         data: {
-          query: { contentType: 'form', contentTypeId: { $in: formIds } }
+          query: { contentType: "form", contentTypeId: { $in: formIds } }
         },
         isRPC: true,
         defaultValue: []
@@ -226,7 +226,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           });
 
         resultSumNumber =
-          forms[0].calculateMethod === 'ByPercent'
+          forms[0].calculateMethod === "ByPercent"
             ? Number(((sumNumber / scoreAviable) * 100).toFixed(1))
             : sumNumber;
 
@@ -270,7 +270,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         }
 
         switch (calculateMethod) {
-          case 'ByPercent':
+          case "ByPercent":
             totalCount = Number(
               ((totalCount / maxScoreAviable) * (totalPercent * 100)).toFixed(1)
             );
@@ -348,7 +348,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         _id: assessmentId
       });
       if (!riskAssessment) {
-        return 'Cannot find risk assessment';
+        return "Cannot find risk assessment";
       }
 
       const { _id, groupId } = riskAssessment;
@@ -369,7 +369,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       const count = await models.RiskAssessmentIndicators.countDocuments({
         assessmentId: _id,
         indicatorId: { $in: indicatorIds },
-        status: 'In Progress'
+        status: "In Progress"
       });
       return count === 0;
     }
@@ -381,11 +381,11 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       userId
     }: CommonTypes) {
       let assignedUserIds = (
-        await getAsssignedUsers(subdomain, cardId || '', cardType || '')
+        await getAsssignedUsers(subdomain, cardId || "", cardType || "")
       ).map(user => user._id);
 
       if (!assignedUserIds?.length) {
-        throw new Error('Something went wrong when fetch assigned users');
+        throw new Error("Something went wrong when fetch assigned users");
       }
 
       const riskAssessment = await models.RiskAssessments.findOne({
@@ -422,8 +422,8 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         },
         {
           $group: {
-            _id: '$userId',
-            submission: { $push: '$$ROOT' }
+            _id: "$userId",
+            submission: { $push: "$$ROOT" }
           }
         }
       ]);
@@ -442,7 +442,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
 
       if (!indicatorsGroup) {
-        return 'Cannot find indicators group';
+        return "Cannot find indicators group";
       }
 
       for (const group of indicatorsGroup?.groups || []) {
@@ -452,7 +452,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           {
             assessmentId,
             indicatorId: { $in: indicatorIds },
-            status: { $ne: 'In Progress' }
+            status: { $ne: "In Progress" }
           }
         );
         if (calculatedIndicators.length === indicatorIds.length) {
@@ -462,18 +462,18 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
               indicatorId: { $in: indicatorIds }
             });
 
-          let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
+          let totalCount = calculateMethod === "Multiply" ? 1 : 0;
 
           for (const riskAssessmentIndicator of riskAssessmentIndicators) {
-            if (calculateMethod === 'Multiply') {
+            if (calculateMethod === "Multiply") {
               totalCount *= riskAssessmentIndicator.totalScore;
             }
-            if (['Addition', 'Average'].includes(calculateMethod)) {
+            if (["Addition", "Average"].includes(calculateMethod)) {
               totalCount += riskAssessmentIndicator.totalScore;
             }
           }
 
-          if (calculateMethod === 'Average') {
+          if (calculateMethod === "Average") {
             totalCount = totalCount / (indicatorIds.length || 1);
           }
 
@@ -501,7 +501,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
       if (!indicator) {
         throw new Error(
-          'Cannot find indicator when trying to calculate indicator result'
+          "Cannot find indicator when trying to calculate indicator result"
         );
       }
       let { calculateLogics, calculateMethod, forms } = indicator;
@@ -511,7 +511,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       }
 
       const assignedUserIds = (
-        await getAsssignedUsers(subdomain, cardId || '', cardType || '')
+        await getAsssignedUsers(subdomain, cardId || "", cardType || "")
       ).map(user => user._id);
 
       const riskAssessmentIndicator =
@@ -522,7 +522,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
 
       let resultScore = 0;
 
-      if (calculateMethod === 'Average') {
+      if (calculateMethod === "Average") {
         resultScore =
           (riskAssessmentIndicator?.totalScore || 0) /
           (assignedUserIds.length || 1);
@@ -547,7 +547,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
       });
 
       if (!riskAssessment) {
-        return 'Cannot find risk assessment';
+        return "Cannot find risk assessment";
       }
 
       const { groupId, cardId, cardType } = riskAssessment;
@@ -558,7 +558,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
         });
 
         if (!indicatorsGroup) {
-          throw new Error('Invalid indicators group id');
+          throw new Error("Invalid indicators group id");
         }
 
         const { _id, groups, calculateLogics, calculateMethod, ignoreZeros } =
@@ -575,7 +575,7 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           groupId: { $in: groupIds }
         });
 
-        let totalCount = calculateMethod === 'Multiply' ? 1 : 0;
+        let totalCount = calculateMethod === "Multiply" ? 1 : 0;
 
         const residualPW = assessmentGroups.reduce((acc, curr) => {
           if (!curr.resultScore) {
@@ -617,14 +617,14 @@ export const loadRiskFormSubmissions = (models: IModels, subdomain: string) => {
           (groups.find(group => group._id === assessmentGroup.groupId) || {})
             ?.percentWeight || 100;
 
-          if (calculateMethod === 'Multiply') {
+          if (calculateMethod === "Multiply") {
             totalCount *= assessmentGroup.resultScore * (percentWeight() / 100);
           }
-          if (['Addition', 'Average'].includes(calculateMethod)) {
+          if (["Addition", "Average"].includes(calculateMethod)) {
             totalCount += assessmentGroup.resultScore * (percentWeight() / 100);
           }
         }
-        if (calculateMethod === 'Average') {
+        if (calculateMethod === "Average") {
           totalCount = totalCount / (assessmentGroups?.length || 1);
         }
 

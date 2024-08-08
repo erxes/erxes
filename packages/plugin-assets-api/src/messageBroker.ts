@@ -36,15 +36,6 @@ export const sendContactsMessage = (
   });
 };
 
-export const sendFormsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendSalesMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {

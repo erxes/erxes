@@ -79,7 +79,7 @@ export default function RightSidebar(props: Props) {
       {isEnabled("loans") && !!contract.loansOfForeclosed?.length && (
         <LoanContractSection loanContracts={contract.loansOfForeclosed} />
       )}
-      {isEnabled("forms") && !!contract.loansOfForeclosed?.length && (
+      {!!contract.loansOfForeclosed?.length && (
         <ContractsCustomFields
           contract={contract}
           collapseCallback={console.log}

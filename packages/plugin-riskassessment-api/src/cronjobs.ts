@@ -1,26 +1,26 @@
-import { generateModels } from './connectionResolver';
-import { sendCardsMessage, sendFormsMessage } from './messageBroker';
-import { PLAN_STATUSES } from './common/constants';
-import * as moment from 'moment';
+import { generateModels } from "./connectionResolver";
+import { sendCardsMessage, sendCoreMessage } from "./messageBroker";
+import { PLAN_STATUSES } from "./common/constants";
+import * as moment from "moment";
 
 const handleDailyJob = async ({ subdomain }) => {
   const models = await generateModels(subdomain);
 
   const NOW = new Date();
-  const tommorrow = moment().add(1, 'days');
+  const tommorrow = moment().add(1, "days");
   console.log(`starting daily job of risk assessment schedule at ${NOW}`);
 
   const plans = await models.Plans.find({
     createDate: {
-      $gte: new Date(tommorrow.startOf('day').toISOString()),
-      $lte: new Date(tommorrow.endOf('day').toISOString())
+      $gte: new Date(tommorrow.startOf("day").toISOString()),
+      $lte: new Date(tommorrow.endOf("day").toISOString())
     },
-    status: 'active'
+    status: "active"
   });
 
   if (!plans?.length) {
     console.log(
-      `As of ${NOW}, no plans at ${new Date(tommorrow.format('YYYY-MM-DD'))}`
+      `As of ${NOW}, no plans at ${new Date(tommorrow.format("YYYY-MM-DD"))}`
     );
   }
 
@@ -55,9 +55,9 @@ const handleDailyJob = async ({ subdomain }) => {
       };
 
       if (schedule?.customFieldsData) {
-        payload.customFieldsData = await sendFormsMessage({
+        payload.customFieldsData = await sendCoreMessage({
           subdomain,
-          action: 'fields.prepareCustomFieldsData',
+          action: "fields.prepareCustomFieldsData",
           data: schedule.customFieldsData,
           isRPC: true,
           defaultValue: schedule.customFieldsData
@@ -65,7 +65,7 @@ const handleDailyJob = async ({ subdomain }) => {
       }
 
       const fieldName = structureType;
-      if (['branch', 'department'].includes(structureType)) {
+      if (["branch", "department"].includes(structureType)) {
         payload[`${fieldName}Ids`] = schedule.structureTypeId
           ? [schedule.structureTypeId]
           : [];
@@ -85,7 +85,7 @@ const handleDailyJob = async ({ subdomain }) => {
         cardType: configs.cardType,
         cardId: newItem._id,
         indicatorId: schedule.indicatorId,
-        [`${fieldName}Id`]: schedule.structureTypeId || ''
+        [`${fieldName}Id`]: schedule.structureTypeId || ""
       }).catch(err => console.log(err.message));
 
       newItemIds = [...newItemIds, newItem._id];
@@ -106,7 +106,7 @@ const handleDailyJob = async ({ subdomain }) => {
     }
   }
   console.log(`${plans.length} plans worked successfully`);
-  return 'done';
+  return "done";
 };
 
 export default {

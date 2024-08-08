@@ -447,12 +447,3 @@ export const fetchSegment = (
     data: { segmentId, options, segmentData },
     isRPC: true
   });
-
-export const sendFormsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};

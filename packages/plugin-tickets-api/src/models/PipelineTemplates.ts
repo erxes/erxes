@@ -1,11 +1,11 @@
-import { Model } from 'mongoose';
+import { Model } from "mongoose";
 import {
   IPipelineTemplateDocument,
   IPipelineTemplateStage,
   pipelineTemplateSchema
-} from './definitions/pipelineTemplates';
-import { IModels } from '../connectionResolver';
-import { sendFormsMessage } from '../messageBroker';
+} from "./definitions/pipelineTemplates";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage } from "../messageBroker";
 
 interface IDoc {
   name: string;
@@ -26,16 +26,15 @@ export const getDuplicatedStages = async (
     type?: string;
   }
 ) => {
-  const template = await models.PipelineTemplates.getPipelineTemplate(
-    templateId
-  );
+  const template =
+    await models.PipelineTemplates.getPipelineTemplate(templateId);
 
   const stages: any[] = [];
 
   for (const stage of template.stages) {
-    const duplicated = await sendFormsMessage({
+    const duplicated = await sendCoreMessage({
       subdomain,
-      action: 'duplicate',
+      action: "duplicate",
       data: { formId: stage.formId },
       isRPC: true
     });
@@ -80,7 +79,7 @@ export const loadPipelineTemplateClass = (
       const pipelineTemplate = await models.PipelineTemplates.findOne({ _id });
 
       if (!pipelineTemplate) {
-        throw new Error('Pipeline template not found');
+        throw new Error("Pipeline template not found");
       }
 
       return pipelineTemplate;
@@ -125,12 +124,12 @@ export const loadPipelineTemplateClass = (
       }).lean();
 
       if (!pipelineTemplate) {
-        throw new Error('Pipeline template not found');
+        throw new Error("Pipeline template not found");
       }
 
       const duplicated: IDoc = {
         name: `${pipelineTemplate.name} duplicated`,
-        description: pipelineTemplate.description || '',
+        description: pipelineTemplate.description || "",
         type: pipelineTemplate.type
       };
 
@@ -151,13 +150,13 @@ export const loadPipelineTemplateClass = (
       const pipelineTemplate = await models.PipelineTemplates.findOne({ _id });
 
       if (!pipelineTemplate) {
-        throw new Error('Pipeline template not found');
+        throw new Error("Pipeline template not found");
       }
 
       for (const stage of pipelineTemplate.stages) {
-        sendFormsMessage({
+        sendCoreMessage({
           subdomain,
-          action: 'removeForm',
+          action: "removeForm",
           data: { formId: stage.formId }
         });
       }

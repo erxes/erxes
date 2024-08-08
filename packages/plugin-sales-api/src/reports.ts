@@ -1,7 +1,7 @@
 import * as dayjs from "dayjs";
 
 import { IModels, generateModels } from "./connectionResolver";
-import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 const checkFilterParam = (param: any) => {
   return param && param.length;
@@ -636,7 +636,7 @@ const chartTemplates = [
           customField = customProperty;
         }
 
-        const fieldsGroups = await sendFormsMessage({
+        const fieldsGroups = await sendCoreMessage({
           subdomain,
           action: "fields.find",
           data: {
@@ -2663,7 +2663,7 @@ async function filterData(filter: any, subdomain: any) {
 
   // FIELD GROUP FILTER
   if (groupIds && groupIds.length) {
-    const fields = await sendFormsMessage({
+    const fields = await sendCoreMessage({
       subdomain,
       action: "fields.find",
       data: {

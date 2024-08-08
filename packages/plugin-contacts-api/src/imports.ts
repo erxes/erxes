@@ -2,7 +2,7 @@ import * as _ from "underscore";
 import { generateModels } from "./connectionResolver";
 import { IMPORT_EXPORT_TYPES } from "./constants";
 import { generatePronoun } from "./importUtils";
-import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 export default {
   insertImportItems: async ({ subdomain, data }) => {
@@ -167,7 +167,7 @@ export default {
                 value: fieldValue[colIndex]
               });
 
-              doc.customFieldsData = await sendFormsMessage({
+              doc.customFieldsData = await sendCoreMessage({
                 subdomain,
                 action: "fields.prepareCustomFieldsData",
                 data: doc.customFieldsData,

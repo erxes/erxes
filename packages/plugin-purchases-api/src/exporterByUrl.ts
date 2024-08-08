@@ -8,7 +8,6 @@ import { MODULE_NAMES } from "./constants";
 import {
   fetchSegment,
   sendCoreMessage,
-  sendFormsMessage,
   sendProductsMessage
 } from "./messageBroker";
 import { IStageDocument } from "./models/definitions/boards";
@@ -411,7 +410,7 @@ export const buildFile = async (
         const fieldId = column.name.split(".")[1];
         const { field, value } = await getCustomFieldsData(
           () =>
-            sendFormsMessage({
+            sendCoreMessage({
               subdomain,
               action: "fields.findOne",
               data: {

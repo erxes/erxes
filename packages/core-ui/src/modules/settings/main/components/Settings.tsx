@@ -194,6 +194,14 @@ class Settings extends React.PureComponent {
             )}
 
             {this.renderBox(
+              "Properties",
+              "/images/icons/erxes-01.svg",
+              "/settings/properties",
+              "formsAll",
+              ["showForms", "manageForms"]
+            )}
+
+            {this.renderBox(
               "Email Delivery Logs'",
               "/images/icons/erxes-27.png",
               "/settings/emailDelivery",

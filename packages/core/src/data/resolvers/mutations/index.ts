@@ -13,6 +13,11 @@ import organizations from "./organizations";
 import tags from "./tags";
 import internalNotes from "./internalNotes";
 import segments from "./segments";
+import forms from "./forms";
+import {
+  fieldMutations as fields,
+  fieldsGroupsMutations as fieldsgroups
+} from "./fields";
 
 export default {
   ...users,
@@ -27,5 +32,8 @@ export default {
   ...organizations,
   ...tags,
   ...internalNotes,
-  ...segments
+  ...segments,
+  ...forms,
+  ...fields,
+  ...fieldsgroups
 };

@@ -4,7 +4,6 @@ import {
   fetchSegment,
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage,
   sendProductsMessage
 } from "./messageBroker";
 import * as moment from "moment";
@@ -539,7 +538,7 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
+          const field = await sendCoreMessage({
             subdomain,
             action: "fields.findOne",
             data: {
@@ -587,7 +586,7 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
+          const field = await sendCoreMessage({
             subdomain,
             action: "fields.findOne",
             data: {

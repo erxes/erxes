@@ -1,16 +1,16 @@
-import { EditMutationResponse, IProduct } from '../../../types';
-import { useMutation, useQuery } from '@apollo/client';
+import { EditMutationResponse, IProduct } from "../../../types";
+import { useMutation, useQuery } from "@apollo/client";
 
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { gql } from '@apollo/client';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { mutations } from '../../../graphql';
+import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import GenerateCustomFields from "@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields";
+import React from "react";
+import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { mutations } from "../../../graphql";
 
 type Props = {
   product: IProduct;
@@ -26,17 +26,16 @@ const CustomFieldsSection = (props: Props) => {
       variables: {
         contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
         isDefinedByErxes: false,
-        config: { categoryId: product.categoryId },
-      },
-      skip: !isEnabled('forms'),
-    },
+        config: { categoryId: product.categoryId }
+      }
+    }
   );
 
   const [editMutation] = useMutation<EditMutationResponse>(
     gql(mutations.productEdit),
     {
-      refetchQueries: ['productDetail'],
-    },
+      refetchQueries: ["productDetail"]
+    }
   );
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -51,12 +50,12 @@ const CustomFieldsSection = (props: Props) => {
 
   const save = (data, callback) => {
     editMutation({
-      variables: { _id, ...data },
+      variables: { _id, ...data }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -68,7 +67,7 @@ const CustomFieldsSection = (props: Props) => {
     customFieldsData: product.customFieldsData,
     fieldsGroups:
       (fieldsGroupsQuery.data && fieldsGroupsQuery.data.fieldsGroups) || [],
-    isDetail: true,
+    isDetail: true
   };
 
   return <GenerateCustomFields {...updatedProps} />;

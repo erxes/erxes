@@ -44,7 +44,6 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
   const isProductsEnabled = await isEnabled("products");
-  const isFormsEnabled = await isEnabled("forms");
   const isKbEnabled = await isEnabled("knowledgebase");
   const isContactsEnabled = await isEnabled("contacts");
   const isDailycoEnabled = await isEnabled("dailyco");
@@ -52,7 +51,6 @@ const typeDefs = async () => {
 
   const isEnabledTable = {
     products: isProductsEnabled,
-    forms: isFormsEnabled,
     knowledgeBase: isKbEnabled,
     contacts: isContactsEnabled,
     dailyco: isDailycoEnabled,
@@ -74,7 +72,7 @@ const typeDefs = async () => {
     
     
     extend type Query {
-      ${ConversationQueries(isEnabledTable)}
+      ${ConversationQueries()}
       ${MessengerAppQueries}
       ${ChannelQueries}
       ${IntegrationQueries}
@@ -90,7 +88,7 @@ const typeDefs = async () => {
       ${ChannelMutations}
       ${IntegrationMutations}
       ${ResponseTemplateMutations}
-      ${widgetMutations(isEnabledTable)}
+      ${widgetMutations()}
       ${SkillMutations}
       ${ScriptMutations}
     }

@@ -1,15 +1,15 @@
-import { generateModels } from './connectionResolver';
-import { sendCoreMessage, sendFormsMessage } from './messageBroker';
+import { generateModels } from "./connectionResolver";
+import { sendCoreMessage } from "./messageBroker";
 
 const getContactDetail = async (subdomain, contentType, contentTypeId) => {
   const models = await generateModels(subdomain);
 
   let contact;
 
-  if (contentType === 'contacts:customer') {
+  if (contentType === "contacts:customer") {
     contact = await models.Customers.findOne({ _id: contentTypeId });
   }
-  if (contentType === 'contacts:company') {
+  if (contentType === "contacts:company") {
     contact = await models.Companies.findOne({ _id: contentTypeId });
   }
 
@@ -17,9 +17,9 @@ const getContactDetail = async (subdomain, contentType, contentTypeId) => {
 };
 
 const getFields = async ({ subdomain, contentType }) => {
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
-    action: 'fields.fieldsCombinedByContentType',
+    action: "fields.fieldsCombinedByContentType",
     isRPC: true,
     data: {
       contentType
@@ -32,12 +32,12 @@ const getFields = async ({ subdomain, contentType }) => {
 export default {
   types: [
     {
-      label: 'Customer',
-      type: 'contacts:customer'
+      label: "Customer",
+      type: "contacts:customer"
     },
     {
-      label: 'Company',
-      type: 'contacts:company'
+      label: "Company",
+      type: "contacts:company"
     }
   ],
 
@@ -55,46 +55,46 @@ export default {
     );
 
     if (!contact) {
-      return '';
+      return "";
     }
 
     let replacedContent: any = content || {};
 
-    ['names', 'emails', 'phones'].forEach(field => {
+    ["names", "emails", "phones"].forEach(field => {
       replacedContent = replacedContent.replace(
-        new RegExp(`{{ ${field} }}`, 'g'),
-        (contact[field] || []).join(', ')
+        new RegExp(`{{ ${field} }}`, "g"),
+        (contact[field] || []).join(", ")
       );
     });
 
     [
-      'status',
-      'primaryName',
-      'primaryPhone',
-      'primaryEmail',
-      'firstName',
-      'lastName',
-      'middleName',
-      'sex',
-      'score',
-      'position',
-      'department',
-      'code',
-      'country',
-      'city',
-      'region',
-      'industry'
+      "status",
+      "primaryName",
+      "primaryPhone",
+      "primaryEmail",
+      "firstName",
+      "lastName",
+      "middleName",
+      "sex",
+      "score",
+      "position",
+      "department",
+      "code",
+      "country",
+      "city",
+      "region",
+      "industry"
     ].forEach(field => {
       replacedContent = replacedContent.replace(
-        new RegExp(`{{ ${field} }}`, 'g'),
-        contact[field] || ''
+        new RegExp(`{{ ${field} }}`, "g"),
+        contact[field] || ""
       );
     });
 
-    ['createdAt', 'modifiedAt', 'birthDate'].forEach(field => {
+    ["createdAt", "modifiedAt", "birthDate"].forEach(field => {
       replacedContent = replacedContent.replace(
-        new RegExp(` {{ ${field} }} `, 'g'),
-        contact[field] ? contact[field].toLocaleDateString() : ''
+        new RegExp(` {{ ${field} }} `, "g"),
+        contact[field] ? contact[field].toLocaleDateString() : ""
       );
     });
 
@@ -108,14 +108,14 @@ export default {
       if (parent) {
         replacedContent = replacedContent.replace(
           /{{ parentCompanyId }}/g,
-          (parent?.names || []).join(',')
+          (parent?.names || []).join(",")
         );
       }
     }
     if (replacedContent.includes(`{{ ownerId }}`)) {
       const owner = await sendCoreMessage({
         subdomain,
-        action: 'users.findOne',
+        action: "users.findOne",
         data: {
           _id: contact.ownerId
         },
@@ -132,7 +132,7 @@ export default {
         } else {
           replacedContent = replacedContent.replace(
             /{{ ownerId }}/g,
-            owner?.email || ''
+            owner?.email || ""
           );
         }
       }
@@ -140,18 +140,18 @@ export default {
 
     for (const customFieldData of contact.customFieldsData) {
       replacedContent = replacedContent.replace(
-        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
+        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, "g"),
         customFieldData.stringValue
       );
     }
 
     const fields = (await getFields({ subdomain, contentType })).filter(
-      customField => !customField.value.includes('customFieldsData')
+      customField => !customField.value.includes("customFieldsData")
     );
 
     for (const field of fields) {
-      const propertyNames = field.value.includes('.')
-        ? field.value.split('.')
+      const propertyNames = field.value.includes(".")
+        ? field.value.split(".")
         : [field.value];
       let propertyValue = contact;
 
@@ -160,8 +160,8 @@ export default {
       }
 
       replacedContent = replacedContent.replace(
-        new RegExp(` {{ ${field.value} }} `, 'g'),
-        propertyValue || ''
+        new RegExp(` {{ ${field.value} }} `, "g"),
+        propertyValue || ""
       );
     }
 
