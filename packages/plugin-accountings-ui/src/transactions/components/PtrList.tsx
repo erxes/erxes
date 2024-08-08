@@ -1,23 +1,20 @@
-import { Alert, __, confirm, router } from "@erxes/ui/src/utils";
-import { ITransaction } from "../types";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import React, { useEffect, useState } from "react";
-
-import { BarItems } from "@erxes/ui/src/layout/styles";
 import Button from "@erxes/ui/src/components/Button";
 import EmptyState from "@erxes/ui/src/components/EmptyState";
-// import Form from "../containers/AccountForm";
-import FormControl from "@erxes/ui/src/components/form/Control";
 import HeaderDescription from "@erxes/ui/src/components/HeaderDescription";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
-import Row from "./PtrRow";
 import Spinner from "@erxes/ui/src/components/Spinner";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
 import Table from "@erxes/ui/src/components/table";
-import { Title } from "@erxes/ui/src/styles/main";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { Title } from "@erxes/ui/src/styles/main";
+import { Alert, __, router } from "@erxes/ui/src/utils";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AddTransactionLink from "../containers/AddTr";
+import { ITransaction } from "../types";
 import { journalConfigMaps } from "../utils/maps";
+import Row from "./PtrRow";
 
 interface IProps {
   queryParams: any;
@@ -268,7 +265,6 @@ const PtrList: React.FC<IProps> = (props) => {
       actionBar={
         <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
       }
-      // leftSidebar={<CategoryList queryParams={queryParams} />}
       footer={<Pagination count={transactionsCount} />}
       content={renderContent()}
       transparent={true}
