@@ -139,8 +139,10 @@ class MainLayout extends React.Component<IProps, State> {
 
           const entry = document.getElementsByTagName(
             "script"
-          )[0];
-          entry.parentNode ? entry.parentNode.insertBefore(script, entry) : null;
+          )[0] as HTMLScriptElement;
+          entry.parentNode
+            ? entry.parentNode.insertBefore(script, entry)
+            : null;
         })();
       } else {
         const { REACT_APP_HIDE_MESSENGER } = getEnv();
@@ -162,8 +164,12 @@ class MainLayout extends React.Component<IProps, State> {
           const script = document.createElement("script");
           script.src =
             "https://w.office.erxes.io/build/messengerWidget.bundle.js";
-          const entry = document.getElementsByTagName("script")[0];
-          entry.parentNode ? entry.parentNode.insertBefore(script, entry) : null;
+          const entry = document.getElementsByTagName(
+            "script"
+          )[0] as HTMLScriptElement;
+          entry.parentNode
+            ? entry.parentNode.insertBefore(script, entry)
+            : null;
         }
       }
 
