@@ -83,6 +83,7 @@ const syncMsdHistories = `
       sendStr
       responseData
       responseStr
+      sendSales
       responseSales
       error
 

@@ -89,9 +89,6 @@ const PipelineForm = (props: Props) => {
   const [nameConfig, setNameConfig] = useState(
     (pipeline && pipeline.nameConfig) || ''
   );
-  const [numberSizeName, setNumberSizeName] = useState(
-    (pipeline && pipeline.numberSizeName) || ''
-  );
 
   const [departmentIds, setDepartmentIds] = useState(
     pipeline ? pipeline.departmentIds : []
@@ -137,9 +134,6 @@ const PipelineForm = (props: Props) => {
     if (key === 'nameConfig') {
       setNameConfig(value);
     }
-    if (key === 'numberSizeName') {
-      setNumberSizeName(value);
-    }
   };
 
   const generateDoc = (values: {
@@ -170,7 +164,6 @@ const PipelineForm = (props: Props) => {
       numberConfig,
       numberSize,
       nameConfig,
-      numberSizeName,
       departmentIds,
       tagId,
     };
@@ -194,7 +187,6 @@ const PipelineForm = (props: Props) => {
         <BoardNameConfigs
           onChange={(key: string, conf: string) => onChangeName(key, conf)}
           config={nameConfig || ''}
-          size={numberSizeName || ''}
         />
       </FormGroup>
     );

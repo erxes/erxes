@@ -99,9 +99,7 @@ export interface IPipeline extends ICommonFields {
   numberConfig?: string;
   numberSize?: string;
   nameConfig?: string;
-  numberSizeName?: string;
   lastNum?: string;
-  lastNumForName?: string;
   departmentIds?: string[];
   tagId?: string;
 }
@@ -344,20 +342,11 @@ export const pipelineSchema = new Schema({
   numberConfig: field({ type: String, optional: true, label: 'Number config' }),
   numberSize: field({ type: String, optional: true, label: 'Number count' }),
   nameConfig: field({ type: String, optional: true, label: 'Name config' }),
-  numberSizeName: field({
-    type: String,
-    optional: true,
-    label: 'Number count for name',
-  }),
+
   lastNum: field({
     type: String,
     optional: true,
     label: 'Last generated number',
-  }),
-  lastNumForName: field({
-    type: String,
-    optional: true,
-    label: 'Last generated number for name',
   }),
   departmentIds: field({
     type: [String],

@@ -840,6 +840,15 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
           Location_Code: config.locationCode || 'BEV-01',
         };
 
+        await models.SyncLogs.updateOne(
+          { _id: syncLog._id },
+          {
+            $push: {
+              sendSales: JSON.stringify(sendSalesLine),
+            },
+          }
+        );
+
         const responseSaleLine = await fetch(`${salesLineApi}`, {
           method: 'POST',
           headers: {
