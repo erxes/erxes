@@ -42,6 +42,7 @@ type Props = {
   startDate?: Date;
   closeDate?: Date;
   showStageSelect?: boolean;
+  defaultShowName: boolean;
 };
 
 type State = {
@@ -338,32 +339,33 @@ class AddForm extends React.Component<Props, State> {
     }
 
     const { type } = this.props.options;
-
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
-        {/* <HeaderRow>
-          <HeaderContent>
-            <ControlLabel required={true}>Name</ControlLabel>
+        {this.props.defaultShowName && (
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={true}>Name</ControlLabel>
 
-            {this.props.showSelect ? (
-              <CardSelect
-                placeholder={`Add a new ${type} or select one`}
-                options={this.state.cards}
-                onChange={this.onChangeCardSelect}
-                type={type}
-                additionalValue={this.state.name}
-              />
-            ) : (
-              <FormControl
-                value={this.state.name}
-                autoFocus={true}
-                placeholder='Create a new card'
-                onChange={this.onChangeName}
-              />
-            )}
-          </HeaderContent>
-        </HeaderRow> */}
+              {this.props.showSelect ? (
+                <CardSelect
+                  placeholder={`Add a new ${type} or select one`}
+                  options={this.state.cards}
+                  onChange={this.onChangeCardSelect}
+                  type={type}
+                  additionalValue={this.state.name}
+                />
+              ) : (
+                <FormControl
+                  value={this.state.name}
+                  autoFocus={true}
+                  placeholder='Create a new card'
+                  onChange={this.onChangeName}
+                />
+              )}
+            </HeaderContent>
+          </HeaderRow>
+        )}
 
         {showStageSelect && (
           <HeaderRow>
