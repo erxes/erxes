@@ -160,15 +160,6 @@ export const fetchSegment = (
     isRPC: true
   });
 
-export const sendFormsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

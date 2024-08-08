@@ -18,6 +18,9 @@ import InternalNote from "./internalNote";
 import ActivityLog from "./activityLog";
 import ActivityLogByAction from "./activityLogByAction";
 import Segment from "./segments";
+import { field as Field, fieldsGroup as FieldsGroup } from "./field";
+import Submission from "./submission";
+import Form from "./forms";
 
 const resolvers: any = {
   ...customScalars,
@@ -42,7 +45,11 @@ const resolvers: any = {
   InternalNote,
   ActivityLog,
   ActivityLogByAction,
-  Segment
+  Segment,
+  Field,
+  Form,
+  FieldsGroup,
+  Submission
 };
 
 export default resolvers;

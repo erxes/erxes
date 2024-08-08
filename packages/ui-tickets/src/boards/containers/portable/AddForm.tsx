@@ -196,7 +196,7 @@ class AddFormContainer extends React.Component<FinalProps> {
     }
   };
 
-  fetchCards = (stageId: string, callback: (tickets: any) => void) => {
+  fetchCards = (stageId: string, callback: (cards: any) => void) => {
     const { type } = this.props.options;
 
     client
@@ -218,7 +218,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       fields: fieldsQuery?.fields || [],
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
-      fetchtickets: this.fetchCards,
+      fetchCards: this.fetchCards,
       stages: stagesQuery?.ticketsStages || []
     };
 
@@ -264,7 +264,7 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: "fieldsQuery",
-        skip: !isEnabled("forms"),
+
         options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `tickets:${options.type}`,

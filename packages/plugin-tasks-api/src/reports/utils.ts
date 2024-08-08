@@ -1,8 +1,4 @@
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendInboxMessage
-} from "../messageBroker";
+import { sendCoreMessage, sendInboxMessage } from "../messageBroker";
 import {
   MONTH_NAMES,
   NOW,
@@ -1236,7 +1232,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
 
   // FIELD GROUP FILTER
   if (groupIds?.length) {
-    const fields = await sendFormsMessage({
+    const fields = await sendCoreMessage({
       subdomain,
       action: "fields.find",
       data: {

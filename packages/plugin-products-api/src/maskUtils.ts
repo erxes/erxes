@@ -1,12 +1,12 @@
-import { ICustomField } from '@erxes/api-utils/src/types';
-import * as _ from 'underscore';
-import { IModels } from './connectionResolver';
-import { sendFormsMessage } from './messageBroker';
-import { IProduct, IProductCategory } from './models/definitions/products';
+import { ICustomField } from "@erxes/api-utils/src/types";
+import * as _ from "underscore";
+import { IModels } from "./connectionResolver";
+import { sendCoreMessage } from "./messageBroker";
+import { IProduct, IProductCategory } from "./models/definitions/products";
 
 export const checkCodeMask = async (
   category?: IProductCategory,
-  code?: string,
+  code?: string
 ) => {
   if (!category || !code) {
     return false;
@@ -21,7 +21,7 @@ export const checkCodeMask = async (
     return true;
   }
 
-  let maskStr = '';
+  let maskStr = "";
   const maskList: any[] = [];
 
   for (const value of category.mask.values || []) {
@@ -30,17 +30,17 @@ export const checkCodeMask = async (
       continue;
     }
 
-    if (value.type === 'char') {
-      maskList.push(value.char.replace(/./g, '\\.'));
+    if (value.type === "char") {
+      maskList.push(value.char.replace(/./g, "\\."));
     }
 
-    if (value.type === 'customField' && value.matches) {
-      maskList.push(`(${Object.values(value.matches).join('|')})`);
+    if (value.type === "customField" && value.matches) {
+      maskList.push(`(${Object.values(value.matches).join("|")})`);
     }
   }
-  maskStr = `${maskList.join('')}.*`;
+  maskStr = `${maskList.join("")}.*`;
 
-  const mask = new RegExp(maskStr, 'g');
+  const mask = new RegExp(maskStr, "g");
 
   if (await mask.test(code)) {
     return true;
@@ -54,7 +54,7 @@ export const initCustomField = async (
   category: IProductCategory,
   code: string,
   productCustomFieldsData?: ICustomField[],
-  docCustomFieldsData?: ICustomField[],
+  docCustomFieldsData?: ICustomField[]
 ) => {
   if (
     !category ||
@@ -63,19 +63,19 @@ export const initCustomField = async (
     !category.mask.values
   ) {
     if (docCustomFieldsData && docCustomFieldsData.length) {
-      const docFieldsIds = docCustomFieldsData.map((d) => d.field);
+      const docFieldsIds = docCustomFieldsData.map(d => d.field);
       const allCustomFieldsData = docCustomFieldsData.concat(
         (productCustomFieldsData || []).filter(
-          (d) => !docFieldsIds.includes(d.field),
-        ),
+          d => !docFieldsIds.includes(d.field)
+        )
       );
 
-      return await sendFormsMessage({
+      return await sendCoreMessage({
         subdomain,
-        action: 'fields.prepareCustomFieldsData',
+        action: "fields.prepareCustomFieldsData",
         data: allCustomFieldsData,
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
     }
 
@@ -87,95 +87,90 @@ export const initCustomField = async (
 
   for (const value of category.mask.values || []) {
     const len = Number(value.len);
-    if (value.static || value.type === 'char') {
+    if (value.static || value.type === "char") {
       strInd += len;
       continue;
     }
 
-    if (value.type === 'customField' && value.matches) {
+    if (value.type === "customField" && value.matches) {
       const subCode = code.substring(strInd, strInd + len);
 
       const subCodeInd = Object.values(value.matches).indexOf(subCode);
 
       customFieldsData.push({
         field: value.fieldId,
-        value: (Object.keys(value.matches) || [])[subCodeInd],
+        value: (Object.keys(value.matches) || [])[subCodeInd]
       });
       strInd += len;
     }
   }
 
-  const codeFieldIds = customFieldsData.map((d) => d.field);
+  const codeFieldIds = customFieldsData.map(d => d.field);
   customFieldsData = customFieldsData.concat(
-    (docCustomFieldsData || []).filter((d) => !codeFieldIds.includes(d.field)),
+    (docCustomFieldsData || []).filter(d => !codeFieldIds.includes(d.field))
   );
 
-  const withDocFieldIds = customFieldsData.map((d) => d.field);
+  const withDocFieldIds = customFieldsData.map(d => d.field);
   customFieldsData = customFieldsData.concat(
     (productCustomFieldsData || []).filter(
-      (d) => !withDocFieldIds.includes(d.field),
-    ),
+      d => !withDocFieldIds.includes(d.field)
+    )
   );
 
-  return await sendFormsMessage({
+  return await sendCoreMessage({
     subdomain,
-    action: 'fields.prepareCustomFieldsData',
+    action: "fields.prepareCustomFieldsData",
     data: customFieldsData,
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 };
 
-export const checkSameMaskConfig = async (
-  models: IModels,
-  doc: IProduct,
-) => {
+export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {
   if (!doc.customFieldsData) {
     return undefined;
   }
 
   const similarityGroups =
-    await models.ProductsConfigs.getConfig('similarityGroup');
+    await models.ProductsConfigs.getConfig("similarityGroup");
 
   if (!similarityGroups) {
     return undefined;
   }
 
   const masks = Object.keys(similarityGroups);
-  const customFieldIds = (doc.customFieldsData || []).map((cf) => cf.field);
+  const customFieldIds = (doc.customFieldsData || []).map(cf => cf.field);
 
   const result: string[] = [];
 
   for (const mask of masks) {
     const maskValue = similarityGroups[mask];
-    const filterFieldDef = maskValue.filterField || 'code';
+    const filterFieldDef = maskValue.filterField || "code";
 
-    const codeRegex = ['*', '.', '_'].includes(mask) ? new RegExp(
-      `^${mask
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.')
-        .replace(/_/g, '.')}.*`,
-      'igu',
-    ) : new RegExp(
-      `.*${mask}.*`,
-      'igu',
-    );
+    const codeRegex = ["*", ".", "_"].includes(mask)
+      ? new RegExp(
+          `^${mask
+            .replace(/\./g, "\\.")
+            .replace(/\*/g, ".")
+            .replace(/_/g, ".")}.*`,
+          "igu"
+        )
+      : new RegExp(`.*${mask}.*`, "igu");
 
-    const filterFieldVal = filterFieldDef.includes('customFieldsData.')
+    const filterFieldVal = filterFieldDef.includes("customFieldsData.")
       ? (
-        doc.customFieldsData.find(
-          (cfd) =>
-            filterFieldDef.replace('customFieldsData.', '') === cfd.field,
-        ) || {}
-      ).stringValue
+          doc.customFieldsData.find(
+            cfd => filterFieldDef.replace("customFieldsData.", "") === cfd.field
+          ) || {}
+        ).stringValue
       : doc[filterFieldDef];
 
     if (
-      (filterFieldVal || '').match(codeRegex) &&
+      (filterFieldVal || "").match(codeRegex) &&
       (maskValue.rules || [])
-        .map((sg) => sg.fieldId)
-        .filter((sgf) => (customFieldIds || []).includes(sgf)).length ===
-      (maskValue.rules || []).length
+        .map(sg => sg.fieldId)
+        .filter(sgf => (customFieldIds || []).includes(sgf)).length ===
+        (maskValue.rules || []).length
     ) {
       result.push(mask);
     }
@@ -194,27 +189,27 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       $addFields: {
         sameMasksLen: {
           $cond: {
-            if: { $isArray: '$sameMasks' },
-            then: { $size: '$sameMasks' },
-            else: 0,
-          },
-        },
-      },
+            if: { $isArray: "$sameMasks" },
+            then: { $size: "$sameMasks" },
+            else: 0
+          }
+        }
+      }
     },
     {
       $addFields: {
         sameMasks: {
           $cond: {
-            if: { $gt: ['$sameMasksLen', 0] },
-            then: '$sameMasks',
-            else: ['$_id'],
-          },
-        },
-      },
+            if: { $gt: ["$sameMasksLen", 0] },
+            then: "$sameMasks",
+            else: ["$_id"]
+          }
+        }
+      }
     },
     {
-      $unwind: '$sameMasks',
-    },
+      $unwind: "$sameMasks"
+    }
   ];
 
   if (isCount) {
@@ -222,36 +217,36 @@ export const groupBySameMasksAggregator = (isCount = false) => {
       ...sameArr,
       {
         $group: {
-          _id: { sameMasks: '$sameMasks' },
-          product: { $first: '$code' },
-        },
+          _id: { sameMasks: "$sameMasks" },
+          product: { $first: "$code" }
+        }
       },
       {
         $group: {
-          _id: { code: '$product' },
-        },
-      },
+          _id: { code: "$product" }
+        }
+      }
     ];
   }
 
   return [
     ...sameArr,
-    { $sort: { 'product.code': 1 } },
+    { $sort: { "product.code": 1 } },
     {
       $group: {
-        _id: { sameMasks: '$sameMasks' },
+        _id: { sameMasks: "$sameMasks" },
         count: { $sum: 1 },
-        product: { $first: '$$ROOT' },
-      },
+        product: { $first: "$$ROOT" }
+      }
     },
-    { $sort: { 'product.code': 1 } },
+    { $sort: { "product.code": 1 } },
     {
       $group: {
-        _id: { code: '$product.code' },
-        count: { $max: '$count' },
-        product: { $first: '$product' },
-      },
-    },
+        _id: { code: "$product.code" },
+        count: { $max: "$count" },
+        product: { $first: "$product" }
+      }
+    }
   ];
 };
 
@@ -259,34 +254,34 @@ export const groupByCategoryAggregator = (isCount = false) => {
   const sameArr = [
     {
       $lookup: {
-        from: 'product_categories',
-        localField: 'categoryId',
-        foreignField: '_id',
-        as: 'category',
-      },
+        from: "product_categories",
+        localField: "categoryId",
+        foreignField: "_id",
+        as: "category"
+      }
     },
-    { $unwind: '$category' },
+    { $unwind: "$category" },
     {
       $addFields: {
         same: {
           $cond: {
             if: {
               $and: [
-                { $eq: ['$category.isSimilarity', true] },
+                { $eq: ["$category.isSimilarity", true] },
                 {
                   $setIsSubset: [
-                    '$category.similarities.fieldId',
-                    '$customFieldsData.field',
-                  ],
-                },
-              ],
+                    "$category.similarities.fieldId",
+                    "$customFieldsData.field"
+                  ]
+                }
+              ]
             },
-            then: '$categoryId',
-            else: '$_id',
-          },
-        },
-      },
-    },
+            then: "$categoryId",
+            else: "$_id"
+          }
+        }
+      }
+    }
   ];
 
   if (isCount) {
@@ -294,9 +289,9 @@ export const groupByCategoryAggregator = (isCount = false) => {
       ...sameArr,
       {
         $group: {
-          _id: { same: '$same' },
-        },
-      },
+          _id: { same: "$same" }
+        }
+      }
     ];
   }
 
@@ -304,46 +299,46 @@ export const groupByCategoryAggregator = (isCount = false) => {
     ...sameArr,
     {
       $group: {
-        _id: { same: '$same' },
+        _id: { same: "$same" },
         count: { $sum: 1 },
-        product: { $first: '$$ROOT' },
-      },
+        product: { $first: "$$ROOT" }
+      }
     },
-    { $sort: { 'product.code': 1 } },
+    { $sort: { "product.code": 1 } }
   ];
 };
 
-export const aggregatePaginator = (params) => {
+export const aggregatePaginator = params => {
   const { perPage = 20, page = 1 } = params;
   return [{ $skip: perPage * (page - 1) }, { $limit: perPage }];
 };
 
 export const getSimilaritiesProducts = async (models, filter, params) => {
   const aggregates =
-    params.groupedSimilarity === 'config'
+    params.groupedSimilarity === "config"
       ? groupBySameMasksAggregator()
       : groupByCategoryAggregator();
   const groupedData = await models.Products.aggregate([
     { $match: filter },
     ...aggregates,
-    ...aggregatePaginator(params),
+    ...aggregatePaginator(params)
   ]);
 
-  return groupedData.map((gd) => ({
+  return groupedData.map(gd => ({
     ...gd.product,
-    hasSimilarity: gd.count > 1,
+    hasSimilarity: gd.count > 1
   }));
 };
 
 export const getSimilaritiesProductsCount = async (models, filter, params) => {
   const aggregates =
-    params.groupedSimilarity === 'config'
+    params.groupedSimilarity === "config"
       ? groupBySameMasksAggregator(true)
       : groupByCategoryAggregator(true);
   const groupedData = await models.Products.aggregate([
     { $match: filter },
     ...aggregates,
-    { $group: { _id: {}, count: { $sum: 1 } } },
+    { $group: { _id: {}, count: { $sum: 1 } } }
   ]);
 
   return ((groupedData || [])[0] || {}).count || 0;

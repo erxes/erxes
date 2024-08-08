@@ -141,8 +141,7 @@ export default withProps<Props>(
         variables: {
           contentType: "contacts:customer"
         }
-      }),
-      skip: !isEnabled("forms")
+      })
     }),
     graphql<Props>(gql(fieldQueries.salesCardsFields), {
       name: "salesCardsFieldsQuery",

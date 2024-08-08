@@ -1,14 +1,8 @@
-export const types = ({ products, forms }) => `
-  ${
-    forms
-      ? `
-      extend type Form @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-      : ""
+export const types = ({ products }) => `
+  extend type Form @key(fields: "_id") {
+    _id: String! @external
   }
-
+    
   input InputRule {
     _id : String!,
     kind: String!,
@@ -39,7 +33,7 @@ export const types = ({ products, forms }) => `
 
     brand: Brand
 
-    ${forms ? `form: Form` : ""}
+    form: Form
     channels: [Channel]
 
     websiteMessengerApps: [MessengerApp]

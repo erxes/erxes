@@ -18,7 +18,6 @@ import {
 } from "./constants";
 import {
   sendEngagesMessage,
-  sendFormsMessage,
   sendInboxMessage,
   sendCoreMessage
 } from "./messageBroker";
@@ -300,7 +299,7 @@ const getIntegrations = async (subdomain: string) => {
 };
 
 const getFormSubmissionFields = async (subdomain, config) => {
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
     action: "fields.fieldsCombinedByContentType",
     data: {
@@ -806,7 +805,7 @@ export const updateContactsField = async (
           "map"
         ].includes(submissionType)
       ) {
-        const field = await sendFormsMessage({
+        const field = await sendCoreMessage({
           subdomain,
           action: "fields.findOne",
           data: {
@@ -821,7 +820,7 @@ export const updateContactsField = async (
           continue;
         }
 
-        const fieldGroup = await sendFormsMessage({
+        const fieldGroup = await sendCoreMessage({
           subdomain,
           action: "fieldsGroups.findOne",
           data: {

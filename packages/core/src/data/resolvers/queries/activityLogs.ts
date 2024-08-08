@@ -4,7 +4,7 @@ import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import { IActivityLogDocument } from "../../../db/models/definitions/activityLogs";
 import { IContext } from "../../../connectionResolver";
 import { fetchActivityLogs, fetchLogs } from "../../../db/utils/logUtils";
-import { fetchService, getContentIds } from "../../../messageBroker";
+import { fetchServiceSegments, getContentIds } from "../../../messageBroker";
 
 export interface IListArgs {
   contentType: string;
@@ -52,7 +52,7 @@ const activityLogQueries = {
         }
       }
 
-      const result = await fetchService(
+      const result = await fetchServiceSegments(
         subdomain,
         serviceName,
         "collectItems",
@@ -78,7 +78,7 @@ const activityLogQueries = {
         const logs = meta.logs;
 
         if (logs.providesActivityLog) {
-          const result = await fetchService(
+          const result = await fetchServiceSegments(
             subdomain,
             serviceName,
             "collectItems",

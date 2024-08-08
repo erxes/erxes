@@ -73,12 +73,11 @@ class Sidebar extends React.Component<Props> {
             abortController={this.abortController}
           />
         )}
-        {isEnabled("forms") && (
-          <DateFilters
-            type="contacts:customer"
-            loadingMainQuery={loadingMainQuery}
-          />
-        )}
+
+        <DateFilters
+          type="contacts:customer"
+          loadingMainQuery={loadingMainQuery}
+        />
       </Wrapper.Sidebar>
     );
   }

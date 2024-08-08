@@ -12,8 +12,9 @@ import { checkPermission } from "../../utils";
 import { putCreateLog, putUpdateLog, putDeleteLog } from "../../../logUtils";
 import { configReplacer } from "../../../utils";
 import { IContext } from "../../../connectionResolver";
-import { sendFormsMessage } from "../../../messageBroker";
+
 import { IOrderInput } from "@erxes/api-utils/src/commonUtils";
+import { sendCoreMessage } from "../../../messageBroker";
 
 interface IBoardsEdit extends IBoard {
   _id: string;
@@ -123,7 +124,7 @@ const boardMutations = {
 
     const removed = await models.Boards.removeBoard(_id);
 
-    const relatedFieldsGroups = await sendFormsMessage({
+    const relatedFieldsGroups = await sendCoreMessage({
       subdomain,
       action: "fieldsGroups.find",
       data: {
@@ -139,7 +140,7 @@ const boardMutations = {
       const boardIds = fieldGroup.boardIds || [];
       fieldGroup.boardIds = boardIds.filter(e => e !== board._id);
 
-      await sendFormsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "updateGroup",
         data: { groupId: fieldGroup._id, fieldGroup }
@@ -266,7 +267,7 @@ const boardMutations = {
 
     const removed = await models.Pipelines.removePipeline(_id);
 
-    const relatedFieldsGroups = await sendFormsMessage({
+    const relatedFieldsGroups = await sendCoreMessage({
       subdomain,
       action: "fieldsGroups.find",
       data: {
@@ -282,7 +283,7 @@ const boardMutations = {
       const pipelineIds = fieldGroup.pipelineIds || [];
       fieldGroup.pipelineIds = pipelineIds.filter(e => e !== pipeline._id);
 
-      await sendFormsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "updateGroup",
         data: {

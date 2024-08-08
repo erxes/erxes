@@ -35,7 +35,6 @@ import { IUserDocument } from "@erxes/api-utils/src/types";
 import { generateModels, IModels } from "../../../connectionResolver";
 import {
   sendCoreMessage,
-  sendFormsMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
 
@@ -105,7 +104,7 @@ export const itemsAdd = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendFormsMessage({
+    extendedDoc.customFieldsData = await sendCoreMessage({
       subdomain,
       action: "fields.prepareCustomFieldsData",
       data: extendedDoc.customFieldsData,
@@ -273,7 +272,7 @@ export const itemsEdit = async (
 
   if (extendedDoc.customFieldsData) {
     // clean custom field values
-    extendedDoc.customFieldsData = await sendFormsMessage({
+    extendedDoc.customFieldsData = await sendCoreMessage({
       subdomain,
       action: "fields.prepareCustomFieldsData",
       data: extendedDoc.customFieldsData,

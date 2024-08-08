@@ -1,76 +1,76 @@
-import { dateToShortStr } from '@erxes/api-utils/src/core';
-import * as moment from 'moment';
+import { dateToShortStr } from "@erxes/api-utils/src/core";
+import * as moment from "moment";
 
-import { generateModels } from './connectionResolver';
+import { generateModels } from "./connectionResolver";
 import {
   sendCommonMessage,
   sendContactsMessage,
-  sendFormsMessage,
-} from './messageBroker';
-import { IProductDocument } from './models/definitions/products';
-import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+  sendCoreMessage
+} from "./messageBroker";
+import { IProductDocument } from "./models/definitions/products";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
-const toMoney = (value) => {
+const toMoney = value => {
   if (!value) {
-    return '-';
+    return "-";
   }
   return new Intl.NumberFormat().format(value);
 };
 
 const getCustomFields = async ({ subdomain }) => {
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
-    action: 'fields.fieldsCombinedByContentType',
+    action: "fields.fieldsCombinedByContentType",
     isRPC: true,
     data: {
-      contentType: `products:product`,
+      contentType: `products:product`
     },
-    defaultValue: [],
+    defaultValue: []
   });
 
   return fields
-    .filter((field) => !['categoryId', 'code'].includes(field.name))
-    .map((field) => ({
+    .filter(field => !["categoryId", "code"].includes(field.name))
+    .map(field => ({
       value: field.name,
       name: field.label,
-      type: field.type,
+      type: field.type
     }));
 };
 
 export default {
   types: [
     {
-      type: 'products',
-      label: 'Products',
-    },
+      type: "products",
+      label: "Products"
+    }
   ],
 
   editorAttributes: async ({ subdomain }) => {
     return [
-      { value: 'name', name: 'Name' },
-      { value: 'shortName', name: 'Short name' },
-      { value: 'code', name: 'Code' },
-      { value: 'price', name: 'Price' },
-      { value: 'bulkQuantity', name: 'Bulk quantity' },
-      { value: 'bulkPrice', name: 'Bulk price' },
-      { value: 'barcode', name: 'Barcode' },
-      { value: 'barcodeText', name: 'Barcode Text' },
-      { value: 'date', name: 'Date' },
-      { value: 'barcodeDescription', name: 'Barcode description' },
+      { value: "name", name: "Name" },
+      { value: "shortName", name: "Short name" },
+      { value: "code", name: "Code" },
+      { value: "price", name: "Price" },
+      { value: "bulkQuantity", name: "Bulk quantity" },
+      { value: "bulkPrice", name: "Bulk price" },
+      { value: "barcode", name: "Barcode" },
+      { value: "barcodeText", name: "Barcode Text" },
+      { value: "date", name: "Date" },
+      { value: "barcodeDescription", name: "Barcode description" },
 
-      ...(await getCustomFields({ subdomain })),
+      ...(await getCustomFields({ subdomain }))
     ];
   },
 
   replaceContent: async ({
     subdomain,
-    data: { branchId, departmentId, productIds, date, isDate, content },
+    data: { branchId, departmentId, productIds, date, isDate, content }
   }) => {
     const models = await generateModels(subdomain);
 
     const results: string[] = [];
-    const copies = JSON.parse(productIds || '[]');
-    const productsIds = copies.map((c) => c.id);
+    const copies = JSON.parse(productIds || "[]");
+    const productsIds = copies.map(c => c.id);
 
     const products: IProductDocument[] =
       (await models.Products.find({ _id: { $in: productsIds } }).lean()) || [];
@@ -80,34 +80,34 @@ export default {
       productById[product._id] = product;
     }
 
-    const pricingAvailable = await isEnabled('pricing');
+    const pricingAvailable = await isEnabled("pricing");
     let quantityRules = {};
 
-    if (content.includes('{{ barcode }}')) {
+    if (content.includes("{{ barcode }}")) {
       results.push(
-        '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/JsBarcode.all.min.js"></script><script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>',
+        '::heads::<script src="https://nmgplugins.s3.us-west-2.amazonaws.com/JsBarcode.all.min.js"></script><script src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/jquery.js"></script>'
       );
     }
 
     if (pricingAvailable) {
       const pricing = await sendCommonMessage({
         subdomain,
-        serviceName: 'pricing',
-        action: 'checkPricing',
+        serviceName: "pricing",
+        action: "checkPricing",
         data: {
-          prioritizeRule: 'only',
+          prioritizeRule: "only",
           totalAmount: 0,
           departmentId,
           branchId,
-          products: products.map((pr) => ({
+          products: products.map(pr => ({
             itemId: pr._id,
             productId: pr._id,
             quantity: 1,
-            price: pr.unitPrice,
-          })),
+            price: pr.unitPrice
+          }))
         },
         isRPC: true,
-        defaultValue: {},
+        defaultValue: {}
       });
 
       for (const product of products) {
@@ -124,16 +124,16 @@ export default {
 
       quantityRules = await sendCommonMessage({
         subdomain,
-        serviceName: 'pricing',
-        action: 'getQuanityRules',
+        serviceName: "pricing",
+        action: "getQuanityRules",
         isRPC: true,
         defaultValue: [],
         data: {
-          prioritizeRule: 'exclude',
+          prioritizeRule: "exclude",
           branchId,
           departmentId,
-          products,
-        },
+          products
+        }
       });
     }
 
@@ -144,36 +144,36 @@ export default {
 
       let replacedContent = content;
 
-      replacedContent = replacedContent.replace('{{ name }}', product.name);
-      replacedContent = replacedContent.replace('{{ code }}', product.code);
+      replacedContent = replacedContent.replace("{{ name }}", product.name);
+      replacedContent = replacedContent.replace("{{ code }}", product.code);
 
       replacedContent = replacedContent.replace(
-        '{{ price }}',
-        toMoney(product.unitPrice),
+        "{{ price }}",
+        toMoney(product.unitPrice)
       );
 
       replacedContent = replacedContent.replace(
-        '{{ bulkQuantity }}',
-        value || '-',
+        "{{ bulkQuantity }}",
+        value || "-"
       );
       replacedContent = replacedContent.replace(
-        '{{ bulkPrice }}',
-        toMoney(price),
+        "{{ bulkPrice }}",
+        toMoney(price)
       );
 
       if (
-        content.includes('{{ barcode }}') ||
-        content.includes('{{ barcodeText }}')
+        content.includes("{{ barcode }}") ||
+        content.includes("{{ barcodeText }}")
       ) {
-        let barcode = (product.barcodes || [])[0] || '';
-        let shortStr = '';
+        let barcode = (product.barcodes || [])[0] || "";
+        let shortStr = "";
         if (barcode) {
-          if (['1', 'true', 'True'].includes(isDate)) {
-            shortStr = `_${dateToShortStr(date, 92, 'h')}`;
+          if (["1", "true", "True"].includes(isDate)) {
+            shortStr = `_${dateToShortStr(date, 92, "h")}`;
           }
 
           replacedContent = replacedContent.replace(
-            '{{ barcode }}',
+            "{{ barcode }}",
             `
               <p style="text-align: center;">
               <svg id="barcode${barcode}"></svg>
@@ -185,52 +185,52 @@ export default {
                   displayValue: false
                 });
               </script>
-            `,
+            `
           );
 
           replacedContent = replacedContent.replace(
-            '{{ barcodeText }}',
-            `<span class="barcodeText">${barcode}${shortStr}</span>`,
+            "{{ barcodeText }}",
+            `<span class="barcodeText">${barcode}${shortStr}</span>`
           );
         } else {
-          replacedContent = replacedContent.replace('{{ barcode }}', '');
-          replacedContent = replacedContent.replace('{{ barcodeText }}', '');
+          replacedContent = replacedContent.replace("{{ barcode }}", "");
+          replacedContent = replacedContent.replace("{{ barcodeText }}", "");
         }
       }
 
       replacedContent = replacedContent.replace(
-        '{{ date }}',
-        moment(value).format('YYYY-MM-DD HH:mm'),
+        "{{ date }}",
+        moment(value).format("YYYY-MM-DD HH:mm")
       );
 
       replacedContent = replacedContent.replace(
-        '{{ barcodeDescription }}',
-        product.barcodeDescription || '',
+        "{{ barcodeDescription }}",
+        product.barcodeDescription || ""
       );
 
       if (replacedContent.includes(`{{ vendorId }}`)) {
         const vendor = await sendContactsMessage({
           subdomain,
-          action: 'companies.findOne',
+          action: "companies.findOne",
           data: {
-            _id: product.vendorId,
+            _id: product.vendorId
           },
           isRPC: true,
-          defaultValue: {},
+          defaultValue: {}
         });
 
         if (vendor?.primaryName) {
           replacedContent = replacedContent.replace(
             /{{ vendorId }}/g,
-            vendor.primaryName,
+            vendor.primaryName
           );
         }
       }
 
       for (const customFieldData of product.customFieldsData || []) {
         replacedContent = replacedContent.replace(
-          new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
-          customFieldData.value,
+          new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, "g"),
+          customFieldData.value
         );
       }
 
@@ -240,5 +240,5 @@ export default {
     }
 
     return results;
-  },
+  }
 };

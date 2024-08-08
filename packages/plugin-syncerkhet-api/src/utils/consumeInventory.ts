@@ -1,50 +1,50 @@
-import { sendFormsMessage, sendProductsMessage } from '../messageBroker';
-import { getConfig } from './utils';
+import { sendCoreMessage, sendProductsMessage } from "../messageBroker";
+import { getConfig } from "./utils";
 
 export const consumeInventory = async (subdomain, doc, old_code, action) => {
   const product = await sendProductsMessage({
     subdomain,
-    action: 'findOne',
+    action: "findOne",
     data: { code: old_code },
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
-  if ((action === 'update' && old_code) || action === 'create') {
+  if ((action === "update" && old_code) || action === "create") {
     const productCategory = await sendProductsMessage({
       subdomain,
-      action: 'categories.findOne',
+      action: "categories.findOne",
       data: { code: doc.category_code },
-      isRPC: true,
+      isRPC: true
     });
 
-    const config = await getConfig(subdomain, 'ERKHET', {});
+    const config = await getConfig(subdomain, "ERKHET", {});
 
     const document: any = {
-      name: doc.name || '',
-      shortName: doc.nickname || '',
-      type: doc.is_service ? 'service' : 'product',
+      name: doc.name || "",
+      shortName: doc.nickname || "",
+      type: doc.is_service ? "service" : "product",
       unitPrice: doc.unit_price,
       code: doc.code,
       productId: doc.id,
       uom: doc.measure_unit_code,
       subUoms: product?.subUoms,
-      barcodes: doc.barcodes ? doc.barcodes.split(',') : [],
+      barcodes: doc.barcodes ? doc.barcodes.split(",") : [],
       categoryId: productCategory ? productCategory._id : product.categoryId,
       categoryCode: productCategory
         ? productCategory.code
         : product.categoryCode,
-      status: 'active',
-      taxType: doc.vat_type || '',
-      taxCode: doc.vat_type_code || '',
+      status: "active",
+      taxType: doc.vat_type || "",
+      taxCode: doc.vat_type_code || ""
     };
 
-    const weightField = await sendFormsMessage({
+    const weightField = await sendCoreMessage({
       subdomain,
-      action: 'fields.findOne',
-      data: { query: { code: 'weight' } },
+      action: "fields.findOne",
+      data: { query: { code: "weight" } },
       isRPC: true,
-      defaultValue: null,
+      defaultValue: null
     });
 
     if (weightField && weightField._id) {
@@ -52,12 +52,12 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         field: weightField._id,
         value: doc.weight,
         stringValue: doc.weight.toString(),
-        numberValue: Number(doc.weight),
+        numberValue: Number(doc.weight)
       };
 
       if (product && product.customFieldsData) {
         const otherFieldsData = (product.customFieldsData || []).filter(
-          (cfd) => cfd.field !== weightField._id,
+          cfd => cfd.field !== weightField._id
         );
         otherFieldsData.push(weightData);
         document.customFieldsData = otherFieldsData;
@@ -68,43 +68,43 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
       let subUoms = (product || {}).subUoms || [];
-      const subUomCodes = subUoms.map((u) => u.uom);
+      const subUomCodes = subUoms.map(u => u.uom);
 
       if (subUomCodes.includes(doc.sub_measure_unit_code)) {
-        subUoms = subUoms.filter((u) => u.uom !== doc.sub_measure_unit_code);
+        subUoms = subUoms.filter(u => u.uom !== doc.sub_measure_unit_code);
       }
       subUoms.unshift({
         uom: doc.sub_measure_unit_code,
-        ratio: doc.ratio_measure_unit,
+        ratio: doc.ratio_measure_unit
       });
 
       document.subUoms = subUoms;
     }
     if (config.consumeDescription) {
-      doc.description = eval('`' + config.consumeDescription + '`');
+      doc.description = eval("`" + config.consumeDescription + "`");
     }
 
     if (product) {
       await sendProductsMessage({
         subdomain,
-        action: 'updateProduct',
+        action: "updateProduct",
         data: { _id: product._id, doc: { ...document } },
-        isRPC: true,
+        isRPC: true
       });
     } else {
       await sendProductsMessage({
         subdomain,
-        action: 'createProduct',
+        action: "createProduct",
         data: { doc: { ...document } },
-        isRPC: true,
+        isRPC: true
       });
     }
-  } else if (action === 'delete' && product) {
+  } else if (action === "delete" && product) {
     await sendProductsMessage({
       subdomain,
-      action: 'removeProducts',
+      action: "removeProducts",
       data: { _ids: [product._id] },
-      isRPC: true,
+      isRPC: true
     });
   }
 };
@@ -113,65 +113,65 @@ export const consumeInventoryCategory = async (
   subdomain,
   doc,
   old_code,
-  action,
+  action
 ) => {
   const productCategory = await sendProductsMessage({
     subdomain,
-    action: 'categories.findOne',
+    action: "categories.findOne",
     data: { code: old_code },
-    isRPC: true,
+    isRPC: true
   });
 
-  if ((action === 'update' && old_code) || action === 'create') {
+  if ((action === "update" && old_code) || action === "create") {
     const parentCategory = await sendProductsMessage({
       subdomain,
-      action: 'categories.findOne',
+      action: "categories.findOne",
       data: { code: doc.parent_code },
-      isRPC: true,
+      isRPC: true
     });
 
     const document = {
       code: doc.code,
       name: doc.name,
-      order: doc.order,
+      order: doc.order
     };
 
     if (productCategory) {
       await sendProductsMessage({
         subdomain,
-        action: 'categories.updateProductCategory',
+        action: "categories.updateProductCategory",
         data: {
           _id: productCategory._id,
           doc: {
             ...document,
             parentId: parentCategory
               ? parentCategory._id
-              : productCategory.parentId,
-          },
+              : productCategory.parentId
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
     } else {
       await sendProductsMessage({
         subdomain,
-        action: 'categories.createProductCategory',
+        action: "categories.createProductCategory",
         data: {
           doc: {
             ...document,
-            parentId: parentCategory ? parentCategory._id : '',
-          },
+            parentId: parentCategory ? parentCategory._id : ""
+          }
         },
-        isRPC: true,
+        isRPC: true
       });
     }
-  } else if (action === 'delete' && productCategory) {
+  } else if (action === "delete" && productCategory) {
     await sendProductsMessage({
       subdomain,
-      action: 'categories.removeProductCategory',
+      action: "categories.removeProductCategory",
       data: {
-        _id: productCategory._id,
+        _id: productCategory._id
       },
-      isRPC: true,
+      isRPC: true
     });
   }
 };

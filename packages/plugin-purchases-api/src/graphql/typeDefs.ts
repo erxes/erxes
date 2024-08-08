@@ -31,12 +31,11 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
   const contactsEnabled = await isEnabled("contacts");
-  const formsEnabled = await isEnabled("forms");
   const clientPortalEnabled = await isEnabled("clientportal");
 
   const isEnabledTable = {
     contacts: contactsEnabled,
-    forms: formsEnabled,
+    forms: true,
     clientPortal: clientPortalEnabled
   };
 

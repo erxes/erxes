@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage, sendFormsMessage } from "../../../messageBroker";
+import { sendCoreMessage } from "../../../messageBroker";
 import { IItemCommonFields } from "../../../models/definitions/boards";
 
 export default {
@@ -38,7 +38,7 @@ export default {
       return customFieldsData;
     }
 
-    const fields = await sendFormsMessage({
+    const fields = await sendCoreMessage({
       subdomain,
       action: "fields.find",
       data: {

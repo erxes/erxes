@@ -44,20 +44,18 @@ class PerSettings extends React.Component<Props, State> {
       fieldsCombined: []
     };
 
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "sales:deal"
-          }
-        })
-        .then(({ data }) => {
-          this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
-          });
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        this.setState({
+          fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
         });
-    }
+      });
   }
 
   onChangeBoard = (boardId: string) => {

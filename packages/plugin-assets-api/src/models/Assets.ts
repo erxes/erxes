@@ -6,7 +6,7 @@ import { IModels } from "../connectionResolver";
 import {
   sendSalesMessage,
   sendContactsMessage,
-  sendFormsMessage
+  sendCoreMessage
 } from "../messageBroker";
 import { assetSchema } from "./definitions/assets";
 export interface IAssetModel extends Model<IAssetDocument> {
@@ -72,7 +72,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
         doc.vendorId = vendor?._id;
       }
 
-      doc.customFieldsData = await sendFormsMessage({
+      doc.customFieldsData = await sendCoreMessage({
         subdomain,
         action: "fields.prepareCustomFieldsData",
         data: doc.customFieldsData,
@@ -97,7 +97,7 @@ export const loadAssetClass = (models: IModels, subdomain: string) => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await sendFormsMessage({
+        doc.customFieldsData = await sendCoreMessage({
           subdomain,
           action: "fields.prepareCustomFieldsData",
           data: doc.customFieldsData,

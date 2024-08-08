@@ -1,18 +1,18 @@
-import { TAG_TYPES } from '../../models/definitions/constants';
-import { Builder as BuildQuery, IListArgs } from '../../coc/customers';
+import { TAG_TYPES } from "../../models/definitions/constants";
+import { Builder as BuildQuery, IListArgs } from "../../coc/customers";
 import {
   countByBrand,
   countByLeadStatus,
   countBySegment,
   countByTag,
-  ICountBy,
-} from '../../coc/utils';
+  ICountBy
+} from "../../coc/utils";
 import {
   checkPermission,
-  moduleRequireLogin,
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../connectionResolver';
-import { sendFormsMessage, sendInboxMessage } from '../../messageBroker';
+  moduleRequireLogin
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../connectionResolver";
+import { sendInboxMessage, sendCoreMessage } from "../../messageBroker";
 interface ICountParams extends IListArgs {
   only: string;
   source: string;
@@ -27,16 +27,16 @@ const countByIntegrationType = async (
   const kindsMap = await sendInboxMessage({
     subdomain,
     data: {},
-    action: 'getIntegrationKinds',
+    action: "getIntegrationKinds",
     isRPC: true,
-    defaultValue: {},
+    defaultValue: {}
   });
 
   for (const type of Object.keys(kindsMap)) {
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
 
-    counts[type] = await qb.runQueries('count');
+    counts[type] = await qb.runQueries("count");
   }
 
   return counts;
@@ -50,21 +50,21 @@ const countByForm = async (
   const counts: ICountBy = {};
 
   // Count customers by submitted form
-  const forms = await sendFormsMessage({
+  const forms = await sendCoreMessage({
     subdomain,
-    action: 'find',
+    action: "formsFind",
     data: {
-      query: {},
+      query: {}
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   for (const form of forms) {
     await qb.buildAllQueries();
     await qb.formFilter(subdomain, form._id);
 
-    counts[form._id] = await qb.runQueries('count');
+    counts[form._id] = await qb.runQueries("count");
   }
 
   return counts;
@@ -81,7 +81,7 @@ const customerQueries = {
   ) {
     const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk,
+      commonQuerySelectorElk
     });
 
     await qb.buildAllQueries();
@@ -101,7 +101,7 @@ const customerQueries = {
   ) {
     const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk,
+      commonQuerySelectorElk
     });
 
     await qb.buildAllQueries();
@@ -127,41 +127,41 @@ const customerQueries = {
       byIntegrationType: {},
       byTag: {},
       byForm: {},
-      byLeadStatus: {},
+      byLeadStatus: {}
     };
 
     const qb = new BuildQuery(models, subdomain, params, {
       commonQuerySelector,
-      commonQuerySelectorElk,
+      commonQuerySelectorElk
     });
 
     switch (only) {
-      case 'bySegment':
+      case "bySegment":
         counts.bySegment = await countBySegment(
           subdomain,
-          `contacts:${type || 'customer'}`,
+          `contacts:${type || "customer"}`,
           qb,
           source
         );
         break;
 
-      case 'byBrand':
+      case "byBrand":
         counts.byBrand = await countByBrand(subdomain, qb);
         break;
 
-      case 'byTag':
+      case "byTag":
         counts.byTag = await countByTag(subdomain, TAG_TYPES.CUSTOMER, qb);
         break;
 
-      case 'byForm':
+      case "byForm":
         counts.byForm = await countByForm(subdomain, qb, params);
         break;
 
-      case 'byLeadStatus':
+      case "byLeadStatus":
         counts.byLeadStatus = await countByLeadStatus(qb);
         break;
 
-      case 'byIntegrationType':
+      case "byIntegrationType":
         counts.byIntegrationType = await countByIntegrationType(subdomain, qb);
         break;
 
@@ -188,18 +188,18 @@ const customerQueries = {
     const { action, contentType, content } = args;
     let result = {};
 
-    const type = contentType.split(':')[1];
+    const type = contentType.split(":")[1];
 
-    if (action === 'merge') {
+    if (action === "merge") {
       switch (type) {
-        case 'company':
+        case "company":
           result = await Companies.find({
-            _id: { $in: content },
+            _id: { $in: content }
           }).lean();
           break;
-        case 'customer':
+        case "customer":
           result = await Customers.find({
-            _id: { $in: content },
+            _id: { $in: content }
           }).lean();
           break;
       }
@@ -208,15 +208,15 @@ const customerQueries = {
     }
 
     return result;
-  },
+  }
 };
 
 moduleRequireLogin(customerQueries);
 
-checkPermission(customerQueries, 'customers', 'showCustomers', []);
-checkPermission(customerQueries, 'customersMain', 'showCustomers', {
+checkPermission(customerQueries, "customers", "showCustomers", []);
+checkPermission(customerQueries, "customersMain", "showCustomers", {
   list: [],
-  totalCount: 0,
+  totalCount: 0
 });
 
 export default customerQueries;

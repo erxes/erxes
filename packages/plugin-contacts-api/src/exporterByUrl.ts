@@ -22,7 +22,6 @@ import {
 import {
   fetchSegment,
   sendCoreMessage,
-  sendFormsMessage,
   sendInboxMessage
 } from "./messageBroker";
 
@@ -285,7 +284,7 @@ const prepareData = async (
       if (customerParams.form && customerParams.popupData) {
         debugInfo("Start an query for popups export");
 
-        const fields = await sendFormsMessage({
+        const fields = await sendCoreMessage({
           subdomain,
           action: "fields.find",
           data: {
@@ -336,7 +335,7 @@ const prepareData = async (
           });
         }
 
-        const formSubmissions = await sendFormsMessage({
+        const formSubmissions = await sendCoreMessage({
           subdomain,
           action: "submissions.find",
           data: {
@@ -424,7 +423,7 @@ const addCell = (
 const fillLeadHeaders = async (subdomain: string, formId: string) => {
   const headers: IColumnLabel[] = [];
 
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
     action: "fields.find",
     data: {
@@ -545,7 +544,7 @@ export const buildFile = async (
         if (column.name.startsWith("customFieldsData")) {
           const { field, value } = await getCustomFieldsData(
             selector =>
-              sendFormsMessage({
+              sendCoreMessage({
                 subdomain,
                 action: "fields.findOne",
                 data: {

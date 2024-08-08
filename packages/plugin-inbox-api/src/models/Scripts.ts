@@ -1,7 +1,7 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendCoreMessage, sendFormsMessage } from '../messageBroker';
-import { IScript, IScriptDocument, scriptSchema } from './definitions/scripts';
+import { Model } from "mongoose";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage } from "../messageBroker";
+import { IScript, IScriptDocument, scriptSchema } from "./definitions/scripts";
 
 export interface IScriptModel extends Model<IScriptDocument> {
   getScript(_id: string): Promise<IScriptDocument>;
@@ -21,7 +21,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const script = await models.Scripts.findOne({ _id });
 
       if (!script) {
-        throw new Error('Script not found');
+        throw new Error("Script not found");
       }
 
       return script;
@@ -41,10 +41,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
         const brand = await sendCoreMessage({
           subdomain,
-          action: 'brands.findOne',
+          action: "brands.findOne",
           data: {
             query: {
-              _id: messengerIntegration.brandId || ''
+              _id: messengerIntegration.brandId || ""
             }
           },
           isRPC: true
@@ -64,7 +64,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         for (const integration of integrations) {
           const brand = await sendCoreMessage({
             subdomain,
-            action: 'brands.findOne',
+            action: "brands.findOne",
             data: {
               query: {
                 _id: integration.brandId
@@ -73,9 +73,9 @@ export const loadClass = (models: IModels, subdomain: string) => {
             isRPC: true
           });
 
-          const form = await sendFormsMessage({
+          const form = await sendCoreMessage({
             subdomain,
-            action: 'findOne',
+            action: "formsFindOne",
             data: {
               _id: integration.formId
             },
@@ -83,7 +83,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
           });
 
           if (!form) {
-            throw new Error('Form not found');
+            throw new Error("Form not found");
           }
 
           maps.push({
@@ -116,7 +116,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
     public static async updateScript(_id: string, fields: IScript) {
       const autoFields = await Script.calculateAutoFields(fields);
 
-      await models.Scripts.updateOne({ _id }, { $set: { ...fields, ...autoFields } });
+      await models.Scripts.updateOne(
+        { _id },
+        { $set: { ...fields, ...autoFields } }
+      );
 
       return models.Scripts.findOne({ _id });
     }

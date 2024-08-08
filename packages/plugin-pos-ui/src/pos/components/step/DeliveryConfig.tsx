@@ -38,18 +38,16 @@ const DeliveryConfig = (props: Props) => {
   );
 
   useEffect(() => {
-    if (isEnabled("forms")) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: "sales:deal"
-          }
-        })
-        .then(({ data }) => {
-          setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
-        });
-    }
+    client
+      .query({
+        query: gql(formQueries.fieldsCombinedByContentType),
+        variables: {
+          contentType: "sales:deal"
+        }
+      })
+      .then(({ data }) => {
+        setFieldsCombined(data ? data.fieldsCombinedByContentType : [] || []);
+      });
   }, []);
 
   const onChangeConfig = (code: string, value) => {

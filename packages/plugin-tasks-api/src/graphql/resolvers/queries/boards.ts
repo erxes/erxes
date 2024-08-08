@@ -6,11 +6,7 @@ import { IStageDocument } from "../../../models/definitions/boards";
 import { CLOSE_DATE_TYPES, PRIORITIES } from "../../../constants";
 import { IPipelineLabelDocument } from "../../../models/definitions/pipelineLabels";
 import { getCloseDateByType } from "./utils";
-import {
-  fetchSegment,
-  sendCoreMessage,
-  sendFormsMessage
-} from "../../../messageBroker";
+import { fetchSegment, sendCoreMessage } from "../../../messageBroker";
 import { IContext } from "../../../connectionResolver";
 import { getContentTypeDetail } from "../../../utils";
 import { IUserDocument } from "@erxes/api-utils/src/types";
@@ -743,7 +739,7 @@ const boardQueries = {
     for (const ct of ["task"]) {
       result[ct] = [];
 
-      const groups = await sendFormsMessage({
+      const groups = await sendCoreMessage({
         subdomain,
         action: "fieldsGroups.find",
         data: {
@@ -757,7 +753,7 @@ const boardQueries = {
       for (const group of groups) {
         const { config = {} } = group;
 
-        const fields = await sendFormsMessage({
+        const fields = await sendCoreMessage({
           subdomain,
           action: "fields.find",
           data: {

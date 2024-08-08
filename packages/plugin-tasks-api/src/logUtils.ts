@@ -14,7 +14,7 @@ import {
 } from "@erxes/api-utils/src/logUtils";
 import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
 import { ACTIVITY_CONTENT_TYPES } from "./models/definitions/constants";
-import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { IModels, generateModels } from "./connectionResolver";
 import {
   collectItems,
@@ -214,9 +214,9 @@ const gatherPipelineTemplateFieldNames = async (
       foreignKey: "formId",
       prevList: options,
       nameFields: ["title"],
-      items: await sendFormsMessage({
+      items: await sendCoreMessage({
         subdomain,
-        action: "find",
+        action: "formsFind",
         data: { _id: { $in: doc.stages.map(s => s.formId) } },
         isRPC: true,
         defaultValue: []
@@ -259,9 +259,9 @@ const gatherStageFieldNames = async (
       foreignKey: "formId",
       prevList: options,
       nameFields: ["title"],
-      items: await sendFormsMessage({
+      items: await sendCoreMessage({
         subdomain,
-        action: "find",
+        action: "formsFind",
         data: { _id: { $in: [doc.formId] } },
         isRPC: true
       })

@@ -1,5 +1,5 @@
 import { generateModels, IModels } from "./connectionResolver";
-import { sendFormsMessage, sendCoreMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import * as moment from "moment";
 
 const prepareData = async (
@@ -173,7 +173,7 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
+          const field = await sendCoreMessage({
             subdomain,
             action: "fields.findOne",
             data: {
@@ -219,7 +219,7 @@ export default {
       for (const column of columnsConfig) {
         if (column.startsWith("customFieldsData")) {
           const fieldId = column.split(".")[1];
-          const field = await sendFormsMessage({
+          const field = await sendCoreMessage({
             subdomain,
             action: "fields.findOne",
             data: {
