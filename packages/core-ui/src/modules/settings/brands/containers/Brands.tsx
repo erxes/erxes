@@ -164,7 +164,7 @@ const WithLastBrand = withProps<WithCurrentIdProps>(
       gql(queries.brandsGetLast),
       {
         name: "lastBrandQuery",
-        skip: ({ queryParams }: { queryParams: Record<string, string> }) => queryParams._id ? true : false,
+        skip: ({ queryParams }: { queryParams: Record<string, string> }) => !!queryParams._id,
         options: ({ queryParams }: { queryParams: Record<string, string> }) => ({
           variables: { _id: queryParams._id },
           fetchPolicy: "network-only",

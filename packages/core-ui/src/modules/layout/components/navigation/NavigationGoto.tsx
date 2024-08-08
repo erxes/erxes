@@ -36,10 +36,8 @@ type State = {
 
 export default class NavigationGoto extends React.Component<Props, State> {
   private searchFormInput: React.RefObject<HTMLInputElement>;
-  private actions: Action[] = ACTIONS ? ACTIONS : [];
-  private generalSettings: GeneralSetting[] = GENERAL_SETTINGS
-    ? GENERAL_SETTINGS
-    : [];
+  private actions: Action[] = ACTIONS || [];
+  private generalSettings: GeneralSetting[] = GENERAL_SETTINGS || [];
   constructor(props: Props) {
     super(props);
 

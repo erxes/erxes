@@ -65,18 +65,18 @@ export default class NavigationMore extends React.Component<Props, State> {
     }
   };
 
-  handleSearch = (event: React.FormEvent<HTMLElement> | React.ChangeEvent<HTMLInputElement>): void => {
+  handleSearch = (
+    event: React.FormEvent<HTMLElement> | React.ChangeEvent<HTMLInputElement>
+  ): void => {
     const target = event.target as HTMLInputElement;
     const otherPlugins: Plugin[] = filterPlugins(
       pluginNavigations(),
       this.props.pinnedPlugins
     );
     const searchedPlugins = otherPlugins.filter((plugin: Plugin) => {
-      if (target.value !== "")
-        return plugin
-          .text!.toLowerCase()
-          .includes(target.value.toLowerCase());
-      else return;
+      if (target.value !== "") {
+        return plugin.text!.toLowerCase().includes(target.value.toLowerCase());
+      } else return;
     });
 
     this.setState({

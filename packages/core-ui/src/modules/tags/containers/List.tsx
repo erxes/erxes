@@ -28,7 +28,7 @@ const ListContainer = (props: Props) => {
     variables: {
       type: queryParams && queryParams.tagType,
       searchValue: queryParams && queryParams.searchValue,
-      ...generatePaginationParams(queryParams ? queryParams : {})
+      ...generatePaginationParams(queryParams || {})
     },
     fetchPolicy: "network-only"
   });

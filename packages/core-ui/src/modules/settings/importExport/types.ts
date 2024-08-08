@@ -1,6 +1,14 @@
+import { ISubSegment } from '@erxes/ui-segments/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IUser } from 'modules/auth/types';
 import { IAttachment } from 'modules/common/types';
+
+export interface IContentType {
+  text: string;
+  contentType: string;
+  icon: string;
+  skipFilter: boolean;
+}
 
 export interface IImportHistory {
   _id: string;
@@ -8,12 +16,7 @@ export interface IImportHistory {
   updated: string;
   failed: string;
   total: string;
-  contentTypes: {
-    text: string;
-    contentType: string;
-    icon: string;
-    skipFilter: boolean;
-  }[];
+  contentTypes: IContentType[];
   date: Date;
   user: IUser;
   status: string;
@@ -60,11 +63,41 @@ export interface IExportHistoryContentType {
   contentType: string;
 }
 
+export interface IExportFilter {
+  _id?: string;
+  name?: string;
+  subOf?: string;
+  color?: string;
+  conditionsConjunction?: string;
+  contentType?: string;
+  conditionSegments?: ISubSegment[];
+  config?: JSON;
+  shouldWriteActivityLog?: boolean;
+}
+export interface IExportHistoryDoc {
+  contentType: string;
+  columnsConfig?: string[];
+  segmentData?: JSON | string;
+  name?: string;
+}
+export interface IExportField {
+  checked?: boolean;
+  label: string;
+  name: string;
+  order?: number;
+  type: string;
+  _id?: string;
+}
+
 // query types
 
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistoryItem;
   stopPolling: () => any;
+} & QueryResponse;
+
+export type FieldsCombinedByContentTypeQueryResponse = {
+  fieldsCombinedByContentType: IExportField[];
 } & QueryResponse;
 
 export type ExportHistoriesQueryResponse = {
@@ -91,6 +124,12 @@ export type ExportHistoryDetailQueryResponse = {
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
     variables: { _id: string; contentType: string };
+  }) => Promise<any>;
+};
+
+export type ExportHistoryCreateMutationResponse = {
+  exportHistoriesCreate: (params: {
+    variables: { doc: IExportHistoryDoc };
   }) => Promise<any>;
 };
 

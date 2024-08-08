@@ -2,8 +2,8 @@ import { QueryResponse } from '@erxes/ui/src/types';
 
 export type GetEnvQueryResponse = {
   configsGetEnv: {
-    RELEASE: string;
-    USE_BRAND_RESTRICTIONS?: any;
+    RELEASE?: string;
+    USE_BRAND_RESTRICTIONS?: string;
   };
 } & QueryResponse;
 
