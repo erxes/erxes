@@ -234,7 +234,6 @@ function Welcome({ currentUser, branchesLength, departmentLength }: Props) {
   ) => {
     return (
       <Dropdown
-        as={DropdownToggle}
         toggleComponent={
           <LinkedButton>
             <Icon icon={icon} size={20} color="#888888" />

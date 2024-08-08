@@ -118,6 +118,15 @@ export default {
         }
       }
 
+    sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: `ImportCustomerData`,
+        user,
+      },
+    });
+
       return { objects, updated };
     } catch (e) {
       return { error: e.message };

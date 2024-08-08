@@ -213,3 +213,483 @@ export const VIDEO = [
     url: 'https://www.youtube.com/embed/olfky0vuHmU?si=2BYdB2JT9_f681nd'
   }
 ];
+
+export const Setups = [
+  {
+    id: 1,
+    image: '/images/welcome/item-4.png',
+    type: 'general',
+    title: 'General configurations',
+    desc: 'Configure your settings and preferences for a customized experience.',
+  },
+  {
+    id: 2,
+    image: '/images/welcome/item-2.png',
+    type: 'operational',
+    title: 'Operational Setup',
+    desc: 'Establish your digital workplace for efficient and streamlined operations.',
+  },
+  {
+    id: 3,
+    image: '/images/welcome/item-3.png',
+    title: 'Set up permissions',
+    desc: 'Set up Insight to gain valuable data and analytics for informed decisions.',
+    totalStep: 2,
+    comingSoon: true
+  }
+];
+
+export const Learn = [
+  {
+    id: 1,
+    image: '/images/welcome/icons/1.png',
+    title: 'User Documentation',
+    desc: 'Get started in no time',
+    url: 'https://docs.erxes.io'
+  },
+  {
+    id: 2,
+    image: '/images/welcome/icons/2.png',
+    title: 'Plugin',
+    desc: 'Find complete information about plugins',
+    url: 'https://erxes.io/marketplace'
+  },
+  {
+    id: 3,
+    image: '/images/welcome/icons/3.png',
+    title: 'Blog',
+    desc: 'Stay up-to-do-date on all the latest devlopments',
+    url: 'https://erxes.io/resources/blog',
+  }
+];
+
+export const Community = [
+  {
+    id: 1,
+    image: '/images/welcome/icons/discord.png',
+    title: 'Discord',
+    desc: 'Connect with erxes Community',
+    url: 'https://discord.com/invite/aaGzy3gQK5'
+  },
+  {
+    id: 2,
+    image: '/images/welcome/icons/github.png',
+    title: 'Github',
+    desc: 'Where everything happens',
+    url: 'https://github.com/erxes/erxes'
+  },
+  {
+    id: 3,
+    image: '/images/welcome/icons/twitter.png',
+    title: 'Twitter',
+    desc: 'Get the latest news',
+    url: 'https://x.com/erxeshq'
+  }
+];
+
+export const GeneralTasks = [
+  {
+    id: 1,
+    icon: 'user-plus',
+    title: 'Invite Team Members',
+    desc: 'The team members will help you to invite your team members to join your organizations to work together effectively by working on the same database.',
+    url: '/settings/team',
+    action: 'userCreate'
+  },
+  {
+    id: 2,
+    icon: 'sitemap-1',
+    title: 'Establish Organizational Structures',
+    desc: 'Establishing organizational structures involves defining roles, responsibilities, and efficient decision-making within a company.',
+    url: '/settings/structure',
+    action: 'EstablishOrganizationalStructure'
+  },
+  {
+    id: 3,
+    icon: 'file-plus-alt',
+    title: 'Import Customer Data',
+    desc: 'The Contacts plugin is integral to inserting, tracking, and registering all connected data and to being able to categorize them for better use.',
+    url: '/settings/import',
+    action: 'ImportCustomerData'
+  },
+  {
+    id: 4,
+    icon: 'tag-alt',
+    title: 'Create Brand',
+    desc: 'Add unlimited Brands with unlimited support to further your growth and accelerate your business',
+    url: '/settings/brands#showBrandAddModal=true',
+    action: 'brandCreate'
+  },
+  {
+    id: 5,
+    icon: 'layers',
+    title: 'Create Channels',
+    desc: 'Channels are important to know how and where your team members are spread out.Manage your channels and stay at the top of your game',
+    url: '/settings/channels#showChannelAddModal=true',
+    action: 'ChannelCreate'
+  },
+  {
+    id: 6,
+    icon: 'graph-bar',
+    title: 'Create your Insight',
+    desc: 'Optimize sales and marketing with interactive dashboards. Easy to use, become a data wizard fast.',
+    url: '/insight#addDashboard',
+    action: 'InsightCreate'
+  }
+];
+
+export const MarketingTasks = [
+  {
+    id: 2,
+    icon: 'file-info-alt',
+    title: 'Create Email template',
+    desc: 'The email template plugin will help you to create your email templates for your needs.',
+    url: 'settings/email-templates',
+    action: 'emailTemplateCreate'
+  },
+  {
+    id: 3,
+    icon: 'megaphone',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'The campaign plugin allows the user to automatically send out Emails, Messages and SMS which will grow your brand.',
+    url: '/campaigns/create',
+    action: 'setCampaignLive'
+  },
+  {
+    id: 4,
+    icon: 'layer-group',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'The Pop-ups & Forms plugin allows users to prepare simple to advanced-level forms and pop-ups for all aspects of your businesses.',
+    url: '/forms/create',
+    action: 'formCreate'
+  },
+  {
+    id: 5,
+    icon: 'monitor-1',
+    title: 'Set up Client Portal',
+    desc: 'Professionalize your web page to educate your customers and employees about company and your product and services.',
+    url: '/settings/client-portal/form',
+    action: 'clientPortalSetup'
+  },
+  {
+    id: 6,
+    icon: 'arrow-growth',
+    title: 'Create Segments',
+    desc: 'Create segments for your desired target groups and engage your contacts in ways that are meaningful to them.',
+    url: '/segments/new?contentType=contacts:customer',
+    action: 'subSegmentCreate'
+  },
+  {
+    id: 7,
+    icon: 'file-check-alt',
+    title: 'Configure Task Management',
+    desc: 'The Task Management plugin helps team members with the planning process of their projects for the day, week, month, and year.',
+    url: '/task',
+    action: 'TaskPipelineConfigured'
+  },
+  {
+    id: 8,
+    icon: 'comments',
+    title: 'Integrate Facebook Messenger',
+    desc: 'With Facebook, you can get your messages received in your erxes Team inbox and can reply directly from your inbox with your team members.',
+    url: '/settings/integrations/createFacebook?kind=facebook-messenger',
+    action: 'facebookmessengerIntegrationCreated'
+  },
+  {
+    id: 9,
+    icon: 'comment-alt-heart',
+    title: 'Integrate Facebook Post',
+    desc: 'With Facebook, you can get your messages received in your erxes Team inbox and can reply directly from your inbox with your team members.',
+    url: '/settings/integrations/createFacebook?kind=facebook-post',
+    action: 'facebookpostIntegrationCreated'
+  },
+  {
+    id: 10,
+    icon: 'instagram',
+    title: 'Integrate Instagram',
+    desc: 'With Instagram, you can get your messages received in your erxes Team inbox and can reply directly from your inbox with your team members.',
+    url: '/settings/integrations/createInstagram?kind=instagram-post',
+    action: 'instagramIntegrationCreated'
+  },
+  {
+    id: 11,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'The knowledge base helps you to create solutions to common issues, product or feature documentation, FAQ`s and to address any issues.',
+    url: '/knowledgeBase',
+    action: 'knowledgeBaseArticleCreate'
+  }
+];
+
+export const SalesTasks = [
+  {
+    id: 1,
+    icon: 'piggy-bank',
+    title: 'Set up Sales Processes',
+    desc: 'The sales pipeline section helps team members with the process of receiving, managing, and resolving incoming sales deals.',
+    url: '/deal',
+    action: 'DealsPipelineConfigured'
+  },
+  {
+    id: 2,
+    icon: 'layer-group',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'The Pop-ups & Forms plugin allows users to prepare simple to advanced-level forms and pop-ups for all aspects of your businesses.',
+    url: '/forms/create',
+    action: 'formCreate'
+  },
+  {
+    id: 3,
+    icon: 'document',
+    title: 'Organize Documents',
+    desc: 'Efficiently organize your office documents, encompassing contracts, job descriptions, and various business papers.',
+    url: '/settings/documents',
+    action: 'documentTemplateCreate'
+  },
+  {
+    id: 4,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'The knowledge base helps you to create solutions to common issues, product or feature documentation, FAQ`s and to address any issues.',
+    url: '/knowledgeBase',
+    action: 'knowledgeBaseArticleCreate'
+  },
+  {
+    id: 5,
+    icon: 'monitor-1',
+    title: 'Set up Client Portal',
+    desc: 'Professionalize your web page to educate your customers and employees about company and your product and services.',
+    url: '/settings/client-portal/form',
+    action: 'clientPortalSetup'
+  },
+  {
+    id: 6,
+    icon: 'arrow-growth',
+    title: 'Create Segments',
+    desc: 'Create segments for your desired target groups and engage your contacts in ways that are meaningful to them.',
+    url: '/segments/new?contentType=contacts:customer',
+    action: 'subSegmentCreate'
+  },
+  {
+    id: 7,
+    icon: 'megaphone',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'The campaign plugin allows the user to automatically send out Emails, Messages and SMS which will grow your brand.',
+    url: '/campaigns/create',
+    action: 'setCampaignLive'
+  },
+  {
+    id: 8,
+    icon: 'file-check-alt',
+    title: 'Configure Task Management',
+    desc: 'The Task Management plugin helps team members with the planning process of their projects for the day, week, month, and year.',
+    url: '/task',
+    action: 'TaskPipelineConfigured'
+  },
+  {
+    id: 9,
+    icon: 'ticket',
+    title: 'Set up Ticket Management',
+    desc: 'Organize your product and service-related inquiries. This will allow you to handle your tickets in a well-organized manner without losing track of information.',
+    url: '/ticket',
+    action: 'TicketPipelineConfigured'
+  }
+];
+
+export const FrontlineTasks = [
+  {
+    id: 1,
+    icon: 'envelope-shield',
+    title: 'Install erxes Messenger',
+    desc: 'Erxes Messenger connects you to your customers like never before with its powerful capability of having a real-time conversation from the places where they are.',
+    url: '/settings/integrations/createMessenger?kind=messenger',
+    action: 'erxesMessagerConnect'
+  },
+  {
+    id: 2,
+    icon: 'ticket',
+    title: 'Set up Ticket Management',
+    desc: 'Organize your product and service-related inquiries. This will allow you to handle your tickets in a well-organized manner without losing track of information.',
+    url: '/ticket',
+    action: 'TicketPipelineConfigured'
+  },
+  {
+    id: 3,
+    icon: 'comments',
+    title: 'Integrate Facebook Messenger',
+    desc: 'With Facebook, you can get your messages received in your erxes Team inbox and can reply directly from your inbox with your team members.',
+    url: '/settings/integrations/createFacebook?kind=facebook-messenger',
+    action: 'facebookmessengerIntegrationCreated'
+  },
+  {
+    id: 4,
+    icon: 'comment-alt-heart',
+    title: 'Integrate Facebook Post',
+    desc: 'With Facebook, you can get your messages received in your erxes Team inbox and can reply directly from your inbox with your team members.',
+    url: '/settings/integrations/createFacebook?kind=facebook-post',
+    action: 'facebookpostIntegrationCreated'
+  },
+  {
+    id: 5,
+    icon: 'envelope-add',
+    title: 'Connect IMAP',
+    desc: 'Where everything happens',
+    url: '/settings/integrations#createImap',
+    action: 'imapIntegrationCreated'
+  },
+  {
+    id: 6,
+    icon: 'instagram',
+    title: 'Integrate Instagram',
+    desc: 'With Instagram, you can get your messages received in your erxes Team inbox and can reply directly from your inbox with your team members.',
+    url: '/settings/integrations/createInstagram?kind=instagram-post',
+    action: 'instagramIntegrationCreated'
+  },
+  {
+    id: 7,
+    icon: 'phone-alt',
+    title: 'Create Call',
+    desc: 'Connect with erxes Community',
+    url: '/calls',
+    action: 'callsIntegrationCreated'
+  },
+  {
+    id: 10,
+    icon: 'layer-group',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'The Pop-ups & Forms plugin allows users to prepare simple to advanced-level forms and pop-ups for all aspects of your businesses.',
+    url: '/forms/create',
+    action: 'formCreate'
+  },
+  {
+    id: 11,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'The knowledge base helps you to create solutions to common issues, product or feature documentation, FAQ`s and to address any issues.',
+    url: '/knowledgeBase',
+    action: 'knowledgeBaseArticleCreate'
+  },
+  {
+    id: 12,
+    icon: 'monitor-1',
+    title: 'Set up Client Portal',
+    desc: 'Professionalize your web page to educate your customers and employees about company and your product and services.',
+    url: '/settings/client-portal/form',
+    action: 'clientPortalSetup'
+  },
+  {
+    id: 13,
+    icon: 'arrow-growth',
+    title: 'Create Segments',
+    desc: 'Create segments for your desired target groups and engage your contacts in ways that are meaningful to them.',
+    url: '/segments/new?contentType=contacts:customer',
+    action: 'subSegmentCreate'
+  },
+  {
+    id: 17,
+    icon: 'circular',
+    title: 'Implement Operational Automations',
+    desc: 'The automation plugin allows users to automate repetitive tasks by setting triggers and creating actions if the trigger conditions are met.',
+    url: '/automations',
+    action: 'automationCreate'
+  },
+  {
+    id: 18,
+    icon: 'megaphone',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'The campaign plugin allows the user to automatically send out Emails, Messages and SMS which will grow your brand.',
+    url: '/campaigns/create',
+    action: 'setCampaignLive'
+  }
+];
+
+export const OperationTasks = [
+  {
+    id: 1,
+    icon: 'file-check-alt',
+    title: 'Configure Task Management',
+    desc: 'The Task Management plugin helps team members with the planning process of their projects for the day, week, month, and year.',
+    url: '/task',
+    action: 'TaskPipelineConfigured'
+  },
+  {
+    id: 2,
+    icon: 'ticket',
+    title: 'Set up Ticket Management',
+    desc: 'Organize your product and service-related inquiries. This will allow you to handle your tickets in a well-organized manner without losing track of information.',
+    url: '/ticket',
+    action: 'TicketPipelineConfigured'
+  },
+  {
+    id: 3,
+    icon: 'piggy-bank',
+    title: 'Set up Sales Processes',
+    desc: 'The sales pipeline section helps team members with the process of receiving, managing, and resolving incoming sales deals.',
+    url: '/deal',
+    action: 'DealsPipelineConfigured'
+  },
+  {
+    id: 4,
+    icon: 'book-open',
+    title: 'Build Knowledgebase',
+    desc: 'The knowledge base helps you to create solutions to common issues, product or feature documentation, FAQ`s and to address any issues.',
+    url: '/knowledgeBase',
+    action: 'knowledgeBaseArticleCreate'
+  },
+  {
+    id: 5,
+    icon: 'file-bookmark-alt',
+    title: 'Manage Files with the File Manager',
+    desc: 'Where everything happens',
+    url: '/filemanager',
+    action: 'fileManagerFileCreate'
+  },
+  {
+    id: 6,
+    icon: 'layer-group',
+    title: 'Design Popups & Forms with Builder',
+    desc: 'The Pop-ups & Forms plugin allows users to prepare simple to advanced-level forms and pop-ups for all aspects of your businesses.',
+    url: '/forms/create',
+    action: 'formCreate'
+  },
+  {
+    id: 7,
+    icon: 'monitor-1',
+    title: 'Set up Client Portal',
+    desc: 'Professionalize your web page to educate your customers and employees about company and your product and services.',
+    url: '/settings/client-portal/form',
+    action: 'clientPortalSetup'
+  },
+  {
+    id: 8,
+    icon: 'document',
+    title: 'Organize Documents',
+    desc: 'Efficiently organize your office documents, encompassing contracts, job descriptions, and various business papers.',
+    url: '/settings/documents',
+    action: 'documentTemplateCreate'
+  },
+  {
+    id: 9,
+    icon: 'arrow-growth',
+    title: 'Create Segments',
+    desc: 'Create segments for your desired target groups and engage your contacts in ways that are meaningful to them.',
+    url: '/segments/new?contentType=contacts:customer',
+    action: 'subSegmentCreate'
+  },
+  {
+    id: 11,
+    icon: 'circular',
+    title: 'Implement Operational Automations',
+    desc: 'The automation plugin allows users to automate repetitive tasks by setting triggers and creating actions if the trigger conditions are met.',
+    url: '/automations',
+    action: 'automationCreate'
+  },
+  {
+    id: 12,
+    icon: 'megaphone',
+    title: 'Launch Broadcast Campaigns',
+    desc: 'The campaign plugin allows the user to automatically send out Emails, Messages and SMS which will grow your brand.',
+    url: '/campaigns/create',
+    action: 'setCampaignLive'
+  }
+];

@@ -215,6 +215,15 @@ const knowledgeBaseMutations = {
       user
     );
 
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'knowledgeBaseArticleCreate',
+        user
+      }
+    });
+
     const topic = await models.KnowledgeBaseTopics.findOne({
       _id: kbArticle.topicId
     });
@@ -235,7 +244,7 @@ const knowledgeBaseMutations = {
         data: {
           title: doc.title,
           body: stripHtml(doc.content),
-          receivers: userIds.filter(userId => userId !== user._id),
+          receivers: userIds.filter((userId) => userId !== user._id),
           data: {
             type: "knowledge",
             id: kbArticle._id

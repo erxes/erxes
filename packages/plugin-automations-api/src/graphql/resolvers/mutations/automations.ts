@@ -5,7 +5,7 @@ import {
 } from '../../../models/definitions/automaions';
 import { INote } from '../../../models/definitions/notes';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { sendSegmentsMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendSegmentsMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 import { STATUSES } from '../../../constants';
 
@@ -42,6 +42,15 @@ const automationMutations = {
       },
       user
     );
+
+    await sendCoreMessage({
+      subdomain,
+      action: 'registerOnboardHistory',
+      data: {
+        type: 'automationCreate',
+        user
+      }
+    });
 
     return models.Automations.getAutomation(automation._id);
   },
@@ -158,7 +167,7 @@ const automationMutations = {
     const automationDoc: IAutomationDoc = {
       ...automation,
       status: 'template',
-      name: automation.name += ' from template',
+      name: (automation.name += ' from template'),
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id
