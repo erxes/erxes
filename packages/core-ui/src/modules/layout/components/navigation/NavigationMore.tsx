@@ -75,7 +75,7 @@ export default class NavigationMore extends React.Component<Props, State> {
     );
     const searchedPlugins = otherPlugins.filter((plugin: Plugin) => {
       if (target.value !== "") {
-        return plugin.text!.toLowerCase().includes(target.value.toLowerCase());
+        return plugin.text.toLowerCase().includes(target.value.toLowerCase());
       } else return;
     });
 

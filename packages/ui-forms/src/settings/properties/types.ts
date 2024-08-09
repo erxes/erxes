@@ -21,6 +21,7 @@ export type FieldsCombinedByType = {
   group?: string;
   options?: string[];
   title?: string;
+  disabled?: boolean;
   value?: string;
   validation?: string;
 };

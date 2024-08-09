@@ -5,18 +5,17 @@ import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import Form from '../components/Form';
 import { mutations } from '../graphql';
+import { ImportHistoryCreateMutationResponse } from '../../types';
 
 type Props = {
   contentType: string;
 };
 
-type State = {};
-
 type FinalProps = {
-  importHistoriesCreate: any;
-} & Props;
+  importHistoriesCreate: ImportHistoryCreateMutationResponse;
+} & Props & ImportHistoryCreateMutationResponse;
 
-class FormContainer extends React.Component<FinalProps, State> {
+class FormContainer extends React.Component<FinalProps> {
   render() {
     const { importHistoriesCreate } = this.props;
 

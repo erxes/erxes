@@ -1,13 +1,30 @@
 import { ISubSegment } from '@erxes/ui-segments/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 import { IUser } from 'modules/auth/types';
-import { IAttachment } from 'modules/common/types';
+import { IAttachment } from '@erxes/ui/src/types';
 
 export interface IContentType {
   text: string;
   contentType: string;
   icon: string;
   skipFilter: boolean;
+}
+
+export interface IColumnWithChosenField {
+  [key: string]: {
+    [key: string]: {
+      value: string
+    }
+  }[]
+}
+
+export interface IImportCreate {
+  contentTypes?: IContentType[];
+  files?: IAttachment;
+  columnsConfig?: IColumnWithChosenField;
+  importName?: string;
+  associatedContentType?: string;
+  associatedField?: string;
 }
 
 export interface IImportHistory {
@@ -37,6 +54,10 @@ export interface IImportHistoryContentType {
   type: 'core' | 'plugin';
   contentType: string;
   icon: string;
+}
+
+export interface IImportColumn {
+  [key: string]: string[]
 }
 
 export interface IExportHistory {
@@ -96,6 +117,17 @@ export type ImportHistoriesQueryResponse = {
   stopPolling: () => any;
 } & QueryResponse;
 
+export type ImportHistoryGetColumnsQueryResponse = {
+  importHistoryGetColumns: IImportColumn;
+} & QueryResponse;
+
+export type ImportHistoryDetailQueryResponse = {
+  importHistoryDetail: IImportHistory;
+  subscribeToMore: any;
+  error: any;
+  stopPolling: () => any;
+} & QueryResponse;
+
 export type FieldsCombinedByContentTypeQueryResponse = {
   fieldsCombinedByContentType: IExportField[];
 } & QueryResponse;
@@ -105,11 +137,8 @@ export type ExportHistoriesQueryResponse = {
   stopPolling: () => any;
 } & QueryResponse;
 
-export type ImportHistoryDetailQueryResponse = {
-  importHistoryDetail: IImportHistory;
-  subscribeToMore: any;
-  error: any;
-  stopPolling: () => any;
+export type HistoryGetTypesQueryResponse = {
+  historyGetTypes: IContentType[];
 } & QueryResponse;
 
 export type ExportHistoryDetailQueryResponse = {
@@ -124,6 +153,12 @@ export type ExportHistoryDetailQueryResponse = {
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
     variables: { _id: string; contentType: string };
+  }) => Promise<any>;
+};
+
+export type ImportHistoryCreateMutationResponse = {
+  importHistoriesCreate: (params: {
+    variables: { doc: IImportCreate };
   }) => Promise<any>;
 };
 

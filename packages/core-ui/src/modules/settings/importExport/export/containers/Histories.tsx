@@ -3,7 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 
 import { AppConsumer } from "appContext";
 import ExportHistories from "../components/Histories";
-import { ExportHistoriesQueryResponse } from "../../types";
+import { ExportHistoriesQueryResponse, IExportHistoryItem } from "../../types";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { generatePaginationParams } from "modules/common/utils/router";
 import { queries } from "../graphql";
@@ -29,9 +29,10 @@ const HistoriesContainer = (props: Props) => {
       pollInterval: 3000,
     }
   );
+
   const histories = historiesQuery.data
     ? historiesQuery.data.exportHistories
-    : ({} as any);
+    : ({} as IExportHistoryItem);
   const list = histories.list || [];
 
   if (historiesQuery.loading) {
