@@ -17,3 +17,9 @@ export type SideBarItem = {
   url: string;
   text: string;
 };
+
+export type IEmailConfig = {
+  email: string;
+  type: string;
+  template: string;
+}

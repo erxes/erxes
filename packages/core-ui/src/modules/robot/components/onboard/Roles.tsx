@@ -56,7 +56,7 @@ class Roles extends React.Component<Props, State> {
   }
 
   onChange = (key: string, value: IRoleValue) => {
-    this.setState({ [key]: value } as any);
+    this.setState((prevState) => ({ ...prevState, [key]: value }));
     if (key === "selectedRole") {
       this.props.getRoleOptions(value);
       if (key && value) {

@@ -1,17 +1,17 @@
 import { Box, ImportHeader, TypeContent } from "../../styles";
 
 import { FlexPad } from "modules/common/components/step/styles";
-import { IImportHistoryContentType } from "../../types";
+import { IContentType } from "../../types";
 import Icon from "modules/common/components/Icon";
 import React from "react";
 import { __ } from "modules/common/utils";
 
 type Props = {
-  onChangeContentType: (value: IImportHistoryContentType) => void;
+  onChangeContentType: (value: IContentType) => void;
   contentType: string;
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IContentType[];
   type: string;
-  typeOptions: any[];
+  typeOptions: IContentType[];
 };
 
 class TypeForm extends React.Component<Props> {

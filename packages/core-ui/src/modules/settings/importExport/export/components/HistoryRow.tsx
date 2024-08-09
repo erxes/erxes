@@ -10,9 +10,10 @@ import {
 } from 'modules/settings/importExport/styles';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
+import { IExportHistory } from "../../types";
 
 type Props = {
-  history?: any;
+  history: IExportHistory;
 };
 
 const { REACT_APP_API_URL } = getEnv();

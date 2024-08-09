@@ -1,12 +1,12 @@
-import { Plugin, ChildPlugin } from './types';
+import { Plugin, ChildPlugin, PluginConfig } from './types';
 
 export const getLink = (url: string): string => {
   const storageValue = window.localStorage.getItem('pagination:perPage');
 
-  let parsedStorageValue: any;
+  let parsedStorageValue: Record<string, number>;
 
   try {
-    parsedStorageValue = JSON.parse(storageValue || '');
+    parsedStorageValue = JSON.parse(storageValue || '') as Record<string, number>;
   } catch {
     parsedStorageValue = {};
   }
@@ -28,10 +28,12 @@ export const getLink = (url: string): string => {
 };
 
 export const pluginNavigations = (): any[] => {
-  const plugins: any[] = (window as any).plugins || [];
+  const plugins: PluginConfig[] = (window as any).plugins || [];
   const navigationMenus: any[] = [];
   const childMenus: any[] = [];
-
+// console.log('plugins', plugins)
+// console.log('navigationMenus', navigationMenus)
+// console.log('childMenus', childMenus)
   for (const plugin of plugins) {
     for (const menu of plugin.menus || []) {
       if (menu.location === 'settings') {
@@ -61,7 +63,7 @@ export const getChildren = (plugin: Plugin): ChildPlugin[] => {
     children.filter((child: ChildPlugin) => {
       if (
         (name && child.scope !== name) ||
-        (name === 'inbox' && !url.includes(child.scope)) ||
+        (name === 'inbox' && !(url || '').includes(child.scope)) ||
         (child.scope === 'cards' &&
           !child.text.toLowerCase().includes(text.toLowerCase()))
       )

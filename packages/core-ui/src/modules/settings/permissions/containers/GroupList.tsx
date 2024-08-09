@@ -14,7 +14,7 @@ import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const commonOptions = () => ({

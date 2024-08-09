@@ -5,11 +5,11 @@ import Sidebar from "../components/SideBar";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { queries } from "../graphql";
 import { router } from "modules/common/utils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Location } from "react-router-dom";
 
 type Props = {
   currentType: string;
-  location: any;
+  location: Location;
   mainType: string;
 };
 

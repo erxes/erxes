@@ -1,5 +1,5 @@
 import { FieldStyle, SidebarList } from "@erxes/ui/src/layout/styles";
-import { __, router } from "coreui/utils";
+import { __, router } from "@erxes/ui/src/utils";
 
 import Box from "@erxes/ui/src/components/Box";
 import Button from "@erxes/ui/src/components/Button";
@@ -15,7 +15,7 @@ interface IProps {
   loading: boolean;
   loadMore: () => void;
   all: number;
-  queryParams: any;
+  queryParams: Record<string, string>;
 }
 
 function Users({ users = [], loading, loadMore, all, queryParams }: IProps) {
@@ -104,7 +104,7 @@ function Users({ users = [], loading, loadMore, all, queryParams }: IProps) {
     <Box
       title={__("Filter by User")}
       name="showFilterByUser"
-      isOpen={queryParams.userId}
+      isOpen={queryParams.userId ? true : false}
     >
       <CustomPadding>
         <FormControl

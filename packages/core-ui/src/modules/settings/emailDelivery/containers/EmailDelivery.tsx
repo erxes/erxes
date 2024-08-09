@@ -9,7 +9,7 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 export const EMAIL_TYPES = {
@@ -27,7 +27,7 @@ function EmailDeliveryContainer(props: Props) {
   );
 
   const [status, setStatus] = React.useState(
-    queryParams.emailType === EMAIL_TYPES.ENGAGE && queryParams.status
+    queryParams.emailType === EMAIL_TYPES.ENGAGE ? queryParams.status : ''
   );
 
   React.useEffect(() => {

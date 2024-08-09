@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { SidebarList as List } from "modules/layout/styles";
 import React from "react";
 import { __ } from "modules/common/utils";
+import { IContentType } from "../../types";
 
 type Props = {
   currentType?: string;
-  services: any[];
+  services: IContentType[];
 };
 
 class Sidebar extends React.Component<Props> {
@@ -20,7 +21,7 @@ class Sidebar extends React.Component<Props> {
     );
   };
 
-  renderListItem(service: any) {
+  renderListItem(service: IContentType) {
     const { contentType, text } = service;
     const { currentType } = this.props;
 

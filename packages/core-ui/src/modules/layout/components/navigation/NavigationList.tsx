@@ -79,7 +79,7 @@ export default class NavigationList extends React.Component<Props, State> {
           <Route path="/" key="root" element={index()} />
         </Routes>
         <Nav id="navigation">
-          {CORE_PLUGINS.map((plugin: any, i: number) => (
+          {CORE_PLUGINS.map((plugin: Plugin, i: number) => (
             <NavigationItem
               key={i}
               plugin={plugin}
@@ -90,7 +90,7 @@ export default class NavigationList extends React.Component<Props, State> {
             />
           ))}
 
-          {plugins.map((plugin: any, i: number) => (
+          {plugins.map((plugin: Plugin, i: number) => (
             <NavigationItem
               key={i}
               plugin={plugin}

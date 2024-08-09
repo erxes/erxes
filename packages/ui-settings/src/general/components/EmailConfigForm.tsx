@@ -10,9 +10,10 @@ import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor"
 import { __ } from "@erxes/ui/src/utils";
 import { queries } from "../graphql";
 import styled from "styled-components";
+import { IEmailConfig } from "../types";
 
 type Props = {
-  emailConfig: any;
+  emailConfig: IEmailConfig;
   setEmailConfig: (emailConfig: any) => void;
   emailText: string;
   templateName?: string;

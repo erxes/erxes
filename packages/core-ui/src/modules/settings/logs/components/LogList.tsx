@@ -15,7 +15,7 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
   isLoading: boolean;
   errorMessage: string;
 } & commonProps;

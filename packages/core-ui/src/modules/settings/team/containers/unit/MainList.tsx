@@ -13,8 +13,7 @@ import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
-  queryParams: any;
-  history: any;
+  queryParams: Record<string, string>;
 };
 
 type FinalProps = {

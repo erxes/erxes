@@ -1,10 +1,4 @@
-import {
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
@@ -65,26 +59,23 @@ const TeamComponent = () => {
 
 const BranchesComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Branches queryParams={queryParams} history={navigate} />;
+  return <Branches queryParams={queryParams} />;
 };
 
 const DepartmentsComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Departments queryParams={queryParams} history={navigate} />;
+  return <Departments queryParams={queryParams} />;
 };
 
 const UnitsComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <Units queryParams={queryParams} history={navigate} />;
+  return <Units queryParams={queryParams} />;
 };
 
 const UserDetailComponent = () => {

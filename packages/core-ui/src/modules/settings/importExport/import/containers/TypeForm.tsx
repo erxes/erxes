@@ -1,15 +1,15 @@
 import Spinner from "@erxes/ui/src/components/Spinner";
 import { gql } from "@apollo/client";
 import React from "react";
-import { IImportHistoryContentType } from "../../types";
+import { IContentType, } from "../../types";
 import TypeForm from "../components/TypeForm";
 import { queries } from "../../common/graphql";
 import { useQuery } from "@apollo/client";
 
 type Props = {
-  onChangeContentType: (value: IImportHistoryContentType) => void;
+  onChangeContentType: (value: IContentType) => void;
   contentType: string;
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IContentType[];
   type: string;
 };
 

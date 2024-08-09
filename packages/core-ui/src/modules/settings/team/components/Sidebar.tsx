@@ -8,7 +8,7 @@ export default function LeftSidebar({
   queryParams
 }: {
   loadingMainQuery: boolean;
-  queryParams: string;
+  queryParams: Record<string, string>;
 }) {
   return (
     <Sidebar hasBorder={true}>

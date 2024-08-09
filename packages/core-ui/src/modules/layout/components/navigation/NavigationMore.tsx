@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import {
   NavItem,
@@ -8,15 +8,15 @@ import {
   MoreMenuWrapper,
   MoreTitle,
   MoreSearch,
-} from '../../styles';
+} from "../../styles";
 
-import Icon from 'modules/common/components/Icon';
-import FormControl from 'modules/common/components/form/Control';
+import Icon from "modules/common/components/Icon";
+import FormControl from "modules/common/components/form/Control";
 
-import NavigationMoreItem from './NavigationMoreItem';
+import NavigationMoreItem from "./NavigationMoreItem";
 
-import { Plugin } from './types';
-import { pluginNavigations, filterPlugins } from './utils';
+import { Plugin } from "./types";
+import { pluginNavigations, filterPlugins } from "./utils";
 
 type Props = {
   navCollapse: number;
@@ -34,51 +34,53 @@ type State = {
 };
 
 export default class NavigationMore extends React.Component<Props, State> {
-  wrapperRef: any;
+  wrapperRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      searchText: '',
+      searchText: "",
       searchedPlugins: [],
     };
     this.wrapperRef = React.createRef();
   }
 
   componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside);
+    document.addEventListener("mousedown", this.handleClickOutside);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside);
+    document.removeEventListener("mousedown", this.handleClickOutside);
   }
 
-  handleClickOutside = (event: any): void => {
+  handleClickOutside = (event: MouseEvent): void => {
     if (
       this.wrapperRef &&
-      !this.wrapperRef.current.contains(event.target) &&
-      this.props.clickedMenu === 'more'
+      this.wrapperRef.current &&
+      !this.wrapperRef.current.contains(event.target as Node) &&
+      this.props.clickedMenu === "more"
     ) {
-      this.props.toggleMenu('');
+      this.props.toggleMenu("");
     }
   };
 
-  handleSearch = (event: any): void => {
+  handleSearch = (
+    event: React.FormEvent<HTMLElement> | React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const target = event.target as HTMLInputElement;
     const otherPlugins: Plugin[] = filterPlugins(
       pluginNavigations(),
-      this.props.pinnedPlugins,
+      this.props.pinnedPlugins
     );
     const searchedPlugins = otherPlugins.filter((plugin: Plugin) => {
-      if (event.target.value !== '')
-        return plugin
-          .text!.toLowerCase()
-          .includes(event.target.value.toLowerCase());
-      else return;
+      if (target.value !== "") {
+        return plugin.text.toLowerCase().includes(target.value.toLowerCase());
+      } else return;
     });
 
     this.setState({
-      searchText: event.target.value,
+      searchText: target.value,
       searchedPlugins: searchedPlugins,
     });
   };
@@ -91,8 +93,8 @@ export default class NavigationMore extends React.Component<Props, State> {
   handleUnpin = (plugin: Plugin): void => {
     this.props.updatePinnedPlugins(
       this.props.pinnedPlugins.filter(
-        (item: Plugin) => item.text !== plugin.text,
-      ),
+        (item: Plugin) => item.text !== plugin.text
+      )
     );
   };
 
@@ -108,10 +110,10 @@ export default class NavigationMore extends React.Component<Props, State> {
 
     const { searchText, searchedPlugins } = this.state;
 
-    const text = navCollapse === 3 ? 'More plugins' : 'More';
+    const text = navCollapse === 3 ? "More plugins" : "More";
 
     const otherPlugins =
-      searchText !== ''
+      searchText !== ""
         ? searchedPlugins
         : pinnedPlugins.length === 0
           ? pluginNavigations().slice(countOfPinnedPlugins)
@@ -142,13 +144,13 @@ export default class NavigationMore extends React.Component<Props, State> {
       <div ref={this.wrapperRef}>
         <NavItem className={`more-${navCollapse}`}>
           <NavMenuItem $navCollapse={navCollapse}>
-            <a onClick={() => toggleMenu('more')}>
+            <a onClick={() => toggleMenu("more")}>
               <NavIcon className="icon-ellipsis-h" />
               {navCollapse !== 1 && <label>{text}</label>}
             </a>
           </NavMenuItem>
           <MoreMenuWrapper
-            $visible={showMenu && clickedMenu === 'more'}
+            $visible={showMenu && clickedMenu === "more"}
             $navCollapse={this.props.navCollapse}
           >
             <MoreSearch>
@@ -160,7 +162,7 @@ export default class NavigationMore extends React.Component<Props, State> {
                 onChange={this.handleSearch}
               />
             </MoreSearch>
-            {pinnedPlugins.length !== 0 && searchText === '' && (
+            {pinnedPlugins.length !== 0 && searchText === "" && (
               <PinnedPluginsElement />
             )}
             <MoreTitle>Other added plugins</MoreTitle>

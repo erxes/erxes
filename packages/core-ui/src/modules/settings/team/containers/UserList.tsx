@@ -67,7 +67,11 @@ class UserListContainer extends React.Component<Props> {
   }
 }
 
-export const options = ({ queryParams }: { queryParams: any }): any => {
+export const options = ({
+  queryParams,
+}: {
+  queryParams: Record<string, string>;
+}): any => {
   return {
     variables: {
       ...generatePaginationParams(queryParams),
@@ -84,7 +88,7 @@ export const options = ({ queryParams }: { queryParams: any }): any => {
   };
 };
 
-export default commonListComposer<{ queryParams: any; history: any }>({
+export default commonListComposer<{ queryParams: Record<string, string> }>({
   text: "team member",
   label: "users",
   stringAddMutation: mutations.usersInvite,

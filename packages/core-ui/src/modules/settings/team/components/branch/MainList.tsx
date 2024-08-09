@@ -27,7 +27,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   listQuery: BranchesMainQueryResponse;
   deleteBranches: (ids: string[], callback: () => void) => void;
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const MainList = (props: Props) => {

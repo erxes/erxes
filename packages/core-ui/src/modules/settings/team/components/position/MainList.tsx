@@ -30,7 +30,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   listQuery: PositionsMainQueryResponse;
   deletePositions: (ids: string[], callback: () => void) => void;
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const MainList = (props: Props) => {

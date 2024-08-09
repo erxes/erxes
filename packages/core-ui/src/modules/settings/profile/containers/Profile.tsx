@@ -11,7 +11,7 @@ import EditProfileForm from '../components/EditProfileForm';
 import { EditProfileMutationResponse } from '../types';
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 const Profile = (

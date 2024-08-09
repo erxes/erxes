@@ -14,9 +14,10 @@ import Row from "./Row";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { FlexRow } from "@erxes/ui-settings/src/styles";
 import { useLocation, useNavigate } from "react-router-dom";
+import { EmailDeliveryItem } from "@erxes/ui-engage/src/types";
 
 type Props = {
-  list: any;
+  list: EmailDeliveryItem[];
   searchValue?: string;
   loading: boolean;
   count: number;

@@ -2,7 +2,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const EmailDeliveryList = asyncComponent(
   () =>
@@ -13,10 +13,9 @@ const EmailDeliveryList = asyncComponent(
 
 const EmailDeliveryListComponent = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  return <EmailDeliveryList queryParams={queryParams} history={navigate} />;
+  return <EmailDeliveryList queryParams={queryParams} />;
 };
 
 const routes = () => (

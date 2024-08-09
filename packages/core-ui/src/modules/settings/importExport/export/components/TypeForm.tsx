@@ -3,11 +3,12 @@ import { __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import { Box, TypeContent, ImportHeader } from '../../styles';
+import { IContentType } from '../../types';
 
 type Props = {
   onChangeContentType: (contentType: string, skipFilter: boolean) => void;
   contentType: string;
-  typeOptions: any[];
+  typeOptions: IContentType[];
 };
 
 class TypeForm extends React.Component<Props> {

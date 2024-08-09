@@ -8,9 +8,10 @@ import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphq
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
 import QuickNavigation from '../components/QuickNavigation';
+import { GetEnvQueryResponse } from '../components/navigation/types';
 
 type Props = {
-  getEnvQuery: any;
+  getEnvQuery: GetEnvQueryResponse;
   currentUser: IUser;
 };
 
@@ -65,7 +66,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
   render() {
     const { getEnvQuery, currentUser } = this.props;
     const config = getEnvQuery?.configsGetEnv || {};
-
+console.log("getEnvQuery", getEnvQuery)
     return (
       <QuickNavigation
         showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}

@@ -6,12 +6,14 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "modules/common/utils";
 import Select from "react-select";
 import dayjs from "dayjs";
+import { IColumnWithChosenField, IImportColumn } from "../../types";
+import { FieldsCombinedByType } from "@erxes/ui-forms/src/settings/properties/types";
 
 type Props = {
-  columns: any[];
+  columns: IImportColumn;
   column: string;
-  fields: any[];
-  columnWithChosenField: any;
+  fields: FieldsCombinedByType[];
+  columnWithChosenField: IColumnWithChosenField;
   onChangeColumn: (column, value, contentType, columns) => void;
   contentType: string;
 };
@@ -60,17 +62,19 @@ class Row extends React.Component<Props, State> {
       );
 
       for (const sample of sampleDatas) {
-        if (chosenField.type === "date") {
-          if (!dayjs(sample).isValid()) {
-            matched = false;
+        if(chosenField) {
+          if (chosenField.type === "date") {
+            if (!dayjs(sample).isValid()) {
+              matched = false;
+            }
           }
-        }
-
-        if (chosenField.label && chosenField.label.includes("Email")) {
-          const re = /\S+@\S+\.\S+/;
-
-          if (!re.test(sample)) {
-            matched = false;
+  
+          if (chosenField.label && chosenField.label.includes("Email")) {
+            const re = /\S+@\S+\.\S+/;
+  
+            if (!re.test(sample)) {
+              matched = false;
+            }
           }
         }
       }

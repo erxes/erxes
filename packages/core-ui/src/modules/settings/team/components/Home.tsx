@@ -21,8 +21,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
 
 type Props = {
-  queryParams: any;
-  history: any;
+  queryParams: Record<string, string>;
   configsEnvQuery: any;
   loading: boolean;
   usersGroups: IUserGroup[];
@@ -34,7 +33,6 @@ export default function Home(props: Props) {
   let timer;
   const {
     queryParams,
-    history,
     loading,
     configsEnvQuery = {},
     totalCount,
@@ -179,7 +177,7 @@ export default function Home(props: Props) {
         <Sidebar loadingMainQuery={loading} queryParams={queryParams} />
       }
       actionBar={actionBar}
-      content={<UserList history={history} queryParams={queryParams} />}
+      content={<UserList queryParams={queryParams} />}
       transparent={true}
       footer={<Pagination count={totalCount} />}
       hasBorder={true}

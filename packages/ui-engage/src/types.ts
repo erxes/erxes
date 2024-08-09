@@ -291,3 +291,27 @@ export type EngageLogsQueryResponse = {
   engageLogs: IEngageLog[];
   fetchMore: any;
 } & QueryResponse;
+
+export type EmailDeliveryItem = {
+  _id: string;
+  subject?: string;
+  status?: string;
+  body?: string;
+  to?: string[];
+  cc?: string[];
+  bcc?: string[];
+  attachments: JSON[];
+  from?: string;
+  kind?: string;
+  userId?: string;
+  customerId?: string;
+  createdAt?: Date;
+  fromUser?: IUser;
+  fromEmail?: string;
+  customerName?: string;
+  email?: string;
+  engage?: {
+    _id: string;
+    title: string;
+  }
+}

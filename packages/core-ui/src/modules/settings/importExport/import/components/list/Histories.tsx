@@ -6,7 +6,7 @@ import EmptyContent from "modules/common/components/empty/EmptyContent";
 import HeaderDescription from "modules/common/components/HeaderDescription";
 import HistoryRow from "./HistoryRow";
 import { IImportHistory } from "../../../types";
-import { Link } from "react-router-dom";
+import { Link, Location } from "react-router-dom";
 import Pagination from "modules/common/components/pagination/Pagination";
 import React from "react";
 import Sidebar from "../../../common/containers/SideBar";
@@ -16,8 +16,8 @@ import Wrapper from "modules/layout/components/Wrapper";
 import { __ } from "modules/common/utils";
 
 type Props = {
-  queryParams: any;
-  location: any;
+  queryParams: Record<string, string>;
+  location: Location;
   histories: IImportHistory[];
   loading: boolean;
   totalCount: number;

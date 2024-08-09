@@ -1,4 +1,4 @@
-import { __, router } from "coreui/utils";
+import { __, router } from "@erxes/ui/src/utils";
 import React from "react";
 import dayjs from "dayjs";
 import { DateContainer } from "@erxes/ui/src/styles/main";
@@ -10,7 +10,7 @@ import { CustomRangeContainer, FilterContainer } from "../../styles";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
 };
 
 function DateFilter({ queryParams }: Props) {
@@ -29,38 +29,30 @@ function DateFilter({ queryParams }: Props) {
     <Box
       title={__("Filter by Date")}
       name="showFilterByDate"
-      isOpen={queryParams.startDate || queryParams.endDate}
+      isOpen={queryParams.startDate || queryParams.endDate ? true : false}
     >
       <FilterContainer>
         <ControlLabel>{`Created Date range:`}</ControlLabel>
         <CustomRangeContainer>
           <DateContainer>
             <Datetime
-              inputProps={{ placeholder: __("Start Date") }}
-              dateFormat="YYYY-MM-DD"
+              dateFormat="yyyy-MM-dd"
+              placeholder="Start Date"
               timeFormat="HH:mm"
               value={queryParams.startDate || ""}
-              closeOnSelect={true}
-              utc={true}
-              input={true}
-              onChange={onChangeRangeFilter.bind(this, "startDate")}
-              viewMode={"days"}
-              className={"filterDate"}
+              onChange={(e) => onChangeRangeFilter("startDate", e)}
+              className={"filterDate form-control"}
             />
           </DateContainer>
           <EndDateContainer>
             <DateContainer>
               <Datetime
-                inputProps={{ placeholder: __("End Date") }}
-                dateFormat="YYYY-MM-DD"
+                placeholder="End Date"
+                dateFormat="yyyy-MM-dd"
                 timeFormat="HH:mm"
                 value={queryParams.endDate || ""}
-                closeOnSelect={true}
-                utc={true}
-                input={true}
-                onChange={onChangeRangeFilter.bind(this, "endDate")}
-                viewMode={"days"}
-                className={"filterDate"}
+                onChange={(e) => onChangeRangeFilter("endDate", e)}
+                className={"filterDate form-control"}
               />
             </DateContainer>
           </EndDateContainer>

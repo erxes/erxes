@@ -12,7 +12,7 @@ import { queries } from '@erxes/ui/src/team/graphql';
 import { useQuery } from '@apollo/client';
 
 type Props = {
-  queryParams: string;
+  queryParams: Record<string, string>;
   queryType: string;
   title: string;
 };

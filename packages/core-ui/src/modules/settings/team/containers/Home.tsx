@@ -11,8 +11,7 @@ import { queries as permissionQueries } from '@erxes/ui-settings/src/permissions
 import { useQuery } from '@apollo/client';
 
 type Props = {
-  queryParams: any;
-  history: any;
+  queryParams: Record<string, string>;
 };
 
 function HomeContainer(props: Props) {

@@ -14,14 +14,15 @@ import Row from "./Row";
 import Sidebar from "./Sidebar";
 import Table from "@erxes/ui/src/components/table";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { NavigateFunction, Location } from "react-router-dom";
 
 type Props = {
   types: any[];
   tags: ITag[];
   tagType: string;
-  location: any;
-  navigate: any;
-  queryParams?: any;
+  location: Location;
+  navigate: NavigateFunction;
+  queryParams?: Record<string, string>;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   remove: (tag: ITag) => void;
   merge: (sourceId: string, destId: string, callback) => void;
@@ -42,7 +43,9 @@ function List({
   total,
   queryParams,
 }: Props) {
-  const [searchValue, setSearchValue] = React.useState(queryParams.searchValue);
+  const [searchValue, setSearchValue] = React.useState(
+    queryParams && queryParams.searchValue
+  );
   const contentType = (tagType || "").split(":")[1];
 
   const trigger = (

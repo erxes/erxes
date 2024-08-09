@@ -6,24 +6,22 @@ import Spinner from 'modules/common/components/Spinner';
 import { withProps, __ } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from '@apollo/client/react/hoc';
-import { IImportHistoryContentType } from '../../types';
+import { IContentType } from '../../types';
 import AccociateForm from '../components/AccociateForm';
 import { queries } from '../graphql';
 
 type Props = {
   attachmentNames: string[];
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IContentType[];
   onChangeAssociateHeader: (value: string) => void;
   onChangeAssociateContentType: (value: string) => void;
 };
-
-type State = {};
 
 type FinalProps = {
   importHistoryGetDuplicatedHeaders: any;
 } & Props;
 
-class AccociateFormContainer extends React.Component<FinalProps, State> {
+class AccociateFormContainer extends React.Component<FinalProps> {
   render() {
     const { importHistoryGetDuplicatedHeaders } = this.props;
 
