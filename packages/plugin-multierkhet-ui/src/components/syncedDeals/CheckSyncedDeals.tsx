@@ -72,17 +72,6 @@ const CheckSyncedDeals = (props: Props) => {
   const onChange = () => {
     toggleAll(deals, "deals");
   };
-
-  const checkSynced = async (deals) => {
-    const dealIds: string[] = [];
-
-    deals.forEach((deal) => {
-      dealIds.push(deal._id);
-    });
-
-    await props.checkSynced({ dealIds }, emptyBulk);
-  };
-
   const tablehead = [
     "deal name",
     "deal number",

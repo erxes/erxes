@@ -31,12 +31,6 @@ const SyncHistoryList = (props: IProps) => {
   let timer: undefined;
   const { syncHistories, totalCount, loading, queryParams } = props;
 
-  const moveCursorAtTheEnd = (e) => {
-    const tmpValue = e.target.value;
-    e.target.value = "";
-    e.target.value = tmpValue;
-  };
-
   const rowContent = (props, item) => {
     return <>{item.responseStr}</>;
   };
@@ -65,6 +59,7 @@ const SyncHistoryList = (props: IProps) => {
       <tbody id="orders">
         {(syncHistories || []).map((item) => (
           <ModalTrigger
+            key={item._id}
             title="Sync erkhet information"
             trigger={
               <tr key={item._id}>
@@ -75,7 +70,7 @@ const SyncHistoryList = (props: IProps) => {
                 <td>
                   {(item.responseStr || "").includes("timedout")
                     ? item.responseStr
-                    : "" ||
+                    :
                       `
                       ${item.responseData?.extra_info?.warnings || ""}
                       ${item.responseData?.message || ""}
