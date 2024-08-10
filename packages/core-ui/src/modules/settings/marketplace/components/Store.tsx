@@ -9,28 +9,29 @@ import {
   SearchInput,
   Services,
   StoreBlock,
-  Tag
-} from './styles';
+  Tag,
+} from "./styles";
 
-import { CATEGORIES } from '../constants';
-import EmptyState from 'modules/common/components/EmptyState';
-import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
-import Icon from 'modules/common/components/Icon';
-import PluginBox from './PluginBox';
-import React from 'react';
-import ServiceBox from './ServiceBox';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { __ } from 'modules/common/utils';
+import { CATEGORIES } from "../constants";
+import EmptyState from "modules/common/components/EmptyState";
+import { FlexRow } from "@erxes/ui/src/components/filterableList/styles";
+import Icon from "modules/common/components/Icon";
+import PluginBox from "./PluginBox";
+import React from "react";
+import ServiceBox from "./ServiceBox";
+import Wrapper from "modules/layout/components/Wrapper";
+import { __ } from "modules/common/utils";
+import { Plugin } from "../types";
 
 type Props = {
-  plugins: any;
+  plugins: Plugin[];
 };
 
 type State = {
   status: string;
   searchValue: string;
-  plugins: any;
-  selectedCategories: any[];
+  plugins: Plugin[];
+  selectedCategories: string[];
 };
 
 class Store extends React.Component<Props, State> {
@@ -39,9 +40,9 @@ class Store extends React.Component<Props, State> {
 
     this.state = {
       plugins: props.plugins || [],
-      status: 'All',
-      searchValue: '',
-      selectedCategories: []
+      status: "All",
+      searchValue: "",
+      selectedCategories: [],
     };
   }
 
@@ -51,8 +52,9 @@ class Store extends React.Component<Props, State> {
     if (prevState.searchValue !== searchValue) {
       this.setState({
         plugins: this.props.plugins.filter(
-          plugin => plugin.title.toLowerCase().indexOf(searchValue) !== -1
-        )
+          (plugin) =>
+            (plugin.title || "").toLowerCase().indexOf(searchValue) !== -1
+        ),
       });
     }
 
@@ -61,7 +63,7 @@ class Store extends React.Component<Props, State> {
     }
   }
 
-  onSearch = e => {
+  onSearch = (e) => {
     this.setState({ searchValue: e.target.value.toLowerCase() });
   };
 
@@ -69,13 +71,13 @@ class Store extends React.Component<Props, State> {
     this.setState({ status });
   };
 
-  handleCategory = (cat: any) => {
+  handleCategory = (cat: string) => {
     const { selectedCategories } = this.state;
 
-    let datas = [] as any;
+    let datas = [] as string[];
 
     if (selectedCategories.includes(cat)) {
-      datas = selectedCategories.filter(val => val !== cat);
+      datas = selectedCategories.filter((val) => val !== cat);
     } else {
       datas.push(...selectedCategories, cat);
     }
@@ -85,10 +87,10 @@ class Store extends React.Component<Props, State> {
 
   onFilterByCategories() {
     const { selectedCategories } = this.state;
-    let plugins = [];
+    let plugins = [] as Plugin[];
 
-    plugins = (this.props.plugins || []).filter(plugin => {
-      const categories = (plugin.categories || []).filter(cat =>
+    plugins = (this.props.plugins || []).filter((plugin) => {
+      const categories = (plugin.categories || []).filter((cat) =>
         selectedCategories.includes(cat)
       );
 
@@ -100,7 +102,7 @@ class Store extends React.Component<Props, State> {
     });
 
     this.setState({
-      plugins
+      plugins,
     });
   }
 
@@ -121,8 +123,8 @@ class Store extends React.Component<Props, State> {
     return plugins.map((plugin, index) => {
       if (
         !plugin ||
-        !(plugin.displayLocations || []).includes('os') ||
-        (plugin.mainType || '') === 'service'
+        !(plugin.displayLocations || []).includes("os") ||
+        (plugin.mainType || "") === "service"
       ) {
         return null;
       }
@@ -159,7 +161,7 @@ class Store extends React.Component<Props, State> {
     ));
   }
 
-  renderCategories(cat: any, index: number) {
+  renderCategories(cat: { value: string; label: string }, index: number) {
     const isActive = this.state.selectedCategories.includes(cat.value);
 
     return (
@@ -190,7 +192,7 @@ class Store extends React.Component<Props, State> {
                 <Icon icon="search" />
               </SearchIcon>
               <SearchInput
-                placeholder={__('Type to search for an results') + '...'}
+                placeholder={__("Type to search for an results") + "..."}
                 type="text"
                 onChange={this.onSearch}
               />
@@ -207,18 +209,18 @@ class Store extends React.Component<Props, State> {
         </FlexRow>
 
         <StoreBlock>
-          <h4>{__('Services')}</h4>
+          <h4>{__("Services")}</h4>
           <p>
             {__(
-              'Upgrade your plan with these premium services for expert help and guidance'
+              "Upgrade your plan with these premium services for expert help and guidance"
             )}
           </p>
           <Services>{this.renderServices()}</Services>
         </StoreBlock>
 
         <StoreBlock>
-          <h4>{__('Plugins')}</h4>
-          <p>{__('Customize and enhance your plugins limits')}</p>
+          <h4>{__("Plugins")}</h4>
+          <p>{__("Customize and enhance your plugins limits")}</p>
           <FlexWrapContainer>{this.renderPlugins()}</FlexWrapContainer>
         </StoreBlock>
       </Container>
@@ -230,8 +232,8 @@ class Store extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Marketplace')}
-            breadcrumb={[{ title: __('Marketplace') }]}
+            title={__("Marketplace")}
+            breadcrumb={[{ title: __("Marketplace") }]}
           />
         }
         content={this.renderContent()}

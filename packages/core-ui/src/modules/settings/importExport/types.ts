@@ -121,6 +121,12 @@ export type ImportHistoryGetColumnsQueryResponse = {
   importHistoryGetColumns: IImportColumn;
 } & QueryResponse;
 
+export type ImportHistoryGetDuplicatedHeadersQueryResponse = {
+  importHistoryGetDuplicatedHeaders: {
+    attachmentNames: string[];
+  };
+} & QueryResponse;
+
 export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
   subscribeToMore: any;
