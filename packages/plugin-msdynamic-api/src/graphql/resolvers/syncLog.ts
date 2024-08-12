@@ -23,7 +23,7 @@ export default {
     const { contentType, contentId } = syncLog;
 
     if (contentType === 'pos:order') {
-      return syncLog.consumeData.number || contentId;
+      return syncLog.consumeData?.number || syncLog.consumeData?.object?.number || contentId;
     }
 
     if (contentType === 'contacts:customer') {

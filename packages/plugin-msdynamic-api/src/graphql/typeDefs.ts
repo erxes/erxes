@@ -29,6 +29,17 @@ const types = `
     syncedBillNumber: String
     syncedCustomer: String
   }
+
+  type MsdCustomerRelation {
+    _id: String
+    brandId: String
+    customerId: String
+    modifiedAt: Date
+    no: String
+    response: JSON
+
+    brand: JSON
+  }
 `;
 
 const typeDefs = async () => {

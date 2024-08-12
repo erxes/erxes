@@ -12,7 +12,6 @@ type Props = {
   isChecked: boolean;
   isUnsynced: boolean;
   toggleBulk: (order: any, isChecked?: boolean) => void;
-  toSync: (orderIds: string[]) => void;
   toSend: (orderIds: string[]) => void;
   syncedInfo: any;
 };
@@ -24,7 +23,6 @@ const Row = (props: Props) => {
     isChecked,
     isUnsynced,
     syncedInfo,
-    toSync,
     toSend,
   } = props;
 
@@ -42,17 +40,12 @@ const Row = (props: Props) => {
     e.stopPropagation();
   };
 
-  const onClickSync = (e) => {
-    e.stopPropagation();
-    toSync([order._id]);
-  };
-
   const onClickSend = (e) => {
     e.stopPropagation();
     toSend([order._id]);
   };
 
-  const onTrClick = () => {};
+  const onTrClick = () => { };
 
   const { number, createdAt, totalAmount, paidDate } = order;
 
@@ -76,29 +69,14 @@ const Row = (props: Props) => {
       <td>{syncedInfo?.syncedBillNumber || ""}</td>
       <td>{syncedInfo?.syncedCustomer || ""}</td>
       <td>
-        {isUnsynced && (
-          <Tip text="Sync">
-            <Button btnStyle="link" onClick={onClickSync} icon="sync" />
-          </Tip>
-        )}
+        <Tip text="ReSend">
+          <Button
+            btnStyle="link"
+            onClick={onClickSend}
+            icon="sync-exclamation"
+          />
+        </Tip>
 
-        {isUnsynced === false && syncedInfo.syncedDate ? (
-          <Tip text="ReSync">
-            <Button
-              btnStyle="link"
-              onClick={onClickSync}
-              icon="sync-exclamation"
-            />
-          </Tip>
-        ) : (
-          <Tip text="ReSend">
-            <Button
-              btnStyle="link"
-              onClick={onClickSend}
-              icon="sync-exclamation"
-            />
-          </Tip>
-        )}
       </td>
     </tr>
   );

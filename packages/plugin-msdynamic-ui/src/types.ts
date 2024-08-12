@@ -121,12 +121,6 @@ export type PosListQueryResponse = {
   refetch: () => void;
 };
 
-export type ToSyncOrdersMutationResponse = {
-  toSyncMsdOrders: (mutation: {
-    variables: { orderIds: string[] };
-  }) => Promise<any>;
-};
-
 export type ToSendOrdersMutationResponse = {
   toSendMsdOrders: (mutation: {
     variables: { orderIds: string[] };
