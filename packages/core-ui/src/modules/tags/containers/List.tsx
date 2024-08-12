@@ -12,11 +12,12 @@ import { TagsQueryResponse } from "../types";
 import { __ } from "@erxes/ui/src/utils/core";
 import { generatePaginationParams } from "@erxes/ui/src/utils/router";
 import { gql } from "@apollo/client";
+import { NavigateFunction, Location } from 'react-router-dom';
 
 type Props = {
-  location: any;
-  navigate: any;
-  queryParams?: any;
+  location: Location;
+  navigate: NavigateFunction;
+  queryParams?: Record<string, string>;
 };
 
 const ListContainer = (props: Props) => {
@@ -25,16 +26,16 @@ const ListContainer = (props: Props) => {
   const tagsGetTypes = useQuery(gql(queries.tagsGetTypes));
   const tagsQuery = useQuery<TagsQueryResponse>(gql(queries.tags), {
     variables: {
-      type: queryParams.tagType,
-      searchValue: queryParams.searchValue,
-      ...generatePaginationParams(queryParams)
+      type: queryParams && queryParams.tagType,
+      searchValue: queryParams && queryParams.searchValue,
+      ...generatePaginationParams(queryParams || {})
     },
     fetchPolicy: "network-only"
   });
   const tagsQueryCount = useQuery(gql(queries.tagsQueryCount), {
     variables: {
-      type: queryParams.tagType,
-      searchValue: queryParams.searchValue
+      type: queryParams && queryParams.tagType,
+      searchValue: queryParams && queryParams.searchValue
     },
     fetchPolicy: "network-only"
   });
@@ -50,7 +51,7 @@ const ListContainer = (props: Props) => {
     return <Spinner />;
   }
 
-  const tagType = queryParams.tagType || "";
+  const tagType = (queryParams && queryParams.tagType) || "";
   const types = (tagsGetTypes.data && tagsGetTypes.data.tagsGetTypes) || [];
 
   if (types.length === 0) {

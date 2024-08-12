@@ -15,17 +15,18 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { __ } from 'modules/common/utils';
+import { Plugin, IPluginCreator } from '../../types';
 
 type Props = {
-  plugin: any;
-  plugins: any;
+  plugin: Plugin;
+  plugins: Plugin[];
 };
 
 export default class RightSidebar extends React.Component<Props> {
   renderCreator() {
     const { creator } = this.props.plugin || {};
     const { logo, address, description, email, name, phone } =
-      creator || ({} as any);
+      creator || ({} as IPluginCreator);
 
     return (
       <SidebarBox>
@@ -36,7 +37,7 @@ export default class RightSidebar extends React.Component<Props> {
           </MemberPic>
           <CardInformation>
             <b>{name || 'Erxes Inc'}</b>
-            <div dangerouslySetInnerHTML={{ __html: description }} />
+            <div dangerouslySetInnerHTML={{ __html: description || '' }} />
             <SmallText withMargin={true}>
               <b>{__('Address')}:</b>{' '}
               {address ||
@@ -117,7 +118,7 @@ export default class RightSidebar extends React.Component<Props> {
                   }
                   alt="dependency-plugin"
                 />
-                {__(dependency.title)}
+                {__(dependency.title || '')}
               </Addon>
             </Link>
           ))}
@@ -150,7 +151,7 @@ export default class RightSidebar extends React.Component<Props> {
                   }
                   alt="related-plugin"
                 />
-                {__(related.title)}
+                {__(related.title || '')}
               </Addon>
             </Link>
           ))}

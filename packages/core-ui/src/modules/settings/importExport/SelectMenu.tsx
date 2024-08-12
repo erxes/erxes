@@ -39,8 +39,6 @@ const Box = styled(BoxRoot)`
 type Props = {
   onChange: (name: "method", value: string) => void;
   method: string;
-  queryParams: any;
-  history: any;
   histories: IImportHistory[];
   loading: boolean;
   totalCount: number;

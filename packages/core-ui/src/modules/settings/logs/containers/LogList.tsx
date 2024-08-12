@@ -29,7 +29,7 @@ const List = (props: FinalProps) => {
 };
 
 type Props = {
-  queryParams: any;
+  queryParams: Record<string, string>;
   logsQuery: LogsQueryResponse;
 };
 

@@ -5,14 +5,14 @@ import {
 } from "@erxes/ui/src/components/form";
 import { FlexItem, FlexPad } from "modules/common/components/step/styles";
 
-import { IImportHistoryContentType } from "../../types";
+import { IContentType } from "../../types";
 import React from "react";
 import { SubHeading } from "@erxes/ui-settings/src/styles";
 import { __ } from "modules/common/utils";
 
 type Props = {
   duplicatedHeaders: string[];
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IContentType[];
   onChangeAssociateHeader: (value: string) => void;
   onChangeAssociateContentType: (value: string) => void;
 };
@@ -72,7 +72,7 @@ class AccociateForm extends React.Component<Props, {}> {
                     key={contentType.contentType}
                     value={contentType.contentType}
                   >
-                    {contentType}
+                    {contentType.contentType}
                   </option>
                 ))}
               </FormControl>

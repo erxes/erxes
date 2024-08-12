@@ -14,10 +14,11 @@ import Spinner from "@erxes/ui/src/components/Spinner";
 import { generatePaginationParams } from "modules/common/utils/router";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { Location } from 'react-router-dom';
 
 type Props = {
-  queryParams: any;
-  location: any;
+  queryParams: Record<string, string>;
+  location: Location;
   showLoadingBar: (isRemovingImport: boolean) => void;
   closeLoadingBar: () => void;
   isDoneIndicatorAction: boolean;

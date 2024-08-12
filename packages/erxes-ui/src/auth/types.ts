@@ -153,6 +153,10 @@ export type UsersQueryResponse = {
   users: IUser[];
 } & QueryResponse;
 
+export type UsersTotalCountQueryResponse = {
+  usersTotalCount: number;
+} & QueryResponse;
+
 export type UserDetailQueryResponse = {
   userDetail: IUser;
 } & QueryResponse;

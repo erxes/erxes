@@ -8,7 +8,7 @@ import { FlexItem, FlexPad } from "modules/common/components/step/styles";
 import { __ } from "modules/common/utils";
 
 import { IAttachment } from "modules/common/types";
-import { IImportHistoryContentType } from "../../types";
+import { IContentType } from "../../types";
 import React from "react";
 import Uploader from "@erxes/ui/src/components/Uploader";
 import { renderText } from "../../utils";
@@ -16,7 +16,7 @@ import ColumnChooser from "modules/forms/components/ColumnChooser";
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IContentType[];
   type: string;
 };
 

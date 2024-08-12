@@ -13,6 +13,7 @@ import { Title } from "@erxes/ui-settings/src/styles";
 import Wrapper from "modules/layout/components/Wrapper";
 import { __ } from "modules/common/utils";
 import styled from "styled-components";
+import { IUserGroup } from "@erxes/ui-settings/src/permissions/types";
 
 // due to token column containing too long value
 const FixedTable = styled(Table)`
@@ -30,7 +31,7 @@ type Props = {
   isLoading: boolean;
   count: number;
   errorMessage: string;
-  userGroups: any[];
+  userGroups: IUserGroup[];
   addApp: (doc: IAppParams) => void;
   editApp: (_id: string, doc: IAppParams) => void;
   removeApp: (_id: string) => void;
@@ -38,7 +39,7 @@ type Props = {
 
 export default function AppList(props: Props) {
   const renderObjects = () => {
-    const { apps, editApp, removeApp, userGroups } = props;
+    const { apps, editApp, removeApp } = props;
     const rows: JSX.Element[] = [];
 
     if (!apps) {
@@ -52,7 +53,6 @@ export default function AppList(props: Props) {
           app={app}
           removeApp={removeApp}
           editApp={editApp}
-          userGroups={userGroups}
         />
       );
     }
