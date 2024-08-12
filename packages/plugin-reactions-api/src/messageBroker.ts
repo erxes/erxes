@@ -26,7 +26,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Emojis.find(data).countDocuments(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -38,7 +38,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Emojis.find(data).countDocuments(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -48,9 +48,9 @@ export const setupMessageConsumers = async () => {
 
       return {
         status: 'success',
-        data: await models.Emojis.exists(data),
+        data: (await models.Emojis.countDocuments(data)) > 0 ? true : false,
       };
-    },
+    }
   );
 
   consumeRPCQueue('reactions:emojies.isLiked', async ({ subdomain, data }) => {
@@ -58,13 +58,13 @@ export const setupMessageConsumers = async () => {
 
     return {
       status: 'success',
-      data: await models.Emojis.exists(data),
+      data: (await models.Emojis.countDocuments(data)) > 0 ? true : false,
     };
   });
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
