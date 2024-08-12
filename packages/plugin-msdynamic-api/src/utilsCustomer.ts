@@ -93,7 +93,7 @@ const getSendDataCustomer = async (subdomain, customer, config) => {
 
   const sendData: any = {
     Name: getName(customer) || '',
-    Name_MN: getCompanyName && getCompanyName.name ? getCompanyName.name : '',
+    Name_MN: getCompanyName?.name || '',
     Phone_No: customer.primaryPhone || '',
     E_Mail: customer.primaryEmail || '',
     Mobile_Phone_No: customer.primaryPhone || '',
@@ -277,7 +277,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
   let customFieldData = [] as any;
   let updateCustomFieldData;
 
-  const brandIds = (company || {}).scopeBrandIds || [];
+  const brandIds = company?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {
@@ -397,7 +397,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
   let customFieldData = [] as any;
   let updateCustomFieldData;
 
-  const brandIds = (customer || {}).scopeBrandIds || [];
+  const brandIds = customer?.scopeBrandIds || [];
 
   if ((action === 'update' && doc.No) || action === 'create') {
     if (!brandIds.includes(config.brandId) && config.brandId !== 'noBrand') {

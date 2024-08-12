@@ -11,12 +11,12 @@ export default {
 
     try {
       if (data.customer) {
-        customerToDynamic(subdomain, data.customer, models);
+        await customerToDynamic(subdomain, data.customer, models);
         return;
       }
 
       if (data.company) {
-        customerToDynamic(subdomain, data.company, models);
+        await customerToDynamic(subdomain, data.company, models);
         return;
       }
     } catch (e) {

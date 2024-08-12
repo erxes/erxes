@@ -199,9 +199,9 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
     let postMethod = 'POST';
     const postHeaders = {
       'Content-Type': 'application/json',
-      Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-        'base64'
-      )}`,
+      Authorization: `Basic ${Buffer.from(
+        `${username}:${password}`
+      ).toString('base64')}`,
     };
 
     if (order?.customerId) {
@@ -281,12 +281,12 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
         let linePostMethod = 'POST'
         let linePostHeaders = {
           'Content-Type': 'application/json',
-          Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
-            'base64'
-          )}`,
+          Authorization: `Basic ${Buffer.from(
+            `${username}:${password}`
+          ).toString('base64')}`,
         };
 
-        const lineNo = orderItemsMsdNo[item._id] || '';        
+        const lineNo = orderItemsMsdNo[item._id] || '';
         const product = productById[item.productId];
 
         if (!product) {
@@ -312,7 +312,7 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
           Unit_Price: item.unitPrice || 0,
           Location_Code: config.locationCode || 'BEV-01',
         };
-        
+
         if (lineNo) {
           lineUrlP = lineUrlParam.replace('%Ln', lineNo);
           linePostMethod = 'PATCH';
