@@ -1,15 +1,16 @@
-import client from "@erxes/ui/src/apolloClient";
-import WithPermission from "coreui/withPermission";
-import { gql } from "@apollo/client";
-import React from "react";
-import { queries } from "../../graphql";
-import { getEnv, __ } from "@erxes/ui/src/utils";
-import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import { __, getEnv } from "@erxes/ui/src/utils";
+
 import Dropdown from "@erxes/ui/src/components/Dropdown";
+import DropdownToggle from "@erxes/ui/src/components/DropdownToggle";
+import React from "react";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
+import client from "@erxes/ui/src/apolloClient";
 import { colors } from "@erxes/ui/src/styles";
+import { gql } from "@apollo/client";
+import { queries } from "../../graphql";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";
-import { rgba } from "@erxes/ui/src/styles/ecolor";
 
 export const ActionItem = styled.button`
   width: 100%;

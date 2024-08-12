@@ -3,8 +3,6 @@ import {
   conformityQueryFields
 } from "@erxes/ui-sales/src/conformity/graphql/queries";
 
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
 export const companyFields = `
   _id
   createdAt

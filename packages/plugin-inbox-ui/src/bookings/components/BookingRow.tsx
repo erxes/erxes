@@ -14,7 +14,7 @@ import { RowTitle } from "@erxes/ui-engage/src/styles";
 import Tags from "@erxes/ui/src/components/Tags";
 import TextInfo from "@erxes/ui/src/components/TextInfo";
 import Tip from "@erxes/ui/src/components/Tip";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import { __ } from "coreui/utils";
 import dayjs from "dayjs";
 

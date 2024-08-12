@@ -1,14 +1,14 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { ActivityLogQueryResponse } from '@erxes/ui-log/src/activityLogs/types';
-import ChecklistLog from '../../components/items/checklist/ChecklistLog';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '../../graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import { ActivityLogQueryResponse } from "@erxes/ui-log/src/activityLogs/types";
+import ChecklistLog from "../../components/items/checklist/ChecklistLog";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "../../activityLogs/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   activity: IActivityLog;
@@ -30,7 +30,7 @@ class ChecklisLogContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      checklistItemActivity
+      checklistItemActivity,
     };
 
     return <ChecklistLog {...updatedProps} />;
@@ -40,13 +40,13 @@ class ChecklisLogContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props, ActivityLogQueryResponse>(gql(queries.activityLogs), {
-      name: 'activityLogQuery',
+      name: "activityLogQuery",
       options: ({ activity }) => ({
         variables: {
           contentId: activity.contentTypeDetail._id || activity.content._id,
-          contentType: 'activity'
-        }
-      })
+          contentType: "activity",
+        },
+      }),
     })
   )(ChecklisLogContainer)
 );

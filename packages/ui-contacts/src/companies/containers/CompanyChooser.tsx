@@ -4,7 +4,7 @@ import {
   AddMutationResponse,
   CompaniesQueryResponse,
   ICompany,
-  ICompanyDoc
+  ICompanyDoc,
 } from "../types";
 import { mutations, queries } from "../graphql";
 
@@ -13,7 +13,6 @@ import React from "react";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { withProps } from "@erxes/ui/src/utils";
 
 const ConformityChooser = asyncComponent(
@@ -42,7 +41,7 @@ class CompanyChooser extends React.Component<
     super(props);
 
     this.state = {
-      newCompany: undefined
+      newCompany: undefined,
     };
   }
 
@@ -53,7 +52,7 @@ class CompanyChooser extends React.Component<
   render() {
     const { data, companiesQuery, search } = this.props;
 
-    const renderName = company => {
+    const renderName = (company) => {
       return company.primaryName || company.website || "Unknown";
     };
 
@@ -69,12 +68,12 @@ class CompanyChooser extends React.Component<
         datas: data.companies,
         mainTypeId: data.mainTypeId,
         mainType: data.mainType,
-        relType: "company"
+        relType: "company",
       },
       search,
       clearState: () => search(""),
       title: "Company",
-      renderForm: formProps => (
+      renderForm: (formProps) => (
         <CompanyForm
           {...formProps}
           getAssociatedCompany={getAssociatedCompany}
@@ -84,7 +83,7 @@ class CompanyChooser extends React.Component<
       newItem: this.state.newCompany,
       resetAssociatedItem: this.resetAssociatedItem,
       datas: companiesQuery.companies || [],
-      refetchQuery: queries.companies
+      refetchQuery: queries.companies,
     };
 
     return <ConformityChooser {...updatedProps} />;
@@ -108,15 +107,15 @@ const WithQuery = withProps<Props>(
             mainTypeId: data.mainTypeId,
             isRelated: data.isRelated,
             sortField: "createdAt",
-            sortDirection: -1
+            sortDirection: -1,
           },
-          fetchPolicy: data.isRelated ? "network-only" : "cache-first"
+          fetchPolicy: data.isRelated ? "network-only" : "cache-first",
         };
-      }
+      },
     }),
     // mutations
     graphql<{}, AddMutationResponse, ICompanyDoc>(gql(mutations.companiesAdd), {
-      name: "companiesAdd"
+      name: "companiesAdd",
     })
   )(CompanyChooser)
 );

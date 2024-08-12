@@ -1,17 +1,13 @@
 import { IButtonMutateProps, IQueryParams } from "@erxes/ui/src/types";
-import {
-  PropertyConsumer,
-  PropertyProvider
-} from "@erxes/ui-contacts/src/customers/propertyContext";
+import { ICustomer, IFieldsVisibility } from "../types";
+import { PropertyConsumer, PropertyProvider } from "../propertyContext";
+import React, { useState } from "react";
 import { mutations, queries } from "../graphql";
 
 import { AppConsumer } from "@erxes/ui/src/appContext";
 import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
 import CustomerForm from "../components/CustomerForm";
-import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
-import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
 import { IUser } from "@erxes/ui/src/auth/types";
-import React, { useState } from "react";
 import client from "@erxes/ui/src/apolloClient";
 import { mutations as conformityMutations } from "@erxes/ui-sales/src/conformity/graphql";
 import { gql } from "@apollo/client";
@@ -44,9 +40,9 @@ const CustomerFormContainer = (props: FinalProps) => {
     values,
     isSubmitted,
     object,
-    resetSubmit
+    resetSubmit,
   }: IButtonMutateProps) => {
-    const afterSave = data => {
+    const afterSave = (data) => {
       if (values.relationData && Object.keys(values.relationData).length > 0) {
         const { relationData } = values;
 
@@ -58,8 +54,8 @@ const CustomerFormContainer = (props: FinalProps) => {
                 mainType: "customer",
                 mainTypeId: data.customersAdd._id,
                 relType: key,
-                relTypeIds: relationData[key]
-              }
+                relTypeIds: relationData[key],
+              },
             });
           }
         }
@@ -80,7 +76,7 @@ const CustomerFormContainer = (props: FinalProps) => {
       if (redirectType === "new") {
         navigate(`/contacts`);
         navigate(`${currentLocation}#showCustomerModal=true`, {
-          replace: true
+          replace: true,
         });
       }
     };
@@ -110,7 +106,7 @@ const CustomerFormContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     changeRedirectType,
-    renderButton
+    renderButton,
   };
 
   return (
