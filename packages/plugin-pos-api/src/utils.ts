@@ -761,7 +761,7 @@ export const syncOrderFromClient = async ({
 
   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
 
-  const syncedResponeIds = (
+  const syncedResponseIds = (
     (await sendEbarimtMessage({
       subdomain,
       action: 'putresponses.find',
@@ -780,7 +780,7 @@ export const syncOrderFromClient = async ({
     data: {
       status: 'ok',
       posToken,
-      responseIds: syncedResponeIds,
+      responseIds: syncedResponseIds,
       orderId: newOrder._id,
       convertDealId
     },

@@ -147,7 +147,7 @@ const Pos = (props: Props) => {
       beginNumber: state.pos.beginNumber,
       maxSkipNumber: Number(state.pos.maxSkipNumber) || 0,
       orderPassword: state.pos.orderPassword,
-      scopeBrandIds: pos.scopeBrandIds || [],
+      scopeBrandIds: state.pos.scopeBrandIds || [],
       initialCategoryIds: state.pos.initialCategoryIds || [],
       kioskExcludeCategoryIds: state.pos.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: state.pos.kioskExcludeProductIds || [],
@@ -168,8 +168,6 @@ const Pos = (props: Props) => {
         allowBranchIds: [],
       };
     }
-
-    console.log({ doc });
 
     save(doc);
   };
