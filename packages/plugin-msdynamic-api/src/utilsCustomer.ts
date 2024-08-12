@@ -139,7 +139,7 @@ const checkSend = async (subdomain, customer, config, filterStr) => {
 
     const name = getName(customer) || ''
     if (msdValues.Phone_No !== customer.primaryPhone || msdValues.E_Mail !== customer.primaryEmail || msdValues.Name !== name) {
-      const responseUpdate = await fetch(`${customerApi}(No='${msdValues.No}')`, {
+      return await fetch(`${customerApi}(No='${msdValues.No}')`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -154,8 +154,6 @@ const checkSend = async (subdomain, customer, config, filterStr) => {
           Name: name,
         }),
       }).then((r) => r.json());
-
-      return responseUpdate;
     }
 
     return msdValues;
@@ -163,7 +161,7 @@ const checkSend = async (subdomain, customer, config, filterStr) => {
 
   const sendData = await getSendDataCustomer(subdomain, customer, config);
 
-  const responseData = await fetch(customerApi, {
+  return await fetch(customerApi, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -173,8 +171,6 @@ const checkSend = async (subdomain, customer, config, filterStr) => {
     },
     body: JSON.stringify(sendData),
   }).then((r) => r.json());
-
-  return responseData;
 }
 
 export const getMsdCustomerInfo = async (subdomain: string, models: IModels, customerId: string, customerType: string, brandId: string, config) => {

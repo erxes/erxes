@@ -34,18 +34,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   try {
-    if (type === 'contacts:customer') {
-      if (action === 'create') {
-        customerToDynamic(subdomain, params.object, models);
-        return;
-      }
+    if (type === 'contacts:customer' && action === 'create') {
+      customerToDynamic(subdomain, params.object, models);
+      return;
     }
 
-    if (type === 'contacts:company') {
-      if (action === 'create') {
-        customerToDynamic(subdomain, params.object, models);
-        return;
-      }
+    if (type === 'contacts:company' && action === 'create') {
+      customerToDynamic(subdomain, params.object, models);
+      return;
     }
 
     if (type === 'pos:order') {
