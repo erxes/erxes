@@ -3,7 +3,7 @@ import * as schedule from "node-schedule";
 import { IModels } from "../connectionResolver";
 
 import { putActivityLog } from "../logUtils";
-import { fetchSegment } from "../data/resolvers/queries/segmentsQueryBuilder";
+import { fetchSegment } from "../data/modules/segments/queryBuilder";
 
 /**
  * Send conversation messages to customer

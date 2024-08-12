@@ -1,6 +1,6 @@
 import { IContext } from "../../connectionResolver";
 import { ISegmentDocument } from "../../db/models/definitions/segments";
-import { fetchSegment } from "./queries/segmentsQueryBuilder";
+import { fetchSegment } from "../modules/segments/queryBuilder";
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {

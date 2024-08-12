@@ -43,7 +43,7 @@ import { receivePutLogCommand } from "./db/utils/logUtils";
 import {
   fetchSegment,
   isInSegment
-} from "./data/resolvers/queries/segmentsQueryBuilder";
+} from "./data/modules/segments/queryBuilder";
 import { fieldsCombinedByContentType } from "./formUtils";
 
 export const initBroker = async (): Promise<void> => {

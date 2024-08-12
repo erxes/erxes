@@ -9,7 +9,7 @@ import {
 } from "@erxes/api-utils/src/permissions";
 
 import { IContext } from "../../../connectionResolver";
-import { fetchSegment } from "./segmentsQueryBuilder";
+import { fetchSegment } from "../../modules/segments/queryBuilder";
 import {
   getService,
   getServices,

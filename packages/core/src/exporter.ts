@@ -10,7 +10,7 @@ import * as moment from "moment";
 import { generateModels, IModels } from "./connectionResolver";
 import { IUserDocument } from "./db/models/definitions/users";
 import { InterMessage } from "@erxes/api-utils/src/messageBroker";
-import { fetchSegment } from "./data/resolvers/queries/segmentsQueryBuilder";
+import { fetchSegment } from "./data/modules/segments/queryBuilder";
 
 const prepareData = async (
   models: IModels,
