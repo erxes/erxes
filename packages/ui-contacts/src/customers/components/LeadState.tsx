@@ -1,10 +1,10 @@
-import { LeadStateWrapper, StateItem } from '../styles';
+import { LeadStateWrapper, StateItem } from "../styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { LEAD_CHOICES } from '../constants';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import { ICustomer } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LEAD_CHOICES } from "../constants";
+import React from "react";
 
 type IProps = {
   customer: ICustomer;
@@ -18,7 +18,7 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
 
     const { customer } = props;
 
-    this.state = { currentState: customer.leadStatus || 'new' };
+    this.state = { currentState: customer.leadStatus || "new" };
   }
 
   findIndex = () => {
@@ -36,13 +36,13 @@ class LeadState extends React.Component<IProps, { currentState: string }> {
   };
 
   convertToCustomer = () => {
-    this.props.changeCustomerState('customer');
+    this.props.changeCustomerState("customer");
   };
 
   render() {
     const { customer, saveState } = this.props;
 
-    if (customer.state !== 'lead') {
+    if (customer.state !== "lead") {
       return null;
     }
 

@@ -20,13 +20,13 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import RefreshPermissionForm from "../facebook/RefreshPermission";
 import Tip from "@erxes/ui/src/components/Tip";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import { __ } from "@erxes/ui/src/utils";
 import { cleanIntegrationKind } from "@erxes/ui/src/utils";
 import client from "@erxes/ui/src/apolloClient";
 import { gql } from "@apollo/client";
-import { queries } from "../../graphql/index";
 import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import { queries } from "../../graphql/index";
 
 type Props = {
   _id?: string;

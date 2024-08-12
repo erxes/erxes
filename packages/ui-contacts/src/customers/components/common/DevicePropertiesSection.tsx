@@ -1,17 +1,17 @@
 import {
   FieldStyle,
   SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+  SidebarList,
+} from "@erxes/ui/src/layout/styles";
 
-import Box from '@erxes/ui/src/components/Box';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldsVisibility } from '../../types';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import parse from 'ua-parser-js';
+import Box from "@erxes/ui/src/components/Box";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ICustomer } from "../../types";
+import { IField } from "@erxes/ui/src/types";
+import { IFieldsVisibility } from "../../types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
+import parse from "ua-parser-js";
 
 type Props = {
   customer: ICustomer;
@@ -29,7 +29,7 @@ export const renderFlag = (countryCode?: string) => {
   return (
     <img
       alt="Flag"
-      style={{ marginBottom: '2px', width: '17px' }}
+      style={{ marginBottom: "2px", width: "17px" }}
       src={`https://flagcdn.com/24x18/${countryCode.toLowerCase()}.png`}
     />
   );
@@ -45,7 +45,7 @@ class DevicePropertiesSection extends React.Component<Props> {
   ) => {
     const { deviceFieldsVisibility, isDetail } = this.props;
 
-    const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
+    const isVisibleKey = isDetail ? "isVisibleInDetail" : "isVisible";
 
     const visibility = deviceFieldsVisibility(isVisibleKey);
 
@@ -75,40 +75,40 @@ class DevicePropertiesSection extends React.Component<Props> {
       return <EmptyState icon="placeholder" text="No location" size="small" />;
     }
 
-    const ua = parse(location.userAgent || ' ');
+    const ua = parse(location.userAgent || " ");
 
     return (
       <SidebarList className="no-link">
         {this.renderDeviceProperty(
-          'Location',
-          'location',
+          "Location",
+          "location",
           renderFlag(location.countryCode),
           location.country
         )}
         {this.renderDeviceProperty(
-          'Browser',
-          'browser',
+          "Browser",
+          "browser",
           ua.browser.name,
           ua.browser.version
         )}
         {this.renderDeviceProperty(
-          'Platform',
-          'platform',
+          "Platform",
+          "platform",
           ua.os.name,
           ua.os.version
         )}
         {this.renderDeviceProperty(
-          'IP Address',
-          'ipAddress',
+          "IP Address",
+          "ipAddress",
           location.remoteAddress
         )}
-        {this.renderDeviceProperty('Hostname', 'hostName', location.hostname)}
-        {this.renderDeviceProperty('Language', 'language', location.language)}
+        {this.renderDeviceProperty("Hostname", "hostName", location.hostname)}
+        {this.renderDeviceProperty("Language", "language", location.language)}
         {this.renderDeviceProperty(
-          'User Agent',
-          'agent',
+          "User Agent",
+          "agent",
           location.userAgent,
-          '',
+          "",
           true
         )}
       </SidebarList>
@@ -124,7 +124,7 @@ class DevicePropertiesSection extends React.Component<Props> {
 
     return (
       <Box
-        title={__('Device properties')}
+        title={__("Device properties")}
         name="showDeviceProperties"
         callback={collapseCallback}
       >

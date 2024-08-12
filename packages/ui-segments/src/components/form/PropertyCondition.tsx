@@ -3,7 +3,6 @@ import { IField, ISegmentCondition, ISegmentMap } from "../../types";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import Icon from "@erxes/ui/src/components/Icon";
 import PropertyForm from "./PropertyForm";
 import PropertyList from "../../containers/form/PropertyList";
@@ -16,7 +15,6 @@ import { __ } from "@erxes/ui/src/utils";
 type Props = {
   contentType: string;
   associationTypes: any[];
-  forms?: IIntegration[];
   segment: ISegmentMap;
   addCondition: (condition: ISegmentCondition, segmentKey: string) => void;
   onClickBackToList: () => void;

@@ -7,7 +7,7 @@ import TaggedLog from "../component/TaggedLog";
 import { TagsQueryResponse } from "../../types";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../../src/graphql";
+import { queries } from "../../graphql";
 import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
@@ -37,8 +37,8 @@ export default withProps<Props>(
       name: "tagsQuery",
       options: ({ tagIds }) => ({
         variables: { tagIds },
-        fetchPolicy: "network-only"
-      })
+        fetchPolicy: "network-only",
+      }),
     })
   )(TaggedLogContainer)
 );
