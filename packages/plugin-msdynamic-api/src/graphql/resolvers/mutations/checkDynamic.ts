@@ -390,19 +390,27 @@ const msdynamicCheckMutations = {
     let dynamicNo = [] as any;
     let dynamicId = [] as any;
 
-    for (const id of ids) {
-      const order = await sendPosMessage({
-        subdomain,
-        action: 'orders.findOne',
-        data: { _id: id },
-        isRPC: true,
-      });
+    const orders = await sendPosMessage({
+      subdomain,
+      action: 'orders.find',
+      data: { _id: { $in: ids } },
+      isRPC: true,
+    });
 
-      if (order && order.syncErkhetInfo) {
+    for (const order of orders) {
+      if (order.syncErkhetInfo) {
+        let dynNo = ''
+        try {
+          const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
+          dynNo = syncErkhetInfo.no
+        } catch {
+          dynNo = order.syncErkhetInfo;
+        }
+
         const obj = {};
-        obj[order.syncErkhetInfo] = id;
+        obj[dynNo] = order._id;
 
-        dynamicNo.push(order.syncErkhetInfo);
+        dynamicNo.push(dynNo);
         dynamicId.push(obj);
       }
     }

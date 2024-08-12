@@ -6,7 +6,6 @@ import {
   CheckSyncedOrdersTotalCountQueryResponse,
   PosListQueryResponse,
   ToSendOrdersMutationResponse,
-  ToSyncOrdersMutationResponse,
 } from "../types";
 import React, { useState } from "react";
 import { mutations, queries } from "../graphql";
@@ -28,7 +27,6 @@ type FinalProps = {
   posListQuery: PosListQueryResponse;
 } & Props &
   CheckSyncedMutationResponse &
-  ToSyncOrdersMutationResponse &
   ToSendOrdersMutationResponse;
 
 const CheckSyncedOrdersContainer = (props: FinalProps) => {
@@ -74,24 +72,6 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
       });
   };
 
-  const toSyncMsdOrders = (orderIds) => {
-    props
-      .toSyncMsdOrders({
-        variables: { orderIds },
-      })
-      .then((response) => {
-        const { skipped, error, success } = response.data.toSyncMsdOrders;
-        const changed = unSyncedOrderIds.filter((u) => !orderIds.includes(u));
-        setUnSyncedOrderIds(changed);
-        Alert.success(
-          `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
-        );
-      })
-      .catch((e) => {
-        Alert.error(e.message);
-      });
-  };
-
   const toSendMsdOrders = (orderIds) => {
     props
       .toSendMsdOrders({
@@ -129,7 +109,6 @@ const CheckSyncedOrdersContainer = (props: FinalProps) => {
     checkSynced,
     unSyncedOrderIds: unSyncedOrderIds,
     syncedOrderInfos: syncedOrderInfos,
-    toSyncMsdOrders,
     toSendMsdOrders,
     posList: posListQuery.posList,
   };
@@ -184,12 +163,6 @@ export default withProps<Props>(
       gql(mutations.toCheckMsdSynced),
       {
         name: "toCheckMsdSynced",
-      }
-    ),
-    graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
-      gql(mutations.toSyncMsdOrders),
-      {
-        name: "toSyncMsdOrders",
       }
     ),
     graphql<Props, ToSendOrdersMutationResponse, { orderIds: string[] }>(

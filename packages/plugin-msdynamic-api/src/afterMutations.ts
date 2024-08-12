@@ -1,5 +1,6 @@
 import { generateModels } from './connectionResolver';
-import { customerToDynamic, dealToDynamic } from './utils';
+import { customerToDynamic } from './utilsCustomer';
+import { dealToDynamic } from './utils';
 
 const allowTypes = {
   'contacts:customer': ['create'],
@@ -34,19 +35,15 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
   try {
     if (type === 'contacts:customer') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
       if (action === 'create') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
+        customerToDynamic(subdomain, params.object, models);
         return;
       }
     }
 
     if (type === 'contacts:company') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
       if (action === 'create') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
+        customerToDynamic(subdomain, params.object, models);
         return;
       }
     }

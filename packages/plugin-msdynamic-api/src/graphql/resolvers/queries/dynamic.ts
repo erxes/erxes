@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp, getPureDate } from '@erxes/api-utils/src/core';
-import { IContext } from '../../../messageBroker';
+import { IContext, sendCoreMessage } from '../../../messageBroker';
 import { getConfig } from '../../../utils';
 
 const generateFilter = (params) => {
@@ -122,6 +122,24 @@ const msdynamicQueries = {
 
     return response.value || [];
   },
+
+  async msdCustomerRelations(_root, params, { models, subdomain }: IContext) {
+    const { customerId } = params;
+    const relations = await models.CustomerRelations.find({ customerId }).lean();
+
+    if (!relations.length) {
+      return relations;
+    }
+
+    const brands = await sendCoreMessage({
+      subdomain,
+      action: 'brands.find',
+      data: { _id: { $in: (relations || []).map(r => r.brandId) } },
+      isRPC: true
+    })
+
+    return relations.map(r => ({ ...r, brand: brands.find(b => b._id === r.brandId) }))
+  }
 };
 
 export default msdynamicQueries;
