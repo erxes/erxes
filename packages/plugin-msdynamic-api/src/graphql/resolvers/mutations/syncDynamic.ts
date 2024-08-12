@@ -344,6 +344,7 @@ const msdynamicSyncMutations = {
     }
   },
 
+  // umnuh ni dutuu bolson buyu NO avsan baiga bol, dahij ilgeej baigaa
   async toSyncMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
@@ -417,6 +418,7 @@ const msdynamicSyncMutations = {
     return result;
   },
 
+  // umnuh ni buren butelgui bolson buyu NO avaagui bol dahij ilgeej baigaa
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
