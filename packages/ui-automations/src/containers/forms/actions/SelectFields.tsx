@@ -2,17 +2,16 @@ import * as compose from "lodash.flowright";
 
 import {
   FieldsCombinedByType,
-  FieldsCombinedByTypeQueryResponse
+  FieldsCombinedByTypeQueryResponse,
 } from "@erxes/ui-forms/src/settings/properties/types";
 
-import SelectFieldsComponent from "../../../components/forms/actions/placeHolder/SelectFields";
 import React from "react";
+import SelectFieldsComponent from "../../../components/forms/actions/placeHolder/SelectFields";
+import Spinner from "@erxes/ui/src/components/Spinner";
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   config: any;
@@ -53,7 +52,7 @@ class SelectFields extends React.Component<FinalProps, State> {
 
     const extendedProps = {
       ...this.props,
-      attributions
+      attributions,
     };
     return <SelectFieldsComponent {...extendedProps} />;
   }
@@ -69,9 +68,9 @@ export default withProps<Props>(
         options: ({ actionType, excludedNames }) => ({
           variables: {
             contentType: actionType,
-            excludedNames
-          }
-        })
+            excludedNames,
+          },
+        }),
       }
     )
   )(SelectFields)
