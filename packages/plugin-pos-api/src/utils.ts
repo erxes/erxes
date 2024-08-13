@@ -435,6 +435,30 @@ const createDealPerOrder = async ({ subdomain, models, pos, newOrder }: { subdom
   );
 
   if (currentCardsConfig && currentCardsConfig.stageId) {
+    const paymentsData: any = {};
+    if (newOrder.cashAmount) {
+      paymentsData.cash = {
+        amount: newOrder.cashAmount,
+        currency: 'MNT'
+      }
+    }
+    if (newOrder.mobileAmount) {
+      paymentsData.bank = {
+        amount: newOrder.cashAmount,
+        currency: 'MNT'
+      }
+    }
+    if (newOrder.paidAmounts?.length) {
+      let otherAmount = 0;
+      for (const paidAmount of newOrder.paidAmounts) {
+        otherAmount += paidAmount.amount;
+      }
+      paymentsData.other = {
+        amount: newOrder.paidAmounts.reduce((sum, curr) => curr.amount + sum, 0),
+        currency: 'MNT'
+      }
+    }
+
     const cardDeal = await sendCardsMessage({
       subdomain,
       action: 'deals.create',
@@ -457,6 +481,7 @@ const createDealPerOrder = async ({ subdomain, models, pos, newOrder }: { subdom
           amount: i.count * (i.unitPrice || 0),
           tickUsed: true,
         })),
+        paymentsData
       },
       isRPC: true,
       defaultValue: {},

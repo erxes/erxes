@@ -216,7 +216,7 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
       Sell_to_Customer_No: msdCustomer?.No || '',
       Sell_to_Phone_No: customer?.primaryPhone || '',
       Sell_to_E_Mail: customer?.primaryEmail || '',
-      External_Document_No: 'nemelt medeelel',
+      External_Document_No: order.number,
       Responsibility_Center: config.responsibilityCenter || 'BEV-DIST',
       Sync_Type: config.syncType || 'ECOMMERCE',
       Mobile_Phone_No: customer?.primaryPhone || '',
@@ -359,7 +359,7 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
             },
           }
         );
-        lineNoById[item._id] = responseSaleLine.Line_No
+        lineNoById[item._id] = lineNo || responseSaleLine.Line_No
       }
     }
 
@@ -369,7 +369,7 @@ export const dealToDynamic = async (subdomain: string, syncLog: ISyncLogDocument
       data: {
         selector: { _id: params._id },
         modifier: {
-          $set: { syncErkhetInfo: JSON.stringify({ no: responseSale.No, lineNos: lineNoById }), syncedErkhet: true, },
+          $set: { syncErkhetInfo: JSON.stringify({ no: orderMsdNo || responseSale.No, lineNos: lineNoById }), syncedErkhet: true, },
         },
       },
       isRPC: true,
