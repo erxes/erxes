@@ -1,18 +1,15 @@
-import Button from "@erxes/ui/src/components/Button";
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup,
-} from "@erxes/ui/src/components/form";
-import { IObjectListConfig } from "@erxes/ui/src/types";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
+import { ControlLabel, FormControl } from "@erxes/ui/src/components/form";
 import {
   LogicItem,
   LogicRow,
   RowSmall,
 } from "@erxes/ui-forms/src/forms/styles";
+
+import Button from "@erxes/ui/src/components/Button";
 import { Column } from "@erxes/ui/src/styles/main";
+import { IObjectListConfig } from "@erxes/ui/src/types";
+import React from "react";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   onChangeOption: (option: IObjectListConfig, index: number) => void;

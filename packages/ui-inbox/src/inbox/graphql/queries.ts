@@ -297,6 +297,33 @@ const convertToInfo = `
   }
 `;
 
+const facebookGetComments = `
+  query facebookGetComments($conversationId: String!, $isResolved: Boolean, $commentId: String, $senderId: String, $skip: Int, $limit: Int) {
+    facebookGetComments(conversationId: $conversationId, isResolved: $isResolved, commentId: $commentId, senderId: $senderId, skip: $skip, limit: $limit) {
+      content
+      conversationId
+      postId
+      recipientId
+      senderId
+      erxesApiId
+      attachments
+      timestamp
+      permalink_url
+      content
+      commentId
+      parentId
+      customer {
+        _id
+        firstName
+        lastName
+        profilePic
+      }
+      commentCount
+      isResolved
+    }
+  }
+`;
+
 const generateCustomerDetailQuery = params => {
   const {
     showDeviceProperties = false,
@@ -407,6 +434,7 @@ export default {
   allBrands,
   tagList,
   segmentList,
+  facebookGetComments,
   responseTemplateList,
   conversationCounts,
   totalConversationsCount,

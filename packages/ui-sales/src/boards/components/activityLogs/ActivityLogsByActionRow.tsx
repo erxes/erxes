@@ -1,18 +1,16 @@
-import dayjs from 'dayjs';
-import * as React from 'react';
-import {
-  ActivityList,
-  InfoSection,
-  DateType,
-} from '../../styles/activityLogs';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { Link } from 'react-router-dom';
-import RoundedBackgroundIcon from '../RoundedBackgroundIcon';
-import { SEARCH_ACTIVITY_CHECKBOX } from '../../constants';
+import * as React from "react";
+
+import { ActivityList, DateType, InfoSection } from "../../styles/activityLogs";
 import {
   AvatarSection,
-  CreatedUser
-} from '@erxes/ui-notifications/src/components/styles';
+  CreatedUser,
+} from "@erxes/ui-notifications/src/components/styles";
+
+import { Link } from "react-router-dom";
+import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
+import RoundedBackgroundIcon from "@erxes/ui/src/components/RoundedBackgroundIcon";
+import { SEARCH_ACTIVITY_CHECKBOX } from "../../constants";
+import dayjs from "dayjs";
 
 type Props = {
   activityLog: any;
@@ -22,7 +20,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
   renderDescText() {
     const { activityLog } = this.props;
 
-    if (activityLog.action === 'delete') {
+    if (activityLog.action === "delete") {
       return activityLog.content;
     }
 
@@ -63,7 +61,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         key={Math.random()}
       >
         {createdUser.details
-          ? createdUser.details.fullName || ''
+          ? createdUser.details.fullName || ""
           : createdUser.username || createdUser.email}
         &nbsp;
       </Link>
@@ -78,7 +76,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         {this.renderCreatedUser()}
         <span>
           {SEARCH_ACTIVITY_CHECKBOX.map(({ action, value }) =>
-            activityLog.action === action ? value : ''
+            activityLog.action === action ? value : ""
           )}
           &nbsp;&nbsp;
           {this.renderContentType()}&nbsp;&nbsp;
@@ -90,26 +88,26 @@ class ActivityLogsByActionRow extends React.Component<Props> {
 
   getIcon() {
     const action = this.props.activityLog.action;
-    let icon = 'user-check';
+    let icon = "user-check";
 
-    if (action.includes('moved')) {
-      icon = 'move';
+    if (action.includes("moved")) {
+      icon = "move";
     }
 
-    if (action.includes('delete')) {
-      icon = 'file-minus';
+    if (action.includes("delete")) {
+      icon = "file-minus";
     }
 
-    if (action.includes('addNote')) {
-      icon = 'notes';
+    if (action.includes("addNote")) {
+      icon = "notes";
     }
 
-    if (action.includes('create')) {
-      icon = 'file-check';
+    if (action.includes("create")) {
+      icon = "file-check";
     }
 
-    if (action.includes('archive')) {
-      icon = 'archive-alt';
+    if (action.includes("archive")) {
+      icon = "archive-alt";
     }
 
     return icon;
@@ -129,7 +127,7 @@ class ActivityLogsByActionRow extends React.Component<Props> {
         </AvatarSection>
         <InfoSection>{this.renderAllContent()}</InfoSection>
         <DateType>
-          {dayjs(activityLog.createdAt).format('DD MMM YYYY, HH:mm')}
+          {dayjs(activityLog.createdAt).format("DD MMM YYYY, HH:mm")}
         </DateType>
       </ActivityList>
     );

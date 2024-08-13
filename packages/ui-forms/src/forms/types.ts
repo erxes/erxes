@@ -92,16 +92,12 @@ export type FormsQueryResponse = {
   loading: boolean;
 };
 
-export interface IFormSubmissionParams {
+export type IFormSubmissionParams = {
   contentTypeId: string;
   contentType: string;
   formId: string;
   formField: JSON;
 }
-
-export type SaveFormSubmissionMutation = ({
-  variables: IFormSubmissionParams
-}) => Promise<any>;
 
 export type ISubmission = {
   formFieldId: string;
