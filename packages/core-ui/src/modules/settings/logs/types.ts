@@ -22,7 +22,7 @@ export interface ILogList {
 }
 
 export interface ILogDesc {
-  [key: string]: any;
+  [key: string]: string;
 }
 
 type QueryResponse = {

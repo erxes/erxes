@@ -1,18 +1,18 @@
 import * as compose from "lodash.flowright";
 
-import { IActivityLogItemProps } from "@erxes/ui-log/src/activityLogs/types";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
 import React from "react";
 import Spinner from "@erxes/ui/src/components/Spinner";
 import TaggedLog from "../component/TaggedLog";
 import { TagsQueryResponse } from "../../types";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { queries } from "../../src/graphql";
+import { queries } from "@erxes/ui-tags/src/graphql";
 import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   tagIds: string[];
-  activity: IActivityLogItemProps;
+  activity: IActivityLog;
 };
 
 type FinalProps = {

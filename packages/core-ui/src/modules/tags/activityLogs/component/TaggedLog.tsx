@@ -9,13 +9,14 @@ import Tags from "@erxes/ui/src/components/Tags";
 import Tip from "@erxes/ui/src/components/Tip";
 import dayjs from "dayjs";
 import { renderUserFullName } from "@erxes/ui/src/utils";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
 
 type TaggedLogProps = {
-  activity: any;
+  activity: IActivityLog;
   tags: ITag[];
 };
 
-const TaggedLog: React.FC<TaggedLogProps> = ({ activity, tags }) => {
+const TaggedLog: React.FC<TaggedLogProps> = ({ activity, tags }) => {console.log("activity", activity)
   const renderContent = () => {
     const { createdByDetail } = activity;
     let userName = "Unknown";

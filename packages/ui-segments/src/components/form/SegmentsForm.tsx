@@ -8,13 +8,14 @@ import React from 'react';
 import { IEvent, ISegment, ISegmentCondition } from '../../types';
 import Form from './Form';
 import { ResultCount, SegmentResult } from '../styles';
+import { IExportFilter } from 'modules/settings/importExport/types';
 
 type Props = {
   contentType: string;
   fields: any[];
   events: IEvent[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  filterContent?: (values: any) => void;
+  filterContent?: (values: IExportFilter) => void;
   segment: ISegment;
   headSegments: ISegment[];
   segments: ISegment[];

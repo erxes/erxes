@@ -61,7 +61,6 @@ export default function BlockListContainer(props: Props) {
       queryType={queryType}
       allDatas={allItems}
       title={title}
-      listQuery={listQuery}
       queryParams={queryParams}
       removeItem={removeItem}
     />

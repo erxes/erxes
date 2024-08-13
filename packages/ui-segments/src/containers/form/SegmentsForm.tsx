@@ -18,6 +18,7 @@ import {
   SegmentDetailQueryResponse,
   SegmentsQueryResponse
 } from "../../types";
+import { IExportFilter } from "modules/settings/importExport/types";
 
 type Props = {
   contentType: string;
@@ -26,7 +27,7 @@ type Props = {
   closeModal: () => void;
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
-  filterContent?: (values: any) => void;
+  filterContent?: (values: IExportFilter) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
   serviceConfig?: any;

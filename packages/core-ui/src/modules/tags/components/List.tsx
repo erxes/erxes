@@ -17,7 +17,7 @@ import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { NavigateFunction, Location } from "react-router-dom";
 
 type Props = {
-  types: any[];
+  types: {description: string, contentType: string}[];
   tags: ITag[];
   tagType: string;
   location: Location;

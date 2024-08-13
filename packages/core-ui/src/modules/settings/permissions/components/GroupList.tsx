@@ -23,7 +23,6 @@ const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   queryParams: Record<string, string>;
-  refetch: any;
   totalCount: number;
   loading: boolean;
   objects: IUserGroupDocument[];
@@ -48,11 +47,9 @@ class GroupList extends React.Component<IProps> {
   }
 
   renderForm = (props) => {
-    const { refetch, renderButton } = this.props;
+    const { renderButton } = this.props;
 
-    const extendedProps = { ...props, refetch };
-
-    return <GroupForm {...extendedProps} renderButton={renderButton} />;
+    return <GroupForm {...props} renderButton={renderButton} />;
   };
 
   isActive = (id: string) => {

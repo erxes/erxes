@@ -3,15 +3,17 @@ import Uploader from "@erxes/ui/src/components/Uploader";
 import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import { __ } from "modules/common/utils";
-import { IAttachment } from "@erxes/ui/src/types";
+import { IAttachment, IFormProps } from "@erxes/ui/src/types";
+import { IBranch, ICoordinate, IStructure } from "@erxes/ui/src/team/types";
+import { IUserLinks } from "@erxes/ui/src/auth/types";
 
 type Props = {
-  object: any;
-  formProps: any;
-  setLinks: (links: any) => void;
-  links: any;
-  setCoordinate: (coordinate: any) => void;
-  coordinate: any;
+  object: IStructure | IBranch;
+  formProps: IFormProps;
+  setLinks: (links: IUserLinks) => void;
+  links: IUserLinks;
+  setCoordinate: (coordinate: ICoordinate) => void;
+  coordinate: ICoordinate;
   setImage: (image: IAttachment | null) => void;
   image: IAttachment | null;
 };

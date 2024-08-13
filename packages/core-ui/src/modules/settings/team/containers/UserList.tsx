@@ -105,7 +105,7 @@ export default commonListComposer<{ queryParams: Record<string, string> }>({
   gqlEditMutation: graphql(gql(mutations.usersEdit), {
     name: "editMutation",
   }),
-  gqlRemoveMutation: graphql<{ queryParams: any }>(
+  gqlRemoveMutation: graphql<{ queryParams: Record<string, string> }>(
     gql(mutations.usersSetActiveStatus),
     {
       name: "statusChangedMutation",

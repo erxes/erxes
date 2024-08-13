@@ -10,9 +10,10 @@ import Tip from "@erxes/ui/src/components/Tip";
 import { __ } from "modules/common/utils";
 import queryString from "query-string";
 import { useLocation, useNavigate } from "react-router-dom";
+import { IBranch, IDepartment, IUnit } from "@erxes/ui/src/team/types";
 
 type Props = {
-  item: any;
+  item: IBranch | IDepartment | IUnit;
   deleteItem: (_id: string, callback: () => void) => void;
   refetch: () => void;
   title: string;

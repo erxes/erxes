@@ -6,13 +6,14 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as userQuery } from '@erxes/ui/src/team/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { UsersQueryResponse, UsersTotalCountQueryResponse } from '@erxes/ui/src/auth/types';
 import UserFilter from '../../components/filters/UserFilter';
 import uniqBy from 'lodash/unionBy';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type Props = {
   usersQuery?: UsersQueryResponse;
-  usersTotalCountQuery: any;
+  usersTotalCountQuery: UsersTotalCountQueryResponse;
   queryParams: Record<string, string>;
 };
 
@@ -68,7 +69,7 @@ function UserFilterContainer(props: Props) {
 
 type WrapperProps = {
   queryParams?: Record<string, string>;
-  abortController?: any;
+  abortController?: IAbortController;
 };
 
 export default withProps<WrapperProps>(

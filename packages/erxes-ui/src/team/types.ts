@@ -103,11 +103,16 @@ export interface IUnit extends IStructureCommon {
   users: IUser[];
 }
 
+export interface ICoordinate {
+  longitude: string;
+  latitude: string;
+}
+
 interface IContactInfo {
   phoneNumber?: string;
   email?: string;
-  links?: any;
-  coordinate?: any;
+  links?: IUserLinks;
+  coordinate?: ICoordinate;
   image?: IAttachment;
 }
 

@@ -11,14 +11,14 @@ import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Tip from 'modules/common/components/Tip';
 import { __ } from 'modules/common/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { IBranch, IDepartment, IUnit } from '@erxes/ui/src/team/types';
 
 type Props = {
-  allDatas: any[];
+  allDatas: IDepartment[] | IUnit[] | IBranch[];
   title: string;
   removeItem: (_id: string) => void;
   queryParams: Record<string, string>;
   queryType: string;
-  listQuery: any;
 };
 
 export default function BlockList(props: Props) {
@@ -41,7 +41,7 @@ export default function BlockList(props: Props) {
     item
   }: {
     closeModal: () => void;
-    item?: any;
+    item?: IDepartment[] | IUnit[] | IBranch[];
   }): React.ReactNode => {
     return (
       <BlockForm item={item} closeModal={closeModal} queryType={queryType} />

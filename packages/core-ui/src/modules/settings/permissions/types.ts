@@ -24,7 +24,7 @@ export interface IModule {
 }
 
 export interface IActions {
-  name?: string;
+  name: string;
   module?: string;
   description?: string;
   use?: string[];

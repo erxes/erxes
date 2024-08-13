@@ -19,10 +19,11 @@ import { __ } from "modules/common/utils";
 import { router } from "@erxes/ui/src/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import Dropdown from "@erxes/ui/src/components/Dropdown";
+import { GetEnvQueryResponse } from "modules/layout/components/navigation/types";
 
 type Props = {
   queryParams: Record<string, string>;
-  configsEnvQuery: any;
+  configsEnvQuery: GetEnvQueryResponse;
   loading: boolean;
   usersGroups: IUserGroup[];
   totalCount: number;
@@ -34,7 +35,7 @@ export default function Home(props: Props) {
   const {
     queryParams,
     loading,
-    configsEnvQuery = {},
+    configsEnvQuery = {} as GetEnvQueryResponse,
     totalCount,
   } = props;
   const [searchValue, setSearchValue] = useState("");
