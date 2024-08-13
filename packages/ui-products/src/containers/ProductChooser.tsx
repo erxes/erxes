@@ -1,26 +1,27 @@
-import queryString from 'query-string';
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from '@apollo/client/react/hoc';
+import * as compose from "lodash.flowright";
 
-import Chooser from '@erxes/ui/src/components/Chooser';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import ProductCategoryChooser from '../components/ProductCategoryChooser';
-import {
-  mutations as productMutations,
-  queries as productQueries
-} from '../graphql';
+import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   IProduct,
   IProductDoc,
   ProductAddMutationResponse,
-  ProductsQueryResponse
-} from '../types';
-import ProductForm from './ProductForm';
-import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+  ProductsQueryResponse,
+} from "../types";
+import {
+  mutations as productMutations,
+  queries as productQueries,
+} from "../graphql";
+
+import Chooser from "@erxes/ui/src/components/Chooser";
+import { ProductCategoriesQueryResponse } from "../types";
+import ProductCategoryChooser from "../components/ProductCategoryChooser";
+import ProductForm from "./ProductForm";
+import React from "react";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import queryString from "query-string";
 
 type Props = {
   data: { name: string; products: IProduct[] };
@@ -48,19 +49,19 @@ class ProductChooser extends React.Component<FinalProps, State> {
     super(props);
 
     const { categoryId, vendorId } = JSON.parse(
-      localStorage.getItem('erxes_products:chooser_filter') || '{}'
+      localStorage.getItem("erxes_products:chooser_filter") || "{}"
     );
 
     this.state = {
       perPage: 20,
       categoryId: props.categoryId || categoryId,
-      vendorId: props.vendorId || vendorId
+      vendorId: props.vendorId || vendorId,
     };
   }
 
   componentDidMount(): void {
     const { categoryId, vendorId } = JSON.parse(
-      localStorage.getItem('erxes_products:chooser_filter') || '{}'
+      localStorage.getItem("erxes_products:chooser_filter") || "{}"
     );
 
     const variables: any = { perPage: this.state.perPage };
@@ -77,7 +78,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
 
     if (vendorId || categoryId) {
       this.props.productsQuery.refetch({
-        ...variables
+        ...variables,
       });
     }
   }
@@ -90,7 +91,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.setState({ perPage: this.state.perPage + 20 }, () =>
       this.props.productsQuery.refetch({
         searchValue: value,
-        perPage: this.state.perPage
+        perPage: this.state.perPage,
       })
     );
   };
@@ -98,7 +99,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
   onFilterSave = () => {
     const { categoryId, vendorId } = this.state;
     localStorage.setItem(
-      'erxes_products:chooser_filter',
+      "erxes_products:chooser_filter",
       JSON.stringify({ vendorId, categoryId })
     );
   };
@@ -107,7 +108,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.setState({ categoryId }, () => {
       this.props.productsQuery.refetch({
         categoryId,
-        perPage: this.state.perPage
+        perPage: this.state.perPage,
       });
       this.onFilterSave();
     });
@@ -117,7 +118,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.setState({ vendorId }, () => {
       this.props.productsQuery.refetch({
         vendorId,
-        perPage: this.state.perPage
+        perPage: this.state.perPage,
       });
       this.onFilterSave();
     });
@@ -127,16 +128,16 @@ class ProductChooser extends React.Component<FinalProps, State> {
   addProduct = (doc: IProductDoc, callback: () => void) => {
     this.props
       .productAdd({
-        variables: doc
+        variables: doc,
       })
       .then(() => {
         this.props.productsQuery.refetch();
 
-        Alert.success('You successfully added a product or service');
+        Alert.success("You successfully added a product or service");
 
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -147,14 +148,14 @@ class ProductChooser extends React.Component<FinalProps, State> {
 
     return (
       <>
-        {(isEnabled('contacts') && (
+        {(isEnabled("contacts") && (
           <SelectCompanies
             label="Company"
             name="ownerId"
             multi={false}
             initialValue={vendorId}
-            onSelect={company => this.onChangeVendor(company as string)}
-            customOption={{ label: 'Choose company', value: '' }}
+            onSelect={(company) => this.onChangeVendor(company as string)}
+            customOption={{ label: "Choose company", value: "" }}
           />
         )) || <></>}
 
@@ -162,20 +163,20 @@ class ProductChooser extends React.Component<FinalProps, State> {
           currentId={categoryId}
           categories={productCategoriesQuery.productCategories || []}
           onChangeCategory={this.onChangeCategory}
-          customOption={{ label: 'Choose product category...', value: '' }}
+          customOption={{ label: "Choose product category...", value: "" }}
         />
       </>
     );
   };
 
-  renderDiscount = data => {
+  renderDiscount = (data) => {
     const { loadDiscountPercent } = this.props;
-    if (isEnabled('loyalties') && loadDiscountPercent && data) {
+    if (isEnabled("loyalties") && loadDiscountPercent && data) {
       const productData = {
         product: {
-          _id: data._id
+          _id: data._id,
         },
-        quantity: 1
+        quantity: 1,
       };
       loadDiscountPercent(productData);
     }
@@ -188,16 +189,17 @@ class ProductChooser extends React.Component<FinalProps, State> {
       ...this.props,
       data: { name: data.name, datas: data.products },
       search: this.search,
-      title: 'Product',
+      title: "Product",
       renderName: (product: IProduct) => {
         if (product.code && product.subUoms?.length) {
-          return `${product.code} - ${product.name} ~${Math.round(
-            (1 / (product.subUoms[0].ratio || 1)) * 100
-          ) / 100} - ${product.unitPrice}`;
+          return `${product.code} - ${product.name} ~${
+            Math.round((1 / (product.subUoms[0].ratio || 1)) * 100) / 100
+          } - ${product.unitPrice}`;
         }
         if (product.code) {
-          return `${product.code} - ${product.name} - ${product.unitPrice ||
-            ''}`;
+          return `${product.code} - ${product.name} - ${
+            product.unitPrice || ""
+          }`;
         }
 
         return product.name;
@@ -207,9 +209,9 @@ class ProductChooser extends React.Component<FinalProps, State> {
       ),
       perPage: this.state.perPage,
       add: this.addProduct,
-      clearState: () => this.search('', true),
+      clearState: () => this.search("", true),
       datas: productsQuery.products || [],
-      onSelect
+      onSelect,
     };
 
     return (
@@ -230,37 +232,37 @@ export default withProps<Props>(
       ProductsQueryResponse,
       { perPage: number; categoryId: string; vendorId: string }
     >(gql(productQueries.products), {
-      name: 'productsQuery',
-      options: props => ({
+      name: "productsQuery",
+      options: (props) => ({
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
           vendorId: props.vendorId,
           pipelineId: queryString.parse(location.search).pipelineId,
-          boardId: queryString.parse(location.search).boardId
+          boardId: queryString.parse(location.search).boardId,
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<{}, ProductCategoriesQueryResponse, {}>(
       gql(productQueries.productCategories),
       {
-        name: 'productCategoriesQuery'
+        name: "productCategoriesQuery",
       }
     ),
     // mutations
     graphql<{}, ProductAddMutationResponse, IProduct>(
       gql(productMutations.productAdd),
       {
-        name: 'productAdd',
+        name: "productAdd",
         options: () => ({
           refetchQueries: [
             {
               query: gql(productQueries.products),
-              variables: { perPage: 20 }
-            }
-          ]
-        })
+              variables: { perPage: 20 },
+            },
+          ],
+        }),
       }
     )
   )(ProductChooser)

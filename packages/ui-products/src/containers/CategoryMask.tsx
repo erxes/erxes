@@ -1,15 +1,14 @@
+import * as compose from "lodash.flowright";
+
+import CategoryMask from "../components/CategoryMask";
 import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
 import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
-import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
-import { gql } from "@apollo/client";
-import * as compose from "lodash.flowright";
+import { IProductCategory } from "../types";
 import React from "react";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils";
-import CategoryMask from "../components/CategoryMask";
-import { IProductCategory } from "../types";
 
 type Props = {
   parentCategory?: IProductCategory;
@@ -37,7 +36,7 @@ class CategoryMaskContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      fieldGroups
+      fieldGroups,
     };
 
     return <CategoryMask {...updatedProps} />;
@@ -56,10 +55,10 @@ export default withProps<Props>(
             isDefinedByErxes: false,
             config: {
               categoryId: parentCategory?._id || categoryId,
-              isChosen: true
-            }
-          }
-        })
+              isChosen: true,
+            },
+          },
+        }),
       }
     )
   )(CategoryMaskContainer)
