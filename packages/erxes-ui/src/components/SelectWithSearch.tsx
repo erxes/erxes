@@ -152,11 +152,23 @@ class SelectWithSearch extends React.Component<
         datas.filter((data) => !totalOptionsValues.includes(data._id))
       );
 
-      const updatedTotalOptions = [...totalOptions, ...uniqueLoadedOptions];
+      const updatedTotalOptions = [...new Set(
+        [
+          ...(this.props.exactFilter ? [] : this.state.selectedOptions || []),
+          ...uniqueLoadedOptions
+        ]
+      )];
 
       const selectedOptions = updatedTotalOptions.filter((option) =>
         selectedValues.includes(option.value)
       );
+
+      if (this.props.exactFilter && selectedValues?.length && !selectedOptions.length) {
+        this.setState({
+          selectedValues: []
+        });
+        this.props.onSelect([], this.props.name)
+      }
 
       this.setState({
         totalOptions: updatedTotalOptions,
@@ -238,7 +250,7 @@ class SelectWithSearch extends React.Component<
 
       this.timer = setTimeout(() => {
         search(searchValue);
-      }, 1000);
+      }, 1200);
     };
 
     const onOpen = () => search("reload");
@@ -266,12 +278,15 @@ class SelectWithSearch extends React.Component<
       </components.MultiValue>
     );
 
+    const filterOption = (_option, _inputValue): boolean => true;
+
     return (
       <Select
         isClearable={true}
         placeholder={__(label)}
         value={multi ? selectedOptions : selectedOptions && selectedOptions[0]}
         loadingMessage={({ inputValue }) => __("Loading...")}
+        filterOption={filterOption}
         isLoading={customQuery.loading}
         onMenuOpen={onOpen}
         components={{ Option, MultiValue }}
@@ -338,7 +353,6 @@ type IInitialValue = string | string[] | undefined;
 
 type WrapperProps = {
   initialValue: IInitialValue;
-
   queryName: string;
   name: string;
   label: string;
@@ -359,6 +373,7 @@ type WrapperProps = {
     label: string;
     avatar?: string;
   };
+  exactFilter?: boolean;
 };
 
 class Wrapper extends React.Component<
