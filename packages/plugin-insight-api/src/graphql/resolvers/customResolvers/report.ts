@@ -5,7 +5,7 @@ import { IReportDocument } from '../../../models/definitions/insight';
 export default {
     async charts(
         report: IReportDocument,
-        { },
+        _,
         { models }: IContext,
         { queryParams }
     ) {
@@ -16,7 +16,7 @@ export default {
             return new Error(`Invalid ${error.path}: ${error.value}`);
         }
     },
-    async chartsCount(report: IReportDocument, { }, { models }: IContext) {
+    async chartsCount(report: IReportDocument, _, { models }: IContext) {
         try {
             const { _id } = report;
             return models.Charts.find({ contentId: _id }).countDocuments();

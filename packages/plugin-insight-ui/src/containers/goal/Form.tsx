@@ -30,16 +30,6 @@ const FormContainer = (props: Props) => {
     },
   });
 
-  const branchListQuery = useQuery(gql(queries.branchesMain), {
-    variables: { withoutUserFilter: true },
-  });
-  const unitListQuery = useQuery(gql(queries.unitsMain), {
-    variables: { withoutUserFilter: true },
-  });
-  const departmentListQuery = useQuery(gql(queries.departmentsMain), {
-    variables: { withoutUserFilter: true },
-  });
-
   const renderButton = ({
     name,
     values,

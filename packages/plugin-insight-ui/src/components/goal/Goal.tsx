@@ -18,13 +18,12 @@ import { ContentContainer, DragField } from "../../styles";
 import { IGoalType, ISpecificPeriodGoal } from "../../types";
 
 type Props = {
-  queryParams: any;
   goal: IGoalType;
   loading: boolean;
 };
 
 const Goal = (props: Props) => {
-  const { goal, loading, queryParams } = props;
+  const { goal, loading, } = props;
   const [specificPeriodGoals, setSpecificPeriodGoals] = useState<
     ISpecificPeriodGoal[]
   >([]);
@@ -36,8 +35,7 @@ const Goal = (props: Props) => {
   }, [goal]);
 
   const renderActionBar = () => {
-    const title =
-      `${capitalize(goal.entity) || ""} ${goal.goalTypeChoose}` || "";
+    const title = `${capitalize(goal.entity) ?? ""} ${goal.goalTypeChoose ?? ''}`;
 
     const leftActionBar = <Title>{__(`${title} `)}</Title>;
 

@@ -14,12 +14,11 @@ const Title = styled.div`
     font-size: 12px;
 `;
 
-const Number = styled.div`
+const Num = styled.div`
     font-size: clamp(1em, 5vw, 2em);
 `;
 
 type IDataSet = {
-    title: string;
     data: number[] | any;
     labels: string[];
 };
@@ -31,12 +30,12 @@ type Props = {
 
 const NumberRenderer = (props: Props) => {
     const { dataset, serviceName } = props;
-    const { title, data, labels } = dataset;
+    const { data, labels } = dataset;
 
     return (
         <NumberContainer>
             <Title>{labels}</Title>
-            <Number>{formatNumbers(data, 'x', 'commarize')}</Number>
+            <Num>{formatNumbers(data, 'x', 'commarize')}</Num>
         </NumberContainer>
     )
 }
