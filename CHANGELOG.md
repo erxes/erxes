@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0-rc.13](https://github.com/erxes/erxes/compare/1.15.0-rc.12...1.15.0-rc.13) (2024-08-14)
+
+
+### Features
+
+* **calls:** Added realtime dashboard ([bef1bf2](https://github.com/erxes/erxes/commit/bef1bf2186c97310533c60cfcf7fea055f371836))
+
 ## [1.15.0-rc.12](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.15.0-rc.12) (2024-08-14)
 
 
