@@ -11,7 +11,6 @@ import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import React from "react";
 import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "../graphql";
 
 const GetConformity = asyncComponent(
@@ -40,10 +39,10 @@ function Component(
     mainTypeId = "",
     onSelect,
     collapseCallback,
-    title
+    title,
   }: Props
 ) {
-  const renderCompanyChooser = props => {
+  const renderCompanyChooser = (props) => {
     return (
       <CompanyChooser
         {...props}
@@ -53,7 +52,7 @@ function Component(
     );
   };
 
-  const renderRelatedCompanyChooser = props => {
+  const renderRelatedCompanyChooser = (props) => {
     return (
       <CompanyChooser
         {...props}
@@ -93,7 +92,7 @@ function Component(
     />
   );
 
-  const renderExternaleWebsite = links => {
+  const renderExternaleWebsite = (links) => {
     if (!links || !links.website) {
       return null;
     }

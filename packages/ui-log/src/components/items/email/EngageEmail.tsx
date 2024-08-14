@@ -4,17 +4,17 @@ import {
   EmailContent,
   ExpandButton,
   FlexBody,
-  FlexCenterContent
-} from '@erxes/ui-log/src/activityLogs/styles';
-import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
+  FlexCenterContent,
+} from "@erxes/ui-log/src/activityLogs/styles";
+import { IEngageEmail, IEngageMessage } from "@erxes/ui-engage/src/types";
 
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import dayjs from 'dayjs';
-import xss from 'xss';
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Icon from "@erxes/ui/src/components/Icon";
+import Label from "@erxes/ui/src/components/Label";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import dayjs from "dayjs";
+import xss from "xss";
 
 type Props = {
   email: IEngageMessage;
@@ -27,7 +27,7 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
     super(props);
 
     this.state = {
-      expand: false
+      expand: false,
     };
   }
 
@@ -52,8 +52,8 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
           <>
             {!expand && <ContentShadow />}
             <ExpandButton onClick={this.onExpand}>
-              {expand ? 'Collapse' : 'Expand'}&nbsp;
-              <Icon icon={expand ? 'angle-up' : 'angle-down'} />
+              {expand ? "Collapse" : "Expand"}&nbsp;
+              <Icon icon={expand ? "angle-up" : "angle-down"} />
             </ExpandButton>
           </>
         )}
@@ -69,7 +69,7 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
       validCustomersCount,
       title,
       fromUser,
-      stats = { send: 0, total: 0 }
+      stats = { send: 0, total: 0 },
     } = this.props.email;
 
     const { subject } = email;
@@ -88,7 +88,7 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
             <p>{subject}</p>
             <div>
               <ControlLabel>Title</ControlLabel>: <span>{title}</span>
-              <ControlLabel>From</ControlLabel>:{' '}
+              <ControlLabel>From</ControlLabel>:{" "}
               <span>
                 {fromUser.details ? (
                   <>
@@ -102,9 +102,9 @@ class EngageEmail extends React.Component<Props, { expand: boolean }> {
             </div>
           </FlexBody>
           {status}
-          <Tip text={dayjs(createdAt).format('llll')}>
+          <Tip text={dayjs(createdAt).format("llll")}>
             <ActivityDate>
-              {dayjs(createdAt).format('MMM D, h:mm A')}
+              {dayjs(createdAt).format("MMM D, h:mm A")}
             </ActivityDate>
           </Tip>
         </FlexCenterContent>

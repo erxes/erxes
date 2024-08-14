@@ -136,7 +136,6 @@ export const engageDetailFields = `
 
   segments {
       contentType
-   }
   }
 `;
 

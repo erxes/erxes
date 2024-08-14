@@ -1,6 +1,32 @@
 # Changelog
 
+<<<<<<< HEAD
 ## [1.15.0-rc.1](https://github.com/erxes/erxes/compare/1.15.0-rc.0...1.15.0-rc.1) (2024-07-19)
+=======
+## [1.14.2](https://github.com/erxes/erxes/compare/1.14.1...1.14.2) (2024-08-04)
+
+
+### Features
+
+* **core:** add user feedback widget ([b3e1c19](https://github.com/erxes/erxes/commit/b3e1c19cd30c2f52bfc2aa1b3b420c6fa0f9efa1))
+
+
+### Bug Fixes
+
+* **core:** add ability create brand consumer in message broker ([02f1b80](https://github.com/erxes/erxes/commit/02f1b8051cae249eb96363856889685ccd4c63fb))
+* **core:** can't display plugin icon in marketplace ([574126b](https://github.com/erxes/erxes/commit/574126b58a7d64d7191aeb5b26a434136889f43c))
+* **instagram:** fix instagram crash on recieve ([01d0a04](https://github.com/erxes/erxes/commit/01d0a040739557362b4829143f85f70dd761f7ce))
+* **instagram:** fixed messenger receiver ([7e904fa](https://github.com/erxes/erxes/commit/7e904fa516856175f9bcb584c5eab1c7d9dfbfe4))
+* **instagram:** fixed messenger receiver ([0a0b4e1](https://github.com/erxes/erxes/commit/0a0b4e13fd85f47ee655781ffeaac857b564cc99))
+
+
+### Performance Improvements
+
+* **welcome:** Add saas welcome ([#5558](https://github.com/erxes/erxes/issues/5558)) ([b1bf188](https://github.com/erxes/erxes/commit/b1bf188fe280d875dffde462f2ad2dfaccb7b264))
+
+## [1.14.1](https://github.com/erxes/erxes/compare/1.14.0...1.14.1) (2024-07-25)
+
+>>>>>>> c4c485142c2f441fca16d7226c26663d3788af59
 
 ### Features
 

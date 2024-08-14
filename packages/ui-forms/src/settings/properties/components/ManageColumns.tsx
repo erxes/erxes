@@ -1,15 +1,14 @@
-import { Footer } from "@erxes/ui-sales/src/boards/styles/item";
 import Button from "@erxes/ui/src/components/Button";
+import { Footer } from "../styles";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import SortableList from "@erxes/ui/src/components/SortableList";
-import { colors } from "@erxes/ui/src/styles";
-import { ScrollWrapper } from "@erxes/ui/src/styles/main";
-import { __ } from "@erxes/ui/src/utils";
-import React from "react";
-import styled from "styled-components";
-
 import { IConfigColumn } from "../types";
+import React from "react";
+import { ScrollWrapper } from "@erxes/ui/src/styles/main";
+import SortableList from "@erxes/ui/src/components/SortableList";
+import { __ } from "@erxes/ui/src/utils";
+import { colors } from "@erxes/ui/src/styles";
+import styled from "styled-components";
 
 const Header = styled.div`
   display: flex;
@@ -51,24 +50,24 @@ class ManageColumns extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    if (props.columns.findIndex(c => c._id === "#") === -1) {
+    if (props.columns.findIndex((c) => c._id === "#") === -1) {
       props.columns.unshift({
         _id: "#",
         name: "#",
         label: "Numerical index",
         order: 0,
-        checked: false
+        checked: false,
       });
     }
 
     this.state = {
       columns: props.columns,
       importType: "csv",
-      searchValue: ""
+      searchValue: "",
     };
   }
 
-  onSubmit = e => {
+  onSubmit = (e) => {
     e.preventDefault();
     const columnsConfig: IConfigColumn[] = [];
     const { importType } = this.state;
@@ -82,7 +81,7 @@ class ManageColumns extends React.Component<Props, State> {
         checked: element.checked,
         name: col.name,
         label: col.label,
-        group: col.group
+        group: col.group,
       });
     });
 
@@ -90,11 +89,11 @@ class ManageColumns extends React.Component<Props, State> {
     this.props.closeModal();
   };
 
-  onChangeColumns = columns => {
+  onChangeColumns = (columns) => {
     this.setState({ columns });
   };
 
-  search = e => {
+  search = (e) => {
     const searchValue = e.target.value;
     this.setState({ searchValue });
   };
@@ -102,7 +101,7 @@ class ManageColumns extends React.Component<Props, State> {
   render() {
     const { type, contentType } = this.props;
 
-    const child = col => {
+    const child = (col) => {
       return (
         <Child>
           <span>{col.label}</span>
@@ -115,7 +114,7 @@ class ManageColumns extends React.Component<Props, State> {
       );
     };
 
-    const onclickCsv = e => {
+    const onclickCsv = (e) => {
       this.setState({ importType: "csv" }, () => {
         this.onSubmit(e);
       });

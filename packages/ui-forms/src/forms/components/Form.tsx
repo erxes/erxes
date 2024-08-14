@@ -256,7 +256,9 @@ class Form extends React.Component<Props, State> {
             onCancel={this.onFieldFormCancel}
           />
         )}
-        {renderPreviewWrapper && renderPreviewWrapper(renderer, fields)}
+        {renderPreviewWrapper
+          ? renderPreviewWrapper(renderer, fields)
+          : ({} as any)}
       </FlexContent>
     );
   }

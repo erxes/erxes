@@ -37,8 +37,8 @@ export default withProps<Props>(
       name: "tagsQuery",
       options: ({ tagIds }) => ({
         variables: { tagIds },
-        fetchPolicy: "network-only"
-      })
+        fetchPolicy: "network-only",
+      }),
     })
   )(TaggedLogContainer)
 );

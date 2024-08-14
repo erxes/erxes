@@ -147,6 +147,19 @@ export type HistoryGetTypesQueryResponse = {
   historyGetTypes: IContentType[];
 } & QueryResponse;
 
+export type FieldsCombinedByContentTypeQueryResponse = {
+  fieldsCombinedByContentType: IExportField[];
+} & QueryResponse;
+
+export type ExportHistoriesQueryResponse = {
+  exportHistories: IExportHistoryItem;
+  stopPolling: () => any;
+} & QueryResponse;
+
+export type HistoryGetTypesQueryResponse = {
+  historyGetTypes: IContentType[];
+} & QueryResponse;
+
 export type ExportHistoryDetailQueryResponse = {
   importHistoryDetail: IExportHistory;
   subscribeToMore: any;

@@ -1,19 +1,19 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
 import {
   ConversationDetailQueryResponse,
   FacebookCommentsQueryResponse,
-  MessagesQueryResponse
-} from '@erxes/ui-inbox/src/inbox/types';
+  MessagesQueryResponse,
+} from "@erxes/ui-inbox/src/inbox/types";
 
-import Conversation from '../../components/items/Conversation';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import Conversation from "../../components/items/Conversation";
+import { IActivityLog } from "@erxes/ui-log/src/activityLogs/types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   activity: IActivityLog;
@@ -28,11 +28,8 @@ type FinalProps = {
 
 class ConversationContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      conversationDetailQuery,
-      messagesQuery,
-      commentsQuery
-    } = this.props;
+    const { conversationDetailQuery, messagesQuery, commentsQuery } =
+      this.props;
 
     if (conversationDetailQuery.loading || messagesQuery.loading) {
       return <Spinner />;
@@ -46,7 +43,7 @@ class ConversationContainer extends React.Component<FinalProps> {
       ...this.props,
       conversation,
       messages,
-      comments
+      comments,
     };
 
     return <Conversation {...updatedProps} />;
@@ -58,35 +55,35 @@ export default withProps<Props>(
     graphql<Props, ConversationDetailQueryResponse>(
       gql(queries.conversationDetail),
       {
-        name: 'conversationDetailQuery',
+        name: "conversationDetailQuery",
         options: ({ conversationId }) => ({
           variables: {
-            _id: conversationId
-          }
-        })
+            _id: conversationId,
+          },
+        }),
       }
     ),
     graphql<Props, MessagesQueryResponse>(gql(queries.conversationMessages), {
-      name: 'messagesQuery',
+      name: "messagesQuery",
       options: ({ conversationId }) => ({
         variables: {
           conversationId,
           limit: 10,
-          getFirst: true
-        }
-      })
+          getFirst: true,
+        },
+      }),
     }),
     graphql<Props, FacebookCommentsQueryResponse>(
       gql(queries.facebookGetComments),
       {
-        name: 'commentsQuery',
-        skip: ({ activity }) => activity.contentType !== 'comment',
+        name: "commentsQuery",
+        skip: ({ activity }) => activity.contentType !== "comment",
         options: ({ conversationId, activity }) => ({
           variables: {
             conversationId,
-            senderId: activity.contentId
-          }
-        })
+            senderId: activity.contentId,
+          },
+        }),
       }
     )
   )(ConversationContainer)

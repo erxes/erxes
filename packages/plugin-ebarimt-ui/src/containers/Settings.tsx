@@ -26,7 +26,7 @@ const SettingsContainer: React.FC<FinalProps> = props => {
 
   const fieldsQuery = useQuery(gql(formQueries.fieldsGroups), {
     variables: { contentType: "sales:deal" },
-    skip: !isEnabled("forms") || props.configCode !== "EBARIMT"
+    skip: props.configCode !== "EBARIMT"
   });
 
   const [updateConfigs] = useMutation(gql(mutations.updateConfigs));

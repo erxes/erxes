@@ -22,6 +22,7 @@ import Select from "react-select";
 import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
 import { invalidateCache } from "../../utils";
 import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 
 type Props = {
   options: IOptions;
@@ -393,11 +394,11 @@ class AddForm extends React.Component<Props, State> {
           fields={this.props.fields}
         />
 
-        {loadDynamicComponent("relationForm", {
-          ...this.props,
-          onChange: this.onRelationsChange,
-          contentType: `sales:${type}`
-        })}
+        <RelationForm
+          {...this.props}
+          onChange={this.onRelationsChange}
+          contentType={`sales:${type}`}
+        />
 
         <FormFooter>
           <Button

@@ -1,4 +1,4 @@
-import { __ } from "coreui/utils";
+import { __ } from "@erxes/ui/src/utils";
 
 export const TAG_TYPES = {
   CONVERSATION: __("inbox:conversation"),

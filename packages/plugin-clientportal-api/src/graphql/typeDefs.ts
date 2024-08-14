@@ -36,26 +36,20 @@ const typeDefs = async () => {
     isEnabled("tasks") ||
     isEnabled("purchases");
   const isContactsEnabled = isEnabled("contacts");
-  const formsAvailable = isEnabled("forms");
   const productsAvailable = isEnabled("products");
 
   return gql`
     scalar JSON
     scalar Date
 
-    ${clientPortalTypes(
-      cardAvailable,
-      kbAvailable,
-      formsAvailable,
-      productsAvailable
-    )}
+    ${clientPortalTypes(cardAvailable, kbAvailable, productsAvailable)}
     ${clientPortalUserTypes(isContactsEnabled)}
     ${notificationTypes}
     ${commentTypes}
     ${fieldConfigTypes}
 
     extend type Query {
-     ${clientPortalQueries(cardAvailable, kbAvailable, formsAvailable)}
+     ${clientPortalQueries(cardAvailable, kbAvailable)}
      ${clientPortalUserQueries()}
      ${notificationQueries}
      ${commentQueries}

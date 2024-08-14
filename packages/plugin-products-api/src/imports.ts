@@ -1,5 +1,5 @@
 import { generateModels } from "./connectionResolver";
-import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 
 export const IMPORT_EXPORT_TYPES = [
   {
@@ -79,7 +79,7 @@ export default {
                 value: fieldValue[colIndex]
               });
 
-              doc.customFieldsData = await sendFormsMessage({
+              doc.customFieldsData = await sendCoreMessage({
                 subdomain,
                 action: "fields.prepareCustomFieldsData",
                 data: doc.customFieldsData,

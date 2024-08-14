@@ -205,15 +205,6 @@ export const sendProductsMessage = async (
   });
 };
 
-export const sendFormsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

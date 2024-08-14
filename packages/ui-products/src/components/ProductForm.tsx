@@ -25,7 +25,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import Icon from "@erxes/ui/src/components/Icon";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
 import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
+import { Row } from "../styles";
 import Select from "react-select";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
@@ -53,7 +53,7 @@ type State = {
   vendorId: string;
   description: string;
   uom: string;
-  subUoms: { _id: string, uom: string, ratio: number }[];
+  subUoms: { _id: string; uom: string; ratio: number }[];
   taxType: string;
   taxCode: string;
   scopeBrandIds: string[];
@@ -353,7 +353,7 @@ const Form = (props: Props) => {
   };
 
   const onClickAddSub = () => {
-    const subUoms = [...state.subUoms || []];
+    const subUoms = [...(state.subUoms || [])];
 
     subUoms.push({ uom: "", ratio: 1, _id: Math.random().toString() });
     setState((prevState) => ({ ...prevState, subUoms }));
@@ -411,10 +411,13 @@ const Form = (props: Props) => {
   };
 
   const onTaxChange = (e) => {
-    setState((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    } as any));
+    setState(
+      (prevState) =>
+        ({
+          ...prevState,
+          [e.target.name]: e.target.value,
+        }) as any
+    );
   };
 
   const onChangeCateogry = (option) => {
@@ -535,7 +538,10 @@ const Form = (props: Props) => {
       (object.attachment && extractAttachment([object.attachment])) || [];
 
     const attachmentsMore =
-      (object.attachmentMore && object.attachmentMore.length) && extractAttachment(object.attachmentMore) || [];
+      (object.attachmentMore &&
+        object.attachmentMore.length &&
+        extractAttachment(object.attachmentMore)) ||
+      [];
 
     const {
       vendorId,

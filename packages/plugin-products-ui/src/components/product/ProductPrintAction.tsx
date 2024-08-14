@@ -4,6 +4,7 @@ import {
   FormWrapper,
   ModalFooter,
 } from "@erxes/ui/src/styles/main";
+import React, { useState } from "react";
 import { __, getEnv } from "@erxes/ui/src/utils";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -15,10 +16,9 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { Label } from "@erxes/ui/src/components/form/styles";
 import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import React, { useState } from "react";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import client from "@erxes/ui/src/apolloClient";
 import { colors } from "@erxes/ui/src/styles";
 import { gql } from "@apollo/client";

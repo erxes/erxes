@@ -374,12 +374,6 @@ export const sendPricingMessage = async (
   return sendMessageWrapper("pricing", args);
 };
 
-export const sendFormsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessageWrapper("forms", args);
-};
-
 export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {

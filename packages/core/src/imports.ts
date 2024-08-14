@@ -1,13 +1,12 @@
-import { InterMessage } from '@erxes/api-utils/src/messageBroker';
-import { generateModels } from './connectionResolver';
-import { sendFormsMessage } from './messageBroker';
+import { InterMessage } from "@erxes/api-utils/src/messageBroker";
+import { generateModels } from "./connectionResolver";
 
 const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Team member',
-    contentType: 'user',
-    icon: 'user-square',
-  },
+    text: "Team member",
+    contentType: "user",
+    icon: "user-square"
+  }
 ];
 
 export default {
@@ -39,58 +38,54 @@ export default {
 
       // Iterating through detailed properties
       for (const property of properties) {
-        const value = (fieldValue[colIndex] || '').toString();
+        const value = (fieldValue[colIndex] || "").toString();
 
         switch (property.name) {
-          case 'customProperty':
+          case "customProperty":
             {
-              doc.customFieldsData = await sendFormsMessage({
-                subdomain,
-                action: 'fields.prepareCustomFieldsData',
-                data: doc.customFieldsData,
-                isRPC: true,
-                defaultValue: doc.customFieldsData,
-                timeout: 60 * 1000, // 1 minute,
-              });
+              doc.customFieldsData =
+                await models.Fields.prepareCustomFieldsData(
+                  doc.customFieldsData
+                );
 
               doc.customFieldsData.push({
                 field: property.id,
-                value: fieldValue[colIndex],
+                value: fieldValue[colIndex]
               });
             }
             break;
 
-          case 'password':
+          case "password":
             {
               doc.password = await models.Users.generatePassword(value);
             }
             break;
 
-          case 'departments':
+          case "departments":
             {
-              const departmentTitles = value.split(',');
+              const departmentTitles = value.split(",");
 
               const departmentIds = await models.Departments.find({
-                title: { $in: departmentTitles },
-              }).distinct('_id');
+                title: { $in: departmentTitles }
+              }).distinct("_id");
 
               doc.departmentIds = departmentIds;
             }
             break;
 
-          case 'branches':
+          case "branches":
             {
-              const branchTitles = value.split(',');
+              const branchTitles = value.split(",");
 
               const branchIds = await models.Branches.find({
-                title: { $in: branchTitles },
-              }).distinct('_id');
+                title: { $in: branchTitles }
+              }).distinct("_id");
 
               doc.branchIds = branchIds;
             }
             break;
 
-          case 'customData':
+          case "customData":
             {
               doc[property.name] = value;
             }
@@ -100,19 +95,19 @@ export default {
             {
               doc[property.name] = value;
 
-              if (property.name === 'createdAt' && value) {
+              if (property.name === "createdAt" && value) {
                 doc.createdAt = new Date(value);
               }
 
-              if (property.name === 'emails' && value) {
-                doc.emails = value.split(',');
+              if (property.name === "emails" && value) {
+                doc.emails = value.split(",");
               }
 
-              if (property.name === 'names' && value) {
-                doc.names = value.split(',');
+              if (property.name === "names" && value) {
+                doc.names = value.split(",");
               }
 
-              if (property.name === 'isComplete') {
+              if (property.name === "isComplete") {
                 doc.isComplete = Boolean(value);
               }
             }
@@ -126,5 +121,5 @@ export default {
     }
 
     return bulkDoc;
-  },
+  }
 };

@@ -7,7 +7,7 @@ import {
   gatherNames,
   getSchemaLabels
 } from "@erxes/api-utils/src/logUtils";
-import { sendCoreMessage, sendFormsMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import { LOG_MAPPINGS, MODULE_NAMES } from "./constants";
 import { IModels } from "./connectionResolver";
 import { collectConversations } from "./receiveMessage";
@@ -48,10 +48,10 @@ const findTags = async (subdomain: string, ids: string[]) => {
   });
 };
 
-const findForms = async (subdomain: string, ids: string[]) => {
-  return sendFormsMessage({
+const formsFind = async (subdomain: string, ids: string[]) => {
+  return sendCoreMessage({
     subdomain,
-    action: "find",
+    action: "formsFind",
     data: {
       query: { _id: { $in: ids } }
     },
@@ -103,7 +103,7 @@ export const gatherIntegrationFieldNames = async (
       foreignKey: "formId",
       prevList: options,
       nameFields: ["title"],
-      items: await findForms(subdomain, [doc.formId])
+      items: await formsFind(subdomain, [doc.formId])
     });
   }
 

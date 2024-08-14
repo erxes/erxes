@@ -1,19 +1,15 @@
-import { Model } from 'mongoose';
-import { putActivityLog, prepareCocLogData } from '../logUtils';
-import { validSearchText } from '@erxes/api-utils/src';
-import { ICustomField } from '@erxes/api-utils/src/definitions/common';
+import { Model } from "mongoose";
+import { putActivityLog, prepareCocLogData } from "../logUtils";
+import { validSearchText } from "@erxes/api-utils/src";
+import { ICustomField } from "@erxes/api-utils/src/definitions/common";
 import {
   companySchema,
   ICompany,
   ICompanyDocument
-} from './definitions/companies';
-import { ACTIVITY_CONTENT_TYPES } from './definitions/constants';
-import { IModels } from '../connectionResolver';
-import {
-  sendCoreMessage,
-  sendFormsMessage,
-  sendInternalNotesMessage
-} from '../messageBroker';
+} from "./definitions/companies";
+import { ACTIVITY_CONTENT_TYPES } from "./definitions/constants";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage, sendInternalNotesMessage } from "../messageBroker";
 
 export interface ICompanyModel extends Model<ICompanyDocument> {
   getCompanyName(company: ICompany): string;
@@ -68,7 +64,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       idsToExclude?: string[] | string
     ) {
       const query: { status: {}; [key: string]: any } = {
-        status: { $ne: 'deleted' }
+        status: { $ne: "deleted" }
       };
       let previousEntry;
 
@@ -89,7 +85,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         });
 
         if (previousEntry.length > 0) {
-          throw new Error('Duplicated name');
+          throw new Error("Duplicated name");
         }
       }
 
@@ -101,21 +97,21 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         });
 
         if (previousEntry.length > 0) {
-          throw new Error('Duplicated code');
+          throw new Error("Duplicated code");
         }
       }
     }
 
     public static fillSearchText(doc: ICompany) {
       return validSearchText([
-        (doc.names || []).join(' '),
-        (doc.emails || []).join(' '),
-        (doc.phones || []).join(' '),
-        doc.website || '',
-        doc.industry || '',
-        doc.plan || '',
-        doc.description || '',
-        doc.code || ''
+        (doc.names || []).join(" "),
+        (doc.emails || []).join(" "),
+        (doc.phones || []).join(" "),
+        doc.website || "",
+        doc.industry || "",
+        doc.plan || "",
+        doc.description || "",
+        doc.code || ""
       ]);
     }
 
@@ -124,7 +120,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         company.primaryName ||
         company.primaryEmail ||
         company.primaryPhone ||
-        'Unknown'
+        "Unknown"
       );
     }
 
@@ -160,7 +156,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         trackedData = trackedData.filter(e => e.field !== name);
       }
 
-      trackedData = trackedData.filter(e => e.field !== 'name');
+      trackedData = trackedData.filter(e => e.field !== "name");
 
       doc.trackedData = trackedData;
 
@@ -207,7 +203,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
 
     public static async findActiveCompanies(selector, fields?, skip?, limit?) {
       return models.Companies.find(
-        { ...selector, status: { $ne: 'deleted' } },
+        { ...selector, status: { $ne: "deleted" } },
         fields
       )
         .skip(skip || 0)
@@ -222,7 +218,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       const company = await models.Companies.findOne({ _id });
 
       if (!company) {
-        throw new Error('Company not found');
+        throw new Error("Company not found");
       }
 
       return company;
@@ -243,9 +239,9 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       this.fixListFields(doc, doc.trackedData);
 
       // clean custom field values
-      doc.customFieldsData = await sendFormsMessage({
+      doc.customFieldsData = await sendCoreMessage({
         subdomain,
-        action: 'fields.prepareCustomFieldsData',
+        action: "fields.prepareCustomFieldsData",
         data: doc.customFieldsData,
         isRPC: true,
         defaultValue: []
@@ -260,10 +256,10 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
 
       // create log
       await putActivityLog(subdomain, {
-        action: 'createCocLog',
+        action: "createCocLog",
         data: {
           coc: company,
-          contentType: 'company',
+          contentType: "company",
           ...prepareCocLogData(company)
         }
       });
@@ -284,9 +280,9 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
 
       // clean custom field values
       if (doc.customFieldsData) {
-        doc.customFieldsData = await sendFormsMessage({
+        doc.customFieldsData = await sendCoreMessage({
           subdomain,
-          action: 'fields.prepareCustomFieldsData',
+          action: "fields.prepareCustomFieldsData",
           data: doc.customFieldsData,
           isRPC: true
         });
@@ -310,13 +306,13 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
     public static async removeCompanies(companyIds: string[]) {
       // Removing modules associated with company
       await putActivityLog(subdomain, {
-        action: 'removeActivityLogs',
+        action: "removeActivityLogs",
         data: { type: ACTIVITY_CONTENT_TYPES.COMPANY, itemIds: companyIds }
       });
 
       await sendInternalNotesMessage({
         subdomain,
-        action: 'removeInternalNotes',
+        action: "removeInternalNotes",
         data: {
           contentType: ACTIVITY_CONTENT_TYPES.COMPANY,
           contentTypeIds: companyIds
@@ -324,8 +320,8 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       });
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.removeConformities',
-        data: { mainType: 'company', mainTypeIds: companyIds }
+        action: "conformities.removeConformities",
+        data: { mainType: "company", mainTypeIds: companyIds }
       });
 
       return models.Companies.deleteMany({ _id: { $in: companyIds } });
@@ -379,10 +375,10 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
         // Merging company phones
         phones = phones.concat(companyPhones);
 
-        companyObj.status = 'deleted';
+        companyObj.status = "deleted";
 
         await models.Companies.findByIdAndUpdate(companyId, {
-          $set: { status: 'deleted' }
+          $set: { status: "deleted" }
         });
       }
 
@@ -407,9 +403,9 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       // Updating customer companies, deals, tasks, tickets, purchase
       await sendCoreMessage({
         subdomain,
-        action: 'conformities.changeConformity',
+        action: "conformities.changeConformity",
         data: {
-          type: 'company',
+          type: "company",
           newTypeId: company._id,
           oldTypeIds: companyIds
         }
@@ -418,9 +414,9 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       // Removing modules associated with current companies
       await sendInternalNotesMessage({
         subdomain,
-        action: 'batchUpdate',
+        action: "batchUpdate",
         data: {
-          contentType: 'contacts:company',
+          contentType: "contacts:company",
           newContentTypeId: company._id,
           oldContentTypeIds: companyIds
         }

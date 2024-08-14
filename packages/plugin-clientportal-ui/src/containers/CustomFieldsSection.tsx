@@ -25,8 +25,7 @@ const CustomFieldsSection = (props: Props) => {
       variables: {
         contentType: "clientportal:user",
         isDefinedByErxes: false
-      },
-      skip: !isEnabled("forms") ? true : false
+      }
     }
   );
 

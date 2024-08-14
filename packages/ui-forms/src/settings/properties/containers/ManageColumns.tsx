@@ -9,7 +9,6 @@ import ManageColumns from "../components/ManageColumns";
 import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries } from "@erxes/ui-forms/src/forms/graphql";
 import queryString from "query-string";
 
@@ -163,7 +162,6 @@ export default withProps<Props>(
           },
         };
       },
-      skip: !isEnabled("forms"),
     }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
@@ -178,7 +176,6 @@ export default withProps<Props>(
             },
           };
         },
-        skip: !isEnabled("forms"),
       }
     )
   )(ManageColumnsContainer)

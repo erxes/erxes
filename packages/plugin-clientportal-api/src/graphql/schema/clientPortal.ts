@@ -1,9 +1,4 @@
-export const types = (
-  cardAvailable,
-  kbAvailable,
-  formsAvailable,
-  productsAvailable
-) => `
+export const types = (cardAvailable, kbAvailable, productsAvailable) => `
 ${
   cardAvailable
     ? `
@@ -50,14 +45,9 @@ ${
     : ""
 }
 
-${
-  formsAvailable
-    ? `
     extend type Field @key(fields: "_id") {
       _id: String! @external
     }
-    `
-    : ""
 }
 
   type OTPConfig {
@@ -352,19 +342,13 @@ ${
 
 `;
 
-export const queries = (cardAvailable, kbAvailable, formsAvailable) => `
+export const queries = (cardAvailable, kbAvailable) => `
   clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
   clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
   clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
   clientPortalConfigsTotalCount: Int
-  ${
-    formsAvailable
-      ? `
   clientPortalGetAllowedFields(_id: String!): [Field]
-  `
-      : ""
-  }
   ${
     cardAvailable
       ? `

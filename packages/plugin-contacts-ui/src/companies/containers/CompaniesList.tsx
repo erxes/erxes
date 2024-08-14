@@ -8,7 +8,7 @@ import {
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
-  RemoveMutationVariables,
+  RemoveMutationVariables
 } from "../types";
 import { mutations, queries } from "../graphql";
 
@@ -59,7 +59,7 @@ const CompanyListContainer = (props: FinalProps) => {
     companiesMainQuery,
     companiesListConfigQuery,
     companiesRemove,
-    companiesMerge,
+    companiesMerge
   } = props;
   let columnsConfig = (companiesListConfigQuery &&
     companiesListConfigQuery.fieldsDefaultColumnsConfig) || [
@@ -70,7 +70,7 @@ const CompanyListContainer = (props: FinalProps) => {
     { name: "plan", label: "Plan", order: 5 },
     { name: "lastSeenAt", label: "Last seen at", order: 6 },
     { name: "sessionCount", label: "Session count", order: 7 },
-    { name: "score", label: "Score", order: 8 },
+    { name: "score", label: "Score", order: 8 }
   ];
 
   // load config from local storage
@@ -79,14 +79,14 @@ const CompanyListContainer = (props: FinalProps) => {
   );
 
   if (localConfig) {
-    columnsConfig = JSON.parse(localConfig).filter((conf) => {
+    columnsConfig = JSON.parse(localConfig).filter(conf => {
       return conf && conf.checked;
     });
   }
 
   const removeCompanies = ({ companyIds }, emptyBulk) => {
     companiesRemove({
-      variables: { companyIds },
+      variables: { companyIds }
     })
       .then(() => {
         emptyBulk();
@@ -97,7 +97,7 @@ const CompanyListContainer = (props: FinalProps) => {
 
         refetchWithDelay();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -106,15 +106,15 @@ const CompanyListContainer = (props: FinalProps) => {
     companiesMerge({
       variables: {
         companyIds: ids,
-        companyFields: data,
-      },
+        companyFields: data
+      }
     })
-      .then((response) => {
+      .then(response => {
         Alert.success("You successfully merged companies");
         callback();
         navigate(`/companies/details/${response.data.companiesMerge._id}`);
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -123,7 +123,7 @@ const CompanyListContainer = (props: FinalProps) => {
 
   const { list = [], totalCount = 0 } = companiesMainQuery.companiesMain || {};
 
-  const exportCompanies = (bulk) => {
+  const exportCompanies = bulk => {
     const { REACT_APP_API_URL } = getEnv();
     const { queryParams } = props;
     const checkedConfigs: any[] = [];
@@ -134,17 +134,17 @@ const CompanyListContainer = (props: FinalProps) => {
     }
 
     if (bulk.length > 0) {
-      queryParams.ids = bulk.map((company) => company._id);
+      queryParams.ids = bulk.map(company => company._id);
     }
 
-    columnsConfig.forEach((checked) => {
+    columnsConfig.forEach(checked => {
       checkedConfigs.push(checked.name);
     });
 
     const stringified = queryString.stringify({
       ...queryParams,
       type: "company",
-      configs: JSON.stringify(checkedConfigs),
+      configs: JSON.stringify(checkedConfigs)
     });
 
     window.open(
@@ -163,10 +163,10 @@ const CompanyListContainer = (props: FinalProps) => {
     exportCompanies,
     removeCompanies,
     mergeCompanies,
-    refetch: refetchWithDelay,
+    refetch: refetchWithDelay
   };
 
-  const companiesList = (props) => {
+  const companiesList = props => {
     return (
       <CompaniesList
         {...updatedProps}
@@ -194,7 +194,7 @@ const generateParams = ({ queryParams }) => {
     dateFilters: queryParams.dateFilters,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined,
+      : undefined
   };
 };
 
@@ -202,20 +202,20 @@ const getRefetchQueries = (queryParams?: any) => {
   return [
     {
       query: gql(queries.companiesMain),
-      variables: { ...generateParams({ queryParams }) },
+      variables: { ...generateParams({ queryParams }) }
     },
     {
       query: gql(queries.companyCounts),
-      variables: { only: "byTag" },
+      variables: { only: "byTag" }
     },
     {
       query: gql(queries.companyCounts),
-      variables: { only: "bySegment" },
+      variables: { only: "bySegment" }
     },
     {
       query: gql(queries.companyCounts),
-      variables: { only: "byBrand" },
-    },
+      variables: { only: "byBrand" }
+    }
   ];
 };
 
@@ -226,15 +226,14 @@ export default withProps<Props>(
       {
         name: "companiesMainQuery",
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-        }),
+          variables: generateParams({ queryParams })
+        })
       }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.companiesListConfig),
       {
-        name: "companiesListConfigQuery",
-        skip: !isEnabled("forms"),
+        name: "companiesListConfigQuery"
       }
     ),
     // mutations
@@ -243,8 +242,8 @@ export default withProps<Props>(
       {
         name: "companiesRemove",
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams),
-        }),
+          refetchQueries: getRefetchQueries(queryParams)
+        })
       }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
@@ -252,8 +251,8 @@ export default withProps<Props>(
       {
         name: "companiesMerge",
         options: ({ queryParams }) => ({
-          refetchQueries: getRefetchQueries(queryParams),
-        }),
+          refetchQueries: getRefetchQueries(queryParams)
+        })
       }
     )
   )(CompanyListContainer)

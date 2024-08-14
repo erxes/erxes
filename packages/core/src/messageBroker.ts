@@ -44,6 +44,7 @@ import {
   fetchSegment,
   isInSegment
 } from "./data/resolvers/queries/segmentsQueryBuilder";
+import { fieldsCombinedByContentType } from "./formUtils";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -988,6 +989,245 @@ export const setupMessageConsumers = async (): Promise<void> => {
       };
     }
   );
+
+  //forms
+
+  consumeRPCQueue(
+    "core:validate",
+    async ({ subdomain, data: { formId, submissions } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Forms.validateForm(formId, submissions)
+      };
+    }
+  );
+
+  consumeRPCQueue("core:formsFind", async ({ subdomain, data: { query } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Forms.find(query).lean()
+    };
+  });
+
+  consumeRPCQueue("core:formsFindOne", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Forms.findOne(data).lean()
+    };
+  });
+
+  consumeRPCQueue("core:duplicate", async ({ subdomain, data: { formId } }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: "success",
+      data: await models.Forms.duplicate(formId)
+    };
+  });
+
+  consumeRPCQueue(
+    "core:createForm",
+    async ({ subdomain, data: { formDoc, userId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Forms.createForm(formDoc, userId)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:removeForm",
+    async ({ subdomain, data: { formId } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Forms.removeForm(formId)
+      };
+    }
+  );
+
+  consumeQueue(
+    "core:fields.insertMany",
+    async ({ subdomain, data: { fields } }) => {
+      const models = await generateModels(subdomain);
+
+      return models.Fields.insertMany(fields);
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.prepareCustomFieldsData",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      return {
+        status: "success",
+        data: await models.Fields.prepareCustomFieldsData(data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.generateCustomFieldsData",
+    async ({ subdomain, data: { customData, contentType } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Fields.generateCustomFieldsData(
+          customData,
+          contentType
+        )
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.generateTypedListFromMap",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Fields.generateTypedListFromMap(data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.generateTypedItem",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Fields.generateTypedItem(
+          data.field,
+          data.value,
+          data.type,
+          data.validation
+        )
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.fieldsCombinedByContentType",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await fieldsCombinedByContentType(models, subdomain, data)
+      };
+    }
+  );
+
+  consumeQueue(
+    "core:updateGroup",
+    async ({ subdomain, data: { groupId, fieldsGroup } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.FieldsGroups.updateGroup(groupId, fieldsGroup)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.find",
+    async ({ subdomain, data: { query, projection, sort } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Fields.find(query, projection).sort(sort).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fields.findOne",
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.Fields.findOne(query).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fieldsGroups.find",
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.FieldsGroups.find(query).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fieldsGroups.findOne",
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.FieldsGroups.findOne(query).lean()
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:fieldsCombinedByContentType",
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await fieldsCombinedByContentType(models, subdomain, data)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    "core:submissions.find",
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.FormSubmissions.find(query).lean()
+      };
+    }
+  );
+
+  consumeQueue(
+    "core:submissions.createFormSubmission",
+    async ({ subdomain, data: { submissions } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: "success",
+        data: await models.FormSubmissions.insertMany(submissions, {
+          ordered: false
+        })
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
@@ -1032,15 +1272,6 @@ export const sendInboxMessage = (
   });
 };
 
-export const sendFormsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendNotificationsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
@@ -1074,7 +1305,7 @@ export const getContentIds = async (subdomain: string, data) => {
   });
 };
 
-export const fetchService = async (
+export const fetchServiceSegments = async (
   subdomain: string,
   contentType: string,
   action: string,
@@ -1088,6 +1319,28 @@ export const fetchService = async (
     isRPC: true,
     serviceName,
     action: `logs.${action}`,
+    data: {
+      ...data,
+      type
+    },
+    defaultValue
+  });
+};
+
+export const fetchServiceForms = async (
+  subdomain: string,
+  contentType: string,
+  action: string,
+  data,
+  defaultValue?
+) => {
+  const [serviceName, type] = contentType.split(":");
+
+  return sendMessage({
+    subdomain,
+    isRPC: true,
+    serviceName,
+    action: `fields.${action}`,
     data: {
       ...data,
       type

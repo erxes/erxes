@@ -12,7 +12,6 @@ import {
   fetchSegment,
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage,
   sendNotificationsMessage
 } from "../../../messageBroker";
 import { IUserDocument } from "@erxes/api-utils/src/types";
@@ -1176,7 +1175,7 @@ export const getItemList = async (
     serverTiming.startTime("getItemsFields");
   }
 
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
     action: "fields.find",
     data: {

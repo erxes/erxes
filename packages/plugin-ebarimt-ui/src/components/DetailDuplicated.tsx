@@ -5,7 +5,7 @@ import { IPutResponse } from "../types";
 import PerResponse from "./PerResponse";
 import React from "react";
 import Response from "./Response";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import _ from "lodash";
 import dayjs from "dayjs";
 
@@ -106,9 +106,7 @@ class DetailDuplicated extends React.Component<IProps, State> {
               <td key={"billType"}>{displayValue(putResponse, "billType")}</td>
               <td key={"taxType"}>{displayValue(putResponse, "taxType")}</td>
               <td key={"amount"}>{displayValue(putResponse, "amount")}</td>
-              <td key={"inactiveId"}>
-                {putResponse.sendInfo?.inactiveId}{" "}
-              </td>
+              <td key={"inactiveId"}>{putResponse.sendInfo?.inactiveId} </td>
               <td key={"actions"}>
                 <Button
                   btnStyle="link"

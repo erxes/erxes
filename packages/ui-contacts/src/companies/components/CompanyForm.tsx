@@ -12,7 +12,6 @@ import {
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { ICompany, ICompanyDoc, ICompanyLinks } from "../types";
 import { __, getConstantFromStore } from "@erxes/ui/src/utils";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
@@ -24,6 +23,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import Select from "react-select";
 import SelectCompanies from "../containers/SelectCompanies";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
@@ -394,20 +394,20 @@ class CompanyForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
-          {isEnabled("forms") && (
-            <CollapseContent title={__("Relations")} compact={true}>
-              <FormWrapper>
-                <FormColumn>
-                  {!this.props.company &&
-                    loadDynamicComponent("relationForm", {
-                      ...this.props,
-                      onChange: this.onRelationsChange,
-                      contentType: "contacts:company",
-                    })}
-                </FormColumn>
-              </FormWrapper>
-            </CollapseContent>
-          )}
+
+          <CollapseContent title={__("Relations")} compact={true}>
+            <FormWrapper>
+              <FormColumn>
+                {!this.props.company && (
+                  <RelationForm
+                    {...this.props}
+                    onChange={this.onRelationsChange}
+                    contentType="contacts:company"
+                  />
+                )}
+              </FormColumn>
+            </FormWrapper>
+          </CollapseContent>
         </ScrollWrapper>
 
         <ModalFooter>

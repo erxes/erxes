@@ -34,7 +34,6 @@ import {
   sendAutomationsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage,
   sendIntegrationsMessage,
   sendProductsMessage
 } from "../../messageBroker";
@@ -233,9 +232,9 @@ export const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await sendFormsMessage({
+  const form = await sendCoreMessage({
     subdomain,
-    action: "findOne",
+    action: "formsFindOne",
     data: { _id: formId },
     isRPC: true
   });
@@ -244,7 +243,7 @@ export const createFormConversation = async (
     throw new Error("Form not found");
   }
 
-  const errors = await sendFormsMessage({
+  const errors = await sendCoreMessage({
     subdomain,
     action: "validate",
     data: {
@@ -337,7 +336,7 @@ export const createFormConversation = async (
     });
   }
 
-  await sendFormsMessage({
+  await sendCoreMessage({
     subdomain,
     action: "submissions.createFormSubmission",
     data: {
@@ -398,9 +397,9 @@ const widgetMutations = {
       defaultValue: {}
     });
 
-    const form = await sendFormsMessage({
+    const form = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { code: args.formCode },
       isRPC: true
     });
@@ -520,7 +519,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const {
       brandCode,
@@ -634,7 +633,7 @@ const widgetMutations = {
         isRPC: true
       });
 
-      const { customFieldsData, trackedData } = await sendFormsMessage({
+      const { customFieldsData, trackedData } = await sendCoreMessage({
         subdomain,
         action: "fields.generateCustomFieldsData",
         data: {
@@ -693,6 +692,15 @@ const widgetMutations = {
         { _id: integration._id },
         { $set: { isConnected: true } }
       );
+
+      await sendCoreMessage({
+        subdomain,
+        action: "registerOnboardHistory",
+        data: {
+          type: "erxesMessagerConnect",
+          user
+        }
+      });
     }
 
     return {
@@ -1139,9 +1147,9 @@ const widgetMutations = {
       isRPC: true
     });
 
-    const form = await sendFormsMessage({
+    const form = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { _id: formId },
       isRPC: true
     });

@@ -1,60 +1,65 @@
 export const USER_PROPERTIES_INFO = {
-  email: 'Primary email',
-  username: 'User name',
+  email: "Primary email",
+  username: "User name",
   ALL: [
-    { field: 'email', label: 'Primary email', canHide: false },
-    { field: 'username', label: 'User name' }
+    { field: "email", label: "Primary email", canHide: false },
+    { field: "username", label: "User name" }
   ]
 };
 
 export const STRUCTURE_STATUSES = {
-  ACTIVE: 'active',
-  DELETED: 'deleted'
+  ACTIVE: "active",
+  DELETED: "deleted"
 };
 
 export const USER_MOVEMENT_STATUSES = {
-  CREATED: 'created',
-  REMOVED: 'removed'
+  CREATED: "created",
+  REMOVED: "removed"
 };
 
 export const USER_EXTENDED_FIELDS = [
   {
     _id: Math.random(),
-    name: 'departments',
-    label: 'Departments',
-    type: 'string'
+    name: "departments",
+    label: "Departments",
+    type: "string"
   },
   {
     _id: Math.random(),
-    name: 'branches',
-    label: 'Branches',
-    type: 'string'
+    name: "branches",
+    label: "Branches",
+    type: "string"
   },
   {
     _id: Math.random(),
-    name: 'password',
-    label: 'password',
-    type: 'string'
+    name: "password",
+    label: "password",
+    type: "string"
   }
 ];
 
 export const USER_EXPORT_EXTENDED_FIELDS = [
   {
     _id: Math.random(),
-    name: 'departments',
-    label: 'Departments',
-    type: 'string'
+    name: "departments",
+    label: "Departments",
+    type: "string"
   },
   {
     _id: Math.random(),
-    name: 'branches',
-    label: 'Branches',
-    type: 'string'
+    name: "branches",
+    label: "Branches",
+    type: "string"
   },
   {
     _id: Math.random(),
-    name: 'employeeId',
-    label: 'Employee Id',
-    type: 'string'
+    name: "employeeId",
+    label: "Employee Id",
+    type: "string"
   }
+];
+
+export const INPUT_TYPE = [
+  { label: "Text", value: "text" },
+  { label: "Text Area", value: "textarea" }
 ];

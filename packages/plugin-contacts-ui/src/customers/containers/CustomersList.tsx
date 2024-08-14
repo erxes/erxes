@@ -9,13 +9,13 @@ import {
   ListQueryVariables,
   MainQueryResponse,
   VerifyMutationResponse,
-  VerifyMutationVariables,
+  VerifyMutationVariables
 } from "@erxes/ui-contacts/src/customers/types";
 import {
   MergeMutationResponse,
   MergeMutationVariables,
   RemoveMutationResponse,
-  RemoveMutationVariables,
+  RemoveMutationVariables
 } from "@erxes/ui-contacts/src/customers/types";
 import React, { useEffect, useRef, useState } from "react";
 import { mutations, queries } from "@erxes/ui-contacts/src/customers/graphql";
@@ -84,7 +84,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     customersVerify,
     customersChangeVerificationStatus,
     type,
-    customersChangeStateBulk,
+    customersChangeStateBulk
   } = props;
 
   let columnsConfig = (customersListConfigQuery &&
@@ -95,7 +95,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     { name: "lastSeenAt", label: "Last seen at", order: 4 },
     { name: "sessionCount", label: "Session count", order: 5 },
     { name: "profileScore", label: "Profile score", order: 6 },
-    { name: "middleName", label: "Middle name", order: 7 },
+    { name: "middleName", label: "Middle name", order: 7 }
   ];
 
   // load config from local storage
@@ -104,14 +104,14 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
   );
 
   if (localConfig) {
-    columnsConfig = JSON.parse(localConfig).filter((conf) => {
+    columnsConfig = JSON.parse(localConfig).filter(conf => {
       return conf && conf.checked;
     });
   }
 
   const removeCustomers = ({ customerIds }, emptyBulk) => {
     customersRemove({
-      variables: { customerIds },
+      variables: { customerIds }
     })
       .then(() => {
         emptyBulk();
@@ -122,7 +122,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
 
         refetchWithDelay();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -133,8 +133,8 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     customersMerge({
       variables: {
         customerIds: ids,
-        customerFields: data,
-      },
+        customerFields: data
+      }
     })
       .then((result: any) => {
         callback();
@@ -142,7 +142,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
         Alert.success("You successfully merged a customer");
         navigate(`/contacts/details/${result.data.customersMerge._id}`);
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
         setMergeCustomerLoading(false);
       });
@@ -153,15 +153,15 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
 
     customersVerify({
       variables: {
-        verificationType,
-      },
+        verificationType
+      }
     })
       .then(() => {
         Alert.success(
           "Your request has been successfully sent. Your contacts will be verified after a while"
         );
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -169,21 +169,21 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
   const changeVerificationStatus = ({
     customerIds,
     verificationType,
-    status,
+    status
   }) => {
     customersChangeVerificationStatus({
       variables: {
         customerIds,
         type: verificationType,
-        status,
-      },
+        status
+      }
     })
       .then((result: any) => {
         Alert.success("You successfully changed a status");
 
         customersMainQuery.refetch();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -199,17 +199,17 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     }
 
     if (bulk.length > 0) {
-      queryParams.ids = bulk.map((customer) => customer._id);
+      queryParams.ids = bulk.map(customer => customer._id);
     }
 
-    columnsConfig.forEach((checked) => {
+    columnsConfig.forEach(checked => {
       checkedConfigs.push(checked.name);
     });
 
     const exportQuery = {
       ...queryParams,
       type,
-      configs: JSON.stringify(checkedConfigs),
+      configs: JSON.stringify(checkedConfigs)
     };
 
     const stringified = queryString.stringify(exportQuery);
@@ -225,7 +225,7 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
       .then(() => {
         Alert.success("Customer state has been changed");
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -249,10 +249,10 @@ const CustomerListContainer: React.FC<FinalProps> = (props: FinalProps) => {
     changeVerificationStatus,
     mergeCustomerLoading,
     refetch: refetchWithDelay,
-    changeStateBulk,
+    changeStateBulk
   };
 
-  const content = (props) => {
+  const content = props => {
     return (
       <CustomersList
         {...updatedProps}
@@ -284,7 +284,7 @@ const generateParams = ({ queryParams, type }) => {
     dateFilters: queryParams.dateFilters,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined,
+      : undefined
   };
 };
 
@@ -292,32 +292,32 @@ const getRefetchQueries = (queryParams?: any, type?: string) => {
   return [
     {
       query: gql(queries.customersMain),
-      variables: { ...generateParams({ queryParams, type }) },
+      variables: { ...generateParams({ queryParams, type }) }
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: "byTag" },
+      variables: { type, only: "byTag" }
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: "byForm" },
+      variables: { type, only: "byForm" }
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: "byIntegrationType" },
+      variables: { type, only: "byIntegrationType" }
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: "byLeadStatus" },
+      variables: { type, only: "byLeadStatus" }
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: "bySegment" },
+      variables: { type, only: "bySegment" }
     },
     {
       query: gql(queries.customerCounts),
-      variables: { type, only: "byBrand" },
-    },
+      variables: { type, only: "byBrand" }
+    }
   ];
 };
 
@@ -330,16 +330,15 @@ const WithProps = withProps<Props>(
         options: ({ queryParams, type, abortController }) => ({
           variables: generateParams({ queryParams, type }),
           context: {
-            fetchOptions: { signal: abortController && abortController.signal },
-          },
-        }),
+            fetchOptions: { signal: abortController && abortController.signal }
+          }
+        })
       }
     ),
     graphql<Props, ListConfigQueryResponse, {}>(
       gql(queries.customersListConfig),
       {
-        name: "customersListConfigQuery",
-        skip: !isEnabled("forms"),
+        name: "customersListConfigQuery"
       }
     ),
     // mutations
@@ -348,8 +347,8 @@ const WithProps = withProps<Props>(
       {
         name: "customersRemove",
         options: ({ queryParams, type }) => ({
-          refetchQueries: getRefetchQueries(queryParams, type),
-        }),
+          refetchQueries: getRefetchQueries(queryParams, type)
+        })
       }
     ),
     graphql<Props, MergeMutationResponse, MergeMutationVariables>(
@@ -357,20 +356,20 @@ const WithProps = withProps<Props>(
       {
         name: "customersMerge",
         options: ({ queryParams, type }) => ({
-          refetchQueries: getRefetchQueries(queryParams, type),
-        }),
+          refetchQueries: getRefetchQueries(queryParams, type)
+        })
       }
     ),
     graphql<Props, VerifyMutationResponse, VerifyMutationVariables>(
       gql(mutations.customersVerify),
       {
-        name: "customersVerify",
+        name: "customersVerify"
       }
     ),
     graphql<Props, ChangeStatusMutationResponse, ChangeStatusMutationVariables>(
       gql(mutations.customersChangeVerificationStatus),
       {
-        name: "customersChangeVerificationStatus",
+        name: "customersChangeVerificationStatus"
       }
     ),
     graphql<
@@ -380,8 +379,8 @@ const WithProps = withProps<Props>(
     >(gql(mutations.customersChangeStateBulk), {
       name: "customersChangeStateBulk",
       options: ({ queryParams, type }) => ({
-        refetchQueries: getRefetchQueries(queryParams, type),
-      }),
+        refetchQueries: getRefetchQueries(queryParams, type)
+      })
     })
   )(CustomerListContainer)
 );
@@ -401,7 +400,7 @@ export default class extends React.Component<Props> {
   render() {
     const updatedProps = {
       ...this.props,
-      abortController: this.abortController,
+      abortController: this.abortController
     };
 
     return <WithProps {...updatedProps} />;

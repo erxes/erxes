@@ -80,6 +80,21 @@ import {
   mutations as SegmentMutations
 } from "./segment";
 
+import {
+  types as FormTypes,
+  queries as FormQueries,
+  mutations as FormMutations
+} from "./form";
+
+import {
+  fieldsTypes as FieldsTypes,
+  fieldsQueries as FieldsQueries,
+  fieldsMutations as FieldsMutations,
+  fieldsGroupsTypes as FieldsGroupsTypes,
+  fieldsGroupsQueries as FieldsGroupsQueries,
+  fieldsGroupsMutations as FieldsGroupsMutations
+} from "./field";
+
 export let types = `
   scalar JSON
   scalar Date
@@ -112,6 +127,9 @@ export let types = `
   ${EmailDeliveryTypes}
   ${ActivityLogTypes}
   ${SegmentTypes}
+  ${FormTypes}
+  ${FieldsTypes}
+  ${FieldsGroupsTypes}
 `;
 
 export let queries = `
@@ -132,6 +150,9 @@ export let queries = `
   ${EmailDeliveryQueries}
   ${ActivityLogQueries}
   ${SegmentQueries}
+  ${FormQueries}
+  ${FieldsQueries}
+  ${FieldsGroupsQueries}
 `;
 
 export let mutations = `
@@ -148,6 +169,9 @@ export let mutations = `
   ${TagMutations}
   ${InternalNoteMutations}
   ${SegmentMutations}
+  ${FormMutations}
+  ${FieldsMutations}
+  ${FieldsGroupsMutations}
 `;
 
 export let subscriptions = `

@@ -1,17 +1,18 @@
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import CategoryForm from '../components/CategoryForm';
-import { mutations } from '../graphql';
-import { IProductCategory } from '../types';
+import * as compose from "lodash.flowright";
+
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import CategoryForm from "../components/CategoryForm";
+import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-forms/src/settings/properties/constants";
+import { FieldsGroupsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import { IProductCategory } from "../types";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { queries as fieldQueries } from "@erxes/ui-forms/src/settings/properties/graphql";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { mutations } from "../graphql";
+import { withProps } from "@erxes/ui/src/utils/core";
 
 type Props = {
   categories: IProductCategory[];
@@ -32,7 +33,7 @@ class CategoryFormContainer extends React.Component<FinalProps> {
       values,
       isSubmitted,
       callback,
-      object
+      object,
     }: IButtonMutateProps) => {
       const attachment = values.attachment || undefined;
 
@@ -53,8 +54,9 @@ class CategoryFormContainer extends React.Component<FinalProps> {
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? "updated" : "added"
+          } a ${name}`}
         />
       );
     };
@@ -68,7 +70,7 @@ class CategoryFormContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       renderButton,
-      fieldGroups
+      fieldGroups,
     };
 
     return <CategoryForm {...updatedProps} />;
@@ -76,7 +78,7 @@ class CategoryFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['productCategories', 'productCategoriesTotalCount', 'products'];
+  return ["productCategories", "productCategoriesTotalCount", "products"];
 };
 
 export default withProps<Props>(
@@ -84,15 +86,14 @@ export default withProps<Props>(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
       gql(fieldQueries.fieldsGroups),
       {
-        name: 'fieldsGroupsQuery',
+        name: "fieldsGroupsQuery",
         options: () => ({
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.PRODUCT,
             isDefinedByErxes: false,
-            config: {}
-          }
+            config: {},
+          },
         }),
-        skip: !isEnabled('forms')
       }
     )
   )(CategoryFormContainer)

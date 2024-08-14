@@ -3,18 +3,18 @@ import {
   Content,
   CreatedDate,
   CreatedUser,
-  InfoSection
+  InfoSection,
 } from "./styles";
 
 import { INotification } from "../types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import NameCard from "@erxes/ui/src/components/nameCard/NameCard";
 import React from "react";
-import RoundedBackgroundIcon from "@erxes/ui-sales/src/boards/components/RoundedBackgroundIcon";
+import RoundedBackgroundIcon from "@erxes/ui/src/components/RoundedBackgroundIcon";
 import classNames from "classnames";
 import dayjs from "dayjs";
-import xss from "xss";
 import { useNavigate } from "react-router-dom";
+import xss from "xss";
 
 type Props = {
   notification: INotification;
@@ -64,7 +64,7 @@ const NotificationRow = (props: Props) => {
     navigate(
       {
         pathname: params[0],
-        search: `?${params[1]}`
+        search: `?${params[1]}`,
       },
       { state: { from: "notification" }, replace: true }
     );

@@ -18,7 +18,6 @@ import {
 import { ICustomer, ICustomerDoc } from "../types";
 import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import { genderChoices, isValidPhone } from "../utils";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
 import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
@@ -30,6 +29,7 @@ import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import validator from "validator";
 
@@ -495,20 +495,20 @@ class CustomerForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
-          {isEnabled("forms") && (
-            <CollapseContent title={__("Relations")} compact={true}>
-              <FormWrapper>
-                <FormColumn>
-                  {!this.props.customer &&
-                    loadDynamicComponent("relationForm", {
-                      ...this.props,
-                      onChange: this.onRelationsChange,
-                      contentType: "contacts:customer",
-                    })}
-                </FormColumn>
-              </FormWrapper>
-            </CollapseContent>
-          )}
+
+          <CollapseContent title={__("Relations")} compact={true}>
+            <FormWrapper>
+              <FormColumn>
+                {!this.props.customer && (
+                  <RelationForm
+                    {...this.props}
+                    onChange={this.onRelationsChange}
+                    contentType="contacts:customer"
+                  />
+                )}
+              </FormColumn>
+            </FormWrapper>
+          </CollapseContent>
         </ScrollWrapper>
         <ModalFooter>
           <Button

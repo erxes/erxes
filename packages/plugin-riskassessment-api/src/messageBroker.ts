@@ -42,15 +42,6 @@ export const setupMessageConsumers = async () => {
   );
 };
 
-export const sendFormsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "forms",
-    ...args
-  });
-};
-
 export const sendCardsMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {

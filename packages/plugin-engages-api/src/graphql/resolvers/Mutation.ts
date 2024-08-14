@@ -1,7 +1,7 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
 import { IContext } from "../../connectionResolver";
 import { putCreateLog, putDeleteLog, putUpdateLog } from "../../logUtils";
-import { getEnv, sendToWebhook } from "@erxes/api-utils/src";
+import { sendToWebhook } from "@erxes/api-utils/src";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import { CAMPAIGN_KINDS } from "../../constants";
 import { checkCampaignDoc, send } from "../../engageUtils";
@@ -151,7 +151,7 @@ const engageMutations = {
   async engageMessageSetLive(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const campaign = await models.EngageMessages.getEngageMessage(_id);
 
@@ -160,6 +160,15 @@ const engageMutations = {
     }
 
     await checkCampaignDoc(models, subdomain, campaign);
+
+    await sendCoreMessage({
+      subdomain,
+      action: "registerOnboardHistory",
+      data: {
+        type: "setCampaignLive",
+        user
+      }
+    });
 
     return models.EngageMessages.engageMessageSetLive(_id);
   },
