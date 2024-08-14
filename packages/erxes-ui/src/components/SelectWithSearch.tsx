@@ -131,7 +131,7 @@ class SelectWithSearch extends React.Component<
       nextProps;
 
     const { initialValuesProvided } = this.props;
-    const { selectedValues } = this.state;
+    const { selectedValues, selectedOptions } = this.state;
 
     // trigger clearing values by initialValues prop
     if (
@@ -154,16 +154,16 @@ class SelectWithSearch extends React.Component<
 
       const updatedTotalOptions = [...new Set(
         [
-          ...(this.props.exactFilter ? [] : this.state.selectedOptions || []),
+          ...(this.props.exactFilter ? [] : selectedOptions || []),
           ...uniqueLoadedOptions
         ]
       )];
 
-      const selectedOptions = updatedTotalOptions.filter((option) =>
+      const upSelectedOptions = updatedTotalOptions.filter((option) =>
         selectedValues.includes(option.value)
       );
 
-      if (this.props.exactFilter && selectedValues?.length && !selectedOptions.length) {
+      if (this.props.exactFilter && selectedValues?.length && !upSelectedOptions.length) {
         this.setState({
           selectedValues: []
         });
@@ -172,7 +172,7 @@ class SelectWithSearch extends React.Component<
 
       this.setState({
         totalOptions: updatedTotalOptions,
-        selectedOptions,
+        selectedOptions: upSelectedOptions,
       });
     }
   }
