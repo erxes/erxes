@@ -5,7 +5,6 @@ import {
   Description,
   DragField,
   FlexColumn,
-  FormChart,
   FormContent,
   FormFooter,
   FormWrapper,

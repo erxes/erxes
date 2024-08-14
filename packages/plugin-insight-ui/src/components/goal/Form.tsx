@@ -58,7 +58,7 @@ const Form = (props: Props) => {
     goal.segmentIds || []
   );
 
-  const [stageId, setstageId] = useState<string>(goal.stageId);
+  const [stageId, setStageId] = useState<string>(goal.stageId);
   const [pipelineId, setpipelineId] = useState<string>(goal.pipelineId);
   const [boardId, setboardId] = useState<string>(goal.boardId);
 
@@ -234,7 +234,7 @@ const Form = (props: Props) => {
                 stageId={stageId}
                 pipelineId={pipelineId}
                 boardId={boardId}
-                onChangeStage={(id) => setstageId(id)}
+                onChangeStage={(id) => setStageId(id)}
                 onChangePipeline={(id) => setpipelineId(id)}
                 onChangeBoard={(id) => setboardId(id)}
               />
