@@ -168,7 +168,9 @@ export const AdditionalDetail = styled.div`
   }
 `;
 
-export const InputBar = styledTS<{ type?: string, $transparent?: boolean }>(styled.div)`
+export const InputBar = styledTS<{ type?: string; $transparent?: boolean }>(
+  styled.div,
+)`
   justify-content: center;
   align-items: center;
   display: flex;
@@ -178,14 +180,14 @@ export const InputBar = styledTS<{ type?: string, $transparent?: boolean }>(styl
   height: 41px;
   margin: ${(props) =>
     props.type === 'country' ? '5px 0px 10px 0px' : '10px 20px'};
-  border: 1px solid ${props => props.$transparent ? 'rgba(255,255,255, 0.2)' : colors.borderPrimary};
+  border: 1px solid ${(props) => (props.$transparent ? 'rgba(255,255,255, 0.2)' : colors.borderPrimary)};
 
   input {
     border: 0;
     width: 100%;
-    color: ${props => props.$transparent ? colors.colorWhite : colors.textPrimary};
+    color: ${(props) => (props.$transparent ? colors.colorWhite : colors.textPrimary)};
     padding: ${dimensions.unitSpacing}px 0;
-    background: ${props => props.$transparent && 'none'};
+    background: ${(props) => props.$transparent && 'none'};
     transition: all 0.3s ease;
 
     &:focus {
@@ -194,7 +196,7 @@ export const InputBar = styledTS<{ type?: string, $transparent?: boolean }>(styl
     }
   
     ::placeholder {
-      color: ${props => props.$transparent ? '#cecece' : '#aaa'};
+      color: ${(props) => (props.$transparent ? '#cecece' : '#aaa')};
     }
   }
 `;
@@ -294,7 +296,7 @@ export const KeyPadFooter = styled.div`
   }
 `;
 
-export const Keypad = styledTS<{$transparent?: boolean}>(styled.div)`
+export const Keypad = styledTS<{ $transparent?: boolean }>(styled.div)`
   gap: 5px;
   display: flex;
   flex-wrap: wrap;
@@ -307,13 +309,13 @@ export const Keypad = styledTS<{$transparent?: boolean}>(styled.div)`
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    border: 1.12px solid ${props => props.$transparent ? 'rgba(255,255,255, 0.2)' : 'rgba(0, 0, 0, 0.08)'};
+    border: 1.12px solid ${(props) => (props.$transparent ? 'rgba(255,255,255, 0.2)' : 'rgba(0, 0, 0, 0.08)')};
     border-radius: ${dimensions.unitSpacing}px;
     cursor: pointer;
     transition: all ease 0.3s;
 
     &:hover {
-      background: ${props => props.$transparent ? 'rgba(0,0,0,.12)' : '#f5f5f5'};
+      background: ${(props) => (props.$transparent ? 'rgba(0,0,0,.12)' : '#f5f5f5')};
     }
   }
 
@@ -740,6 +742,108 @@ export const ActiveCalls = styled.div`
   background: ${colors.colorWhite};
 `;
 
+export const FlexWrap = styledTS(styled.div)`
+  display: flex;
+  flex-wrap: wrap;
+  padding: '20px 20px 20px 20px';
+
+  > a,
+  > div {
+    flex-basis: 240px;
+    display: flex;
+    flex-shrink: 0;
+
+    @media (min-width: 480px) {
+      flex-basis: 33.3333333%;
+    }
+
+    @media (min-width: 768px) {
+      flex-basis: 25%;
+    }
+
+    @media (min-width: 1170px) {
+      flex-basis: 20%;
+    }
+
+    @media (min-width: 1400px) {
+      flex-basis: 25%;
+    }
+  }
+`;
+
+export const SwitchboardBox = styledTS<{ nowrap?: boolean }>(styled.div)`
+padding: 20px 20px;
+  flex-basis: 250px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: ${(props) => !props.nowrap && 1};
+  min-height: 200px;
+  transition: all ease 0.3s;
+
+  h5 {
+    margin: ${dimensions.unitSpacing}px 0 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+
+  &:hover {
+    box-shadow: 0px 16px 24px rgb(0 0 0 / 6%), 0px 2px 6px rgb(0 0 0 / 4%),
+      0px 0px 1px rgb(0 0 0 / 4%);
+  }
+`;
+
+export const PreviewContent = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  padding: ${dimensions.headerSpacing}px;
+  transition: all ease 0.3s;
+
+  > button {
+    margin: 0 0 ${dimensions.unitSpacing}px 0 !important;
+    min-width: 140px;
+  }
+`;
+
+export const SwitchboardPreview = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px
+    ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
+  border: 1px solid ${colors.borderPrimary};
+  background: #fefefe;
+  overflow: hidden;
+  position: relative;
+`;
+
+export const Container = styled.div`
+  position: relative;
+  margin: 0 auto;
+  width: fit-content;
+`;
+
+export const SwitchboardRate = styledTS<{ color?: string }>(styled.div)`
+  color: ${(props) => props.color};
+  font-size: 24px;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  margin-top: 25%;
+`;
 const iconWrapperWidth = 80;
 
 const ActivityRow = styledTS<{ isConversation?: boolean }>(styled(WhiteBox))`
@@ -914,5 +1018,5 @@ export {
   MessageContent,
   OperatorFormView,
   OperatorRemoveBtn,
-  KeyPadContainer
+  KeyPadContainer,
 };
