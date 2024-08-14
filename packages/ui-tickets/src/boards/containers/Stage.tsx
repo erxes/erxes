@@ -17,6 +17,7 @@ import {
   SaveItemMutation,
   StagesSortItemsMutationResponse
 } from '../types';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type StageProps = {
   stage: IStage;
@@ -256,7 +257,7 @@ const getFilterParams = (
   };
 };
 
-type WithQueryProps = StageProps & { abortController: any };
+type WithQueryProps = StageProps & { abortController: IAbortController };
 
 const withQuery = ({ options }) => {
   return withProps<WithQueryProps>(

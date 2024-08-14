@@ -33,7 +33,7 @@ type FormComponentProps = {
   tag?: ITag;
   tagType: string;
   types: any[];
-  afterSave: () => void;
+  afterSave?: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal?: () => void;
   tags: ITag[];

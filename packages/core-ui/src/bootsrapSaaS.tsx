@@ -21,7 +21,7 @@ dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(utc, { parseLocal: true });
 
-const target = document.getElementById("root") as any;
+const target = document.getElementById("root") as HTMLDivElement;
 
 const normalize = (domain) =>
   domain

@@ -66,7 +66,7 @@ class QuickNavigationContainer extends React.Component<Props, State> {
   render() {
     const { getEnvQuery, currentUser } = this.props;
     const config = getEnvQuery?.configsGetEnv || {};
-console.log("getEnvQuery", getEnvQuery)
+
     return (
       <QuickNavigation
         showBrands={config.USE_BRAND_RESTRICTIONS === 'true'}

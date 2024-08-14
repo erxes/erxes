@@ -8,7 +8,6 @@ import React from "react";
 
 type Props = {
   currentUser?: IUser;
-  plugins?: any;
   children: React.ReactNode;
 };
 
@@ -19,7 +18,7 @@ const GET_ENABLED_SERVICES = gql`
 `;
 
 const MainLayoutContainer = (props: Props) => {
-  const { currentUser, plugins } = props;
+  const { currentUser } = props;
 
   const { loading, data } = useQuery(GET_ENABLED_SERVICES);
   const navigate = useNavigate();
@@ -32,7 +31,7 @@ const MainLayoutContainer = (props: Props) => {
   const enabledServices = data?.enabledServices || {};
 
   return (
-    <AppProvider currentUser={currentUser} plugins={plugins}>
+    <AppProvider currentUser={currentUser}>
       <AppConsumer>
         {({ isShownIndicator, closeLoadingBar }) => {
           return (

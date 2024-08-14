@@ -50,8 +50,7 @@ const UserInviteFormContainer = (props: Props & ICommonFormProps) => {
 
 export default withProps<WrapperProps>(
   compose(
-    graphql<{}, any>(gql(channelQueries.channels), {
-      // check - ChannelsQueryResponse
+    graphql<{}, ChannelsQueryResponse>(gql(channelQueries.channels), {
       name: 'channelsQuery'
     }),
     graphql<{}, UnitsQueryResponse>(gql(queries.units), {

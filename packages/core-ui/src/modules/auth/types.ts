@@ -6,6 +6,7 @@ import {
   IUserLinks as IUserLinksC
 } from '@erxes/ui/src/auth/types';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { ICustomField } from '@erxes/api-utils/src/types';
 
 export type IUser = IUserC & {
   isSubscribed?: boolean;
@@ -13,9 +14,7 @@ export type IUser = IUserC & {
 } & {
   isShowNotification?: boolean;
 } & {
-  customFieldsData?: {
-    [key: string]: any;
-  };
+  customFieldsData?: ICustomField;
 };
 export type IUserDetails = IUserDetailsC;
 export type IUserLinks = IUserLinksC;

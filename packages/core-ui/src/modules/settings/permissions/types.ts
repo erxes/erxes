@@ -80,14 +80,14 @@ export type UsersGroupsTotalCountQueryResponse = {
 };
 
 export type UsersGroupsAddMutation = {
-  usersGroupsAdd: (params: { variables: IUserGroup }) => Promise<any>;
+  usersGroupsAdd: (params: { variables: IUserGroup }) => Promise<IUserGroup>;
   loading: boolean;
 };
 
 export type UsersGroupsEditMutation = {
   usersGroupsEdit: (params: {
     variables: { _id: string } & IUserGroup;
-  }) => Promise<any>;
+  }) => Promise<IUserGroup>;
 };
 
 export type UsersGroupsRemoveMutation = {

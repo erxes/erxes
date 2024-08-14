@@ -1,10 +1,10 @@
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { Link } from 'react-router-dom';
-import React from 'react';
-import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import LeftSidebar from "@erxes/ui/src/layout/components/Sidebar";
+import { Link } from "react-router-dom";
+import React from "react";
+import SidebarHeader from "@erxes/ui-settings/src/common/components/SidebarHeader";
+import { SidebarList } from "@erxes/ui/src/layout/styles";
+import { SidebarListItem } from "@erxes/ui-settings/src/styles";
+import { __ } from "@erxes/ui/src/utils/core";
 
 function ListItem(value, type) {
   const isActive = value.contentType === type;
@@ -18,10 +18,16 @@ function ListItem(value, type) {
   );
 }
 
-function TagsSidebar({ types, type }: { types: any[]; type: string }) {
+function TagsSidebar({
+  types,
+  type,
+}: {
+  types: { description: string; contentType: string }[];
+  type: string;
+}) {
   return (
     <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
-      <SidebarList $noTextColor={true} $noBackground={true} id={'TagsSidebar'}>
+      <SidebarList $noTextColor={true} $noBackground={true} id={"TagsSidebar"}>
         {types.map((value) => {
           return ListItem(value, type);
         })}

@@ -114,7 +114,7 @@ export interface IExportField {
 
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistoryItem;
-  stopPolling: () => any;
+  stopPolling: () => void;
 } & QueryResponse;
 
 export type ImportHistoryGetColumnsQueryResponse = {
@@ -130,8 +130,8 @@ export type ImportHistoryGetDuplicatedHeadersQueryResponse = {
 export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
   subscribeToMore: any;
-  error: any;
-  stopPolling: () => any;
+  error: Error;
+  stopPolling: () => void;
 } & QueryResponse;
 
 export type FieldsCombinedByContentTypeQueryResponse = {
@@ -140,7 +140,7 @@ export type FieldsCombinedByContentTypeQueryResponse = {
 
 export type ExportHistoriesQueryResponse = {
   exportHistories: IExportHistoryItem;
-  stopPolling: () => any;
+  stopPolling: () => void;
 } & QueryResponse;
 
 export type HistoryGetTypesQueryResponse = {
@@ -150,8 +150,8 @@ export type HistoryGetTypesQueryResponse = {
 export type ExportHistoryDetailQueryResponse = {
   importHistoryDetail: IExportHistory;
   subscribeToMore: any;
-  error: any;
-  stopPolling: () => any;
+  error: Error;
+  stopPolling: () => void;
 } & QueryResponse;
 
 // mutation types

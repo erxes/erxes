@@ -1,5 +1,5 @@
 import client from 'apolloClient';
-import { gql } from '@apollo/client';
+import { gql, ApolloError } from '@apollo/client';
 import Button from 'modules/common/components/Button';
 import {
   ControlLabel,
@@ -49,7 +49,7 @@ const ActivateInstallation = () => {
 
         setActivated(true);
       })
-      .catch((error: any) => {
+      .catch((error: ApolloError) => {
         Alert.error(error.message);
       });
   };

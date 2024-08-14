@@ -19,7 +19,7 @@ dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(utc, { parseLocal: true });
 
-const root = createRoot(document.getElementById("root") as any);
+const root = createRoot(document.getElementById("root") as HTMLDivElement);
 const envs = getEnv();
 
 fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {

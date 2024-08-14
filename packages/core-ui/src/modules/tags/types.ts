@@ -35,11 +35,11 @@ export type MutationVariables = {
 };
 
 export type AddMutationResponse = {
-  addMutation: (params: { variables: MutationVariables }) => Promise<any>;
+  addMutation: (params: { variables: MutationVariables }) => Promise<ITag>;
 };
 
 export type EditMutationResponse = {
-  editMutation: (params: { variables: MutationVariables }) => Promise<any>;
+  editMutation: (params: { variables: MutationVariables }) => Promise<ITag>;
 };
 
 export type RemoveMutationResponse = {
@@ -49,7 +49,7 @@ export type RemoveMutationResponse = {
 export type MergeMutationResponse = {
   mergeMutation: (params: {
     variables: { sourceId: string; destId: string };
-  }) => Promise<any>;
+  }) => Promise<ITag>;
 };
 
 export type TagMutationVariables = {
