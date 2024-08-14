@@ -2,7 +2,8 @@ import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { customFieldToObject, sendMessageBroker } from '../../../messageBroker';
+import { sendMessageBroker } from '../../../messageBroker';
+import { customFieldToObject } from '../utils';
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
@@ -240,15 +241,22 @@ const contractQueries = {
     return alerts;
   },
 
-  dealsToContract: async (_root, { id }, { subdomain }: IContext) => {
-    const deal = await sendMessageBroker({
+  convertToContract: async (_root, params: { contentType: string; id: string }, { subdomain }: IContext) => {
+    const { contentType, id } = params;
+    const mappings = {
+      deal: { action: 'deals.findOne', data: { _id: id }, name: 'cards', customFieldType: 'cards:deal' },
+      customer: { action: 'customers.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:customer' },
+      company: { action: 'companies.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:company' },
+    }
+    const mapping = mappings[contentType] || mappings.deal;
+    const object = await sendMessageBroker({
       subdomain,
-      action:'deals.findOne',
-      data:{_id:id},
-      isRPC:true,
-    },'cards')
+      action: mapping.action,
+      data: mapping.data,
+      isRPC: true,
+    }, mapping.name);
 
-    return await customFieldToObject(subdomain,'cards:deal',deal)
+    return await customFieldToObject(subdomain, mapping.customFieldType, object)
   }
 };
 
