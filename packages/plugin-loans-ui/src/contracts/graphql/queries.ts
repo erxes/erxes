@@ -372,9 +372,9 @@ export const scheduleYears = `
   }
 `;
 
-export const dealsToContract = `
-  query DealsToContract($dealsToContractId: String!) {
-    dealsToContract(id: $dealsToContractId)
+export const convertToContract = `
+  query convertToContract($id: String!, $contentType: String) {
+    convertToContract(id: $id, contentType: $contentType)
   }
 `
 
@@ -433,5 +433,5 @@ export default {
   contractsAlert,
   savingContracts,
   getPolarisData,
-  dealsToContract
+  convertToContract
 };

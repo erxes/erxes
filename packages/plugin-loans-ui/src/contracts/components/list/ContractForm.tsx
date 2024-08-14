@@ -37,6 +37,7 @@ import Table from "@erxes/ui/src/components/table";
 import { __ } from "coreui/utils";
 import dayjs from "dayjs";
 import moment from "moment";
+import { RelType } from "../../containers/ContractForm";
 
 const onFieldClick = (e) => {
   e.target.select();
@@ -47,9 +48,10 @@ type Props = {
   renderButton: (
     props: IButtonMutateProps & { disabled: boolean }
   ) => JSX.Element;
-  contract: IContract;
+  contract?: IContract;
   closeModal: () => void;
   change?: boolean;
+  data?: RelType;
 };
 
 interface IConfig {
@@ -87,7 +89,7 @@ function generateDefault(props) {
     loanDestination: contract.loanDestination,
     loanSubPurpose: contract.loanSubPurpose,
     contractTypeId: contract.contractTypeId,
-    status: contract.status,
+    status: contract.status || 'normal',
     branchId: contract.branchId,
     leaseType: contract.leaseType,
     description: contract.description,

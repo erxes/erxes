@@ -190,7 +190,7 @@ export const queries = `
   cpContractDetail(_id: String!): LoanContract
   closeInfo(contractId: String, date: Date): CloseInfo
   contractsAlert(date: Date): [LoanAlert]
-  dealsToContract(id: String!): JSON
+  convertToContract(id: String!, contentType: String): JSON
 `;
 
 const commonFields = `
