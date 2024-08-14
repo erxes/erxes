@@ -85,6 +85,11 @@ class Message extends React.Component<Props> {
 
     const messageBackground = {
       backgroundColor: user ? '' : color,
+      ...(color
+        ? {
+            background: color,
+          }
+        : {}),
       color: user ? '' : textColor,
     };
 

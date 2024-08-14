@@ -1,6 +1,6 @@
 import { IModels } from "../../connectionResolver";
 import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_CLOSED, PROBABILITY_TASK, STATUS_TYPES, USER_TYPES } from "../constants";
-import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getStageIds } from "../utils";
+import { buildData, buildMatchFilter, buildPipeline, getStageIds } from "../utils";
 const util = require('util')
 
 const DIMENSION_OPTIONS = [
@@ -350,8 +350,6 @@ export const taskCharts = [
             subdomain: string,
         ) => {
 
-            const { dimension = ['createdBy'], measure = ['count'] } = filter
-
             const matchFilter = await buildMatchFilter(filter, 'task', subdomain, models)
 
             let tasks
@@ -368,7 +366,7 @@ export const taskCharts = [
 
             const title = 'Total Tasks Count';
 
-            return { title, ...buildData({ chartType, data: tasks, measure, dimension }) };
+            return { title, ...buildData({ chartType, data: tasks, filter }) };
         },
         filterTypes: [
             // DIMENSION FILTER

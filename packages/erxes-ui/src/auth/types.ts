@@ -107,6 +107,7 @@ export declare type IOrganization = {
   expiryDate?: Date;
   bundleNames?: string[];
   experienceName?: string;
+  experience?: any;
   onboardingDone?: boolean;
   contactRemaining?: boolean;
 };

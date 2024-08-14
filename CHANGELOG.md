@@ -1,5 +1,55 @@
 # Changelog
 
+## [1.15.0-rc.11](https://github.com/erxes/erxes/compare/1.15.0-rc.10...1.15.0-rc.11) (2024-08-12)
+
+## [1.15.0-rc.10](https://github.com/erxes/erxes/compare/1.15.0-rc.9...1.15.0-rc.10) (2024-08-12)
+
+
+### Bug Fixes
+
+* **cards:** auto name field  ([0d80278](https://github.com/erxes/erxes/commit/0d8027851dd5889bb62c1a25272ba33ac60e6e63))
+* change brand on pos ([4178e05](https://github.com/erxes/erxes/commit/4178e0571ef3513464bb177f0fadd047c90f0c6e))
+* ebarimt duplicated refactor ([c894110](https://github.com/erxes/erxes/commit/c89411083d9299688a63f8ba1d2e3d45119f725e))
+* msdynamic order update and customer check ([#5578](https://github.com/erxes/erxes/issues/5578)) ([91f74d1](https://github.com/erxes/erxes/commit/91f74d11238184915daf6a8dd4c3e8fdc9f9032e))
+* msdynamic send sales line save data ([e06e079](https://github.com/erxes/erxes/commit/e06e079164dcaf63d8dc816eaec52f88c0be4b6c))
+* **reactions:** replace mongoose exists query with countDocuments to return boolean in isHearted & isLiked ([0d5fa13](https://github.com/erxes/erxes/commit/0d5fa138e99506808429a43ae92f052a8f60000b))
+
+## [1.15.0-rc.9](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-07)
+
+
+### Bug Fixes
+
+* **core:** add error handler in experience customCode ([c4c4851](https://github.com/erxes/erxes/commit/c4c485142c2f441fca16d7226c26663d3788af59))
+
+## [1.14.2](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-04)
+
+
+### Bug Fixes
+
+* **core:** add ability create brand consumer in message broker ([02f1b80](https://github.com/erxes/erxes/commit/02f1b8051cae249eb96363856889685ccd4c63fb))
+* **instagram:** fix instagram crash on recieve ([01d0a04](https://github.com/erxes/erxes/commit/01d0a040739557362b4829143f85f70dd761f7ce))
+* **instagram:** fixed messenger receiver ([7e904fa](https://github.com/erxes/erxes/commit/7e904fa516856175f9bcb584c5eab1c7d9dfbfe4))
+
+
+### Performance Improvements
+
+* **welcome:** Add saas welcome ([#5558](https://github.com/erxes/erxes/issues/5558)) ([b1bf188](https://github.com/erxes/erxes/commit/b1bf188fe280d875dffde462f2ad2dfaccb7b264))
+
+## [1.15.0-rc.8](https://github.com/erxes/erxes/compare/1.15.0-rc.7...1.15.0-rc.8) (2024-08-05)
+
+
+### Bug Fixes
+
+* msdynamic show content ([ad4f1e2](https://github.com/erxes/erxes/commit/ad4f1e2d9b9966f4edc9e1b88c8d501f75154e7a))
+* **widgets:** replace AppConsumer and WithContext HOC with hooks for prop management ([e719371](https://github.com/erxes/erxes/commit/e719371d6ff7ebf8a12c64764e1919e73fd4a435))
+
+## [1.15.0-rc.7](https://github.com/erxes/erxes/compare/1.15.0-rc.6...1.15.0-rc.7) (2024-08-02)
+
+
+### Bug Fixes
+
+* **core:** remove return into for loop in sendmail ([233546d](https://github.com/erxes/erxes/commit/233546df1bcce37666c7be7fa82bd94ef35ac598))
+
 ## [1.15.0-rc.6](https://github.com/erxes/erxes/compare/1.15.0-rc.5...1.15.0-rc.6) (2024-07-30)
 
 
@@ -8,100 +58,25 @@
 * **messenger:** enable dynamic configuration for external links ([4bce69a](https://github.com/erxes/erxes/commit/4bce69a88618a9578a80c770999ec8d4f35e7b1b))
 
 
-### Bug Fixes
-
-* **messenger:** differentiate parent & child category count labels ([fa9d632](https://github.com/erxes/erxes/commit/fa9d632dd6c4a9347ecba6ab93368c069328a2bd))
-* **messenger:** ui ([d91a26d](https://github.com/erxes/erxes/commit/d91a26d5ba1830281d0c26eb1647af82b2d154c4))
-* **widgets:** separate messenger launcher iframe from content iframe & apply ui color's settings ([251da0a](https://github.com/erxes/erxes/commit/251da0a4b0aac6b81a7c028fdb8abecfc4ef632c))
-
-## [1.15.0-rc.5](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-30)
-
-
-### Features
-
-* cards plugin locales ([606abb7](https://github.com/erxes/erxes/commit/606abb7216834dd75579599609d1966a555a1be1))
-* cards plugin locales ([d06a446](https://github.com/erxes/erxes/commit/d06a446587c73c90e76f7fd36febf3ff647ae380))
-* **core:** add user feedback widget ([b3e1c19](https://github.com/erxes/erxes/commit/b3e1c19cd30c2f52bfc2aa1b3b420c6fa0f9efa1))
-* dashboard plugin locales ([dbb6b4c](https://github.com/erxes/erxes/commit/dbb6b4c98c429173d6b9e769cc9598027327209a))
-* dashborad plugin locales ([f6ee64c](https://github.com/erxes/erxes/commit/f6ee64c988a4613de5da44b8a20af7c18379d17b))
-* forms plugin locales ([6df51b3](https://github.com/erxes/erxes/commit/6df51b3dfd762b7083e0c442235ab25280c7d351))
-* inbox plugin locales ([0477aad](https://github.com/erxes/erxes/commit/0477aadf71f1d0785dc76ce5880325f8cceac70c))
-* inbox plugin locales ([587c5e9](https://github.com/erxes/erxes/commit/587c5e99215eba547a2a8c6bc11ca0403eea3c10))
-* **integrations:** add dynamic external link configuration ([8bd701a](https://github.com/erxes/erxes/commit/8bd701ac16dd5833c3eefd05609ede25e3418e98))
-* product plugin locales ([c3f2bfc](https://github.com/erxes/erxes/commit/c3f2bfc48e0ce46560098487f732bed657097987))
-* tags plugin locales ([1933ddd](https://github.com/erxes/erxes/commit/1933dddb55e82fdcd6f3f96aae313456c584b782))
-
-
-### Bug Fixes
-
-* **core:** can't display plugin icon in marketplace ([574126b](https://github.com/erxes/erxes/commit/574126b58a7d64d7191aeb5b26a434136889f43c))
-* **coreui:** editor control button type ([7a8b13f](https://github.com/erxes/erxes/commit/7a8b13f438b30823a7e7b8fd8c4567012d4300c6))
-* **instagram:** fixed messenger receiver ([0a0b4e1](https://github.com/erxes/erxes/commit/0a0b4e13fd85f47ee655781ffeaac857b564cc99))
 * **instagram:** fixed repair button ([5a9fd08](https://github.com/erxes/erxes/commit/5a9fd080f29415ef4fa13c2c9001301beade0e46))
-* posclient product similarity with sort option ([4ea86fb](https://github.com/erxes/erxes/commit/4ea86fbdc1f8122df160d2af7469dad3771f21b7))
-* resolve sonar warning ([28b8f8f](https://github.com/erxes/erxes/commit/28b8f8fef0850ca9e0bb703ad4fa0596e48f2b7e))
-
 ## [1.15.0-rc.4](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-23)
 
 
 ### Bug Fixes
-
-* **cards:** properties remove from card when close modal ([08b8ce4](https://github.com/erxes/erxes/commit/08b8ce4da849e2f0eb4155a89a7f83b6dc18e3a9))
-* **inbox:** mail widget loading ([7d027df](https://github.com/erxes/erxes/commit/7d027df593258b4d398de5cec80079fcc59b569e))
-* **pos:** pos create form ([#5529](https://github.com/erxes/erxes/issues/5529)) ([47dd26e](https://github.com/erxes/erxes/commit/47dd26e6e741d3873ebe8d2ab7ab71ec3d884efb))
-
-## [1.15.0-rc.3](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-20)
-
-
-### Bug Fixes
-
-* widgets messenger minified css applies correctly ([392db80](https://github.com/erxes/erxes/commit/392db807dc8672bc3627161cc7efb3cb0f4ac2a3))
-
 ## [1.15.0-rc.2](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-19)
 
 
-### Bug Fixes
-
-* **widget:** revert widgets.yaml ([1bb09ad](https://github.com/erxes/erxes/commit/1bb09ad2182d304d6dcf043c4d12f65af6937bec))
-
-## [1.15.0-rc.1](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-19)
-
-
-### Features
-
 * **cards:** name auto field  ([174f482](https://github.com/erxes/erxes/commit/174f482e1ef59de83dc3e3b589454d008d303eb2))
-* **timeclock:** timeclock config update ([0eadd60](https://github.com/erxes/erxes/commit/0eadd606b83898d51881c1b09d68d3cbcca956f0))
-
-
 ### Bug Fixes
-
-* fix instagram post & messenger config ([3eaf7d9](https://github.com/erxes/erxes/commit/3eaf7d92628406f0f5a692f79ce7691678fe4af6))
-* **riskassessment:** can't calculate correct when using calculate method by percent ([cd32ca4](https://github.com/erxes/erxes/commit/cd32ca465923ecd9e05b9404e95ba5a93fc05741))
-
-## [1.15.0-rc.0](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-17)
-
 
 ### Features
-
-* Add golomt transaction ([#5459](https://github.com/erxes/erxes/issues/5459)) ([6803fbf](https://github.com/erxes/erxes/commit/6803fbf06dfe4e752c1d317d8be0d9d845a11292))
-* Pos split order and confirm edited order ([#5411](https://github.com/erxes/erxes/issues/5411)) ([2220380](https://github.com/erxes/erxes/commit/2220380df029eeb9351086045926df2a1804ec00))
-
-
-### Bug Fixes
 
 * clientportal dropdown items and saving little bug ([#5477](https://github.com/erxes/erxes/issues/5477)) ([fa32e14](https://github.com/erxes/erxes/commit/fa32e149d2bfbace470f827daaba00f772c8168a))
-* instagram create integration bug ([857b92c](https://github.com/erxes/erxes/commit/857b92c465dca80b7ad89a1370b820050448bcc9))
-* instagram integration bugs ([a59df5e](https://github.com/erxes/erxes/commit/a59df5e23f560d1e552d9e90587093bff5339f89))
-* khanbank account name ([c2d7fc6](https://github.com/erxes/erxes/commit/c2d7fc6cb70965d99184f65c65f462d61d43d170))
 * khanbank method ([#5466](https://github.com/erxes/erxes/issues/5466)) ([dcc9f68](https://github.com/erxes/erxes/commit/dcc9f68f2fb0a533fa171a60a6976eb03a9035b1))
-* khanbank, account holder query ([#5504](https://github.com/erxes/erxes/issues/5504)) ([0e55898](https://github.com/erxes/erxes/commit/0e558981f925f3aeeedb7d9593eb2117d81e4d3d))
-* loans and savings transaction and query ([#5448](https://github.com/erxes/erxes/issues/5448)) ([be27c11](https://github.com/erxes/erxes/commit/be27c11444b7db503acf51c1c1623e3a70b2ed3b))
-* pos payment ([#5479](https://github.com/erxes/erxes/issues/5479)) ([089a014](https://github.com/erxes/erxes/commit/089a01474d35f2811fef5bad753bb71941b5f2dd))
 * pos slots query ([#5473](https://github.com/erxes/erxes/issues/5473)) ([a909dde](https://github.com/erxes/erxes/commit/a909dde6fa09f0e30b10541d37efd645480e95dd))
-* scoring bug ([#5460](https://github.com/erxes/erxes/issues/5460)) ([dc9b7b3](https://github.com/erxes/erxes/commit/dc9b7b3b76c624eea26f567c7a6a45e0c765e005))
-* **verifier:** add missing enum in mongoose schema ([4133372](https://github.com/erxes/erxes/commit/4133372507bd9adb51d3f2002d9bd9689be566a0))
-
 ## [1.14.1](https://github.com/erxes/erxes/compare/1.15.0-rc.4...1.15.0-rc.5) (2024-07-25)
+* **instagram:** fix instagram crash on recieve ([01d0a04](https://github.com/erxes/erxes/commit/01d0a040739557362b4829143f85f70dd761f7ce))
+
 
 
 ### Features

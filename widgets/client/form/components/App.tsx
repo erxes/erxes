@@ -1,19 +1,22 @@
-import * as React from "react";
-import asyncComponent from "../../AsyncComponent";
-import { iconClose } from "../../icons/Icons";
+import * as React from 'react';
+import asyncComponent from '../../AsyncComponent';
+import { iconClose } from '../../icons/Icons';
+import { ICurrentStatus, IForm, IFormDoc } from '../types';
+import { IEmailParams, IIntegration } from '../../types';
 
-const Form = asyncComponent(() =>
-  import(/* webpackChunkName: "Form" */ '../containers/Form')
+const Form = asyncComponent(
+  () => import(/* webpackChunkName: "Form" */ '../containers/Form')
 );
 
-const Callout = asyncComponent(() =>
-  import(/* webpackChunkName: "FormCallout" */ '../containers/Callout')
+const Callout = asyncComponent(
+  () => import(/* webpackChunkName: "FormCallout" */ '../containers/Callout')
 );
 
-const ShoutboxLauncher = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "FormShoutboxLauncher" */ '../containers/ShoutboxLauncher'
-  )
+const ShoutboxLauncher = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "FormShoutboxLauncher" */ '../containers/ShoutboxLauncher'
+    )
 );
 
 type Props = {
@@ -22,13 +25,28 @@ type Props = {
   containerClass: string;
   closePopup: () => void;
   loadType: string;
+  isSubmitting?: boolean;
+  currentStatus: ICurrentStatus;
+  save: (
+    doc: IFormDoc,
+    formCode?: string,
+    requiredPaymentAmount?: number
+  ) => void;
+  setHeight: () => void;
+  createNew: () => void;
+  sendEmail: (params: IEmailParams) => void;
+  extraContent?: string;
+  callSubmit: boolean;
+  invoiceLink?: string;
+  getIntegration: () => IIntegration;
+  getForm: () => IForm;
 };
 
 class App extends React.Component<Props> {
   renderCloseButton() {
     const { loadType, closePopup } = this.props;
 
-    if (loadType === "shoutbox") {
+    if (loadType === 'shoutbox') {
       return null;
     }
 
@@ -40,10 +58,37 @@ class App extends React.Component<Props> {
   }
 
   renderForm() {
-    const { isFormVisible } = this.props;
+    const {
+      isFormVisible,
+      isSubmitting,
+      currentStatus,
+      save,
+      createNew,
+      sendEmail,
+      setHeight,
+      extraContent,
+      callSubmit,
+      invoiceLink,
+      getIntegration,
+      getForm,
+    } = this.props;
 
     if (isFormVisible) {
-      return <Form />;
+      return (
+        <Form
+          isSubmitting={isSubmitting}
+          currentStatus={currentStatus}
+          onSubmit={save}
+          onCreateNew={createNew}
+          sendEmail={sendEmail}
+          setHeight={setHeight}
+          extraContent={extraContent}
+          callSubmit={callSubmit}
+          invoiceLink={invoiceLink}
+          getIntegration={getIntegration}
+          getForm={getForm}
+        />
+      );
     }
 
     return null;
@@ -62,7 +107,7 @@ class App extends React.Component<Props> {
   renderShoutboxLauncher() {
     const { loadType } = this.props;
 
-    if (loadType === "shoutbox") {
+    if (loadType === 'shoutbox') {
       return <ShoutboxLauncher />;
     }
 

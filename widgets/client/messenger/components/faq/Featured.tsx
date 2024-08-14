@@ -26,8 +26,8 @@ const Featured: React.FC = () => {
     setActiveRoute('faqCategories');
   };
 
-  const handleArticleClick = (article: IFaqCategory) => {
-    goToFaqCategory(article);
+  const handleCategoryClick = (category: IFaqCategory) => {
+    goToFaqCategory(category);
   };
 
   const renderCategoryList = () => {
@@ -54,7 +54,7 @@ const Featured: React.FC = () => {
       );
     }
 
-    const categories = data?.knowledgeBaseTopicDetail?.categories;
+    const categories = data?.knowledgeBaseTopicDetail?.parentCategories;
 
     if (!categories || categories.length === 0) {
       return (
@@ -66,14 +66,14 @@ const Featured: React.FC = () => {
       );
     }
 
-    return categories.slice(0, 4).map((category: IFaqCategory) => (
+    return categories.map((category: IFaqCategory) => (
       <li key={category._id}>
         <div
           role="button"
           tabIndex={0}
           className="featured-list-item"
-          onClick={() => handleArticleClick(category)}
-          onKeyDown={(e) => e.key === 'Enter' && handleArticleClick(category)}
+          onClick={() => handleCategoryClick(category)}
+          onKeyDown={(e) => e.key === 'Enter' && handleCategoryClick(category)}
         >
           <div className="item-title">{category.title}</div>
           <div className="icon-wrapper">

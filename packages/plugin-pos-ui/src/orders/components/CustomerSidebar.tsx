@@ -4,7 +4,6 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { SideBarFooter } from '../../styles';
-import { CenterContent, Loader } from '@erxes/ui/src/styles/main';
 
 const CustomerSidebar = ({
   customerId,
