@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import List from '../../components/switchboard/List';
 import { gql, useQuery } from '@apollo/client';
@@ -11,11 +11,15 @@ type IProps = {
 };
 
 function ListContainer(props: IProps) {
-  useEffect(() => {}, []);
+  const defaultCallIntegration = localStorage.getItem(
+    'config:call_integrations',
+  );
+
+  const inboxId = JSON.parse(defaultCallIntegration || '{}')?.inboxId;
 
   const { data, loading } = useQuery(gql(queries.callQueueList), {
     variables: {
-      integrationId: 'XcUWfiMfIZiBllK-P0JT4',
+      integrationId: inboxId,
     },
     nextFetchPolicy: 'cache-first',
   });
