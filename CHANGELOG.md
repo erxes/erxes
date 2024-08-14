@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.15.0-rc.10](https://github.com/erxes/erxes/compare/1.15.0-rc.9...1.15.0-rc.10) (2024-08-12)
+
+
+### Bug Fixes
+
+* **cards:** auto name field  ([0d80278](https://github.com/erxes/erxes/commit/0d8027851dd5889bb62c1a25272ba33ac60e6e63))
+* change brand on pos ([4178e05](https://github.com/erxes/erxes/commit/4178e0571ef3513464bb177f0fadd047c90f0c6e))
+* ebarimt duplicated refactor ([c894110](https://github.com/erxes/erxes/commit/c89411083d9299688a63f8ba1d2e3d45119f725e))
+* msdynamic order update and customer check ([#5578](https://github.com/erxes/erxes/issues/5578)) ([91f74d1](https://github.com/erxes/erxes/commit/91f74d11238184915daf6a8dd4c3e8fdc9f9032e))
+* msdynamic send sales line save data ([e06e079](https://github.com/erxes/erxes/commit/e06e079164dcaf63d8dc816eaec52f88c0be4b6c))
+* **reactions:** replace mongoose exists query with countDocuments to return boolean in isHearted & isLiked ([0d5fa13](https://github.com/erxes/erxes/commit/0d5fa138e99506808429a43ae92f052a8f60000b))
+
 ## [1.15.0-rc.9](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-07)
 
 

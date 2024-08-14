@@ -58,12 +58,6 @@ const toCheckMsdSynced = `
   }
 `;
 
-const toSyncMsdOrders = `
-  mutation toSyncMsdOrders($orderIds: [String]) {
-    toSyncMsdOrders(orderIds: $orderIds)
-  }
-`;
-
 const toSendMsdOrders = `
   mutation toSendMsdOrders($orderIds: [String]) {
     toSendMsdOrders(orderIds: $orderIds) {
@@ -86,6 +80,5 @@ export default {
   toSyncCustomers,
   toSyncPrices,
   toCheckMsdSynced,
-  toSyncMsdOrders,
   toSendMsdOrders,
 };
