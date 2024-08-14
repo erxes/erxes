@@ -160,7 +160,7 @@ export const formatFrequency = (frequencyType, frequency) => {
 export const buildAction = (measures: string[]): object => {
     const actions = {};
 
-    measures.forEach((measure) => {
+    measures?.forEach((measure) => {
         switch (measure) {
             case 'count':
                 actions[measure] = { $sum: 1 };
