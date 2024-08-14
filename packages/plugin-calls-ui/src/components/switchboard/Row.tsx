@@ -1,28 +1,57 @@
-import { Button, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components';
-import { MemberAvatars } from '@erxes/ui/src/components/';
-import { FlexCenter } from '@erxes/ui/src/styles/main';
-import React from 'react';
-// import { IMeeting } from '../../types';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-// import Form from '../../containers/myCalendar/meeting/Form';
-import { useNavigate } from 'react-router-dom';
+import { Icon, Tip } from '@erxes/ui/src/components';
+import React, { useEffect, useState } from 'react';
+import { calculateTimeElapsed, getSpentTime } from '../../utils';
+
 type Props = {
   callList: any;
-  //   remove: () => void;
+  isWaiting?: boolean;
 };
-export const Row = (props: Props) => {
-  const { callList,  } = props;
-  const navigate = useNavigate();
 
+export const Row = (props: Props) => {
+  const { callList, isWaiting } = props;
+
+  const [timeSpent, setTimeSpent] = useState(
+    isWaiting
+      ? calculateTimeElapsed(callList.starttime)
+      : callList?.bridge_time
+        ? calculateTimeElapsed(callList.bridge_time)
+        : 0,
+  );
+
+  useEffect(() => {
+    let timer;
+
+    if (callList.bridge_time) {
+      timer = setInterval(() => {
+        const diff = calculateTimeElapsed(callList.bridge_time);
+        setTimeSpent(diff);
+      }, 1000);
+    }
+    if (callList.starttime) {
+      timer = setInterval(() => {
+        const diff = calculateTimeElapsed(callList.starttime);
+        setTimeSpent(diff);
+      }, 1000);
+    }
+    return () => {
+      clearInterval(timer);
+    };
+  }, [callList]);
 
   return (
     <tr style={{ textAlign: 'left' }}>
-      <td>{callList.status}</td>
-      <td>{callList.caller || ''}</td>
-      <td>{callList.callee}</td>
-      <td>{callList.position}</td>
-      <td>{callList.waitTime ? callList.waitTime : callList.talkTime}</td>
-      <td>{callList.options}</td>
+      <td>
+        <Tip text={isWaiting ? 'Ringing' : 'Calling'} placement="bottom">
+          <Icon
+            icon="calling"
+            size={20}
+            color={isWaiting ? 'blue' : 'orange'}
+          />
+        </Tip>
+      </td>
+      <td>{callList.callerid || ''}</td>
+      {!isWaiting && <td>{callList.calleeid}</td>}
+      <td>{getSpentTime(timeSpent + 22)}</td>
     </tr>
   );
 };

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { __, router } from '@erxes/ui/src/utils';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 import {
   Container,
   FlexWrap,
-  PreviewContent,
   SwitchboardRate,
   SwitchboardBox,
   SwitchboardPreview,
@@ -13,8 +12,8 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { colors } from '@erxes/ui/src/styles';
 
-import { can, router as routerUtils } from '@erxes/ui/src/utils';
-import { Link } from 'react-router-dom';
+import { IQueue } from '../../types';
+import { formatTime } from '../../utils';
 
 const Circle = styled.circle`
   fill: transparent;
@@ -81,59 +80,17 @@ const ContainerRow = styled.div`
 type IProps = {
   navigate: any;
   location: any;
+  queueList: IQueue[];
+};
+
+const formatPercentage = (value: string): string => {
+  const num = parseFloat(value);
+  if (isNaN(num)) return '0.00%';
+  return `${num.toFixed(2)}%`;
 };
 
 function List(props: IProps) {
-  const { location, navigate } = props;
-  useEffect(() => {}, []);
-
-  const lists = [
-    {
-      name: '6500',
-      abnormalPercentage: '54',
-      Members: '1/3',
-      TotalCalls: 550,
-      AnsweredCalls: 392,
-      WaitingCalls: 0,
-      AbandonedCalls: 158,
-      AverageWaitTime: '00:00:13',
-      AverageTalkTime: '00:02:52',
-    },
-    {
-      name: '6501',
-      abnormalPercentage: 78,
-      Members: '5 / 5',
-      TotalCalls: 720,
-      AnsweredCalls: 520,
-      WaitingCalls: 20,
-      AbandonedCalls: 200,
-      AverageWaitTime: '00:01:35',
-      AverageTalkTime: '00:03:20',
-    },
-    {
-      name: '6502',
-      abnormalPercentage: 32,
-      Members: '5 / 8',
-      TotalCalls: 880,
-      AnsweredCalls: 620,
-      WaitingCalls: 50,
-      AbandonedCalls: 260,
-      AverageWaitTime: '00:00:50',
-      AverageTalkTime: '00:03:10',
-    },
-    {
-      name: '6503',
-      abnormalPercentage: 90,
-      Members: '2 / 2',
-      TotalCalls: 350,
-      AnsweredCalls: 240,
-      WaitingCalls: 10,
-      AbandonedCalls: 110,
-      AverageWaitTime: '00:02:10',
-      AverageTalkTime: '00:04:05',
-    },
-  ];
-
+  const { navigate, queueList } = props;
   const progressBar = (
     percentage,
     color = colors.colorPrimary,
@@ -170,61 +127,49 @@ function List(props: IProps) {
           />
         </svg>
 
-        <SwitchboardRate color={'#4c84f3'}>{percentage}% </SwitchboardRate>
-        <Text>Abandoned Rate</Text>
+        <SwitchboardRate color={'#4c84f3'}>
+          {formatPercentage(percentage)}
+        </SwitchboardRate>
+        <Text>Answered Rate</Text>
       </Container>
     );
   };
 
-  const onClick = (id) =>
-    id && navigate && navigate(`/calls/switchboard/${id}`);
+  const onClick = (queue) =>
+    queue && navigate && navigate(`/calls/switchboard/${queue}`);
 
   const renderList = (list) => {
-    // const { remove, duplicate } = this.props;
-
     return (
-      // <Link to={`/calls/switchboard/${list.name}`}>
-      <SwitchboardBox key={list._id} onClick={() => onClick(list.name)}>
+      <SwitchboardBox key={list.queue} onClick={() => onClick(list.queue)}>
         <SwitchboardPreview>
-          <Header fontSize="18px">{list.name}</Header>
+          <Header fontSize="18px">{list.queue}</Header>
           <Header bottomBorder={true}>
-            {progressBar(list.abnormalPercentage, '#x', '200px')}
+            {progressBar(list.answered_rate, '#x', '200px')}
           </Header>
           <ContainerRow>
             <Row>
-              <p>Members:</p> <span>{list.Members}</span>
+              <p>Total Calls:</p> <span> {list.total_calls}</span>
             </Row>
             <Row>
-              <p>Total Calls:</p> <span> {list.TotalCalls}</span>
+              <p>Answered Calls:</p> <span>{list.answered_calls}</span>
             </Row>
             <Row>
-              <p>Answered Calls:</p> <span>{list.AnsweredCalls}</span>
+              <p> Abandoned Calls:</p> <span>{list.abandoned_calls}</span>
             </Row>
             <Row>
-              <p> Waiting Calls:</p> <span> {list.WaitingCalls}</span>
+              <p>Average Wait time:</p> <span>{formatTime(list.avg_wait)}</span>
             </Row>
             <Row>
-              <p> Abandoned Calls:</p> <span>{list.AbandonedCalls}</span>
-            </Row>
-            <Row>
-              <p>Average Wait time:</p> <span>{list.AverageWaitTime}</span>
-            </Row>
-            <Row>
-              <p>Average Talk time:</p> <span> {list.AverageTalkTime}</span>
+              <p>Average Talk time:</p>{' '}
+              <span> {formatTime(list.avg_talk)}</span>
             </Row>
           </ContainerRow>
         </SwitchboardPreview>
       </SwitchboardBox>
-      // </Link>
     );
   };
 
-  return (
-    //    <div>{lists.map((list)=>{
-    // return <p>{list.name}</p>
-    <FlexWrap>{lists.map((site) => renderList(site))}</FlexWrap>
-    //    })}</div>
-  );
+  return <FlexWrap>{queueList.map((list) => renderList(list))}</FlexWrap>;
 }
 
 export default List;

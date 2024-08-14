@@ -28,9 +28,9 @@ module.exports = {
     {
       text: 'Call Center',
       url: '/calls/switchboard',
-      icon: 'icon-call',
+      icon: 'icon-phone-call',
       location: 'mainNavigation',
-      // permission: 'showDashboard'
+      permission: 'showCallDashboard'
     }],
   inboxIntegrationForm: "./inboxIntegrationForm",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
