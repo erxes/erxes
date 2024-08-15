@@ -65,6 +65,8 @@ export const createCustomer = async (subdomain: string, params) => {
           { code: customerData.custCode }
         );
       }
+    } else {
+      throw new Error(e.message);
     }
   });
 

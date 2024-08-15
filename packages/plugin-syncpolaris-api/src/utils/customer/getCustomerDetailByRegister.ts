@@ -8,7 +8,9 @@ export const getCustomerDetailByRegister = async (
   subdomain: string,
   params: IParams
 ) => {
-  if (!params.register) throw new Error("Register required!");
+  if (!params.register) {
+    throw new Error("Register required!");
+  }
 
   let sendData = [params.register];
 
