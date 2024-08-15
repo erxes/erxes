@@ -158,6 +158,7 @@ const Form = (props: Props) => {
             filterType={f}
             chartType={chartType}
             fieldValues={filters}
+            setFilters={setFilters}
             key={f.fieldName}
             setFilter={setFilter}
             startDate={filters["startDate"]}

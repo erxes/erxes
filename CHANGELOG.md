@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.15.0-rc.12](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.15.0-rc.12) (2024-08-14)
+
+
+### Bug Fixes
+
+* msdynamic external_doc_no and posOrder to cards with payment ([effe8ad](https://github.com/erxes/erxes/commit/effe8adf1d2a742b0e4320b7da14adcb7b8bd7f1))
+
+## [1.15.0-rc.11](https://github.com/erxes/erxes/compare/1.15.0-rc.10...1.15.0-rc.11) (2024-08-12)
+
 ## [1.15.0-rc.10](https://github.com/erxes/erxes/compare/1.15.0-rc.9...1.15.0-rc.10) (2024-08-12)
 
 
