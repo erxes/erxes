@@ -118,14 +118,14 @@ export default {
         }
       }
 
-    sendCoreMessage({
-      subdomain,
-      action: 'registerOnboardHistory',
-      data: {
-        type: `ImportCustomerData`,
-        user,
-      },
-    });
+      sendCoreMessage({
+        subdomain,
+        action: "registerOnboardHistory",
+        data: {
+          type: `ImportCustomerData`,
+          user
+        }
+      });
 
       return { objects, updated };
     } catch (e) {
@@ -134,7 +134,6 @@ export default {
   },
   importExportTypes: IMPORT_EXPORT_TYPES,
   prepareImportDocs: async ({ subdomain, data }) => {
-    console.log("---------");
     const { scopeBrandIds, result, contentType, properties } = data;
 
     const bulkDoc: any = [];

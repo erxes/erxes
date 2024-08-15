@@ -193,16 +193,15 @@ class DealChooser extends React.Component<FinalProps, State> {
 
     return (
       <>
-        {(isEnabled("contacts") && (
-          <SelectCompanies
-            label="Company"
-            name="ownerId"
-            multi={false}
-            initialValue={companyId}
-            onSelect={company => this.onChangeCompany(company as string)}
-            customOption={{ label: "Choose company", value: "" }}
-          />
-        )) || <></>}
+        <SelectCompanies
+          label="Company"
+          name="ownerId"
+          multi={false}
+          initialValue={companyId}
+          onSelect={company => this.onChangeCompany(company as string)}
+          customOption={{ label: "Choose company", value: "" }}
+        />
+
         <Popover trigger={<Button>Choose board</Button>} placement="top">
           <Attributes>
             <React.Fragment>

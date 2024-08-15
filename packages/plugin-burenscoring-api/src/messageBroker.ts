@@ -26,7 +26,7 @@ export const setupMessageConsumers = async () => {
     if (config?.field?.includes("customFieldsData.")) {
       const fieldKey = config?.field?.replace("customFieldsData.", "");
       keyword = customer.customFieldsData?.find(
-        (el) => el.field == fieldKey
+        el => el.field == fieldKey
       )?.value;
     } else {
       keyword = customer?.[config?.field];
@@ -76,7 +76,7 @@ export const sendContractsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "contacts",
+    serviceName: "core",
     ...args
   });
 };

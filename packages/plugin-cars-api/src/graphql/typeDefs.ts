@@ -8,17 +8,11 @@ import {
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const isContactsEnabled = await isEnabled("contacts");
-
-  const isEnabledTable = {
-    contacts: isContactsEnabled
-  };
-
   return gql`
     scalar JSON
     scalar Date
     
-    ${carTypes(isEnabledTable)}
+    ${carTypes()}
     
     extend type Query {
 

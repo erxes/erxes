@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const paramDefs = `$kind: String`;
 const params = `kind: $kind`;
@@ -114,9 +114,6 @@ const facebookConversationMessages = `
           position
         }
       }
-      ${
-        isEnabled('contacts')
-          ? `
           customer {
             _id
             avatar
@@ -135,9 +132,6 @@ const facebookConversationMessages = `
             customFieldsData
             tagIds
           }
-        `
-          : ``
-      }
     }
   }
 `;

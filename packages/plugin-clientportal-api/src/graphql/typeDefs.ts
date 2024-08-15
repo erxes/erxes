@@ -35,7 +35,7 @@ const typeDefs = async () => {
     isEnabled("tickets") ||
     isEnabled("tasks") ||
     isEnabled("purchases");
-  const isContactsEnabled = isEnabled("contacts");
+  const isContactsEnabled = true;
   const productsAvailable = isEnabled("products");
 
   return gql`

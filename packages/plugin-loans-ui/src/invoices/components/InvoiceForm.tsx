@@ -8,7 +8,7 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { IInvoice, IInvoiceDoc } from "../types";
@@ -26,7 +26,6 @@ import { queries } from "../graphql";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -34,7 +33,6 @@ const SelectCompanies = asyncComponent(
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
@@ -90,7 +88,7 @@ const InvoiceForm = (props: Props) => {
       loss: Number(loss),
       insurance: Number(insurance),
       debt: Number(debt),
-      total: Number(total),
+      total: Number(total)
     };
   };
 
@@ -116,7 +114,7 @@ const InvoiceForm = (props: Props) => {
       }
     };
 
-    const onChangeField = (e) => {
+    const onChangeField = e => {
       const name = (e.target as HTMLInputElement).name;
       const value = (e.target as HTMLInputElement).value;
       if (name === "number") {
@@ -152,12 +150,12 @@ const InvoiceForm = (props: Props) => {
       }, 100);
     };
 
-    const onChangePayDate = (value) => {
+    const onChangePayDate = value => {
       client
         .query({
           query: gql(queries.getInvoicePreInfo),
           fetchPolicy: "network-only",
-          variables: { contractId: invoice.contractId, payDate: value },
+          variables: { contractId: invoice.contractId, payDate: value }
         })
         .then(({ data }) => {
           const invoiceInfo = data.getInvoicePreInfo;
@@ -182,7 +180,7 @@ const InvoiceForm = (props: Props) => {
                 ...formProps,
                 name: "number",
                 onChange: onChangeField,
-                value: number || "",
+                value: number || ""
               })}
 
               <FormGroup>
@@ -199,31 +197,27 @@ const InvoiceForm = (props: Props) => {
                 </DateContainer>
               </FormGroup>
 
-              {isEnabled("contacts") && (
-                <>
-                  <FormGroup>
-                    <ControlLabel>Company</ControlLabel>
-                    <SelectCompanies
-                      label="Choose an company"
-                      name="companyId"
-                      initialValue={companyId}
-                      onSelect={onSelect}
-                      multi={false}
-                    />
-                  </FormGroup>
+              <FormGroup>
+                <ControlLabel>Company</ControlLabel>
+                <SelectCompanies
+                  label="Choose an company"
+                  name="companyId"
+                  initialValue={companyId}
+                  onSelect={onSelect}
+                  multi={false}
+                />
+              </FormGroup>
 
-                  <FormGroup>
-                    <ControlLabel>Customer</ControlLabel>
-                    <SelectCustomers
-                      label="Choose an customer"
-                      name="customerId"
-                      initialValue={customerId}
-                      onSelect={onSelect}
-                      multi={false}
-                    />
-                  </FormGroup>
-                </>
-              )}
+              <FormGroup>
+                <ControlLabel>Customer</ControlLabel>
+                <SelectCustomers
+                  label="Choose an customer"
+                  name="customerId"
+                  initialValue={customerId}
+                  onSelect={onSelect}
+                  multi={false}
+                />
+              </FormGroup>
             </FormColumn>
             <FormColumn>
               {renderFormGroup("payment", {
@@ -231,7 +225,7 @@ const InvoiceForm = (props: Props) => {
                 name: "payment",
                 type: "number",
                 onChange: onChangeField,
-                value: payment || 0,
+                value: payment || 0
               })}
 
               {renderFormGroup("interest eve", {
@@ -239,7 +233,7 @@ const InvoiceForm = (props: Props) => {
                 name: "interestEve",
                 type: "number",
                 onChange: onChangeField,
-                value: interestEve || 0,
+                value: interestEve || 0
               })}
 
               {renderFormGroup("interest nonce", {
@@ -247,7 +241,7 @@ const InvoiceForm = (props: Props) => {
                 name: "interestNonce",
                 type: "number",
                 onChange: onChangeField,
-                value: interestNonce || 0,
+                value: interestNonce || 0
               })}
 
               {renderFormGroup("loss", {
@@ -255,7 +249,7 @@ const InvoiceForm = (props: Props) => {
                 name: "loss",
                 type: "number",
                 onChange: onChangeField,
-                value: loss || 0,
+                value: loss || 0
               })}
 
               {renderFormGroup("insurance", {
@@ -263,7 +257,7 @@ const InvoiceForm = (props: Props) => {
                 name: "insurance",
                 type: "number",
                 onChange: onChangeField,
-                value: insurance || 0,
+                value: insurance || 0
               })}
 
               {renderFormGroup("debt", {
@@ -271,7 +265,7 @@ const InvoiceForm = (props: Props) => {
                 name: "debt",
                 type: "number",
                 onChange: onChangeField,
-                value: debt || 0,
+                value: debt || 0
               })}
 
               {renderFormGroup("total", {
@@ -279,7 +273,7 @@ const InvoiceForm = (props: Props) => {
                 name: "total",
                 type: "number",
                 value: total || 0,
-                required: true,
+                required: true
               })}
             </FormColumn>
           </FormWrapper>
@@ -294,7 +288,7 @@ const InvoiceForm = (props: Props) => {
             name: "invoice",
             values: generateDoc(values),
             isSubmitted,
-            object: props.invoice,
+            object: props.invoice
           })}
         </ModalFooter>
       </>

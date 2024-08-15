@@ -1,5 +1,5 @@
 import * as _ from "underscore";
-import { IModels } from "../connectionResolver";
+import { IModels } from "../../../connectionResolver";
 
 import { IConformityQueryParams } from "./customers";
 import { CommonBuilder } from "./utils";

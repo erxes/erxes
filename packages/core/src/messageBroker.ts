@@ -48,6 +48,7 @@ import { fieldsCombinedByContentType } from "./formUtils";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
+  await connectToMessageBroker(connectToMessageBroker);
 };
 
 export const setupMessageConsumers = async (): Promise<void> => {
@@ -1258,7 +1259,7 @@ export const sendContactsMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "contacts",
+    serviceName: "core",
     ...args
   });
 };
@@ -1376,6 +1377,15 @@ export const getContentTypeDetail = async (
 export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: "clientportal",
+    ...args
+  });
+};
+
+export const sendEngagesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "engages",
     ...args
   });
 };

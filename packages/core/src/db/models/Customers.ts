@@ -1,23 +1,20 @@
 import { Model } from "mongoose";
 
-import { putActivityLog, prepareCocLogData } from "../logUtils";
 import { sendToWebhook, validSearchText } from "@erxes/api-utils/src";
-import { validateSingle } from "../verifierUtils";
+
 import { ICustomField } from "@erxes/api-utils/src/definitions/common";
-import { ACTIVITY_CONTENT_TYPES } from "./definitions/constants";
+
 import {
   customerSchema,
   ICustomer,
   ICustomerDocument
 } from "./definitions/customers";
-import { IModels } from "../connectionResolver";
-import {
-  sendCoreMessage,
-  sendEngagesMessage,
-  sendInboxMessage,
-  sendInternalNotesMessage
-} from "../messageBroker";
+import { IModels } from "../../connectionResolver";
+import { sendEngagesMessage, sendInboxMessage } from "../../messageBroker";
 import { IUserDocument } from "@erxes/api-utils/src/types";
+import { prepareCocLogData, putActivityLog } from "../../logUtils";
+import { validateSingle } from "../../data/modules/coc/verifierUtils";
+import { ACTIVITY_CONTENT_TYPES } from "../../data/modules/coc/constants";
 
 interface IGetCustomerParams {
   email?: string;
@@ -291,13 +288,9 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         doc.phones = [doc.primaryPhone];
       }
 
-      // clean custom field values
-      doc.customFieldsData = await sendCoreMessage({
-        subdomain,
-        action: "fields.prepareCustomFieldsData",
-        data: doc.customFieldsData,
-        isRPC: true
-      });
+      doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+        doc.customFieldsData
+      );
 
       if (doc.integrationId) {
         doc.relatedIntegrationIds = [doc.integrationId];
@@ -353,12 +346,10 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       if (doc.customFieldsData) {
         // clean custom field values
-        doc.customFieldsData = await sendCoreMessage({
-          subdomain,
-          action: "fields.prepareCustomFieldsData",
-          data: doc.customFieldsData,
-          isRPC: true
-        });
+
+        doc.customFieldsData = await models.Fields.prepareCustomFieldsData(
+          doc.customFieldsData
+        );
       }
 
       if (doc.primaryEmail) {
@@ -502,18 +493,15 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         action: "removeCustomersEngages",
         data: { customerIds }
       });
-      await sendInternalNotesMessage({
-        subdomain,
-        action: "removeInternalNotes",
-        data: {
-          contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
-          contentTypeIds: customerIds
-        }
+
+      await models.InternalNotes.deleteMany({
+        contentType: ACTIVITY_CONTENT_TYPES.CUSTOMER,
+        contentTypeIds: customerIds
       });
-      await sendCoreMessage({
-        subdomain,
-        action: "conformities.removeConformities",
-        data: { mainType: "customer", mainTypeIds: customerIds }
+
+      await models.Conformities.removeConformities({
+        mainType: "customer",
+        mainTypeIds: customerIds
       });
 
       return models.Customers.deleteMany({ _id: { $in: customerIds } });
@@ -608,15 +596,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       );
 
       // Updating every modules associated with customers
-      await sendCoreMessage({
-        subdomain,
-        action: "conformities.changeConformity",
-        data: {
-          type: "customer",
-          newTypeId: customer._id,
-          oldTypeIds: customerIds
-        },
-        isRPC: true
+
+      await models.Conformities.changeConformity({
+        type: "customer",
+        newTypeId: customer._id,
+        oldTypeIds: customerIds
       });
 
       await sendInboxMessage({
@@ -629,15 +613,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         action: "changeCustomer",
         data: { customerId: customer._id, customerIds }
       });
-      await sendInternalNotesMessage({
-        subdomain,
-        action: "batchUpdate",
-        data: {
-          contentType: "contacts:customer",
-          oldContentTypeIds: customerIds,
-          newContentTypeId: customer._id
-        }
-      });
+
+      await models.InternalNotes.updateMany(
+        {
+          contentType: "core:customer",
+          contentTypeId: { $in: customerIds || [] }
+        },
+        { contentTypeId: customer._id }
+      );
 
       return customer;
     }
@@ -790,15 +773,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
     }: ICreateMessengerCustomerParams) {
       this.fixListFields(doc, customData);
 
-      const { customFieldsData, trackedData } = await sendCoreMessage({
-        subdomain,
-        action: "fields.generateCustomFieldsData",
-        data: {
+      const { customFieldsData, trackedData } =
+        await models.Fields.generateCustomFieldsData(
           customData,
-          contentType: "constacts:customer"
-        },
-        isRPC: true
-      });
+          "core:customer"
+        );
 
       return this.createCustomer({
         ...doc,
@@ -822,15 +801,11 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
 
       this.fixListFields(doc, customData, customer);
 
-      const { customFieldsData, trackedData } = await sendCoreMessage({
-        subdomain,
-        action: "fields.generateCustomFieldsData",
-        data: {
+      const { customFieldsData, trackedData } =
+        await models.Fields.generateCustomFieldsData(
           customData,
-          contentType: "contacts:customer"
-        },
-        isRPC: true
-      });
+          "core:customer"
+        );
 
       const modifier: any = {
         ...doc,
@@ -965,7 +940,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         subdomain,
         data: {
           action: "update",
-          type: "contacts:customer",
+          type: "core:customer",
           params: webhookData
         }
       });

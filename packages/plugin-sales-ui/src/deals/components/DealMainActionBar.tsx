@@ -37,22 +37,19 @@ const DealMainActionBar = (props: Props) => {
           onSelect={onSelect}
         />
       )}
-      {isEnabled("contacts") && (
-        <>
-          <SelectCompanies
-            label={__("Filter by companies")}
-            name="companyIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-          />
-          <SelectCustomers
-            label="Filter by customers"
-            name="customerIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-          />
-        </>
-      )}
+
+      <SelectCompanies
+        label={__("Filter by companies")}
+        name="companyIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+      <SelectCustomers
+        label="Filter by customers"
+        name="customerIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
     </>
   );
 

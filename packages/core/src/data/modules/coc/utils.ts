@@ -4,17 +4,14 @@ import {
   getRealIdFromElk
 } from "@erxes/api-utils/src/elasticsearch";
 
-import { IModels } from "../connectionResolver";
-import { COC_LEAD_STATUS_TYPES } from "../constants";
-import {
-  fetchSegment,
-  sendCoreMessage,
-  sendInboxMessage,
-  sendSegmentsMessage
-} from "../messageBroker";
-import { companySchema } from "../models/definitions/companies";
-import { customerSchema } from "../models/definitions/customers";
+import { generateModels, IModels } from "../../../connectionResolver";
+import { COC_LEAD_STATUS_TYPES } from "./constants";
+import { sendInboxMessage } from "../../../messageBroker";
+
 import { debugError } from "@erxes/api-utils/src/debuggers";
+import { companySchema } from "../../../db/models/definitions/companies";
+import { customerSchema } from "../../../db/models/definitions/customers";
+import { fetchSegment } from "../segments/queryBuilder";
 
 export interface ICountBy {
   [index: string]: number;
@@ -43,25 +40,18 @@ export const countBySegment = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
+  const models = await generateModels(subdomain);
+
   // Count cocs by segments
   let segments: any[] = [];
 
   // show all contact related engages when engage
   if (source === "engages") {
-    segments = await sendSegmentsMessage({
-      subdomain,
-      action: "find",
-      data: { name: { $exists: true } },
-      isRPC: true,
-      defaultValue: []
-    });
+    segments = await models.Segments.find({ name: { $exists: true } });
   } else {
-    segments = await sendSegmentsMessage({
-      subdomain,
-      action: "find",
-      data: { contentType, name: { $exists: true } },
-      isRPC: true,
-      defaultValue: []
+    segments = await models.Segments.find({
+      contentType,
+      name: { $exists: true }
     });
   }
 
@@ -85,17 +75,11 @@ export const countByBrand = async (
   qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
+  const models = await generateModels(subdomain);
 
   // Count customers by brand
-  const brands = await sendCoreMessage({
-    subdomain,
-    action: "brands.find",
-    data: {
-      query: {}
-    },
-    isRPC: true,
-    defaultValue: []
-  });
+
+  const brands = await models.Brands.find({});
 
   for (const brand of brands) {
     await qb.buildAllQueries();
@@ -114,14 +98,11 @@ export const countByTag = async (
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
+  const models = await generateModels(subdomain);
+
   // Count customers by tag
-  const tags = await sendCoreMessage({
-    subdomain,
-    action: "find",
-    data: { type },
-    isRPC: true,
-    defaultValue: []
-  });
+
+  const tags = await models.Tags.find({ type });
 
   for (const tag of tags) {
     await qb.buildAllQueries();
@@ -240,18 +221,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   // filter by segment
   public async segmentFilter(segment: any, source?: string, segmentData?: any) {
     const selector = await fetchSegment(
+      this.models,
       this.subdomain,
       segment._id,
       source === "engages" && !segment.contentType.includes("contacts")
         ? {
             returnAssociated: {
               mainType: segment.contentType,
-              relType: `contacts:${this.getRelType()}`
+              relType: `core:${this.getRelType()}`
             },
             returnSelector: true
           }
-        : { returnSelector: true },
-      segmentData
+        : { returnSelector: true }
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -262,11 +243,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     let tagIds: string[] = [tagId];
 
     if (withRelated) {
-      const tag = await sendCoreMessage({
-        subdomain: this.subdomain,
-        action: "find",
-        data: { _id: tagId }
-      });
+      const tag = await this.models.Tags.getTag(tagId);
 
       tagIds = [tagId, ...(tag?.relatedIds || [])];
     }
@@ -369,16 +346,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const relType = conformityRelType ? conformityRelType : this.getRelType();
 
     if (conformityIsRelated) {
-      const relTypeIds = await sendCoreMessage({
-        subdomain: this.subdomain,
-        action: "conformities.relatedConformity",
-        data: {
-          mainType: conformityMainType || "",
-          mainTypeId: conformityMainTypeId || "",
-          relType
-        },
-        isRPC: true,
-        defaultValue: []
+      const relTypeIds = await this.models.Conformities.relatedConformity({
+        mainType: conformityMainType || "",
+        mainTypeId: conformityMainTypeId || "",
+        relType
       });
 
       this.positiveList.push({
@@ -389,16 +360,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
 
     if (conformityIsSaved) {
-      const relTypeIds = await sendCoreMessage({
-        subdomain: this.subdomain,
-        action: "conformities.savedConformity",
-        data: {
-          mainType: conformityMainType || "",
-          mainTypeId: conformityMainTypeId || "",
-          relTypes: [relType]
-        },
-        isRPC: true,
-        defaultValue: []
+      const relTypeIds = await this.models.Conformities.savedConformity({
+        mainType: conformityMainType || "",
+        mainTypeId: conformityMainTypeId || "",
+        relTypes: [relType]
       });
 
       this.positiveList.push({
@@ -425,12 +390,9 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // filter by segment
     if (this.params.segment) {
-      const segment = await sendSegmentsMessage({
-        isRPC: true,
-        action: "findOne",
-        subdomain: this.subdomain,
-        data: { _id: this.params.segment }
-      });
+      const segment = await this.models.Segments.getSegment(
+        this.params.segment
+      );
 
       await this.segmentFilter(segment);
     }

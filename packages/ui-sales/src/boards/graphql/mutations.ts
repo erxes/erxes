@@ -77,8 +77,8 @@ export const commonDragParams = `
 export const commonListFields = `
   _id
   name
-  ${isEnabled("contacts") ? `companies` : ``}
-  ${isEnabled("contacts") ? `customers` : ``}
+  companies
+  customers
   assignedUsers
   labels
   stage
@@ -114,9 +114,6 @@ export const commonFields = `
     }
   }
   boardId
-  ${
-    isEnabled("contacts")
-      ? `
     ... @defer {
       companies {
         _id
@@ -124,12 +121,6 @@ export const commonFields = `
         links
       }
     }
-  `
-      : ``
-  }
-  ${
-    isEnabled("contacts")
-      ? `
     ... @defer {
       customers {
         _id
@@ -141,9 +132,6 @@ export const commonFields = `
         visitorContactInfo
       }
     }
-  `
-      : ``
-  }
 
   tags {
     _id

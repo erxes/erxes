@@ -81,9 +81,6 @@ const sidebarConversations = `
           name
         }
       }
-      ${
-        isEnabled("contacts")
-          ? `
       customer {
         _id
         firstName
@@ -94,9 +91,6 @@ const sidebarConversations = `
         state
         avatar
         visitorContactInfo
-      }
-      `
-          : ``
       }
       tagIds
       tags {
@@ -340,9 +334,7 @@ const generateCustomerDetailQuery = params => {
   if (showCompanies) {
     fields = `
       ${fields}
-      ${
-        isEnabled("contacts")
-          ? `companies {
+       companies {
           _id
           primaryName
           website
@@ -354,9 +346,7 @@ const generateCustomerDetailQuery = params => {
             lastName
             primaryEmail
           }
-        }`
-          : ``
-      }
+        }
     `;
   }
 

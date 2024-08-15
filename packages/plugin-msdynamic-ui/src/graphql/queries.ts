@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const commonHistoryParams = `
   $page: Int,
@@ -180,19 +180,13 @@ const posOrderDetail = `
         email
       }
       convertDealId
-      ${
-        isEnabled('contacts')
-          ? `
-        customer {
-          _id
-          code
-          firstName
-          lastName
-          primaryEmail
-          primaryPhone
-        }
-      `
-          : ``
+      customer {
+        _id
+        code
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
       }
       syncErkhetInfo
       putResponses
@@ -210,5 +204,5 @@ export default {
   configs,
   checkSyncOrders,
   checkSyncOrdersTotalCount,
-  posOrderDetail,
+  posOrderDetail
 };

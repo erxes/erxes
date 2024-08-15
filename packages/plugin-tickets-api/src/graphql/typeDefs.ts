@@ -30,7 +30,7 @@ import { types as CommonTypes } from "./schema/common";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const contactsEnabled = await isEnabled("contacts");
+  const contactsEnabled = true;
   const clientPortalEnabled = await isEnabled("clientportal");
 
   const isEnabledTable = {

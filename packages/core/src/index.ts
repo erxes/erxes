@@ -52,6 +52,7 @@ import { applyInspectorEndpoints } from "@erxes/api-utils/src/inspect";
 import { handleCoreLogin, handleMagiclink, ssocallback } from "./saas";
 import app from "@erxes/api-utils/src/app";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
+import search from "./search";
 
 const {
   JWT_TOKEN_SECRET,
@@ -333,6 +334,7 @@ httpServer.listen(PORT, async () => {
       segments,
       automations,
       templates,
+      search,
       permissions: moduleObjects,
       imports,
       exporter,

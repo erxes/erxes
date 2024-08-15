@@ -411,7 +411,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
 
       await models.InternalNotes.updateMany(
         {
-          contentType: "contacts:company",
+          contentType: "core:company",
           contentTypeId: { $in: companyIds || [] }
         },
         { contentTypeId: company._id }

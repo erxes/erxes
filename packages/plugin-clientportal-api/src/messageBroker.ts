@@ -271,7 +271,7 @@ export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "contacts",
+    serviceName: "core",
     ...args
   });
 };

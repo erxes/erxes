@@ -1,9 +1,8 @@
-import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 const externalId = "_id: String! @external";
 const keyFields = '@key(fields: "_id")';
 
 export const types = async () => {
-  const enabledContacts = isEnabled("contacts");
+  const enabledContacts = true;
 
   return `
     extend type User ${keyFields} {

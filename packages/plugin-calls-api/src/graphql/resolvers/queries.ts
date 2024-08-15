@@ -1,6 +1,6 @@
-import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
-import { sendToGrandStream } from '../../utils';
+import { IContext } from "../../connectionResolver";
+import { sendCommonMessage } from "../../messageBroker";
+import { sendToGrandStream } from "../../utils";
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -29,12 +29,12 @@ const callsQueries = {
     let customer = await sendCommonMessage({
       subdomain,
       isRPC: true,
-      serviceName: 'contacts',
-      action: 'customers.findOne',
+      serviceName: "core",
+      action: "customers.findOne",
       data: {
-        primaryPhone: customerPhone,
+        primaryPhone: customerPhone
       },
-      defaultValue: null,
+      defaultValue: null
     });
 
     return customer;
@@ -52,7 +52,7 @@ const callsQueries = {
   async callHistoriesTotalCount(
     _root,
     params: IHistoryArgs,
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     return models.CallHistory.getHistoriesCount(params, user);
   },
@@ -66,36 +66,36 @@ const callsQueries = {
     if (operator) {
       return operator.status;
     }
-    return 'unAvailable';
+    return "unAvailable";
   },
 
   async callExtensionList(
     _root,
     { integrationId },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     const queueData = (await sendToGrandStream(
       models,
       {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        path: "api",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         data: {
           request: {
-            action: 'listAccount',
-            item_num: '50',
-            options: 'extension,fullname,status',
-            page: '1',
-            sidx: 'extension',
-            sord: 'asc',
-          },
+            action: "listAccount",
+            item_num: "50",
+            options: "extension,fullname,status",
+            page: "1",
+            sidx: "extension",
+            sord: "asc"
+          }
         },
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: false,
+        isAddExtention: false
       },
-      user,
+      user
     )) as any;
 
     if (queueData && queueData.response) {
@@ -106,8 +106,8 @@ const callsQueries = {
       }
       return [];
     }
-    return 'request failed';
-  },
+    return "request failed";
+  }
 };
 
 export default callsQueries;

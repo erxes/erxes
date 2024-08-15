@@ -12,7 +12,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const CompanySection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CompanySection" */ "@erxes/ui-contacts/src/companies/components/CompanySection"
     )
@@ -20,7 +19,6 @@ const CompanySection = asyncComponent(
 
 const CustomerSection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CustomerSection" */ "@erxes/ui-contacts/src/customers/components/CustomerSection"
     )
@@ -48,32 +46,30 @@ export default function RightSidebar(props: Props) {
 
   return (
     <Sidebar>
-      {isEnabled("contacts") && (
-        <>
-          {contract.customerType === "customer" && contract.customers && (
-            <CustomerSection
-              customers={[contract.customers]}
-              title={__("Loan Primary Customers")}
-              name={"Contract"}
-            />
-          )}
-          {contract.customerType === "company" && contract.companies && (
-            <CompanySection
-              companies={[contract.companies]}
-              title={__("Loan Primary Companies")}
-              name={"Contract"}
-            />
-          )}
+      <>
+        {contract.customerType === "customer" && contract.customers && (
           <CustomerSection
-            mainType="contractSub"
-            mainTypeId={contract._id}
-            title={__("Loan Collectively Customers")}
+            customers={[contract.customers]}
+            title={__("Loan Primary Customers")}
             name={"Contract"}
           />
+        )}
+        {contract.customerType === "company" && contract.companies && (
+          <CompanySection
+            companies={[contract.companies]}
+            title={__("Loan Primary Companies")}
+            name={"Contract"}
+          />
+        )}
+        <CustomerSection
+          mainType="contractSub"
+          mainTypeId={contract._id}
+          title={__("Loan Collectively Customers")}
+          name={"Contract"}
+        />
 
-          <DealSection contract={contract} />
-        </>
-      )}
+        <DealSection contract={contract} />
+      </>
 
       <ContractsCustomFields
         contract={contract}

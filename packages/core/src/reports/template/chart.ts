@@ -1,5 +1,4 @@
 import { IModels } from "../../connectionResolver";
-import { sendClientPortalMessage } from "../../messageBroker";
 import {
   BUSINESSPORTAL_STATE_TYPES,
   CONTACT_STATES,
@@ -111,7 +110,7 @@ const chartTemplates = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "contentType",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -123,12 +122,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:all"}`
+            logicFieldExtraVariable: `{"contentType": "core:all"}`
           }
         ],
         multi: true,
@@ -278,7 +277,7 @@ const chartTemplates = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "contentType",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -290,12 +289,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:all"}`
+            logicFieldExtraVariable: `{"contentType": "core:all"}`
           }
         ],
         multi: true,
@@ -476,7 +475,7 @@ const chartTemplates = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "contentType",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -488,12 +487,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:all"}`
+            logicFieldExtraVariable: `{"contentType": "core:all"}`
           }
         ],
         multi: true,
@@ -667,7 +666,7 @@ const chartTemplates = [
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
         fieldParentVariable: "contentType",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -679,12 +678,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:all"}`,
+        fieldQueryVariables: `{"contentType": "core:all"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:all"}`
+            logicFieldExtraVariable: `{"contentType": "core:all"}`
           }
         ],
         multi: true,
@@ -788,7 +787,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -809,7 +808,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -821,12 +820,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -949,7 +948,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -970,7 +969,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -982,12 +981,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -1134,7 +1133,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -1155,7 +1154,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -1167,12 +1166,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -1311,7 +1310,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -1332,7 +1331,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -1344,12 +1343,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -1505,7 +1504,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -1526,7 +1525,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -1538,12 +1537,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -1646,7 +1645,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -1667,7 +1666,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -1679,12 +1678,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -1807,7 +1806,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -1828,7 +1827,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -1840,12 +1839,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -1991,7 +1990,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2012,7 +2011,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2024,12 +2023,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -2168,7 +2167,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2189,7 +2188,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2201,12 +2200,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -2362,7 +2361,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:customer", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:customer", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2383,7 +2382,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2395,12 +2394,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:customer"}`,
+        fieldQueryVariables: `{"contentType": "core:customer"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:customer"}`
+            logicFieldExtraVariable: `{"contentType": "core:customer"}`
           }
         ],
         multi: true,
@@ -2474,7 +2473,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:company", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:company", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2485,7 +2484,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2497,12 +2496,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:company"}`
+            logicFieldExtraVariable: `{"contentType": "core:company"}`
           }
         ],
         multi: true,
@@ -2594,7 +2593,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:company", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:company", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2605,7 +2604,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2617,12 +2616,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:company"}`
+            logicFieldExtraVariable: `{"contentType": "core:company"}`
           }
         ],
         multi: true,
@@ -2730,7 +2729,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:company", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:company", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2741,7 +2740,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2753,12 +2752,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:company"}`
+            logicFieldExtraVariable: `{"contentType": "core:company"}`
           }
         ],
         multi: true,
@@ -2886,7 +2885,7 @@ const chartTemplates = [
         fieldQuery: "tags",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"type": "contacts:company", "perPage": 1000}`,
+        fieldQueryVariables: `{"type": "core:company", "perPage": 1000}`,
         multi: true,
         fieldLabel: "Select tags"
       },
@@ -2897,7 +2896,7 @@ const chartTemplates = [
         fieldQuery: "fieldsGroups",
         fieldValueVariable: "_id",
         fieldLabelVariable: "name",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         multi: true,
         fieldLabel: "Select field group"
       },
@@ -2909,12 +2908,12 @@ const chartTemplates = [
         fieldLabelVariable: "text",
         fieldParentVariable: "groupId",
         fieldParentQuery: "fieldsGroups",
-        fieldQueryVariables: `{"contentType": "contacts:company"}`,
+        fieldQueryVariables: `{"contentType": "core:company"}`,
         logics: [
           {
             logicFieldName: "groupIds",
             logicFieldVariable: "groupIds",
-            logicFieldExtraVariable: `{"contentType": "contacts:company"}`
+            logicFieldExtraVariable: `{"contentType": "core:company"}`
           }
         ],
         multi: true,

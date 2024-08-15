@@ -1,11 +1,11 @@
-import { Model } from 'mongoose';
-import { IModels } from '../../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../../connectionResolver";
 import {
   conformityHelper,
   getMatchConformities,
   getSavedAnyConformityMatch,
   relatedConformityHelper
-} from './conformitiesUtils';
+} from "./conformitiesUtils";
 import {
   conformitySchema,
   IConformitiesRemove,
@@ -18,7 +18,7 @@ import {
   IConformityRemove,
   IConformitySaved,
   IGetConformityBulk
-} from './definitions/conformities';
+} from "./definitions/conformities";
 
 export interface IConformityModel extends Model<IConformityDocument> {
   addConformity(doc: IConformityAdd): Promise<IConformityDocument>;
@@ -26,7 +26,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   editConformity(
     doc: IConformityEdit
   ): Promise<{ addedTypeIds: string[]; removedTypeIds: string[] }>;
-  changeConformity(doc: IConformityChange): void;
+  changeConformity(doc: IConformityChange): Promise<void>;
   removeConformity(doc: IConformityRemove): void;
   removeConformities(doc: IConformitiesRemove): void;
   savedConformity(doc: IConformitySaved): Promise<string[]>;

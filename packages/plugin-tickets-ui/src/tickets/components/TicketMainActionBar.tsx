@@ -58,23 +58,19 @@ const TicketMainActionBar = (props: Props) => {
         isMulti={true}
       />
 
-      {isEnabled("contacts") && (
-        <>
-          <SelectCompanies
-            label="Choose companies"
-            name="companyIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-          />
+      <SelectCompanies
+        label="Choose companies"
+        name="companyIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
 
-          <SelectCustomers
-            label="Choose customers"
-            name="customerIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-          />
-        </>
-      )}
+      <SelectCustomers
+        label="Choose customers"
+        name="customerIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
     </>
   );
 

@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import * as _ from "underscore";
-import { IModels } from "../connectionResolver";
-import { sendInboxMessage, sendCoreMessage } from "../messageBroker";
+import { generateModels, IModels } from "../../../connectionResolver";
+import { sendInboxMessage } from "../../../messageBroker";
 import { CommonBuilder } from "./utils";
 import { generateElkIds } from "@erxes/api-utils/src/elasticsearch";
 
@@ -190,17 +190,9 @@ export class Builder extends CommonBuilder<IListArgs> {
     startDate?: string,
     endDate?: string
   ): Promise<void> {
-    const submissions = await sendCoreMessage({
-      subdomain,
-      action: "submissions.find",
-      data: {
-        query: {
-          formId
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+    const models = await generateModels(subdomain);
+
+    const submissions = await models.FormSubmissions.find({ formId });
 
     const ids: string[] = [];
 

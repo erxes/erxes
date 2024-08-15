@@ -179,7 +179,7 @@ const EditForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled("contacts") && (
+        {
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
@@ -198,7 +198,7 @@ const EditForm = (props: Props) => {
               assignmentCampaign={assignmentCampaign}
             />
           </>
-        )}
+        }
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select
