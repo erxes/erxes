@@ -37,6 +37,7 @@ import Table from "@erxes/ui/src/components/table";
 import { __ } from "coreui/utils";
 import dayjs from "dayjs";
 import moment from "moment";
+import { RelType } from "../../containers/ContractForm";
 
 const onFieldClick = (e) => {
   e.target.select();
@@ -47,9 +48,10 @@ type Props = {
   renderButton: (
     props: IButtonMutateProps & { disabled: boolean }
   ) => JSX.Element;
-  contract: IContract;
+  contract?: IContract;
   closeModal: () => void;
   change?: boolean;
+  data?: RelType;
 };
 
 interface IConfig {
@@ -87,7 +89,7 @@ function generateDefault(props) {
     loanDestination: contract.loanDestination,
     loanSubPurpose: contract.loanSubPurpose,
     contractTypeId: contract.contractTypeId,
-    status: contract.status,
+    status: contract.status || 'normal',
     branchId: contract.branchId,
     leaseType: contract.leaseType,
     description: contract.description,
@@ -179,17 +181,17 @@ function ContractForm(props: Props) {
   const [schedule, setSchedule] = useState<LoanSchedule[]>(
     contract?.repayment === "custom"
       ? generateCustomGraphic({
-          dateRange: contract.scheduleDays,
-          interestRate: contract.interestRate,
-          leaseAmount: contract.leaseAmount,
-          startDate: contract.startDate,
-          tenor: contract.tenor,
-          isPayFirstMonth: contract.isPayFirstMonth,
-          skipAmountCalcMonth: contract.skipAmountCalcMonth,
-          customPayment: contract.customPayment,
-          customInterest: contract.customInterest,
-          firstPayDate: contract.firstPayDate
-        })
+        dateRange: contract.scheduleDays,
+        interestRate: contract.interestRate,
+        leaseAmount: contract.leaseAmount,
+        startDate: contract.startDate,
+        tenor: contract.tenor,
+        isPayFirstMonth: contract.isPayFirstMonth,
+        skipAmountCalcMonth: contract.skipAmountCalcMonth,
+        customPayment: contract.customPayment,
+        customInterest: contract.customInterest,
+        firstPayDate: contract.firstPayDate
+      })
       : []
   );
   const [changeRowIndex, setChangeRowIndex] = useState<number>();
@@ -583,23 +585,23 @@ function ContractForm(props: Props) {
                 })}
               {props.currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.BBSB && (
-                <FormGroup>
-                  <ControlLabel required={true}>{__("Loan Type")}</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="loanDestination"
-                    componentclass="select"
-                    value={state.loanDestination}
-                    onChange={onChangeField}
-                  >
-                    {LoanPurpose.destination.map((type) => (
-                      <option key={type.code} value={type.code}>
-                        {__(type.name)}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>{__("Loan Type")}</ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="loanDestination"
+                      componentclass="select"
+                      value={state.loanDestination}
+                      onChange={onChangeField}
+                    >
+                      {LoanPurpose.destination.map((type) => (
+                        <option key={type.code} value={type.code}>
+                          {__(type.name)}
+                        </option>
+                      ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -631,31 +633,31 @@ function ContractForm(props: Props) {
               </FormGroup>
               {props.currentUser?.configs?.loansConfig?.organizationType ===
                 ORGANIZATION_TYPE.BBSB && (
-                <FormGroup>
-                  <ControlLabel required={true}>
-                    {__("Loan Purpose")}
-                  </ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="loanPurpose"
-                    componentclass="select"
-                    value={state.loanPurpose}
-                    onChange={onChangeField}
-                  >
-                    {LoanPurpose.purpose
-                      .filter((a) =>
-                        state.loanDestination
-                          ? a.parent === state.loanDestination
-                          : true
-                      )
-                      .map((type) => (
-                        <option key={type.name} value={type.name}>
-                          {__(type.name)}
-                        </option>
-                      ))}
-                  </FormControl>
-                </FormGroup>
-              )}
+                  <FormGroup>
+                    <ControlLabel required={true}>
+                      {__("Loan Purpose")}
+                    </ControlLabel>
+                    <FormControl
+                      {...formProps}
+                      name="loanPurpose"
+                      componentclass="select"
+                      value={state.loanPurpose}
+                      onChange={onChangeField}
+                    >
+                      {LoanPurpose.purpose
+                        .filter((a) =>
+                          state.loanDestination
+                            ? a.parent === state.loanDestination
+                            : true
+                        )
+                        .map((type) => (
+                          <option key={type.name} value={type.name}>
+                            {__(type.name)}
+                          </option>
+                        ))}
+                    </FormControl>
+                  </FormGroup>
+                )}
               {state.useMargin &&
                 renderFormGroup("Down payment", {
                   ...formProps,
@@ -666,7 +668,8 @@ function ContractForm(props: Props) {
                   value: state.downPayment || 0,
                   onChange: onChangeField,
                   onClick: onFieldClick
-                })}
+                })
+              }
             </FormColumn>
             <FormColumn>
               <FormGroup>
@@ -754,6 +757,7 @@ function ContractForm(props: Props) {
                     }
                   }}
                   multi={false}
+                  exactFilter={true}
                 />
               </FormGroup>
             </FormColumn>
