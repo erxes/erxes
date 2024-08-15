@@ -5,7 +5,7 @@ import {
   InnerActions,
   Keypad,
 } from './styles';
-import React, { useState } from 'react';
+import React from 'react';
 import { numbers, symbols } from './constants';
 
 import DialogComponent from './components/Dialog';
@@ -20,7 +20,6 @@ export const formatPhone = (phone) => {
   } else {
     num = phone;
   }
-  // remove everything but digits & '+' sign
   num = num.toString().replace(/[^+0-9]/g, '');
 
   return num;

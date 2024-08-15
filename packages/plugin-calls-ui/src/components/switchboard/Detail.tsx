@@ -1,31 +1,24 @@
 import React from 'react';
 
-import styled from 'styled-components';
-import { Table, Label } from '@erxes/ui/src/components';
+import { Table } from '@erxes/ui/src/components';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+
 import { Row } from './Row';
 import { dimensions } from '@erxes/ui/src/styles';
 import { IQueueDoc, IWaitingCall } from '../../types';
-import { formatTime } from '../../utils';
 
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-
-const GridContainer = styled.div`
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-gap: 20px;
-  padding: 20px;
-`;
-
-const GridItem = styled.div`
-  background-color: rgba(255, 255, 255, 0.8);
-  text-align: center;
-`;
-
-const Item3 = styled(GridItem)`
-  grid-column: 1 / span 2;
-  padding: 20px 0;
-`;
+import {
+  DashboardTable,
+  GridContainer,
+  GridItem,
+  Header,
+  Item3,
+  Label,
+  Td,
+  Th,
+} from '../../styles';
 
 type IProps = {
   waitingList: IWaitingCall | string;
@@ -50,30 +43,50 @@ function Detail(props: IProps) {
 
   const renderTable = (list, isWaitinglist) => {
     return (
-      <div
-        style={{
-          border: '1px solid #eee',
-          borderRadius: `${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px`,
-        }}
-      >
-        <Table $hover={true}>
-          <thead>
+      <DashboardTable color={isWaitinglist ? '#dc9012e8' : '#46a621d9'}>
+        <Table>
+          <thead
+            style={{
+              backgroundColor: isWaitinglist ? '#dc9012e8' : '#46a621d9 ',
+            }}
+          >
             <tr>
-              <th>{'Status'}</th>
-              <th>{'Caller'}</th>
-              {!isWaitinglist && <th>{'Callee'}</th>}
-              <th>{isWaitinglist ? 'Wait time' : 'Talk time'}</th>
+              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}>
+                {'Status'}
+              </Th>
+              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}>
+                {'Caller'}
+              </Th>
+              {!isWaitinglist && (
+                <Th
+                  backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}
+                >
+                  {'Callee'}
+                </Th>
+              )}
+              <Th backgroundColor={isWaitinglist ? '#dc9012e8' : '#46a621d9 '}>
+                {isWaitinglist ? 'Wait time' : 'Talk time'}
+              </Th>
             </tr>
           </thead>
           <tbody>
-            {list?.map((data, index: number) => {
-              return (
+            {list.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={isWaitinglist ? 4 : 5}
+                  style={{ textAlign: 'center' }}
+                >
+                  <EmptyState icon="postcard" text="No data" size="large" />
+                </td>
+              </tr>
+            ) : (
+              list?.map((data, index: number) => (
                 <Row callList={data} key={index} isWaiting={isWaitinglist} />
-              );
-            })}
+              ))
+            )}
           </tbody>
         </Table>
-      </div>
+      </DashboardTable>
     );
   };
   const waitingDetail = () => {
@@ -89,14 +102,14 @@ function Detail(props: IProps) {
     return (
       <GridItem>
         <>
-          <h4 style={{ textAlign: 'left', margin: '0 0 20px 0' }}>Waiting</h4>
+          <Header>Waiting</Header>
           <DataWithLoader
             data={renderTable(
               members.length > 0 ? members : initialMembers,
               true,
             )}
             loading={false}
-            count={members?.length ? members?.length : initialMembers?.length}
+            count={1}
             emptyText={'There are no waiting calls'}
             emptyImage="/images/actions/18.svg"
           />
@@ -118,14 +131,14 @@ function Detail(props: IProps) {
 
     return (
       <GridItem>
-        <h4 style={{ textAlign: 'left', margin: '0 0 20px 0' }}>Talking</h4>
+        <Header>Talking</Header>
         <DataWithLoader
           data={renderTable(
             members.length > 0 ? members : initialMembers,
             false,
           )}
           loading={false}
-          count={members?.length ? members?.length : initialMembers?.length}
+          count={1}
           emptyText={'There are no active calls'}
           emptyImage="/images/actions/18.svg"
         />
@@ -133,18 +146,18 @@ function Detail(props: IProps) {
     );
   };
 
-  const calculateLabelStyle = (status) => {
+  const calculateLabelColor = (status) => {
     switch (status) {
       case 'Idle':
-        return 'success';
+        return '#606060';
       case 'InUse':
-        return 'warning';
+        return 'green';
       case 'Ringing':
-        return 'default';
+        return '#dc9012e8';
       case 'Paused':
-        return 'danger';
+        return 'red';
       default:
-        return 'simple';
+        return 'gray';
     }
   };
 
@@ -169,51 +182,67 @@ function Detail(props: IProps) {
 
     return (
       <Item3>
-        <h4 style={{ textAlign: 'left', margin: '0 0 20px 0' }}>Agent</h4>
+        <Header>Agent</Header>
         <div
           style={{
             border: '1px solid #eee',
             borderRadius: `${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px`,
+            overflowY: 'auto',
+            fontSize: '20px',
+            fontWeight: 'bold',
+            background: '#6aecff',
           }}
         >
-          <Table $hover={true}>
+          <Table>
             <thead>
               <tr>
-                <th>Extention Status</th>
-                <th>Extention</th>
-                <th>Name</th>
-                <th>Answered</th>
-                <th>Abandoned</th>
-                {/* <th>Login/Logout time</th> */}
-                <th>Pause/Resume time</th>
-                <th>Talk time</th>
+                <Th backgroundColor={'#6aecff'}>Extention Status</Th>
+                <Th backgroundColor={'#6aecff'}>Extention</Th>
+                <Th backgroundColor={'#6aecff'}>Name</Th>
+                <Th backgroundColor={'#6aecff'}>Answered</Th>
               </tr>
             </thead>
             <tbody>
               {(sortedAgent || members)?.map((data, index: number) => {
                 return (
                   data.status !== 'Unavailable' && (
-                    <tr style={{ textAlign: 'left' }} key={index}>
+                    <tr
+                      style={{
+                        textAlign: 'left',
+                        color:
+                          data.status === 'Paused' ? 'red !important' : 'black',
+                      }}
+                      key={index}
+                    >
                       <td>
-                        <div
-                          style={{
-                            width: '50%',
-                            textAlign: 'center',
-                            fontSize: '10px',
-                          }}
-                        >
-                          <Label lblStyle={calculateLabelStyle(data.status)}>
-                            {data.status}
-                          </Label>
-                        </div>
+                        <Label $color={calculateLabelColor(data.status)}>
+                          {data.status}
+                        </Label>
                       </td>
-                      <td>{data.member_extension || ''}</td>
-                      <td>{formatName(data.first_name, data.last_name)}</td>
-                      <td>{data.answer}</td>
-                      <td>{data.abandon}</td>
-                      {/* <td>{data.logintime}</td> */}
-                      <td>{data.pausetime}</td>
-                      <td>{formatTime(data.talktime)}</td>
+                      <Td
+                        color={data.status === 'Paused' ? 'red' : 'black'}
+                        fontWeight={
+                          data.status === 'Paused' ? 'normal' : 'bold'
+                        }
+                      >
+                        {data.member_extension || ''}
+                      </Td>
+                      <Td
+                        color={data.status === 'Paused' ? 'red' : 'black'}
+                        fontWeight={
+                          data.status === 'Paused' ? 'normal' : 'bold'
+                        }
+                      >
+                        {formatName(data.first_name, data.last_name)}
+                      </Td>
+                      <Td
+                        color={data.status === 'Paused' ? 'red' : 'black'}
+                        fontWeight={
+                          data.status === 'Paused' ? 'normal' : 'bold'
+                        }
+                      >
+                        {data.answer}
+                      </Td>
                     </tr>
                   )
                 );
@@ -238,8 +267,6 @@ function Detail(props: IProps) {
       header={<Wrapper.Header title={'Call Dashboard'} submenu={subMenu} />}
       content={
         <GridContainer>
-          {waitingDetail()}
-          {proceedingDetail()}
           {
             <DataWithLoader
               data={AgentDetail()}
@@ -249,6 +276,8 @@ function Detail(props: IProps) {
               emptyImage="/images/actions/18.svg"
             />
           }
+          {waitingDetail()}
+          {proceedingDetail()}
         </GridContainer>
       }
       hasBorder

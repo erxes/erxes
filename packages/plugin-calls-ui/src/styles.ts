@@ -10,6 +10,7 @@ import styled, { css, keyframes } from 'styled-components';
 import { WhiteBox } from '@erxes/ui/src/layout/styles';
 import colors from '@erxes/ui/src/styles/colors';
 import styledTS from 'styled-components-ts';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 export const Tab = styled(TabTitle)`
   display: flex;
@@ -1007,6 +1008,71 @@ const KeyPadContainer = styled.div`
   position: relative;
 `;
 
+const DashboardTable = styledTS<{ color: string }>(styled.div)`
+  border: 1px solid #eee;
+  border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
+  height: 400px;
+  overflow-y: auto;
+  font-size: 20px;
+  font-weight: bold;
+  background: ${(props) => props.color} !important;
+`;
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-gap: 10px;
+  padding: 0 5px 0 5px;
+`;
+
+const GridItem = styled.div`
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+`;
+
+const Item3 = styled(GridItem)`
+  grid-row: 1 / span 2;
+`;
+
+const Header = styled.h3`
+  text-align: left;
+  margin: 0 0 10px 0;
+`;
+
+const Label = styledTS<{ $color: string }>(styled.span)`
+  border-radius: 5px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  font-size: 15px;
+  display: inline-block;
+  line-height: 1.32857143;
+  background: ${(props) => rgba(props.$color, 0.15)};
+  color: ${(props) => props.$color};
+  border: none;
+  font-weight: 600;
+  margin-left: 20%;
+  &:hover {
+    cursor: default;
+  }
+
+  &.round {
+    width: 15px;
+    height: 15px;
+    padding: 3px;
+    line-height: 0.5;
+    text-align: center;
+    font-weight: normal;
+  }
+`;
+
+const Th = styledTS<{ backgroundColor: string; color?: string }>(styled.th)`
+  background: ${(props) => props.backgroundColor} !important;
+  color: ${(props) => props.color && props.color} !important;
+`;
+
+const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
+  color: ${(props) => props.color && props.color} !important;
+  font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
+`;
 export {
   ActivityRow,
   ActivityIcon,
@@ -1019,4 +1085,12 @@ export {
   OperatorFormView,
   OperatorRemoveBtn,
   KeyPadContainer,
+  DashboardTable,
+  GridContainer,
+  GridItem,
+  Item3,
+  Header,
+  Label,
+  Th,
+  Td,
 };
