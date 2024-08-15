@@ -38,7 +38,7 @@ export type ForgotPasswordMutationVariables = {
 export type ForgotPasswordMutationResponse = {
   forgotPasswordMutation: (params: {
     variables: ForgotPasswordMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<string>;
 };
 
 export type ResetPasswordMutationVariables = {
@@ -49,7 +49,7 @@ export type ResetPasswordMutationVariables = {
 export type ResetPasswordMutationResponse = {
   resetPasswordMutation: (params: {
     variables: ResetPasswordMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type LoginMutationVariables = {
@@ -60,7 +60,7 @@ export type LoginMutationVariables = {
 export type LoginMutationResponse = {
   loginMutation: (params: {
     variables: LoginMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<String>;
 };
 
 export type CurrentUserQueryResponse = {
@@ -69,5 +69,5 @@ export type CurrentUserQueryResponse = {
 };
 
 export type CreateOwnerMutationResponse = {
-  createOwnerMutation: (params: { variables: IOwner }) => Promise<any>;
+  createOwnerMutation: (params: { variables: IOwner }) => Promise<String>;
 };

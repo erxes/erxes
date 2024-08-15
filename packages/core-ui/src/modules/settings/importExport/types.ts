@@ -129,7 +129,6 @@ export type ImportHistoryGetDuplicatedHeadersQueryResponse = {
 
 export type ImportHistoryDetailQueryResponse = {
   importHistoryDetail: IImportHistory;
-  subscribeToMore: any;
   error: Error;
   stopPolling: () => void;
 } & QueryResponse;
@@ -147,22 +146,8 @@ export type HistoryGetTypesQueryResponse = {
   historyGetTypes: IContentType[];
 } & QueryResponse;
 
-export type FieldsCombinedByContentTypeQueryResponse = {
-  fieldsCombinedByContentType: IExportField[];
-} & QueryResponse;
-
-export type ExportHistoriesQueryResponse = {
-  exportHistories: IExportHistoryItem;
-  stopPolling: () => any;
-} & QueryResponse;
-
-export type HistoryGetTypesQueryResponse = {
-  historyGetTypes: IContentType[];
-} & QueryResponse;
-
 export type ExportHistoryDetailQueryResponse = {
   importHistoryDetail: IExportHistory;
-  subscribeToMore: any;
   error: Error;
   stopPolling: () => void;
 } & QueryResponse;
@@ -172,21 +157,21 @@ export type ExportHistoryDetailQueryResponse = {
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
     variables: { _id: string; contentType: string };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type ImportHistoryCreateMutationResponse = {
   importHistoriesCreate: (params: {
     variables: { doc: IImportCreate };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type ExportHistoryCreateMutationResponse = {
   exportHistoriesCreate: (params: {
     variables: { doc: IExportHistoryDoc };
-  }) => Promise<any>;
+  }) => Promise<JSON>;
 };
 
 export type CancelMutationResponse = {
-  importCancel: (params: { variables: { _id: string } }) => Promise<any>;
+  importCancel: (params: { variables: { _id: string } }) => Promise<boolean>;
 };

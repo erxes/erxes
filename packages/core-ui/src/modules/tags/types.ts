@@ -43,7 +43,7 @@ export type EditMutationResponse = {
 };
 
 export type RemoveMutationResponse = {
-  removeMutation: (params: { variables: { _id: string } }) => Promise<any>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<JSON>;
 };
 
 export type MergeMutationResponse = {
@@ -59,5 +59,5 @@ export type TagMutationVariables = {
 };
 
 export type TagMutationResponse = {
-  tagMutation: (params: { variables: TagMutationVariables }) => Promise<any>;
+  tagMutation: (params: { variables: TagMutationVariables }) => Promise<ITag[]>;
 };

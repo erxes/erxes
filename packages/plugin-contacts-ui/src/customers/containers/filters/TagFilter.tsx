@@ -11,6 +11,7 @@ import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { IAbortController } from '@erxes/ui/src/types';
 
 const TagFilterContainer = (props: {
   customersCountQuery?: CountQueryResponse;
@@ -41,7 +42,7 @@ const TagFilterContainer = (props: {
 };
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
 };

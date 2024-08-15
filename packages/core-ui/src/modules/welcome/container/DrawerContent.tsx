@@ -1,10 +1,11 @@
 import DrawerContent from "../components/DrawerContent";
 import React from "react";
+import { SetupItem, TaskType } from "../types";
 
 type Props = {
-  content: any;
-  tasks: any;
-  setShow: any;
+  content: SetupItem;
+  tasks: TaskType[];
+  setShow: (status: boolean) => void;
   completedSteps: string[];
 };
 

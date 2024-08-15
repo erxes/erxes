@@ -30,7 +30,7 @@ type Props = {
   actionsQuery: PermissionActionsQueryResponse;
   usersGroupsQuery: UsersGroupsQueryResponse;
   totalCountQuery: PermissionTotalCountQueryResponse;
-  removeMutation: (params: { variables: { ids: string[] } }) => Promise<any>;
+  removeMutation: (params: { variables: { ids: string[] } }) => Promise<JSON>;
   fixPermissionsMutation: PermissionsFixMutationResponse;
 };
 

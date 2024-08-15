@@ -66,7 +66,7 @@ export type PermissionRemoveMutationResponse = {
 };
 
 export type PermissionsFixMutationResponse = {
-  fixPermissionsMutation: () => Promise<any>;
+  fixPermissionsMutation: () => Promise<string[]>;
 };
 
 export interface IUserGroupDocument extends IUserGroup {
@@ -91,7 +91,7 @@ export type UsersGroupsEditMutation = {
 };
 
 export type UsersGroupsRemoveMutation = {
-  usersGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+  usersGroupsRemove: (params: { variables: { _id: string } }) => Promise<JSON>;
 };
 
 export type UsersGroupsCopyMutation = {

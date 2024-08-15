@@ -6,6 +6,7 @@ import { graphql } from '@apollo/client/react/hoc';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
@@ -27,7 +28,7 @@ const SegmentFilterContainer = (props: Props & WrapperProps) => {
 };
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
 };

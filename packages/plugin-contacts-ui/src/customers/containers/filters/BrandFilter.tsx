@@ -8,6 +8,7 @@ import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import BrandFilter from '@erxes/ui/src/brands/components/BrandFilter';
 import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { IAbortController } from '@erxes/ui/src/types';
 
 type Props = {
   brandsQuery?: BrandsQueryResponse;
@@ -35,7 +36,7 @@ class BrandFilterContainer extends React.Component<Props> {
 }
 
 type WrapperProps = {
-  abortController?: any;
+  abortController?: IAbortController;
   type: string;
   loadingMainQuery: boolean;
 };
