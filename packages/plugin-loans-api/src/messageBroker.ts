@@ -269,12 +269,12 @@ export const sendSms = async (
     try {
       await fetch(
         "https://api.messagepro.mn/send?" +
-          new URLSearchParams({
-            key: MESSAGE_PRO_API_KEY,
-            from: MESSAGE_PRO_PHONE_NUMBER,
-            to: phoneNumber,
-            text: content
-          })
+        new URLSearchParams({
+          key: MESSAGE_PRO_API_KEY,
+          from: MESSAGE_PRO_PHONE_NUMBER,
+          to: phoneNumber,
+          text: content
+        })
       );
 
       return "sent";
@@ -282,36 +282,4 @@ export const sendSms = async (
       throw new Error(e.message);
     }
   }
-};
-
-export const customFieldToObject = async (
-  subdomain,
-  customFieldType: 'cards:deal',
-  object
-) => {
-  const fields = await sendCommonMessage({
-    subdomain,
-    serviceName: 'forms',
-    action: 'fields.find',
-    data: {
-      query: {
-        contentType: customFieldType,
-        code: { $exists: true, $ne: '' }
-      },
-      projection: {
-        groupId: 1,
-        code: 1,
-        _id: 1
-      }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-  const customFieldsData: any[] = object.customFieldsData || [];
-  for (const f of fields) {
-    const existingData = customFieldsData.find((c) => c.field === f._id);
-    object[f.code] = existingData?.value;
-  }
-
-  return object;
 };

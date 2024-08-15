@@ -89,7 +89,7 @@ class CommonChooser extends React.Component<Props, State> {
     const { datas } = this.state;
 
     if (type === "plus-1") {
-      if (this.props.limit && this.props.limit === datas.length) {
+      if (this.props.limit && this.props.limit <= datas.length) {
         return;
       }
 
