@@ -12,12 +12,12 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables,
 } from "../types";
-import { IField } from "@erxes/ui/src/types";
 import { mutations, queries } from "../graphql";
 
 import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
 import { FieldsQueryResponse } from "@erxes/ui-forms/src/settings/properties/types";
 import Form from "../components/Form";
+import { IField } from "@erxes/ui/src/types";
 import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 import React from "react";
 import { gql } from "@apollo/client";

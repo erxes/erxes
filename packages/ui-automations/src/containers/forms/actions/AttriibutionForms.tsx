@@ -1,12 +1,12 @@
-import React from "react";
 import * as compose from "lodash.flowright";
-import { queries as segmentQueries } from "@erxes/ui-segments/src/graphql";
+
+import { ISegment } from "@erxes/ui-segments/src/types";
+import { QueryResponse } from "@erxes/ui/src/types";
+import React from "react";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
+import { queries as segmentQueries } from "@erxes/ui-segments/src/graphql";
 import { withProps } from "@erxes/ui/src/utils";
-import { QueryResponse } from "@erxes/ui/src/types";
-import { ISegment } from "@erxes/ui-segments/src/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   segmentId: string;
@@ -34,8 +34,8 @@ class AttributesForm extends React.Component<FinalProps> {
     let config = segmentDetail?.config || {};
 
     if (
-      !(segmentDetail?.subSegmentConditions || [])?.some(subCondition =>
-        (subCondition?.conditions || []).some(cond =>
+      !(segmentDetail?.subSegmentConditions || [])?.some((subCondition) =>
+        (subCondition?.conditions || []).some((cond) =>
           ["forms:form_submission"].includes(cond.propertyType || "")
         )
       )
@@ -53,9 +53,9 @@ export default withProps<Props>(
       name: "segmentDetailQuery",
       options: ({ segmentId }) => ({
         variables: {
-          _id: segmentId
-        }
-      })
+          _id: segmentId,
+        },
+      }),
     })
   )(AttributesForm)
 );

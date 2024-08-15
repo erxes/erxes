@@ -1,26 +1,27 @@
-import queryString from "query-string";
-import { gql } from "@apollo/client";
 import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "@apollo/client/react/hoc";
 
-import Chooser from "@erxes/ui/src/components/Chooser";
 import { Alert, withProps } from "@erxes/ui/src/utils";
-import ProductCategoryChooser from "../components/ProductCategoryChooser";
-import {
-  mutations as productMutations,
-  queries as productQueries
-} from "../graphql";
 import {
   IProduct,
   IProductDoc,
   ProductAddMutationResponse,
   ProductsQueryResponse
 } from "../types";
+import {
+  mutations as productMutations,
+  queries as productQueries
+} from "../graphql";
+
+import Chooser from "@erxes/ui/src/components/Chooser";
+import { ProductCategoriesQueryResponse } from "../types";
+import ProductCategoryChooser from "../components/ProductCategoryChooser";
 import ProductForm from "./ProductForm";
-import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from "react";
 import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import queryString from "query-string";
 
 type Props = {
   data: { name: string; products: IProduct[] };

@@ -2,7 +2,7 @@ import * as compose from "lodash.flowright";
 
 import {
   FieldsCombinedByType,
-  FieldsCombinedByTypeQueryResponse
+  FieldsCombinedByTypeQueryResponse,
 } from "@erxes/ui-forms/src/settings/properties/types";
 
 import Form from "../../../components/forms/actions/placeHolder/Attribution";
@@ -11,7 +11,6 @@ import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { withProps } from "@erxes/ui/src/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 type Props = {
   config: any;
@@ -50,7 +49,7 @@ class Attribution extends React.Component<FinalProps, State> {
 
     const extendedProps = {
       ...this.props,
-      attributions
+      attributions,
     };
     return <Form {...extendedProps} />;
   }
@@ -66,9 +65,9 @@ export default withProps<Props>(
         options: ({ triggerType, attrConfig }) => ({
           variables: {
             contentType: triggerType,
-            config: attrConfig ? attrConfig : undefined
-          }
-        })
+            config: attrConfig ? attrConfig : undefined,
+          },
+        }),
       }
     )
   )(Attribution)
