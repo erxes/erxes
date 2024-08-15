@@ -151,10 +151,12 @@ export const types = () => `
 const queryParams = `
   page: Int
   perPage: Int
-  ids: [String]
-  searchValue: String
   sortField: String
   sortDirection: Int
+
+  searchValue: String
+  ids: [String]
+  excludeIds: Boolean,
   contractTypeId: String
   conformityMainType: String
   conformityMainTypeId: String
@@ -179,6 +181,8 @@ const queryParams = `
   status: String
   leaseType: String
   leaseTypes: [String]
+
+  dealIds: [String]
 `;
 
 export const queries = `
@@ -282,7 +286,7 @@ export const mutations = `
   contractsAdd(${commonFields}): LoanContract
   clientLoanContractsAdd(${commonFields}${clientFields}): LoanContract
   contractsEdit(_id: String!, ${commonFields}): LoanContract
-  contractsDealEdit(_id: String!, ${commonFields}): LoanContract
+  contractsDealEdit(_id: String!, dealId: String): LoanContract
   contractsClose(contractId: String, closeDate: Date, closeType: String, description: String): LoanContract
   contractsRemove(contractIds: [String]): [String]
   getProductsData(contractId: String): CollateralsDataResponse

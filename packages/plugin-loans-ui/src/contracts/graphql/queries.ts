@@ -87,6 +87,11 @@ const selectContractFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
+  $sortField: String
+  $sortDirection: Int
+
+  $ids: [String]
+  $excludeIds: Boolean
   $searchValue: String
   $isExpired: String
   $repaymentDate: String
@@ -96,8 +101,6 @@ const listParamsDef = `
   $endCloseDate:Date
   $dealId: String
   $customerId: String
-  $sortField: String
-  $sortDirection: Int
   $contractTypeId: String
   $leaseAmount: Float
   $interestRate: Float
@@ -107,16 +110,22 @@ const listParamsDef = `
   $closeDate: Date
   $closeDateType:String
   $branchId:String
+
+  $dealIds: [String]
 `;
 
 const listParamsMainDef = `
   ${listParamsDef}
-  $ids: [String]
 `;
 
 const listParamsValue = `
   page: $page
   perPage: $perPage
+  sortField: $sortField
+  sortDirection: $sortDirection
+
+  ids: $ids
+  excludeIds: $excludeIds
   searchValue: $searchValue
   isExpired: $isExpired
   repaymentDate: $repaymentDate
@@ -126,8 +135,6 @@ const listParamsValue = `
   endCloseDate: $endCloseDate
   dealId: $dealId
   customerId: $customerId
-  sortField: $sortField
-  sortDirection: $sortDirection
   contractTypeId: $contractTypeId
   leaseAmount: $leaseAmount
   interestRate: $interestRate
@@ -137,11 +144,12 @@ const listParamsValue = `
   closeDate: $closeDate
   closeDateType: $closeDateType
   branchId: $branchId
+
+  dealIds: $dealIds
 `;
 
 const listParamsMainValue = `
   ${listParamsValue}
-  ids: $ids
 `;
 
 export const contracts = `

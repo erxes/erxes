@@ -72,7 +72,7 @@ function Component(
         }}
         onSelect={(contracts: IContractDoc[]) => {
           contractsDealEdit({
-            variables: { ...contracts[0], dealId: mainTypeId },
+            variables: { _id: (contracts[0] || {})._id, dealId: mainTypeId },
           })
             .then(() => {
               collapseCallback && collapseCallback();
