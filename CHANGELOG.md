@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.15.0-rc.13...1.15.0-rc.14) (2024-08-15)
+
 ## [1.15.0-rc.13](https://github.com/erxes/erxes/compare/1.15.0-rc.12...1.15.0-rc.13) (2024-08-14)
 
 ### Features
