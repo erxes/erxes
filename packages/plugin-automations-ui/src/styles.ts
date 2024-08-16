@@ -3,7 +3,7 @@ import { colors, dimensions } from "@erxes/ui/src/styles";
 import { Contents } from "@erxes/ui/src/layout/styles";
 import { DateWrapper } from "@erxes/ui-forms/src/forms/styles";
 import { FlexContent } from "@erxes/ui-log/src/activityLogs/styles";
-import { RightMenuContainer } from "@erxes/ui-saas/src/boards/styles/rightMenu";
+import { RightMenuContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
 import { rgba } from "@erxes/ui/src/styles/ecolor";
 import styled from "styled-components";
 import styledTS from "styled-components-ts";

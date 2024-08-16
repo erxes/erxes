@@ -1,11 +1,8 @@
 import * as dayjs from "dayjs";
 import { MONTH_NAMES, NOW } from "./constants";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
-import {
-  sendClientPortalMessage,
-  sendCoreMessage,
-  sendInboxMessage
-} from "../messageBroker";
+import { sendClientPortalMessage, sendInboxMessage } from "../messageBroker";
+import { generateModels } from "../connectionResolver";
 
 export const getIntegrationMeta = async () => {
   const serviceNames = await getServices();
@@ -290,6 +287,8 @@ export const buildMatchFilter = async (filter, subdomain) => {
     dateRange
   } = filter;
 
+  const models = await generateModels(subdomain);
+
   const matchfilter = {};
 
   // FORM FILTER
@@ -350,17 +349,7 @@ export const buildMatchFilter = async (filter, subdomain) => {
 
   // FIELD GROUP FILTER
   if (groupIds && groupIds.length) {
-    const fields = await sendCoreMessage({
-      subdomain,
-      action: "fields.find",
-      data: {
-        query: {
-          groupId: { $in: groupIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+    const fields = await models.Fields.find({ groupId: { $in: groupIds } });
 
     const fieldIds = (fields || []).map(field => field._id);
 

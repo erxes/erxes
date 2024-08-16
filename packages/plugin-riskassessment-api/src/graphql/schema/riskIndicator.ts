@@ -109,7 +109,7 @@ export const types = () => `
         name:String,
         description:String
         tagIds:[String]
-        ${tagsAvailable ? `tags:[Tag]` : ""}
+        tags:[Tag]
         calculateMethod:String,
         calculateLogics:[CalculateLogicType]
         groups:[GroupsOfGroupTypes]

@@ -3,7 +3,14 @@ import { Model } from "mongoose";
 import { PLAN_STATUSES } from "../common/constants";
 import { validatePlan } from "../common/validateDoc";
 import { IModels } from "../connectionResolver";
-import { sendCardsMessage } from "../messageBroker";
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage
+} from "../messageBroker";
 import {
   IPlansDocument,
   ISchedulesDocument,
@@ -53,14 +60,51 @@ export const loadPlans = (models: IModels, subdomain: string) => {
 
       for (const plan of plans) {
         if (plan.status === PLAN_STATUSES.ARCHIVED && !!plan?.cardIds?.length) {
-          await sendCardsMessage({
-            subdomain,
-            action: `${plan?.configs?.cardType}s.remove`,
-            data: {
-              _ids: plan.cardIds
-            },
-            isRPC: true
-          });
+          switch (plan.configs.cardType) {
+            case "deal":
+              await sendSalesMessage({
+                subdomain,
+                action: "deal.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+            case "ticket":
+              await sendTicketsMessage({
+                subdomain,
+                action: "tickets.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+            case "task":
+              await sendTasksMessage({
+                subdomain,
+                action: "tasks.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+
+            case "purchase":
+              await sendPurchasesMessage({
+                subdomain,
+                action: "purchases.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+            default:
+              break;
+          }
         }
       }
 

@@ -4,7 +4,13 @@ import {
   isEnabled
 } from "@erxes/api-utils/src/serviceDiscovery";
 import { IModels } from "../connectionResolver";
-import { sendCardsMessage, sendContactsMessage } from "../messageBroker";
+import {
+  sendContactsMessage,
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage
+} from "../messageBroker";
 import { sendMessage } from "@erxes/api-utils/src/messageBroker";
 
 export interface IContactsParams {
@@ -241,29 +247,60 @@ export const createCard = async (subdomain, models, cpUser, doc) => {
     priority = "Normal";
   }
 
-  const card = await sendCardsMessage({
-    subdomain,
-    action: `${type}s.create`,
-    data: {
-      userId: cpUser.userId,
-      name: subject,
-      description,
-      priority,
-      stageId,
-      status: "active",
-      customerId: customer._id,
-      createdAt: new Date(),
-      stageChangedDate: null,
-      parentId,
-      closeDate,
-      startDate,
-      customFieldsData,
-      attachments,
-      labelIds,
-      productsData
-    },
-    isRPC: true
-  });
+  let card = {} as any;
+
+  const data = {
+    userId: cpUser.userId,
+    name: subject,
+    description,
+    priority,
+    stageId,
+    status: "active",
+    customerId: customer._id,
+    createdAt: new Date(),
+    stageChangedDate: null,
+    parentId,
+    closeDate,
+    startDate,
+    customFieldsData,
+    attachments,
+    labelIds,
+    productsData
+  };
+
+  switch (type) {
+    case "deal":
+      card = await sendSalesMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true
+      });
+
+    case "ticket":
+      card = await sendTicketsMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true
+      });
+
+    case "task":
+      card = await sendTasksMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true
+      });
+
+    case "purchase":
+      card = await sendPurchasesMessage({
+        subdomain,
+        action: `${type}s.create`,
+        data,
+        isRPC: true
+      });
+  }
 
   await models.ClientPortalUserCards.createOrUpdateCard({
     contentType: type,

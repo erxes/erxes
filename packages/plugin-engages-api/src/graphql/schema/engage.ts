@@ -66,15 +66,9 @@ export const types = async () => {
 
       scheduleDate: EngageScheduleDate
 
-      ${enabledSegments ? "segments: [Segment]" : ""}
-      ${
-        enabledTags
-          ? `
-        customerTags: [Tag]
-        getTags: [Tag]
-        `
-          : ""
-      }
+      segments: [Segment]
+      customerTags: [Tag]
+      getTags: [Tag]
       brands: [Brand]
       fromUser: User
       fromIntegration: JSON

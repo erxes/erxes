@@ -2,7 +2,7 @@ import { paginate } from "@erxes/api-utils/src";
 import { escapeRegExp } from "@erxes/api-utils/src/core";
 import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import { sendCommonMessage } from "../messageBroker";
+import { sendCommonMessage, sendCoreMessage } from "../messageBroker";
 import {
   getFilterTagIds,
   validRiskIndicators,

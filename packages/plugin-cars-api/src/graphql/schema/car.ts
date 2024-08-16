@@ -48,16 +48,10 @@ export const types = () => `
     mergedIds: [String]
     description: String
     owner: User
-    ${
-      contacts
-        ? `
-      customers: [Customer]
-      companies: [Company]
-      `
-        : ""
-    }
+    customers: [Customer]
+    companies: [Company]
 
-    ${tags ? `getTags: [Tag]` : ""}
+    getTags: [Tag]
     tagIds: [String]
     plateNumber: String
     vinNumber: String
