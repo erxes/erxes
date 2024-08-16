@@ -101,7 +101,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         response = await loansTransactionMethod(subdomain, models, syncLog, params);
         break;
     }
-    console.log('111111111', response)
+
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       {
@@ -109,7 +109,6 @@ export const afterMutationHandlers = async (subdomain, params) => {
       },
     );
   } catch (e) {
-    console.log(e, 'eeeeeeee')
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
       { $set: { error: e.message } },
