@@ -90,7 +90,6 @@ export interface IPipeline {
   numberConfig?: string;
   numberSize?: string;
   nameConfig?: string;
-  numberSizeName?: string;
 }
 
 export interface IBoard {

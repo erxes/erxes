@@ -30,7 +30,12 @@ interface IConformityCreate extends IMainType {
  * Send a notification
  */
 export const sendNotification = (subdomain: string, data) => {
-  return sendNotificationsMessage({ subdomain, action: 'send', data });
+  return sendNotificationsMessage({
+    subdomain,
+    action: 'send',
+    data,
+    isRPC: true
+  });
 };
 
 export const notifiedUserIds = async (models: IModels, item: any) => {
@@ -122,9 +127,10 @@ export const sendNotifications = async (
       action: 'sendMobileNotification',
       data: {
         title: `${item.name}`,
-        body: `${notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details
-            ?.shortName} removed you from ${contentType}`,
+        body: `${
+          notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details?.shortName
+        } removed you from ${contentType}`,
         receivers: removedUsers.filter(id => id !== user._id),
         data: {
           type: contentType,
@@ -148,9 +154,10 @@ export const sendNotifications = async (
       action: 'sendMobileNotification',
       data: {
         title: `${item.name}`,
-        body: `${notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details
-            ?.shortName} invited you to the ${contentType}`,
+        body: `${
+          notificationDoc.createdUser?.details?.fullName ||
+          notificationDoc.createdUser?.details?.shortName
+        } invited you to the ${contentType}`,
         receivers: invitedUsers.filter(id => id !== user._id),
         data: {
           type: contentType,

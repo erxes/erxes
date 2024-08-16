@@ -1,5 +1,47 @@
 # Changelog
 
+## [1.15.0-rc.12](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.15.0-rc.12) (2024-08-14)
+
+
+### Bug Fixes
+
+* msdynamic external_doc_no and posOrder to cards with payment ([effe8ad](https://github.com/erxes/erxes/commit/effe8adf1d2a742b0e4320b7da14adcb7b8bd7f1))
+
+## [1.15.0-rc.11](https://github.com/erxes/erxes/compare/1.15.0-rc.10...1.15.0-rc.11) (2024-08-12)
+
+## [1.15.0-rc.10](https://github.com/erxes/erxes/compare/1.15.0-rc.9...1.15.0-rc.10) (2024-08-12)
+
+
+### Bug Fixes
+
+* **cards:** auto name field  ([0d80278](https://github.com/erxes/erxes/commit/0d8027851dd5889bb62c1a25272ba33ac60e6e63))
+* change brand on pos ([4178e05](https://github.com/erxes/erxes/commit/4178e0571ef3513464bb177f0fadd047c90f0c6e))
+* ebarimt duplicated refactor ([c894110](https://github.com/erxes/erxes/commit/c89411083d9299688a63f8ba1d2e3d45119f725e))
+* msdynamic order update and customer check ([#5578](https://github.com/erxes/erxes/issues/5578)) ([91f74d1](https://github.com/erxes/erxes/commit/91f74d11238184915daf6a8dd4c3e8fdc9f9032e))
+* msdynamic send sales line save data ([e06e079](https://github.com/erxes/erxes/commit/e06e079164dcaf63d8dc816eaec52f88c0be4b6c))
+* **reactions:** replace mongoose exists query with countDocuments to return boolean in isHearted & isLiked ([0d5fa13](https://github.com/erxes/erxes/commit/0d5fa138e99506808429a43ae92f052a8f60000b))
+
+## [1.15.0-rc.9](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-07)
+
+
+### Bug Fixes
+
+* **core:** add error handler in experience customCode ([c4c4851](https://github.com/erxes/erxes/commit/c4c485142c2f441fca16d7226c26663d3788af59))
+
+## [1.14.2](https://github.com/erxes/erxes/compare/1.15.0-rc.8...1.15.0-rc.9) (2024-08-04)
+
+
+### Bug Fixes
+
+* **core:** add ability create brand consumer in message broker ([02f1b80](https://github.com/erxes/erxes/commit/02f1b8051cae249eb96363856889685ccd4c63fb))
+* **instagram:** fix instagram crash on recieve ([01d0a04](https://github.com/erxes/erxes/commit/01d0a040739557362b4829143f85f70dd761f7ce))
+* **instagram:** fixed messenger receiver ([7e904fa](https://github.com/erxes/erxes/commit/7e904fa516856175f9bcb584c5eab1c7d9dfbfe4))
+
+
+### Performance Improvements
+
+* **welcome:** Add saas welcome ([#5558](https://github.com/erxes/erxes/issues/5558)) ([b1bf188](https://github.com/erxes/erxes/commit/b1bf188fe280d875dffde462f2ad2dfaccb7b264))
+
 ## [1.15.0-rc.8](https://github.com/erxes/erxes/compare/1.15.0-rc.7...1.15.0-rc.8) (2024-08-05)
 
 

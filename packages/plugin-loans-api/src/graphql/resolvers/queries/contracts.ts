@@ -2,132 +2,137 @@ import { getCloseInfo } from '../../../models/utils/closeUtils';
 import { getFullDate } from '../../../models/utils/utils';
 import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { customFieldToObject, sendMessageBroker } from '../../../messageBroker';
+import { sendMessageBroker } from '../../../messageBroker';
+import { customFieldToObject } from '../utils';
 
 const generateFilter = async (params, commonQuerySelector) => {
   let filter: any = commonQuerySelector;
 
   filter.status = { $ne: "Deleted" };
 
-  if (params) {
-    const {
-      page,
-      perPage,
-      ids,
-      searchValue,
-      sortField,
-      sortDirection,
-      closeDate,
-      isExpired,
-      closeDateType,
-      repaymentDate,
-      startStartDate,
-      endStartDate,
-      leaseTypes,
-      ...otherFilter
-    } = params;
+  const {
+    page,
+    perPage,
+    ids,
+    excludeIds,
+    searchValue,
+    sortField,
+    sortDirection,
+    closeDate,
+    isExpired,
+    closeDateType,
+    repaymentDate,
+    startStartDate,
+    endStartDate,
+    leaseTypes,
+    dealIds,
+    ...otherFilter
+  } = params;
 
-    if (ids) {
-      filter._id = { $in: params.ids };
+  if (ids?.length) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  }
+
+  if (dealIds?.length) {
+    filter.dealId = { $in: dealIds }
+  }
+
+  if (searchValue) {
+    filter.number = { $in: [new RegExp(`.*${searchValue}.*`, "i")] };
+  }
+
+  if (isExpired === "true") {
+    filter.isExpired = !!isExpired;
+  }
+
+  if (repaymentDate === "today") {
+    const date = getFullDate(new Date());
+    filter.repaymentDate = {
+      $gte: date,
+      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+    };
+  }
+
+  if (closeDate) {
+    const date = getFullDate(closeDate);
+    filter.closeDate = {
+      $gte: date,
+      $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+    };
+  }
+
+  if (leaseTypes) {
+    otherFilter.leaseType = leaseTypes;
+  }
+
+  if (closeDateType) {
+    let currentDate = new Date();
+    switch (closeDateType) {
+      case "today":
+        const date = getFullDate(currentDate);
+        filter.closeDate = {
+          $gte: date,
+          $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+        };
+        break;
+      case "thisWeek":
+        let firstDayOfWeek = new Date(
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+        );
+        let lastDayOfWeek = new Date(
+          currentDate.setDate(
+            currentDate.getDate() - currentDate.getDay() + 6
+          )
+        );
+        filter.closeDate = {
+          $gte: firstDayOfWeek,
+          $lte: lastDayOfWeek
+        };
+        break;
+      case "thisMonth":
+        let firstDayOfMonth = new Date(
+          currentDate.setDate(currentDate.getDate() - currentDate.getDay())
+        );
+        let lastDayOfMonth = new Date(
+          currentDate.setDate(
+            currentDate.getDate() - currentDate.getDay() + 6
+          )
+        );
+        filter.closeDate = {
+          $gte: firstDayOfMonth,
+          $lte: lastDayOfMonth
+        };
+        break;
+
+      default:
+        break;
     }
 
-    if (searchValue) {
-      filter.number = { $in: [new RegExp(`.*${searchValue}.*`, "i")] };
-    }
-
-    if (isExpired === "true") {
-      filter.isExpired = !!isExpired;
-    }
-
-    if (repaymentDate === "today") {
-      const date = getFullDate(new Date());
-      filter.repaymentDate = {
-        $gte: date,
-        $lte: new Date(date.getTime() + 1000 * 3600 * 24)
-      };
-    }
-
-    if (closeDate) {
-      const date = getFullDate(closeDate);
-      filter.closeDate = {
-        $gte: date,
-        $lte: new Date(date.getTime() + 1000 * 3600 * 24)
-      };
-    }
-
-    if (leaseTypes) {
-      otherFilter.leaseType = leaseTypes;
-    }
-
-    if (closeDateType) {
-      let currentDate = new Date();
-      switch (closeDateType) {
-        case "today":
-          const date = getFullDate(currentDate);
+    if (startStartDate || endStartDate) {
+      switch (`${!!startStartDate}-${!!endStartDate}`) {
+        case "true-true":
           filter.closeDate = {
-            $gte: date,
-            $lte: new Date(date.getTime() + 1000 * 3600 * 24)
+            $gte: getFullDate(startStartDate),
+            $lte: getFullDate(endStartDate)
           };
           break;
-        case "thisWeek":
-          let firstDayOfWeek = new Date(
-            currentDate.setDate(currentDate.getDate() - currentDate.getDay())
-          );
-          let lastDayOfWeek = new Date(
-            currentDate.setDate(
-              currentDate.getDate() - currentDate.getDay() + 6
-            )
-          );
+        case "false-true":
           filter.closeDate = {
-            $gte: firstDayOfWeek,
-            $lte: lastDayOfWeek
+            $lte: getFullDate(endStartDate)
           };
           break;
-        case "thisMonth":
-          let firstDayOfMonth = new Date(
-            currentDate.setDate(currentDate.getDate() - currentDate.getDay())
-          );
-          let lastDayOfMonth = new Date(
-            currentDate.setDate(
-              currentDate.getDate() - currentDate.getDay() + 6
-            )
-          );
+        case "true-false":
           filter.closeDate = {
-            $gte: firstDayOfMonth,
-            $lte: lastDayOfMonth
+            $gte: getFullDate(startStartDate)
           };
           break;
-
         default:
           break;
       }
-
-      if (startStartDate || endStartDate) {
-        switch (`${!!startStartDate}-${!!endStartDate}`) {
-          case "true-true":
-            filter.closeDate = {
-              $gte: getFullDate(startStartDate),
-              $lte: getFullDate(endStartDate)
-            };
-            break;
-          case "false-true":
-            filter.closeDate = {
-              $lte: getFullDate(endStartDate)
-            };
-            break;
-          case "true-false":
-            filter.closeDate = {
-              $gte: getFullDate(startStartDate)
-            };
-            break;
-          default:
-            break;
-        }
-      }
     }
-
-    filter = { ...filter, ...(otherFilter || {}) };
   }
+
+  filter = { ...filter, ...(otherFilter || {}) };
 
   return filter;
 };
@@ -240,15 +245,22 @@ const contractQueries = {
     return alerts;
   },
 
-  dealsToContract: async (_root, { id }, { subdomain }: IContext) => {
-    const deal = await sendMessageBroker({
+  convertToContract: async (_root, params: { contentType: string; id: string }, { subdomain }: IContext) => {
+    const { contentType, id } = params;
+    const mappings = {
+      deal: { action: 'deals.findOne', data: { _id: id }, name: 'cards', customFieldType: 'cards:deal' },
+      customer: { action: 'customers.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:customer' },
+      company: { action: 'companies.findOne', data: { _id: id }, name: 'contacts', customFieldType: 'contacts:company' },
+    }
+    const mapping = mappings[contentType] || mappings.deal;
+    const object = await sendMessageBroker({
       subdomain,
-      action:'deals.findOne',
-      data:{_id:id},
-      isRPC:true,
-    },'cards')
+      action: mapping.action,
+      data: mapping.data,
+      isRPC: true,
+    }, mapping.name);
 
-    return await customFieldToObject(subdomain,'cards:deal',deal)
+    return await customFieldToObject(subdomain, mapping.customFieldType, object)
   }
 };
 

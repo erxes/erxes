@@ -1,6 +1,7 @@
 import { IModels } from '../../connectionResolver';
-import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_DEAL, STATUS_TYPES, USER_TYPES } from '../constants';
-import { buildMatchFilter, buildPipeline, buildData } from '../utils';
+import { AMOUNT_RANGE_ATTRIBUTES, ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_DEAL, STATUS_TYPES, USER_TYPES } from '../constants';
+import { buildMatchFilter, buildPipeline, buildData, buildOptions } from '../utils';
+const util = require('util')
 
 const MEASURE_OPTIONS = [
     { label: 'Total Count', value: 'count' },
@@ -40,7 +41,6 @@ const DIMENSION_OPTIONS = [
 export const dealCharts = [
     {
         templateType: "DealCountByTag",
-        serviceType: 'cards',
         name: 'Total Deal Count By Tag',
         chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
@@ -2860,25 +2860,14 @@ export const dealCharts = [
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension = ['createdBy'], measure = ['count'] } = filter
-
             const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
 
-            let deals
-
-            if (chartType === "number") {
-                const dealsCount = await models.Deals.find(matchFilter).countDocuments()
-
-                deals = { labels: "Total Count", data: dealsCount }
-            } else {
-                const pipeline = buildPipeline(filter, "deal", matchFilter)
-
-                deals = await models.Deals.aggregate(pipeline)
-            }
+            const pipeline = buildPipeline(filter, "deal", matchFilter)
+            const deals = await models.Deals.aggregate(pipeline)
 
             const title = 'Total Deals Count';
 
-            return { title, ...buildData({ chartType, data: deals, measure, dimension }) };
+            return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
         },
         filterTypes: [
             // DIMENSION FILTER
@@ -2903,13 +2892,13 @@ export const dealCharts = [
             {
                 fieldName: 'frequencyType',
                 fieldType: 'select',
+                multi: false,
                 logics: [
                     {
                         logicFieldName: 'dimension',
                         logicFieldValue: 'frequency',
                     },
                 ],
-                multi: false,
                 fieldDefaultValue: '%Y',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
                 fieldLabel: 'Select frequency type',
@@ -2921,7 +2910,7 @@ export const dealCharts = [
                 logics: [
                     {
                         logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
+                        logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
                     },
                 ],
                 multi: false,
@@ -2936,7 +2925,7 @@ export const dealCharts = [
                 logics: [
                     {
                         logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
+                        logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
                     },
                 ],
                 multi: true,
@@ -3135,6 +3124,18 @@ export const dealCharts = [
                 fieldOptions: DATERANGE_TYPES,
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
+            },
+            {
+                fieldName: 'amountRange',
+                fieldType: 'input',
+                fieldAttributes: AMOUNT_RANGE_ATTRIBUTES,
+                fieldLabel: 'Amount range',
+            },
+            {
+                fieldName: 'target',
+                fieldType: 'input',
+                fieldAttributes: [{ name: 'target', type: 'number', min: 0, placeholder: 'Target' }],
+                fieldLabel: 'Target',
             },
             // DATE RANGE TYPE FILTER
             {
