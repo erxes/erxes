@@ -12,7 +12,7 @@ import {
   IFieldGroupDocument
 } from "./definitions/fields";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
-import { sendCommonMessage, sendContactsMessage } from "../../messageBroker";
+import { sendCommonMessage } from "../../messageBroker";
 import { IModels } from "../../connectionResolver";
 
 export interface ITypedListItem {
@@ -253,18 +253,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      await sendContactsMessage({
-        subdomain,
-        action: "customers.updateMany",
-        data: {
-          selector: {
-            "customFieldsData.field": _id
-          },
-          modifier: {
-            $pull: { customFieldsData: { field: _id } }
-          }
-        }
-      });
+
+      await models.Customers.updateMany(
+        { "customFieldsData.field": _id },
+        { $pull: { customFieldsData: { field: _id } } }
+      );
 
       // Removing form associated field
       await models.Fields.updateMany(
@@ -533,6 +526,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         isRPC: true,
         defaultValue: []
       });
+
+      console.log(fields, type, serviceName, groupId);
 
       await models.Fields.insertMany(fields);
     }

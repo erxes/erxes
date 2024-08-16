@@ -42,17 +42,14 @@ class SidebarConformity extends React.Component<Props> {
 
     return (
       <RightContent>
-        {isEnabled("contacts") && (
-          <>
-            <CompanySection mainType={options.type} mainTypeId={item._id} />
-            <CustomerSection
-              mainType={options.type}
-              mainTypeId={item._id}
-              actionSection={ActionSection}
-            />
-          </>
-        )}
-
+        <>
+          <CompanySection mainType={options.type} mainTypeId={item._id} />
+          <CustomerSection
+            mainType={options.type}
+            mainTypeId={item._id}
+            actionSection={ActionSection}
+          />
+        </>
         <TaskTimer
           taskId={item._id}
           status={timeTrack.status}

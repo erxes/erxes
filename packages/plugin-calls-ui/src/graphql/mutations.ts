@@ -53,25 +53,19 @@ const messageFields = `
   createdAt
   isCustomerRead
  
-  ${
-    isEnabled("contacts")
-      ? `
-      customer {
-        _id
-        avatar
-        firstName
-        primaryPhone
+  customer {
+    _id
+    avatar
+    firstName
+    primaryPhone
 
-        tagIds
-        getTags {
-              _id
-              name
-              colorCode
-         }
-        }
+    tagIds
+    getTags {
+        _id
+        name
+        colorCode
       }
-    `
-      : ``
+    }
   }
 `;
 

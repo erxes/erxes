@@ -5,11 +5,11 @@ import {
   IProduct,
   IProductDoc,
   ProductAddMutationResponse,
-  ProductsQueryResponse,
+  ProductsQueryResponse
 } from "../types";
 import {
   mutations as productMutations,
-  queries as productQueries,
+  queries as productQueries
 } from "../graphql";
 
 import Chooser from "@erxes/ui/src/components/Chooser";
@@ -55,7 +55,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.state = {
       perPage: 20,
       categoryId: props.categoryId || categoryId,
-      vendorId: props.vendorId || vendorId,
+      vendorId: props.vendorId || vendorId
     };
   }
 
@@ -78,7 +78,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
 
     if (vendorId || categoryId) {
       this.props.productsQuery.refetch({
-        ...variables,
+        ...variables
       });
     }
   }
@@ -91,7 +91,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.setState({ perPage: this.state.perPage + 20 }, () =>
       this.props.productsQuery.refetch({
         searchValue: value,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       })
     );
   };
@@ -108,7 +108,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.setState({ categoryId }, () => {
       this.props.productsQuery.refetch({
         categoryId,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       });
       this.onFilterSave();
     });
@@ -118,7 +118,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
     this.setState({ vendorId }, () => {
       this.props.productsQuery.refetch({
         vendorId,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       });
       this.onFilterSave();
     });
@@ -128,7 +128,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
   addProduct = (doc: IProductDoc, callback: () => void) => {
     this.props
       .productAdd({
-        variables: doc,
+        variables: doc
       })
       .then(() => {
         this.props.productsQuery.refetch();
@@ -137,7 +137,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
 
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -148,16 +148,14 @@ class ProductChooser extends React.Component<FinalProps, State> {
 
     return (
       <>
-        {(isEnabled("contacts") && (
-          <SelectCompanies
-            label="Company"
-            name="ownerId"
-            multi={false}
-            initialValue={vendorId}
-            onSelect={(company) => this.onChangeVendor(company as string)}
-            customOption={{ label: "Choose company", value: "" }}
-          />
-        )) || <></>}
+        <SelectCompanies
+          label="Company"
+          name="ownerId"
+          multi={false}
+          initialValue={vendorId}
+          onSelect={company => this.onChangeVendor(company as string)}
+          customOption={{ label: "Choose company", value: "" }}
+        />
 
         <ProductCategoryChooser
           currentId={categoryId}
@@ -169,14 +167,14 @@ class ProductChooser extends React.Component<FinalProps, State> {
     );
   };
 
-  renderDiscount = (data) => {
+  renderDiscount = data => {
     const { loadDiscountPercent } = this.props;
     if (isEnabled("loyalties") && loadDiscountPercent && data) {
       const productData = {
         product: {
-          _id: data._id,
+          _id: data._id
         },
-        quantity: 1,
+        quantity: 1
       };
       loadDiscountPercent(productData);
     }
@@ -211,7 +209,7 @@ class ProductChooser extends React.Component<FinalProps, State> {
       add: this.addProduct,
       clearState: () => this.search("", true),
       datas: productsQuery.products || [],
-      onSelect,
+      onSelect
     };
 
     return (
@@ -233,21 +231,21 @@ export default withProps<Props>(
       { perPage: number; categoryId: string; vendorId: string }
     >(gql(productQueries.products), {
       name: "productsQuery",
-      options: (props) => ({
+      options: props => ({
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
           vendorId: props.vendorId,
           pipelineId: queryString.parse(location.search).pipelineId,
-          boardId: queryString.parse(location.search).boardId,
+          boardId: queryString.parse(location.search).boardId
         },
-        fetchPolicy: "network-only",
-      }),
+        fetchPolicy: "network-only"
+      })
     }),
     graphql<{}, ProductCategoriesQueryResponse, {}>(
       gql(productQueries.productCategories),
       {
-        name: "productCategoriesQuery",
+        name: "productCategoriesQuery"
       }
     ),
     // mutations
@@ -259,10 +257,10 @@ export default withProps<Props>(
           refetchQueries: [
             {
               query: gql(productQueries.products),
-              variables: { perPage: 20 },
-            },
-          ],
-        }),
+              variables: { perPage: 20 }
+            }
+          ]
+        })
       }
     )
   )(ProductChooser)

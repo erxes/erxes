@@ -1,7 +1,7 @@
 import { companyCheckCode, getCompanyInfo, getConfig } from "./utils";
 
 const resolvers = {
-  contacts: ["companiesAdd", "companiesEdit"],
+  contancts: ["companiesAdd", "companiesEdit"],
   sales: ["dealsAdd", "dealsEdit"]
 };
 

@@ -1,14 +1,14 @@
-import fetch from 'node-fetch';
-import { sendCommonMessage } from './messageBroker';
-import { xypServiceData } from './models/definitions/xypdata';
+import fetch from "node-fetch";
+import { sendCommonMessage } from "./messageBroker";
+import { xypServiceData } from "./models/definitions/xypdata";
 
-import { nanoid } from 'nanoid';
-import { IModels } from './connectionResolver';
+import { nanoid } from "nanoid";
+import { IModels } from "./connectionResolver";
 
 /*
  * Mongoose field options wrapper
  */
-export const field = (options) => {
+export const field = options => {
   const { pkey, type, optional } = options;
 
   if (type === String && !pkey && !optional) {
@@ -24,7 +24,7 @@ export const field = (options) => {
   return options;
 };
 
-export const schemaWrapper = (schema) => {
+export const schemaWrapper = schema => {
   schema.add({ scopeBrandIds: [String] });
 
   return schema;
@@ -37,48 +37,48 @@ export const schemaHooksWrapper = (schema, _cacheKey: string) => {
 export const convertToPropertyData = async (
   models: IModels,
   subdomain: string,
-  doc: any,
+  doc: any
 ) => {
   const customerId = doc.customerId;
 
   const customer = await sendCommonMessage({
-    serviceName: 'contacts',
-    action: 'customers.findOne',
+    serviceName: "core",
+    action: "customers.findOne",
     data: { _id: customerId },
     isRPC: true,
     defaultValue: null,
-    subdomain,
+    subdomain
   });
 
   if (!customer) {
-    throw new Error('Customer not found');
+    throw new Error("Customer not found");
   }
 
   try {
     const fields = await sendCommonMessage({
       subdomain,
-      serviceName: 'forms',
-      action: 'fields.find',
+      serviceName: "forms",
+      action: "fields.find",
       data: {
         query: {
-          contentType: 'contacts:customer',
-          code: { $exists: true, $ne: '' },
+          contentType: "core:customer",
+          code: { $exists: true, $ne: "" }
         },
         projection: {
           groupId: 1,
           code: 1,
-          _id: 1,
-        },
+          _id: 1
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
 
     const customFieldsData: any[] = customer.customFieldsData || [];
 
     const xyp = await models.XypData.findOne({
-      contentType: 'contacts:customer',
-      contentTypeId: customer._id,
+      contentType: "core:customer",
+      contentTypeId: customer._id
     });
 
     if (!xyp) {
@@ -87,34 +87,34 @@ export const convertToPropertyData = async (
 
     const data = xyp.data;
 
-    const serviceNames = data.map((x) => x.serviceName);
+    const serviceNames = data.map(x => x.serviceName);
     const citizen = data.find(
-      (x) => x.serviceName === 'WS100101_getCitizenIDCardInfo',
+      x => x.serviceName === "WS100101_getCitizenIDCardInfo"
     );
     let customerMainFields = {};
     if (citizen) {
       customerMainFields = {
         lastName: citizen.data.lastname,
-        firstName: citizen.data.firstname,
+        firstName: citizen.data.firstname
       };
     }
 
     const groups = await sendCommonMessage({
       subdomain,
-      serviceName: 'forms',
-      action: 'fieldsGroups.find',
+      serviceName: "forms",
+      action: "fieldsGroups.find",
       data: {
         query: {
-          contentType: 'contacts:customer',
-          code: { $in: serviceNames },
+          contentType: "core:customer",
+          code: { $in: serviceNames }
         },
         projection: {
           code: 1,
-          _id: 1,
-        },
+          _id: 1
+        }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
     const dataRow = {};
 
@@ -125,9 +125,7 @@ export const convertToPropertyData = async (
     }
 
     for (const f of fields) {
-      const existingIndex = customFieldsData.findIndex(
-        (c) => c.field === f._id,
-      );
+      const existingIndex = customFieldsData.findIndex(c => c.field === f._id);
       if (dataRow[f.code]) {
         if (existingIndex !== -1) {
           // replace existing value
@@ -136,29 +134,29 @@ export const convertToPropertyData = async (
           if (dataRow[f.code])
             customFieldsData.push({
               field: f._id,
-              value: dataRow[f.code],
+              value: dataRow[f.code]
             });
         }
       }
     }
 
     await sendCommonMessage({
-      serviceName: 'contacts',
-      action: 'customers.updateCustomer',
+      serviceName: "core",
+      action: "customers.updateCustomer",
       data: {
         _id: customerId,
         doc: {
           customFieldsData,
-          ...customerMainFields,
-        },
+          ...customerMainFields
+        }
       },
       isRPC: true,
-      subdomain,
+      subdomain
     });
 
-    return 'ok';
+    return "ok";
   } catch (e) {
-    console.error('error ', e);
+    console.error("error ", e);
     throw new Error(e);
   }
 };

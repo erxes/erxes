@@ -346,21 +346,17 @@ const goalForm = (props: Props) => {
             </FormGroup>
             {state.segmentRadio === true && (
               <FormGroup>
-                {isEnabled("contacts") && (
-                  <>
-                    <FormGroup>
-                      <ControlLabel>Segments</ControlLabel>
-                      <SelectSegments
-                        name="segmentIds"
-                        label="Choose segments"
-                        contentTypes={[`cards:${state.entity}`]}
-                        initialValue={state.segmentIds}
-                        multi={true}
-                        onSelect={segmentIds => onChangeSegments(segmentIds)}
-                      />
-                    </FormGroup>
-                  </>
-                )}
+                <FormGroup>
+                  <ControlLabel>Segments</ControlLabel>
+                  <SelectSegments
+                    name="segmentIds"
+                    label="Choose segments"
+                    contentTypes={[`cards:${state.entity}`]}
+                    initialValue={state.segmentIds}
+                    multi={true}
+                    onSelect={segmentIds => onChangeSegments(segmentIds)}
+                  />
+                </FormGroup>
               </FormGroup>
             )}
             {state.stageRadio === true && (

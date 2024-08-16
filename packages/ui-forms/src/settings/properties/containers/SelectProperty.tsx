@@ -1,15 +1,15 @@
-import { gql } from '@apollo/client';
-import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { getConstantFromStore } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql, ChildProps } from '@apollo/client/react/hoc';
-import SelectProperty from '../components/SelectProperty';
-import { mutations, queries } from '../graphql';
-import { IField } from '@erxes/ui/src/types';
-import { FieldsGroupsQueryResponse, FieldsQueryResponse } from '../types';
+import { gql } from "@apollo/client";
+import * as compose from "lodash.flowright";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import { getConstantFromStore } from "@erxes/ui/src/utils";
+import React from "react";
+import { graphql, ChildProps } from "@apollo/client/react/hoc";
+import SelectProperty from "../components/SelectProperty";
+import { mutations, queries } from "../graphql";
+import { IField } from "@erxes/ui/src/types";
+import { FieldsGroupsQueryResponse, FieldsQueryResponse } from "../types";
 
 type Props = {
   queryParams: any;
@@ -29,16 +29,16 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
 
   let properties = propertiesQuery.fields || [];
 
-  if (queryParams.type === 'contacts:customer') {
+  if (queryParams.type === "core:customer") {
     properties = properties.filter(e => {
       if (
         [
-          'firstName',
-          'lastName',
-          'middleName',
-          'primaryEmail',
-          'primaryPhone',
-          'owner'
+          "firstName",
+          "lastName",
+          "middleName",
+          "primaryEmail",
+          "primaryPhone",
+          "owner"
         ].includes(e.type) &&
         e.isDefinedByErxes
       ) {
@@ -47,7 +47,7 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
       return e;
     });
 
-    const links: IField[] = getConstantFromStore('social_links').map(link => {
+    const links: IField[] = getConstantFromStore("social_links").map(link => {
       return {
         _id: `customerLinks_${link.value}`,
         type: `customerLinks_${link.value}`,
@@ -58,16 +58,16 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
     properties = properties.concat(links);
   }
 
-  if (queryParams.type === 'contacts:company') {
+  if (queryParams.type === "core:company") {
     properties = properties.filter(e => {
       if (
         [
-          'primaryName',
-          'primaryEmail',
-          'primaryPhone',
-          'owner',
-          'plan',
-          'code'
+          "primaryName",
+          "primaryEmail",
+          "primaryPhone",
+          "owner",
+          "plan",
+          "code"
         ].includes(e.type) &&
         e.isDefinedByErxes
       ) {
@@ -76,7 +76,7 @@ const SelectPropertyContainer = (props: ChildProps<FinalProps>) => {
       return e;
     });
 
-    const links: IField[] = getConstantFromStore('social_links').map(link => {
+    const links: IField[] = getConstantFromStore("social_links").map(link => {
       return {
         _id: `companyLinks_${link.value}`,
         type: `companyLinks_${link.value}`,
@@ -140,20 +140,20 @@ const getRefetchQueries = (queryParams?: any) => {
 
 export default compose(
   graphql<Props, FieldsQueryResponse>(gql(queries.fields), {
-    name: 'propertiesQuery',
+    name: "propertiesQuery",
     options: ({ queryParams }) => ({
       variables: {
         contentType: queryParams.type,
         isVisible: true
       },
-      fetchPolicy: 'network-only',
+      fetchPolicy: "network-only",
       refetchQueries: getRefetchQueries(queryParams)
     })
   }),
   graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
     gql(queries.fieldsGroups),
     {
-      name: 'fieldsGroupsQuery',
+      name: "fieldsGroupsQuery",
       options: ({ queryParams }) => ({
         variables: {
           contentType: queryParams.type

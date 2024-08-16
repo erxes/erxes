@@ -43,9 +43,9 @@ import gql from "graphql-tag";
 import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
-  const isProductsEnabled = await isEnabled("products");
+  const isProductsEnabled = true;
   const isKbEnabled = await isEnabled("knowledgebase");
-  const isContactsEnabled = await isEnabled("contacts");
+  const isContactsEnabled = true;
   const isDailycoEnabled = await isEnabled("dailyco");
   const isCallsEnabled = await isEnabled("calls");
 

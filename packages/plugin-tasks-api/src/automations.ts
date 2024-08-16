@@ -440,7 +440,7 @@ const actionCreate = async ({
   }
 
   if (
-    ["contacts:customer", "contacts:lead"].includes(execution.triggerType) &&
+    ["core:customer", "core:lead"].includes(execution.triggerType) &&
     execution.target.isFormSubmission
   ) {
     newData.sourceConversationIds = [execution.target.conversationId];

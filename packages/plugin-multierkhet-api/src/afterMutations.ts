@@ -13,8 +13,8 @@ const allowTypes = {
   "sales:deal": ["update"],
   "products:productCategory": ["create", "update", "delete"],
   "products:product": ["create", "update", "delete"],
-  "contacts:customer": ["create", "update", "delete"],
-  "contacts:company": ["create", "update", "delete"]
+  "core:customer": ["create", "update", "delete"],
+  "core:company": ["create", "update", "delete"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -258,7 +258,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
   }
 
-  if (type === "contacts:customer") {
+  if (type === "core:customer") {
     if (action === "create") {
       customerToErkhet(models, params, "create");
       return;
@@ -275,7 +275,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     }
   }
 
-  if (type === "contacts:company") {
+  if (type === "core:company") {
     if (action === "create") {
       companyToErkhet(models, params, "create");
       return;

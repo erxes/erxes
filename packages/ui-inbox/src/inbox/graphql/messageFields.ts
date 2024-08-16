@@ -42,9 +42,6 @@ export default `
       position
     }
   }
-  ${
-    isEnabled("contacts")
-      ? `
       customer {
         _id
         avatar
@@ -69,9 +66,6 @@ export default `
           colorCode
         }
       }
-    `
-      : ``
-  }
   mailData {
     messageId
     threadId

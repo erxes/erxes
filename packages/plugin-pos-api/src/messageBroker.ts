@@ -278,7 +278,7 @@ export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "products",
+    serviceName: "core",
     ...args
   });
 };
@@ -314,7 +314,7 @@ export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "contacts",
+    serviceName: "core",
     ...args
   });
 };

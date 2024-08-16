@@ -16,13 +16,13 @@ export const fetchSegment = (subdomain, segmentId, options?) =>
   });
 
 export const removeCompanies = (subdomain, _ids) =>
-  sendRPCMessage("contacts:companies.removeCompanies", {
+  sendRPCMessage("core:companies.removeCompanies", {
     subdomain,
     data: { _ids }
   });
 
 export const removeCustomers = (subdomain, _ids) =>
-  sendRPCMessage("contacts:customers.removeCustomers", {
+  sendRPCMessage("core:customers.removeCustomers", {
     subdomain,
     data: { customerIds: _ids }
   });

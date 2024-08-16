@@ -7,7 +7,7 @@ import {
   Table,
   Button,
   ModalTrigger,
-  Bulk,
+  Bulk
 } from "@erxes/ui/src";
 import Sidebar from "../../syncPolarisHistories/components/syncHistorySidebar";
 import { menuSyncpolaris } from "../../constants";
@@ -35,11 +35,11 @@ class List extends React.Component<IProps> {
       items,
       toSyncPolaris,
       toCheckPolaris,
-      contentType,
+      contentType
     } = this.props;
     const formHead: any[] = [];
     const tablehead = ["Date", "code", "Action", "content", "error"];
-    contentType === "contacts:customer"
+    contentType === "core:customer"
       ? formHead.push("Code", "Last name", "Firs Name", "Phones")
       : formHead.push("Number", "Status", "Start Date", "End Date");
     const onClickCheck = () => {
@@ -47,7 +47,7 @@ class List extends React.Component<IProps> {
     };
     let checkButton: React.ReactNode;
     if (
-      contentType === "contacts:customer" ||
+      contentType === "core:customer" ||
       contentType === "savings:contract" ||
       contentType === "loans:contract"
     ) {
@@ -66,13 +66,13 @@ class List extends React.Component<IProps> {
       <Table $whiteSpace="nowrap" $bordered={true} $hover={true}>
         <thead>
           <tr>
-            {tablehead.map((head) => (
+            {tablehead.map(head => (
               <th key={head}>{head || ""}</th>
             ))}
           </tr>
         </thead>
         <tbody id="syncPolaris">
-          {(syncHistoriesPolaris || []).map((syncHistory) => (
+          {(syncHistoriesPolaris || []).map(syncHistory => (
             <tr key={syncHistory._id}>
               <td>{dayjs(syncHistory.createdAt).format("lll")}</td>
               <td>
@@ -96,7 +96,7 @@ class List extends React.Component<IProps> {
       </Table>
     );
     const checkForm = () => {
-      const content = (props) => {
+      const content = props => {
         return (
           <Form
             items={items}

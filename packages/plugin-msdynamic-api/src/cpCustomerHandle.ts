@@ -1,5 +1,5 @@
-import { generateModels } from './connectionResolver';
-import { customerToDynamic } from './utils';
+import { generateModels } from "./connectionResolver";
+import { customerToDynamic } from "./utils";
 
 export default {
   cpCustomerHandle: async ({ subdomain, data }) => {
@@ -10,7 +10,7 @@ export default {
     const models = await generateModels(subdomain);
 
     const syncLogDoc = {
-      contentType: data?.customer ? 'contacts:customer' : 'contacts:company',
+      contentType: data?.customer ? "core:customer" : "core:company",
       contentId: data._id,
       createdAt: new Date(),
       consumeData: data,

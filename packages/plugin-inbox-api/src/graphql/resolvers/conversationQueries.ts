@@ -313,7 +313,7 @@ const conversationQueries: any = {
       action: "fieldsGroups.findOne",
       data: {
         query: {
-          contentType: "contacts:customer",
+          contentType: "core:customer",
           isDefinedByErxes: true,
           name: "Basic information"
         }
@@ -367,7 +367,7 @@ const conversationQueries: any = {
       action: "fieldsGroups.findOne",
       data: {
         query: {
-          contentType: "contacts:device",
+          contentType: "core:device",
           isDefinedByErxes: true,
           name: "Basic information"
         }

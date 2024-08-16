@@ -1,17 +1,17 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { mutations, queries as tagQueries } from '@erxes/ui-tags/src/graphql';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import TagStep from '../components/step/TagStep';
-import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-engage/src/graphql';
-import { sumCounts } from '@erxes/ui-engage/src/utils';
-import { withProps } from '@erxes/ui/src/utils';
+import { mutations, queries as tagQueries } from "@erxes/ui-tags/src/graphql";
+import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
+import { CountQueryResponse } from "@erxes/ui-contacts/src/customers/types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import React from "react";
+import TagStep from "../components/step/TagStep";
+import { TagsQueryResponse } from "@erxes/ui-tags/src/types";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-engage/src/graphql";
+import { sumCounts } from "@erxes/ui-engage/src/utils";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   tagIds: string[];
@@ -77,11 +77,11 @@ const getRefetchQueries = () => {
   return [
     {
       query: gql(queries.customerCounts),
-      variables: { only: 'byTag' }
+      variables: { only: "byTag" }
     },
     {
       query: gql(tagQueries.tags),
-      variables: { type: 'contacts:customer' }
+      variables: { type: "core:customer" }
     }
   ];
 };
@@ -89,16 +89,16 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props, TagsQueryResponse>(gql(tagQueries.tags), {
-      name: 'tagsQuery',
-      options: () => ({ variables: { type: 'contacts:customer' } })
+      name: "tagsQuery",
+      options: () => ({ variables: { type: "core:customer" } })
     }),
     graphql<Props, CountQueryResponse, { only: string }>(
       gql(queries.customerCounts),
       {
-        name: 'customerCountsQuery',
+        name: "customerCountsQuery",
         options: {
           variables: {
-            only: 'byTag'
+            only: "byTag"
           }
         }
       }

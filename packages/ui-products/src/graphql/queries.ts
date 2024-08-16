@@ -40,7 +40,7 @@ const productFields = `
   code
   categoryId
   vendorId
-  ${isEnabled("contacts") ? vendorField : ``}
+  ${vendorField}
   scopeBrandIds
   status,
   description

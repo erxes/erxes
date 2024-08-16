@@ -21,6 +21,7 @@ export const types = ({ contacts, dailyco, calls }) => `
   extend type Tag @key(fields: "_id") {
         _id: String! @external
   }
+        
 
   ${
     dailyco

@@ -1,11 +1,11 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 import {
   dateFilterParams,
   dateFilterParamsDef,
   commonFilterParams,
-  commonFilterParamsDef,
-} from '../../../common/graphql/movement';
-import { listParams, listParamDefs } from '../../../asset/graphql/queries';
+  commonFilterParamsDef
+} from "../../../common/graphql/movement";
+import { listParams, listParamDefs } from "../../../asset/graphql/queries";
 
 const fieldAviableEnabledContacts = `
     branch
@@ -42,10 +42,10 @@ query AssetMovement($_id: String) {
         createdAt
         sourceLocations {
                 ${commonItemFields}
-                ${isEnabled('contacts') ? fieldAviableEnabledContacts : ``}
+                ${fieldAviableEnabledContacts}
         },
 
-        ${isEnabled('contacts') ? fieldAviableEnabledContacts : ``}
+        ${fieldAviableEnabledContacts}
     }
   }
 }
@@ -61,7 +61,7 @@ const movements = `
     modifiedAt
     movedAt
     userId
-    ${isEnabled('contacts') ? 'user' : ''}
+    user
   }
 }
 `;
@@ -79,11 +79,11 @@ query CurrentAssetMovementItems($assetIds: [String]) {
       _id,name
     }
     ${commonItemFields}
-    ${isEnabled('contacts') ? fieldAviableEnabledContacts : ``}
+    ${fieldAviableEnabledContacts}
     sourceLocations {
       ${commonItemFields}
 
-      ${isEnabled('contacts') ? fieldAviableEnabledContacts : ``}
+      ${fieldAviableEnabledContacts}
     }
   }
 }
@@ -102,5 +102,5 @@ export default {
   movementDetail,
   movementsTotalCount,
   itemsCurrentLocation,
-  assets,
+  assets
 };

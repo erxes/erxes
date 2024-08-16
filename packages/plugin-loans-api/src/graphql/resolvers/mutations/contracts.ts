@@ -454,7 +454,7 @@ const contractMutations = {
 
     const maxLeaseAmountField = await getFieldObject(
       subdomain,
-      "contacts:customer",
+      "core:customer",
       "maxLeaseAmount"
     );
 

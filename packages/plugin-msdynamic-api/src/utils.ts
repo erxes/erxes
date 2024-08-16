@@ -41,7 +41,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "post code",
-            contentType: "contacts:company"
+            contentType: "core:company"
           }
         },
         isRPC: true
@@ -62,7 +62,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "city",
-            contentType: "contacts:company"
+            contentType: "core:company"
           }
         },
         isRPC: true
@@ -83,7 +83,7 @@ const companyRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "VAT",
-            contentType: "contacts:company"
+            contentType: "core:company"
           }
         },
         isRPC: true
@@ -161,7 +161,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "post code",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         isRPC: true
@@ -182,7 +182,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "city",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         isRPC: true
@@ -203,7 +203,7 @@ const customerRequest = async (subdomain, config, action, updateCode, doc) => {
         data: {
           query: {
             text: "VAT",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         isRPC: true

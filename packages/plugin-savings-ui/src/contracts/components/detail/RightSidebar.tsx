@@ -13,7 +13,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const CompanySection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CompanySection" */ "@erxes/ui-contacts/src/companies/components/CompanySection"
     )
@@ -21,7 +20,6 @@ const CompanySection = asyncComponent(
 
 const CustomerSection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CustomerSection" */ "@erxes/ui-contacts/src/customers/components/CustomerSection"
     )
@@ -49,7 +47,7 @@ export default function RightSidebar(props: Props) {
 
   return (
     <Sidebar>
-      {isEnabled("contacts") && (
+      {
         <>
           {contract.customerType === "customer" && contract.customers && (
             <CustomerSection
@@ -75,7 +73,7 @@ export default function RightSidebar(props: Props) {
 
           {isEnabled("sales") && <DealSection contract={contract} />}
         </>
-      )}
+      }
       {isEnabled("loans") && !!contract.loansOfForeclosed?.length && (
         <LoanContractSection loanContracts={contract.loansOfForeclosed} />
       )}

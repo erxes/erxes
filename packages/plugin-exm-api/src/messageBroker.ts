@@ -21,14 +21,14 @@ export const updateConversationMessage = async (data: any) => {
 };
 
 export const getCampaignCustomerInfo = async data => {
-  return sendRPCMessageCore("contacts:rpc_queue.prepareEngageCustomers", data);
+  return sendRPCMessageCore("core:rpc_queue.prepareEngageCustomers", data);
 };
 
 export const sendContactsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "contacts",
+    serviceName: "core",
     ...args
   });
 };
@@ -73,7 +73,7 @@ export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "products",
+    serviceName: "core",
     ...args
   });
 };

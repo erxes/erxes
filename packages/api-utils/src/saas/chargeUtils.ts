@@ -116,7 +116,7 @@ export const getUsageByPluginType = async (args: {
     } else {
       totalUsage = await sendCommonMessage({
         subdomain,
-        serviceName: "contacts",
+        serviceName: "core",
         action: "customers.count",
         data: {}
       });

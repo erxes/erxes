@@ -1,5 +1,5 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries as productQueries } from "@erxes/ui-products/src/graphql";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const listParamsDef = `
   $page: Int
@@ -107,19 +107,13 @@ const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       ${orderFields}
-      ${
-        isEnabled('contacts')
-          ? `
-        customer {
+      customer {
           _id
           code
           firstName
           lastName
           primaryEmail
           primaryPhone
-        }
-      `
-          : ``
       }
       syncErkhetInfo
       putResponses
@@ -256,9 +250,6 @@ const posOrderRecords = `
   query posOrderRecords(${listParamsDef}) {
     posOrderRecords(${listParamsValue}) {
       ${orderFields}
-      ${
-        isEnabled('contacts')
-          ? `
       customer {
         _id
         code
@@ -266,10 +257,7 @@ const posOrderRecords = `
         firstName
         primaryEmail
         lastName
-      }
-      `
-          : ''
-      }      
+      }    
     }
   }
 `;
@@ -308,5 +296,5 @@ export default {
   coverDetail,
   posOrderRecords,
   posOrderRecordsCount,
-  posOrdersByCustomers,
+  posOrdersByCustomers
 };

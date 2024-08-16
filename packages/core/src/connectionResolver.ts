@@ -103,6 +103,10 @@ import {
   IFieldGroupDocument
 } from "./db/models/definitions/fields";
 import { IForm, IFormSubmissionDocument } from "./db/models/definitions/forms";
+import { ICustomerModel, loadCustomerClass } from "./db/models/Customers";
+import { ICompanyModel, loadCompanyClass } from "./db/models/Companies";
+import { ICustomerDocument } from "./db/models/definitions/customers";
+import { ICompanyDocument } from "./db/models/definitions/companies";
 
 export interface IModels {
   Users: IUserModel;
@@ -132,6 +136,8 @@ export interface IModels {
   FieldsGroups: IFieldGroupModel;
   Forms: IFormModel;
   FormSubmissions: IFormSubmissionModel;
+  Customers: ICustomerModel;
+  Companies: ICompanyModel;
 }
 
 export interface IContext extends IMainContext {
@@ -255,6 +261,16 @@ export const loadClasses = (
     IFormSubmissionDocument,
     IFormSubmissionModel
   >("form_submissions", loadFormSubmissionClass(models));
+
+  models.Customers = db.model<ICustomerDocument, ICustomerModel>(
+    "customers",
+    loadCustomerClass(models, subdomain)
+  );
+
+  models.Companies = db.model<ICompanyDocument, ICompanyModel>(
+    "companies",
+    loadCompanyClass(models, subdomain)
+  );
 
   return models;
 };

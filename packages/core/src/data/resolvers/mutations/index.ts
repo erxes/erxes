@@ -14,6 +14,9 @@ import tags from "./tags";
 import internalNotes from "./internalNotes";
 import segments from "./segments";
 import forms from "./forms";
+import company from "./company";
+import customer from "./customer";
+
 import {
   fieldMutations as fields,
   fieldsGroupsMutations as fieldsgroups
@@ -35,5 +38,7 @@ export default {
   ...segments,
   ...forms,
   ...fields,
-  ...fieldsgroups
+  ...fieldsgroups,
+  ...company,
+  ...customer
 };

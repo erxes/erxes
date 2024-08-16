@@ -192,21 +192,19 @@ const CreateForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled("contacts") && (
-          <>
-            <FormGroup>
-              <ControlLabel>Segments</ControlLabel>
-              <SelectSegments
-                name="segmentIds"
-                label="Choose segments"
-                contentTypes={["contacts:customer", "contacts:lead"]}
-                initialValue={assignmentCampaign.segmentIds}
-                multi={true}
-                onSelect={onChangeSegments}
-              />
-            </FormGroup>
-          </>
-        )}
+
+        <FormGroup>
+          <ControlLabel>Segments</ControlLabel>
+          <SelectSegments
+            name="segmentIds"
+            label="Choose segments"
+            contentTypes={["core:customer", "core:lead"]}
+            initialValue={assignmentCampaign.segmentIds}
+            multi={true}
+            onSelect={onChangeSegments}
+          />
+        </FormGroup>
+
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select

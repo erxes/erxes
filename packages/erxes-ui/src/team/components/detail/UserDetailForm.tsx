@@ -206,7 +206,30 @@ function UserDetails({
           setPositionIds
         )}
       </Box>
-      {loadDynamicComponent("contactDetailRightSidebar", { user })}
+      {loadDynamicComponent(
+        "contactDetailRightSidebar",
+        { user },
+        false,
+        "sales"
+      )}
+      {loadDynamicComponent(
+        "contactDetailRightSidebar",
+        { user },
+        false,
+        "purchases"
+      )}
+      {loadDynamicComponent(
+        "contactDetailRightSidebar",
+        { user },
+        false,
+        "tasks"
+      )}
+      {loadDynamicComponent(
+        "contactDetailRightSidebar",
+        { user },
+        false,
+        "tickets"
+      )}
     </Sidebar>
   );
 

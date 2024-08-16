@@ -6,12 +6,12 @@ const relations = type => {
     {
       name: "companyIds",
       label: "Companies",
-      relationType: "contacts:company"
+      relationType: "core:company"
     },
     {
       name: "customerIds",
       label: "Customers",
-      relationType: "contacts:customer"
+      relationType: "core:customer"
     },
     {
       name: "taskIds",

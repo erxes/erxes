@@ -246,7 +246,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
           </Box>
           <TaggerSection
             data={customer}
-            type="contacts:customer"
+            type="core:customer"
             refetchQueries={taggerRefetchQueries}
             collapseCallback={toggleSection}
           />

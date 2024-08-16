@@ -6,7 +6,7 @@ import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 import { getCloseInfo } from "./models/utils/closeUtils";
 import { IConfig } from "./interfaces/config";
 
-type CustomFieldType = "contacts:customer";
+type CustomFieldType = "core:customer";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("loans:contracts.find", async ({ subdomain, data }) => {

@@ -95,7 +95,20 @@ import {
   fieldsGroupsMutations as FieldsGroupsMutations
 } from "./field";
 
-export let types = `
+import {
+  types as CompanyTypes,
+  queries as CompanyQueries,
+  mutations as CompanyMutations
+} from "./company";
+import {
+  types as CustomerTypes,
+  queries as CustomerQueries,
+  mutations as CustomerMutations
+} from "./customer";
+import { types as ContactsTypes, queries as ContactsQueries } from "./contacts";
+
+export let types = ({ inboxEnabled }) => {
+  return `
   scalar JSON
   scalar Date
 
@@ -109,7 +122,18 @@ export let types = `
     scope: CacheControlScope
     inheritMaxAge: Boolean
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+    ${
+      inboxEnabled
+        ? `
+        extend type Integration @key(fields: "_id") {
+          _id: String! @external
+        }
+      `
+        : ""
+    }  
   
+
   ${UserTypes}
   ${BrandTypes}
   ${ConformityTypes}
@@ -130,7 +154,10 @@ export let types = `
   ${FormTypes}
   ${FieldsTypes}
   ${FieldsGroupsTypes}
-`;
+  ${ContactsTypes}
+  ${CompanyTypes}
+  ${CustomerTypes(inboxEnabled)}`;
+};
 
 export let queries = `
   ${UserQueries}
@@ -153,6 +180,9 @@ export let queries = `
   ${FormQueries}
   ${FieldsQueries}
   ${FieldsGroupsQueries}
+  ${ContactsQueries}
+  ${CompanyQueries}
+  ${CustomerQueries}
 `;
 
 export let mutations = `
@@ -172,6 +202,8 @@ export let mutations = `
   ${FormMutations}
   ${FieldsMutations}
   ${FieldsGroupsMutations}
+  ${CompanyMutations}
+  ${CustomerMutations}
 `;
 
 export let subscriptions = `

@@ -1,17 +1,17 @@
-import { getUserDetail } from '@erxes/api-utils/src';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { IModels } from './connectionResolver';
-import { generateModels } from './connectionResolver';
+import { getUserDetail } from "@erxes/api-utils/src";
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { IModels } from "./connectionResolver";
+import { generateModels } from "./connectionResolver";
 import {
   MessageArgs,
   MessageArgsOmitService,
   sendMessage,
-  getEnv,
-} from '@erxes/api-utils/src/core';
+  getEnv
+} from "@erxes/api-utils/src/core";
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 
 interface ISendNotification {
   createdUser;
@@ -28,7 +28,7 @@ interface ISendNotification {
 const sendNotification = async (
   models: IModels,
   subdomain: string,
-  doc: ISendNotification,
+  doc: ISendNotification
 ) => {
   const {
     createdUser,
@@ -38,7 +38,7 @@ const sendNotification = async (
     notifType,
     action,
     contentType,
-    contentTypeId,
+    contentTypeId
   } = doc;
 
   let link = doc.link;
@@ -48,29 +48,29 @@ const sendNotification = async (
 
   await sendCoreMessage({
     subdomain,
-    action: 'users.updateMany',
+    action: "users.updateMany",
     data: {
       selector: {
-        _id: { $in: receiverIds },
+        _id: { $in: receiverIds }
       },
       modifier: {
-        $set: { isShowNotification: false },
-      },
-    },
+        $set: { isShowNotification: false }
+      }
+    }
   });
 
   // collecting emails
   const recipients = await sendCoreMessage({
     subdomain,
-    action: 'users.find',
+    action: "users.find",
     data: {
       query: {
         _id: { $in: receiverIds },
-        isActive: true,
-      },
+        isActive: true
+      }
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   // collect recipient emails
@@ -95,9 +95,9 @@ const sendNotification = async (
           receiver: receiverId,
           action,
           contentType,
-          contentTypeId,
+          contentTypeId
         },
-        createdUser._id,
+        createdUser._id
       );
 
       graphqlPubsub.publish(`notificationInserted:${subdomain}:${receiverId}`, {
@@ -105,24 +105,24 @@ const sendNotification = async (
           _id: notification._id,
           userId: receiverId,
           title: notification.title,
-          content: notification.content,
-        },
+          content: notification.content
+        }
       });
     } catch (e) {
       // Any other error is serious
-      if (e.message !== 'Configuration does not exist') {
+      if (e.message !== "Configuration does not exist") {
         throw e;
       }
     }
   } // end receiverIds loop
 
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
+  const DOMAIN = getEnv({ name: "DOMAIN" });
 
   link = `${DOMAIN}${link}`;
 
   // for controlling email template data filling
   const modifier = (data: any, email: string) => {
-    const user = recipients.find((item) => item.email === email);
+    const user = recipients.find(item => item.email === email);
 
     if (user) {
       data.uid = user._id;
@@ -131,98 +131,98 @@ const sendNotification = async (
 
   sendCoreMessage({
     subdomain,
-    action: 'sendEmail',
+    action: "sendEmail",
     data: {
       toEmails,
-      title: 'Notification',
+      title: "Notification",
       template: {
-        name: 'notification',
+        name: "notification",
         data: {
           notification: { ...doc, link },
           action,
-          userName: getUserDetail(createdUser),
-        },
+          userName: getUserDetail(createdUser)
+        }
       },
-      modifier,
-    },
+      modifier
+    }
   });
 };
 
 export const setupMessageConsumers = async () => {
-  consumeQueue('notifications:send', async ({ subdomain, data }) => {
+  consumeQueue("notifications:send", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     await sendNotification(models, subdomain, data);
   });
 
   consumeQueue(
-    'notifications:batchUpdate',
+    "notifications:batchUpdate",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
       await models.Notifications.updateMany(selector, modifier);
-    },
+    }
   );
 
   consumeRPCQueue(
-    'notifications:checkIfRead',
+    "notifications:checkIfRead",
     async ({ subdomain, data: { userId, itemId } }) => {
       const models = await generateModels(subdomain);
       return {
-        status: 'success',
-        data: await models.Notifications.checkIfRead(userId, itemId),
+        status: "success",
+        data: await models.Notifications.checkIfRead(userId, itemId)
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'notifications:find',
+    "notifications:find",
     async ({ subdomain, data: { selector, fields } }) => {
       const models = await generateModels(subdomain);
       return {
-        status: 'success',
-        data: await models.Notifications.find(selector, fields),
+        status: "success",
+        data: await models.Notifications.find(selector, fields)
       };
-    },
+    }
   );
 };
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ) => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'contacts',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'segments',
-    ...args,
+    serviceName: "segments",
+    ...args
   });
 };
 
 export const sendClientPortalMessagge = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'clientportal',
-    ...args,
+    serviceName: "clientportal",
+    ...args
   });
 };

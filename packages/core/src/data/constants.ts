@@ -3,7 +3,9 @@ export const MODULE_NAMES = {
   BRAND: "brand",
   PERMISSION: "permission",
   USER: "user",
-  USER_GROUP: "userGroup"
+  USER_GROUP: "userGroup",
+  COMPANY: "company",
+  CUSTOMER: "customer"
 };
 
 export const SEGMENT_STRING_OPERATORS = ["e", "dne", "c", "dnc"];
