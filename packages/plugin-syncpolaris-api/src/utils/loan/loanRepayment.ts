@@ -47,7 +47,7 @@ export const createLoanRepayment = async (subdomain, models, syncLog, transactio
     data: [loanRepayment],
     models,
     syncLog
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanRepaymentReponse.txnJrno;
 };

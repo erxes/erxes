@@ -47,13 +47,11 @@ export const updateCustomer = async (subdomain, models, syncLog, params) => {
 
   await validateObject(sendData);
 
-  const result = await fetchPolaris({
+  return await fetchPolaris({
     subdomain,
     op: '13610315',
     data: [sendData],
     models,
     syncLog
   });
-
-  return result;
 };

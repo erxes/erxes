@@ -44,13 +44,11 @@ export const incomeSaving = async (subdomain, models, syncLog, params) => {
     ],
   };
 
-  const result = await fetchPolaris({
+  return await fetchPolaris({
     op: '13610015',
     data: [sendData],
     subdomain,
     models,
     syncLog
   });
-
-  return result;
 };

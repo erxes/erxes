@@ -60,7 +60,7 @@ export const createLoanGive = async (subdomain, models, syncLog, transaction) =>
     data: [loanGive],
     models,
     syncLog
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanGiveReponse.txnJrno;
 };

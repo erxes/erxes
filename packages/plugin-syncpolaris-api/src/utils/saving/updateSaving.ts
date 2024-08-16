@@ -37,7 +37,7 @@ export const updateSaving = async (subdomain: string, models, syncLog, params) =
     lastDtDate: savingContract.lastDtDate,
   };
 
-  fetchPolaris({
+  return await fetchPolaris({
     op: '13610120',
     data: [sendData],
     subdomain,
@@ -63,7 +63,8 @@ export const getSavingAcntTransaction = async (subdomain, models, syncLog, param
       PageRowCount: savingTransactionParams.PageRowCount,
     },
   ];
-  fetchPolaris({
+
+  return await fetchPolaris({
     op: '13610101',
     data: sendData,
     subdomain,

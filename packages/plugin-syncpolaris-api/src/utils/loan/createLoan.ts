@@ -71,7 +71,7 @@ export const createLoan = async (subdomain, models, syncLog, params) => {
     subdomain,
     models,
     syncLog
-  }).then((a) => JSON.parse(a));
+  });
 
   if (typeof result === 'string') {
     await updateContract(

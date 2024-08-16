@@ -23,7 +23,7 @@ export const createChangeClassification = async (subdomain, models, syncLog, cla
     data: [loanChangeClassification],
     models,
     syncLog
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanChangeClassificationReponse.txnJrno;
 };

@@ -66,8 +66,6 @@ export const createDeposit = async (subdomain: string, models, syncLog, params) 
     syncLog
   });
 
-  console.log('depositCode', depositCode);
-
   if (typeof depositCode === 'string') {
     await updateContract(
       subdomain,
