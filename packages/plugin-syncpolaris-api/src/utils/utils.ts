@@ -18,9 +18,6 @@ type CustomFieldType =
 
 export const fetchPolaris = async (args: IParams) => {
   const { op, data, subdomain, models, syncLog } = args;
-  if (models && syncLog) {
-    await models.SyncLogs.updateOne({ _id: syncLog._id }, { $set: { sendData: data, sendStr: JSON.stringify(data || {}) } })
-  }
 
   const config = await getConfig(subdomain, 'POLARIS', {});
 
@@ -31,6 +28,19 @@ export const fetchPolaris = async (args: IParams) => {
     Role: config.role,
     'Content-Type': 'application/json'
   };
+
+  if (models && syncLog) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData: data,
+          sendStr: JSON.stringify(data || {}),
+          header: JSON.stringify(headers)
+        }
+      }
+    );
+  }
 
   try {
     const requestOptions = {
