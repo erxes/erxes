@@ -8,8 +8,8 @@ on:
       - dev
       - staging
     paths:
-      - 'essyncer/**'
-      - '.github/workflows/essyncer.yaml'
+      - "essyncer/**"
+      - ".github/workflows/essyncer.yaml"
 
   pull_request:
     branches:
@@ -17,8 +17,8 @@ on:
       - rc
       - dev
     paths:
-      - 'essyncer/**'
-      - '.github/workflows/essyncer.yaml'
+      - "essyncer/**"
+      - ".github/workflows/essyncer.yaml"
 
 jobs:
   essyncer:
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/build-test' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/v2' )
         run: |
           cd essyncer
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

@@ -23,6 +23,7 @@ let Webhooks: Collection<any>;
 let ActivityLogs: Collection<any>;
 let Charts: Collection<any>;
 let Reports: Collection<any>;
+let Logs: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -42,6 +43,18 @@ const switchContentType = contentType => {
       break;
     case "growthhacks:growthHack":
       changedContentType = `growthhacks:growthHack`;
+      break;
+
+    case "contacts:customer":
+      changedContentType = `core:customer`;
+      break;
+
+    case "contacts:company":
+      changedContentType = `core:company`;
+      break;
+
+    case "contacts:lead":
+      changedContentType = `core:lead`;
       break;
 
     default:
@@ -64,6 +77,7 @@ const command = async () => {
   Webhooks = db.collection("webhooks");
   Charts = db.collection("insight_charts");
   Reports = db.collection("reports");
+  Logs = db.collection("logs");
 
   try {
     await Segments.find({}).forEach(doc => {
@@ -97,6 +111,12 @@ const command = async () => {
       const contentType = switchContentType(doc.contentType);
 
       Fields.updateOne({ _id: doc._id }, { $set: { contentType } });
+    });
+
+    await Logs.find({}).forEach(doc => {
+      const contentType = switchContentType(doc.contentType);
+
+      Logs.updateOne({ _id: doc._id }, { $set: { contentType } });
     });
 
     await ActivityLogs.find({}).forEach(doc => {

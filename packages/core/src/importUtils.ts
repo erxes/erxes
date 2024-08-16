@@ -1,16 +1,16 @@
-import { CUSTOMER_SELECT_OPTIONS } from './models/definitions/constants';
+import { CUSTOMER_SELECT_OPTIONS } from "./data/modules/coc/constants";
 
 export const generatePronoun = value => {
   const pronoun = CUSTOMER_SELECT_OPTIONS.SEX.find(
     sex => sex.label.toUpperCase() === value.toUpperCase()
   );
 
-  return pronoun ? pronoun.value : '';
+  return pronoun ? pronoun.value : "";
 };
 
 export const clearEmptyValues = (obj: any) => {
   Object.keys(obj).forEach(key => {
-    if (obj[key] === '' || obj[key] === 'unknown') {
+    if (obj[key] === "" || obj[key] === "unknown") {
       delete obj[key];
     }
 
