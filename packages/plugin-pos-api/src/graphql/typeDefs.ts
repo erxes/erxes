@@ -19,7 +19,7 @@ import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 const typeDefs = async () => {
   const contactsEnabled = true;
-  const productsEnabled = await isEnabled("products");
+  const productsEnabled = true;
 
   return gql`
     scalar JSON
