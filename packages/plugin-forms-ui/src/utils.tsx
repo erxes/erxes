@@ -31,7 +31,7 @@ const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
     name: __('Basic information'),
-    description: __(`Basic information of a ${type}`),
+    description: `${__('Basic information of a')} ${type}`,
     contentType: type,
     order: -1,
     isVisible: true,

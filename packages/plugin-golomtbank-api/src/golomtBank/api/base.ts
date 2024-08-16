@@ -49,6 +49,7 @@ export class BaseApi {
       if (!this.config.apiUrl) {
         throw new Error("Not found url");
       }
+
       const response = await fetch(
         `${this.config.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions

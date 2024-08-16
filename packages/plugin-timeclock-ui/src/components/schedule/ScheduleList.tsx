@@ -184,9 +184,12 @@ function ScheduleList(props: Props) {
   const adminConfigContent = (closeModal, scheduleOfMember?: ISchedule) => {
     let sortedSchedule: any = scheduleOfMember;
 
+    const getShifts = scheduleOfMember?.shifts
+      ? [...scheduleOfMember.shifts]
+      : [];
     sortedSchedule = {
       ...scheduleOfMember,
-      shifts: scheduleOfMember?.shifts?.sort(
+      shifts: getShifts.sort(
         (a, b) =>
           new Date(a.shiftStart).getTime() - new Date(b.shiftStart).getTime()
       )
@@ -378,7 +381,7 @@ function ScheduleList(props: Props) {
       scheduleConfigId: string;
     };
 
-    const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = [];
+    const listShiftsOnCorrectColumn: { [columnNo: number]: ShiftString[] } = {};
 
     for (const shift of shiftsOfMember) {
       const findColumn = daysAndDatesHeaders.find(
@@ -421,7 +424,8 @@ function ScheduleList(props: Props) {
 
     for (let i = 1; i < lastColumnIdx; i++) {
       if (i in listShiftsOnCorrectColumn) {
-        const shiftsOfDay = listShiftsOnCorrectColumn[i].map((shift, index) => {
+        const getShifts = listShiftsOnCorrectColumn[i];
+        const shiftsOfDay = getShifts.map((shift, index) => {
           const getScheduleConfigName = scheduleConfigsWrappedById[
             shift.scheduleConfigId
           ]
@@ -429,17 +433,17 @@ function ScheduleList(props: Props) {
             : 'insert';
 
           return (
-            <Tip key={index} text={getScheduleConfigName}>
-              <td
-                style={{
-                  cursor: 'default',
-                  backgroundColor: shift.backgroundColor,
-                  border: '1px solid #EEE'
-                }}>
+            <td
+              style={{
+                cursor: 'default',
+                backgroundColor: shift.backgroundColor,
+                border: '1px solid #EEE'
+              }}>
+              <Tip key={index} text={getScheduleConfigName} placement='auto'>
                 <div>{shift.shiftStart}</div>
                 <div>{shift.shiftEnd}</div>
-              </td>
-            </Tip>
+              </Tip>
+            </td>
           );
         });
         listRowOnColumnOrder.push(...shiftsOfDay);

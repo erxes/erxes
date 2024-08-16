@@ -52,8 +52,6 @@ export const removeIntegration = async (
       await models.PostConversations.deleteMany({ recipientId: pageId });
 
       try {
-        console.log(pageId, 'pageId');
-        console.log(pageTokenResponse, 'pageTokenResponse');
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
@@ -82,9 +80,6 @@ export const removeIntegration = async (
   // Remove from core =========
   const ENDPOINT_URL = getEnv({ name: 'ENDPOINT_URL' });
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  console.log(ENDPOINT_URL, 'ENDPOINT_URL');
-  console.log(DOMAIN, 'DOMAIN');
-  console.log(integrationRemoveBy, 'integrationRemoveBy');
   if (ENDPOINT_URL) {
     // send domain to core endpoints
     try {

@@ -1,11 +1,9 @@
-import * as React from "react";
-import BrandInfo from "../../components/common/BrandInfo";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import BrandInfo from '../../components/common/BrandInfo';
+import { getBrand } from '../../utils/util';
 
-const container = () => (
-  <AppConsumer>
-    {({ getBrand }) => <BrandInfo brand={getBrand()} />}
-  </AppConsumer>
-);
+const Container = () => {
+  return <BrandInfo brand={getBrand()} />;
+};
 
-export default container;
+export default Container;

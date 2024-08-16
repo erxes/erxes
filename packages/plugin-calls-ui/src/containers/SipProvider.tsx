@@ -52,6 +52,7 @@ const SipProviderContainer = (props) => {
           token: config?.token,
           operators: config?.operators,
           isAvailable: true,
+          queues: config?.queues || [],
         });
         setLocalStorage(true, true);
         localStorage.removeItem('isConnectCallRequested');
@@ -63,6 +64,7 @@ const SipProviderContainer = (props) => {
           token: config?.token,
           operators: config?.operators,
           isAvailable: false,
+          queues: config?.queues || [],
         });
         setLocalStorage(false, false);
         localStorage.removeItem('isConnectCallRequested');

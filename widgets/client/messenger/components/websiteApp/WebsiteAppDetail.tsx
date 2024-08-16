@@ -1,31 +1,31 @@
-import * as React from "react";
-import { iconLeft } from "../../../icons/Icons";
-import { __ } from "../../../utils";
-import TopBar from "../../containers/TopBar";
-import { IWebsiteApp } from "../../types";
+import * as React from 'react';
+import { __ } from '../../../utils';
+import { IWebsiteApp } from '../../types';
+import Container from '../common/Container';
 
 type Props = {
   websiteApp: IWebsiteApp;
   changeRoute: (route: string) => void;
+  loading: boolean;
 };
 
 export default class WebsiteAppDetail extends React.PureComponent<Props> {
   render() {
-    const { changeRoute, websiteApp } = this.props;
-
-    const onClick = () => changeRoute("home");
+    const { websiteApp, loading } = this.props;
 
     return (
-      <>
-        <TopBar
-          middle={websiteApp.credentials.description}
-          buttonIcon={iconLeft()}
-          onLeftButtonClick={onClick}
-        />
+      <Container
+        title={websiteApp.credentials.description}
+        withBottomNavBar={false}
+      >
         <div className="erxes-content">
-          <iframe src={websiteApp.credentials.url} className="websiteApp" />
+          {loading ? (
+            <div className="loader" />
+          ) : (
+            <iframe src={websiteApp.credentials.url} className="websiteApp" />
+          )}
         </div>
-      </>
+      </Container>
     );
   }
 }
