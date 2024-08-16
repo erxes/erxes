@@ -60,7 +60,7 @@ const ContractFromContainer = (props: FinalProps) => {
 
     return (
       <ButtonMutate
-        mutation={object._id ? mutations.contractsEdit : mutations.contractsAdd}
+        mutation={object?._id ? mutations.contractsEdit : mutations.contractsAdd}
         variables={values}
         callback={afterSave}
         refetchQueries={getRefetchQueries()}
