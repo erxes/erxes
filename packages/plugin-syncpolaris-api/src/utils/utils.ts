@@ -1,9 +1,13 @@
 import fetch from 'node-fetch';
+import { IModels } from '../connectionResolver';
 import { sendCommonMessage } from '../messageBroker';
+import { ISyncLogDocument } from '../models/definitions/syncLog';
 
 interface IParams {
   op: string;
   subdomain: string;
+  models?: IModels;
+  syncLog?: ISyncLogDocument;
   data?: any;
 }
 
@@ -13,7 +17,10 @@ type CustomFieldType =
   | 'savings:contract';
 
 export const fetchPolaris = async (args: IParams) => {
-  const { op, data, subdomain } = args;
+  const { op, data, subdomain, models, syncLog } = args;
+  if (models && syncLog) {
+    await models.SyncLogs.updateOne({ _id: syncLog._id }, { $set: { sendData: data, sendDataStr: JSON.stringify(data || {}) } })
+  }
 
   const config = await getConfig(subdomain, 'POLARIS', {});
 

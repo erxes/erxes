@@ -1,6 +1,6 @@
 import { getCustomer, fetchPolaris } from '../utils';
 
-export const updateSaving = async (subdomain: string, params) => {
+export const updateSaving = async (subdomain: string, models, syncLog, params) => {
   const savingContract = params.object;
   const customer = await getCustomer(subdomain, savingContract.customerId);
 
@@ -41,10 +41,12 @@ export const updateSaving = async (subdomain: string, params) => {
     op: '13610120',
     data: [sendData],
     subdomain,
+    models,
+    syncLog
   });
 };
 
-export const getSavingAcntTransaction = async (subdomain, params) => {
+export const getSavingAcntTransaction = async (subdomain, models, syncLog, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
   let sendData = {};
 
@@ -65,5 +67,7 @@ export const getSavingAcntTransaction = async (subdomain, params) => {
     op: '13610101',
     data: sendData,
     subdomain,
+    models,
+    syncLog
   });
 };

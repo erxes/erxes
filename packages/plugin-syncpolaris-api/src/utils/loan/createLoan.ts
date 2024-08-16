@@ -12,7 +12,7 @@ import {
 import { activeLoan } from './activeLoan';
 import { createSavingLoan } from './createSavingLoan';
 
-export const createLoan = async (subdomain, params) => {
+export const createLoan = async (subdomain, models, syncLog, params) => {
   const loan = params.updatedDocument || params.object;
 
   if (loan.leaseType === 'saving')
@@ -20,14 +20,14 @@ export const createLoan = async (subdomain, params) => {
 
   const loanData = await customFieldToObject(subdomain, 'loans:contract', loan);
 
-  const customer = await sendMessageBrokerData(subdomain,'contacts','customers.findOne', {_id:loan.customerId});
+  const customer = await sendMessageBrokerData(subdomain, 'contacts', 'customers.findOne', { _id: loan.customerId });
 
-  const loanProduct = await sendMessageBrokerData(subdomain,'loans','contractType.findOne', {_id:loan.contractTypeId});
+  const loanProduct = await sendMessageBrokerData(subdomain, 'loans', 'contractType.findOne', { _id: loan.contractTypeId });
 
   const leasingExpert = await getUser(subdomain, loan.leasingExpertId);
 
   const branch = await getBranch(subdomain, loan.branchId);
-  
+
   let sendData: any = {
     custCode: customer.code,
     name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
@@ -69,6 +69,8 @@ export const createLoan = async (subdomain, params) => {
     op: '13610253',
     data: [sendData],
     subdomain,
+    models,
+    syncLog
   }).then((a) => JSON.parse(a));
 
   if (typeof result === 'string') {

@@ -2,15 +2,13 @@ import {
   customFieldToObject,
   fetchPolaris,
   getBranch,
-  getCustomer,
-  getProduct,
   sendMessageBrokerData,
   updateContract
 } from '../utils';
 import { IPolarisDeposit } from './types';
 import { validateDepositObject } from './validator';
 
-export const createDeposit = async (subdomain: string, params) => {
+export const createDeposit = async (subdomain: string, models, syncLog, params) => {
   const deposit = params.updatedDocument || params.object;
 
   const objectDeposit = await customFieldToObject(
@@ -34,7 +32,7 @@ export const createDeposit = async (subdomain: string, params) => {
     'customers.findOne',
     { _id: deposit.customerId }
   );
-  
+
   let sendData: IPolarisDeposit = {
     acntType: 'CA',
     prodCode: savingProduct.code,
@@ -63,7 +61,9 @@ export const createDeposit = async (subdomain: string, params) => {
   const depositCode = await fetchPolaris({
     subdomain,
     op: '13610020',
-    data: [sendData]
+    data: [sendData],
+    models,
+    syncLog
   });
 
   console.log('depositCode', depositCode);

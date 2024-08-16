@@ -2,7 +2,7 @@ import { customFieldToObject, fetchPolaris } from '../utils';
 import { IPolarisCustomer } from './types';
 import { validateObject } from './validator';
 
-export const updateCustomer = async (subdomain, params) => {
+export const updateCustomer = async (subdomain, models, syncLog, params) => {
   const customer = params.updatedDocument || params.object;
 
   const data = await customFieldToObject(
@@ -51,6 +51,8 @@ export const updateCustomer = async (subdomain, params) => {
     subdomain,
     op: '13610315',
     data: [sendData],
+    models,
+    syncLog
   });
 
   return result;

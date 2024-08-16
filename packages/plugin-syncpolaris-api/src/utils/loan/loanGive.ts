@@ -7,7 +7,7 @@ import {
 } from '../utils';
 import { IPolarisLoanGive } from './types';
 
-export const createLoanGive = async (subdomain, transaction) => {
+export const createLoanGive = async (subdomain, models, syncLog, transaction) => {
   const customer = await getCustomer(subdomain, transaction.customerId);
 
   const customerData = await customFieldToObject(
@@ -58,6 +58,8 @@ export const createLoanGive = async (subdomain, transaction) => {
     subdomain,
     op: '13610262',
     data: [loanGive],
+    models,
+    syncLog
   }).then((response) => JSON.parse(response));
 
   return loanGiveReponse.txnJrno;
