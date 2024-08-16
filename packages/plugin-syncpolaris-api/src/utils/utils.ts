@@ -42,16 +42,14 @@ export const fetchPolaris = async (args: IParams) => {
       }
     );
   }
-
-  console.log(config.apiUrl.protocol === 'http' && new http.Agent({ keepAlive: true }), 'zzzzzzzzz');
-
+  console.log(config.apiUrl.includes('http://'), config.apiUrl.includes('http://') && new http.Agent({ keepAlive: true }), 'zzzzzzzzzzzz')
   try {
     const requestOptions = {
       url: `${config.apiUrl}`,
       method: 'POST',
       headers,
       body: JSON.stringify(data),
-      agent: config.apiUrl.protocol === 'http' && new http.Agent({ keepAlive: true })
+      agent: config.apiUrl.includes('http://') && new http.Agent({ keepAlive: true })
     };
 
     return await fetch(config.apiUrl, requestOptions)
