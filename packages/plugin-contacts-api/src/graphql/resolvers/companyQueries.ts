@@ -1,11 +1,11 @@
-import { TAG_TYPES } from '../../models/definitions/constants';
-import { Builder, IListArgs } from '../../coc/companies';
-import { countBySegment, countByTag } from '../../coc/utils';
+import { TAG_TYPES } from "../../models/definitions/constants";
+import { Builder, IListArgs } from "../../coc/companies";
+import { countBySegment, countByTag } from "../../coc/utils";
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../connectionResolver';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../connectionResolver";
 interface ICountArgs extends IListArgs {
   only?: string;
 }
@@ -74,16 +74,12 @@ const companyQueries = {
     });
 
     switch (only) {
-      case 'byTag':
+      case "byTag":
         counts.byTag = await countByTag(subdomain, TAG_TYPES.COMPANY, qb);
         break;
 
-      case 'bySegment':
-        counts.bySegment = await countBySegment(
-          subdomain,
-          'contacts:company',
-          qb
-        );
+      case "bySegment":
+        counts.bySegment = await countBySegment(subdomain, "core:company", qb);
         break;
     }
 
@@ -102,12 +98,12 @@ const companyQueries = {
   }
 };
 
-requireLogin(companyQueries, 'companiesMain');
-requireLogin(companyQueries, 'companyCounts');
-requireLogin(companyQueries, 'companyDetail');
+requireLogin(companyQueries, "companiesMain");
+requireLogin(companyQueries, "companyCounts");
+requireLogin(companyQueries, "companyDetail");
 
-checkPermission(companyQueries, 'companies', 'showCompanies', []);
-checkPermission(companyQueries, 'companiesMain', 'showCompanies', {
+checkPermission(companyQueries, "companies", "showCompanies", []);
+checkPermission(companyQueries, "companiesMain", "showCompanies", {
   list: [],
   totalCount: 0
 });

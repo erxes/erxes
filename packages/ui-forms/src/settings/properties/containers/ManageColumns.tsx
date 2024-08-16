@@ -37,7 +37,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     location,
     navigate,
     type,
-    isImport,
+    isImport
   } = props;
 
   if (fieldsQuery.loading || fieldsDefaultColumnsConfigQuery.loading) {
@@ -71,8 +71,8 @@ const ManageColumnsContainer = (props: FinalProps) => {
       }
 
       configs
-        .filter((conf) => conf.checked)
-        .forEach((checked) => {
+        .filter(conf => conf.checked)
+        .forEach(checked => {
           if (checked.name.startsWith("customFieldsData")) {
             checkedConfigsForExport.push(checked);
             checkedConfigsForImport.push(checked.label);
@@ -89,7 +89,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
             : checkedConfigsForImport,
         type: contentType.split(":")[0],
         importType,
-        unlimited: true,
+        unlimited: true
       });
 
       window.open(`${REACT_APP_API_URL}${reqUrl}?${stringified}`, "_blank");
@@ -106,18 +106,18 @@ const ManageColumnsContainer = (props: FinalProps) => {
   } else {
     const defaultColumnsMap = {};
 
-    defaultColumns.forEach((col) => {
+    defaultColumns.forEach(col => {
       defaultColumnsMap[col.name] = col;
     });
 
     columns = (fieldsQuery.fieldsCombinedByContentType || [])
-      .map((field) => {
+      .map(field => {
         const conf = defaultColumnsMap[field.name];
         return {
           ...field,
           _id: Math.random().toString(),
           order: conf ? conf.order : 0,
-          checked: conf,
+          checked: conf
         };
       })
       .sort((a, b) => a.order - b.order);
@@ -127,7 +127,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
     ...props,
     save,
     contentType,
-    columns,
+    columns
   };
 
   return <ManageColumns {...updatedProps} />;
@@ -153,15 +153,15 @@ export default withProps<Props>(
         return {
           variables: {
             contentType: ["lead", "visitor"].includes(contentType)
-              ? "contacts:customer"
+              ? "core:customer"
               : contentType,
             usageType: type,
             excludedNames: excludedNames
               ? excludedNames
-              : renderExcludedNames(isImport),
-          },
+              : renderExcludedNames(isImport)
+          }
         };
-      },
+      }
     }),
     graphql<Props, DefaultColumnsConfigQueryResponse, { contentType: string }>(
       gql(queries.fieldsDefaultColumnsConfig),
@@ -171,11 +171,11 @@ export default withProps<Props>(
           return {
             variables: {
               contentType: ["lead", "visitor"].includes(contentType)
-                ? "contacts:customer"
-                : contentType,
-            },
+                ? "core:customer"
+                : contentType
+            }
           };
-        },
+        }
       }
     )
   )(ManageColumnsContainer)

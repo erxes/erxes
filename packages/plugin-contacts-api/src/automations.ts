@@ -146,7 +146,7 @@ export default {
         models,
         subdomain,
         getRelatedValue,
-        module: module.includes("lead") ? "contacts:customer" : module,
+        module: module.includes("lead") ? "core:customer" : module,
         rules,
         execution,
         sendCommonMessage,
@@ -203,7 +203,7 @@ export default {
   constants: {
     triggers: [
       {
-        type: "contacts:customer",
+        type: "core:customer",
         img: "automation2.svg",
         icon: "users-alt",
         label: "Customer",
@@ -211,7 +211,7 @@ export default {
           "Start with a blank workflow that enrolls and is triggered off Customers"
       },
       {
-        type: "contacts:lead",
+        type: "core:lead",
         img: "automation2.svg",
         icon: "users-alt",
         label: "Lead",
@@ -219,7 +219,7 @@ export default {
           "Start with a blank workflow that enrolls and is triggered off Leads"
       },
       {
-        type: "contacts:company",
+        type: "core:company",
         img: "automation2.svg",
         icon: "university",
         label: "Company",

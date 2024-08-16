@@ -15,6 +15,7 @@ import React from "react";
 import SAASAuthRoutes from "./modules/saas/auth/routes";
 import SettingsRoutes from "./modules/settings/routes";
 import TagRoutes from "./modules/tags/routes";
+import ContactRoutes from "./modules/contacts/routes";
 import SegmentRoutes from "./modules/segments/routes";
 import FormRoutes from "./modules/forms/routes";
 import WelcomeRoutes from "./modules/welcome/routes";
@@ -151,6 +152,7 @@ const renderRoutes = currentUser => {
         <TagRoutes />
         <FormRoutes />
         <SegmentRoutes />
+        <ContactRoutes />
         <WelcomeRoutes currentUser={currentUser} />
         {pluginLayouts(currentUser)}
         {pluginRouters()}

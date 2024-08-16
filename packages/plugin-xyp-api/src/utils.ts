@@ -61,7 +61,7 @@ export const convertToPropertyData = async (
       action: "fields.find",
       data: {
         query: {
-          contentType: "contacts:customer",
+          contentType: "core:customer",
           code: { $exists: true, $ne: "" }
         },
         projection: {
@@ -77,7 +77,7 @@ export const convertToPropertyData = async (
     const customFieldsData: any[] = customer.customFieldsData || [];
 
     const xyp = await models.XypData.findOne({
-      contentType: "contacts:customer",
+      contentType: "core:customer",
       contentTypeId: customer._id
     });
 
@@ -105,7 +105,7 @@ export const convertToPropertyData = async (
       action: "fieldsGroups.find",
       data: {
         query: {
-          contentType: "contacts:customer",
+          contentType: "core:customer",
           code: { $in: serviceNames }
         },
         projection: {

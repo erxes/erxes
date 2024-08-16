@@ -5,12 +5,12 @@ const relations = type => {
     {
       name: "customerIds",
       label: "Customers",
-      relationType: "contacts:customer"
+      relationType: "core:customer"
     },
     {
       name: "companyIds",
       label: "Companies",
-      relationType: "contacts:company"
+      relationType: "core:company"
     },
     { name: "dealIds", label: "Deals", relationType: "sales:deal" },
     {
@@ -29,12 +29,12 @@ export default {
     {
       description: "Customers",
       type: "customer",
-      relations: relations("contacts:customer")
+      relations: relations("core:customer")
     },
     {
       description: "Companies",
       type: "company",
-      relations: relations("contacts:company")
+      relations: relations("core:company")
     },
     {
       description: "Device properties",

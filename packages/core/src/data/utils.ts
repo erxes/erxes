@@ -14,7 +14,7 @@ import fetch from "node-fetch";
 import { IModels } from "../connectionResolver";
 import { IUserDocument } from "../db/models/definitions/users";
 import { debugBase, debugError } from "../debuggers";
-import { sendCommonMessage, sendContactsMessage } from "../messageBroker";
+import { sendCommonMessage } from "../messageBroker";
 import { graphqlPubsub } from "../pubsub";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
@@ -1603,20 +1603,7 @@ export const handleUnsubscription = async (
   const { cid, uid } = query;
 
   if (cid) {
-    await sendContactsMessage({
-      subdomain,
-      action: "customers.updateOne",
-      data: {
-        selector: {
-          _id: cid
-        },
-        modifier: {
-          $set: { isSubscribed: "No" }
-        }
-      },
-      isRPC: true,
-      defaultValue: {}
-    });
+    await models.Customers.updateOne({ _id: cid }, { isSubscribed: "No" });
   }
 
   if (uid) {

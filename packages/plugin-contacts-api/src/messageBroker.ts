@@ -75,7 +75,7 @@ const createOrUpdate = async ({
 };
 
 export const setupMessageConsumers = () => {
-  consumeRPCQueue("contacts:customers.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("core:customers.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -85,7 +85,7 @@ export const setupMessageConsumers = () => {
   });
 
   consumeRPCQueue(
-    "contacts:customers.count",
+    "core:customers.count",
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
@@ -96,7 +96,7 @@ export const setupMessageConsumers = () => {
     }
   );
 
-  consumeRPCQueue("contacts:companies.findOne", async ({ subdomain, data }) => {
+  consumeRPCQueue("core:companies.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -105,7 +105,7 @@ export const setupMessageConsumers = () => {
     };
   });
 
-  consumeRPCQueue("contacts:companies.find", async ({ subdomain, data }) => {
+  consumeRPCQueue("core:companies.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -114,7 +114,7 @@ export const setupMessageConsumers = () => {
     };
   });
 
-  consumeRPCQueue("contacts:customers.find", async ({ subdomain, data }) => {
+  consumeRPCQueue("core:customers.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
@@ -124,7 +124,7 @@ export const setupMessageConsumers = () => {
   });
 
   consumeRPCQueue(
-    "contacts:customers.getCustomerIds",
+    "core:customers.getCustomerIds",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -136,7 +136,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.findActiveCustomers",
+    "core:customers.findActiveCustomers",
     async ({ subdomain, data: { selector, fields, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
@@ -153,7 +153,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.getCompanyName",
+    "core:companies.getCompanyName",
     async ({ subdomain, data: { company } }) => {
       const models = await generateModels(subdomain);
 
@@ -165,7 +165,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.findActiveCompanies",
+    "core:companies.findActiveCompanies",
     async ({ subdomain, data: { selector, fields, skip, limit } }) => {
       const models = await generateModels(subdomain);
 
@@ -182,7 +182,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.createCustomer",
+    "core:customers.createCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -194,7 +194,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.createCompany",
+    "core:companies.createCompany",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -206,7 +206,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.updateCustomer",
+    "core:customers.updateCustomer",
     async ({ subdomain, data: { _id, doc } }) => {
       const models = await generateModels(subdomain);
 
@@ -218,7 +218,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.updateOne",
+    "core:customers.updateOne",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
@@ -230,7 +230,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.updateMany",
+    "core:customers.updateMany",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
@@ -242,7 +242,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.updateMany",
+    "core:companies.updateMany",
     async ({ subdomain, data: { selector, modifier } }) => {
       const models = await generateModels(subdomain);
 
@@ -254,7 +254,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.markCustomerAsActive",
+    "core:customers.markCustomerAsActive",
     async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);
 
@@ -266,7 +266,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeQueue(
-    "contacts:customers.removeCustomers",
+    "core:customers.removeCustomers",
     async ({ subdomain, data: { customerIds } }) => {
       const models = await generateModels(subdomain);
 
@@ -278,7 +278,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.updateCompany",
+    "core:companies.updateCompany",
     async ({ subdomain, data: { _id, doc } }) => {
       const { Companies } = await generateModels(subdomain);
 
@@ -290,7 +290,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.removeCompanies",
+    "core:companies.removeCompanies",
     async ({ subdomain, data: { _ids } }) => {
       const { Companies } = await generateModels(subdomain);
 
@@ -302,7 +302,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.updateCommon",
+    "core:companies.updateCommon",
     async ({ subdomain, data: { selector, modifier } }) => {
       const { Companies } = await generateModels(subdomain);
 
@@ -314,7 +314,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.getWidgetCustomer",
+    "core:customers.getWidgetCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -326,7 +326,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.updateMessengerCustomer",
+    "core:customers.updateMessengerCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -338,7 +338,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.createMessengerCustomer",
+    "core:customers.createMessengerCustomer",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -352,7 +352,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.saveVisitorContactInfo",
+    "core:customers.saveVisitorContactInfo",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -364,7 +364,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeQueue(
-    "contacts:customers.updateLocation",
+    "core:customers.updateLocation",
     async ({ subdomain, data: { customerId, browserInfo } }) => {
       const models = await generateModels(subdomain);
 
@@ -373,7 +373,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeQueue(
-    "contacts:customers.updateSession",
+    "core:customers.updateSession",
     async ({ subdomain, data: { customerId } }) => {
       const models = await generateModels(subdomain);
 
@@ -382,7 +382,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:customers.getCustomerName",
+    "core:customers.getCustomerName",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -402,7 +402,7 @@ export const setupMessageConsumers = () => {
   });
 
   consumeRPCQueue(
-    "contacts:customers.prepareEngageCustomers",
+    "core:customers.prepareEngageCustomers",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -413,13 +413,13 @@ export const setupMessageConsumers = () => {
     }
   );
 
-  consumeRPCQueue("contacts:getNumberOfVisits", async ({ data }) => ({
+  consumeRPCQueue("core:getNumberOfVisits", async ({ data }) => ({
     status: "success",
     data: await getNumberOfVisits(data)
   }));
 
   consumeQueue(
-    "contacts:customers.setUnsubscribed",
+    "core:customers.setUnsubscribed",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -450,20 +450,17 @@ export const setupMessageConsumers = () => {
     }
   );
 
-  consumeRPCQueue(
-    "contacts:updateContactsField",
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue("core:updateContactsField", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: "success",
-        data: await updateContactsField(models, subdomain, data)
-      };
-    }
-  );
+    return {
+      status: "success",
+      data: await updateContactsField(models, subdomain, data)
+    };
+  });
 
   consumeRPCQueue(
-    "contacts:customers.createOrUpdate",
+    "core:customers.createOrUpdate",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
@@ -475,7 +472,7 @@ export const setupMessageConsumers = () => {
   );
 
   consumeRPCQueue(
-    "contacts:companies.createOrUpdate",
+    "core:companies.createOrUpdate",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 

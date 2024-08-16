@@ -246,7 +246,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
         ? {
             returnAssociated: {
               mainType: segment.contentType,
-              relType: `contacts:${this.getRelType()}`
+              relType: `core:${this.getRelType()}`
             },
             returnSelector: true
           }

@@ -633,7 +633,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         subdomain,
         action: "batchUpdate",
         data: {
-          contentType: "contacts:customer",
+          contentType: "core:customer",
           oldContentTypeIds: customerIds,
           newContentTypeId: customer._id
         }
@@ -827,7 +827,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         action: "fields.generateCustomFieldsData",
         data: {
           customData,
-          contentType: "contacts:customer"
+          contentType: "core:customer"
         },
         isRPC: true
       });
@@ -965,7 +965,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         subdomain,
         data: {
           action: "update",
-          type: "contacts:customer",
+          type: "core:customer",
           params: webhookData
         }
       });

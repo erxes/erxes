@@ -18,7 +18,7 @@ const successMessage = ids => {
 };
 
 const changeType = (type: string) =>
-  type === "contacts:lead" ? "contacts:customer" : type;
+  type === "core:lead" ? "core:customer" : type;
 
 export default {
   contentTypes: [
@@ -68,7 +68,7 @@ export default {
 
     if (
       associatedTypes.includes(propertyType) ||
-      propertyType === "contacts:lead"
+      propertyType === "core:lead"
     ) {
       const models = await generateModels(subdomain);
 

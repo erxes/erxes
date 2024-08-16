@@ -2,10 +2,10 @@ import { __ } from "@erxes/ui/src/utils";
 
 export const TAG_TYPES = {
   CONVERSATION: __("inbox:conversation"),
-  CUSTOMER: __("contacts:customer"),
+  CUSTOMER: __("core:customer"),
   ENGAGE_MESSAGE: __("engages:engageMessage"),
   AUTOMATION: __("automations:automations"),
-  COMPANY: __("contacts:company"),
+  COMPANY: __("core:company"),
   INTEGRATION: __("inbox:integration"),
   PRODUCT: __("products:product"),
   PRODUCT_TEMPLATE: __("productTemplate"),

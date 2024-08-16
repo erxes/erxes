@@ -13,6 +13,7 @@ import * as mongoose from "mongoose";
 import * as path from "path";
 import { initApolloServer } from "./apolloClient";
 import { templateExport } from "./data/modules/fileExporter/templateExport";
+
 import * as fs from "fs";
 
 import {
@@ -53,6 +54,7 @@ import { handleCoreLogin, handleMagiclink, ssocallback } from "./saas";
 import app from "@erxes/api-utils/src/app";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import search from "./search";
+import tags from "./tags";
 
 const {
   JWT_TOKEN_SECRET,
@@ -309,10 +311,6 @@ httpServer.listen(PORT, async () => {
 
   await initBroker();
 
-  // if (VERSION && VERSION === 'saas') {
-  //   await mongoose.connect(MONGO_URL, connectionOptions);
-  // }
-
   init()
     .then(() => {
       telemetry.trackCli("server_started");
@@ -336,6 +334,7 @@ httpServer.listen(PORT, async () => {
       templates,
       search,
       permissions: moduleObjects,
+      tags,
       imports,
       exporter,
       cronjobs: {

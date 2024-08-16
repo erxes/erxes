@@ -87,7 +87,7 @@ const getOwner = async ({
   let ownerId;
 
   if (
-    ["contacts:customer", "core:user", "contacts:company"].includes(
+    ["core:customer", "core:user", "core:company"].includes(
       execution.triggerType
     )
   ) {
@@ -157,7 +157,7 @@ const createVoucher = async ({
   let ownerId;
 
   if (
-    ["contacts:customer", "core:user", "contacts:company"].includes(
+    ["core:customer", "core:user", "core:company"].includes(
       execution.triggerType
     )
   ) {

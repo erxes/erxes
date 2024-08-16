@@ -21,7 +21,7 @@ export const updateConversationMessage = async (data: any) => {
 };
 
 export const getCampaignCustomerInfo = async data => {
-  return sendRPCMessageCore("contacts:rpc_queue.prepareEngageCustomers", data);
+  return sendRPCMessageCore("core:rpc_queue.prepareEngageCustomers", data);
 };
 
 export const sendContactsMessage = async (

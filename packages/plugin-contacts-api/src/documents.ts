@@ -6,10 +6,10 @@ const getContactDetail = async (subdomain, contentType, contentTypeId) => {
 
   let contact;
 
-  if (contentType === "contacts:customer") {
+  if (contentType === "core:customer") {
     contact = await models.Customers.findOne({ _id: contentTypeId });
   }
-  if (contentType === "contacts:company") {
+  if (contentType === "core:company") {
     contact = await models.Companies.findOne({ _id: contentTypeId });
   }
 
@@ -33,11 +33,11 @@ export default {
   types: [
     {
       label: "Customer",
-      type: "contacts:customer"
+      type: "core:customer"
     },
     {
       label: "Company",
-      type: "contacts:company"
+      type: "core:company"
     }
   ],
 

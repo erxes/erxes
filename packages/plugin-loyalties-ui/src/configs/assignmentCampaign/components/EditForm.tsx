@@ -187,7 +187,7 @@ const EditForm = (props: Props) => {
                 name="segmentIds"
                 label="Choose segments"
                 initialValue={assignmentCampaign.segmentIds}
-                contentTypes={["contacts:customer", "contacts:lead"]}
+                contentTypes={["core:customer", "core:lead"]}
                 multi={true}
                 onSelect={segmentIds => onChangeSegments(segmentIds)}
               />

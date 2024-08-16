@@ -248,7 +248,7 @@ const getTags = async (type: string, subdomain: string) => {
     subdomain,
     action: "tagFind",
     data: {
-      type: `contacts:${["lead", "visitor"].includes(type) ? "customer" : type}`
+      type: `core:${["lead", "visitor"].includes(type) ? "customer" : type}`
     },
     isRPC: true,
     defaultValue: []
@@ -831,14 +831,14 @@ export const updateContactsField = async (
           isRPC: true
         });
 
-        if (fieldGroup && fieldGroup.contentType === "contacts:company") {
+        if (fieldGroup && fieldGroup.contentType === "core:company") {
           companyCustomData.push({
             field: submission.associatedFieldId,
             value: submission.value
           });
         }
 
-        if (fieldGroup && fieldGroup.contentType === "contacts:customer") {
+        if (fieldGroup && fieldGroup.contentType === "core:customer") {
           customFieldsData.push({
             field: submission.associatedFieldId,
             value: submission.value

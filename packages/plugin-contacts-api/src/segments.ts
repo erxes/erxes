@@ -2,99 +2,99 @@ import {
   fetchByQuery,
   fetchByQueryWithScroll,
   generateElkIds,
-  getRealIdFromElk,
-} from '@erxes/api-utils/src/elasticsearch';
+  getRealIdFromElk
+} from "@erxes/api-utils/src/elasticsearch";
 import {
   gatherAssociatedTypes,
   getEsIndexByContentType,
   getName,
-  getServiceName,
-} from '@erxes/api-utils/src/segments';
-import * as _ from 'underscore';
-import { sendCommonMessage, sendCoreMessage } from './messageBroker';
-const successMessage = (ids) => {
-  return { data: ids, status: 'success' };
+  getServiceName
+} from "@erxes/api-utils/src/segments";
+import * as _ from "underscore";
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
+const successMessage = ids => {
+  return { data: ids, status: "success" };
 };
 
 const changeType = (type: string) =>
-  type === 'contacts:lead' ? 'contacts:customer' : type;
+  type === "core:lead" ? "core:customer" : type;
 
 export default {
   contentTypes: [
-    { type: 'company', description: 'Company', esIndex: 'companies' },
-    { type: 'customer', description: 'Customer', esIndex: 'customers' },
+    { type: "company", description: "Company", esIndex: "companies" },
+    { type: "customer", description: "Customer", esIndex: "customers" },
     {
-      type: 'lead',
-      description: 'Lead',
-      esIndex: 'customers',
-      notAssociated: true,
-    },
+      type: "lead",
+      description: "Lead",
+      esIndex: "customers",
+      notAssociated: true
+    }
   ],
 
   associationFilter: async ({
     subdomain,
-    data: { mainType, propertyType, positiveQuery, negativeQuery },
+    data: { mainType, propertyType, positiveQuery, negativeQuery }
   }) => {
     const associatedTypes: string[] = await gatherAssociatedTypes(
-      changeType(mainType),
+      changeType(mainType)
     );
 
     let ids: string[] = [];
 
     if (
       associatedTypes.includes(propertyType) ||
-      propertyType === 'contacts:lead'
+      propertyType === "core:lead"
     ) {
       const mainTypeIds = (
         await fetchByQueryWithScroll({
           subdomain,
           index: await getEsIndexByContentType(propertyType),
           positiveQuery,
-          negativeQuery,
+          negativeQuery
         })
-      ).map((id) => getRealIdFromElk(id));
+      ).map(id => getRealIdFromElk(id));
 
       ids = await sendCoreMessage({
         subdomain,
-        action: 'conformities.filterConformity',
+        action: "conformities.filterConformity",
         data: {
           mainType: getName(changeType(propertyType)),
           mainTypeIds,
-          relType: getName(changeType(mainType)),
+          relType: getName(changeType(mainType))
         },
-        isRPC: true,
+        isRPC: true
       });
 
       return successMessage(ids);
     }
 
-    if (propertyType === 'forms:form_submission') {
+    if (propertyType === "forms:form_submission") {
       ids = await fetchByQuery({
         subdomain,
-        index: 'form_submissions',
-        _source: 'customerId',
+        index: "form_submissions",
+        _source: "customerId",
         positiveQuery,
-        negativeQuery,
+        negativeQuery
       });
     } else {
       const serviceName = getServiceName(propertyType);
 
-      if (serviceName === 'contacts') {
-        return { data: [], status: 'error' };
+      if (serviceName === "contacts") {
+        return { data: [], status: "error" };
       }
 
       ids = await sendCommonMessage({
         serviceName,
         subdomain,
-        action: 'segments.associationFilter',
+        action: "segments.associationFilter",
         data: {
           mainType,
           propertyType,
           positiveQuery,
-          negativeQuery,
+          negativeQuery
         },
         defaultValue: [],
-        isRPC: true,
+        isRPC: true
       });
     }
 
@@ -104,16 +104,16 @@ export default {
   },
 
   esTypesMap: async () => {
-    return { data: { typesMap: {} }, status: 'success' };
+    return { data: { typesMap: {} }, status: "success" };
   },
 
   initialSelector: async () => {
     const negative = {
       term: {
-        status: 'deleted',
-      },
+        status: "deleted"
+      }
     };
 
-    return { data: { negative }, status: 'success' };
-  },
+    return { data: { negative }, status: "success" };
+  }
 };

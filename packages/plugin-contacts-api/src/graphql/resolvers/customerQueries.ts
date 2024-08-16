@@ -139,7 +139,7 @@ const customerQueries = {
       case "bySegment":
         counts.bySegment = await countBySegment(
           subdomain,
-          `contacts:${type || "customer"}`,
+          `core:${type || "customer"}`,
           qb,
           source
         );

@@ -235,7 +235,7 @@ export default {
               let tag = await sendCoreMessage({
                 subdomain,
                 action: "tagFindOne",
-                data: { name: tagName, type: `contacts:${type}` },
+                data: { name: tagName, type: `core:${type}` },
                 isRPC: true
               });
 
@@ -243,7 +243,7 @@ export default {
                 tag = await sendCoreMessage({
                   subdomain,
                   action: "createTag",
-                  data: { name: tagName, type: `contacts:${type}` },
+                  data: { name: tagName, type: `core:${type}` },
                   isRPC: true
                 });
               }

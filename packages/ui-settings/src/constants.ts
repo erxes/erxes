@@ -67,7 +67,7 @@ export const EMPTY_SEGMENT_CONTENT = {
       description: __(
         "If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them"
       ),
-      url: "/settings/properties?type=contacts:customer",
+      url: "/settings/properties?type=core:customer",
       urlText: "Go to Properties"
     },
     {
@@ -90,7 +90,7 @@ export const EMPTY_NEW_SEGMENT_CONTENT = {
       description: __(
         "If you wish to segment by any properties that are not available on erxes, make sure you’ve already created them"
       ),
-      url: "/settings/properties?type=contacts:customer",
+      url: "/settings/properties?type=core:customer",
       urlText: __("Go to Properties")
     },
     {

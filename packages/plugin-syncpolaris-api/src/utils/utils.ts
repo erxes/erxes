@@ -7,10 +7,7 @@ interface IParams {
   data?: any;
 }
 
-type CustomFieldType =
-  | "contacts:customer"
-  | "loans:contract"
-  | "savings:contract";
+type CustomFieldType = "core:customer" | "loans:contract" | "savings:contract";
 
 export const fetchPolaris = async (args: IParams) => {
   const { op, data, subdomain } = args;

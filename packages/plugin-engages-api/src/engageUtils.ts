@@ -85,7 +85,7 @@ export const generateCustomerSelector = async (
       if (!segment.contentType.includes("contacts")) {
         options.returnAssociated = {
           mainType: segment.contentType,
-          relType: "contacts:customer"
+          relType: "core:customer"
         };
       }
 
@@ -101,7 +101,7 @@ export const generateCustomerSelector = async (
       if (
         engageId &&
         [
-          "contacts:company",
+          "core:company",
           "sales:deal",
           "tasks:task",
           "tickets:ticket",

@@ -130,7 +130,7 @@ class Actions extends React.Component<Props> {
           "cardDetailAction",
           {
             item,
-            contentType: "cards",
+            contentType: "purchases",
             subType: item.stage?.type,
             path: `stageId=${item.stageId}`
           },

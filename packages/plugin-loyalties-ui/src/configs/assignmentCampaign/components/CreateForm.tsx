@@ -198,7 +198,7 @@ const CreateForm = (props: Props) => {
           <SelectSegments
             name="segmentIds"
             label="Choose segments"
-            contentTypes={["contacts:customer", "contacts:lead"]}
+            contentTypes={["core:customer", "core:lead"]}
             initialValue={assignmentCampaign.segmentIds}
             multi={true}
             onSelect={onChangeSegments}

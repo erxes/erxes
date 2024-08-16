@@ -45,13 +45,14 @@ import {
   isInSegment
 } from "./data/modules/segments/queryBuilder";
 import { fieldsCombinedByContentType } from "./formUtils";
+import { setupContactsMessageBroker } from "./messageBrokers/contacts";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
-  await connectToMessageBroker(connectToMessageBroker);
 };
 
 export const setupMessageConsumers = async (): Promise<void> => {
+  await setupContactsMessageBroker();
   consumeQueue(
     "core:manage-installation-notification",
     async ({
@@ -1251,15 +1252,6 @@ export const sendCardsMessage = (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "cards",
-    ...args
-  });
-};
-
-export const sendContactsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "core",
     ...args
   });
 };
