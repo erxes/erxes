@@ -43,6 +43,8 @@ export const fetchPolaris = async (args: IParams) => {
     );
   }
 
+  console.log(config.apiUrl.protocol === 'http' && new http.Agent({ keepAlive: true }), 'zzzzzzzzz');
+
   try {
     const requestOptions = {
       url: `${config.apiUrl}`,
@@ -56,10 +58,9 @@ export const fetchPolaris = async (args: IParams) => {
       .then(async (response) => {
         if (!response.ok) {
           const respErr = await response.text();
-          console.log(respErr, 'nnnnnnnnnnn')
           throw new Error(respErr);
         }
-        console.log(await response.text(), 'kkkkkkkkkkkkk')
+
         return response.text();
       })
       .then((response) => {
