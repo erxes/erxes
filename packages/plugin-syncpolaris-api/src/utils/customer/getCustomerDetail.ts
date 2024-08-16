@@ -9,11 +9,9 @@ export const getCustomerDetail = async (subdomain: string, params: IParams) => {
 
   let sendData = [params.code];
 
-  const customerDetail = await fetchPolaris({
+  return await fetchPolaris({
     subdomain,
     op: '13610310',
     data: sendData,
   });
-
-  return JSON.parse(customerDetail);
 };

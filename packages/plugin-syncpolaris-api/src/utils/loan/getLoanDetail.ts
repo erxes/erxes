@@ -5,7 +5,7 @@ export const getLoanDetail = async (subdomain, params) => {
     subdomain,
     op: '13610200',
     data: [params.number, 0],
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanDetail;
 };
