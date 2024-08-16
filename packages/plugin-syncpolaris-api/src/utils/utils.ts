@@ -19,7 +19,7 @@ type CustomFieldType =
 export const fetchPolaris = async (args: IParams) => {
   const { op, data, subdomain, models, syncLog } = args;
   if (models && syncLog) {
-    await models.SyncLogs.updateOne({ _id: syncLog._id }, { $set: { sendData: data, sendDataStr: JSON.stringify(data || {}) } })
+    await models.SyncLogs.updateOne({ _id: syncLog._id }, { $set: { sendData: data, sendStr: JSON.stringify(data || {}) } })
   }
 
   const config = await getConfig(subdomain, 'POLARIS', {});
