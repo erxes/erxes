@@ -78,6 +78,7 @@ export const fieldsTypes = `
     products: [Product]
     logics: [Logic]
 
+    ${fieldCommonFields}
     relationType: String
   }
 

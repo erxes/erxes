@@ -55,6 +55,12 @@ import app from "@erxes/api-utils/src/app";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import search from "./search";
 import tags from "./tags";
+import {
+  updateContactsValidationStatus,
+  updateContactValidationStatus
+} from "./data/modules/coc/verifierUtils";
+import { buildFile } from "./exporterByUrl";
+import documents from "./documents";
 
 const {
   JWT_TOKEN_SECRET,
@@ -105,6 +111,8 @@ app.get(
     if (userCount === 0) {
       return res.send("no owner");
     }
+
+    await models.FieldsGroups.createSystemGroupsFields();
 
     if (req.query && req.query.update) {
       const services = await getServices();
@@ -223,6 +231,83 @@ app.get("/read-file", async (req: any, res, next) => {
   }
 });
 
+app.get(
+  "/file-export",
+  routeErrorHandling(async (req: any, res) => {
+    const { query } = req;
+    const { segment } = query;
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    const result = await buildFile(models, subdomain, query);
+
+    res.attachment(`${result.name}.xlsx`);
+
+    if (segment) {
+      try {
+        models.Segments.removeSegment(segment);
+      } catch (e) {
+        console.log((e as Error).message);
+      }
+    }
+
+    return res.send(result.response);
+  })
+);
+
+app.post(
+  `/verifier/webhook`,
+  routeErrorHandling(async (req, res) => {
+    const { emails, phones, email, phone } = req.body;
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    if (email) {
+      await updateContactValidationStatus(models, email);
+    } else if (emails) {
+      await updateContactsValidationStatus(models, "email", emails);
+    } else if (phone) {
+      await updateContactValidationStatus(models, phone);
+    } else if (phones) {
+      await updateContactsValidationStatus(models, "phone", phones);
+    }
+
+    return res.send("success");
+  })
+);
+
+app.get("/verify", async (req, res) => {
+  const { p } = req.query;
+
+  const data = JSON.parse(Buffer.from(p as string, "base64").toString("utf8"));
+
+  const { email, customerId } = data;
+
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const customer = await models.Customers.findOne({ _id: customerId });
+
+  if (!customer) {
+    return res.send("Can not find customer");
+  }
+
+  if (customer.primaryEmail !== email) {
+    return res.send("Customer email does not match");
+  }
+
+  if (customer.emails?.findIndex(e => e === email) === -1) {
+    return res.send("Customer email does not match");
+  }
+
+  await models.Customers.updateOne(
+    { _id: customerId },
+    { $set: { primaryEmail: email, emailValidationStatus: "valid" } }
+  );
+
+  return res.send("Successfully verified, you can close this tab now");
+});
+
 // delete file
 app.post(
   "/delete-file",
@@ -327,6 +412,7 @@ httpServer.listen(PORT, async () => {
     port: PORT,
     hasSubscriptions: false,
     meta: {
+      isSearchable: true,
       logs: { providesActivityLog: true, consumers: logs },
       forms,
       segments,
@@ -336,6 +422,7 @@ httpServer.listen(PORT, async () => {
       permissions: moduleObjects,
       tags,
       imports,
+      documents,
       exporter,
       cronjobs: {
         handle10MinutelyJobAvailable: VERSION === "saas" ? true : false

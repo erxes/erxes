@@ -1,38 +1,48 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 dotenv.config();
 
-import * as cors from 'cors';
-import * as bodyParser from 'body-parser';
-import * as express from 'express';
-import { filterXSS } from 'xss';
-import { buildSubgraphSchema } from '@apollo/subgraph';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import * as cookieParser from 'cookie-parser';
-import { debugInfo, debugError } from '../debuggers';
-import * as http from 'http';
-import { connectToMessageBroker } from '@erxes/api-utils/src/messageBroker';
-import { logConsumers } from '@erxes/api-utils/src/logUtils';
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
-import * as path from 'path';
-import * as ws from 'ws';
+import * as cors from "cors";
+import * as bodyParser from "body-parser";
+import * as express from "express";
+import { filterXSS } from "xss";
+import { buildSubgraphSchema } from "@apollo/subgraph";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import * as cookieParser from "cookie-parser";
+import { debugInfo, debugError } from "../debuggers";
+import * as http from "http";
+import { connectToMessageBroker } from "@erxes/api-utils/src/messageBroker";
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import * as path from "path";
+import * as ws from "ws";
 
 import {
   getServices,
   join,
-  leave,
-} from '@erxes/api-utils/src/serviceDiscovery';
-import { applyInspectorEndpoints } from '../inspect';
-import app from '@erxes/api-utils/src/app';
-import { consumeQueue, consumeRPCQueue } from '../messageBroker';
-import { extractUserFromHeader } from '../headers';
+  leave
+} from "@erxes/api-utils/src/serviceDiscovery";
+import { applyInspectorEndpoints } from "../inspect";
+import app from "@erxes/api-utils/src/app";
+import { consumeQueue, consumeRPCQueue } from "../messageBroker";
+import { extractUserFromHeader } from "../headers";
+import { formConsumers } from "../consumers/forms";
+import { tagConsumers } from "../consumers/tags";
+import { internalNoteConsumers } from "../consumers/internalNotes";
+import { logConsumers } from "../consumers/logs";
+import { importExportCunsomers } from "../consumers/importExport";
+import { automationsCunsomers } from "../consumers/automations";
+import { documentsCunsomer } from "../consumers/documents";
+import { cronjobCunsomers } from "../consumers/cronjobs";
+import { searchCunsomers } from "../consumers/search";
+import { templatesCunsomers } from "../consumers/templates";
+import { segmentsCunsomers } from "../consumers/segments";
+import { reportsCunsomers } from "../consumers/reports";
 
 const { PORT, USE_BRAND_RESTRICTIONS } = process.env;
 
-app.use(bodyParser.json({ limit: '15mb' }));
-app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+app.use(bodyParser.json({ limit: "15mb" }));
+app.use(bodyParser.urlencoded({ limit: "15mb", extended: true }));
 
 export async function startPlugin(configs: any): Promise<express.Express> {
   if (configs.middlewares) {
@@ -62,15 +72,15 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   app.use(cookieParser());
 
   if (configs.hasSubscriptions) {
-    app.get('/subscriptionPlugin.js', async (req, res) => {
+    app.get("/subscriptionPlugin.js", async (req, res) => {
       res.sendFile(path.join(configs.subscriptionPluginPath));
     });
   }
 
   app.use((req: any, _res, next) => {
-    req.rawBody = '';
+    req.rawBody = "";
 
-    req.on('data', chunk => {
+    req.on("data", chunk => {
       req.rawBody += chunk.toString();
     });
 
@@ -109,7 +119,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
   async function leaveServiceDiscovery() {
     try {
-      await leave(configs.name, PORT || '');
+      await leave(configs.name, PORT || "");
       console.log(`Left service discovery. name=${configs.name} port=${PORT}`);
     } catch (e) {
       console.error(e);
@@ -117,7 +127,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   // If the Node process ends, close the Mongoose connection
-  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  (["SIGINT", "SIGTERM"] as NodeJS.Signals[]).forEach(sig => {
     process.on(sig, async () => {
       await closeHttpServer();
       await leaveServiceDiscovery();
@@ -135,12 +145,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       schema: buildSubgraphSchema([
         {
           typeDefs,
-          resolvers,
-        },
+          resolvers
+        }
       ]),
 
       // for graceful shutdown
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
     });
   };
 
@@ -148,12 +158,12 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   await apolloServer.start();
 
   app.use(
-    '/graphql',
+    "/graphql",
     expressMiddleware(apolloServer, {
       context: async ({ req, res }) => {
         if (
-          req.body.operationName === 'IntrospectionQuery' ||
-          req.body.operationName === 'SubgraphIntrospectQuery'
+          req.body.operationName === "IntrospectionQuery" ||
+          req.body.operationName === "SubgraphIntrospectQuery"
         ) {
           return {};
         }
@@ -161,7 +171,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         let context;
 
-        if (USE_BRAND_RESTRICTIONS !== 'true') {
+        if (USE_BRAND_RESTRICTIONS !== "true") {
           context = {
             brandIdSelector: {},
             singleBrandIdSelector: {},
@@ -169,10 +179,10 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             docModifier: doc => doc,
             commonQuerySelector: {},
             user,
-            res,
+            res
           };
         } else {
-          let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+          let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || "[]");
           let brandIds = [];
           let brandIdSelector = {};
           let commonQuerySelector = {};
@@ -204,14 +214,14 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             commonQuerySelectorElk,
             userBrandIdsSelector,
             user,
-            res,
+            res
           };
         }
 
         await configs.apolloServerContext(context, req, res);
 
         return context;
-      },
+      }
     })
   );
 
@@ -222,7 +232,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   if (configs.freeSubscriptions) {
     const wsServer = new ws.Server({
       server: httpServer,
-      path: '/subscriptions',
+      path: "/subscriptions"
     });
 
     await configs.freeSubscriptions(wsServer);
@@ -253,125 +263,28 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       payment,
       reports,
       templates,
-      cpCustomerHandle,
+      cpCustomerHandle
     } = configs.meta;
 
     const logs = configs.meta.logs && configs.meta.logs.consumers;
 
     if (segments) {
-      if (segments.propertyConditionExtender) {
-        segments.propertyConditionExtenderAvailable = true;
-
-        consumeRPCQueue(
-          `${configs.name}:segments.propertyConditionExtender`,
-          segments.propertyConditionExtender
-        );
-      }
-
-      if (segments.associationFilter) {
-        segments.associationFilterAvailable = true;
-
-        consumeRPCQueue(
-          `${configs.name}:segments.associationFilter`,
-          segments.associationFilter
-        );
-      }
-
-      if (segments.esTypesMap) {
-        segments.esTypesMapAvailable = true;
-
-        consumeRPCQueue(
-          `${configs.name}:segments.esTypesMap`,
-          segments.esTypesMap
-        );
-      }
-
-      if (segments.initialSelector) {
-        segments.initialSelectorAvailable = true;
-
-        consumeRPCQueue(
-          `${configs.name}:segments.initialSelector`,
-          segments.initialSelector
-        );
-      }
+      segmentsCunsomers({ name: configs.name, segments });
     }
 
     if (logs) {
       logConsumers({
         name: configs.name,
-        getActivityContent: logs.getActivityContent,
-        getContentTypeDetail: logs.getContentTypeDetail,
-        collectItems: logs.collectItems,
-        getContentIds: logs.getContentIds,
-        getSchemalabels: logs.getSchemaLabels,
+        logs
       });
     }
 
     if (forms) {
-      if (forms.fields) {
-        consumeRPCQueue(`${configs.name}:fields.getList`, async args => ({
-          status: 'success',
-          data: await forms.fields(args),
-        }));
-      }
-
-      if (forms.groupsFilter) {
-        consumeRPCQueue(`${configs.name}:fields.groupsFilter`, async args => ({
-          status: 'success',
-          data: await forms.groupsFilter(args),
-        }));
-      }
-
-      if (forms.systemFields) {
-        forms.systemFieldsAvailable = true;
-
-        consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
-          status: 'success',
-          data: await forms.systemFields(args),
-        }));
-      }
-
-      if (forms.fieldsGroupsHook) {
-        forms.groupsHookAvailable = true;
-
-        consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
-          status: 'success',
-          data: await forms.fieldsGroupsHook(args),
-        }));
-      }
-
-      if (forms.relations) {
-        forms.relationsAvailable = true;
-
-        consumeRPCQueue(`${configs.name}:relations`, async args => ({
-          status: 'success',
-          data: await forms.relations(args),
-        }));
-      }
+      formConsumers({ name: configs.name, forms });
     }
 
     if (tags) {
-      if (tags.tag) {
-        consumeRPCQueue(`${configs.name}:tag`, async args => ({
-          status: 'success',
-          data: await tags.tag(args),
-        }));
-      }
-
-      if (tags.publishChange) {
-        tags.publishChangeAvailable = true;
-
-        consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
-          status: 'success',
-          data: await tags.publishChange(args),
-        }));
-      }
-      if (tags.fixRelatedItems) {
-        consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
-          status: 'success',
-          data: await tags.fixRelatedItems(args),
-        }));
-      }
+      tagConsumers({ name: configs.name, tags });
     }
 
     if (webhooks) {
@@ -379,8 +292,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         webhooks.getInfoAvailable = true;
 
         consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async args => ({
-          status: 'success',
-          data: await webhooks.getInfo(args),
+          status: "success",
+          data: await webhooks.getInfo(args)
         }));
       }
     }
@@ -388,115 +301,22 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (internalNotes) {
       internalNoteConsumers({
         name: configs.name,
-        generateInternalNoteNotif: internalNotes.generateInternalNoteNotif,
+        internalNotes
       });
     }
 
-    if (imports) {
-      if (imports.prepareImportDocs) {
-        consumeRPCQueue(
-          `${configs.name}:imports.prepareImportDocs`,
-          async args => ({
-            status: 'success',
-            data: await imports.prepareImportDocs(args),
-          })
-        );
-      }
-
-      if (imports.insertImportItems) {
-        consumeRPCQueue(
-          `${configs.name}:imports.insertImportItems`,
-          async args => ({
-            status: 'success',
-            data: await imports.insertImportItems(args),
-          })
-        );
-      }
-    }
-
-    if (exporter) {
-      if (exporter.prepareExportData) {
-        consumeRPCQueue(
-          `${configs.name}:exporter.prepareExportData`,
-          async args => ({
-            status: 'success',
-            data: await exporter.prepareExportData(args),
-          })
-        );
-      }
-
-      if (exporter.getExportDocs) {
-        consumeRPCQueue(
-          `${configs.name}:exporter.getExportDocs`,
-          async args => ({
-            status: 'success',
-            data: await exporter.getExportDocs(args),
-          })
-        );
-      }
-    }
+    importExportCunsomers({ name: configs.name, imports, exporter });
 
     if (automations) {
-      if (automations.receiveActions) {
-        consumeRPCQueue(
-          `${configs.name}:automations.receiveActions`,
-          async args => ({
-            status: 'success',
-            data: await automations.receiveActions(args),
-          })
-        );
-      }
-      if (automations?.getRecipientsEmails) {
-        consumeRPCQueue(
-          `${configs.name}:automations.getRecipientsEmails`,
-          async args => ({
-            status: 'success',
-            data: await automations.getRecipientsEmails(args),
-          })
-        );
-      }
-      if (automations?.replacePlaceHolders) {
-        consumeRPCQueue(
-          `${configs.name}:automations.replacePlaceHolders`,
-          async args => ({
-            status: 'success',
-            data: await automations.replacePlaceHolders(args),
-          })
-        );
-      }
-      if (automations?.checkCustomTrigger) {
-        consumeRPCQueue(
-          `${configs.name}:automations.checkCustomTrigger`,
-          async args => ({
-            status: 'success',
-            data: await automations.checkCustomTrigger(args),
-          })
-        );
-      }
+      automationsCunsomers({ name: configs.name, automations });
     }
 
     if (reports) {
-      if (reports.getChartResult) {
-        consumeRPCQueue(
-          `${configs.name}:reports.getChartResult`,
-          async args => ({
-            status: 'success',
-            data: await reports.getChartResult(args),
-          })
-        );
-      }
+      reportsCunsomers({ name: configs.name, reports });
     }
 
     if (templates) {
-      if (templates.useTemplate) {
-        consumeRPCQueue(
-          `${configs.name}:templates.useTemplate`,
-          async args => ({
-            status: 'success',
-            data: await templates.useTemplate(args),
-          })
-        );
-      }
+      templatesCunsomers({ name: configs.name, templates });
     }
 
     if (initialSetup) {
@@ -504,96 +324,35 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         initialSetup.generateAvailable = true;
 
         consumeQueue(`${configs.name}:initialSetup`, async args => ({
-          status: 'success',
-          data: await initialSetup.generate(args),
+          status: "success",
+          data: await initialSetup.generate(args)
         }));
 
-        app.post('/initial-setup', async (req, res) => {
+        app.post("/initial-setup", async (req, res) => {
           await initialSetup.generate({ subdomain: getSubdomain(req) });
-          return res.end('ok');
+          return res.end("ok");
         });
       }
     }
 
     if (search) {
-      configs.meta.isSearchable = true;
-
-      consumeRPCQueue(`${configs.name}:search`, async args => ({
-        status: 'success',
-        data: await search(args),
-      }));
+      searchCunsomers({ name: configs.name, search });
     }
 
     if (cronjobs) {
-      if (cronjobs.handleMinutelyJob) {
-        cronjobs.handleMinutelyJobAvailable = true;
-
-        consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
-          status: 'success',
-          data: await cronjobs.handleMinutelyJob(args),
-        }));
-      }
-
-      if (cronjobs.handle10MinutelyJob) {
-        cronjobs.handle10MinutelyJobAvailable = true;
-
-        consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
-          status: 'success',
-          data: await cronjobs.handle10MinutelyJob(args),
-        }));
-      }
-
-      if (cronjobs.handleHourlyJob) {
-        cronjobs.handleHourlyJobAvailable = true;
-
-        consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
-          status: 'success',
-          data: await cronjobs.handleHourlyJob(args),
-        }));
-      }
-
-      if (cronjobs.handleDailyJob) {
-        cronjobs.handleDailyJobAvailable = true;
-
-        consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
-          status: 'success',
-          data: await cronjobs.handleDailyJob(args),
-        }));
-      }
+      cronjobCunsomers({ name: configs.name, cronjobs });
     }
 
     if (documents) {
-      consumeRPCQueue(
-        `${configs.name}:documents.editorAttributes`,
-        async args => ({
-          status: 'success',
-          data: await documents.editorAttributes(args),
-        })
-      );
-
-      consumeRPCQueue(
-        `${configs.name}:documents.replaceContent`,
-        async args => ({
-          status: 'success',
-          data: await documents.replaceContent(args),
-        })
-      );
-
-      consumeRPCQueue(
-        `${configs.name}:documents.replaceContentFields`,
-        async args => ({
-          status: 'success',
-          data: await documents.replaceContentFields(args),
-        })
-      );
+      documentsCunsomer({ name: configs.name, documents });
     }
 
     if (readFileHook) {
       readFileHook.isAvailable = true;
 
       consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
-        status: 'success',
-        data: await readFileHook.action(args),
+        status: "success",
+        data: await readFileHook.action(args)
       }));
     }
 
@@ -601,8 +360,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       documentPrintHook.isAvailable = true;
 
       consumeRPCQueue(`${configs.name}:documentPrintHook`, async args => ({
-        status: 'success',
-        data: await documentPrintHook.action(args),
+        status: "success",
+        data: await documentPrintHook.action(args)
       }));
     }
 
@@ -610,8 +369,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (payment.callback) {
         payment.callbackAvailable = true;
         consumeQueue(`${configs.name}:paymentCallback`, async args => ({
-          status: 'success',
-          data: await payment.callback(args),
+          status: "success",
+          data: await payment.callback(args)
         }));
       }
 
@@ -620,8 +379,8 @@ export async function startPlugin(configs: any): Promise<express.Express> {
         consumeQueue(
           `${configs.name}:paymentTransactionCallback`,
           async args => ({
-            status: 'success',
-            data: await payment.transactionCallback(args),
+            status: "success",
+            data: await payment.transactionCallback(args)
           })
         );
       }
@@ -629,18 +388,18 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
     if (cpCustomerHandle) {
       consumeQueue(`${configs.name}:cpCustomerHandle`, async args => ({
-        status: 'success',
-        data: await cpCustomerHandle.cpCustomerHandle(args),
+        status: "success",
+        data: await cpCustomerHandle.cpCustomerHandle(args)
       }));
     }
   } // end configs.meta if
 
   await join({
     name: configs.name,
-    port: PORT || '',
+    port: PORT || "",
     hasSubscriptions: configs.hasSubscriptions,
     importExportTypes: configs.importExportTypes,
-    meta: configs.meta,
+    meta: configs.meta
   });
 
   configs.onServerInit();

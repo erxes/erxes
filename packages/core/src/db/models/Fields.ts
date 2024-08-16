@@ -527,6 +527,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         defaultValue: []
       });
 
+      console.log(fields, type, serviceName, groupId);
+
       await models.Fields.insertMany(fields);
     }
 

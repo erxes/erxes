@@ -19,7 +19,7 @@ const prepareData = async (
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
-  const boardItemsFilter: any = {};
+  const itemsFilter: any = {};
   let itemIds = [];
   const skip = (page - 1) * perPage;
 
@@ -31,17 +31,17 @@ const prepareData = async (
       perPage
     });
 
-    boardItemsFilter._id = { $in: itemIds };
+    itemsFilter._id = { $in: itemIds };
   }
 
   if (!segmentData) {
-    data = await models.Users.find(boardItemsFilter)
+    data = await models.Users.find(itemsFilter)
       .skip(skip)
       .limit(perPage)
       .lean();
   }
 
-  data = await models.Users.find(boardItemsFilter).lean();
+  data = await models.Users.find(itemsFilter).lean();
 
   return data;
 };

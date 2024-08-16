@@ -11,11 +11,12 @@ export const field = {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Fields.findOne({ _id });
   },
+
   name(root: IFieldDocument) {
     return `erxes-form-field-${root._id}`;
   },
 
-  lastUpdatedUser(root: IFieldDocument, _params, { models }: IContext) {
+  async lastUpdatedUser(root: IFieldDocument, _params, { models }: IContext) {
     const { lastUpdatedUserId } = root;
 
     if (!lastUpdatedUserId) {
@@ -94,7 +95,7 @@ export const fieldsGroup = {
     return fields;
   },
 
-  lastUpdatedUser(
+  async lastUpdatedUser(
     fieldGroup: IFieldGroupDocument,
     _params,
     { models }: IContext

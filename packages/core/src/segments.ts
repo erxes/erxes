@@ -101,7 +101,7 @@ export default {
     } else {
       const serviceName = getServiceName(propertyType);
 
-      if (serviceName === "contacts") {
+      if (propertyType.includes("customers", "company")) {
         return { data: [], status: "error" };
       }
 
