@@ -93,7 +93,7 @@ function Detail(props: IProps) {
     let members =
       typeof waitingList === 'string'
         ? JSON.parse(waitingList).member
-        : waitingList?.member || [];
+        : waitingList?.member;
 
     let initialMembers =
       typeof initialWaitingCall === 'string'
@@ -104,10 +104,7 @@ function Detail(props: IProps) {
         <>
           <Header>Waiting</Header>
           <DataWithLoader
-            data={renderTable(
-              members.length > 0 ? members : initialMembers,
-              true,
-            )}
+            data={renderTable(members || initialMembers, true)}
             loading={false}
             count={1}
             emptyText={'There are no waiting calls'}
@@ -122,8 +119,7 @@ function Detail(props: IProps) {
     const members =
       typeof proceedingList === 'string'
         ? JSON.parse(proceedingList).member
-        : proceedingList?.member || [];
-
+        : proceedingList?.member;
     let initialMembers =
       typeof initialTalkingCall === 'string'
         ? JSON.parse(initialTalkingCall).member
@@ -133,10 +129,7 @@ function Detail(props: IProps) {
       <GridItem>
         <Header>Talking</Header>
         <DataWithLoader
-          data={renderTable(
-            members.length > 0 ? members : initialMembers,
-            false,
-          )}
+          data={renderTable(members || initialMembers, false)}
           loading={false}
           count={1}
           emptyText={'There are no active calls'}
