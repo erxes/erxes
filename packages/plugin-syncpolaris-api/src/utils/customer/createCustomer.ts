@@ -1,9 +1,10 @@
+import { ISyncLogDocument } from "../../models/definitions/syncLog";
 import { customFieldToObject, updateCustomer, fetchPolaris } from "../utils";
 import { getCustomerDetailByRegister } from "./getCustomerDetailByRegister";
 import { IPolarisCustomer } from "./types";
 import { validateObject } from "./validator";
 
-export const createCustomer = async (subdomain: string, params) => {
+export const createCustomer = async (subdomain: string, models, syncLog: ISyncLogDocument, params) => {
   const customer = params.updatedDocument || params.object;
 
   const data = await customFieldToObject(
@@ -47,10 +48,13 @@ export const createCustomer = async (subdomain: string, params) => {
 
   await validateObject(sendData);
 
+
   const customerCode = await fetchPolaris({
     subdomain,
     op: "13610313",
     data: [sendData],
+    models,
+    syncLog
   }).catch(async (e) => {
     //check register number duplicated
     if (e.message.includes("41020330")) {

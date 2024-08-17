@@ -10,11 +10,11 @@ import {
 import { createChangeLoanAmount } from './changeLoanAmount';
 import { changeLoanInterest } from './changeLoanInterest';
 
-export const updateLoan = async (subdomain, params) => {
+export const updateLoan = async (subdomain, models,syncLog, params) => {
   const loan = params.updatedDocument || params.object;
 
-  if(JSON.stringify(loan.collateralsData)!== JSON.stringify(params.object.collateralsData)){
-    return createCollateral(subdomain,loan)
+  if (JSON.stringify(loan.collateralsData) !== JSON.stringify(params.object.collateralsData)) {
+    return createCollateral(subdomain, loan)
   }
 
   if (params.updatedDocument.leaseAmount !== params.object.leaseAmount) {
@@ -43,7 +43,7 @@ export const updateLoan = async (subdomain, params) => {
       custCode: customer.code,
       name: `${customer.code} ${customer.firstName} ${customer.code} ${customer.lastName}`,
       name2: loan.custCode,
-      prodCode: loanProduct.code,
+      prodCode: loanProduct?.code,
       prodType: 'LOAN',
       purpose: loan.purpose ?? 'PURP00000022',
       subPurpose: loan.subPurpose ?? 'SUBPURP00070',
@@ -54,7 +54,7 @@ export const updateLoan = async (subdomain, params) => {
       approvAmount: loan.leaseAmount,
       impairmentPer: 0,
       approvDate: loan.startDate,
-      acntManager: leasingExpert.employeeId,
+      acntManager: leasingExpert?.employeeId,
       brchCode: branch.code,
       startDate: loan.startDate,
       endDate: loan.endDate,
@@ -81,6 +81,8 @@ export const updateLoan = async (subdomain, params) => {
     op: '13610282',
     data: sendData,
     subdomain,
+    models,
+    syncLog
   });
 
   if (typeof result === 'string') {

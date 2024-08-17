@@ -16,7 +16,7 @@ export const getLoanContractTypes = async (subdomain, params) => {
       0,
       25,
     ],
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanContractTypes;
 };
