@@ -64,12 +64,17 @@ const TransactionForm = (props: Props) => {
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(
-    transactions && transactions.length && transactions.filter(tr => !tr.originId) ||
+    transactions?.length && transactions.filter(tr => !tr.originId) ||
     (defaultJournal && [
       journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
     ]) ||
     []
   );
+
+  const [followTrDocs, setFollowTrDocs] = useState<ITransaction[]>(
+    transactions?.length && transactions.filter(tr => tr.originId) || []
+  )
+
   const [currentTransaction, setCurrentTransaction] = useState(
     trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
   );
@@ -77,7 +82,7 @@ const TransactionForm = (props: Props) => {
   const balance: { dt: number; ct: number; diff?: number; side?: string } = useMemo(() => {
     const result = { dt: 0, ct: 0 };
 
-    trDocs.forEach((tr) => {
+    [...trDocs, ...followTrDocs].forEach((tr) => {
       let sumDt = 0;
       let sumCt = 0;
       (tr.details || []).forEach((detail) => {
@@ -142,6 +147,7 @@ const TransactionForm = (props: Props) => {
 
   const onRemoveTr = (id) => {
     setTrDocs(trDocs.filter((tr) => tr._id !== id));
+    setFollowTrDocs(followTrDocs.filter(tr => tr.originId !== id));
     if (currentTransaction?._id === id) {
       setCurrentTransaction(trDocs[0]);
     }
@@ -211,6 +217,7 @@ const TransactionForm = (props: Props) => {
           configsMap={configsMap}
           transactions={originTrs}
           trDoc={trDoc}
+          followTrDocs={followTrDocs.filter(tr => tr.originId === trDoc._id)}
           setTrDoc={onEditTr}
         />
       </Box>

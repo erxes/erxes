@@ -79,6 +79,8 @@ export interface ITransaction {
   createdAt?: Date;
   modifiedAt?: Date;
 
+  followInfos?: any;
+
   hasVat?: boolean;
   vatRowId?: string;
   afterVat?: boolean;

@@ -25,8 +25,10 @@ type Props = {
   configsMap: IConfigsMap;
   transactions?: ITransaction[];
   trDoc: ITransaction;
+  followTrDocs: ITransaction[];
   queryParams: IQueryParams;
   setTrDoc: (trDoc: ITransaction) => void;
+  setFollowTrDocs: (followTrDocs: ITransaction[]) => void;
 };
 
 const TrFormMain = (props: Props) => {
