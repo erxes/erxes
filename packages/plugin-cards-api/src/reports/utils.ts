@@ -113,6 +113,19 @@ export const buildAction = (measures: string[]): object => {
     return actions;
 }
 
+export const extraFields = (dimensions, type) => {
+
+    const fields = {};
+
+    if (type === 'group')
+
+        if (dimensions?.includes('field')) {
+            fields["fieldType"] = { $first: "$field.type" }
+        }
+
+    return fields
+}
+
 const buildFormatType = (dateRange, startDate, endDate) => {
     let formatType = "%Y"
 
@@ -243,9 +256,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         pipeline.push({ $unwind: "$assignedUserIds" });
     }
 
-    if (dimensions.includes("property")) {
+    if (dimensions.includes("field")) {
         pipeline.push(
             { $unwind: "$customFieldsData" },
+            { $unwind: "$customFieldsData.value" },
             {
                 $lookup: {
                     from: "form_fields",
@@ -500,6 +514,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         groupKeys.cardName = "$name";
     }
 
+    if (dimensions.includes("field")) {
+        groupKeys.field = "$customFieldsData.value";
+    }
+
     if (dimensions.includes("label")) {
         groupKeys.labelId = "$labelIds";
     }
@@ -609,6 +627,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         $group: {
             _id: groupKeys,
             ...buildAction(measures),
+            ...extraFields(dimensions, 'group')
         }
     });
 
@@ -958,6 +977,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const projectionFields: any = {
         _id: 0,
+        ...extraFields(dimensions, 'project')
     };
 
     measures.forEach((measure) => {
@@ -970,6 +990,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     if (dimensions.includes("tag")) {
         projectionFields.tag = "$tag.name";
+    }
+
+    if (dimensions.includes("field")) {
+        projectionFields.field = "$_id.field"
     }
 
     if (dimensions.includes("card")) {
@@ -1261,6 +1285,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         labelIds,
         groupIds,
         fieldIds,
+        assetIds,
         dateRange,
         dueDateRange,
         integrationTypes,
@@ -1449,6 +1474,11 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
     }
 
+    // CUSTOM PROPERTIES FIELD FILTER 
+    if (assetIds?.length) {
+        matchfilter['customFieldsData.value'] = { $in: assetIds };
+    }
+
     // DATE FILTER
     if (dateRange) {
         const { startDate, endDate, dateRangeType = 'createdAt' } = filter;
@@ -1565,6 +1595,8 @@ export const formatFrequency = (frequencyType, frequency) => {
 }
 
 export const formatData = (data, filter) => {
+
+    console.log('data', data)
 
     const { dateRange, startDate, endDate, frequencyType } = filter
 

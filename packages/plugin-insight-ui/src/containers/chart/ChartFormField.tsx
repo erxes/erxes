@@ -155,7 +155,7 @@ const ChartFormFieldWrapper = (props: Props) => {
     });
 
     useEffect(() => {
-      if (!loading) {
+      if (!loading && queryData) {
         setParentData(queryData[fieldParentQuery] || [])
       }
     }, [loading])

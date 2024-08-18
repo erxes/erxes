@@ -36,6 +36,7 @@ const DIMENSION_OPTIONS = [
     { label: 'Stage changed at', value: 'stageChangedDate' },
     { label: 'Start Date', value: 'startDate' },
     { label: 'Close Date', value: 'closeDate' },
+    { label: 'Custom Propertry', value: 'field' },
 ];
 
 export const dealCharts = [
@@ -629,9 +630,7 @@ export const dealCharts = [
                     $unwind: "$customFieldsData",
                 },
                 {
-                    $match: {
-                        ...matchFilter
-                    },
+                    $unwind: "$customFieldsData.value",
                 },
                 {
                     $lookup: {
@@ -645,45 +644,29 @@ export const dealCharts = [
                     $unwind: "$field",
                 },
                 {
+                    $match: {
+                        ...matchFilter
+                    },
+                },
+                {
                     $group: {
-                        _id: "$customFieldsData.field",
-                        field: { $first: "$field.text" },
-                        fieldType: { $first: "$field.type" },
-                        fieldOptions: { $first: "$field.options" },
-                        selectedOptions: { $push: "$customFieldsData.value" },
+                        _id: "$customFieldsData.value",
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        field: "$_id",
+                        count: 1,
                     },
                 },
             ]
 
             const deals = await models.Deals.aggregate(pipeline)
 
-            const totalCountByCustomProperties = (deals || []).reduce((acc, { 
-                fieldType,
-                fieldOptions,
-                selectedOptions,
-            }) => {
-
-                (selectedOptions || []).map(selectedOption => {
-                    if (fieldType === 'multiSelect') {
-                        const optionArray = (selectedOption || '').split(',');
-                        optionArray.forEach(opt => {
-                            if (fieldOptions.includes(opt)) {
-                                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
-                            }
-                        });
-                    } else if (Array.isArray(selectedOption)) {
-                        selectedOption.flatMap(option => {
-                            if (fieldOptions.includes(option)) {
-                                acc[option] = (acc[option] || 0) + 1
-                            }
-                        })
-                    } else if (fieldOptions.includes(selectedOption)) {
-                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
-                    } else {
-                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
-                    }
-                })
-
+            const totalCountByCustomProperties = (deals || []).reduce((acc, { count, field }) => {
+                acc[field] = count;
                 return acc;
             }, {});
 
@@ -2865,6 +2848,8 @@ export const dealCharts = [
             const pipeline = buildPipeline(filter, "deal", matchFilter)
             const deals = await models.Deals.aggregate(pipeline)
 
+            console.log(util.inspect(pipeline, false, null, true))
+
             const title = 'Total Deals Count';
 
             return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
@@ -3136,6 +3121,16 @@ export const dealCharts = [
                 fieldType: 'input',
                 fieldAttributes: [{ name: 'target', type: 'number', min: 0, placeholder: 'Target' }],
                 fieldLabel: 'Target',
+            },
+            // Asset filter
+            {
+                fieldName: 'assetIds',
+                fieldType: 'select',
+                multi: true,
+                fieldQuery: 'assets',
+                fieldValueVariable: '_id',
+                fieldLabelVariable: 'name',
+                fieldLabel: 'Select Asset',
             },
             // DATE RANGE TYPE FILTER
             {
