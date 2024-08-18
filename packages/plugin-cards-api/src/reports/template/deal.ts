@@ -2848,8 +2848,6 @@ export const dealCharts = [
             const pipeline = buildPipeline(filter, "deal", matchFilter)
             const deals = await models.Deals.aggregate(pipeline)
 
-            console.log(util.inspect(pipeline, false, null, true))
-
             const title = 'Total Deals Count';
 
             return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
@@ -2892,12 +2890,12 @@ export const dealCharts = [
             {
                 fieldName: 'userType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
-                    },
-                ],
+                // logics: [
+                //     {
+                //         logicFieldName: 'dimension',
+                //         logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
+                //     },
+                // ],
                 multi: false,
                 fieldDefaultValue: 'userId',
                 fieldOptions: USER_TYPES,
@@ -2907,12 +2905,12 @@ export const dealCharts = [
             {
                 fieldName: 'userIds',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
-                    },
-                ],
+                // logics: [
+                //     {
+                //         logicFieldName: 'dimension',
+                //         logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
+                //     },
+                // ],
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',
@@ -3121,16 +3119,6 @@ export const dealCharts = [
                 fieldType: 'input',
                 fieldAttributes: [{ name: 'target', type: 'number', min: 0, placeholder: 'Target' }],
                 fieldLabel: 'Target',
-            },
-            // Asset filter
-            {
-                fieldName: 'assetIds',
-                fieldType: 'select',
-                multi: true,
-                fieldQuery: 'assets',
-                fieldValueVariable: '_id',
-                fieldLabelVariable: 'name',
-                fieldLabel: 'Select Asset',
             },
             // DATE RANGE TYPE FILTER
             {

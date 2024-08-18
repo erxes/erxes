@@ -1,4 +1,4 @@
-import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendTagsMessage } from "../messageBroker";
+import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
 import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
@@ -113,19 +113,6 @@ export const buildAction = (measures: string[]): object => {
     return actions;
 }
 
-export const extraFields = (dimensions, type) => {
-
-    const fields = {};
-
-    if (type === 'group')
-
-        if (dimensions?.includes('field')) {
-            fields["fieldType"] = { $first: "$field.type" }
-        }
-
-    return fields
-}
-
 const buildFormatType = (dateRange, startDate, endDate) => {
     let formatType = "%Y"
 
@@ -161,6 +148,8 @@ export const buildPipeline = (filter, type, matchFilter) => {
     const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
 
     const pipeline: any[] = [];
+
+    const actions = buildAction(measures)
 
     const formatType = buildFormatType(dateRange, startDate, endDate)
 
@@ -626,8 +615,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({
         $group: {
             _id: groupKeys,
-            ...buildAction(measures),
-            ...extraFields(dimensions, 'group')
+            ...actions,
         }
     });
 
@@ -977,7 +965,6 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const projectionFields: any = {
         _id: 0,
-        ...extraFields(dimensions, 'project')
     };
 
     measures.forEach((measure) => {
@@ -1296,7 +1283,34 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     // USER FILTER
     if (userIds?.length) {
         const { userType = 'userId' } = filter;
-        matchfilter[userType] = { $in: userIds };
+
+        if (userType === "closedBy") {
+
+            const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+
+            const logs = await sendLogsMessage({
+                subdomain,
+                action: 'activityLogs.findMany',
+                data: {
+                    query: {
+                        contentType: `cards:${type}`,
+                        createdBy: { $in: userIds },
+                        'content.destinationStageId': { $in: stageIds },
+                        action: 'moved',
+                    },
+                },
+                isRPC: true,
+                defaultValue: [],
+            });
+
+            const contentIds = (logs || []).map(log => log.contentId);
+
+            matchfilter['_id'] = { $in: contentIds };
+
+        } else {
+            matchfilter[userType] = { $in: userIds };
+        }
+
     }
 
     // BRANCH FILTER
@@ -1595,8 +1609,6 @@ export const formatFrequency = (frequencyType, frequency) => {
 }
 
 export const formatData = (data, filter) => {
-
-    console.log('data', data)
 
     const { dateRange, startDate, endDate, frequencyType } = filter
 
