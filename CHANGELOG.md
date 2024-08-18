@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.0-rc.0](https://github.com/erxes/erxes/compare/1.14.2...2.0.0-rc.0) (2024-08-18)
+
+
+### Bug Fixes
+
+* **core:** add error handler in experience customCode ([c4c4851](https://github.com/erxes/erxes/commit/c4c485142c2f441fca16d7226c26663d3788af59))
+* fix typescript any types ([6f254b6](https://github.com/erxes/erxes/commit/6f254b654973f79036a6b30c810f0e386ff9f61a))
+
 <<<<<<< HEAD
 ## [1.15.0-rc.1](https://github.com/erxes/erxes/compare/1.15.0-rc.0...1.15.0-rc.1) (2024-07-19)
 =======
