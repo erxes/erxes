@@ -6,7 +6,7 @@ on:
       - "dev"
       - master
       - rc
-      - "staging"
+      - v2
     paths:
       - "packages/api-utils/**"
       - "packages/workers/**"
