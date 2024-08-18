@@ -50,6 +50,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
     "csv-parser": "^3.0.0",
+    "dayjs": "^1.11.12",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
     "firebase-admin": "^12.1.1",
