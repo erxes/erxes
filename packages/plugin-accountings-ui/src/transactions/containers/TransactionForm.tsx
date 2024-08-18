@@ -5,13 +5,12 @@ import { useNavigate } from "react-router-dom";
 import {
   AddTransactionsMutationResponse,
   EditTransactionsMutationResponse,
-  ITransaction,
   TransactionDetailQueryResponse,
 } from "../types";
 import TransactionForm from "../components/TransactionForm";
 import { mutations, queries } from "../graphql";
 import { queries as configsQueries } from "../../settings/configs/graphql";
-import { AccountingsConfigsQueryResponse, IAccountingsConfig } from "../../settings/configs/types";
+import { AccountingsConfigsQueryResponse } from "../../settings/configs/types";
 
 type Props = {
   parentId?: string;
@@ -32,7 +31,7 @@ const PosContainer = (props: Props) => {
     gql(queries.transactionDetail),
     {
       skip: !parentId,
-      fetchPolicy: "network-only",
+      fetchPolicy: "cache-and-network",
       variables: {
         _id: parentId || ""
       },
@@ -42,8 +41,12 @@ const PosContainer = (props: Props) => {
   const [addTransactionsMutation] = useMutation<AddTransactionsMutationResponse>(
     gql(mutations.transactionsCreate)
   );
-  const [editTransactionsMutation] = useMutation<EditTransactionsMutationResponse>(
-    gql(mutations.transactionsUpdate)
+
+  const [editTransactionsMutation, mutationResponse] = useMutation<EditTransactionsMutationResponse>(
+    gql(mutations.transactionsUpdate),
+    {
+      refetchQueries: ['transactionDetail'],
+    }
   );
 
   if ((trDetailQuery && trDetailQuery.loading) || (configsQuery && configsQuery.loading)) {
@@ -126,9 +129,8 @@ const PosContainer = (props: Props) => {
         trDocs: trDocs,
       },
     })
-      .then((data) => {
+      .then(() => {
         if (!parentId) {
-          transactions = data.data.transactionsCreate as ITransaction[];
           const newParentId = (transactions || [])[0]?.parentId
           Alert.success("You successfully created transactions");
 
@@ -137,8 +139,6 @@ const PosContainer = (props: Props) => {
           });
         } else {
           Alert.success("You successfully updated transactions");
-          transactions = data.data.transactionUpdate as ITransaction[];
-          trDetailQuery.refetch()
         }
       })
 

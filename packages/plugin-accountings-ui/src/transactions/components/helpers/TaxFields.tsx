@@ -57,8 +57,6 @@ const TaxFields = (props: Props) => {
     });
   }
 
-  console.log(sumVatAmount, sumCtaxAmount, sumPercent)
-
   const renderVat = () => {
     if (!configsMap.HasVat && !trDoc.hasVat) {
       return null;

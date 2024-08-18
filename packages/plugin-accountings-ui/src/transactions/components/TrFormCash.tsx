@@ -27,20 +27,19 @@ type Props = {
   trDoc: ITransaction;
   followTrDocs: ITransaction[];
   queryParams: IQueryParams;
-  setTrDoc: (trDoc: ITransaction) => void;
-  setFollowTrDocs: (followTrDocs: ITransaction[]) => void;
+  setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
 };
 
 const TrFormMain = (props: Props) => {
-  const { trDoc, setTrDoc, configsMap } = props;
+  const { trDoc, setTrDoc, configsMap, followTrDocs } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
   const onChange = (key, value) => {
-    setTrDoc({ ...trDoc, [key]: value });
+    setTrDoc({ ...trDoc, [key]: value }, followTrDocs);
   }
 
   const onChangeDetail = (key, value) => {
-    setTrDoc({ ...trDoc, details: [{ ...detail, [key]: value }] });
+    setTrDoc({ ...trDoc, details: [{ ...detail, [key]: value }] }, followTrDocs);
   }
 
   const onAccountChange = (accountId, obj?: IAccount) => {
@@ -49,7 +48,7 @@ const TrFormMain = (props: Props) => {
       branchId: obj?.branchId,
       departmentId: obj?.departmentId,
       details: [{ ...detail, accountId, account: obj }]
-    });
+    }, followTrDocs);
   }
 
   const renderCustomerChooser = () => {

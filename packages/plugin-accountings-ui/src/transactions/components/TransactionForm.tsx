@@ -156,7 +156,7 @@ const TransactionForm = (props: Props) => {
     }
   };
 
-  const onEditTr = (trDoc: ITransaction) => {
+  const onEditTr = (trDoc: ITransaction, fTrDocs?: ITransaction[]) => {
     setTrDocs(
       trDocs.map((tr) => {
         if (tr._id === trDoc._id) {
@@ -166,6 +166,34 @@ const TransactionForm = (props: Props) => {
         }
       })
     );
+
+    const oldFollowTrs = followTrDocs.filter(ftr => ftr.originId === trDoc._id);
+
+    if (!oldFollowTrs.length && !fTrDocs?.length) {
+      return;
+    }
+
+    const oldFollowTrIds = oldFollowTrs.map(oftr => oftr._id);
+    const addFtrs = (fTrDocs || []).filter(ftr => !oldFollowTrIds.includes(ftr._id));
+
+    let tempFollowTrs: ITransaction[] = [];
+    for (const ftrDoc of followTrDocs) {
+      if (ftrDoc.originId === trDoc._id) {
+        const currentDoc = fTrDocs?.find(ftr => ftr._id === ftrDoc._id)
+        // found and edit else remove
+        if (currentDoc) {
+          tempFollowTrs.push({ ...ftrDoc, ...currentDoc });
+        }
+      } else {
+        tempFollowTrs.push(ftrDoc)
+      }
+    }
+
+    for (const addFtr of addFtrs) {
+      tempFollowTrs.push(addFtr)
+    }
+
+    setFollowTrDocs(tempFollowTrs);
   };
 
   const renderEmptyBox = (text, image) => {
@@ -191,7 +219,7 @@ const TransactionForm = (props: Props) => {
           <TrFormTBalance
             balance={balance}
             queryParams={queryParams}
-            transactions={transactions || []}
+            transactions={[...(trDocs || []), ...(followTrDocs || [])]}
           />
         </Box>
       )

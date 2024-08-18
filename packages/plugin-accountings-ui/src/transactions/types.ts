@@ -112,7 +112,7 @@ export type TransactionsCountQueryResponse = {
 } & QueryResponse;
 
 export type AddTransactionsMutationResponse = {
-  addTransactionsMutation: (params: {
+  transactionsCreate: (params: {
     variables: {
       trDocs: ITransaction[];
     }
@@ -120,7 +120,7 @@ export type AddTransactionsMutationResponse = {
 };
 
 export type EditTransactionsMutationResponse = {
-  editTransactionsMutation: (params: {
+  transactionsUpdate: (params: {
     variables: {
       parentId: string,
       trDocs: ITransaction
