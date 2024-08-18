@@ -8,6 +8,7 @@ import { generateModels } from './connectionResolver';
 import logs from './logUtils';
 import reports from './reports/reports';
 import * as permissions from './permissions';
+import cronjobs from './cronjobs/calls';
 
 export default {
   name: 'calls',
@@ -34,6 +35,7 @@ export default {
     logs: { providesActivityLog: true, consumers: logs },
     reports,
     permissions,
+    cronjobs,
   },
 
   postHandlers: [{ path: '/webhook', method: webhookReceiver }],

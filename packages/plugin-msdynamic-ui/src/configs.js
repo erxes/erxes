@@ -5,6 +5,7 @@ module.exports = {
   scope: "msdynamic",
   exposes: {
     "./routes": "./src/routes.tsx",
+    "./customerSidebar": "./src/containers/CustomerSidebar.tsx",
   },
   routes: {
     url: "http://localhost:3122/remoteEntry.js",
@@ -27,4 +28,5 @@ module.exports = {
       scope: "syncmsdynamic",
     },
   ],
+  customerRightSidebarSection: "./customerSidebar",
 };
