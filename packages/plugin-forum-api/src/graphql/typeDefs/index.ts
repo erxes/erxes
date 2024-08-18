@@ -102,8 +102,7 @@ export default async function genTypeDefs() {
     }
 
     ${isPaymentEnabled ? Invoice : ""}
-
-    Tag
+    ${Tag}
 
     extend type Company @key(fields: "_id") {
       _id: String! @external
