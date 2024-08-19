@@ -12,16 +12,22 @@ import { IConfigsMap, GetRateQueryResponse } from '../../../settings/configs/typ
 import { ITransaction } from '../../types';
 import { gql, useLazyQuery } from '@apollo/client';
 import { queries as configsQueries } from '../../../settings/configs/graphql'
+import { getTempId } from '../../utils/utils';
+import { JOURNALS, TR_SIDES } from '../../../constants';
 
 type Props = {
   configsMap: IConfigsMap;
   trDoc: ITransaction;
-  setTrDoc: (trDoc: ITransaction) => void;
+  followTrDocs: ITransaction[];
+  setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
   onChangeDetail: (key: string, value: any) => void;
 };
 
 const CurrencyFields = (props: Props) => {
-  const { trDoc, setTrDoc, onChangeDetail, configsMap } = props;
+  const { trDoc, setTrDoc, onChangeDetail, configsMap, followTrDocs } = props;
+  const followData = (trDoc.follows || []).find(f => f.type === 'currencyDiff');
+  const [currentFollowTrDoc, setCurrenFollowTrDoc] = useState(followTrDocs.find(ftr => ftr._id === followData?.id));
+
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
   if (!detail || !detail.account) {
@@ -32,24 +38,39 @@ const CurrencyFields = (props: Props) => {
     return null;
   }
 
+  const getFollowTrDocs = () => {
+    if (currentFollowTrDoc) {
+      return followTrDocs.map(ftr => ftr._id === currentFollowTrDoc?._id && currentFollowTrDoc || ftr);
+    }
+    return followTrDocs.filter(ftr => ftr._id !== followData?.id);
+  }
 
   const [spotRate, setSpotRate] = useState(0);
 
   const [getRate] = useLazyQuery<GetRateQueryResponse>(gql(configsQueries.getRate));
 
   useEffect(() => {
+    console.log('bbbbbbbbbbbb')
     getRate({
       variables: {
         date: trDoc.date || new Date(), currency: detail.account?.currency
       }
     }).then((data) => {
+      console.log('ddddddddddddddddddddd')
       setSpotRate(data?.data?.accountingsGetRate?.rate || 0)
     })
+    console.log('aaaaaaaaaaaaaaaaa')
   }, [trDoc.date, detail.account]);
 
   useEffect(() => {
     if (spotRate) {
-      setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: (detail.amount || 0) / spotRate }] });
+      setTrDoc(
+        {
+          ...trDoc,
+          details: [{ ...detail, currencyAmount: (detail.amount || 0) / spotRate }]
+        },
+        getFollowTrDocs()
+      );
     }
   }, [detail.amount]);
 
@@ -58,9 +79,42 @@ const CurrencyFields = (props: Props) => {
     return ((detail.customRate || 0) - spotRate) * (detail.currencyAmount || 0) * multipler;
   }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
 
+  useEffect(() => {
+    if (!diffAmount) {
+      setCurrenFollowTrDoc(undefined);
+      return;
+    }
+
+    let amount = diffAmount;
+    let side = detail.side;
+    if (amount < 0) {
+      side = TR_SIDES.DEBIT === detail.side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
+      amount = -1 * amount;
+    }
+
+    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
+
+    setCurrenFollowTrDoc({
+      ...(currentFollowTrDoc || trDoc),
+      _id: currentFollowTrDoc?._id || getTempId(),
+      journal: JOURNALS.MAIN,
+      originId: trDoc._id,
+      details: [{
+        ...(currentFollowTrDoc?.details || [{}])[0],
+        accountId: detail.followInfos.currencyDiffAccountId,
+        side,
+        amount
+      }],
+
+      sumDt,
+      sumCt,
+    });
+
+  }, [diffAmount]);
+
   const onChangeCurrencyAmount = (e) => {
     const value = (e.target as any).value
-    setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] });
+    setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] }, getFollowTrDocs());
   }
 
   return (
@@ -98,7 +152,7 @@ const CurrencyFields = (props: Props) => {
             <FormControl
               type='number'
               name="amount"
-              value={spotRate || 0}
+              value={spotRate}
               disabled={true}
             />
           </FormGroup>

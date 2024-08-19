@@ -21,7 +21,7 @@ import { IQueryParams } from "@erxes/ui/src/types";
 import { Popover } from "@headlessui/react";
 import { format } from "date-fns";
 import dayjs from "dayjs";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { TR_SIDES } from "../../constants";
 import { IAccount } from "../../settings/accounts/types";

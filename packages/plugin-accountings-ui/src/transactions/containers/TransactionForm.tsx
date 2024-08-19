@@ -42,7 +42,7 @@ const PosContainer = (props: Props) => {
     gql(mutations.transactionsCreate)
   );
 
-  const [editTransactionsMutation, mutationResponse] = useMutation<EditTransactionsMutationResponse>(
+  const [editTransactionsMutation] = useMutation<EditTransactionsMutationResponse>(
     gql(mutations.transactionsUpdate),
     {
       refetchQueries: ['transactionDetail'],

@@ -6,7 +6,7 @@ import {
   FormColumn,
   FormWrapper
 } from "@erxes/ui/src/styles/main";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IConfigsMap } from '../../../settings/configs/types';
 import { ITransaction } from '../../types';
 import SelectVatRow from '../../../settings/vatRows/containers/SelectVatRow';
@@ -17,8 +17,9 @@ import { ICtaxRow } from '../../../settings/ctaxRows/types';
 type Props = {
   configsMap: IConfigsMap;
   trDoc: ITransaction;
+  followTrDocs: ITransaction[];
   isWithTax?: boolean;
-  setTrDoc: (trDoc: ITransaction) => void;
+  setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
   onChangeDetail: (key: string, value: any) => void;
 };
 
