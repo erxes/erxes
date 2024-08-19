@@ -211,7 +211,6 @@ const TrFormMain = (props: Props) => {
       </FormWrapper>
       <TaxFields
         {...props}
-        followTrDocs={(followTrDocs || []).filter(ftr => ((trDoc.follows || []).filter(f => ['vat', 'ctax'].includes(f.type))).map(f => f.id).includes(ftr._id || ''))}
         onChangeDetail={onChangeDetail}
         isWithTax={true}
       />

@@ -26,7 +26,7 @@ type Props = {
 const CurrencyFields = (props: Props) => {
   const { trDoc, setTrDoc, onChangeDetail, configsMap, followTrDocs } = props;
   const followData = (trDoc.follows || []).find(f => f.type === 'currencyDiff');
-  const [currentFollowTrDoc, setCurrenFollowTrDoc] = useState(followTrDocs.find(ftr => ftr._id === followData?.id));
+  const currentd = followTrDocs.find(ftr => ftr._id === followData?.id);
 
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
@@ -50,16 +50,13 @@ const CurrencyFields = (props: Props) => {
   const [getRate] = useLazyQuery<GetRateQueryResponse>(gql(configsQueries.getRate));
 
   useEffect(() => {
-    console.log('bbbbbbbbbbbb')
     getRate({
       variables: {
         date: trDoc.date || new Date(), currency: detail.account?.currency
       }
     }).then((data) => {
-      console.log('ddddddddddddddddddddd')
       setSpotRate(data?.data?.accountingsGetRate?.rate || 0)
     })
-    console.log('aaaaaaaaaaaaaaaaa')
   }, [trDoc.date, detail.account]);
 
   useEffect(() => {
@@ -79,9 +76,8 @@ const CurrencyFields = (props: Props) => {
     return ((detail.customRate || 0) - spotRate) * (detail.currencyAmount || 0) * multipler;
   }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
 
-  useEffect(() => {
+  const currentFollowTrDoc = useMemo(() => {
     if (!diffAmount) {
-      setCurrenFollowTrDoc(undefined);
       return;
     }
 
@@ -94,7 +90,7 @@ const CurrencyFields = (props: Props) => {
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
 
-    setCurrenFollowTrDoc({
+    return {
       ...(currentFollowTrDoc || trDoc),
       _id: currentFollowTrDoc?._id || getTempId(),
       journal: JOURNALS.MAIN,
@@ -108,13 +104,16 @@ const CurrencyFields = (props: Props) => {
 
       sumDt,
       sumCt,
-    });
+    };
 
   }, [diffAmount]);
 
   const onChangeCurrencyAmount = (e) => {
     const value = (e.target as any).value
-    setTrDoc({ ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] }, getFollowTrDocs());
+    setTrDoc(
+      { ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] },
+      getFollowTrDocs()
+    );
   }
 
   return (

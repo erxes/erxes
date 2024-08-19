@@ -25,6 +25,7 @@ type Props = {
 
 const TaxFields = (props: Props) => {
   const { trDoc, setTrDoc, onChangeDetail, configsMap, isWithTax } = props;
+  // followTrDocs={(followTrDocs || []).filter(ftr => ((trDoc.follows || []).filter(f => ['vat', 'ctax'].includes(f.type))).map(f => f.id).includes(ftr._id || ''))}
 
   const sumVatAmount = trDoc?.details.filter(d => !d.excludeVat).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
   const sumCtaxAmount = trDoc?.details.filter(d => !d.excludeCtax).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
