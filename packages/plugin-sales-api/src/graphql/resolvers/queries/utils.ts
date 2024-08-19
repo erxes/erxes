@@ -1098,6 +1098,8 @@ export const getItemList = async (
     isRPC: true
   });
 
+  console.log(companies);
+
   if (serverTiming) {
     serverTiming.endTime("getItemsCompanies");
   }

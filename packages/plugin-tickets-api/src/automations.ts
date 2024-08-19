@@ -77,8 +77,8 @@ const getRelatedValue = async (
   if (targetKey === "tagIds") {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: "tags",
-      action: "find",
+      serviceName: "core",
+      action: "tagFind",
       data: { _id: { $in: target[targetKey] } },
       isRPC: true
     });
