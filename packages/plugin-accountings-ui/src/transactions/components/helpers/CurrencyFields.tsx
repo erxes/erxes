@@ -26,7 +26,6 @@ type Props = {
 const CurrencyFields = (props: Props) => {
   const { trDoc, setTrDoc, onChangeDetail, configsMap, followTrDocs } = props;
   const followData = (trDoc.follows || []).find(f => f.type === 'currencyDiff');
-  const currentd = followTrDocs.find(ftr => ftr._id === followData?.id);
 
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
@@ -40,9 +39,23 @@ const CurrencyFields = (props: Props) => {
 
   const getFollowTrDocs = () => {
     if (currentFollowTrDoc) {
-      return followTrDocs.map(ftr => ftr._id === currentFollowTrDoc?._id && currentFollowTrDoc || ftr);
+      if (followTrDocs.filter(ftr => ftr._id === currentFollowTrDoc._id).length) {
+        return {
+          ftrDocs: followTrDocs.map(ftr => ftr._id === currentFollowTrDoc._id && currentFollowTrDoc || ftr),
+          follows: [...trDoc.follows || []]
+        };
+      }
+
+      return {
+        ftrDocs: [...followTrDocs, currentFollowTrDoc],
+        follows: [...(trDoc.follows || []).filter(f => f.type !== 'currencyDiff'), { id: currentFollowTrDoc._id, type: 'currencyDiff' }]
+      };
     }
-    return followTrDocs.filter(ftr => ftr._id !== followData?.id);
+
+    return {
+      ftrDocs: followTrDocs.filter(ftr => ftr._id !== followData?.id),
+      follows: [...(trDoc.follows || []).filter(f => f.type !== 'currencyDiff')]
+    };
   }
 
   const [spotRate, setSpotRate] = useState(0);
@@ -59,22 +72,25 @@ const CurrencyFields = (props: Props) => {
     })
   }, [trDoc.date, detail.account]);
 
-  useEffect(() => {
-    if (spotRate) {
-      setTrDoc(
-        {
-          ...trDoc,
-          details: [{ ...detail, currencyAmount: (detail.amount || 0) / spotRate }]
-        },
-        getFollowTrDocs()
-      );
-    }
-  }, [detail.amount]);
-
   const diffAmount: number = useMemo(() => {
     const multipler = detail.account?.status === 'active' && 1 || -1;
     return ((detail.customRate || 0) - spotRate) * (detail.currencyAmount || 0) * multipler;
   }, [spotRate, detail.customRate, detail.currencyAmount, detail.account]);
+
+  useEffect(() => {
+    if (spotRate) {
+
+      const { ftrDocs, follows } = getFollowTrDocs()
+      setTrDoc(
+        {
+          ...trDoc,
+          details: [{ ...detail, currencyAmount: (detail.amount || 0) / spotRate }],
+          follows
+        },
+        ftrDocs
+      );
+    }
+  }, [detail.amount, diffAmount, detail.followInfos?.currencyDiffAccountId]);
 
   const currentFollowTrDoc = useMemo(() => {
     if (!diffAmount) {
@@ -90,14 +106,17 @@ const CurrencyFields = (props: Props) => {
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
 
+    const curr = followTrDocs.find(ftr => ftr._id === followData?.id) || trDoc;
+
     return {
-      ...(currentFollowTrDoc || trDoc),
-      _id: currentFollowTrDoc?._id || getTempId(),
+      ...curr,
+      _id: curr?._id || getTempId(),
       journal: JOURNALS.MAIN,
       originId: trDoc._id,
       details: [{
-        ...(currentFollowTrDoc?.details || [{}])[0],
-        accountId: detail.followInfos.currencyDiffAccountId,
+        ...(curr?.details || [{}])[0],
+        accountId: detail.followInfos?.currencyDiffAccountId,
+        account: detail.followInfos?.account,
         side,
         amount
       }],
@@ -106,13 +125,14 @@ const CurrencyFields = (props: Props) => {
       sumCt,
     };
 
-  }, [diffAmount]);
+  }, [diffAmount, detail.followInfos?.currencyDiffAccountId]);
 
   const onChangeCurrencyAmount = (e) => {
     const value = (e.target as any).value
+    const { ftrDocs, follows } = getFollowTrDocs()
     setTrDoc(
-      { ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }] },
-      getFollowTrDocs()
+      { ...trDoc, details: [{ ...detail, currencyAmount: value, amount: spotRate * value }], follows },
+      ftrDocs
     );
   }
 
@@ -178,7 +198,7 @@ const CurrencyFields = (props: Props) => {
               label='Diff Account'
               name='currencyDiffAccountId'
               filterParams={{ journals: ['main'] }}
-              onSelect={(accountId) => { onChangeDetail('followInfos', { ...detail.followInfos, currencyDiffAccountId: accountId }) }}
+              onSelect={(accountId, account) => { onChangeDetail('followInfos', { ...detail.followInfos, currencyDiffAccountId: accountId, account }) }}
             />
           </FormGroup>
         </FormColumn>
