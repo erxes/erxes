@@ -90,6 +90,8 @@ export const JOURNALS = {
   CASH: 'cash',
   FUND: 'bank',
   DEBT: 'debt',
+  VAT: 'vat',
+  CTAX: 'ctax',
   INV_FB: 'inv_fb',
   INV_INCOME: 'inv_income',
   INV_OUT: 'inv_out',
@@ -101,7 +103,7 @@ export const JOURNALS = {
   INV_IN_RETURN: 'inv_in_return',
   INV_SALE_RETURN: 'inv_sale_return',
   ALL: [
-    'main', 'cash', 'bank', 'debt',
+    'main', 'cash', 'bank', 'debt', 'vat', 'ctax',
     'inv_fb', 'inv_income', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
     'inv_sale', 'inv_cost',
     'inv_in_return', 'inv_sale_return',

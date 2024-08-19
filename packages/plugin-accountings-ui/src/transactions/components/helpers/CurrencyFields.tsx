@@ -12,7 +12,7 @@ import { IConfigsMap, GetRateQueryResponse } from '../../../settings/configs/typ
 import { ITransaction } from '../../types';
 import { gql, useLazyQuery } from '@apollo/client';
 import { queries as configsQueries } from '../../../settings/configs/graphql'
-import { getTempId } from '../../utils/utils';
+import { getTempId, getTrSide } from '../../utils/utils';
 import { JOURNALS, TR_SIDES } from '../../../constants';
 
 type Props = {
@@ -100,7 +100,7 @@ const CurrencyFields = (props: Props) => {
     let amount = diffAmount;
     let side = detail.side;
     if (amount < 0) {
-      side = TR_SIDES.DEBIT === detail.side ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
+      side = getTrSide(side, true)
       amount = -1 * amount;
     }
 

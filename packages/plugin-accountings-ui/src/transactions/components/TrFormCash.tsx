@@ -20,6 +20,7 @@ import { IConfigsMap } from '../../settings/configs/types';
 import { ITransaction } from '../types';
 import CurrencyFields from './helpers/CurrencyFields';
 import TaxFields from './helpers/TaxFields';
+import { getTrSide } from '../utils/utils';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -212,6 +213,7 @@ const TrFormMain = (props: Props) => {
       <TaxFields
         {...props}
         onChangeDetail={onChangeDetail}
+        side={getTrSide(detail.side, true)}
         isWithTax={true}
       />
     </>

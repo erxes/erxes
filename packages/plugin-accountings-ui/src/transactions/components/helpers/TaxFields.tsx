@@ -6,42 +6,56 @@ import {
   FormColumn,
   FormWrapper
 } from "@erxes/ui/src/styles/main";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { IConfigsMap } from '../../../settings/configs/types';
 import { ITransaction } from '../../types';
 import SelectVatRow from '../../../settings/vatRows/containers/SelectVatRow';
 import SelectCtaxRow from '../../../settings/ctaxRows/containers/SelectCtaxRow';
 import { IVatRow } from '../../../settings/vatRows/types';
 import { ICtaxRow } from '../../../settings/ctaxRows/types';
+import { getTempId } from '../../utils/utils';
+import { JOURNALS, TR_SIDES } from '../../../constants';
 
 type Props = {
   configsMap: IConfigsMap;
   trDoc: ITransaction;
   followTrDocs: ITransaction[];
   isWithTax?: boolean;
+  side: string;
   setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
   onChangeDetail: (key: string, value: any) => void;
 };
 
+const checkFollowDocs = (currentFollowTrDoc, type, followData, checkFollowTrDocs, checkFollows) => {
+  console.log(type, 'kkkkkkkkkkkkkk', currentFollowTrDoc, followData, checkFollows)
+  if (currentFollowTrDoc) {
+    if (checkFollowTrDocs.filter(ftr => ftr._id === currentFollowTrDoc._id).length) {
+      return {
+        ftrDocs: checkFollowTrDocs.map(ftr => ftr._id === currentFollowTrDoc._id && currentFollowTrDoc || ftr),
+        follows: [...checkFollows || []]
+      };
+    }
+
+    return {
+      ftrDocs: [...checkFollowTrDocs, currentFollowTrDoc],
+      follows: [...(checkFollows || []).filter(f => f.type !== type), { id: currentFollowTrDoc._id, type }]
+    };
+  }
+
+  return {
+    ftrDocs: checkFollowTrDocs.filter(ftr => ftr._id !== followData?.id),
+    follows: [...(checkFollows || []).filter(f => f.type !== type)]
+  };
+}
+
 const TaxFields = (props: Props) => {
-  const { trDoc, setTrDoc, onChangeDetail, configsMap, isWithTax } = props;
-  // followTrDocs={(followTrDocs || []).filter(ftr => ((trDoc.follows || []).filter(f => ['vat', 'ctax'].includes(f.type))).map(f => f.id).includes(ftr._id || ''))}
+  const { trDoc, setTrDoc, followTrDocs, onChangeDetail, configsMap, isWithTax, side } = props;
+  const vatFollowData = (trDoc.follows || []).find(f => f.type === 'vat');
+  const ctaxFollowData = (trDoc.follows || []).find(f => f.type === 'ctax');
+  console.log('----------------------------------------------------------------------------', trDoc.follows)
 
   const sumVatAmount = trDoc?.details.filter(d => !d.excludeVat).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
   const sumCtaxAmount = trDoc?.details.filter(d => !d.excludeCtax).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
-
-
-  const [sumPercent, setSumPercent] = useState(
-    (trDoc.hasVat ? (trDoc.vatRow?.percent || 0) : 0) +
-    (trDoc.hasCtax ? (trDoc.ctaxRow?.percent || 0) : 0)
-  );
-
-  useEffect(() => {
-    setSumPercent(
-      (trDoc.hasVat ? (trDoc.vatRow?.percent || 0) : 0) +
-      (trDoc.hasCtax ? (trDoc.ctaxRow?.percent || 0) : 0)
-    )
-  }, [trDoc.vatRowId, trDoc.ctaxRowId, trDoc.hasVat, trDoc.hasCtax]);
 
   const onVatRowChange = (vatRowId: string, obj?: IVatRow) => {
     setTrDoc({
@@ -59,6 +73,103 @@ const TaxFields = (props: Props) => {
     });
   }
 
+  const sumPercent = useMemo(() => {
+    return (
+      trDoc.hasVat ? (trDoc.vatRow?.percent || 0) : 0) +
+      (trDoc.hasCtax ? (trDoc.ctaxRow?.percent || 0) : 0
+      )
+  }, [trDoc.hasVat, trDoc.vatRowId, trDoc.hasCtax, trDoc.ctaxRowId])
+
+  const vatFollowTrDoc = useMemo(() => {
+    if (!trDoc.hasVat) {
+      return;
+    }
+
+    const amount = isWithTax ?
+      sumVatAmount / (100 + sumPercent) * (trDoc.vatRow?.percent || 0) :
+      sumVatAmount / 100 * (trDoc.vatRow?.percent || 0) || 0;
+
+    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
+
+    const curr = followTrDocs.find(ftr => ftr._id === vatFollowData?.id) || trDoc;
+
+    return {
+      ...curr,
+      _id: curr?._id || getTempId(),
+      journal: JOURNALS.VAT,
+      originId: trDoc._id,
+      details: [{
+        ...(curr?.details || [{}])[0],
+        accountId: trDoc.afterVat ?
+          side === 'dt' ? configsMap.VatAfterReceivableAccount : configsMap.VatAfterPayableAccount :
+          side === 'dt' ? configsMap.VatReceivableAccount : configsMap.VatPayableAccount,
+        side,
+        amount
+      }],
+
+      sumDt,
+      sumCt,
+    };
+
+  }, [trDoc.hasVat, trDoc.afterVat, trDoc.vatAmount, trDoc.hasCtax, (trDoc.details || [])[0]?.side]);
+
+  const ctaxFollowTrDoc = useMemo(() => {
+    if (!trDoc.hasCtax) {
+      return;
+    }
+
+    if (side === TR_SIDES.DEBIT) {
+      return;
+    }
+
+    const amount = isWithTax ?
+      sumCtaxAmount / (100 + sumPercent) * (trDoc.ctaxRow?.percent || 0) :
+      sumCtaxAmount / 100 * (trDoc.ctaxRow?.percent || 0) || 0;
+
+    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
+
+    const curr = followTrDocs.find(ftr => ftr._id === ctaxFollowData?.id) || trDoc;
+
+    return {
+      ...curr,
+      _id: curr?._id || getTempId(),
+      journal: JOURNALS.CTAX,
+      originId: trDoc._id,
+      details: [{
+        ...(curr?.details || [{}])[0],
+        accountId: configsMap.CtaxPayableAccount,
+        account: configsMap.CtaxPayableAccount,
+        side,
+        amount
+      }],
+
+      sumDt,
+      sumCt,
+    };
+  }, [trDoc.hasCtax, trDoc.ctaxAmount, trDoc.hasVat, (trDoc.details || [])[0]?.side]);
+
+  const getFollowTrDocs = () => {
+    const vatCalced = checkFollowDocs(vatFollowTrDoc, 'vat', vatFollowData, followTrDocs, trDoc.follows);
+    const ctaxCalced = checkFollowDocs(ctaxFollowTrDoc, 'ctax', ctaxFollowData, vatCalced.ftrDocs, vatCalced.follows);
+    return ctaxCalced
+  }
+
+  useEffect(() => {
+    const { ftrDocs, follows } = getFollowTrDocs()
+    setTrDoc(
+      {
+        ...trDoc,
+        follows
+      },
+      ftrDocs
+    );
+
+  }, [trDoc.hasVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, (trDoc.details || [])[0]?.side]);
+
+  const setTrDocWrapper = (paramsTrDoc) => {
+    setTrDoc({ ...paramsTrDoc }, followTrDocs);
+  }
+
   const renderVat = () => {
     if (!configsMap.HasVat && !trDoc.hasVat) {
       return null;
@@ -74,10 +185,8 @@ const TaxFields = (props: Props) => {
                 componentclass='checkbox'
                 name="hasVat"
                 checked={trDoc.hasVat}
-                autoFocus={true}
-                required={true}
                 onChange={(e: any) => {
-                  setTrDoc({ ...trDoc, hasVat: e.target.checked });
+                  setTrDocWrapper({ ...trDoc, hasVat: !trDoc.hasVat });
                 }}
               />
             </FormGroup>
@@ -98,10 +207,8 @@ const TaxFields = (props: Props) => {
                     componentclass='checkbox'
                     name="hasVat"
                     checked={trDoc.hasVat}
-                    autoFocus={true}
-                    required={true}
                     onChange={(e: any) => {
-                      setTrDoc({ ...trDoc, hasVat: e.target.checked });
+                      setTrDocWrapper({ ...trDoc, hasVat: !trDoc.hasVat });
                     }}
                   />
                 </FormGroup>
@@ -113,10 +220,8 @@ const TaxFields = (props: Props) => {
                     componentclass='checkbox'
                     name="isHandleVat"
                     checked={trDoc.isHandleVat}
-                    autoFocus={true}
-                    required={true}
                     onChange={(e: any) => {
-                      setTrDoc({ ...trDoc, isHandleVat: e.target.checked });
+                      setTrDocWrapper({ ...trDoc, isHandleVat: e.target.checked });
                     }}
                   />
                 </FormGroup>
@@ -128,10 +233,8 @@ const TaxFields = (props: Props) => {
                     componentclass='checkbox'
                     name="afterVat"
                     checked={trDoc.afterVat}
-                    autoFocus={true}
-                    required={true}
                     onChange={(e: any) => {
-                      setTrDoc({ ...trDoc, afterVat: e.target.checked });
+                      setTrDocWrapper({ ...trDoc, afterVat: e.target.checked });
                     }}
                   />
                 </FormGroup>
@@ -162,8 +265,6 @@ const TaxFields = (props: Props) => {
                     sumVatAmount / (100 + sumPercent) * (trDoc.vatRow?.percent || 0) :
                     sumVatAmount / 100 * (trDoc.vatRow?.percent || 0) || 0
                 }
-                autoFocus={true}
-                required={true}
                 disabled={!trDoc.isHandleVat}
                 onChange={e => onChangeDetail('amount', (e.target as any).value)}
               />
@@ -198,10 +299,8 @@ const TaxFields = (props: Props) => {
                 componentclass='checkbox'
                 name="hasCtax"
                 checked={trDoc.hasCtax}
-                autoFocus={true}
-                required={true}
                 onChange={(e: any) => {
-                  setTrDoc({ ...trDoc, hasCtax: e.target.checked });
+                  setTrDocWrapper({ ...trDoc, hasCtax: !trDoc.hasCtax });
                 }}
               />
             </FormGroup>
@@ -222,10 +321,8 @@ const TaxFields = (props: Props) => {
                     componentclass='checkbox'
                     name="hasCtax"
                     checked={trDoc.hasCtax}
-                    autoFocus={true}
-                    required={true}
                     onChange={(e: any) => {
-                      setTrDoc({ ...trDoc, hasCtax: e.target.checked });
+                      setTrDocWrapper({ ...trDoc, hasCtax: !trDoc.hasCtax });
                     }}
                   />
                 </FormGroup>
@@ -237,10 +334,8 @@ const TaxFields = (props: Props) => {
                     componentclass='checkbox'
                     name="isHandleCtax"
                     checked={trDoc.isHandleCtax}
-                    autoFocus={true}
-                    required={true}
                     onChange={(e: any) => {
-                      setTrDoc({ ...trDoc, isHandleCtax: e.target.checked });
+                      setTrDocWrapper({ ...trDoc, isHandleCtax: e.target.checked });
                     }}
                   />
                 </FormGroup>
@@ -271,8 +366,6 @@ const TaxFields = (props: Props) => {
                     sumCtaxAmount / (100 + sumPercent) * (trDoc.ctaxRow?.percent || 0) :
                     sumCtaxAmount / 100 * (trDoc.ctaxRow?.percent || 0) || 0
                 }
-                autoFocus={true}
-                required={true}
                 disabled={!trDoc.isHandleVat}
                 onChange={e => onChangeDetail('amount', (e.target as any).value)}
               />

@@ -42,7 +42,7 @@ export default class CurrencyTr {
     const spotRate = this.spotRate.rate;
 
     if (detail.customRate && spotRate !== detail.customRate && !detail.followInfos?.currencyDiffAccountId) {
-      throw new Error('not found spot rate..')
+      throw new Error('must fill currency diff account')
     }
 
     if (detail.customRate && spotRate !== detail.customRate && detail.followInfos.currencyDiffAccountId) {
