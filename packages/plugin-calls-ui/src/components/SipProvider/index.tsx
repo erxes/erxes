@@ -252,8 +252,14 @@ export default class SipProvider extends React.Component<
       this.reinitializeJsSIP();
     }
     const { callUserIntegration } = this.props;
-    const { inboxId, phone, wsServer, token, operators } =
-      callUserIntegration || {};
+    const {
+      inboxId,
+      phone,
+      wsServer,
+      token,
+      operators,
+      queues = [],
+    } = callUserIntegration || {};
     if (
       inboxId !== callConfig.inboxId ||
       phone !== callConfig.phone ||
@@ -270,6 +276,7 @@ export default class SipProvider extends React.Component<
           token: token,
           operators: operators,
           isAvailable: callConfig.isAvailable,
+          queues,
         }),
       );
     }

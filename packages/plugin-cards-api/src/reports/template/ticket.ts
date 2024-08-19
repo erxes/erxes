@@ -1,6 +1,6 @@
 import { IModels } from "../../connectionResolver";
 import { MONTH_NAMES, PROBABILITY_CLOSED, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_TYPES, DATERANGE_BY_TYPES, ATTACHMENT_TYPES, PRIORITY, STATUS_TYPES, PROBABILITY_TICKET, USER_TYPES, INTEGRATION_OPTIONS } from "../constants";
-import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getIntegrationsKinds, getStageIds } from "../utils";
+import { buildData, buildMatchFilter, buildPipeline, getIntegrationsKinds, getStageIds } from "../utils";
 
 const DIMENSION_OPTIONS = [
     { label: 'Team members', value: 'teamMember' },
@@ -2472,7 +2472,6 @@ export const ticketCharts = [
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
 
@@ -2490,7 +2489,7 @@ export const ticketCharts = [
 
             const title = 'Total Tickets Count';
 
-            return { title, ...buildData({ chartType, data: tickets, measure, dimension }) };
+            return { title, ...buildData({ chartType, data: tickets, filter }) };
         },
         filterTypes: [
             // DIMENSION FILTER

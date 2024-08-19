@@ -194,7 +194,7 @@ const genDuplicatedFilter = async (params) => {
   }
 
   if (billType) {
-    filter.billType = billType;
+    filter.type = billType;
   }
 
   return filter;
@@ -323,7 +323,7 @@ const queries = {
       {
         $match: {
           ...filter,
-          success: 'true',
+          status: 'SUCCESS',
           $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
           state: { $ne: 'inactive' },
         },

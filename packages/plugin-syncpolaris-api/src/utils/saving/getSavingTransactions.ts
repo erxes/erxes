@@ -7,5 +7,5 @@ export const getSavingTransactions = async (subdomain, params) => {
     op: '13610101',
     data: sendData,
     subdomain,
-  }).then((res) => JSON.parse(res));
+  });
 };

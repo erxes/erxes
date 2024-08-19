@@ -13,6 +13,7 @@ export interface IIntegration {
   phone: String;
   operators: [Operator];
   token: String;
+  queues: [String];
 }
 
 export interface IIntegrationDocument extends IIntegration, Document {}
@@ -24,4 +25,5 @@ export const integrationSchema = new Schema({
   phone: field({ type: String, label: 'phone number', unique: true }),
   operators: field({ type: Object, label: 'Operator maps' }),
   token: field({ type: String, label: 'token' }),
+  queues: field({ type: [String], label: 'queues' }),
 });

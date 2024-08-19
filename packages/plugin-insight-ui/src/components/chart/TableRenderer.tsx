@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 const ScrollWrapper = styled.div`
   height: 50vh;
-  height: calc(100vh - 100px);
+  height: 100%;
   overflow: auto;
   padding: 0px 10px 0 20px;
   margin-left: -20px;

@@ -45,7 +45,6 @@ const pipelines = `
       departmentIds
       numberSize
       nameConfig
-      numberSizeName
       createdAt
       createdUser{
         details {

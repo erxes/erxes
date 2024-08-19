@@ -33,6 +33,11 @@ export const PROBABILITY_CLOSED = {
     ticket: ['Resolved'],
 }
 
+export const AMOUNT_RANGE_ATTRIBUTES = [
+    { name: 'min', placeholder: 'Min', type: 'number', min: 0 },
+    { name: 'max', placeholder: 'Max', type: 'number', min: 0 }
+]
+
 export const DIMENSION_OPTIONS = [
     { label: 'Total count', value: 'count' },
     { label: 'Team members', value: 'teamMember' },
@@ -103,7 +108,7 @@ export const FIELD_MAP = {
 }
 
 export const CUSTOM_DATE_FREQUENCY_TYPES = [
-    { label: 'By week', value: '%V' },
+    { label: 'By week', value: '%Y-%V' },
     { label: 'By month', value: '%m' },
     { label: 'By year', value: '%Y' },
     { label: 'By Date', value: '%Y-%m-%d' },
