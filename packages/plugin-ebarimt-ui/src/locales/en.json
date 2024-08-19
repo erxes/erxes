@@ -18,7 +18,6 @@
   "Message" : "Message",
   "Inactive ID" : "Inactive ID",
   "Put Response" : "Put Response",
-  "№" : "№",
   "Count" : "Count",
   "CityTax" : "CityTax",
   "Vat" : "Vat",
@@ -41,7 +40,5 @@
   "Filter" : "Filter",
   "Clear Filter" : "Clear Filter",
   "Hide Filter" : "Hide Filter",
-  "Show Filter" : "Show Filter",
-  "1" : "1",
-  "3" : "3"
+  "Show Filter" : "Show Filter"
 }
