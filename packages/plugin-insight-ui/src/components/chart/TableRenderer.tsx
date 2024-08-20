@@ -1,6 +1,7 @@
 import React from "react";
 import Table from "@erxes/ui/src/components/table";
 import styled from "styled-components";
+import { commarizeNumbers } from "../../utils";
 
 const ScrollWrapper = styled.div`
   height: 50vh;
@@ -59,7 +60,7 @@ const TableList = (props: Props) => {
                     return <td dangerouslySetInnerHTML={{ __html: item[header] }} />
                   }
 
-                  return <td key={header} >{item[header] || '-'}</td>
+                  return <td key={header} >{commarizeNumbers(item[header]) || '-'}</td>
                 })}
               </tr>
             )

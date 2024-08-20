@@ -55,7 +55,7 @@ const NumberRenderer = (props: Props) => {
     return (
 
         <NumberLayout column={labels?.length || 1}>
-            {labels.map((label, index) => (
+            {(labels || []).map((label, index) => (
                 <NumberContainer key={index}>
                     <Title>{label}</Title>
                     <Number>{formatNumbers(data[index], 'x', 'commarize')}</Number>
