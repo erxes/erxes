@@ -42,7 +42,6 @@ export const types = ({ tags }) => `
     numberConfig: String
     numberSize: String
     nameConfig: String
-    numberSizeName: String
     ${commonTypes}
   }
 
@@ -192,7 +191,6 @@ const pipelineParams = `
   numberConfig: String,
   numberSize: String,
   nameConfig: String,
-  numberSizeName: String,
   departmentIds: [String],
 `;
 

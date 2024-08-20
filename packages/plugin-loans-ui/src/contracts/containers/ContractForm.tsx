@@ -10,7 +10,7 @@ import { IContract } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from 'coreui/utils';
 
-type RelType = {
+export type RelType = {
   _id: string,
   mainTypeId: string,
   mainType: string,
@@ -18,10 +18,10 @@ type RelType = {
 }
 
 type Props = {
-  contract: IContract;
+  contract?: IContract;
   getAssociatedContract?: (contractId: string) => void;
   closeModal: () => void;
-  data?:RelType
+  data?: RelType
 };
 
 type FinalProps = {
@@ -31,11 +31,12 @@ type FinalProps = {
 const ContractFromContainer = (props: FinalProps) => {
   const { closeModal, getAssociatedContract, data } = props;
 
-  const dealsContract = useQuery(
-    gql(queries.dealsToContract),
+  const objectOnContract = useQuery(
+    gql(queries.convertToContract),
     {
       variables: {
-        dealsToContractId:data?.mainTypeId
+        contentType: data?.mainType,
+        id: data?.mainTypeId
       },
       fetchPolicy: "network-only",
     }
@@ -59,15 +60,14 @@ const ContractFromContainer = (props: FinalProps) => {
 
     return (
       <ButtonMutate
-        mutation={object ? mutations.contractsEdit : mutations.contractsAdd}
+        mutation={object._id ? mutations.contractsEdit : mutations.contractsAdd}
         variables={values}
         callback={afterSave}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         disabled={disabled}
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${name}`}
+        successMessage={`You successfully ${object ? 'updated' : 'added'
+          } a ${name}`}
       >
         {__('Save')}
       </ButtonMutate>
@@ -79,10 +79,10 @@ const ContractFromContainer = (props: FinalProps) => {
     renderButton,
   };
 
-  if(data){
-    if(dealsContract.loading)
+  if (data) {
+    if (objectOnContract.loading)
       return 'Loading';
-    return <ContractForm {...updatedProps} contract={{...dealsContract.data.dealsToContract,_id:undefined}} />;
+    return <ContractForm {...updatedProps} contract={{ ...(objectOnContract.data?.convertToContract || {}), _id: undefined }} />;
   }
 
   return <ContractForm {...updatedProps} />;

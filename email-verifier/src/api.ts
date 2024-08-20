@@ -78,6 +78,8 @@ export const single = async (email: string, hostname: string) => {
 
     const { data } = response;
 
+    Emails.createEmail({email, status: data.status});
+
     if (data.status === 'valid') {
       debugBase(`successfully clearout:`, email, ' status: ', data.status);
       return sendRequest({

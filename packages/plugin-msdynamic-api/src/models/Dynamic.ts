@@ -1,6 +1,9 @@
 import {
+  ICustomerRelation,
+  ICustomerRelationDocument,
   ISyncLog,
   ISyncLogDocument,
+  customerRelationSchema,
   syncLogSchema
 } from './definitions/dynamic';
 import { Model } from 'mongoose';
@@ -30,4 +33,30 @@ export const loadSyncLogClass = (models: IModels) => {
   syncLogSchema.loadClass(SyncLog);
 
   return syncLogSchema;
+};
+
+export interface ICustomerRelationModel extends Model<ICustomerRelationDocument> {
+  customerRelationsAdd(doc: ICustomerRelation): Promise<ICustomerRelationDocument>;
+  customerRelationsEdit(_id: string, doc: ICustomerRelation): Promise<ICustomerRelationDocument>;
+  customerRelationsRemove(_ids: string[]): Promise<JSON>;
+}
+
+export const loadCustomerRelationClass = (models: IModels) => {
+  class CustomerRelation {
+    public static async customerRelationsAdd(doc: ICustomerRelation) {
+      return models.CustomerRelations.create({ ...doc });
+    }
+
+    public static async customerRelationsEdit(_id: string, doc: ICustomerRelation) {
+      return await models.CustomerRelations.updateOne({ _id }, { $set: { ...doc } });
+    }
+
+    public static async customerRelationsRemove(_ids: string[]) {
+      return await models.CustomerRelations.deleteMany({ _id: { $in: _ids } });
+    }
+  }
+
+  customerRelationSchema.loadClass(CustomerRelation);
+
+  return customerRelationSchema;
 };

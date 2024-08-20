@@ -1,21 +1,18 @@
 import {
-    fetchPolaris,
-  } from '../utils';
-  
-  export const integrateCollateralToLoan = async (subdomain: string, params) => {
+  fetchPolaris,
+} from '../utils';
 
-    let sendData = {
-      "txnAcntCode":params.code,
-      "txnAmount":params.amount,
-      "contAcntCode":params.loanNumber
-    }
-  
-    const depositCode = await fetchPolaris({
-      subdomain,
-      op: '13610903',
-      data: [sendData],
-    });
- 
-    return depositCode;
-  };
-  
+export const integrateCollateralToLoan = async (subdomain: string, params) => {
+
+  let sendData = {
+    "txnAcntCode": params.code,
+    "txnAmount": params.amount,
+    "contAcntCode": params.loanNumber
+  }
+
+  return await fetchPolaris({
+    subdomain,
+    op: '13610903',
+    data: [sendData],
+  });
+};
