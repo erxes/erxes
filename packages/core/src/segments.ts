@@ -39,7 +39,8 @@ export default {
       description: "Lead",
       esIndex: "customers",
       notAssociated: true
-    }
+    },
+    { type: "product", description: "Product", esIndex: "products" }
   ],
 
   esTypesMap: async () => {

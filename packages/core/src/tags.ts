@@ -5,6 +5,10 @@ const modelChanger = (type: string, models: IModels) => {
     return models.Customers;
   }
 
+  if (type === "product") {
+    return models.Products;
+  }
+
   return models.Companies;
 };
 
@@ -17,6 +21,10 @@ export default {
     {
       description: "Company",
       type: "company"
+    },
+    {
+      description: "Product & Service",
+      type: "product"
     }
   ],
   tag: async ({ subdomain, data }) => {

@@ -2,7 +2,8 @@ import { generateModels } from "./connectionResolver";
 
 export default {
   generateInternalNoteNotif: async ({ subdomain, data }) => {
-    const { Customers, Companies, Users } = await generateModels(subdomain);
+    const { Customers, Companies, Users, Products } =
+      await generateModels(subdomain);
     const { contentTypeId, notifDoc, type } = data;
 
     let model: any = Customers;
@@ -26,6 +27,14 @@ export default {
       notifDoc.link = link + response._id;
       notifDoc.contentTypeId = response._id;
       notifDoc.contentType = `${type}`;
+      return notifDoc;
+    }
+
+    if (type === "product") {
+      const product = await Products.getProduct({ _id: contentTypeId });
+
+      notifDoc.content = product.name;
+
       return notifDoc;
     }
 
