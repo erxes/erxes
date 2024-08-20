@@ -83,6 +83,7 @@ const syncMsdHistories = `
       sendStr
       responseData
       responseStr
+      sendSales
       responseSales
       error
 
@@ -203,6 +204,20 @@ const posOrderDetail = `
   }
 `;
 
+const msdCustomerRelations = `
+  query msdCustomerRelations($customerId: String) {
+    msdCustomerRelations(customerId: $customerId) {
+      _id
+      customerId
+      brandId
+      brand
+      modifiedAt
+      no
+      response
+    }
+  }
+`;
+
 export default {
   syncMsdHistories,
   syncMsdHistoriesCount,
@@ -211,4 +226,5 @@ export default {
   checkSyncOrders,
   checkSyncOrdersTotalCount,
   posOrderDetail,
+  msdCustomerRelations
 };

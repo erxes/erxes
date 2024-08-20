@@ -332,6 +332,8 @@ class MailForm extends React.Component<Props, State> {
       subject: "",
       content: "",
       attachments: [],
+      isSubmitLoading: false,
+      isSubmitResolveLoading: false,
     });
 
     this.prepareData();

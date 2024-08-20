@@ -1,9 +1,16 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
+import { registerOnboardHistory } from '../../utils';
 
 const structuresMutations = {
   async structuresAdd(_root, doc, { user, models }: IContext) {
     const structure = await models.Structures.createStructure(doc, user);
+
+    await registerOnboardHistory({
+      models,
+      type: 'EstablishOrganizationalStructure',
+      user,
+    });
 
     return structure;
   },

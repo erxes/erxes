@@ -1,6 +1,6 @@
-import * as React from "react";
-import Category from "../containers/Category";
-import { IKbTopic } from "../types";
+import * as React from 'react';
+import Category from '../containers/Category';
+import { IKbTopic } from '../types';
 
 type Props = {
   kbTopic?: IKbTopic;
@@ -13,7 +13,7 @@ export default function Categories({ kbTopic }: Props) {
 
   return (
     <div>
-      {kbTopic.categories.map(category => (
+      {kbTopic.categories.map((category) => (
         <Category key={category._id} category={category} />
       ))}
     </div>

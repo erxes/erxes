@@ -32,10 +32,10 @@ function MessageBot(props: Props) {
     botData,
     replyAutoAnswer,
     sendTypingInfo,
-    scrollBottom
+    scrollBottom,
   } = props;
 
-  if (botData.length === 0) {
+  if (botData?.length && botData.length === 0) {
     return null;
   }
 
@@ -44,7 +44,7 @@ function MessageBot(props: Props) {
       <div
         key={idx}
         className="erxes-message top"
-        dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || "")) }}
+        dangerouslySetInnerHTML={{ __html: xss(urlify(message.text || '')) }}
       />
     );
   };
@@ -97,10 +97,10 @@ function MessageBot(props: Props) {
     const commonProps = {
       conversationId,
       replyAutoAnswer,
-      sendTypingInfo
+      sendTypingInfo,
     };
 
-    return botData.map((item, idx) => {
+    return botData?.map((item, idx) => {
       switch (item.type) {
         case 'text':
           return renderTextMessage(item, idx);

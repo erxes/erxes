@@ -12,12 +12,15 @@ const receiveMessage = async (
 ) => {
   const { recipient, sender, timestamp, message } = messageData;
   // const attachments = messageData.message.attachments;
-  const integration = await models.Integrations.getIntegration({
+  const integration = await models.Integrations.findOne({
     $and: [
       { instagramPageId: { $in: [recipient.id] } },
       { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
+  if (!integration) {
+    throw new Error('Instagram Integration not found ');
+  }
   const { facebookPageTokensMap, facebookPageId } = integration;
   if (facebookPageId && facebookPageTokensMap) {
     const userId = sender.id;

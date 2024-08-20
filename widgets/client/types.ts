@@ -91,9 +91,14 @@ export interface IIntegrationMessengerOnlineHours {
 }
 
 export interface IIntegrationLink {
-  twitter?: string;
   facebook?: string;
+  instagram?: string;
+  twitter?: string;
   youtube?: string;
+}
+
+export interface IIntegrationExternalLink {
+  url: string
 }
 
 export interface IIntegrationMessengerDataMessagesItem {
@@ -132,6 +137,7 @@ export interface IIntegrationMessengerData {
   showTimezone?: boolean;
   messages?: IIntegrationMessengerDataMessagesItem;
   links?: IIntegrationLink;
+  externalLinks?: IIntegrationExternalLink[];
 }
 
 export interface IIntegrationLeadData {

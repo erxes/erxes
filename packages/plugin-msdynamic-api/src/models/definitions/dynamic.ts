@@ -12,11 +12,25 @@ export interface ISyncLog {
   sendStr?: string;
   responseData?: any;
   responseStr?: string;
+  sendSales?: string[];
   responseSales?: string[];
   error?: string;
 }
 
 export interface ISyncLogDocument extends ISyncLog, Document {
+  _id: string;
+}
+
+export interface ICustomerRelation {
+  customerId: string;
+  brandId: string;
+  no: string;
+  modifiedAt: Date;
+  filter: string;
+  response: any;
+}
+
+export interface ICustomerRelationDocument extends ICustomerRelation, Document {
   _id: string;
 }
 
@@ -38,7 +52,20 @@ export const syncLogSchema = schemaWrapper(
     sendStr: field({ type: String, optional: true }),
     responseData: field({ type: Object, optional: true }),
     responseStr: field({ type: String, optional: true }),
+    sendSales: field({ type: [String], optional: true }),
     responseSales: field({ type: [String], optional: true }),
     error: field({ type: String, optional: true }),
+  })
+);
+
+export const customerRelationSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    customerId: field({ type: String, index: true }),
+    brandId: field({ type: String, index: true }),
+    no: field({ type: String, index: true }),
+    modifiedAt: field({ type: Date }),
+    filter: field({ type: String }),
+    response: field({ type: Object }),
   })
 );

@@ -1,4 +1,4 @@
-import { Alert, confirm } from "@erxes/ui/src/utils";
+import { Title } from "@erxes/ui-settings/src/styles";
 import {
   BarItems,
   DataWithLoader,
@@ -7,14 +7,13 @@ import {
   Wrapper,
   __,
 } from "@erxes/ui/src";
-
 import Button from "@erxes/ui/src/components/Button";
-import CheckSyncedOrdersSidebar from "./CheckSyncedOrdersSidebar";
 import FormControl from "@erxes/ui/src/components/form/Control";
+import { Alert, confirm } from "@erxes/ui/src/utils";
 import React from "react";
-import Row from "./CheckSyncedOrdersRow";
-import { Title } from "@erxes/ui-settings/src/styles";
 import { menuDynamic } from "../../constants";
+import Row from "./CheckSyncedOrdersRow";
+import CheckSyncedOrdersSidebar from "./CheckSyncedOrdersSidebar";
 
 type Props = {
   totalCount: number;
@@ -32,7 +31,6 @@ type Props = {
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedOrderIds: string[];
   syncedOrderInfos: any;
-  toSyncMsdOrders: (orderIds: string[]) => void;
   toSendMsdOrders: (orderIds: string[]) => void;
 };
 
@@ -47,7 +45,6 @@ class CheckSyncedOrders extends React.Component<Props> {
       toggleBulk,
       bulk,
       unSyncedOrderIds,
-      toSyncMsdOrders,
       toSendMsdOrders,
       syncedOrderInfos,
     } = this.props;
@@ -59,7 +56,6 @@ class CheckSyncedOrders extends React.Component<Props> {
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(order)}
         isUnsynced={unSyncedOrderIds.includes(order._id)}
-        toSync={toSyncMsdOrders}
         toSend={toSendMsdOrders}
         syncedInfo={syncedOrderInfos[order._id] || {}}
       />
@@ -88,9 +84,6 @@ class CheckSyncedOrders extends React.Component<Props> {
       isAllSelected,
       bulk,
       loading,
-      unSyncedOrderIds,
-      toSyncMsdOrders,
-      syncedOrderInfos,
     } = this.props;
     const tablehead = [
       "Number",
@@ -135,30 +128,11 @@ class CheckSyncedOrders extends React.Component<Props> {
         });
     };
 
-    const onClickSync = () =>
-      confirm()
-        .then(() => {
-          toSyncMsdOrders(unSyncedOrderIds);
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-        });
-
     const actionBarRight = (
       <BarItems>
         {bulk.length > 0 && (
           <Button btnStyle="success" icon="check-circle" onClick={onClickCheck}>
             Check
-          </Button>
-        )}
-        {unSyncedOrderIds.length > 0 && (
-          <Button
-            btnStyle="warning"
-            size="small"
-            icon="sync"
-            onClick={onClickSync}
-          >
-            {`Sync all (${unSyncedOrderIds.length})`}
           </Button>
         )}
       </BarItems>
@@ -178,7 +152,7 @@ class CheckSyncedOrders extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__(`Check erkhet`)}
+            title={__(`Check msdynamic`)}
             queryParams={queryParams}
             submenu={menuDynamic}
           />

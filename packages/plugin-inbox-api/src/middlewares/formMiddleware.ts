@@ -64,7 +64,7 @@ const formMiddleware = async (req, res, _next) => {
         _id: field._id,
         type: field.type,
         text: field.text,
-        value: params.descrtiption,
+        value: params.description,
         validation: field.validation,
         associatedFieldId: "",
         column: null

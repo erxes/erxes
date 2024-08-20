@@ -107,6 +107,7 @@ export declare type IOrganization = {
   expiryDate?: Date;
   bundleNames?: string[];
   experienceName?: string;
+  experience?: any;
   onboardingDone?: boolean;
   contactRemaining?: boolean;
 };
@@ -127,6 +128,7 @@ export interface IUser extends IUserDoc {
   branchIds: string[];
   departmentIds: string[];
   positionIds: string[];
+  positions?: any[];
   customFieldsData?: {
     [key: string]: any;
   };

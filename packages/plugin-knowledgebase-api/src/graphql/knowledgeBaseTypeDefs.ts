@@ -45,6 +45,8 @@ export const types = `
     viewCount: Int
     attachments: [Attachment]
     image: Attachment
+    publishedUserId:String
+    publishedUser:User
 
     forms: [FormCode]
   }

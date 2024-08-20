@@ -102,7 +102,6 @@ export const getFacebookPageIdsForInsta = async (
     throw error;
   }
 };
-
 export const subscribePage = async (
   pageId,
   pageToken
@@ -239,7 +238,7 @@ export const sendReply = async (
 ) => {
   let integration;
   try {
-    integration = await models.Integrations.getIntegration({
+    integration = await models.Integrations.findOne({
       erxesApiId: integrationId
     });
   } catch (error) {

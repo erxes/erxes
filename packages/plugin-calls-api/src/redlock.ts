@@ -10,5 +10,5 @@ const redis = new Redis({
   port: parseInt(REDIS_PORT || '6379', 10),
   password: REDIS_PASSWORD,
 });
-
+export default redis;
 export const redlock = new Redlock([redis]);
