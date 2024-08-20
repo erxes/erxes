@@ -75,7 +75,7 @@ const switchContentType = contentType => {
       break;
 
     case "form_submission:form_submission":
-      changedContentType = `forms:form_submission`;
+      changedContentType = `core:form_submission`;
       break;
 
     // below cases depend on webhooks

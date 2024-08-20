@@ -12,7 +12,7 @@ import { getSyncLogDoc } from "./utils/utils";
 const allowTypes = {
   "sales:deal": ["update"],
   "products:productCategory": ["create", "update", "delete"],
-  "products:product": ["create", "update", "delete"],
+  "core:product": ["create", "update", "delete"],
   "core:customer": ["create", "update", "delete"],
   "core:company": ["create", "update", "delete"]
 };
@@ -226,7 +226,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
     return;
   }
 
-  if (type === "products:product") {
+  if (type === "core:product") {
     if (action === "create") {
       productToErkhet(subdomain, models, params, "create");
       return;

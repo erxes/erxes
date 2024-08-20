@@ -35,7 +35,7 @@ const LeftSidebar: React.FC<Props> = props => {
 
       <TaggerSection
         data={product}
-        type="products:product"
+        type="core:product"
         refetchQueries={refetchQueries}
       />
     </Sidebar>

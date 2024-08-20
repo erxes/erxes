@@ -5,7 +5,10 @@ export const MODULE_NAMES = {
   USER: "user",
   USER_GROUP: "userGroup",
   COMPANY: "company",
-  CUSTOMER: "customer"
+  CUSTOMER: "customer",
+  PRODUCT: "product",
+  PRODUCT_CATEGORY: "productCategory",
+  UOM: "uom"
 };
 
 export const SEGMENT_STRING_OPERATORS = ["e", "dne", "c", "dnc"];

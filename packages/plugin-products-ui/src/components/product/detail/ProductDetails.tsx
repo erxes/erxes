@@ -29,14 +29,14 @@ const CompanyDetails: React.FC<Props> = props => {
     <ContentBox>
       <ActivityInputs
         contentTypeId={product._id}
-        contentType="products:product"
+        contentType="core:product"
         showEmail={false}
       />
       {
         <ActivityLogs
           target={product.name || ""}
           contentId={product._id}
-          contentType="products:product"
+          contentType="core:product"
           extraTabs={[]}
         />
       }

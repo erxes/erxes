@@ -107,6 +107,18 @@ import {
 } from "./customer";
 import { types as ContactsTypes, queries as ContactsQueries } from "./contacts";
 
+import {
+  types as ProductTypes,
+  queries as ProductQueries,
+  mutations as ProductMutations
+} from "./product";
+
+import {
+  types as UomTypes,
+  queries as UomQueries,
+  mutations as UomMutations
+} from "./uom";
+
 export let types = ({ inboxEnabled }) => {
   return `
   scalar JSON
@@ -156,7 +168,10 @@ export let types = ({ inboxEnabled }) => {
   ${FieldsGroupsTypes}
   ${ContactsTypes}
   ${CompanyTypes}
-  ${CustomerTypes(inboxEnabled)}`;
+  ${CustomerTypes(inboxEnabled)}
+  ${ProductTypes}
+  ${UomTypes}
+  `;
 };
 
 export let queries = `
@@ -183,6 +198,8 @@ export let queries = `
   ${ContactsQueries}
   ${CompanyQueries}
   ${CustomerQueries}
+  ${ProductQueries}
+  ${UomQueries}
 `;
 
 export let mutations = `
@@ -204,6 +221,8 @@ export let mutations = `
   ${FieldsGroupsMutations}
   ${CompanyMutations}
   ${CustomerMutations}
+  ${ProductMutations}
+  ${UomMutations}
 `;
 
 export let subscriptions = `

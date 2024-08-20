@@ -23,7 +23,7 @@ const getCustomFields = async ({ subdomain }) => {
     action: "fields.fieldsCombinedByContentType",
     isRPC: true,
     data: {
-      contentType: `products:product`
+      contentType: `core:product`
     },
     defaultValue: []
   });

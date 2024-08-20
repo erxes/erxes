@@ -7,7 +7,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Tip,
+  Tip
 } from "@erxes/ui/src/components";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
@@ -48,7 +48,7 @@ const PerConditions = (props: Props) => {
               label="Choose product category"
               name="productCategoryIds"
               initialValue={condition.productCategoryIds || ""}
-              onSelect={(categoryIds) =>
+              onSelect={categoryIds =>
                 onChangeHandler("productCategoryIds", categoryIds)
               }
               multi={true}
@@ -60,7 +60,7 @@ const PerConditions = (props: Props) => {
               name="excludeCategoryIds"
               label="Choose categories to exclude"
               initialValue={condition.excludeCategoryIds}
-              onSelect={(categoryIds) =>
+              onSelect={categoryIds =>
                 onChangeHandler("excludeCategoryIds", categoryIds)
               }
               multi={true}
@@ -69,22 +69,22 @@ const PerConditions = (props: Props) => {
           <FormGroup>
             <ControlLabel>{"Product Tags"}</ControlLabel>
             <SelectTags
-              tagsType="products:product"
+              tagsType="core:product"
               label="Choose product tag"
               name="productTagIds"
               initialValue={condition.productTagIds || ""}
-              onSelect={(tagIds) => onChangeHandler("productTagIds", tagIds)}
+              onSelect={tagIds => onChangeHandler("productTagIds", tagIds)}
               multi={true}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>{__("Exclude tags")}</ControlLabel>
             <SelectTags
-              tagsType="products:product"
+              tagsType="core:product"
               name="excludeTagIds"
               label="Choose tags to exclude"
               initialValue={condition.excludeTagIds}
-              onSelect={(tagIds) => onChangeHandler("excludeTagIds", tagIds)}
+              onSelect={tagIds => onChangeHandler("excludeTagIds", tagIds)}
               multi={true}
             />
           </FormGroup>
@@ -94,7 +94,7 @@ const PerConditions = (props: Props) => {
               name="excludeProductIds"
               label="Choose products to exclude"
               initialValue={condition.excludeProductIds}
-              onSelect={(productIds) =>
+              onSelect={productIds =>
                 onChangeHandler("excludeProductIds", productIds)
               }
               multi={true}
@@ -105,10 +105,10 @@ const PerConditions = (props: Props) => {
             <SelectSegments
               name="segments"
               label="Choose segments"
-              contentTypes={["products:product"]}
+              contentTypes={["core:product"]}
               initialValue={condition.segments}
               multi={true}
-              onSelect={(segmentIds) => onChangeHandler("segments", segmentIds)}
+              onSelect={segmentIds => onChangeHandler("segments", segmentIds)}
             />
           </FormGroup>
         </FormColumn>
@@ -158,7 +158,7 @@ const PerConditions = (props: Props) => {
               options={[
                 { label: "Not use", value: "" },
                 { label: "Low than count", value: "lt" },
-                { label: "Greater, equal than count", value: "gte" },
+                { label: "Greater, equal than count", value: "gte" }
               ]}
               onChange={(e: any) => {
                 onChangeHandler("subUomType", e.target.value);
@@ -175,7 +175,7 @@ const PerConditions = (props: Props) => {
               label="Choose Branch"
               name="branchId"
               initialValue={condition.branchId}
-              onSelect={(branchId) => onChangeHandler("branchId", branchId)}
+              onSelect={branchId => onChangeHandler("branchId", branchId)}
               multi={false}
               customOption={{ value: "", label: "Clean branch" }}
             />
@@ -186,7 +186,7 @@ const PerConditions = (props: Props) => {
               label="Choose department"
               name="selectedDepartmentIds"
               initialValue={condition.departmentId}
-              onSelect={(departmentId) =>
+              onSelect={departmentId =>
                 onChangeHandler("departmentId", departmentId)
               }
               multi={false}

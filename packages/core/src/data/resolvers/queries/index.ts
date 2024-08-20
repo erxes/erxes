@@ -25,6 +25,9 @@ import forms from "./forms";
 import company from "./company";
 import customer from "./customer";
 import contact from "./contact";
+import products from "./products";
+import productConfigs from "./productConfigs";
+import uoms from "./uoms";
 
 export default {
   ...users,
@@ -49,5 +52,8 @@ export default {
   ...forms,
   ...company,
   ...customer,
-  ...contact
+  ...contact,
+  ...products,
+  ...productConfigs,
+  ...uoms
 };

@@ -141,7 +141,7 @@ export const putDeleteLog = async (
 
   await commonPutDeleteLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `core:${logDoc.type}` },
     user
   );
 };
@@ -163,7 +163,7 @@ export const putUpdateLog = async (
 
   await commonPutUpdateLog(
     subdomain,
-    { ...logDoc, description, extraDesc, type: `products:${logDoc.type}` },
+    { ...logDoc, description, extraDesc, type: `core:${logDoc.type}` },
     user
   );
 };

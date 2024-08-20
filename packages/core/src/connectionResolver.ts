@@ -107,6 +107,23 @@ import { ICustomerModel, loadCustomerClass } from "./db/models/Customers";
 import { ICompanyModel, loadCompanyClass } from "./db/models/Companies";
 import { ICustomerDocument } from "./db/models/definitions/customers";
 import { ICompanyDocument } from "./db/models/definitions/companies";
+import {
+  IProductCategoryModel,
+  IProductModel,
+  loadProductCategoryClass,
+  loadProductClass
+} from "./db/models/Products";
+import {
+  IProductsConfigModel,
+  loadProductsConfigClass
+} from "./db/models/ProductConfig";
+import { IUomModel, loadUomClass } from "./db/models/Uoms";
+import {
+  IProductCategoryDocument,
+  IProductDocument,
+  IProductsConfigDocument,
+  IUomDocument
+} from "./db/models/definitions/products";
 
 export interface IModels {
   Users: IUserModel;
@@ -138,6 +155,10 @@ export interface IModels {
   FormSubmissions: IFormSubmissionModel;
   Customers: ICustomerModel;
   Companies: ICompanyModel;
+  Products: IProductModel;
+  ProductCategories: IProductCategoryModel;
+  ProductsConfigs: IProductsConfigModel;
+  Uoms: IUomModel;
 }
 
 export interface IContext extends IMainContext {
@@ -271,6 +292,23 @@ export const loadClasses = (
     "companies",
     loadCompanyClass(models, subdomain)
   );
+
+  models.Products = db.model<IProductDocument, IProductModel>(
+    "products",
+    loadProductClass(models, subdomain)
+  );
+  models.Uoms = db.model<IUomDocument, IUomModel>(
+    "uoms",
+    loadUomClass(models, subdomain)
+  );
+  models.ProductsConfigs = db.model<
+    IProductsConfigDocument,
+    IProductsConfigModel
+  >("products_configs", loadProductsConfigClass(models));
+  models.ProductCategories = db.model<
+    IProductCategoryDocument,
+    IProductCategoryModel
+  >("product_categories", loadProductCategoryClass(models));
 
   return models;
 };

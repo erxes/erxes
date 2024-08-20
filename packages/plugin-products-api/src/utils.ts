@@ -1,7 +1,6 @@
 import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
-import { ICustomField } from "@erxes/api-utils/src/types";
 import * as _ from "underscore";
-import { debugError, debugInfo } from "@erxes/api-utils/src/debuggers";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 import { IModels } from "./connectionResolver";
 import { fetchSegment, sendCoreMessage } from "./messageBroker";
 import { productSchema } from "./models/definitions/products";

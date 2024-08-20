@@ -16,6 +16,9 @@ import segments from "./segments";
 import forms from "./forms";
 import company from "./company";
 import customer from "./customer";
+import products from "./products";
+import productConfigs from "./productConfigs";
+import uoms from "./uoms";
 
 import {
   fieldMutations as fields,
@@ -40,5 +43,8 @@ export default {
   ...fields,
   ...fieldsgroups,
   ...company,
-  ...customer
+  ...customer,
+  ...products,
+  ...productConfigs,
+  ...uoms
 };

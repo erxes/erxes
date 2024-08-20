@@ -293,7 +293,7 @@ const List: React.FC<IProps> = props => {
           onFocus={moveCursorAtTheEnd}
         />
 
-        <TemporarySegment btnSize="medium" contentType={`products:product`} />
+        <TemporarySegment btnSize="medium" contentType={`core:product`} />
 
         <Link to="/settings/importHistories?type=product">
           <Button btnStyle="simple" icon="arrow-from-right">

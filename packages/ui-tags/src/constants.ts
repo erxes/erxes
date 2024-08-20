@@ -7,7 +7,7 @@ export const TAG_TYPES = {
   AUTOMATION: __("automations:automations"),
   COMPANY: __("core:company"),
   INTEGRATION: __("inbox:integration"),
-  PRODUCT: __("products:product"),
+  PRODUCT: __("core:product"),
   PRODUCT_TEMPLATE: __("productTemplate"),
   DEAL: __("sales:deal"),
   TICKET: __("tickets:ticket"),

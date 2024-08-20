@@ -64,7 +64,7 @@ export default function FormComponent(props: Props) {
       .query({
         query: gql(formQueries.fieldsCombinedByContentType),
         variables: {
-          contentType: "products:product"
+          contentType: "core:product"
         }
       })
       .then(({ data }) => {

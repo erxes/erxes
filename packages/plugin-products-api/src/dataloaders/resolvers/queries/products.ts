@@ -284,15 +284,11 @@ const productQueries = {
 
     switch (only) {
       case "byTag":
-        counts.byTag = await countByTag(subdomain, "products:product", qb);
+        counts.byTag = await countByTag(subdomain, "core:product", qb);
         break;
 
       case "bySegment":
-        counts.bySegment = await countBySegment(
-          subdomain,
-          "products:product",
-          qb
-        );
+        counts.bySegment = await countBySegment(subdomain, "core:product", qb);
         break;
     }
 
@@ -461,7 +457,7 @@ const productQueries = {
       subdomain,
       action: "tagFind",
       data: {
-        type: "products:product"
+        type: "core:product"
       },
       isRPC: true,
       defaultValue: []

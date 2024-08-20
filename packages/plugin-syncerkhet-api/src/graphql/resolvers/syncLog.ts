@@ -59,7 +59,7 @@ export default {
       return info.code || info.primaryName || contentId;
     }
 
-    if (contentType === "products:product") {
+    if (contentType === "core:product") {
       const info = syncLog.consumeData.object;
       return info.code || info.name || contentId;
     }

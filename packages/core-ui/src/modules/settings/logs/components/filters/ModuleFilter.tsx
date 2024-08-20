@@ -58,8 +58,8 @@ const moduleOptions = [
   { value: "core:company", label: "Companies" },
   { value: "core:customer", label: "Customers" },
   // products service items
-  { value: "products:product", label: "Products" },
-  { value: "products:product-category", label: "Product categories" },
+  { value: "core:product", label: "Products" },
+  { value: "core:product-category", label: "Product categories" },
   // knowledgebase service items
   { value: "knowledgebase:knowledgeBaseTopic", label: "Knowledgebase topics" },
   {
