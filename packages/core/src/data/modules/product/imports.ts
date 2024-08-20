@@ -1,5 +1,4 @@
-import { generateModels } from "./connectionResolver";
-import { sendCoreMessage } from "./messageBroker";
+import { generateModels } from "../../../connectionResolver";
 
 export const IMPORT_EXPORT_TYPES = [
   {
@@ -79,14 +78,10 @@ export default {
                 value: fieldValue[colIndex]
               });
 
-              doc.customFieldsData = await sendCoreMessage({
-                subdomain,
-                action: "fields.prepareCustomFieldsData",
-                data: doc.customFieldsData,
-                isRPC: true,
-                defaultValue: doc.customFieldsData,
-                timeout: 60 * 1000 // 1 minute
-              });
+              doc.customFieldsData =
+                await models.Fields.prepareCustomFieldsData(
+                  doc.customFieldData
+                );
             }
             break;
 
@@ -105,19 +100,15 @@ export default {
             {
               const tagName = value;
 
-              let tag = await sendCoreMessage({
-                subdomain,
-                action: "tagFindOne",
-                data: { name: tagName, type: `core:product` },
-                isRPC: true
+              let tag = await models.Tags.findOne({
+                name: tagName,
+                type: `core:product`
               });
 
               if (!tag) {
-                tag = await sendCoreMessage({
-                  subdomain,
-                  action: "createTag",
-                  data: { name: tagName, type: `core:product` },
-                  isRPC: true
+                tag = await models.Tags.create({
+                  name: tagName,
+                  type: `core:product`
                 });
               }
 

@@ -36,17 +36,13 @@ const productFields = `
   `;
 
 export const types = `
-    ${attachmentType}
-    ${attachmentInput}
-  }
-
   type ProductsConfig {
     _id: String!
     code: String!
     value: JSON
   }
 
-  type ProductCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type ProductCategory {
     _id: String!
     name: String
     description: String
@@ -65,11 +61,11 @@ export const types = `
     similarities: JSON
   }
 
-  type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type Product {
     ${productFields}
   }
 
-  type ProductsUsedPipeline @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type ProductsUsedPipeline {
     ${productFields}
     usedCount: Int
   }

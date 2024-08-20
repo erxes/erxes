@@ -38,6 +38,22 @@ const search = async ({ subdomain, data: { value } }) => {
           "searchText"
         ]
       })
+    },
+    {
+      module: "products",
+      items: await doSearch({
+        subdomain,
+        index: "product",
+        value,
+        fields: [
+          "code",
+          "name",
+          "unitPrice",
+          "description",
+          "status",
+          "categoryId"
+        ]
+      })
     }
   ];
 };

@@ -12,8 +12,6 @@ import {
 } from "./schema/movements";
 
 const typeDefs = async () => {
-  const contactsAvailable = true;
-
   return gql`
     scalar JSON
     scalar Date
@@ -29,8 +27,8 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${assetTypes(contactsAvailable)}
-    ${movementTypes(contactsAvailable)}
+    ${assetTypes}
+    ${movementTypes}
     
     extend type Query {
       ${assetQueries}

@@ -1,6 +1,7 @@
 import { ICustomField } from "@erxes/api-utils/src/types";
 import * as _ from "underscore";
-import { IModels } from "./connectionResolver";
+import { generateModels, IModels } from "./connectionResolver";
+import { IProduct, IProductCategory } from "./db/models/definitions/products";
 
 export const checkCodeMask = async (
   category?: IProductCategory,
@@ -54,6 +55,8 @@ export const initCustomField = async (
   productCustomFieldsData?: ICustomField[],
   docCustomFieldsData?: ICustomField[]
 ) => {
+  const models = await generateModels(subdomain);
+
   if (
     !category ||
     !category.maskType ||
@@ -68,13 +71,7 @@ export const initCustomField = async (
         )
       );
 
-      return await sendCoreMessage({
-        subdomain,
-        action: "fields.prepareCustomFieldsData",
-        data: allCustomFieldsData,
-        isRPC: true,
-        defaultValue: []
-      });
+      return models.Fields.prepareCustomFieldsData(allCustomFieldsData);
     }
 
     return productCustomFieldsData;
@@ -115,13 +112,7 @@ export const initCustomField = async (
     )
   );
 
-  return await sendCoreMessage({
-    subdomain,
-    action: "fields.prepareCustomFieldsData",
-    data: customFieldsData,
-    isRPC: true,
-    defaultValue: []
-  });
+  return models.Fields.prepareCustomFieldsData(customFieldsData);
 };
 
 export const checkSameMaskConfig = async (models: IModels, doc: IProduct) => {

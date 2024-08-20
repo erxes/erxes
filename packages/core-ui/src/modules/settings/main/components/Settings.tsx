@@ -202,11 +202,26 @@ class Settings extends React.PureComponent {
             )}
 
             {this.renderBox(
-              "Email Delivery Logs'",
+              "Email Delivery Logs",
               "/images/icons/erxes-27.png",
               "/settings/emailDelivery",
               "",
               []
+            )}
+            {this.renderBox(
+              "Configs of Products",
+              "/images/icons/erxes-07.svg",
+              "/settings/uoms-manage",
+              "",
+              ["showProducts", "manageProducts"]
+            )}
+
+            {this.renderBox(
+              "Product and services",
+              "/images/icons/erxes-31.png",
+              "/settings/product-service/",
+              "",
+              ["showProducts", "manageProducts"]
             )}
           </div>
         </Row>

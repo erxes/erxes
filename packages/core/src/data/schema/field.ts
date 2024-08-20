@@ -24,10 +24,6 @@ const fieldCommonFields = `
 `;
 
 export const fieldsTypes = `
-  extend type Product @key(fields: "_id") {
-      _id: String! @external
-  }
-
   type Logic {
     fieldId: String!
     logicOperator: String

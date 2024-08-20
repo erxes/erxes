@@ -20,25 +20,18 @@ type State = {
 
 const CORE_PLUGINS = [
   {
-    text: "Segments",
-    url: "/segments",
-    icon: "icon-chart-pie-alt",
-    location: "mainNavigation",
-    permission: "showSegments"
-  },
-  {
-    text: "Segments",
-    url: "/segments",
-    icon: "icon-chart-pie-alt",
-    location: "mainNavigation",
-    permission: "showSegments"
-  },
-  {
     text: "Contacts",
     url: "/contacts/customer",
     icon: "icon-user",
     location: "mainNavigation",
     permission: "showCustomers"
+  },
+  {
+    text: "Segments",
+    url: "/segments",
+    icon: "icon-chart-pie-alt",
+    location: "mainNavigation",
+    permission: "showSegments"
   }
 ];
 
