@@ -77,7 +77,7 @@ const isInProduct = async (
 
   const products = await sendProductsMessage({
     subdomain,
-    action: "find",
+    action: "productFind",
     data: {
       query: {
         status: { $ne: "deleted" },

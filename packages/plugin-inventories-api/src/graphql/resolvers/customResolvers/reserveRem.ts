@@ -1,6 +1,6 @@
-import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { IReserveRemDocument } from '../../../models/definitions/reserveRems';
+import { IContext } from "../../../connectionResolver";
+import { sendCoreMessage, sendProductsMessage } from "../../../messageBroker";
+import { IReserveRemDocument } from "../../../models/definitions/reserveRems";
 
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
@@ -14,7 +14,7 @@ export default {
   ) {
     return await sendCoreMessage({
       subdomain,
-      action: 'branches.findOne',
+      action: "branches.findOne",
       data: { _id: reserveRem.branchId },
       isRPC: true
     });
@@ -27,7 +27,7 @@ export default {
   ) {
     return await sendCoreMessage({
       subdomain,
-      action: 'departments.findOne',
+      action: "departments.findOne",
       data: { _id: reserveRem.departmentId },
       isRPC: true
     });
@@ -40,7 +40,7 @@ export default {
   ) {
     return await sendProductsMessage({
       subdomain,
-      action: 'findOne',
+      action: "productFindOne",
       data: { _id: reserveRem.productId },
       isRPC: true
     });

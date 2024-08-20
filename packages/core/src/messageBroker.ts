@@ -53,6 +53,7 @@ import {
 import { fieldsCombinedByContentType } from "./formUtils";
 import { setupContactsMessageBroker } from "./messageBrokers/contacts";
 import search from "./search";
+import { setupProductMessageBroker } from "./messageBrokers/products";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -60,6 +61,7 @@ export const initBroker = async (): Promise<void> => {
 
 export const setupMessageConsumers = async (): Promise<void> => {
   await setupContactsMessageBroker();
+  await setupProductMessageBroker();
   consumeQueue(
     "core:manage-installation-notification",
     async ({

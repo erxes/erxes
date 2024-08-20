@@ -1,6 +1,6 @@
-import { IContext } from '../../connectionResolver';
-import { sendProductsMessage} from '../../messageBroker'
-import { IBookingData } from '../../models/definitions/integrations';
+import { IContext } from "../../connectionResolver";
+import { sendProductsMessage } from "../../messageBroker";
+import { IBookingData } from "../../models/definitions/integrations";
 
 export default {
   async categoryTree(booking: IBookingData, _params, { subdomain }: IContext) {
@@ -9,7 +9,7 @@ export default {
       name: string;
       description?: string;
       parentId?: string;
-      type: 'category' | 'product';
+      type: "category" | "product";
       status?: string;
       count?: number;
     }> = [];
@@ -21,11 +21,11 @@ export default {
         _id: booking.productCategoryId
       },
       isRPC: true
-    })
+    });
 
     const allCategories = await sendProductsMessage({
       subdomain,
-      action: 'categories.find',
+      action: "categories.find",
       data: {
         query: {},
         regData: mainCategory.order,
@@ -38,17 +38,16 @@ export default {
 
     const allProducts = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: {
         query: {
           categoryId: { $in: allCategories.map(cat => cat._id) },
-          status: { $ne: 'deleted' }
+          status: { $ne: "deleted" }
         },
         sort: { name: 1 }
       },
       isRPC: true
     });
-
 
     const generateTree = async (parentId: any) => {
       const categories = allCategories.filter(cat => cat.parentId === parentId);
@@ -66,7 +65,7 @@ export default {
             name: product.name,
             description: product.description,
             parentId,
-            type: 'product',
+            type: "product",
             count
           });
         }
@@ -84,7 +83,7 @@ export default {
         const products = allProducts.flatMap(product => {
           const count = product.productCount || 0;
 
-          if (count > 0 && childrenCatIds.includes(product.categoryId || '')) {
+          if (count > 0 && childrenCatIds.includes(product.categoryId || "")) {
             return product;
           }
 
@@ -96,7 +95,7 @@ export default {
           name: category.name,
           description: category.description,
           parentId,
-          type: 'category',
+          type: "category",
           status: category.status,
           count: products.length
         });
@@ -112,8 +111,8 @@ export default {
 
   async mainProductCategory(booking: IBookingData) {
     return {
-      __typename: 'ProductCategory',
+      __typename: "ProductCategory",
       _id: booking.productCategoryId
-    }
+    };
   }
 };

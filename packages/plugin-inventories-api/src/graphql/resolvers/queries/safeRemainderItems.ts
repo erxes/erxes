@@ -1,10 +1,10 @@
-import { paginate } from '@erxes/api-utils/src/core';
+import { paginate } from "@erxes/api-utils/src/core";
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage } from "../../../messageBroker";
 
 export const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryIds, status, diffType } = params;
@@ -13,14 +13,14 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
   if (productCategoryIds && productCategoryIds.length) {
     const categories = await sendProductsMessage({
       subdomain,
-      action: 'categories.withChilds',
+      action: "categories.withChilds",
       data: { ids: productCategoryIds },
       isRPC: true
     });
 
     const limit = await sendProductsMessage({
       subdomain,
-      action: 'count',
+      action: "productCount",
       data: { query: { categoryId: { $in: categories.map(c => c._id) } } },
       isRPC: true,
       defaultValue: 0
@@ -28,7 +28,7 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: {
         query: { categoryId: { $in: categories.map(c => c._id) } },
         limit
@@ -46,20 +46,20 @@ export const generateFilterItems = async (subdomain: string, params: any) => {
   }
 
   if (diffType) {
-    const diffTypes = diffType.split(',');
+    const diffTypes = diffType.split(",");
     let op;
-    if (diffTypes.includes('gt')) {
-      op = '>';
+    if (diffTypes.includes("gt")) {
+      op = ">";
     }
-    if (diffTypes.includes('lt')) {
-      op = '<';
+    if (diffTypes.includes("lt")) {
+      op = "<";
     }
     if (op) {
-      if (diffTypes.includes('eq')) {
+      if (diffTypes.includes("eq")) {
         op = `${op}=`;
       }
     } else {
-      if (diffTypes.includes('eq')) {
+      if (diffTypes.includes("eq")) {
         op = `===`;
       }
     }
@@ -77,9 +77,7 @@ const safeRemainderItemsQueries = {
   ) => {
     const query: any = await generateFilterItems(subdomain, params);
     return paginate(
-      models.SafeRemainderItems.find(query)
-        .sort({ order: 1 })
-        .lean(),
+      models.SafeRemainderItems.find(query).sort({ order: 1 }).lean(),
       params
     );
   },
@@ -94,7 +92,7 @@ const safeRemainderItemsQueries = {
   }
 };
 
-requireLogin(safeRemainderItemsQueries, 'tagDetail');
-checkPermission(safeRemainderItemsQueries, 'remainders', 'showTags', []);
+requireLogin(safeRemainderItemsQueries, "tagDetail");
+checkPermission(safeRemainderItemsQueries, "remainders", "showTags", []);
 
 export default safeRemainderItemsQueries;

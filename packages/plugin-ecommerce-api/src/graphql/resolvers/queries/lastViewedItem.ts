@@ -1,5 +1,5 @@
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage } from "../../../messageBroker";
 
 const lastViewedItemQueries = {
   lastViewedItems: async (_root, params, { subdomain, models }: IContext) => {
@@ -14,7 +14,7 @@ const lastViewedItemQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: 'find',
+      action: "productFind",
       data: {
         query: { _id: { $in: productIds } },
         limit: productIds.length

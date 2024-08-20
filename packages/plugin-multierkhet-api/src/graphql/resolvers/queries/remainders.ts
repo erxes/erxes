@@ -46,7 +46,7 @@ const erkhetQueries = {
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: "productFind",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
         isRPC: true,
         defaultValue: []

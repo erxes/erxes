@@ -1,5 +1,5 @@
-import { Transform } from 'stream';
-import { chunkArray } from './core';
+import { chunkArray } from "./core";
+import { Transform } from "stream";
 
 export const stream = (
   executeChunk,
@@ -36,14 +36,14 @@ export const stream = (
   return new Promise((resolve, reject) => {
     const pipe = chldStream.pipe(parentTransformerStream);
 
-    pipe.on('finish', async () => {
+    pipe.on("finish", async () => {
       try {
         await onFinishPiping();
       } catch (e) {
         return reject(e);
       }
 
-      resolve('done');
+      resolve("done");
     });
   });
 };

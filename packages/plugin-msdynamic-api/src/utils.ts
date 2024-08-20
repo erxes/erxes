@@ -259,7 +259,7 @@ export const consumeInventory = async (subdomain, config, doc, action) => {
 
   const product = await sendProductsMessage({
     subdomain,
-    action: "findOne",
+    action: "productFindOne",
     data: { code: updateCode },
     isRPC: true,
     defaultValue: {}
@@ -799,7 +799,7 @@ export const dealToDynamic = async (subdomain, syncLog, params, models) => {
     if (order && order.items.length > 0 && responseSale) {
       const products = await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: "productFind",
         data: { _id: { $in: order.items.map(item => item.productId) } },
         isRPC: true
       });

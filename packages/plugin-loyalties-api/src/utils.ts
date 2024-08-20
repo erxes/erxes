@@ -162,7 +162,7 @@ export const checkVouchersSale = async (
 
   const limit = await sendProductsMessage({
     subdomain,
-    action: "count",
+    action: "productCount",
     data: {
       query: { categoryId: { $in: allCatIds } }
     },
@@ -172,7 +172,7 @@ export const checkVouchersSale = async (
 
   const catProducts = await sendProductsMessage({
     subdomain,
-    action: "find",
+    action: "productFind",
     data: {
       query: { categoryId: { $in: allCatIds } },
       sort: { _id: 1, categoryId: 1 },
