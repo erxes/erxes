@@ -6,7 +6,6 @@ dotenv.config();
 import { Collection, Db, MongoClient } from 'mongodb';
 
 let { MONGO_URL } = process.env;
-
 if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
