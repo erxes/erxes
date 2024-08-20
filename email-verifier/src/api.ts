@@ -17,6 +17,9 @@ import {
   sendRequest,
 } from './utils';
 import fetch from 'node-fetch';
+import * as path  from 'path';
+import * as fs from 'fs'
+
 
 dotenv.config();
 
@@ -227,59 +230,56 @@ export const getProgressStatus = async (listId: string) => {
 };
 
 export const getResult = async (listId: string, hostname: string) => {
-  const url = `${CLEAR_OUT_API_URL}/download/result`;
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer:${CLEAR_OUT_API_KEY}`,
-  };
-  try {
-    const response: any = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ list_id: listId }),
-    }).then((r) => r.json());
+    // read csv file using fs
+    const filePath = path.join(__dirname, 'kickbox.csv'); // Replace 'your-file.csv' with your actual file path
 
-    const resp = await fetch(response.data.url, {
-      method: 'GET',
-    }).then((r) => r.text());
+    const results: any[] = [];
 
-    const rows = resp.split('\n');
-    const emails: Array<{ email: string; status: string }> = [];
 
-    for (const [index, row] of rows.entries()) {
-      if (index !== 0) {
-        const rowArray = row.split(',');
+      // Read the CSV file content
+      // const csvData = fs.readFileSync(filePath, 'utf8');
+      // const rows = parse(csvData, {
+      //   columns: true, // This will use the first row as column names
+      //   skip_empty_lines: true,
+      // });
 
-        if (rowArray.length > 12) {
-          const email = rowArray[0];
-          let status = rowArray[2].toLowerCase();
+      console.log(rows)
 
-          emails.push({
-            email,
-            status,
-          });
+    // const rows = resp.split('\n');
+    // const emails: Array<{ email: string; status: string }> = [];
 
-          const found = await Emails.findOne({ email });
+    // for (const [index, row] of rows.entries()) {
+    //   if (index !== 0) {
+    //     const rowArray = row.split(',');
 
-          if (!found) {
-            Emails.createEmail({ email, status });
-          }
-        }
-      }
-    }
+    //     if (rowArray.length > 12) {
+    //       const email = rowArray[0];
+    //       let status = rowArray[2].toLowerCase();
 
-    debugBase(`Sending bulk email validation result to erxes-api`);
+    //       emails.push({
+    //         email,
+    //         status,
+    //       });
 
-    await sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        emails,
-      },
-    });
-  } catch (e) {
-    throw e;
-  }
+    //       const found = await Emails.findOne({ email });
+
+    //       if (!found) {
+    //         Emails.createEmail({ email, status });
+    //       }
+    //     }
+    //   }
+    // }
+
+    // debugBase(`Sending bulk email validation result to erxes-api`);
+
+    // await sendRequest({
+    //   url: `${hostname}/verifier/webhook`,
+    //   method: 'POST',
+    //   body: {
+    //     emails,
+    //   },
+    // });
+
 };
 
 // create bulk validation queue because of sendgrid does not support bulk validation

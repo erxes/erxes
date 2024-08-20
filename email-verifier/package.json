@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@types/tmp": "^0.2.6",
+    "csv-parser": "^3.0.0",
     "csv-writer": "^1.6.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
