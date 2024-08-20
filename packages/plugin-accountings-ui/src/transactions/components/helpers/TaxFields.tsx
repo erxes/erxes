@@ -27,7 +27,6 @@ type Props = {
 };
 
 const checkFollowDocs = (currentFollowTrDoc, type, followData, checkFollowTrDocs, checkFollows) => {
-  console.log(type, 'kkkkkkkkkkkkkk', currentFollowTrDoc, followData, checkFollows)
   if (currentFollowTrDoc) {
     if (checkFollowTrDocs.filter(ftr => ftr._id === currentFollowTrDoc._id).length) {
       return {
@@ -52,7 +51,6 @@ const TaxFields = (props: Props) => {
   const { trDoc, setTrDoc, followTrDocs, onChangeDetail, configsMap, isWithTax, side } = props;
   const vatFollowData = (trDoc.follows || []).find(f => f.type === 'vat');
   const ctaxFollowData = (trDoc.follows || []).find(f => f.type === 'ctax');
-  console.log('----------------------------------------------------------------------------', trDoc.follows)
 
   const sumVatAmount = trDoc?.details.filter(d => !d.excludeVat).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
   const sumCtaxAmount = trDoc?.details.filter(d => !d.excludeCtax).reduce((sum, cur) => sum + (cur?.amount || 0), 0);
@@ -91,10 +89,10 @@ const TaxFields = (props: Props) => {
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
 
-    const curr = followTrDocs.find(ftr => ftr._id === vatFollowData?.id) || trDoc;
+    const curr = followTrDocs.find(ftr => ftr._id === vatFollowData?.id);
 
     return {
-      ...curr,
+      ...curr || trDoc,
       _id: curr?._id || getTempId(),
       journal: JOURNALS.VAT,
       originId: trDoc._id,
@@ -111,7 +109,7 @@ const TaxFields = (props: Props) => {
       sumCt,
     };
 
-  }, [trDoc.hasVat, trDoc.afterVat, trDoc.vatAmount, trDoc.hasCtax, (trDoc.details || [])[0]?.side]);
+  }, [trDoc.hasVat, trDoc.afterVat, trDoc.vatAmount, trDoc.hasCtax, trDoc.ctaxAmount, (trDoc.details || [])[0]?.side]);
 
   const ctaxFollowTrDoc = useMemo(() => {
     if (!trDoc.hasCtax) {
@@ -128,10 +126,10 @@ const TaxFields = (props: Props) => {
 
     const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: amount, sumCt: 0 } : { sumDt: 0, sumCt: amount }
 
-    const curr = followTrDocs.find(ftr => ftr._id === ctaxFollowData?.id) || trDoc;
+    const curr = followTrDocs.find(ftr => ftr._id === ctaxFollowData?.id);
 
     return {
-      ...curr,
+      ...curr || trDoc,
       _id: curr?._id || getTempId(),
       journal: JOURNALS.CTAX,
       originId: trDoc._id,
@@ -146,7 +144,7 @@ const TaxFields = (props: Props) => {
       sumDt,
       sumCt,
     };
-  }, [trDoc.hasCtax, trDoc.ctaxAmount, trDoc.hasVat, (trDoc.details || [])[0]?.side]);
+  }, [trDoc.hasCtax, trDoc.ctaxAmount, trDoc.hasVat, trDoc.vatAmount, (trDoc.details || [])[0]?.side]);
 
   const getFollowTrDocs = () => {
     const vatCalced = checkFollowDocs(vatFollowTrDoc, 'vat', vatFollowData, followTrDocs, trDoc.follows);
