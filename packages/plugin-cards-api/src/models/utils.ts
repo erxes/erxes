@@ -662,14 +662,16 @@ export const updateName = async (
 ) => {
   const validTypes = ['deal', 'ticket', 'purchase', 'task'];
 
-  if (!validTypes.includes(type)) return;
+  if (!validTypes.includes(type)) {
+    return;
+  }
 
   const models = await generateModels(subdomain);
 
   const { collection } = getCollection(models, type);
 
   if (itemId) {
-    const item = await collection?.findOne({ _id: itemId }).lean();
+    const item = await collection.findOne({ _id: itemId }).lean();
     const stage = await models.Stages.findOne({ _id: item.stageId });
     const pipeline = await models.Pipelines.findOne({ _id: stage?.pipelineId });
     let replacedName = pipeline?.nameConfig;
