@@ -7,12 +7,13 @@ export const ACCOUNT_KINDS = {
 export const ACCOUNT_JOURNALS = {
   MAIN: 'main',
   CASH: 'cash',
-  FUND: 'fund',
+  BANK: 'bank',
   DEBT: 'debt',
   INVENTORY: 'inventory',
   FIXED_ASSET: 'fixedAsset',
   VAT: 'vat',
-  ALL: ['main', 'cash', 'fund', 'debt', 'inventory', 'fixedAsset', 'vat'],
+  CTAX: 'ctax',
+  ALL: ['main', 'cash', 'fund', 'debt', 'inventory', 'fixedAsset', 'vat', 'ctax'],
 };
 
 export const ACCOUNT_STATUSES = {
@@ -65,8 +66,9 @@ export const JOURNALS = {
   MAIN: 'main',
   MAIN_FB: 'main_fb',
   CASH: 'cash',
-  FUND: 'bank',
-  DEBT: 'debt',
+  BANK: 'bank',
+  RECEIVABLE: 'receivable',
+  PAYABLE: 'payable',
   INV_FB: 'inv_fb',
   INV_INCOME: 'inv_income',
   INV_OUT: 'inv_out',
@@ -80,11 +82,11 @@ export const JOURNALS = {
   VAT: 'vat',
   CTAX: 'ctax',
   ALL: [
-    'main', 'cash', 'bank', 'debt',
+    'main', 'cash', 'bank', 'receivable', 'payable',
     'inv_fb', 'inv_income', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
     'inv_sale', 'inv_cost',
     'inv_in_return', 'inv_sale_return',
-    'expense', 'vat'
+    'expense', 'vat', 'ctax'
   ],
   ALL_INV: [],
 }

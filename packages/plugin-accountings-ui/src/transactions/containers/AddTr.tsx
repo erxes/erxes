@@ -31,17 +31,18 @@ const AddTransactionLink = (props: FinalProps) => {
         }
       >
         <DropdownList>
-          <h3 className="popover-header">Ерөнхий</h3>
           <div className="dropdown-list">
+            <h3 className="popover-header">Ерөнхий</h3>
             {can("accountingsCreateMainTr", currentUser) && (
               <li onClick={onClick.bind(this, "main")}>Ерөнхий журнал</li>
             )}
-
-            <li onClick={onClick.bind(this, "debt")}>Авлага өглөг</li>
             <li>НӨАТ</li>
             <h3 className="popover-header">Мөнгөн хөрөнгө</h3>
             <li onClick={onClick.bind(this, "cash")}>Касс</li>
-            <li onClick={onClick.bind(this, "fund")}>Харилцах</li>
+            <li onClick={onClick.bind(this, "bank")}>Харилцах</li>
+            <h3 className="popover-header">Тооцоо</h3>
+            <li onClick={onClick.bind(this, "receivable")}>Авлага</li>
+            <li onClick={onClick.bind(this, "payable")}>Өглөг</li>
             <h3 className="popover-header">Бараа материал</h3>
             <li>Орлого</li>
             <li>Хангамжийн зарлага</li>

@@ -27,6 +27,7 @@ interface IQueryParams {
   currency?: string;
   journal?: string;
   journals?: string[];
+  kind?: string;
 }
 
 export const generateFilter = async (
@@ -48,6 +49,7 @@ export const generateFilter = async (
     ids,
     excludeIds,
     journals,
+    kind
   } = params;
   const filter: any = commonQuerySelector;
 
@@ -83,7 +85,10 @@ export const generateFilter = async (
     if (notActiveCategories.length) {
       filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
     }
+  }
 
+  if (kind) {
+    filter.kind = kind;
   }
 
   // search =========

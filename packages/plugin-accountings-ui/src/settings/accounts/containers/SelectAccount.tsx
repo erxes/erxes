@@ -46,6 +46,7 @@ export default ({
     searchValue?: string;
     withoutUserFilter?: boolean;
     journals?: string[];
+    kind?: string;
   };
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;

@@ -13,7 +13,7 @@ import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
-import { TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
+import { ACCOUNT_KINDS, TR_CUSTOMER_TYPES, TR_SIDES } from '../../constants';
 import SelectAccount from '../../settings/accounts/containers/SelectAccount';
 import { IAccount } from '../../settings/accounts/types';
 import { IConfigsMap } from '../../settings/configs/types';
@@ -31,7 +31,7 @@ type Props = {
   setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
 };
 
-const TrFormCash = (props: Props) => {
+const TrFormPayable = (props: Props) => {
   const { trDoc, setTrDoc, configsMap, followTrDocs } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
@@ -107,7 +107,7 @@ const TrFormCash = (props: Props) => {
               initialValue={detail.accountId || ''}
               label='Account'
               name='accountId'
-              filterParams={{ journals: ['cash'] }}
+              filterParams={{ journals: ['debt'], kind: 'passive' }}
               onSelect={(accountId, obj) => { onAccountChange(accountId, obj) }}
             />
           </FormGroup>
@@ -119,7 +119,7 @@ const TrFormCash = (props: Props) => {
               componentclass='select'
               name="side"
               value={detail.side || TR_SIDES.DEBIT}
-              options={TR_SIDES.FUND_OPTIONS}
+              options={TR_SIDES.PAYABLE_OPTIONS}
               onChange={e => onChangeDetail('side', (e.target as any).value)}
             />
           </FormGroup>
@@ -220,4 +220,4 @@ const TrFormCash = (props: Props) => {
   );
 };
 
-export default TrFormCash;
+export default TrFormPayable;

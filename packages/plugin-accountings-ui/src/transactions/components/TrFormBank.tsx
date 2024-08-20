@@ -31,7 +31,7 @@ type Props = {
   setTrDoc: (trDoc: ITransaction, fTrDocs?: ITransaction[]) => void;
 };
 
-const TrFormCash = (props: Props) => {
+const TrFormBank = (props: Props) => {
   const { trDoc, setTrDoc, configsMap, followTrDocs } = props;
   const detail = trDoc?.details && trDoc?.details[0] || {};
 
@@ -107,7 +107,7 @@ const TrFormCash = (props: Props) => {
               initialValue={detail.accountId || ''}
               label='Account'
               name='accountId'
-              filterParams={{ journals: ['cash'] }}
+              filterParams={{ journals: ['bank'] }}
               onSelect={(accountId, obj) => { onAccountChange(accountId, obj) }}
             />
           </FormGroup>
@@ -220,4 +220,4 @@ const TrFormCash = (props: Props) => {
   );
 };
 
-export default TrFormCash;
+export default TrFormBank;

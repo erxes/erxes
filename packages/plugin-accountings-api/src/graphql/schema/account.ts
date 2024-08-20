@@ -75,6 +75,7 @@ const accountsQueryParams = `
   departmentId: String
   currency: String
   journals: [String]
+  kind: String
 `;
 
 export const queries = `

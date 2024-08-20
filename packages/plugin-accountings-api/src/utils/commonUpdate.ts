@@ -46,6 +46,93 @@ export const commonUpdate = async (models: IModels, doc: ITransaction, oldTr?: I
 
       break;
     }
+    case 'bank': {
+      const detail = doc.details[0] || {}
+      let currencyTr;
+      const currencyTrClass = new CurrencyTr(models, doc);
+      await currencyTrClass.checkValidationCurrency();
+
+      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
+      await taxTrsClass.checkTaxValidation();
+
+      const transaction =
+        await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+
+      mainTr = transaction
+      currencyTr = await currencyTrClass.doCurrencyTr(transaction)
+
+      if (currencyTr) {
+        otherTrs.push(currencyTr)
+      }
+
+      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
+
+      if (taxTrs?.length) {
+        for (const taxTr of taxTrs) {
+          otherTrs.push(taxTr)
+        }
+      }
+
+      break;
+    }
+    case 'receivable': {
+      const detail = doc.details[0] || {}
+      let currencyTr;
+      const currencyTrClass = new CurrencyTr(models, doc);
+      await currencyTrClass.checkValidationCurrency();
+
+      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
+      await taxTrsClass.checkTaxValidation();
+
+      const transaction =
+        await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+
+      mainTr = transaction
+      currencyTr = await currencyTrClass.doCurrencyTr(transaction)
+
+      if (currencyTr) {
+        otherTrs.push(currencyTr)
+      }
+
+      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
+
+      if (taxTrs?.length) {
+        for (const taxTr of taxTrs) {
+          otherTrs.push(taxTr)
+        }
+      }
+
+      break;
+    }
+    case 'payable': {
+      const detail = doc.details[0] || {}
+      let currencyTr;
+      const currencyTrClass = new CurrencyTr(models, doc);
+      await currencyTrClass.checkValidationCurrency();
+
+      const taxTrsClass = new TaxTrs(models, doc, detail?.side === 'dt' ? 'ct' : 'dt', true);
+      await taxTrsClass.checkTaxValidation();
+
+      const transaction =
+        await models.Transactions.updateTransaction(oldTr._id, { ...doc });
+
+      mainTr = transaction
+      currencyTr = await currencyTrClass.doCurrencyTr(transaction)
+
+      if (currencyTr) {
+        otherTrs.push(currencyTr)
+      }
+
+      const taxTrs = await taxTrsClass.doTaxTrs(transaction)
+
+      if (taxTrs?.length) {
+        for (const taxTr of taxTrs) {
+          otherTrs.push(taxTr)
+        }
+      }
+
+      break;
+    }
   }
 
   if (!mainTr) {

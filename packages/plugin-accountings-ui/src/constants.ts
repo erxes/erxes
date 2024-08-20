@@ -23,11 +23,12 @@ export const ACCOUNT_KINDS = [
 export const ACCOUNT_JOURNALS = [
   { label: 'MAIN', value: 'main' },
   { label: 'CASH', value: 'cash' },
-  { label: 'FUND', value: 'fund' },
+  { label: 'BANK', value: 'fund' },
   { label: 'DEBT', value: 'debt' },
   { label: 'INVENTORY', value: 'inventory' },
   { label: 'FIXED_ASSET', value: 'fixedAsset' },
   { label: 'VAT', value: 'vat' },
+  { label: 'CTAX', value: 'ctax' },
 ];
 
 export const ACCOUNT_STATUSES = {
@@ -60,7 +61,9 @@ export const TR_SIDES = {
   CREDIT: 'ct',
   ALL: ['dt', 'ct'],
   OPTIONS: [{ value: 'dt', label: 'debit' }, { value: 'ct', label: 'credit' }],
-  CASH_OPTIONS: [{ value: 'dt', label: 'incoming' }, { value: 'ct', label: 'outgoing' }],
+  FUND_OPTIONS: [{ value: 'dt', label: 'incoming' }, { value: 'ct', label: 'outgoing' }],
+  RECEIVABLE_OPTIONS: [{ value: 'dt', label: 'open' }, { value: 'ct', label: 'close' }],
+  PAYABLE_OPTIONS: [{ value: 'dt', label: 'close' }, { value: 'ct', label: 'open' }],
 }
 
 export const TR_STATUSES = {
@@ -88,8 +91,9 @@ export const JOURNALS = {
   MAIN: 'main',
   MAIN_FB: 'main_fb',
   CASH: 'cash',
-  FUND: 'bank',
-  DEBT: 'debt',
+  BANK: 'bank',
+  RECEIVABLE: 'receivable',
+  PAYABLE: 'payable',
   VAT: 'vat',
   CTAX: 'ctax',
   INV_FB: 'inv_fb',
@@ -103,11 +107,11 @@ export const JOURNALS = {
   INV_IN_RETURN: 'inv_in_return',
   INV_SALE_RETURN: 'inv_sale_return',
   ALL: [
-    'main', 'cash', 'bank', 'debt', 'vat', 'ctax',
+    'main', 'cash', 'bank', 'receivable', 'payable',
     'inv_fb', 'inv_income', 'inv_out', 'inv_move', 'inv_adjust', 'inv_convert',
     'inv_sale', 'inv_cost',
     'inv_in_return', 'inv_sale_return',
-    'expense'
+    'expense', 'vat', 'ctax',
   ],
   ALL_INV: [],
 }
