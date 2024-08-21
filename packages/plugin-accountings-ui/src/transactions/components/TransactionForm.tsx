@@ -264,6 +264,7 @@ const TransactionForm = (props: Props) => {
     }));
 
     setTrDocs(trDocs.map((tr) => ({ ...tr, date })));
+    setFollowTrDocs(followTrDocs.map((tr) => ({ ...tr, date })));
   };
 
   const content = () => {
