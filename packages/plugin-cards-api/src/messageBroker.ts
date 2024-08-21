@@ -758,6 +758,7 @@ export const setupMessageConsumers = async () => {
         targetTypes.includes(doc.mainType) &&
         targetRelTypes.includes(doc.relType)
       ) {
+        await updateName(subdomain, doc.mainType, doc.mainTypeId);
         await publishHelper(subdomain, doc.mainType, doc.mainTypeId);
       }
 
@@ -769,7 +770,6 @@ export const setupMessageConsumers = async () => {
           await publishHelper(subdomain, doc.relType, typeId);
         }
       }
-      updateName(subdomain, doc.mainType, doc.mainTypeId);
       return {
         status: 'success',
       };

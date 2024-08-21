@@ -1,4 +1,4 @@
-import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendTagsMessage } from "../messageBroker";
+import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
 import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
@@ -149,6 +149,8 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     const pipeline: any[] = [];
 
+    const actions = buildAction(measures)
+
     const formatType = buildFormatType(dateRange, startDate, endDate)
 
     const dateFormat = frequencyType || formatType
@@ -243,9 +245,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         pipeline.push({ $unwind: "$assignedUserIds" });
     }
 
-    if (dimensions.includes("property")) {
+    if (dimensions.includes("field")) {
         pipeline.push(
             { $unwind: "$customFieldsData" },
+            { $unwind: "$customFieldsData.value" },
             {
                 $lookup: {
                     from: "form_fields",
@@ -500,6 +503,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         groupKeys.cardName = "$name";
     }
 
+    if (dimensions.includes("field")) {
+        groupKeys.field = "$customFieldsData.value";
+    }
+
     if (dimensions.includes("label")) {
         groupKeys.labelId = "$labelIds";
     }
@@ -608,7 +615,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({
         $group: {
             _id: groupKeys,
-            ...buildAction(measures),
+            ...actions,
         }
     });
 
@@ -972,6 +979,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         projectionFields.tag = "$tag.name";
     }
 
+    if (dimensions.includes("field")) {
+        projectionFields.field = "$_id.field"
+    }
+
     if (dimensions.includes("card")) {
         projectionFields.card = "$_id.cardName";
     }
@@ -1261,6 +1272,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         labelIds,
         groupIds,
         fieldIds,
+        assetIds,
         dateRange,
         dueDateRange,
         integrationTypes,
@@ -1271,7 +1283,34 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     // USER FILTER
     if (userIds?.length) {
         const { userType = 'userId' } = filter;
-        matchfilter[userType] = { $in: userIds };
+
+        if (userType === "closedBy") {
+
+            const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+
+            const logs = await sendLogsMessage({
+                subdomain,
+                action: 'activityLogs.findMany',
+                data: {
+                    query: {
+                        contentType: `cards:${type}`,
+                        createdBy: { $in: userIds },
+                        'content.destinationStageId': { $in: stageIds },
+                        action: 'moved',
+                    },
+                },
+                isRPC: true,
+                defaultValue: [],
+            });
+
+            const contentIds = (logs || []).map(log => log.contentId);
+
+            matchfilter['_id'] = { $in: contentIds };
+
+        } else {
+            matchfilter[userType] = { $in: userIds };
+        }
+
     }
 
     // BRANCH FILTER
@@ -1447,6 +1486,11 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     // CUSTOM PROPERTIES FIELD FILTER 
     if (fieldIds?.length) {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
+    }
+
+    // CUSTOM PROPERTIES FIELD FILTER 
+    if (assetIds?.length) {
+        matchfilter['customFieldsData.value'] = { $in: assetIds };
     }
 
     // DATE FILTER
