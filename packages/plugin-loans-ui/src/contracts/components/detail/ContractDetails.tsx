@@ -1,38 +1,37 @@
-import { IContractDoc, IInvoice } from '../../types';
-import React, { useEffect, useState } from 'react';
+import { IContractDoc, IInvoice } from "../../types";
+import React, { useState } from "react";
 
-import ActivityItem from './ActivityItem';
-import CollateralsSection from './CollateralsSection';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ITransaction } from '../../../transactions/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import InvoiceList from '../invoices/InvoiceList';
-import { LEASE_TYPES } from '../../../contractTypes/constants';
-import LeftSidebar from './LeftSidebar';
-import PolarisData from '../polaris';
-import RightSidebar from './RightSidebar';
-import ScheduleSection from '../schedules/ScheduleSection';
-import StoreInterestSection from '../storeInterest/StoreInterestSection';
-import { Tabs } from '../list/ContractForm';
-import TransactionSection from '../transaction/TransactionSection';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import ActivityItem from "./ActivityItem";
+import CollateralsSection from "./CollateralsSection";
+import { IProduct } from "@erxes/ui-products/src/types";
+import { ITransaction } from "../../../transactions/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import InvoiceList from "../invoices/InvoiceList";
+import { LEASE_TYPES } from "../../../contractTypes/constants";
+import LeftSidebar from "./LeftSidebar";
+import RightSidebar from "./RightSidebar";
+import ScheduleSection from "../schedules/ScheduleSection";
+import StoreInterestSection from "../storeInterest/StoreInterestSection";
+import { Tabs } from "../list/ContractForm";
+import TransactionSection from "../transaction/TransactionSection";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { __ } from "coreui/utils";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ActivityInputs = asyncComponent(
   () =>
-    isEnabled('logs') &&
+    isEnabled("logs") &&
     import(
-      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
+      /* webpackChunkName: "ActivityInputs" */ "@erxes/ui-log/src/activityLogs/components/ActivityInputs"
     )
 );
 
 const ActivityLogs = asyncComponent(
   () =>
-    isEnabled('logs') &&
+    isEnabled("logs") &&
     import(
-      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
+      /* webpackChunkName: "ActivityLogs" */ "@erxes/ui-log/src/activityLogs/containers/ActivityLogs"
     )
 );
 
@@ -59,17 +58,13 @@ type State = {
 
 const ContractDetails = (props: Props) => {
   const { saveItem, contract } = props;
-  const [amount, setAmount] = useState(contract.amount || {});
+
   const [collateralsData, setCollateralsData] = useState(
     contract.collaterals ? contract.collaterals.map((p) => ({ ...p })) : []
   );
   const [collaterals, setCollaterals] = useState(
     contract.collaterals ? contract.collaterals.map((p) => p.collateral) : []
   );
-
-  useEffect(() => {
-    saveItem({ ...contract, collateralsData });
-  }, [amount, collaterals, collateralsData]);
 
   const saveCollateralsData = () => {
     const collaterals: IProduct[] = [];
@@ -95,27 +90,28 @@ const ContractDetails = (props: Props) => {
     });
     setCollateralsData(filteredCollateralsData);
     setCollaterals(collaterals);
-    setAmount(amount);
+
+    saveItem({ ...contract, collateralsData: filteredCollateralsData });
   };
 
   const onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
-    if (name === 'collaterals') {
+    if (name === "collaterals") {
       setCollaterals(value);
     }
-    if (name === 'collateralsData') {
+    if (name === "collateralsData") {
       setCollateralsData([...value]);
     }
   };
 
-  const title = contract.number || 'Unknown';
+  const title = contract.number || "Unknown";
 
   const breadcrumb = [
-    { title: __('Contracts'), link: '/erxes-plugin-loan/contract-list' },
-    { title }
+    { title: __("Contracts"), link: "/erxes-plugin-loan/contract-list" },
+    { title },
   ];
 
-  const pDataChange = (pData) => onChangeField('collateralsData', pData);
-  const prsChange = (prs) => onChangeField('collaterals', prs);
+  const pDataChange = (pData) => onChangeField("collateralsData", pData);
+  const prsChange = (prs) => onChangeField("collaterals", prs);
   const content = () => {
     let tabs = [
       {
@@ -127,11 +123,13 @@ const ContractDetails = (props: Props) => {
             isFirst={true}
             regenSchedules={props.regenSchedules}
           />
-        )
+        ),
       },
       {
         label: __(`Schedules`),
-        component: <ScheduleSection contractId={contract._id} isFirst={false} />
+        component: (
+          <ScheduleSection contractId={contract._id} isFirst={false} />
+        ),
       },
       {
         label: __(`Transaction`),
@@ -140,10 +138,10 @@ const ContractDetails = (props: Props) => {
             contractId={contract._id}
             transactions={contract.loanTransactionHistory}
           />
-        )
+        ),
       },
       {
-        label: __('Collaterals'),
+        label: __("Collaterals"),
         component: (
           <CollateralsSection
             {...props}
@@ -154,27 +152,27 @@ const ContractDetails = (props: Props) => {
             collaterals={collaterals}
             contractId={contract._id}
           ></CollateralsSection>
-        )
-      }
+        ),
+      },
     ];
 
     if (contract?.storeInterest.length > 0)
       tabs.push({
-        label: __('Interest store'),
-        component: <StoreInterestSection invoices={contract.storeInterest} />
+        label: __("Interest store"),
+        component: <StoreInterestSection invoices={contract.storeInterest} />,
       });
 
     if (contract?.invoices.length > 0)
       tabs.push({
         label: __(`Invoice`),
-        component: <InvoiceList invoices={contract.invoices} />
+        component: <InvoiceList invoices={contract.invoices} />,
       });
 
     return (
       <>
         <Tabs tabs={tabs} />
 
-        {isEnabled('logs') && (
+        {isEnabled("logs") && (
           <>
             <ActivityInputs
               contentTypeId={contract._id}
@@ -182,7 +180,7 @@ const ContractDetails = (props: Props) => {
               showEmail={false}
             />
             <ActivityLogs
-              target={contract.number || ''}
+              target={contract.number || ""}
               contentId={contract._id}
               contentType="loans:contract"
               extraTabs={[]}
