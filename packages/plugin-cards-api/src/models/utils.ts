@@ -660,6 +660,12 @@ export const updateName = async (
   type: string,
   itemId: string
 ) => {
+  const validTypes = ['deal', 'ticket', 'purchase', 'task'];
+
+  if (!validTypes.includes(type)) {
+    return;
+  }
+
   const models = await generateModels(subdomain);
 
   const { collection } = getCollection(models, type);

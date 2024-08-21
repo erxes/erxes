@@ -352,17 +352,8 @@ export const taskCharts = [
 
             const matchFilter = await buildMatchFilter(filter, 'task', subdomain, models)
 
-            let tasks
-
-            if (chartType === "number") {
-                const tasksCount = await models.Tasks.find(matchFilter).countDocuments()
-
-                tasks = { labels: "Total Count", data: tasksCount }
-            } else {
-                const pipeline = buildPipeline(filter, "task", matchFilter)
-
-                tasks = await models.Tasks.aggregate(pipeline)
-            }
+            const pipeline = buildPipeline(filter, "task", matchFilter)
+            const tasks = await models.Tasks.aggregate(pipeline)
 
             const title = 'Total Tasks Count';
 

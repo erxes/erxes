@@ -83,7 +83,7 @@ function Header({
   };
 
   const renderAuth = () => {
-    if (!config.ticketToggle || !config.taskToggle || !config.dealToggle) {
+    if (!config.ticketToggle && !config.taskToggle && !config.dealToggle) {
       return null;
     }
 

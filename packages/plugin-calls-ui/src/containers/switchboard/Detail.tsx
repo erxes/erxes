@@ -27,7 +27,7 @@ function DetailContainer() {
     },
   );
 
-  const { data: waitingCall, loading: waitingLoading } = useSubscription(
+  const { data: waitingCall } = useSubscription(
     gql(subscriptions.waitingCallReceived),
     {
       variables: {

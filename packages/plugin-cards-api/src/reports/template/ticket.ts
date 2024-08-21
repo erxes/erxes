@@ -2475,17 +2475,8 @@ export const ticketCharts = [
 
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
 
-            let tickets
-
-            if (chartType === "number") {
-                const ticketsCount = await models.Tickets.find(matchFilter).countDocuments()
-
-                tickets = { labels: "Total Count", data: ticketsCount }
-            } else {
-                const pipeline = buildPipeline(filter, "ticket", matchFilter)
-
-                tickets = await models.Tickets.aggregate(pipeline)
-            }
+            const pipeline = buildPipeline(filter, "ticket", matchFilter)
+            const tickets = await models.Tickets.aggregate(pipeline)
 
             const title = 'Total Tickets Count';
 
