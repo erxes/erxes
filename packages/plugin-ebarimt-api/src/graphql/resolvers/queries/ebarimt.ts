@@ -349,7 +349,7 @@ const queries = {
       {
         $match: {
           ...filter,
-          success: 'true',
+          status: 'SUCCESS',
           $or: [{ inactiveId: { $exists: false } }, { inactiveId: '' }],
           state: { $ne: 'inactive' },
         },
