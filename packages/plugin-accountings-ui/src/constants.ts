@@ -27,8 +27,7 @@ export const ACCOUNT_JOURNALS = [
   { label: 'DEBT', value: 'debt' },
   { label: 'INVENTORY', value: 'inventory' },
   { label: 'FIXED_ASSET', value: 'fixedAsset' },
-  { label: 'VAT', value: 'vat' },
-  { label: 'CTAX', value: 'ctax' },
+  { label: 'TAX', value: 'tax' },
 ];
 
 export const ACCOUNT_STATUSES = {

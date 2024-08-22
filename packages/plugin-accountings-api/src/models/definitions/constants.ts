@@ -11,9 +11,8 @@ export const ACCOUNT_JOURNALS = {
   DEBT: 'debt',
   INVENTORY: 'inventory',
   FIXED_ASSET: 'fixedAsset',
-  VAT: 'vat',
-  CTAX: 'ctax',
-  ALL: ['main', 'cash', 'fund', 'debt', 'inventory', 'fixedAsset', 'vat', 'ctax'],
+  TAX: 'tax',
+  ALL: ['main', 'cash', 'fund', 'debt', 'inventory', 'fixedAsset', 'tax'],
 };
 
 export const ACCOUNT_STATUSES = {

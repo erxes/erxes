@@ -154,7 +154,7 @@ class TaxTrs {
         number: this.doc.number,
         date: this.doc.date,
         description: this.doc.description,
-        journal: JOURNALS.VAT,
+        journal: JOURNALS.CTAX,
         branchId: this.doc.branchId,
         departmentId: this.doc.departmentId,
         customerType: this.doc.customerType,

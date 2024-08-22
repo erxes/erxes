@@ -1,10 +1,8 @@
 import { Table, __ } from '@erxes/ui/src';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IQueryParams } from '@erxes/ui/src/types';
 import React from 'react';
 import { ITransaction } from '../types';
 import { TR_SIDES } from '../../constants';
-import { IAccount } from '../../settings/accounts/types';
 
 type Props = {
   balance: { dt: number, ct: number }
@@ -27,7 +25,7 @@ const TrFormTBalance = (props: Props) => {
   const renderTrRow = (tr) => {
     const account = tr.details[0].account;
     return (
-      <tr>
+      <tr key={tr._id}>
         <td>
           {account?.code} - {account?.name}
         </td>
@@ -62,19 +60,21 @@ const TrFormTBalance = (props: Props) => {
           <td>Actions</td>
         </tr>
       </thead>
-      {Object.keys(ptrIdByTr).map((ptrId) => {
-        const perTrs = ptrIdByTr[ptrId];
+      <tbody>
+        {Object.keys(ptrIdByTr).map((ptrId) => {
+          const perTrs = ptrIdByTr[ptrId];
 
-        return (perTrs.map(tr => renderTrRow(tr)));
-      })}
-      <tr>
-        <td>Нийт</td>
-        <td></td>
-        <td></td>
-        <td>{balance.dt.toLocaleString()}</td>
-        <td>{balance.ct.toLocaleString()}</td>
-        <td></td>
-      </tr>
+          return (perTrs.map(tr => renderTrRow(tr)));
+        })}
+        <tr>
+          <td>Нийт</td>
+          <td></td>
+          <td></td>
+          <td>{balance.dt.toLocaleString()}</td>
+          <td>{balance.ct.toLocaleString()}</td>
+          <td></td>
+        </tr>
+      </tbody>
     </Table>
   );
 };

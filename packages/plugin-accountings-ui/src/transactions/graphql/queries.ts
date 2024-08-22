@@ -26,10 +26,6 @@ export const commonTrDetailFields = `
   productId
   count
   unitPrice
-
-  account {
-    ${accountFields}
-  }
 `;
 
 export const commonTransactionFields = `
@@ -58,9 +54,15 @@ export const commonTransactionFields = `
 
   details {
     ${commonTrDetailFields}
+    account {
+      ${accountFields}
+    }
   }
   shortDetail {
     ${commonTrDetailFields}
+    account {
+      ${accountFields}
+    }
   }
   sumDt
   sumCt

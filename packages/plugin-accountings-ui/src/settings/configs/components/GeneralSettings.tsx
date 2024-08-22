@@ -140,7 +140,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   initialValue={configsMap.VatPayableAccount || ''}
                   label='Account'
                   name='VatPayableAccount'
-                  filterParams={{ journals: ['vat'] }}
+                  filterParams={{ journals: ['tax'] }}
                   onSelect={(accountId) => { this.onChangeConfig('VatPayableAccount', accountId) }}
                 />
               </FormGroup>
@@ -151,7 +151,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   initialValue={configsMap.VatReceivableAccount || ''}
                   label='Account'
                   name='VatReceivableAccount'
-                  filterParams={{ journals: ['vat'] }}
+                  filterParams={{ journals: ['tax'] }}
                   onSelect={(accountId) => { this.onChangeConfig('VatReceivableAccount', accountId) }}
                 />
               </FormGroup>
@@ -163,7 +163,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   initialValue={configsMap.VatAfterPayableAccount || ''}
                   label='Account'
                   name='VatAfterPayableAccount'
-                  filterParams={{ journals: ['vat'] }}
+                  filterParams={{ journals: ['tax'] }}
                   onSelect={(accountId) => { this.onChangeConfig('VatAfterPayableAccount', accountId) }}
                 />
               </FormGroup>
@@ -174,7 +174,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   initialValue={configsMap.VatAfterReceivableAccount || ''}
                   label='Account'
                   name='VatAfterReceivableAccount'
-                  filterParams={{ journals: ['vat'] }}
+                  filterParams={{ journals: ['tax'] }}
                   onSelect={(accountId) => { this.onChangeConfig('VatAfterReceivableAccount', accountId) }}
                 />
               </FormGroup>
@@ -203,7 +203,7 @@ class GeneralSettings extends React.Component<Props, State> {
                   initialValue={configsMap.CtaxPayableAccount || ''}
                   label='Account'
                   name='CtaxPayableAccount'
-                  filterParams={{ journals: ['vat'] }}
+                  filterParams={{ journals: ['tax'] }}
                   onSelect={(accountId) => { this.onChangeConfig('CtaxPayableAccount', accountId) }}
                 />
               </FormGroup>

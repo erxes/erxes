@@ -136,7 +136,6 @@ const TaxFields = (props: Props) => {
       details: [{
         ...(curr?.details || [{}])[0],
         accountId: configsMap.CtaxPayableAccount,
-        account: configsMap.CtaxPayableAccount,
         side,
         amount
       }],

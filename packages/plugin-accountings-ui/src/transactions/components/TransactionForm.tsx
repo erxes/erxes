@@ -6,6 +6,7 @@ import FormControl from "@erxes/ui/src/components/form/Control";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Spinner from '@erxes/ui/src/components/Spinner';
 import {
   ControlWrapper,
   Indicator,
@@ -18,19 +19,15 @@ import {
   FormWrapper,
 } from "@erxes/ui/src/styles/main";
 import { IQueryParams } from "@erxes/ui/src/types";
-import { Popover } from "@headlessui/react";
-import { format } from "date-fns";
-import dayjs from "dayjs";
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { TR_SIDES } from "../../constants";
-import { IAccount } from "../../settings/accounts/types";
+import { IConfigsMap } from "../../settings/configs/types";
 import { Box } from "../../styles";
 import AddTransactionLink from "../containers/AddTr";
 import { ITransaction } from "../types";
 import { journalConfigMaps } from "../utils/maps";
 import TrFormTBalance from "./TrFormTBalance";
-import { IConfigsMap } from "../../settings/configs/types";
 
 type Props = {
   configsMap: IConfigsMap;
@@ -64,16 +61,25 @@ const TransactionForm = (props: Props) => {
   });
 
   const [trDocs, setTrDocs] = useState<ITransaction[]>(
-    transactions?.length && transactions.filter(tr => !tr.originId) ||
-    (defaultJournal && [
-      journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
-    ]) ||
-    []
+    transactions?.length ? transactions.filter(tr => !tr.originId) :
+      (defaultJournal && [
+        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+      ]) ||
+      []
   );
 
   const [followTrDocs, setFollowTrDocs] = useState<ITransaction[]>(
     transactions?.length && transactions.filter(tr => tr.originId) || []
   )
+
+  useEffect(() => {
+    setTrDocs(transactions?.length ? transactions.filter(tr => !tr.originId) :
+      (defaultJournal && [
+        journalConfigMaps[defaultJournal || ""]?.defaultData(state.date),
+      ]) ||
+      []);
+    setFollowTrDocs(transactions?.length && transactions.filter(tr => tr.originId) || [])
+  }, [transactions]);
 
   const [currentTransaction, setCurrentTransaction] = useState(
     trDocs && (trDocs.find((tr) => tr._id === queryParams.trId) || trDocs[0])
@@ -352,6 +358,10 @@ const TransactionForm = (props: Props) => {
       </StepWrapper >
     );
   };
+
+  if (loading) {
+    return <Spinner objective={true} />;
+  }
 
   return (
     <Wrapper

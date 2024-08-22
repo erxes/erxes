@@ -139,6 +139,7 @@ const PosContainer = (props: Props) => {
           });
         } else {
           Alert.success("You successfully updated transactions");
+          setLoading(false);
         }
       })
 
@@ -157,7 +158,7 @@ const PosContainer = (props: Props) => {
     transactions,
     save,
     defaultJournal: queryParams.defaultJournal,
-    isActionLoading: loading,
+    loading,
   };
 
   return <TransactionForm {...updatedProps} />;
