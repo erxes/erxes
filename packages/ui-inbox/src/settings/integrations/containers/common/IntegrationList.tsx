@@ -4,9 +4,7 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   ArchiveIntegrationResponse,
   IntegrationMutationVariables,
-  IntegrationsQueryResponse
-} from '../../types';
-import {
+  IntegrationsQueryResponse,
   CommonFieldsEditResponse,
   RemoveMutationResponse,
   RepairMutationResponse
