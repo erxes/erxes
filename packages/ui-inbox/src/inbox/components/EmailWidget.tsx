@@ -2,7 +2,7 @@ import {
   Link,
   NewEmailHeader,
   WidgetButton,
-} from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
+ WidgetWrapper } from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
 import React, { useState } from "react";
 
 import Button from "@erxes/ui/src/components/Button";
@@ -11,7 +11,6 @@ import Icon from "@erxes/ui/src/components/Icon";
 import MailForm from "@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm";
 import { ModalWrapper } from "../styles";
 import Tip from "@erxes/ui/src/components/Tip";
-import { WidgetWrapper } from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
 import { __ } from "@erxes/ui/src/utils";
 import { Flex } from "@erxes/ui/src/styles/main";
 import { isEnabled } from "@erxes/ui/src/utils/core";
@@ -98,7 +97,7 @@ const Widget: React.FC<Props> = (props) => {
       return (
         <Tip text="Send e-mail" placement="top-end">
           <Button
-            btnStyle={buttonStyle ? buttonStyle : "primary"}
+            btnStyle={buttonStyle || "primary"}
             onClick={() => showWidget()}
             disabled={disabled}
             size={buttonSize}
@@ -179,8 +178,8 @@ const Widget: React.FC<Props> = (props) => {
     const isWidgetShow =
       JSON.parse(localStorage.getItem("emailWidgetShow") || "{}") || {};
 
-    const isShrink = shrink === "true" ? true : false;
-    const haveWidgets = messengerDiv || isEnabled("calls") ? true : false;
+    const isShrink = shrink === "true";
+    const haveWidgets = !!(messengerDiv || isEnabled("calls"));
 
     return (
       <ModalWrapper onClick={() => changeShrink()} $show={isFullscreen}>

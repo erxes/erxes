@@ -1,10 +1,8 @@
 import * as React from "react";
 
 import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IIntegration } from "../../types";
 import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
-import { dealFields } from "@erxes/ui-cards/src/deals/graphql/queries";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -24,7 +22,6 @@ const Wrapper = styled.div`
 type Props = {
   onChange: (value: string) => void;
   selectedItem?: string;
-  integrations: IIntegration[];
   verifiedImapEmails: string[];
   verifiedEngageEmails: string[];
   detailQuery: any;
