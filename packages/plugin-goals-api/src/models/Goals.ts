@@ -331,17 +331,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  // async function differenceFunction(amount: number, target: number) {
-  //   let convertedNumber;
-  //   if (amount === 0 || target === 0 || isNaN(amount)) {
-  //     convertedNumber = 0;
-  //   } else {
-  //     const diff = (amount / target) * 100;
-  //     convertedNumber = diff.toFixed(3);
-  //   }
-
-  //   return convertedNumber;
-  // }
   async function differenceFunction(
     amount: number,
     target: number
