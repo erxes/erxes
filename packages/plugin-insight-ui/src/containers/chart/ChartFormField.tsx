@@ -57,13 +57,7 @@ const ChartFormFieldContainer = (props: FinalProps) => {
 
     useEffect(() => {
       if (!loading) {
-
-        if (typeof queryData?.[fieldQuery] === 'object') {
-          setData(queryData?.[fieldQuery]?.['list'] || [])
-        } else {
-          setData(queryData?.[fieldQuery] || [])
-        }
-
+        setData(queryData?.[fieldQuery] || [])
       }
     }, [queryData])
   }

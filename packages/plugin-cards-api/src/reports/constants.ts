@@ -38,6 +38,22 @@ export const AMOUNT_RANGE_ATTRIBUTES = [
     { name: 'max', placeholder: 'Max', type: 'number', min: 0 }
 ]
 
+export const GOAL_MAP = {
+    department: { fieldId: "$department._id", foreignField: "$department" },
+    branch: { fieldId: "$branch._id", foreignField: "$branch" },
+    createdBy: { fieldId: "$createdBy._id", foreignField: "$contribution" },
+    modifiedBy: { fieldId: "$modifiedBy._id", foreignField: "$contribution" },
+    assignedTo: { fieldId: "$assignedTo._id", foreignField: "$contribution" },
+    board: { fieldId: "$board._id", foreignField: "$boardId" },
+    pipeline: { fieldId: "$pipeline._id", foreignField: "$pipelineId" },
+    stage: { fieldId: "$stage._id", foreignField: "$stageId" },
+    count: "Count",
+    totalAmount: "Value",
+    averageAmount: "Value",
+    unusedAmount: "Value",
+    forecastAmount: "Value"
+}
+
 export const DIMENSION_OPTIONS = [
     { label: 'Total count', value: 'count' },
     { label: 'Team members', value: 'teamMember' },
