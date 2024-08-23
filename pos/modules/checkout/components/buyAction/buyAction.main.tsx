@@ -31,10 +31,11 @@ const BuyAction = () => {
   const config = useAtomValue(configAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
 
-  const onCompleted = (_id: string) => {
-    isPay && router.push("/checkout?orderId=" + _id)
-    if (!isPay && !isActive && isPrint) {
-      setShowRecieptId(_id)
+  const onCompleted = (_id: string, isPre?: boolean) => {
+    if (isPay) {
+      router.push("/checkout?orderId=" + _id)
+    } else {
+      !isActive && isPrint && !isPre && setShowRecieptId(_id)
     }
     return setActiveOrder(_id)
   }
@@ -68,7 +69,7 @@ const BuyAction = () => {
             disabled={disabled}
             onClick={() => {
               setButtonType("pay")
-              setTimeout(() => orderCU())
+              setTimeout(orderCU)
             }}
           >
             Төлбөр төлөх

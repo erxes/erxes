@@ -5,5 +5,5 @@ export const getSavingDetail = async (subdomain, params) => {
     subdomain,
     op: '13610100',
     data: [params.number, 0],
-  }).then((response) => JSON.parse(response));
+  });
 };

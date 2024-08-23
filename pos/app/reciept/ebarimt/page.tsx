@@ -74,6 +74,9 @@ const Reciept = () => {
   }, [hasCopy, mode, putResponses.length, setType, type])
 
   useEffect(() => {
+    if (mode === "mobile") {
+      return
+    }
     window.addEventListener("afterprint", handleAfterPrint)
     return () => {
       window.removeEventListener("afterprint", handleAfterPrint)

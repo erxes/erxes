@@ -11,8 +11,9 @@ export const getAuthHeaders = async (args: {
   configPassword: string;
   registerId: string;
   golomtCode?: string;
+  apiUrl: string;
 }) => {
-  const { name, ivKey, clientId, configPassword, sessionKey } = args;
+  const { name, ivKey, clientId, configPassword, sessionKey, apiUrl } = args;
 
   const accessToken = await redis.get(
     `golomtbank_token_${clientId}:${sessionKey}`
@@ -25,9 +26,10 @@ export const getAuthHeaders = async (args: {
     };
   }
 
-  const apiUrl = "https://openapi-uat.golomtbank.com/api";
-
   try {
+    if (!apiUrl) {
+      throw new Error("Not found url");
+    }
     const encrypted = encryptedPassword(configPassword, sessionKey, ivKey);
 
     const response = await fetch(`${apiUrl}/v1/auth/login`, {

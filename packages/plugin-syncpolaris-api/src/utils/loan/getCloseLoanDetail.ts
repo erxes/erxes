@@ -21,7 +21,7 @@ export const getCloseLoanDetail = async (subdomain, classification) => {
     subdomain,
     op: '13610279',
     data: [loanChangeClassification],
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanChangeClassificationReponse.txnJrno;
 };

@@ -22,11 +22,9 @@ const ContractChooser = (props: Props & WrapperProps) => {
       variables: {
         searchValue,
         perPage,
-        mainType: data.mainType,
-        mainTypeId: data.mainTypeId,
-        isRelated: data.isRelated,
         sortField: 'createdAt',
         sortDirection: -1,
+        dealIds: [null, '']
       },
       fetchPolicy: data.isRelated ? 'network-only' : 'cache-first',
     },
@@ -62,6 +60,14 @@ const ContractChooser = (props: Props & WrapperProps) => {
     renderForm: (formProps) => (
       <ContractForm
         {...formProps}
+        data={{
+          _id: data._id,
+          name: renderName(data),
+          datas: data.contracts,
+          mainTypeId: data.mainTypeId,
+          mainType: data.mainType,
+          relType: 'contract',
+        }}
         getAssociatedContract={getAssociatedContract}
       />
     ),

@@ -1,27 +1,15 @@
 export type TransferParams = {
-  genericType: string;
-  registerNumber: string;
   type: string;
+  fromAccount: string;
+  toAccount: string;
+  amount: number;
+  description: string;
+  fromCurrency: string;
+  toCurrency: string;
+  toAccountName: string;
+  fromAccountName: string;
+  toBank: string;
   refCode: string;
-  initiatorGenericType: string;
-  initiatorAcctName: string;
-  initiatorAcctNo: string;
-  initiatorAmountValue: number;
-  initiatorAmountCurrency: string;
-  initiatorParticulars: string;
-  initiatorBank: string;
-  receives: [JSON];
-};
-export type receive = {
-  genericType: string;
-  acctName: string;
-  acctNo: string;
-  amount: {
-    value: number;
-    currency: string;
-  };
-  particulars: string;
-  bank: string;
 };
 export type GolomtBankAccount = {
   requestId: string;
