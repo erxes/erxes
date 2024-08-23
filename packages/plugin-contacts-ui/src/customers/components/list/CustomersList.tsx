@@ -497,27 +497,31 @@ const CustomersList: React.FC<IProps> = (props) => {
           />
         )}
 
-        <Menu as='div' className='relative'>
-          <Menu.Button>
-            <Button btnStyle='simple' size='small'>
-              {__('Change email status')} <Icon icon='angle-down' />
-            </Button>
-          </Menu.Button>
-          <Menu.Items className='absolute'>
-            <div>{emailVerificationStatusList}</div>
-          </Menu.Items>
-        </Menu>
+        {VERSION && VERSION !== 'saas' ? (
+          <>
+            <Menu as='div' className='relative'>
+              <Menu.Button>
+                <Button btnStyle='simple' size='small'>
+                  {__('Change email status')} <Icon icon='angle-down' />
+                </Button>
+              </Menu.Button>
+              <Menu.Items className='absolute'>
+                <div>{emailVerificationStatusList}</div>
+              </Menu.Items>
+            </Menu>
 
-        <Menu as='div' className='relative'>
-          <Menu.Button>
-            <Button btnStyle='simple' size='small'>
-              {__('Change phone status')} <Icon icon='angle-down' />
-            </Button>
-          </Menu.Button>
-          <Menu.Items className='absolute'>
-            <div>{phoneVerificationStatusList}</div>
-          </Menu.Items>
-        </Menu>
+            <Menu as='div' className='relative'>
+              <Menu.Button>
+                <Button btnStyle='simple' size='small'>
+                  {__('Change phone status')} <Icon icon='angle-down' />
+                </Button>
+              </Menu.Button>
+              <Menu.Items className='absolute'>
+                <div>{phoneVerificationStatusList}</div>
+              </Menu.Items>
+            </Menu>
+          </>
+        ) : null}
 
         <Menu as='div' className='relative'>
           <Menu.Button>
