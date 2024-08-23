@@ -2859,7 +2859,6 @@ export const dealCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER

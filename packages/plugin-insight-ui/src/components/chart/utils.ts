@@ -88,6 +88,11 @@ export const horizontalDottedLine = {
     const showLine = options.showLine !== undefined ? options.showLine : true;
     const label = options.label || '';
 
+    if (targetValue > y.max) {
+      y.options.max = targetValue + 50;
+      chart.update();
+    }
+
     if (targetValue > 0 && showLine) {
       ctx.strokeStyle = 'grey';
       ctx.setLineDash([10, 5]);

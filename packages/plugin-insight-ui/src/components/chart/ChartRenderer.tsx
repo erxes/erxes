@@ -19,7 +19,7 @@ Chart.register([Colors, ChartDataLabels, Tooltip]);
 
 interface IChartProps {
   datasets?: any;
-
+  dataset?: any
   data?: number[];
   labels?: string[];
   options?: any;
@@ -35,6 +35,7 @@ const ChartRenderer = (props: IChartProps) => {
     labels,
     chartType,
     datasets,
+    dataset,
     data,
     title,
     loading,
@@ -54,7 +55,7 @@ const ChartRenderer = (props: IChartProps) => {
 
   const chartData = {
     labels: labels,
-    datasets: datasets || [
+    datasets: datasets?.length ? datasets : dataset || [
       {
         label: title || 'Default Dataset',
         data,
