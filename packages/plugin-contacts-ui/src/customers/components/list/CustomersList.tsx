@@ -1,45 +1,45 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { gql } from '@apollo/client';
+import { Menu } from '@headlessui/react';
+import { Link } from 'react-router-dom';
 
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
+import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import DateFilter from '@erxes/ui/src/components/DateFilter';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { getVersion, isEnabled } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import * as routerUtils from '@erxes/ui/src/utils/router';
 import { Alert, __, confirm, router } from 'coreui/utils';
 import {
   CUSTOMER_STATE_OPTIONS,
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES,
 } from '@erxes/ui-contacts/src/customers/constants';
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
-import CustomerRow from './CustomerRow';
-import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DateFilter from '@erxes/ui/src/components/DateFilter';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
 import { ICustomer } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
-import { Menu } from '@headlessui/react';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { gql } from '@apollo/client';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 interface IProps {
   type: string;
@@ -56,7 +56,7 @@ interface IProps {
   searchValue: string;
   removeCustomers: (
     doc: { customerIds: string[] },
-    emptyBulk: () => void,
+    emptyBulk: () => void
   ) => void;
   mergeCustomers: (doc: {
     ids: string[];
@@ -86,9 +86,11 @@ const CustomersList: React.FC<IProps> = (props) => {
   let timer;
 
   const [searchValue, setSearchValue] = useState<string | undefined>(
-    props.searchValue,
+    props.searchValue
   );
   const [searchType, setSearchType] = useState<string | undefined>();
+
+  const { VERSION } = getVersion();
 
   useEffect(() => {
     if (searchValue && !props.queryParams.searchValue) {
@@ -127,7 +129,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   const changeVerificationStatus = (
     type: string,
     status: string,
-    customers,
+    customers
   ) => {
     const customerIds: string[] = [];
 
@@ -167,7 +169,7 @@ const CustomersList: React.FC<IProps> = (props) => {
     return (
       <withTableWrapper.Wrapper>
         <Table
-          $whiteSpace="nowrap"
+          $whiteSpace='nowrap'
           $hover={true}
           $bordered={true}
           $responsive={true}
@@ -178,7 +180,7 @@ const CustomersList: React.FC<IProps> = (props) => {
               <th>
                 <FormControl
                   checked={isAllSelected}
-                  componentclass="checkbox"
+                  componentclass='checkbox'
                   onChange={onChange}
                 />
               </th>
@@ -194,7 +196,7 @@ const CustomersList: React.FC<IProps> = (props) => {
               <th>{__('Tags')}</th>
             </tr>
           </thead>
-          <tbody id="customers" className={isExpand ? 'expand' : ''}>
+          <tbody id='customers' className={isExpand ? 'expand' : ''}>
             {(customers || []).map((customer, i) => (
               <CustomerRow
                 index={(page - 1) * perPage + i + 1}
@@ -259,7 +261,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   } = props;
 
   const addTrigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
+    <Button btnStyle='success' size='small' icon='plus-circle'>
       Add {type || 'customer'}
     </Button>
   );
@@ -283,14 +285,14 @@ const CustomersList: React.FC<IProps> = (props) => {
       <Menu.Item key={status.value}>
         <a
           id={status.value}
-          href="#changeStatus"
+          href='#changeStatus'
           onClick={() => {
             onEmailStatusClick(status.value);
           }}
         >
           {status.label}
         </a>
-      </Menu.Item>,
+      </Menu.Item>
     );
   }
 
@@ -301,14 +303,14 @@ const CustomersList: React.FC<IProps> = (props) => {
       <Menu.Item key={status.value}>
         <a
           id={status.value}
-          href="#changeStatus"
+          href='#changeStatus'
           onClick={() => {
             onPhoneStatusClick(status.value);
           }}
         >
           {status.label}
         </a>
-      </Menu.Item>,
+      </Menu.Item>
     );
   }
 
@@ -317,14 +319,14 @@ const CustomersList: React.FC<IProps> = (props) => {
   for (const option of CUSTOMER_STATE_OPTIONS) {
     customerStateOptions.push(
       <Menu.Item key={option.value}>
-        <a id={option.value} href="#changeState" onClick={onStateClick}>
+        <a id={option.value} href='#changeState' onClick={onStateClick}>
           {option.label}
         </a>
-      </Menu.Item>,
+      </Menu.Item>
     );
   }
 
-  const editColumns = <a href="#edit">{__('Choose Properties/View')}</a>;
+  const editColumns = <a href='#edit'>{__('Choose Properties/View')}</a>;
 
   const dateFilter = queryParams.form && (
     <DateFilter queryParams={queryParams} />
@@ -346,7 +348,7 @@ const CustomersList: React.FC<IProps> = (props) => {
       <CustomerForm
         {...props}
         type={type}
-        size="lg"
+        size='lg'
         queryParams={queryParams}
       />
     );
@@ -366,7 +368,7 @@ const CustomersList: React.FC<IProps> = (props) => {
   const actionBarRight = (
     <BarItems>
       <FormControl
-        type="text"
+        type='text'
         placeholder={__('Type to search')}
         onChange={search}
         value={searchValue}
@@ -382,27 +384,27 @@ const CustomersList: React.FC<IProps> = (props) => {
         <TemporarySegment contentType={`contacts:${type}`} />
       )}
 
-      <Menu as="div" className="relative">
+      <Menu as='div' className='relative'>
         <Menu.Button>
-          <Button btnStyle="simple" size="small">
-            {__('Customize ')} <Icon icon="angle-down" />
+          <Button btnStyle='simple' size='small'>
+            {__('Customize ')} <Icon icon='angle-down' />
           </Button>
         </Menu.Button>
-        <Menu.Items className="absolute" unmount={false}>
+        <Menu.Items className='absolute' unmount={false}>
           <Menu.Item>
             <ModalTrigger
-              title="Manage Columns"
+              title='Manage Columns'
               trigger={editColumns}
               content={manageColumns}
             />
           </Menu.Item>
           <Menu.Item>
-            <Link to="/settings/properties?type=contacts:customer">
+            <Link to='/settings/properties?type=contacts:customer'>
               {__('Manage properties')}
             </Link>
           </Menu.Item>
           <Menu.Item>
-            <a href="#export" onClick={exportData.bind(this, bulk)}>
+            <a href='#export' onClick={exportData.bind(this, bulk)}>
               {type === 'lead'
                 ? __('Export this leads')
                 : __('Export this contacts')}
@@ -410,7 +412,7 @@ const CustomersList: React.FC<IProps> = (props) => {
           </Menu.Item>
           <Menu.Item>
             <a
-              href="#verifyEmail"
+              href='#verifyEmail'
               onClick={verifyCustomers.bind(this, 'email')}
             >
               {__('Verify emails')}
@@ -418,7 +420,7 @@ const CustomersList: React.FC<IProps> = (props) => {
           </Menu.Item>
           <Menu.Item>
             <a
-              href="#verifyPhone"
+              href='#verifyPhone'
               onClick={verifyCustomers.bind(this, 'phone')}
             >
               {__('Verify phone numbers')}
@@ -427,18 +429,18 @@ const CustomersList: React.FC<IProps> = (props) => {
         </Menu.Items>
       </Menu>
       <Link to={`/settings/importHistories?type=${type}`}>
-        <Button btnStyle="primary" size="small" icon="arrow-from-right">
+        <Button btnStyle='primary' size='small' icon='arrow-from-right'>
           {__('Go to import')}
         </Button>
       </Link>
 
       <ModalTrigger
-        title="New customer"
-        autoOpenKey="showCustomerModal"
+        title='New customer'
+        autoOpenKey='showCustomerModal'
         trigger={addTrigger}
-        size="lg"
+        size='lg'
         content={customerForm}
-        backDrop="static"
+        backDrop='static'
       />
     </BarItems>
   );
@@ -446,14 +448,14 @@ const CustomersList: React.FC<IProps> = (props) => {
   let actionBarLeft: React.ReactNode;
 
   const mergeButton = (
-    <Button btnStyle="primary" size="small" icon="merge">
+    <Button btnStyle='primary' size='small' icon='merge'>
       Merge
     </Button>
   );
 
   if (bulk.length > 0) {
     const tagButton = (
-      <Button btnStyle="simple" size="small" icon="tag-alt">
+      <Button btnStyle='simple' size='small' icon='tag-alt'>
         Tag
       </Button>
     );
@@ -487,51 +489,51 @@ const CustomersList: React.FC<IProps> = (props) => {
         )}
         {bulk.length === 2 && (
           <ModalTrigger
-            title="Merge Customers"
-            size="xl"
-            dialogClassName="modal-1000w"
+            title='Merge Customers'
+            size='xl'
+            dialogClassName='modal-1000w'
             trigger={mergeButton}
             content={customersMerge}
           />
         )}
 
-        <Menu as="div" className="relative">
+        <Menu as='div' className='relative'>
           <Menu.Button>
-            <Button btnStyle="simple" size="small">
-              {__('Change email status')} <Icon icon="angle-down" />
+            <Button btnStyle='simple' size='small'>
+              {__('Change email status')} <Icon icon='angle-down' />
             </Button>
           </Menu.Button>
-          <Menu.Items className="absolute">
+          <Menu.Items className='absolute'>
             <div>{emailVerificationStatusList}</div>
           </Menu.Items>
         </Menu>
 
-        <Menu as="div" className="relative">
+        <Menu as='div' className='relative'>
           <Menu.Button>
-            <Button btnStyle="simple" size="small">
-              {__('Change phone status')} <Icon icon="angle-down" />
+            <Button btnStyle='simple' size='small'>
+              {__('Change phone status')} <Icon icon='angle-down' />
             </Button>
           </Menu.Button>
-          <Menu.Items className="absolute">
+          <Menu.Items className='absolute'>
             <div>{phoneVerificationStatusList}</div>
           </Menu.Items>
         </Menu>
 
-        <Menu as="div" className="relative">
+        <Menu as='div' className='relative'>
           <Menu.Button>
-            <Button btnStyle="simple" size="small">
-              {__('Change state')} <Icon icon="angle-down" />
+            <Button btnStyle='simple' size='small'>
+              {__('Change state')} <Icon icon='angle-down' />
             </Button>
           </Menu.Button>
-          <Menu.Items className="absolute">
+          <Menu.Items className='absolute'>
             <div>{customerStateOptions}</div>
           </Menu.Items>
         </Menu>
 
         <Button
-          btnStyle="danger"
-          size="small"
-          icon="times-circle"
+          btnStyle='danger'
+          size='small'
+          icon='times-circle'
           onClick={onClick}
         >
           Remove
