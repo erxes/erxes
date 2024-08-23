@@ -128,7 +128,7 @@ const OrderDetail = (props: Props) => {
         })}
       </>
 
-      <Table whiteSpace="nowrap" bordered={true} hover={true}>
+      <Table>
         <thead>
           <tr>
             <th>{__('Product')}</th>

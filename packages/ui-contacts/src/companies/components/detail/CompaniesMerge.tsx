@@ -1,19 +1,19 @@
 import {
   COMPANY_DATAS,
   COMPANY_INFO,
-  COMPANY_LINKS
-} from '@erxes/ui-contacts/src/companies/constants';
-import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
+  COMPANY_LINKS,
+} from "@erxes/ui-contacts/src/companies/constants";
+import { Column, Columns, Title } from "@erxes/ui/src/styles/chooser";
 import {
   ICompany,
-  ICompanyLinks
-} from '@erxes/ui-contacts/src/companies/types';
-import { Info, InfoTitle, ModalFooter } from '@erxes/ui/src/styles/main';
-import { InfoAvatar, InfoDetail } from '../../../customers/styles';
+  ICompanyLinks,
+} from "@erxes/ui-contacts/src/companies/types";
+import { Info, InfoTitle, ModalFooter } from "@erxes/ui/src/styles/main";
+import { InfoAvatar, InfoDetail } from "../../../customers/styles";
 
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import Button from "@erxes/ui/src/components/Button";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
 
 type Props = {
   objects: ICompany[];
@@ -30,11 +30,11 @@ class CompaniesMerge extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedValues: {}
+      selectedValues: {},
     };
   }
 
-  save = e => {
+  save = (e) => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -54,21 +54,21 @@ class CompaniesMerge extends React.Component<Props, State> {
     }
 
     this.props.save({
-      ids: objects.map(company => company._id),
+      ids: objects.map((company) => company._id),
       data: { ...selectedValues },
       callback: () => {
         this.props.closeModal();
-      }
+      },
     });
   };
 
   handleChange = (type, key, value) => {
     const selectedValues = { ...this.state.selectedValues };
 
-    if (type === 'plus-1') {
+    if (type === "plus-1") {
       selectedValues[key] = value;
 
-      if (key === 'links') {
+      if (key === "links") {
         const links = Object.assign(
           { ...this.state.selectedValues.links },
           value
@@ -89,14 +89,14 @@ class CompaniesMerge extends React.Component<Props, State> {
       <React.Fragment>
         <Title>{company.primaryName || company.website}</Title>
         <ul>
-          {properties.map(info => {
+          {properties.map((info) => {
             const key = info.field;
 
             if (!company[key]) {
               return null;
             }
 
-            if (info.field === 'links') {
+            if (info.field === "links") {
               return this.renderLinks(company[key], icon);
             }
 
@@ -126,11 +126,11 @@ class CompaniesMerge extends React.Component<Props, State> {
 
   renderValue = (field, value) => {
     switch (field) {
-      case 'owner':
+      case "owner":
         return this.renderOwner(value);
-      case 'parentCompany':
+      case "parentCompany":
         return this.renderParentCompany(value);
-      case 'avatar':
+      case "avatar":
         return <InfoAvatar src={value} alt="avatar" />;
 
       default:
@@ -157,7 +157,7 @@ class CompaniesMerge extends React.Component<Props, State> {
   }
 
   renderLinks(data: ICompanyLinks, icon: string) {
-    return COMPANY_LINKS.ALL.map(info => {
+    return COMPANY_LINKS.ALL.map((info) => {
       const field = info.field;
       const value = data[field];
 
@@ -169,7 +169,7 @@ class CompaniesMerge extends React.Component<Props, State> {
         <li
           key={field}
           onClick={this.handleChange.bind(this, icon, `links`, {
-            [field]: value
+            [field]: value,
           })}
         >
           <InfoTitle>{info.label}:</InfoTitle>
@@ -189,15 +189,15 @@ class CompaniesMerge extends React.Component<Props, State> {
       <form onSubmit={this.save}>
         <Columns>
           <Column className="multiple" width="33%">
-            {this.renderCompany(company1, 'plus-1')}
+            {this.renderCompany(company1, "plus-1")}
           </Column>
 
           <Column className="multiple" width="33%">
-            {this.renderCompany(company2, 'plus-1')}
+            {this.renderCompany(company2, "plus-1")}
           </Column>
 
           <Column width="33%">
-            {this.renderCompany(selectedValues, 'times')}
+            {this.renderCompany(selectedValues, "times")}
           </Column>
         </Columns>
 
@@ -205,7 +205,12 @@ class CompaniesMerge extends React.Component<Props, State> {
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Cancel
           </Button>
-          <Button type="submit" btnStyle="success" icon="check-circle">
+          <Button
+            type="submit"
+            btnStyle="success"
+            icon="check-circle"
+            onClick={this.save}
+          >
             Save
           </Button>
         </ModalFooter>

@@ -1,16 +1,16 @@
-import * as React from "react";
-import Article from "../../components/faq/Article";
-import { IFaqArticle } from "../../types";
-import { AppConsumer } from "../AppContext";
+import * as React from 'react';
+import Article from '../../components/faq/Article';
+import { IFaqArticle } from '../../types';
+import { useRouter } from '../../context/Router';
 
 type Props = {
   article: IFaqArticle;
 };
 
-const container = (props: Props) => (
-  <AppConsumer>
-    {({ goToFaqArticle }) => <Article {...props} onClick={goToFaqArticle} />}
-  </AppConsumer>
-);
+const Container = (props: Props) => {
+  const { goToFaqArticle } = useRouter();
 
-export default container;
+  return <Article {...props} onClick={goToFaqArticle} />;
+};
+
+export default Container;

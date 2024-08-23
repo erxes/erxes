@@ -1,6 +1,9 @@
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 import { sendToGrandStream } from '../../utils';
+import redis from '../../redlock';
+import { XMLParser } from 'fast-xml-parser';
+
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -103,6 +106,95 @@ const callsQueries = {
 
       if (account) {
         return account;
+      }
+      return [];
+    }
+    return 'request failed';
+  },
+  async callQueueList(_root, { integrationId }, { models, user }: IContext) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
+
+    const queueData = (await sendToGrandStream(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        data: {
+          request: {
+            action: 'queueapi',
+            startTime: formattedDate,
+            endTime: formattedDate,
+          },
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: false,
+        isAddExtention: false,
+      },
+      user,
+    )) as any;
+
+    if (!queueData.ok) {
+      throw new Error(`HTTP error! Status: ${queueData.status}`);
+    }
+
+    const xmlData = await queueData.text();
+
+    const parser = new XMLParser();
+
+    const jsonObject = parser.parse(xmlData);
+
+    const rootStatistics = jsonObject.root_statistics || {};
+    const queues = rootStatistics.queue || [];
+
+    return queues;
+  },
+
+  async callWaitingList(_root, { queue }) {
+    const redisKey = `callRealtimeHistory:${queue}:waiting`;
+    return await redis.get(redisKey);
+  },
+
+  async callProceedingList(_root, { queue }) {
+    const redisKey = `callRealtimeHistory:${queue}:talking`;
+    return await redis.get(redisKey);
+  },
+
+  async callQueueMemberList(
+    _root,
+    { integrationId, queue },
+    { models, user }: IContext,
+  ) {
+    const queueData = (await sendToGrandStream(
+      models,
+      {
+        path: 'api',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+          request: {
+            action: 'getCallQueuesMemberMessage',
+            extension: queue,
+          },
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: false,
+      },
+      user,
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { CallQueueMembersMessage } = queueData?.response;
+
+      if (CallQueueMembersMessage) {
+        return CallQueueMembersMessage;
       }
       return [];
     }

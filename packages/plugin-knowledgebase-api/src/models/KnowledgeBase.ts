@@ -11,6 +11,7 @@ import {
   ITopicDocument,
   topicSchema
 } from './definitions/knowledgebase';
+import { PUBLISH_STATUSES } from './definitions/constants';
 
 export interface IArticleCreate extends IArticle {
   userId?: string;
@@ -54,14 +55,18 @@ export const loadArticleClass = (models: IModels) => {
         throw new Error('userId must be supplied');
       }
 
-      const article = await models.KnowledgeBaseArticles.create({
+      const doc = {
         ...docFields,
         createdDate: new Date(),
         createdBy: userId,
         modifiedDate: new Date()
-      });
+      };
 
-      return article;
+      if (docFields.status === PUBLISH_STATUSES.PUBLISH) {
+        doc.publishedUserId = userId;
+      }
+
+      return  await models.KnowledgeBaseArticles.create(doc);
     }
 
     /**
@@ -75,21 +80,28 @@ export const loadArticleClass = (models: IModels) => {
       if (!userId) {
         throw new Error('userId must be supplied');
       }
-
-      await models.KnowledgeBaseArticles.updateOne(
-        { _id },
-        {
-          $set: {
-            ...docFields,
-            modifiedBy: userId,
-            modifiedDate: new Date()
-          }
-        }
-      );
-
       const article = await models.KnowledgeBaseArticles.getArticle(_id);
 
-      return article;
+      if(!article){
+        throw new Error('Article not found')
+      }
+
+      const doc = {
+        ...docFields,
+        modifiedBy: userId,
+        modifiedDate: new Date()
+      };
+
+      if (article.status === PUBLISH_STATUSES.DRAFT && doc.status === PUBLISH_STATUSES.PUBLISH) {
+
+        doc.publishedUserId = userId;
+      }
+
+      return await models.KnowledgeBaseArticles.findOneAndUpdate(
+        { _id },
+        {$set: doc}
+      );
+
     }
 
     /**

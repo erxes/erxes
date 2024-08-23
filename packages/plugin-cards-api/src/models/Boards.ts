@@ -9,7 +9,7 @@ import {
   IStage,
   IStageDocument,
   pipelineSchema,
-  stageSchema
+  stageSchema,
 } from './definitions/boards';
 import { BOARD_STATUSES } from './definitions/constants';
 import { getDuplicatedStages } from './PipelineTemplates';
@@ -19,7 +19,7 @@ import { IModels } from '../connectionResolver';
 import {
   sendCoreMessage,
   sendFormsMessage,
-  sendInternalNotesMessage
+  sendInternalNotesMessage,
 } from '../messageBroker';
 import { updateOrder, IOrderInput } from '@erxes/api-utils/src/commonUtils';
 
@@ -56,11 +56,11 @@ const removeItems = async (
     { _id: 1 }
   );
 
-  const itemIds = items.map((i) => i._id);
+  const itemIds = items.map(i => i._id);
 
   await putActivityLog(subdomain, {
     action: 'removeActivityLogs',
-    data: { type, itemIds }
+    data: { type, itemIds },
   });
 
   await models.Checklists.removeChecklists(type, itemIds);
@@ -70,11 +70,15 @@ const removeItems = async (
     action: 'conformities.removeConformities',
     data: {
       mainType: type,
-      mainTypeIds: itemIds
-    }
+      mainTypeIds: itemIds,
+    },
   });
 
-  await sendInternalNotesMessage({ subdomain, action: 'removeInternalNotes', data: { contentType: `cards:${type}`, contentTypeIds: itemIds } });
+  await sendInternalNotesMessage({
+    subdomain,
+    action: 'removeInternalNotes',
+    data: { contentType: `cards:${type}`, contentTypeIds: itemIds },
+  });
 
   await collection.deleteMany({ stageId: { $in: stageIds } });
 };
@@ -116,10 +120,10 @@ const createOrUpdatePipelineStages = async (
       update: { $set: IStage };
     };
   }> = [];
-  const prevItemIds = stages.map((stage) => stage._id);
+  const prevItemIds = stages.map(stage => stage._id);
   // fetch stage from database
   const prevEntries = await models.Stages.find({ _id: { $in: prevItemIds } });
-  const prevEntriesIds = prevEntries.map((entry) => entry._id);
+  const prevEntriesIds = prevEntries.map(entry => entry._id);
 
   await removeStageWithItems(models, type, pipelineId, prevItemIds);
 
@@ -139,12 +143,12 @@ const createOrUpdatePipelineStages = async (
       bulkOpsPrevEntry.push({
         updateOne: {
           filter: {
-            _id
+            _id,
           },
           update: {
-            $set: doc
-          }
-        }
+            $set: doc,
+          },
+        },
       });
       // create
     } else {
@@ -162,13 +166,13 @@ const createOrUpdatePipelineStages = async (
 };
 
 // pipeline lastNum generater
-const generateLastNum = async (models: IModels, doc: IPipeline) => {
+const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
   const re = replacedConfig + '[0-9]+$';
 
   const pipeline = await models.Pipelines.findOne({
     lastNum: new RegExp(re),
-    type: doc.type
+    type: doc.type,
   });
 
   if (pipeline) {
@@ -179,7 +183,7 @@ const generateLastNum = async (models: IModels, doc: IPipeline) => {
 
   const item = await collection
     .findOne({
-      number: new RegExp(re)
+      number: new RegExp(re),
     })
     .sort({ createdAt: -1 });
 
@@ -188,14 +192,13 @@ const generateLastNum = async (models: IModels, doc: IPipeline) => {
   }
 
   // generate new number by new numberConfig
-  const generatedNum = await boardNumberGenerator(
+  return await boardNumberGenerator(
     models,
-    doc.numberConfig || '',
-    doc.numberSize || '',
-    true
+    doc.numberConfig ?? '',
+    doc.numberSize ?? '',
+    true,
+    'lastNum'
   );
-
-  return generatedNum;
 };
 
 export interface IBoardModel extends Model<IBoardDocument> {
@@ -280,7 +283,7 @@ export const loadBoardClass = (models: IModels, subdomain: string) => {
     ) {
       const doc: { status: string; timeSpent: number; startDate?: string } = {
         status,
-        timeSpent
+        timeSpent,
       };
 
       if (startDate) {
@@ -340,7 +343,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
       stages?: IPipelineStage[]
     ) {
       if (doc.numberSize) {
-        doc.lastNum = await generateLastNum(models, doc);
+        doc.lastNum = await generateLastNum(models, doc, 'number');
       }
 
       const pipeline = await models.Pipelines.create(doc);
@@ -349,7 +352,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
         const duplicatedStages = await getDuplicatedStages(models, subdomain, {
           templateId: doc.templateId,
           pipelineId: pipeline._id,
-          type: doc.type
+          type: doc.type,
         });
 
         await createOrUpdatePipelineStages(
@@ -388,7 +391,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
             {
               templateId: doc.templateId,
               pipelineId: _id,
-              type: doc.type
+              type: doc.type,
             }
           );
 
@@ -407,7 +410,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
         const pipeline = await models.Pipelines.getPipeline(_id);
 
         if (pipeline.numberConfig !== doc.numberConfig) {
-          doc.lastNum = await generateLastNum(models, doc);
+          doc.lastNum = await generateLastNum(models, doc, 'number');
         }
       }
 
@@ -496,7 +499,7 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
 
     static async checkCodeDuplication(code: string) {
       const stage = await models.Stages.findOne({
-        code
+        code,
       });
 
       if (stage) {
@@ -545,8 +548,8 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'removeForm',
           data: {
-            formId: stage.formId
-          }
+            formId: stage.formId,
+          },
         });
       }
 

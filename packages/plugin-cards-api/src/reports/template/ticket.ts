@@ -1,6 +1,6 @@
 import { IModels } from "../../connectionResolver";
 import { MONTH_NAMES, PROBABILITY_CLOSED, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_TYPES, DATERANGE_BY_TYPES, ATTACHMENT_TYPES, PRIORITY, STATUS_TYPES, PROBABILITY_TICKET, USER_TYPES, INTEGRATION_OPTIONS } from "../constants";
-import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getIntegrationsKinds, getStageIds } from "../utils";
+import { buildData, buildMatchFilter, buildPipeline, getIntegrationsKinds, getStageIds } from "../utils";
 
 const DIMENSION_OPTIONS = [
     { label: 'Team members', value: 'teamMember' },
@@ -2472,25 +2472,15 @@ export const ticketCharts = [
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
 
-            let tickets
-
-            if (chartType === "number") {
-                const ticketsCount = await models.Tickets.find(matchFilter).countDocuments()
-
-                tickets = { labels: "Total Count", data: ticketsCount }
-            } else {
-                const pipeline = buildPipeline(filter, "ticket", matchFilter)
-
-                tickets = await models.Tickets.aggregate(pipeline)
-            }
+            const pipeline = buildPipeline(filter, "ticket", matchFilter)
+            const tickets = await models.Tickets.aggregate(pipeline)
 
             const title = 'Total Tickets Count';
 
-            return { title, ...buildData({ chartType, data: tickets, measure, dimension }) };
+            return { title, ...buildData({ chartType, data: tickets, filter }) };
         },
         filterTypes: [
             // DIMENSION FILTER

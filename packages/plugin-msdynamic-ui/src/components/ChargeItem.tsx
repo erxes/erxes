@@ -11,12 +11,12 @@ function ChargeItem(props: Props) {
 
   return (
     <tr>
-      <td>{error?.message || ''}</td>
       <td>{Document_No || ''}</td>
       <td>{__(Description || '')}</td>
       <td>{No || ''}</td>
       <td>{Unit_Price || ''}</td>
       <td>{Quantity || ''}</td>
+      <td>{error?.message || ''}</td>
     </tr>
   );
 }
