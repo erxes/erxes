@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.15.0](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.15.0) (2024-08-23)
+
+
+### Features
+
+* **calls:** Added realtime dashboard ([bef1bf2](https://github.com/erxes/erxes/commit/bef1bf2186c97310533c60cfcf7fea055f371836))
+
+
+### Bug Fixes
+
+* **cards:** fix bugs cards insights ([5df88f3](https://github.com/erxes/erxes/commit/5df88f33e844fdb0afaa186b68b32752c7704536))
+* **cards:** name auto field ([#5593](https://github.com/erxes/erxes/issues/5593)) ([4251eda](https://github.com/erxes/erxes/commit/4251eda6ef9ae4c3efcb4bf4e51392e2850aa6f8))
+* duplicated ebarimt re return ([5988deb](https://github.com/erxes/erxes/commit/5988deb022aebb921b0dc139442cb1c1ac9702b1))
+* msdynamic external_doc_no and posOrder to cards with payment ([effe8ad](https://github.com/erxes/erxes/commit/effe8adf1d2a742b0e4320b7da14adcb7b8bd7f1))
+
 ## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.15.0-rc.13...1.15.0-rc.14) (2024-08-15)
 
 ## [1.15.0-rc.13](https://github.com/erxes/erxes/compare/1.15.0-rc.12...1.15.0-rc.13) (2024-08-14)
