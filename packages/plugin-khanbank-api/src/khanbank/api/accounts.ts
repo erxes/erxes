@@ -83,10 +83,16 @@ export class AccountsApi extends BaseApi {
     try {
       const res = await this.request({
         method: "GET",
-        path: `accounts/${accountNumber}/name?bank=${bankCode}`
+        path: `accounts/cam/`,
+        params:{acct:accountNumber,bank_code:bankCode}
       });
-
-      return res;
+      
+      return {
+        number: res.iban,
+        currency: res.alias,
+        custFirstName: res.name,
+        custLastName: res.msgId
+      };
     } catch (e) {
       throw new Error(e.message);
     }

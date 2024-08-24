@@ -160,6 +160,17 @@ const knowledgeBaseArticles = `
         brandId
         formId
       }
+
+      publishedUserId
+      publishedUser {
+        _id
+        username
+        email
+        details {
+          avatar
+          fullName
+        }
+      }
     }
   }
 `;

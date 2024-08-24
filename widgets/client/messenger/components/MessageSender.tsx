@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { iconAttach, iconVideo } from '../../icons/Icons';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { iconAttach, IconSend, iconVideo } from '../../icons/Icons';
 import { __ } from '../../utils';
-import { MESSAGE_TYPES } from '../containers/AppContext';
+import { MESSAGE_TYPES } from '../constants';
 import { connection } from '../connection';
+import EmojiPicker from './EmojiPicker';
 
 type Props = {
   placeholder?: string;
@@ -19,209 +21,218 @@ type Props = {
   showVideoCallRequest: boolean;
 };
 
-type State = {
-  message: string;
-};
-
 let inputTimeoutInstance: any;
 
-class MessageSender extends React.Component<Props, State> {
-  private textarea: any;
-  private form: any;
+const MessageSender: React.FC<Props> = (props) => {
+  const [message, setMessage] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  constructor(props: Props) {
-    super(props);
+  const {
+    conversationId,
+    inputDisabled,
+    isParentFocused,
+    sendTypingInfo,
+    sendFile,
+    readMessages,
+    onTextInputBlur,
+    collapseHead,
+    isAttachingFile,
+    placeholder,
+  } = props;
 
-    this.state = { message: '' };
-
-    this.onSubmit = this.onSubmit.bind(this);
-    this.handleMessageChange = this.handleMessageChange.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleFileInput = this.handleFileInput.bind(this);
-    this.handleOnBlur = this.handleOnBlur.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  readMessages = () => {
-    if (this.props.conversationId) {
-      this.props.readMessages(this.props.conversationId);
+  const clearTimeoutInstance = () => {
+    if (inputTimeoutInstance) {
+      clearTimeout(inputTimeoutInstance);
     }
   };
 
-  componentDidMount() {
-    if (this.textarea && window.innerWidth > 415) {
-      this.textarea.focus();
+  useEffect(() => {
+    if (textareaRef.current && window.innerWidth > 415) {
+      textareaRef.current.focus();
     }
-  }
+  }, []);
 
-  componentDidUpdate(nextProps: Props) {
-    if (nextProps.isParentFocused) {
-      if (this.textarea) {
-        this.textarea.focus();
-      }
+  useEffect(() => {
+    if (isParentFocused && textareaRef.current) {
+      textareaRef.current.focus();
     }
-  }
+  }, [isParentFocused]);
 
-  setHeight(height?: number) {
-    const textarea = this.textarea;
-    const form = this.form;
-    // for reset element's scrollHeight
-    textarea.style.height = 0;
+  useEffect(() => {
+    return () => clearTimeoutInstance();
+  }, []);
 
-    if (height) {
-      return (form.style.height = textarea.style.height = `${height}px`);
+  const setHeight = (height?: number | 'auto') => {
+    const textarea = textareaRef.current;
+    const form = formRef.current;
+
+    if (!textarea || !form) {
+      return;
     }
 
-    form.style.height = `${textarea.scrollHeight}px`;
-    textarea.style.height = `${textarea.scrollHeight - 1}px`;
-  }
+    // Reset textarea height to calculate scrollHeight correctly
+    textarea.style.height = '0';
 
-  setArea = (textarea: HTMLTextAreaElement) => {
-    this.textarea = textarea;
+    let formHeight;
+    let textareaHeight;
+
+    if (height === 'auto') {
+      formHeight = 'auto';
+      textareaHeight = 'auto';
+    } else if (typeof height === 'number') {
+      const heightInPx = `${height}px`;
+      formHeight = heightInPx;
+      textareaHeight = heightInPx;
+    } else {
+      // Use scrollHeight to adjust to content size
+      const { scrollHeight } = textarea;
+      formHeight = `${scrollHeight}px`;
+      textareaHeight = `${scrollHeight - 1}px`;
+    }
+
+    form.style.height = formHeight;
+    textarea.style.height = textareaHeight;
   };
 
-  setForm = (form: HTMLFormElement) => {
-    this.form = form;
+  const sendMessage = () => {
+    props.sendMessage(MESSAGE_TYPES.TEXT, message);
+    setMessage('');
+    setHeight('auto');
   };
 
-  sendMessage() {
-    this.clearTimeout();
-    this.props.sendMessage(MESSAGE_TYPES.TEXT, this.state.message);
-    this.setState({ message: '' });
-    this.setHeight(60);
-  }
-
-  onSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const { conversationId, inputDisabled } = this.props;
 
     if ((conversationId || '').length === 0 && inputDisabled) {
       return;
     }
 
-    this.sendMessage();
-  }
+    sendMessage();
+  };
 
-  clearTimeout() {
-    if (inputTimeoutInstance) {
-      clearTimeout(inputTimeoutInstance);
-    }
-  }
+  // clearTimeout() {
+  //   if (inputTimeoutInstance) {
+  //     clearTimeout(inputTimeoutInstance);
+  //   }
+  // }
 
-  handleMessageChange(e: React.FormEvent<HTMLTextAreaElement>) {
-    const { sendTypingInfo, conversationId } = this.props;
-    const message = e.currentTarget.value;
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const message = e.currentTarget.value;
+      setMessage(message);
 
-    this.setState({ message });
+      if (conversationId) {
+        clearTimeoutInstance();
+        inputTimeoutInstance = setTimeout(() => {
+          sendTypingInfo(conversationId, message);
+        }, 800);
+      }
 
-    if (conversationId) {
-      this.clearTimeout();
+      setHeight();
+    },
+    [conversationId, sendTypingInfo]
+  );
 
-      inputTimeoutInstance = setTimeout(() => {
-        sendTypingInfo(conversationId, message);
-      }, 800);
-    }
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        props.sendMessage(MESSAGE_TYPES.TEXT, message);
+        setMessage('');
+        setHeight('auto');
+      }
+    },
+    [message, sendMessage]
+  );
 
-    this.setHeight();
-  }
-
-  componentWillUnmount() {
-    this.clearTimeout();
-  }
-
-  handleOnBlur() {
-    const { onTextInputBlur, sendTypingInfo, conversationId } = this.props;
-
+  const handleBlur = useCallback(() => {
     if (conversationId) {
       sendTypingInfo(conversationId, '');
     }
-
     onTextInputBlur();
-  }
+  }, [conversationId, onTextInputBlur, sendTypingInfo]);
 
-  handleClick() {
-    this.props.collapseHead();
-  }
-
-  handleKeyPress(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
-      this.sendMessage();
+      const { files } = e.currentTarget;
+      if (files && files.length > 0) {
+        sendFile(files[0]);
+      }
+    },
+    [sendFile]
+  );
+  const handleReadMessages = () => {
+    if (conversationId) {
+      readMessages(conversationId);
     }
-  }
-
-  handleFileInput(e: React.FormEvent<HTMLInputElement>) {
-    e.preventDefault();
-
-    const files = e.currentTarget.files;
-
-    if (files && files.length > 0) {
-      this.props.sendFile(files[0]);
-    }
-  }
-
-  sendVideoCallRequest = () => {
-    this.props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
   };
+  const handleClick = useCallback(() => {
+    collapseHead();
+  }, [collapseHead]);
 
-  renderFileUploader() {
-    if (this.props.isAttachingFile) {
-      return <div className="loader" />;
-    }
+  const sendVideoCallRequest = useCallback(() => {
+    props.sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '');
+  }, [sendMessage]);
 
+  const renderFileUploader = () => {
     return (
-      <label title="File upload" htmlFor="file-upload" className="ctrl-item">
+      <label title="File upload" htmlFor="file-upload">
         {iconAttach}
-        <input id="file-upload" type="file" onChange={this.handleFileInput} />
+        <input
+          id="file-upload"
+          disabled={!conversationId || inputDisabled}
+          type="file"
+          onChange={handleFileInput}
+        />
       </label>
     );
-  }
+  };
 
-  renderVideoCallRequest() {
-    if (!this.props.showVideoCallRequest || !connection.enabledServices.dailyco) {
+  const renderSendButton = () => {
+    if (!message.length) {
       return null;
     }
 
     return (
-      <label
-        title="Video call request"
-        className="ctrl-item"
-        onClick={this.sendVideoCallRequest}
-      >
-        {iconVideo()}
-      </label>
+      <button type="submit" form="message-sending-form">
+        <IconSend />
+      </button>
     );
-  }
+  };
 
-  render() {
-    const { conversationId, inputDisabled } = this.props;
-
-    return (
-      <form
-        className="erxes-message-sender"
-        ref={this.setForm}
-        onSubmit={this.onSubmit}
-      >
-        <textarea
-          ref={this.setArea}
-          className="reply"
-          placeholder={this.props.placeholder}
-          value={this.state.message}
-          onChange={this.handleMessageChange}
-          onFocus={this.readMessages}
-          onBlur={this.handleOnBlur}
-          onClick={this.handleClick}
-          onKeyDown={this.handleKeyPress}
-          disabled={(conversationId || '').length > 0 ? false : inputDisabled}
+  return (
+    <form
+      className="erxes-message-sender"
+      ref={formRef}
+      onSubmit={handleSubmit}
+      id="message-sending-form"
+    >
+      <textarea
+        ref={textareaRef}
+        rows={1}
+        placeholder={placeholder}
+        value={message}
+        onChange={handleChange}
+        onFocus={handleReadMessages}
+        onBlur={handleBlur}
+        onClick={handleClick}
+        onKeyDown={handleKeyPress}
+        disabled={(conversationId || '').length > 0 ? false : inputDisabled}
+      />
+      <div className="messenger-action-buttons">
+        <EmojiPicker
+          onEmojiSelect={(emoji: any) => {
+            setMessage((prevMessage) => prevMessage + emoji.native);
+            setHeight();
+          }}
         />
-        <div className="ctrl">
-          {this.renderVideoCallRequest()}
-          {this.renderFileUploader()}
-        </div>
-      </form>
-    );
-  }
-}
+        {renderFileUploader()}
+        {renderSendButton()}
+      </div>
+    </form>
+  );
+};
 
 export default MessageSender;

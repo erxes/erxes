@@ -12,8 +12,10 @@ const queries = {
       throw new Error("Not found config");
     }
     const golomtBank = new GolomtBank(config);
+
     try {
-      await golomtBank.accounts.list();
+      const res = await golomtBank.accounts.list();
+      return JSON.parse(res);
     } catch (e) {
       throw new Error(e.message);
     }
@@ -52,14 +54,15 @@ const queries = {
       if (!config) {
         throw new Error("Not found config");
       }
-   
-      const golomtBank = new GolomtBank(config);
 
-      return await golomtBank.statements.list(args);
+      const golomtBank = new GolomtBank(config);
+      const res = await golomtBank.statements.list(args);
+      return JSON.parse(res);
     } catch (e) {
       throw new Error(e.message);
     }
   },
+
   async golomtBankAccountBalance(
     _root,
     { configId, accountId }: { configId: string; accountId: string },
@@ -67,11 +70,13 @@ const queries = {
   ) {
     const config = await models.GolomtBankConfigs.getConfig({ _id: configId });
 
+    if (!config) {
+      throw new Error("Not found config");
+    }
     const golomtBank = new GolomtBank(config);
-  
-      const res = await golomtBank.accounts.getBalance(accountId);
-      return  JSON.parse(res);
-    
+
+    const res = await golomtBank.accounts.getBalance(accountId);
+    return JSON.parse(res);
   },
 };
 

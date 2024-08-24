@@ -1,13 +1,13 @@
-import * as React from "react";
-import { iconPlus } from "../../icons/Icons";
-import { __ } from "../../utils";
-import ConversationItem from "../containers/ConversationItem";
-import { IConversation } from "../types";
+import * as React from 'react';
+import { iconPlus } from '../../icons/Icons';
+import { __ } from '../../utils';
+import ConversationItem from '../containers/ConversationItem';
+import { IConversation } from '../types';
 
 type Props = {
   conversations: IConversation[];
   goToConversation: (conversationId: string) => void;
-  createConversation: (e: React.FormEvent<HTMLLIElement>) => void;
+  createConversation: () => void;
   loading: boolean;
   goToAllConversations: (e: React.FormEvent<HTMLLIElement>) => void;
   responseRate?: string;
@@ -20,7 +20,7 @@ function ConversationInit(props: Props) {
     loading,
     createConversation,
     goToAllConversations,
-    responseRate
+    responseRate,
   } = props;
 
   if (loading) {
@@ -34,9 +34,10 @@ function ConversationInit(props: Props) {
           <span>{iconPlus}</span>
         </div>
         <div className="erxes-right-plus">
-          <div className="erxes-name">{__("Start new conversation")}</div>
+          <div className="erxes-name">{__('Start new conversation')}</div>
           <div className="erxes-last-message">
-            {__("Our usual response time")}<br /> 
+            {__('Our usual response time')}
+            <br />
             <strong>{responseRate}</strong>
           </div>
         </div>
@@ -49,22 +50,23 @@ function ConversationInit(props: Props) {
       <li onClick={goToAllConversations} className="erxes-list-item">
         <div className="erxes-right-side">
           <div className="erxes-last-message">
-            {__("See all your conversations")}
+            {__('See all your conversations')}
           </div>
         </div>
       </li>
-    )
-  }
+    );
+  };
 
   return (
     <>
       <ul className="erxes-conversation-init">
-        {conversations.length > 0 &&
+        {conversations.length > 0 && (
           <ConversationItem
             key={conversations[0]._id}
             conversation={conversations[0]}
             goToConversation={goToConversation}
-          />}
+          />
+        )}
         {conversations.length > 1 && seeAllConversationBtn()}
         {createButton()}
       </ul>

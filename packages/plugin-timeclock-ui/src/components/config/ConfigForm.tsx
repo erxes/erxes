@@ -25,9 +25,14 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import DateTimePicker from '../datepicker/DateTimePicker';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Select from 'react-select';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import Select from 'react-select';
 import { compareStartAndEndTime } from '../../utils';
+
 import dayjs from 'dayjs';
 
 type Props = {
@@ -40,7 +45,7 @@ type Props = {
   loading?: boolean;
   afterSave?: () => void;
   closeModal: () => void;
-  renderButton: (props: IButtonMutateProps) => void;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   onSubmit?: (props: IButtonMutateProps) => void;
 };
 
@@ -68,11 +73,11 @@ function ConfigForm(props: Props) {
   );
 
   const [requestToType, setRequestToType] = useState(
-    absenceType?.requestType || 'shift request'
+    absenceType?.requestToType || 'default'
   );
 
   const [requestToWhomType, setRequestToWhomType] = useState(
-    absenceType?.requestType || 'shift request'
+    absenceType?.requestToWhomType || 'shift request'
   );
 
   const [hoursPerDay, setHoursPerDay] = useState(8);
@@ -278,8 +283,8 @@ function ConfigForm(props: Props) {
                   }
                 />
               </div>
-              <FlexColumn marginNum={25}>
-                <FlexColumn marginNum={10}>
+              <FlexColumn $marginNum={25}>
+                <FlexColumn $marginNum={10}>
                   <ControlLabel required={true}>Longitude:</ControlLabel>
                   <div style={{ marginLeft: '1rem' }}>
                     <FormControl
@@ -293,7 +298,7 @@ function ConfigForm(props: Props) {
                     />
                   </div>
                 </FlexColumn>
-                <FlexColumn marginNum={10}>
+                <FlexColumn $marginNum={10}>
                   <ControlLabel required={true}>Latitude:</ControlLabel>
                   <div style={{ marginLeft: '1rem' }}>
                     <FormControl
@@ -593,6 +598,20 @@ function ConfigForm(props: Props) {
       label: __(ipt)
     }));
 
+    const renderRequestToTypes = array => {
+      return array.map(ipt => ({
+        value: ipt,
+        label: __(requestToTypes[ipt])
+      }));
+    };
+
+    const renderRequestToWhomTypes = array => {
+      return array.map(ipt => ({
+        value: ipt,
+        label: __(requestToWhomTypes[ipt])
+      }));
+    };
+
     return (
       <ConfigFormWrapper>
         <FlexColumn $marginNum={30}>
@@ -670,14 +689,12 @@ function ConfigForm(props: Props) {
           <ControlLabel required={true}>Send request to</ControlLabel>
 
           <Select
-            value={requestToType}
+            value={renderRequestToTypes(Object.keys(requestToTypes)).find(
+              option => option.value === requestToType
+            )}
             onChange={onRequestToTypeChange}
             placeholder='Select type'
-            multi={false}
-            options={Object.keys(requestToTypes).map(ipt => ({
-              value: ipt,
-              label: __(requestToTypes[ipt])
-            }))}
+            options={renderRequestToTypes(Object.keys(requestToTypes))}
           />
 
           {requestToType === 'individuals' && (
@@ -687,14 +704,14 @@ function ConfigForm(props: Props) {
               </ControlLabel>
 
               <Select
-                value={requestToWhomType}
+                value={renderRequestToTypes(Object.keys(requestToTypes)).find(
+                  option => option.value === requestToWhomType
+                )}
                 onChange={onRequestToWhomTypeChange}
                 placeholder='Select whom'
-                multi={false}
-                options={Object.keys(requestToWhomTypes).map(ipt => ({
-                  value: ipt,
-                  label: __(requestToWhomTypes[ipt])
-                }))}
+                options={renderRequestToWhomTypes(
+                  Object.keys(requestToWhomTypes)
+                )}
               />
             </>
           )}
@@ -917,7 +934,7 @@ function ConfigForm(props: Props) {
       <>
         <FlexRow>
           <ControlLabel>Check in</ControlLabel>
-          <FlexRowJustifyStart widthPercent={50}>
+          <FlexRowJustifyStart $widthPercent={50}>
             <ControlLabel>Flexible</ControlLabel>
             <FormControl
               name='scheduleStartFlexible'
@@ -942,7 +959,7 @@ function ConfigForm(props: Props) {
         <FlexRow>
           <ControlLabel> Check out</ControlLabel>
 
-          <FlexRowJustifyStart widthPercent={50}>
+          <FlexRowJustifyStart $widthPercent={50}>
             <ControlLabel>Flexible</ControlLabel>
             <FormControl
               name='scheduleEndFlexible'
@@ -968,7 +985,7 @@ function ConfigForm(props: Props) {
         <FlexRow>
           <ControlLabel>Lunch break</ControlLabel>
 
-          <FlexRowJustifyStart widthPercent={50}>
+          <FlexRowJustifyStart $widthPercent={50}>
             <div style={{ width: '15%', textAlign: 'center' }}>
               <FormControl
                 {...formProps}
@@ -986,7 +1003,7 @@ function ConfigForm(props: Props) {
         </FlexRow>
 
         <FlexRow>
-          <FlexRow gapPx={16}>
+          <FlexRow $gapPx={16}>
             <ControlLabel>Overtime</ControlLabel>
             <FormControl
               name='scheduleOvertimeExists'
@@ -997,7 +1014,7 @@ function ConfigForm(props: Props) {
               }
             />
           </FlexRow>
-          <FlexRowJustifyStart widthPercent={50}>
+          <FlexRowJustifyStart $widthPercent={50}>
             {scheduleOvertimeExists && (
               <DateTimePicker
                 curr_day_key={'overtime'}

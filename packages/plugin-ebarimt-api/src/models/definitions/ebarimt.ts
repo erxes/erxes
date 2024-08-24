@@ -220,5 +220,4 @@ export const ebarimtSchema = schemaHooksWrapper(
   'erxes_ebarimt'
 );
 
-ebarimtSchema.index({ contentType: 1, contentId: 1, state: 1 });
-ebarimtSchema.index({ contentType: 1, contentId: 1, taxType: 1, state: 1 });
+ebarimtSchema.index({ contentType: 1, contentId: 1, state: 1, type: 1 });
