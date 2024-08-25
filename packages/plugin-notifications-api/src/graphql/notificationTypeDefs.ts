@@ -1,3 +1,24 @@
+const configFields = {
+  main: `
+    _id: String,
+    userId: String,
+    isDefault: Boolean,
+    isDisabled: Boolean,
+    isAllowEmail: Boolean,
+    isAllowedDesktop: Boolean,
+  `,
+  plugin: `
+    type: String,
+    isDisabled: Boolean,
+  `,
+  pluginNotifType: `
+    notifType: String,
+    isDisabled: Boolean,
+    isAllowedEmail: Boolean,
+    isAllowedDesktop: Boolean,
+    customHtml: String,`
+};
+
 export const types = `
 
   extend type User @key(fields: "_id") {
@@ -16,12 +37,34 @@ export const types = `
     isRead: Boolean
   }
 
-  type NotificationConfiguration {
-    _id: String!
-    user: String
-    notifType: String
-    isAllowed: Boolean
+  type PluginNotifType  {
+    ${configFields.pluginNotifType}
   }
+
+  type PluginConfig {
+    ${configFields.plugin}
+    notifTypes: [PluginNotifType]
+  }
+
+  type NotificationConfiguration {
+    ${configFields.main}
+    pluginsConfigs:[PluginConfig]
+  }
+
+  input IPluginNotifType {
+    ${configFields.pluginNotifType}
+  }
+
+  input IPluginConfig {
+    ${configFields.plugin},
+    notifTypes: [IPluginNotifType]
+  }
+
+  input INotificationConfiguration {
+    ${configFields.main}
+     pluginsConfigs:[IPluginConfig]
+  }
+
 `;
 
 const params = `
@@ -40,11 +83,12 @@ export const queries = `
   notifications(${params}): [Notification]
   notificationCounts(requireRead: Boolean, notifType: String, contentTypes: [String]): Int
   notificationsModules : [JSON]
-  notificationsGetConfigurations : [NotificationConfiguration]
-`;
+  notificationsGetConfigurations(isDefault:Boolean) : NotificationConfiguration
+  `;
 
 export const mutations = `
-  notificationsSaveConfig (notifType: String!, isAllowed: Boolean): NotificationConfiguration
+  notificationsSaveConfig (${configFields.main},pluginsConfigs:[IPluginConfig]): NotificationConfiguration
+  notificationsSetAsDefaultConfig: JSON
   notificationsMarkAsRead (_ids: [String], contentTypeId: String) : JSON
   notificationsShow : String
 `;

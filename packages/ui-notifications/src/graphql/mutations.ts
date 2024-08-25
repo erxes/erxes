@@ -19,10 +19,32 @@ const configGetNotificationByEmail = `
 `;
 
 const saveNotificationConfigurations = `
-  mutation NotificationsSaveConfig($notifType: String!, $isAllowed: Boolean) {
-    notificationsSaveConfig(notifType: $notifType, isAllowed: $isAllowed) {
+  mutation NotificationsSaveConfig(
+    $_id: String,
+    $userId: String,
+    $isDisabled: Boolean,
+    $isAllowEmail: Boolean,
+    $isDefault: Boolean,
+    $isAllowedDesktop: Boolean,
+    $pluginsConfigs:[IPluginConfig]
+  ) {
+    notificationsSaveConfig(
+      _id:$_id,
+      userId:$userId,
+      isDisabled:$isDisabled,
+      isAllowEmail:$isAllowEmail,
+      isAllowedDesktop:$isAllowedDesktop,
+      isDefault: $isDefault,
+      pluginsConfigs:$pluginsConfigs
+    ) {
       _id
     }
+  }
+`;
+
+const saveAsDefaultNotificationsConfigs = `
+  mutation NotificationsSetAsDefaultConfig {
+    notificationsSetAsDefaultConfig
   }
 `;
 
@@ -31,4 +53,5 @@ export default {
   showNotification,
   configGetNotificationByEmail,
   saveNotificationConfigurations,
+  saveAsDefaultNotificationsConfigs
 };

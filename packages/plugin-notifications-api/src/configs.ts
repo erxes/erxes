@@ -5,20 +5,21 @@ import { setupMessageConsumers } from './messageBroker';
 import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import automations from './automations';
+import * as permissions from './permissions';
 
 export default {
   name: 'notifications',
   graphql: () => {
     return {
       typeDefs,
-      resolvers,
+      resolvers
     };
   },
   hasSubscriptions: true,
   subscriptionPluginPath: require('path').resolve(
     __dirname,
     'graphql',
-    'subscriptionPlugin.js',
+    'subscriptionPlugin.js'
   ),
 
   segment: {},
@@ -32,5 +33,5 @@ export default {
   onServerInit: async () => {},
   setupMessageConsumers,
 
-  meta: { automations },
+  meta: { automations, permissions }
 };

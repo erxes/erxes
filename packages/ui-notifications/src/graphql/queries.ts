@@ -57,11 +57,24 @@ const notificationsModules = `
 `;
 
 const notificationsGetConfigurations = `
-  query NotificationsGetConfigurations {
-    notificationsGetConfigurations {
+  query NotificationsGetConfigurations($isDefault: Boolean) {
+    notificationsGetConfigurations(isDefault: $isDefault) {
       _id
-      notifType
-      isAllowed
+      userId
+      isDisabled
+      isAllowEmail
+      isAllowedDesktop
+      pluginsConfigs {
+        type
+        isDisabled
+        notifTypes {
+          notifType
+          isDisabled
+          isAllowedEmail
+          isAllowedDesktop
+          customHtml
+        }
+      }
     }
   }
 `;
@@ -70,5 +83,5 @@ export default {
   notifications,
   notificationCounts,
   notificationsModules,
-  notificationsGetConfigurations,
+  notificationsGetConfigurations
 };

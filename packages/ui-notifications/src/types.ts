@@ -57,15 +57,30 @@ export type NotificationModulesQueryResponse = {
   notificationsModules: NotificationModule[];
 } & QueryResponse;
 
+export interface NotifType {
+  notifType: string;
+  isDisabled?: boolean;
+  isAllowedEmail?: boolean;
+  isAllowedDesktop?: boolean;
+  customHtml?: string;
+}
+export interface PluginConfig {
+  type: string;
+  isDisabled?: boolean;
+  notifTypes?: NotifType[];
+}
+
 export type NotificationConfig = {
   _id: string;
-  user: string;
-  notifType: string;
-  isAllowed: boolean;
+  userId: string;
+  isDisabled?: boolean;
+  isAllowEmail?: boolean;
+  isAllowedDesktop?: boolean;
+  pluginsConfigs: PluginConfig[];
 };
 
 export type NotificationConfigsQueryResponse = {
-  notificationsGetConfigurations: NotificationConfig[];
+  notificationsGetConfigurations: NotificationConfig;
 } & QueryResponse;
 
 // mutation types
@@ -90,6 +105,10 @@ export type SaveNotificationConfigMutationResponse = {
   saveNotificationConfigurationsMutation: ({
     variables
   }: {
-    variables: SaveNotificationConfigMutationVariables
+    variables: SaveNotificationConfigMutationVariables;
   }) => Promise<any>;
+};
+
+export type NotificationsSetAsDefaultConfigMutationResponse = {
+  saveNotificationConfigurationsMutation: () => Promise<any>;
 };
