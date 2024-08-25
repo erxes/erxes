@@ -410,22 +410,26 @@ const CustomersList: React.FC<IProps> = (props) => {
                 : __('Export this contacts')}
             </a>
           </Menu.Item>
-          <Menu.Item>
-            <a
-              href='#verifyEmail'
-              onClick={verifyCustomers.bind(this, 'email')}
-            >
-              {__('Verify emails')}
-            </a>
-          </Menu.Item>
-          <Menu.Item>
-            <a
-              href='#verifyPhone'
-              onClick={verifyCustomers.bind(this, 'phone')}
-            >
-              {__('Verify phone numbers')}
-            </a>
-          </Menu.Item>
+          {VERSION !== 'saas' && (
+            <>
+              <Menu.Item>
+                <a
+                  href='#verifyEmail'
+                  onClick={verifyCustomers.bind(this, 'email')}
+                >
+                  {__('Verify emails')}
+                </a>
+              </Menu.Item>
+              <Menu.Item>
+                <a
+                  href='#verifyPhone'
+                  onClick={verifyCustomers.bind(this, 'phone')}
+                >
+                  {__('Verify phone numbers')}
+                </a>
+              </Menu.Item>
+            </>
+          )}
         </Menu.Items>
       </Menu>
       <Link to={`/settings/importHistories?type=${type}`}>
@@ -476,7 +480,9 @@ const CustomersList: React.FC<IProps> = (props) => {
 
     actionBarLeft = (
       <BarItems>
-        <Widget customers={bulk} emptyBulk={emptyBulk} />
+        {VERSION && VERSION !== 'saas' && (
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
+        )}
 
         {isEnabled('tags') && (
           <TaggerPopover

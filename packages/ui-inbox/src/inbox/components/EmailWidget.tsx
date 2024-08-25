@@ -1,20 +1,20 @@
+import React, { useState } from "react";
+
 import {
   Link,
   NewEmailHeader,
-  WidgetButton,
+  WidgetButton, WidgetWrapper
 } from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
-import React, { useState } from "react";
-
+import MailForm from "@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm";
 import Button from "@erxes/ui/src/components/Button";
 import CommonPortal from "@erxes/ui/src/components/CommonPortal";
 import Icon from "@erxes/ui/src/components/Icon";
-import MailForm from "@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm";
-import { ModalWrapper } from "../styles";
 import Tip from "@erxes/ui/src/components/Tip";
-import { WidgetWrapper } from "@erxes/ui-inbox/src/settings/integrations/components/mail/styles";
-import { __ } from "@erxes/ui/src/utils";
 import { Flex } from "@erxes/ui/src/styles/main";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { __ } from "@erxes/ui/src/utils";
+import { getVersion, isEnabled } from "@erxes/ui/src/utils/core";
+
+import { ModalWrapper } from "../styles";
 
 type Props = {
   disabled?: boolean;
@@ -36,7 +36,8 @@ type State = {
 
 const Widget: React.FC<Props> = (props) => {
   const messengerDiv = document.getElementById("erxes-messenger-container");
-
+  const { VERSION } = getVersion();
+  
   const [state, setState] = useState<State>({
     shrink: localStorage.getItem("emailWidgetShrink") || "false",
     clear: false,
@@ -119,7 +120,12 @@ const Widget: React.FC<Props> = (props) => {
       );
     }
 
+    if (VERSION === 'saas') {
+      return null;
+    }
+    
     return (
+      
       <WidgetButton>
         <Tip text={__("New Email")} placement="bottom">
           <Icon
