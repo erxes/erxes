@@ -322,7 +322,7 @@ const fillTaskProductValue = async (
         product =
           (await sendProductsMessage({
             subdomain,
-            action: "findOne",
+            action: "productFindOne",
             data: { _id: productData.productId },
             isRPC: true
           })) || {};
@@ -334,7 +334,7 @@ const fillTaskProductValue = async (
         product =
           (await sendProductsMessage({
             subdomain,
-            action: "findOne",
+            action: "productFindOne",
             data: { _id: productData.productId },
             isRPC: true
           })) || {};

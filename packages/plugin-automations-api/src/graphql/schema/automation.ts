@@ -51,7 +51,7 @@ export const types = () => `
     createdUser: User
     updatedUser: User
 
-    ${tags ? `tags: [Tag]` : ""}
+    tags: [Tag]
   }
 
   type AutomationNote {

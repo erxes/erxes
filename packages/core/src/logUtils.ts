@@ -161,6 +161,24 @@ export const putActivityLog = async (
   });
 };
 
+export const prepareCocLogData = coc => {
+  // condition logic was in ActivityLogs model before
+  let action = "create";
+  let content: string[] = [];
+
+  if (coc.mergedIds && coc.mergedIds.length > 0) {
+    action = "merge";
+    content = coc.mergedIds;
+  }
+
+  return {
+    createdBy: coc.ownerId || coc.integrationId,
+    action,
+    content,
+    contentId: coc._id
+  };
+};
+
 export default {
   getActivityContent: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

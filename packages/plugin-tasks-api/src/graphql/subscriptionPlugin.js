@@ -3,11 +3,11 @@ var { withFilter } = require("graphql-subscriptions");
 module.exports = {
   name: "tasks",
   typeDefs: `
-      tasksPipelinesChanged(_id: String!): TicketsPipelineChangeResponse
+      tasksPipelinesChanged(_id: String!): TasksPipelineChangeResponse
 
-      tasksChecklistsChanged(contentType: String!, contentTypeId: String!): TicketsChecklist
-      tasksChecklistDetailChanged(_id: String!): TicketsChecklist
-      tasksProductsDataChanged(_id: String!): TicketsProductsDataChangeResponse
+      tasksChecklistsChanged(contentType: String!, contentTypeId: String!): TasksChecklist
+      tasksChecklistDetailChanged(_id: String!): TasksChecklist
+      tasksProductsDataChanged(_id: String!): TasksProductsDataChangeResponse
 		`,
   generateResolvers: graphqlPubsub => {
     return {
@@ -22,7 +22,7 @@ module.exports = {
             info,
             queryVariables: { _id: payload.checklistsChanged._id },
             buildQueryUsingSelections: selections => `
-              query Subscription_TicketsGetChecklist($_id: String!) {
+              query Subscription_TasksGetChecklist($_id: String!) {
                 tasksChecklistDetail(_id: $_id) {
                   ${selections}
                 }
@@ -43,7 +43,7 @@ module.exports = {
             info,
             queryVariables: { _id: payload.checklistDetailChanged._id },
             buildQueryUsingSelections: selections => `
-              query Subscription_TicketsGetChecklist($_id: String!) {
+              query Subscription_TasksGetChecklist($_id: String!) {
                 tasksChecklistDetail(_id: $_id) {
                   ${selections}
                 }

@@ -38,7 +38,7 @@ const TransactionFormContainer = (props: Props) => {
       variables: {
         transfer,
         configId
-      }
+      },
     })
       .then(() => {
         props.closeModal();

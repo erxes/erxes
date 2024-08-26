@@ -1,4 +1,4 @@
-import { sendProductsMessage } from "../messageBroker";
+import { sendCoreMessage, sendProductsMessage } from "../messageBroker";
 import { toErkhet } from "./utils";
 
 export const productCategoryToErkhet = async (

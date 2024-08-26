@@ -113,7 +113,7 @@ export default class EditorAttributeUtil {
       this._possibleCustomerFields = await sendRPCMessage(
         "forms:fieldsCombinedByContentType",
         {
-          data: { contentType: "contacts:customer" },
+          data: { contentType: "core:customer" },
           subdomain: this.subdomain
         }
       );
@@ -223,7 +223,7 @@ export default class EditorAttributeUtil {
         data: {
           query: {
             type: "file",
-            contentType: "contacts:customer"
+            contentType: "core:customer"
           }
         },
         subdomain: this.subdomain

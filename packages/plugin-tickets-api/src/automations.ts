@@ -77,8 +77,8 @@ const getRelatedValue = async (
   if (targetKey === "tagIds") {
     const tags = await sendCommonMessage({
       subdomain,
-      serviceName: "tags",
-      action: "find",
+      serviceName: "core",
+      action: "tagFind",
       data: { _id: { $in: target[targetKey] } },
       isRPC: true
     });
@@ -440,7 +440,7 @@ const actionCreate = async ({
   }
 
   if (
-    ["contacts:customer", "contacts:lead"].includes(execution.triggerType) &&
+    ["core:customer", "core:lead"].includes(execution.triggerType) &&
     execution.target.isFormSubmission
   ) {
     newData.sourceConversationIds = [execution.target.conversationId];

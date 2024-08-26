@@ -23,7 +23,7 @@ export const setupMessageConsumers = async () => {
 
 export const sendContactsMessage = async (args: MessageArgsOmitService) => {
   return sendMessage({
-    serviceName: "contacts",
+    serviceName: "core",
     ...args
   });
 };
@@ -32,7 +32,7 @@ export const sendProductsMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: "products",
+    serviceName: "core",
     ...args
   });
 };

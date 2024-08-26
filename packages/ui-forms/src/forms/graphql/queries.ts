@@ -45,6 +45,61 @@ const fields = `
     }
   }
 `;
+const fieldsGroups = `
+query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+  fieldsGroups(
+    contentType: $contentType
+    isDefinedByErxes: $isDefinedByErxes
+    config: $config
+  ) {
+    name
+    _id
+    description
+    code
+    order
+    isVisible
+    isVisibleInDetail
+    contentType
+    isDefinedByErxes
+    isMultiple
+    alwaysOpen
+    parentId
+    config
+
+    fields {
+      type
+      text
+      canHide
+      validation
+      regexValidation
+      options
+      isVisibleToCreate
+      locationOptions {
+        lat
+        lng
+        description
+      }
+      objectListConfigs {
+        key
+        label
+        type
+      }
+      groupId
+      searchable
+      showInCard
+      isRequired
+      _id
+      description
+      code
+      order
+      isVisible
+      isVisibleInDetail
+      contentType
+      isDefinedByErxes
+    }
+  }
+}
+`;
 
 const formFields = `
     _id
@@ -155,5 +210,5 @@ export default {
   forms,
   formSubmissions,
   formSubmissionTotalCount,
-  relations
+  fieldsGroups
 };

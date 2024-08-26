@@ -1,16 +1,16 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import React from "react";
 import queryString from "query-string";
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from "react-router-dom";
 
 const ConfigsList = asyncComponent(
+  () => import(/* webpackChunkName: "ConfigList" */ "./configs/containers/List")
+);
+const GolomtbankAccounts = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "ConfigList" */ "./configs/containers/List"
+      /* webpackChunkName: "Settings CreateGolomtbank" */ "./components/CorporateGateway"
     )
-);
-const GolomtbankAccounts = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings CreateGolomtbank" */ './components/CorporateGateway')
 );
 
 const ConfigsListComponent = () => {
@@ -29,10 +29,9 @@ const MenuComponent = () => {
 const routes = () => {
   return (
     <Routes>
-       <Route path="/settings/golomtBank" element={<ConfigsListComponent />} />
+      <Route path="/settings/golomtBank" element={<ConfigsListComponent />} />
       <Route path="/golomtBank-corporate-gateway" element={<MenuComponent />} />
     </Routes>
-     
   );
 };
 

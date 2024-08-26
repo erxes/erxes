@@ -66,7 +66,7 @@ const dealQueries = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "productFind",
       data: {
         query: {
           _id: { $in: [...new Set(dealProductIds)] }

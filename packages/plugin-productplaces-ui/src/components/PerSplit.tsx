@@ -121,7 +121,7 @@ const PerSettings = (props: Props) => {
           <FormGroup>
             <ControlLabel>{"Product Tags"}</ControlLabel>
             <SelectTags
-              tagsType="products:product"
+              tagsType="core:product"
               name="productTagIds"
               label="Choose product tags"
               initialValue={config.productTagIds || ""}
@@ -132,7 +132,7 @@ const PerSettings = (props: Props) => {
           <FormGroup>
             <ControlLabel>{__("Exclude tags")}</ControlLabel>
             <SelectTags
-              tagsType="products:product"
+              tagsType="core:product"
               name="excludeTagIds"
               label="Choose tags to exclude"
               initialValue={config.excludeTagIds}
@@ -157,7 +157,7 @@ const PerSettings = (props: Props) => {
             <SelectSegments
               name="segments"
               label="Choose segments"
-              contentTypes={["products:product"]}
+              contentTypes={["core:product"]}
               initialValue={config.segments}
               multi={true}
               onSelect={segmentIds => onChangeConfig("segments", segmentIds)}

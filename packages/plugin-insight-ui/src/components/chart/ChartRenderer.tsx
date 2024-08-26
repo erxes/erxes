@@ -7,6 +7,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import {
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
+  horizontalDottedLine
 } from './utils';
 import {
   commarizeNumbers,
@@ -18,7 +19,7 @@ Chart.register([Colors, ChartDataLabels, Tooltip]);
 
 interface IChartProps {
   datasets?: any;
-
+  dataset?: any
   data?: number[];
   labels?: string[];
   options?: any;
@@ -34,6 +35,7 @@ const ChartRenderer = (props: IChartProps) => {
     labels,
     chartType,
     datasets,
+    dataset,
     data,
     title,
     loading,
@@ -53,14 +55,14 @@ const ChartRenderer = (props: IChartProps) => {
 
   const chartData = {
     labels: labels,
-    datasets: datasets || [
+    datasets: datasets?.length ? datasets : dataset || [
       {
         label: title || 'Default Dataset',
         data,
         backgroundColor: DEFAULT_BACKGROUND_COLORS,
         borderColor: DEFAULT_BORDER_COLORS,
         borderWidth: 1,
-      },
+      }
     ],
   };
 
@@ -99,13 +101,15 @@ const ChartRenderer = (props: IChartProps) => {
     plugins = {
       ...plugins,
       legend: { labels: { boxWidth: 0, boxHeight: 0 } },
+      ...(options?.hasOwnProperty('plugins') ? options.plugins : {})
     };
   }
 
   const DEFAULT_CONFIG = {
     type: chartType,
     data: chartData,
-    plugins: [ChartDataLabels],
+    plugins: [ChartDataLabels, horizontalDottedLine],
+    // plugins: [ChartDataLabels],
     options: {
       scales: {
         y: {
@@ -117,7 +121,7 @@ const ChartRenderer = (props: IChartProps) => {
         }
       },
       ...options, plugins
-    }
+    },
   };
 
   useEffect(() => {

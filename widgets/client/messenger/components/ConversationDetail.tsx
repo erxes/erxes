@@ -4,9 +4,17 @@ import { IParticipator, IUser } from '../../types';
 import { __ } from '../../utils';
 import MessageSender from '../containers/MessageSender';
 import MessagesList from '../containers/MessagesList';
-import TopBar from '../containers/TopBar';
 import { IMessage } from '../types';
 import ConversationHeadContent from './ConversationHeadContent';
+import Container from './common/Container';
+import { useConversation } from '../context/Conversation';
+import { getMessengerData, getUiOptions } from '../utils/util';
+import { connection } from '../connection';
+import { IconCamera, IconMore, IconPhone, iconClose } from '../../icons/Icons';
+import Dropdown from './common/Dropdown';
+import Button from './common/Button';
+import { useMessage } from '../context/Message';
+import { MESSAGE_TYPES } from '../constants';
 
 type Props = {
   messages: IMessage[];
@@ -20,6 +28,7 @@ type Props = {
   refetchConversationDetail?: () => void;
   errorMessage: string;
   showTimezone?: boolean;
+  isLoading: boolean;
 };
 
 type State = {
@@ -29,95 +38,145 @@ type State = {
   isMinimizeVideoCall: boolean;
 };
 
-class ConversationDetail extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
+const ConversationDetail: React.FC<Props> = ({
+  messages,
+  participators,
+  supporters,
+  goToConversationList,
+  refetchConversationDetail,
+  operatorStatus,
+  isOnline,
+  loading,
+  errorMessage,
+  showTimezone,
+  isLoading,
+}) => {
+  const { activeConversationId, toggle, endConversation, exportConversation } =
+    useConversation();
+  const { sendMessage } = useMessage();
 
-    this.state = {
-      isFocused: true,
-      expanded: true,
-      isFullHead: true,
-      isMinimizeVideoCall: true
-    };
+  const { color } = getUiOptions();
+  const textColor = getUiOptions().textColor || '#fff';
+  const isChat = Boolean(!connection.setting.email);
 
-    this.inputFocus = this.inputFocus.bind(this);
-    this.onTextInputBlur = this.onTextInputBlur.bind(this);
-    this.toggleHead = this.toggleHead.bind(this);
-    this.toggleExpand = this.toggleExpand.bind(this);
-    this.onWheel = this.onWheel.bind(this);
-  }
+  const [isModalOpen, setIsModalOpen] = React.useState(true);
+  const [isVisibleDropdown, setIsVisibleDropdown] = React.useState(true);
+  const [isFocused, setIsFocused] = React.useState(true);
+  const [isExpanded, setIsExpanded] = React.useState(true);
+  const [isMinimizeVideoCall, setIsMinimizeVideoCall] = React.useState(true);
 
-  toggleHead() {
-    this.setState({ isFullHead: !this.state.isFullHead });
-  }
-
-  toggleVideoCall = () => {
-    this.setState({ isMinimizeVideoCall: !this.state.isMinimizeVideoCall });
+  const toggleVideoCall = () => {
+    setIsMinimizeVideoCall(!isMinimizeVideoCall);
   };
 
-  toggleExpand() {
-    this.setState({ expanded: !this.state.expanded });
-  }
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
 
-  inputFocus() {
-    this.setState({ isFocused: true, isFullHead: false });
-  }
+  const inputFocus = () => {
+    setIsFocused(true);
+  };
 
-  onTextInputBlur() {
-    this.setState({ isFocused: false });
-  }
+  const onTextInputBlur = () => {
+    setIsFocused(false);
+  };
 
-  onWheel(e: any) {
-    if (e.nativeEvent.wheelDelta > 0) {
-      if (!this.state.isFullHead) {
-        this.setState({ isFullHead: true });
-      }
-    } else {
-      if (this.state.isFullHead) {
-        this.setState({ isFullHead: false });
-      }
+  const toggleLauncher = () => {
+    toggle(true);
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const renderCallButtons = () => {
+    if (
+      !(isOnline && getMessengerData().showVideoCallRequest) ||
+      !connection.enabledServices.dailyco
+    ) {
+      return null;
     }
-  }
-
-  render() {
-    const {
-      messages,
-      participators,
-      supporters,
-      goToConversationList,
-      refetchConversationDetail,
-      operatorStatus,
-      isOnline,
-      color,
-      loading,
-      errorMessage,
-      showTimezone,
-    } = this.props;
-
-    const rootClasses = classNames('erxes-content-wrapper', {
-      'mini-video': this.state.isMinimizeVideoCall
-    });
-
-    const placeholder = !messages.length
-      ? __('Send a message')
-      : __('Write a reply');
-
-    const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      goToConversationList();
-
-      // leave video call if you are in
-      const videoIframe = document.getElementById('erxes-video-iframe');
-
-      if (videoIframe) {
-        videoIframe.remove();
-      }
-    };
 
     return (
-      <div className="erxes-conversation-detail" onWheel={this.onWheel}>
-        <TopBar
-          middle={
+      <>
+        <Button
+          title="Audio call"
+          icon={<IconPhone size="1.4375rem" />}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          className="bg-none"
+        />
+
+        <Button
+          title="Video call"
+          icon={<IconCamera size="1.6875rem" />}
+          onClick={() => sendMessage(MESSAGE_TYPES.VIDEO_CALL_REQUEST, '')}
+          className="bg-none"
+        />
+      </>
+    );
+  };
+
+  const renderRightButton = () => {
+    if (!isChat) {
+      return (
+        <Button
+          icon={iconClose(textColor)}
+          onClick={toggleLauncher}
+          title="Close"
+        />
+      );
+    }
+
+    return (
+      <div className="conversation-btn-list">
+        {renderCallButtons()}
+        <Dropdown
+          trigger={<IconMore size="1.5rem" />}
+          menu={[
+            <button onClick={endConversation}>{__('End conversation')}</button>,
+            <button onClick={toggleLauncher}>{__('Close')}</button>,
+            ...(activeConversationId
+              ? [
+                  <button onClick={exportConversation}>
+                    {__('Export conversation')}
+                  </button>,
+                ]
+              : []),
+          ]}
+        />
+      </div>
+    );
+  };
+
+  const rootClasses = classNames('erxes-content-wrapper', {
+    'mini-video': isMinimizeVideoCall,
+  });
+
+  const placeholder = !messages.length
+    ? __('Send a message')
+    : `${__('Write a reply')}...`;
+
+  const handleLeftClick = (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    goToConversationList();
+
+    // leave video call if you are in
+    const videoIframe = document.getElementById('erxes-video-iframe');
+
+    if (videoIframe) {
+      videoIframe.remove();
+    }
+  };
+
+  return (
+    <Container
+      withBottomNavBar={false}
+      containerStyle={{ padding: '1.12rem 0' }}
+      title={
+        isLoading ? (
+          <div className="loader" />
+        ) : (
+          <div className="flex flex-1 justify-between">
             <ConversationHeadContent
               supporters={supporters}
               participators={participators}
@@ -125,40 +184,40 @@ class ConversationDetail extends React.Component<Props, State> {
               isOnline={isOnline}
               color={color}
               loading={loading}
-              expanded={this.state.isFullHead}
-              toggleExpand={this.toggleExpand}
             />
-          }
-          toggleHead={this.toggleHead}
-          isExpanded={this.state.expanded}
-          onLeftButtonClick={handleLeftClick}
-        />
-
+            {renderRightButton()}
+          </div>
+        )
+      }
+      backRoute="allConversations"
+    >
+      <div className="erxes-conversation-detail">
         <div className="erxes-conversation-content">
           <div id="page-root" className={rootClasses}>
             <MessagesList
               isOnline={isOnline}
               messages={messages}
               color={color}
-              inputFocus={this.inputFocus}
-              toggleVideoCall={this.toggleVideoCall}
+              inputFocus={inputFocus}
+              toggleVideoCall={toggleVideoCall}
               refetchConversationDetail={refetchConversationDetail}
               operatorStatus={operatorStatus}
               errorMessage={errorMessage}
+              isLoading={isLoading}
             />
 
             <MessageSender
               placeholder={placeholder ? placeholder.toString() : ''}
-              isParentFocused={this.state.isFocused}
-              onTextInputBlur={this.onTextInputBlur}
-              collapseHead={this.inputFocus}
+              isParentFocused={isFocused}
+              onTextInputBlur={onTextInputBlur}
+              collapseHead={inputFocus}
               isOnline={isOnline}
             />
           </div>
         </div>
       </div>
-    );
-  }
-}
+    </Container>
+  );
+};
 
 export default ConversationDetail;

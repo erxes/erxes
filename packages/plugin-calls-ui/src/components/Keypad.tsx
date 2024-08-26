@@ -216,6 +216,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: isConnected ? true : false,
+        queues: integration?.queues || [],
       }),
     );
     setConfig({
@@ -225,6 +226,7 @@ const KeyPad = (props: Props, context) => {
       token: integration?.token,
       operators: integration?.operators,
       isAvailable: isConnected ? true : false,
+      queues: integration?.queues || [],
     });
     localStorage.setItem(
       'isConnectCallRequested',
@@ -308,6 +310,7 @@ const KeyPad = (props: Props, context) => {
         token: integration?.token,
         operators: integration?.operators,
         isAvailable: true,
+        queues: integration?.queues || [],
       }),
     );
 
@@ -318,6 +321,7 @@ const KeyPad = (props: Props, context) => {
       token: integration?.token,
       operators: integration?.operators,
       isAvailable: true,
+      queues: integration?.queues || [],
     });
   };
   if (showTrigger) {

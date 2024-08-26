@@ -4,7 +4,7 @@ import { getConfig } from "./utils";
 export const consumeInventory = async (subdomain, doc, old_code, action) => {
   const product = await sendProductsMessage({
     subdomain,
-    action: "findOne",
+    action: "productFindOne",
     data: { code: old_code },
     isRPC: true,
     defaultValue: {}

@@ -109,35 +109,33 @@ const contractMutations = {
 
   contractsDealEdit: async (
     _root,
-    { _id, ...doc }: IContractDocument,
+    params: { _id: string, dealId: string },
     { models, user, subdomain }: IContext
   ) => {
-    const checkOtherDeals = await models.Contracts.countDocuments({
-      dealId: doc.dealId,
-      _id: { $ne: _id }
-    });
+    const { _id, dealId } = params;
+    const contract = await models.Contracts.getContract({ _id });
 
-    if (!!checkOtherDeals) {
-      await models.Contracts.updateMany(
-        { dealId: doc.dealId, _id: { $ne: _id } },
-        { $set: { dealId: undefined } }
-      );
+    if (!dealId && contract.dealId) {
+      delete contract.dealId;
+      await models.Contracts.updateOne({ _id }, { $unset: { dealId: '' } });
+      return;
     }
 
-    const contract = await models.Contracts.getContract({ _id });
-    const updated = await models.Contracts.updateContract(_id, doc);
+    contract.dealId = dealId;
+    await models.Contracts.updateOne({ _id }, { $set: { dealId } });
+    await models.Contracts.updateMany(
+      { dealId, _id: { $ne: _id } },
+      { $unset: { dealId: '' } }
+    );
 
     const logData = {
       type: "contract",
       object: contract,
-      newData: { ...doc },
-      updatedDocument: updated,
+      newData: { dealId },
+      updatedDocument: { ...contract, dealId },
       extraParams: { models }
     };
-
-    await updateLog(subdomain, user, logData);
-
-    return updated;
+    return contract;
   },
 
   /**
@@ -454,7 +452,7 @@ const contractMutations = {
 
     const maxLeaseAmountField = await getFieldObject(
       subdomain,
-      "contacts:customer",
+      "core:customer",
       "maxLeaseAmount"
     );
 

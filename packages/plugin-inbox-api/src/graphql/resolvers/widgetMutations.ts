@@ -357,7 +357,7 @@ export const createFormConversation = async (
       subdomain,
       action: "trigger",
       data: {
-        type: `contacts:${cachedCustomer.state}`,
+        type: `core:${cachedCustomer.state}`,
         targets: [
           {
             ...cachedCustomer,
@@ -638,7 +638,7 @@ const widgetMutations = {
         action: "fields.generateCustomFieldsData",
         data: {
           customData: companyData,
-          contentType: "contacts:company"
+          contentType: "core:company"
         },
         isRPC: true
       });
@@ -1438,7 +1438,7 @@ const widgetMutations = {
 
     const product = await sendProductsMessage({
       subdomain,
-      action: "findOne",
+      action: "productFindOne",
       data: {
         _id: productId
       },

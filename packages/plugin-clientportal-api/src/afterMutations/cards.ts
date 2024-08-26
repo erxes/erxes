@@ -1,21 +1,26 @@
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage } from '../messageBroker';
-import { sendNotification } from '../utils';
+import { IModels } from "../connectionResolver";
+import {
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage
+} from "../messageBroker";
+import { sendNotification } from "../utils";
 
 export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
   const { type, object } = params;
 
-  const cardType = type.split(':')[1];
+  const cardType = type.split(":")[1];
 
   const prevStageId = object.stageId;
   const card = params.updatedDocument;
   const oldCard = params.object;
-  const destinationStageId = card.stageId || '';
+  const destinationStageId = card.stageId || "";
 
   const oldStatus = oldCard.status;
   const newStatus = card.status;
 
-  let content = '';
+  let content = "";
 
   if (
     !(destinationStageId && destinationStageId !== oldCard.stageId) &&
@@ -33,31 +38,89 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
     return;
   }
 
-  const stage = await sendCardsMessage({
-    subdomain,
-    action: 'stages.findOne',
-    data: { _id: destinationStageId },
-    isRPC: true,
-    defaultValue: null
-  });
+  let stage = {} as any;
+  let prevStage = {} as any;
 
-  const prevStage = await sendCardsMessage({
-    subdomain,
-    action: 'stages.findOne',
-    data: { _id: prevStageId },
-    isRPC: true,
-    defaultValue: null
-  });
+  switch (cardType) {
+    case "deal":
+      stage = await sendSalesMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: destinationStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      prevStage = await sendSalesMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: prevStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      break;
+    case "ticket":
+      stage = await sendTicketsMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: destinationStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      prevStage = await sendTicketsMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: prevStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+    case "purchase":
+      stage = await sendPurchasesMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: destinationStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      prevStage = await sendPurchasesMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: prevStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+    case "task":
+      stage = await sendTasksMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: destinationStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      prevStage = await sendTasksMessage({
+        subdomain,
+        action: "stages.findOne",
+        data: { _id: prevStageId },
+        isRPC: true,
+        defaultValue: null
+      });
+  }
 
   content = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} ${
     card.name
   } has been moved from ${prevStage.name} to ${stage.name} stage`;
 
-  if (newStatus !== oldStatus && newStatus === 'archived') {
+  if (newStatus !== oldStatus && newStatus === "archived") {
     content = `Your ${cardType} named ${card.name} has been archived`;
   }
 
-  if (newStatus !== oldStatus && newStatus === 'active') {
+  if (newStatus !== oldStatus && newStatus === "active") {
     content = `Your ${cardType} named ${card.name} has been activated`;
   }
 
@@ -78,7 +141,7 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
       receivers: [user._id],
       title: `Your submitted ${cardType} has been updated`,
       content,
-      notifType: 'system',
+      notifType: "system",
       link: `${config.url}/${cardType}s?stageId=${destinationStageId}`
     });
   }
@@ -89,7 +152,7 @@ export const cardUpdateHandler = async (models: IModels, subdomain, params) => {
 export const cardDeleteHandler = async (models: IModels, subdomain, params) => {
   const { type } = params;
 
-  const cardType = type.split(':')[1];
+  const cardType = type.split(":")[1];
 
   const card = params.object;
 
@@ -123,7 +186,7 @@ export const cardDeleteHandler = async (models: IModels, subdomain, params) => {
       content: `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} ${
         card.name
       } has been deleted`,
-      notifType: 'system',
+      notifType: "system",
       link: `${config.url}/${cardType}s`
     });
   }

@@ -195,13 +195,13 @@ export const buildFile = async (
 
   const limit = await sendProductsMessage({
     subdomain,
-    action: "count",
+    action: "productCount",
     data: { query: { _id: { $in: data.map(d => d.productId) } } },
     isRPC: true
   });
   const products = await sendProductsMessage({
     subdomain,
-    action: "find",
+    action: "productFind",
     data: { query: { _id: { $in: data.map(d => d.productId) } }, limit },
     isRPC: true
   });

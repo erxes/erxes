@@ -35,8 +35,8 @@ const typeDefs = async () => {
     isEnabled("tickets") ||
     isEnabled("tasks") ||
     isEnabled("purchases");
-  const isContactsEnabled = isEnabled("contacts");
-  const productsAvailable = isEnabled("products");
+  const isContactsEnabled = true;
+  const productsAvailable = true;
 
   return gql`
     scalar JSON

@@ -62,6 +62,7 @@ const TableRow = (props: IProps) => {
         />
       </td>
       <td>{name}</td>
+
       <td>
         <FormContainer $gapBetween={5} $row $maxItemsRow={3}>
           {(tags || []).map(tag => (

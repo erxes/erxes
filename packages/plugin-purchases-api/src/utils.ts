@@ -250,7 +250,71 @@ export const getContentTypeDetail = async (subdomain, data) => {
   return item;
 };
 
+<<<<<<< HEAD:packages/plugin-purchases-api/src/utils.ts
 // contentType should come with "purchases:deal|purchase" format
+=======
+export const collectItems = async (
+  models: IModels,
+  subdomain: string,
+  { contentType, contentId }
+) => {
+  let tasks: any[] = [];
+
+  if (contentType === 'activity') {
+    return;
+  }
+
+  const relatedTaskIds = await sendCoreMessage({
+    subdomain,
+    action: 'conformities.savedConformity',
+    data: {
+      mainType: contentType.split(':')[1],
+      mainTypeId: contentId,
+      relTypes: ['task'],
+    },
+    isRPC: true,
+    defaultValue: [],
+  });
+
+  if (contentType !== 'cards:task') {
+    tasks = await models.Tasks.aggregate([
+      {
+        $match: {
+          $and: [
+            { _id: { $in: relatedTaskIds } },
+            { status: { $ne: 'archived' } },
+          ],
+        },
+      },
+      {
+        $addFields: { contentType: 'cards:taskDetail' },
+      },
+      {
+        $project: {
+          _id: 1,
+          contentType: 1,
+          createdAt: {
+            $switch: {
+              branches: [
+                {
+                  case: { $gt: ['$closeDate', null] },
+                  then: '$closeDate',
+                },
+              ],
+              default: '$createdAt',
+            },
+          },
+        },
+      },
+      { $sort: { closeDate: 1 } },
+    ]);
+  }
+
+  return tasks;
+};
+
+// contentType should come with "cards:deal|task|ticket|growthHack|purchase" format
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/utils.ts
 export const getCardContentIds = async (
   models: IModels,
   { pipelineId, contentType }

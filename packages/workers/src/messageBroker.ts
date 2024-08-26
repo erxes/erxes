@@ -10,25 +10,25 @@ export const initBroker = async () => {
 export const setupMessageConsumers = async () => {};
 
 export const fetchSegment = (subdomain, segmentId, options?) =>
-  sendRPCMessage("segments:fetchSegment", {
+  sendRPCMessage("core:fetchSegment", {
     subdomain,
     data: { segmentId, options }
   });
 
 export const removeCompanies = (subdomain, _ids) =>
-  sendRPCMessage("contacts:companies.removeCompanies", {
+  sendRPCMessage("core:companies.removeCompanies", {
     subdomain,
     data: { _ids }
   });
 
 export const removeCustomers = (subdomain, _ids) =>
-  sendRPCMessage("contacts:customers.removeCustomers", {
+  sendRPCMessage("core:customers.removeCustomers", {
     subdomain,
     data: { customerIds: _ids }
   });
 
 export const removeProducts = (subdomain, _ids) =>
-  sendRPCMessage("products:removeProducts", {
+  sendRPCMessage("core:removeProducts", {
     subdomain,
     data: { _ids }
   });

@@ -8,7 +8,7 @@ import { escapeRegExp, getConfig, paginate } from "../../utils";
 import { USER_ROLES } from "@erxes/api-utils/src/constants";
 import { fetchEs } from "@erxes/api-utils/src/elasticsearch";
 import { IUserDocument } from "@erxes/api-utils/src/types";
-import { fetchSegment } from "./segmentsQueryBuilder";
+import { fetchSegment } from "../../modules/segments/queryBuilder";
 
 export class Builder {
   public params: { segment?: string; segmentData?: string };

@@ -54,7 +54,7 @@ class MessageTypeStep extends React.Component<Props, State> {
       messageType = CAMPAIGN_TARGET_TYPES.TAG;
     }
 
-    this.state = { messageType, segmentType: segmentType || "contacts:lead" };
+    this.state = { messageType, segmentType: segmentType || "core:lead" };
   }
 
   onChange = (key, e: React.FormEvent<HTMLElement>) => {
@@ -158,9 +158,9 @@ class MessageTypeStep extends React.Component<Props, State> {
             value: type.contentType
           }))
         : [
-            { value: "contacts:lead", label: "Leads" },
-            { value: "contacts:customer", label: "Customers" },
-            { value: "contacts:company", label: "Company contacts" },
+            { value: "core:lead", label: "Leads" },
+            { value: "core:customer", label: "Customers" },
+            { value: "core:company", label: "Company contacts" },
             { value: "sales:deal", label: "Deal contacts" },
             { value: "tasks:task", label: "Task contacts" },
             { value: "tickets:ticket", label: "Ticket contacts" },

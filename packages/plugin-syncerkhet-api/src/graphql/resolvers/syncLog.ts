@@ -43,7 +43,7 @@ export default {
       return syncLog.consumeData.number || contentId;
     }
 
-    if (contentType === "contacts:customer") {
+    if (contentType === "core:customer") {
       const info = syncLog.consumeData.object;
       return (
         info.code ||
@@ -54,12 +54,12 @@ export default {
       );
     }
 
-    if (contentType === "contacts:company") {
+    if (contentType === "core:company") {
       const info = syncLog.consumeData.object;
       return info.code || info.primaryName || contentId;
     }
 
-    if (contentType === "products:product") {
+    if (contentType === "core:product") {
       const info = syncLog.consumeData.object;
       return info.code || info.name || contentId;
     }

@@ -99,7 +99,7 @@ export const saveEvent = async (subdomain: string, args: ISaveEventArgs) => {
       subdomain,
       action: "trigger",
       data: {
-        type: `contacts:${customer.state}`,
+        type: `core:${customer.state}`,
         targets: [customer]
       }
     });
@@ -307,7 +307,7 @@ export const updateCustomerProperties = async (
       subdomain,
       action: "trigger",
       data: {
-        type: `contacts:${updatedCustomer.state}`,
+        type: `core:${updatedCustomer.state}`,
         targets: [updatedCustomer]
       }
     });

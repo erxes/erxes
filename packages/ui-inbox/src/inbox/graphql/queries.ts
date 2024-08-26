@@ -1,6 +1,5 @@
 import conversationFields from "./conversationFields";
 import { queries as customerQueries } from "@erxes/ui-contacts/src/customers/graphql";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 import messageFields from "./messageFields";
 
 export const paramsDef = `
@@ -81,9 +80,6 @@ const sidebarConversations = `
           name
         }
       }
-      ${
-        isEnabled("contacts")
-          ? `
       customer {
         _id
         firstName
@@ -94,9 +90,6 @@ const sidebarConversations = `
         state
         avatar
         visitorContactInfo
-      }
-      `
-          : ``
       }
       tagIds
       tags {
@@ -367,9 +360,7 @@ const generateCustomerDetailQuery = params => {
   if (showCompanies) {
     fields = `
       ${fields}
-      ${
-        isEnabled("contacts")
-          ? `companies {
+      companies {
           _id
           primaryName
           website
@@ -381,9 +372,7 @@ const generateCustomerDetailQuery = params => {
             lastName
             primaryEmail
           }
-        }`
-          : ``
-      }
+        }
     `;
   }
 
@@ -392,10 +381,9 @@ const generateCustomerDetailQuery = params => {
       ${fields}
       tagIds
       getTags {
-          _id
-          name
-          colorCode
-       }
+        _id
+        name
+        colorCode
       }
     `;
   }

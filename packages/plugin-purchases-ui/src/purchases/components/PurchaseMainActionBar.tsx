@@ -29,30 +29,25 @@ const PurchaseMainActionBar = (props: Props) => {
 
   const extraFilter = (
     <>
-      {isEnabled("products") && (
-        <SelectProducts
-          label={__("Filter by products")}
-          name="productIds"
-          queryParams={queryParams}
-          onSelect={onSelect}
-        />
-      )}
-      {isEnabled("contacts") && (
-        <>
-          <SelectCompanies
-            label={__("Filter by companies")}
-            name="companyIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-          />
-          <SelectCustomers
-            label="Filter by customers"
-            name="customerIds"
-            queryParams={queryParams}
-            onSelect={onSelect}
-          />
-        </>
-      )}
+      <SelectProducts
+        label={__("Filter by products")}
+        name="productIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+
+      <SelectCompanies
+        label={__("Filter by companies")}
+        name="companyIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
+      <SelectCustomers
+        label="Filter by customers"
+        name="customerIds"
+        queryParams={queryParams}
+        onSelect={onSelect}
+      />
     </>
   );
 

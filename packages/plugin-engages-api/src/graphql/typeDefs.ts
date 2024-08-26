@@ -1,7 +1,7 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
-import { types, mutations, queries } from './schema/engage';
-import { types as logTypes, queries as logQueries } from './schema/engageLog';
+import { types, mutations, queries } from "./schema/engage";
+import { types as logTypes, queries as logQueries } from "./schema/engageLog";
 
 const typeDefs = async () => {
   return gql`

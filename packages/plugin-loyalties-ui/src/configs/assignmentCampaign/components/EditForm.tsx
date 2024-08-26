@@ -179,7 +179,7 @@ const EditForm = (props: Props) => {
             </FormGroup>
           </FormColumn>
         </FormWrapper>
-        {isEnabled("contacts") && (
+        {
           <>
             <FormGroup>
               <ControlLabel>Segments</ControlLabel>
@@ -187,7 +187,7 @@ const EditForm = (props: Props) => {
                 name="segmentIds"
                 label="Choose segments"
                 initialValue={assignmentCampaign.segmentIds}
-                contentTypes={["contacts:customer", "contacts:lead"]}
+                contentTypes={["core:customer", "core:lead"]}
                 multi={true}
                 onSelect={segmentIds => onChangeSegments(segmentIds)}
               />
@@ -198,7 +198,7 @@ const EditForm = (props: Props) => {
               assignmentCampaign={assignmentCampaign}
             />
           </>
-        )}
+        }
         <FormGroup>
           <ControlLabel>Voucher Campaign</ControlLabel>
           <Select

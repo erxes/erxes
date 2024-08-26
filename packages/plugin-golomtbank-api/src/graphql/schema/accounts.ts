@@ -65,7 +65,7 @@ type GolomtBankAccountHolder {
     tranId: String
     tranDate: String
     drOrCr: String
-    tranAmount: Int
+    tranAmount: Float
     tranDesc: String
     tranPostedDate: Date
     tranCrnCode: String

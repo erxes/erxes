@@ -8,8 +8,8 @@ on:
       - rc
       - staging
     paths:
-      - 'pos/**'
-      - '.github/workflows/pos-ui.yaml'
+      - "pos/**"
+      - ".github/workflows/pos-ui.yaml"
 
   pull_request:
     branches:
@@ -18,8 +18,8 @@ on:
       - rc
       - staging
     paths:
-      - 'pos/**'
-      - '.github/workflows/pos-ui.yaml'
+      - "pos/**"
+      - ".github/workflows/pos-ui.yaml"
 
 jobs:
   pos-ui:
@@ -41,7 +41,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/dev' || github.ref == 'v2')
         run: |
           cd pos
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

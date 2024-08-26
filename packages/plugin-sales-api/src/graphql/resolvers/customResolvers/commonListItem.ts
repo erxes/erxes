@@ -38,6 +38,8 @@ export default {
       return customFieldsData;
     }
 
+    console.log("-a-dsad");
+
     const fields = await sendCoreMessage({
       subdomain,
       action: "fields.find",

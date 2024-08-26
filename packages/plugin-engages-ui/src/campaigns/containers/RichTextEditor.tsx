@@ -139,7 +139,7 @@ export default withProps<Props>(
       name: "combinedFieldsQuery",
       options: () => ({
         variables: {
-          contentType: "contacts:customer"
+          contentType: "core:customer"
         }
       })
     }),

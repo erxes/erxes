@@ -1,19 +1,13 @@
-import { getSubdomain } from '@erxes/api-utils/src/core';
-import { IModels, generateModels } from '../connectionResolver';
-import {
-  sendCoreMessage,
-  sendProductsMessage
-} from '../messageBroker';
-import { sendRPCMessage } from '../messageBrokerErkhet';
-import { getConfig, getPureDate } from './utils';
+import { getSubdomain } from "@erxes/api-utils/src/core";
+import { IModels, generateModels } from "../connectionResolver";
+import { sendCoreMessage, sendProductsMessage } from "../messageBroker";
+import { sendRPCMessage } from "../messageBrokerErkhet";
+import { getConfig, getPureDate } from "./utils";
 
 export const getPostData = async (subdomain, userEmail, order) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
 
-  if (
-    !erkhetConfig?.apiKey ||
-    !erkhetConfig?.apiSecret
-  ) {
+  if (!erkhetConfig?.apiKey || !erkhetConfig?.apiSecret) {
     return;
   }
 
@@ -24,18 +18,18 @@ export const getPostData = async (subdomain, userEmail, order) => {
       (
         await sendCoreMessage({
           subdomain,
-          action: 'users.findOne',
+          action: "users.findOne",
           data: { _id: order.userId },
           isRPC: true,
           defaultValue: {}
         })
       ).email) ||
-    '';
+    "";
 
   const productsIds = order.details.map(item => item.productId);
   const products = await sendProductsMessage({
     subdomain,
-    action: 'find',
+    action: "productFind",
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []
@@ -67,14 +61,13 @@ export const getPostData = async (subdomain, userEmail, order) => {
 
   const { payments } = order;
   const allowKeys = [
-    'cardAmount',
-    'card2Amount',
-    'cashAmount',
-    'mobileAmount',
-    'debtBarterAmount'
+    "cardAmount",
+    "card2Amount",
+    "cashAmount",
+    "mobileAmount",
+    "debtBarterAmount"
     // 'debtAmount',
   ];
-
 
   for (const key of payments) {
     if (allowKeys.includes(key)) {
@@ -85,14 +78,12 @@ export const getPostData = async (subdomain, userEmail, order) => {
   if (sumSaleAmount > 0.005) {
     payments.debtAmount = sumSaleAmount;
   } else if (sumSaleAmount < -0.005) {
-    throw new Error('overpayment')
+    throw new Error("overpayment");
   }
 
   const orderInfos = [
     {
-      date: getPureDate(order.paidDate)
-        .toISOString()
-        .slice(0, 10),
+      date: getPureDate(order.paidDate).toISOString().slice(0, 10),
       orderId: order._id,
       hasVat: order.hasVat,
       hasCitytax: order.hasCitytax,
@@ -114,54 +105,58 @@ export const getPostData = async (subdomain, userEmail, order) => {
   };
 };
 
-export const thirdOrderToErkhet = async (subdomain: string, models: IModels, data) => {
+export const thirdOrderToErkhet = async (
+  subdomain: string,
+  models: IModels,
+  data
+) => {
   const { userEmail, order } = data;
   const syncLogDoc = {
-    contentType: 'pos:order',
+    contentType: "pos:order",
     createdAt: new Date(),
-    createdBy: order.userId,
+    createdBy: order.userId
   };
   const syncLog = await models.SyncLogs.syncLogsAdd({
     ...syncLogDoc,
     contentId: order._id,
     consumeData: order,
-    consumeStr: JSON.stringify(order),
+    consumeStr: JSON.stringify(order)
   });
   try {
     const postData = await getPostData(subdomain, userEmail, order);
     if (!postData) {
       return {
-        status: 'success',
-        data: {},
+        status: "success",
+        data: {}
       };
     }
 
     return {
-      status: 'success',
+      status: "success",
       data: await sendRPCMessage(
         models,
         syncLog,
-        'rpc_queue:erxes-automation-erkhet',
+        "rpc_queue:erxes-automation-erkhet",
         {
-          action: 'get-response-send-order-info',
+          action: "get-response-send-order-info",
           isEbarimt: false,
           payload: JSON.stringify(postData),
           thirdService: true,
-          isJson: true,
-        },
-      ),
+          isJson: true
+        }
+      )
     };
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
     return {
-      status: 'success',
-      data: { error: e.message },
+      status: "success",
+      data: { error: e.message }
     };
   }
-}
+};
 
 export const thirdOrder = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -169,4 +164,4 @@ export const thirdOrder = async (req, res) => {
 
   const { body } = req;
   thirdOrderToErkhet(subdomain, models, body);
-}
+};

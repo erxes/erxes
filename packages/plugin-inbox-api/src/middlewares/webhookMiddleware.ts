@@ -162,7 +162,7 @@ const webhookMiddleware = async (req, res, next) => {
             action: "fields.findOne",
             data: {
               query: {
-                contentType: "contacts:customer",
+                contentType: "core:customer",
                 text: element.name
               }
             },
@@ -195,7 +195,7 @@ const webhookMiddleware = async (req, res, next) => {
         action: "fields.generateCustomFieldsData",
         data: {
           customData: params.data,
-          contentType: "contacts:customer"
+          contentType: "core:customer"
         },
         isRPC: true
       });
@@ -312,7 +312,7 @@ const webhookMiddleware = async (req, res, next) => {
           action: "fields.generateCustomFieldsData",
           data: {
             customData: params.parentCompany.companyData,
-            contentType: "contacts:company"
+            contentType: "core:company"
           },
           isRPC: true
         });
@@ -367,7 +367,7 @@ const webhookMiddleware = async (req, res, next) => {
           action: "fields.generateCustomFieldsData",
           data: {
             customData: params.companyData,
-            contentType: "contacts:company"
+            contentType: "core:company"
           },
           isRPC: true
         });

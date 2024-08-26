@@ -55,6 +55,7 @@ type FinalProps = {
   editConformity: EditConformityMutation;
   fieldsQuery: any;
   stagesQuery: StagesQueryResponse;
+  fieldsGroupsQuery: any;
 } & IProps &
   ConvertToMutationResponse;
 
@@ -97,7 +98,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemName: doc.name,
           stageId: doc.stageId,
           bookingProductId,
-          _id: sourceConversationId || ""
+          _id: sourceConversationId
         }
       })
         .then(({ data }) => {
@@ -211,11 +212,22 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { fieldsQuery, stagesQuery } = this.props;
+    const { fieldsQuery, stagesQuery, fieldsGroupsQuery } = this.props;
+
+    const one =
+      fieldsGroupsQuery?.fieldsGroups &&
+      fieldsGroupsQuery?.fieldsGroups?.find(
+        group => group.name === "Basic information"
+      );
+
+    const defaultShowName = !(
+      one && one?.fields.find(field => field.text === "Name")
+    );
 
     const extendedProps = {
       ...this.props,
       fields: fieldsQuery?.fields || [],
+      defaultShowName: defaultShowName,
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
       fetchCards: this.fetchCards,
@@ -270,6 +282,16 @@ export default (props: IProps) =>
             contentType: `sales:${options.type}`,
             isVisibleToCreate: true,
             pipelineId
+          }
+        })
+      }),
+      graphql<FinalProps>(gql(formQueries.fieldsGroups), {
+        name: "fieldsGroupsQuery",
+        skip: !isEnabled("forms"),
+        options: ({ options, pipelineId }) => ({
+          variables: {
+            contentType: `cards:${options.type}`,
+            isDefinedByErxes: true
           }
         })
       }),

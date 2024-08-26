@@ -21,6 +21,11 @@ import Segment from "./segments";
 import { field as Field, fieldsGroup as FieldsGroup } from "./field";
 import Submission from "./submission";
 import Form from "./forms";
+import Customer from "./customer";
+import Company from "./company";
+import Product from "./product";
+import ProductCategory from "./productCategory";
+import Uom from "./uom";
 
 const resolvers: any = {
   ...customScalars,
@@ -49,7 +54,12 @@ const resolvers: any = {
   Field,
   Form,
   FieldsGroup,
-  Submission
+  Submission,
+  Customer,
+  Company,
+  Product,
+  ProductCategory,
+  Uom
 };
 
 export default resolvers;

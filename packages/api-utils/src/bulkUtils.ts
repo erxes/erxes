@@ -1,7 +1,7 @@
-import { Transform } from 'stream';
-import { chunkArray } from './core';
+import { chunkArray } from "./core";
+import { Transform } from "stream";
 
-export const stream = (
+export const stream = async (
   executeChunk,
   transformCallback,
   generateChildStream,
@@ -23,27 +23,26 @@ export const stream = (
 
   const parentTransformerStream = new Transform({
     objectMode: true,
-
     transform(root, _encoding, callback) {
       transformCallback(variables, root);
-
       callback();
     }
   });
 
-  const chldStream = generateChildStream().cursor();
+  const chldCursor = generateChildStream().cursor();
 
-  return new Promise((resolve, reject) => {
-    const pipe = chldStream.pipe(parentTransformerStream);
+  try {
+    for await (const doc of chldCursor) {
+      parentTransformerStream.write(doc);
+    }
+    parentTransformerStream.end();
 
-    pipe.on('finish', async () => {
-      try {
-        await onFinishPiping();
-      } catch (e) {
-        return reject(e);
-      }
-
-      resolve('done');
-    });
-  });
+    await onFinishPiping();
+    return "done";
+  } catch (error) {
+    parentTransformerStream.destroy();
+    throw error;
+  } finally {
+    await chldCursor.close();
+  }
 };

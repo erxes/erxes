@@ -6,7 +6,7 @@ import {
   sendMessageBrokerData
 } from '../utils';
 
-export const createSaving = async (subdomain: string, params) => {
+export const createSaving = async (subdomain: string, models, syncLog, params) => {
   const savingContract = params.object;
 
   const savingProduct = await sendMessageBrokerData(
@@ -60,7 +60,9 @@ export const createSaving = async (subdomain: string, params) => {
   const savingCode = await fetchPolaris({
     op: '13610120',
     data: [sendData],
-    subdomain
+    subdomain,
+    models,
+    syncLog
   });
 
   if (savingCode) {

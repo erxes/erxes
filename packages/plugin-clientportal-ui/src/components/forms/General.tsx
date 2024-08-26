@@ -432,8 +432,7 @@ function General({
       !isEnabled("purchases") &&
       !isEnabled("tickets") &&
       !isEnabled("tasks") &&
-      !isEnabled("inbox") &&
-      !isEnabled("products")
+      !isEnabled("inbox")
     ) {
       return null;
     }
@@ -574,7 +573,7 @@ function General({
             formValue: messengerBrandCode
           })}
 
-        {isEnabled("products") && kind === "vendor" && renderSelectCategory()}
+        {kind === "vendor" && renderSelectCategory()}
       </Block>
     );
   };

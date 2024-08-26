@@ -10,7 +10,7 @@ import * as moment from "moment";
 import { generateModels, IModels } from "./connectionResolver";
 import { IUserDocument } from "./db/models/definitions/users";
 import { InterMessage } from "@erxes/api-utils/src/messageBroker";
-import { fetchSegment } from "./data/resolvers/queries/segmentsQueryBuilder";
+import { fetchSegment } from "./data/modules/segments/queryBuilder";
 
 const prepareData = async (
   models: IModels,
@@ -19,7 +19,7 @@ const prepareData = async (
 ): Promise<any[]> => {
   const { segmentData, page, perPage } = query;
 
-  const boardItemsFilter: any = {};
+  const itemsFilter: any = {};
   let itemIds = [];
   const skip = (page - 1) * perPage;
 
@@ -31,17 +31,17 @@ const prepareData = async (
       perPage
     });
 
-    boardItemsFilter._id = { $in: itemIds };
+    itemsFilter._id = { $in: itemIds };
   }
 
   if (!segmentData) {
-    data = await models.Users.find(boardItemsFilter)
+    data = await models.Users.find(itemsFilter)
       .skip(skip)
       .limit(perPage)
       .lean();
   }
 
-  data = await models.Users.find(boardItemsFilter).lean();
+  data = await models.Users.find(itemsFilter).lean();
 
   return data;
 };

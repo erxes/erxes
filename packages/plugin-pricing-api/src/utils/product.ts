@@ -106,7 +106,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: "productFind",
         data: {
           query: {
             vendorId: { $in: plan.vendors || [] }
@@ -136,7 +136,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: "productFind",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },
@@ -178,7 +178,7 @@ export const getAllowedProducts = async (
 
       const products = await sendProductsMessage({
         subdomain,
-        action: "find",
+        action: "productFind",
         data: {
           query: { _id: { $in: filterProductIds } },
           sort: { _id: 1, categoryId: 1 },

@@ -22,6 +22,12 @@ import {
   fieldsGroupQueries as fieldsgroups
 } from "./fields";
 import forms from "./forms";
+import company from "./company";
+import customer from "./customer";
+import contact from "./contact";
+import products from "./products";
+import productConfigs from "./productConfigs";
+import uoms from "./uoms";
 
 export default {
   ...users,
@@ -43,5 +49,11 @@ export default {
   ...segments,
   ...fields,
   ...fieldsgroups,
-  ...forms
+  ...forms,
+  ...company,
+  ...customer,
+  ...contact,
+  ...products,
+  ...productConfigs,
+  ...uoms
 };

@@ -75,7 +75,7 @@ export const getOrderInfo = async (req, res) => {
     }
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "productFind",
       data: {
         query: { _id: { $in: deal.productsData.map(p => p.productId) } },
         limit: deal.productsData.length
@@ -132,7 +132,7 @@ export const getOrderInfo = async (req, res) => {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "productFind",
       data: {
         query: { _id: { $in: order.items.map(p => p.productId) } },
         limit: order.items.length

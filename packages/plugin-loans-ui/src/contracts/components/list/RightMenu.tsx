@@ -4,7 +4,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from "../../../styles";
 import React, { useRef, useState } from "react";
 
@@ -21,7 +21,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -29,7 +28,6 @@ const SelectCompanies = asyncComponent(
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
@@ -51,7 +49,7 @@ export default function RightMenu(props: Props) {
   const [showMenu, setShowMenu] = useState(false);
   const wrapperRef = useRef(null);
 
-  const setWrapperRef = (node) => {
+  const setWrapperRef = node => {
     wrapperRef.current = node;
   };
 
@@ -59,7 +57,7 @@ export default function RightMenu(props: Props) {
     setShowMenu(!showMenu);
   };
 
-  const onSearch = (e) => {
+  const onSearch = e => {
     if (e.key === "Enter") {
       const target = e.currentTarget;
       props.onSearch(target.value || "");
@@ -71,7 +69,7 @@ export default function RightMenu(props: Props) {
 
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 
@@ -174,7 +172,7 @@ export default function RightMenu(props: Props) {
           name="repayment"
           options={[
             { value: "fixed", label: "fixed" },
-            { value: "equal", label: "equal" },
+            { value: "equal", label: "equal" }
           ]}
           placeholder={"repayment"}
           onChange={onChangeRangeFilter.bind(this, "repayment")}

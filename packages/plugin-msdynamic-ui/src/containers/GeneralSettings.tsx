@@ -32,7 +32,7 @@ const GeneralSettingsContainer = (props: FinalProps) => {
       .then(() => {
         configsQuery.refetch();
 
-        Alert.success('You successfully updated stage in syncerkhet settings');
+        Alert.success('You successfully updated stage in sync msdynamic settings');
       })
       .catch(error => {
         Alert.error(error.message);

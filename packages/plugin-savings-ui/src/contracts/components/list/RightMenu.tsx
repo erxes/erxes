@@ -5,7 +5,7 @@ import {
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from "../../../styles";
 import React, { useRef, useState } from "react";
 
@@ -18,7 +18,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -26,7 +25,6 @@ const SelectCompanies = asyncComponent(
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
@@ -44,7 +42,7 @@ export default function RightMenu(props: Props) {
   const wrapperRef = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
 
-  const setWrapperRef = (node) => {
+  const setWrapperRef = node => {
     wrapperRef.current = node;
   };
 
@@ -64,7 +62,7 @@ export default function RightMenu(props: Props) {
 
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 

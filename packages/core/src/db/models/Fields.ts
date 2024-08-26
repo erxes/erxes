@@ -12,7 +12,7 @@ import {
   IFieldGroupDocument
 } from "./definitions/fields";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
-import { sendCommonMessage, sendContactsMessage } from "../../messageBroker";
+import { sendCommonMessage } from "../../messageBroker";
 import { IModels } from "../../connectionResolver";
 
 export interface ITypedListItem {
@@ -67,6 +67,11 @@ export interface IFieldModel extends Model<IFieldDocument> {
     isVisibleInDetail?: boolean
   ): Promise<IFieldDocument>;
   createSystemFields(
+    groupId: string,
+    serviceName: string,
+    type: string
+  ): Promise<IFieldDocument[]>;
+  updateSystemFields(
     groupId: string,
     serviceName: string,
     type: string
@@ -253,18 +258,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       await this.checkIsDefinedByErxes(_id);
 
       // Removing field value from customer
-      await sendContactsMessage({
-        subdomain,
-        action: "customers.updateMany",
-        data: {
-          selector: {
-            "customFieldsData.field": _id
-          },
-          modifier: {
-            $pull: { customFieldsData: { field: _id } }
-          }
-        }
-      });
+
+      await models.Customers.updateMany(
+        { "customFieldsData.field": _id },
+        { $pull: { customFieldsData: { field: _id } } }
+      );
 
       // Removing form associated field
       await models.Fields.updateMany(
@@ -287,10 +285,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      * Validate per field according to it's validation and type
      * fixes values if necessary
      */
-    public static async clean(
-      _id: string,
-      _value: string | Date | number | any
-    ) {
+    public static async clean(_id: string, _value: any) {
       const field = await models.Fields.findOne({ _id });
 
       let value = _value;
@@ -534,9 +529,45 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         defaultValue: []
       });
 
+      console.log(fields, type, serviceName, groupId);
+
       await models.Fields.insertMany(fields);
     }
+    public static async updateSystemFields(
+      groupId: string,
+      serviceName: string,
+      type: string
+    ) {
+      const fields = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: "systemFields",
+        data: {
+          groupId,
+          type
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
+      const existingFields = await models.Fields.find({
+        groupId: groupId,
+        isDefinedByErxes: true
+      });
+
+      if (fields.length > existingFields.length) {
+        let newFields: any[] = [];
+        fields.map(x => {
+          const isExisted = existingFields.filter(
+            d => d.text === x.text && d.type === x.type
+          );
+          if (isExisted.length === 0) {
+            newFields.push(x);
+          }
+        });
+        await models.Fields.insertMany(newFields);
+      }
+    }
     public static async generateCustomFieldsData(
       data: { [key: string]: any },
       contentType: string
@@ -745,7 +776,7 @@ export const loadGroupClass = (models: IModels) => {
               isVisible: true
             };
 
-            const existingGroup = await models.FieldsGroups.findOne({
+            const existingGroup = await models.FieldsGroups.find({
               contentType: doc.contentType,
               isDefinedByErxes: true
             });
@@ -792,7 +823,13 @@ export const loadGroupClass = (models: IModels) => {
               }
             }
 
-            if (existingGroup) {
+            const basicGroup = existingGroup.find(x => !x.code);
+            if (basicGroup) {
+              await models.Fields.updateSystemFields(
+                basicGroup._id,
+                serviceName,
+                type.type
+              );
               continue;
             }
 

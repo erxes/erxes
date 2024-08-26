@@ -9,9 +9,14 @@ import type {
   MessageArgsOmitService
 } from "@erxes/api-utils/src/core";
 
-import { logConsumers } from "@erxes/api-utils/src/logUtils";
-import { internalNoteConsumers } from "@erxes/api-utils/src/internalNotes";
-import { formConsumers } from "@erxes/api-utils/src/forms";
+import { formConsumers } from "@erxes/api-utils/src/consumers/forms";
+
+import { logConsumers } from "@erxes/api-utils/src/consumers/logs";
+import { internalNoteConsumers } from "@erxes/api-utils/src/consumers/internalNotes";
+import { importExportCunsomers } from "@erxes/api-utils/src/consumers/importExport";
+import { segmentsCunsomers } from "@erxes/api-utils/src/consumers/segments";
+import { searchCunsomers } from "@erxes/api-utils/src/consumers/search";
+
 import { registerOnboardHistory } from "./data/modules/robot";
 
 import {
@@ -32,6 +37,7 @@ import { generateModels } from "./connectionResolver";
 import { USER_ROLES } from "@erxes/api-utils/src/constants";
 import imports from "./imports";
 import exporter from "./exporter";
+import segments from "./segments";
 import {
   consumeQueue,
   consumeRPCQueue,
@@ -43,14 +49,19 @@ import { receivePutLogCommand } from "./db/utils/logUtils";
 import {
   fetchSegment,
   isInSegment
-} from "./data/resolvers/queries/segmentsQueryBuilder";
+} from "./data/modules/segments/queryBuilder";
 import { fieldsCombinedByContentType } from "./formUtils";
+import { setupContactsMessageBroker } from "./messageBrokers/contacts";
+import search from "./search";
+import { setupProductMessageBroker } from "./messageBrokers/products";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
 };
 
 export const setupMessageConsumers = async (): Promise<void> => {
+  await setupContactsMessageBroker();
+  await setupProductMessageBroker();
   consumeQueue(
     "core:manage-installation-notification",
     async ({
@@ -624,51 +635,22 @@ export const setupMessageConsumers = async (): Promise<void> => {
 
   logConsumers({
     name: "core",
-    getActivityContent: logUtils.getActivityContent,
-    collectItems: logUtils.collectItems,
-    getSchemalabels: logUtils.getSchemaLabels
+    logs: logUtils
   });
 
   internalNoteConsumers({
     name: "core",
-    generateInternalNoteNotif: internalNotes.generateInternalNoteNotif
+    internalNotes
   });
 
   formConsumers({
     name: "core",
-    systemFields: forms.systemFields
+    forms
   });
 
-  consumeRPCQueue("core:fields.getList", async ({ subdomain, data }) => {
-    return {
-      status: "success",
-      data: await forms.fields({ subdomain, data })
-    };
-  });
-
-  consumeRPCQueue("core:imports.insertImportItems", async args => {
-    return {
-      status: "success",
-      data: await imports.insertImportItems(args)
-    };
-  });
-
-  consumeRPCQueue("core:imports.prepareImportDocs", async args => {
-    return {
-      status: "success",
-      data: await imports.prepareImportDocs(args)
-    };
-  });
-
-  consumeRPCQueue("core:exporter.prepareExportData", async args => ({
-    status: "success",
-    data: await exporter.prepareExportData(args)
-  }));
-
-  consumeRPCQueue("core:exporter.getExportDocs", async args => ({
-    status: "success",
-    data: await exporter.getExportDocs(args)
-  }));
+  importExportCunsomers({ name: "core", imports, exporter });
+  segmentsCunsomers({ name: "core", segments });
+  searchCunsomers({ name: "core", search });
 
   consumeRPCQueueMq("core:isServiceEnabled", async ({ data }) => ({
     status: "success",
@@ -1184,6 +1166,8 @@ export const setupMessageConsumers = async (): Promise<void> => {
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
+      console.log(query, "1231231231");
+
       return {
         status: "success",
         data: await models.FieldsGroups.findOne(query).lean()
@@ -1250,15 +1234,6 @@ export const sendCardsMessage = (
 ): Promise<any> => {
   return sendMessage({
     serviceName: "cards",
-    ...args
-  });
-};
-
-export const sendContactsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "contacts",
     ...args
   });
 };
@@ -1376,6 +1351,51 @@ export const getContentTypeDetail = async (
 export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: "clientportal",
+    ...args
+  });
+};
+
+export const sendEngagesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "engages",
+    ...args
+  });
+};
+
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "sales",
+    ...args
+  });
+};
+
+export const sendTasksMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "tasks",
+    ...args
+  });
+};
+
+export const sendTicketsMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "tickets",
+    ...args
+  });
+};
+
+export const sendPurchasesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "purchases",
     ...args
   });
 };

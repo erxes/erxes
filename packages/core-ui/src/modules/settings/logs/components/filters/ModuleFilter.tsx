@@ -3,7 +3,7 @@ import {
   SidebarList,
   Box,
   FormControl,
-  DataWithLoader,
+  DataWithLoader
 } from "@erxes/ui/src";
 import { __, router } from "@erxes/ui/src/utils";
 import React from "react";
@@ -37,7 +37,7 @@ const moduleOptions = [
   { value: "growthhacks:growthHackPipelineLabel", label: "Pipeline labels" },
   {
     value: "growthhacks:growthHackipelineTemplate",
-    label: "Pipeline templates",
+    label: "Pipeline templates"
   },
   { value: "growthhacks:growthHack", label: "Growth hacks" },
   { value: "sales:dealStages", label: "Deal stages" },
@@ -55,20 +55,20 @@ const moduleOptions = [
   { value: "inbox:integration", label: "Integrations" },
   { value: "inbox:channel", label: "Channels" },
   // contacts service items
-  { value: "contacts:company", label: "Companies" },
-  { value: "contacts:customer", label: "Customers" },
+  { value: "core:company", label: "Companies" },
+  { value: "core:customer", label: "Customers" },
   // products service items
-  { value: "products:product", label: "Products" },
-  { value: "products:product-category", label: "Product categories" },
+  { value: "core:product", label: "Products" },
+  { value: "core:product-category", label: "Product categories" },
   // knowledgebase service items
   { value: "knowledgebase:knowledgeBaseTopic", label: "Knowledgebase topics" },
   {
     value: "knowledgebase:knowledgeBaseCategory",
-    label: "Knowledgebase categories",
+    label: "Knowledgebase categories"
   },
   {
     value: "knowledgebase:knowledgeBaseArticle",
-    label: "Knowledgebase articles",
+    label: "Knowledgebase articles"
   },
   // others
   { value: "engages:engage", label: "Campaigns" },
@@ -79,7 +79,7 @@ const moduleOptions = [
   { value: "emailTemplate", label: "Email templates" },
   { value: "importHistory", label: "Import histories" },
   { value: "script", label: "Scripts" },
-  { value: "pricing:pricingPlan", label: "PricingPlan" },
+  { value: "pricing:pricingPlan", label: "PricingPlan" }
 ];
 
 function ModuleFilter({ queryParams }: Props) {
@@ -107,7 +107,7 @@ function ModuleFilter({ queryParams }: Props) {
 
   const applyModuleFilter = (value: string) => {
     setSearchValue(value);
-    const filteredModules = moduleOptions.filter((module) =>
+    const filteredModules = moduleOptions.filter(module =>
       module.label.toLowerCase().includes(value.toLowerCase())
     );
     setModules(filteredModules);
@@ -117,7 +117,7 @@ function ModuleFilter({ queryParams }: Props) {
     router.setParams(navigate, location, { type: module.value });
   };
 
-  const searchModule = (e) => {
+  const searchModule = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }

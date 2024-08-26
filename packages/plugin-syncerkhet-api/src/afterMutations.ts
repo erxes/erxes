@@ -15,9 +15,9 @@ const allowTypes = {
   "sales:deal": ["update"],
   "purchases:purchase": ["update"],
   "products:productCategory": ["create", "update", "delete"],
-  "products:product": ["create", "update", "delete"],
-  "contacts:customer": ["create", "update", "delete"],
-  "contacts:company": ["create", "update", "delete"]
+  "core:product": ["create", "update", "delete"],
+  "core:customer": ["create", "update", "delete"],
+  "core:company": ["create", "update", "delete"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -265,7 +265,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       return;
     }
 
-    if (type === "products:product") {
+    if (type === "core:product") {
       const mainConfig = await getConfig(subdomain, "ERKHET", {});
       if (
         !mainConfig ||
@@ -361,7 +361,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
     }
 
-    if (type === "contacts:customer") {
+    if (type === "core:customer") {
       const mainConfig = await getConfig(subdomain, "ERKHET", {});
       if (
         !mainConfig ||
@@ -389,7 +389,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
     }
 
-    if (type === "contacts:company") {
+    if (type === "core:company") {
       const mainConfig = await getConfig(subdomain, "ERKHET", {});
       if (
         !mainConfig ||

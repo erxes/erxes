@@ -31,9 +31,6 @@ export default `
     }
   }
   customerId
-  ${
-    isEnabled("contacts")
-      ? `
   customer {
     _id
     visitorContactInfo
@@ -44,9 +41,6 @@ export default `
     middleName
     lastName
     emails
-  }
-  `
-      : ``
   }
   messageCount
   participatorCount

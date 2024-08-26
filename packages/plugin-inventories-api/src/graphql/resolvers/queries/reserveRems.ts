@@ -1,10 +1,10 @@
 import {
   moduleRequireLogin,
   moduleCheckPermission
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
-import { sendProductsMessage } from '../../../messageBroker';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { escapeRegExp, paginate } from "@erxes/api-utils/src/core";
+import { sendProductsMessage } from "../../../messageBroker";
 
 interface IListArgs {
   page: number;
@@ -70,7 +70,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
     if (Object.keys(productFilter).length) {
       const limit = await sendProductsMessage({
         subdomain,
-        action: 'count',
+        action: "productCount",
         data: {
           ...productFilter,
           categoryId: productCategoryId
@@ -81,7 +81,7 @@ const getGenerateFilter = async (subdomain: string, params: IListArgs) => {
 
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
+        action: "productFind",
         data: { ...productFilter, limit, fields: { _id: 1 } },
         isRPC: true,
         defaultValue: []
@@ -100,12 +100,7 @@ const reserveRemsQueries = {
     { models, subdomain }: IContext
   ) => {
     const filter = await getGenerateFilter(subdomain, params);
-    return paginate(
-      models.ReserveRems.find(filter)
-        .sort({})
-        .lean(),
-      params
-    );
+    return paginate(models.ReserveRems.find(filter).sort({}).lean(), params);
   },
 
   reserveRemsCount: async (
@@ -119,6 +114,6 @@ const reserveRemsQueries = {
 };
 
 moduleRequireLogin(reserveRemsQueries);
-moduleCheckPermission(reserveRemsQueries, 'showSalesPlans');
+moduleCheckPermission(reserveRemsQueries, "showSalesPlans");
 
 export default reserveRemsQueries;

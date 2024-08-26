@@ -1,7 +1,7 @@
 import {
   ClearBtnContainer,
   FilterRowContainer,
-  PaddingTop,
+  PaddingTop
 } from "../../../styles";
 import {
   ControlLabel,
@@ -12,7 +12,7 @@ import {
   SelectTeamMembers,
   Tip,
   Wrapper,
-  router,
+  router
 } from "@erxes/ui/src";
 import { DateContainer, ScrollWrapper } from "@erxes/ui/src/styles/main";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -23,7 +23,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const SelectCompanies = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCompanies" */ "@erxes/ui-contacts/src/companies/containers/SelectCompanies"
     )
@@ -31,7 +30,6 @@ const SelectCompanies = asyncComponent(
 
 const SelectCustomers = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "SelectCustomers" */ "@erxes/ui-contacts/src/customers/containers/SelectCustomers"
     )
@@ -89,18 +87,18 @@ const SideBar = (props: Props) => {
     refetch(result);
   };
 
-  const checkParams = (type) => {
+  const checkParams = type => {
     return router.getParam(location, type) ? true : false;
   };
 
-  const handleOwnerId = (e) => {
+  const handleOwnerId = e => {
     const result = { ...variables, ownerId: String(e) };
     setVariables(result);
     router.setParams(navigate, location, { ownerId: String(e) });
     refetch(result);
   };
   const renderOwner = () => {
-    if (isEnabled("contacts") && variables.ownerType === "customer") {
+    if (variables.ownerType === "customer") {
       return (
         <SelectCustomers
           label="Team Members"
@@ -124,19 +122,15 @@ const SideBar = (props: Props) => {
       );
     }
 
-    if (isEnabled("contacts")) {
-      return (
-        <SelectCompanies
-          label="Compnay"
-          name="ownerId"
-          multi={false}
-          initialValue={variables?.ownerId}
-          onSelect={handleOwnerId}
-        />
-      );
-    }
-
-    return null;
+    return (
+      <SelectCompanies
+        label="Compnay"
+        name="ownerId"
+        multi={false}
+        initialValue={variables?.ownerId}
+        onSelect={handleOwnerId}
+      />
+    );
   };
 
   const Form = (props: LayoutProps) => (
@@ -147,7 +141,7 @@ const SideBar = (props: Props) => {
         {props.clearable && (
           <ClearBtnContainer
             tabIndex={0}
-            onClick={(e) => handleClear(e, props.type)}
+            onClick={e => handleClear(e, props.type)}
           >
             <Tip text={"Clear filter"} placement="bottom">
               <Icon icon="cancel-1" />
@@ -236,7 +230,7 @@ const SideBar = (props: Props) => {
               name="startDate"
               placeholder={"Choose start date"}
               value={variables?.fromDate}
-              onChange={(e) => handleDate(e, "fromDate")}
+              onChange={e => handleDate(e, "fromDate")}
             />
           </DateContainer>
         </Form>
@@ -247,7 +241,7 @@ const SideBar = (props: Props) => {
               name="fromDate"
               placeholder={"Choose from date"}
               value={variables?.toDate}
-              onChange={(e) => handleDate(e, "toDate")}
+              onChange={e => handleDate(e, "toDate")}
             />
           </DateContainer>
         </Form>

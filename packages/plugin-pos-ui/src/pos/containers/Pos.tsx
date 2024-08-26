@@ -111,7 +111,10 @@ const PosContainer = (props: Props) => {
         slotsBulkUpdateMutation({
           variables: {
             posId: posId || data.data.posAdd._id,
-            slots: doc.posSlots,
+            slots: doc.posSlots.map((slot) => ({
+              ...slot,
+              posId: slot.posId || posId || data.data.posAdd._id,
+            })),
           },
         });
       })

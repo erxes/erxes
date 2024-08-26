@@ -8,7 +8,7 @@ import { BlockRow } from "../../../styles";
 import { getCurrencySymbol } from "../../../utils";
 import {
   IGolomtBankAccountBalance,
-  IGolomtBankAccountDetail,
+  IGolomtBankAccountDetail
 } from "../../../types/IGolomtAccount";
 import TransactionForm from "../../transactions/containers/Form";
 import Transactions from "../../transactions/containers/List";
@@ -22,7 +22,7 @@ type Props = {
 const Detail = (props: Props) => {
   const { account, balances, queryParams } = props;
 
-  const getStatusValue = (value) => {
+  const getStatusValue = value => {
     switch (value) {
       case "A":
         return "active";
@@ -34,7 +34,7 @@ const Detail = (props: Props) => {
         return "";
     }
   };
-  const isRel = (value) => {
+  const isRel = value => {
     switch (value) {
       case "N":
         return "NO";
@@ -50,11 +50,12 @@ const Detail = (props: Props) => {
     </Button>
   );
 
-  const transactionFormContent = (modalProps) => (
+  const transactionFormContent = modalProps => (
     <TransactionForm
       {...modalProps}
       configId={queryParams._id}
       accountNumber={queryParams.account}
+      accountName={account.accountName}
     />
   );
   const renderAccount = () => {
@@ -81,7 +82,7 @@ const Detail = (props: Props) => {
         <BlockRow>
           <FormGroup>
             <p>{__("Balance")} </p>
-            {(balances?.balanceLL || []).map((balance) => (
+            {(balances?.balanceLL || []).map(balance => (
               <strong key={balance.amount.toString()}>
                 {balance.amount.value.toLocaleString()}
                 {getCurrencySymbol(balance.amount.currency || "MNT")}

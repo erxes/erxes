@@ -3,10 +3,10 @@ import { getPostData as getPostDataOrders } from "../../../utils/orders";
 import { getPostData } from "../../../utils/ebarimtData";
 import { generateModels, IContext } from "../../../connectionResolver";
 import {
-  sendCardsMessage,
   sendCoreMessage,
   sendPosMessage,
-  sendProductsMessage
+  sendProductsMessage,
+  sendSalesMessage
 } from "../../../messageBroker";
 import { sendRPCMessage, sendTRPCMessage } from "../../../messageBrokerErkhet";
 
@@ -27,7 +27,7 @@ const checkSyncedMutations = {
 
     switch (type) {
       case "deal":
-        trs = await sendCardsMessage({
+        trs = await sendSalesMessage({
           subdomain,
           action: "deals.find",
           data: { _id: { $in: ids } },
@@ -58,7 +58,7 @@ const checkSyncedMutations = {
 
     const products = await sendProductsMessage({
       subdomain,
-      action: "find",
+      action: "productFind",
       data: { query: { _id: { $in: productIds } } },
       isRPC: true
     });
@@ -215,7 +215,7 @@ const checkSyncedMutations = {
     const moveConfigs = await models.Configs.getConfig("stageInMoveConfig", {});
     const mainConfig = await models.Configs.getConfig("ERKHET", {});
 
-    const deals = await sendCardsMessage({
+    const deals = await sendSalesMessage({
       subdomain,
       action: "deals.find",
       data: { _id: { $in: dealIds } },

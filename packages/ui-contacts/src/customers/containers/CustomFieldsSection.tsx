@@ -32,7 +32,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroupsQuery,
     loading,
     isDetail,
-    collapseCallback,
+    collapseCallback
   } = props;
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -47,12 +47,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id, ...variables },
+      variables: { _id, ...variables }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -64,7 +64,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
     object: customer,
-    collapseCallback,
+    collapseCallback
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -78,10 +78,10 @@ export default withProps<Props>(
         name: "fieldsGroupsQuery",
         options: () => ({
           variables: {
-            contentType: "contacts:customer",
-            isDefinedByErxes: false,
-          },
-        }),
+            contentType: "core:customer",
+            isDefinedByErxes: false
+          }
+        })
       }
     ),
 
@@ -91,8 +91,8 @@ export default withProps<Props>(
       {
         name: "customersEdit",
         options: () => ({
-          refetchQueries: ["customerDetail"],
-        }),
+          refetchQueries: ["customerDetail"]
+        })
       }
     )
   )(CustomFieldsSection)

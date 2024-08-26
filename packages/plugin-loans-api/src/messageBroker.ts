@@ -6,7 +6,7 @@ import { consumeRPCQueue } from "@erxes/api-utils/src/messageBroker";
 import { getCloseInfo } from "./models/utils/closeUtils";
 import { IConfig } from "./interfaces/config";
 
-type CustomFieldType = "contacts:customer";
+type CustomFieldType = "core:customer";
 
 export const setupMessageConsumers = async () => {
   consumeRPCQueue("loans:contracts.find", async ({ subdomain, data }) => {
@@ -269,12 +269,12 @@ export const sendSms = async (
     try {
       await fetch(
         "https://api.messagepro.mn/send?" +
-          new URLSearchParams({
-            key: MESSAGE_PRO_API_KEY,
-            from: MESSAGE_PRO_PHONE_NUMBER,
-            to: phoneNumber,
-            text: content
-          })
+        new URLSearchParams({
+          key: MESSAGE_PRO_API_KEY,
+          from: MESSAGE_PRO_PHONE_NUMBER,
+          to: phoneNumber,
+          text: content
+        })
       );
 
       return "sent";

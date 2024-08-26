@@ -10,7 +10,6 @@ import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const CompanySection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CompanySection" */ "@erxes/ui-contacts/src/companies/components/CompanySection"
     )
@@ -18,7 +17,6 @@ const CompanySection = asyncComponent(
 
 const CustomerSection = asyncComponent(
   () =>
-    isEnabled("contacts") &&
     import(
       /* webpackChunkName: "CustomerSection" */ "@erxes/ui-contacts/src/customers/components/CustomerSection"
     )
@@ -54,12 +52,10 @@ const RightSidebar = (props: Props) => {
 
   return (
     <Sidebar>
-      {isEnabled("contacts") && (
-        <>
-          <CustomerSection mainType="car" mainTypeId={car._id} />
-          <CompanySection mainType="car" mainTypeId={car._id} />
-        </>
-      )}
+      <>
+        <CustomerSection mainType="car" mainTypeId={car._id} />
+        <CompanySection mainType="car" mainTypeId={car._id} />
+      </>
 
       {isEnabled("sales") && (
         <>

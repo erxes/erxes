@@ -9,7 +9,7 @@ import {
   Tip,
   Wrapper,
   __,
-  router,
+  router
 } from "@erxes/ui/src";
 import { FlexRow, Title } from "@erxes/ui-settings/src/styles";
 import React, { useRef, useState } from "react";
@@ -45,7 +45,7 @@ const List = (props: Props) => {
     remove,
     isAllSelected,
     toggleAll,
-    toggleBulk,
+    toggleBulk
   } = props;
 
   const [searchValue, setSearchValue] = useState(queryParams.searchValue || "");
@@ -53,7 +53,7 @@ const List = (props: Props) => {
 
   const timerRef = useRef<number | null>(null);
 
-  const handleSearch = (e) => {
+  const handleSearch = e => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -65,15 +65,15 @@ const List = (props: Props) => {
     timerRef.current = window.setTimeout(() => {
       router.setParams(navigate, location, {
         searchValue: value,
-        page: undefined,
+        page: undefined
       });
     }, 500);
   };
 
-  const renderFormContent = (formProps) => {
+  const renderFormContent = formProps => {
     const updatedProps = {
       ...formProps,
-      queryParams: queryParams || {},
+      queryParams: queryParams || {}
     };
 
     return <Form {...updatedProps} />;
@@ -83,7 +83,7 @@ const List = (props: Props) => {
     toggleAll(movements, "movements");
 
     setSelectedRows(
-      !isAllSelected ? movements.map((movement) => movement._id || "") : []
+      !isAllSelected ? movements.map(movement => movement._id || "") : []
     );
   };
 
@@ -95,14 +95,14 @@ const List = (props: Props) => {
     toggleBulk(movement, isChecked!);
 
     if (!isChecked) {
-      const newSelectedRow = selectedRows.filter((item) => item !== movementId);
+      const newSelectedRow = selectedRows.filter(item => item !== movementId);
       return setSelectedRows(newSelectedRow);
     }
     setSelectedRows([...selectedRows, movementId]);
   };
 
-  const renderRow = (props) => {
-    return movements.map((movement) => (
+  const renderRow = props => {
+    return movements.map(movement => (
       <Row
         key={movement._id}
         movement={movement}
@@ -144,7 +144,7 @@ const List = (props: Props) => {
     setSelectedRows([]);
   };
 
-  const moveCursorAtTheEnd = (e) => {
+  const moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
 
     e.target.value = "";

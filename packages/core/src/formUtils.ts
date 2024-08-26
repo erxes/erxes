@@ -77,12 +77,10 @@ export const fieldsCombinedByContentType = async (
     validation = "date";
   }
 
-  const type = [
-    "contacts:visitor",
-    "contacts:lead",
-    "contacts:customer"
-  ].includes(contentType)
-    ? "contacts:customer"
+  const type = ["core:visitor", "core:lead", "core:customer"].includes(
+    contentType
+  )
+    ? "core:customer"
     : contentType;
 
   const customFields = await getCustomFields(models, type, validation);

@@ -63,7 +63,7 @@ export const createLoanClose = async (subdomain, transaction) => {
     subdomain,
     op: '13610267',
     data: [loanClose],
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanGiveReponse.txnJrno;
 };

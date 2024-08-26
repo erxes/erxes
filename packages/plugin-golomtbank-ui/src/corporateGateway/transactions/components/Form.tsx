@@ -7,57 +7,66 @@ import { ModalFooter } from "@erxes/ui/src/styles/main";
 import { IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils/core";
 import React, { useState } from "react";
-import { BANK_CODES } from "../.././../constants";
+import { BANK_CODES, TRANSACTION_TYPES } from "../.././../constants";
 import { IGolomtBankAccount } from "../../../types/IGolomtAccount";
+import { IGolomtBankTransactionInput } from "../../../types/ITransactions";
 
 type Props = {
   configId: string;
   accounts?: IGolomtBankAccount[];
   accountNumber?: string;
-  submit: ({
-    configId,
-    fromAccount,
-    toAccount,
-    toAccountName,
-    toBank,
-    toCurrency,
-    toDescription,
-    fromDescription,
-    fromCurrency,
-    toAmount,
-    fromAmount,
-    refCode,
-  }) => void;
+  accountName: string;
+  submit: (transfer: IGolomtBankTransactionInput) => void;
   closeModal: () => void;
 };
 
 const TransactionForm = (props: Props) => {
-  const { accountNumber } = props;
+  const { accountNumber, accountName } = props;
+
   const [refCode, setRefCode] = useState("");
   const [fromAccount, setFromAccount] = useState(accountNumber || "");
   const [toAccount, setToAccount] = useState("");
   const [toBank, setToBank] = useState("15");
-  const [fromDescription, setFromDescription] = useState("");
-  const [toDescription, setToDescription] = useState("");
-  const [fromAmount, setFromAmount] = useState(0);
-  const [toAmount, setToAmount] = useState(0);
-  const [fromCurrency, setFromCurrency] = useState("");
-  const [toCurrency, setToCurrency] = useState("");
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState(0);
+  const [fromCurrency, setFromCurrency] = useState("MNT");
+  const [toCurrency, setToCurrency] = useState("MNT");
   const [toAccountName, setToAccountName] = useState("");
+  const [fromAccountName, setFromAccountName] = useState(accountName || "");
+  const [type, setType] = useState("TSF");
 
   const renderContent = (formProps: IFormProps) => {
-    const { closeModal, configId } = props;
+    const { closeModal } = props;
 
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__("receipt number")}</ControlLabel>
+          <ControlLabel required={true}>{__("ref number")}</ControlLabel>
           <FormControl
             required={true}
             value={refCode}
-            placeholder="receipt number"
+            placeholder="ref number"
             onChange={(e: any) => setRefCode(e.target.value)}
           />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>Type</ControlLabel>
+          <FormControl
+            {...formProps}
+            id="type"
+            name="type"
+            componentclass="select"
+            required={true}
+            defaultValue={type}
+            onChange={(e: any) => setType(e.target.value)}
+          >
+            <option value="">Select type</option>
+            {TRANSACTION_TYPES.map(transctionType => (
+              <option key={transctionType.value} value={transctionType.value}>
+                {transctionType.label}
+              </option>
+            ))}
+          </FormControl>
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__("Account Number")}</ControlLabel>
@@ -69,56 +78,25 @@ const TransactionForm = (props: Props) => {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__(" from amount")}</ControlLabel>
+          <ControlLabel required={true}>{__("Account Name")}</ControlLabel>
           <FormControl
-            value={fromAmount}
-            type="number"
-            placeholder="from amount"
-            onChange={(e: any) => setFromAmount(e.target.value)}
+            value={fromAccountName}
+            placeholder="Account Name"
+            onChange={(e: any) => setFromAccountName(e.target.value)}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__("Description")}</ControlLabel>
-          <FormControl
-            required={true}
-            value={fromDescription}
-            placeholder="from description"
-            onChange={(e: any) => setFromDescription(e.target.value)}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>{__("from currency")}</ControlLabel>
+          <ControlLabel required={true}>{__("Currency")}</ControlLabel>
           <FormControl
             required={true}
             value={fromCurrency}
-            placeholder="from currency"
+            placeholder="Currency"
             onChange={(e: any) => setFromCurrency(e.target.value)}
           />
         </FormGroup>
-
         <FormGroup>
-          <ControlLabel required={true}>{__("to Account number")}</ControlLabel>
-          <FormControl
-            placeholder=" receive Account number"
-            value={toAccount}
-            onChange={(e: any) => setToAccount(e.target.value)}
-            className="select"
-            required={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>{__(" to amount")}</ControlLabel>
-          <FormControl
-            value={toAmount}
-            type="number"
-            placeholder="to amount"
-            onChange={(e: any) => setToAmount(e.target.value)}
-            required={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel required={true}>Bank</ControlLabel>
+          <ControlLabel required={true}> to Bank</ControlLabel>
           <FormControl
             {...formProps}
             id="toBank"
@@ -128,8 +106,8 @@ const TransactionForm = (props: Props) => {
             defaultValue={toBank}
             onChange={(e: any) => setToBank(e.target.value)}
           >
-            <option value="">Select bank</option>
-            {BANK_CODES.map((bank) => (
+            <option value=""> Select receive bank</option>
+            {BANK_CODES.map(bank => (
               <option key={bank.value} value={bank.value}>
                 {bank.label}
               </option>
@@ -137,30 +115,52 @@ const TransactionForm = (props: Props) => {
           </FormControl>
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__("To Description")}</ControlLabel>
+          <ControlLabel required={true}>
+            {__("receive Account number")}
+          </ControlLabel>
           <FormControl
+            placeholder="receive Account number"
+            value={toAccount}
+            onChange={(e: any) => setToAccount(e.target.value)}
+            className="select"
             required={true}
-            value={toDescription}
-            placeholder="to description"
-            onChange={(e: any) => setToDescription(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__("account name")}</ControlLabel>
           <FormControl
             value={toAccountName}
-            placeholder="to Account Name"
+            placeholder="receive Account Name"
             onChange={(e: any) => setToAccountName(e.target.value)}
             required={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel required={true}>{__("to currency")}</ControlLabel>
+          <ControlLabel required={true}>{__("receive currency")}</ControlLabel>
           <FormControl
             required={true}
             value={toCurrency}
-            placeholder="to currency"
+            placeholder="receive currency"
             onChange={(e: any) => setToCurrency(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>{__("Amount")}</ControlLabel>
+          <FormControl
+            value={amount}
+            type="number"
+            placeholder="from amount"
+            onChange={(e: any) => setAmount(Number(e.target.value))}
+            required={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>{__("Description")}</ControlLabel>
+          <FormControl
+            required={true}
+            value={description}
+            placeholder="Description"
+            onChange={(e: any) => setDescription(e.target.value)}
           />
         </FormGroup>
         <ModalFooter>
@@ -170,18 +170,17 @@ const TransactionForm = (props: Props) => {
             type="submit"
             onClick={() => {
               props.submit({
-                configId,
                 fromAccount,
+                fromAccountName,
                 toAccount,
                 toAccountName,
                 toBank,
                 toCurrency,
-                toDescription,
-                fromDescription,
+                description,
                 fromCurrency,
-                toAmount,
-                fromAmount,
+                amount,
                 refCode,
+                type
               });
             }}
           >
