@@ -100,7 +100,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
   const [pipelineName, setPipelineName] = useState("");
   const [boardName, setBoardName] = useState("");
   const [stageName, setStageName] = useState("");
-  const [emailName, setEmail] = useState("");
+  const [emailName, setEmailName] = useState("");
 
   const pipelineDetail = useQuery(gql(queries.pipelineDetail), {
     variables: {
@@ -127,7 +127,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
 
   useEffect(() => {
     if (userDetail.data && userDetail.data.userDetail) {
-      setEmail(userDetail.data.userDetail.email);
+      setEmailName(userDetail.data.userDetail.email);
     }
     if (pipelineDetail.data && pipelineDetail.data.pipelineDetail) {
       setPipelineName(pipelineDetail.data.pipelineDetail.name);

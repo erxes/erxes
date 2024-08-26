@@ -13,7 +13,6 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
 } from "@erxes/ui/src";
 import client from "@erxes/ui/src/apolloClient";
 import { DateContainer } from "@erxes/ui/src/styles/main";
@@ -97,11 +96,10 @@ const initialState: State = {
 };
 
 const reducer = (state, action) => {
-  switch (action.type) {
-    case "updateState":
-      return { ...state, ...action.payload };
-    default:
-      return state;
+  if (action.type === "updateState") {
+    return { ...state, ...action.payload };
+  } else {
+    return state;
   }
 };
 
@@ -347,19 +345,17 @@ const goalForm = (props: Props) => {
             {state.segmentRadio === true && (
               <FormGroup>
                 {isEnabled("segments") && isEnabled("contacts") && (
-                  <>
-                    <FormGroup>
-                      <ControlLabel>Segments</ControlLabel>
-                      <SelectSegments
-                        name="segmentIds"
-                        label="Choose segments"
-                        contentTypes={[`cards:${state.entity}`]}
-                        initialValue={state.segmentIds}
-                        multi={true}
-                        onSelect={(segmentIds) => onChangeSegments(segmentIds)}
-                      />
-                    </FormGroup>
-                  </>
+                  <FormGroup>
+                    <ControlLabel>Segments</ControlLabel>
+                    <SelectSegments
+                      name="segmentIds"
+                      label="Choose segments"
+                      contentTypes={[`cards:${state.entity}`]}
+                      initialValue={state.segmentIds}
+                      multi={true}
+                      onSelect={(segmentIds) => onChangeSegments(segmentIds)}
+                    />
+                  </FormGroup>
                 )}
               </FormGroup>
             )}
