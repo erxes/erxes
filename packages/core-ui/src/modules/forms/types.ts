@@ -1,3 +1,6 @@
+import { IFieldGroup } from "@erxes/ui-forms/src/settings/properties/types";
+import { IField } from "@erxes/ui/src/types";
+
 export interface IContentTypeFields {
   _id: string;
   name: string;
@@ -13,7 +16,6 @@ export type FieldsCombinedByType = {
   brandName?: string;
   brandId?: string;
   type: string;
-  selectOptions?: any[];
   order?: number;
 };
 
@@ -27,17 +29,17 @@ export type FieldsGroupsMutationVariables = {
 };
 
 export type FieldsGroupsRemoveMutationResponse = {
-  fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+  fieldsGroupsRemove: (params: { variables: { _id: string } }) => Promise<JSON>;
 };
 
 export type FieldsRemoveMutationResponse = {
-  fieldsRemove: (params: { variables: { _id: string } }) => Promise<any>;
+  fieldsRemove: (params: { variables: { _id: string } }) => Promise<IField>;
 };
 
 export type FieldsGroupsUpdateVisibleMutationResponse = {
   fieldsGroupsUpdateVisible: (params: {
     variables: { _id: string; isVisible: boolean };
-  }) => Promise<any>;
+  }) => Promise<IFieldGroup>;
 };
 
 export type FieldsUpdateVisibleMutationResponse = {
@@ -48,7 +50,7 @@ export type FieldsUpdateVisibleMutationResponse = {
       isVisibleInDetail?: boolean;
       isVisibleToCreate?: boolean;
     };
-  }) => Promise<any>;
+  }) => Promise<IField>;
 };
 
 export type FieldsUpdateOrderMutationVariables = {
@@ -61,23 +63,23 @@ export type FieldsUpdateOrderMutationVariables = {
 export type FieldsUpdateOrderMutationResponse = {
   fieldsUpdateOrder: (params: {
     variables: FieldsUpdateOrderMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<IField[]>;
 };
 
 export type GroupsUpdateOrderMutationResponse = {
   groupsUpdateOrder: (params: {
     variables: FieldsUpdateOrderMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<IFieldGroup[]>;
 };
 
 export type FieldsGroupsAddMutationResponse = {
   fieldsGroupsAdd: (fieldsAdd: {
     variables: FieldsGroupsMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<IFieldGroup>;
 };
 
 export type FieldsGroupsEditMutationResponse = {
   fieldsGroupsEdit: (fieldsEdit: {
     variables: FieldsGroupsMutationVariables;
-  }) => Promise<any>;
+  }) => Promise<IFieldGroup>;
 };

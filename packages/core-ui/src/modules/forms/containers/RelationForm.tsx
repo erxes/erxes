@@ -10,7 +10,7 @@ import queries from "../queries";
 type Props = {
   contentType: string;
   insertedId?: string;
-  onChange: (relations: any) => void;
+  onChange: (ids: string[], relationType: string) => void;
 };
 
 const Container = (props: Props) => {

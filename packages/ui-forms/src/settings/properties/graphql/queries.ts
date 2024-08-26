@@ -71,7 +71,42 @@ const commonFieldsGroups = `
     }
   }
   fields  {
-    ${commonFields}
+    contentType
+    _id
+    associatedField {
+      _id
+    }
+    canHide
+    contentTypeId
+    groupId
+    isVisible
+    isVisibleInDetail
+    lastUpdatedUser {
+      _id
+      email
+    }
+    lastUpdatedUserId
+    locationOptions {
+      description
+    }
+    logics {
+      fieldId
+      logicOperator
+      logicValue
+    }
+    name
+    objectListConfigs {
+      type
+      label
+      key
+    }
+    optionsValues
+    relationType
+    products {
+      _id
+      code
+      name
+    }
   }
 }
 `;

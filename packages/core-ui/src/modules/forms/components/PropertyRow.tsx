@@ -25,8 +25,8 @@ import Collapse from '@erxes/ui/src/components/Collapse';
 type Props = {
   group: IFieldGroup;
   groupsWithParents: IFieldGroup[];
-  queryParams: any;
-  removePropertyGroup: (data: { _id: string }) => any;
+  queryParams: Record<string, string>;
+  removePropertyGroup: (data: { _id: string }) => void;
   removeProperty: (data: { _id: string }) => void;
   updatePropertyVisible: (params: { _id: string; isVisible: boolean }) => void;
   updatePropertyDetailVisible: (params: {
@@ -38,7 +38,7 @@ type Props = {
     isVisibleToCreate?: boolean;
     isRequired?: boolean;
   }) => void;
-  updateFieldOrder: (fields: IField[]) => any;
+  updateFieldOrder: (fields: IField[]) => void;
   updateGroupOrder: (groups: IFieldGroup[]) => void;
 };
 

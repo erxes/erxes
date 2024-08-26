@@ -255,7 +255,7 @@ class PropertyGroupForm extends React.Component<Props, State> {
               defaultValue={object.parentId || null}
             >
               <option value="" />
-              {groups
+              {(groups || [])
                 .filter((e) => !e.isDefinedByErxes)
                 .map((g) => {
                   return (
