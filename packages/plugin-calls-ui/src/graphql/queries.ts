@@ -22,6 +22,7 @@ const callUserIntegrations: any = `
       phone
       wsServer
       token
+      queues
     }
   }
 `;
@@ -167,6 +168,30 @@ const callExtensionList = `
 }
 `;
 
+const callQueueList = `
+  query callQueueList($integrationId: String!) {
+  callQueueList(integrationId: $integrationId)
+}
+`;
+
+const callWaitingList = `
+  query callWaitingList($queue: String!) {
+  callWaitingList(queue: $queue)
+}
+`;
+
+const callProceedingList = `
+  query callProceedingList( $queue: String!) {
+  callProceedingList(queue: $queue)
+}
+`;
+
+const callQueueMemberList = `
+  query callQueueMemberList($integrationId: String!, $queue: String!) {
+  callQueueMemberList(integrationId: $integrationId, queue: $queue)
+}
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
@@ -177,5 +202,9 @@ export default {
   callHistories,
   callsGetConfigs,
   callGetAgentStatus,
-  callExtensionList
+  callExtensionList,
+  callQueueList,
+  callWaitingList,
+  callProceedingList,
+  callQueueMemberList
 };

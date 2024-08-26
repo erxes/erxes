@@ -1,16 +1,21 @@
 import fetch from "node-fetch";
+import * as http from "http";
+import { IModels } from "../connectionResolver";
 import { sendCommonMessage } from "../messageBroker";
+import { ISyncLogDocument } from "../models/definitions/syncLog";
 
 interface IParams {
   op: string;
   subdomain: string;
+  models?: IModels;
+  syncLog?: ISyncLogDocument;
   data?: any;
 }
 
 type CustomFieldType = "core:customer" | "loans:contract" | "savings:contract";
 
 export const fetchPolaris = async (args: IParams) => {
-  const { op, data, subdomain } = args;
+  const { op, data, subdomain, models, syncLog } = args;
 
   const config = await getConfig(subdomain, "POLARIS", {});
 
@@ -22,24 +27,47 @@ export const fetchPolaris = async (args: IParams) => {
     "Content-Type": "application/json"
   };
 
+  if (models && syncLog) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData: data,
+          sendStr: JSON.stringify(data || {}),
+          header: JSON.stringify(headers)
+        }
+      }
+    );
+  }
+
   try {
     const requestOptions = {
       url: `${config.apiUrl}`,
       method: "POST",
       headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      agent:
+        config.apiUrl.includes("http://") && new http.Agent({ keepAlive: true })
     };
 
     return await fetch(config.apiUrl, requestOptions)
       .then(async response => {
         if (!response.ok) {
-          let responseText = await response.text();
-          throw new Error(responseText);
+          const respErr = await response.text();
+          throw new Error(respErr);
         }
+
         return response.text();
       })
       .then(response => {
-        return response;
+        try {
+          return JSON.parse(response);
+        } catch (e) {
+          return response;
+        }
+      })
+      .catch(e => {
+        throw new Error(e.message);
       });
   } catch (e) {
     throw new Error(e.message);
@@ -48,7 +76,7 @@ export const fetchPolaris = async (args: IParams) => {
 
 export const sendMessageBrokerData = async (
   subdomain,
-  serviceName: "core" | "savings" | "core" | "forms" | "loans",
+  serviceName: "core" | "savings" | "loans",
   action:
     | "getConfig"
     | "customers.findOne"
@@ -170,7 +198,7 @@ export const customFieldToObject = async (
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: "forms",
+    serviceName: "core",
     action: "fields.find",
     data: {
       query: {
@@ -201,7 +229,7 @@ export const getCustomFields = async (
 ) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: "forms",
+    serviceName: "core",
     action: "fields.find",
     data: {
       query: {

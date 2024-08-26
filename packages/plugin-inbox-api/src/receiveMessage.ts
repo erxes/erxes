@@ -1,22 +1,46 @@
+<<<<<<< HEAD
 import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
 import { CONVERSATION_STATUSES } from "./models/definitions/constants";
 import { sendContactsMessage, sendCoreMessage } from "./messageBroker";
 import { generateModels } from "./connectionResolver";
 import { IConversationDocument } from "./models/definitions/conversations";
 import { pConversationClientMessageInserted } from "./graphql/resolvers/widgetMutations";
+=======
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { CONVERSATION_STATUSES } from './models/definitions/constants';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendLogsMessage
+} from './messageBroker';
+import { generateModels } from './connectionResolver';
+import { IConversationDocument } from './models/definitions/conversations';
+import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 import {
   RPError,
   RPResult,
   RPSuccess
+<<<<<<< HEAD
 } from "@erxes/api-utils/src/messageBroker";
 
 const sendError = (message): RPError => ({
   status: "error",
+=======
+} from '@erxes/api-utils/src/messageBroker';
+
+const sendError = (message): RPError => ({
+  status: 'error',
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
   errorMessage: message
 });
 
 const sendSuccess = (data): RPSuccess => ({
+<<<<<<< HEAD
   status: "success",
+=======
+  status: 'success',
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
   data
 });
 
@@ -101,7 +125,11 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
         subdomain,
         action: "users.findOne",
         data: {
+<<<<<<< HEAD
           "details.operatorPhone": owner
+=======
+          'details.operatorPhone': owner
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
         },
         isRPC: true,
         defaultValue: {}
@@ -277,7 +305,11 @@ export const collectConversations = async (
     data: {
       query: {
         contentId,
+<<<<<<< HEAD
         action: "convert"
+=======
+        action: 'convert'
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       },
       options: {
         content: 1

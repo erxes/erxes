@@ -7,12 +7,17 @@ import {
 } from "../../../messageBroker";
 import {
   consumeCategory,
-  consumeCustomers,
   consumeInventory,
   dealToDynamic,
   getConfig,
+<<<<<<< HEAD
   getPrice
 } from "../../../utils";
+=======
+  getPrice,
+} from '../../../utils';
+import { consumeCustomers } from '../../../utilsCustomer';
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 
 const msdynamicSyncMutations = {
   async toSyncMsdProducts(
@@ -340,6 +345,7 @@ const msdynamicSyncMutations = {
     }
   },
 
+<<<<<<< HEAD
   async toSyncMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
@@ -413,6 +419,9 @@ const msdynamicSyncMutations = {
     return result;
   },
 
+=======
+  // umnuh ni buren butelgui bolson buyu NO avaagui bol dahij ilgeej baigaa
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },

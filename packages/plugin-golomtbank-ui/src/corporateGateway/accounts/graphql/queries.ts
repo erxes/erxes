@@ -1,9 +1,3 @@
-const listQuery = `
-query GolomtBankAccounts($configId: String) {
-  golomtBankAccounts(configId: $configId)
-}
-`;
-
 const detailQuery = `
 query GolomtBankAccountDetail($configId: String!, $accountId: String!) {
   golomtBankAccountDetail(configId: $configId, accountId: $accountId) {
@@ -33,7 +27,6 @@ const getBalance = `query GolomtBankAccountBalance($configId: String!, $accountI
   }
 }`;
 export default {
-  listQuery,
   detailQuery,
-  getBalance,
+  getBalance
 };

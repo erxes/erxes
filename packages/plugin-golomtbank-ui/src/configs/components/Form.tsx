@@ -20,7 +20,11 @@ const ConfigForm = (props: Props) => {
 
   const [configObject, setConfigObject] = useState<
     IGolomtBankConfigsItem | undefined
-  >(config);
+  >(
+    config && {
+      ...config
+    }
+  );
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -39,13 +43,14 @@ const ConfigForm = (props: Props) => {
       finalValues.configPassword = configObject.configPassword;
       finalValues.accountId = configObject.accountId;
       finalValues.golomtCode = configObject.golomtCode;
+      finalValues.apiUrl = configObject.apiUrl;
     }
     return {
-      ...finalValues,
+      ...finalValues
     };
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const { id, value } = e.target;
 
     const obj: any = configObject || {};
@@ -135,6 +140,13 @@ const ConfigForm = (props: Props) => {
         )}
         {renderInput(
           formProps,
+          "ApiUrl",
+          "apiUrl",
+          "string",
+          config && config.apiUrl
+        )}
+        {renderInput(
+          formProps,
           "ConfigPassword",
           "configPassword",
           "password",
@@ -151,7 +163,7 @@ const ConfigForm = (props: Props) => {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: config,
+            object: config
           })}
         </ModalFooter>
       </>

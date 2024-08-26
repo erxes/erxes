@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import ControlLabel from "@erxes/ui/src/components/form/Label";
 import DateRange from "../utils/DateRange";
 import { IFieldLogic } from "../../types";
 import { IFilterType } from "../../containers/chart/ChartFormField";
-import { MarginY } from "../../styles";
+import { ControlRange, FlexRow, MarginY } from "../../styles";
 import Select from "react-select";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectBrands from "@erxes/ui/src/brands/containers/SelectBrands";
@@ -15,7 +15,9 @@ import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
 import SelectLeads from "../utils/SelectLeads";
 import SelectProducts from "@erxes/ui-products/src/containers/SelectProducts";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
+import SelectDate from "../utils/SelectDate";
 import { SelectWithAssets } from "../utils/SelectAssets";
+import { FormControl } from "@erxes/ui/src/components/form";
 
 type Props = {
   fieldType: string;
@@ -24,6 +26,7 @@ type Props = {
   fieldLabel: string;
   fieldOptions: any[];
   initialValue?: any;
+  fieldAttributes?: any[]
   onChange: (input: any) => void;
   setFilter?: (fieldName: string, value: any) => void;
   startDate?: Date;
@@ -39,19 +42,20 @@ const ChartFormField = (props: Props) => {
     fieldType,
     fieldOptions,
     fieldLabel,
-    fieldLogics,
+    fieldAttributes,
     initialValue,
     multi,
     onChange,
     setFilter,
     startDate,
     endDate,
-    fieldValues,
     fieldDefaultValue,
     filterType,
   } = props;
 
   const { fieldQueryVariables } = filterType;
+
+  const timerRef = useRef<number | null>(null);
 
   const [fieldValue, setFieldValue] = useState(initialValue);
 
@@ -83,10 +87,10 @@ const ChartFormField = (props: Props) => {
     }
   };
 
-  const onSaveDateRange = (dateRange: any) => {
+  const handleDateRange = (dateRange: any) => {
     const { startDate, endDate } = dateRange;
 
-    if (setFilter) {
+    if (setFilter && startDate && endDate) {
       setFilter("startDate", startDate);
       setFilter("endDate", endDate);
     }
@@ -97,6 +101,24 @@ const ChartFormField = (props: Props) => {
       setFilter("brandIds", brandIds);
     }
   };
+
+  const handleInput = (e) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    const { name, value } = e.target
+
+    const newFieldValues = fieldValue ? { ...fieldValue } : {};
+    newFieldValues[name] = value
+
+    setFieldValue(newFieldValues);
+
+    timerRef.current = window.setTimeout(() => {
+      onChange(newFieldValues);
+    }, 500)
+  }
+
   let onlyOptions = [] as any;
   Object.keys(fieldOptions[0] || []).indexOf("options") > 0 &&
     fieldOptions.map((pp) => pp.options.map((o) => onlyOptions.push(o)));
@@ -255,28 +277,15 @@ const ChartFormField = (props: Props) => {
       );
     case "date":
       return (
-        <>
-          <div>
-            <ControlLabel>{fieldLabel}</ControlLabel>
-            <Select
-              value={fieldOptions.find((o) => o.value === fieldValue)}
-              onChange={onSelect}
-              options={fieldOptions}
-              isClearable={true}
-              placeholder={fieldLabel}
-            />
-          </div>
-          {fieldValue === "customDate" && (
-            <MarginY margin={15}>
-              <DateRange
-                showTime={false}
-                onSaveButton={onSaveDateRange}
-                startDate={startDate}
-                endDate={endDate}
-              />
-            </MarginY>
-          )}
-        </>
+        <SelectDate
+          fieldLabel={fieldLabel}
+          fieldValue={fieldValue}
+          fieldOptions={fieldOptions}
+          onSelect={onSelect}
+          startDate={startDate}
+          endDate={endDate}
+          onSaveButton={handleDateRange} 
+        />
       );
 
     default:
@@ -295,7 +304,23 @@ const ChartFormField = (props: Props) => {
             onChange={onSelect}
             options={fieldOptions}
             placeholder={fieldLabel}
+            menuPlacement="auto"
           />
+        </div>
+      );
+    case "input":
+      return (
+        <div>
+          <ControlLabel>{fieldLabel}</ControlLabel>
+          <ControlRange>
+            {fieldAttributes?.map((attributes, index) => (
+              <FormControl
+                value={fieldValue?.[attributes.name]}
+                onChange={e => handleInput(e)}
+                {...attributes}
+              />
+            ))}
+          </ControlRange>
         </div>
       );
     default:

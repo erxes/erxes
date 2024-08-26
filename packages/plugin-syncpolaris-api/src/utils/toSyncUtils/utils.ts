@@ -13,7 +13,7 @@ import {
 export const getCustomFields = async (subdomain, customFieldType, item?) => {
   const fields = await sendCommonMessage({
     subdomain,
-    serviceName: "forms",
+    serviceName: "core",
     action: "fields.find",
     data: {
       query: {

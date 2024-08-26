@@ -22,7 +22,6 @@ import Select from "react-select";
 import { checkLogic } from "@erxes/ui-forms/src/settings/properties/utils";
 import { invalidateCache } from "../../utils";
 import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
-import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 
 type Props = {
   options: IOptions;
@@ -43,6 +42,7 @@ type Props = {
   startDate?: Date;
   closeDate?: Date;
   showStageSelect?: boolean;
+  defaultShowName: boolean;
 };
 
 type State = {
@@ -138,7 +138,7 @@ class AddForm extends React.Component<Props, State> {
     }
 
     if (!name && !cardId) {
-      return Alert.error("Please enter name or select card");
+      // return Alert.error('Please enter name or select card');
     }
 
     fields = fields.filter(field => {
@@ -339,32 +339,33 @@ class AddForm extends React.Component<Props, State> {
     }
 
     const { type } = this.props.options;
-
     return (
       <form>
         {this.renderSelect()}
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel required={true}>Name</ControlLabel>
+        {this.props.defaultShowName && (
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={true}>Name</ControlLabel>
 
-            {this.props.showSelect ? (
-              <CardSelect
-                placeholder={`Add a new ${type} or select one`}
-                options={this.state.cards}
-                onChange={this.onChangeCardSelect}
-                type={type}
-                additionalValue={this.state.name}
-              />
-            ) : (
-              <FormControl
-                value={this.state.name}
-                autoFocus={true}
-                placeholder="Create a new card"
-                onChange={this.onChangeName}
-              />
-            )}
-          </HeaderContent>
-        </HeaderRow>
+              {this.props.showSelect ? (
+                <CardSelect
+                  placeholder={`Add a new ${type} or select one`}
+                  options={this.state.cards}
+                  onChange={this.onChangeCardSelect}
+                  type={type}
+                  additionalValue={this.state.name}
+                />
+              ) : (
+                <FormControl
+                  value={this.state.name}
+                  autoFocus={true}
+                  placeholder="Create a new card"
+                  onChange={this.onChangeName}
+                />
+              )}
+            </HeaderContent>
+          </HeaderRow>
+        )}
 
         {showStageSelect && (
           <HeaderRow>
@@ -394,11 +395,11 @@ class AddForm extends React.Component<Props, State> {
           fields={this.props.fields}
         />
 
-        <RelationForm
-          {...this.props}
-          onChange={this.onRelationsChange}
-          contentType={`sales:${type}`}
-        />
+        {loadDynamicComponent("relationForm", {
+          ...this.props,
+          onChange: this.onRelationsChange,
+          contentType: `cards:${type}`
+        })}
 
         <FormFooter>
           <Button

@@ -6,7 +6,7 @@ export default {
     return models.SyncLogs.findOne({ _id });
   },
 
-  async createdUser(syncLog: ISyncLogDocument, _, { subdomain }: IContext) {
+  async createdUser(syncLog: ISyncLogDocument, {}, { subdomain }: IContext) {
     if (!syncLog.createdBy) {
       return;
     }
@@ -19,11 +19,16 @@ export default {
     });
   },
 
-  async content(syncLog: ISyncLogDocument, _, {}: IContext) {
+  async content(syncLog: ISyncLogDocument, {}, {}: IContext) {
     const { contentType, contentId } = syncLog;
 
+<<<<<<< HEAD
     if (contentType === "pos:order") {
       return syncLog.consumeData.number || contentId;
+=======
+    if (contentType === 'pos:order') {
+      return syncLog.consumeData?.number || syncLog.consumeData?.object?.number || contentId;
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     }
 
     if (contentType === "core:customer") {

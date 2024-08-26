@@ -429,6 +429,12 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         searchText = searchText.concat(" ", customer.firstName || "");
       }
 
+      if (!nullValues.includes(customer.middleName)) {
+        score += 5;
+        possibleLead = true;
+        searchText = searchText.concat(" ", customer.middleName || "");
+      }
+
       if (!nullValues.includes(customer.lastName || "")) {
         score += 5;
         possibleLead = true;

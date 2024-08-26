@@ -269,12 +269,12 @@ export const sendSms = async (
     try {
       await fetch(
         "https://api.messagepro.mn/send?" +
-          new URLSearchParams({
-            key: MESSAGE_PRO_API_KEY,
-            from: MESSAGE_PRO_PHONE_NUMBER,
-            to: phoneNumber,
-            text: content
-          })
+        new URLSearchParams({
+          key: MESSAGE_PRO_API_KEY,
+          from: MESSAGE_PRO_PHONE_NUMBER,
+          to: phoneNumber,
+          text: content
+        })
       );
 
       return "sent";

@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
+import styledTs from 'styled-components-ts';
 import { formatNumbers } from '../../utils';
 
 const NumberContainer = styled.div`
@@ -7,8 +8,26 @@ const NumberContainer = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
+    position: relative;
     align-items: center;
+
+    &:after {
+        content:'';
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%);
+        bottom: -20px;
+        height: 1px;
+        width: 60%;
+        background: #AAA;
+    }
 `;
+
+const NumberLayout = styledTs<{ column: number }>(styled.div)`
+    display: grid;
+    grid-template-columns: repeat(${(props) => props.column >= 2 ? 2 : 1}, 1fr);
+    grid-gap: 50px;
+`
 
 const Title = styled.div`
     font-size: 12px;
@@ -34,10 +53,16 @@ const NumberRenderer = (props: Props) => {
     const { title, data, labels } = dataset;
 
     return (
-        <NumberContainer>
-            <Title>{labels}</Title>
-            <Number>{formatNumbers(data, 'x', 'commarize')}</Number>
-        </NumberContainer>
+
+        <NumberLayout column={labels?.length || 1}>
+            {(labels || []).map((label, index) => (
+                <NumberContainer key={index}>
+                    <Title>{label}</Title>
+                    <Number>{formatNumbers(data[index], 'x', 'commarize')}</Number>
+                </NumberContainer>
+            ))}
+        </NumberLayout>
+
     )
 }
 

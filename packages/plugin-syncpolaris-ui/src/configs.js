@@ -22,7 +22,7 @@ module.exports = {
       permission: "syncPolarisConfig",
     },
     {
-      text: "Sync Polariss",
+      text: "Sync Polaris",
       url: "/sync-polaris-history",
       icon: "icon-star",
       location: "mainNavigation",

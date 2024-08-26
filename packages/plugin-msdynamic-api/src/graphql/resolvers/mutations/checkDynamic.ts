@@ -397,6 +397,7 @@ const msdynamicCheckMutations = {
     let dynamicNo = [] as any;
     let dynamicId = [] as any;
 
+<<<<<<< HEAD
     for (const id of ids) {
       const order = await sendPosMessage({
         subdomain,
@@ -404,12 +405,29 @@ const msdynamicCheckMutations = {
         data: { _id: id },
         isRPC: true
       });
+=======
+    const orders = await sendPosMessage({
+      subdomain,
+      action: 'orders.find',
+      data: { _id: { $in: ids } },
+      isRPC: true,
+    });
 
-      if (order && order.syncErkhetInfo) {
+    for (const order of orders) {
+      if (order.syncErkhetInfo) {
+        let dynNo = ''
+        try {
+          const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
+          dynNo = syncErkhetInfo.no
+        } catch {
+          dynNo = order.syncErkhetInfo;
+        }
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
+
         const obj = {};
-        obj[order.syncErkhetInfo] = id;
+        obj[dynNo] = order._id;
 
-        dynamicNo.push(order.syncErkhetInfo);
+        dynamicNo.push(dynNo);
         dynamicId.push(obj);
       }
     }
@@ -426,11 +444,19 @@ const msdynamicCheckMutations = {
 
     const response = await fetch(url, {
       headers: {
+<<<<<<< HEAD
         "Content-Type": "application/json",
         Accept: "application/json",
         Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
           "base64"
         )}`
+=======
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(
+          `${username}:${password}`
+        ).toString('base64')}`,
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       },
       timeout: 60000
     }).then(r => r.json());

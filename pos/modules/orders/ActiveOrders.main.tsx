@@ -1,7 +1,7 @@
 import { useEffect } from "react"
-import { slotFilterAtom } from "@/store"
+import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { activeOrderIdAtom } from "@/store/order.store"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useSetAtom } from "jotai"
 
 import { ORDER_STATUSES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,8 @@ import useFullOrders from "./hooks/useFullOrders"
 const ActiveOrders = () => {
   const { ALL } = ORDER_STATUSES
   const [_id, setActiveOrderId] = useAtom(activeOrderIdAtom)
-  const slotCode = useAtomValue(slotFilterAtom)
+  const [slotCode, setSlotCode] = useAtom(slotFilterAtom)
+  const setSelectedTab = useSetAtom(selectedTabAtom)
 
   const {
     fullOrders,
@@ -37,6 +38,8 @@ const ActiveOrders = () => {
     onCompleted(orders) {
       if (orders.length === 1) {
         !!slotCode && setActiveOrderId(orders[0]._id)
+        setSelectedTab("products")
+        setSlotCode(null)
       }
     },
   })

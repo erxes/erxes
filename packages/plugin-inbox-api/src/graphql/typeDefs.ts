@@ -64,7 +64,7 @@ const typeDefs = async () => {
     ${ConversationTypes(isEnabledTable)}
     ${MessengerAppTypes}
     ${ChannelTypes}
-    ${integrationTypes(isEnabledTable)}
+    ${integrationTypes}
     ${ResponseTemplateTypes}
     ${widgetTypes(isEnabledTable)}
     ${SkillTypes}

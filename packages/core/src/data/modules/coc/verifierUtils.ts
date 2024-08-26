@@ -86,92 +86,82 @@ export const validateBulk = async (
 
   const callback_url = `${domain}/pl:contacts`;
 
-  if (verificationType === "email") {
-    const emails: Array<{}> = [];
+  const BATCH_SIZE = 1000;
 
-    const customerTransformerToEmailStream = new Transform({
-      objectMode: true,
+  const sendBatch = async (data: string[], type: "email" | "phone") => {
+    // Filter out empty strings from the data array
+    const filteredData = data.filter(item => item.trim() !== "");
 
-      transform(customer, _encoding, callback) {
-        emails.push(customer.primaryEmail);
+    if (filteredData.length === 0) {
+      return; // No valid data to send, skip this batch
+    }
+    const endpoint = `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`;
+    const body =
+      type === "email"
+        ? { emails: filteredData, hostname: callback_url }
+        : { phones: filteredData, hostname: callback_url };
 
-        callback();
-      }
+    await fetch(endpoint, {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" }
     });
+  };
 
-    const customersEmailStream = (
-      models.Customers.find(
+  const processBatch = async (customersCursor, type: "email" | "phone") => {
+    const batch: string[] = [];
+
+    for await (const customer of customersCursor) {
+      if (type === "email") {
+        batch.push(customer.primaryEmail);
+      } else {
+        batch.push(customer.primaryPhone);
+      }
+
+      if (batch.length >= BATCH_SIZE) {
+        await sendBatch(batch, type);
+        batch.length = 0; // Clear the batch
+      }
+    }
+
+    if (batch.length > 0) {
+      await sendBatch(batch, type);
+    }
+  };
+
+  try {
+    if (verificationType === "email") {
+      const customersCursor = models.Customers.find(
         {
-          primaryEmail: { $exists: true, $ne: null },
+          primaryEmail: { $exists: true, $nin: [null, ""] },
           $or: [
             { emailValidationStatus: "unknown" },
             { emailValidationStatus: { $exists: false } }
           ]
         },
         { primaryEmail: 1, _id: 0 }
-      ).limit(1000) as any
-    ).cursor();
+      ).cursor();
 
-    return new Promise((resolve, reject) => {
-      const pipe = customersEmailStream.pipe(customerTransformerToEmailStream);
+      await processBatch(customersCursor, "email");
+    } else {
+      const customersCursor = models.Customers.find(
+        {
+          primaryPhone: { $exists: true, $nin: [null, ""] },
+          $or: [
+            { phoneValidationStatus: "unknown" },
+            { phoneValidationStatus: { $exists: false } }
+          ]
+        },
+        { primaryPhone: 1, _id: 0 }
+      ).cursor();
 
-      pipe.on("finish", async () => {
-        try {
-          await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`, {
-            method: "POST",
-            body: JSON.stringify({ emails, hostname: callback_url }),
-            headers: { "Content-Type": "application/json" }
-          });
-        } catch (e) {
-          return reject(e);
-        }
-
-        resolve("done");
-      });
-    });
-  }
-
-  const phones: Array<{}> = [];
-
-  const customerTransformerStream = new Transform({
-    objectMode: true,
-
-    transform(customer, _encoding, callback) {
-      phones.push(customer.primaryPhone);
-
-      callback();
+      await processBatch(customersCursor, "phone");
     }
-  });
 
-  const customersStream = (
-    models.Customers.find(
-      {
-        primaryPhone: { $exists: true, $ne: null },
-        $or: [
-          { phoneValidationStatus: "unknown" },
-          { phoneValidationStatus: { $exists: false } }
-        ]
-      },
-      { primaryPhone: 1, _id: 0 }
-    ).limit(1000) as any
-  ).cursor();
-
-  return new Promise((resolve, reject) => {
-    const pipe = customersStream.pipe(customerTransformerStream);
-
-    pipe.on("finish", async () => {
-      try {
-        await fetch(`${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`, {
-          method: "POST",
-          body: JSON.stringify({ phones, hostname: callback_url }),
-          headers: { "Content-Type": "application/json" }
-        });
-      } catch (e) {
-        return reject(e);
-      }
-      resolve("done");
-    });
-  });
+    return "done";
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const updateContactsValidationStatus = async (

@@ -1,12 +1,20 @@
 export const types = `
-  type golomtBankTransferResult {
-    uuid: String
-    journalNo: String
-    transferid: String
-    systemDate: String
+
+  input TransferInputGolomt {
+    type: String!
+    fromAccount: String!
+    toAccount: String!
+    amount: Float!
+    description: String!
+    fromCurrency: String!
+    toCurrency: String!
+    toAccountName: String!
+    fromAccountName: String!
+    toBank: String!
+    refCode: String
   }
 `;
 
 export const mutations = `
-  golomtBankTransfer(configId: String!, fromAccount: String, toAccount: String, toAccountName: String, toBank: String, toCurrency: String, fromCurrency: String, toDescription: String, fromDescription: String, toAmount: String, fromAmount: String, refCode: String): JSON
+  golomtBankTransfer(configId: String!, transfer: TransferInputGolomt): JSON
 `;

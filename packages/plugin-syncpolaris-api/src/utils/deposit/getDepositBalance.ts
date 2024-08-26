@@ -5,7 +5,7 @@ export const getDepositBalance = async (subdomain, params) => {
     op: '13610003',
     data: [params.number],
     subdomain,
-  }).then((res) => JSON.parse(res));
+  });
 
   return balance.currentBal;
 };

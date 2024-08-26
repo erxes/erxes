@@ -121,6 +121,7 @@ const UserDetailFormContainer = (props: Props & FinalProps) => {
         closeModal={localProps.closeModal}
         object={localProps.user}
         renderButton={renderButton}
+        queryParams={props.queryParams}
       />
     );
   };

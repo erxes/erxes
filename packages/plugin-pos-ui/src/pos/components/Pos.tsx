@@ -5,14 +5,22 @@ import {
   Step,
   Steps,
   Wrapper,
+<<<<<<< HEAD
   __
+=======
+  __,
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 } from "@erxes/ui/src";
 import Appearance from "./step/Appearance";
 import { Content, LeftContent } from "../../styles";
 import {
   ControlWrapper,
   Indicator,
+<<<<<<< HEAD
   StepWrapper
+=======
+  StepWrapper,
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 } from "@erxes/ui/src/components/step/styles";
 import { IPos, IProductGroup, ISlot } from "../../types";
 
@@ -58,7 +66,11 @@ const Pos = (props: Props) => {
       colors: {
         bodyColor: "#FFFFFF",
         headerColor: "#6569DF",
+<<<<<<< HEAD
         footerColor: "#3CCC38"
+=======
+        footerColor: "#3CCC38",
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       },
       logo: "",
       bgImage: "",
@@ -66,18 +78,30 @@ const Pos = (props: Props) => {
       receiptIcon: "",
       kioskHeaderImage: "",
       mobileAppImage: "",
+<<<<<<< HEAD
       qrCodeImage: ""
+=======
+      qrCodeImage: "",
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     },
     isSkip: false,
     ebarimtConfig: pos.ebarimtConfig,
     erkhetConfig: pos.erkhetConfig,
     deliveryConfig: pos.deliveryConfig,
     cardsConfig: pos.cardsConfig,
-    slots: slots || [],
+    slots:
+      slots.map((slot) => ({
+        ...slot,
+        option: JSON.parse(slot.option as any),
+      })) || [],
     checkRemainder: pos.checkRemainder || false,
     allowTypes:
       pos.allowTypes ||
+<<<<<<< HEAD
       ALLOW_TYPES.filter(at => at.kind === "sale").map(at => at.value)
+=======
+      ALLOW_TYPES.filter((at) => at.kind === "sale").map((at) => at.value),
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -105,7 +129,11 @@ const Pos = (props: Props) => {
       categoryId: m.categoryId,
       productId: m.productId,
       code: m.code || "",
+<<<<<<< HEAD
       name: m.name || ""
+=======
+      name: m.name || "",
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     }));
 
     const cleanSlot = (state.slots || []).map(m => ({
@@ -113,7 +141,11 @@ const Pos = (props: Props) => {
       code: m.code,
       name: m.name,
       posId: m.posId,
+<<<<<<< HEAD
       option: m.option
+=======
+      option: JSON.stringify(m.option),
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     }));
 
     let doc: any = {
@@ -143,7 +175,7 @@ const Pos = (props: Props) => {
       beginNumber: state.pos.beginNumber,
       maxSkipNumber: Number(state.pos.maxSkipNumber) || 0,
       orderPassword: state.pos.orderPassword,
-      scopeBrandIds: pos.scopeBrandIds || [],
+      scopeBrandIds: state.pos.scopeBrandIds || [],
       initialCategoryIds: state.pos.initialCategoryIds || [],
       kioskExcludeCategoryIds: state.pos.kioskExcludeCategoryIds || [],
       kioskExcludeProductIds: state.pos.kioskExcludeProductIds || [],
@@ -161,7 +193,11 @@ const Pos = (props: Props) => {
       doc = {
         ...doc,
         beginNumber: "",
+<<<<<<< HEAD
         allowBranchIds: []
+=======
+        allowBranchIds: [],
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       };
     }
 
@@ -172,7 +208,11 @@ const Pos = (props: Props) => {
     setState(prevState => ({ ...prevState, [key]: value }));
   };
 
+<<<<<<< HEAD
   const onStepClick = currentStepNumber => {
+=======
+  const onStepClick = (currentStepNumber) => {
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     let carousel = "form";
     switch (currentStepNumber) {
       case 1:
@@ -226,7 +266,7 @@ const Pos = (props: Props) => {
       <Wrapper.Header title={__("Pos")} breadcrumb={breadcrumb} />
       <Content>
         <LeftContent>
-          <Steps>
+          <Steps maxStep={9}>
             <Step
               img="/images/icons/erxes-12.svg"
               title={`General`}
@@ -275,7 +315,6 @@ const Pos = (props: Props) => {
               img="/images/icons/erxes-04.svg"
               title={"Appearance"}
               onClick={onStepClick}
-              noButton={true}
             >
               <Appearance
                 onChange={onChange}
@@ -287,7 +326,6 @@ const Pos = (props: Props) => {
               img="/images/icons/erxes-14.svg"
               title={"Screens Config"}
               onClick={onStepClick}
-              noButton={true}
             >
               <ScreensConfig
                 onChange={onChange}
@@ -299,7 +337,6 @@ const Pos = (props: Props) => {
               img="/images/icons/erxes-05.svg"
               title={"ebarimt Config"}
               onClick={onStepClick}
-              noButton={true}
             >
               <EbarimtConfig onChange={onChange} pos={pos} />
             </Step>
@@ -307,7 +344,6 @@ const Pos = (props: Props) => {
               img="/images/icons/erxes-07.svg"
               title={"finance Config"}
               onClick={onStepClick}
-              noButton={true}
             >
               <ErkhetConfig
                 onChange={onChange}
@@ -319,7 +355,6 @@ const Pos = (props: Props) => {
               img="/images/icons/erxes-09.svg"
               title={"Delivery Config"}
               onClick={onStepClick}
-              noButton={true}
             >
               <DeliveryConfig onChange={onChange} pos={state.pos} />
             </Step>

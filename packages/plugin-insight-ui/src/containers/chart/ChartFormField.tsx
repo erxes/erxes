@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 
-import Alert from "@erxes/ui/src/utils/Alert/index";
 import ChartFormField from "../../components/chart/ChartFormField";
 import { IFieldLogic } from "../../types";
-import { getValue } from "../../utils";
+import { generateOptions, getVariables } from "../../utils";
 import { queries } from "../../graphql";
 
 export type IFilterType = {
@@ -13,6 +12,7 @@ export type IFilterType = {
   fieldQuery: string;
   fieldLabel: string;
   fieldOptions: any[];
+  fieldAttributes: any[]
   fieldValueVariable?: string;
   fieldLabelVariable?: string;
   fieldParentVariable?: string;
@@ -23,19 +23,14 @@ export type IFilterType = {
   logics?: IFieldLogic[];
 };
 
-type Props = {
-  filterType: IFilterType;
-  chartType: string;
-  fieldValues?: any;
-  setFilter: (fieldName: string, value: any) => void;
-  initialValue?: any;
-  // for customDate date option
-  startDate?: Date;
-  endDate?: Date;
-};
+type FinalProps = {
+  parentData: any[]
+} & Props
 
-const ChartFormFieldList = (props: Props) => {
-  const { filterType, chartType, setFilter, fieldValues } = props;
+
+const ChartFormFieldContainer = (props: FinalProps) => {
+
+  const { filterType, parentData, setFilter, setFilters, fieldValues } = props;
 
   const {
     fieldName,
@@ -44,138 +39,67 @@ const ChartFormFieldList = (props: Props) => {
     fieldLabel,
     multi,
     fieldOptions,
-    fieldValueVariable,
-    fieldLabelVariable,
-    fieldParentVariable,
-    fieldParentQuery,
-    fieldQueryVariables,
+    fieldAttributes,
     fieldDefaultValue,
     logics,
   } = filterType;
 
-  let queryData;
-  if (fieldParentQuery && queries[`${fieldParentQuery}`]) {
-    const query = useQuery(gql(queries[`${fieldParentQuery}`]), {
-      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {},
-    });
+  const [data, setData] = useState([])
+  const [options, setOptions] = useState(fieldOptions || [])
 
-    queryData = query && query.data ? query.data : {};
-  }
+  if (!fieldOptions?.length && fieldQuery && queries[`${fieldQuery}`]) {
+    const variables = getVariables(fieldValues, filterType)
 
-  const queryExists = queries[`${fieldQuery}`];
-  let logicFieldVariableExists = false;
-  const logicFieldVariables = {};
-
-  if (logics) {
-    for (const logic of logics) {
-      const { logicFieldName, logicFieldVariable, logicFieldExtraVariable } =
-        logic;
-
-      if (logicFieldExtraVariable) {
-        Object.assign(logicFieldVariables, JSON.parse(logicFieldExtraVariable));
-      }
-
-      if (logicFieldVariable) {
-        const logicFieldValue = fieldValues[logicFieldName];
-        if (logicFieldValue) {
-          logicFieldVariables[logicFieldVariable] = logicFieldValue;
-          logicFieldVariableExists = true;
-        }
-      }
-    }
-  }
-
-  let queryFieldOptions: any = [];
-
-  if (queryExists) {
-    const variables = logicFieldVariableExists
-      ? logicFieldVariables
-      : fieldQueryVariables
-        ? JSON.parse(fieldQueryVariables)
-        : {};
-
-    const query = useQuery(gql(queries[`${fieldQuery}`]), {
+    const { data: queryData, loading } = useQuery(gql(queries[`${fieldQuery}`]), {
       skip: !!fieldOptions,
-      variables,
+      variables: variables
     });
 
-    const queryData = query && query.data ? query.data : {};
-
-    queryFieldOptions =
-      queryData[fieldQuery]?.map((d) => ({
-        value: getValue(d, fieldValueVariable),
-        label: getValue(d, fieldLabelVariable),
-        ...(fieldParentVariable && {
-          parent: getValue(d, fieldParentVariable),
-        }),
-      })) || [];
+    useEffect(() => {
+      if (!loading) {
+        setData(queryData?.[fieldQuery] || [])
+      }
+    }, [queryData])
   }
 
-  let fieldParentOptions: any = [];
-  if (queryFieldOptions.length && fieldParentVariable) {
-    if (fieldParentQuery && queries[fieldParentQuery]) {
-      fieldParentOptions = (queryData[fieldParentQuery] || []).reduce(
-        (acc, data) => {
-          const options = (
-            queryFieldOptions.filter((option) => option?.parent === data._id) ||
-            []
-          ).map(({ value, label }) => ({ value, label }));
+  useEffect(() => {
 
-          if (options.length > 0) {
-            acc.push({ label: data.name, options });
-          }
+    if (!fieldOptions) {
+      const generatedOptions = generateOptions(data, parentData, filterType)
 
-          return acc;
-        },
-        []
-      );
-    } else {
-      fieldParentOptions = queryFieldOptions.reduce((acc, option) => {
-        const contentType = option.parent.split(":").pop() || option.parent;
-        const existingContentType = acc.find(
-          (item) => item.label === contentType
-        );
-
-        if (existingContentType) {
-          existingContentType.options.push({
-            label: option.label.trim(),
-            value: option.value,
-          });
-        } else {
-          acc.push({
-            label: contentType,
-            options: [{ label: option.label.trim(), value: option.value }],
-          });
-        }
-
-        return acc;
-      }, []);
+      setOptions(generatedOptions);
     }
-  }
+
+  }, [data, parentData])
 
   const checkLogic = () => {
     if (!logics) {
-      return true;
+      return false;
     }
 
     for (const logic of logics) {
-      const { logicFieldName, logicFieldValue } = logic;
-      if (!fieldValues[logicFieldName]) {
+      const { logicFieldName, logicFieldValue, logicFieldVariable } = logic;
+
+      if (fieldValues.hasOwnProperty(logicFieldName) && fieldValues[logicFieldName]) {
+
+        const isArray = Array.isArray(fieldValues[logicFieldName])
+
+        if (logicFieldVariable) {
+          return false
+        }
+
+        if (isArray && !fieldValues[logicFieldName].some(value => logicFieldValue.includes(value))) {
+          return true;
+        }
         return false;
       }
 
-      if (
-        !logicFieldVariableExists &&
-        fieldValues[logicFieldName] !== logicFieldValue
-      ) {
-        return false;
-      }
+      // delete fieldValues[fieldName]
     }
-
-    return true;
+    return true
   };
 
-  const selectHandler = (input) => {
+  const onChange = (input: any) => {
     const value = input?.value || input;
 
     if (value !== undefined || value !== null) {
@@ -183,40 +107,68 @@ const ChartFormFieldList = (props: Props) => {
     }
   };
 
-  const onChange = (input: any) => {
-    switch (fieldType) {
-      case "select":
-        selectHandler(input);
-        break;
-
-      default:
-        break;
-    }
-  };
-
-  if (!checkLogic()) {
+  if (checkLogic()) {
     return <></>;
   }
-
-  // const isMulti = chartType === "table" && (fieldName === "dimension" || fieldName === "measure") ? true : multi
 
   return (
     <ChartFormField
       fieldType={fieldType}
       fieldQuery={fieldQuery}
-      // multi={isMulti}
       multi={multi}
-      fieldOptions={
-        fieldOptions ||
-        (fieldParentVariable ? fieldParentOptions : queryFieldOptions)
-      }
+      fieldOptions={options}
       fieldLogics={logics}
       fieldLabel={fieldLabel}
+      fieldAttributes={fieldAttributes}
       fieldDefaultValue={fieldDefaultValue}
       onChange={onChange}
       {...props}
     />
-  );
+  )
+}
+
+type Props = {
+  filterType: IFilterType;
+  chartType: string;
+  fieldValues?: any;
+  setFilter: (fieldName: string, value: any) => void;
+  setFilters: (fieldValues: any) => void;
+  initialValue?: any;
+  startDate?: Date;
+  endDate?: Date;
 };
 
-export default ChartFormFieldList;
+const ChartFormFieldWrapper = (props: Props) => {
+
+  const { filterType } = props;
+
+  const {
+    fieldParentQuery,
+    fieldQueryVariables,
+  } = filterType;
+
+  const [parentData, setParentData] = useState([])
+
+  if (fieldParentQuery && queries[`${fieldParentQuery}`]) {
+    const { data: queryData, loading } = useQuery(gql(queries[`${fieldParentQuery}`]), {
+      variables: fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {},
+    });
+
+    useEffect(() => {
+      if (!loading && queryData) {
+        setParentData(queryData[fieldParentQuery] || [])
+      }
+    }, [loading])
+  }
+
+  const finalProps = {
+    ...props,
+    parentData
+  }
+
+  return (
+    <ChartFormFieldContainer {...finalProps} />
+  )
+}
+
+export default ChartFormFieldWrapper

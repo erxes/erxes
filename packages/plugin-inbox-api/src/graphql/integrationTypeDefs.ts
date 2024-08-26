@@ -1,4 +1,4 @@
-export const types = ({ products }) => `
+export const types = `
   extend type Form @key(fields: "_id") {
     _id: String! @external
   }
@@ -62,15 +62,7 @@ export const types = ({ products }) => `
     viewCount: Int
 
     categoryTree: JSON
-
-    ${
-      products
-        ? `
-        mainProductCategory: ProductCategory
-      `
-        : ""
-    }
-
+    mainProductCategory: ProductCategory    
     navigationText: String
     bookingFormText: String
     productFieldIds: [String]
@@ -155,6 +147,10 @@ export const types = ({ products }) => `
     youtube: String
   }
 
+  input IntegrationExternalLinks {
+    url: String
+  }
+
   input IntegrationMessengerData {
     _id: String
     notifyCustomer: Boolean
@@ -170,6 +166,7 @@ export const types = ({ products }) => `
     messages: JSON
     knowledgeBaseTopicId: String
     links: IntegrationLinks
+    externalLinks: [IntegrationExternalLinks]
     supporterIds: [String]
     requireAuth: Boolean
     showChat: Boolean

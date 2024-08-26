@@ -51,8 +51,9 @@ export const sendToGrandStream = async (models, args, user) => {
     isGetExtension,
   } = args;
 
-  if (retryCount <= 0)
-    throw new Error('Retry limit exceeded. Unable to fetch record URL.');
+  if (retryCount <= 0) {
+    throw new Error('Retry limit exceeded.');
+  }
 
   const integration = await models.Integrations.findOne({
     inboxId: integrationId,
@@ -133,13 +134,16 @@ const getOrSetCallCookie = async (wsServer) => {
   if (callCookie) {
     return callCookie;
   }
-
   try {
     const challengeResponse = await sendRequest(`https://${wsServer}/api`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        request: { action: 'challenge', user: CALL_API_USER, version: '1.2' },
+        request: {
+          action: 'challenge',
+          user: CALL_API_USER,
+          version: '1.0.20.23',
+        },
       }),
     });
 
@@ -232,14 +236,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       const endDate = moment(callEndTime).format('YYYY-MM-DD');
       let caller = customerPhone;
       let callee = extentionNumber || extension || operator;
-      console.log(
-        extentionNumber,
-        extension,
-        operator,
-        'operator:',
-        transferedCallStatus,
-        callType,
-      );
+
       if (transferedCallStatus === 'remote') {
         callee = extentionNumber || extension;
       }
@@ -250,7 +247,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         callee = customerPhone;
       }
 
-      console.log('callee:', callee, caller, startDate, endDate, callType);
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -311,7 +307,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
 
       const parts = recordfiles.split('/');
       const fileNameWithoutExtension = parts[1].split('@')[0];
-      console.log(fileNameWithoutExtension, 'fileNameWithoutExtension');
+
       const records = await sendToGrandStream(
         models,
         {

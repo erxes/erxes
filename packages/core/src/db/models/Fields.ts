@@ -71,6 +71,11 @@ export interface IFieldModel extends Model<IFieldDocument> {
     serviceName: string,
     type: string
   ): Promise<IFieldDocument[]>;
+  updateSystemFields(
+    groupId: string,
+    serviceName: string,
+    type: string
+  ): Promise<IFieldDocument[]>;
   generateCustomFieldsData(
     data: {
       [key: string]: any;
@@ -280,10 +285,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      * Validate per field according to it's validation and type
      * fixes values if necessary
      */
-    public static async clean(
-      _id: string,
-      _value: string | Date | number | any
-    ) {
+    public static async clean(_id: string, _value: any) {
       const field = await models.Fields.findOne({ _id });
 
       let value = _value;
@@ -531,7 +533,41 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       await models.Fields.insertMany(fields);
     }
+    public static async updateSystemFields(
+      groupId: string,
+      serviceName: string,
+      type: string
+    ) {
+      const fields = await sendCommonMessage({
+        subdomain,
+        serviceName,
+        action: "systemFields",
+        data: {
+          groupId,
+          type
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
+      const existingFields = await models.Fields.find({
+        groupId: groupId,
+        isDefinedByErxes: true
+      });
+
+      if (fields.length > existingFields.length) {
+        let newFields: any[] = [];
+        fields.map(x => {
+          const isExisted = existingFields.filter(
+            d => d.text === x.text && d.type === x.type
+          );
+          if (isExisted.length === 0) {
+            newFields.push(x);
+          }
+        });
+        await models.Fields.insertMany(newFields);
+      }
+    }
     public static async generateCustomFieldsData(
       data: { [key: string]: any },
       contentType: string
@@ -740,7 +776,7 @@ export const loadGroupClass = (models: IModels) => {
               isVisible: true
             };
 
-            const existingGroup = await models.FieldsGroups.findOne({
+            const existingGroup = await models.FieldsGroups.find({
               contentType: doc.contentType,
               isDefinedByErxes: true
             });
@@ -787,7 +823,13 @@ export const loadGroupClass = (models: IModels) => {
               }
             }
 
-            if (existingGroup) {
+            const basicGroup = existingGroup.find(x => !x.code);
+            if (basicGroup) {
+              await models.Fields.updateSystemFields(
+                basicGroup._id,
+                serviceName,
+                type.type
+              );
               continue;
             }
 

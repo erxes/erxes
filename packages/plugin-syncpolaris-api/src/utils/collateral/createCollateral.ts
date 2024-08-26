@@ -15,7 +15,7 @@ export const createCollateral = async (subdomain: string, loan: any) => {
 
   const customer = await sendMessageBrokerData(
     subdomain,
-    "contacts",
+    "core",
     "customers.findOne",
     { _id: loan.customerId }
   );
@@ -90,7 +90,7 @@ export const createCollateral = async (subdomain: string, loan: any) => {
     const res = JSON.parse(collateralRes);
     await openCollateral(subdomain, res.acntCode);
 
-    await integrateCollateralToLoan(subdomain, {
+    return await integrateCollateralToLoan(subdomain, {
       code: res.acntCode,
       amount: collateral.marginAmount,
       loanNumber: loan.number

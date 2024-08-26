@@ -88,10 +88,14 @@ export const setupMessageConsumers = async () => {
           errorMessage: "Integration not found."
         };
       }
-
+      const queues = details?.queues?.split(',');
       await models.Integrations.updateOne(
         { inboxId: integrationId },
+<<<<<<< HEAD
         { $set: details }
+=======
+        { $set: { ...details, queues: queues } },
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       );
 
       const updatedIntegration = await models.Integrations.findOne({

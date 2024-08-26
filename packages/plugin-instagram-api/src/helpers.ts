@@ -160,7 +160,17 @@ export const repairIntegrations = async (
     throw new Error('Integration not found');
   }
 
+<<<<<<< HEAD
   for (const pageId of integration.facebookPageId || []) {
+=======
+  let pageId = integration.facebookPageId;
+
+  if (!pageId) {
+    throw new Error('Page ID not found');
+  }
+
+  try {
+>>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     const pageTokens = await refreshPageAccesToken(models, pageId, integration);
 
     await subscribePage(pageId, pageTokens[pageId]);

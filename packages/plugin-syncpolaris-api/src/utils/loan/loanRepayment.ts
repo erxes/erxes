@@ -7,7 +7,12 @@ import {
 } from "../utils";
 import { IPolarisRepayment } from "./types";
 
-export const createLoanRepayment = async (subdomain, transaction) => {
+export const createLoanRepayment = async (
+  subdomain,
+  models,
+  syncLog,
+  transaction
+) => {
   const loanContract = await getContract(
     subdomain,
     transaction.contractId,
@@ -44,8 +49,10 @@ export const createLoanRepayment = async (subdomain, transaction) => {
   const loanRepaymentReponse = await fetchPolaris({
     subdomain,
     op: "13610250",
-    data: [loanRepayment]
-  }).then(response => JSON.parse(response));
+    data: [loanRepayment],
+    models,
+    syncLog
+  });
 
   return loanRepaymentReponse.txnJrno;
 };

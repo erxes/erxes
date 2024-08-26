@@ -5,8 +5,9 @@ import { BOARD_STATUSES, BOARD_TYPES } from "./definitions/constants";
 import { configReplacer } from "../utils";
 import { putActivityLog } from "../logUtils";
 import { itemsAdd } from "../graphql/resolvers/mutations/utils";
-import { IModels } from "../connectionResolver";
+import { generateModels, IModels } from "../connectionResolver";
 import {
+  sendContactsMessage,
   sendCoreMessage,
   sendInboxMessage,
   sendInternalNotesMessage,
@@ -323,21 +324,21 @@ export const boardNumberGenerator = async (
   config: string,
   size: string,
   skip: boolean,
+  fieldName: string,
   type?: string
 ) => {
   const replacedConfig = await configReplacer(config);
   const re = replacedConfig + "[0-9]+$";
-
   let number;
 
   if (!skip) {
     const pipeline = await models.Pipelines.findOne({
-      lastNum: new RegExp(re),
+      [fieldName]: new RegExp(re),
       type
     });
 
-    if (pipeline?.lastNum) {
-      const lastNum = pipeline.lastNum;
+    if (pipeline && pipeline[fieldName]) {
+      const lastNum = pipeline[fieldName];
 
       const lastGeneratedNumber = lastNum.slice(replacedConfig.length);
 
@@ -351,11 +352,10 @@ export const boardNumberGenerator = async (
 
   number =
     replacedConfig + (await numberCalculator(parseInt(size, 10), "", skip));
-
   return number;
 };
 
-export const generateBoardNumber = async (
+export const generateBoardAutoFields = async (
   models: IModels,
   doc: IItemCommonFields
 ) => {
@@ -370,6 +370,7 @@ export const generateBoardNumber = async (
       numberConfig,
       numberSize,
       false,
+      "lastNum",
       pipeline.type
     );
 
@@ -387,7 +388,7 @@ export const createBoardItem = async (
 ) => {
   const { collection } = await getCollection(models, type);
 
-  const response = await generateBoardNumber(models, doc);
+  const response = await generateBoardAutoFields(models, doc);
 
   const { pipeline, updatedDoc } = response;
 
@@ -409,7 +410,7 @@ export const createBoardItem = async (
     }
   }
 
-  // update numberConfig of the same configed pipelines
+  // update numberConfig of the same configured pipelines
   if (doc.number) {
     await models.Pipelines.updateMany(
       {
@@ -625,5 +626,125 @@ export const conversationConvertToCard = async (
     const item = await itemsAdd(models, subdomain, doc, type, create, user);
 
     return item._id;
+  }
+};
+
+export const updateName = async (
+  subdomain: string,
+  type: string,
+  itemId: string
+) => {
+  const validTypes = ["deal", "ticket", "purchase", "task"];
+
+  if (!validTypes.includes(type)) {
+    return;
+  }
+
+  const models = await generateModels(subdomain);
+
+  const { collection } = getCollection(models, type);
+
+  if (itemId) {
+    const item = await collection.findOne({ _id: itemId }).lean();
+    const stage = await models.Stages.findOne({ _id: item.stageId });
+    const pipeline = await models.Pipelines.findOne({ _id: stage?.pipelineId });
+    let replacedName = pipeline?.nameConfig;
+
+    if (pipeline?.nameConfig) {
+      const regex = /\{(\b\w+\.\b\w+)}/g;
+      const matches = pipeline?.nameConfig?.match(regex) || [];
+
+      let array: string[] = [];
+
+      for (const x of matches) {
+        const pattern = x.replace("{", "").replace("}", "").split(".");
+        const serviceName = pattern[0];
+        array.push(serviceName);
+      }
+      const uniqueServices = [...new Set(array)];
+
+      const idsCustomers = await getCustomerIds(subdomain, type, item._id);
+      const idsCompanies = await getCompanyIds(subdomain, type, item._id);
+
+      const customers = await sendContactsMessage({
+        subdomain,
+        action: "customers.find",
+        data: {
+          _id: { $in: idsCustomers }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      const companies = await sendContactsMessage({
+        subdomain,
+        action: "companies.find",
+        data: {
+          _id: { $in: idsCompanies }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      for (const serviceName of uniqueServices) {
+        const regex = new RegExp(`\\{\\b${serviceName}\\b.*?\\}`, "g");
+        const matches = pipeline?.nameConfig?.match(regex) || [];
+
+        for (const match of matches) {
+          const pattern = match.replace("{", "").replace("}", "").split(".");
+
+          if (
+            pattern.length > 1 ||
+            customers.length > 0 ||
+            companies.length > 0
+          ) {
+            if (serviceName === "customer") {
+              switch (pattern[1]) {
+                case "firstName":
+                  replacedName = replacedName?.replace(
+                    match,
+                    customers[0]?.firstName || ""
+                  );
+                  break;
+                case "lastName":
+                  replacedName = replacedName?.replace(
+                    match,
+                    customers[0]?.lastName || ""
+                  );
+                  break;
+                case "email":
+                  replacedName = replacedName?.replace(
+                    match,
+                    customers[0]?.primaryEmail || ""
+                  );
+                  break;
+                case "phone":
+                  replacedName = replacedName?.replace(
+                    match,
+                    customers[0]?.primaryPhone || ""
+                  );
+                  break;
+                default:
+                  replacedName = replacedName?.replace(match, "");
+                  break;
+              }
+            }
+            if (serviceName === "company") {
+              if (pattern[1] === "name") {
+                replacedName = replacedName?.replace(
+                  match,
+                  companies[0]?.primaryName || ""
+                );
+              }
+            }
+          }
+        }
+      }
+
+      await collection.updateOne(
+        { _id: item._id },
+        { $set: { name: replacedName } }
+      );
+    }
   }
 };

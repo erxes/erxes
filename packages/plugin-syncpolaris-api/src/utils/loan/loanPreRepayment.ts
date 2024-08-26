@@ -59,7 +59,7 @@ export const createLoanRepayment = async (subdomain, transaction) => {
     subdomain,
     op: "13610250",
     data: [loanRepayment]
-  }).then(response => JSON.parse(response));
+  });
 
   return loanRepaymentReponse.txnJrno;
 };
