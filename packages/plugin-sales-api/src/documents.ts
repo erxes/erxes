@@ -1,17 +1,10 @@
-import { generateModels } from "./connectionResolver";
+import { generateModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-  sendProductsMessage
-} from "./messageBroker";
-import * as _ from "lodash";
-=======
   sendProductsMessage,
-  sendFormsMessage,
 } from './messageBroker';
 import * as _ from 'lodash';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
 
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
@@ -20,17 +13,13 @@ const toMoney = value => {
 const getCustomFields = async ({ subdomain }) => {
   let fields: any[] = [];
 
-  for (const cardType of ["deal"]) {
+  for (const cardType of ['deal']) {
     let items = await sendCoreMessage({
       subdomain,
-      action: "fields.fieldsCombinedByContentType",
+      action: 'fields.fieldsCombinedByContentType',
       isRPC: true,
       data: {
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-        contentType: `sales:${cardType}`
-=======
-        contentType: `cards:${cardType}`,
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
+        contentType: `sales:${cardType}`,
       },
       defaultValue: [],
     });
@@ -47,28 +36,6 @@ const getCustomFields = async ({ subdomain }) => {
 };
 
 const commonFields = [
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-  { value: "name", name: "Name" },
-  { value: "createdAt", name: "Created at" },
-  { value: "closeDate", name: "Close date" },
-  { value: "description", name: "Description" },
-  { value: "productsInfo", name: "Products information" },
-  { value: "servicesInfo", name: "Services information" },
-  { value: "assignedUsers", name: "Assigned users" },
-  { value: "stageName", name: "Stage name" },
-  { value: "brandName", name: "Brand name" },
-  { value: "customers", name: "Customers" },
-  { value: "companies", name: "Companies" },
-  { value: "now", name: "Now" },
-  { value: "productTotalAmount", name: "Products total amount" },
-  { value: "servicesTotalAmount", name: "Services total amount" },
-  { value: "totalAmount", name: "Total amount" },
-  { value: "totalAmountVat", name: "Total amount vat" },
-  { value: "totalAmountWithoutVat", name: "Total amount without vat" },
-  { value: "discount", name: "Discount" },
-  { value: "paymentCash", name: "Payment cash" },
-  { value: "paymentNonCash", name: "Payment non cash" }
-=======
   { value: 'name', name: 'Name' },
   { value: 'createdAt', name: 'Created at' },
   { value: 'closeDate', name: 'Close date' },
@@ -85,28 +52,19 @@ const commonFields = [
   { value: 'servicesTotalAmount', name: 'Services total amount' },
   { value: 'totalAmount', name: 'Total amount' },
   { value: 'totalAmountVat', name: 'Total amount vat' },
-  { value: 'totalAmountAfterTaxVat', name: 'Total amount after tax and vat' },
   { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
   { value: 'discount', name: 'Discount' },
   { value: 'paymentCash', name: 'Payment cash' },
   { value: 'paymentNonCash', name: 'Payment non cash' },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
 ];
 
 export default {
   types: [
     {
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-      label: "Sales",
-      type: "sales",
-      subTypes: ["deal", "stageDeal"]
-    }
-=======
-      label: 'Cards',
-      type: 'cards',
-      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal'],
+      label: 'Sales',
+      type: 'sales',
+      subTypes: ['deal', 'stageDeal'],
     },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
   ],
 
   editorAttributes: async ({ subdomain }) => {
@@ -126,53 +84,49 @@ export default {
     const stage = await models.Stages.findOne({ _id: stageId });
 
     if (!stage) {
-      return "";
+      return '';
     }
     let collection;
 
-    if (stage.type == "deal") {
+    if (stage.type == 'deal') {
       collection = models.Deals;
     }
 
     if (!collection) {
-      return "";
+      return '';
     }
     let item;
-    if (contentype == "sales:stage") {
+    if (contentype == 'sales:stage') {
       const items = await collection.find({
         stageId: stageId,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-        _id: { $in: itemIds.split(",") }
-=======
         _id: { $in: itemIds.split(',') },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
       });
 
       if (!items) {
-        return "";
+        return '';
       }
 
       item = await cardsStage(items);
 
       if (!item) {
-        return "";
+        return '';
       }
     } else {
       item = await collection.findOne({ _id: itemId });
 
       if (!item) {
-        return "";
+        return '';
       }
     }
 
-    const simpleFields = ["name", "description"];
+    const simpleFields = ['name', 'description'];
 
     let replacedContent = content;
 
     for (const field of simpleFields) {
       replacedContent = replacedContent.replace(
         `{{ ${field} }}`,
-        item[field] || ""
+        item[field] || ''
       );
     }
 
@@ -195,11 +149,11 @@ export default {
 
     replacedContent = replacedContent.replace(/{{ stageName }}/g, stage.name);
 
-    if (replacedContent.includes("{{ brandName }}")) {
+    if (replacedContent.includes('{{ brandName }}')) {
       if (brandId) {
         const brand = await sendCoreMessage({
           subdomain,
-          action: "brands.findOne",
+          action: 'brands.findOne',
           data: { _id: brandId },
           isRPC: true,
         });
@@ -209,13 +163,13 @@ export default {
           brand.name
         );
       }
-      replacedContent = replacedContent.replace(/{{ brandName }}/g, "");
+      replacedContent = replacedContent.replace(/{{ brandName }}/g, '');
     }
 
     // ============ replace users
     const users = await sendCoreMessage({
       subdomain,
-      action: "users.find",
+      action: 'users.find',
       isRPC: true,
       data: {
         query: { _id: { $in: item.assignedUserIds || [] } },
@@ -227,23 +181,19 @@ export default {
       users
         .map(
           user =>
-            `${user.details.firstName || ""} ${user.details.lastName || ""}`
+            `${user.details.firstName || ''} ${user.details.lastName || ''}`
         )
-        .join(",")
+        .join(',')
     );
 
-    if (replacedContent.includes("{{ customers }}")) {
+    if (replacedContent.includes('{{ customers }}')) {
       const customerIds = await sendCoreMessage({
         subdomain,
-        action: "conformities.savedConformity",
+        action: 'conformities.savedConformity',
         data: {
           mainType: stage.type,
           mainTypeId: item._id,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-          relTypes: ["customer"]
-=======
           relTypes: ['customer'],
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         },
         isRPC: true,
         defaultValue: [],
@@ -251,7 +201,7 @@ export default {
 
       const activeCustomers = await sendContactsMessage({
         subdomain,
-        action: "customers.findActiveCustomers",
+        action: 'customers.findActiveCustomers',
         data: { selector: { _id: { $in: customerIds } } },
         isRPC: true,
         defaultValue: [],
@@ -262,14 +212,10 @@ export default {
       for (const item of activeCustomers) {
         const name = await sendContactsMessage({
           subdomain,
-          action: "customers.getCustomerName",
+          action: 'customers.getCustomerName',
           data: { customer: item },
           isRPC: true,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-          defaultValue: ""
-=======
           defaultValue: '',
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         });
 
         customerRows.push(name);
@@ -277,22 +223,18 @@ export default {
 
       replacedContent = replacedContent.replace(
         /{{ customers }}/g,
-        customerRows.join(",")
+        customerRows.join(',')
       );
     }
 
-    if (replacedContent.includes("{{ companies }}")) {
+    if (replacedContent.includes('{{ companies }}')) {
       const companyIds = await sendCoreMessage({
         subdomain,
-        action: "conformities.savedConformity",
+        action: 'conformities.savedConformity',
         data: {
           mainType: stage.type,
           mainTypeId: item._id,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-          relTypes: ["company"]
-=======
           relTypes: ['company'],
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         },
         isRPC: true,
         defaultValue: [],
@@ -300,7 +242,7 @@ export default {
 
       const activeCompanies = await sendContactsMessage({
         subdomain,
-        action: "companies.findActiveCompanies",
+        action: 'companies.findActiveCompanies',
         data: { selector: { _id: { $in: companyIds } } },
         isRPC: true,
         defaultValue: [],
@@ -311,14 +253,10 @@ export default {
       for (const item of activeCompanies) {
         const name = await sendContactsMessage({
           subdomain,
-          action: "companies.getCompanyName",
+          action: 'companies.getCompanyName',
           data: { company: item },
           isRPC: true,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
-          defaultValue: ""
-=======
           defaultValue: '',
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         });
 
         companyRows.push(name);
@@ -326,7 +264,7 @@ export default {
 
       replacedContent = replacedContent.replace(
         /{{ companies }}/g,
-        companyRows.join(",")
+        companyRows.join(',')
       );
     }
 
@@ -350,7 +288,7 @@ export default {
 
         const product = await sendProductsMessage({
           subdomain,
-          action: "productFindOne",
+          action: 'productFindOne',
           data: { _id: pd.productId },
           isRPC: true,
         });
@@ -361,9 +299,9 @@ export default {
 
         if (
           (brandId &&
-            brandId !== "noBrand" &&
+            brandId !== 'noBrand' &&
             !product.scopeBrandIds.includes(brandId)) ||
-          (brandId === "noBrand" && product.scopeBrandIds.length > 0)
+          (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
         ) {
           continue;
         }
@@ -396,14 +334,14 @@ export default {
                   <tr>
                     <th>№</th>
                     <th>
-                      ${type === "product" ? "Product name" : "Service name"}
+                      ${type === 'product' ? 'Product name' : 'Service name'}
                     </th>
                     <th>Quantity</th>
                     <th>Unit price</th>
                     <th>Total amount</th>
                   </tr>
                 </thead>
-                ${productRows.join("")}
+                ${productRows.join('')}
               </tbody>
             </table>
 
@@ -411,7 +349,7 @@ export default {
               window.print();
             </script>
             `
-          : ""
+          : ''
       );
 
       return { totalAmount, discount };
@@ -419,13 +357,13 @@ export default {
 
     const replaceProductsResult = await replaceProducts(
       /{{ productsInfo }}/g,
-      "product"
+      'product'
     );
     const productsTotalAmount = replaceProductsResult.totalAmount;
 
     const replaceServicesResult = await replaceProducts(
       /{{ servicesInfo }}/g,
-      "service"
+      'service'
     );
     const servicesTotalAmount = replaceServicesResult.totalAmount;
 
@@ -517,7 +455,7 @@ export default {
 
     for (const customFieldData of item.customFieldsData || []) {
       replacedContent = replacedContent.replace(
-        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, "g"),
+        new RegExp(`{{ customFieldsData.${customFieldData.field} }}`, 'g'),
         customFieldData.stringValue
       );
     }
@@ -525,12 +463,12 @@ export default {
     const fileds = (await getCustomFields({ subdomain })).filter(
       customField =>
         customField.name.includes(stage.type) &&
-        !customField.value.includes("customFieldsData")
+        !customField.value.includes('customFieldsData')
     );
 
     for (const field of fileds) {
-      const propertyNames = field.value.includes(".")
-        ? field.value.split(".")
+      const propertyNames = field.value.includes('.')
+        ? field.value.split('.')
         : [field.value];
       let propertyValue = item;
 
@@ -539,8 +477,8 @@ export default {
       }
 
       replacedContent = replacedContent.replace(
-        new RegExp(`{{ ${field.value} }}`, "g"),
-        propertyValue || ""
+        new RegExp(`{{ ${field.value} }}`, 'g'),
+        propertyValue || ''
       );
     }
 
@@ -558,7 +496,7 @@ const cardsStage = async (items: any[]) => {
       productsData: [],
     };
     itemsArray.forEach(item => {
-      const combinedNames = itemsArray.map(item => item.name).join(",");
+      const combinedNames = itemsArray.map(item => item.name).join(',');
       aggregatedData.isComplete = item.isComplete;
       aggregatedData.assignedUserIds = item.assignedUserIds;
       aggregatedData.watchedUserIds = item.watchedUserIds;

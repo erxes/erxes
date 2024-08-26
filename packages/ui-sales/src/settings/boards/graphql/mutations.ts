@@ -140,5 +140,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
 };

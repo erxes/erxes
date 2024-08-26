@@ -1,37 +1,39 @@
-import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
-import { Dialog, Transition } from "@headlessui/react";
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { Dialog, Transition } from '@headlessui/react';
 import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
-  ModalOverlay
-} from "@erxes/ui/src/styles/main";
-import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import { IBoard, IPipeline, IStage } from "@erxes/ui-tickets/src/boards/types";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { Fragment, useEffect, useState } from "react";
-import { __, generateTree } from "coreui/utils";
+  ModalOverlay,
+} from '@erxes/ui/src/styles/main';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { IBoard, IPipeline, IStage } from '@erxes/ui-tickets/src/boards/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import React, { Fragment, useEffect, useState } from 'react';
+import { __, generateTree } from 'coreui/utils';
 
-import BoardNumberConfigs from "./numberConfig/BoardNumberConfigs";
-import Button from "@erxes/ui/src/components/Button";
-import { COLORS } from "@erxes/ui/src/constants/colors";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
-import { Flex } from "@erxes/ui/src/styles/main";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IDepartment } from "@erxes/ui/src/team/types";
-import { IOption } from "../types";
-import { ITag } from "@erxes/ui-tags/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import Select from "react-select";
-import { SelectMemberStyled } from "@erxes/ui-tickets/src/settings/boards/styles";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import Stages from "./Stages";
-import TwitterPicker from "react-color/lib/Twitter";
-import { colors } from "@erxes/ui/src/styles";
+import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
+import BoardNameConfigs from './nameConfig/BoardNameConfigs';
+
+import Button from '@erxes/ui/src/components/Button';
+import { COLORS } from '@erxes/ui/src/constants/colors';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IDepartment } from '@erxes/ui/src/team/types';
+import { IOption } from '../types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Popover from '@erxes/ui/src/components/Popover';
+import Select from 'react-select';
+import { SelectMemberStyled } from '@erxes/ui-tickets/src/settings/boards/styles';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Stages from './Stages';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { colors } from '@erxes/ui/src/styles';
 
 type Props = {
   type: string;
@@ -55,7 +57,7 @@ const PipelineForm = (props: Props) => {
     (props.stages || []).map(stage => ({ ...stage }))
   );
   const [visibility, setVisibility] = useState(
-    pipeline ? pipeline.visibility : "public"
+    pipeline ? pipeline.visibility : 'public'
   );
   const [selectedMemberIds, setSelectedMemberIds] = useState(
     pipeline ? pipeline.memberIds : []
@@ -75,13 +77,16 @@ const PipelineForm = (props: Props) => {
   const [excludeCheckUserIds, setExcludeCheckUserIds] = useState(
     pipeline ? pipeline.excludeCheckUserIds : []
   );
-  const [boardId, setBoardId] = useState(props.boardId || "");
-  const [tagId, setTagId] = useState(pipeline ? pipeline.tagId : "");
+  const [boardId, setBoardId] = useState(props.boardId || '');
+  const [tagId, setTagId] = useState(pipeline ? pipeline.tagId : '');
   const [numberConfig, setNumberConfig] = useState(
-    (pipeline && pipeline.numberConfig) || ""
+    (pipeline && pipeline.numberConfig) || ''
   );
   const [numberSize, setNumberSize] = useState(
-    (pipeline && pipeline.numberSize) || ""
+    (pipeline && pipeline.numberSize) || ''
+  );
+  const [nameConfig, setNameConfig] = useState(
+    (pipeline && pipeline.nameConfig) || ''
   );
   const [departmentIds, setDepartmentIds] = useState(
     pipeline ? pipeline.departmentIds : []
@@ -116,11 +121,16 @@ const PipelineForm = (props: Props) => {
   };
 
   const onChangeNumber = (key: string, value: string) => {
-    if (key === "numberConfig") {
+    if (key === 'numberConfig') {
       setNumberConfig(value);
     }
-    if (key === "numberSize") {
+    if (key === 'numberSize') {
       setNumberSize(value);
+    }
+  };
+  const onChangeName = (key: string, value: string) => {
+    if (key === 'nameConfig') {
+      setNameConfig(value);
     }
   };
 
@@ -151,8 +161,9 @@ const PipelineForm = (props: Props) => {
       excludeCheckUserIds,
       numberConfig,
       numberSize,
+      nameConfig,
       departmentIds,
-      tagId
+      tagId,
     };
   };
 
@@ -161,15 +172,26 @@ const PipelineForm = (props: Props) => {
       <FormGroup>
         <BoardNumberConfigs
           onChange={(key: string, conf: string) => onChangeNumber(key, conf)}
-          config={numberConfig || ""}
-          size={numberSize || ""}
+          config={numberConfig || ''}
+          size={numberSize || ''}
+        />
+      </FormGroup>
+    );
+  };
+
+  const renderNameInput = () => {
+    return (
+      <FormGroup>
+        <BoardNameConfigs
+          onChange={(key: string, conf: string) => onChangeName(key, conf)}
+          config={nameConfig || ''}
         />
       </FormGroup>
     );
   };
 
   const renderSelectMembers = () => {
-    if (visibility === "public") {
+    if (visibility === 'public') {
       return;
     }
 
@@ -178,7 +200,7 @@ const PipelineForm = (props: Props) => {
       null,
       (node, level) => ({
         value: node._id,
-        label: `${"---".repeat(level)} ${node.title}`
+        label: `${'---'.repeat(level)} ${node.title}`,
       })
     );
 
@@ -189,8 +211,8 @@ const PipelineForm = (props: Props) => {
             <ControlLabel>Members</ControlLabel>
 
             <SelectTeamMembers
-              label="Choose members"
-              name="selectedMemberIds"
+              label='Choose members'
+              name='selectedMemberIds'
               initialValue={selectedMemberIds}
               onSelect={onChangeMembers}
             />
@@ -205,7 +227,7 @@ const PipelineForm = (props: Props) => {
               )}
               options={departmentOptions}
               onChange={onChangeDepartments.bind(this)}
-              placeholder={__("Choose department ...")}
+              placeholder={__('Choose department ...')}
               isMulti={true}
             />
           </SelectMemberStyled>
@@ -240,8 +262,8 @@ const PipelineForm = (props: Props) => {
           <ControlLabel>Users eligible to see all {props.type}</ControlLabel>
 
           <SelectTeamMembers
-            label="Choose members"
-            name="excludeCheckUserIds"
+            label='Choose members'
+            name='excludeCheckUserIds'
             initialValue={excludeCheckUserIds}
             onSelect={onChangeDominantUsers}
           />
@@ -255,7 +277,7 @@ const PipelineForm = (props: Props) => {
 
     const boardOptions = boards.map(board => ({
       value: board._id,
-      label: board.name
+      label: board.name,
     }));
 
     const onChange = item => {
@@ -266,7 +288,7 @@ const PipelineForm = (props: Props) => {
       <FormGroup>
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
-          placeholder={__("Choose a board")}
+          placeholder={__('Choose a board')}
           value={boardOptions.find(option => option.value === boardId)}
           options={boardOptions}
           onChange={onChange}
@@ -293,7 +315,7 @@ const PipelineForm = (props: Props) => {
       return items.map(item => {
         return {
           value: item._id,
-          label: item.name
+          label: item.name,
         };
       });
     };
@@ -302,7 +324,7 @@ const PipelineForm = (props: Props) => {
       <FormGroup>
         <ControlLabel>Tags</ControlLabel>
         <Select
-          placeholder={__("Choose a tag")}
+          placeholder={__('Choose a tag')}
           value={(generateOptions(filteredTags) || []).find(
             option => option.value === tagId
           )}
@@ -322,17 +344,17 @@ const PipelineForm = (props: Props) => {
     const pipelineName =
       options && options.pipelineName
         ? options.pipelineName.toLowerCase()
-        : "pipeline";
+        : 'pipeline';
 
     return (
-      <div id="manage-pipeline-modal">
+      <div id='manage-pipeline-modal'>
         <FlexContent>
           <FlexItem count={4}>
             <FormGroup>
               <ControlLabel required={true}>Name</ControlLabel>
               <FormControl
                 {...formProps}
-                name="name"
+                name='name'
                 defaultValue={object.name}
                 autoFocus={true}
                 required={true}
@@ -349,13 +371,13 @@ const PipelineForm = (props: Props) => {
               <ControlLabel required={true}>Visibility</ControlLabel>
               <FormControl
                 {...formProps}
-                name="visibility"
-                componentclass="select"
+                name='visibility'
+                componentclass='select'
                 value={visibility}
                 onChange={onChangeVisibility}
               >
-                <option value="public">{__("Public")}</option>
-                <option value="private">{__("Private")}</option>
+                <option value='public'>{__('Public')}</option>
+                <option value='private'>{__('Private')}</option>
               </FormControl>
             </FormGroup>
           </ExpandWrapper>
@@ -363,7 +385,7 @@ const PipelineForm = (props: Props) => {
             <ControlLabel>Background</ControlLabel>
             <div>
               <Popover
-                placement="bottom-end"
+                placement='bottom-end'
                 trigger={
                   <ColorPick>
                     <ColorPicker style={{ backgroundColor: backgroundColor }} />
@@ -371,8 +393,8 @@ const PipelineForm = (props: Props) => {
                 }
               >
                 <TwitterPicker
-                  width="266px"
-                  triangle="hide"
+                  width='266px'
+                  triangle='hide'
                   color={backgroundColor}
                   onChange={onColorChange}
                   colors={COLORS}
@@ -390,15 +412,17 @@ const PipelineForm = (props: Props) => {
 
         {renderNumberInput()}
 
+        {renderNameInput()}
+
         <FormGroup>
           <FlexContent>
             <FlexItem>
               <ControlLabel>
                 {__(`Select the day after the card created date`)}
               </ControlLabel>
-              <span style={{ marginLeft: "10px" }}>
+              <span style={{ marginLeft: '10px' }}>
                 <FormControl
-                  componentclass="checkbox"
+                  componentclass='checkbox'
                   checked={isCheckDate}
                   onChange={onChangeIsCheckDate}
                 />
@@ -413,9 +437,9 @@ const PipelineForm = (props: Props) => {
               <ControlLabel>
                 {__(`Show only the user's assigned(created)`)} {props.type}
               </ControlLabel>
-              <span style={{ marginLeft: "10px" }}>
+              <span style={{ marginLeft: '10px' }}>
                 <FormControl
-                  componentclass="checkbox"
+                  componentclass='checkbox'
                   checked={isCheckUser}
                   onChange={onChangeIsCheckUser}
                 />
@@ -423,12 +447,12 @@ const PipelineForm = (props: Props) => {
             </FlexItem>
             <FlexItem>
               <ControlLabel>
-                {__(`Show only user’s assigned (created)`)} {props.type}{" "}
+                {__(`Show only user’s assigned (created)`)} {props.type}{' '}
                 {__(`by department`)}
               </ControlLabel>
-              <span style={{ marginLeft: "10px" }}>
+              <span style={{ marginLeft: '10px' }}>
                 <FormControl
-                  componentclass="checkbox"
+                  componentclass='checkbox'
                   checked={isCheckDepartment}
                   onChange={onChangeIsCheckDepartment}
                 />
@@ -441,7 +465,7 @@ const PipelineForm = (props: Props) => {
 
         <FormGroup>
           <ControlLabel>Stages</ControlLabel>
-          <div id="stages-in-pipeline-form">
+          <div id='stages-in-pipeline-form'>
             <Stages
               options={options}
               type={props.type}
@@ -454,9 +478,9 @@ const PipelineForm = (props: Props) => {
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
-            icon="times-circle"
+            btnStyle='simple'
+            type='button'
+            icon='times-circle'
             onClick={closeModal}
           >
             Cancel
@@ -468,7 +492,7 @@ const PipelineForm = (props: Props) => {
             isSubmitted,
             callback: closeModal,
             object: pipeline,
-            confirmationUpdate: true
+            confirmationUpdate: true,
           })}
         </ModalFooter>
       </div>
@@ -482,31 +506,31 @@ const PipelineForm = (props: Props) => {
   const pipelineName =
     options && options.pipelineName
       ? options.pipelineName.toLowerCase()
-      : "pipeline";
+      : 'pipeline';
 
   return (
     <Transition appear show={show} as={Fragment}>
-      <Dialog as="div" onClose={() => {}} className={` relative z-10`}>
+      <Dialog as='div' onClose={() => {}} className={` relative z-10`}>
         <Transition.Child
           as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
+          enter='ease-out duration-300'
+          enterFrom='opacity-0'
+          enterTo='opacity-100'
+          leave='ease-in duration-200'
+          leaveFrom='opacity-100'
+          leaveTo='opacity-0'
         >
           <ModalOverlay />
         </Transition.Child>
         <DialogWrapper>
           <DialogContent>
             <Dialog.Panel className={`dialog-size-xl`}>
-              <Dialog.Title as="h3">
+              <Dialog.Title as='h3'>
                 {pipeline ? `Edit ${pipelineName}` : `Add ${pipelineName}`}
-                <Icon icon="times" size={24} onClick={closeModal} />
+                <Icon icon='times' size={24} onClick={closeModal} />
               </Dialog.Title>
               <Transition.Child>
-                <div className="dialog-description">
+                <div className='dialog-description'>
                   <Form renderContent={renderContent} />
                 </div>
               </Transition.Child>

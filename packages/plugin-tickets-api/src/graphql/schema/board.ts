@@ -41,6 +41,7 @@ export const types = () => `
     excludeCheckUserIds: [String]
     numberConfig: String
     numberSize: String
+    nameConfig: String
     ${commonTypes}
   }
 
@@ -183,6 +184,7 @@ const pipelineParams = `
   numberConfig: String,
   numberSize: String,
   departmentIds: [String],
+  nameConfig: String,
 `;
 
 export const mutations = `
