@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import utils from "@erxes/api-utils/src";
 import { USER_ROLES } from "@erxes/api-utils/src/constants";
 import * as AWS from "aws-sdk";
@@ -98,34 +97,6 @@ export const getContentTypes = async serviceName => {
   const types = (meta.tags && meta.tags.types) || [];
   return types.map(type => `${serviceName}:${type.type}`);
 };
-=======
-import utils from '@erxes/api-utils/src';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import * as AWS from 'aws-sdk';
-import * as fileType from 'file-type';
-import * as admin from 'firebase-admin';
-import * as fs from 'fs';
-import * as Handlebars from 'handlebars';
-import * as jimp from 'jimp';
-import * as nodemailer from 'nodemailer';
-import * as path from 'path';
-import * as xlsxPopulate from 'xlsx-populate';
-import * as FormData from 'form-data';
-import fetch from 'node-fetch';
-import { IModels } from '../connectionResolver';
-import { IUserDocument } from '../db/models/definitions/users';
-import { debugBase, debugError } from '../debuggers';
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage,
-} from '../messageBroker';
-import { graphqlPubsub } from '../pubsub';
-import { getService, getServices, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import redis from '@erxes/api-utils/src/redis';
-import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -298,7 +269,6 @@ export const sendEmail = async (
 
     let headers: { [key: string]: string } = {};
 
-<<<<<<< HEAD
     if (models && subdomain && title) {
       const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
         kind: "transaction",
@@ -308,22 +278,6 @@ export const sendEmail = async (
         body: html,
         status: "pending"
       })) as any;
-=======
-    if (models && subdomain) {
-      const emailDelivery = isEnabled('logs') ? await sendLogsMessage({
-        subdomain,
-        action: 'emailDeliveries.create',
-        data: {
-          kind: 'transaction',
-          to: toEmail,
-          from: mailOptions.from,
-          subject: title,
-          body: html,
-          status: 'pending',
-        },
-        isRPC: true,
-      }) : null;
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 
       headers = {
         "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",
