@@ -44,6 +44,7 @@ const pipelines = `
       memberIds
       departmentIds
       numberSize
+      nameConfig
       createdAt
       createdUser{
         details {
@@ -103,5 +104,5 @@ export default {
   stages,
   boardGetLast,
   boardDetail,
-  expenses
+  expenses,
 };

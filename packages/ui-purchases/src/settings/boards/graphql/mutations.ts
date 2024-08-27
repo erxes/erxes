@@ -51,6 +51,7 @@ const commonPipelineParamsDef = `
   $numberSize: String
   $departmentIds: [String],
   $tagId: String
+  $nameConfig:String
 `;
 
 const commonPipelineParams = `
@@ -74,6 +75,7 @@ const commonPipelineParams = `
   numberSize: $numberSize
   departmentIds: $departmentIds
   tagId: $tagId
+  nameConfig: $nameConfig
 `;
 
 const pipelineAdd = `
@@ -138,5 +140,5 @@ export default {
   pipelinesArchive,
   pipelinesCopied,
   pipelineRemove,
-  pipelinesUpdateOrder
+  pipelinesUpdateOrder,
 };

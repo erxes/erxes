@@ -1,18 +1,18 @@
-import { ChartBack, RootBack, ScrolledContent } from "../styles/common";
-import { EMPTY_CONTENT_PURCHASE } from "../constants";
-import { IOptions, PipelineDetailQueryResponse } from "../types";
-import { gql, useQuery } from "@apollo/client";
+import { ChartBack, RootBack, ScrolledContent } from '../styles/common';
+import { EMPTY_CONTENT_PURCHASE } from '../constants';
+import { IOptions, PipelineDetailQueryResponse } from '../types';
+import { gql, useQuery } from '@apollo/client';
 
-import ChartStack from "./chart/ChartRenderer";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import { IDateColumn } from "@erxes/ui/src/types";
-import Pipeline from "./Pipeline";
-import PipelineActivity from "./PipelineActivity";
-import React from "react";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import ViewGroupBy from "./ViewGroupBy";
-import { queries } from "../graphql";
+import ChartStack from './chart/ChartRenderer';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IDateColumn } from '@erxes/ui/src/types';
+import Pipeline from './Pipeline';
+import PipelineActivity from './PipelineActivity';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import ViewGroupBy from './ViewGroupBy';
+import { queries } from '../graphql';
 
 type Props = {
   date?: IDateColumn;
@@ -31,7 +31,7 @@ function Board(props: Props & WrapperProps) {
     gql(queries.pipelineDetail),
     {
       variables: { _id: queryParams && queryParams.pipelineId },
-      skip: !queryParams.pipelineId
+      skip: !queryParams.pipelineId,
     }
   );
 
@@ -42,17 +42,17 @@ function Board(props: Props & WrapperProps) {
   if (!data || !data.tasksPipelineDetail) {
     const type = options.type;
 
-    if (type === "purchase") {
+    if (type === 'purchase') {
       return (
-        <EmptyContent content={EMPTY_CONTENT_PURCHASE} maxItemWidth="400px" />
+        <EmptyContent content={EMPTY_CONTENT_PURCHASE} maxItemWidth='400px' />
       );
     }
 
     return (
       <EmptyState
-        image="/images/actions/18.svg"
-        text="Oh boy, looks like you need to get a head start on your board"
-        size="small"
+        image='/images/actions/18.svg'
+        text='Oh boy, looks like you need to get a head start on your board'
+        size='small'
         light={true}
       />
     );
@@ -60,7 +60,7 @@ function Board(props: Props & WrapperProps) {
 
   const pipeline = data.tasksPipelineDetail;
 
-  if (viewType === "activity") {
+  if (viewType === 'activity') {
     return (
       <PipelineActivity
         key={pipeline._id}
@@ -71,7 +71,7 @@ function Board(props: Props & WrapperProps) {
     );
   }
 
-  if (viewType === "list" || viewType === "gantt") {
+  if (viewType === 'list' || viewType === 'gantt') {
     return (
       <ViewGroupBy
         key={pipeline._id}
@@ -83,7 +83,7 @@ function Board(props: Props & WrapperProps) {
     );
   }
 
-  if (viewType === "chart") {
+  if (viewType === 'chart') {
     return (
       <ChartBack>
         <ChartStack
@@ -96,9 +96,9 @@ function Board(props: Props & WrapperProps) {
     );
   }
 
-  if (viewType === "time") {
+  if (viewType === 'time') {
     return (
-      <RootBack style={{ backgroundColor: "#fff" }}>
+      <RootBack style={{ backgroundColor: '#fff' }}>
         <ScrolledContent>
           <ViewGroupBy
             key={pipeline._id}
@@ -120,6 +120,8 @@ function Board(props: Props & WrapperProps) {
           options={options}
           pipeline={pipeline}
           queryParams={queryParams}
+          navigate={''}
+          location={''}
         />
       </ScrolledContent>
     </RootBack>
