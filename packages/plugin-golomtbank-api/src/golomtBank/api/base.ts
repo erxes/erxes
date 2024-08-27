@@ -27,7 +27,7 @@ export class BaseApi {
     try {
       const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
         method,
-        headers,
+        headers
       };
       if (data) {
         requestOptions.body = JSON.stringify(data);
@@ -43,27 +43,17 @@ export class BaseApi {
       requestOptions.headers["X-Golomt-Service"] = type;
 
       if (type === "CGWTXNADD") {
-<<<<<<< HEAD
-        const xcode = generateCurrentNumberString("4IO2WPYBASQOSQMS");
-        requestOptions.headers["X-Golomt-Code"] = xcode;
-      }
-
-      if (data) {
-        requestOptions.body = JSON.stringify(data);
-      }
-=======
         const xcode = generateCurrentNumberString(this.config.golomtCode);
         requestOptions.headers["X-Golomt-Code"] = xcode;
       }
       if (!this.config.apiUrl) {
         throw new Error("Not found url");
       }
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 
       const response = await fetch(
         `${this.config.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions
-      ).then((res) => res.text());
+      ).then(res => res.text());
 
       return await decryptData(
         response,

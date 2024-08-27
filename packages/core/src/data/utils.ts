@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import utils from "@erxes/api-utils/src";
 import { USER_ROLES } from "@erxes/api-utils/src/constants";
 import * as AWS from "aws-sdk";
@@ -21,111 +20,6 @@ import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
-
-export const countDocuments = async (
-  subdomain: string,
-  type: string,
-  _ids: string[]
-) => {
-  const [serviceName, contentType] = type.split(":");
-
-  return sendCommonMessage({
-    subdomain,
-    action: "tag",
-    serviceName,
-    data: {
-      type: contentType,
-      _ids,
-      action: "count"
-    },
-    isRPC: true
-  });
-};
-
-export const tagObject = async (
-  subdomain: string,
-  type: string,
-  tagIds: string[],
-  targetIds: string[]
-) => {
-  const [serviceName, contentType] = type.split(":");
-
-  return sendCommonMessage({
-    subdomain,
-    serviceName,
-    action: "tag",
-    data: {
-      tagIds,
-      targetIds,
-      type: contentType,
-      action: "tagObject"
-    },
-    isRPC: true
-  });
-};
-
-export const fixRelatedItems = async ({
-  subdomain,
-  type,
-  sourceId,
-  destId,
-  action
-}: {
-  subdomain: string;
-  type: string;
-  sourceId: string;
-  destId?: string;
-  action: string;
-}) => {
-  const [serviceName, contentType] = type.split(":");
-
-  sendCommonMessage({
-    subdomain,
-    serviceName,
-    action: "fixRelatedItems",
-    data: {
-      sourceId,
-      destId,
-      type: contentType,
-      action
-    }
-  });
-};
-
-export const getContentTypes = async serviceName => {
-  const service = await getService(serviceName);
-  const meta = service.config.meta || {};
-  const types = (meta.tags && meta.tags.types) || [];
-  return types.map(type => `${serviceName}:${type.type}`);
-};
-=======
-import utils from '@erxes/api-utils/src';
-import { USER_ROLES } from '@erxes/api-utils/src/constants';
-import * as AWS from 'aws-sdk';
-import * as fileType from 'file-type';
-import * as admin from 'firebase-admin';
-import * as fs from 'fs';
-import * as Handlebars from 'handlebars';
-import * as jimp from 'jimp';
-import * as nodemailer from 'nodemailer';
-import * as path from 'path';
-import * as xlsxPopulate from 'xlsx-populate';
-import * as FormData from 'form-data';
-import fetch from 'node-fetch';
-import { IModels } from '../connectionResolver';
-import { IUserDocument } from '../db/models/definitions/users';
-import { debugBase, debugError } from '../debuggers';
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage,
-} from '../messageBroker';
-import { graphqlPubsub } from '../pubsub';
-import { getService, getServices, isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
-import redis from '@erxes/api-utils/src/redis';
-import sanitizeFilename from '@erxes/api-utils/src/sanitize-filename';
-import { randomAlphanumeric } from '@erxes/api-utils/src/random';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -298,32 +192,15 @@ export const sendEmail = async (
 
     let headers: { [key: string]: string } = {};
 
-<<<<<<< HEAD
-    if (models && subdomain && title) {
+    if (models && subdomain) {
       const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
         kind: "transaction",
         to: [toEmail],
         from: mailOptions.from,
-        subject: title,
+        subject: title || "",
         body: html,
         status: "pending"
       })) as any;
-=======
-    if (models && subdomain) {
-      const emailDelivery = isEnabled('logs') ? await sendLogsMessage({
-        subdomain,
-        action: 'emailDeliveries.create',
-        data: {
-          kind: 'transaction',
-          to: toEmail,
-          from: mailOptions.from,
-          subject: title,
-          body: html,
-          status: 'pending',
-        },
-        isRPC: true,
-      }) : null;
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 
       headers = {
         "X-SES-CONFIGURATION-SET": AWS_SES_CONFIG_SET || "erxes",
@@ -1701,6 +1578,83 @@ export const isImage = (mimetypeOrName: string) => {
 
 export const isVideo = (mimeType: string) => {
   return mimeType.includes("video");
+};
+
+export const countDocuments = async (
+  subdomain: string,
+  type: string,
+  _ids: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    action: "tag",
+    serviceName,
+    data: {
+      type: contentType,
+      _ids,
+      action: "count"
+    },
+    isRPC: true
+  });
+};
+
+export const getContentTypes = async serviceName => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map(type => `${serviceName}:${type.type}`);
+};
+
+export const tagObject = async (
+  subdomain: string,
+  type: string,
+  tagIds: string[],
+  targetIds: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "tag",
+    data: {
+      tagIds,
+      targetIds,
+      type: contentType,
+      action: "tagObject"
+    },
+    isRPC: true
+  });
+};
+
+export const fixRelatedItems = async ({
+  subdomain,
+  type,
+  sourceId,
+  destId,
+  action
+}: {
+  subdomain: string;
+  type: string;
+  sourceId: string;
+  destId?: string;
+  action: string;
+}) => {
+  const [serviceName, contentType] = type.split(":");
+
+  sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "fixRelatedItems",
+    data: {
+      sourceId,
+      destId,
+      type: contentType,
+      action
+    }
+  });
 };
 
 export const getEnv = utils.getEnv;

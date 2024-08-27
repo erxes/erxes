@@ -9,7 +9,6 @@ import { IModels } from "../connectionResolver";
 import {
   sendCoreMessage,
   sendInboxMessage,
-  sendInternalNotesMessage,
   sendProductsMessage
 } from "../messageBroker";
 
@@ -239,7 +238,7 @@ export const getInternalNoteIds = async (
   contentType: string,
   contentTypeId: string
 ): Promise<string[]> => {
-  const internalNotes = await sendInternalNotesMessage({
+  const internalNotes = await sendCoreMessage({
     subdomain,
     action: "findInternalNotes",
     data: {
@@ -276,7 +275,7 @@ export const destroyBoardItemRelations = async (
     }
   });
 
-  await sendInternalNotesMessage({
+  await sendCoreMessage({
     subdomain,
     action: "removeInternalNotes",
     data: {

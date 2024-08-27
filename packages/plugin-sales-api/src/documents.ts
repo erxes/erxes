@@ -2,16 +2,9 @@ import { generateModels } from "./connectionResolver";
 import {
   sendContactsMessage,
   sendCoreMessage,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
   sendProductsMessage
 } from "./messageBroker";
 import * as _ from "lodash";
-=======
-  sendProductsMessage,
-  sendFormsMessage,
-} from './messageBroker';
-import * as _ from 'lodash';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
 
 const toMoney = value => {
   return new Intl.NumberFormat().format(value);
@@ -26,28 +19,23 @@ const getCustomFields = async ({ subdomain }) => {
       action: "fields.fieldsCombinedByContentType",
       isRPC: true,
       data: {
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
         contentType: `sales:${cardType}`
-=======
-        contentType: `cards:${cardType}`,
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
       },
-      defaultValue: [],
+      defaultValue: []
     });
 
     fields = [
       ...fields,
       ...items.map(f => ({
         value: f.name,
-        name: `${cardType}:${f.label}`,
-      })),
+        name: `${cardType}:${f.label}`
+      }))
     ];
   }
   return fields;
 };
 
 const commonFields = [
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
   { value: "name", name: "Name" },
   { value: "createdAt", name: "Created at" },
   { value: "closeDate", name: "Close date" },
@@ -64,49 +52,20 @@ const commonFields = [
   { value: "servicesTotalAmount", name: "Services total amount" },
   { value: "totalAmount", name: "Total amount" },
   { value: "totalAmountVat", name: "Total amount vat" },
+  { value: "totalAmountAfterTaxVat", name: "Total amount after tax and vat" },
   { value: "totalAmountWithoutVat", name: "Total amount without vat" },
   { value: "discount", name: "Discount" },
   { value: "paymentCash", name: "Payment cash" },
   { value: "paymentNonCash", name: "Payment non cash" }
-=======
-  { value: 'name', name: 'Name' },
-  { value: 'createdAt', name: 'Created at' },
-  { value: 'closeDate', name: 'Close date' },
-  { value: 'description', name: 'Description' },
-  { value: 'productsInfo', name: 'Products information' },
-  { value: 'servicesInfo', name: 'Services information' },
-  { value: 'assignedUsers', name: 'Assigned users' },
-  { value: 'stageName', name: 'Stage name' },
-  { value: 'brandName', name: 'Brand name' },
-  { value: 'customers', name: 'Customers' },
-  { value: 'companies', name: 'Companies' },
-  { value: 'now', name: 'Now' },
-  { value: 'productTotalAmount', name: 'Products total amount' },
-  { value: 'servicesTotalAmount', name: 'Services total amount' },
-  { value: 'totalAmount', name: 'Total amount' },
-  { value: 'totalAmountVat', name: 'Total amount vat' },
-  { value: 'totalAmountAfterTaxVat', name: 'Total amount after tax and vat' },
-  { value: 'totalAmountWithoutVat', name: 'Total amount without vat' },
-  { value: 'discount', name: 'Discount' },
-  { value: 'paymentCash', name: 'Payment cash' },
-  { value: 'paymentNonCash', name: 'Payment non cash' },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
 ];
 
 export default {
   types: [
     {
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
       label: "Sales",
       type: "sales",
-      subTypes: ["deal", "stageDeal"]
+      subTypes: ["deal"]
     }
-=======
-      label: 'Cards',
-      type: 'cards',
-      subTypes: ['deal', 'task', 'ticket', 'purchase', 'stageDeal'],
-    },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
   ],
 
   editorAttributes: async ({ subdomain }) => {
@@ -120,7 +79,7 @@ export default {
 
   replaceContent: async ({
     subdomain,
-    data: { stageId, itemId, content, contentype, itemIds, brandId },
+    data: { stageId, itemId, content, contentype, itemIds, brandId }
   }) => {
     const models = await generateModels(subdomain);
     const stage = await models.Stages.findOne({ _id: stageId });
@@ -141,18 +100,14 @@ export default {
     if (contentype == "sales:stage") {
       const items = await collection.find({
         stageId: stageId,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
         _id: { $in: itemIds.split(",") }
-=======
-        _id: { $in: itemIds.split(',') },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
       });
 
       if (!items) {
         return "";
       }
 
-      item = await cardsStage(items);
+      item = await salesStage(items);
 
       if (!item) {
         return "";
@@ -201,7 +156,7 @@ export default {
           subdomain,
           action: "brands.findOne",
           data: { _id: brandId },
-          isRPC: true,
+          isRPC: true
         });
 
         replacedContent = replacedContent.replace(
@@ -218,8 +173,8 @@ export default {
       action: "users.find",
       isRPC: true,
       data: {
-        query: { _id: { $in: item.assignedUserIds || [] } },
-      },
+        query: { _id: { $in: item.assignedUserIds || [] } }
+      }
     });
 
     replacedContent = replacedContent.replace(
@@ -239,14 +194,10 @@ export default {
         data: {
           mainType: stage.type,
           mainTypeId: item._id,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
           relTypes: ["customer"]
-=======
-          relTypes: ['customer'],
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const activeCustomers = await sendContactsMessage({
@@ -254,7 +205,7 @@ export default {
         action: "customers.findActiveCustomers",
         data: { selector: { _id: { $in: customerIds } } },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const customerRows: string[] = [];
@@ -265,11 +216,7 @@ export default {
           action: "customers.getCustomerName",
           data: { customer: item },
           isRPC: true,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
           defaultValue: ""
-=======
-          defaultValue: '',
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         });
 
         customerRows.push(name);
@@ -288,14 +235,10 @@ export default {
         data: {
           mainType: stage.type,
           mainTypeId: item._id,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
           relTypes: ["company"]
-=======
-          relTypes: ['company'],
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const activeCompanies = await sendContactsMessage({
@@ -303,7 +246,7 @@ export default {
         action: "companies.findActiveCompanies",
         data: { selector: { _id: { $in: companyIds } } },
         isRPC: true,
-        defaultValue: [],
+        defaultValue: []
       });
 
       const companyRows: string[] = [];
@@ -314,11 +257,7 @@ export default {
           action: "companies.getCompanyName",
           data: { company: item },
           isRPC: true,
-<<<<<<< HEAD:packages/plugin-sales-api/src/documents.ts
           defaultValue: ""
-=======
-          defaultValue: '',
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/documents.ts
         });
 
         companyRows.push(name);
@@ -352,7 +291,7 @@ export default {
           subdomain,
           action: "productFindOne",
           data: { _id: pd.productId },
-          isRPC: true,
+          isRPC: true
         });
 
         if (!product || product.type !== type) {
@@ -460,9 +399,9 @@ export default {
 
       const product = await sendProductsMessage({
         subdomain,
-        action: 'findOne',
+        action: "findOne",
         data: { _id: pd.productId },
-        isRPC: true,
+        isRPC: true
       });
 
       if (!product) {
@@ -471,9 +410,9 @@ export default {
 
       if (
         (brandId &&
-          brandId !== 'noBrand' &&
+          brandId !== "noBrand" &&
           !product.scopeBrandIds.includes(brandId)) ||
-        (brandId === 'noBrand' && product.scopeBrandIds.length > 0)
+        (brandId === "noBrand" && product.scopeBrandIds.length > 0)
       ) {
         continue;
       }
@@ -545,17 +484,17 @@ export default {
     }
 
     return [replacedContent];
-  },
+  }
 };
 
-const cardsStage = async (items: any[]) => {
+const salesStage = async (items: any[]) => {
   try {
     const itemsArray = items;
     const aggregatedData: Record<string, any> = {
       amount: {
-        AED: 0,
+        AED: 0
       },
-      productsData: [],
+      productsData: []
     };
     itemsArray.forEach(item => {
       const combinedNames = itemsArray.map(item => item.name).join(",");
@@ -606,7 +545,7 @@ const cardsStage = async (items: any[]) => {
               productId: product.productId,
               unitPrice: product.unitPrice,
               globalUnitPrice: product.globalUnitPrice,
-              unitPricePercent: product.unitPricePercent,
+              unitPricePercent: product.unitPricePercent
             });
           }
 
