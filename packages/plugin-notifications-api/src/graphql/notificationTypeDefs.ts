@@ -14,8 +14,8 @@ const configFields = {
   pluginNotifType: `
     notifType: String,
     isDisabled: Boolean,
-    isAllowedEmail: Boolean,
-    isAllowedDesktop: Boolean,
+    isDisabledEmail: Boolean,
+    isDisabledDesktop: Boolean,
     customHtml: String,`
 };
 

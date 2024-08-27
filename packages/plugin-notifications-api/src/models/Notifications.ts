@@ -69,8 +69,8 @@ export const loadNotificationClass = (models: IModels) => {
         await models.NotificationConfigurations.exists({
           user: doc.receiver,
           'pluginsConfigs.isDisabled': { $ne: true },
-          'pluginsConfigs.actions.isDisabled': { $ne: true },
-          'pluginsConfigs.actions.notifType': doc.notifType
+          'pluginsConfigs.notifTypes.isDisabled': { $ne: true },
+          'pluginsConfigs.notifTypes.notifType': doc.notifType
         })
       ) {
         throw new Error('Configuration does not exist');

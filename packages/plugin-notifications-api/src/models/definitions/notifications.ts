@@ -63,8 +63,8 @@ interface IPluginConfig {
   notifTypes?: {
     notifType: string;
     isDisabled?: boolean;
-    isAllowedEmail?: boolean;
-    isAllowedDesktop?: boolean;
+    isDisabledEmail?: boolean;
+    isDisabledDesktop?: boolean;
     customHtml?: string;
   }[];
 }
@@ -85,8 +85,8 @@ const actionConfigsSchema = new Schema(
   {
     notifType: field({ type: String, label: 'Action Type' }),
     isDisabled: field({ type: Boolean, label: 'is disabled' }),
-    isAllowedEmail: field({ type: Boolean }),
-    isAllowedDesktop: field({ type: Boolean }),
+    isDisabledEmail: field({ type: Boolean }),
+    isDisabledDesktop: field({ type: Boolean }),
     customHtml: field({ type: String, label: 'Custom HTML', optional: true })
   },
   { _id: false }
