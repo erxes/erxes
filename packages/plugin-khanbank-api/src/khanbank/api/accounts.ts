@@ -21,7 +21,7 @@ export class AccountsApi extends BaseApi {
         path: "accounts"
       });
 
-      const accounts: KhanbankAccount[] = res.accounts.map((account) => {
+      const accounts: KhanbankAccount[] = res.accounts.map(account => {
         return {
           number: account.number,
           type: account.type,
@@ -84,12 +84,8 @@ export class AccountsApi extends BaseApi {
       const res = await this.request({
         method: "GET",
         path: `accounts/cam/`,
-        params:{acct:accountNumber,bank_code:bankCode}
+        params: { acct: accountNumber, bank_code: bankCode }
       });
-<<<<<<< HEAD
-      
-=======
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       return {
         number: res.iban,
         currency: res.alias,

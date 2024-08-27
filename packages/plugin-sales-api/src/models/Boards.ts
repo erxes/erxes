@@ -1,5 +1,5 @@
-import { Model } from 'mongoose';
-import { getCollection, watchItem, boardNumberGenerator } from './utils';
+import { Model } from "mongoose";
+import { getCollection, watchItem, boardNumberGenerator } from "./utils";
 import {
   boardSchema,
   IBoard,
@@ -9,15 +9,15 @@ import {
   IStage,
   IStageDocument,
   pipelineSchema,
-  stageSchema,
-} from './definitions/boards';
-import { BOARD_STATUSES } from './definitions/constants';
-import { getDuplicatedStages } from './PipelineTemplates';
-import { configReplacer } from '../utils';
-import { putActivityLog } from '../logUtils';
-import { IModels } from '../connectionResolver';
-import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
-import { updateOrder, IOrderInput } from '@erxes/api-utils/src/commonUtils';
+  stageSchema
+} from "./definitions/boards";
+import { BOARD_STATUSES } from "./definitions/constants";
+import { getDuplicatedStages } from "./PipelineTemplates";
+import { configReplacer } from "../utils";
+import { putActivityLog } from "../logUtils";
+import { IModels } from "../connectionResolver";
+import { sendCoreMessage } from "../messageBroker";
+import { updateOrder, IOrderInput } from "@erxes/api-utils/src/commonUtils";
 
 // Not mongoose document, just stage shaped plain object
 type IPipelineStage = IStage & { _id: string };
@@ -30,7 +30,7 @@ const removeStageWithItems = async (
 ) => {
   const selector = { pipelineId, _id: { $nin: prevItemIds } };
 
-  const stageIds = await models.Stages.find(selector).distinct('_id');
+  const stageIds = await models.Stages.find(selector).distinct("_id");
 
   const { collection } = getCollection(models, type);
 
@@ -55,25 +55,25 @@ const removeItems = async (
   const itemIds = items.map(i => i._id);
 
   await putActivityLog(subdomain, {
-    action: 'removeActivityLogs',
-    data: { type, itemIds },
+    action: "removeActivityLogs",
+    data: { type, itemIds }
   });
 
   await models.Checklists.removeChecklists(type, itemIds);
 
   await sendCoreMessage({
     subdomain,
-    action: 'conformities.removeConformities',
+    action: "conformities.removeConformities",
     data: {
       mainType: type,
-      mainTypeIds: itemIds,
-    },
+      mainTypeIds: itemIds
+    }
   });
 
-  await sendInternalNotesMessage({
+  await sendCoreMessage({
     subdomain,
-    action: 'removeInternalNotes',
-    data: { contentType: `sales:${type}`, contentTypeIds: itemIds },
+    action: "removeInternalNotes",
+    data: { contentType: `cards:${type}`, contentTypeIds: itemIds }
   });
 
   await collection.deleteMany({ stageId: { $in: stageIds } });
@@ -85,7 +85,7 @@ const removePipelineStagesWithItems = async (
   type: string,
   pipelineId: string
 ) => {
-  const stageIds = await models.Stages.find({ pipelineId }).distinct('_id');
+  const stageIds = await models.Stages.find({ pipelineId }).distinct("_id");
 
   await removeItems(models, subdomain, type, stageIds);
 
@@ -139,12 +139,12 @@ const createOrUpdatePipelineStages = async (
       bulkOpsPrevEntry.push({
         updateOne: {
           filter: {
-            _id,
+            _id
           },
           update: {
-            $set: doc,
-          },
-        },
+            $set: doc
+          }
+        }
       });
       // create
     } else {
@@ -164,11 +164,11 @@ const createOrUpdatePipelineStages = async (
 // pipeline lastNum generater
 const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   const replacedConfig = await configReplacer(doc.numberConfig);
-  const re = replacedConfig + '[0-9]+$';
+  const re = replacedConfig + "[0-9]+$";
 
   const pipeline = await models.Pipelines.findOne({
     lastNum: new RegExp(re),
-    type: doc.type,
+    type: doc.type
   });
 
   if (pipeline) {
@@ -179,7 +179,7 @@ const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
 
   const item = await collection
     .findOne({
-      number: new RegExp(re),
+      number: new RegExp(re)
     })
     .sort({ createdAt: -1 });
 
@@ -190,9 +190,10 @@ const generateLastNum = async (models: IModels, doc: IPipeline, type) => {
   // generate new number by new numberConfig
   return await boardNumberGenerator(
     models,
-    doc.numberConfig || '',
-    doc.numberSize || '',
-    true
+    doc.numberConfig ?? "",
+    doc.numberSize ?? "",
+    true,
+    "lastNum"
   );
 };
 
@@ -219,7 +220,7 @@ export const loadBoardClass = (models: IModels, subdomain: string) => {
       const board = await models.Boards.findOne({ _id });
 
       if (!board) {
-        throw new Error('Board not found');
+        throw new Error("Board not found");
       }
 
       return board;
@@ -248,7 +249,7 @@ export const loadBoardClass = (models: IModels, subdomain: string) => {
       const board = await models.Boards.findOne({ _id });
 
       if (!board) {
-        throw new Error('Board not found');
+        throw new Error("Board not found");
       }
 
       const pipelines = await models.Pipelines.find({ boardId: _id });
@@ -278,7 +279,7 @@ export const loadBoardClass = (models: IModels, subdomain: string) => {
     ) {
       const doc: { status: string; timeSpent: number; startDate?: string } = {
         status,
-        timeSpent,
+        timeSpent
       };
 
       if (startDate) {
@@ -324,7 +325,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
       const pipeline = await models.Pipelines.findOne({ _id }).lean();
 
       if (!pipeline) {
-        throw new Error('Pipeline not found');
+        throw new Error("Pipeline not found");
       }
 
       return pipeline;
@@ -338,7 +339,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
       stages?: IPipelineStage[]
     ) {
       if (doc.numberSize) {
-        doc.lastNum = await generateLastNum(models, doc, 'number');
+        doc.lastNum = await generateLastNum(models, doc, "number");
       }
 
       const pipeline = await models.Pipelines.create(doc);
@@ -347,7 +348,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
         const duplicatedStages = await getDuplicatedStages(models, subdomain, {
           templateId: doc.templateId,
           pipelineId: pipeline._id,
-          type: doc.type,
+          type: doc.type
         });
 
         await createOrUpdatePipelineStages(
@@ -386,7 +387,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
             {
               templateId: doc.templateId,
               pipelineId: _id,
-              type: doc.type,
+              type: doc.type
             }
           );
 
@@ -405,7 +406,7 @@ export const loadPipelineClass = (models: IModels, subdomain: string) => {
         const pipeline = await models.Pipelines.getPipeline(_id);
 
         if (pipeline.numberConfig !== doc.numberConfig) {
-          doc.lastNum = await generateLastNum(models, doc, 'number');
+          doc.lastNum = await generateLastNum(models, doc, "number");
         }
       }
 
@@ -486,7 +487,7 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
       const stage = await models.Stages.findOne({ _id });
 
       if (!stage) {
-        throw new Error('Stage not found');
+        throw new Error("Stage not found");
       }
 
       return stage;
@@ -494,11 +495,11 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
 
     static async checkCodeDuplication(code: string) {
       const stage = await models.Stages.findOne({
-        code,
+        code
       });
 
       if (stage) {
-        throw new Error('Code must be unique');
+        throw new Error("Code must be unique");
       }
     }
 
@@ -541,10 +542,10 @@ export const loadStageClass = (models: IModels, subdomain: string) => {
       if (stage.formId) {
         await sendCoreMessage({
           subdomain,
-          action: 'removeForm',
+          action: "removeForm",
           data: {
-            formId: stage.formId,
-          },
+            formId: stage.formId
+          }
         });
       }
 

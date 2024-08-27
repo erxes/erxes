@@ -21,83 +21,6 @@ import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
 
-export const countDocuments = async (
-  subdomain: string,
-  type: string,
-  _ids: string[]
-) => {
-  const [serviceName, contentType] = type.split(":");
-
-  return sendCommonMessage({
-    subdomain,
-    action: "tag",
-    serviceName,
-    data: {
-      type: contentType,
-      _ids,
-      action: "count"
-    },
-    isRPC: true
-  });
-};
-
-export const tagObject = async (
-  subdomain: string,
-  type: string,
-  tagIds: string[],
-  targetIds: string[]
-) => {
-  const [serviceName, contentType] = type.split(":");
-
-  return sendCommonMessage({
-    subdomain,
-    serviceName,
-    action: "tag",
-    data: {
-      tagIds,
-      targetIds,
-      type: contentType,
-      action: "tagObject"
-    },
-    isRPC: true
-  });
-};
-
-export const fixRelatedItems = async ({
-  subdomain,
-  type,
-  sourceId,
-  destId,
-  action
-}: {
-  subdomain: string;
-  type: string;
-  sourceId: string;
-  destId?: string;
-  action: string;
-}) => {
-  const [serviceName, contentType] = type.split(":");
-
-  sendCommonMessage({
-    subdomain,
-    serviceName,
-    action: "fixRelatedItems",
-    data: {
-      sourceId,
-      destId,
-      type: contentType,
-      action
-    }
-  });
-};
-
-export const getContentTypes = async serviceName => {
-  const service = await getService(serviceName);
-  const meta = service.config.meta || {};
-  const types = (meta.tags && meta.tags.types) || [];
-  return types.map(type => `${serviceName}:${type.type}`);
-};
-
 export interface IEmailParams {
   toEmails?: string[];
   fromEmail?: string;
@@ -269,12 +192,12 @@ export const sendEmail = async (
 
     let headers: { [key: string]: string } = {};
 
-    if (models && subdomain && title) {
+    if (models && subdomain) {
       const emailDelivery = (await models.EmailDeliveries.createEmailDelivery({
         kind: "transaction",
         to: [toEmail],
         from: mailOptions.from,
-        subject: title,
+        subject: title || "",
         body: html,
         status: "pending"
       })) as any;
@@ -1655,6 +1578,83 @@ export const isImage = (mimetypeOrName: string) => {
 
 export const isVideo = (mimeType: string) => {
   return mimeType.includes("video");
+};
+
+export const countDocuments = async (
+  subdomain: string,
+  type: string,
+  _ids: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    action: "tag",
+    serviceName,
+    data: {
+      type: contentType,
+      _ids,
+      action: "count"
+    },
+    isRPC: true
+  });
+};
+
+export const getContentTypes = async serviceName => {
+  const service = await getService(serviceName);
+  const meta = service.config.meta || {};
+  const types = (meta.tags && meta.tags.types) || [];
+  return types.map(type => `${serviceName}:${type.type}`);
+};
+
+export const tagObject = async (
+  subdomain: string,
+  type: string,
+  tagIds: string[],
+  targetIds: string[]
+) => {
+  const [serviceName, contentType] = type.split(":");
+
+  return sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "tag",
+    data: {
+      tagIds,
+      targetIds,
+      type: contentType,
+      action: "tagObject"
+    },
+    isRPC: true
+  });
+};
+
+export const fixRelatedItems = async ({
+  subdomain,
+  type,
+  sourceId,
+  destId,
+  action
+}: {
+  subdomain: string;
+  type: string;
+  sourceId: string;
+  destId?: string;
+  action: string;
+}) => {
+  const [serviceName, contentType] = type.split(":");
+
+  sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "fixRelatedItems",
+    data: {
+      sourceId,
+      destId,
+      type: contentType,
+      action
+    }
+  });
 };
 
 export const getEnv = utils.getEnv;

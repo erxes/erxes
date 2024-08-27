@@ -1,3 +1,9 @@
+import * as moment from "moment";
+import { generateModels, IModels } from "./connectionResolver";
+import { IUserDocument } from "./db/models/definitions/users";
+import { InterMessage } from "@erxes/api-utils/src/messageBroker";
+import { fetchSegment } from "./data/modules/segments/queryBuilder";
+
 const IMPORT_EXPORT_TYPES = [
   {
     text: "Team member",
@@ -5,12 +11,6 @@ const IMPORT_EXPORT_TYPES = [
     icon: "user-square"
   }
 ];
-
-import * as moment from "moment";
-import { generateModels, IModels } from "./connectionResolver";
-import { IUserDocument } from "./db/models/definitions/users";
-import { InterMessage } from "@erxes/api-utils/src/messageBroker";
-import { fetchSegment } from "./data/modules/segments/queryBuilder";
 
 const prepareData = async (
   models: IModels,

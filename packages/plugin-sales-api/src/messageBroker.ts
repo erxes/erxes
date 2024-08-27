@@ -517,15 +517,6 @@ export const sendContactsMessage = async (
   });
 };
 
-export const sendInternalNotesMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "internalnotes",
-    ...args
-  });
-};
-
 export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
