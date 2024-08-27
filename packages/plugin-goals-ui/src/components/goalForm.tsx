@@ -112,8 +112,6 @@ const goalForm = (props: Props) => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  console.log(goalType);
-
   useEffect(() => {
     dispatch({ type: 'updateState', payload: goalType });
   }, [goalType]);
