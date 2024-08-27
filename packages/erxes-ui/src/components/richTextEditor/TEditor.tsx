@@ -125,6 +125,8 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     extensions,
     parseOptions: { preserveWhitespace: true },
     autofocus: autoFocus,
+    immediatelyRender: true,
+    shouldRerenderOnTransaction: false
   });
 
   useEffect(() => {
