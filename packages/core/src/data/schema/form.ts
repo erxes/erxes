@@ -62,6 +62,13 @@ export const types = `
     _id: String!
     value: JSON
   }
+
+  type FormType {
+    title: String
+    description: String
+    contentType: String
+    icon: String
+  }
 `;
 
 const commonFields = `
@@ -95,6 +102,8 @@ export const queries = `
   formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
   formSubmissionDetail(contentTypeId: String!): Submission
+
+  formsGetContentTypes: [FormType]
 `;
 
 export const mutations = `

@@ -1,9 +1,10 @@
 import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { IContext, IModels } from "../../../connectionResolver";
-import { sendInboxMessage } from "../../../messageBroker";
+import { IContext, IModels } from '../../../connectionResolver';
+import { sendInboxMessage } from '../../../messageBroker';
 
-import { formSubmissionsQuery } from "../../../formUtils";
-import { IFormSubmissionFilter } from "../../../db/models/definitions/forms";
+import { formSubmissionsQuery } from '../../../formUtils';
+import { IFormSubmissionFilter } from '../../../db/models/definitions/forms';
+import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
 const formQueries = {
   /**
@@ -29,7 +30,7 @@ const formQueries = {
       customerId,
       filters,
       page,
-      perPage
+      perPage,
     }: {
       formId: string;
       tagId: string;
@@ -46,22 +47,22 @@ const formQueries = {
       tagId,
       contentTypeIds,
       customerId,
-      filters
+      filters,
     });
 
     const conversations = await sendInboxMessage({
       subdomain,
-      action: "getConversationsList",
+      action: 'getConversationsList',
       data: { query: convsSelector, listParams: { page, perPage } },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
 
     const result: any[] = [];
 
     for (const conversation of conversations) {
       const submissions = await models.FormSubmissions.find({
-        contentTypeId: conversation._id
+        contentTypeId: conversation._id,
       }).lean();
 
       conversation.contentTypeId = conversation._id;
@@ -79,7 +80,7 @@ const formQueries = {
       tagId,
       contentTypeIds,
       customerId,
-      filters
+      filters,
     }: {
       formId: string;
       tagId: string;
@@ -94,15 +95,15 @@ const formQueries = {
       tagId,
       contentTypeIds,
       customerId,
-      filters
+      filters,
     });
 
     return await sendInboxMessage({
       subdomain,
-      action: "conversations.count",
+      action: 'conversations.count',
       data: { query: convsSelector },
       isRPC: true,
-      defaultValue: []
+      defaultValue: [],
     });
   },
 
@@ -115,10 +116,10 @@ const formQueries = {
 
     const conversation = await sendInboxMessage({
       subdomain,
-      action: "getConversation",
+      action: 'getConversation',
       data: { conversationId: contentTypeId },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!conversation) {
@@ -126,16 +127,48 @@ const formQueries = {
     }
 
     const submissions = await models.FormSubmissions.find({
-      contentTypeId
+      contentTypeId,
     }).lean();
 
     return {
       ...conversation,
-      submissions
+      submissions,
     };
-  }
+  },
+
+  async formsGetContentTypes() {
+    const services = await getServices();
+    const formTypes: Array<{
+      title: string;
+      description: string;
+      contentType: string;
+      icon: string;
+    }> = [
+      {
+        title: 'Lead',
+        description: 'Generate leads through the form',
+        contentType: 'lead',
+        icon: 'users-alt',
+      },
+    ];
+
+    for (const serviceName of services) {
+      const service = await getService(serviceName);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.forms) {
+        const { form = undefined } = meta.forms;
+
+        if (form) {
+          formTypes.push(form);
+        }
+      }
+    }
+
+    return formTypes;
+  },
 };
 
-checkPermission(formQueries, "forms", "showForms", []);
+checkPermission(formQueries, 'forms', 'showForms', []);
 
 export default formQueries;

@@ -8,20 +8,32 @@ const forms = `
 `;
 
 const relations = `
-query FieldsGetRelations($contentType: String!, $isVisibleToCreate: Boolean) {
-  fieldsGetRelations(contentType: $contentType, isVisibleToCreate: $isVisibleToCreate) {
-    _id
-    contentType
-    name
-    type
-    text
-    isVisibleToCreate
-    relationType
+  query FieldsGetRelations($contentType: String!, $isVisibleToCreate: Boolean) {
+    fieldsGetRelations(contentType: $contentType, isVisibleToCreate: $isVisibleToCreate) {
+      _id
+      contentType
+      name
+      type
+      text
+      isVisibleToCreate
+      relationType
+    }
   }
-}
+`;
+
+const formsGetContentTypes = `
+  query FormsGetContentTypes {
+    formsGetContentTypes {
+      title
+      description
+      contentType
+      icon
+    }
+  }
 `;
 
 export default {
   forms,
-  relations
+  relations,
+  formsGetContentTypes
 };
