@@ -121,13 +121,6 @@ class ItemProductProbabilities extends React.Component<Props, {}> {
           <span>Total </span>
           {this.renderSum(totalAmountArray)}
         </li>
-        {forecastArray.length > 0 &&
-          window.location.pathname.includes("deal/calendar") && (
-            <li>
-              <span>Forecasted </span>
-              {this.renderSum(forecastArray)}
-            </li>
-          )}
       </>
     );
   };

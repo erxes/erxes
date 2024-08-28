@@ -40,6 +40,7 @@ const Amount = styled.ul`
     span {
       font-weight: bold;
       font-size: 10px;
+      text-transform: capitalize;
     }
 
     &:after {
