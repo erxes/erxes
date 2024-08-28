@@ -54,18 +54,6 @@ const mutations = {
   },
 
   async paymentRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    const payment = await models.PaymentMethods.getPayment(_id);
-
-    if (payment.kind === PAYMENTS.qpayQuickqr.kind) {
-      const api = new QPayQuickQrAPI(payment.config);
-
-      try {
-        await api.removeMerchant();
-      } catch (e) {
-        throw new Error(e.message);
-      }
-    }
-
     await models.PaymentMethods.removePayment(_id);
 
     return 'success';
