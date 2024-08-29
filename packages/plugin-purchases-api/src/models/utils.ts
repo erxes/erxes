@@ -7,12 +7,14 @@ import { putActivityLog } from '../logUtils';
 import { itemsAdd } from '../graphql/resolvers/mutations/utils';
 import { generateModels, IModels } from '../connectionResolver';
 import {
+  sendCommonMessage,
   sendContactsMessage,
   sendCoreMessage,
   sendInboxMessage,
   sendInternalNotesMessage,
   sendProductsMessage,
 } from '../messageBroker';
+import { getServices, getService } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface ISetOrderParam {
   collection: any;
@@ -685,6 +687,7 @@ export const updateName = async (
         isRPC: true,
         defaultValue: [],
       });
+      const enabledServices = await getServices();
 
       for (const serviceName of uniqueServices) {
         const regex = new RegExp(`\\{\\b${serviceName}\\b.*?\\}`, 'g');
@@ -724,6 +727,12 @@ export const updateName = async (
                     customers[0]?.primaryPhone || ''
                   );
                   break;
+                case 'count':
+                  replacedName = replacedName?.replace(
+                    match,
+                    customers.length || 0
+                  );
+                  break;
                 default:
                   replacedName = replacedName?.replace(match, '');
                   break;
@@ -735,6 +744,31 @@ export const updateName = async (
                   match,
                   companies[0]?.primaryName || ''
                 );
+              } else if (pattern[1] === 'count') {
+                replacedName = replacedName?.replace(
+                  match,
+                  companies?.length || 0
+                );
+              }
+            }
+            if (enabledServices.includes(serviceName)) {
+              try {
+                const result = await sendCommonMessage({
+                  subdomain,
+                  serviceName: serviceName,
+                  action: 'cards.updateCardsName',
+                  isRPC: true,
+                  data: {
+                    match: match,
+                    itemId: itemId,
+                    type: type,
+                  },
+                  timeout: 50000,
+                });
+
+                replacedName = replacedName?.replace(match, result || '');
+              } catch (e) {
+                console.log(e);
               }
             }
           }
