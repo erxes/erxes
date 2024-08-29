@@ -1,12 +1,72 @@
+import { Icon } from '@erxes/ui/src/components';
+import { colors } from '@erxes/ui/src/styles';
+import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils';
+
 import React from 'react';
+import styled from 'styled-components';
+
+const Box = styled(BoxRoot)`
+  width: 320px;
+  height: 220px;
+  padding: 40px;
+  background: ${colors.bgLight};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  min-height: 200px;
+
+  i {
+    font-size: 38px;
+    color: ${colors.colorSecondary};
+  }
+
+  span {
+    font-weight: 500;
+    text-transform: capitalize;
+    margin-top: 10px;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.colorCoreLightGray};
+    flex-grow: 1;
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
+`;
 
 type Props = {
   formTypes: any[];
 };
 
 const Forms = (props: Props) => {
-    console.log('Forms', props.formTypes);
-  return <div>Forms</div>;
+  const renderBox = (name, icon, desc) => {
+    return (
+      <Box
+        onClick={() => {
+          console.log('onClick');
+        }}
+      >
+        <Icon icon={icon} />
+        <span>{__(name)}</span>
+        <p>{__(desc)}</p>
+      </Box>
+    );
+  };
+
+  return (
+    <FullContent $center={true}>
+      {props.formTypes.map((formType) => {
+        return renderBox(formType.title, formType.icon, formType.description);
+      })}
+    </FullContent>
+  );
 };
 
 export default Forms;

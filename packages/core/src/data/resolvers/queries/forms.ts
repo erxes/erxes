@@ -145,7 +145,7 @@ const formQueries = {
       icon: string;
     }> = [
       {
-        title: 'Lead',
+        title: 'Lead generation',
         description: 'Generate leads through the form',
         contentType: 'lead',
         icon: 'users-alt',
