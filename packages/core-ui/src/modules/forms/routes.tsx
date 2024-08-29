@@ -16,7 +16,7 @@ const FormsContainer = asyncComponent(
 );
 
 const LeadsContainer = asyncComponent(
-  () => import(/* webpackChunkName: "Leads - List" */ './containers/Leads')
+  () => import(/* webpackChunkName: "Leads - List" */ './leads/containers/List')
 );
 
 const Forms = () => {

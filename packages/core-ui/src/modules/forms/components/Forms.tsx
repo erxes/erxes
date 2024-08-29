@@ -4,6 +4,7 @@ import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Box = styled(BoxRoot)`
@@ -46,11 +47,14 @@ type Props = {
 };
 
 const Forms = (props: Props) => {
-  const renderBox = (name, icon, desc) => {
+  const navigate = useNavigate();
+
+  const renderBox = (name, icon, desc, kind) => {
     return (
       <Box
         onClick={() => {
-          console.log('onClick');
+          // navigate to /forms/${}
+          navigate(`/forms/${kind}`);
         }}
       >
         <Icon icon={icon} />
@@ -63,7 +67,7 @@ const Forms = (props: Props) => {
   return (
     <FullContent $center={true}>
       {props.formTypes.map((formType) => {
-        return renderBox(formType.title, formType.icon, formType.description);
+        return renderBox(formType.title, formType.icon, formType.description, formType.contentType);
       })}
     </FullContent>
   );
