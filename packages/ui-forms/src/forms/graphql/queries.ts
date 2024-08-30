@@ -210,5 +210,6 @@ export default {
   forms,
   formSubmissions,
   formSubmissionTotalCount,
-  fieldsGroups
+  fieldsGroups,
+  relations,
 };

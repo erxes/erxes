@@ -42,7 +42,7 @@ export const types = `
     value: JSON
   }
 
-  type ProductCategory {
+  type ProductCategory @key(fields: "_id") {
     _id: String!
     name: String
     description: String
@@ -61,7 +61,7 @@ export const types = `
     similarities: JSON
   }
 
-  type Product {
+  type Product @key(fields: "_id") {
     ${productFields}
   }
 

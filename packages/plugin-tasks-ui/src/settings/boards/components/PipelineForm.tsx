@@ -4,40 +4,10 @@ import {
   DialogContent,
   DialogWrapper,
   ModalFooter,
-<<<<<<< HEAD:packages/plugin-tasks-ui/src/settings/boards/components/PipelineForm.tsx
-  ModalOverlay
-} from "@erxes/ui/src/styles/main";
-import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import { IBoard, IPipeline, IStage } from "@erxes/ui-tasks/src/boards/types";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import React, { Fragment, useEffect, useState } from "react";
-import { __, generateTree } from "coreui/utils";
-
-import BoardNumberConfigs from "./numberConfig/BoardNumberConfigs";
-import Button from "@erxes/ui/src/components/Button";
-import { COLORS } from "@erxes/ui/src/constants/colors";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
-import { Flex } from "@erxes/ui/src/styles/main";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IDepartment } from "@erxes/ui/src/team/types";
-import { IOption } from "../types";
-import { ITag } from "@erxes/ui-tags/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Popover from "@erxes/ui/src/components/Popover";
-import Select from "react-select";
-import { SelectMemberStyled } from "@erxes/ui-tasks/src/settings/boards/styles";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import Stages from "./Stages";
-import TwitterPicker from "react-color/lib/Twitter";
-import { colors } from "@erxes/ui/src/styles";
-=======
   ModalOverlay,
 } from '@erxes/ui/src/styles/main';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
-import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
+import { IBoard, IPipeline, IStage } from '@erxes/ui-tasks/src/boards/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { Fragment, useEffect, useState } from 'react';
 import { __, generateTree } from 'coreui/utils';
@@ -59,12 +29,11 @@ import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Popover from '@erxes/ui/src/components/Popover';
 import Select from 'react-select';
-import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
+import { SelectMemberStyled } from '@erxes/ui-tasks/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-ui/src/settings/boards/components/PipelineForm.tsx
 
 type Props = {
   type: string;
@@ -196,7 +165,7 @@ const PipelineForm = (props: Props) => {
       numberSize,
       nameConfig,
       departmentIds,
-      tagId
+      tagId,
     };
   };
 
@@ -233,11 +202,7 @@ const PipelineForm = (props: Props) => {
       null,
       (node, level) => ({
         value: node._id,
-<<<<<<< HEAD:packages/plugin-tasks-ui/src/settings/boards/components/PipelineForm.tsx
-        label: `${"---".repeat(level)} ${node.title}`
-=======
         label: `${'---'.repeat(level)} ${node.title}`,
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-ui/src/settings/boards/components/PipelineForm.tsx
       })
     );
 
@@ -314,7 +279,7 @@ const PipelineForm = (props: Props) => {
 
     const boardOptions = boards.map(board => ({
       value: board._id,
-      label: board.name
+      label: board.name,
     }));
 
     const onChange = item => {
@@ -325,11 +290,7 @@ const PipelineForm = (props: Props) => {
       <FormGroup>
         <ControlLabel required={true}>Board</ControlLabel>
         <Select
-<<<<<<< HEAD:packages/plugin-tasks-ui/src/settings/boards/components/PipelineForm.tsx
-          placeholder={__("Choose a board")}
-=======
           placeholder={__('Choose a board')}
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-ui/src/settings/boards/components/PipelineForm.tsx
           value={boardOptions.find(option => option.value === boardId)}
           options={boardOptions}
           onChange={onChange}
@@ -356,7 +317,7 @@ const PipelineForm = (props: Props) => {
       return items.map(item => {
         return {
           value: item._id,
-          label: item.name
+          label: item.name,
         };
       });
     };
@@ -533,7 +494,7 @@ const PipelineForm = (props: Props) => {
             isSubmitted,
             callback: closeModal,
             object: pipeline,
-            confirmationUpdate: true
+            confirmationUpdate: true,
           })}
         </ModalFooter>
       </div>

@@ -16,7 +16,6 @@ import { sendCommonMessage } from "../../../messageBroker";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import { ITag } from "../../../db/models/definitions/tags";
 import { fixRelatedItems, tagObject } from "../../utils";
-
 interface ITagsEdit extends ITag {
   _id: string;
 }

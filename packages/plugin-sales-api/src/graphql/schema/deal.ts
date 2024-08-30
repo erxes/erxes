@@ -4,13 +4,8 @@ import {
   commonMutationParams,
   commonTypes,
   conformityQueryFields,
-<<<<<<< HEAD:packages/plugin-sales-api/src/graphql/schema/deal.ts
   copyParams
 } from "./common";
-=======
-  copyParams,
-} from './common';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-cards-api/src/graphql/schema/deal.ts
 
 export const types = ({ contacts }) => `
   type DealListItem @key(fields: "_id") {

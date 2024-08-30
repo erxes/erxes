@@ -1,22 +1,22 @@
-import { FormTop, Title } from "../styles";
-import { IForm, IFormData } from "../types";
+import { FormTop, Title } from '../styles';
+import { IForm, IFormData } from '../types';
 
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { Description } from "@erxes/ui-settings/src/styles";
-import FieldChoices from "./FieldChoices";
-import FieldForm from "../components/FieldForm";
-import FieldsPreview from "./FieldsPreview";
-import { FlexContent } from "@erxes/ui/src/layout/styles";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IField } from "@erxes/ui/src/types";
-import { LeftItem } from "@erxes/ui/src/components/step/styles";
-import React from "react";
-import { __ } from "@erxes/ui/src/utils";
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-settings/src/styles';
+import FieldChoices from './FieldChoices';
+import FieldForm from '../components/FieldForm';
+import FieldsPreview from './FieldsPreview';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IField } from '@erxes/ui/src/types';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   fields: IField[];
-  renderPreviewWrapper?: (previewRenderer, fields: IField[]) => void;
+  renderPreviewWrapper?: (previewRenderer, fields: IField[]) => any;
   onDocChange?: (doc: IFormData) => void;
   saveForm: (params: IFormData) => void;
   formData?: IFormData;
@@ -24,14 +24,14 @@ type Props = {
   type: string;
   form?: IForm;
   hideOptionalFields?: boolean;
-  currentMode?: "create" | "update" | undefined;
+  currentMode?: 'create' | 'update' | undefined;
   currentField?: IField;
   color?: string;
 };
 
 type State = {
   fields: IField[];
-  currentMode: "create" | "update" | undefined;
+  currentMode: 'create' | 'update' | undefined;
   currentField?: IField;
   title: string;
   description: string;
@@ -49,12 +49,12 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       fields: (props.formData ? props.formData.fields : props.fields) || [],
-      title: form.title || "Form Title",
-      description: form.description || "",
-      buttonText: form.buttonText || "Send",
+      title: form.title || 'Form Title',
+      description: form.description || '',
+      buttonText: form.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,
-      type: props.type || "",
+      type: props.type || '',
       numberOfPages: form.numberOfPages || 1,
       currentPage: 1,
     };
@@ -107,40 +107,40 @@ class Form extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__("Form title")}</ControlLabel>
+          <ControlLabel required={true}>{__('Form title')}</ControlLabel>
           <FormControl
             required={true}
-            name="title"
+            name='title'
             value={title}
             onChange={onChangeField}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Form description")}</ControlLabel>
+          <ControlLabel>{__('Form description')}</ControlLabel>
           <FormControl
-            componentclass="textarea"
-            name="description"
+            componentclass='textarea'
+            name='description'
             value={description}
             onChange={onChangeField}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Number of pages")}</ControlLabel>
+          <ControlLabel>{__('Number of pages')}</ControlLabel>
           <FormControl
-            name="numberOfPages"
+            name='numberOfPages'
             value={numberOfPages}
             onChange={onChangeField}
-            type={"number"}
+            type={'number'}
             min={1}
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Form button text")}</ControlLabel>
+          <ControlLabel>{__('Form button text')}</ControlLabel>
           <FormControl
-            name="buttonText"
+            name='buttonText'
             value={buttonText}
             onChange={onChangeField}
           />
@@ -151,17 +151,17 @@ class Form extends React.Component<Props, State> {
 
   onChoiceClick = (choice: string) => {
     this.setState({
-      currentMode: "create",
+      currentMode: 'create',
       currentField: {
         _id: `tempId${Math.random().toString()}`,
-        contentType: "form",
+        contentType: 'form',
         type: choice,
       },
     });
   };
 
   onFieldClick = (field: IField) => {
-    this.setState({ currentMode: "update", currentField: field });
+    this.setState({ currentMode: 'update', currentField: field });
   };
 
   onFieldSubmit = (field: IField) => {
@@ -170,7 +170,7 @@ class Form extends React.Component<Props, State> {
 
     let selector = { fields, currentField: undefined };
 
-    if (currentMode === "create") {
+    if (currentMode === 'create') {
       selector = {
         fields: [...fields, field],
         currentField: undefined,
@@ -215,16 +215,17 @@ class Form extends React.Component<Props, State> {
     });
   };
 
-  render() {
+  renderPreview() {
     const { renderPreviewWrapper } = this.props;
-    const { currentMode, currentField, fields, description, numberOfPages } =
-      this.state;
+    if (!renderPreviewWrapper) {
+      return null;
+    }
 
     const renderer = () => {
       return (
         <FieldsPreview
-          formDesc={description}
-          fields={fields}
+          formDesc={this.state.description}
+          fields={this.state.fields}
           onFieldClick={this.onFieldClick}
           onChangeFieldsOrder={this.onChangeFieldsOrder}
           currentPage={this.state.currentPage}
@@ -232,13 +233,21 @@ class Form extends React.Component<Props, State> {
       );
     };
 
+    return renderPreviewWrapper(renderer, this.state.fields);
+  }
+
+  render() {
+    const { renderPreviewWrapper } = this.props;
+    const { currentMode, currentField, fields, description, numberOfPages } =
+      this.state;
+
     return (
       <FlexContent>
         <LeftItem>
           <FormTop>{this.renderOptionalFields()}</FormTop>
-          <Title>{__("Add a new field")}</Title>
+          <Title>{__('Add a new field')}</Title>
           <Description>
-            {__("Choose a field type from the options below.")}
+            {__('Choose a field type from the options below.')}
           </Description>
           <FieldChoices
             type={this.props.type}
@@ -247,7 +256,7 @@ class Form extends React.Component<Props, State> {
         </LeftItem>
         {currentField && (
           <FieldForm
-            mode={currentMode || "create"}
+            mode={currentMode || 'create'}
             field={currentField}
             fields={fields}
             numberOfPages={numberOfPages || 1}
@@ -256,9 +265,7 @@ class Form extends React.Component<Props, State> {
             onCancel={this.onFieldFormCancel}
           />
         )}
-        {renderPreviewWrapper
-          ? renderPreviewWrapper(renderer, fields)
-          : ({} as any)}
+        {this.renderPreview()}
       </FlexContent>
     );
   }
