@@ -117,7 +117,7 @@ const List = ({
         type='text'
         placeholder={__('Type to search')}
         onChange={searchHandler}
-        value={routerUtils.getParam(location, 'searchValue')}
+        // value={routerUtils.getParam(location, 'searchValue')}
         autoFocus={true}
       />
       &nbsp;&nbsp;

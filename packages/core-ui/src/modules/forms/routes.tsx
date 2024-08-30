@@ -35,6 +35,8 @@ const Leads = () => {
   const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
+  console.log("LOCATION = ",location)
+
   return (
     <LeadsContainer
       queryParams={queryParams}
