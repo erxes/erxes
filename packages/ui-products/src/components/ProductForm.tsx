@@ -223,8 +223,8 @@ const Form = (props: Props) => {
       .map((e) => e.code);
 
   const renderFormTrigger = (trigger: React.ReactNode) => {
-    const content = (props) => (
-      <CategoryForm {...props} categories={props.productCategories} />
+    const content = (formProps) => (
+      <CategoryForm {...formProps} categories={props.productCategories || []} />
     );
 
     return (
