@@ -15,6 +15,7 @@ export interface IArticle {
   createdBy: string;
   createdUser: IUser;
   createdDate: Date;
+  scheduledDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
   topicId: string;
