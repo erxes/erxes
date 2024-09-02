@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
 import { queries as pipelineQuery } from "@erxes/ui-cards/src/boards/graphql";
-import { IPipelineLabel } from "@erxes/ui-cards/src/boards/types";
+import { IPipelineLabel } from "@erxes/ui-sales/src/boards/types";
 import SelectSegments from "@erxes/ui-segments/src/containers/SelectSegments";
 import {
   Button,

@@ -36,13 +36,8 @@ const generateGroup = (
 ) => {
   return {
     _id: `basicInfosGroup${type}`,
-<<<<<<< HEAD:packages/core-ui/src/modules/forms/utils.tsx
     name: __("Basic information"),
     description: __(`Basic information of a ${type}`),
-=======
-    name: __('Basic information'),
-    description: `${__('Basic information of a')} ${type}`,
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636:packages/plugin-forms-ui/src/utils.tsx
     contentType: type,
     order: -1,
     isVisible: true,

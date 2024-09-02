@@ -1,15 +1,7 @@
-<<<<<<< HEAD
-import { IContext } from "../../connectionResolver";
-import { sendCommonMessage } from "../../messageBroker";
-import { sendToGrandStream } from "../../utils";
-=======
 import { IContext } from '../../connectionResolver';
 import { sendCommonMessage } from '../../messageBroker';
 import { sendToGrandStream } from '../../utils';
-import redis from '../../redlock';
-import { XMLParser } from 'fast-xml-parser';
 
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;

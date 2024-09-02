@@ -748,12 +748,8 @@ export {
   SectionListItem,
   Title,
   FormChart,
-<<<<<<< HEAD
-  FormWrapper
-=======
   FormWrapper,
   ControlRange,
   DateRangeWrapper,
   Divider
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 };
