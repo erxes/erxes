@@ -97,7 +97,7 @@ const ChartRenderer = (props: IChartProps) => {
     }
   };
 
-  if (!datasets) {
+  if (options && Object.keys(options).length) {
     plugins = {
       ...plugins,
       legend: { labels: { boxWidth: 0, boxHeight: 0 } },
