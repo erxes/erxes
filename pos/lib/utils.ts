@@ -274,5 +274,5 @@ export const getCustomerLabel = ({
       return `${firstName || ""} ${lastName || ""} ${primaryPhone || ""} ${primaryEmail || ""} ${code || ""}`
   }
 
-  return _id
+  return _id || 'Unknown'
 }
