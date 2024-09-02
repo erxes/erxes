@@ -1,16 +1,17 @@
 import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IGolomtBankTransactionInput {
-  refCode: string;
-  accountId: string;
-  toAccountName: string;
-  receiveAccount: string;
-  bankCode: string;
-  toBank: string;
-  toCurrency: string;
-  description: string;
-  currency: string;
+  type: string;
+  fromAccount: string;
+  toAccount: string;
   amount: number;
+  description: string;
+  fromCurrency: string;
+  toCurrency: string;
+  toAccountName: string;
+  fromAccountName: string;
+  toBank: string;
+  refCode: string;
 }
 export interface IGolomtBankTransactionItem {
   requestId: string;

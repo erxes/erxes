@@ -67,7 +67,11 @@ export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
 };
 
 export const getValue = (obj, path) => {
-  const keys = path.split('.');
+  const keys = path?.split('.');
+
+  if (!keys) {
+    return {}
+  }
 
   return keys.reduce(
     (acc, key) => (acc && acc[key] !== 'undefined' ? acc[key] : undefined),
@@ -155,8 +159,8 @@ export const getVariables = (fieldValues, filterType) => {
 }
 
 export const commarizeNumbers = (number: number) => {
-  if (number == null) {
-    return '';
+  if (!number) {
+    return null;
   }
 
   let strNum = number.toString();

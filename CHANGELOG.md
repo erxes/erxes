@@ -1,6 +1,35 @@
 # Changelog
 
-## [1.15.0-rc.15](https://github.com/erxes/erxes/compare/1.15.0-rc.14...1.15.0-rc.15) (2024-08-17)
+## [1.16.0-rc.0](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.16.0-rc.0) (2024-08-26)
+
+### Features
+
+- **calls:** Added realtime dashboard ([bef1bf2](https://github.com/erxes/erxes/commit/bef1bf2186c97310533c60cfcf7fea055f371836))
+
+### Bug Fixes
+
+- **cards:** fix bugs cards insights ([5df88f3](https://github.com/erxes/erxes/commit/5df88f33e844fdb0afaa186b68b32752c7704536))
+- **cards:** name auto field ([#5593](https://github.com/erxes/erxes/issues/5593)) ([4251eda](https://github.com/erxes/erxes/commit/4251eda6ef9ae4c3efcb4bf4e51392e2850aa6f8))
+- customers searchText with middleName ([def9620](https://github.com/erxes/erxes/commit/def9620cf11acbae9e5b3d5a44537fa6aa62f5a5))
+- deal to contract ([#5544](https://github.com/erxes/erxes/issues/5544)) ([df8e8fb](https://github.com/erxes/erxes/commit/df8e8fb60835f37630d0df72dce763deb8d9fa3e))
+- duplicated ebarimt re return ([5988deb](https://github.com/erxes/erxes/commit/5988deb022aebb921b0dc139442cb1c1ac9702b1))
+- **facebook:** fixed old conversation and added avatar ([70284aa](https://github.com/erxes/erxes/commit/70284aa4559a00fd9a79f85afd1d0645bd24cea9))
+- Golomt corporate updates ([#5523](https://github.com/erxes/erxes/issues/5523)) ([ab8a7fa](https://github.com/erxes/erxes/commit/ab8a7fa31f005a1ea605898cbdd1f29c4946f57e))
+- loans contract form fill by cards and contacts ([#5584](https://github.com/erxes/erxes/issues/5584)) ([8e90bb5](https://github.com/erxes/erxes/commit/8e90bb59910b43f3822121782dcdfa2b1b8ea23d))
+- loans contract relation deal ([48695be](https://github.com/erxes/erxes/commit/48695be742f7748e7718b0bd11800490ee99e54d))
+- msdynamic external_doc_no and posOrder to cards with payment ([effe8ad](https://github.com/erxes/erxes/commit/effe8adf1d2a742b0e4320b7da14adcb7b8bd7f1))
+- pos mobile print ([#5565](https://github.com/erxes/erxes/issues/5565)) ([96ad3f7](https://github.com/erxes/erxes/commit/96ad3f72671adf2cec63aebacd1cf37308b04857))
+- **reactions:** replace mongoose exists query with countDocuments to return boolean in isHearted & isLiked ([344c5d4](https://github.com/erxes/erxes/commit/344c5d42cebdd3b2e57b6949ba9960399dedc92a))
+- register number duplicated get CIF from polaris ([#5586](https://github.com/erxes/erxes/issues/5586)) ([d3f9380](https://github.com/erxes/erxes/commit/d3f9380a2e77467ca461e33a282ef4773cec4379))
+- selectWithSearch with exact filter ([#5581](https://github.com/erxes/erxes/issues/5581)) ([af945c7](https://github.com/erxes/erxes/commit/af945c7778c74e3f51dfb3e216d5d20fadf3be9d))
+- syncpolaris logs headers show ([6df0f44](https://github.com/erxes/erxes/commit/6df0f44dd8ae88bb2831b895ef336539405b9491))
+- syncpolaris save header ([df4ecef](https://github.com/erxes/erxes/commit/df4ecef2ef89c359eab3fb17cbb907e6365e3e1d))
+- syncpolaris save sendData ([e71aabe](https://github.com/erxes/erxes/commit/e71aabe14519887830abe2f302329758e80b2b29))
+- TransferInputGolomt ([876c733](https://github.com/erxes/erxes/commit/876c733c2ab769055d0731d1eacc85ce65c2caad))
+
+### Performance Improvements
+
+- slot ux improvement of restaurant theme ([#5563](https://github.com/erxes/erxes/issues/5563)) ([486d613](https://github.com/erxes/erxes/commit/486d613cd73f9f98ac79511dfb8d4ea767fe161a))
 
 ## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.15.0-rc.13...1.15.0-rc.14) (2024-08-15)
 

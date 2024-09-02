@@ -27,6 +27,7 @@ export interface IArticle {
   categoryId?: string;
   topicId?: string;
   publishedUserId?: string;
+  scheduledDate?: Date;
 
   forms?: IFormCodes[];
 }
@@ -72,7 +73,7 @@ const commonFields = {
   modifiedBy: field({ type: String, label: 'Modified by' }),
   modifiedDate: field({ type: Date, label: 'Modified at' }),
   title: field({ type: String, label: 'Title' }),
-  code: field({ type: String, unique: true, label: 'Code'}),
+  code: field({ type: String, unique: true, label: 'Code', sparse: true}),
 };
 
 const formcodesSchema = new Schema(
@@ -92,6 +93,11 @@ export const articleSchema = new Schema({
     enum: PUBLISH_STATUSES.ALL,
     default: PUBLISH_STATUSES.DRAFT,
     label: 'Status',
+  }),
+  scheduledDate: field({
+    type: Date,
+    optional: true,
+    label: 'Scheduled date',
   }),
   isPrivate: field({
     type: Boolean,
@@ -170,6 +176,6 @@ export const topicSchema = schemaWrapper(
   }),
 );
 
-articleSchema.index({ code: 1}, { unique: true });
-categorySchema.index({ code: 1}, { unique: true });
-topicSchema.index({ code: 1}, { unique: true });
+articleSchema.index({ code: 1}, { unique: true, sparse: true });
+categorySchema.index({ code: 1}, { unique: true, sparse: true });
+topicSchema.index({ code: 1}, { unique: true, sparse: true });

@@ -11,6 +11,7 @@ export interface IGolomtBankConfigsItem {
   registerId: string;
   accountId: string;
   golomtCode: string;
+  apiUrl: string;
 }
 
 export type ConfigsListQueryResponse = {

@@ -133,7 +133,7 @@ export const createSavingLoan = async (subdomain, params) => {
     op: '13610265',
     data: [sendData],
     subdomain,
-  }).then((a) => JSON.parse(a));
+  });
 
   if (typeof result === 'string') {
     await updateContract(

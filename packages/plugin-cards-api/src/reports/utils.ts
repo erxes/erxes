@@ -1,9 +1,10 @@
-import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendTagsMessage } from "../messageBroker";
-import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
+import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
+import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP, GOAL_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { getService, getServices, isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+const util = require('util');
 
 dayjs.extend(isoWeek);
 
@@ -140,6 +141,63 @@ const buildFormatType = (dateRange, startDate, endDate) => {
 
 }
 
+export const getGoalStage = (dimensions, measures) => {
+
+    const dimension = dimensions?.length ? dimensions?.[0] : ''
+    const measure = measures?.length ? measures?.[0] : ''
+
+    if (!dimension || !measure) {
+        return null
+    }
+
+    if (dimension === 'frequency') {
+        return {
+            $lookup: {
+                from: "goals",
+                let: {},
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ["$specificPeriodGoals", []] },
+                                    { $eq: ["$periodGoal", "Monthly"] },
+                                    { $eq: ["$metric", GOAL_MAP[measure]] }
+                                ],
+                            },
+                        },
+                    },
+                ],
+                as: "goal",
+            },
+        }
+    }
+
+    const goalsStage = {
+        $lookup: {
+            from: "goals",
+            let: { fieldId: GOAL_MAP[dimension].fieldId },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                dimension === 'board' || dimension === 'pipeline' || dimension === 'stage'
+                                    ? { $eq: [GOAL_MAP[dimension].foreignField, "$$fieldId"] }
+                                    : { $in: ["$$fieldId", GOAL_MAP[dimension].foreignField] },
+                                { $eq: ["$metric", GOAL_MAP[measure]] }
+                            ]
+                        },
+                    },
+                },
+            ],
+            as: "goal",
+        },
+    }
+
+    return goalsStage
+}
+
 export const buildPipeline = (filter, type, matchFilter) => {
 
     const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
@@ -148,6 +206,8 @@ export const buildPipeline = (filter, type, matchFilter) => {
     const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
 
     const pipeline: any[] = [];
+
+    const actions = buildAction(measures)
 
     const formatType = buildFormatType(dateRange, startDate, endDate)
 
@@ -243,9 +303,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         pipeline.push({ $unwind: "$assignedUserIds" });
     }
 
-    if (dimensions.includes("property")) {
+    if (dimensions.includes("field")) {
         pipeline.push(
             { $unwind: "$customFieldsData" },
+            { $unwind: "$customFieldsData.value" },
             {
                 $lookup: {
                     from: "form_fields",
@@ -500,6 +561,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         groupKeys.cardName = "$name";
     }
 
+    if (dimensions.includes("field")) {
+        groupKeys.field = "$customFieldsData.value";
+    }
+
     if (dimensions.includes("label")) {
         groupKeys.labelId = "$labelIds";
     }
@@ -608,7 +673,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({
         $group: {
             _id: groupKeys,
-            ...buildAction(measures),
+            ...actions,
         }
     });
 
@@ -731,7 +796,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
                         {
                             $match: {
                                 $expr: {
-                                    $or: conditions
+                                    $and: [
+                                        { $or: conditions },
+                                        { $eq: ["$isActive", true] },
+                                    ]
                                 }
                             }
                         },
@@ -960,6 +1028,15 @@ export const buildPipeline = (filter, type, matchFilter) => {
         _id: 0,
     };
 
+    if (isEnabled('goals') && ['department', 'branch', 'createdBy', 'modifiedBy', 'assignedTo', 'board', 'pipeline', 'stage', 'frequency'].some(item => dimensions.includes(item))) {
+        const goalStage = getGoalStage(dimensions, measures)
+
+        if (goalStage) {
+            pipeline.push(goalStage)
+            projectionFields.goal = 1;
+        }
+    }
+
     measures.forEach((measure) => {
         projectionFields[measure] = 1;
     });
@@ -970,6 +1047,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     if (dimensions.includes("tag")) {
         projectionFields.tag = "$tag.name";
+    }
+
+    if (dimensions.includes("field")) {
+        projectionFields.field = "$_id.field"
     }
 
     if (dimensions.includes("card")) {
@@ -1261,6 +1342,7 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         labelIds,
         groupIds,
         fieldIds,
+        assetIds,
         dateRange,
         dueDateRange,
         integrationTypes,
@@ -1271,7 +1353,34 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     // USER FILTER
     if (userIds?.length) {
         const { userType = 'userId' } = filter;
-        matchfilter[userType] = { $in: userIds };
+
+        if (userType === "closedBy") {
+
+            const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+
+            const logs = await sendLogsMessage({
+                subdomain,
+                action: 'activityLogs.findMany',
+                data: {
+                    query: {
+                        contentType: `cards:${type}`,
+                        createdBy: { $in: userIds },
+                        'content.destinationStageId': { $in: stageIds },
+                        action: 'moved',
+                    },
+                },
+                isRPC: true,
+                defaultValue: [],
+            });
+
+            const contentIds = (logs || []).map(log => log.contentId);
+
+            matchfilter['_id'] = { $in: contentIds };
+
+        } else {
+            matchfilter[userType] = { $in: userIds };
+        }
+
     }
 
     // BRANCH FILTER
@@ -1449,6 +1558,11 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
     }
 
+    // CUSTOM PROPERTIES FIELD FILTER 
+    if (assetIds?.length) {
+        matchfilter['customFieldsData.value'] = { $in: assetIds };
+    }
+
     // DATE FILTER
     if (dateRange) {
         const { startDate, endDate, dateRangeType = 'createdAt' } = filter;
@@ -1618,7 +1732,7 @@ export const buildData = ({ chartType, data, filter }) => {
         case 'doughnut':
         case 'radar':
         case 'polarArea':
-            return buildChartData(formattedData, measure, dimension)
+            return buildChartData(formattedData, measure, dimension, filter)
         case 'table':
             return buildTableData(formattedData, measure, dimension)
         case 'number':
@@ -1638,12 +1752,82 @@ export const buildNumberData = (data: any, measures: any, dimensions: any) => {
     return { data: totals, labels }
 }
 
-export const buildChartData = (data: any, measures: any, dimensions: any) => {
+export const buildChartData = (data: any, measures: any, dimensions: any, filter: any) => {
 
-    const datasets = (data || []).map(item => item[DEAL_LABELS[measures[0]]])
-    const labels = (data || []).map(item => item[dimensions[0]])
+    const { src } = filter
 
-    return { data: datasets, labels };
+    if (src && src === 'aputpm') {
+        const datasets = (data || []).map(item => item[DEAL_LABELS[measures[0]]])
+        const labels = (data || []).map(item => item[dimensions[0]])
+
+        return { data: datasets, labels };
+    }
+
+    const hasGoal = (data || []).every(obj => Array.isArray(obj?.goal) && obj?.goal?.length === 0);
+
+    const datasets = (data || []).reduce(
+        (acc, item) => {
+            const label = (dimensions || []).map((dimension) => item[dimension]);
+
+            const labelExists = acc.labels.some((existingLabel) =>
+                existingLabel.every((value, index) => value === label[index])
+            );
+
+            if (!labelExists) {
+                acc.labels.push(label);
+            }
+
+            measures.forEach((measure) => {
+                let dataset = acc.datasets.find((d) => d.label === DEAL_LABELS[measure]);
+
+                if (!dataset) {
+                    dataset = {
+                        label: DEAL_LABELS[measure],
+                        data: [],
+                        borderWidth: 1,
+                        skipNull: true,
+                    };
+                    acc.datasets.push(dataset);
+                }
+
+                dataset.data.push(item[DEAL_LABELS[measure]] || 0);
+            });
+
+            if (item.goal && !hasGoal) {
+                let goalDataset = acc.datasets.find((d) => d.label === "Target");
+
+                if (!goalDataset) {
+                    goalDataset = {
+                        label: "Target",
+                        data: [],
+                        borderWidth: 1,
+                        skipNull: true,
+                    };
+                    acc.datasets.push(goalDataset);
+                }
+
+                if (item?.hasOwnProperty('frequency')) {
+
+                    const specificPeriodGoals = item.goal?.[0]?.specificPeriodGoals || []
+                    const periodGoal = specificPeriodGoals.find(goal => goal.addMonthly.includes(item.frequency));
+
+                    if (periodGoal) {
+                        item.goal[0].target = periodGoal.addTarget;
+                    }
+                }
+
+                goalDataset.data.push(item.goal?.[0]?.target || null);
+            }
+
+            return acc;
+        },
+        {
+            labels: [],
+            datasets: [],
+        }
+    );
+
+    return datasets
 }
 
 export const buildTableData = (data: any, measures: any, dimensions: any) => {
@@ -1684,20 +1868,19 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 }
 
 export const buildOptions = (filter) => {
-
     const { target } = filter
 
-    const plugins = {}
+    const options: any = {}
 
-    if (target) {
-        Object.assign(plugins, {
+    if (target?.target) {
+        options.plugins = {
             horizontalDottedLine: {
                 targetValue: parseInt(target.target, 10)
             }
-        })
+        };
     }
 
-    return { options: { plugins: plugins } }
+    return { options }
 }
 
 export const getStageIds = async (filter: any, type: string, models: IModels,) => {

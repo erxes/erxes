@@ -12,7 +12,7 @@ const onError = (error: ApolloError) => {
   toast({ description: error.message, variant: "destructive" })
 }
 
-const useOrderCU = (onCompleted?: (id: string) => void) => {
+const useOrderCU = (onCompleted?: (id: string, isPre?: boolean) => void) => {
   const { customer, type, _id, slotCode, ...rest } =
     useAtomValue(orderValuesAtom)
 
@@ -32,9 +32,9 @@ const useOrderCU = (onCompleted?: (id: string) => void) => {
   const [ordersAdd, { loading }] = useMutation(mutations.ordersAdd, {
     variables,
     onCompleted(data) {
-      const { _id } = (data || {}).ordersAdd || {}
+      const { _id, isPre } = (data || {}).ordersAdd || {}
       onOrderChange()
-      onCompleted && onCompleted(_id)
+      onCompleted && onCompleted(_id, isPre)
     },
     onError,
     refetchQueries: ["PoscSlots"],

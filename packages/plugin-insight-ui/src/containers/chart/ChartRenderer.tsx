@@ -73,7 +73,7 @@ const ChartRendererList = (props: FinalProps) => {
     return <ChartRenderer {...finalProps} />;
   }
 
-  const { data, labels, title, options } =
+  const { data, labels, datasets, title, options } =
     chartGetResultQuery?.chartGetResult || {};
 
   const dataset = { data, labels, title };
@@ -95,13 +95,24 @@ const ChartRendererList = (props: FinalProps) => {
     );
   }
 
-  const datasets =
+  const chartGetResult =
     !data && !labels && !title && chartGetResultQuery.chartGetResult;
+
+  const randomNums = getRandomNumbers(datasets?.[0]?.data?.length);
+  const extendedDatasets = (datasets || []).map((set, index) => {
+    const newSet = { ...set };
+
+    newSet.backgroundColor = DEFAULT_BACKGROUND_COLORS[randomNums[index]];
+    newSet.borderColor = DEFAULT_BORDER_COLORS[randomNums[index]];
+
+    return newSet;
+  });
 
   finalProps = {
     ...props,
     options,
-    datasets,
+    datasets: extendedDatasets,
+    dataset: chartGetResult,
     data,
     labels,
     title,

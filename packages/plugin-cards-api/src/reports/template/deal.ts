@@ -36,6 +36,7 @@ const DIMENSION_OPTIONS = [
     { label: 'Stage changed at', value: 'stageChangedDate' },
     { label: 'Start Date', value: 'startDate' },
     { label: 'Close Date', value: 'closeDate' },
+    { label: 'Custom Propertry', value: 'field' },
 ];
 
 export const dealCharts = [
@@ -629,9 +630,7 @@ export const dealCharts = [
                     $unwind: "$customFieldsData",
                 },
                 {
-                    $match: {
-                        ...matchFilter
-                    },
+                    $unwind: "$customFieldsData.value",
                 },
                 {
                     $lookup: {
@@ -645,45 +644,29 @@ export const dealCharts = [
                     $unwind: "$field",
                 },
                 {
+                    $match: {
+                        ...matchFilter
+                    },
+                },
+                {
                     $group: {
-                        _id: "$customFieldsData.field",
-                        field: { $first: "$field.text" },
-                        fieldType: { $first: "$field.type" },
-                        fieldOptions: { $first: "$field.options" },
-                        selectedOptions: { $push: "$customFieldsData.value" },
+                        _id: "$customFieldsData.value",
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        field: "$_id",
+                        count: 1,
                     },
                 },
             ]
 
             const deals = await models.Deals.aggregate(pipeline)
 
-            const totalCountByCustomProperties = (deals || []).reduce((acc, { 
-                fieldType,
-                fieldOptions,
-                selectedOptions,
-            }) => {
-
-                (selectedOptions || []).map(selectedOption => {
-                    if (fieldType === 'multiSelect') {
-                        const optionArray = (selectedOption || '').split(',');
-                        optionArray.forEach(opt => {
-                            if (fieldOptions.includes(opt)) {
-                                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
-                            }
-                        });
-                    } else if (Array.isArray(selectedOption)) {
-                        selectedOption.flatMap(option => {
-                            if (fieldOptions.includes(option)) {
-                                acc[option] = (acc[option] || 0) + 1
-                            }
-                        })
-                    } else if (fieldOptions.includes(selectedOption)) {
-                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
-                    } else {
-                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
-                    }
-                })
-
+            const totalCountByCustomProperties = (deals || []).reduce((acc, { count, field }) => {
+                acc[field] = count;
                 return acc;
             }, {});
 
@@ -2876,7 +2859,6 @@ export const dealCharts = [
                 fieldType: 'select',
                 multi: true,
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER
@@ -2907,12 +2889,12 @@ export const dealCharts = [
             {
                 fieldName: 'userType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
-                    },
-                ],
+                // logics: [
+                //     {
+                //         logicFieldName: 'dimension',
+                //         logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
+                //     },
+                // ],
                 multi: false,
                 fieldDefaultValue: 'userId',
                 fieldOptions: USER_TYPES,
@@ -2922,12 +2904,12 @@ export const dealCharts = [
             {
                 fieldName: 'userIds',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
-                    },
-                ],
+                // logics: [
+                //     {
+                //         logicFieldName: 'dimension',
+                //         logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
+                //     },
+                // ],
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',

@@ -13,7 +13,7 @@ export const createChangeLoanAmount = async (subdomain, params) => {
     subdomain,
     op: '13611117',
     data: sendData,
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanChangeLoanAmountResponse.txnJrno;
 };
