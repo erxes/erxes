@@ -25,22 +25,26 @@ const DirectDiscount: React.FC = () => {
   const totalAmount = useAtomValue(totalAmountAtom)
 
   useEffect(() => {
-    type === "amount" && setDirectDiscount((directDiscount * totalAmount) / 100)
+    console.log('qqqqqqqqqqqqqqqqqqqqqqq',type, directDiscount, totalAmount)
+    type === "amount" && setDirectDiscount((directDiscount * totalAmount) / (100 - directDiscount))
     type === "percent" &&
-      setDirectDiscount((directDiscount / totalAmount) * 100)
+      setDirectDiscount((directDiscount / (totalAmount + directDiscount)) * 100)
+    console.log(directDiscount)
   }, [type])
 
   if (!allowDirectDiscount) {
     return null
   }
 
+  console.log(savedDiscount, 'sssssssssss')
   const limit =
     type === "percent"
       ? directDiscountLimit
-      : (totalAmount / (100 - savedDiscount)) * directDiscountLimit
+      : totalAmount * directDiscountLimit * 0.01
 
   const handleDirectDiscountChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = Number(Number(e.target.value).toFixed(2))
+    console.log(value, limit, 'kkkkkkkkkkkkkkkkk')
     const clampedValue = Math.min(Math.max(value, 0), limit)
     setDirectDiscount(clampedValue)
   }
