@@ -121,9 +121,9 @@ const List = ({
         autoFocus={true}
       />
       &nbsp;&nbsp;
-      <Link to='/forms/create'>
+      <Link to='/forms/leads/create'>
         <Button btnStyle='success' size='small' icon='plus-circle'>
-          Create Form
+          Create Lead
         </Button>
       </Link>
     </Flex>
@@ -181,8 +181,8 @@ const List = ({
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Forms')}
-          breadcrumb={[{ title: __('Forms') }]}
+          title={__('Leads')}
+          breadcrumb={[{ title: __('Leads') }]}
           queryParams={queryParams}
         />
       }

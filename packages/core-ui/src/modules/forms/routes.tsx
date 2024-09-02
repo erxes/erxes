@@ -19,6 +19,13 @@ const LeadsContainer = asyncComponent(
   () => import(/* webpackChunkName: "Leads - List" */ './leads/containers/List')
 );
 
+const CreateLead = asyncComponent(
+  () =>
+    import(
+      /* webpackChunkName: "Forms - CreateLead" */ "./leads/containers/CreateLead"
+    )
+);
+
 const Forms = () => {
   return <FormsContainer />;
 };
@@ -35,8 +42,6 @@ const Leads = () => {
   const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
 
-  console.log("LOCATION = ",location)
-
   return (
     <LeadsContainer
       queryParams={queryParams}
@@ -46,11 +51,19 @@ const Leads = () => {
   );
 };
 
+const CreateLeadComponent = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return <CreateLead location={location} navigate={navigate} />;
+};
+
 const routes = () => (
   <Routes>
     <Route path='/settings/properties/' element={<PropertiesComp />} />
     <Route path='/forms/' element={<Forms />} />
     <Route path='/forms/leads/' element={<Leads />} />
+    <Route path='/forms/leads/create' element={<CreateLeadComponent/>} />
   </Routes>
 );
 
