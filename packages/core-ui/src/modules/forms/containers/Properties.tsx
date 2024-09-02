@@ -189,7 +189,7 @@ const PropertiesContainer = (props: FinalProps) => {
       Alert.error(error.message);
     });
   };
-console.log("daqa", fieldsGroupsQuery)
+
   const currentType = router.getParam(location, "type");
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
