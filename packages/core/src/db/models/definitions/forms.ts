@@ -15,6 +15,10 @@ export interface IForm {
   numberOfPages?: number;
   buttonText?: string;
 
+  departmentIds?: string[];
+  languageCode?: string;
+  visibility?: string;
+
   leadData?: ILeadData;
 }
 
@@ -265,5 +269,8 @@ export const formSchema = schemaWrapper(
     }),
 
     leadData: field({ type: leadDataSchema, label: 'Lead data' }),
+    departmentIds: field({ type: [String], optional: true, label: 'Departments' }),
+    languageCode: field({ type: String, optional: true, label: 'Language' }),
+    visibility: field({ type: String, optional: true, label: 'Visibility' }),
   })
 );

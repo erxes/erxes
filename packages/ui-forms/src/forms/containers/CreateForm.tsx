@@ -35,8 +35,8 @@ const CreateFormContainer: React.FC<Props> = ({
     refetchQueries: ['fields'],
   });
 
-  const [fieldsBulkAddAndEditMutation] = useMutation(
-    gql(mutations.fieldsBulkAddAndEdit)
+  const [manageFieldsMutation] = useMutation(
+    gql(mutations.fieldsBulkAction)
   );
 
   const saveForm = useCallback(
@@ -72,11 +72,11 @@ const CreateFormContainer: React.FC<Props> = ({
             ...rest,
           }));
 
-          fieldsBulkAddAndEditMutation({
+          manageFieldsMutation({
             variables: {
               contentType: 'form',
               contentTypeId: formId,
-              addingFields: cleanedFields,
+              newFields: cleanedFields,
             },
           });
         })
@@ -89,7 +89,7 @@ const CreateFormContainer: React.FC<Props> = ({
           Alert.error(error.message);
         });
     },
-    [addFormMutation, fieldsBulkAddAndEditMutation, afterDbSave, showMessage]
+    [addFormMutation, manageFieldsMutation, afterDbSave, showMessage]
   );
 
   console.log("configsLoading",configsLoading)

@@ -143,7 +143,7 @@ const fieldsCommonFields = `
 
 export const fieldsMutations = `
   fieldsAdd(contentType: String!, contentTypeId: String, ${fieldsCommonFields}): Field
-  fieldsBulkAddAndEdit(contentType: String!, contentTypeId: String, addingFields:[FieldItem], editingFields:[FieldItem]): [Field]
+  fieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FieldItem], updatedFields:[FieldItem]): [Field]
   fieldsEdit(_id: String!, ${fieldsCommonFields}): Field
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]

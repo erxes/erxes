@@ -21,6 +21,8 @@ export const types = `
     skip: Boolean
   }
 
+  
+
   type Form @key(fields: "_id") {
     _id: String!
     title: String
@@ -35,6 +37,11 @@ export const types = `
 
     googleMapApiKey: String
     fields: [Field]
+
+    visibility: String
+    leadData: JSON
+    languageCode: String
+    departmentIds: [String]
   }
 
   type FormSubmission {
@@ -78,6 +85,11 @@ const commonFields = `
   type: String!,
   numberOfPages: Int,
   googleMapApiKey: String
+
+  visibility: String
+  leadData: JSON
+  languageCode: String
+  departmentIds: [String]
 `;
 
 const commonFormSubmissionFields = `

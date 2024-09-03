@@ -108,18 +108,18 @@ const formSubmissionsSave = `
   }
 `;
 
-const fieldsBulkAddAndEdit = `
-  mutation fieldsBulkAddAndEdit(
+const fieldsBulkAction = `
+  mutation fieldsBulkAction(
     $contentType: String!,
     $contentTypeId: String,
-    $addingFields: [FieldItem],
-    $editingFields: [FieldItem]
+    $newFields: [FieldItem],
+    $updatedFields: [FieldItem]
   ) {
-      fieldsBulkAddAndEdit(
+      fieldsBulkAction(
         contentType: $contentType,
         contentTypeId: $contentTypeId,
-        addingFields: $addingFields,
-        editingFields: $editingFields
+        newFields: $newFields,
+        updatedFields: $updatedFields
       ) {
         _id
         contentTypeId
@@ -134,5 +134,5 @@ export default {
   fieldsEdit,
   fieldsRemove,
   formSubmissionsSave,
-  fieldsBulkAddAndEdit
+  fieldsBulkAction
 };

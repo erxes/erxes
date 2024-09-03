@@ -252,11 +252,8 @@ export const mutations = `
     name: String!,
     brandId: String!,
     channelIds: [String]
-    visibility: String,
-    departmentIds: [String],
-    languageCode: String,
     formId: String!,
-    leadData: IntegrationLeadData!): Integration
+    ): Integration
 
   integrationsEditLeadIntegration(
     _id: String!

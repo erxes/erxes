@@ -46,8 +46,8 @@ export type AddFormMutationResponse = {
 export type BulkEditAndAddMutationVariables = {
   contentType: string;
   contentTypeId?: string;
-  addingFields?: IField[];
-  editingFields?: IField[];
+  newFields?: IField[];
+  updatedFields?: IField[];
 };
 
 export type FieldsBulkAddAndEditMutationResponse = {
