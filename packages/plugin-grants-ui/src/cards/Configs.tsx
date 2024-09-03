@@ -7,7 +7,10 @@ import {
   __,
 } from '@erxes/ui/src';
 import { Card } from './styles';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
 import CardActionComponent from './ActionComponent';
 
 type Props = {
@@ -80,17 +83,33 @@ const Config: React.FC<Props> = (props: Props) => {
     </>
   );
 
-  let boardSelect = !!config['type'] && (
-    <BoardSelect
-      type={config['type']}
-      boardId={config?.boardId}
-      pipelineId={config?.pipelineId}
-      stageId={config?.stageId}
-      onChangeBoard={(e) => onChangeBoard(e, 'boardId')}
-      onChangePipeline={(e) => onChangeBoard(e, 'pipelineId')}
-      onChangeStage={(e) => onChangeBoard(e, 'stageId')}
-    />
-  );
+  const renderBoard = (type: string) => {
+    const boardProps = {
+      type: config['type'],
+      boardId: config?.boardId,
+      pipelineId: config?.pipelineId,
+      stageId: config?.stageId,
+      onChangeBoard: (e) => onChangeBoard(e, "boardId"),
+      onChangePipeline: (e) => onChangeBoard(e, "pipelineId"),
+      onChangeStage: (e) => onChangeBoard(e, "stageId"),
+    };
+    
+    switch (type) {
+      case "deal":
+        return <SalesBoardSelect {...boardProps} />;
+
+      case "ticket":
+        return <TicketsBoardSelect {...boardProps} />;
+
+      case "purchase":
+        return <PurchasesBoardSelect {...boardProps} />;
+
+      case "task":
+        return <TasksBoardSelect {...boardProps} />;
+    }
+  };
+
+  let boardSelect = !!config['type'] && renderBoard(config['type']);
 
   return (
     <>

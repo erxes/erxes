@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
-import { AddContent, AddRow } from "@erxes/ui-cards/src/boards//styles/item";
-import AssignedUsers from "@erxes/ui-cards/src/boards/components/portable/AssignedUsers";
-import PipelineLabels from "@erxes/ui-cards/src/boards/components/portable/PipelineLabels";
+import { AddContent, AddRow } from "@erxes/ui-sales/src/boards/styles/item";
+import AssignedUsers from "@erxes/ui-sales/src/boards/components/portable/AssignedUsers";
+import PipelineLabels from "@erxes/ui-sales/src/boards/components/portable/PipelineLabels";
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
 import GenerateField from "@erxes/ui-forms/src/settings/properties/components/GenerateField";
 import { LogicParams } from "@erxes/ui-forms/src/settings/properties/types";

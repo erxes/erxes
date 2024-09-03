@@ -19,7 +19,10 @@ import { cardTypes, subMenu } from "../../common/constants";
 import { removeParams, setParams } from "@erxes/ui/src/utils/router";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
 import Form from "../containers/Form";
 import Row from "./Row";
 import Select from "react-select";
@@ -138,6 +141,33 @@ const List = (props: Props) => {
     setParams(navigate, location, { [type]: value });
   };
 
+  const renderBoard = (type: string) => {
+    const boardProps = {
+      type: queryParams?.cardType,
+      boardId: queryParams?.boardId,
+      pipelineId: queryParams?.pipelineId,
+      stageId: queryParams?.stageId,
+      onChangeBoard: (e) => handleFilterParams("boardId", e),
+      onChangePipeline: (e) => handleFilterParams("pipelineId", e),
+      onChangeStage: (e) => handleFilterParams("stageId", e),
+      autoSelectStage: true,
+    };
+    
+    switch (type) {
+      case "deal":
+        return <SalesBoardSelect {...boardProps} />;
+
+      case "ticket":
+        return <TicketsBoardSelect {...boardProps} />;
+
+      case "purchase":
+        return <PurchasesBoardSelect {...boardProps} />;
+
+      case "task":
+        return <TasksBoardSelect {...boardProps} />;
+    }
+  };
+
   const sidebar = (
     <Sidebar
       full
@@ -155,16 +185,7 @@ const List = (props: Props) => {
             onChange={(e) => handleFilterParams("cardType", e?.value)}
           />
         </FormGroup>
-        <BoardSelectContainer
-          type={queryParams?.cardType}
-          boardId={queryParams?.boardId}
-          pipelineId={queryParams?.pipelineId}
-          stageId={queryParams?.stageId}
-          onChangeBoard={(e) => handleFilterParams("boardId", e)}
-          onChangePipeline={(e) => handleFilterParams("pipelineId", e)}
-          onChangeStage={(e) => handleFilterParams("stageId", e)}
-          autoSelectStage={false}
-        />
+        {renderBoard(queryParams?.cardType)}
         <FormGroup>
           <ControlLabel>{__("Custom field")}</ControlLabel>
           <SelectCustomFields

@@ -5,17 +5,20 @@ import {
   DateControl,
   FormControl,
   FormGroup,
-  __
+  __,
 } from "@erxes/ui/src";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
 import { Columns } from "@erxes/ui/src/styles/chooser";
 import { FormContainer } from "../../styles";
 import React from "react";
 import Select from "react-select";
 import { SelectStructure } from "../common/utils";
 import { SelectTags } from "../../indicator/common/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+
 type Props = {
   onChange: (value, name) => void;
   plan: any;
@@ -30,7 +33,7 @@ class GeneralConfig extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      useGroup: false
+      useGroup: false,
     };
   }
 
@@ -49,6 +52,33 @@ class GeneralConfig extends React.Component<Props, State> {
       onChange({ ...configs, [name]: value }, "configs");
     };
 
+    const renderBoard = (type: string) => {
+      const boardProps = {
+        type: configs?.cardType,
+        boardId: configs?.boardId,
+        pipelineId: configs?.pipelineId,
+        stageId: configs?.stageId,
+        onChangeBoard: (value) => handleConfigChange(value, "boardId"),
+        onChangePipeline: (value) => handleConfigChange(value, "pipelineId"),
+        onChangeStage: (value) => handleConfigChange(value, "stageId"),
+        autoSelectStage: true,
+      };
+      
+      switch (type) {
+        case "deal":
+          return <SalesBoardSelect {...boardProps} />;
+
+        case "ticket":
+          return <TicketsBoardSelect {...boardProps} />;
+
+        case "purchase":
+          return <PurchasesBoardSelect {...boardProps} />;
+
+        case "task":
+          return <TasksBoardSelect {...boardProps} />;
+      }
+    };
+
     return (
       <FormContainer padding="15px" $column>
         <FormGroup>
@@ -65,11 +95,11 @@ class GeneralConfig extends React.Component<Props, State> {
           <Select
             name="structureType"
             placeholder={__("Select structure Type")}
-            value={STRUCTURETYPES.find(o => o.value === plan?.structureType)}
+            value={STRUCTURETYPES.find((o) => o.value === plan?.structureType)}
             options={STRUCTURETYPES}
             isMulti={false}
             isClearable={true}
-            onChange={props => onChange(props?.value, "structureType")}
+            onChange={(props) => onChange(props?.value, "structureType")}
           />
         </FormGroup>
         <SelectStructure
@@ -96,29 +126,16 @@ class GeneralConfig extends React.Component<Props, State> {
               <Select
                 name="type"
                 placeholder={__("Select card type")}
-                value={CARDTYPES.find(o => o.value === configs?.cardType)}
+                value={CARDTYPES.find((o) => o.value === configs?.cardType)}
                 options={CARDTYPES}
                 isMulti={false}
                 isClearable={true}
-                onChange={props =>
+                onChange={(props) =>
                   onChange({ ...configs, cardType: props?.value }, "configs")
                 }
               />
             </FormGroup>
-            {configs?.cardType && (
-              <BoardSelectContainer
-                type={configs?.cardType}
-                boardId={configs?.boardId}
-                pipelineId={configs?.pipelineId}
-                stageId={configs?.stageId}
-                onChangeBoard={value => handleConfigChange(value, "boardId")}
-                onChangePipeline={value =>
-                  handleConfigChange(value, "pipelineId")
-                }
-                onChangeStage={value => handleConfigChange(value, "stageId")}
-                autoSelectStage
-              />
-            )}
+            {configs?.cardType && renderBoard(configs?.cardType)}
           </>
         )}
 
@@ -131,7 +148,7 @@ class GeneralConfig extends React.Component<Props, State> {
                   name="createDate"
                   value={plan.createDate}
                   placeholder="select from create date "
-                  onChange={date => onChange(date, "createDate")}
+                  onChange={(date) => onChange(date, "createDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -144,7 +161,7 @@ class GeneralConfig extends React.Component<Props, State> {
                   name="startDate"
                   value={plan.startDate}
                   placeholder="select from start date "
-                  onChange={date => onChange(date, "startDate")}
+                  onChange={(date) => onChange(date, "startDate")}
                 />
               </DateContainer>
             </FormGroup>
@@ -157,7 +174,7 @@ class GeneralConfig extends React.Component<Props, State> {
                   name="closeDate"
                   value={plan.closeDate}
                   placeholder="select from end date "
-                  onChange={date => onChange(date, "closeDate")}
+                  onChange={(date) => onChange(date, "closeDate")}
                 />
               </DateContainer>
             </FormGroup>

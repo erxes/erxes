@@ -1,7 +1,6 @@
 import { WhiteBoxRoot, colors, dimensions } from '@erxes/ui/src';
 import styled, { css } from 'styled-components';
 
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { highlight } from '@erxes/ui/src/utils/animations';
@@ -385,13 +384,6 @@ export const Block = styled.div`
 export const Header = styled.h4`
   margin-bottom: ${dimensions.coreSpacing}px;
   color: ${colors.colorPrimary};
-`;
-
-export const BoardSelection = styled(BoardSelectContainer)`
-  display: flex;
-  gap: 15px;
-  max-width: 300px;
-  padding-right: 100px;
 `;
 
 export const SidebarHeader = styled.h5`

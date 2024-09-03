@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Attribution from "@erxes/ui-automations/src/containers/forms/actions/Attribution";
-import BoardSelect from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
 import { CollapseContent, Icon } from "@erxes/ui/src";
 import {
   ControlLabel,
@@ -23,6 +26,22 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
     setParams(updatedParams);
   };
 
+  const renderBoard = (updateProps) => {
+    switch (updateProps.type) {
+      case "deal":
+        return <SalesBoardSelect {...updateProps} />;
+
+      case "ticket":
+        return <TicketsBoardSelect {...updateProps} />;
+
+      case "purchase":
+        return <PurchasesBoardSelect {...updateProps} />;
+
+      case "task":
+        return <TasksBoardSelect {...updateProps} />;
+    }
+  };
+
   const renderMoveAction = (extraProps) => {
     const { pipelineId } = source;
 
@@ -36,7 +55,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
 
     return (
       <div>
-        <BoardSelect {...updateProps} />
+        {renderBoard(updateProps)}
         <DividerBox>{__("ELSE")}</DividerBox>
         <SelectStage
           name="declinedStageId"
@@ -242,7 +261,7 @@ const CardActionComponent = ({ action, initialProps, source, onChange }) => {
         {params["type"] !== type && (
           <>
             <CollapseContent title="Settings" compact>
-              <BoardSelect {...updateProps} />
+              {renderBoard(updateProps)}
               <FormGroup>
                 <Row>
                   <ControlLabel required>{__("Name")}</ControlLabel>

@@ -20,7 +20,10 @@ import {
   SelectIndicators,
 } from "../../common/utils";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import SalesBoardSelect from "@erxes/ui-sales/src/boards/containers/BoardSelect";
+import TicketsBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import TasksBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import PurchasesBoardSelect from "@erxes/ui-purchases/src/boards/containers/BoardSelect";
 import React from "react";
 import Select from "react-select";
 import { cardTypes } from "../../common/constants";
@@ -290,6 +293,34 @@ class Form extends React.Component<Props, State> {
         groupId: config?.groupId || "",
       } as any);
     };
+
+    const renderBoard = (type: string) => {
+      const boardProps = {
+        type: cardType,
+        boardId: boardId,
+        pipelineId: pipelineId,
+        stageId: stageId,
+        onChangeBoard,
+        onChangePipeline,
+        onChangeStage,
+        autoSelectStage: false,
+      };
+
+      switch (type) {
+        case "deal":
+          return <SalesBoardSelect {...boardProps} />;
+
+        case "ticket":
+          return <TicketsBoardSelect {...boardProps} />;
+
+        case "purchase":
+          return <PurchasesBoardSelect {...boardProps} />;
+
+        case "task":
+          return <TasksBoardSelect {...boardProps} />;
+      }
+    };
+
     return (
       <>
         <Block>
@@ -305,18 +336,7 @@ class Form extends React.Component<Props, State> {
               onChange={onChangeCardType}
             />
           </FormGroup>
-          <Features isToggled={!!cardType}>
-            <BoardSelectContainer
-              type={cardType}
-              boardId={boardId}
-              pipelineId={pipelineId}
-              stageId={stageId}
-              onChangeBoard={onChangeBoard}
-              onChangePipeline={onChangePipeline}
-              onChangeStage={onChangeStage}
-              autoSelectStage={false}
-            />
-          </Features>
+          <Features isToggled={!!cardType}>{renderBoard(cardType)}</Features>
         </Block>
         <Features isToggled={!!boardId && !!pipelineId}>
           <Block>
