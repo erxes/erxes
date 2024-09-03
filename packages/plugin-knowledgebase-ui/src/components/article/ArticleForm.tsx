@@ -1,31 +1,32 @@
-import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
-import { FlexRow, Forms, ReactionItem } from "./styles";
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { FlexRow, Forms, ReactionItem } from './styles';
 import {
   IArticle,
   IErxesForm,
   ITopic,
-} from "@erxes/ui-knowledgeBase/src/types";
+} from '@erxes/ui-knowledgeBase/src/types';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps,
   IOption,
-} from "@erxes/ui/src/types";
-import Select, { OnChangeValue } from "react-select";
-import { __, extractAttachment } from "coreui/utils";
+} from '@erxes/ui/src/types';
+import Select, { OnChangeValue } from 'react-select';
+import Datetime from '@nateradebaugh/react-datetime';
+import { __, extractAttachment } from 'coreui/utils';
 
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { FILE_MIME_TYPES } from "@erxes/ui-settings/src/general/constants";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import Icon from "@erxes/ui/src/components/Icon";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import React from "react";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import { articleReactions } from "../../icons.constant";
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FILE_MIME_TYPES } from '@erxes/ui-settings/src/general/constants';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import Icon from '@erxes/ui/src/components/Icon';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { articleReactions } from '../../icons.constant';
 
 type Props = {
   article: IArticle;
@@ -41,17 +42,19 @@ type State = {
   reactionChoices: string[];
   topicId?: string;
   categoryId: string;
+  scheduledDate?: Date;
   attachments: IAttachment[];
   image: IAttachment | null;
   erxesForms: IErxesForm[];
   isPrivate: boolean;
+  isScheduled: boolean;
 };
 
 class ArticleForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const article = props.article || ({ content: "" } as IArticle);
+    const article = props.article || ({ content: '' } as IArticle);
     const attachments =
       (article.attachments && extractAttachment(article.attachments)) || [];
     const image = article.image ? extractAttachment([article.image])[0] : null;
@@ -65,6 +68,7 @@ class ArticleForm extends React.Component<Props, State> {
       image,
       attachments,
       isPrivate: article.isPrivate || false,
+      isScheduled: article.status === 'scheduled' || false,
     };
   }
 
@@ -103,12 +107,22 @@ class ArticleForm extends React.Component<Props, State> {
       image,
       erxesForms,
       isPrivate,
+      scheduledDate,
     } = this.state;
 
     const finalValues = values;
 
     if (article) {
       finalValues._id = article._id;
+    }
+
+    if (this.state.isScheduled && !this.state.scheduledDate) {
+      return alert(__('Please select a publish date'));
+    } else if (
+      this.state.scheduledDate &&
+      this.state.scheduledDate < new Date()
+    ) {
+      return alert(__('Publish date cannot be in the past'));
     }
 
     return {
@@ -130,6 +144,7 @@ class ArticleForm extends React.Component<Props, State> {
         attachments,
         categoryId,
         image,
+        scheduledDate,
       },
     };
   };
@@ -185,8 +200,8 @@ class ArticleForm extends React.Component<Props, State> {
     const erxesForms = this.state.erxesForms.slice();
 
     erxesForms.push({
-      brandId: "",
-      formId: "",
+      brandId: '',
+      formId: '',
     });
 
     this.setState({ erxesForms });
@@ -230,7 +245,7 @@ class ArticleForm extends React.Component<Props, State> {
 
       self.setState({
         topicId: selectedTopicId,
-        categoryId: categories.length > 0 ? categories[0]._id : "",
+        categoryId: categories.length > 0 ? categories[0]._id : '',
       });
     };
 
@@ -241,10 +256,10 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormControl
           {...formProps}
-          name="topicId"
-          componentclass="select"
+          name='topicId'
+          componentclass='select'
           required={true}
-          placeholder={__("Choose knowledgebase")}
+          placeholder={__('Choose knowledgebase')}
           value={self.state.topicId}
           options={self.generateOptions(topics)}
           onChange={onChange}
@@ -271,9 +286,9 @@ class ArticleForm extends React.Component<Props, State> {
 
         <FormControl
           {...formProps}
-          name="categoryId"
-          componentclass="select"
-          placeholder={__("Choose category")}
+          name='categoryId'
+          componentclass='select'
+          placeholder={__('Choose category')}
           value={self.state.categoryId}
           options={self.generateOptions(categories)}
           onChange={onChange}
@@ -291,37 +306,54 @@ class ArticleForm extends React.Component<Props, State> {
     return (
       <FlexRow key={form.formId}>
         <FormGroup>
-          <ControlLabel required={true}>{__("Brand id")}</ControlLabel>
+          <ControlLabel required={true}>{__('Brand id')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="brandId"
+            name='brandId'
             required={true}
             defaultValue={form.brandId}
             onChange={(e: any) =>
-              this.onChangeForm(form.formId, "brandId", e.target.value)
+              this.onChangeForm(form.formId, 'brandId', e.target.value)
             }
           />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__("Form id")}</ControlLabel>
+          <ControlLabel required={true}>{__('Form id')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="formId"
+            name='formId'
             required={true}
             defaultValue={form.formId}
             onChange={(e: any) =>
-              this.onChangeForm(form.formId, "formId", e.target.value)
+              this.onChangeForm(form.formId, 'formId', e.target.value)
             }
           />
         </FormGroup>
 
-        <Button size="small" btnStyle="danger" onClick={remove}>
-          <Icon icon="cancel-1" />
+        <Button size='small' btnStyle='danger' onClick={remove}>
+          <Icon icon='cancel-1' />
         </Button>
       </FlexRow>
     );
   };
+
+  renderScheduleDate() {
+    if (this.props.article.status === 'active') {
+      return null;
+    }
+
+    return (
+      <Datetime
+        dateFormat='YYYY/MM/DD'
+        timeFormat='HH:mm'
+        closeOnSelect={false}
+        closeOnTab={true}
+        value={''}
+        // onChange={this.onChangeDate}
+      />
+    );
+  }
 
   renderContent = (formProps: IFormProps) => {
     const { article, renderButton, closeModal } = this.props;
@@ -341,33 +373,33 @@ class ArticleForm extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__("Title")}</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="title"
+            name='title'
             defaultValue={object.title}
             required={true}
             autoFocus={true}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Code")}</ControlLabel>
-          <FormControl {...formProps} name="code" defaultValue={object.code} />
+          <ControlLabel>{__('Code')}</ControlLabel>
+          <FormControl {...formProps} name='code' defaultValue={object.code} />
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Summary")}</ControlLabel>
+          <ControlLabel>{__('Summary')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="summary"
+            name='summary'
             defaultValue={object.summary}
           />
         </FormGroup>
 
         <FlexContent>
-          <FlexItem count={4}>
+          <FlexItem count={3}>
             <FormGroup>
-              <ControlLabel required={true}>{__("Reactions")}</ControlLabel>
+              <ControlLabel required={true}>{__('Reactions')}</ControlLabel>
               <Select
                 isMulti={true}
                 value={articleReactions.filter((o) =>
@@ -375,32 +407,15 @@ class ArticleForm extends React.Component<Props, State> {
                 )}
                 options={articleReactions}
                 onChange={this.onChangeReactions}
-                placeholder={__("Select")}
+                placeholder={__('Select')}
               />
             </FormGroup>
           </FlexItem>
-          <FlexItem count={2} hasSpace={true}>
+          <FlexItem count={3} hasSpace={true}>
             <FormGroup>
-              <ControlLabel required={true}>{__("Status")}</ControlLabel>
+              <ControlLabel required={true}>{__('is private')}</ControlLabel>
               <FormControl
-                {...formProps}
-                name="status"
-                componentclass="select"
-                placeholder={__("Select")}
-                defaultValue={object.status || "draft"}
-                required={true}
-              >
-                {[{ value: "draft" }, { value: "publish" }].map((op) => (
-                  <option key={op.value} value={op.value}>
-                    {op.value}
-                  </option>
-                ))}
-              </FormControl>
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel required={true}>{__("isPrivate")}</ControlLabel>
-              <FormControl
-                componentclass="checkbox"
+                componentclass='checkbox'
                 checked={isPrivate}
                 onChange={this.onChangeIsCheckDate}
               />
@@ -415,8 +430,70 @@ class ArticleForm extends React.Component<Props, State> {
           </FlexItem>
         </FlexContent>
 
+        <FlexContent>
+          <FlexItem count={3}>
+            <FormGroup>
+              <ControlLabel required={true}>{__('Status')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                name='status'
+                componentclass='select'
+                placeholder={__('Select')}
+                defaultValue={object.status || 'draft'}
+                required={true}
+                onChange={(e: any) => {
+                  if (e.target.value === 'scheduled') {
+                    this.setState({
+                      isScheduled: true,
+                      scheduledDate: new Date(Date.now() + 1000 * 60 * 60)
+                    });
+                  } else {
+                    this.setState({
+                      isScheduled: false,
+                      scheduledDate: undefined,
+                    });
+                  }
+
+                  return e.target.value;
+                }}
+              >
+                {[
+                  { value: 'draft' },
+                  { value: 'scheduled' },
+                  { value: 'publish' },
+                ].map((op) => (
+                  <option key={op.value} value={op.value}>
+                    {op.value}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FlexItem>
+          {this.state.isScheduled && (
+            <FlexItem count={3} hasSpace={true}>
+              <FormGroup>
+                <ControlLabel required={true}>
+                  {__('Publish date')}
+                </ControlLabel>
+                <Datetime
+                  dateFormat='YYYY/MM/DD'
+                  timeFormat='HH:mm'
+                  closeOnSelect={false}
+                  closeOnTab={true}
+                  value={this.state.scheduledDate}
+                  onChange={(d: any) => {
+                    const date = new Date(d);
+
+                    this.setState({ scheduledDate: date });
+                  }}
+                />
+              </FormGroup>
+            </FlexItem>
+          )}
+        </FlexContent>
+
         <FormGroup>
-          <ControlLabel>{__("Image")}</ControlLabel>
+          <ControlLabel>{__('Image')}</ControlLabel>
           <Uploader
             defaultFileList={image ? [image] : []}
             onChange={this.onChangeImage}
@@ -425,7 +502,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>{__("Attachment")}</ControlLabel>
+          <ControlLabel>{__('Attachment')}</ControlLabel>
           <Uploader
             defaultFileList={attachments}
             onChange={this.onChangeAttachments}
@@ -436,48 +513,48 @@ class ArticleForm extends React.Component<Props, State> {
         <FlexContent>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__("File url")}</ControlLabel>
+              <ControlLabel>{__('File url')}</ControlLabel>
               <FormControl
-                placeholder="Url"
-                value={attachment.url || ""}
+                placeholder='Url'
+                value={attachment.url || ''}
                 onChange={(e: any) =>
-                  this.onChangeAttachment("url", e.target.value)
+                  this.onChangeAttachment('url', e.target.value)
                 }
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__("File name")}</ControlLabel>
+              <ControlLabel>{__('File name')}</ControlLabel>
               <FormControl
-                placeholder="Name"
-                value={attachment.name || ""}
+                placeholder='Name'
+                value={attachment.name || ''}
                 onChange={(e: any) =>
-                  this.onChangeAttachment("name", e.target.value)
+                  this.onChangeAttachment('name', e.target.value)
                 }
               />
             </FormGroup>
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__("File size (byte)")}</ControlLabel>
+              <ControlLabel>{__('File size (byte)')}</ControlLabel>
               <FormControl
-                placeholder="Size (byte)"
-                value={attachment.size || ""}
-                type="number"
+                placeholder='Size (byte)'
+                value={attachment.size || ''}
+                type='number'
                 onChange={(e: any) =>
-                  this.onChangeAttachment("size", parseInt(e.target.value, 10))
+                  this.onChangeAttachment('size', parseInt(e.target.value, 10))
                 }
               />
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__("File type")}</ControlLabel>
+              <ControlLabel>{__('File type')}</ControlLabel>
               <FormControl
-                componentclass="select"
-                value={attachment.type || ""}
+                componentclass='select'
+                value={attachment.type || ''}
                 onChange={(e: any) =>
-                  this.onChangeAttachment("type", e.target.value)
+                  this.onChangeAttachment('type', e.target.value)
                 }
                 options={[
-                  { value: "", label: "Select type" },
+                  { value: '', label: 'Select type' },
                   ...mimeTypeOptions,
                 ]}
               />
@@ -485,13 +562,13 @@ class ArticleForm extends React.Component<Props, State> {
           </FlexItem>
           <FlexItem count={2} hasSpace={true}>
             <FormGroup>
-              <ControlLabel>{__("File duration (sec)")}</ControlLabel>
+              <ControlLabel>{__('File duration (sec)')}</ControlLabel>
               <FormControl
-                placeholder="Duration"
+                placeholder='Duration'
                 value={attachment.duration || 0}
                 onChange={(e: any) =>
                   this.onChangeAttachment(
-                    "duration",
+                    'duration',
                     parseInt(e.target.value, 10)
                   )
                 }
@@ -501,7 +578,7 @@ class ArticleForm extends React.Component<Props, State> {
         </FlexContent>
 
         <FormGroup>
-          <ControlLabel>{__("erxes forms")}</ControlLabel>
+          <ControlLabel>{__('erxes forms')}</ControlLabel>
           <Forms>
             {this.state.erxesForms.map((form) =>
               this.renderErxesForm(form, formProps)
@@ -509,38 +586,38 @@ class ArticleForm extends React.Component<Props, State> {
           </Forms>
 
           <Button
-            btnStyle="simple"
-            size="small"
+            btnStyle='simple'
+            size='small'
             onClick={this.addErxesForm}
-            icon="add"
+            icon='add'
           >
             Add another form
           </Button>
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel required={true}>{__("Content")}</ControlLabel>
+          <ControlLabel required={true}>{__('Content')}</ControlLabel>
           <RichTextEditor
             content={content}
             onChange={this.onChange}
             isSubmitted={isSubmitted}
             height={300}
-            name={`knowledgeBase_${article ? article._id : "create"}`}
+            name={`knowledgeBase_${article ? article._id : 'create'}`}
           />
         </FormGroup>
 
         <ModalFooter>
           <Button
-            btnStyle="simple"
-            type="button"
+            btnStyle='simple'
+            type='button'
             onClick={this.props.closeModal}
-            icon="times-circle"
+            icon='times-circle'
           >
-            {__("Cancel")}
+            {__('Cancel')}
           </Button>
 
           {renderButton({
-            passedName: "article",
+            passedName: 'article',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

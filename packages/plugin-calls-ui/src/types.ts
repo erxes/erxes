@@ -44,7 +44,7 @@ export interface IHistoryDoc {
   callEndTime: Date;
   callType: string;
   callStatus: string;
-  sessionId: string;
+  timeStamp: number;
   updatedAt: Date;
   createdAt: Date;
   createdBy: string;
@@ -62,7 +62,54 @@ export interface ICallConfig {
   wsServer: string;
   operators: JSON;
   token: string;
+  queues: [string];
 }
 export interface ICallConfigDoc extends ICallConfig {
   isAvailable: boolean;
+}
+
+export interface IQueue {
+  queuechairman: string;
+  queue: string;
+  total_calls: string;
+  answered_calls: string;
+  answered_rate: string;
+  abandoned_calls: string;
+  avg_wait: string;
+  avg_talk: string;
+  vq_total_calls: string;
+  sla_rate: string;
+  vq_sla_rate: string;
+}
+
+interface CallMember {
+  callerchannel: string;
+  callerid: string;
+  calleechannel: string;
+  calleeid: string;
+  bridge_time: string;
+}
+
+export interface IWaitingCall {
+  extension: string;
+  member: CallMember[];
+}
+
+interface QueueMember {
+  member_extension: string;
+  status: string;
+  membership: string;
+  answer: number;
+  abandon: number;
+  logintime: string;
+  talktime: number;
+  pausetime: string;
+  first_name: string;
+  last_name: string;
+  pause_reason: string;
+}
+
+export interface IQueueDoc {
+  extension: string;
+  member: QueueMember[];
 }

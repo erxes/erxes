@@ -70,7 +70,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   app.use((req: any, _res, next) => {
     req.rawBody = '';
 
-    req.on('data', chunk => {
+    req.on('data', (chunk) => {
       req.rawBody += chunk.toString();
     });
 
@@ -117,7 +117,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   // If the Node process ends, close the Mongoose connection
-  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
     process.on(sig, async () => {
       await closeHttpServer();
       await leaveServiceDiscovery();
@@ -166,7 +166,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
             brandIdSelector: {},
             singleBrandIdSelector: {},
             userBrandIdsSelector: {},
-            docModifier: doc => doc,
+            docModifier: (doc) => doc,
             commonQuerySelector: {},
             user,
             res,
@@ -199,7 +199,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
           context = {
             brandIdSelector,
             singleBrandIdSelector,
-            docModifier: doc => ({ ...doc, scopeBrandIds }),
+            docModifier: (doc) => ({ ...doc, scopeBrandIds }),
             commonQuerySelector,
             commonQuerySelectorElk,
             userBrandIdsSelector,
@@ -212,11 +212,11 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         return context;
       },
-    })
+    }),
   );
 
-  await new Promise<void>(resolve =>
-    httpServer.listen({ port: PORT }, resolve)
+  await new Promise<void>((resolve) =>
+    httpServer.listen({ port: PORT }, resolve),
   );
 
   if (configs.freeSubscriptions) {
@@ -229,7 +229,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
   }
 
   console.log(
-    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`
+    `🚀 ${configs.name} graphql api ready at http://localhost:${PORT}/graphql`,
   );
 
   await connectToMessageBroker(configs.setupMessageConsumers);
@@ -264,7 +264,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.propertyConditionExtender`,
-          segments.propertyConditionExtender
+          segments.propertyConditionExtender,
         );
       }
 
@@ -273,7 +273,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.associationFilter`,
-          segments.associationFilter
+          segments.associationFilter,
         );
       }
 
@@ -282,7 +282,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.esTypesMap`,
-          segments.esTypesMap
+          segments.esTypesMap,
         );
       }
 
@@ -291,7 +291,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
         consumeRPCQueue(
           `${configs.name}:segments.initialSelector`,
-          segments.initialSelector
+          segments.initialSelector,
         );
       }
     }
@@ -309,23 +309,26 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
     if (forms) {
       if (forms.fields) {
-        consumeRPCQueue(`${configs.name}:fields.getList`, async args => ({
+        consumeRPCQueue(`${configs.name}:fields.getList`, async (args) => ({
           status: 'success',
           data: await forms.fields(args),
         }));
       }
 
       if (forms.groupsFilter) {
-        consumeRPCQueue(`${configs.name}:fields.groupsFilter`, async args => ({
-          status: 'success',
-          data: await forms.groupsFilter(args),
-        }));
+        consumeRPCQueue(
+          `${configs.name}:fields.groupsFilter`,
+          async (args) => ({
+            status: 'success',
+            data: await forms.groupsFilter(args),
+          }),
+        );
       }
 
       if (forms.systemFields) {
         forms.systemFieldsAvailable = true;
 
-        consumeRPCQueue(`${configs.name}:systemFields`, async args => ({
+        consumeRPCQueue(`${configs.name}:systemFields`, async (args) => ({
           status: 'success',
           data: await forms.systemFields(args),
         }));
@@ -334,7 +337,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (forms.fieldsGroupsHook) {
         forms.groupsHookAvailable = true;
 
-        consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async args => ({
+        consumeRPCQueue(`${configs.name}:fieldsGroupsHook`, async (args) => ({
           status: 'success',
           data: await forms.fieldsGroupsHook(args),
         }));
@@ -343,7 +346,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (forms.relations) {
         forms.relationsAvailable = true;
 
-        consumeRPCQueue(`${configs.name}:relations`, async args => ({
+        consumeRPCQueue(`${configs.name}:relations`, async (args) => ({
           status: 'success',
           data: await forms.relations(args),
         }));
@@ -352,7 +355,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
 
     if (tags) {
       if (tags.tag) {
-        consumeRPCQueue(`${configs.name}:tag`, async args => ({
+        consumeRPCQueue(`${configs.name}:tag`, async (args) => ({
           status: 'success',
           data: await tags.tag(args),
         }));
@@ -361,13 +364,13 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (tags.publishChange) {
         tags.publishChangeAvailable = true;
 
-        consumeRPCQueue(`${configs.name}:publishChange`, async args => ({
+        consumeRPCQueue(`${configs.name}:publishChange`, async (args) => ({
           status: 'success',
           data: await tags.publishChange(args),
         }));
       }
       if (tags.fixRelatedItems) {
-        consumeRPCQueue(`${configs.name}:fixRelatedItems`, async args => ({
+        consumeRPCQueue(`${configs.name}:fixRelatedItems`, async (args) => ({
           status: 'success',
           data: await tags.fixRelatedItems(args),
         }));
@@ -378,7 +381,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (webhooks.getInfo) {
         webhooks.getInfoAvailable = true;
 
-        consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async args => ({
+        consumeRPCQueue(`${configs.name}:webhooks.getInfo`, async (args) => ({
           status: 'success',
           data: await webhooks.getInfo(args),
         }));
@@ -396,20 +399,20 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (imports.prepareImportDocs) {
         consumeRPCQueue(
           `${configs.name}:imports.prepareImportDocs`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await imports.prepareImportDocs(args),
-          })
+          }),
         );
       }
 
       if (imports.insertImportItems) {
         consumeRPCQueue(
           `${configs.name}:imports.insertImportItems`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await imports.insertImportItems(args),
-          })
+          }),
         );
       }
     }
@@ -418,20 +421,20 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (exporter.prepareExportData) {
         consumeRPCQueue(
           `${configs.name}:exporter.prepareExportData`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await exporter.prepareExportData(args),
-          })
+          }),
         );
       }
 
       if (exporter.getExportDocs) {
         consumeRPCQueue(
           `${configs.name}:exporter.getExportDocs`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await exporter.getExportDocs(args),
-          })
+          }),
         );
       }
     }
@@ -440,37 +443,37 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (automations.receiveActions) {
         consumeRPCQueue(
           `${configs.name}:automations.receiveActions`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await automations.receiveActions(args),
-          })
+          }),
         );
       }
       if (automations?.getRecipientsEmails) {
         consumeRPCQueue(
           `${configs.name}:automations.getRecipientsEmails`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await automations.getRecipientsEmails(args),
-          })
+          }),
         );
       }
       if (automations?.replacePlaceHolders) {
         consumeRPCQueue(
           `${configs.name}:automations.replacePlaceHolders`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await automations.replacePlaceHolders(args),
-          })
+          }),
         );
       }
       if (automations?.checkCustomTrigger) {
         consumeRPCQueue(
           `${configs.name}:automations.checkCustomTrigger`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await automations.checkCustomTrigger(args),
-          })
+          }),
         );
       }
     }
@@ -479,10 +482,10 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (reports.getChartResult) {
         consumeRPCQueue(
           `${configs.name}:reports.getChartResult`,
-          async args => ({
+          async (args) => ({
             status: 'success',
             data: await reports.getChartResult(args),
-          })
+          }),
         );
       }
     }
@@ -503,7 +506,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (initialSetup.generate) {
         initialSetup.generateAvailable = true;
 
-        consumeQueue(`${configs.name}:initialSetup`, async args => ({
+        consumeQueue(`${configs.name}:initialSetup`, async (args) => ({
           status: 'success',
           data: await initialSetup.generate(args),
         }));
@@ -518,17 +521,26 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (search) {
       configs.meta.isSearchable = true;
 
-      consumeRPCQueue(`${configs.name}:search`, async args => ({
+      consumeRPCQueue(`${configs.name}:search`, async (args) => ({
         status: 'success',
         data: await search(args),
       }));
     }
 
     if (cronjobs) {
+      if (cronjobs.handle3SecondlyJob) {
+        cronjobs.handle3SecondlyJobAvailable = true;
+
+        consumeQueue(`${configs.name}:handle3SecondlyJob`, async (args) => ({
+          status: 'success',
+          data: await cronjobs.handle3SecondlyJob(args),
+        }));
+      }
+
       if (cronjobs.handleMinutelyJob) {
         cronjobs.handleMinutelyJobAvailable = true;
 
-        consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
+        consumeQueue(`${configs.name}:handleMinutelyJob`, async (args) => ({
           status: 'success',
           data: await cronjobs.handleMinutelyJob(args),
         }));
@@ -537,7 +549,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (cronjobs.handle10MinutelyJob) {
         cronjobs.handle10MinutelyJobAvailable = true;
 
-        consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
+        consumeQueue(`${configs.name}:handle10MinutelyJob`, async (args) => ({
           status: 'success',
           data: await cronjobs.handle10MinutelyJob(args),
         }));
@@ -546,7 +558,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (cronjobs.handleHourlyJob) {
         cronjobs.handleHourlyJobAvailable = true;
 
-        consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
+        consumeQueue(`${configs.name}:handleHourlyJob`, async (args) => ({
           status: 'success',
           data: await cronjobs.handleHourlyJob(args),
         }));
@@ -555,7 +567,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
       if (cronjobs.handleDailyJob) {
         cronjobs.handleDailyJobAvailable = true;
 
-        consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
+        consumeQueue(`${configs.name}:handleDailyJob`, async (args) => ({
           status: 'success',
           data: await cronjobs.handleDailyJob(args),
         }));
@@ -565,33 +577,33 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (documents) {
       consumeRPCQueue(
         `${configs.name}:documents.editorAttributes`,
-        async args => ({
+        async (args) => ({
           status: 'success',
           data: await documents.editorAttributes(args),
-        })
+        }),
       );
 
       consumeRPCQueue(
         `${configs.name}:documents.replaceContent`,
-        async args => ({
+        async (args) => ({
           status: 'success',
           data: await documents.replaceContent(args),
-        })
+        }),
       );
 
       consumeRPCQueue(
         `${configs.name}:documents.replaceContentFields`,
-        async args => ({
+        async (args) => ({
           status: 'success',
           data: await documents.replaceContentFields(args),
-        })
+        }),
       );
     }
 
     if (readFileHook) {
       readFileHook.isAvailable = true;
 
-      consumeRPCQueue(`${configs.name}:readFileHook`, async args => ({
+      consumeRPCQueue(`${configs.name}:readFileHook`, async (args) => ({
         status: 'success',
         data: await readFileHook.action(args),
       }));
@@ -600,7 +612,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (documentPrintHook) {
       documentPrintHook.isAvailable = true;
 
-      consumeRPCQueue(`${configs.name}:documentPrintHook`, async args => ({
+      consumeRPCQueue(`${configs.name}:documentPrintHook`, async (args) => ({
         status: 'success',
         data: await documentPrintHook.action(args),
       }));
@@ -609,7 +621,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     if (payment) {
       if (payment.callback) {
         payment.callbackAvailable = true;
-        consumeQueue(`${configs.name}:paymentCallback`, async args => ({
+        consumeQueue(`${configs.name}:paymentCallback`, async (args) => ({
           status: 'success',
           data: await payment.callback(args),
         }));
@@ -628,7 +640,7 @@ export async function startPlugin(configs: any): Promise<express.Express> {
     }
 
     if (cpCustomerHandle) {
-      consumeQueue(`${configs.name}:cpCustomerHandle`, async args => ({
+      consumeQueue(`${configs.name}:cpCustomerHandle`, async (args) => ({
         status: 'success',
         data: await cpCustomerHandle.cpCustomerHandle(args),
       }));

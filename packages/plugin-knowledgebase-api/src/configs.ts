@@ -8,6 +8,7 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import automations from './automations';
+import cronjobs from './crons/article';
 
 export default {
   name: 'knowledgebase',
@@ -20,7 +21,13 @@ export default {
   hasSubscriptions: false,
   permissions,
   segment: {},
-  meta: { logs: { consumers: logs }, webhooks, permissions, automations },
+  meta: {
+    logs: { consumers: logs },
+    webhooks,
+    permissions,
+    cronjobs,
+    automations
+  },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

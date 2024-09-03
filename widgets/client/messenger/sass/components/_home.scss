@@ -1,4 +1,4 @@
-$shadow-black: rgba(0, 0, 0, .1);
+$shadow-black: rgba(0, 0, 0, 0.1);
 
 .erxes-home-container {
   flex: 1;
@@ -6,10 +6,12 @@ $shadow-black: rgba(0, 0, 0, .1);
   background: $white;
 
   .integration-box {
-    animation-delay: .4s;
+    animation-delay: 0.4s;
     background: $white;
     border-radius: $border-radius;
-    box-shadow: 0 4px 15px 0 $shadow-black, 0 1px 2px 0 $shadow-black;
+    box-shadow:
+      0 4px 15px 0 $shadow-black,
+      0 1px 2px 0 $shadow-black;
     margin: 15px;
     min-height: 100px;
     padding-top: 15px;
@@ -152,7 +154,7 @@ $shadow-black: rgba(0, 0, 0, .1);
     height: 2px;
     left: 50%;
     position: absolute;
-    transition: left .3s ease;
+    transition: left 0.3s ease;
     width: 50%;
 
     &.left {
@@ -169,7 +171,7 @@ $shadow-black: rgba(0, 0, 0, .1);
     justify-content: center;
     text-align: center;
     text-transform: uppercase;
-    transition: all .3s ease;
+    transition: all 0.3s ease;
 
     &:last-of-type {
       border-left: 1px solid $border-color;

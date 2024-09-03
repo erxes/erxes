@@ -1,6 +1,6 @@
-import * as React from "react";
-import { iconSearch } from "../../../icons/Icons";
-import { __ } from "../../../utils";
+import * as React from 'react';
+import { iconSearch, IconSearch } from '../../../icons/Icons';
+import { __ } from '../../../utils';
 
 type Props = {
   searchString: string;
@@ -14,15 +14,15 @@ export default class SearchBar extends React.PureComponent<Props> {
   };
 
   render() {
-    const { searchString = "" } = this.props;
-    const placeholder = __("Search");
+    const { searchString = '' } = this.props;
+    const placeholder = __('Search');
 
     return (
       <div className="erxes-faq-searchbar">
-        {iconSearch}
+        <IconSearch />
         <input
           className="form-control"
-          placeholder={placeholder ? placeholder.toString() : ""}
+          placeholder={placeholder ? placeholder.toString() : ''}
           value={searchString}
           onChange={this.handleSearchInput}
         />

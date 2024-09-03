@@ -332,6 +332,8 @@ class MailForm extends React.Component<Props, State> {
       subject: "",
       content: "",
       attachments: [],
+      isSubmitLoading: false,
+      isSubmitResolveLoading: false,
     });
 
     this.prepareData();
@@ -582,6 +584,7 @@ class MailForm extends React.Component<Props, State> {
           onChange={this.onSelectChange.bind(this, "to")}
           name="to"
           required={true}
+          disabled={this.props.emailTo ? true : false}
         />
         {this.renderRightSide()}
       </FlexRow>

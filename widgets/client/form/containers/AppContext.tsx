@@ -50,8 +50,11 @@ const AppContext = React.createContext({} as IStore);
 
 export const AppConsumer = AppContext.Consumer;
 
-export class AppProvider extends React.Component<{}, IState> {
-  constructor(props: {}) {
+export class AppProvider extends React.Component<
+  { children: React.ReactNode },
+  IState
+> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
 
     this.state = {
@@ -114,21 +117,20 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     const cookies = cookie.parse(document.cookie);
 
-    const paymentCookies = Object.keys(cookies).filter(key =>
+    const paymentCookies = Object.keys(cookies).filter((key) =>
       key.includes('paymentData')
     );
 
     if (paymentCookies.length > 0) {
       if (cookies[paymentCookies[0]]) {
         const { API_URL } = getEnv();
-  
+
         this.setState({
-          currentStatus: { status: 'PAYMENT_PENDING'},
+          currentStatus: { status: 'PAYMENT_PENDING' },
           invoiceLink: `${API_URL}/pl:payment/gateway?params=${cookies[paymentCookies[0]]}`,
         });
       }
     }
-
 
     this.setState({
       isCalloutVisible: false,
@@ -245,7 +247,7 @@ export class AppProvider extends React.Component<{}, IState> {
         postMessage({
           message: 'submitResponse',
           status,
-          response
+          response,
         });
 
         this.setState({
@@ -253,7 +255,7 @@ export class AppProvider extends React.Component<{}, IState> {
           isSubmitting: false,
           currentStatus: {
             status,
-            errors
+            errors,
           },
         });
       },

@@ -93,7 +93,9 @@ export const setupMessageConsumers = async () => {
       const integration = await models.Integrations.findOne({
         erxesApiId: integrationId
       });
-
+      if (!integration) {
+        throw new Error('Instagram Integration not found ');
+      }
       let result = {
         status: 'healthy'
       } as any;

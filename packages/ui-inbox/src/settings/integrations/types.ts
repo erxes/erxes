@@ -174,6 +174,9 @@ export interface ILink {
   instagram?: string;
   youtube?: string;
 }
+export interface IExternalLink {
+  url: string;
+}
 
 export interface IOnlineHour {
   _id: string;
@@ -222,6 +225,7 @@ export interface IMessengerData {
   onlineHours?: IOnlineHour[];
   hideWhenOffline?: boolean;
   links?: ILink;
+  externalLinks?: IExternalLink[];
 }
 
 export interface IUiOptions {

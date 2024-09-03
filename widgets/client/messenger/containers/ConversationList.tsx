@@ -1,64 +1,37 @@
-import gql from "graphql-tag";
-import * as React from "react";
-import { ChildProps, graphql } from "react-apollo";
-import DumbConversationList from "../components/ConversationList";
-import { connection } from "../connection";
-import graphqTypes from "../graphql";
-import { IConversation } from "../types";
-import { AppConsumer } from "./AppContext";
+import gql from 'graphql-tag';
+import * as React from 'react';
+import ConversationList from '../components/ConversationList';
+import { connection } from '../connection';
+import graphqTypes from '../graphql';
+import { useQuery } from '@apollo/react-hooks';
+import { useRouter } from '../context/Router';
+import { useConversation } from '../context/Conversation';
 
-type QueryResponse = {
-  widgetsConversations: IConversation[];
+const ConversationListContainer = ({ loading }: { loading: boolean }) => {
+  const { setRoute } = useRouter();
+  const { goToConversation, createConversation } = useConversation();
+
+  const goToHome = () => {
+    setRoute('home');
+  };
+
+  const { data, loading: loadingConversations } = useQuery(
+    gql(graphqTypes.allConversations),
+    {
+      fetchPolicy: 'network-only',
+      variables: connection.data,
+    }
+  );
+
+  return (
+    <ConversationList
+      loading={loading || loadingConversations}
+      conversations={data?.widgetsConversations || []}
+      goToConversation={goToConversation}
+      createConversation={createConversation}
+      goToHome={goToHome}
+    />
+  );
 };
 
-class ConversationList extends React.PureComponent<
-  ChildProps<{}, QueryResponse>,
-  {}
-> {
-  render() {
-    const { data = { widgetsConversations: [], loading: true } } = this.props;
-
-    let conversations = data.widgetsConversations || [];
-
-    // show empty list while waiting
-    if (data.loading) {
-      conversations = [];
-    }
-
-    return (
-      <AppConsumer>
-        {({ goToConversation, changeRoute }) => {
-          const createConversation = () => {
-            changeRoute("conversationCreate");
-          };
-          const goToHome = () => {
-            changeRoute("home");
-          };
-
-          return (
-            <DumbConversationList
-              {...this.props}
-              loading={data.loading}
-              conversations={conversations}
-              goToConversation={goToConversation}
-              createConversation={createConversation}
-              goToHome={goToHome}
-            />
-          );
-        }}
-      </AppConsumer>
-    );
-  }
-}
-
-const ListWithData = graphql<{}, QueryResponse>(
-  gql(graphqTypes.allConversations),
-  {
-    options: () => ({
-      fetchPolicy: "network-only",
-      variables: connection.data
-    })
-  }
-)(ConversationList);
-
-export default ListWithData;
+export default ConversationListContainer;

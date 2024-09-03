@@ -52,7 +52,7 @@ const commonFields = `
   $skipAmountCalcMonth: Float
   $customPayment: Float
   $customInterest: Float
-  
+
   $isBarter: Boolean
   $useManualNumbering:Boolean
   $useFee:Boolean
@@ -152,8 +152,8 @@ const contractsEdit = `
 `;
 
 const contractsDealEdit = `
-  mutation contractsDealEdit($_id: String!, ${commonFields}) {
-    contractsEdit(_id: $_id, ${commonVariables}) {
+  mutation contractsDealEdit($_id: String!, $dealId: String) {
+    contractsDealEdit(_id: $_id, dealId: $dealId) {
       _id
       ${contractDetailFields}
     }

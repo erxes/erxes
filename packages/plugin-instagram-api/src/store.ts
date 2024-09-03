@@ -2,8 +2,7 @@ import { debugError } from './debuggers';
 import { sendInboxMessage } from './messageBroker';
 import { getInstagramUser } from './utils';
 import { IModels } from './connectionResolver';
-import { INTEGRATION_KINDS } from './constants';
-import { getPostDetails, getPostLink } from './utils';
+import { getPostLink } from './utils';
 import { IIntegrationDocument } from './models/Integrations';
 import { ICustomerDocument } from './models/definitions/customers';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
@@ -146,11 +145,13 @@ export const getOrCreateCustomer = async (
   kind: string,
   facebookPageTokensMap?: { [key: string]: string }
 ) => {
-  const integration = await models.Integrations.getIntegration({
+  const integration = await models.Integrations.findOne({
     $and: [{ instagramPageId: { $in: pageId } }, { kind }]
   });
+  if (!integration) {
+    throw new Error('Instagram Integration not found ');
+  }
   let customer = await models.Customers.findOne({ userId });
-
   if (customer) {
     return customer;
   }

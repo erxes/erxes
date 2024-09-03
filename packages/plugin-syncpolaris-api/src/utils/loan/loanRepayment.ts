@@ -7,7 +7,7 @@ import {
 } from '../utils';
 import { IPolarisRepayment } from './types';
 
-export const createLoanRepayment = async (subdomain, transaction) => {
+export const createLoanRepayment = async (subdomain, models, syncLog, transaction) => {
   const loanContract = await getContract(
     subdomain,
     transaction.contractId,
@@ -45,7 +45,9 @@ export const createLoanRepayment = async (subdomain, transaction) => {
     subdomain,
     op: '13610250',
     data: [loanRepayment],
-  }).then((response) => JSON.parse(response));
+    models,
+    syncLog
+  });
 
   return loanRepaymentReponse.txnJrno;
 };

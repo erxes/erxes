@@ -7,6 +7,7 @@ const integrationCommonFields = `
     wsServer: String
     operators: JSON
     token: String
+    queues: [String]
 `;
 
 const types = `
@@ -69,7 +70,7 @@ const types = `
     callEndTime: Date
     callType: String
     callStatus: String
-    sessionId: String
+    timeStamp: Int
     modifiedAt: Date
     createdAt: Date
     createdBy: String
@@ -81,7 +82,12 @@ const types = `
   }
 `;
 
-export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
+export const subscriptions = `
+  sessionTerminateRequested(userId: String): JSON
+  waitingCallReceived(extension: String): String
+  talkingCallReceived(extension: String): String
+  agentCallReceived(extension: String): String
+  `;
 
 const commonHistoryFields = `
   operatorPhone: String
@@ -91,7 +97,7 @@ const commonHistoryFields = `
   callEndTime: Date
   callType: String
   callStatus: String
-  sessionId: String
+  timeStamp: Int
   inboxIntegrationId: String
   transferedCallStatus: String
   endedBy: String
@@ -121,6 +127,10 @@ const queries = `
   callsGetConfigs: JSON
   callGetAgentStatus: String
   callExtensionList(integrationId: String!): JSON
+  callQueueList(integrationId: String!): JSON
+  callWaitingList(queue: String!): String
+  callProceedingList(queue: String!): String
+  callQueueMemberList(integrationId: String!, queue: String!): JSON
   `;
 
 const mutations = `
@@ -131,7 +141,7 @@ const mutations = `
   callDisconnect: String
   callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
   callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryEditStatus(callStatus: String, conversationId: String): String
+  callHistoryEditStatus(callStatus: String, timeStamp: Int): String
   callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String

@@ -1,14 +1,13 @@
+import Button from "@erxes/ui/src/components/Button";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
+import React, { useState } from "react";
 
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React, { useState } from 'react';
-
-import { IGolomtBankConfigsItem } from '../../types/IConfigs';
+import { IGolomtBankConfigsItem } from "../../types/IConfigs";
 
 type Props = {
   config?: IGolomtBankConfigsItem;
@@ -21,7 +20,11 @@ const ConfigForm = (props: Props) => {
 
   const [configObject, setConfigObject] = useState<
     IGolomtBankConfigsItem | undefined
-  >(config);
+  >(
+    config && {
+      ...config,
+    }
+  );
 
   const generateDoc = () => {
     const finalValues: any = {};
@@ -31,7 +34,6 @@ const ConfigForm = (props: Props) => {
     }
 
     if (configObject) {
-
       finalValues.registerId = configObject.registerId;
       finalValues.ivKey = configObject.ivKey;
       finalValues.name = configObject.name;
@@ -40,14 +42,15 @@ const ConfigForm = (props: Props) => {
       finalValues.sessionKey = configObject.sessionKey;
       finalValues.configPassword = configObject.configPassword;
       finalValues.accountId = configObject.accountId;
+      finalValues.golomtCode = configObject.golomtCode;
+      finalValues.apiUrl = configObject.apiUrl;
     }
-
     return {
-      ...finalValues
+      ...finalValues,
     };
   };
 
-  const onChangeInput = e => {
+  const onChangeInput = (e) => {
     const { id, value } = e.target;
 
     const obj: any = configObject || {};
@@ -81,71 +84,86 @@ const ConfigForm = (props: Props) => {
       <>
         {renderInput(
           formProps,
-          'RegisterId',
-          'registerId',
-          'string',
+          "RegisterId",
+          "registerId",
+          "string",
           config && config.registerId
         )}
         {renderInput(
           formProps,
-          'AccountId',
-          'accountId',
-          'string',
+          "AccountId",
+          "accountId",
+          "string",
           config && config.accountId
         )}
         {renderInput(
           formProps,
-          'Name',
-          'name',
-          'string',
+          "Name",
+          "name",
+          "string",
           config && config.name
         )}
         {renderInput(
           formProps,
-          'OrganizationName',
-          'organizationName',
-          'string',
+          "OrganizationName",
+          "organizationName",
+          "string",
           config && config.organizationName
         )}
         {renderInput(
           formProps,
-          'IvKey',
-          'ivKey',
-          'string',
+          "IvKey",
+          "ivKey",
+          "string",
           config && config.ivKey
         )}
         {renderInput(
           formProps,
-          'ClientId',
-          'clientId',
-          'string',
+          "ClientId",
+          "clientId",
+          "string",
           config && config.clientId
         )}
         {renderInput(
           formProps,
-          'SessionKey',
-          'sessionKey',
-          'string',
+          "SessionKey",
+          "sessionKey",
+          "string",
           config && config.sessionKey
         )}
         {renderInput(
           formProps,
-          'ConfigPassword',
-          'configPassword',
-          'password',
+          "GolomtCode",
+          "golomtCode",
+          "string",
+          config && config.golomtCode
+        )}
+        {renderInput(
+          formProps,
+          "ApiUrl",
+          "apiUrl",
+          "string",
+          config && config.apiUrl
+        )}
+        {renderInput(
+          formProps,
+          "ConfigPassword",
+          "configPassword",
+          "password",
           config && config.configPassword
         )}
+
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
           </Button>
 
           {renderButton({
-            name: 'configs',
+            name: "configs",
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: config
+            object: config,
           })}
         </ModalFooter>
       </>

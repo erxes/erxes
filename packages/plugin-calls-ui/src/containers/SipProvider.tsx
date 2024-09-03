@@ -52,6 +52,7 @@ const SipProviderContainer = (props) => {
           token: config?.token,
           operators: config?.operators,
           isAvailable: true,
+          queues: config?.queues || [],
         });
         setLocalStorage(true, true);
         localStorage.removeItem('isConnectCallRequested');
@@ -63,6 +64,7 @@ const SipProviderContainer = (props) => {
           token: config?.token,
           operators: config?.operators,
           isAvailable: false,
+          queues: config?.queues || [],
         });
         setLocalStorage(false, false);
         localStorage.removeItem('isConnectCallRequested');
@@ -77,7 +79,7 @@ const SipProviderContainer = (props) => {
       });
   };
   const updateHistory = (
-    sessionId: string,
+    timeStamp: number,
     callStartTime: Date,
     callEndTime: Date,
     callStatus: string,
@@ -97,7 +99,7 @@ const SipProviderContainer = (props) => {
       updateHistoryMutation({
         variables: {
           id: historyId,
-          sessionId,
+          timeStamp: parseInt(timeStamp.toString()),
           callStartTime,
           callEndTime,
           callDuration: duration,
@@ -111,8 +113,12 @@ const SipProviderContainer = (props) => {
         },
         refetchQueries: ['callHistories'],
       })
-        .then()
+        .then(() => {
+          setHistoryId('');
+        })
         .catch((e) => {
+          setHistoryId('');
+
           if (e.message !== 'You cannot edit') {
             Alert.error(e.message);
           }
@@ -121,7 +127,7 @@ const SipProviderContainer = (props) => {
       if (callStatus === 'cancelled') {
         updateHistoryMutation({
           variables: {
-            sessionId,
+            timeStamp: parseInt(timeStamp.toString()),
             callStartTime,
             callEndTime,
             callDuration: duration,
@@ -129,11 +135,16 @@ const SipProviderContainer = (props) => {
             inboxIntegrationId: config?.inboxId || '',
             customerPhone,
             callType: direction,
+            endedBy,
           },
           refetchQueries: ['callHistories'],
         })
-          .then()
+          .then(() => {
+            setHistoryId('');
+          })
           .catch((e) => {
+            setHistoryId('');
+
             if (e.message !== 'You cannot edit') {
               Alert.error(e.message);
             }
@@ -145,7 +156,7 @@ const SipProviderContainer = (props) => {
   };
   const addHistory = (
     callStatus: string,
-    sessionId: string,
+    timeStamp: number,
     direction: string,
     customerPhone: string,
     callStartTime: Date,
@@ -153,7 +164,7 @@ const SipProviderContainer = (props) => {
   ) => {
     addHistoryMutation({
       variables: {
-        sessionId: sessionId || '',
+        timeStamp: parseInt(timeStamp.toString()),
         callType: direction,
         callStatus,
         customerPhone,

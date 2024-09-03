@@ -1,5 +1,5 @@
-import * as classNames from "classnames";
-import * as React from "react";
+import * as classNames from 'classnames';
+import * as React from 'react';
 import {
   defaultAvatar,
   facebook,
@@ -7,11 +7,11 @@ import {
   link,
   linkedin,
   twitter,
-  youtube
-} from "../../../icons/Icons";
-import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
-import { readFile } from "../../../utils";
-import SocialLink from "./SocialLink";
+  youtube,
+} from '../../../icons/Icons';
+import { IParticipator, IUserDetails, IUserLinks } from '../../../types';
+import { readFile } from '../../../utils';
+import SocialLink from './SocialLink';
 
 type Props = {
   user?: IParticipator;
@@ -49,23 +49,29 @@ function Profile(props: Props) {
     );
   };
 
-  const stateClass = classNames("erxes-state", {
-    online: isOnline
+  const stateClass = classNames('erxes-state', {
+    online: isOnline,
   });
 
   return (
-    <div className="erxes-profile">
-      <div className="top-content">
+    <div className="conversation-detail-top-bar-wrapper">
+      <div className="supporter-info-container">
         <div className="avatar">
           <img src={readFile(avatar)} alt={userDetail.fullName} />
           <span className={stateClass} />
         </div>
-        <div className="user-name">
+        <div className="supporter-info">
           <h5>{userDetail.fullName}</h5>
-          {!showTimezone ? <span>{userDetail.position}</span> : <span>{userDetail.location}</span>}
+          <p>{userDetail.location}</p>
+          {/* {!showTimezone ? (
+            <span>{userDetail.position}</span>
+          ) : (
+            <span>{userDetail.location}</span>
+          )} */}
         </div>
       </div>
-      {isExpanded && bottomContent()}
+
+      {/* {isExpanded && bottomContent()} */}
     </div>
   );
 }
