@@ -1,36 +1,36 @@
-import React, { useCallback } from "react";
-import Select from "react-select";
+import React, { useCallback } from 'react';
+import Select from 'react-select';
 
-import { __ } from "modules/common/utils";
-import { IFormData } from "@erxes/ui-forms/src/forms/types";
-import SelectBrand from "@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand";
-import SelectChannels from "@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels";
-import SelectDepartments from "@erxes/ui-settings/src/departments/containers/SelectDepartments";
-import { LANGUAGES } from "@erxes/ui-settings/src/general/constants";
-import { Description } from "@erxes/ui-settings/src/styles";
-import { IBrand } from "@erxes/ui/src/brands/types";
+import { __ } from 'modules/common/utils';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { Description } from '@erxes/ui-settings/src/styles';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
-import { FlexItem } from "@erxes/ui/src/components/step/style";
-import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { FlexItem } from '@erxes/ui/src/components/step/style';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { IField } from "@erxes/ui/src/types";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
-import FormGroup from "../../../../common/components/form/Group";
-import ControlLabel from "../../../../common/components/form/Label";
-import FormControl from "../../../../common/components/form/Control";
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { IField } from '@erxes/ui/src/types';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+import FormGroup from '../../../../common/components/form/Group';
+import ControlLabel from '../../../../common/components/form/Label';
+import FormControl from '../../../../common/components/form/Control';
 
 type Props = {
   onChange: (
     name:
-      | "brand"
-      | "language"
-      | "isRequireOnce"
-      | "channelIds"
-      | "theme"
-      | "saveAsCustomer"
-      | "visibility"
-      | "departmentIds",
+      | 'brand'
+      | 'language'
+      | 'isRequireOnce'
+      | 'channelIds'
+      | 'theme'
+      | 'saveAsCustomer'
+      | 'visibility'
+      | 'departmentIds',
     value: any
   ) => void;
   type: string;
@@ -60,7 +60,7 @@ const OptionStep = (props: Props) => {
   }, []);
 
   const onSelectChange = useCallback((e, key) => {
-    let value = "";
+    let value = '';
 
     if (e) {
       value = e.value;
@@ -70,18 +70,18 @@ const OptionStep = (props: Props) => {
   }, []);
 
   const onChangeTitle = useCallback((e) => {
-    onChangeFunction("title", (e.currentTarget as HTMLInputElement).value);
+    onChangeFunction('title', (e.currentTarget as HTMLInputElement).value);
   }, []);
 
   const renderDepartments = () => {
     const { visibility, departmentIds } = props;
 
-    if (visibility === "public") {
+    if (visibility === 'public') {
       return;
     }
 
     const departmentOnChange = (values: string[]) => {
-      onChangeFunction("departmentIds", values);
+      onChangeFunction('departmentIds', values);
     };
 
     return (
@@ -98,14 +98,14 @@ const OptionStep = (props: Props) => {
   const { language, brand, isRequireOnce, saveAsCustomer } = props;
 
   const onChange = (e) => {
-    onChangeFunction("brand", (e.currentTarget as HTMLInputElement).value);
+    onChangeFunction('brand', (e.currentTarget as HTMLInputElement).value);
   };
 
   const channelOnChange = (values: string[]) => {
-    onChangeFunction("channelIds", values);
+    onChangeFunction('channelIds', values);
   };
 
-  const onChangeLanguage = (e) => onSelectChange(e, "language");
+  const onChangeLanguage = (e) => onSelectChange(e, 'language');
 
   const onSwitchHandler = (e) => {
     onChangeFunction(e.target.id, e.target.checked);
@@ -113,7 +113,7 @@ const OptionStep = (props: Props) => {
 
   const onChangeVisibility = (e: React.FormEvent<HTMLElement>) => {
     const visibility = (e.currentTarget as HTMLInputElement).value;
-    onChangeFunction("visibility", visibility);
+    onChangeFunction('visibility', visibility);
   };
 
   React.useEffect(() => {
@@ -121,7 +121,7 @@ const OptionStep = (props: Props) => {
     if (fields && fields.length > 0) {
       if (
         fields.findIndex(
-          (f) => f.type === "productCategory" && f.isRequired
+          (f) => f.type === 'productCategory' && f.isRequired
         ) !== -1
       ) {
         setRenderPayments(true);
@@ -137,7 +137,7 @@ const OptionStep = (props: Props) => {
       }
     }
 
-    if (!isEnabled("payment")) {
+    if (!isEnabled('payment')) {
       setRenderPayments(false);
 
       if (props.waitUntilFinish) {
@@ -147,7 +147,7 @@ const OptionStep = (props: Props) => {
   }, [props.formData.fields]);
 
   const renderPaymentsComponent = () => {
-    if (!isEnabled("payment")) {
+    if (!isEnabled('payment')) {
       return null;
     }
 
@@ -157,8 +157,8 @@ const OptionStep = (props: Props) => {
 
     return (
       <>
-        {loadDynamicComponent("paymentConfig", {
-          contentType: "inbox:integrations",
+        {loadDynamicComponent('paymentConfig', {
+          contentType: 'inbox:integrations',
           contentTypeId: props.integrationId,
           isSubmitted: props.isIntegrationSubmitted,
           description: __(
@@ -166,7 +166,7 @@ const OptionStep = (props: Props) => {
           ),
           afterSave: () => {
             if (props.onChildProcessFinished) {
-              props.onChildProcessFinished("optionsStep");
+              props.onChildProcessFinished('optionsStep');
             }
           },
         })}
@@ -180,11 +180,11 @@ const OptionStep = (props: Props) => {
         <FormGroup>
           <ControlLabel required={true}>Form Name</ControlLabel>
           <p>
-            {__("Name this form to differentiate from the rest internally")}
+            {__('Name this form to differentiate from the rest internally')}
           </p>
 
           <FormControl
-            id={"popupName"}
+            id={'popupName'}
             required={true}
             onChange={onChangeTitle}
             value={props.title}
@@ -195,27 +195,29 @@ const OptionStep = (props: Props) => {
           <SelectBrand
             isRequired={true}
             onChange={onChange}
-            defaultValue={brand ? brand._id : " "}
+            defaultValue={brand ? brand._id : ' '}
           />
         </FormGroup>
 
-        <SelectChannels
-          defaultValue={props.channelIds}
-          isRequired={false}
-          description="Choose a channel, if you wish to see every new form in your Team Inbox."
-          onChange={channelOnChange}
-        />
+        {isEnabled('inbox') && (
+          <SelectChannels
+            defaultValue={props.channelIds}
+            isRequired={false}
+            description='Choose a channel, if you wish to see every new form in your Team Inbox.'
+            onChange={channelOnChange}
+          />
+        )}
 
         <FormGroup>
           <ControlLabel required={true}>Visibility</ControlLabel>
           <FormControl
-            name="visibility"
-            componentclass="select"
+            name='visibility'
+            componentclass='select'
             value={props.visibility}
             onChange={onChangeVisibility}
           >
-            <option value="public">{__("Public")}</option>
-            <option value="private">{__("Private")}</option>
+            <option value='public'>{__('Public')}</option>
+            <option value='private'>{__('Private')}</option>
           </FormControl>
         </FormGroup>
 
@@ -224,7 +226,7 @@ const OptionStep = (props: Props) => {
         <FormGroup>
           <ControlLabel>Language</ControlLabel>
           <Select
-            id="language"
+            id='language'
             value={LANGUAGES.find((o) => o.value === language)}
             options={LANGUAGES}
             onChange={onChangeLanguage}
@@ -240,7 +242,7 @@ const OptionStep = (props: Props) => {
           </Description>
           <div>
             <Toggle
-              id="isRequireOnce"
+              id='isRequireOnce'
               checked={isRequireOnce || false}
               onChange={onSwitchHandler}
               icons={{
@@ -256,7 +258,7 @@ const OptionStep = (props: Props) => {
           <Description>Forcibly turn lead to customer.</Description>
           <div>
             <Toggle
-              id="saveAsCustomer"
+              id='saveAsCustomer'
               checked={saveAsCustomer || false}
               onChange={onSwitchHandler}
               icons={{

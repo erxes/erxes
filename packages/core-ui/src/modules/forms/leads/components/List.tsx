@@ -182,7 +182,7 @@ const List = ({
       header={
         <Wrapper.Header
           title={__('Leads')}
-          breadcrumb={[{ title: __('Leads') }]}
+          breadcrumb={[{ title: __('Forms'),link: "/forms"  },{ title: __('Leads') }]}
           queryParams={queryParams}
         />
       }

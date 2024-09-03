@@ -133,7 +133,7 @@ import {
         brand: integration.brandId,
         channelIds: channels.map((item) => item._id) || [],
         language: integration.languageCode,
-        title: integration.name || "Create Form",
+        title: integration.name || "Lead",
         calloutTitle: callout.title || "Call Out Title",
         bodyValue: callout.body || "Call Out Body",
         calloutBtnText: callout.buttonText || "Start",
@@ -343,7 +343,7 @@ import {
       const { integration = {} as any, emailTemplates, configs } = this.props;
       const leadData = integration && integration.leadData;
       const brand = integration && integration.brand;
-      const breadcrumb = [{ title: __("Forms"), link: "/forms" }, { title: __("Leads"), link: "/forms/leads" }];
+      const breadcrumb = [ { title: __("Leads"), link: "/forms/leads" }];
   
       return (
         <StepWrapper>

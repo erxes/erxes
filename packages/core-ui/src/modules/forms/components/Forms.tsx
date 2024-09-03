@@ -6,6 +6,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 const Box = styled(BoxRoot)`
   width: 320px;
@@ -65,11 +66,28 @@ const Forms = (props: Props) => {
   };
 
   return (
-    <FullContent $center={true}>
-      {props.formTypes.map((formType) => {
-        return renderBox(formType.title, formType.icon, formType.description, formType.contentType);
-      })}
-    </FullContent>
+    <Wrapper
+      header={
+        <Wrapper.Header
+          title={__('Forms')}
+          breadcrumb={[{ title: __('Forms') }]}
+        />
+      }
+      content={
+        <FullContent $center={true}>
+          {props.formTypes.map((formType) => {
+            return renderBox(
+              formType.title,
+              formType.icon,
+              formType.description,
+              formType.contentType
+            );
+          })}
+        </FullContent>
+      }
+      hasBorder={true}
+      transparent={true}
+    />
   );
 };
 
