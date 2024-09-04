@@ -131,6 +131,7 @@ const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
+  console.log(callCookie, 'callCookie');
   if (callCookie) {
     return callCookie;
   }
@@ -191,7 +192,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   } = params;
 
   if (transferedCallStatus === 'local' && callType === 'incoming') {
-    return 'Check transferred call record URL!';
+    return 'Check the transferred call record URL!';
   }
 
   const history = await getCallHistory(models, _id);
@@ -246,7 +247,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extentionNumber;
         callee = customerPhone;
       }
-
       const cdrData = await sendToGrandStream(
         models,
         {

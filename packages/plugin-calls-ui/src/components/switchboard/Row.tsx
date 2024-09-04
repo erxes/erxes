@@ -51,7 +51,7 @@ export const Row = (props: Props) => {
       </td>
       <td>{callList.callerid || ''}</td>
       {!isWaiting && <td>{callList.calleeid}</td>}
-      <td>{getSpentTime(timeSpent + 22)}</td>
+      <td>{getSpentTime(timeSpent + 28)}</td>
     </tr>
   );
 };
