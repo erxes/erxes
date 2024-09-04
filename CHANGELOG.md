@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.16.0-rc.1](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-09-02)
+
+
+### Features
+
+* **contacts:** Implement SaaS-specific restrictions and enhancements ([1fe8ce7](https://github.com/erxes/erxes/commit/1fe8ce7f46f8445f33af0b1e8b466899ba474323))
+* **knowledgebase:** add scheduling feature for future article publishing ([99b0373](https://github.com/erxes/erxes/commit/99b03737fc5d18577c4a3532944389da29c4e53c))
+
+
+### Bug Fixes
+
+* msdynamic with reserve remainder ([e01c6cd](https://github.com/erxes/erxes/commit/e01c6cd6e0308f91e5b927a9a4b0d9eba1204321))
+
+## [1.15.0](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-08-23)
+
 ## [1.16.0-rc.0](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.16.0-rc.0) (2024-08-26)
 
 ### Features

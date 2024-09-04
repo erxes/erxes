@@ -141,7 +141,7 @@ const buildFormatType = (dateRange, startDate, endDate) => {
 
 }
 
-export const getGoalStage = (dimensions, measures) => {
+export const getGoalStage = (dimensions, measures, type) => {
 
     const dimension = dimensions?.length ? dimensions?.[0] : ''
     const measure = measures?.length ? measures?.[0] : ''
@@ -162,7 +162,8 @@ export const getGoalStage = (dimensions, measures) => {
                                 $and: [
                                     { $ne: ["$specificPeriodGoals", []] },
                                     { $eq: ["$periodGoal", "Monthly"] },
-                                    { $eq: ["$metric", GOAL_MAP[measure]] }
+                                    { $eq: ["$metric", GOAL_MAP[measure]] },
+                                    { $eq: ["$entity", type] }
                                 ],
                             },
                         },
@@ -1029,7 +1030,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     };
 
     if (isEnabled('goals') && ['department', 'branch', 'createdBy', 'modifiedBy', 'assignedTo', 'board', 'pipeline', 'stage', 'frequency'].some(item => dimensions.includes(item))) {
-        const goalStage = getGoalStage(dimensions, measures)
+        const goalStage = getGoalStage(dimensions, measures, type)
 
         if (goalStage) {
             pipeline.push(goalStage)
