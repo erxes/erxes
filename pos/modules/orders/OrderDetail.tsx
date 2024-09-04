@@ -18,7 +18,7 @@ const OrderDetail = ({
   inCheckout,
 }: {
   children: React.ReactNode
-  inCheckout: boolean
+  inCheckout?: boolean
 }) => {
   const _id = useAtomValue(activeOrderIdAtom)
   const isChanged = useAtomValue(cartChangedAtom) //ene heregtei shuu
