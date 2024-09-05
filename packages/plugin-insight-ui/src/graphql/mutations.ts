@@ -230,6 +230,14 @@ const chartsRemove = `
   }
 `;
 
+const chartDuplicate = `
+  mutation chartDuplicate($_id: String!) {
+    chartDuplicate(_id: $_id) {
+      _id
+    }
+  }
+`;
+
 // Dashboard Mutations
 
 const dashboardParams = `
@@ -325,6 +333,7 @@ export default {
   chartsEdit,
   chartsEditMany,
   chartsRemove,
+  chartDuplicate,
 
   dashboardAdd,
   dashboardAddTo,

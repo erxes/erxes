@@ -28,6 +28,7 @@ const DIMENSION_OPTIONS = [
     { label: 'Stage changed at', value: 'stageChangedDate' },
     { label: 'Start Date', value: 'startDate' },
     { label: 'Close Date', value: 'closeDate' },
+    { label: 'Custom Propertry', value: 'field' },
 ]
 
 const MEASURE_OPTIONS = [
@@ -362,11 +363,43 @@ export const taskCharts = [
         filterTypes: [
             // DIMENSION FILTER
             {
+                fieldName: 'rowDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select row',
+            },
+            {
+                fieldName: 'colDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select column',
+            },
+            {
                 fieldName: 'dimension',
                 fieldType: 'select',
                 multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                        logicFieldOperator: "ne",
+                    },
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER
@@ -382,12 +415,6 @@ export const taskCharts = [
             {
                 fieldName: 'frequencyType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'frequency',
-                    },
-                ],
                 multi: false,
                 fieldDefaultValue: '%Y',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
@@ -397,12 +424,6 @@ export const taskCharts = [
             {
                 fieldName: 'userType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
-                    },
-                ],
                 multi: false,
                 fieldDefaultValue: 'userId',
                 fieldOptions: USER_TYPES,
@@ -412,12 +433,6 @@ export const taskCharts = [
             {
                 fieldName: 'userIds',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
-                    },
-                ],
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',
