@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.16.1](https://github.com/erxes/erxes/compare/1.16.0...1.16.1) (2024-09-05)
+
+## [1.16.0](https://github.com/erxes/erxes/compare/1.16.0-rc.1...1.16.0) (2024-09-05)
+
+
+### Bug Fixes
+
+* **pos:** enhance getCustomerLabel function to include primaryEmail, code, and fallback to _id ([5fb30c9](https://github.com/erxes/erxes/commit/5fb30c9f522d3bd25e143f3fee1258b4bd51e165))
+
 ## [1.16.0-rc.1](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-09-02)
 
 
