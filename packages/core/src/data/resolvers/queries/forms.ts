@@ -1,17 +1,139 @@
-import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../../connectionResolver';
 import { sendInboxMessage } from '../../../messageBroker';
 
 import { formSubmissionsQuery } from '../../../formUtils';
 import { IFormSubmissionFilter } from '../../../db/models/definitions/forms';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { paginate } from '@erxes/api-utils/src';
+
+const generateFilterQuery = async (
+  { type, brandId, searchValue, tag, status },
+  models
+) => {
+  const query: any = {};
+
+  if (type) {
+    query.type = type;
+  }
+
+  // filter integrations by channel
+  // if (channelId) {
+  //   const channel = await models.Channels.getChannel(channelId);
+  //   query._id = { $in: channel.integrationIds || [] };
+  // }
+
+  if (brandId) {
+    query.brandId = brandId;
+  }
+
+  if (searchValue) {
+    query.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (tag) {
+    const object = await models.Tags.findOne({ _id: tag });
+
+    query.tagIds = { $in: [tag, ...(object?.relatedIds || [])] };
+  }
+
+  if (status) {
+    query.status = status;
+  }
+
+  return query;
+};
 
 const formQueries = {
   /**
    * Forms list
    */
-  async forms(_root, _args, { commonQuerySelector, models }: IContext) {
-    return models.Forms.find(commonQuerySelector).sort({ title: 1 });
+  async forms(
+    _root,
+    args: {
+      page: number;
+      perPage: number;
+      type: string;
+      searchValue: string;
+      brandId: string;
+      tag: string;
+      status: string;
+      sortField: string;
+      sortDirection: number;
+    },
+    { models }: IContext
+  ) {
+    const qry = {
+      ...(await generateFilterQuery(args, models)),
+    };
+
+    const sort: any = { createdAt: -1 };
+
+    if (args.sortDirection && args.sortField) {
+      sort[args.sortField] = args.sortDirection;
+    }
+
+    return paginate(models.Forms.find(qry).sort(sort), args);
+  },
+
+  async formsTotalCount(
+    _root,
+    args,
+    { commonQuerySelector, models }: IContext
+  ) {
+    const counts = {
+      total: 0,
+      byTag: {},
+      byBrand: {},
+      byStatus: { active: 0, archived: 0 },
+    };
+
+    const qry = {
+      ...(await generateFilterQuery(args, models)),
+    };
+
+    const count = async (query) => {
+      return models.Forms.find(query).countDocuments();
+    };
+
+    const tags = await models.Tags.find({ type: `form:${args.type}` }).lean();
+
+    for (const tag of tags) {
+      const countQueryResult = await count({ tagIds: tag._id, ...qry });
+
+      counts.byTag[tag._id] = !args.tag
+        ? countQueryResult
+        : args.tag === tag._id
+          ? countQueryResult
+          : 0;
+    }
+
+    const brands = await models.Brands.find();
+
+    for (const brand of brands) {
+      const countQueryResult = await count({ brandId: brand._id, ...qry });
+
+      counts.byBrand[brand._id] = !args.brandId
+        ? countQueryResult
+        : args.brandId === brand._id
+          ? countQueryResult
+          : 0;
+    }
+
+    counts.byStatus.active = await count({ status: 'active', ...qry });
+    counts.byStatus.archived = await count({ status: 'archived', ...qry });
+
+    if (args.status) {
+      if (args.status === 'active') {
+        counts.byStatus.archived = 0;
+      } else {
+        counts.byStatus.active = 0;
+      }
+    }
+
+    counts.total = await count(qry);
+
+    return counts;
   },
 
   /**

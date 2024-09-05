@@ -16,6 +16,11 @@ const FORMS_QUERY = gql`
   ${queries.forms}
 `;
 
+const FORMS_TOTAL_COUNT_QUERY = gql`
+  ${queries.formsTotalCount}
+`;
+
+
 // const INTEGRATIONS_TOTAL_COUNT_QUERY = gql`
 //   ${queries.integrationsTotalCount}
 // `;
@@ -54,14 +59,14 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     },
   });
 
-  // const { data: countData } = useQuery('INTEGRATIONS_TOTAL_COUNT_QUERY', {
-  //   variables: {
-  //     kind: INTEGRATION_KINDS.FORMS,
-  //     tag: queryParams.tag,
-  //     brandId: queryParams.brand,
-  //     status: queryParams.status,
-  //   },
-  // });
+  const { data: countData } = useQuery(FORMS_TOTAL_COUNT_QUERY, {
+    variables: {
+      kind: 'lead',
+      tag: queryParams.tag,
+      brandId: queryParams.brand,
+      status: queryParams.status,
+    },
+  });
 
   // const [removeMutation] = useMutation('REMOVE_MUTATION');
   // const [archiveMutation] = useMutation(ARCHIVE_MUTATION);
@@ -144,14 +149,13 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
   //   [copyMutation, refetch]
   // );
 
-  const integrations = data?.integrations || [];
-  // const counts = countData?.integrationsTotalCount || null;
-  const counts = null;
-  const totalCount = counts || 0;
-  // const totalCount = (counts && counts.total) || 0;
+  const forms = data?.forms || [];
+  const counts = countData?.integrationsTotalCount || null;
+
+  const totalCount = (counts && counts.total) || 0;
 
   const updatedProps = {
-    integrations,
+    forms,
     counts,
     totalCount,
     // remove,

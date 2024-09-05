@@ -1,8 +1,4 @@
-import {
-  CustomRangeContainer,
-  EndDateContainer,
-  FilterContainer,
-} from '../styles';
+
 import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils/core';
 
@@ -15,6 +11,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { CustomRangeContainer, EndDateContainer, FilterContainer } from '../../styles';
 
 interface IProps {
   counts: { [key: string]: number };

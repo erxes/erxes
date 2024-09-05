@@ -1,5 +1,6 @@
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
+import Form from '@erxes/ui-forms/src/forms/components/Form';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
@@ -37,14 +38,30 @@ class FormStep extends React.Component<Props> {
       onInit,
       formData,
       showMessage: false,
-      type: 'lead'
+      type: 'lead',
+      formId
     };
 
-    if (formId) {
-      return <EditForm {...doc} formId={formId} />;
-    }
+    // if (formId) {
+    //   return <EditForm {...doc} formId={formId} />;
+    // }
 
-    return <CreateForm {...doc} />;
+    // return <CreateForm {...doc} />;
+
+    // fields: IField[];
+    // renderPreviewWrapper?: (previewRenderer, fields: IField[]) => any;
+    // onDocChange?: (doc: IFormData) => void;
+    // saveForm: (params: IFormData) => void;
+    // formData?: IFormData;
+    // isReadyToSave: boolean;
+    // type: string;
+    // form?: IForm;
+    // hideOptionalFields?: boolean;
+    // currentMode?: 'create' | 'update' | undefined;
+    // currentField?: IField;
+    // color?: string;
+
+    return <Form {...doc} />;
   }
 
   render() {

@@ -1,17 +1,29 @@
 const commonParamsDef = `
-  $title: String,
-  $description: String,
-  $buttonText: String,
-  $type: String!,
+  $type: String!
+  $name: String!
+  $title: String
+  $description: String
+  $buttonText: String
   $numberOfPages: Int
+  $visibility: String
+  $leadData: JSON
+  $languageCode: String
+  $departmentIds: [String]
+  $tagIds: [String]
 `;
 
 const commonParams = `
-  title: $title,
-  description: $description,
-  buttonText: $buttonText,
-  type: $type,
-  numberOfPages: $numberOfPages
+  name: $name
+  type: $type
+    title: $title
+    description: $description
+    buttonText: $buttonText
+    numberOfPages: $numberOfPages
+    visibility: $visibility
+    leadData: $leadData
+    languageCode: $languageCode
+    departmentIds: $departmentIds
+    tagIds: $tagIds
 `;
 
 const addForm = `

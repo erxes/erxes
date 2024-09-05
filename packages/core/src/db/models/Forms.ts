@@ -121,7 +121,8 @@ export const loadFormClass = (models: IModels) => {
       // duplicate form ===================
       const newForm = await this.createForm(
         {
-          title: `${form.title} duplicated`,
+          name:`${form.name} duplicated`, 
+          title: form.title,
           description: form.description,
           type: form.type
         },

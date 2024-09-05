@@ -15,10 +15,9 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  fields: IField[];
   renderPreviewWrapper?: (previewRenderer, fields: IField[]) => any;
   onDocChange?: (doc: IFormData) => void;
-  saveForm: (params: IFormData) => void;
+  // saveForm: (params: IFormData) => void;
   formData?: IFormData;
   isReadyToSave: boolean;
   type: string;

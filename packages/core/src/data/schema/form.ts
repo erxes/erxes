@@ -5,14 +5,6 @@ export const types = `
     formFieldId: String
   }
   
-  extend type Customer @key(fields: "_id") {
-      _id: String! @external
-  }
-
-  extend type Company @key(fields: "_id") {
-      _id: String! @external
-  }
-
   type Callout {
     title: String,
     body: String,
@@ -21,10 +13,9 @@ export const types = `
     skip: Boolean
   }
 
-  
-
   type Form @key(fields: "_id") {
     _id: String!
+    name: String!
     title: String
     code: String
     type: String
@@ -79,9 +70,17 @@ export const types = `
     contentType: String
     icon: String
   }
+
+  type FormsTotalCount {
+    total: Int
+    byTag: JSON
+    byBrand: JSON
+    byStatus: JSON
+  }
 `;
 
 const commonFields = `
+  name: String!
   title: String,
   description: String,
   buttonText: String,
@@ -114,7 +113,8 @@ const formSubmissionQueryParams = `
 
 export const queries = `
   formDetail(_id: String!): Form
-  forms: [Form]
+  forms(page: Int,perPage: Int,type: String, brandId: String, tagId: String, status: String): [Form]
+  formsTotalCount(type: String, brandId: String, tagId: String, status: String): FormsTotalCount
   formSubmissions(${formSubmissionQueryParams}, page: Int, perPage: Int): [Submission]
   formSubmissionsTotalCount(${formSubmissionQueryParams}): Int
   formSubmissionDetail(contentTypeId: String!): Submission

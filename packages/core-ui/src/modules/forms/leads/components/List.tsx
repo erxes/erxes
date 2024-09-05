@@ -22,19 +22,20 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from '../../../common/utils';
 import Sidebar from './Sidebar';
-import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
 
 type Props = {
-  integrations: IIntegration[];
+  forms: IForm[];
   tags: ITag[];
-  bulk: IIntegration[];
+  bulk: IForm[];
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
   queryParams: any;
   tagsCount: { [key: string]: number };
-  toggleBulk: (target: IIntegration, toAdd: boolean) => void;
-  toggleAll: (bulk: IIntegration[], name: string) => void;
+  toggleBulk: (target: IForm, toAdd: boolean) => void;
+  toggleAll: (bulk: IForm[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
@@ -46,7 +47,7 @@ type Props = {
 };
 
 const List = ({
-  integrations,
+  forms,
   bulk,
   isAllSelected,
   emptyBulk,
@@ -63,19 +64,19 @@ const List = ({
   navigate,
 }: Props) => {
   const onChange = () => {
-    toggleAll(integrations, 'integrations');
+    toggleAll(forms, 'forms');
   };
 
   const renderRow = () => {
-    return integrations.map((integration) => (
+    return forms.map((form) => (
       <Row
-        key={integration._id}
-        isChecked={bulk.includes(integration)}
+        key={form._id}
+        isChecked={bulk.includes(form)}
         toggleBulk={toggleBulk}
-        integration={integration}
+        form={form}
         remove={remove}
         archive={archive}
-        showCode={integration._id === queryParams.showInstallCode}
+        showCode={form._id === queryParams?.showInstallCode}
         copy={copy}
       />
     ));
@@ -98,14 +99,12 @@ const List = ({
 
     actionBarLeft = (
       <BarItems>
-        {isEnabled('tags') && (
-          <TaggerPopover
-            type={TAG_TYPES.INTEGRATION}
-            successCallback={emptyBulk}
-            targets={bulk}
-            trigger={tagButton}
-          />
-        )}
+        <TaggerPopover
+          type={TAG_TYPES.INTEGRATION}
+          successCallback={emptyBulk}
+          targets={bulk}
+          trigger={tagButton}
+        />
       </BarItems>
     );
   }
@@ -167,8 +166,8 @@ const List = ({
           <th>
             <SortHandler sortField={'createdDate'} label={__('Created at')} />
           </th>
-          {isEnabled('tags') && <th>{__('Tags')}</th>}
-          <th>{__('Flow type')}</th>
+          <th>{__('Tags')}</th>
+
           <th>{__('Actions')}</th>
         </tr>
       </thead>
@@ -181,18 +180,21 @@ const List = ({
       header={
         <Wrapper.Header
           title={__('Leads')}
-          breadcrumb={[{ title: __('Forms'),link: "/forms"  },{ title: __('Leads') }]}
+          breadcrumb={[
+            { title: __('Forms'), link: '/forms' },
+            { title: __('Leads') },
+          ]}
           queryParams={queryParams}
         />
       }
-      leftSidebar={<Sidebar counts={counts || ({})} />}
+      leftSidebar={<Sidebar counts={counts || {}} />}
       actionBar={actionBar}
       footer={<Pagination count={totalCount} />}
       content={
         <DataWithLoader
           data={content}
           loading={loading}
-          count={integrations.length}
+          count={forms.length}
           emptyContent={
             <EmptyContent content={EMPTY_CONTENT_POPUPS} maxItemWidth='360px' />
           }

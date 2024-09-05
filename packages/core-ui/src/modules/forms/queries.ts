@@ -1,4 +1,3 @@
-
 export const commonFields = `
   brandId
   name
@@ -51,12 +50,41 @@ export const commonFields = `
 `;
 
 const forms = `
-  query forms {
-    forms {
+query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: String, $status: String) {
+  forms(page: $page, perPage: $perPage, type: $type, brandId: $brandId, tagId: $tagId, status: $status) {
+    _id
+    createdDate
+    createdUser {
+       _id
+      details {
+        avatar
+        fullName
+        position
+      }
+      email
+    }
+    code
+    name
+    title
+    status
+    tagIds
+    tags {
       _id
-      title
+      name
     }
   }
+}
+`;
+
+const formsTotalCount = `
+  query FormsTotalCount($type: String, $brandId: String, $tagId: String, $status: String) {
+  formsTotalCount(type: $type, brandId: $brandId, tagId: $tagId, status: $status) {
+    byBrand
+    byStatus
+    byTag
+    total
+  }
+}
 `;
 
 const relations = `
@@ -115,5 +143,6 @@ export default {
   formsGetContentTypes,
   emailTemplates,
   templateTotalCount,
-  integrationDetail
+  integrationDetail,
+  formsTotalCount,
 };

@@ -8,6 +8,7 @@ export interface IForm {
   _id: string;
   createdUserId: string;
   createdDate: Date;
+  name: string;
   title: string;
   code?: string;
   type: string;
@@ -250,6 +251,7 @@ export const leadDataSchema = new Schema(
 export const formSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    name: field({ type: String, required: true }),
     title: field({ type: String, optional: true }),
     type: field({ type: String, required: true }),
     description: field({
@@ -275,6 +277,6 @@ export const formSchema = schemaWrapper(
     languageCode: field({ type: String, optional: true, label: 'Language' }),
     visibility: field({ type: String, optional: true, label: 'Visibility' }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
-    status: field({ type: String, optional: true, label: 'Status', enum: ['active', 'inactive'], default:'active' }),
+    status: field({ type: String, optional: true, label: 'Status', enum: ['active', 'archived'], default:'active' }),
   })
 );

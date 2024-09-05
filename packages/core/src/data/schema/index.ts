@@ -81,12 +81,6 @@ import {
 } from "./segment";
 
 import {
-  types as FormTypes,
-  queries as FormQueries,
-  mutations as FormMutations
-} from "./form";
-
-import {
   fieldsTypes as FieldsTypes,
   fieldsQueries as FieldsQueries,
   fieldsMutations as FieldsMutations,
@@ -119,6 +113,12 @@ import {
   mutations as UomMutations
 } from "./uom";
 
+import {
+  types as FormTypes,
+  queries as FormQueries,
+  mutations as FormMutations
+} from "./form";
+
 export let types = ({ inboxEnabled }) => {
   return `
   scalar JSON
@@ -135,7 +135,7 @@ export let types = ({ inboxEnabled }) => {
     inheritMaxAge: Boolean
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
-    ${
+  ${
       inboxEnabled
         ? `
         extend type Integration @key(fields: "_id") {
@@ -143,7 +143,7 @@ export let types = ({ inboxEnabled }) => {
         }
       `
         : ""
-    }  
+  }  
   
 
   ${UserTypes}

@@ -49,8 +49,7 @@ type Props = {
   integrationId?: string;
   isIntegrationSubmitted?: boolean;
   onFieldEdit?: () => void;
-  waitUntilFinish?: (obj: any) => void;
-  onChildProcessFinished?: (component: string) => void;
+ 
 };
 
 const OptionStep = (props: Props) => {
@@ -125,24 +124,16 @@ const OptionStep = (props: Props) => {
         ) !== -1
       ) {
         setRenderPayments(true);
-        if (props.waitUntilFinish) {
-          props.waitUntilFinish({ optionsStep: true });
-        }
+
       } else {
         setRenderPayments(false);
 
-        if (props.waitUntilFinish) {
-          props.waitUntilFinish({ optionsStep: false });
-        }
+
       }
     }
 
     if (!isEnabled('payment')) {
       setRenderPayments(false);
-
-      if (props.waitUntilFinish) {
-        props.waitUntilFinish({ optionsStep: false });
-      }
     }
   }, [props.formData.fields]);
 
@@ -163,12 +154,7 @@ const OptionStep = (props: Props) => {
           isSubmitted: props.isIntegrationSubmitted,
           description: __(
             "Choose payment methods you'd like to enable on this form"
-          ),
-          afterSave: () => {
-            if (props.onChildProcessFinished) {
-              props.onChildProcessFinished('optionsStep');
-            }
-          },
+          )
         })}
       </>
     );

@@ -2,19 +2,26 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-
 import { RowTitle } from '@erxes/ui-engage/src/styles';
 import { Capitalize } from '@erxes/ui-settings/src/permissions/styles';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-
 import WithPermission from '../../../common/components/WithPermission';
 import { __, getEnv } from '../../../common/utils';
 import Manage from './Manage';
-import { ActionButtons, Button, FormControl, Icon, Label, ModalTrigger, Tags, TextInfo, Tip } from '@erxes/ui/src/components';
+import {
+  ActionButtons,
+  Button,
+  FormControl,
+  Icon,
+  Label,
+  ModalTrigger,
+  Tags,
+  TextInfo,
+  Tip,
+} from '@erxes/ui/src/components';
 
 const Row = ({
-  integration,
+  form,
   isChecked,
   toggleBulk,
   remove,
@@ -22,11 +29,11 @@ const Row = ({
   copy,
   showCode,
 }) => {
-  const manageAction = (integration) => {
-    const { formId } = integration;
+  const manageAction = (form) => {
+    const { formId } = form;
 
     return (
-      <Link to={`/forms/edit/${integration._id}/${formId}`}>
+      <Link to={`/forms/edit/${form._id}/${formId}`}>
         <Button btnStyle='link'>
           <Tip text={__('Manage')} placement='top'>
             <Icon icon='edit-3' />
@@ -60,9 +67,9 @@ const Row = ({
   };
 
   const renderArchiveAction = () => {
-    const onClick = () => archive(integration._id, true);
+    const onClick = () => archive(form._id, true);
 
-    if (!archive || !integration.isActive) {
+    if (!archive || !form.isActive) {
       return null;
     }
 
@@ -80,7 +87,7 @@ const Row = ({
 
     const onClick = () => {
       window.open(
-        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${form._id}`,
         '_blank'
       );
     };
@@ -93,7 +100,7 @@ const Row = ({
   };
 
   const renderSubmissionsAction = () => (
-    <Link to={`/forms/responses/${integration._id}/${integration.formId}`}>
+    <Link to={`/forms/responses/${form._id}`}>
       <Button btnStyle='link'>
         <Tip text={__('Submissions')} placement='top'>
           <Icon icon='list' />
@@ -103,9 +110,9 @@ const Row = ({
   );
 
   const renderUnarchiveAction = () => {
-    const onClick = () => archive(integration._id, false);
+    const onClick = () => archive(form._id, false);
 
-    if (!archive || integration.isActive) {
+    if (!archive || form.isActive) {
       return null;
     }
 
@@ -119,7 +126,7 @@ const Row = ({
   };
 
   const renderRemoveAction = () => {
-    const onClick = () => remove(integration._id);
+    const onClick = () => remove(form._id);
 
     return (
       <WithPermission action='integrationsRemove'>
@@ -136,7 +143,7 @@ const Row = ({
   };
 
   const renderCopyAction = () => {
-    const onClick = () => copy(integration._id);
+    const onClick = () => copy(form._id);
 
     return (
       <Tip text={__('Duplicate')} placement='top'>
@@ -145,14 +152,13 @@ const Row = ({
     );
   };
 
-  const form = integration.form || {};
-  const lead = integration.leadData || {};
+  const lead = form.leadData || {};
 
   const createdUser = form.createdUser || {
     _id: '',
     details: { fullName: '' },
   };
-  const tags = integration.tags;
+  const tags = form.tags || [];
 
   const percentage = lead.conversionRate
     ? lead.conversionRate.toString()
@@ -160,12 +166,12 @@ const Row = ({
 
   const onChange = (e) => {
     if (toggleBulk) {
-      toggleBulk(integration, e.target.checked);
+      toggleBulk(form, e.target.checked);
     }
   };
 
-  const labelStyle = integration.isActive ? 'success' : 'warning';
-  const status = integration.isActive ? __('Active') : __('Archived');
+  const labelStyle = form.status === 'active' ? 'success' : 'warning';
+  const status = form.status === 'active' ? __('Active') : __('Archived');
 
   return (
     <tr>
@@ -178,9 +184,7 @@ const Row = ({
       </td>
       <td>
         <RowTitle>
-          <Link to={`/forms/edit/${integration._id}/${integration.formId}`}>
-            {integration.name}
-          </Link>
+          <Link to={`/forms/edit/${form._id}`}>{form.name}</Link>
         </RowTitle>
       </td>
       <td>
@@ -200,7 +204,7 @@ const Row = ({
         </TextInfo>
       </td>
       <td>
-        <strong>{integration.brand ? integration.brand.name : ''}</strong>
+        <strong>{form.brand ? form.brand.name : ''}</strong>
       </td>
       <td>
         <div key={createdUser._id}>
@@ -213,18 +217,15 @@ const Row = ({
         <Icon icon='calender' />{' '}
         <DateWrapper>{dayjs(form.createdDate).format('ll')}</DateWrapper>
       </td>
-      {isEnabled('tags') && (
-        <td>
-          <Tags tags={tags} limit={2} />
-        </td>
-      )}
+
       <td>
-        <Label lblStyle='simple'>{integration.leadData.loadType}</Label>
+        <Tags tags={tags || []} limit={2} />
       </td>
+
       <td>
         <ActionButtons>
-          {manageAction(integration)}
-          {renderEditAction(integration)}
+          {manageAction(form)}
+          {renderEditAction(form)}
           {renderArchiveAction()}
           {renderUnarchiveAction()}
           {renderExportAction()}

@@ -1,36 +1,21 @@
-import * as compose from "lodash.flowright";
-
-import {
-  AddIntegrationMutationResponse,
-  AddIntegrationMutationVariables,
-} from "@erxes/ui-inbox/src/settings/integrations/types";
-import { Alert, withProps } from "@erxes/ui/src/utils";
-import React, { useState, useEffect } from "react";
-
-import { AddFieldsMutationResponse } from "@erxes/ui-forms/src/settings/properties/types";
-import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
-import Lead from "../components/LeadForm";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
-import { useNavigate } from "react-router-dom";
-import { ILeadData } from "../../types";
-import queries from "../../queries";
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations as formMutations } from '@erxes/ui-forms/src/forms/graphql';
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import mutations from '../../mutations';
-
-type Props = {
-  emailTemplatesQuery: any /*change type*/;
-  emailTemplatesTotalCountQuery: any /*change type*/;
-  configsQuery: ConfigsQueryResponse;
-} & AddIntegrationMutationResponse &
-  AddFieldsMutationResponse;
+import queries from '../../queries';
+import { ILeadData } from '../../types';
+import Lead from '../components/LeadForm';
+import { Alert } from '../../../common/utils';
 
 type State = {
   isLoading: boolean;
   isReadyToSaveForm: boolean;
   isIntegrationSubmitted: boolean;
-  integrationId?: string;
+  formId?: string;
   mustWait?: any;
   doc?: {
     brandId: string;
@@ -42,22 +27,42 @@ type State = {
   };
 };
 
-const CreateLeadContainer: React.FC<Props> = (props) => {
+const CreateLeadContainer: React.FC = () => {
   const navigate = useNavigate();
-
   const [state, setState] = useState<State>({
     isLoading: false,
     isReadyToSaveForm: false,
     isIntegrationSubmitted: false,
     mustWait: { optionsStep: false },
   });
-  const [id, setId] = useState('')
+  const [id, setId] = useState('');
 
-  useEffect(() => {
-    if (state.doc && state.isReadyToSaveForm && id !== '') {
-      afterFormDbSave();
+  const { data: emailTemplatesTotalCountData } = useQuery(
+    gql(queries.templateTotalCount),
+    {
+      skip: !isEnabled('engages'),
     }
-  }, [state.doc, state.isReadyToSaveForm, id]);
+  );
+
+  const { data: emailTemplatesData } = useQuery(gql(queries.emailTemplates), {
+    skip: !isEnabled('engages') || !emailTemplatesTotalCountData,
+    variables: {
+      perPage: emailTemplatesTotalCountData?.emailTemplatesTotalCount || 0,
+    },
+  });
+
+  const { data: configsData } = useQuery<ConfigsQueryResponse>(
+    gql(settingsQueries.configs)
+  );
+
+  const [addIntegrationMutation] = useMutation(
+    gql(mutations.integrationsCreateLeadIntegration)
+  );
+
+  const [addFormMutation] = useMutation(gql(formMutations.addForm));
+  const [manageFieldsMutation] = useMutation(
+    gql(formMutations.fieldsBulkAction)
+  );
 
   const redirect = () => {
     let canClose = true;
@@ -65,126 +70,93 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
     for (const key in state.mustWait) {
       if (state.mustWait[key]) {
         canClose = false;
-      } else {
-        canClose = true;
+        break;
       }
     }
 
     if (canClose) {
       navigate({
-        pathname: "/forms",
-        search: `?popUpRefetchList=true&showInstallCode=${state.integrationId}`,
+        pathname: '/forms',
+        search: `?popUpRefetchList=true&showInstallCode=${id}`,
       });
     }
   };
 
-  const afterFormDbSave = () => {
-    setState({ ...state, isReadyToSaveForm: false });
-
-    if (state.doc && state.doc.channelIds?.length) {
-      const { leadData, brandId, name, languageCode, channelIds } = state.doc;
-      
-      props
-        .addIntegrationMutation({
-          variables: {
-            formId: id,
-            leadData,
-            brandId,
-            name,
-            languageCode,
-            channelIds,
-          },
-        })
-        .then(
-          ({
-            data: {
-              integrationsCreateLeadIntegration: { _id },
-            },
-          }) => {
-            setState({
-              ...state,
-              integrationId: _id,
-              isIntegrationSubmitted: true,
-            });
-            Alert.success("You successfully added a form");
-
-            redirect();
-          }
-        )
-        .catch((error) => {
-          Alert.error(error.message);
-
-          setState({ ...state, isLoading: false });
-        });
-    }
-  };
-
-  const waitUntilFinish = (obj: any) => {
-    const mustWait = { ...state.mustWait, ...obj };
-    setState({ ...state, mustWait });
-  };
-
   const save = (doc) => {
-    setState({ ...state, isLoading: true, isReadyToSaveForm: true, doc: doc });
+    const { formData } = doc;
+    const { fields = [] } = formData;
+
+    addFormMutation({
+      variables: {
+        type: 'lead',
+        name: doc.name,
+        title: formData.title,
+        description: formData.description,
+        buttonText: formData.buttonText,
+        numberOfPages: formData.numberOfPages,
+        visibility: doc.visibility,
+        leadData: doc.leadData,
+        languageCode: doc.languageCode,
+        departmentIds: doc.departmentIds,
+      },
+    }).then(({ data }) => {
+      const formId = data?.formsAdd._id;
+
+      setState({ ...state, doc, isReadyToSaveForm: true, isLoading: false });
+      setId(formId);
+
+      if (fields.length > 0) {
+        const cleanedFields = fields.map(({ _id, ...rest }) => {
+          const f: any = rest;
+
+          delete f.contentType;
+
+          return {
+            tempFieldId: _id,
+            ...f,
+          };
+        });
+
+        manageFieldsMutation({
+          variables: {
+            contentType: 'form',
+            contentTypeId: formId,
+            newFields: cleanedFields,
+          },
+        });
+      }
+
+      if (isEnabled('inbox') || doc.channelIds.length) {
+        addIntegrationMutation({
+          variables: {
+            brandId: doc.brandId,
+            formId,
+            channelIds: doc.channelIds,
+            name: doc.name,
+          },
+        });
+      }
+
+      Alert.success('You successfully added a form');
+      console.log("FORM ID + ",formId)
+      navigate({
+        pathname: '/forms',
+        search: `?popUpRefetchList=true&showInstallCode=${formId}`,
+      });
+    });
   };
 
   const updatedProps = {
-    ...props,
     fields: [],
     save,
-    afterFormDbSave: id => setId(id),
-    waitUntilFinish,
-    onChildProcessFinished: (component) => {
-      if (state.mustWait.hasOwnProperty(component)) {
-        const mustWait = { ...state.mustWait };
-        mustWait[component] = false;
-        setState({ ...state, mustWait });
-      }
-
-      redirect();
-    },
     isActionLoading: state.isLoading,
     isReadyToSaveForm: state.isReadyToSaveForm,
     isIntegrationSubmitted: state.isIntegrationSubmitted,
-    emailTemplates: props.emailTemplatesQuery
-      ? props.emailTemplatesQuery.emailTemplates || []
-      : [],
-    configs: props.configsQuery.configs || [],
-    integrationId: state.integrationId,
+    emailTemplates: emailTemplatesData?.emailTemplates || [],
+    configs: configsData?.configs || [],
   };
 
-  return <Lead {...updatedProps} currentMode="create" />;
+  return <Lead {...updatedProps} currentMode='create' />;
 };
 
-const withTemplatesQuery = withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.emailTemplates), {
-      name: "emailTemplatesQuery",
-      options: ({ emailTemplatesTotalCountQuery }) => ({
-        variables: {
-          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
-        },
-      }),
-      skip: !isEnabled("engages") ? true : false,
-    })
-  )(CreateLeadContainer)
-);
-
-export default withProps<Props>(
-  compose(
-    graphql(gql(queries.templateTotalCount), {
-      name: "emailTemplatesTotalCountQuery",
-      skip: !isEnabled("engages") ? true : false,
-    }),
-    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: "configsQuery",
-    }),
-    graphql<
-      {},
-      AddIntegrationMutationResponse,
-      AddIntegrationMutationVariables
-    >(gql(mutations.integrationsCreateLeadIntegration), {
-      name: "addIntegrationMutation",
-    })
-  )(withTemplatesQuery)
-);
+export default CreateLeadContainer;
