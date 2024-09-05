@@ -12,7 +12,7 @@ import { queries, mutations } from "../../graphql";
 import {
   ReportRemoveMutationResponse,
   ReportsListQueryResponse,
-  SectionsListQueryResponse,
+  SectionsListQueryResponse
 } from "../../types";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -33,8 +33,8 @@ const ReportSectionContainer = (props: Props) => {
     gql(queries.sectionList),
     {
       variables: {
-        type: "report",
-      },
+        type: "report"
+      }
     }
   );
 
@@ -44,12 +44,12 @@ const ReportSectionContainer = (props: Props) => {
       refetchQueries: [
         {
           query: gql(queries.sectionList),
-          variables: { type: "report" },
+          variables: { type: "report" }
         },
         {
-          query: gql(queries.reportList),
-        },
-      ],
+          query: gql(queries.reportList)
+        }
+      ]
     }
   );
 
@@ -79,7 +79,7 @@ const ReportSectionContainer = (props: Props) => {
     reports: list,
     sections,
     loading,
-    removeReports,
+    removeReports
   };
 
   return <ReportSection {...updatedProps} />;

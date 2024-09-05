@@ -1,4 +1,4 @@
-export const types = () => `
+export const types = `
 
   extend type User @key(fields: "_id") {
     _id: String! @external
@@ -145,7 +145,8 @@ export const types = () => `
     list: [JSON]
     listCount: Int
     },
-      type SectionListResponse {
+      
+    type SectionListResponse {
       list: [Section],
       listCount: Int,
     }

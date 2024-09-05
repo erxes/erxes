@@ -1,7 +1,8 @@
 import { pipeline } from 'stream';
 
 const insuranceTypeFields = `
-  _id
+      _id
+      name
       entity
       stageId
       pipelineId

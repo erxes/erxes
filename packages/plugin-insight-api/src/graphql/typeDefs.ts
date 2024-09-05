@@ -23,7 +23,7 @@ const typeDefs = async () => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
     
-    ${insightTypes()}
+    ${insightTypes}
     
     extend type Query {
       ${insightQueries}

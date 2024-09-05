@@ -208,13 +208,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           Array.isArray(item.specificPeriodGoals)
         ) {
           const updatedSpecificPeriodGoals = item.specificPeriodGoals
-            .filter(
-              result =>
-                current !== 0 &&
-                !isNaN(current) &&
-                result.addTarget !== 0 &&
-                result.addTarget !== null
-            )
+            .filter(result => {
+              // Filter out invalid goals where addTarget is 0 or null
+              return result.addTarget !== 0 && result.addTarget !== null;
+            })
             .map(result => {
               let convertedNumber;
               if (current === 0 || result.addTarget === 0) {
@@ -227,19 +224,24 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
               return {
                 ...result,
                 addMonthly: result.addMonthly, // update other properties as needed
-                current,
-                progress: convertedNumber // updating the progress property
+                current, // Assigning the current value for progress tracking
+                progress: convertedNumber // Updating the progress property
               };
             });
 
-          await models.Goals.updateOne(
-            { _id: item._id },
-            {
-              $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
+          try {
+            await models.Goals.updateOne(
+              { _id: item._id },
+              {
+                $set: {
+                  specificPeriodGoals: updatedSpecificPeriodGoals
+                }
               }
-            }
-          );
+            );
+            console.log("Goals updated successfully");
+          } catch (error) {
+            console.error("Error updating goals:", error);
+          }
         }
       } else if (item.metric === "Count") {
         const activeElements = amount.filter(item => item.status === "active");
@@ -251,13 +253,10 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           Array.isArray(item.specificPeriodGoals)
         ) {
           const updatedSpecificPeriodGoals = item.specificPeriodGoals
-            .filter(
-              result =>
-                current !== 0 &&
-                !isNaN(current) &&
-                result.addTarget !== 0 &&
-                result.addTarget !== null
-            )
+            .filter(result => {
+              // Filter out invalid goals where addTarget is 0 or null
+              return result.addTarget !== 0 && result.addTarget !== null;
+            })
             .map(result => {
               let convertedNumber;
               if (current === 0 || result.addTarget === 0) {
@@ -270,19 +269,24 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
               return {
                 ...result,
                 addMonthly: result.addMonthly, // update other properties as needed
-                current,
-                progress: convertedNumber // updating the progress property
+                current, // Assigning the current value for progress tracking
+                progress: convertedNumber // Updating the progress property
               };
             });
 
-          await models.Goals.updateOne(
-            { _id: item._id },
-            {
-              $set: {
-                specificPeriodGoals: updatedSpecificPeriodGoals
+          try {
+            await models.Goals.updateOne(
+              { _id: item._id },
+              {
+                $set: {
+                  specificPeriodGoals: updatedSpecificPeriodGoals
+                }
               }
-            }
-          );
+            );
+            console.log("Goals updated successfully");
+          } catch (error) {
+            console.error("Error updating goals:", error);
+          }
         }
       }
 
@@ -325,18 +329,26 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
     }
   }
 
-  async function differenceFunction(amount: number, target: number) {
-    let convertedNumber;
-    if (amount === 0 || target === 0 || isNaN(amount)) {
-      convertedNumber = 0;
-    } else {
-      const diff = (amount / target) * 100;
-      convertedNumber = diff.toFixed(3);
+  async function differenceFunction(
+    amount: number,
+    target: number
+  ): Promise<number> {
+    // Handle edge cases where input is zero or invalid
+    if (amount === 0 || target === 0 || isNaN(amount) || isNaN(target)) {
+      return 0;
     }
 
-    return convertedNumber;
-  }
+    // Calculate the progress percentage
+    let progress = (amount / target) * 100;
 
+    // Cap the progress at 100% if it exceeds the target
+    if (progress > 100) {
+      progress = 100;
+    }
+
+    // Return the progress, rounded to the nearest whole number
+    return Math.round(progress);
+  }
   goalSchema.loadClass(Goal);
 
   return goalSchema;

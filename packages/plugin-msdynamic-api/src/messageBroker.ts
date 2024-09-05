@@ -55,6 +55,15 @@ export const sendCoreMessage = async (
   });
 };
 
+export const sendInventoriesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: 'inventories',
+    ...args,
+  });
+};
+
 export const sendCommonMessage = async (args: MessageArgs) => {
   return sendMessage({
     ...args

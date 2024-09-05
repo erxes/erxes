@@ -274,11 +274,13 @@ const DateRangeWrapper = styled.div`
 
   .rdtPicker .rdtDay {
     position: relative;
-    transition: background-color 0.2s ease, color 0.2s ease-in-out;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease-in-out;
     border-radius: 8px;
 
     &:after {
-      content: '';
+      content: "";
       border-radius: 8px;
       position: absolute;
       top: -5px;
@@ -288,13 +290,13 @@ const DateRangeWrapper = styled.div`
     }
   }
 
-  .rdtPicker .rdtDay:hover { 
+  .rdtPicker .rdtDay:hover {
     border-radius: 8px;
   }
 
-  .rdtPicker .rdtDay.rdtInRange { 
-    background-color: #8A8DD8 !important;
-    color: #FFF;
+  .rdtPicker .rdtDay.rdtInRange {
+    background-color: #8a8dd8 !important;
+    color: #fff;
     border-radius: 8px;
   }
 
@@ -311,8 +313,8 @@ const DateRangeWrapper = styled.div`
   }
 
   .rdtPicker td.rdtDay.rdtHover:not(.rdtActive):not(.rdtInRange) {
-    background-color: #8A8DD8 !important;
-    color: #FFF;
+    background-color: #8a8dd8 !important;
+    color: #fff;
     border-radius: 8px;
   }
 `;
@@ -381,7 +383,9 @@ const FormContent = styled.div`
     }
   }
 
-  .css-13cymwt-control, .css-t3ipsp-control, .css-t3ipsp-control:hover {
+  .css-13cymwt-control,
+  .css-t3ipsp-control,
+  .css-t3ipsp-control:hover {
     border-bottom: none;
   }
 
@@ -396,7 +400,8 @@ const FormContent = styled.div`
       border-radius: 5px;
     }
 
-    .css-13cymwt-control > div, .css-t3ipsp-control > div {
+    .css-13cymwt-control > div,
+    .css-t3ipsp-control > div {
       margin: 5px 8px 5px 5px;
       padding: 0;
     }
@@ -419,8 +424,9 @@ const FormContent = styled.div`
       border: 1px solid #eee;
     }
 
-    .css-d7l1ni-option, .css-tr4s17-option {
-      background-color: #F0F0F0;
+    .css-d7l1ni-option,
+    .css-tr4s17-option {
+      background-color: #f0f0f0;
       color: inherit;
     }
 
@@ -748,12 +754,8 @@ export {
   SectionListItem,
   Title,
   FormChart,
-<<<<<<< HEAD
-  FormWrapper
-=======
   FormWrapper,
   ControlRange,
   DateRangeWrapper,
   Divider
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 };

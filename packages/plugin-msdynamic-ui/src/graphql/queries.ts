@@ -219,10 +219,6 @@ export default {
   configs,
   checkSyncOrders,
   checkSyncOrdersTotalCount,
-<<<<<<< HEAD
-  posOrderDetail
-=======
   posOrderDetail,
   msdCustomerRelations
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 };

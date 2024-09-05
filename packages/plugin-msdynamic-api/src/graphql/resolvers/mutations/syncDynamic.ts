@@ -10,14 +10,9 @@ import {
   consumeInventory,
   dealToDynamic,
   getConfig,
-<<<<<<< HEAD
   getPrice
 } from "../../../utils";
-=======
-  getPrice,
-} from '../../../utils';
-import { consumeCustomers } from '../../../utilsCustomer';
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
+import { consumeCustomers } from "../../../utilsCustomer";
 
 const msdynamicSyncMutations = {
   async toSyncMsdProducts(
@@ -345,83 +340,7 @@ const msdynamicSyncMutations = {
     }
   },
 
-<<<<<<< HEAD
-  async toSyncMsdOrders(
-    _root,
-    { orderIds }: { orderIds: string[] },
-    { subdomain, user }: IContext
-  ) {
-    const result: { skipped: string[]; error: string[]; success: string[] } = {
-      skipped: [],
-      error: [],
-      success: []
-    };
-
-    const order = await sendPosMessage({
-      subdomain,
-      action: "orders.findOne",
-      data: { _id: { $in: orderIds } },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const configs = await getConfig(subdomain, "DYNAMIC", {});
-    const config = configs[order.scopeBrandIds[0] || "noBrand"];
-
-    if (!config.salesApi || !config.username || !config.password) {
-      throw new Error("MS Dynamic config not found.");
-    }
-
-    const { salesApi, username, password } = config;
-
-    const syncLogDoc = {
-      contentType: "pos:order",
-      createdAt: new Date(),
-      createdBy: user._id
-    };
-    const models = await generateModels(subdomain);
-
-    const syncLog = await models.SyncLogs.syncLogsAdd({
-      ...syncLogDoc,
-      contentId: order._id,
-      consumeData: order,
-      consumeStr: JSON.stringify(order)
-    });
-    try {
-      const response = await fetch(
-        `${salesApi}?$filter=No eq '${order.syncErkhetInfo}'`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Basic ${Buffer.from(
-              `${username}:${password}`
-            ).toString("base64")}`
-          },
-          timeout: 60000
-        }
-      ).then(r => r.json());
-
-      if (response.value.length === 0) {
-        result.error.push(order._id);
-      }
-
-      if (response.value.length > 0) {
-        result.success.push(order._id);
-      }
-    } catch (e) {
-      await models.SyncLogs.updateOne(
-        { _id: syncLog._id },
-        { $set: { error: e.message } }
-      );
-    }
-
-    return result;
-  },
-
-=======
   // umnuh ni buren butelgui bolson buyu NO avaagui bol dahij ilgeej baigaa
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },

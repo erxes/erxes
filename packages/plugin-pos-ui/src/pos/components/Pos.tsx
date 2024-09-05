@@ -5,22 +5,14 @@ import {
   Step,
   Steps,
   Wrapper,
-<<<<<<< HEAD
   __
-=======
-  __,
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 } from "@erxes/ui/src";
 import Appearance from "./step/Appearance";
 import { Content, LeftContent } from "../../styles";
 import {
   ControlWrapper,
   Indicator,
-<<<<<<< HEAD
   StepWrapper
-=======
-  StepWrapper,
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
 } from "@erxes/ui/src/components/step/styles";
 import { IPos, IProductGroup, ISlot } from "../../types";
 
@@ -66,11 +58,7 @@ const Pos = (props: Props) => {
       colors: {
         bodyColor: "#FFFFFF",
         headerColor: "#6569DF",
-<<<<<<< HEAD
         footerColor: "#3CCC38"
-=======
-        footerColor: "#3CCC38",
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       },
       logo: "",
       bgImage: "",
@@ -78,11 +66,7 @@ const Pos = (props: Props) => {
       receiptIcon: "",
       kioskHeaderImage: "",
       mobileAppImage: "",
-<<<<<<< HEAD
       qrCodeImage: ""
-=======
-      qrCodeImage: "",
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     },
     isSkip: false,
     ebarimtConfig: pos.ebarimtConfig,
@@ -90,18 +74,14 @@ const Pos = (props: Props) => {
     deliveryConfig: pos.deliveryConfig,
     cardsConfig: pos.cardsConfig,
     slots:
-      slots.map((slot) => ({
+      slots.map(slot => ({
         ...slot,
-        option: JSON.parse(slot.option as any),
+        option: JSON.parse(slot.option as any)
       })) || [],
     checkRemainder: pos.checkRemainder || false,
     allowTypes:
       pos.allowTypes ||
-<<<<<<< HEAD
       ALLOW_TYPES.filter(at => at.kind === "sale").map(at => at.value)
-=======
-      ALLOW_TYPES.filter((at) => at.kind === "sale").map((at) => at.value),
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -129,11 +109,7 @@ const Pos = (props: Props) => {
       categoryId: m.categoryId,
       productId: m.productId,
       code: m.code || "",
-<<<<<<< HEAD
       name: m.name || ""
-=======
-      name: m.name || "",
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     }));
 
     const cleanSlot = (state.slots || []).map(m => ({
@@ -141,11 +117,7 @@ const Pos = (props: Props) => {
       code: m.code,
       name: m.name,
       posId: m.posId,
-<<<<<<< HEAD
-      option: m.option
-=======
-      option: JSON.stringify(m.option),
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
+      option: JSON.stringify(m.option)
     }));
 
     let doc: any = {
@@ -193,11 +165,7 @@ const Pos = (props: Props) => {
       doc = {
         ...doc,
         beginNumber: "",
-<<<<<<< HEAD
         allowBranchIds: []
-=======
-        allowBranchIds: [],
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
       };
     }
 
@@ -208,11 +176,7 @@ const Pos = (props: Props) => {
     setState(prevState => ({ ...prevState, [key]: value }));
   };
 
-<<<<<<< HEAD
   const onStepClick = currentStepNumber => {
-=======
-  const onStepClick = (currentStepNumber) => {
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
     let carousel = "form";
     switch (currentStepNumber) {
       case 1:

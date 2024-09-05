@@ -49,6 +49,7 @@ type State = {
     addTarget: number;
   }>;
   periodGoal: string | undefined;
+  name: string;
   entity: string;
   teamGoalType: string | undefined;
   contributionType: string;
@@ -82,6 +83,7 @@ const initialState: State = {
   segmentRadio: undefined,
   contribution: undefined,
   pipelineLabels: undefined,
+  name: "",
   entity: ENTITY[0].value,
   teamGoalType: undefined,
   contributionType: CONTRIBUTION[0].value,
@@ -110,8 +112,6 @@ const goalForm = (props: Props) => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  console.log(goalType);
-
   useEffect(() => {
     dispatch({ type: "updateState", payload: goalType });
   }, [goalType]);
@@ -122,6 +122,7 @@ const goalForm = (props: Props) => {
       endDate,
       stageId,
       pipelineId,
+      name,
       boardId,
       contribution,
       stageRadio,
@@ -159,6 +160,7 @@ const goalForm = (props: Props) => {
       segmentRadio,
       stageId,
       pipelineId,
+      name,
       boardId,
       contribution,
       period,
@@ -189,16 +191,6 @@ const goalForm = (props: Props) => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
     dispatch({ type: "updateState", payload: { target: parsedValue } });
-    // if (!isNaN(parsedValue)) {
-
-    // }
-    //  else {
-    //   // Handle the case where the value is not a valid integer
-    //   // You might want to set the state to a default value or display an error message
-    //   this.setState({ target: 0 }); // Set a default value of 0
-    //   dispatch({ type: 'updateTargetPeriod', payload: { target: 0 } });
-    //   // You can also display an error message to the user
-    // }
   };
 
   const onChangeBranchId = value => {
@@ -308,6 +300,14 @@ const goalForm = (props: Props) => {
         <FormWrapper>
           <FormColumn>
             <FormGroup>
+              <ControlLabel>{__("Name")}</ControlLabel>
+              <FormControl
+                name="name"
+                value={state.name}
+                onChange={onChangeField} // Directly pass the event handler
+              />
+            </FormGroup>
+            <FormGroup>
               <ControlLabel>{__("choose Entity")}</ControlLabel>
               <FormControl
                 {...formProps}
@@ -346,17 +346,21 @@ const goalForm = (props: Props) => {
             </FormGroup>
             {state.segmentRadio === true && (
               <FormGroup>
-                <FormGroup>
-                  <ControlLabel>Segments</ControlLabel>
-                  <SelectSegments
-                    name="segmentIds"
-                    label="Choose segments"
-                    contentTypes={[`cards:${state.entity}`]}
-                    initialValue={state.segmentIds}
-                    multi={true}
-                    onSelect={segmentIds => onChangeSegments(segmentIds)}
-                  />
-                </FormGroup>
+                {isEnabled("segments") && isEnabled("contacts") && (
+                  <>
+                    <FormGroup>
+                      <ControlLabel>Segments</ControlLabel>
+                      <SelectSegments
+                        name="segmentIds"
+                        label="Choose segments"
+                        contentTypes={[`cards:${state.entity}`]}
+                        initialValue={state.segmentIds}
+                        multi={true}
+                        onSelect={segmentIds => onChangeSegments(segmentIds)}
+                      />
+                    </FormGroup>
+                  </>
+                )}
               </FormGroup>
             )}
             {state.stageRadio === true && (

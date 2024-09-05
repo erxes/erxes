@@ -40,7 +40,7 @@ const BrandForm = (props: Props) => {
     const { values, isSubmitted } = formProps;
 
     if (uom) {
-      values.id = uom._id;
+      values._id = uom._id;
     }
 
     const { isForSubscription, ...subscriptionConfig } = subsConfig;
