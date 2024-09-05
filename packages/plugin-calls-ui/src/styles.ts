@@ -1113,7 +1113,7 @@ const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
   }
 
   /* Styles for ultra-wide screens (65 inches likely falls here) */
-  @media (min-width: 1600px) {
+  @media (min-width: 2000px) {
     font-size: 20px;
     font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
   }
