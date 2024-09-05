@@ -131,7 +131,6 @@ const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
-  console.log(callCookie, 'callCookie');
   if (callCookie) {
     return callCookie;
   }

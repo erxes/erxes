@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Table } from '@erxes/ui/src/components';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { Row } from './Row';
