@@ -1,6 +1,7 @@
 import { Icon, Tip } from '@erxes/ui/src/components';
 import React, { useEffect, useState } from 'react';
 import { calculateTimeElapsed, getSpentTime } from '../../utils';
+import { Td } from '../../styles';
 
 type Props = {
   callList: any;
@@ -40,7 +41,7 @@ export const Row = (props: Props) => {
 
   return (
     <tr style={{ textAlign: 'left' }}>
-      <td>
+      <Td fontWeight="bold">
         <Tip text={isWaiting ? 'Ringing' : 'Calling'} placement="bottom">
           <Icon
             icon="calling"
@@ -48,10 +49,10 @@ export const Row = (props: Props) => {
             color={isWaiting ? 'blue' : 'orange'}
           />
         </Tip>
-      </td>
-      <td>{callList.callerid || ''}</td>
-      {!isWaiting && <td>{callList.calleeid}</td>}
-      <td>{getSpentTime(timeSpent + 28)}</td>
+      </Td>
+      <Td fontWeight="bold">{callList.callerid || ''}</Td>
+      {!isWaiting && <Td fontWeight="bold">{callList.calleeid}</Td>}
+      <Td fontWeight="bold">{getSpentTime(timeSpent + 28)}</Td>
     </tr>
   );
 };

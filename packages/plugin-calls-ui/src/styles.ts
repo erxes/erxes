@@ -1013,8 +1013,6 @@ const DashboardTable = styledTS<{ color: string }>(styled.div)`
   border-radius: ${dimensions.unitSpacing - 2}px ${dimensions.unitSpacing - 2}px;
   height: 400px;
   overflow-y: auto;
-  font-size: 20px;
-  font-weight: bold;
   background: ${(props) => props.color} !important;
 `;
 const GridContainer = styled.div`
@@ -1115,7 +1113,7 @@ const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
   }
 
   /* Styles for ultra-wide screens (65 inches likely falls here) */
-  @media (min-width: 2000px) {
+  @media (min-width: 1600px) {
     font-size: 20px;
     font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
   }
