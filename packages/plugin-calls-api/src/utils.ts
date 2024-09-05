@@ -131,6 +131,7 @@ const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
+  console.log(callCookie, 'cookie');
   if (callCookie) {
     return callCookie;
   }
@@ -171,7 +172,7 @@ const getOrSetCallCookie = async (wsServer) => {
     const { cookie } = loginData.response;
 
     await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
-
+    console.log(cookie, 'cok');
     return cookie;
   } catch (error) {
     console.error('Error in getOrSetCallCookie:', error);
@@ -280,6 +281,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
       if (!lastCreatedObject) {
+        console.log('lastCreatedObject:', lastCreatedObject);
         throw new Error('Not found cdr');
       }
 
@@ -290,6 +292,13 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         fileDir = 'monitor';
       }
       if (lastCreatedObject?.disposition !== 'ANSWERED' && !transferCall) {
+        console.log(
+          'caller callee:',
+          caller,
+          callee,
+          'startedDate: ',
+          startDate,
+        );
         throw new Error('Last created object disposition is not ANSWERED');
       }
 
@@ -302,7 +311,16 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         fileDir = 'queue';
       }
       const recordfiles = lastCreatedObject?.recordfiles;
-      if (!recordfiles) throw new Error('Record files not found');
+      if (!recordfiles) {
+        console.log(
+          'record not found:',
+          caller,
+          callee,
+          'startedDate: ',
+          startDate,
+        );
+        throw new Error('Record files not found');
+      }
 
       const parts = recordfiles.split('/');
       const fileNameWithoutExtension = parts[1].split('@')[0];

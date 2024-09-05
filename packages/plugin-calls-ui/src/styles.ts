@@ -1091,28 +1091,23 @@ const Th = styledTS<{ backgroundColor: string; color?: string }>(styled.th)`
 const Td = styledTS<{ color?: string; fontWeight?: string }>(styled.td)`
   color: ${(props) => props.color && props.color} !important;
 
-  /* Styles for mobile screens */
   @media (max-width: 768px) {
     font-size: 12px;
     line-height: 1.4;
   }
 
-  /* Styles for tablet screens */
   @media (max-width: 1024px) {
     font-size: 13px;
   }
 
-  /* Styles for desktop screens */
   @media (min-width: 1024px) {
     font-size: 14px;
   }
 
-  /* Styles for large desktop screens */
   @media (min-width: 1280px) {
     font-size: 15px;
   }
 
-  /* Styles for ultra-wide screens (65 inches likely falls here) */
   @media (min-width: 2000px) {
     font-size: 20px;
     font-weight: ${(props) => props.fontWeight && props.fontWeight} !important;
