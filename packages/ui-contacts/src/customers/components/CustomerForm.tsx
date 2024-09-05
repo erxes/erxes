@@ -18,6 +18,7 @@ import {
 import { ICustomer, ICustomerDoc } from "../types";
 import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import { genderChoices, isValidPhone } from "../utils";
+import { getVersion } from "@erxes/ui/src/utils/core";
 
 import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
@@ -273,6 +274,7 @@ class CustomerForm extends React.Component<Props, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
+    const { VERSION } = getVersion();
     const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
@@ -359,6 +361,7 @@ class CustomerForm extends React.Component<Props, State> {
                     componentclass="select"
                     defaultValue={customer.emailValidationStatus || "unknown"}
                     options={EMAIL_VALIDATION_STATUSES}
+                    disabled={VERSION === "saas"}
                   />
                 </FormGroup>
 

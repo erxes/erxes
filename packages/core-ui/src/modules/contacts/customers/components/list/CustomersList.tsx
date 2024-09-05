@@ -1,45 +1,45 @@
-import * as routerUtils from "@erxes/ui/src/utils/router";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { gql } from "@apollo/client";
+import { Menu } from "@headlessui/react";
+import { Link } from "react-router-dom";
 
+import CustomersMerge from "@erxes/ui-contacts/src/customers/components/detail/CustomersMerge";
+import CustomerForm from "@erxes/ui-contacts/src/customers/containers/CustomerForm";
+import { queries } from "@erxes/ui-contacts/src/customers/graphql";
+import Widget from "@erxes/ui-engage/src/containers/Widget";
+import ManageColumns from "@erxes/ui-forms/src/settings/properties/containers/ManageColumns";
+import { IConfigColumn } from "@erxes/ui-forms/src/settings/properties/types";
+import TemporarySegment from "@erxes/ui-segments/src/components/filter/TemporarySegment";
+import { EMPTY_CONTENT_CONTACTS } from "@erxes/ui-settings/src/constants";
+import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
+import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
+import Button from "@erxes/ui/src/components/Button";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import DateFilter from "@erxes/ui/src/components/DateFilter";
+import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import Icon from "@erxes/ui/src/components/Icon";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import SortHandler from "@erxes/ui/src/components/SortHandler";
+import Table from "@erxes/ui/src/components/table";
+import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
+import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
+import { BarItems } from "@erxes/ui/src/layout/styles";
+import { getVersion } from "@erxes/ui/src/utils/core";
+import { menuContacts } from "@erxes/ui/src/utils/menus";
+import * as routerUtils from "@erxes/ui/src/utils/router";
 import { Alert, __, confirm, router } from "coreui/utils";
 import {
   CUSTOMER_STATE_OPTIONS,
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
 } from "@erxes/ui-contacts/src/customers/constants";
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 
-import { BarItems } from "@erxes/ui/src/layout/styles";
-import Button from "@erxes/ui/src/components/Button";
-import CustomerForm from "@erxes/ui-contacts/src/customers/containers/CustomerForm";
-import CustomerRow from "./CustomerRow";
-import CustomersMerge from "@erxes/ui-contacts/src/customers/components/detail/CustomersMerge";
-import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
-import DateFilter from "@erxes/ui/src/components/DateFilter";
-import { EMPTY_CONTENT_CONTACTS } from "@erxes/ui-settings/src/constants";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { IConfigColumn } from "@erxes/ui-forms/src/settings/properties/types";
 import { ICustomer } from "../../types";
-import Icon from "@erxes/ui/src/components/Icon";
-import { Link } from "react-router-dom";
-import ManageColumns from "@erxes/ui-forms/src/settings/properties/containers/ManageColumns";
-import { Menu } from "@headlessui/react";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import Pagination from "@erxes/ui/src/components/pagination/Pagination";
+import CustomerRow from "./CustomerRow";
 import Sidebar from "./Sidebar";
-import SortHandler from "@erxes/ui/src/components/SortHandler";
-import { TAG_TYPES } from "@erxes/ui-tags/src/constants";
-import Table from "@erxes/ui/src/components/table";
-import TaggerPopover from "@erxes/ui-tags/src/components/TaggerPopover";
-import TemporarySegment from "@erxes/ui-segments/src/components/filter/TemporarySegment";
-import Widget from "@erxes/ui-engage/src/containers/Widget";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { gql } from "@apollo/client";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import { menuContacts } from "@erxes/ui/src/utils/menus";
-import { queries } from "@erxes/ui-contacts/src/customers/graphql";
-import withTableWrapper from "@erxes/ui/src/components/table/withTableWrapper";
 
 interface IProps {
   type: string;
@@ -89,6 +89,8 @@ const CustomersList: React.FC<IProps> = props => {
     props.searchValue
   );
   const [searchType, setSearchType] = useState<string | undefined>();
+
+  const { VERSION } = getVersion();
 
   useEffect(() => {
     if (searchValue && !props.queryParams.searchValue) {
@@ -395,7 +397,7 @@ const CustomersList: React.FC<IProps> = props => {
             />
           </Menu.Item>
           <Menu.Item>
-            <Link to="/settings/properties?type=core:customer">
+            <Link to="/settings/properties?type=contacts:customer">
               {__("Manage properties")}
             </Link>
           </Menu.Item>
@@ -406,22 +408,26 @@ const CustomersList: React.FC<IProps> = props => {
                 : __("Export this contacts")}
             </a>
           </Menu.Item>
-          <Menu.Item>
-            <a
-              href="#verifyEmail"
-              onClick={verifyCustomers.bind(this, "email")}
-            >
-              {__("Verify emails")}
-            </a>
-          </Menu.Item>
-          <Menu.Item>
-            <a
-              href="#verifyPhone"
-              onClick={verifyCustomers.bind(this, "phone")}
-            >
-              {__("Verify phone numbers")}
-            </a>
-          </Menu.Item>
+          {VERSION !== "saas" && (
+            <>
+              <Menu.Item>
+                <a
+                  href="#verifyEmail"
+                  onClick={verifyCustomers.bind(this, "email")}
+                >
+                  {__("Verify emails")}
+                </a>
+              </Menu.Item>
+              <Menu.Item>
+                <a
+                  href="#verifyPhone"
+                  onClick={verifyCustomers.bind(this, "phone")}
+                >
+                  {__("Verify phone numbers")}
+                </a>
+              </Menu.Item>
+            </>
+          )}
         </Menu.Items>
       </Menu>
       <Link to={`/settings/importHistories?type=${type}`}>
@@ -472,7 +478,9 @@ const CustomersList: React.FC<IProps> = props => {
 
     actionBarLeft = (
       <BarItems>
-        <Widget customers={bulk} emptyBulk={emptyBulk} />
+        {VERSION && VERSION !== "saas" && (
+          <Widget customers={bulk} emptyBulk={emptyBulk} />
+        )}
 
         <TaggerPopover
           type={TAG_TYPES.CUSTOMER}
@@ -492,27 +500,31 @@ const CustomersList: React.FC<IProps> = props => {
           />
         )}
 
-        <Menu as="div" className="relative">
-          <Menu.Button>
-            <Button btnStyle="simple" size="small">
-              {__("Change email status")} <Icon icon="angle-down" />
-            </Button>
-          </Menu.Button>
-          <Menu.Items className="absolute">
-            <div>{emailVerificationStatusList}</div>
-          </Menu.Items>
-        </Menu>
+        {VERSION && VERSION !== "saas" ? (
+          <>
+            <Menu as="div" className="relative">
+              <Menu.Button>
+                <Button btnStyle="simple" size="small">
+                  {__("Change email status")} <Icon icon="angle-down" />
+                </Button>
+              </Menu.Button>
+              <Menu.Items className="absolute">
+                <div>{emailVerificationStatusList}</div>
+              </Menu.Items>
+            </Menu>
 
-        <Menu as="div" className="relative">
-          <Menu.Button>
-            <Button btnStyle="simple" size="small">
-              {__("Change phone status")} <Icon icon="angle-down" />
-            </Button>
-          </Menu.Button>
-          <Menu.Items className="absolute">
-            <div>{phoneVerificationStatusList}</div>
-          </Menu.Items>
-        </Menu>
+            <Menu as="div" className="relative">
+              <Menu.Button>
+                <Button btnStyle="simple" size="small">
+                  {__("Change phone status")} <Icon icon="angle-down" />
+                </Button>
+              </Menu.Button>
+              <Menu.Items className="absolute">
+                <div>{phoneVerificationStatusList}</div>
+              </Menu.Items>
+            </Menu>
+          </>
+        ) : null}
 
         <Menu as="div" className="relative">
           <Menu.Button>

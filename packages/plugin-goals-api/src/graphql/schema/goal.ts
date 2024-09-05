@@ -1,6 +1,7 @@
 export const types = `
  type Goal @key(fields: "_id") @cacheControl(maxAge: 3) {
 _id: String!
+ name: String
  entity: String
  stageId:String
  pipelineId:String
@@ -27,6 +28,7 @@ segmentRadio:Boolean
  },
   type GoalType {
   _id: String!
+   name: String
    entity: String
    stageId:String
    pipelineId:String
@@ -73,7 +75,7 @@ const queryParams = `
 `;
 
 export const queries = `
-  goals(entity:String, contributionType:String,metric:String,  segmentIds: [String],goalTypeChoose:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String, periodGoal:String
+  goals(entity:String, name: String, contributionType:String,metric:String,  segmentIds: [String],goalTypeChoose:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String, periodGoal:String
    stageRadio:Boolean, segmentRadio:Boolean, periodGoal:String, teamGoalType:String,
   department:[String],unit:[String],branch:[String],
   startDate: Date, progress:JSON , segmentCount:Float
@@ -84,6 +86,7 @@ export const queries = `
 `;
 
 const params = `
+  name: String
   entity: String
   stageId: String
   pipelineId: String

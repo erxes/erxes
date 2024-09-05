@@ -33,7 +33,7 @@ class CustomerDetails extends React.Component<Props> {
   renderEmailTab = () => {
     const { customer } = this.props;
 
-    if (!customer.primaryEmail) {
+    if (!customer.primaryEmail || customer.emailValidationStatus !== 'valid') {
       return null;
     }
 

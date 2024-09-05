@@ -24,7 +24,7 @@ const GoalView = (props: Props) => {
     boardName,
     pipelineName,
     stageName,
-    emailName,
+    emailName
   } = props;
 
   const nestedProgressValue = data.progress.progress;
@@ -32,11 +32,16 @@ const GoalView = (props: Props) => {
 
   return (
     <div>
-      <ControlLabel>
-        <span style={{ fontWeight: 'bold', color: 'black' }}>Monthly:</span>{' '}
-        {__(' ' + data.entity + ', ' + emailName)}
-      </ControlLabel>
-
+      <FormGroup>
+        <ControlLabel>
+          <span style={{ fontWeight: 'bold', color: 'black' }}>Name:</span>{' '}
+          {__(' ' + data.name)}
+        </ControlLabel>
+        <ControlLabel>
+          <span style={{ fontWeight: 'bold', color: 'black' }}>Monthly:</span>{' '}
+          {__(' ' + data.entity + ', ' + emailName)}
+        </ControlLabel>
+      </FormGroup>
       <FlexContent>
         <FlexItem>
           <BoardHeader>
@@ -129,7 +134,7 @@ const GoalView = (props: Props) => {
                     ' progressed: ' +
                     pipelineName +
                     ', ' +
-                    stageName,
+                    stageName
                 )}
               </ControlLabel>
             </FormGroup>
