@@ -1,11 +1,7 @@
-import React, { ChangeEvent, useEffect } from "react"
+import React, { type ChangeEvent } from "react"
 import { totalAmountAtom } from "@/store/cart.store"
 import { permissionConfigAtom } from "@/store/config.store"
-import {
-  directDiscountAtom,
-  directDiscountTypeAtom,
-  savedDirectDiscountAtom,
-} from "@/store/order.store"
+import { directDiscountAtom, directIsAmountAtom } from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { Input } from "@/components/ui/input"
@@ -20,33 +16,36 @@ const DirectDiscount: React.FC = () => {
 
   const allowDirectDiscount = directDiscountCheck && directDiscountLimit
   const [directDiscount, setDirectDiscount] = useAtom(directDiscountAtom)
-  const savedDiscount = useAtomValue(savedDirectDiscountAtom)
-  const [type, setType] = useAtom(directDiscountTypeAtom)
+  const [isAmount, setIsAmount] = useAtom(directIsAmountAtom)
   const totalAmount = useAtomValue(totalAmountAtom)
-
-  useEffect(() => {
-    console.log('qqqqqqqqqqqqqqqqqqqqqqq',type, directDiscount, totalAmount)
-    type === "amount" && setDirectDiscount((directDiscount * totalAmount) / (100 - directDiscount))
-    type === "percent" &&
-      setDirectDiscount((directDiscount / (totalAmount + directDiscount)) * 100)
-    console.log(directDiscount)
-  }, [type])
 
   if (!allowDirectDiscount) {
     return null
   }
 
-  console.log(savedDiscount, 'sssssssssss')
-  const limit =
-    type === "percent"
-      ? directDiscountLimit
-      : totalAmount * directDiscountLimit * 0.01
+  const getLimit = (isAm: boolean) =>
+    isAm ? totalAmount * directDiscountLimit * 0.01 : directDiscountLimit
+
+  const limit = getLimit(isAmount)
 
   const handleDirectDiscountChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = Number(Number(e.target.value).toFixed(2))
-    console.log(value, limit, 'kkkkkkkkkkkkkkkkk')
     const clampedValue = Math.min(Math.max(value, 0), limit)
     setDirectDiscount(clampedValue)
+  }
+
+  const handleIsAmountChange = (value: string) => {
+    setIsAmount(value === "amount")
+    if (directDiscount) {
+      setDirectDiscount(
+        Number(
+          (value === "amount"
+            ? directDiscount * totalAmount * 0.01
+            : (directDiscount / totalAmount) * 100
+          ).toFixed(1)
+        )
+      )
+    }
   }
 
   return (
@@ -54,20 +53,16 @@ const DirectDiscount: React.FC = () => {
       <Separator />
       <div>
         <Label htmlFor="directDiscount" className="block pb-2">
-          Хямдарлын {type === "percent" ? "хувь" : "дүн"} оруулах (max:
-          {type === "percent"
-            ? ` ${directDiscountLimit}%`
-            : ` ${(
-                totalAmount *
-                directDiscountLimit *
-                0.01
-              ).toLocaleString()}₮`}
+          Хямдарлын {isAmount ? "дүн" : "хувь"} оруулах (max:
+          {isAmount
+            ? ` ${(totalAmount * directDiscountLimit * 0.01).toLocaleString()}₮`
+            : ` ${directDiscountLimit}%`}
           )
         </Label>
         <div className="flex items-center gap-2">
           <Tabs
-            value={type}
-            onValueChange={(value) => setType(value as "percent" | "amount")}
+            value={isAmount ? "amount" : "percent"}
+            onValueChange={handleIsAmountChange}
           >
             <TabsList className="h-10">
               <TabsTrigger
