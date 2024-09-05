@@ -622,7 +622,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      dealUrl = `/deal/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
+      dealUrl = `/deal/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
     }
 
     const task = await Tasks.findOne(filter).lean();
@@ -632,7 +632,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      taskUrl = `/task/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${task._id}`;
+      taskUrl = `/task/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${task._id}`;
     }
 
     const ticket = await Tickets.findOne(filter).lean();
@@ -642,7 +642,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      ticketUrl = `/ticket/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
+      ticketUrl = `/ticket/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${ticket._id}`;
     }
 
     const purchase = await Purchases.findOne(filter).lean();
@@ -652,7 +652,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      purchaseUrl = `/purchase/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
+      purchaseUrl = `/purchase/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${purchase._id}`;
     }
 
     return {

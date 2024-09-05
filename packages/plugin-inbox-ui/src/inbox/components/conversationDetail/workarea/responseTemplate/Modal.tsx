@@ -41,9 +41,10 @@ class Modal extends React.Component<Props, {}> {
         return Alert.error(error.message);
       }
 
-      const element = document.querySelector("button.close") as HTMLElement;
-
-      return element.click();
+      const element = document.querySelector("button.btn-close") as HTMLElement;
+      if(element){
+        return element.click();
+      }
     });
   };
 
