@@ -1,26 +1,25 @@
 import {
   checkPermission,
-  requireLogin
-} from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
+  requireLogin,
+} from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
 
 // import { fixRelatedItems, tagObject } from "../../../utils";
-import {
-  putCreateLog,
-  putDeleteLog,
-  putUpdateLog,
-  putActivityLog
-} from "../../../logUtils";
+import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
 
-import { sendCommonMessage } from "../../../messageBroker";
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
-import { ITag } from "../../../db/models/definitions/tags";
-import { fixRelatedItems, tagObject } from "../../utils";
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { ITag } from '../../../db/models/definitions/tags';
+import { logTaggingActivity } from '../../logUtils';
+import {
+  fixRelatedItems,
+  handleTagsPublishChange,
+  tagObject,
+} from '../../utils';
 interface ITagsEdit extends ITag {
   _id: string;
 }
 
-const TAG = "tag";
+const TAG = 'tag';
 
 const tagMutations = {
   /**
@@ -79,7 +78,7 @@ const tagMutations = {
       subdomain,
       type: tag.type,
       sourceId: tag._id,
-      action: "remove"
+      action: 'remove',
     });
 
     await putDeleteLog(models, subdomain, { type: TAG, object: tag }, user);
@@ -95,57 +94,41 @@ const tagMutations = {
     {
       type,
       targetIds,
-      tagIds
+      tagIds,
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
     const services = await getServices();
+    const [serviceNameFromType] = (type || '').split(':');
 
-    for (const serviceName of services) {
-      if (serviceName !== (type || "").split(":")[0]) {
-        continue;
-      }
-
-      const service = await getService(serviceName);
-      const meta = service.config?.meta || {};
-
-      if (meta && meta.tags && meta.tags.publishChangeAvailable) {
-        await sendCommonMessage({
-          subdomain,
-          serviceName,
-          action: "publishChange",
-          data: {
-            targetIds,
-            type: "tag"
-          }
-        });
-      }
+    if (!type.includes('core')) {
+      await handleTagsPublishChange(
+        services,
+        serviceNameFromType,
+        subdomain,
+        targetIds
+      );
     }
 
-    const prevTagsCount = await models.Tags.find({
+    const existingTagsCount = await models.Tags.countDocuments({
       _id: { $in: tagIds },
-      type
-    }).countDocuments();
+      type,
+    });
 
-    if (prevTagsCount !== tagIds.length) {
-      throw new Error("Tag not found.");
+    if (existingTagsCount !== tagIds.length) {
+      throw new Error('Tag not found.');
     }
 
-    const targets = await tagObject(subdomain, type, tagIds, targetIds);
+    const taggedTargets = await tagObject(
+      models,
+      subdomain,
+      type,
+      tagIds,
+      targetIds
+    );
 
-    for (const target of targets) {
-      await putActivityLog(subdomain, {
-        action: "createTagLog",
-        data: {
-          contentId: target._id,
-          userId: user ? user._id : "",
-          contentType: type,
-          target,
-          content: { tagIds: tagIds || [] },
-          createdBy: user._id,
-          action: "tagged"
-        }
-      });
+    for (const target of taggedTargets) {
+      await logTaggingActivity(subdomain, user, type, target, tagIds);
     }
   },
 
@@ -161,21 +144,21 @@ const tagMutations = {
       type: source.type,
       sourceId,
       destId,
-      action: "merge"
+      action: 'merge',
     });
 
     // remove old tag
     await models.Tags.removeTag(sourceId);
 
     return models.Tags.getTag(destId);
-  }
+  },
 };
 
-requireLogin(tagMutations, "tagsTag");
+requireLogin(tagMutations, 'tagsTag');
 
-checkPermission(tagMutations, "tagsAdd", "manageTags");
-checkPermission(tagMutations, "tagsEdit", "manageTags");
-checkPermission(tagMutations, "tagsRemove", "manageTags");
-checkPermission(tagMutations, "tagsMerge", "manageTags");
+checkPermission(tagMutations, 'tagsAdd', 'manageTags');
+checkPermission(tagMutations, 'tagsEdit', 'manageTags');
+checkPermission(tagMutations, 'tagsRemove', 'manageTags');
+checkPermission(tagMutations, 'tagsMerge', 'manageTags');
 
 export default tagMutations;
