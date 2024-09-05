@@ -90,19 +90,15 @@ export const setupMessageConsumers = async () => {
       }
 
       let queues;
-      if (typeof details?.queues === 'string') {
-        queues = details.queues.split(',');
+      if (typeof details?.queues === "string") {
+        queues = details.queues.split(",");
       } else {
         queues = [];
       }
 
       await models.Integrations.updateOne(
         { inboxId: integrationId },
-<<<<<<< HEAD
-        { $set: details }
-=======
-        { $set: { ...details, queues: queues } },
->>>>>>> 5500bd0b1cb5a46cda93260747f51eb270c15636
+        { $set: { ...details, queues: queues } }
       );
 
       const updatedIntegration = await models.Integrations.findOne({

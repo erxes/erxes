@@ -44,12 +44,3 @@ export const sendCommonMessage = async (args: MessageArgs): Promise<any> => {
     ...args
   });
 };
-
-export const sendCardsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "cards",
-    ...args
-  });
-};

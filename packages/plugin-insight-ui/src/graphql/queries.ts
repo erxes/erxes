@@ -1,5 +1,3 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
 // Fields
 
 const pipelineLabelFields = `
@@ -290,11 +288,11 @@ const reportList = `
         serviceType
         chartsCount
         createdAt
-        createdBy{
+        createdBy {
           ${userFields}
         }
         updatedAt
-        updatedBy{
+        updatedBy {
           ${userFields}
         }
         members {
@@ -317,14 +315,12 @@ const reportList = `
             filterType
           }
         }
-        tags  {
+        tags {
           _id
           name
           colorCode
-         }
         }
       }
-
       totalCount
     }
   }
