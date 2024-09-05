@@ -14,6 +14,7 @@ const paymentInputDefs = `
   cashAmount: Float
   mobileAmount: Float
   directDiscount: Float
+  directIsAmount: Boolean
   billType: String
   registerNumber: String
 `;
@@ -56,6 +57,7 @@ const addEditParams = `
   items: [OrderItemInput],
   totalAmount: Float,
   directDiscount: Float,
+  directIsAmount: Boolean,
   type: String,
   branchId: String,
   customerId: String,
