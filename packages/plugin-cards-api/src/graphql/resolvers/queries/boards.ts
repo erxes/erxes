@@ -632,7 +632,7 @@ const boardQueries = {
       const pipeline = await Pipelines.getPipeline(stage.pipelineId);
       const board = await Boards.getBoard(pipeline.boardId);
 
-      taskUrl = `/task/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${task._id}`;
+      taskUrl = `/task/board?_id=${board._id}&pipelineId=${pipeline._id}&itemId=${task._id}`;
     }
 
     const ticket = await Tickets.findOne(filter).lean();
