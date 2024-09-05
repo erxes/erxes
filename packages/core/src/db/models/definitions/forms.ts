@@ -14,10 +14,12 @@ export interface IForm {
   description?: string;
   numberOfPages?: number;
   buttonText?: string;
+  tagIds?: string[];
 
   departmentIds?: string[];
   languageCode?: string;
   visibility?: string;
+  status?: string;
 
   leadData?: ILeadData;
 }
@@ -272,5 +274,7 @@ export const formSchema = schemaWrapper(
     departmentIds: field({ type: [String], optional: true, label: 'Departments' }),
     languageCode: field({ type: String, optional: true, label: 'Language' }),
     visibility: field({ type: String, optional: true, label: 'Visibility' }),
+    tagIds: field({ type: [String], optional: true, label: 'Tags' }),
+    status: field({ type: String, optional: true, label: 'Status', enum: ['active', 'inactive'], default:'active' }),
   })
 );

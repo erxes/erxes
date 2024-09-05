@@ -505,17 +505,8 @@ export const integrationSchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     brandId: field({ type: String, label: 'Brand' }),
 
-    visibility: field({ type: String, label: 'Visibility' }),
-    departmentIds: field({ type: [String], label: 'Departments' }),
-
-    languageCode: field({
-      type: String,
-      optional: true,
-      label: 'Language code',
-    }),
     tagIds: field({ type: [String], label: 'Tags', index: true }),
     formId: field({ type: String, label: 'Form' }),
-    leadData: field({ type: leadDataSchema, label: 'Lead data' }),
     isActive: field({
       type: Boolean,
       optional: true,

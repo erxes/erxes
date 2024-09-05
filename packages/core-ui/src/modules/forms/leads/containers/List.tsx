@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { mutations, queries } from '@erxes/ui-leads/src/graphql';
+
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -9,27 +9,28 @@ import React, { useCallback, useEffect } from 'react';
 import List from '../components/List';
 
 import { useMutation, useQuery } from '@apollo/client';
+import queries from '../../queries';
 
 
-const INTEGRATIONS_QUERY = gql`
-  ${queries.integrations}
+const FORMS_QUERY = gql`
+  ${queries.forms}
 `;
 
-const INTEGRATIONS_TOTAL_COUNT_QUERY = gql`
-  ${queries.integrationsTotalCount}
-`;
+// const INTEGRATIONS_TOTAL_COUNT_QUERY = gql`
+//   ${queries.integrationsTotalCount}
+// `;
 
-const REMOVE_MUTATION = gql`
-  ${mutations.integrationRemove}
-`;
+// const REMOVE_MUTATION = gql`
+//   ${mutations.integrationRemove}
+// `;
 
 // const ARCHIVE_MUTATION = gql`
 //   ${mutations.integrationsArchive}
 // `;
 
-const COPY_MUTATION = gql`
-  ${mutations.formCopy}
-`;
+// const COPY_MUTATION = gql`
+//   ${mutations.formCopy}
+// `;
 
 type Props = {
   queryParams: any;
@@ -38,7 +39,7 @@ type Props = {
 
 const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
   console.log("leads container")
-  const { data, refetch, loading } = useQuery(INTEGRATIONS_QUERY, {
+  const { data, refetch, loading } = useQuery(FORMS_QUERY, {
     variables: {
       ...generatePaginationParams(queryParams),
       tag: queryParams.tag,
@@ -53,18 +54,18 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     },
   });
 
-  const { data: countData } = useQuery(INTEGRATIONS_TOTAL_COUNT_QUERY, {
-    variables: {
-      kind: INTEGRATION_KINDS.FORMS,
-      tag: queryParams.tag,
-      brandId: queryParams.brand,
-      status: queryParams.status,
-    },
-  });
+  // const { data: countData } = useQuery('INTEGRATIONS_TOTAL_COUNT_QUERY', {
+  //   variables: {
+  //     kind: INTEGRATION_KINDS.FORMS,
+  //     tag: queryParams.tag,
+  //     brandId: queryParams.brand,
+  //     status: queryParams.status,
+  //   },
+  // });
 
-  const [removeMutation] = useMutation(REMOVE_MUTATION);
+  // const [removeMutation] = useMutation('REMOVE_MUTATION');
   // const [archiveMutation] = useMutation(ARCHIVE_MUTATION);
-  const [copyMutation] = useMutation(COPY_MUTATION);
+  // const [copyMutation] = useMutation('COPY_MUTATION');
 
   useEffect(() => {
     const shouldRefetchList = routerUtils.getParam(location, 'popUpRefetchList');
@@ -77,26 +78,26 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     refetch();
   }, [queryParams.page, refetch]);
 
-  const remove = useCallback(
-    (integrationId: string) => {
-      const message =
-        'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
+  // const remove = useCallback(
+  //   (integrationId: string) => {
+  //     const message =
+  //       'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
 
-      confirm(message).then(() => {
-        removeMutation({
-          variables: { _id: integrationId },
-        })
-          .then(() => {
-            refetch();
-            Alert.success('You successfully deleted a form.');
-          })
-          .catch((e) => {
-            Alert.error(e.message);
-          });
-      });
-    },
-    [removeMutation, refetch]
-  );
+  //     confirm(message).then(() => {
+  //       removeMutation({
+  //         variables: { _id: integrationId },
+  //       })
+  //         .then(() => {
+  //           refetch();
+  //           Alert.success('You successfully deleted a form.');
+  //         })
+  //         .catch((e) => {
+  //           Alert.error(e.message);
+  //         });
+  //     });
+  //   },
+  //   [removeMutation, refetch]
+  // );
 
   // const archive = useCallback(
   //   (integrationId: string, status: boolean) => {
@@ -127,34 +128,36 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
   //   [archiveMutation, refetch]
   // );
 
-  const copy = useCallback(
-    (integrationId: string) => {
-      copyMutation({
-        variables: { _id: integrationId },
-      })
-        .then(() => {
-          refetch();
-          Alert.success('You successfully copied a form.');
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    },
-    [copyMutation, refetch]
-  );
+  // const copy = useCallback(
+  //   (integrationId: string) => {
+  //     copyMutation({
+  //       variables: { _id: integrationId },
+  //     })
+  //       .then(() => {
+  //         refetch();
+  //         Alert.success('You successfully copied a form.');
+  //       })
+  //       .catch((e) => {
+  //         Alert.error(e.message);
+  //       });
+  //   },
+  //   [copyMutation, refetch]
+  // );
 
   const integrations = data?.integrations || [];
-  const counts = countData?.integrationsTotalCount || null;
-  const totalCount = (counts && counts.total) || 0;
+  // const counts = countData?.integrationsTotalCount || null;
+  const counts = null;
+  const totalCount = counts || 0;
+  // const totalCount = (counts && counts.total) || 0;
 
   const updatedProps = {
     integrations,
     counts,
     totalCount,
-    remove,
+    // remove,
     loading,
     // archive,
-    copy,
+    // copy,
     refetch,
   };
 

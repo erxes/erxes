@@ -4,13 +4,11 @@ import { Alert, withProps } from "@erxes/ui/src/utils";
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
+  IIntegration,
   LeadIntegrationDetailQueryResponse,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
-import { mutations, queries } from "@erxes/ui-leads/src/graphql";
 
 import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
-import { ILeadData } from "@erxes/ui-leads/src/types";
-import { ILeadIntegration } from "@erxes/ui-leads/src/types";
 import Lead from "../components/LeadForm";
 import React, { useEffect, useState } from "react";
 import { gql } from "@apollo/client";
@@ -18,6 +16,9 @@ import { graphql } from "@apollo/client/react/hoc";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
 import { useNavigate } from "react-router-dom";
+import { ILeadData } from "../../types";
+import queries from "../../queries";
+import mutations from "../../mutations";
 
 type Props = {
   contentTypeId: string;
@@ -88,7 +89,7 @@ const EditLeadContainer = (props: FinalProps) => {
   }
 
   const integration =
-    integrationDetailQuery.integrationDetail || ({} as ILeadIntegration);
+    integrationDetailQuery.integrationDetail || ({} as IIntegration);
 
   const afterFormDbSave = () => {
     const {

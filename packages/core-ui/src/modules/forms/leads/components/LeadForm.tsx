@@ -8,7 +8,7 @@ import {
     StyleSheetStep
   } from "./steps";
   import { IAttachment, IConditionsRule } from "@erxes/ui/src/types";
-  import { ILeadData, ILeadIntegration } from "@erxes/ui-leads/src/types";
+
   import { Step, Steps } from "@erxes/ui/src/components/step";
   
   import { Alert } from "@erxes/ui/src/utils";
@@ -29,9 +29,11 @@ import {
 
   import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
   import { __ } from "@erxes/ui/src/utils/core";
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
+import { ILeadData } from "../../types";
   
   type Props = {
-    integration?: ILeadIntegration;
+    integration?: IIntegration;
     integrationId?: string;
     loading?: boolean;
     isActionLoading: boolean;
@@ -105,7 +107,7 @@ import {
   class Lead extends React.Component<Props, State> {
     constructor(props: Props) {
       super(props);
-      // ILeadIntegration
+      // IIntegration
       const integration = props.integration || ({} as any);
   
       const { leadData = {} as ILeadData } = integration;

@@ -1,7 +1,5 @@
 import * as routerUtils from '@erxes/ui/src/utils/router';
 
-import { ILeadIntegration, IntegrationsCount } from '@erxes/ui-leads/src/types';
-
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -24,24 +22,25 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { __ } from '../../../common/utils';
 import Sidebar from './Sidebar';
+import { IIntegration } from "@erxes/ui-inbox/src/settings/integrations/types";
 
 type Props = {
-  integrations: ILeadIntegration[];
+  integrations: IIntegration[];
   tags: ITag[];
-  bulk: ILeadIntegration[];
+  bulk: IIntegration[];
   isAllSelected: boolean;
   emptyBulk: () => void;
   totalCount: number;
   queryParams: any;
   tagsCount: { [key: string]: number };
-  toggleBulk: (target: ILeadIntegration, toAdd: boolean) => void;
-  toggleAll: (bulk: ILeadIntegration[], name: string) => void;
+  toggleBulk: (target: IIntegration, toAdd: boolean) => void;
+  toggleAll: (bulk: IIntegration[], name: string) => void;
   loading: boolean;
   remove: (integrationId: string) => void;
   archive: (integrationId: string, status: boolean) => void;
   refetch?: () => void;
   copy: (integrationId: string) => void;
-  counts: IntegrationsCount;
+  counts: any;
   location: any;
   navigate: any;
 };
@@ -186,7 +185,7 @@ const List = ({
           queryParams={queryParams}
         />
       }
-      leftSidebar={<Sidebar counts={counts || ({} as IntegrationsCount)} />}
+      leftSidebar={<Sidebar counts={counts || ({})} />}
       actionBar={actionBar}
       footer={<Pagination count={totalCount} />}
       content={

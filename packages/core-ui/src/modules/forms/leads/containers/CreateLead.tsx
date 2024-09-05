@@ -6,17 +6,18 @@ import {
 } from "@erxes/ui-inbox/src/settings/integrations/types";
 import { Alert, withProps } from "@erxes/ui/src/utils";
 import React, { useState, useEffect } from "react";
-import { mutations, queries } from "@erxes/ui-leads/src/graphql";
 
 import { AddFieldsMutationResponse } from "@erxes/ui-forms/src/settings/properties/types";
 import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
-import { ILeadData } from "@erxes/ui-leads/src/types";
 import Lead from "../components/LeadForm";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
 import { useNavigate } from "react-router-dom";
+import { ILeadData } from "../../types";
+import queries from "../../queries";
+import mutations from '../../mutations';
 
 type Props = {
   emailTemplatesQuery: any /*change type*/;
@@ -80,9 +81,9 @@ const CreateLeadContainer: React.FC<Props> = (props) => {
   const afterFormDbSave = () => {
     setState({ ...state, isReadyToSaveForm: false });
 
-    if (state.doc) {
+    if (state.doc && state.doc.channelIds?.length) {
       const { leadData, brandId, name, languageCode, channelIds } = state.doc;
-
+      
       props
         .addIntegrationMutation({
           variables: {

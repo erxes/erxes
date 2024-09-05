@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 import React from 'react';
 import { useQuery } from '@apollo/client';
 
-import DateFilters from '../components/DateFilters';
-import { queries } from '../graphql';
+import { queries } from '../../graphql';
+import DateFilters from '../../components/filters/DateFilters';
 
 type Props = {
   loadingMainQuery: boolean;

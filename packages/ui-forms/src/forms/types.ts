@@ -1,6 +1,7 @@
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { ILeadData } from '../../../core-ui/src/modules/forms/types';
 
 interface IFormCommonFIelds {
   title?: string;
@@ -8,6 +9,14 @@ interface IFormCommonFIelds {
   buttonText?: string;
   type?: string;
   numberOfPages?: number;
+
+  tagIds?: string;
+  departmentIds?: string[];
+  languageCode?: string;
+  visibility?: string;
+  status?: string;
+
+  leadData?: ILeadData;
 }
 export interface IForm extends IFormCommonFIelds {
   _id: string;

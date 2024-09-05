@@ -34,6 +34,7 @@ export const types = `
     createdUser: User
     createdDate: Date
     numberOfPages: Int
+    status: String
 
     googleMapApiKey: String
     fields: [Field]
@@ -42,6 +43,8 @@ export const types = `
     leadData: JSON
     languageCode: String
     departmentIds: [String]
+    tagIds: [String]
+    tags: [Tag]
   }
 
   type FormSubmission {
@@ -90,6 +93,7 @@ const commonFields = `
   leadData: JSON
   languageCode: String
   departmentIds: [String]
+  tagIds: [String]
 `;
 
 const commonFormSubmissionFields = `
