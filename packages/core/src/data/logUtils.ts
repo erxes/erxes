@@ -3,7 +3,8 @@ import {
   putCreateLog as commonPutCreateLog,
   putDeleteLog as commonPutDeleteLog,
   putUpdateLog as commonPutUpdateLog,
-  gatherUsernames
+  gatherUsernames,
+  putActivityLog
 } from "@erxes/api-utils/src/logUtils";
 
 import { IUserDocument } from "../db/models/definitions/users";
@@ -222,3 +223,19 @@ export const putDeleteLog = async (
     user
   );
 };
+
+
+export async function logTaggingActivity(subdomain, user, type, target, tagIds) {
+  await putActivityLog(subdomain, {
+    action: 'createTagLog',
+    data: {
+      contentId: target._id,
+      userId: user ? user._id : '',
+      contentType: type,
+      target,
+      content: { tagIds: tagIds || [] },
+      createdBy: user._id,
+      action: 'tagged',
+    },
+  });
+}
