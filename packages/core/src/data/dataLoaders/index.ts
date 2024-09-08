@@ -5,7 +5,7 @@ import user from "./user";
 import company from "./company";
 import productCategory from "./productCategory";
 import uom from "./uom";
-import tag from "./uom";
+import tag from "./tag";
 
 export interface IDataLoaders {
   user: DataLoader<string, any>;

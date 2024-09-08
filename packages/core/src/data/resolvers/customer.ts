@@ -17,8 +17,14 @@ export default {
     return { __typename: "Integration", _id: customer.integrationId };
   },
 
-  async getTags(customer: ICustomerDocument) {
-    return (customer.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+  async getTags(
+    customer: ICustomerDocument,
+    _args,
+    { dataLoaders, subdomain }: IContext
+  ) {
+    const tags = await dataLoaders.tag.loadMany(customer.tagIds || []);
+
+    return tags.filter(tag => tag);
   },
 
   async urlVisits(customer: ICustomerDocument, _args, { subdomain }: IContext) {
@@ -75,7 +81,7 @@ export default {
   async companies(
     customer: ICustomerDocument,
     _params,
-    { models: { Companies, Conformities }, subdomain }: IContext
+    { models: { Companies, Conformities } }: IContext
   ) {
     const companyIds = await Conformities.savedConformity({
       mainType: "customer",
@@ -89,12 +95,12 @@ export default {
     return companies;
   },
 
-  async owner(customer: ICustomerDocument) {
+  async owner(customer: ICustomerDocument, _, { models: { Users } }: IContext) {
     if (!customer.ownerId) {
       return;
     }
 
-    return { __typename: "User", _id: customer.ownerId };
+    return Users.findOne({ _id: customer.ownerId }) || {};
   },
 
   async customFieldsDataByFieldCode(

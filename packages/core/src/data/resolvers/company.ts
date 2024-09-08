@@ -21,16 +21,18 @@ export default {
     return Customers.find({ _id: { $in: customerIds || [] } });
   },
 
-  async getTags(company: ICompanyDocument) {
-    return (company.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
+  async getTags(company: ICompanyDocument, _, { dataLoaders }: IContext) {
+    const tags = await dataLoaders.tag.loadMany(company.tagIds || []);
+
+    return tags.filter(tag => tag);
   },
 
-  owner(company: ICompanyDocument) {
+  async owner(company: ICompanyDocument, _, { models: { Users } }: IContext) {
     if (!company.ownerId) {
       return;
     }
 
-    return { __typename: "User", _id: company.ownerId };
+    return Users.findOne({ _id: company.ownerId }) || {};
   },
 
   async parentCompany(

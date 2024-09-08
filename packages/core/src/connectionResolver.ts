@@ -124,6 +124,7 @@ import {
   IProductsConfigDocument,
   IUomDocument
 } from "./db/models/definitions/products";
+import { IDataLoaders } from "./data/dataLoaders";
 
 export interface IModels {
   Users: IUserModel;
@@ -164,6 +165,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  dataLoaders: IDataLoaders;
 }
 
 export const loadClasses = (

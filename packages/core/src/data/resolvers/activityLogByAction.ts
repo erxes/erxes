@@ -3,13 +3,12 @@ import { IActivityLogDocument } from "../../db/models/definitions/activityLogs";
 import { getContentTypeDetail } from "../../messageBroker";
 
 export default {
-  async createdUser(activityLog: IActivityLogDocument) {
-    return (
-      activityLog.createdBy && {
-        __typename: "User",
-        _id: activityLog.createdBy
-      }
-    );
+  async createdUser(
+    activityLog: IActivityLogDocument,
+    _,
+    { models }: IContext
+  ) {
+    return models.Users.findOne({ _id: activityLog.createdBy });
   },
 
   async contentTypeDetail(

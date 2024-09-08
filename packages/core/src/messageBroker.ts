@@ -16,6 +16,7 @@ import { internalNoteConsumers } from "@erxes/api-utils/src/consumers/internalNo
 import { importExportCunsomers } from "@erxes/api-utils/src/consumers/importExport";
 import { segmentsCunsomers } from "@erxes/api-utils/src/consumers/segments";
 import { searchCunsomers } from "@erxes/api-utils/src/consumers/search";
+import { tagConsumers } from "@erxes/api-utils/src/consumers/tags";
 
 import { registerOnboardHistory } from "./data/modules/robot";
 
@@ -54,6 +55,7 @@ import { fieldsCombinedByContentType } from "./formUtils";
 import { setupContactsMessageBroker } from "./messageBrokers/contacts";
 import search from "./search";
 import { setupProductMessageBroker } from "./messageBrokers/products";
+import tags from "./tags";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -647,6 +649,8 @@ export const setupMessageConsumers = async (): Promise<void> => {
     name: "core",
     forms
   });
+
+  tagConsumers({ name: "core", tags });
 
   importExportCunsomers({ name: "core", imports, exporter });
   segmentsCunsomers({ name: "core", segments });
