@@ -83,6 +83,7 @@ const CreateLeadContainer: React.FC = () => {
   };
 
   const save = (doc) => {
+    console.log(doc)
     const { formData } = doc;
     const { fields = [] } = formData;
 
@@ -98,6 +99,7 @@ const CreateLeadContainer: React.FC = () => {
         leadData: doc.leadData,
         languageCode: doc.languageCode,
         departmentIds: doc.departmentIds,
+        brandId: doc.brandId,
       },
     }).then(({ data }) => {
       const formId = data?.formsAdd._id;
@@ -140,7 +142,7 @@ const CreateLeadContainer: React.FC = () => {
       Alert.success('You successfully added a form');
       console.log("FORM ID + ",formId)
       navigate({
-        pathname: '/forms',
+        pathname: '/forms/leads',
         search: `?popUpRefetchList=true&showInstallCode=${formId}`,
       });
     });

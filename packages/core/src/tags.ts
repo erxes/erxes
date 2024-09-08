@@ -25,6 +25,10 @@ export default {
     {
       description: "Product & Service",
       type: "product"
+    },
+    {
+      description: "Form",
+      type: "form"
     }
   ],
   tag: async ({ subdomain, data }) => {

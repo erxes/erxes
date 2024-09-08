@@ -124,11 +124,8 @@ const OptionStep = (props: Props) => {
         ) !== -1
       ) {
         setRenderPayments(true);
-
       } else {
         setRenderPayments(false);
-
-
       }
     }
 

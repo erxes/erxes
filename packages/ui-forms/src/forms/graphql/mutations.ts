@@ -10,6 +10,7 @@ const commonParamsDef = `
   $languageCode: String
   $departmentIds: [String]
   $tagIds: [String]
+  $brandId: String
 `;
 
 const commonParams = `
@@ -24,6 +25,7 @@ const commonParams = `
     languageCode: $languageCode
     departmentIds: $departmentIds
     tagIds: $tagIds
+    brandId: $brandId
 `;
 
 const addForm = `

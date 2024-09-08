@@ -5,12 +5,13 @@ export default {
   async __resolveReference({ _id }, { models }: IContext) {
     return models.Forms.findOne({ _id });
   },
-  createdUser(form: IFormDocument, _params, { models }: IContext) {
+  async createdUser(form: IFormDocument, _params, { models }: IContext) {
     if (!form.createdUserId) {
       return;
     }
+    const user = await models.Users.findOne({ _id: form.createdUserId }).lean();
 
-    return { __typename: 'User', _id: form.createdUserId };
+    return user || null;
   },
 
   async fields(form: IFormDocument, _params, { models }: IContext) {
@@ -28,7 +29,13 @@ export default {
 
     // remove sub fields
     return fields.filter((f) => !subFieldIds.includes(f._id));
-
-    return fields;
   },
+
+  async brand(form: IFormDocument, _params, { models }: IContext) {
+    if (!form.brandId) {
+      return null;
+    }
+
+    return models.Brands.findOne({ _id: form.brandId });
+  }
 };

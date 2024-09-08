@@ -16,10 +16,11 @@ const tagQueries = {
   async tagsGetTypes() {
     const services = await getServices();
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
-
+    console.log(services)
     for (const serviceName of services) {
       const service = await getService(serviceName);
       const meta = service.config.meta || {};
+      console.log("JSON = ", JSON.stringify(meta, null, 2))
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
 

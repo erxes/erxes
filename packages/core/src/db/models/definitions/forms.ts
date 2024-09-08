@@ -21,7 +21,7 @@ export interface IForm {
   languageCode?: string;
   visibility?: string;
   status?: string;
-
+  brandId?: string;
   leadData?: ILeadData;
 }
 
@@ -271,6 +271,8 @@ export const formSchema = schemaWrapper(
       optional: true,
       min: 1,
     }),
+
+    brandId: field({ type: String, optional: true, label: 'Brand' }),
 
     leadData: field({ type: leadDataSchema, label: 'Lead data' }),
     departmentIds: field({ type: [String], optional: true, label: 'Departments' }),

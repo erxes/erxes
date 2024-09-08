@@ -1,4 +1,13 @@
 export const types = `
+  extend type Customer @key(fields: "_id") {
+      _id: String! @external
+  }
+
+  extend type Company @key(fields: "_id") {
+      _id: String! @external
+  }
+
+
    input SubmissionFilter {
     operator: String
     value: JSON
@@ -36,6 +45,8 @@ export const types = `
     departmentIds: [String]
     tagIds: [String]
     tags: [Tag]
+    brandId: String
+    brand: Brand
   }
 
   type FormSubmission {
@@ -82,6 +93,7 @@ export const types = `
 const commonFields = `
   name: String!
   title: String,
+  brandId: String,
   description: String,
   buttonText: String,
   type: String!,

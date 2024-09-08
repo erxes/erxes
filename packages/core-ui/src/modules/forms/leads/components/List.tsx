@@ -100,7 +100,7 @@ const List = ({
     actionBarLeft = (
       <BarItems>
         <TaggerPopover
-          type={TAG_TYPES.INTEGRATION}
+          type={TAG_TYPES.FORM}
           successCallback={emptyBulk}
           targets={bulk}
           trigger={tagButton}

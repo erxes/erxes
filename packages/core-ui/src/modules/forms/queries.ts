@@ -54,6 +54,7 @@ query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: 
   forms(page: $page, perPage: $perPage, type: $type, brandId: $brandId, tagId: $tagId, status: $status) {
     _id
     createdDate
+    createdUserId
     createdUser {
        _id
       details {
@@ -69,6 +70,11 @@ query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: 
     status
     tagIds
     tags {
+      _id
+      name
+    }
+    brandId
+    brand {
       _id
       name
     }
