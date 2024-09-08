@@ -262,6 +262,7 @@ const Form = (props: Props) => {
                 chartType={chartType}
                 chartVariables={{ serviceName, templateType }}
                 filter={filters}
+                setFilter={setFilter}
                 dimension={dimension}
                 queryParams={queryParams}
                 chartHeight={800}

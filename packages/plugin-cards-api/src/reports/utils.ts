@@ -141,52 +141,18 @@ const buildFormatType = (dateRange, startDate, endDate) => {
 
 }
 
-export const getGoalStage = (dimensions, measures, type) => {
+export const getGoalStage = (goalType) => {
 
-    const dimension = dimensions?.length ? dimensions?.[0] : ''
-    const measure = measures?.length ? measures?.[0] : ''
-
-    if (!dimension || !measure) {
-        return null
-    }
-
-    if (dimension === 'frequency') {
-        return {
-            $lookup: {
-                from: "goals",
-                let: {},
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $ne: ["$specificPeriodGoals", []] },
-                                    { $eq: ["$periodGoal", "Monthly"] },
-                                    { $eq: ["$metric", GOAL_MAP[measure]] },
-                                    { $eq: ["$entity", type] }
-                                ],
-                            },
-                        },
-                    },
-                ],
-                as: "goal",
-            },
-        }
-    }
-
-    const goalsStage = {
+    const goalStage = {
         $lookup: {
             from: "goals",
-            let: { fieldId: GOAL_MAP[dimension].fieldId },
+            let: { fieldId: goalType },
             pipeline: [
                 {
                     $match: {
                         $expr: {
                             $and: [
-                                dimension === 'board' || dimension === 'pipeline' || dimension === 'stage'
-                                    ? { $eq: [GOAL_MAP[dimension].foreignField, "$$fieldId"] }
-                                    : { $in: ["$$fieldId", GOAL_MAP[dimension].foreignField] },
-                                { $eq: ["$metric", GOAL_MAP[measure]] }
+                                { $eq: ['$_id', "$$fieldId"] }
                             ]
                         },
                     },
@@ -196,12 +162,12 @@ export const getGoalStage = (dimensions, measures, type) => {
         },
     }
 
-    return goalsStage
+    return goalStage
 }
 
 export const buildPipeline = (filter, type, matchFilter) => {
 
-    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
+    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType } = filter
 
     const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
     const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
@@ -1029,8 +995,8 @@ export const buildPipeline = (filter, type, matchFilter) => {
         _id: 0,
     };
 
-    if (isEnabled('goals') && ['department', 'branch', 'createdBy', 'modifiedBy', 'assignedTo', 'board', 'pipeline', 'stage', 'frequency'].some(item => dimensions.includes(item))) {
-        const goalStage = getGoalStage(dimensions, measures, type)
+    if (isEnabled('goals') && goalType) {
+        const goalStage = getGoalStage(goalType)
 
         if (goalStage) {
             pipeline.push(goalStage)
@@ -1184,6 +1150,15 @@ export const buildPipeline = (filter, type, matchFilter) => {
                 $match: additionalMatch
             });
         }
+    }
+
+    if (sortBy?.length) {
+        const sortFields = (sortBy || []).reduce((acc, { field, direction }) => {
+            acc[field] = direction;
+            return acc;
+        }, {});
+
+        pipeline.push({ $sort: sortFields });
     }
 
     return pipeline;
