@@ -20,7 +20,9 @@ export interface ICallHistory {
   endedBy: string;
 }
 
-export interface ICallHistoryDocument extends ICallHistory, Document {}
+export interface ICallHistoryDocument extends ICallHistory, Document {
+  _id: string;
+}
 
 export const callHistorySchema = new Schema({
   operatorPhone: field({ type: String, label: 'operator number' }),
