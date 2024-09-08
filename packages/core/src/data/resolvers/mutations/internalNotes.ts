@@ -25,6 +25,7 @@ const sendNotificationOfItems = async (
   excludeUserIds: string[]
 ) => {
   const notifDocItems = { ...doc };
+
   const relatedReceivers = await sendCommonMessage({
     serviceName,
     action: "notifiedUserIds",

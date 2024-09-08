@@ -184,8 +184,7 @@ export default {
   async vendorCustomers(
     ticket: ITicketDocument,
     _args,
-    { subdomain }: IContext,
-    { isSubscription }
+    { subdomain }: IContext
   ) {
     return sendCommonMessage({
       subdomain,

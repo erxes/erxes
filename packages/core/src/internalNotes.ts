@@ -9,7 +9,7 @@ export default {
     let model: any = Customers;
     let link = `/contacts/details/`;
 
-    if (type === "customer " || type === "company") {
+    if (type === "customer" || type === "company") {
       if (type === "company") {
         model = Companies;
         link = `/companies/details/`;
@@ -27,6 +27,7 @@ export default {
       notifDoc.link = link + response._id;
       notifDoc.contentTypeId = response._id;
       notifDoc.contentType = `${type}`;
+
       return notifDoc;
     }
 
