@@ -4,7 +4,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 
 import { IUser } from '@erxes/ui/src/auth/types';
 import { gql } from '@apollo/client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ContractDetails from '../../components/detail/ContractDetails';
 import { mutations, queries } from '../../graphql';
 import {
@@ -14,6 +14,7 @@ import {
   RegenSchedulesMutationResponse,
 } from '../../types';
 import { useMutation, useQuery } from '@apollo/client';
+import subscriptions from '../../graphql/subscriptions';
 
 type Props = {
   id: string;
@@ -33,6 +34,16 @@ const ContractDetailsContainer = (props: FinalProps) => {
       },
     },
   );
+
+  useEffect(() => {
+    return contractDetailQuery.subscribeToMore({
+      document: gql(subscriptions.loansContractChanged),
+      variables: { _id: id },
+      updateQuery: () => {
+        contractDetailQuery.refetch();
+      }
+    });
+  });
 
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),

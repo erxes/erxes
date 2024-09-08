@@ -273,6 +273,7 @@ export type SchedulesQueryResponse = {
   schedules: ISchedule[];
   loading: boolean;
   refetch: (data: { year: number }) => void;
+  subscribeToMore: any;
 };
 
 export type ScheduleYearsQueryResponse = {
@@ -296,6 +297,7 @@ export type DetailQueryResponse = {
   contractDetail: IContract;
   loading: boolean;
   refetch: () => void;
+  subscribeToMore: any;
 };
 
 export type ActivityLogQueryResponse = {
