@@ -32,7 +32,7 @@ function setValue(value) {
   }
 }
 
-export const updateDeposit = async (subdomain: string, params) => {
+export const updateDeposit = async (subdomain: string, models, syncLog, params) => {
   const deposit = params.updatedDocument || params.object;
 
   const objectCus = await customFieldToObject(
@@ -74,6 +74,8 @@ export const updateDeposit = async (subdomain: string, params) => {
     subdomain,
     op: '13610021',
     data: [sendData],
+    models,
+    syncLog
   });
 
   if (typeof depositCode === 'string') {

@@ -27,7 +27,8 @@ export default ({
   customOption,
   label,
   name,
-  filterParams
+  filterParams,
+  exactFilter
 }: {
   queryParams?: IQueryParams;
   label: string;
@@ -37,6 +38,7 @@ export default ({
   initialValue?: string | string[];
   name: string;
   filterParams?: any;
+  exactFilter?: boolean;
 }) => {
   const defaultValue = queryParams ? queryParams[name] : initialValue;
 
@@ -52,6 +54,7 @@ export default ({
       filterParams={filterParams}
       customOption={customOption}
       multi={multi}
+      exactFilter={exactFilter}
     />
   );
 };

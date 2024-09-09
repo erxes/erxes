@@ -40,15 +40,15 @@ export const sendRequest = async (
   { url, method, headers, form, body, params }: IRequestParams,
   errorMessage?: string
 ) => {
-  debugBase(`
-    Sending request to
-    url: ${url}
-    method: ${method}
-    body: ${JSON.stringify(body)}
-    params: ${JSON.stringify(params)}
-    headers: ${JSON.stringify(headers)}
-    form: ${JSON.stringify(form)}
-  `);
+  // debugBase(`
+  //   Sending request to
+  //   url: ${url}
+  //   method: ${method}
+  //   body: ${JSON.stringify(body)}
+  //   params: ${JSON.stringify(params)}
+  //   headers: ${JSON.stringify(headers)}
+  //   form: ${JSON.stringify(form)}
+  // `);
 
   try {
     const options = {

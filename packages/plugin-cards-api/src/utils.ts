@@ -5,7 +5,7 @@ import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
-export const configReplacer = (config) => {
+export const configReplacer = config => {
   const now = new Date();
 
   // replace type of date
@@ -25,7 +25,7 @@ export const generateConditionStageIds = async (
     boardId?: string;
     pipelineId?: string;
     options?: any;
-  },
+  }
 ) => {
   let pipelineIds: string[] = [];
 
@@ -42,18 +42,18 @@ export const generateConditionStageIds = async (
           $in: pipelineId ? [pipelineId] : board.pipelines || [],
         },
       },
-      { _id: 1 },
+      { _id: 1 }
     );
 
-    pipelineIds = pipelines.map((p) => p._id);
+    pipelineIds = pipelines.map(p => p._id);
   }
 
   const stages = await models.Stages.find(
     { pipelineId: pipelineIds },
-    { _id: 1 },
+    { _id: 1 }
   );
 
-  return stages.map((s) => s._id);
+  return stages.map(s => s._id);
 };
 
 export const getContentItem = async (subdomain, data) => {
@@ -237,7 +237,7 @@ export const getContentTypeDetail = async (subdomain, data) => {
 export const collectItems = async (
   models: IModels,
   subdomain: string,
-  { contentType, contentId },
+  { contentType, contentId }
 ) => {
   let tasks: any[] = [];
 
@@ -297,7 +297,7 @@ export const collectItems = async (
 // contentType should come with "cards:deal|task|ticket|growthHack|purchase" format
 export const getCardContentIds = async (
   models: IModels,
-  { pipelineId, contentType },
+  { pipelineId, contentType }
 ) => {
   const type =
     contentType.indexOf(':') !== -1 ? contentType.split(':')[1] : contentType;
@@ -309,7 +309,7 @@ export const getCardContentIds = async (
 
 export const getCardItem = async (
   models: IModels,
-  { contentTypeId, contentType },
+  { contentTypeId, contentType }
 ) => {
   const { Deals, Tasks, Tickets, GrowthHacks, Purchases } = models;
   const filter = { _id: contentTypeId };
@@ -339,7 +339,7 @@ export const getCardItem = async (
   return item;
 };
 
-export const getBoardsAndPipelines = (doc) => {
+export const getBoardsAndPipelines = doc => {
   const { config } = doc;
 
   if (!config || !config.boardsPipelines) {
@@ -372,7 +372,7 @@ export const getBoardsAndPipelines = (doc) => {
 export const generateSystemFields = ({ data: { groupId, type } }) => {
   const fields: any = [];
 
-  CARD_PROPERTIES_INFO.ALL.map((e) => {
+  CARD_PROPERTIES_INFO.ALL.map(e => {
     fields.push({
       text: e.label,
       type: e.type,

@@ -8,11 +8,16 @@ module.exports = {
                 description: 'All',
                 use: [
                     'showCallRecord',
+                    'showCallDashboard'
                 ]
             },
             {
                 name: 'showCallRecord',
                 description: 'Show call record'
+            },
+            {
+                name: 'showCallDashboard',
+                description: 'Show call dashboard'
             }
         ]
     },

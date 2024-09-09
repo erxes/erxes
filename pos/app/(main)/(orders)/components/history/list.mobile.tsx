@@ -95,7 +95,7 @@ const OrderItem = (props: IOrderHistory) => {
           {fd(modifiedAt)}
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-neutral-600">Үүсгэсэн огноо</span>
+          <span className="text-neutral-600">Төлбөр төлсөн огноо</span>
           {fd(paidDate)}
         </div>
       </CardContent>

@@ -1,7 +1,11 @@
 import { useEffect } from "react"
 import dynamic from "next/dynamic"
 import { checkoutDialogOpenAtom, checkoutModalViewAtom } from "@/store"
-import { orderTotalAmountAtom, unPaidAmountAtom } from "@/store/order.store"
+import {
+  orderTotalAmountAtom,
+  paidDateAtom,
+  unPaidAmountAtom,
+} from "@/store/order.store"
 import { useAtom, useAtomValue } from "jotai"
 
 import { Button } from "@/components/ui/button"
@@ -46,8 +50,13 @@ const HandleOrder = () => {
   const [view, setView] = useAtom(checkoutModalViewAtom)
   const totalAmount = useAtomValue(orderTotalAmountAtom)
   const notPaidAmount = useAtomValue(unPaidAmountAtom)
+  const paidDate = useAtomValue(paidDateAtom)
 
   useEffect(() => {
+    if (paidDate) {
+      setView("ebarimt")
+      return
+    }
     if (totalAmount > 0 && notPaidAmount === 0) {
       setView("billType")
     }

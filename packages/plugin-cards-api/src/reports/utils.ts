@@ -1,9 +1,12 @@
-import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendTagsMessage } from "../messageBroker";
-import { MONTH_NAMES, NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, WEEKDAY_NAMES, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
+import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
+import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP, GOAL_MAP } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
-const util = require('util')
+import * as isoWeek from 'dayjs/plugin/isoWeek';
+import { getService, getServices, isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+const util = require('util');
+
+dayjs.extend(isoWeek);
 
 export const buildUnwind = ({ fields }: { fields: string[] }) => {
     const unwinds = (fields || []).map((field) => ({
@@ -110,15 +113,8 @@ export const buildAction = (measures: string[]): object => {
 
     return actions;
 }
-export const buildPipeline = (filter, type, matchFilter) => {
 
-    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
-
-    const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
-    const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
-
-    const pipeline: any[] = [];
-
+const buildFormatType = (dateRange, startDate, endDate) => {
     let formatType = "%Y"
 
     if (dateRange?.toLowerCase().includes('day')) {
@@ -130,7 +126,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
 
     if (dateRange?.toLowerCase().includes('month')) {
-        formatType = "%V"
+        formatType = "%Y-%V"
     }
 
     if (dateRange?.toLowerCase().includes('year')) {
@@ -140,6 +136,81 @@ export const buildPipeline = (filter, type, matchFilter) => {
     if (dateRange === 'customDate' && startDate && endDate) {
         formatType = '%Y-%m-%d';
     }
+
+    return formatType
+
+}
+
+export const getGoalStage = (dimensions, measures, type) => {
+
+    const dimension = dimensions?.length ? dimensions?.[0] : ''
+    const measure = measures?.length ? measures?.[0] : ''
+
+    if (!dimension || !measure) {
+        return null
+    }
+
+    if (dimension === 'frequency') {
+        return {
+            $lookup: {
+                from: "goals",
+                let: {},
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ["$specificPeriodGoals", []] },
+                                    { $eq: ["$periodGoal", "Monthly"] },
+                                    { $eq: ["$metric", GOAL_MAP[measure]] },
+                                    { $eq: ["$entity", type] }
+                                ],
+                            },
+                        },
+                    },
+                ],
+                as: "goal",
+            },
+        }
+    }
+
+    const goalsStage = {
+        $lookup: {
+            from: "goals",
+            let: { fieldId: GOAL_MAP[dimension].fieldId },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                dimension === 'board' || dimension === 'pipeline' || dimension === 'stage'
+                                    ? { $eq: [GOAL_MAP[dimension].foreignField, "$$fieldId"] }
+                                    : { $in: ["$$fieldId", GOAL_MAP[dimension].foreignField] },
+                                { $eq: ["$metric", GOAL_MAP[measure]] }
+                            ]
+                        },
+                    },
+                },
+            ],
+            as: "goal",
+        },
+    }
+
+    return goalsStage
+}
+
+export const buildPipeline = (filter, type, matchFilter) => {
+
+    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
+
+    const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+    const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
+
+    const pipeline: any[] = [];
+
+    const actions = buildAction(measures)
+
+    const formatType = buildFormatType(dateRange, startDate, endDate)
 
     const dateFormat = frequencyType || formatType
 
@@ -233,9 +304,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
         pipeline.push({ $unwind: "$assignedUserIds" });
     }
 
-    if (dimensions.includes("property")) {
+    if (dimensions.includes("field")) {
         pipeline.push(
             { $unwind: "$customFieldsData" },
+            { $unwind: "$customFieldsData.value" },
             {
                 $lookup: {
                     from: "form_fields",
@@ -409,9 +481,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
         })
     }
 
-    const match: object = {
-        ...matchFilter
-    }
+    const match: object = {}
 
     if (measures.includes("forecastAmount")) {
         match["stage.probability"] = { $ne: null };
@@ -480,7 +550,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
 
     pipeline.push({
-        $match: match
+        $match: { ...match, ...matchFilter }
     });
 
     const groupKeys: any = {};
@@ -490,6 +560,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
     if (dimensions.includes("card")) {
         groupKeys.cardName = "$name";
+    }
+
+    if (dimensions.includes("field")) {
+        groupKeys.field = "$customFieldsData.value";
     }
 
     if (dimensions.includes("label")) {
@@ -600,8 +674,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     pipeline.push({
         $group: {
             _id: groupKeys,
-            ...buildAction(measures),
-            ...(dimensions.includes("frequency") ? { date: { $first: `$${dateRangeType}` } } : {}),
+            ...actions,
         }
     });
 
@@ -724,16 +797,13 @@ export const buildPipeline = (filter, type, matchFilter) => {
                         {
                             $match: {
                                 $expr: {
-                                    $or: conditions
+                                    $and: [
+                                        { $or: conditions },
+                                        { $eq: ["$isActive", true] },
+                                    ]
                                 }
                             }
                         },
-                        {
-                            $project: {
-                                _id: 1,
-                                "details.fullName": 1
-                            }
-                        }
                     ],
                     as: "userDetails"
                 }
@@ -959,96 +1029,29 @@ export const buildPipeline = (filter, type, matchFilter) => {
         _id: 0,
     };
 
+    if (isEnabled('goals') && ['department', 'branch', 'createdBy', 'modifiedBy', 'assignedTo', 'board', 'pipeline', 'stage', 'frequency'].some(item => dimensions.includes(item))) {
+        const goalStage = getGoalStage(dimensions, measures, type)
+
+        if (goalStage) {
+            pipeline.push(goalStage)
+            projectionFields.goal = 1;
+        }
+    }
+
     measures.forEach((measure) => {
         projectionFields[measure] = 1;
     });
 
     if (dimensions.includes("frequency")) {
-
-        let projectStage: any = "$_id.frequency"
-
-        if (dateFormat === "%u") {
-            projectStage = {
-                $arrayElemAt: [WEEKDAY_NAMES, { $subtract: [{ $toInt: "$_id.frequency" }, 1] }]
-            }
-        }
-
-        if (dateFormat === "%m") {
-            projectStage = {
-                $arrayElemAt: [MONTH_NAMES, { $subtract: [{ $toInt: "$_id.frequency" }, 1] }],
-            }
-        }
-
-        if (dateFormat === "%V") {
-            projectStage = {
-                $concat: [
-                    "Week ",
-                    "$_id.frequency",
-                    " ",
-                    {
-                        $dateToString: {
-                            format: "%m/%d",
-                            date: {
-                                $dateFromString: {
-                                    dateString: {
-                                        $concat: [
-                                            {
-                                                $dateToString: {
-                                                    format: "%Y",
-                                                    date: "$date",
-                                                },
-                                            },
-                                            "-W",
-                                            {
-                                                $dateToString: {
-                                                    format: "%V",
-                                                    date: "$date",
-                                                },
-                                            },
-                                            "-1",
-                                        ],
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    "-",
-                    {
-                        $dateToString: {
-                            format: "%m/%d",
-                            date: {
-                                $dateFromString: {
-                                    dateString: {
-                                        $concat: [
-                                            {
-                                                $dateToString: {
-                                                    format: "%Y",
-                                                    date: "$date",
-                                                },
-                                            },
-                                            "-W",
-                                            {
-                                                $dateToString: {
-                                                    format: "%V",
-                                                    date: "$date",
-                                                },
-                                            },
-                                            "-7",
-                                        ],
-                                    },
-                                },
-                            },
-                        },
-                    },
-                ],
-            }
-        }
-
-        projectionFields.frequency = projectStage;
+        projectionFields.frequency = "$_id.frequency";
     }
 
     if (dimensions.includes("tag")) {
         projectionFields.tag = "$tag.name";
+    }
+
+    if (dimensions.includes("field")) {
+        projectionFields.field = "$_id.field"
     }
 
     if (dimensions.includes("card")) {
@@ -1140,18 +1143,48 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
 
     if (dimensions.includes("createdBy")) {
-        projectionFields.createdBy = "$createdBy.details.fullName";
+        projectionFields.createdBy = "$createdBy";
     }
 
     if (dimensions.includes("modifiedBy")) {
-        projectionFields.modifiedBy = "$modifiedBy.details.fullName";
+        projectionFields.modifiedBy = "$modifiedBy";
     }
 
     if (dimensions.includes("assignedTo")) {
-        projectionFields.assignedTo = "$assignedTo.details.fullName";
+        projectionFields.assignedTo = "$assignedTo";
     }
 
     pipeline.push({ $project: projectionFields });
+
+    if (filter.amountRange) {
+
+        let query = {}
+
+        if (filter?.amountRange.min) {
+            query = { $gte: parseInt(filter?.amountRange.min, 10) }
+        }
+
+        if (filter?.amountRange.max) {
+            query = { $lte: parseInt(filter?.amountRange.max, 10) }
+        }
+
+        if (filter?.amountRange.min && filter?.amountRange.max) {
+            query = { $gte: parseInt(filter?.amountRange.min, 10), $lte: parseInt(filter?.amountRange.max, 10) };
+        }
+
+        if (Object.values(query).length) {
+
+            const additionalMatch = {}
+
+            measures.map(m => {
+                Object.assign(additionalMatch, { [m]: query })
+            })
+
+            pipeline.push({
+                $match: additionalMatch
+            });
+        }
+    }
 
     return pipeline;
 }
@@ -1310,9 +1343,10 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         labelIds,
         groupIds,
         fieldIds,
+        assetIds,
         dateRange,
         dueDateRange,
-        integrationTypes
+        integrationTypes,
     } = filter;
 
     const matchfilter = {};
@@ -1320,7 +1354,34 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     // USER FILTER
     if (userIds?.length) {
         const { userType = 'userId' } = filter;
-        matchfilter[userType] = { $in: userIds };
+
+        if (userType === "closedBy") {
+
+            const stageIds = await getStageIds({ ...filter, stageProbability: PROBABILITY_CLOSED[type] }, type, model)
+
+            const logs = await sendLogsMessage({
+                subdomain,
+                action: 'activityLogs.findMany',
+                data: {
+                    query: {
+                        contentType: `cards:${type}`,
+                        createdBy: { $in: userIds },
+                        'content.destinationStageId': { $in: stageIds },
+                        action: 'moved',
+                    },
+                },
+                isRPC: true,
+                defaultValue: [],
+            });
+
+            const contentIds = (logs || []).map(log => log.contentId);
+
+            matchfilter['_id'] = { $in: contentIds };
+
+        } else {
+            matchfilter[userType] = { $in: userIds };
+        }
+
     }
 
     // BRANCH FILTER
@@ -1498,6 +1559,11 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
         matchfilter['customFieldsData.field'] = { $in: fieldIds };
     }
 
+    // CUSTOM PROPERTIES FIELD FILTER 
+    if (assetIds?.length) {
+        matchfilter['customFieldsData.value'] = { $in: assetIds };
+    }
+
     // DATE FILTER
     if (dateRange) {
         const { startDate, endDate, dateRangeType = 'createdAt' } = filter;
@@ -1521,7 +1587,145 @@ export const buildMatchFilter = async (filter, type, subdomain, model) => {
     return matchfilter;
 }
 
-export const buildData = ({ chartType, data, measure, dimension }) => {
+const DEAL_LABELS = {
+    'count': 'Total Count',
+    'totalAmount': 'Total Amount',
+    'averageAmount': 'Average Amount',
+    'unusedAmount': 'Unused Amount',
+    'forecastAmount': 'Forecast Amount',
+}
+
+export const formatWeek = (frequency) => {
+
+    let startOfDate, endOfDate
+
+    const [year, week] = frequency?.split('-') || ''
+
+    startOfDate = dayjs().year(year).isoWeek(week).startOf('isoWeek').format('MM/DD');
+    endOfDate = dayjs().year(year).isoWeek(week).endOf('isoWeek').format('MM/DD');
+
+    if (startOfDate && endOfDate) {
+        return `Week ${week} ${startOfDate}-${endOfDate}`
+    }
+
+    return ''
+}
+
+export const formatMonth = (frequency) => {
+
+    const MONTH_NAMES = {
+        '01': 'January',
+        '02': 'February',
+        '03': 'March',
+        '04': 'April',
+        '05': 'May',
+        '06': 'June',
+        '07': 'July',
+        '08': 'August',
+        '09': 'September',
+        '10': 'October',
+        '11': 'November',
+        '12': 'December',
+    }
+
+    return MONTH_NAMES[frequency]
+}
+
+export const formatWeekdays = (frequency) => {
+
+    const WEEK_DAYS = {
+        '1': 'Monday',
+        '2': 'Tuesday',
+        '3': 'Wednesday',
+        '4': 'Thursday',
+        '5': 'Friday',
+        '6': 'Saturday',
+        '7': 'Sunday',
+    }
+
+    return WEEK_DAYS[frequency]
+}
+
+
+export const formatFrequency = (frequencyType, frequency) => {
+
+    let format = ''
+
+    switch (frequencyType) {
+        // Week of month (01-53)
+        case '%Y-%V':
+            format = formatWeek(frequency)
+            break;
+        // Month (01-12)
+        case '%m':
+            format = formatMonth(frequency)
+            break;
+        // Day of week (1-7)
+        case '%u':
+            format = formatWeekdays(frequency)
+            break;
+        // Year (0000-9999)
+        case '%Y':
+        // Year - Month - Day
+        case '%Y-%m-%d':
+        // Hour - Minute - Second
+        case '%Hh:%Mm:%Ss':
+            format = frequency
+            break;
+        default:
+            break;
+    }
+
+    return format
+}
+
+export const formatData = (data, filter) => {
+
+    const { dateRange, startDate, endDate, frequencyType } = filter
+
+    const formattedData = [...data]
+
+    formattedData.map(item => {
+
+        if (item.hasOwnProperty('frequency')) {
+            const frequency = item['frequency']
+
+            const formatData = frequencyType || buildFormatType(dateRange, startDate, endDate)
+
+            item['frequency'] = formatFrequency(formatData, frequency)
+        }
+
+        ['createdBy', 'modifiedBy', 'assignedTo'].map(key => {
+            if (item.hasOwnProperty(key)) {
+                const user = item[key]
+                item[key] = user.details?.fullName || `${user.details?.firstName} ${user.details?.lastName}` || user.email
+            }
+        });
+
+        ['createdAt', 'modifiedAt', 'startDate', 'closeDate', 'stageChangedDate'].map(key => {
+            if (item.hasOwnProperty(key)) {
+                const date = item[key]
+                item[key] = dayjs(date).format('YYYY/MM/DD h:mm A')
+            }
+        });
+
+        ['count', 'totalAmount', 'averageAmount', 'unusedAmount', 'forecastAmount'].forEach(key => {
+            if (item.hasOwnProperty(key) && DEAL_LABELS[key]) {
+                item[DEAL_LABELS[key]] = item[key];
+                delete item[key];
+            }
+        });
+    })
+
+    return formattedData
+}
+
+export const buildData = ({ chartType, data, filter }) => {
+
+    const { measure, dimension } = filter
+
+    const formattedData = formatData(data, filter);
+
     switch (chartType) {
         case 'bar':
         case 'line':
@@ -1529,20 +1733,102 @@ export const buildData = ({ chartType, data, measure, dimension }) => {
         case 'doughnut':
         case 'radar':
         case 'polarArea':
-            return buildChartData(data, measure, dimension)
+            return buildChartData(formattedData, measure, dimension, filter)
         case 'table':
-            return buildTableData(data, measure, dimension)
+            return buildTableData(formattedData, measure, dimension)
+        case 'number':
+            return buildNumberData(formattedData, measure, dimension)
         default:
             return data
     }
 }
 
-export const buildChartData = (data: any, measures: any, dimensions: any) => {
+export const buildNumberData = (data: any, measures: any, dimensions: any) => {
 
-    const datasets = (data || []).map(item => item[measures[0]])
-    const labels = (data || []).map(item => item[dimensions[0]])
+    const total = data?.[0] || {}
 
-    return { data: datasets, labels };
+    const labels = Object.keys(total)
+    const totals = Object.values(total)
+
+    return { data: totals, labels }
+}
+
+export const buildChartData = (data: any, measures: any, dimensions: any, filter: any) => {
+
+    const { src } = filter
+
+    if (src && src === 'aputpm') {
+        const datasets = (data || []).map(item => item[DEAL_LABELS[measures[0]]])
+        const labels = (data || []).map(item => item[dimensions[0]])
+
+        return { data: datasets, labels };
+    }
+
+    const hasGoal = (data || []).every(obj => Array.isArray(obj?.goal) && obj?.goal?.length === 0);
+
+    const datasets = (data || []).reduce(
+        (acc, item) => {
+            const label = (dimensions || []).map((dimension) => item[dimension]);
+
+            const labelExists = acc.labels.some((existingLabel) =>
+                existingLabel.every((value, index) => value === label[index])
+            );
+
+            if (!labelExists) {
+                acc.labels.push(label);
+            }
+
+            measures.forEach((measure) => {
+                let dataset = acc.datasets.find((d) => d.label === DEAL_LABELS[measure]);
+
+                if (!dataset) {
+                    dataset = {
+                        label: DEAL_LABELS[measure],
+                        data: [],
+                        borderWidth: 1,
+                        skipNull: true,
+                    };
+                    acc.datasets.push(dataset);
+                }
+
+                dataset.data.push(item[DEAL_LABELS[measure]] || 0);
+            });
+
+            if (item.goal && !hasGoal) {
+                let goalDataset = acc.datasets.find((d) => d.label === "Target");
+
+                if (!goalDataset) {
+                    goalDataset = {
+                        label: "Target",
+                        data: [],
+                        borderWidth: 1,
+                        skipNull: true,
+                    };
+                    acc.datasets.push(goalDataset);
+                }
+
+                if (item?.hasOwnProperty('frequency')) {
+
+                    const specificPeriodGoals = item.goal?.[0]?.specificPeriodGoals || []
+                    const periodGoal = specificPeriodGoals.find(goal => goal.addMonthly.includes(item.frequency));
+
+                    if (periodGoal) {
+                        item.goal[0].target = periodGoal.addTarget;
+                    }
+                }
+
+                goalDataset.data.push(item.goal?.[0]?.target || null);
+            }
+
+            return acc;
+        },
+        {
+            labels: [],
+            datasets: [],
+        }
+    );
+
+    return datasets
 }
 
 export const buildTableData = (data: any, measures: any, dimensions: any) => {
@@ -1558,7 +1844,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
         if (measures?.length) {
             measures.forEach(measure => {
-                order[measure] = item[measure];
+                order[measure] = item[DEAL_LABELS[measure]];
             });
         }
 
@@ -1582,881 +1868,20 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     return { data: [...reorderedData, total] }
 }
 
-export const getDimensionPipeline = async (filter, type, subdomain, models) => {
-    const { dimension } = filter
+export const buildOptions = (filter) => {
+    const { target } = filter
 
-    const matchFilter = await buildMatchFilter(filter, type, subdomain, models)
+    const options: any = {}
 
-    const pipeline: any[] = []
-
-    if (!dimension || dimension === 'count') {
-        return pipeline
-    }
-
-    // TAG DIMENSION
-    if (dimension === 'tag') {
-        pipeline.push(...[
-            {
-                $unwind: "$tagIds"
-            },
-            {
-                $match: {
-                    status: { $eq: "active" },
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$tagIds",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'tags',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'tag'
-                }
-            },
-            {
-                $unwind: "$tag"
-            },
-            {
-                $project: {
-                    _id: "$tag.name",
-                    count: 1
-                }
+    if (target?.target) {
+        options.plugins = {
+            horizontalDottedLine: {
+                targetValue: parseInt(target.target, 10)
             }
-        ])
+        };
     }
 
-    // LABEL DIMENSION
-    if (dimension === 'label') {
-        pipeline.push(...[
-            {
-                $unwind: "$labelIds",
-            },
-            {
-                $match: {
-                    status: { $eq: "active" },
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$labelIds",
-                    count: { $sum: 1 },
-                },
-            },
-            {
-                $lookup: {
-                    from: "pipeline_labels",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "label",
-                },
-            },
-            {
-                $unwind: "$label",
-            },
-            {
-                $project: {
-                    _id: "$label.name",
-                    count: 1
-                }
-            }
-        ])
-    }
-
-    // PRIOPRITY DIMENSION
-    if (dimension === 'priority') {
-        pipeline.push(...[
-            {
-                $match: {
-                    priority: { $nin: [null, ""] },
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$priority",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $project: {
-                    _id: "$_id",
-                    count: 1
-                }
-            }
-        ])
-    }
-
-    // STATUS DIMENSION
-    if (dimension === 'status') {
-        pipeline.push(...[
-            {
-                $match: {
-                    status: { $ne: null },
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$status",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $project: {
-                    _id: "$_id",
-                    count: 1
-                }
-            }
-        ])
-    }
-
-    // TEAM MEMBER DIMENSION
-    if (dimension === 'teamMember') {
-
-        const { userType = 'userId' } = filter
-
-        pipeline.push(...[
-            {
-                $match: {
-                    [userType]: { $exists: true },
-                    ...matchFilter
-                }
-            },
-            ...(userType === 'assignedUserIds' ? [{ $unwind: "$assignedUserIds" }] : []),
-            {
-                $group: {
-                    _id: `$${userType}`,
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    let: { userId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$_id", "$$userId"] },
-                                        { $eq: ["$isActive", true] },
-                                    ]
-                                }
-                            }
-                        }
-                    ],
-                    as: "user"
-                }
-            },
-            { $unwind: "$user" },
-            {
-                $project: {
-                    _id: "$user.details.fullName",
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // BRANCH DIMENSION
-    if (dimension === 'branch') {
-        pipeline.push(...[
-            {
-                $unwind: "$branchIds"
-            },
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$branchIds",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: "branches",
-                    let: { branchId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$_id", "$$branchId"] }
-                                    ]
-                                }
-                            }
-                        }
-                    ],
-                    as: "branch"
-                }
-            },
-            { $unwind: "$branch" },
-            {
-                $project: {
-                    _id: "$branch.title",
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // DEPARTMENT DIMENSION
-    if (dimension === 'department') {
-        pipeline.push(...[
-            {
-                $unwind: "$departmentIds"
-            },
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$departmentIds",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: "departments",
-                    let: { departmentId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$_id", "$$departmentId"] },
-                                        { $eq: ["$status", "active"] },
-                                    ]
-                                }
-                            }
-                        }
-                    ],
-                    as: "department"
-                }
-            },
-            { $unwind: "$department" },
-            {
-                $project: {
-                    _id: "$department.title",
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // COMPANY DIMENSION
-    if (dimension === 'company') {
-        pipeline.push(...[
-            {
-                $match: {
-                    status: "active",
-                    ...matchFilter
-                },
-            },
-            {
-                $lookup: {
-                    from: "conformities",
-                    let: { fieldId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $and: [
-                                    {
-                                        $expr: {
-                                            $eq: ["$mainType", type],
-                                        },
-                                    },
-                                    {
-                                        $expr: {
-                                            $eq: [
-                                                "$mainTypeId",
-                                                "$$fieldId",
-                                            ],
-                                        },
-                                    },
-                                    {
-                                        $expr: {
-                                            $eq: ["$relType", "company"],
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                    as: "conformity",
-                },
-            },
-            {
-                $unwind: "$conformity",
-            },
-            {
-                $group: {
-                    _id: "$conformity.relTypeId",
-                    count: { $sum: 1 },
-                },
-            },
-            {
-                $lookup: {
-                    from: "companies",
-                    let: { companyId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $and: [
-                                    {
-                                        $expr: {
-                                            $eq: ["$_id", "$$companyId"],
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                    as: "company",
-                },
-            },
-            {
-                $unwind: "$company",
-            },
-            {
-                $project: {
-                    _id: "$company.primaryName",
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // CUSTOMER DIMENSION
-    if (dimension === 'customer') {
-        pipeline.push(...[
-            {
-                $match: {
-                    ...matchFilter
-                },
-            },
-            {
-                $lookup: {
-                    from: "conformities",
-                    let: { fieldId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $and: [
-                                    {
-                                        $expr: {
-                                            $eq: ["$mainType", type],
-                                        },
-                                    },
-                                    {
-                                        $expr: {
-                                            $eq: [
-                                                "$mainTypeId",
-                                                "$$fieldId",
-                                            ],
-                                        },
-                                    },
-                                    {
-                                        $expr: {
-                                            $eq: ["$relType", "customer"],
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                    as: "conformity",
-                },
-            },
-            {
-                $unwind: "$conformity",
-            },
-            {
-                $group: {
-                    _id: "$conformity.relTypeId",
-                    count: { $sum: 1 },
-                },
-            },
-            {
-                $lookup: {
-                    from: "customers",
-                    let: { customerId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $and: [
-                                    {
-                                        $expr: {
-                                            $eq: ["$_id", "$$customerId"],
-                                        },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                    as: "customer",
-                },
-            },
-            {
-                $unwind: "$customer",
-            },
-            {
-                $project: {
-                    _id: {
-                        $switch: {
-                            branches: [
-                                { case: { $ne: ["$customer.firstName", null] }, then: "$customer.firstName" },
-                                { case: { $ne: ["$customer.lastName", null] }, then: "$customer.lastName" },
-                                { case: { $ne: ["$customer.middleName", null] }, then: "$customer.middleName" },
-                                { case: { $ne: ["$customer.primaryEmail", null] }, then: "$customer.primaryEmail" },
-                                { case: { $ne: ["$customer.primaryPhone", null] }, then: "$customer.primaryPhone" },
-                                { case: { $ne: ["$customer.visitorContactInfo.phone", null] }, then: "$customer.visitorContactInfo.phone" },
-                                { case: { $ne: ["$customer.visitorContactInfo.email", null] }, then: "$customer.visitorContactInfo.email" }
-                            ],
-                            default: "Unknown"
-                        }
-                    },
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // SOURCE DIMENSION
-    if (dimension === 'source') {
-        pipeline.push(...[
-            {
-                $unwind: "$sourceConversationIds"
-            },
-            {
-                $lookup: {
-                    from: "conversations",
-                    let: { conversationId: "$sourceConversationIds" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ["$_id", "$$conversationId"]
-                                }
-                            }
-                        }
-                    ],
-                    as: 'conversation'
-                }
-            },
-            {
-                $unwind: "$conversation"
-            },
-            {
-                $lookup: {
-                    from: "integrations",
-                    let: { integrationId: "$conversation.integrationId" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: ["$_id", "$$integrationId"]
-                                }
-                            }
-                        }
-                    ],
-                    as: 'integration'
-                }
-            },
-            {
-                $unwind: "$integration"
-            },
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$integration.kind",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    count: 1
-                }
-            }
-        ])
-    }
-
-    // PRODUCT DIMENSION
-    if (dimension === 'product') {
-        pipeline.push(...[
-            {
-                $unwind: "$productsData"
-            },
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$productsData.productId",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: "products",
-                    let: { productId: "$_id" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $and: [
-                                        { $eq: ["$_id", "$$productId"] },
-                                        { $eq: ["$status", "active"] }
-                                    ]
-                                }
-                            }
-                        }
-                    ],
-                    as: "product",
-                }
-            },
-            {
-                $unwind: "$product"
-            },
-            {
-                $project: {
-                    _id: "$product.name",
-                    count: 1
-                }
-            }
-        ])
-    }
-
-    // STAGE DIMENSION
-    if (dimension === 'stage') {
-        pipeline.push(...[
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $group: {
-                    _id: "$stageId",
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $lookup: {
-                    from: 'stages',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'stage'
-                }
-            },
-            {
-                $unwind: "$stage"
-            },
-            {
-                $project: {
-                    _id: "$stage.name",
-                    count: 1
-                }
-            }
-        ])
-    }
-
-    // PIPELINE DIMENSION
-    if (dimension === 'pipeline') {
-
-        pipeline.push(...[
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $lookup: {
-                    from: "stages",
-                    localField: "stageId",
-                    foreignField: "_id",
-                    as: "stage",
-                },
-            },
-            {
-                $unwind: "$stage",
-            },
-            {
-                $group: {
-                    _id: "$stage.pipelineId",
-                    count: { $sum: 1 },
-                },
-            },
-            {
-                $lookup: {
-                    from: "pipelines",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "pipeline",
-                },
-            },
-            {
-                $unwind: "$pipeline",
-            },
-            {
-                $project: {
-                    _id: "$pipeline.name",
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // BOARD DIMENSION
-    if (dimension === 'board') {
-        pipeline.push(...[
-            {
-                $match: {
-                    ...matchFilter
-                }
-            },
-            {
-                $lookup: {
-                    from: "stages",
-                    localField: "stageId",
-                    foreignField: "_id",
-                    as: "stage",
-                },
-            },
-            {
-                $unwind: "$stage",
-            },
-            {
-                $lookup: {
-                    from: "pipelines",
-                    localField: "stage.pipelineId",
-                    foreignField: "_id",
-                    as: "pipeline",
-                },
-            },
-            {
-                $unwind: "$pipeline",
-            },
-            {
-                $group: {
-                    _id: "$pipeline.boardId",
-                    count: { $sum: 1 },
-                },
-            },
-            {
-                $lookup: {
-                    from: "boards",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "board",
-                },
-            },
-            {
-                $unwind: "$board",
-            },
-            {
-                $project: {
-                    _id: "$board.name",
-                    count: 1,
-                },
-            },
-        ])
-    }
-
-    // FREQUENCY DIMENSION
-    if (dimension === 'frequency') {
-
-        const { frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
-
-        let formatType = "%Y"
-
-        if (dateRange?.toLowerCase().includes('day')) {
-            formatType = '%Hh:%Mm:%Ss'
-        }
-
-        if (dateRange?.toLowerCase().includes('week')) {
-            formatType = '%u'
-        }
-
-        if (dateRange?.toLowerCase().includes('month')) {
-            formatType = "%V"
-        }
-
-        if (dateRange?.toLowerCase().includes('year')) {
-            formatType = "%m"
-        }
-
-        if (dateRange === 'customDate' && startDate && endDate) {
-            formatType = '%Y-%m-%d';
-        }
-
-        const dateFormat = frequencyType || formatType
-
-        let projectStage: any = [
-            {
-                $project: {
-                    _id: 1,
-                    count: 1,
-                    amount: 1
-                }
-            }
-        ]
-
-        if (dateFormat === '%u') {
-            projectStage = [
-                {
-                    $project: {
-                        _id: {
-                            $arrayElemAt: [WEEKDAY_NAMES, { $subtract: [{ $toInt: "$_id" }, 1] }]
-                        },
-                        count: 1,
-                        amount: 1
-                    }
-                }
-            ];
-        }
-
-        if (dateFormat === '%m') {
-            projectStage = [
-                {
-                    $project: {
-                        _id: {
-                            $arrayElemAt: [MONTH_NAMES, { $subtract: [{ $toInt: "$_id" }, 1] }],
-                        },
-                        count: 1,
-                        amount: 1
-                    },
-                }
-            ]
-        }
-
-        if (dateFormat === '%V') {
-            projectStage = [
-                {
-                    $project: {
-                        _id: {
-                            $concat: [
-                                "Week ",
-                                "$_id",
-                                " ",
-                                {
-                                    $dateToString: {
-                                        format: "%m/%d",
-                                        date: {
-                                            $dateFromString: {
-                                                dateString: {
-                                                    $concat: [
-                                                        {
-                                                            $dateToString: {
-                                                                format: "%Y",
-                                                                date: "$createdAt",
-                                                            },
-                                                        },
-                                                        "-W",
-                                                        {
-                                                            $dateToString: {
-                                                                format: "%V",
-                                                                date: "$createdAt",
-                                                            },
-                                                        },
-                                                        "-1",
-                                                    ],
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                                "-",
-                                {
-                                    $dateToString: {
-                                        format: "%m/%d",
-                                        date: {
-                                            $dateFromString: {
-                                                dateString: {
-                                                    $concat: [
-                                                        {
-                                                            $dateToString: {
-                                                                format: "%Y",
-                                                                date: "$createdAt",
-                                                            },
-                                                        },
-                                                        "-W",
-                                                        {
-                                                            $dateToString: {
-                                                                format: "%V",
-                                                                date: "$createdAt",
-                                                            },
-                                                        },
-                                                        "-7",
-                                                    ],
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            ],
-                        },
-                        count: 1,
-                        amount: 1
-                    },
-                }
-            ]
-        }
-
-        pipeline.push(...[
-            {
-                $match: {
-                    [dateRangeType]: { $ne: null },
-                    ...matchFilter
-                },
-            },
-            {
-                $group: {
-                    _id: {
-                        $dateToString: {
-                            format: dateFormat,
-                            date: `$${dateRangeType}`,
-                        },
-                    },
-                    createdAt: { $first: `$${dateRangeType}` },
-                    count: { $sum: 1 },
-                },
-            },
-            { $sort: { _id: 1 } },
-            ...projectStage
-        ])
-    }
-
-    pipeline.push(...[
-        {
-            $project: {
-                _id: 0,
-                key: "$_id",
-                count: 1
-            }
-        }
-    ])
-
-    return pipeline
+    return { options }
 }
 
 export const getStageIds = async (filter: any, type: string, models: IModels,) => {

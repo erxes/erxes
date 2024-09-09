@@ -56,7 +56,7 @@ interface IEmailDocument extends IEmail, Document {
 
 const emailSchema = new Schema({
   email: { type: String, unique: true },
-  status: { type: String, enum: EMAIL_VALIDATION_STATUSES.ALL },
+  status: { type: String },
   created: { type: Date, default: Date.now() },
   verifiedAt: { type: Date, optional: true },
 });

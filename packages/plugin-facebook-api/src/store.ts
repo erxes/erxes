@@ -263,37 +263,43 @@ export const getOrCreateComment = async (
   integration: IIntegrationDocument,
   customer: ICustomerDocument
 ) => {
+  if (verb === 'remove') {
+    return;
+  }
+
   const mainConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id
   });
+
   const parentConversation = await models.CommentConversation.findOne({
     comment_id: commentParams.parent_id
   });
+
   const replyConversation = await models.CommentConversationReply.findOne({
     comment_id: commentParams.comment_id
   });
-  if (mainConversation || replyConversation) {
-    return;
-  }
+
   const post = await models.PostConversations.findOne({
     postId: commentParams.post_id
   });
-  let attachment: any[] = [];
-  if (commentParams.photo) {
-    attachment = [
-      {
-        name: 'Photo', // You can set a name for the attachment
-        url: commentParams.photo,
-        type: 'image' // You can set the type based on your requirements
-        // You may want to include other properties like size, duration if applicable
-      }
-    ];
-  }
+
   if (!post) {
     throw new Error('Post not found');
   }
+
+  let attachments: any[] = [];
+  if (commentParams.photo) {
+    attachments = [
+      {
+        name: 'Photo',
+        url: commentParams.photo,
+        type: 'image'
+      }
+    ];
+  }
+
   const doc = {
-    attachments: attachment,
+    attachments,
     recipientId: pageId,
     senderId: userId,
     createdAt: commentParams.post.updated_time,
@@ -303,23 +309,43 @@ export const getOrCreateComment = async (
     customerId: customer.erxesApiId,
     parentId: commentParams.parent_id
   };
-  if (parentConversation) {
-    await models.CommentConversationReply.create({
-      ...doc
-    });
-  } else {
-    await models.CommentConversation.create({
-      ...doc
-    });
+
+  if (verb === 'edited') {
+    if (mainConversation) {
+      await models.CommentConversation.updateMany(
+        { comment_id: commentParams.comment_id },
+        { $set: { content: doc.content } }
+      );
+    }
+    if (replyConversation) {
+      await models.CommentConversationReply.updateMany(
+        { comment_id: commentParams.comment_id },
+        { $set: { content: doc.content } }
+      );
+    }
   }
-  let conversation;
-  conversation = await models.CommentConversation.findOne({
+  if (mainConversation || replyConversation) {
+    return;
+  }
+
+  if (parentConversation) {
+    await models.CommentConversationReply.create({ ...doc });
+  } else {
+    await models.CommentConversation.create({ ...doc });
+  }
+
+  let conversation = await models.CommentConversation.findOne({
     comment_id: commentParams.comment_id
   });
-  if (conversation === null) {
+
+  if (!conversation) {
     conversation = await models.CommentConversation.findOne({
       comment_id: commentParams.parent_id
     });
+  }
+
+  if (!conversation) {
+    throw new Error('Failed to find or create conversation');
   }
 
   try {
@@ -332,54 +358,59 @@ export const getOrCreateComment = async (
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
           content: commentParams.message,
-          attachments: attachment,
+          attachments,
           conversationId: conversation.erxesApiId
         })
       },
       isRPC: true
     });
+
     conversation.erxesApiId = apiConversationResponse?._id;
     await conversation.save();
   } catch (error) {
-    await models.CommentConversation.deleteOne({
-      _id: conversation?._id
-    });
+    await models.CommentConversation.deleteOne({ _id: conversation._id });
     throw new Error(error.message);
   }
+
   try {
     await sendInboxMessage({
       subdomain,
       action: 'conversationClientMessageInserted',
       data: {
-        ...conversation?.toObject(),
+        ...conversation.toObject(),
         conversationId: conversation.erxesApiId
       }
     });
+
     graphqlPubsub.publish(
       `conversationMessageInserted:${conversation.erxesApiId}`,
       {
         conversationMessageInserted: {
-          ...conversation?.toObject(),
+          ...conversation.toObject(),
           conversationId: conversation.erxesApiId
         }
       }
     );
   } catch {
     throw new Error(
-      `Failed to update the database with the Erxes API response for this conversation.`
+      'Failed to update the database with the Erxes API response for this conversation.'
     );
   }
 
-  if (conversation) {
-    const target = (
-      parentConversation
-        ? await models.CommentConversationReply.findOne({
-            comment_id: commentParams.comment_id,
-            parentId: commentParams.parent_id
-          })
-        : conversation
-    ).toObject();
+  const targetConversation = parentConversation
+    ? await models.CommentConversationReply.findOne({
+        comment_id: commentParams.comment_id,
+        parentId: commentParams.parent_id
+      })
+    : conversation;
 
+  if (!targetConversation) {
+    throw new Error('Target conversation not found');
+  }
+
+  const targetObject = targetConversation.toObject();
+
+  try {
     await sendAutomationsMessage({
       subdomain,
       action: 'trigger',
@@ -387,14 +418,16 @@ export const getOrCreateComment = async (
         type: `facebook:comments`,
         targets: [
           {
-            ...target,
+            ...targetObject,
             postId: conversation.postId,
             erxesApiId: conversation.erxesApiId
           }
         ]
       },
       defaultValue: null
-    }).catch((err) => debugError(err.message));
+    });
+  } catch (err) {
+    debugError(err.message);
   }
 };
 

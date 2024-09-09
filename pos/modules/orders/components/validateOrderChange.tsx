@@ -74,7 +74,7 @@ const ValidateOrderChange = () => {
           </AlertDialogTitle>
           <AlertDialogDescription>
             Хэрэв та "Хадгалахгүй" дээр дарвал таны сүүлийн өөрчлөлт
-            хадгалдахгүй.
+            хадгалагдахгүй.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
