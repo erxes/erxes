@@ -296,6 +296,37 @@ query PosOrderCustomers ($page: Int, $perPage: Int, $sortField: String, $sortDir
 }
 `;
 
+const commonSubsQueryParams = `
+  $customerId:String
+  $userId:String
+  $companyId:String
+  $status:String
+  $closeFrom:String
+  $closeTo:String
+`;
+
+const commonSubsQueryParamsDef = `
+  customerId:$customerId,
+  userId:$userId,
+  companyId:$companyId,
+  status:$status,
+  closeFrom:$closeFrom,
+  closeTo:$closeTo,
+`;
+
+const posOrdersBySubs = `
+  query PosOrderBySubscriptions(${commonSubsQueryParams}) {
+    posOrderBySubscriptions(${commonSubsQueryParamsDef}) {
+      _id
+      customerId
+      customerType
+      customer
+      status
+      closeDate
+    }
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
@@ -309,4 +340,5 @@ export default {
   posOrderRecords,
   posOrderRecordsCount,
   posOrdersByCustomers,
+  posOrdersBySubs
 };
