@@ -22,7 +22,7 @@ export const EMAIL_VALIDATION_STATUSES = {
     'badsyntax',
     'unverifiable',
     'Not checked',
-    'catch all'
+    'catch all',
   ],
 };
 
@@ -41,7 +41,8 @@ export const EMAIL_VALIDATION_SOURCES = {
   SENDGRID: 'sendgrid',
   TRUEMAIL: 'truemail',
   REACHER: 'reacher',
-  ALL: ['erxes', 'sendgrid', 'reacher', 'truemail', 'clearout'],
+  MAILSSO: 'mailsso',
+  ALL: ['erxes', 'sendgrid', 'reacher', 'truemail', 'clearout', 'mailsso'],
 };
 
 interface IEmail {
@@ -57,6 +58,7 @@ const emailSchema = new Schema({
   email: { type: String, unique: true },
   status: { type: String },
   created: { type: Date, default: Date.now() },
+  verifiedAt: { type: Date, optional: true },
 });
 
 interface IEmailModel extends Model<IEmailDocument> {
@@ -93,7 +95,16 @@ interface IPhoneModel extends Model<IPhoneDocument> {
 export const loadClass = () => {
   class Email {
     public static createEmail(doc: IEmail) {
-      return Emails.create(doc);
+   
+      try {
+        return Emails.findOneAndUpdate(
+          { email: doc.email },
+          { ...doc, verifiedAt: new Date() },
+          { upsert: true, new: true }
+        );
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
