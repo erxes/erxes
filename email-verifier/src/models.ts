@@ -61,6 +61,8 @@ const emailSchema = new Schema({
   verifiedAt: { type: Date, optional: true },
 });
 
+emailSchema.index({ email: 1, verifiedAt: 1 });
+
 interface IEmailModel extends Model<IEmailDocument> {
   createEmail(doc: IEmail): Promise<IEmailDocument>;
 }
@@ -95,7 +97,6 @@ interface IPhoneModel extends Model<IPhoneDocument> {
 export const loadClass = () => {
   class Email {
     public static createEmail(doc: IEmail) {
-   
       try {
         return Emails.findOneAndUpdate(
           { email: doc.email },
