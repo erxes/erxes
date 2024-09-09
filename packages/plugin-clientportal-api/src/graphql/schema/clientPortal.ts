@@ -1,133 +1,442 @@
-  {
-    "jwt_token_secret": "e0f3e51e3b0e026feb8eb53ba79d876f",
-    "db_server_address": "",
-    "secondary_server_address": "",
-    "image_tag": "v2",
-    "private_plugins_map": "https://erxes-enterprise-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js",
-    "domain": "https://test.erxes.io",
-    "client_portal_domains": "http://localhost:8080,http://localhost:7002,http://192.168.43.156:7002/",
-    "widgets": { "domain": "https://test.erxes.io/widgets" },
-    "elasticsearch": {},
-    "essyncer": {},
-    "redis": { "password": "redis_pass" },
-    "mongo": {
-      "username": "erxes",
-      "password": "UqKzqMhOOzFdNQhAzecLAiSk",
-      "replication": true
-    },
-    "rabbitmq": {
-      "cookie": "",
-      "user": "erxes",
-      "pass": "fAXkiGHctXpPHRyfOOjSxcaA",
-      "vhost": ""
-    },
-    "extra_services": {
-      "posui": {
-        "image": "erxes/pos-ui:dev",
-        "environment": {
-          "NEXT_PUBLIC_MAIN_API_DOMAIN": "https://test.erxes.io/gateway",
-          "NEXT_PUBLIC_MAIN_SUBS_DOMAIN": "wss://test.erxes.io/gateway/graphql",
-          "NEXT_PUBLIC_SERVER_API_DOMAIN": "https://test.erxes.io/gateway",
-          "NEXT_PUBLIC_SERVER_DOMAIN": "https://test.erxes.io",
-          "NGINX_HOST": "postest.erxes.io"
-        },
-        "ports": ["7000:3000"]
-      },
-      "client-portal": {
-        "image": "erxes/client-portal:dev",
-        "environment": {
-          "REACT_APP_DOMAIN": "https://test.erxes.io",
-          "JWT_TOKEN_SECRET": "e0f3e51e3b0e026feb8eb53ba79d876f",
-          "REACT_APP_SUBSCRIPTION_URL": "wss://test.erxes.io/gateway/graphql",
-          "NGINX_HOST": "helptest.erxes.io"
-        },
-        "ports": ["4400:3000"]
-      },
-      "exm": {
-        "image": "erxes/exm:dev",
-        "environment": {
-          "NEXT_PUBLIC_MAIN_API_DOMAIN": "https://test.erxes.io/gateway",
-          "JWT_TOKEN_SECRET": "e0f3e51e3b0e026feb8eb53ba79d876f",
-          "NEXT_PUBLIC_MAIN_SUBS_DOMAIN": "wss://test.erxes.io/gateway/graphql",
-          "NGINX_HOST": "exmtest.erxes.io",
-          "NODE_ENV": "production"
-        },
-        "ports": ["6200:3000"]
-      }
-    },
-    "gateway": {
-      "extra_env": { "ALLOWED_ORIGINS": "erxes.io", "INTROSPECTION": "true" }
-    },
-    "plugins": [
-      { "name": "assets" },
-      { "name": "automations" },
-      {
-        "name": "calls",
-        "extra_env": {
-          "CALL_API_USER": "recApi",
-          "CALL_API_PASSWORD": "recApi13"
-        }
-      },
-      { "name": "sales" },
-      { "name": "tickets" },
-      { "name": "purchases" },
-      { "name": "tasks" },
-      { "name": "cars" },
-      { "name": "chats" },
-      { "name": "dailyco" },
-      { "name": "documents" },
-      { "name": "ecommerce" },
-      { "name": "ebarimt" },
-      { "name": "emailtemplates" },
-      { "name": "engages" },
-      { "name": "exm" },
-      { "name": "exmfeed" },
-      {
-        "name": "facebook",
-        "extra_env": {
-          "ENDPOINT_URL": "https://enterprise.erxes.io",
-          "MONGO_URL": "mongodb://erxes:UqKzqMhOOzFdNQhAzecLAiSk@erxes-dbs_mongo:27017/erxes_facebook?authSource=admin&replicaSet=rs0"
-        }
-      },
-      { "name": "filemanager" },
-      { "name": "forum" },
-      { "name": "imap" },
-      {
-        "name": "inbox",
-        "extra_env": {
-          "INTEGRATIONS_MONGO_URL": "mongodb://erxes:UqKzqMhOOzFdNQhAzecLAiSk@erxes-dbs_mongo:27017/erxes_integrations?authSource=admin&replicaSet=rs0",
-          "FB_MONGO_URL": "mongodb://erxes:UqKzqMhOOzFdNQhAzecLAiSk@erxes-dbs_mongo:27017/erxes_facebook?authSource=admin&replicaSet=rs0",
-          "TZ": "Asia/Ulaanbaatar"
-        }
-      },
-      { "name": "insight"},
-      { "name": "integrations" },
-      { "name": "inventories" },
-      { "name": "knowledgebase" },
-      { "name": "loans" },
-      { "name": "loyalties" },
-
-      { "name": "meetings" },
-      { "name": "msdynamic" },
-      { "name": "multierkhet" },
-      { "name": "pos" },
-      {
-        "name": "posclient",
-        "extra_env": {
-          "JWT_TOKEN_SECRET": "e0f3e51e3b0e026feb8eb53ba79d876f",
-          "DB_NAME": "erxes_pos",
-          "ALLOWED_ORIGINS": ".*"
-        }
-      },
-      { "name": "pricing" },
-      { "name": "products" },
-      { "name": "reactions" },
-      { "name": "salesplans" },
-      { "name": "timeclock" },
-      { "name": "viber" },
-      { "name": "webbuilder" },
-      { "name": "webhooks" },
-      { "name": "xyp" },
-      { "name": "template" },
-    ]
+export const types = (cardAvailable, kbAvailable, productsAvailable) => `
+${
+  cardAvailable
+    ? `
+   extend type Stage @key(fields: "_id") {
+    _id: String! @external
   }
+  extend type Task @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Ticket @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Purchase @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type Deal @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend input TicketsItemDate{
+  _id: String!
+  }
+  extend input SalesItemDate{
+  _id: String! 
+  }
+  extend input PurhcasesItemDate{
+  _id: String! 
+  }
+  extend input TasksItemDate{
+  _id: String! 
+  }
+  
+   `
+    : ''
+}
+
+${
+  kbAvailable
+    ? `
+   extend type KnowledgeBaseTopic @key(fields: "_id") {
+    _id: String! @external
+  }
+
+   extend type KnowledgeBaseArticle @key(fields: "_id") {
+    _id: String! @external
+    }
+
+   `
+    : ''
+}
+
+${
+  productsAvailable
+    ? `
+    extend type ProductCategory @key(fields: "_id") {
+      _id: String! @external
+    }
+  `
+    : ''
+}
+
+    extend type Field @key(fields: "_id") {
+      _id: String! @external
+    }
+
+
+  type OTPConfig {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
+  type TwoFactorConfig {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    enableTwoFactor: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
+  type MailConfig {
+    subject: String
+    invitationContent : String
+    registrationContent : String
+  }
+
+  type ManualVerificationConfig {
+    userIds: [String]
+    verifyCustomer: Boolean
+    verifyCompany: Boolean
+  }
+
+  type PasswordVerificationConfig {
+    verifyByOTP: Boolean
+    emailSubject: String
+    emailContent: String
+    smsContent: String
+  }
+
+
+  input OTPConfigInput {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    loginWithOTP: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
+
+  input TwoFactorConfigInput {
+    content: String
+    codeLength: Int
+    smsTransporterType: String
+    enableTwoFactor: Boolean
+    expireAfter: Int
+    emailSubject: String
+  }
+
+
+  input MailConfigInput {
+    subject: String
+    invitationContent : String
+    registrationContent : String
+  }
+
+  enum TokenPassMethod {
+    cookie
+    header
+  }
+
+  enum BusinessPortalKind {
+    client
+    vendor
+  }
+
+  type SocialpayConfig {
+    publicKey: String
+    certId: String
+  }
+
+  type ClientPortal {
+    _id: String!
+    name: String!
+    kind: BusinessPortalKind!
+    description: String
+    url: String
+    logo: String
+    icon: String
+    headerHtml: String
+    footerHtml: String
+
+    domain: String
+    dnsStatus: String
+    messengerBrandCode: String
+    knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
+    ticketLabel: String
+    dealLabel: String
+    purchaseLabel: String
+    taskPublicBoardId: String
+    taskPublicPipelineId: String
+    taskPublicLabel: String
+    taskLabel: String
+    taskStageId: String
+    taskPipelineId: String
+    taskBoardId: String
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
+    googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
+    erxesAppToken: String
+    styles: Styles
+    mobileResponsive: Boolean
+  
+    otpConfig: OTPConfig
+    twoFactorConfig: TwoFactorConfig
+
+    mailConfig: MailConfig
+    manualVerificationConfig: ManualVerificationConfig
+    passwordVerificationConfig: PasswordVerificationConfig
+
+    kbToggle: Boolean,
+    publicTaskToggle: Boolean,
+    ticketToggle: Boolean,
+    taskToggle: Boolean,
+    dealToggle: Boolean,
+    purchaseToggle: Boolean,
+
+    tokenExpiration: Int
+    refreshTokenExpiration: Int
+    tokenPassMethod: TokenPassMethod
+    vendorParentProductCategoryId: String
+
+    testUserEmail: String
+    testUserPhone: String
+    testUserPassword: String
+    testUserOTP: String
+
+    socialpayConfig: SocialpayConfig
+  }
+
+  type Styles {
+    bodyColor: String
+    headerColor: String
+    footerColor: String
+    helpColor: String
+    backgroundColor: String
+    activeTabColor: String
+    baseColor: String
+    headingColor: String
+    linkColor: String
+    linkHoverColor: String
+    baseFont: String
+    headingFont: String
+    dividerColor: String
+    primaryBtnColor: String
+    secondaryBtnColor: String
+  }
+
+  input StylesParams {
+    bodyColor: String
+    headerColor: String
+    footerColor: String
+    helpColor: String
+    backgroundColor: String
+    activeTabColor: String
+    baseColor: String
+    headingColor: String
+    linkColor: String
+    linkHoverColor: String
+    dividerColor: String
+    primaryBtnColor: String
+    secondaryBtnColor: String
+    baseFont: String
+    headingFont: String
+  }
+
+  input ItemDate {
+    month: Int
+    year: Int
+  }
+
+  input ClientPortalConfigInput {
+    _id: String
+    name: String!
+    kind: BusinessPortalKind!
+    description: String
+    url: String
+    logo: String
+    icon: String
+    headerHtml: String
+    footerHtml: String
+
+    domain: String
+    dnsStatus: String
+    messengerBrandCode: String
+    kbToggle: Boolean,
+    knowledgeBaseLabel: String
+    knowledgeBaseTopicId: String
+    ticketLabel: String
+    dealLabel: String
+    purchaseLabel: String
+
+    taskToggle: Boolean,
+    publicTaskToggle: Boolean,
+    taskPublicBoardId: String
+    taskPublicPipelineId: String
+    taskPublicLabel: String
+    taskLabel: String
+    taskStageId: String
+    taskPipelineId: String
+    taskBoardId: String
+    ticketToggle: Boolean,
+    ticketStageId: String
+    ticketPipelineId: String
+    ticketBoardId: String
+    dealToggle: Boolean,
+    dealStageId: String
+    dealPipelineId: String
+    dealBoardId: String
+    purchaseToggle: Boolean,
+    purchaseStageId: String
+    purchasePipelineId: String
+    purchaseBoardId: String
+    googleCredentials: JSON
+    googleClientId: String
+    googleClientSecret: String
+    googleRedirectUri: String
+    facebookAppId: String
+    erxesAppToken: String
+    styles: StylesParams
+    mobileResponsive: Boolean
+
+    testUserEmail: String
+    testUserPhone: String
+    testUserPassword: String
+    testUserOTP: String
+
+    otpConfig: OTPConfigInput
+    twoFactorConfig:TwoFactorConfigInput
+    mailConfig: MailConfigInput
+    manualVerificationConfig: JSON
+    passwordVerificationConfig: JSON
+    tokenPassMethod: TokenPassMethod
+    tokenExpiration: Int
+    refreshTokenExpiration: Int
+    vendorParentProductCategoryId: String
+    socialpayConfig: JSON
+  }
+
+  enum UserCardEnum {
+    deal
+    task
+    ticket
+    purchase
+  }
+  enum UserCardStatusEnum {
+    participating
+    invited
+    left
+    rejected
+    won
+    lost
+    completed
+  }
+  enum UserCardPaymentEnum {
+    paid
+    unpaid
+  }
+  type ClientPortalParticipant {
+    _id: String
+    contentType: UserCardEnum
+    contentTypeId: String
+    cpUserId: String
+    cpUser: ClientPortalUser
+    status: UserCardStatusEnum
+    paymentStatus: UserCardPaymentEnum
+    paymentAmount: Float
+    offeredAmount: Float
+    hasVat: Boolean
+    createdAt: Date
+    modifiedAt: Date
+  }
+
+`;
+
+export const queries = (cardAvailable, kbAvailable) => `
+  clientPortalGetConfigs(kind:BusinessPortalKind, page: Int, perPage: Int): [ClientPortal]
+  clientPortalGetConfig(_id: String!): ClientPortal
+  clientPortalGetConfigByDomain(clientPortalName: String): ClientPortal
+  clientPortalGetLast(kind: BusinessPortalKind): ClientPortal
+  clientPortalConfigsTotalCount: Int
+  clientPortalGetAllowedFields(_id: String!): [Field]
+  ${
+    cardAvailable
+      ? `
+    clientPortalGetTaskStages: [Stage]
+    clientPortalGetTasks(stageId: String!): [Task]
+    clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
+    clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurhcasesItemDate): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
+    clientPortalTicket(_id: String!): Ticket
+    clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
+    clientPortalUserTickets(userId: String): [Ticket]
+    clientPortalUserDeals(userId: String): [Deal]
+    clientPortalUserPurchases(userId: String): [Purchase]
+    clientPortalUserTasks(userId: String): [Task]
+    clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
+    clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
+   `
+      : ''
+  }
+
+  ${
+    kbAvailable
+      ? `
+    clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String], topicId: String, isPrivate: Boolean): 
+[KnowledgeBaseArticle]
+   `
+      : ''
+  }
+`;
+
+export const mutations = cardAvailable => `
+  clientPortalConfigUpdate (
+    config: ClientPortalConfigInput!
+  ): ClientPortal
+
+  clientPortalRemove (_id: String!): JSON
+
+  ${
+    cardAvailable
+      ? `
+      clientPortalCreateCard(
+        type: String!
+        stageId: String!
+        subject: String!
+        description: String
+        priority: String,
+        parentId: String,
+        closeDate: Date
+        startDate: Date
+        attachments: [AttachmentInput]
+        customFieldsData: JSON
+        labelIds: [String]
+        productsData: JSON
+      ): JSON
+      clientPortalParticipantRelationEdit(
+        type: String!
+        cardId: String!
+        oldCpUserIds: [String]
+        cpUserIds: [String]
+      ): JSON
+      clientPortalCommentsAdd(type: String!, typeId: String!, content: String! userType: String!): ClientPortalComment
+      clientPortalCommentsRemove(_id: String!): String
+      clientPortalParticipantEdit(    _id: String!,
+        contentType: UserCardEnum,
+        contentTypeId: String,
+        cpUserId: String,
+        status: UserCardStatusEnum,
+        paymentStatus: UserCardPaymentEnum,
+        paymentAmount: Float,
+        offeredAmount: Float,
+        hasVat: Boolean):ClientPortalParticipant
+     `
+      : ''
+  }
+`;
