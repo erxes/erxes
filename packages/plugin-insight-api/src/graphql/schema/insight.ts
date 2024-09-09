@@ -30,6 +30,7 @@ export const types = (tagsAvailable) => `
     scatter
     table
     number
+    pivotTable
   }
 
   type ChartFilter {
