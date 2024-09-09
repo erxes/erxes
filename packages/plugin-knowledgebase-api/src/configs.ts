@@ -7,6 +7,7 @@ import logs from './logUtils';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import automations from './automations';
 import cronjobs from './crons/article';
 
 export default {
@@ -14,13 +15,19 @@ export default {
   graphql: () => {
     return {
       typeDefs,
-      resolvers,
+      resolvers
     };
   },
   hasSubscriptions: false,
   permissions,
   segment: {},
-  meta: { logs: { consumers: logs }, webhooks, permissions, cronjobs },
+  meta: {
+    logs: { consumers: logs },
+    webhooks,
+    permissions,
+    cronjobs,
+    automations
+  },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
@@ -31,5 +38,5 @@ export default {
   },
 
   onServerInit: async () => {},
-  setupMessageConsumers,
+  setupMessageConsumers
 };

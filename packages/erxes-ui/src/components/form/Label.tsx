@@ -1,6 +1,6 @@
-import { Label } from "./styles";
-import React from "react";
-import { __ } from "../../utils/core";
+import { Label } from './styles';
+import React from 'react';
+import { __ } from '../../utils/core';
 
 type Props = {
   children: React.ReactNode | string;
@@ -8,14 +8,15 @@ type Props = {
   htmlFor?: string;
   required?: boolean;
   uppercase?: boolean;
+  optional?: boolean;
 };
 
 function ControlLabel(props: Props) {
-  const { children, ignoreTrans, required, uppercase = true } = props;
+  const { children, ignoreTrans, required, uppercase = true, optional } = props;
 
   let content = children;
 
-  if (!ignoreTrans && typeof children === "string") {
+  if (!ignoreTrans && typeof children === 'string') {
     content = __(children);
   }
 
@@ -23,6 +24,7 @@ function ControlLabel(props: Props) {
     <Label $uppercase={uppercase}>
       {content}
       {required && <span> *</span>}
+      {optional && <p> (optional)</p>}
     </Label>
   );
 }
