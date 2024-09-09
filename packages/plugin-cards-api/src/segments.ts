@@ -68,7 +68,23 @@ export default {
     }
 
     if (condition.propertyName === 'stageProbability') {
-      console.log(JSON.stringify({ condition, rest }));
+      const { propertyType, propertyValue } = condition || {};
+
+      const [_serviceName, contentType] = propertyType.split(':');
+
+      const stageIds = await models.Stages.find({
+        type: contentType,
+        probability: propertyValue
+      })
+        .distinct('_id')
+        .lean();
+
+      positive = {
+        terms: {
+          stageId: stageIds
+        }
+      };
+      ignoreThisPostiveQuery = true;
     }
 
     const productIds = await generateProductsCategoryProductIds(
