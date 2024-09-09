@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0-rc.6](https://github.com/erxes/erxes/compare/1.16.0-rc.5...1.16.0-rc.6) (2024-09-09)
+
+
+### Features
+
+* **automation:** start campaign action & knowledgebase article published trigger ([dae0873](https://github.com/erxes/erxes/commit/dae08738a2c7b6baa28eb4bbc657625f5cbad2da))
+
 ## [1.16.0-rc.5](https://github.com/erxes/erxes/compare/1.16.1...1.16.0-rc.5) (2024-09-09)
 
 
