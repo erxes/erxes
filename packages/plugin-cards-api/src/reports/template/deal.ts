@@ -2848,8 +2848,6 @@ export const dealCharts = [
             const pipeline = buildPipeline(filter, "deal", matchFilter)
             const deals = await models.Deals.aggregate(pipeline)
 
-            console.log("deals", deals)
-
             const title = 'Total Deals Count';
 
             return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
