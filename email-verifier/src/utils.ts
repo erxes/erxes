@@ -5,6 +5,12 @@ import * as fs from 'fs';
 import * as dns from 'dns';
 import redis from './redis';
 import * as tmp from 'tmp';
+import * as csv from 'csv-writer';
+import {
+  EMAIL_VALIDATION_SOURCES,
+  EMAIL_VALIDATION_STATUSES,
+  Emails,
+} from './models';
 
 export const debugBase = debug('erxes-email-verifier:base');
 export const debugCrons = debug('erxes-email-verifier:crons');
@@ -32,7 +38,7 @@ interface IRequestParams {
  */
 export const sendRequest = async (
   { url, method, headers, body }: IRequestParams,
-  errorMessage?: string,
+  errorMessage?: string
 ) => {
   // debugBase(`
   //   Sending request to
@@ -58,7 +64,7 @@ export const sendRequest = async (
     if (!response.ok) {
       const errorBody = await response.text();
       throw new Error(
-        `Request failed with status ${response.status}. Response body: ${errorBody}`,
+        `Request failed with status ${response.status}. Response body: ${errorBody}`
       );
     }
 
@@ -132,7 +138,7 @@ export const sendFile = async (
   token: string,
   fileName: string,
   hostname: string,
-  key: string,
+  key: string
 ) => {
   const form = new FormData();
 
@@ -181,4 +187,277 @@ export const getArray = async (key) => {
   }
 
   return JSON.parse(jsonArray);
+};
+
+export const verifyOnClearout = async (email: string, hostname: string) => {
+  const CLEAR_OUT_API_KEY = getEnv({ name: 'CLEAR_OUT_API_KEY' });
+  const CLEAR_OUT_API_URL = 'https://api.clearout.io/v2';
+  let body: any = {};
+
+  try {
+    const response: any = await fetch(
+      `${CLEAR_OUT_API_URL}/email_verify/instant`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer:${CLEAR_OUT_API_KEY}`,
+        },
+        body: JSON.stringify({ email }),
+      }
+    ).then((r) => r.json());
+
+    if (response.status !== 'success') {
+      debugBase(`Error occured during single clearout validation`, email);
+
+      body = {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+        source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
+      };
+    }
+
+    const { data } = response;
+
+    if (data.status === 'valid') {
+      debugBase(`successfully clearout:`, email, ' status: ', data.status);
+
+      body = {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+        source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
+      };
+    }
+
+    if (['unknown', 'invalid'].includes(data.status)) {
+      debugBase(`successfully clearout:`, email, ' status: ', data.status);
+
+      body = {
+        email: { email, status: data.status },
+        source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
+      };
+    }
+
+    return response;
+  } catch (e) {
+    debugError(`Error occured during single clearout validation ${e.message}`);
+
+    body = {
+      email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+      source: EMAIL_VALIDATION_SOURCES.CLEAROUT,
+    };
+  }
+
+  Emails.createEmail(body.email);
+
+  return sendRequest({
+    url: `${hostname}/verifier/webhook`,
+    method: 'POST',
+    body,
+  });
+};
+
+export const verifyOnMailsso = async (email: string, hostname: string) => {
+  const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
+  let body: any = {};
+  let status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
+
+  try {
+    const response = await fetch(`https://api.mails.so/v1/validate?email=${email}`, {
+      method: 'GET',
+      headers: {
+        'x-mails-api-key': MAILS_SO_KEY,
+      },
+    });
+
+    const data = await response.json();
+    const res = data.data;
+
+    if (res.result !== 'deliverable') {
+      debugBase(`successfully clearout:`, email, ' status: ', res.result);
+
+      body = {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.INVALID },
+        source: EMAIL_VALIDATION_SOURCES.MAILSSO,
+      };
+
+      status = EMAIL_VALIDATION_STATUSES.INVALID;
+    } else {
+      debugBase(`successfully verified:`, email, ' status: ', res.result);
+
+      body = {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+        source: EMAIL_VALIDATION_SOURCES.MAILSSO,
+      };
+
+      status = EMAIL_VALIDATION_STATUSES.VALID;
+    }
+  } catch (error) {
+    debugBase(`Error occurred during single mail validation`, email, ' error:', error);
+
+    body = {
+      email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
+      source: EMAIL_VALIDATION_SOURCES.MAILSSO,
+    };
+  }
+
+  try {
+    await Emails.createEmail({ email, status });
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body,
+    });
+  } catch (e) {
+    debugError(`Error occurred during request sending: ${e.message}`);
+  }
+
+  return body;
+};
+
+export const bulkMailsso = async (emails: string[], hostname: string) => {
+  const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
+  const body = { emails };
+  const redisKey = 'erxes_email_verifier_list_ids';
+
+  fetch('https://api.mails.so/v1/batch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-mails-api-key': MAILS_SO_KEY,
+    },
+    body: JSON.stringify(body),
+  })
+    .then((response) => response.json())
+    .then(async (result) => {
+      const listIds = await getArray(redisKey);
+
+      listIds.push({ listId: result.id, hostname });
+
+      setArray(redisKey, listIds);
+    })
+    .catch((error) => console.error('Error:', error));
+};
+
+export const bulkClearOut = async (emails: string[], hostname: string) => {
+  const CLEAR_OUT_API_KEY = getEnv({ name: 'CLEAR_OUT_API_KEY' });
+  const CLEAR_OUT_API_URL = 'https://api.clearout.io/v2';
+  const fileName =
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
+
+  const tmpFile = tmp.fileSync({
+    postfix: '.csv',
+    name: `${fileName}.csv`,
+  });
+
+  const csvWriter = csv.createObjectCsvWriter({
+    path: tmpFile.name,
+    header: [{ id: 'email', title: 'Email' }],
+  });
+
+  const emailsMapped = [];
+
+  for (const email of emails) {
+    if (!isValidEmail(email)) {
+      continue;
+    }
+
+    if (!isValidDomain(email)) {
+      continue;
+    }
+
+    emailsMapped.push({ email });
+  }
+
+  await csvWriter.writeRecords(emailsMapped);
+
+  try {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
+
+    const url = `${CLEAR_OUT_API_URL}/email_verify/bulk`;
+    const redisKey = 'erxes_email_verifier_list_ids';
+
+    await sendFile(url, CLEAR_OUT_API_KEY, tmpFile.name, hostname, redisKey);
+  } catch (e) {
+    debugBase(`Error occured during bulk email validation ${e.message}`);
+    throw e;
+  }
+};
+
+export const getProgressStatus = async (listId: string) => {
+  const CLEAR_OUT_API_KEY = getEnv({ name: 'CLEAR_OUT_API_KEY' });
+  const CLEAR_OUT_API_URL = 'https://api.clearout.io/v2';
+
+  const url = `${CLEAR_OUT_API_URL}/email_verify/bulk/progress_status?list_id=${listId}`;
+  try {
+    return await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer:${CLEAR_OUT_API_KEY}`,
+      },
+    }).then((r) => r.json());
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const getResult = async (listId: string, hostname: string) => {
+  const CLEAR_OUT_API_KEY = getEnv({ name: 'CLEAR_OUT_API_KEY' });
+  const CLEAR_OUT_API_URL = 'https://api.clearout.io/v2';
+
+  const url = `${CLEAR_OUT_API_URL}/download/result`;
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer:${CLEAR_OUT_API_KEY}`,
+  };
+  try {
+    const response: any = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ list_id: listId }),
+    }).then((r) => r.json());
+
+    const resp = await fetch(response.data.url, {
+      method: 'GET',
+    }).then((r) => r.text());
+
+    const rows = resp.split('\n');
+    const emails: Array<{ email: string; status: string }> = [];
+
+    for (const [index, row] of rows.entries()) {
+      if (index !== 0) {
+        const rowArray = row.split(',');
+
+        if (rowArray.length > 12) {
+          const email = rowArray[0];
+          let status = rowArray[2].toLowerCase();
+
+          emails.push({
+            email,
+            status,
+          });
+
+          const found = await Emails.findOne({ email });
+
+          if (!found) {
+            Emails.createEmail({ email, status });
+          }
+        }
+      }
+    }
+
+    debugBase(`Sending bulk email validation result to erxes-api`);
+
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body: {
+        emails,
+      },
+    });
+  } catch (e) {
+    throw e;
+  }
 };
