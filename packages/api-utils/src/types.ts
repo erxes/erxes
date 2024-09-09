@@ -61,6 +61,7 @@ export interface IContext {
     IntegrationsAPI: any;
     HelpersApi: any;
   };
+  dataLoaders: any; 
 }
 
 export interface IColumnLabel {

@@ -37,7 +37,7 @@ type Props = {
 };
 
 export default function ConvertTo(props: Props) {
-  const { conversation, convertToInfo, conversationMessage, refetch } = props;
+  const { conversation, conversationMessage, refetch } = props;
 
   const assignedUserIds = conversation.assignedUserId
     ? [conversation.assignedUserId]
@@ -68,10 +68,7 @@ export default function ConvertTo(props: Props) {
         <Dropdown.Menu>
           {isEnabled("tickets") && (
             <li key="ticket">
-              <TicketConvertTrigger
-                {...triggerProps}
-                url={convertToInfo.ticketUrl}
-              />
+              <TicketConvertTrigger {...triggerProps} />
             </li>
           )}
 
@@ -80,26 +77,19 @@ export default function ConvertTo(props: Props) {
               <DealConvertTrigger
                 {...triggerProps}
                 bookingProductId={conversation.bookingProductId}
-                url={convertToInfo.dealUrl}
               />
             </li>
           )}
 
           {isEnabled("tasks") && (
             <li key="task">
-              <TaskConvertTrigger
-                {...triggerProps}
-                url={convertToInfo.taskUrl}
-              />
+              <TaskConvertTrigger {...triggerProps} />
             </li>
           )}
 
           {isEnabled("purchases") && (
             <li key="purchase">
-              <PurchaseConvertTrigger
-                {...triggerProps}
-                url={convertToInfo.purchaseUrl}
-              />
+              <PurchaseConvertTrigger {...triggerProps} />
             </li>
           )}
         </Dropdown.Menu>

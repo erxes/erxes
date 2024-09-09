@@ -1233,15 +1233,6 @@ export const sendIntegrationsMessage = (
   });
 };
 
-export const sendCardsMessage = (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "cards",
-    ...args
-  });
-};
-
 export const sendInboxMessage = (
   args: MessageArgsOmitService
 ): Promise<any> => {

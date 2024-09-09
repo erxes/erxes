@@ -1,13 +1,13 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { IConversation, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import { IConversation, IMessage } from "@erxes/ui-inbox/src/inbox/types";
 
-import ConvertTo from '../../../components/conversationDetail/workarea/ConvertTo';
-import React from 'react';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { withProps } from '@erxes/ui/src/utils';
+import ConvertTo from "../../../components/conversationDetail/workarea/ConvertTo";
+import React from "react";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { withProps } from "@erxes/ui/src/utils";
 
 type Props = {
   conversation: IConversation;
@@ -33,9 +33,11 @@ class ConvertToInfoContainer extends React.Component<FinalProps> {
   render() {
     const { convertToInfoQuery } = this.props;
 
+    console.log("convertToInfoQuery", convertToInfoQuery);
+
     const updatedProps = {
       ...this.props,
-      convertToInfo: convertToInfoQuery.convertToInfo || {},
+
       refetch: convertToInfoQuery.refetch
     };
 
@@ -46,7 +48,7 @@ class ConvertToInfoContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql(gql(queries.convertToInfo), {
-      name: 'convertToInfoQuery',
+      name: "convertToInfoQuery",
       options: ({ conversation }: Props) => ({
         variables: { conversationId: conversation._id }
       })

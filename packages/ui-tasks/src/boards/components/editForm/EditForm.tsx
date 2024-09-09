@@ -10,7 +10,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import {
   DialogContent,
   DialogWrapper,
-  ModalOverlay,
+  ModalOverlay
 } from "@erxes/ui/src/styles/main";
 import styled from "styled-components";
 
@@ -42,7 +42,7 @@ function EditForm(props: Props) {
     copyItem,
     options,
     beforePopupClose,
-    refresh,
+    refresh
   } = props;
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ function EditForm(props: Props) {
     if (item.stageId !== stageId) {
       setPrevStageId(item.stageId);
 
-      saveItem({ stageId }, (updatedItem) => {
+      saveItem({ stageId }, updatedItem => {
         if (onUpdate) {
           onUpdate(updatedItem, prevStageId);
         }
@@ -63,11 +63,11 @@ function EditForm(props: Props) {
   }, [stageId]);
 
   const onChangeStage = (stageId: string) => {
-    setStageId(stageId)
+    setStageId(stageId);
     const { item, saveItem, onUpdate } = props;
 
     if (item.stageId !== stageId) {
-      setPrevStageId(item.stageId)
+      setPrevStageId(item.stageId);
       saveItem({ stageId }, updatedItem => {
         if (onUpdate) {
           onUpdate(updatedItem, prevStageId);
@@ -77,7 +77,7 @@ function EditForm(props: Props) {
   };
 
   const saveItemHandler = (doc: { [key: string]: any }) => {
-    saveItem(doc, (updatedItem) => {
+    saveItem(doc, updatedItem => {
       setUpdatedItem(updatedItem);
     });
   };
@@ -178,7 +178,7 @@ function EditForm(props: Props) {
                       saveItem: saveItemHandler,
                       onChangeStage,
                       copy,
-                      remove,
+                      remove
                     })}
                   </div>
                 </Relative>

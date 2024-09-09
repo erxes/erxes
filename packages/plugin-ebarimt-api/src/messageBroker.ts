@@ -195,20 +195,20 @@ export const sendContactsMessage = async (
   });
 };
 
+export const sendSalesMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "sales",
+    ...args
+  });
+};
+
 export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: "core",
-    ...args
-  });
-};
-
-export const sendCardsMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "cards",
     ...args
   });
 };
