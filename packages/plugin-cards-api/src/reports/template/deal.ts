@@ -2836,7 +2836,7 @@ export const dealCharts = [
         templateType: "DealsTotalCount",
         serviceType: 'cards',
         name: 'Total Deals Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', 'pivotTable'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2855,9 +2855,42 @@ export const dealCharts = [
         filterTypes: [
             // DIMENSION FILTER
             {
+                fieldName: 'rowDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select row',
+            },
+            {
+                fieldName: 'colDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select column',
+            },
+            {
                 fieldName: 'dimension',
                 fieldType: 'select',
                 multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                        logicFieldOperator: "ne",
+                    },
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
                 fieldLabel: 'Select dimension',
             },
@@ -2875,12 +2908,6 @@ export const dealCharts = [
                 fieldName: 'frequencyType',
                 fieldType: 'select',
                 multi: false,
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'frequency',
-                    },
-                ],
                 fieldDefaultValue: '%Y',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
                 fieldLabel: 'Select frequency type',
@@ -2889,27 +2916,25 @@ export const dealCharts = [
             {
                 fieldName: 'userType',
                 fieldType: 'select',
-                // logics: [
-                //     {
-                //         logicFieldName: 'dimension',
-                //         logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
-                //     },
-                // ],
                 multi: false,
                 fieldDefaultValue: 'userId',
                 fieldOptions: USER_TYPES,
                 fieldLabel: 'Select user type',
             },
+            // GOAL FILTER
+            {
+                fieldName: 'goalType',
+                fieldType: 'select',
+                fieldQuery: 'goalTypesMain',
+                fieldValueVariable: '_id',
+                fieldLabelVariable: 'name',
+                fieldQueryVariables: `{"entity": "deal"}`,
+                fieldLabel: 'Select goal',
+            },
             // USER FILTER
             {
                 fieldName: 'userIds',
                 fieldType: 'select',
-                // logics: [
-                //     {
-                //         logicFieldName: 'dimension',
-                //         logicFieldValue: ['createdBy', 'modifiedBy', 'assignedTo'],
-                //     },
-                // ],
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',

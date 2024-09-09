@@ -4,20 +4,23 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   callHistorySchema,
+  ICallHistory,
   ICallHistoryDocument,
 } from './definitions/callHistories';
 
 export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
-  getCallHistory(timeStamp: number): Promise<ICallHistoryDocument>;
+  getCallHistory(history: ICallHistory): Promise<ICallHistoryDocument>;
   getCallHistories(selector, user: IUser): Promise<ICallHistoryDocument>;
   getHistoriesCount(selector, user: IUser): Promise<ICallHistoryDocument>;
 }
 
 export const loadCallHistoryClass = (models: IModels) => {
   class CallHistory {
-    public static async getCallHistory(timeStamp) {
-      const history = await models.CallHistory.findOne({ timeStamp });
-      return history;
+    public static async getCallHistory({ _id, callType, timeStamp }) {
+      if (callType === 'outgoing') {
+        return await models.CallHistory.findOne({ _id });
+      }
+      return await models.CallHistory.findOne({ timeStamp });
     }
     public static async getCallHistories(selector, user) {
       const integration = await models.Integrations.getIntegration(

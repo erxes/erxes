@@ -30,6 +30,7 @@ export const types = (tagsAvailable) => `
     scatter
     table
     number
+    pivotTable
   }
 
   type ChartFilter {
@@ -239,6 +240,7 @@ export const mutations = `
   chartsEdit(_id: String!, ${chartParams}): Chart
   chartsAddMany( charts: [ChartsAddParams] ,contentId: String!,contentType: String!, ): [Chart]
   chartsEditMany( contentId: String!, contentType: String!, ${reportParams}): JSON
+  chartDuplicate(_id: String!): Chart
 
   reportAdd(${reportParams}): Report
   reportRemove(_id: String!): JSON

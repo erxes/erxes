@@ -257,11 +257,13 @@ const Form = (props: Props) => {
             <div
               key={Math.random()}
               data-grid={{ x: 0, y: 0, w: 6, h: 4.5, static: true }}
+              style={{ overflowX: 'auto' }}
             >
               <ChartRenderer
                 chartType={chartType}
                 chartVariables={{ serviceName, templateType }}
                 filter={filters}
+                setFilter={setFilter}
                 dimension={dimension}
                 queryParams={queryParams}
                 chartHeight={800}

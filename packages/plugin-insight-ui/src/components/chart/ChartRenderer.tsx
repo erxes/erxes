@@ -5,6 +5,7 @@ import Chart from 'chart.js/auto';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 import {
+  DATALABELS_CONFIGS,
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
   horizontalDottedLine
@@ -66,12 +67,15 @@ const ChartRenderer = (props: IChartProps) => {
     ],
   };
 
+  const datalabelsConfig = DATALABELS_CONFIGS[chartType]
+
   let plugins: any = {
     datalabels: {
       display: 'auto',
-      color: 'white', formatter: (value, ctx) => {
+      formatter: (value, ctx) => {
         return formatNumbers(value, 'y', formatType)
-      }
+      },
+      ...datalabelsConfig
     },
     tooltip: {
       enabled: true,
@@ -120,7 +124,13 @@ const ChartRenderer = (props: IChartProps) => {
           }
         }
       },
-      ...options, plugins
+      ...options, plugins,
+      elements: {
+        line: {
+          fill: true,
+          tension: 0.4
+        }
+      }
     },
   };
 

@@ -20,7 +20,8 @@ enum IChartType {
   RADAR = 'radar',
   POLARAREA = 'polarArea',
   TABLE = 'table',
-  NUMBER = 'number'
+  NUMBER = 'number',
+  PIVOTTABLE = 'pivotTable'
 }
 
 export interface IChartEdit {
