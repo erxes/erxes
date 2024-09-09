@@ -58,7 +58,7 @@ export const UI_ACTIONS = [
     label: 'Workflow',
     description:
       'Enroll in another workflow,  trigger outgoing webhook or write custom code',
-    isAvailable: true
+    isAvailable: false
   },
   {
     type: 'sendEmail',
