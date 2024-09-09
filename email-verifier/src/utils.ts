@@ -313,7 +313,7 @@ export const verifyOnMailsso = async (email: string, hostname: string) => {
   return body;
 };
 
-export const bulkMailsso = async (emails: string[], hostname: string) => {
+export const bulkMailsso = async (emails: string[], hostname?: string) => {
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
   const body = { emails };
   const redisKey = 'erxes_email_verifier_list_ids';

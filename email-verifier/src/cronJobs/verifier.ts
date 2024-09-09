@@ -2,12 +2,13 @@ import * as schedule from 'node-schedule';
 import { getBulkResult, getStatus } from '../apiPhoneVerifier';
 import { Emails } from '../models';
 import {
+  bulkMailsso,
   debugBase,
   debugCrons,
   getArray,
   getEnv,
   sendRequest,
-  setArray
+  setArray,
 } from '../utils';
 import fetch = require('node-fetch');
 
@@ -61,7 +62,7 @@ schedule.scheduleJob('2 * * * * *', async () => {
 
   // https://api.mails.so/v1/batch/${id}
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
-  for (const { listId, hostname } of listIds) {
+  for (const { listId, hostname = '' } of listIds) {
     const response = await fetch(`https://api.mails.so/v1/batch/${listId}`, {
       method: 'GET',
       headers: {
@@ -96,14 +97,41 @@ schedule.scheduleJob('2 * * * * *', async () => {
 
     await setArray('erxes_email_verifier_list_ids', unfinished);
 
-    debugBase(`Sending bulk email validation result to erxes-api`);
+    if (hostname.length) {
+      debugBase(`Sending bulk email validation result to erxes-api`);
 
-    await sendRequest({
-      url: `${hostname}/verifier/webhook`,
-      method: 'POST',
-      body: {
-        emails,
-      },
-    });
+      await sendRequest({
+        url: `${hostname}/verifier/webhook`,
+        method: 'POST',
+        body: {
+          emails,
+        },
+      });
+    }
+  }
+});
+
+schedule.scheduleJob('20 20 20 * * *', async () => {
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  const emailsCursor = await Emails.find({
+    verifiedAt: { $lt: oneMonthAgo },
+  }).cursor();
+
+  const BATCH_SIZE = 1000;
+
+  const batch = [];
+
+  for await (const email of emailsCursor) {
+    batch.push(email);
+    if (batch.length >= BATCH_SIZE) {
+      await bulkMailsso(batch);
+      batch.length = 0;
+    }
+  }
+
+  if (batch.length > 0) {
+    await bulkMailsso(batch);
   }
 });
