@@ -389,7 +389,7 @@ class Lead extends React.Component<Props, State> {
                 title={'Content'}
                 onClick={this.onStepClick}
               >
-                <FormStep
+              <FormStep
                   type={type}
                   color={color}
                   theme={theme}

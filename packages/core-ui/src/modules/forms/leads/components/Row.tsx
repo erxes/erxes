@@ -30,10 +30,10 @@ const Row = ({
   showCode,
 }) => {
   const manageAction = (form) => {
-    const { formId } = form;
+    
 
     return (
-      <Link to={`/forms/edit/${form._id}/${formId}`}>
+      <Link to={`/forms/leads/edit/${form._id}`}>
         <Button btnStyle='link'>
           <Tip text={__('Manage')} placement='top'>
             <Icon icon='edit-3' />
@@ -184,7 +184,7 @@ const Row = ({
       </td>
       <td>
         <RowTitle>
-          <Link to={`/forms/edit/${form._id}`}>{form.name}</Link>
+          <Link to={`/forms/leads/edit/${form._id}`}>{form.name}</Link>
         </RowTitle>
       </td>
       <td>

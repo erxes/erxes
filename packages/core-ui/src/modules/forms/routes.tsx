@@ -2,7 +2,13 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 import queryString from 'query-string';
 import React from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 
 const Properties = asyncComponent(
   () =>
@@ -22,8 +28,12 @@ const LeadsContainer = asyncComponent(
 const CreateLead = asyncComponent(
   () =>
     import(
-      /* webpackChunkName: "Forms - CreateLead" */ "./leads/containers/CreateLead"
+      /* webpackChunkName: "Forms - CreateLead" */ './leads/containers/CreateLead'
     )
+);
+
+const EditLead = asyncComponent(
+  () => import(/* webpackChunkName: "EditLead" */ './leads/containers/EditLead')
 );
 
 const Forms = () => {
@@ -41,7 +51,6 @@ const Leads = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = queryString.parse(location.search);
-  console.log("queryParams",queryParams)
 
   return (
     <LeadsContainer
@@ -59,12 +68,31 @@ const CreateLeadComponent = () => {
   return <CreateLead location={location} navigate={navigate} />;
 };
 
+const EditLeadComponent = () => {
+  const { contentTypeId, formId } = useParams();
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <EditLead
+      queryParams={queryParams}
+      formId={formId}
+      contentTypeId={contentTypeId}
+    />
+  );
+};
+
 const routes = () => (
   <Routes>
     <Route path='/settings/properties/' element={<PropertiesComp />} />
     <Route path='/forms/' element={<Forms />} />
     <Route path='/forms/leads/' element={<Leads />} />
-    <Route path='/forms/leads/create' element={<CreateLeadComponent/>} />
+    <Route path='/forms/leads/create' element={<CreateLeadComponent />} />
+    <Route
+      key='/forms/leads/edit/:contentTypeId?/:formId?'
+      path='/forms/leads/edit/:contentTypeId/:formId?'
+      element={<EditLeadComponent />}
+    />
   </Routes>
 );
 

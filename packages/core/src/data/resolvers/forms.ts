@@ -37,5 +37,9 @@ export default {
     }
 
     return models.Brands.findOne({ _id: form.brandId });
+  },
+
+  async tags(form: IFormDocument, _params, { models }: IContext) {
+    return models.Tags.find({ _id: { $in: form.tagIds || [] } }).lean()
   }
 };

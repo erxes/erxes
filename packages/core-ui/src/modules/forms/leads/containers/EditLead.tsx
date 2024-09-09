@@ -1,20 +1,16 @@
-import * as compose from "lodash.flowright";
-
-import { Alert, withProps } from "@erxes/ui/src/utils";
+import { Alert } from "@erxes/ui/src/utils";
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
   IIntegration,
   LeadIntegrationDetailQueryResponse,
 } from "@erxes/ui-inbox/src/settings/integrations/types";
-
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
 import { ConfigsQueryResponse } from "@erxes/ui-settings/src/general/types";
 import Lead from "../components/LeadForm";
 import React, { useEffect, useState } from "react";
-import { gql } from "@apollo/client";
-import { graphql } from "@apollo/client/react/hoc";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { isEnabled } from "@erxes/ui/src/utils/core";
-import { queries as settingsQueries } from "@erxes/ui-settings/src/general/graphql";
 import { useNavigate } from "react-router-dom";
 import { ILeadData } from "../../types";
 import queries from "../../queries";
@@ -26,15 +22,7 @@ type Props = {
   queryParams: any;
 };
 
-type FinalProps = {
-  integrationDetailQuery: LeadIntegrationDetailQueryResponse;
-  emailTemplatesQuery: any /*change type*/;
-  emailTemplatesTotalCountQuery: any /*change type*/;
-  configsQuery: ConfigsQueryResponse;
-} & Props &
-  EditIntegrationMutationResponse;
-
-const EditLeadContainer = (props: FinalProps) => {
+const EditLeadContainer = ({ contentTypeId, formId }: Props) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isReadyToSaveForm, setIsReadyToSaveForm] = useState(false);
@@ -51,6 +39,37 @@ const EditLeadContainer = (props: FinalProps) => {
     departmentIds?: string[];
   }>({} as any);
 
+  const { data: integrationDetailData, loading: integrationLoading } = useQuery<LeadIntegrationDetailQueryResponse>(
+    gql(queries.integrationDetail),
+    {
+      variables: { _id: contentTypeId },
+      fetchPolicy: "cache-and-network",
+    }
+  );
+
+  const { data: emailTemplatesTotalCountData } = useQuery(
+    gql(queries.templateTotalCount),
+    {
+      skip: !isEnabled('engages'),
+    }
+  );
+
+  const { data: emailTemplatesData } = useQuery(gql(queries.emailTemplates), {
+    skip: !isEnabled('engages') || !emailTemplatesTotalCountData,
+    variables: {
+      perPage: emailTemplatesTotalCountData?.emailTemplatesTotalCount || 0,
+    },
+  });
+
+  const { data: configsData } = useQuery<ConfigsQueryResponse>(gql(settingsQueries.configs));
+
+  const [editIntegrationMutation] = useMutation<
+    EditIntegrationMutationResponse,
+    EditIntegrationMutationVariables
+  >(gql(mutations.integrationsEditLeadIntegration), {
+    refetchQueries: ["leadIntegrations", "leadIntegrationCounts", "formDetail"],
+  });
+
   useEffect(() => {
     if (Object.keys(doc).length > 0) {
       afterFormDbSave();
@@ -63,8 +82,6 @@ const EditLeadContainer = (props: FinalProps) => {
     for (const key in mustWait) {
       if (mustWait[key]) {
         canClose = false;
-      } else {
-        canClose = true;
       }
     }
 
@@ -76,20 +93,11 @@ const EditLeadContainer = (props: FinalProps) => {
     }
   };
 
-  const {
-    formId,
-    integrationDetailQuery,
-    editIntegrationMutation,
-    emailTemplatesQuery,
-    configsQuery,
-  } = props;
-
-  if (integrationDetailQuery.loading) {
+  if (integrationLoading) {
     return false;
   }
 
-  const integration =
-    integrationDetailQuery.integrationDetail || ({} as IIntegration);
+  const integration = integrationDetailData?.integrationDetail || ({} as IIntegration);
 
   const afterFormDbSave = () => {
     const {
@@ -121,7 +129,6 @@ const EditLeadContainer = (props: FinalProps) => {
         setIsIntegrationSubmitted(true);
         redirect();
       })
-
       .catch((error) => {
         Alert.error(error.message);
 
@@ -142,8 +149,7 @@ const EditLeadContainer = (props: FinalProps) => {
   };
 
   const updatedProps = {
-    ...props,
-    integration: integration ? integration : ({} as any),
+    integration: integration || ({} as any),
     integrationId: integration._id,
     save,
     afterFormDbSave,
@@ -159,63 +165,11 @@ const EditLeadContainer = (props: FinalProps) => {
     isActionLoading: isLoading,
     isReadyToSaveForm: isReadyToSaveForm,
     isIntegrationSubmitted: isIntegrationSubmitted,
-    emailTemplates: emailTemplatesQuery
-      ? emailTemplatesQuery.emailTemplates || []
-      : [],
-    configs: configsQuery.configs || [],
+    emailTemplates: emailTemplatesData?.emailTemplates || [],
+    configs: configsData?.configs || [],
   };
 
   return <Lead {...updatedProps} currentMode="update" />;
 };
 
-const withTemplatesQuery = withProps<FinalProps>(
-  compose(
-    graphql<FinalProps>(gql(queries.emailTemplates), {
-      name: "emailTemplatesQuery",
-      options: ({ emailTemplatesTotalCountQuery }) => ({
-        variables: {
-          perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
-        },
-      }),
-      skip: !isEnabled("engages") ? true : false,
-    })
-  )(EditLeadContainer)
-);
-
-export default withProps<FinalProps>(
-  compose(
-    graphql(gql(queries.templateTotalCount), {
-      name: "emailTemplatesTotalCountQuery",
-      skip: !isEnabled("engages") ? true : false,
-    }),
-    graphql<Props, LeadIntegrationDetailQueryResponse, { _id: string }>(
-      gql(queries.integrationDetail),
-      {
-        name: "integrationDetailQuery",
-        options: ({ contentTypeId }) => ({
-          fetchPolicy: "cache-and-network",
-          variables: {
-            _id: contentTypeId,
-          },
-        }),
-      }
-    ),
-    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
-      name: "configsQuery",
-    }),
-    graphql<
-      Props,
-      EditIntegrationMutationResponse,
-      EditIntegrationMutationVariables
-    >(gql(mutations.integrationsEditLeadIntegration), {
-      name: "editIntegrationMutation",
-      options: {
-        refetchQueries: [
-          "leadIntegrations",
-          "leadIntegrationCounts",
-          "formDetail",
-        ],
-      },
-    })
-  )(withTemplatesQuery)
-);
+export default EditLeadContainer;
