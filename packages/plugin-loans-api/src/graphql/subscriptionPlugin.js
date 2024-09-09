@@ -1,7 +1,7 @@
 var { withFilter } = require('graphql-subscriptions');
 
 module.exports = {
-  name: 'cards',
+  name: 'loans',
   typeDefs: `
       loansContractChanged(_id: String!): LoanContract
       loansSchedulesChanged(contractId: String!): [LoanSchedule]
