@@ -258,75 +258,82 @@ export const verifyOnClearout = async (email: string, hostname: string) => {
 export const verifyOnMailsso = async (email: string, hostname: string) => {
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
   let body: any = {};
+  let status = EMAIL_VALIDATION_STATUSES.UNKNOWN;
 
   try {
-    fetch(`https://api.mails.so/v1/validate?email=${email}`, {
+    const response = await fetch(`https://api.mails.so/v1/validate?email=${email}`, {
       method: 'GET',
       headers: {
         'x-mails-api-key': MAILS_SO_KEY,
       },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const res = data.data;
+    });
 
-        if (res.result !== 'deliverable') {
-          debugBase(`successfully clearout:`, email, ' status: ', res.result);
+    const data = await response.json();
+    const res = data.data;
 
-          body = {
-            email: { email, status: EMAIL_VALIDATION_STATUSES.INVALID },
-            source: EMAIL_VALIDATION_SOURCES.MAILSSO,
-          };
-        }
+    if (res.result !== 'deliverable') {
+      debugBase(`successfully clearout:`, email, ' status: ', res.result);
 
-        debugBase(`successfully verified:`, email, ' status: ', data.status);
+      body = {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.INVALID },
+        source: EMAIL_VALIDATION_SOURCES.MAILSSO,
+      };
 
-        body = {
-          email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
-          source: EMAIL_VALIDATION_SOURCES.MAILSSO,
-        };
-      })
-      .catch((error) => {
-        debugBase(
-          `Error occured during single mail validation`,
-          email,
-          ' error',
-          error
-        );
+      status = EMAIL_VALIDATION_STATUSES.INVALID;
+    } else {
+      debugBase(`successfully verified:`, email, ' status: ', res.result);
 
-        body = {
-          email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
-          source: EMAIL_VALIDATION_SOURCES.MAILSSO,
-        };
-      });
-  } catch (e) {
-    debugError(`Error occured during single mail validation ${e.message}`);
+      body = {
+        email: { email, status: EMAIL_VALIDATION_STATUSES.VALID },
+        source: EMAIL_VALIDATION_SOURCES.MAILSSO,
+      };
+
+      status = EMAIL_VALIDATION_STATUSES.VALID;
+    }
+  } catch (error) {
+    debugBase(`Error occurred during single mail validation`, email, ' error:', error);
+
     body = {
       email: { email, status: EMAIL_VALIDATION_STATUSES.UNKNOWN },
       source: EMAIL_VALIDATION_SOURCES.MAILSSO,
     };
   }
 
-  Emails.createEmail(body.email);
-  return sendRequest({
-    url: `${hostname}/verifier/webhook`,
-    method: 'POST',
-    body,
-  });
+  try {
+    await Emails.createEmail({ email, status });
+    await sendRequest({
+      url: `${hostname}/verifier/webhook`,
+      method: 'POST',
+      body,
+    });
+  } catch (e) {
+    debugError(`Error occurred during request sending: ${e.message}`);
+  }
+
+  return body;
 };
 
 export const bulkMailsso = async (emails: string[], hostname: string) => {
   const MAILS_SO_KEY = getEnv({ name: 'MAILS_SO_KEY' });
+  const body = { emails };
+  const redisKey = 'erxes_email_verifier_list_ids';
+
   fetch('https://api.mails.so/v1/batch', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-mails-api-key': MAILS_SO_KEY,
     },
-    body: JSON.stringify(emails),
+    body: JSON.stringify(body),
   })
     .then((response) => response.json())
-    .then((result) => console.log(result))
+    .then(async (result) => {
+      const listIds = await getArray(redisKey);
+
+      listIds.push({ listId: result.id, hostname });
+
+      setArray(redisKey, listIds);
+    })
     .catch((error) => console.error('Error:', error));
 };
 

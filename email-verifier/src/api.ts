@@ -37,7 +37,13 @@ export const single = async (email: string, hostname: string) => {
     return { email, status: EMAIL_VALIDATION_STATUSES.INVALID };
   }
 
-  const emailOnDb = await Emails.findOne({ email });
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  const emailOnDb = await Emails.findOne({
+    email,
+    verifiedAt: { $gt: oneMonthAgo },
+  });
 
   if (emailOnDb) {
     debugBase(`This email is already verified`, email);
@@ -67,7 +73,13 @@ export const bulk = async (emails: string[], hostname: string) => {
     defaultValue: 'mailsso',
   });
 
-  const emailsOnDb = await Emails.find({ email: { $in: emails } });
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+  const emailsOnDb = await Emails.find({
+    email: { $in: emails },
+    verifiedAt: { $gt: oneMonthAgo },
+  });
 
   const emailsMap: Array<{ email: string; status: string }> = emailsOnDb.map(
     ({ email, status }) => ({
