@@ -2836,7 +2836,7 @@ export const dealCharts = [
         templateType: "DealsTotalCount",
         serviceType: 'cards',
         name: 'Total Deals Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', 'pivotTable'],
         getChartResult: async (
             models: IModels,
             filter: any,
@@ -2847,6 +2847,8 @@ export const dealCharts = [
 
             const pipeline = buildPipeline(filter, "deal", matchFilter)
             const deals = await models.Deals.aggregate(pipeline)
+
+            console.log("deals", deals)
 
             const title = 'Total Deals Count';
 

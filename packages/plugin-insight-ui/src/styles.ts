@@ -741,6 +741,17 @@ const ChartTable = styled(Table)`
   }
 `;
 
+const PivotTable = styled(Table)`
+  tr:first-child {
+
+    th:last-child {
+      text-align: left;
+      padding: 8px 18px 8px 0;
+    }
+  }
+`;
+
+
 export {
   DragField,
   ChartTitle,
@@ -766,5 +777,6 @@ export {
   ControlRange,
   DateRangeWrapper,
   Divider,
-  ChartTable
+  ChartTable,
+  PivotTable
 };
