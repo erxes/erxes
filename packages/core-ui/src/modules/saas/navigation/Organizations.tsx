@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Add, Container, ExistingOrg, List } from "./styles";
 
-import { Divider } from "@erxes/ui-cards/src/boards/styles/stage";
+import { Divider } from "@erxes/ui-sales/src/boards/styles/stage";
 import { IUserOrganization } from "@erxes/ui/src/auth/types";
 import Icon from "modules/common/components/Icon";
 import { __ } from "modules/common/utils";
@@ -24,7 +24,7 @@ class Organizations extends React.PureComponent<Props> {
   getCurrentOrganizationName() {
     const { organizations } = this.props;
     const current = organizations.filter(
-      (o) => o.subdomain === this.getDomain()
+      o => o.subdomain === this.getDomain()
     )[0];
 
     return current && current.name;
@@ -49,7 +49,7 @@ class Organizations extends React.PureComponent<Props> {
           <span>{__("Create or switch organization")}</span>
         </ExistingOrg>
         <List>
-          {organizations.map((o) => {
+          {organizations.map(o => {
             const isCurrent = o.subdomain === this.getDomain();
             return (
               <li key={Math.random()} className={isCurrent ? "active" : ""}>

@@ -12,6 +12,7 @@ query GolomtBankConfigsList($page: Int, $perPage: Int) {
         configPassword
         accountId
         golomtCode
+        apiUrl
       }
       totalCount
     }
@@ -19,5 +20,5 @@ query GolomtBankConfigsList($page: Int, $perPage: Int) {
 `;
 
 export default {
-  listQuery,
+  listQuery
 };

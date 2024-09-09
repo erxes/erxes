@@ -1,0 +1,89 @@
+version: "3"
+services:
+  mongo:
+    hostname: mongo
+    image: mongo:4.0.20
+    container_name: mongo
+    ports:
+      - "127.0.0.1:27017:27017"
+    healthcheck:
+      test: test $$(echo "rs.initiate().ok || rs.status().ok" | mongo --quiet) -eq 1
+      interval: 2s
+      timeout: 2s
+      retries: 200
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    # All erxes database will be saved into mounted directory below. <<IF YOU DELETE THIS MOUNTED DIRECTORY ALL OF YOUR ERXES DATA WILL BE LOST SO BE CAUTIOUS>>
+    volumes:
+      - ./data/db:/data/db
+    networks:
+      - erxes-net
+
+  redis:
+    image: "redis"
+    container_name: redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - erxes-net
+
+  rabbitmq:
+    image: rabbitmq:3.7.17-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    hostname: rabbitmq
+    ports:
+      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:5672:5672"
+    networks:
+      - erxes-net
+    volumes:
+      - ./rabbitmq-data:/var/lib/rabbitmq
+
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.13.0-arm64"
+    container_name: "elasticsearch"
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 32768
+        hard: 65536
+    ports:
+      - "127.0.0.1:9200:9200"
+    networks:
+      - erxes-net
+    volumes:
+      - ./elasticsearchData:/usr/share/elasticsearch/data
+
+  kibana:
+    image: "docker.elastic.co/kibana/kibana:7.13.0-arm64"
+    container_name: "kibana"
+    depends_on:
+      - "elasticsearch"
+    ports:
+      - "127.0.0.1:5601:5601"
+    networks:
+      - erxes-net
+
+  essyncer:
+    container_name: essyncer
+    image: "erxes/essyncer:dev"
+    environment:
+      DB_NAME: "erxes"
+      ELASTICSEARCH_URL: "http://elasticsearch:9200"
+      MONGO_URL: "mongodb://mongo:27017/erxes?replicaSet=rs0"
+    depends_on:
+      - "mongo"
+      - "elasticsearch"
+    volumes:
+      - "./essyncerData:/data/essyncerData"
+    tty: true
+    networks:
+      - "erxes-net"
+
+networks:
+  erxes-net:
+    driver: bridge

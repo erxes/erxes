@@ -1,13 +1,13 @@
-import { ActivityLogContent, NoteFormContainer } from './styles';
+import { ActivityLogContent, NoteFormContainer } from "./styles";
 
-import ActivityList from '@erxes/ui-log/src/activityLogs/components/ActivityList';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import { hasAnyActivity } from '@erxes/ui-inbox/src/inbox/utils';
+import ActivityList from "@erxes/ui-log/src/activityLogs/components/ActivityList";
+import DataWithLoader from "@erxes/ui/src/components/DataWithLoader";
+import { ICustomer } from "@erxes/ui-contacts/src/customers/types";
+import { IUser } from "@erxes/ui/src/auth/types";
+import NoteForm from "@erxes/ui-internalnotes/src/containers/Form";
+import React from "react";
+import { __ } from "coreui/utils";
+import { hasAnyActivity } from "@erxes/ui-inbox/src/inbox/utils";
 
 type Props = {
   customer: ICustomer;
@@ -32,11 +32,8 @@ class SidebarActivity extends React.Component<Props> {
     return (
       <>
         <NoteFormContainer>
-          <span>{__('Add a note') as string}:</span>
-          <NoteForm
-            contentType="contacts:customer"
-            contentTypeId={customer._id}
-          />
+          <span>{__("Add a note") as string}:</span>
+          <NoteForm contentType="core:customer" contentTypeId={customer._id} />
         </NoteFormContainer>
 
         <ActivityLogContent isEmpty={!hasActivity}>

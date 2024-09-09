@@ -1,53 +1,53 @@
-const { generateModels } = require('../connectionResolver.js');
+const { generateModels } = require("../connectionResolver.js");
 
-const switchContentType = (contentType) => {
+const switchContentType = contentType => {
   let changedContentType = contentType;
 
   switch (contentType) {
-    case 'deal':
+    case "deal":
       changedContentType = `cards:${contentType}`;
       break;
-    case 'purchase':
-      changedContentType = `cards:${contentType}`;
-      break;
-
-    case 'task':
+    case "purchase":
       changedContentType = `cards:${contentType}`;
       break;
 
-    case 'ticket':
+    case "task":
       changedContentType = `cards:${contentType}`;
       break;
 
-    case 'userMessages':
+    case "ticket":
+      changedContentType = `cards:${contentType}`;
+      break;
+
+    case "userMessages":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'conversation':
+    case "conversation":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'customerMessages':
+    case "customerMessages":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'popupSubmitted':
+    case "popupSubmitted":
       changedContentType = `inbox:${contentType}`;
       break;
 
-    case 'engageMessages':
+    case "engageMessages":
       changedContentType = `engages:${contentType}`;
       break;
 
-    case 'customer':
-      changedContentType = `contacts:${contentType}`;
+    case "customer":
+      changedContentType = `core:${contentType}`;
       break;
 
-    case 'company':
-      changedContentType = `contacts:${contentType}`;
+    case "company":
+      changedContentType = `core:${contentType}`;
       break;
 
-    case 'knowledgeBaseArticle':
+    case "knowledgeBaseArticle":
       changedContentType = `knowledgebase:${contentType}`;
       break;
   }
@@ -56,7 +56,7 @@ const switchContentType = (contentType) => {
 };
 
 const command = async () => {
-  const models = await generateModels('os');
+  const models = await generateModels("os");
 
   const webhooks = await models.Webhooks.find({});
 

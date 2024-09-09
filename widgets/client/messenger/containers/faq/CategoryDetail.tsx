@@ -7,10 +7,7 @@ import { useRouter } from '../../context/Router';
 import { getMessengerData } from '../../utils/util';
 
 const CategoryDetail = ({ loading }: { loading: boolean }) => {
-  const { setRoute, activeFaqCategory } = useRouter();
-  const goToCategories = () => {
-    setRoute('conversationList');
-  };
+  const { activeFaqCategory } = useRouter();
 
   const categoryId = activeFaqCategory && activeFaqCategory._id;
 
@@ -27,7 +24,6 @@ const CategoryDetail = ({ loading }: { loading: boolean }) => {
   );
 
   const extendedProps = {
-    goToCategories,
     topicId,
     category: data?.knowledgeBaseCategoryDetail,
     loading: loading || loadingFaqCategoy,

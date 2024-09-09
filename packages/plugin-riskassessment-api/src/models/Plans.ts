@@ -1,14 +1,21 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
-import { Model } from 'mongoose';
-import { PLAN_STATUSES } from '../common/constants';
-import { validatePlan } from '../common/validateDoc';
-import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendFormsMessage } from '../messageBroker';
+import { IUserDocument } from "@erxes/api-utils/src/types";
+import { Model } from "mongoose";
+import { PLAN_STATUSES } from "../common/constants";
+import { validatePlan } from "../common/validateDoc";
+import { IModels } from "../connectionResolver";
+import {
+  sendCardsMessage,
+  sendCoreMessage,
+  sendPurchasesMessage,
+  sendSalesMessage,
+  sendTasksMessage,
+  sendTicketsMessage
+} from "../messageBroker";
 import {
   IPlansDocument,
   ISchedulesDocument,
   plansSchema
-} from './definitions/plan';
+} from "./definitions/plan";
 export interface IPlansModel extends Model<IPlansDocument> {
   addPlan(doc, user): Promise<IPlansDocument>;
   editPlan(_id, doc): Promise<IPlansDocument>;
@@ -35,7 +42,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
 
     public static async editPlan(_id, doc) {
       if (!(await models.Plans.findOne({ _id }))) {
-        throw new Error('Not Found');
+        throw new Error("Not Found");
       }
 
       return await models.Plans.updateOne(
@@ -53,14 +60,51 @@ export const loadPlans = (models: IModels, subdomain: string) => {
 
       for (const plan of plans) {
         if (plan.status === PLAN_STATUSES.ARCHIVED && !!plan?.cardIds?.length) {
-          await sendCardsMessage({
-            subdomain,
-            action: `${plan?.configs?.cardType}s.remove`,
-            data: {
-              _ids: plan.cardIds
-            },
-            isRPC: true
-          });
+          switch (plan.configs.cardType) {
+            case "deal":
+              await sendSalesMessage({
+                subdomain,
+                action: "deal.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+            case "ticket":
+              await sendTicketsMessage({
+                subdomain,
+                action: "tickets.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+            case "task":
+              await sendTasksMessage({
+                subdomain,
+                action: "tasks.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+
+            case "purchase":
+              await sendPurchasesMessage({
+                subdomain,
+                action: "purchases.remove",
+                data: {
+                  _ids: plan.cardIds
+                },
+                isRPC: true
+              });
+              break;
+            default:
+              break;
+          }
         }
       }
 
@@ -70,7 +114,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
     public static async duplicatePlan(planId: string, user: IUserDocument) {
       const plan = await models.Plans.findOne({ _id: planId }).lean();
       if (!plan) {
-        throw new Error('Not Found');
+        throw new Error("Not Found");
       }
 
       const schedules = await models.Schedules.find({
@@ -125,13 +169,13 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       });
 
       if (!plan) {
-        throw new Error('not found');
+        throw new Error("not found");
       }
 
       const { startDate, closeDate, configs, plannerId, structureType } = plan;
 
       if (!configs?.cardType && !configs?.stageId) {
-        throw new Error('Please provide a specify cards configuration');
+        throw new Error("Please provide a specify cards configuration");
       }
 
       const schedules = await models.Schedules.find({
@@ -139,7 +183,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       });
 
       if (!schedules?.length) {
-        throw new Error('You must add at least one schedule in plan');
+        throw new Error("You must add at least one schedule in plan");
       }
 
       const commonDoc = {
@@ -160,16 +204,16 @@ export const loadPlans = (models: IModels, subdomain: string) => {
         };
 
         if (schedule.customFieldsData) {
-          itemDoc.customFieldsData = await sendFormsMessage({
+          itemDoc.customFieldsData = await sendCoreMessage({
             subdomain,
-            action: 'fields.prepareCustomFieldsData',
+            action: "fields.prepareCustomFieldsData",
             data: schedule.customFieldsData,
             isRPC: true,
             defaultValue: schedule.customFieldsData
           });
         }
 
-        if (['branch', 'department'].includes(structureType)) {
+        if (["branch", "department"].includes(structureType)) {
           itemDoc[`${structureType}Ids`] = schedule?.structureTypeId
             ? [schedule.structureTypeId]
             : [];
@@ -187,7 +231,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
           cardType: configs.cardType,
           cardId: newItem._id,
           indicatorId: schedule.indicatorId,
-          [`${structureType}Id`]: schedule.structureTypeId || ''
+          [`${structureType}Id`]: schedule.structureTypeId || ""
         });
 
         newItemIds = [...newItemIds, newItem?._id];
@@ -203,7 +247,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       const plan = models.Plans.findOne({ _id: planId });
 
       if (!plan) {
-        throw new Error('Cannot find schedule');
+        throw new Error("Cannot find schedule");
       }
 
       return await models.Schedules.create({ planId, ...doc });
@@ -213,12 +257,12 @@ export const loadPlans = (models: IModels, subdomain: string) => {
       const { _id, planId, ...doc } = args;
 
       const updatedSchedule = await models.Schedules.findOneAndUpdate(
-        { _id, planId, status: 'Waiting' },
+        { _id, planId, status: "Waiting" },
         { $set: { ...doc } }
       );
 
       if (!updatedSchedule) {
-        throw new Error('Could not update schedule');
+        throw new Error("Could not update schedule");
       }
 
       return updatedSchedule;
@@ -229,7 +273,7 @@ export const loadPlans = (models: IModels, subdomain: string) => {
 
     public static async bulkUpdateSchedules(datas) {
       if (!datas?.length) {
-        throw new Error('Could not update schedules without schedules data');
+        throw new Error("Could not update schedules without schedules data");
       }
 
       let updateOperations: any[] = [];

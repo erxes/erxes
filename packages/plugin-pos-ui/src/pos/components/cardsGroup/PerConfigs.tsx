@@ -1,10 +1,10 @@
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-sales/src/boards/containers/BoardSelect";
 import {
   Button,
   CollapseContent,
   ControlLabel,
   FormControl,
-  FormGroup,
+  FormGroup
 } from "@erxes/ui/src/components";
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
@@ -27,32 +27,32 @@ const PerConfigs = (props: Props) => {
   const [config, setConfig] = useState<any>(props.config);
   const [hasOpen, setHasOpen] = useState<boolean>(false);
 
-  const onChangeBranch = (branchId) => {
-    setConfig((prevConfig) => ({ ...prevConfig, branchId }));
+  const onChangeBranch = branchId => {
+    setConfig(prevConfig => ({ ...prevConfig, branchId }));
   };
 
-  const onChangeAsssignedUserIds = (assignedUserIds) => {
-    setConfig((prevConfig) => ({ ...prevConfig, assignedUserIds }));
+  const onChangeAsssignedUserIds = assignedUserIds => {
+    setConfig(prevConfig => ({ ...prevConfig, assignedUserIds }));
   };
 
   const onChangeBoard = (boardId: string) => {
-    setConfig((prevConfig) => ({ ...prevConfig, boardId }));
+    setConfig(prevConfig => ({ ...prevConfig, boardId }));
   };
 
   const onChangePipeline = (pipelineId: string) => {
-    setConfig((prevConfig) => ({ ...prevConfig, pipelineId }));
+    setConfig(prevConfig => ({ ...prevConfig, pipelineId }));
   };
 
   const onChangeStage = (stageId: string) => {
-    setConfig((prevConfig) => ({ ...prevConfig, stageId }));
+    setConfig(prevConfig => ({ ...prevConfig, stageId }));
   };
 
-  const onMapCustomFieldChange = (option) => {
+  const onMapCustomFieldChange = option => {
     const value = !option ? "" : option.value.toString();
-    setConfig((prevConfig) => ({ ...prevConfig, mapCustomField: value }));
+    setConfig(prevConfig => ({ ...prevConfig, mapCustomField: value }));
   };
 
-  const onSave = (e) => {
+  const onSave = e => {
     e.preventDefault();
 
     if (!config.branchId) {
@@ -62,25 +62,25 @@ const PerConfigs = (props: Props) => {
     save(configKey, config);
   };
 
-  const onDelete = (e) => {
+  const onDelete = e => {
     e.preventDefault();
 
     props.delete(configKey);
   };
 
-  const onChangeInput = (e) => {
+  const onChangeInput = e => {
     const name = e.target.name;
     const value = e.target.value;
 
-    setConfig((prevConfig) => ({
+    setConfig(prevConfig => ({
       ...prevConfig,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  const mapFieldOptions = (fieldsCombined || []).map((f) => ({
+  const mapFieldOptions = (fieldsCombined || []).map(f => ({
     value: f.name,
-    label: f.label,
+    label: f.label
   }));
 
   return (
@@ -135,7 +135,7 @@ const PerConfigs = (props: Props) => {
         <ControlLabel>{__("Choose map field")}</ControlLabel>
         <Select
           name="deliveryMapField"
-          value={mapFieldOptions.find((o) => o.value === config.mapCustomField)}
+          value={mapFieldOptions.find(o => o.value === config.mapCustomField)}
           onChange={onMapCustomFieldChange}
           isClearable={true}
           options={mapFieldOptions}

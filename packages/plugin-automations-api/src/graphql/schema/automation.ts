@@ -1,17 +1,13 @@
-export const types = ({ tags }) => `
+export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
-    ${
-      tags
-        ? `
+
       extend type Tag @key(fields: "_id") {
         _id: String! @external
       }
-    `
-        : ''
-    }
+
 
   type Trigger {
     id: String
@@ -55,7 +51,7 @@ export const types = ({ tags }) => `
     createdUser: User
     updatedUser: User
 
-    ${tags ? `tags: [Tag]` : ''}
+    tags: [Tag]
   }
 
   type AutomationNote {

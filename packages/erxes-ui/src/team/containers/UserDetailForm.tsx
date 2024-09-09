@@ -22,7 +22,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   _id: string;
-  queryParams: any;
+  queryParams: Record<string, string>;
   renderEditForm?: ({
     closeModal,
     user,

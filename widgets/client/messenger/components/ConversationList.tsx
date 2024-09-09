@@ -1,10 +1,32 @@
 import * as React from 'react';
-import { iconPlus, iconSearch } from '../../icons/Icons';
 import { __ } from '../../utils';
 import ConversationItem from '../containers/ConversationItem';
 import { IConversation } from '../types';
 import Button from './common/Button';
 import Container from './common/Container';
+
+const IconMessage = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="33"
+    height="32"
+    fill="none"
+    viewBox="0 0 33 32"
+  >
+    <path
+      fill="#000"
+      fillRule="evenodd"
+      d="M27.333 2.667a2.5 2.5 0 0 1 2.5 2.5v23.778c0 1.335-1.613 2.005-2.558 1.063L21.245 24H5.667a2.5 2.5 0 0 1-2.5-2.5V5.167a2.5 2.5 0 0 1 2.5-2.5z"
+      clipRule="evenodd"
+    ></path>
+    <path
+      fill="#fff"
+      fillRule="evenodd"
+      d="M23 9.667a1 1 0 0 1 0 2H9.667a1 1 0 1 1 0-2zm-6 6.666a1 1 0 1 1 0 2h-6.667a1 1 0 0 1 0-2z"
+      clipRule="evenodd"
+    ></path>
+  </svg>
+);
 
 const IconChevronRight = () => (
   <svg
@@ -33,94 +55,47 @@ type Props = {
 
 function ConversationList(props: Props) {
   const {
-    conversations,
+    conversations: conversationList,
     goToConversation,
     loading,
     createConversation,
-    goToHome,
   } = props;
 
-  const [searchValue, setSearchValue] = React.useState<string>('');
-  const [conversationList, setConversationList] = React.useState<
-    IConversation[]
-  >([]);
-
-  React.useEffect(() => {
-    if (!loading) {
-      setConversationList(conversations);
-    }
-
-    if (searchValue) {
-      setConversationList((result) =>
-        result.filter(
-          (conv) =>
-            conv.content
-              .toString()
-              .toLowerCase()
-              .indexOf(searchValue.toLowerCase()) > -1
-        )
+  const renderList = () => {
+    if (conversationList.length === 0) {
+      return (
+        <div className="conversation-list-empty-container">
+          <IconMessage />
+          <h2>{__('No messages')}</h2>
+          <span>{__('Messages from the team will be shown here')}</span>
+        </div>
       );
     }
-  }, [searchValue, loading, conversations]);
-
-  const createButton = () => {
     return (
-      <ul className="erxes-last-section">
-        <li onClick={createConversation} className="erxes-create-btn">
-          <span>{iconPlus}</span>
-          <span className="erxes-start-text">
-            {__('Start new conversation')}
-          </span>
-        </li>
+      <ul className="conversation-list-wrapper">
+        {conversationList.map((conversation) => (
+          <ConversationItem
+            key={conversation._id}
+            conversation={conversation}
+            goToConversation={goToConversation}
+          />
+        ))}
       </ul>
-    );
-  };
-
-  const searchButton = () => {
-    return (
-      <li className="erxes-list-item">
-        <div className="erxes-left-side">
-          <span>{iconSearch}</span>
-        </div>
-        <div className="erxes-right-side">
-          <div className="erxes-name">
-            <input
-              type="text"
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search for a conversation..."
-              value={searchValue}
-            />
-          </div>
-        </div>
-      </li>
     );
   };
 
   return (
     <Container
       withBottomNavBar={false}
-      title="Messages"
+      title={__('Messages')}
       persistentFooter={
         <Button icon={<IconChevronRight />} full onClick={createConversation}>
-          <span className="font-semibold">Send us a message</span>
+          <span className="font-semibold">{__('Send us a message')}</span>
         </Button>
       }
     >
       <div className="conversation-list-container">
-        {loading ? (
-          <div className="loader" />
-        ) : (
-          <ul className="conversation-list-wrapper">
-            {/* {searchButton()} */}
-            {conversationList.map((conversation) => (
-              <ConversationItem
-                key={conversation._id}
-                conversation={conversation}
-                goToConversation={goToConversation}
-              />
-            ))}
-          </ul>
-        )}
+        {loading ? <div className="loader" /> : renderList()}
       </div>
     </Container>
   );

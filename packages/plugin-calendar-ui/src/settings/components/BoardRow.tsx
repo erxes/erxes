@@ -1,15 +1,15 @@
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import BoardForm from './BoardForm';
-import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { IBoard } from '../types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import BoardForm from "./BoardForm";
+import { BoardItem } from "@erxes/ui-sales/src/settings/boards/styles";
+import Button from "@erxes/ui/src/components/Button";
+import { IBoard } from "../types";
+import { IButtonMutateProps } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import Tip from "@erxes/ui/src/components/Tip";
+import { __ } from "coreui/utils";
 
 type Props = {
   board: IBoard;
@@ -60,7 +60,7 @@ class BoardRow extends React.Component<Props, {}> {
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text={__('Delete')} placement="bottom">
+          <Tip text={__("Delete")} placement="bottom">
             <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>

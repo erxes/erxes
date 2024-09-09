@@ -17,8 +17,8 @@ const items = [
     route: 'home',
   },
   { icon: IconChat, route: 'allConversations' },
-  { icon: IconPhone, route: 'call' },
-  { icon: IconTicket, route: 'ticket' },
+  // { icon: IconPhone, route: 'call' },
+  // { icon: IconTicket, route: 'ticket' },
   {
     label: 'Help',
     icon: IconQuestionMark,
@@ -28,10 +28,10 @@ const items = [
 ];
 
 function BottomNavBar() {
-  const { setRoute, activeRoute } = useRouter();
+  const { setActiveRoute, activeRoute } = useRouter();
 
   const handleItemClick = (route: string) => (e: React.MouseEvent) => {
-    setRoute(route);
+    setActiveRoute(route);
   };
 
   const isItemActive = (item: {
@@ -46,24 +46,22 @@ function BottomNavBar() {
   };
 
   return (
-    <m.div style={{ transition: '1s ease-out', transitionProperty: 'all' }}>
-      <ul className="nav-container nav-list">
-        {items.map((item) => {
-          const { route, additionalRoutes } = item;
-          const isActive = additionalRoutes
-            ? additionalRoutes.includes(activeRoute) || activeRoute === route
-            : activeRoute === route;
-          return (
-            <Item
-              key={route}
-              isActive={isItemActive(item)}
-              handleClick={handleItemClick}
-              {...item}
-            />
-          );
-        })}
-      </ul>
-    </m.div>
+    // <m.div style={{ transition: '1s ease-out', transitionProperty: 'all' }}>
+    <ul className="nav-container nav-list">
+      {items.map((item) => {
+        const { route } = item;
+
+        return (
+          <Item
+            key={route}
+            isActive={isItemActive(item)}
+            handleClick={handleItemClick}
+            {...item}
+          />
+        );
+      })}
+    </ul>
+    // </m.div>
   );
 }
 

@@ -1,8 +1,8 @@
 import {
   conformityQueryFieldDefs,
-  conformityQueryFields,
-} from '@erxes/ui-cards/src/conformity/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+  conformityQueryFields
+} from "@erxes/ui-sales/src/conformity/graphql/queries";
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const carCategoryFields = `
   _id
@@ -143,10 +143,7 @@ export const carDetail = `
   query carDetail($_id: String!) {
     carDetail(_id: $_id) {
       ${carFields}
-      ${
-        isEnabled('contacts')
-          ? `
-            customers {
+      customers {
               _id
               firstName
               lastName
@@ -157,10 +154,7 @@ export const carDetail = `
               _id
               primaryName
               website
-            }
-            `
-          : ``
-      }
+     }
       attachment {
         url
         name
@@ -187,5 +181,5 @@ export default {
   carCategories,
   carCategoriesCount,
   carCategoryDetail,
-  carCountByTags,
+  carCountByTags
 };

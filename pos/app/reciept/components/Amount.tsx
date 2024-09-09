@@ -28,7 +28,7 @@ const Amount = () => {
 
   return (
     <div className="font-base text-[11px]">
-      <div className="flex items-center justify-between border-t  font-semibold">
+      <div className="flex items-center justify-between border-t font-semibold pt-1">
         <p>Нийт үнэ</p>
         <p>{formatNum(total)}</p>
       </div>

@@ -1,5 +1,6 @@
+import { IFacebookComment, IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -295,6 +296,11 @@ export type ConversationsTotalCountQueryResponse = {
 export type UnreadConversationsTotalCountQueryResponse = {
   conversationsTotalUnreadCount: number;
   subscribeToMore: (variables) => void;
+} & QueryResponse;
+
+export type FacebookCommentsQueryResponse = {
+  facebookGetComments: IFacebookComment[];
+  fetchMore: (variables) => void;
 } & QueryResponse;
 
 export type EditCustomFieldsMutationVariables = {

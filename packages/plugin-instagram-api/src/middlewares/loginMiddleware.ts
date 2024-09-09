@@ -28,8 +28,7 @@ const loginMiddleware = async (req, res) => {
   const conf = {
     client_id: INSTAGRAM_APP_ID,
     client_secret: INSTAGRAM_APP_SECRET,
-
-    scope: `${INSTAGRAM_PERMISSIONS},instagram_manage_comments,instagram_basic,instagram_manage_messages,business_management`,
+    scope: `${INSTAGRAM_PERMISSIONS},instagram_manage_comments,instagram_basic,instagram_manage_messages`,
     redirect_uri: INSTAGRAM_LOGIN_REDIRECT_URL
   };
 

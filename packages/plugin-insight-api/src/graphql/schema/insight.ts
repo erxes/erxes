@@ -1,17 +1,11 @@
-export const types = (tagsAvailable) => `
+export const types = `
 
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
 
-  ${
-  tagsAvailable
-    ? `
-      extend type Tag @key(fields: "_id"){
-        _id: String! @external
-      }
-    `
-    : ``
+  extend type Tag @key(fields: "_id"){
+    _id: String! @external
   }
 
   enum VisibilityType {
@@ -99,7 +93,7 @@ export const types = (tagsAvailable) => `
       tagIds: [String]
 
       members: [User]
-      ${tagsAvailable ? 'tags: [Tag]' : ''}
+      tags: [Tag]
       charts: [Chart]
       chartsCount: Int
   
@@ -151,7 +145,8 @@ export const types = (tagsAvailable) => `
     list: [JSON]
     listCount: Int
     },
-      type SectionListResponse {
+      
+    type SectionListResponse {
       list: [Section],
       listCount: Int,
     }

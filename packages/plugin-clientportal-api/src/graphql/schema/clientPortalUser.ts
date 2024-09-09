@@ -1,7 +1,7 @@
 import {
   attachmentInput,
-  attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
 
 export const types = (isContactsEnabled: boolean) => `
 ${attachmentType}
@@ -18,7 +18,7 @@ ${
         _id: String! @external
       }
       `
-    : ''
+    : ""
 }
 
 type VerificationRequest {
@@ -96,7 +96,7 @@ type TwoFactorDevice {
         customer: Customer
         company: Company
       `
-        : ''
+        : ""
     }
     twoFactorDevices:[TwoFactorDevice]
   }
@@ -119,7 +119,7 @@ type TwoFactorDevice {
         ? `
         company: Company
       `
-        : ''
+        : ""
     }
   }
 

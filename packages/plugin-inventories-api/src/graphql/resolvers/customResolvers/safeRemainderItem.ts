@@ -1,6 +1,6 @@
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
-import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
+import { IContext } from "../../../connectionResolver";
+import { sendProductsMessage } from "../../../messageBroker";
+import { ISafeRemainderItemDocument } from "../../../models/definitions/safeRemainderItems";
 
 export default {
   async product(
@@ -10,7 +10,7 @@ export default {
   ) {
     return sendProductsMessage({
       subdomain,
-      action: 'findOne',
+      action: "productFindOne",
       data: {
         _id: safeRemainderItem.productId
       },

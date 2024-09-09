@@ -1,9 +1,9 @@
 import {
   attachmentInput,
-  attachmentType,
-} from '@erxes/api-utils/src/commonTypeDefs';
+  attachmentType
+} from "@erxes/api-utils/src/commonTypeDefs";
 
-export const types = ({ tags, forms, contacts, dailyco, calls }) => `
+export const types = ({ contacts, dailyco, calls }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -17,15 +17,11 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
     _id: String! @external
   }
 
-  ${
-    tags
-      ? `
-      extend type Tag @key(fields: "_id") {
+
+  extend type Tag @key(fields: "_id") {
         _id: String! @external
-      }
-    `
-      : ''
   }
+        
 
   ${
     dailyco
@@ -37,7 +33,7 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
         recordingLinks: [String]
       }
     `
-      : ''
+      : ""
   }
 
   ${
@@ -60,7 +56,7 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
         recordUrl: String
       }
     `
-      : ''
+      : ""
   }
 
   extend type User @key(fields: "_id") {
@@ -88,15 +84,15 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
     messages: [ConversationMessage]
     callProAudio: String
     
-    ${tags ? 'tags: [Tag]' : ''}
-    ${contacts ? 'customer: Customer' : ''}
+    tags: [Tag]
+    ${contacts ? "customer: Customer" : ""}
     integration: Integration
     user: User
     assignedUser: User
     participatedUsers: [User]
     participatorCount: Int
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
-    ${calls ? 'callHistory: CallHistoryData' : ''}
+    ${dailyco ? "videoCallData: VideoCallData" : ""}
+    ${calls ? "callHistory: CallHistoryData" : ""}
     customFieldsData: JSON
 
     bookingProductId: String
@@ -131,7 +127,7 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
     user: User
     customer: Customer
     mailData: MailData
-    ${dailyco ? 'videoCallData: VideoCallData' : ''}
+    ${dailyco ? "videoCallData: VideoCallData" : ""}
     contentType: String
     bookingWidgetData: JSON
     mid: String
@@ -185,16 +181,10 @@ export const types = ({ tags, forms, contacts, dailyco, calls }) => `
     unreadCount: Int
   }
 
-  ${
-    forms
-      ? `
-        type InboxField {
-          customer: [Field]
-          conversation: [Field]
-          device: [Field]
-        }
-    `
-      : ''
+  type InboxField {
+    customer: [Field]
+    conversation: [Field]
+    device: [Field]
   }
 
   type UserConversationListResponse {
@@ -253,7 +243,7 @@ const filterParams = `
   ${mutationFilterParams}
 `;
 
-export const queries = ({ forms }) => `
+export const queries = () => `
   conversationMessage(_id: String!): ConversationMessage
   
   conversations(${filterParams}, skip: Int): [Conversation]
@@ -271,7 +261,7 @@ export const queries = ({ forms }) => `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-  ${forms ? `inboxFields: InboxField` : ''}
+  inboxFields: InboxField
   userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 

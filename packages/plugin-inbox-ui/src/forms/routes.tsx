@@ -3,7 +3,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
-  useParams,
+  useParams
 } from "react-router-dom";
 
 import React from "react";

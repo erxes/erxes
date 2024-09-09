@@ -2,13 +2,14 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import Categories from '../../components/faq/Categories';
 import queries from '../../graphql';
-import { IFaqTopic } from '../../types';
+import { IFaqCategory, IFaqTopic } from '../../types';
 import Articles from './Articles';
 import { useQuery } from '@apollo/client';
 
 type Props = {
   topicId?: string;
   searchString: string;
+  initialCategory?: IFaqCategory;
 };
 
 const CategoriesContainer = (props: Props) => {

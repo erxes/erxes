@@ -107,6 +107,7 @@ export declare type IOrganization = {
   expiryDate?: Date;
   bundleNames?: string[];
   experienceName?: string;
+  experience?: any;
   onboardingDone?: boolean;
   contactRemaining?: boolean;
 };
@@ -151,6 +152,10 @@ export type CurrentUserQueryResponse = {
 
 export type UsersQueryResponse = {
   users: IUser[];
+} & QueryResponse;
+
+export type UsersTotalCountQueryResponse = {
+  usersTotalCount: number;
 } & QueryResponse;
 
 export type UserDetailQueryResponse = {

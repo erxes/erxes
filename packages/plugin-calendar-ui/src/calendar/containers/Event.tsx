@@ -1,16 +1,16 @@
-import * as compose from 'lodash.flowright';
+import * as compose from "lodash.flowright";
 
-import { Alert, __, confirm, withProps } from 'coreui/utils';
-import { mutations, subscriptions } from '../graphql';
+import { Alert, __, confirm, withProps } from "coreui/utils";
+import { mutations, subscriptions } from "../graphql";
 
-import Event from '../components/Event';
-import Info from '@erxes/ui/src/components/Info';
-import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { gql } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
-import { queries as integrationsQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import Event from "../components/Event";
+import Info from "@erxes/ui/src/components/Info";
+import React from "react";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import { getWarningMessage } from "@erxes/ui-sales/src/boards/utils";
+import { gql } from "@apollo/client";
+import { graphql } from "@apollo/client/react/hoc";
+import { queries as integrationsQueries } from "@erxes/ui-inbox/src/settings/integrations/graphql";
 
 type Props = {
   type: string;
@@ -68,7 +68,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
 
     // remove action
     const remove = (_id: string, accountId: string) => {
-      confirm(getWarningMessage('Event'), { hasDeleteConfirm: true }).then(
+      confirm(getWarningMessage("Event"), { hasDeleteConfirm: true }).then(
         () => {
           removeEventMutation({
             variables: {
@@ -83,7 +83,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
                 queryParams
               });
 
-              const msg = `${__(`You successfully deleted a`)} ${__('event')}.`;
+              const msg = `${__(`You successfully deleted a`)} ${__("event")}.`;
 
               Alert.success(msg);
             })
@@ -107,7 +107,7 @@ class EventContainer extends React.Component<FinalProps, {}> {
 export default withProps<Props>(
   compose(
     graphql<Props, any>(gql(integrationsQueries.integrationsGetNylasEvents), {
-      name: 'integrationsGetNylasEventsQuery',
+      name: "integrationsGetNylasEventsQuery",
       options: ({ startTime, endTime, calendarIds }) => {
         return {
           variables: {
@@ -121,7 +121,7 @@ export default withProps<Props>(
     graphql<Props, any, { _id: string; accountId: string }>(
       gql(mutations.deleteEvent),
       {
-        name: 'removeEventMutation'
+        name: "removeEventMutation"
       }
     )
   )(EventContainer)

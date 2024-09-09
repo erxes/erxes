@@ -1,93 +1,90 @@
-var { resolve } = require('path');
-var fs = require('fs');
+var { resolve } = require("path");
+var fs = require("fs");
 
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
-    return resolve(__dirname, '..', pathName);
+    return resolve(__dirname, "..", pathName);
   }
 
-  return resolve(__dirname, '..');
+  return resolve(__dirname, "..");
 };
 
-var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
-  { name: 'inbox', ui: true, api: true },
-  { name: 'automations', ui: true, api: true },
-  { name: 'calendar', ui: true },
-  { name: 'calls', ui: true, api: true },
-  { name: 'cars', ui: true, api: true },
-  { name: 'cards', ui: true, api: true },
-  { name: 'chats', api: true },
-  { name: 'clientportal', ui: true, api: true },
-  { name: 'contacts', ui: true, api: true },
-  { name: 'ebarimt', ui: true, api: true },
-  { name: 'emailtemplates', ui: true, api: true },
-  { name: 'engages', ui: true, api: true },
-  { name: 'exm', ui: true, api: true },
-  { name: 'exmfeed', api: true },
-  { name: 'forms', ui: true, api: true },
-  { name: 'integrations', api: true },
-  { name: 'internalnotes', api: true },
-  { name: 'knowledgebase', ui: true, api: true },
-  { name: 'logs', ui: true, api: true },
-  { name: 'loyalties', ui: true, api: true },
-  { name: 'notifications', ui: true, api: true },
-  { name: 'webhooks', ui: true, api: true },
-  { name: 'pos', ui: true, api: true },
-  { name: 'products', ui: true, api: true },
-  { name: 'reactions', api: true },
-  { name: 'segments', ui: true, api: true },
-  { name: 'syncerkhet', ui: true, api: true },
-  { name: 'multierkhet', api: true, ui: true },
-  { name: 'tags', ui: true, api: true },
-  { name: 'salesplans', ui: true, api: true },
-  { name: 'processes', ui: true, api: true },
-  { name: 'inventories', ui: true, api: true },
-  { name: 'posclient', api: true },
-  { name: 'webbuilder', ui: true, api: true },
-  { name: 'payment', ui: true, api: true },
-  { name: 'imap', ui: true, api: true },
-  { name: 'block', ui: true, api: true },
-  { name: 'assets', ui: true, api: true },
-  { name: 'riskassessment', ui: true, api: true },
-  { name: 'forum', ui: true, api: true },
-  { name: 'documents', ui: true, api: true },
-  { name: 'pricing', ui: true, api: true },
-  { name: 'timeclock', ui: true, api: true },
-  { name: 'zalo', ui: true, api: true },
-  { name: 'facebook', ui: true, api: true },
-  { name: 'filemanager', ui: true, api: true },
-  { name: 'khanbank', ui: true, api: true },
-  { name: 'productplaces', ui: true, api: true },
-  { name: 'ecommerce', api: true },
-  { name: 'grants', api: true, ui: true },
-  { name: 'loans', api: true, ui: true },
-  { name: 'viber', api: true, ui: true },
-  { name: 'meetings', api: true, ui: true },
-  { name: 'xyp', api: true, ui: true },
-  { name: 'savings', api: true, ui: true },
-  { name: 'goals', api: true, ui: true },
-  { name: 'msdynamic', api: true, ui: true },
-  { name: 'dailyco', api: true, ui: true },
-  { name: 'zms', api: true, ui: true },
-  { name: 'syncpolaris', api: true, ui: true },
-  { name: 'reports', api: true, ui: true },
-  { name: 'instagram', api: true, ui: true },
-  { name: 'insight', api: true, ui: true },
-  { name: 'burenscoring', api: true, ui: true },
-  { name: 'golomtbank', api: true, ui: true },
-  { name: 'template', api: true, ui: true }
+  { name: "inbox", ui: true, api: true },
+  { name: "automations", ui: true, api: true },
+  { name: "calendar", ui: true },
+  { name: "calls", ui: true, api: true },
+  { name: "cars", ui: true, api: true },
+  { name: "sales", ui: true, api: true },
+  { name: "tasks", ui: true, api: true },
+  { name: "purchases", ui: true, api: true },
+  { name: "tickets", ui: true, api: true },
+  { name: "chats", api: true },
+  { name: "clientportal", ui: true, api: true },
+  { name: "ebarimt", ui: true, api: true },
+  { name: "emailtemplates", ui: true, api: true },
+  { name: "engages", ui: true, api: true },
+  { name: "exm", ui: true, api: true },
+  { name: "exmfeed", api: true },
+  { name: "integrations", api: true },
+  { name: "internalnotes", api: true },
+  { name: "knowledgebase", ui: true, api: true },
+  { name: "loyalties", ui: true, api: true },
+  { name: "webhooks", ui: true, api: true },
+  { name: "pos", ui: true, api: true },
+  { name: "products", ui: true, api: true },
+  { name: "reactions", api: true },
+  { name: "syncerkhet", ui: true, api: true },
+  { name: "multierkhet", api: true, ui: true },
+  { name: "salesplans", ui: true, api: true },
+  { name: "processes", ui: true, api: true },
+  { name: "inventories", ui: true, api: true },
+  { name: "posclient", api: true },
+  { name: "webbuilder", ui: true, api: true },
+  { name: "payment", ui: true, api: true },
+  { name: "imap", ui: true, api: true },
+  { name: "block", ui: true, api: true },
+  { name: "assets", ui: true, api: true },
+  { name: "riskassessment", ui: true, api: true },
+  { name: "forum", ui: true, api: true },
+  { name: "documents", ui: true, api: true },
+  { name: "pricing", ui: true, api: true },
+  { name: "timeclock", ui: true, api: true },
+  { name: "zalo", ui: true, api: true },
+  { name: "facebook", ui: true, api: true },
+  { name: "filemanager", ui: true, api: true },
+  { name: "khanbank", ui: true, api: true },
+  { name: "productplaces", ui: true, api: true },
+  { name: "ecommerce", api: true },
+  { name: "grants", api: true, ui: true },
+  { name: "loans", api: true, ui: true },
+  { name: "viber", api: true, ui: true },
+  { name: "meetings", api: true, ui: true },
+  { name: "xyp", api: true, ui: true },
+  { name: "savings", api: true, ui: true },
+  { name: "goals", api: true, ui: true },
+  { name: "msdynamic", api: true, ui: true },
+  { name: "dailyco", api: true, ui: true },
+  { name: "zms", api: true, ui: true },
+  { name: "syncpolaris", api: true, ui: true },
+  { name: "reports", api: true, ui: true },
+  { name: "instagram", api: true, ui: true },
+  { name: "insight", api: true, ui: true },
+  { name: "burenscoring", api: true, ui: true },
+  { name: "golomtbank", api: true, ui: true },
+  { name: "template", api: true, ui: true }
 ];
 
 const pluginsMap = {};
 
 var main = async () => {
   const uiContentBuffer = fs.readFileSync(
-    workflowsPath('plugin-sample-ui.yaml')
+    workflowsPath("plugin-sample-ui.yaml")
   );
   const apiContentBuffer = fs.readFileSync(
-    workflowsPath('plugin-sample-api.yaml')
+    workflowsPath("plugin-sample-api.yaml")
   );
 
   permissionCheckers = [];
@@ -145,8 +142,8 @@ var main = async () => {
           yamlConfigs.additionalBuildSteps.length > 0
         ) {
           const steps = yamlConfigs.additionalBuildSteps
-            .map((step) => `          ${step}`)
-            .join('\n');
+            .map(step => `          ${step}`)
+            .join("\n");
 
           const insertIndex =
             apiContent.indexOf(`${yamlConfigs.beforeRow}`) +
@@ -202,15 +199,15 @@ var main = async () => {
     }
   }
 
-  const actions = permissionCheckers.map((action) => action.name);
+  const actions = permissionCheckers.map(action => action.name);
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {
-    console.log(`warning: duplicated actions names ==> ${dups.join(', ')}`);
+    console.log(`warning: duplicated actions names ==> ${dups.join(", ")}`);
   }
 
   fs.writeFileSync(
-    filePath('./scripts/pluginsMap.js'),
+    filePath("./scripts/pluginsMap.js"),
     `
     module.exports = ${JSON.stringify(pluginsMap)}
   `

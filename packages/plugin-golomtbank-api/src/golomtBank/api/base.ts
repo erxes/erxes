@@ -15,10 +15,6 @@ export class BaseApi {
     return await getAuthHeaders(this.config);
   }
 
-  get apiUrl() {
-    return "https://openapi-uat.golomtbank.com/api";
-  }
-
   async request(args: {
     method: string;
     path: string;
@@ -31,30 +27,33 @@ export class BaseApi {
     try {
       const requestOptions: RequestInit & Required<{ headers: HeadersInit }> = {
         method,
-        headers,
+        headers
       };
+      if (data) {
+        requestOptions.body = JSON.stringify(data);
+      }
       requestOptions.headers["Content-Type"] = "application/json";
       const checkSum = await encryptData(
         data,
         this.config.sessionKey,
         this.config.ivKey
       );
+
       requestOptions.headers["X-Golomt-Checksum"] = checkSum;
       requestOptions.headers["X-Golomt-Service"] = type;
 
       if (type === "CGWTXNADD") {
-        const xcode = generateCurrentNumberString("4IO2WPYBASQOSQMS");
+        const xcode = generateCurrentNumberString(this.config.golomtCode);
         requestOptions.headers["X-Golomt-Code"] = xcode;
       }
-
-      if (data) {
-        requestOptions.body = JSON.stringify(data);
+      if (!this.config.apiUrl) {
+        throw new Error("Not found url");
       }
 
       const response = await fetch(
-        `${this.apiUrl}/${path}?` + new URLSearchParams(params),
+        `${this.config.apiUrl}/${path}?` + new URLSearchParams(params),
         requestOptions
-      ).then((res) => res.text());
+      ).then(res => res.text());
 
       return await decryptData(
         response,
@@ -62,7 +61,7 @@ export class BaseApi {
         this.config.sessionKey
       );
     } catch (e) {
-      console.log("e", e);
+      console.log("error:", e);
       throw new Error(e);
     }
   }

@@ -35,6 +35,8 @@
     "migrateUserMovements": "node_modules/.bin/ts-node src/commands/migrateUserMovements.ts",
     "updateUserNames": "node_modules/.bin/ts-node src/commands/updateUserNames.ts",
     "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts",
+    "migrateCardsRelations": "node_modules/.bin/ts-node src/commands/migrateCardsRelations.ts",
+    "migrateCardsBoards": "node_modules/.bin/ts-node src/commands/migrateCardsBoards.ts",
     "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts"
   },
   "dependencies": {
@@ -49,6 +51,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
     "csv-parser": "^3.0.0",
+    "dayjs": "^1.11.12",
     "faker": "^4.1.0",
     "file-type": "^10.4.0",
     "firebase-admin": "^12.1.1",

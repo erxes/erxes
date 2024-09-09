@@ -1,19 +1,19 @@
 import {
   receiveIntegrationsNotification,
-  receiveRpcMessage,
-} from './receiveMessage';
+  receiveRpcMessage
+} from "./receiveMessage";
 
-import { generateModels, IModels } from './connectionResolver';
-import { paginate, sendMessage } from '@erxes/api-utils/src/core';
-import { MessageArgs, MessageArgsOmitService } from '@erxes/api-utils/src/core';
-import { receiveVisitorDetail } from './widgetUtils';
-import { getIntegrationsKinds } from './utils';
-import { sendNotifications } from './graphql/resolvers/conversationMutations';
-import { pConversationClientMessageInserted } from './graphql/resolvers/widgetMutations';
+import { generateModels, IModels } from "./connectionResolver";
+import { paginate, sendMessage } from "@erxes/api-utils/src/core";
+import { MessageArgs, MessageArgsOmitService } from "@erxes/api-utils/src/core";
+import { receiveVisitorDetail } from "./widgetUtils";
+import { getIntegrationsKinds } from "./utils";
+import { sendNotifications } from "./graphql/resolvers/conversationMutations";
+import { pConversationClientMessageInserted } from "./graphql/resolvers/widgetMutations";
 import {
   consumeQueue,
-  consumeRPCQueue,
-} from '@erxes/api-utils/src/messageBroker';
+  consumeRPCQueue
+} from "@erxes/api-utils/src/messageBroker";
 
 const createConversationAndMessage = async (
   models: IModels,
@@ -23,7 +23,7 @@ const createConversationAndMessage = async (
   visitorId,
   integrationId,
   content,
-  engageData,
+  engageData
 ) => {
   // create conversation
   const conversation = await models.Conversations.createConversation({
@@ -32,7 +32,7 @@ const createConversationAndMessage = async (
     customerId,
     visitorId,
     integrationId,
-    content,
+    content
   });
 
   // create message
@@ -42,13 +42,13 @@ const createConversationAndMessage = async (
     userId,
     customerId,
     visitorId,
-    content,
+    content
   });
 };
 
 export const setupMessageConsumers = () => {
   consumeRPCQueue(
-    'inbox:createConversationAndMessage',
+    "inbox:createConversationAndMessage",
     async ({ subdomain, data }) => {
       const {
         userId,
@@ -57,7 +57,7 @@ export const setupMessageConsumers = () => {
         visitorId,
         integrationId,
         content,
-        engageData,
+        engageData
       } = data;
       const models = await generateModels(subdomain);
 
@@ -69,15 +69,15 @@ export const setupMessageConsumers = () => {
         visitorId,
         integrationId,
         content,
-        engageData,
+        engageData
       );
 
-      return { data: response, status: 'success' };
-    },
+      return { data: response, status: "success" };
+    }
   );
 
   consumeRPCQueue(
-    'inbox:createOnlyMessage',
+    "inbox:createOnlyMessage",
     async ({
       subdomain,
       data: {
@@ -86,98 +86,98 @@ export const setupMessageConsumers = () => {
         userId,
         customerId,
         internal,
-        contentType,
-      },
+        contentType
+      }
     }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.ConversationMessages.createMessage({
           conversationId,
           internal,
           userId,
           customerId,
           content,
-          contentType,
-        }),
+          contentType
+        })
       };
-    },
+    }
   );
 
-  consumeRPCQueue('inbox:integrations.receive', async ({ subdomain, data }) => {
+  consumeRPCQueue("inbox:integrations.receive", async ({ subdomain, data }) => {
     return receiveRpcMessage(subdomain, data);
   });
 
   consumeQueue(
-    'inbox:integrationsNotification',
+    "inbox:integrationsNotification",
     async ({ subdomain, data }) => {
       await receiveIntegrationsNotification(subdomain, data);
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:integrations.find',
+    "inbox:integrations.find",
     async ({ subdomain, data: { query, options } }) => {
       const models = await generateModels(subdomain);
 
       const integrations = await models.Integrations.findIntegrations(
         query,
-        options,
+        options
       );
 
-      return { data: integrations, status: 'success' };
-    },
+      return { data: integrations, status: "success" };
+    }
   );
 
   consumeRPCQueue(
-    'inbox:integrations.count',
+    "inbox:integrations.count",
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
       const count = await models.Integrations.countDocuments(selector);
 
-      return { data: count, status: 'success' };
-    },
+      return { data: count, status: "success" };
+    }
   );
 
   consumeQueue(
-    'inbox:changeCustomer',
+    "inbox:changeCustomer",
     async ({ subdomain, data: { customerId, customerIds } }) => {
       const models = await generateModels(subdomain);
 
       await models.Conversations.changeCustomer(customerId, customerIds);
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:getConversation',
+    "inbox:getConversation",
     async ({ subdomain, data: { conversationId } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.Conversations.findOne({
-          _id: conversationId,
-        }).lean(),
+          _id: conversationId
+        }).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:conversationMessages.findOne',
+    "inbox:conversationMessages.findOne",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await models.ConversationMessages.findOne(data).lean(),
+        status: "success",
+        data: await models.ConversationMessages.findOne(data).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:conversationMessages.find',
+    "inbox:conversationMessages.find",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const { skip, limit } = data;
@@ -186,332 +186,298 @@ export const setupMessageConsumers = () => {
         delete data.limit;
 
         return {
-          status: 'success',
+          status: "success",
           data: await models.ConversationMessages.find(data)
             .skip(skip || 0)
-            .limit(limit || 20),
+            .limit(limit || 20)
         };
       }
       return {
-        status: 'success',
-        data: await models.ConversationMessages.find(data).lean(),
+        status: "success",
+        data: await models.ConversationMessages.find(data).lean()
       };
-    },
+    }
   );
 
-  consumeRPCQueue('inbox:integrations.findOne', async ({ subdomain, data }) => {
+  consumeRPCQueue("inbox:integrations.findOne", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: 'success',
-      data: await models.Integrations.findOne(data).lean(),
+      status: "success",
+      data: await models.Integrations.findOne(data).lean()
     };
   });
 
   consumeRPCQueue(
-    'inbox:updateConversationMessage',
+    "inbox:updateConversationMessage",
     async ({ subdomain, data: { filter, updateDoc } }) => {
       const models = await generateModels(subdomain);
 
       const updated = await models.ConversationMessages.updateOne(filter, {
-        $set: updateDoc,
+        $set: updateDoc
       });
 
       return {
         data: updated,
-        status: 'success',
+        status: "success"
       };
-    },
+    }
   );
 
   consumeQueue(
-    'inbox:removeCustomersConversations',
+    "inbox:removeCustomersConversations",
     async ({ subdomain, data: { customerIds } }) => {
       const models = await generateModels(subdomain);
 
       return models.Conversations.removeCustomersConversations(customerIds);
-    },
+    }
   );
 
   consumeQueue(
-    'inbox:removeConversation',
+    "inbox:removeConversation",
     async ({ subdomain, data: { _id } }) => {
       const models = await generateModels(subdomain);
 
       await models.ConversationMessages.deleteMany({ conversationId: _id });
       return models.Conversations.deleteOne({ _id });
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:getConversations',
+    "inbox:getConversations",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await models.Conversations.find(query).lean(),
+        status: "success",
+        data: await models.Conversations.find(query).lean()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:conversations.findOne',
+    "inbox:conversations.findOne",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await models.Conversations.findOne(query),
+        status: "success",
+        data: await models.Conversations.findOne(query)
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:conversations.changeStatus',
+    "inbox:conversations.changeStatus",
     async ({ subdomain, data: { id, status } }) => {
       const models = await generateModels(subdomain);
 
       if (id && status) {
         return {
-          status: 'success',
+          status: "success",
           data: await models.Conversations.updateOne(
             { _id: id },
-            { status: status },
-          ),
+            { status: status }
+          )
         };
       }
       return {
-        status: 'error',
+        status: "error",
         errorMessage:
-          'id and status are required. id is ${id} and status is ${status}',
+          "id and status are required. id is ${id} and status is ${status}"
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:conversations.count',
+    "inbox:conversations.count",
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await models.Conversations.find(query).countDocuments(),
+        status: "success",
+        data: await models.Conversations.find(query).countDocuments()
       };
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:getConversationsList',
+    "inbox:getConversationsList",
     async ({ subdomain, data: { query, listParams } }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
-        data: await paginate(models.Conversations.find(query), listParams),
+        status: "success",
+        data: await paginate(models.Conversations.find(query), listParams)
       };
-    },
+    }
   );
 
-  consumeQueue('inbox:visitor.convertResponse', async ({ subdomain, data }) => {
+  consumeQueue("inbox:visitor.convertResponse", async ({ subdomain, data }) => {
     await receiveVisitorDetail(subdomain, data);
   });
 
-  consumeRPCQueue('inbox:updateUserChannels', async ({ subdomain, data }) => {
+  consumeRPCQueue("inbox:updateUserChannels", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
     const { channelIds, userId } = data;
 
     return {
-      status: 'success',
-      data: await models.Channels.updateUserChannels(channelIds, userId),
+      status: "success",
+      data: await models.Channels.updateUserChannels(channelIds, userId)
     };
   });
 
-  consumeRPCQueue('inbox:channels.find', async ({ subdomain, data }) => {
+  consumeRPCQueue("inbox:channels.find", async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      status: 'success',
-      data: await models.Channels.find(data),
+      status: "success",
+      data: await models.Channels.find(data)
     };
   });
 
-  consumeRPCQueue('inbox:getIntegrationKinds', async () => {
+  consumeRPCQueue("inbox:getIntegrationKinds", async () => {
     return {
-      status: 'success',
-      data: await getIntegrationsKinds(),
+      status: "success",
+      data: await getIntegrationsKinds()
     };
   });
 
   consumeRPCQueue(
-    'inbox:getModuleRelation',
+    "inbox:getModuleRelation",
     async ({ data: { module, target } }) => {
       let filter;
 
-      if (module.includes('contacts')) {
+      if (module.includes("contacts")) {
         const queryField =
-          target[module.includes('company') ? 'companyId' : 'customerId'];
+          target[module.includes("company") ? "companyId" : "customerId"];
 
         if (queryField) {
           filter = {
-            _id: queryField,
+            _id: queryField
           };
         }
       }
 
       return {
-        status: 'success',
-        data: filter,
+        status: "success",
+        data: filter
       };
-    },
+    }
   );
 
-  consumeQueue('inbox:sendNotifications', async ({ data, subdomain }) => {
+  consumeQueue("inbox:sendNotifications", async ({ data, subdomain }) => {
     await sendNotifications(subdomain, data);
   });
 
   consumeQueue(
-    'inbox:conversationClientMessageInserted',
+    "inbox:conversationClientMessageInserted",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       await pConversationClientMessageInserted(models, subdomain, data);
-    },
+    }
   );
 
   consumeRPCQueue(
-    'inbox:widgetsGetUnreadMessagesCount',
+    "inbox:widgetsGetUnreadMessagesCount",
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        status: 'success',
+        status: "success",
         data: await models.ConversationMessages.widgetsGetUnreadMessagesCount(
-          data.conversationId,
-        ),
+          data.conversationId
+        )
       };
-    },
+    }
   );
 };
 
 export const sendCommonMessage = async (
-  args: MessageArgs & { serviceName: string },
+  args: MessageArgs & { serviceName: string }
 ): Promise<any> => {
   return sendMessage({
-    ...args,
+    ...args
   });
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'contacts',
-    ...args,
-  });
-};
-
-export const sendFormsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'forms',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendCoreMessage = (args: MessageArgsOmitService): Promise<any> => {
   return sendMessage({
-    serviceName: 'core',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendEngagesMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'engages',
-    ...args,
+    serviceName: "engages",
+    ...args
   });
 };
 
 export const sendCardsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'cards',
-    ...args,
+    serviceName: "cards",
+    ...args
   });
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'products',
-    ...args,
-  });
-};
-
-export const sendTagsMessage = (args: MessageArgsOmitService): Promise<any> => {
-  return sendMessage({
-    serviceName: 'tags',
-    ...args,
+    serviceName: "core",
+    ...args
   });
 };
 
 export const sendIntegrationsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'integrations',
-    ...args,
-  });
-};
-
-export const sendSegmentsMessage = (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'segments',
-    ...args,
+    serviceName: "integrations",
+    ...args
   });
 };
 
 export const sendNotificationsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'notifications',
-    ...args,
+    serviceName: "notifications",
+    ...args
   });
 };
 
 export const sendKnowledgeBaseMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'knowledgebase',
-    ...args,
-  });
-};
-
-export const sendLogsMessage = async (
-  args: MessageArgsOmitService,
-): Promise<any> => {
-  return sendMessage({
-    serviceName: 'logs',
-    ...args,
+    serviceName: "knowledgebase",
+    ...args
   });
 };
 
 export const sendAutomationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'automations',
-    ...args,
+    serviceName: "automations",
+    ...args
   });
 };
 
@@ -519,20 +485,20 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
-  sendSegmentsMessage({
+  sendCoreMessage({
     subdomain,
-    action: 'fetchSegment',
+    action: "fetchSegment",
     data: { segmentId, options, segmentData },
-    isRPC: true,
+    isRPC: true
   });
 
 export const sendCallsMessage = (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
-    serviceName: 'calls',
-    ...args,
+    serviceName: "calls",
+    ...args
   });
 };

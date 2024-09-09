@@ -5,7 +5,7 @@ import { IPutResponse } from "../types";
 import PerResponse from "./PerResponse";
 import React from "react";
 import Response from "./Response";
-import WithPermission from "coreui/withPermission";
+import WithPermission from "@erxes/ui/src/components/WithPermission";
 import _ from "lodash";
 import dayjs from "dayjs";
 
@@ -42,7 +42,7 @@ class DetailDuplicated extends React.Component<IProps, State> {
       .then(() => {
         onReturnBill(putResponse._id);
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -76,16 +76,15 @@ class DetailDuplicated extends React.Component<IProps, State> {
             <th>{__("Date")} </th>
             <th>{__("Created")} </th>
             <th>{__("Modified")} </th>
-            <th>{__("Resp")} </th>
-            <th>{__("BillT")} </th>
-            <th>{__("TaxT")} </th>
+            <th>{__("status")} </th>
+            <th>{__("type")} </th>
             <th>{__("Amount")} </th>
             <th>{__("Return BillID")}</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="putResponses">
-          {(putResponses || []).map((putResponse) => (
+          {(putResponses || []).map(putResponse => (
             <tr key={putResponse._id}>
               <td key={"BillID"}>{putResponse.id} </td>
               <td key={"number"}>{putResponse.number} </td>
@@ -102,13 +101,12 @@ class DetailDuplicated extends React.Component<IProps, State> {
               <td key={"ModifiedAt"}>
                 {dayjs(putResponse.modifiedAt).format("HH:mm:ss SSS")}
               </td>
-              <td key={"success"}>{displayValue(putResponse, "success")}</td>
-              <td key={"billType"}>{displayValue(putResponse, "billType")}</td>
-              <td key={"taxType"}>{displayValue(putResponse, "taxType")}</td>
-              <td key={"amount"}>{displayValue(putResponse, "amount")}</td>
-              <td key={"inactiveId"}>
-                {putResponse.sendInfo?.inactiveId}{" "}
+              <td key={"status"}>{displayValue(putResponse, "status")}</td>
+              <td key={"type"}>{displayValue(putResponse, "type")}</td>
+              <td key={"totalAmount"}>
+                {displayValue(putResponse, "totalAmount")}
               </td>
+              <td key={"inactiveId"}>{putResponse.sendInfo?.inactiveId} </td>
               <td key={"actions"}>
                 <Button
                   btnStyle="link"

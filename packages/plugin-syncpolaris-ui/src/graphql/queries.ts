@@ -52,6 +52,7 @@ const syncHistoriesPolaris = `
       consumeStr
       sendData
       sendStr
+      header
       responseData
       responseStr
       error

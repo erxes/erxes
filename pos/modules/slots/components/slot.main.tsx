@@ -10,18 +10,21 @@ import { Label } from "@/components/ui/label"
 
 import SlotActions from "./slotActions"
 
-const className = cva("h-10 w-10 text-base font-bold px-0 relative ", {
-  variants: {
-    status: {
-      serving: "bg-blue-300 hover:bg-blue-200",
-      available: "bg-green-300 hover:bg-green-200",
-      reserved: "bg-orange-200 hover:bg-orange-200",
+export const slotVariants = cva(
+  "h-10 w-10 text-base font-bold px-0 relative ",
+  {
+    variants: {
+      status: {
+        serving: "bg-blue-300 hover:bg-blue-200",
+        available: "bg-green-300 hover:bg-green-200",
+        reserved: "bg-orange-200 hover:bg-orange-200",
+      },
     },
-  },
-  defaultVariants: {
-    status: "available",
-  },
-})
+    defaultVariants: {
+      status: "available",
+    },
+  }
+)
 
 const MotionLabel = motion(Label)
 
@@ -36,7 +39,7 @@ const Slot = (
   return (
     <SlotActions {...props}>
       <DropdownMenuTrigger asChild>
-        <Button className={className({ status })} Component={"div"}>
+        <Button className={slotVariants({ status })} Component={"div"}>
           {name}
           <RadioGroupItem
             value={active ? "" : code}

@@ -1,17 +1,17 @@
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import RGL, { WidthProvider } from 'react-grid-layout';
+import styled from "styled-components";
+import styledTS from "styled-components-ts";
+import RGL, { WidthProvider } from "react-grid-layout";
 
-import { ContentBox, Contents } from '@erxes/ui/src/layout/styles';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { ContentBox, Contents } from "@erxes/ui/src/layout/styles";
+import { RightMenuContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
+import { lighten, rgba } from "@erxes/ui/src/styles/ecolor";
+import { ActionButtons } from "@erxes/ui-settings/src/styles";
+import { colors, dimensions } from "@erxes/ui/src/styles";
 
 const ReactGridLayout = WidthProvider(RGL);
 
 const DragField = styledTS<{ haveChart?: boolean } & any>(
-  styled(ReactGridLayout),
+  styled(ReactGridLayout)
 )`
 
   background-image: radial-gradient(
@@ -19,7 +19,7 @@ const DragField = styledTS<{ haveChart?: boolean } & any>(
     ${colors.colorWhite} 20%
   );
 
-  ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
+  ${props => (props.haveChart ? "" : "height: 100% !important")};
   min-height: 100% !important;
   
   background-size: 10px 10px;
@@ -212,18 +212,17 @@ const ChartTitle = styled.div`
 `;
 
 const RightDrawerContainer = styledTS<{ width?: number } & any>(
-  styled(RightMenuContainer),
+  styled(RightMenuContainer)
 )`
   background: ${colors.colorWhite};
-  width: ${(props) =>
-    props.width ? `calc(100% - ${props.width}px)` : '500px'};
+  width: ${props => (props.width ? `calc(100% - ${props.width}px)` : "500px")};
   padding: ${dimensions.unitSpacing}px;
   z-index: 10;
   top: 0;
 `;
 
 const MarginY = styledTS<{ margin: number }>(styled.div)`
-  margin: ${(props) => props.margin}px 0;
+  margin: ${props => props.margin}px 0;
 `;
 
 const Description = styled.div`
@@ -244,6 +243,80 @@ const FlexRow = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+`;
+
+const Divider = styled.div`
+  width: 1px;
+  background-color: #e5e5ea;
+  min-height: 100%;
+  margin: 0 5px;
+`;
+
+const DateRangeWrapper = styled.div`
+  width: 100%;
+  min-width: 465px;
+  min-height: 256px;
+  display: flex;
+
+  .rdtStatic {
+    flex: 1;
+    min-height: 100%;
+  }
+
+  .rdtPicker {
+    min-height: 100%;
+    box-shadow: unset !important;
+    width: 100%;
+    border: none !important;
+    min-width: 220px;
+    padding: 0 !important;
+  }
+
+  .rdtPicker .rdtDay {
+    position: relative;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease-in-out;
+    border-radius: 8px;
+
+    &:after {
+      content: "";
+      border-radius: 8px;
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+    }
+  }
+
+  .rdtPicker .rdtDay:hover {
+    border-radius: 8px;
+  }
+
+  .rdtPicker .rdtDay.rdtInRange {
+    background-color: #8a8dd8 !important;
+    color: #fff;
+    border-radius: 8px;
+  }
+
+  .rdtPicker td.rdtStart,
+  .rdtPicker td.rdtStart:hover {
+    background-color: ${colors.colorSecondary} !important;
+    border-radius: 8px;
+  }
+
+  .rdtPicker td.rdtEnd,
+  .rdtPicker td.rdtEnd:hover {
+    background-color: ${colors.colorSecondary} !important;
+    border-radius: 8px;
+  }
+
+  .rdtPicker td.rdtDay.rdtHover:not(.rdtActive):not(.rdtInRange) {
+    background-color: #8a8dd8 !important;
+    color: #fff;
+    border-radius: 8px;
+  }
 `;
 
 const FlexColumn = styled.div`
@@ -310,25 +383,51 @@ const FormContent = styled.div`
     }
   }
 
+  .css-13cymwt-control,
+  .css-t3ipsp-control,
+  .css-t3ipsp-control:hover {
+    border-bottom: none;
+  }
+
   > div {
     > label {
       margin-bottom: 5px;
     }
 
-    .Select-control {
+    .css-b62m3t-container {
       margin-bottom: 7px;
       border: 1px solid #eee;
       border-radius: 5px;
+    }
 
-      .Select-value,
-      .Select-placeholder,
-      .Select-input {
-        margin-left: 5px;
+    .css-13cymwt-control > div,
+    .css-t3ipsp-control > div {
+      margin: 5px 8px 5px 5px;
+      padding: 0;
+    }
 
-        input {
-          border: none;
-        }
-      }
+    .css-1p3m7a8-multiValue {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+    .css-12a83d4-MultiValueRemove {
+      position: unset;
+    }
+
+    .css-1nmdiq5-menu {
+      box-shadow: 0 4px 11px hsla(0, 0%, 0%, 0.1);
+      border: 1px solid #eee;
+    }
+
+    .css-d7l1ni-option,
+    .css-tr4s17-option {
+      background-color: #f0f0f0;
+      color: inherit;
     }
 
     .Select.is-focused > .Select-control,
@@ -355,6 +454,20 @@ const FormContent = styled.div`
 
     .Select-option-group > .Select-option {
       padding-left: 30px;
+    }
+
+    .date-range {
+      > div {
+        gap: 10px;
+
+        > .css-b62m3t-container {
+          flex: 1;
+        }
+
+        > div:last-child {
+          margin: 0 0 7px 0;
+        }
+      }
     }
   }
 `;
@@ -438,7 +551,7 @@ const TemplateBox = styledTS<{ showMore: boolean }>(styled.div)`
   }
 
   > ul {
-    ${(props) => !props.showMore && 'height: 88px'};
+    ${props => !props.showMore && "height: 88px"};
     transition: 0.5s ease;
     overflow: hidden;
     margin: unset;
@@ -488,7 +601,7 @@ const SectionListItem = styledTS<{
   backgroundColor?: string;
 }>(styled.li)`
   position: relative;
-  background: ${(props) =>
+  background: ${props =>
     (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
@@ -508,18 +621,18 @@ const SectionListItem = styledTS<{
   }
 
   span, i {
-    color: ${(props) => props.isActive && colors.colorPrimary} !important;
+    color: ${props => props.isActive && colors.colorPrimary} !important;
   }
   
   a {
     white-space: normal;
     padding: 0;
-    color: ${(props) => props.isActive && colors.colorPrimary} !important;
-    font-weight: ${(props) => (props.isActive ? 500 : 400)};
+    color: ${props => props.isActive && colors.colorPrimary} !important;
+    font-weight: ${props => (props.isActive ? 500 : 400)};
 
     &:hover {
       background: none;
-      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
     }
 
     &:focus {
@@ -561,14 +674,14 @@ const SectionListItem = styledTS<{
   &:hover {
 
     cursor: pointer;
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${props => !props.isActive && colors.bgLight};
     
     ${ActionButtons} {
       position:absolute;
       right : 0;
       width: 40px;
       z-index: 1;
-      background: ${(props) => (props.isActive ? '#e2dcf2' : colors.bgLight)};
+      background: ${props => (props.isActive ? "#e2dcf2" : colors.bgLight)};
     }
   }
 `;
@@ -577,8 +690,8 @@ const Title = styledTS<{ isOpen: boolean }>(styled.p)`
   max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${(props) =>
-    props.isOpen ? 'overflow-wrap: break-word' : 'white-space: nowrap'};
+  ${props =>
+    props.isOpen ? "overflow-wrap: break-word" : "white-space: nowrap"};
   margin: unset;
 `;
 
@@ -612,6 +725,14 @@ const FormWrapper = styled.div`
   }
 `;
 
+const ControlRange = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding-top: 5px;
+`;
+
 export {
   DragField,
   ChartTitle,
@@ -634,4 +755,7 @@ export {
   Title,
   FormChart,
   FormWrapper,
+  ControlRange,
+  DateRangeWrapper,
+  Divider
 };

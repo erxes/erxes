@@ -12,13 +12,13 @@ import { IMeeting } from "../../../types";
 import {
   CustomRangeContainer,
   MeetingDetailColumn,
-  MeetingDetailRow,
+  MeetingDetailRow
 } from "../../../styles";
 import DateControl from "@erxes/ui/src/components/form/DateControl";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import { IUser } from "@erxes/ui/src/auth/types";
 import { CompaniesQueryResponse } from "@erxes/ui-contacts/src/companies/types";
-import { DealsQueryResponse, IDeal } from "@erxes/ui-cards/src/deals/types";
+import { DealsQueryResponse, IDeal } from "@erxes/ui-sales/src/deals/types";
 
 import { ModalTrigger } from "@erxes/ui/src/components";
 import DealChooser from "../../../containers/myCalendar/meeting/Chooser";
@@ -92,21 +92,21 @@ export const MeetingForm = (props: Props) => {
     }
 
     return {
-      ...finalValues,
+      ...finalValues
     };
   };
 
   const methodOptions = [
     { value: "online", label: "Online meeting" },
     { value: "face-to-face", label: "Face-to-face meeting" },
-    { value: "offline", label: "Offline meeting" },
+    { value: "offline", label: "Offline meeting" }
   ];
 
-  const onStartDateChange = (dateVal) => {
+  const onStartDateChange = dateVal => {
     setStartDate(dateVal);
   };
 
-  const onEndDateChange = (dateVal) => {
+  const onEndDateChange = dateVal => {
     if (new Date() < dateVal) {
       setEndDate(dateVal);
     } else {
@@ -139,17 +139,17 @@ export const MeetingForm = (props: Props) => {
     );
   };
 
-  const onUserSelect = (users) => {
+  const onUserSelect = users => {
     setUserIds(users);
   };
 
-  const onMethodSelect = (e) => {
+  const onMethodSelect = e => {
     setSelectedMethod((e.target as HTMLInputElement).value);
   };
 
   const renderBulkProductChooser = () => {
     const dealsOnChange = (datas: any, selectedCompanyId: string) => {
-      const dealsId = datas?.map((data) => data._id);
+      const dealsId = datas?.map(data => data._id);
 
       const { companyId: cId } = JSON.parse(
         localStorage.getItem("erxes_deals:chooser_filter") || "{}"
@@ -158,9 +158,9 @@ export const MeetingForm = (props: Props) => {
       const filterId = selectedCompanyId || cId;
 
       const companyName =
-        datas?.find((deal) => {
+        datas?.find(deal => {
           const selectedCompanies =
-            deal.companies && deal.companies.filter((c) => c._id === filterId);
+            deal.companies && deal.companies.filter(c => c._id === filterId);
           return selectedCompanies && selectedCompanies.length > 0;
         })?.companies?.[0]?.primaryName || "";
 
@@ -173,7 +173,7 @@ export const MeetingForm = (props: Props) => {
     const content = ({ closeModal }) => {
       const updatedProps = {
         ...props,
-        closeModal,
+        closeModal
       };
       return (
         <DealChooser
@@ -181,7 +181,7 @@ export const MeetingForm = (props: Props) => {
           onSelect={dealsOnChange}
           data={{
             name: "Deal",
-            deals: [],
+            deals: []
           }}
         />
       );
@@ -320,7 +320,7 @@ export const MeetingForm = (props: Props) => {
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: meeting,
+            object: meeting
           })}
         </ModalFooter>
       </>

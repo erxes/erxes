@@ -1,11 +1,11 @@
 import classnames from "classnames";
-import { TEXT_COLORS } from "@erxes/ui-cards/src/boards/constants";
+import { TEXT_COLORS } from "@erxes/ui-sales/src/boards/constants";
 import { ControlLabel } from "@erxes/ui/src/components/form";
 import { FlexItem, LeftItem } from "@erxes/ui/src/components/step/styles";
 import {
   BackgroundSelector,
   SubItem,
-  WidgetBackgrounds,
+  WidgetBackgrounds
 } from "@erxes/ui-settings/src/styles";
 import { ColorPick, ColorPicker } from "@erxes/ui/src/styles/main";
 import React from "react";
@@ -45,7 +45,7 @@ class Appearance extends React.Component<Props, State> {
       wallpaper: props.wallpaper,
       logoPreviewStyle: {},
       logo: {},
-      logoPreviewUrl: {},
+      logoPreviewUrl: {}
     };
   }
 
@@ -54,7 +54,7 @@ class Appearance extends React.Component<Props, State> {
     this.setState({ [name]: value } as unknown as Pick<State, keyof State>);
   };
 
-  handleLogoChange = (e) => {
+  handleLogoChange = e => {
     const imageFile = e.target.files;
 
     uploadHandler({
@@ -71,7 +71,7 @@ class Appearance extends React.Component<Props, State> {
 
       afterRead: ({ result }) => {
         this.onChange("logoPreviewUrl", result);
-      },
+      }
     });
   };
 

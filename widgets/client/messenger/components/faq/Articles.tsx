@@ -6,10 +6,19 @@ import { IFaqArticle } from '../../types';
 
 type Props = {
   articles: IFaqArticle[];
+  loading?: boolean;
 };
 
 const Articles: React.FC<Props> = (props) => {
-  const { articles = [] } = props;
+  const { articles = [], loading } = props;
+
+  if (loading) {
+    return (
+      <div className="category-detail-container">
+        <div className="loader" />
+      </div>
+    );
+  }
 
   if (articles.length === 0) {
     return (

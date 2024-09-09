@@ -1,7 +1,7 @@
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import { IModels, generateModels } from "../connectionResolver";
 import { createFormConversation } from "../graphql/resolvers/widgetMutations";
-import { sendFormsMessage } from "../messageBroker";
+import { sendCoreMessage } from "../messageBroker";
 
 const formMiddleware = async (req, res, _next) => {
   const subdomain = getSubdomain(req);
@@ -15,9 +15,9 @@ const formMiddleware = async (req, res, _next) => {
 
   const formId = req.params.id;
 
-  const form = await sendFormsMessage({
+  const form = await sendCoreMessage({
     subdomain,
-    action: "findOne",
+    action: "formsFindOne",
     data: { _id: formId },
     isRPC: true
   });
@@ -28,7 +28,7 @@ const formMiddleware = async (req, res, _next) => {
 
   const params = (await req.body) || ({} as any);
 
-  const fields = await sendFormsMessage({
+  const fields = await sendCoreMessage({
     subdomain,
     action: "fields.find",
     data: {
@@ -64,7 +64,7 @@ const formMiddleware = async (req, res, _next) => {
         _id: field._id,
         type: field.type,
         text: field.text,
-        value: params.descrtiption,
+        value: params.description,
         validation: field.validation,
         associatedFieldId: "",
         column: null

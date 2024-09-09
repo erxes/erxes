@@ -34,9 +34,7 @@ import {
   sendAutomationsMessage,
   sendContactsMessage,
   sendCoreMessage,
-  sendFormsMessage,
   sendIntegrationsMessage,
-  sendLogsMessage,
   sendProductsMessage
 } from "../../messageBroker";
 import { solveSubmissions } from "../../widgetUtils";
@@ -203,7 +201,7 @@ const createVisitor = async (subdomain: string, visitorId: string) => {
     isRPC: true
   });
 
-  await sendLogsMessage({
+  await sendCoreMessage({
     subdomain,
     action: "visitor.convertRequest",
     data: {
@@ -234,9 +232,9 @@ export const createFormConversation = async (
 ) => {
   const { integrationId, formId, submissions } = args;
 
-  const form = await sendFormsMessage({
+  const form = await sendCoreMessage({
     subdomain,
-    action: "findOne",
+    action: "formsFindOne",
     data: { _id: formId },
     isRPC: true
   });
@@ -245,7 +243,7 @@ export const createFormConversation = async (
     throw new Error("Form not found");
   }
 
-  const errors = await sendFormsMessage({
+  const errors = await sendCoreMessage({
     subdomain,
     action: "validate",
     data: {
@@ -338,7 +336,7 @@ export const createFormConversation = async (
     });
   }
 
-  await sendFormsMessage({
+  await sendCoreMessage({
     subdomain,
     action: "submissions.createFormSubmission",
     data: {
@@ -359,7 +357,7 @@ export const createFormConversation = async (
       subdomain,
       action: "trigger",
       data: {
-        type: `contacts:${cachedCustomer.state}`,
+        type: `core:${cachedCustomer.state}`,
         targets: [
           {
             ...cachedCustomer,
@@ -399,9 +397,9 @@ const widgetMutations = {
       defaultValue: {}
     });
 
-    const form = await sendFormsMessage({
+    const form = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { code: args.formCode },
       isRPC: true
     });
@@ -521,7 +519,7 @@ const widgetMutations = {
       deviceToken?: string;
       visitorId?: string;
     },
-    { models, subdomain }: IContext
+    { models, subdomain, user }: IContext
   ) {
     const {
       brandCode,
@@ -615,7 +613,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendLogsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "visitor.createOrUpdate",
         data: {
@@ -635,12 +633,12 @@ const widgetMutations = {
         isRPC: true
       });
 
-      const { customFieldsData, trackedData } = await sendFormsMessage({
+      const { customFieldsData, trackedData } = await sendCoreMessage({
         subdomain,
         action: "fields.generateCustomFieldsData",
         data: {
           customData: companyData,
-          contentType: "contacts:company"
+          contentType: "core:company"
         },
         isRPC: true
       });
@@ -694,6 +692,15 @@ const widgetMutations = {
         { _id: integration._id },
         { $set: { isConnected: true } }
       );
+
+      await sendCoreMessage({
+        subdomain,
+        action: "registerOnboardHistory",
+        data: {
+          type: "erxesMessagerConnect",
+          user
+        }
+      });
     }
 
     return {
@@ -1079,7 +1086,7 @@ const widgetMutations = {
     }
 
     if (visitorId) {
-      await sendLogsMessage({
+      await sendCoreMessage({
         subdomain,
         action: "visitor.updateEntry",
         data: {
@@ -1140,9 +1147,9 @@ const widgetMutations = {
       isRPC: true
     });
 
-    const form = await sendFormsMessage({
+    const form = await sendCoreMessage({
       subdomain,
-      action: "findOne",
+      action: "formsFindOne",
       data: { _id: formId },
       isRPC: true
     });
@@ -1431,7 +1438,7 @@ const widgetMutations = {
 
     const product = await sendProductsMessage({
       subdomain,
-      action: "findOne",
+      action: "productFindOne",
       data: {
         _id: productId
       },

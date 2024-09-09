@@ -1,4 +1,4 @@
-export const types = ({ products, forms, knowledgeBase }) => `
+export const types = ({ products, knowledgeBase }) => `
   ${
     products
       ? `
@@ -10,12 +10,9 @@ export const types = ({ products, forms, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ''
+      : ""
   }
 
-  ${
-    forms
-      ? `
     extend type Field @key(fields: "_id") {
       _id: String! @external
     }
@@ -24,9 +21,6 @@ export const types = ({ products, forms, knowledgeBase }) => `
       integration: Integration
       form: Form
     }
-    `
-      : ''
-  }
 
   ${
     knowledgeBase
@@ -39,7 +33,7 @@ export const types = ({ products, forms, knowledgeBase }) => `
       _id: String! @external
     }
     `
-      : ''
+      : ""
   }
 
   type MessengerConnectResponse {
@@ -89,16 +83,10 @@ export const types = ({ products, forms, knowledgeBase }) => `
       ? `
       type BookingProduct {
         product: Product
-        ${
-          forms
-            ? `
-            fields: [Field]
-          `
-            : ''
-        }
+        fields: [Field]
       }
     `
-      : ''
+      : ""
   }
 
   input FieldValueInput {
@@ -131,7 +119,7 @@ export const queries = ({ products, knowledgeBase }) => `
       widgetsKnowledgeBaseArticles(topicId: String!, searchString: String) : [KnowledgeBaseArticle]
       widgetsKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
     `
-      : ''
+      : ""
   }
 
   ${
@@ -140,11 +128,11 @@ export const queries = ({ products, knowledgeBase }) => `
       widgetsProductCategory(_id: String!): ProductCategory
       widgetsBookingProductWithFields(_id: String!): BookingProduct
     `
-      : ''
+      : ""
   }
 `;
 
-export const mutations = ({ forms }) => `
+export const mutations = () => `
   widgetsMessengerConnect(
     brandCode: String!
     email: String
@@ -189,17 +177,13 @@ export const mutations = ({ forms }) => `
 
   widgetsReadConversationMessages(conversationId: String): JSON
   widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
-
-  ${
-    forms
-      ? `
-    widgetsLeadConnect(
+  widgetsLeadConnect(
       brandCode: String!,
       formCode: String!,
       cachedCustomerId: String
     ): FormConnectResponse
 
-    widgetsSaveLead(
+  widgetsSaveLead(
       integrationId: String!
       formId: String!
       submissions: [FieldValueInput]
@@ -208,9 +192,9 @@ export const mutations = ({ forms }) => `
       userId: String
     ): SaveFormResponse
 
-    widgetsBookingConnect(_id: String): Integration
+  widgetsBookingConnect(_id: String): Integration
 
-    widgetsSaveBooking(
+  widgetsSaveBooking(
       integrationId: String!
       formId: String!
       submissions: [FieldValueInput]
@@ -218,9 +202,6 @@ export const mutations = ({ forms }) => `
       cachedCustomerId: String
       productId: String
     ): SaveFormResponse
-    `
-      : ''
-  }
 
   widgetsSendEmail(
     toEmails: [String]

@@ -27,7 +27,7 @@ export const FlexWrap = styledTS<{ noPadding?: boolean }>(styled.div)`
     }
 
     @media (min-width: 1400px) {
-      flex-basis: 240px;
+      flex-basis: 15%;
     }
   }
 `;

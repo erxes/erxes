@@ -2,6 +2,7 @@ import * as React from 'react';
 import { IconChevronLeft } from '../../../../icons/Icons';
 import BottomNavBar from '../../BottomNavBar';
 import { useRouter } from '../../../context/Router';
+import { getColor } from '../../../utils/util';
 
 type Props = {
   withTopBar?: boolean;
@@ -26,7 +27,19 @@ const Container: React.FC<Props> = ({
   persistentFooter,
   onBackButton,
 }) => {
+  const color = getColor();
   const { setActiveRoute } = useRouter();
+
+  const style = color
+    ? {
+        background: `linear-gradient(
+      119deg,
+      ${color} 2.96%,
+      ${color} 51.52%,
+      #fff 100.08%
+    )`,
+      }
+    : {};
 
   const handleBackClick = () => {
     if (onBackButton) {
@@ -43,7 +56,7 @@ const Container: React.FC<Props> = ({
   return (
     <div className="container">
       {(withTopBar || title) && (
-        <div className="top-nav-container">
+        <div className="top-nav-container" style={style}>
           <div className="top-nav" style={containerStyle}>
             <div className="icon" onClick={handleBackClick}>
               <IconChevronLeft />

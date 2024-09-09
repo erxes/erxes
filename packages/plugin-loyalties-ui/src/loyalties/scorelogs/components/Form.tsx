@@ -6,7 +6,7 @@ import {
   FormGroup,
   ModalTrigger,
   SelectTeamMembers,
-  __,
+  __
 } from "@erxes/ui/src";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 
@@ -34,28 +34,28 @@ class ScoreForm extends React.Component<Props, State> {
     this.state = {
       ownerType: "customer",
       ownerId: "",
-      changeScore: 0,
+      changeScore: 0
     };
   }
 
-  generateDoc = (values) => {
+  generateDoc = values => {
     const { ownerId } = this.state;
 
     return {
       ...values,
       changeScore: Number(values?.changeScore || 0),
-      ownerId,
+      ownerId
     };
   };
 
   renderOwner = () => {
     const { ownerType, ownerId } = this.state;
 
-    const handleOwnerId = (id) => {
-      this.setState((prev) => ({ ...prev, ownerId: id }));
+    const handleOwnerId = id => {
+      this.setState(prev => ({ ...prev, ownerId: id }));
     };
 
-    if (isEnabled("contacts") && ownerType === "customer") {
+    if (ownerType === "customer") {
       return (
         <SelectCustomers
           label="Customer"
@@ -79,7 +79,7 @@ class ScoreForm extends React.Component<Props, State> {
       );
     }
 
-    if (isEnabled("contacts") && ownerType === "company") {
+    if (ownerType === "company") {
       return (
         <SelectCompanies
           label="Compnay"
@@ -112,11 +112,11 @@ class ScoreForm extends React.Component<Props, State> {
 
     let changeScore = 0;
 
-    const handleOwnerType = (e) => {
+    const handleOwnerType = e => {
       const target = e.currentTarget as HTMLInputElement;
       const value = target.value;
       const name = target.name;
-      this.setState((prev) => ({ ...prev, [name]: value }));
+      this.setState(prev => ({ ...prev, [name]: value }));
     };
 
     const Form = (formProps: IFormProps, closeModal: () => void) => {
@@ -166,7 +166,7 @@ class ScoreForm extends React.Component<Props, State> {
               name: "score",
               values: this.generateDoc(values),
               isSubmitted,
-              callback: closeModal,
+              callback: closeModal
             })}
           </ModalFooter>
         </>
@@ -175,9 +175,7 @@ class ScoreForm extends React.Component<Props, State> {
 
     const content = ({ closeModal }) => {
       return (
-        <CommonForm
-          renderContent={(formProps) => Form(formProps, closeModal)}
-        />
+        <CommonForm renderContent={formProps => Form(formProps, closeModal)} />
       );
     };
 

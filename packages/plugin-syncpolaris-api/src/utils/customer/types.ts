@@ -13,7 +13,7 @@ export interface IPolarisCustomer {
   lastName: string;
   firstName: string;
   shortName: string;
-  registerMaskCode: '3';
+  registerMaskCode: "3";
   registerCode: string;
   birthDate: Date;
   mobile: string;

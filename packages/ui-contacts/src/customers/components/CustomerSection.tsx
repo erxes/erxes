@@ -1,25 +1,23 @@
-import { __, renderFullName } from '@erxes/ui/src/utils';
+import { __, renderFullName } from "@erxes/ui/src/utils";
 
-import Box from '@erxes/ui/src/components/Box';
-import { ButtonRelated } from '@erxes/ui/src/styles/main';
-import CustomerChooser from '../containers/CustomerChooser';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ICustomer } from '../types';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
-import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
+import Box from "@erxes/ui/src/components/Box";
+import { ButtonRelated } from "@erxes/ui/src/styles/main";
+import CustomerChooser from "../containers/CustomerChooser";
+import EmptyState from "@erxes/ui/src/components/EmptyState";
+import { ICustomer } from "../types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { Link } from "react-router-dom";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
+import { SectionBodyItem } from "@erxes/ui/src/layout/styles";
+import Spinner from "@erxes/ui/src/components/Spinner";
+import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import { queries } from "../graphql";
 
 const GetConformity = asyncComponent(
   () =>
-    isEnabled('cards') &&
     import(
-      /* webpackChunkName: "GetConformity" */ '@erxes/ui-cards/src/conformity/containers/GetConformity'
+      /* webpackChunkName: "GetConformity" */ "@erxes/ui-sales/src/conformity/containers/GetConformity"
     )
 );
 
@@ -38,11 +36,11 @@ function Component({
   relType,
   name,
   items = [],
-  mainType = '',
-  mainTypeId = '',
+  mainType = "",
+  mainTypeId = "",
   onSelect,
   actionSection,
-  title = ''
+  title = ""
 }: Props) {
   const renderRelatedCustomerChooser = props => {
     return (
@@ -56,7 +54,7 @@ function Component({
 
   const relCustomerTrigger = (
     <ButtonRelated>
-      <span>{__('See related customers..')}</span>
+      <span>{__("See related customers..")}</span>
     </ButtonRelated>
   );
 
@@ -125,7 +123,7 @@ function Component({
 
   return (
     <Box
-      title={__(`${title || 'Customers'}`)}
+      title={__(`${title || "Customers"}`)}
       extraButtons={extraButtons}
       isOpen={true}
       name="showCustomers"
@@ -147,14 +145,10 @@ export type ICustomerSectionProps = {
 };
 
 export default (props: ICustomerSectionProps) => {
-  if (!isEnabled('cards')) {
-    return null;
-  }
-
   return (
     <GetConformity
       {...props}
-      relType={props.relType || 'customer'}
+      relType={props.relType || "customer"}
       component={Component}
       queryName="customers"
       itemsQuery={queries.customers}

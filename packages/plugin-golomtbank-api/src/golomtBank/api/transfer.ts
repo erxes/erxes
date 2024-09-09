@@ -11,43 +11,58 @@ export class TransferApi extends BaseApi {
 
   /**
    * make transfer from golomtBank to golomtBank
-   * @param {string} fromAccount - from account number
-   * @param {string} toAccount - to account number
-   * @param {number} amount - amount
-   * @param {string} description - description
-   * @param {string} currency - currency
-   * @param {string} loginName - login name
-   * @param {string} password - password
-   * @param {string} transferid - transfer id
-   * @param {string} genericType
-   * @param {string} registerNumber
    * @param {string} type
+   * @param {string} fromAccount
+   * @param {number} toAccount
+   * @param {string} amount
+   * @param {string} description
+   * @param {string} fromCurrency
+   * @param {string} toCurrency
+   * @param {string} toAccountName
+   * @param {string} fromAccountName
+   * @param {string} toBank
    * @param {string} refCode
-   * @param {string} initiatorGenericType
-   * @param {string} initiatorAcctName
-   * @param {string} initiatorAcctNo
-   * @param {string} initiatorAmountValue
-   * @param {string} initiatorAmountCurrency
-   * @param {string} initiatorParticulars
-   * @param {string} initiatorBank
-   * @param {string} receivesGenericType
-   * @param {string} receivesAcctName
-   * @param {string} receivesAcctNo
-   * @param {string} receivesAmountValue
-   * @param {string} receivesAmountCurrency
-   * @param {string} receivesParticulars
-   * @param {string} receivesBank
-   * @param {string} receivesRemark
+   * @param {string} registerId
 
    * @return {object} - Returns a response object
    */
-  async transfer(tranfer: any) {
+  async transfer(transfer: TransferParams, registerId: string) {
     try {
       return await this.request({
         method: "POST",
         path: "v1/transaction/cgw/transfer",
         type: "CGWTXNADD",
-        data: tranfer,
+        data: {
+          genericType: null,
+          registerNumber: registerId,
+          type: transfer.type,
+          refCode: transfer.refCode || "123",
+          initiator: {
+            genericType: null,
+            acctName: transfer.fromAccountName,
+            acctNo: transfer.fromAccount,
+            amount: {
+              value: transfer.amount,
+              currency: transfer.fromCurrency
+            },
+            particulars: transfer.description,
+            bank: "15"
+          },
+          receives: [
+            {
+              genericType: null,
+              acctName: transfer.toAccountName,
+              acctNo: transfer.toAccount,
+              amount: {
+                value: transfer.amount,
+                currency: transfer.toCurrency
+              },
+              particulars: transfer.description,
+              bank: transfer.toBank
+            }
+          ],
+          remarks: transfer.description
+        }
       });
     } catch (e) {
       console.error(e);
@@ -61,8 +76,8 @@ export class TransferApi extends BaseApi {
    * @param {string} toAccount - to account number
    * @param {number} amount - amount
    * @param {string} description - description
-   * @param {string} currency - currency
-   * @param {string} loginName - login name
+   * @param {string} toCurrency - toCurrency
+   * @param {string} fromCurrency - from currency
    * @param {string} password - password
    * @param {string} transferid - transfer id
    * @param {string} toCurrency - to currency
@@ -83,8 +98,8 @@ export class TransferApi extends BaseApi {
         path: "transfer/interbank",
         data: {
           ...args,
-          tranPassword: args,
-        },
+          tranPassword: args
+        }
       });
     } catch (e) {
       console.error(e);

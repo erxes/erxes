@@ -1,7 +1,7 @@
 import { outcomeDeposit } from '../deposit/outcomeDeposit';
 import { fetchPolaris, getContract } from '../utils';
 
-export const outcomeSaving = async (subdomain, params) => {
+export const outcomeSaving = async (subdomain, models, syncLog, params) => {
   const savingTransactionParams = params.updatedDocument || params.object;
 
   const savingContract = await getContract(
@@ -48,5 +48,7 @@ export const outcomeSaving = async (subdomain, params) => {
     op: '13610015',
     data: [sendData],
     subdomain,
+    models,
+    syncLog
   });
 };

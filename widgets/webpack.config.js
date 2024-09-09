@@ -76,6 +76,8 @@ module.exports = {
             options: {
               limit: 30000,
               name: '[name]-[hash].[ext]',
+              outputPath: 'fonts/',
+              publicPath: '/fonts/',
             },
           },
         ],

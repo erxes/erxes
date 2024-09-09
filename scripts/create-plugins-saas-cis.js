@@ -1,54 +1,57 @@
-var { resolve } = require('path');
-var fs = require('fs-extra');
+var { resolve } = require("path");
+var fs = require("fs-extra");
 
 const filePath = pathName => {
   if (pathName) {
-    return resolve(__dirname, '..', pathName);
+    return resolve(__dirname, "..", pathName);
   }
 
-  return resolve(__dirname, '..');
+  return resolve(__dirname, "..");
 };
 
 var plugins = [
-  { name: 'inbox', ui: true, api: true },
-  { name: 'automations', ui: true, api: true },
-  { name: 'cars', ui: true, api: true },
-  { name: 'cards', ui: true, api: true },
-  { name: 'clientportal', ui: true, api: true },
-  { name: 'contacts', ui: true, api: true },
-  { name: 'ebarimt', ui: true, api: true },
-  { name: 'emailtemplates', ui: true, api: true },
-  { name: 'engages', ui: true, api: true },
-  { name: 'forms', ui: true, api: true },
-  { name: 'integrations', api: true },
-  { name: 'internalnotes', api: true },
-  { name: 'knowledgebase', ui: true, api: true },
-  { name: 'logs', ui: true, api: true },
-  { name: 'loyalties', ui: true, api: true },
-  { name: 'notifications', ui: true, api: true },
-  { name: 'webhooks', ui: true, api: true },
-  { name: 'pos', ui: true, api: true },
-  { name: 'products', ui: true, api: true },
-  { name: 'segments', ui: true, api: true },
-  { name: 'syncerkhet', ui: true, api: true },
-  { name: 'multierkhet', api: true, ui: true },
-  { name: 'tags', ui: true, api: true },
-  { name: 'processes', ui: true, api: true },
-  { name: 'inventories', ui: true, api: true },
-  { name: 'posclient', api: true },
-  { name: 'webbuilder', ui: true, api: true },
-  { name: 'payment', ui: true, api: true },
-  { name: 'imap', ui: true, api: true },
-  { name: 'documents', ui: true, api: true },
-  { name: 'pricing', ui: true, api: true },
-  { name: 'timeclock', ui: true, api: true },
-  { name: 'facebook', ui: true, api: true },
-  { name: 'ecommerce', api: true },
-  { name: 'loans', api: true, ui: true },
-  { name: 'instagram', api: true, ui: true },
-  { name: 'insight', api: true, ui: true },
-  { name: 'viber', api: true, ui: true },
-  { name: 'calls', api: true, ui: true },
+  { name: "inbox", ui: true, api: true },
+  { name: "automations", ui: true, api: true },
+  { name: "cars", ui: true, api: true },
+  { name: "sales", ui: true, api: true },
+  { name: "tasks", ui: true, api: true },
+  { name: "purchases", ui: true, api: true },
+  { name: "tickets", ui: true, api: true },
+  { name: "clientportal", ui: true, api: true },
+  { name: "contacts", ui: true, api: true },
+  { name: "ebarimt", ui: true, api: true },
+  { name: "emailtemplates", ui: true, api: true },
+  { name: "engages", ui: true, api: true },
+  { name: "forms", ui: true, api: true },
+  { name: "integrations", api: true },
+  { name: "internalnotes", api: true },
+  { name: "knowledgebase", ui: true, api: true },
+  { name: "logs", ui: true, api: true },
+  { name: "loyalties", ui: true, api: true },
+  { name: "notifications", ui: true, api: true },
+  { name: "webhooks", ui: true, api: true },
+  { name: "pos", ui: true, api: true },
+  { name: "products", ui: true, api: true },
+  { name: "segments", ui: true, api: true },
+  { name: "syncerkhet", ui: true, api: true },
+  { name: "multierkhet", api: true, ui: true },
+  { name: "tags", ui: true, api: true },
+  { name: "processes", ui: true, api: true },
+  { name: "inventories", ui: true, api: true },
+  { name: "posclient", api: true },
+  { name: "webbuilder", ui: true, api: true },
+  { name: "payment", ui: true, api: true },
+  { name: "imap", ui: true, api: true },
+  { name: "documents", ui: true, api: true },
+  { name: "pricing", ui: true, api: true },
+  { name: "timeclock", ui: true, api: true },
+  { name: "facebook", ui: true, api: true },
+  { name: "ecommerce", api: true },
+  { name: "loans", api: true, ui: true },
+  { name: "instagram", api: true, ui: true },
+  { name: "insight", api: true, ui: true },
+  { name: "viber", api: true, ui: true },
+  { name: "calls", api: true, ui: true }
 ];
 
 const pluginsMap = {};
@@ -56,15 +59,15 @@ const uiPlugins = [];
 const essyncerJSON = {
   plugins: [
     {
-      db_name: 'erxes',
+      db_name: "erxes",
       collections: [
         {
-          name: 'users',
-          schema: '{}',
-          script: '',
+          name: "users",
+          schema: "{}",
+          script: ""
         },
         {
-          name: 'conformities',
+          name: "conformities",
           schema: `
           {
             "mainType": {
@@ -81,11 +84,11 @@ const essyncerJSON = {
             }
           }
         `,
-          script: '',
-        },
-      ],
-    },
-  ],
+          script: ""
+        }
+      ]
+    }
+  ]
 };
 
 var main = async () => {
@@ -118,7 +121,7 @@ var main = async () => {
       }
 
       pluginsMap[plugin.name] = {
-        ui: uiConfigs,
+        ui: uiConfigs
       };
 
       uiPlugins.push(uiConfigs);
@@ -160,8 +163,8 @@ var main = async () => {
         pluginsMap[plugin.name].api.essyncer = essyncer;
 
         essyncerJSON.plugins.push({
-          db_name: 'erxes',
-          collections: essyncer,
+          db_name: "erxes",
+          collections: essyncer
         });
       }
     }
@@ -171,18 +174,18 @@ var main = async () => {
   const dups = actions.filter((item, index) => actions.indexOf(item) !== index);
 
   if (dups.length) {
-    console.log(`warning: duplicated actions names ==> ${dups.join(', ')}`);
+    console.log(`warning: duplicated actions names ==> ${dups.join(", ")}`);
   }
 
   fs.writeFileSync(
-    filePath('./scripts/ownCloud/core-ui/plugins.js'),
+    filePath("./scripts/ownCloud/core-ui/plugins.js"),
     `
      window.plugins = ${JSON.stringify(uiPlugins)}
     `
   );
 
   await fs.writeJSON(
-    filePath('./scripts/ownCloud/essyncerData/plugins.json'),
+    filePath("./scripts/ownCloud/essyncerData/plugins.json"),
     essyncerJSON
   );
 };

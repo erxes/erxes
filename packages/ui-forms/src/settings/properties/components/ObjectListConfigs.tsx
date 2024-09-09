@@ -1,9 +1,10 @@
-import { FormGroup } from '@erxes/ui/src';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IObjectListConfig } from '@erxes/ui/src/types';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import React, { useEffect, useState } from 'react';
-import ObjectListConfig from './ObjectListConfig';
+import React, { useEffect, useState } from "react";
+
+import FormGroup from "@erxes/ui/src/components/form/Group";
+import { IObjectListConfig } from "@erxes/ui/src/types";
+import Icon from "@erxes/ui/src/components/Icon";
+import { LinkButton } from "@erxes/ui/src/styles/main";
+import ObjectListConfig from "./ObjectListConfig";
 
 type Props = {
   onChange: (value: IObjectListConfig[]) => void;
@@ -19,7 +20,7 @@ function ObjectListConfigs(props: Props) {
       return {
         key,
         label,
-        type
+        type,
       };
     })
   );
@@ -43,9 +44,9 @@ function ObjectListConfigs(props: Props) {
 
   const addOption = () => {
     const option: any = currentLocation || {
-      key: '',
-      label: '',
-      type: 'text'
+      key: "",
+      label: "",
+      type: "text",
     };
 
     setOptions([...options, option]);

@@ -1,23 +1,23 @@
-import { Row } from "@erxes/ui-inbox/src/settings/integrations/styles";
-import Button from "@erxes/ui/src/components/Button";
-import CollapseContent from "@erxes/ui/src/components/CollapseContent";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import Form from "@erxes/ui/src/components/form/Form";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import Toggle from "@erxes/ui/src/components/Toggle";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
 import {
   IButtonMutateProps,
   IFieldLogic,
   IFormProps,
 } from "@erxes/ui/src/types";
-import { __ } from "@erxes/ui/src/utils";
-import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
-import React from "react";
 
-import PropertyLogics from "../containers/PropertyLogics";
+import Button from "@erxes/ui/src/components/Button";
+import CollapseContent from "@erxes/ui/src/components/CollapseContent";
+import ControlLabel from "@erxes/ui/src/components/form/Label";
+import Form from "@erxes/ui/src/components/form/Form";
+import FormControl from "@erxes/ui/src/components/form/Control";
+import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IFieldGroup } from "../types";
+import { ModalFooter } from "@erxes/ui/src/styles/main";
+import PropertyLogics from "../containers/PropertyLogics";
+import React from "react";
+import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
+import { Row } from "../styles";
+import Toggle from "@erxes/ui/src/components/Toggle";
+import { __ } from "@erxes/ui/src/utils";
 
 type Props = {
   group?: IFieldGroup;

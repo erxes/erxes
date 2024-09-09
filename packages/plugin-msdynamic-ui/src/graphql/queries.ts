@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const commonHistoryParams = `
   $page: Int,
@@ -83,6 +83,7 @@ const syncMsdHistories = `
       sendStr
       responseData
       responseStr
+      sendSales
       responseSales
       error
 
@@ -180,25 +181,33 @@ const posOrderDetail = `
         email
       }
       convertDealId
-      ${
-        isEnabled('contacts')
-          ? `
-        customer {
-          _id
-          code
-          firstName
-          lastName
-          primaryEmail
-          primaryPhone
-        }
-      `
-          : ``
+      customer {
+        _id
+        code
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
       }
       syncErkhetInfo
       putResponses
       deliveryInfo
       deal
       dealLink
+    }
+  }
+`;
+
+const msdCustomerRelations = `
+  query msdCustomerRelations($customerId: String) {
+    msdCustomerRelations(customerId: $customerId) {
+      _id
+      customerId
+      brandId
+      brand
+      modifiedAt
+      no
+      response
     }
   }
 `;
@@ -211,4 +220,5 @@ export default {
   checkSyncOrders,
   checkSyncOrdersTotalCount,
   posOrderDetail,
+  msdCustomerRelations
 };

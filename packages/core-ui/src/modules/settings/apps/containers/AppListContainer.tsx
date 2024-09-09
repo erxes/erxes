@@ -19,6 +19,7 @@ import Spinner from "modules/common/components/Spinner";
 import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries as permissionQueries } from "../../permissions/graphql/index";
+import { UsersGroupsQueryResponse } from "@erxes/ui-settings/src/permissions/types";
 
 type Props = {
   listQuery: AppsQueryResponse;
@@ -26,7 +27,7 @@ type Props = {
   addMutation: (params: { variables: IAppParams }) => Promise<IApp>;
   editMutation: (params: { variables: IAppEditParams }) => Promise<IApp>;
   removeMutation: (params: { variables: { _id: string } }) => Promise<string>;
-  userGroupsQuery: any;
+  userGroupsQuery: UsersGroupsQueryResponse;
 };
 
 class AppListContainer extends React.Component<Props> {

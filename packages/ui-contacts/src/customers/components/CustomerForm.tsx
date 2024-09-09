@@ -4,21 +4,21 @@ import {
   FormColumn,
   FormWrapper,
   ModalFooter,
-  ScrollWrapper,
+  ScrollWrapper
 } from "@erxes/ui/src/styles/main";
 import {
   EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES
 } from "../constants";
 import {
   IButtonMutateProps,
   IFormProps,
-  IQueryParams,
+  IQueryParams
 } from "@erxes/ui/src/types";
 import { ICustomer, ICustomerDoc } from "../types";
 import { IUser, IUserLinks } from "@erxes/ui/src/auth/types";
 import { genderChoices, isValidPhone } from "../utils";
-import { isEnabled, loadDynamicComponent } from "@erxes/ui/src/utils/core";
+import { getVersion } from "@erxes/ui/src/utils/core";
 
 import AutoCompletionSelect from "@erxes/ui/src/components/AutoCompletionSelect";
 import AvatarUpload from "@erxes/ui/src/components/AvatarUpload";
@@ -30,6 +30,7 @@ import Form from "@erxes/ui/src/components/form/Form";
 import FormControl from "@erxes/ui/src/components/form/Control";
 import FormGroup from "@erxes/ui/src/components/form/Group";
 import React from "react";
+import RelationForm from "@erxes/ui-forms/src/forms/containers/RelationForm";
 import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
 import validator from "validator";
 
@@ -74,7 +75,7 @@ class CustomerForm extends React.Component<Props, State> {
       birthDate: customer.birthDate,
       avatar: customer.avatar,
       primaryEmail: customer.primaryEmail,
-      primaryPhone: customer.primaryPhone,
+      primaryPhone: customer.primaryPhone
     };
   }
 
@@ -88,7 +89,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     const links = {};
 
-    getConstantFromStore("social_links").forEach((link) => {
+    getConstantFromStore("social_links").forEach(link => {
       links[link.value] = finalValues[link.value];
     });
 
@@ -107,11 +108,11 @@ class CustomerForm extends React.Component<Props, State> {
       emailValidationStatus: finalValues.emailValidationStatus,
       phoneValidationStatus: finalValues.phoneValidationStatus,
       links,
-      relationData: this.state.relationData,
+      relationData: this.state.relationData
     };
   };
 
-  onAvatarUpload = (url) => {
+  onAvatarUpload = url => {
     this.setState({ avatar: url });
   };
 
@@ -211,11 +212,11 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState({ phones: options, primaryPhone: selectedOption });
   };
 
-  onOwnerChange = (ownerId) => {
+  onOwnerChange = ownerId => {
     this.setState({ ownerId });
   };
 
-  onDateChange = (birthDate) => {
+  onDateChange = birthDate => {
     const currentDate = new Date();
     if (currentDate > birthDate) {
       this.setState({ birthDate });
@@ -232,7 +233,7 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onEmailVerificationStatusChange = (e) => {
+  onEmailVerificationStatusChange = e => {
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -240,7 +241,7 @@ class CustomerForm extends React.Component<Props, State> {
     }
   };
 
-  onPhoneVerificationStatusChange = (e) => {
+  onPhoneVerificationStatusChange = e => {
     const { changeVerificationStatus } = this.props;
 
     if (changeVerificationStatus) {
@@ -266,13 +267,14 @@ class CustomerForm extends React.Component<Props, State> {
         ...formProps,
         name: link.value,
         defaultValue: links[link.value] || "",
-        type: "url",
+        type: "url"
       },
       "link"
     );
   }
 
   renderContent = (formProps: IFormProps) => {
+    const { VERSION } = getVersion();
     const { closeModal, renderButton, autoCompletionQuery } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
@@ -298,7 +300,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Code", {
                   ...formProps,
                   name: "code",
-                  defaultValue: customer.code || "",
+                  defaultValue: customer.code || ""
                 })}
 
                 {this.renderFormGroup(
@@ -308,7 +310,7 @@ class CustomerForm extends React.Component<Props, State> {
                     name: "ownerId",
                     initialValue: ownerId,
                     onSelect: this.onOwnerChange,
-                    multi: false,
+                    multi: false
                   },
                   "selectMember"
                 )}
@@ -359,6 +361,7 @@ class CustomerForm extends React.Component<Props, State> {
                     componentclass="select"
                     defaultValue={customer.emailValidationStatus || "unknown"}
                     options={EMAIL_VALIDATION_STATUSES}
+                    disabled={VERSION === "saas"}
                   />
                 </FormGroup>
 
@@ -367,13 +370,13 @@ class CustomerForm extends React.Component<Props, State> {
                   name: "sex",
                   componentclass: "select",
                   defaultValue: customer.sex || 0,
-                  options: genderChoices(__),
+                  options: genderChoices(__)
                 })}
 
                 {this.renderFormGroup("Department", {
                   ...formProps,
                   name: "department",
-                  defaultValue: customer.department || "",
+                  defaultValue: customer.department || ""
                 })}
 
                 {this.renderFormGroup("Description", {
@@ -381,7 +384,7 @@ class CustomerForm extends React.Component<Props, State> {
                   name: "description",
                   defaultValue: customer.description || "",
                   max: 140,
-                  componentclass: "textarea",
+                  componentclass: "textarea"
                 })}
               </FormColumn>
               <FormColumn>
@@ -402,7 +405,7 @@ class CustomerForm extends React.Component<Props, State> {
                     name: "birthDate",
                     placeholder: "Birthday",
                     value: this.state.birthDate,
-                    onChange: this.onDateChange,
+                    onChange: this.onDateChange
                   },
                   "date"
                 )}
@@ -435,7 +438,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {this.renderFormGroup("Position", {
                   ...formProps,
                   name: "position",
-                  defaultValue: customer.position || "",
+                  defaultValue: customer.position || ""
                 })}
 
                 {this.renderFormGroup("Has Authority", {
@@ -447,17 +450,17 @@ class CustomerForm extends React.Component<Props, State> {
                       childnode: "Yes",
                       value: "Yes",
                       checked: this.state.hasAuthority === "Yes",
-                      onChange: (e) =>
-                        this.setState({ hasAuthority: e.target.value }),
+                      onChange: e =>
+                        this.setState({ hasAuthority: e.target.value })
                     },
                     {
                       childnode: "No",
                       value: "No",
                       checked: this.state.hasAuthority === "No",
-                      onChange: (e) =>
-                        this.setState({ hasAuthority: e.target.value }),
-                    },
-                  ],
+                      onChange: e =>
+                        this.setState({ hasAuthority: e.target.value })
+                    }
+                  ]
                 })}
 
                 {this.renderFormGroup("Subscribed", {
@@ -469,17 +472,17 @@ class CustomerForm extends React.Component<Props, State> {
                       childnode: "Yes",
                       value: "Yes",
                       checked: this.state.isSubscribed === "Yes",
-                      onChange: (e) =>
-                        this.setState({ isSubscribed: e.target.value }),
+                      onChange: e =>
+                        this.setState({ isSubscribed: e.target.value })
                     },
                     {
                       childnode: "No",
                       value: "No",
                       checked: this.state.isSubscribed === "No",
-                      onChange: (e) =>
-                        this.setState({ isSubscribed: e.target.value }),
-                    },
-                  ],
+                      onChange: e =>
+                        this.setState({ isSubscribed: e.target.value })
+                    }
+                  ]
                 })}
               </FormColumn>
             </FormWrapper>
@@ -495,20 +498,20 @@ class CustomerForm extends React.Component<Props, State> {
               </FormColumn>
             </FormWrapper>
           </CollapseContent>
-          {isEnabled("forms") && (
-            <CollapseContent title={__("Relations")} compact={true}>
-              <FormWrapper>
-                <FormColumn>
-                  {!this.props.customer &&
-                    loadDynamicComponent("relationForm", {
-                      ...this.props,
-                      onChange: this.onRelationsChange,
-                      contentType: "contacts:customer",
-                    })}
-                </FormColumn>
-              </FormWrapper>
-            </CollapseContent>
-          )}
+
+          <CollapseContent title={__("Relations")} compact={true}>
+            <FormWrapper>
+              <FormColumn>
+                {!this.props.customer && (
+                  <RelationForm
+                    {...this.props}
+                    onChange={this.onRelationsChange}
+                    contentType="core:customer"
+                  />
+                )}
+              </FormColumn>
+            </FormWrapper>
+          </CollapseContent>
         </ScrollWrapper>
         <ModalFooter>
           <Button
@@ -525,7 +528,7 @@ class CustomerForm extends React.Component<Props, State> {
             values: this.generateDoc(values),
             isSubmitted,
             object: this.props.customer,
-            resetSubmit,
+            resetSubmit
           })}
 
           {!this.props.customer && (

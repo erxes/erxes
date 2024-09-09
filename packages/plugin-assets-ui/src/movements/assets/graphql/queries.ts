@@ -1,13 +1,13 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { assetFields } from '../../../common/graphql/asset';
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import { assetFields } from "../../../common/graphql/asset";
 import {
   commonFilterParams,
   commonFilterParamsDef,
   dateFilterParams,
   dateFilterParamsDef,
   movementFilterParams,
-  movementFilterParamsDef,
-} from '../../../common/graphql/movement';
+  movementFilterParamsDef
+} from "../../../common/graphql/movement";
 
 const itemsType = `
     _id
@@ -24,18 +24,11 @@ const itemsType = `
     teamMemberId
     movementId
     createdAt
-    ${
-      isEnabled('contacts')
-        ? `
-      branch
-      department
-      company
-      customer
-      teamMember
-
-      `
-        : ``
-    }
+    branch
+    department
+    company
+    customer
+    teamMember
 `;
 
 const items = `
@@ -48,17 +41,11 @@ query AssetMovementItems ($movementId:String,${movementFilterParams},${dateFilte
       customerId
       companyId
       teamMemberId
-          ${
-            isEnabled('contacts')
-              ? `
-              branch
-              department
-              company
-              customer
-              teamMember`
-              : ``
-          }
-    }
+      branch
+      department
+      company
+      customer
+      teamMember
     }
   }
 `;
@@ -74,18 +61,11 @@ const item = `
       departmentId
       movementId
       teamMemberId
-
-      ${
-        isEnabled('contacts')
-          ? `     
-          branch
-          department
-          company
-          customer
-          teamMember
-        `
-          : ``
-      }
+      branch
+      department
+      company
+      customer
+      teamMember
     }
     teamMember
     teamMemberId

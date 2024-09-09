@@ -13,7 +13,7 @@ import {
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleScrollWrapper as ScrollWrapper
 } from "@erxes/ui/src";
 import client from "@erxes/ui/src/apolloClient";
 import { DateContainer } from "@erxes/ui/src/styles/main";
@@ -27,7 +27,7 @@ import {
   ENTITY,
   GOAL_STRUCTURE,
   GOAL_TYPE,
-  SPECIFIC_PERIOD_GOAL,
+  SPECIFIC_PERIOD_GOAL
 } from "../constants";
 import { IGoalType, IGoalTypeDoc } from "../types";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
@@ -49,6 +49,7 @@ type State = {
     addTarget: number;
   }>;
   periodGoal: string | undefined;
+  name: string;
   entity: string;
   teamGoalType: string | undefined;
   contributionType: string;
@@ -82,6 +83,7 @@ const initialState: State = {
   segmentRadio: undefined,
   contribution: undefined,
   pipelineLabels: undefined,
+  name: "",
   entity: ENTITY[0].value,
   teamGoalType: undefined,
   contributionType: CONTRIBUTION[0].value,
@@ -93,7 +95,7 @@ const initialState: State = {
   stageId: undefined,
   pipelineId: undefined,
   boardId: undefined,
-  target: 0,
+  target: 0
 };
 
 const reducer = (state, action) => {
@@ -110,8 +112,6 @@ const goalForm = (props: Props) => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  console.log(goalType);
-
   useEffect(() => {
     dispatch({ type: "updateState", payload: goalType });
   }, [goalType]);
@@ -122,6 +122,7 @@ const goalForm = (props: Props) => {
       endDate,
       stageId,
       pipelineId,
+      name,
       boardId,
       contribution,
       stageRadio,
@@ -139,7 +140,7 @@ const goalForm = (props: Props) => {
       goalTypeChoose,
       teamGoalType,
       pipelineLabels,
-      periodGoal,
+      periodGoal
     } = state;
     const finalValues = values;
     if (goalType) {
@@ -159,6 +160,7 @@ const goalForm = (props: Props) => {
       segmentRadio,
       stageId,
       pipelineId,
+      name,
       boardId,
       contribution,
       period,
@@ -170,76 +172,66 @@ const goalForm = (props: Props) => {
       periodGoal,
       startDate,
       endDate,
-      target,
+      target
     };
   };
 
-  const onChangeStartDate = (value) => {
+  const onChangeStartDate = value => {
     dispatch({ type: "updateState", payload: { startDate: value } });
   };
 
-  const onChangeEndDate = (value) => {
+  const onChangeEndDate = value => {
     dispatch({
       type: "updateState",
-      payload: { endDate: value, periodGoal: state.periodGoal || "Weekly" },
+      payload: { endDate: value, periodGoal: state.periodGoal || "Weekly" }
     });
   };
 
-  const onChangeTargetPeriod = (event) => {
+  const onChangeTargetPeriod = event => {
     const { value } = event.target;
     const parsedValue = parseInt(value);
     dispatch({ type: "updateState", payload: { target: parsedValue } });
-    // if (!isNaN(parsedValue)) {
-
-    // }
-    //  else {
-    //   // Handle the case where the value is not a valid integer
-    //   // You might want to set the state to a default value or display an error message
-    //   this.setState({ target: 0 }); // Set a default value of 0
-    //   dispatch({ type: 'updateTargetPeriod', payload: { target: 0 } });
-    //   // You can also display an error message to the user
-    // }
   };
 
-  const onChangeBranchId = (value) => {
+  const onChangeBranchId = value => {
     dispatch({ type: "updateState", payload: { branch: value } });
   };
-  const onChangeDepartments = (value) => {
+  const onChangeDepartments = value => {
     dispatch({ type: "updateState", payload: { department: value } });
   };
-  const onChangeUnites = (value) => {
+  const onChangeUnites = value => {
     dispatch({ type: "updateState", payload: { unit: value } });
   };
 
-  const onChangeStage = (stgId) => {
+  const onChangeStage = stgId => {
     dispatch({ type: "updateState", payload: { stageId: stgId } });
   };
 
-  const onChangePipeline = (plId) => {
+  const onChangePipeline = plId => {
     client
       .query({
         query: gql(pipelineQuery.pipelineLabels),
         fetchPolicy: "network-only",
-        variables: { pipelineId: plId },
+        variables: { pipelineId: plId }
       })
-      .then((data) => {
+      .then(data => {
         dispatch({
           type: "updateState",
-          payload: { pipelineLabels: data.data.pipelineLabels },
+          payload: { pipelineLabels: data.data.pipelineLabels }
         });
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
 
     dispatch({ type: "updateState", payload: { pipelineId: plId } });
   };
 
-  const onChangeBoard = (brId) => {
+  const onChangeBoard = brId => {
     dispatch({ type: "updateState", payload: { boardId: brId } });
   };
 
-  const onChangeField = (e) => {
+  const onChangeField = e => {
     const name = (e.target as HTMLInputElement).name;
 
     const value =
@@ -250,11 +242,11 @@ const goalForm = (props: Props) => {
     dispatch({ type: "updateState", payload: { [name]: value } });
   };
 
-  const onUserChange = (userId) => {
+  const onUserChange = userId => {
     dispatch({ type: "updateState", payload: { contribution: userId } });
   };
 
-  const onChangeSegments = (values) => {
+  const onChangeSegments = values => {
     dispatch({ type: "updateState", payload: { segmentIds: values } });
   };
 
@@ -262,7 +254,7 @@ const goalForm = (props: Props) => {
     const { startDate, endDate, specificPeriodGoals, periodGoal } = state;
     const { value } = event.target;
     const parsedValue = parseInt(value);
-    const updatedSpecificPeriodGoals = specificPeriodGoals.map((goal) =>
+    const updatedSpecificPeriodGoals = specificPeriodGoals.map(goal =>
       goal.addMonthly === date ? { ...goal, addTarget: parsedValue } : goal
     );
     // Add new periods to specificPeriodGoals if they don't exist
@@ -271,29 +263,29 @@ const goalForm = (props: Props) => {
         ? mapMonths(startDate, endDate)
         : mapWeeks(startDate, endDate);
 
-    periods.forEach((period) => {
+    periods.forEach(period => {
       const exists = updatedSpecificPeriodGoals.some(
-        (goal) => goal.addMonthly === period
+        goal => goal.addMonthly === period
       );
       if (!exists) {
         updatedSpecificPeriodGoals.push({
           _id: Math.random().toString(),
           addMonthly: period,
-          addTarget: NaN,
+          addTarget: NaN
         });
       }
     });
 
     // Update the state with the modified specificPeriodGoals
     const filteredGoals = updatedSpecificPeriodGoals.filter(
-      (goal) =>
+      goal =>
         (periodGoal === "Monthly" && goal.addMonthly.includes("Month")) ||
         (periodGoal === "Weekly" && goal.addMonthly.includes("Week"))
     );
 
     dispatch({
       type: "updateState",
-      payload: { specificPeriodGoals: filteredGoals },
+      payload: { specificPeriodGoals: filteredGoals }
     });
   };
 
@@ -307,6 +299,14 @@ const goalForm = (props: Props) => {
       <>
         <FormWrapper>
           <FormColumn>
+            <FormGroup>
+              <ControlLabel>{__("Name")}</ControlLabel>
+              <FormControl
+                name="name"
+                value={state.name}
+                onChange={onChangeField} // Directly pass the event handler
+              />
+            </FormGroup>
             <FormGroup>
               <ControlLabel>{__("choose Entity")}</ControlLabel>
               <FormControl
@@ -356,7 +356,7 @@ const goalForm = (props: Props) => {
                         contentTypes={[`cards:${state.entity}`]}
                         initialValue={state.segmentIds}
                         multi={true}
-                        onSelect={(segmentIds) => onChangeSegments(segmentIds)}
+                        onSelect={segmentIds => onChangeSegments(segmentIds)}
                       />
                     </FormGroup>
                   </>
@@ -557,7 +557,7 @@ const goalForm = (props: Props) => {
         </FormWrapper>
         {state.periodGoal === "Monthly" && (
           <div>
-            {months.map((month) => (
+            {months.map(month => (
               <FormWrapper key={month}>
                 <FormColumn>
                   <ControlLabel>{__("Period (Monthly)")}</ControlLabel>
@@ -573,10 +573,10 @@ const goalForm = (props: Props) => {
                       name="target"
                       value={
                         state.specificPeriodGoals.find(
-                          (goal) => goal.addMonthly === month
+                          goal => goal.addMonthly === month
                         )?.addTarget
                       }
-                      onChange={(event) => onChangeTarget(month, event)}
+                      onChange={event => onChangeTarget(month, event)}
                     />
                   </FormGroup>
                 </FormColumn>
@@ -586,7 +586,7 @@ const goalForm = (props: Props) => {
         )}
         {state.periodGoal === "Weekly" && (
           <div>
-            {weeks.map((week) => (
+            {weeks.map(week => (
               <FormWrapper key={week}>
                 <FormColumn>
                   <ControlLabel>{__("Period (Weekly)")}</ControlLabel>
@@ -602,10 +602,10 @@ const goalForm = (props: Props) => {
                       name="target"
                       value={
                         state.specificPeriodGoals.find(
-                          (goal) => goal.addMonthly === week
+                          goal => goal.addMonthly === week
                         )?.addTarget
                       }
-                      onChange={(event) => onChangeTarget(week, event)}
+                      onChange={event => onChangeTarget(week, event)}
                     />
                   </FormGroup>
                 </FormColumn>
@@ -621,7 +621,7 @@ const goalForm = (props: Props) => {
             name: "goalType",
             values: generateDoc(values),
             isSubmitted,
-            object: goalType,
+            object: goalType
           })}
         </ModalFooter>
       </>
@@ -648,7 +648,7 @@ const mapMonths = (startDate, endDate): string[] => {
     "September",
     "October",
     "November",
-    "December",
+    "December"
   ];
   const months: string[] = [];
 

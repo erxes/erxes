@@ -85,16 +85,10 @@ export const commonFields = `
     ${bookingFields}
   }
 
-  ${
-    isEnabled("tags")
-      ? `
-    tags {
+  tags {
       _id
       name
       colorCode
-    }
-  `
-      : ``
   }
 
   form {
@@ -164,5 +158,5 @@ export default {
   integrationsTotalCount,
   fields,
   emailTemplates,
-  templateTotalCount,
+  templateTotalCount
 };

@@ -1,6 +1,9 @@
-import { IContext } from '../../connectionResolver';
-import { sendCommonMessage } from '../../messageBroker';
-import { sendToGrandStream } from '../../utils';
+import { IContext } from "../../connectionResolver";
+import { sendCommonMessage } from "../../messageBroker";
+import { sendToGrandStream } from "../../utils";
+import redis from "../../redlock";
+import { XMLParser } from "fast-xml-parser";
+
 export interface IHistoryArgs {
   limit?: number;
   callStatus?: string;
@@ -29,12 +32,12 @@ const callsQueries = {
     let customer = await sendCommonMessage({
       subdomain,
       isRPC: true,
-      serviceName: 'contacts',
-      action: 'customers.findOne',
+      serviceName: "core",
+      action: "customers.findOne",
       data: {
-        primaryPhone: customerPhone,
+        primaryPhone: customerPhone
       },
-      defaultValue: null,
+      defaultValue: null
     });
 
     return customer;
@@ -52,7 +55,7 @@ const callsQueries = {
   async callHistoriesTotalCount(
     _root,
     params: IHistoryArgs,
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     return models.CallHistory.getHistoriesCount(params, user);
   },
@@ -66,36 +69,36 @@ const callsQueries = {
     if (operator) {
       return operator.status;
     }
-    return 'unAvailable';
+    return "unAvailable";
   },
 
   async callExtensionList(
     _root,
     { integrationId },
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     const queueData = (await sendToGrandStream(
       models,
       {
-        path: 'api',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        path: "api",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         data: {
           request: {
-            action: 'listAccount',
-            item_num: '50',
-            options: 'extension,fullname,status',
-            page: '1',
-            sidx: 'extension',
-            sord: 'asc',
-          },
+            action: "listAccount",
+            item_num: "50",
+            options: "extension,fullname,status",
+            page: "1",
+            sidx: "extension",
+            sord: "asc"
+          }
         },
         integrationId: integrationId,
         retryCount: 3,
         isConvertToJson: true,
-        isAddExtention: false,
+        isAddExtention: false
       },
-      user,
+      user
     )) as any;
 
     if (queueData && queueData.response) {
@@ -106,8 +109,97 @@ const callsQueries = {
       }
       return [];
     }
-    return 'request failed';
+    return "request failed";
   },
+  async callQueueList(_root, { integrationId }, { models, user }: IContext) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    const formattedDate = `${year}-${month}-${day}`;
+
+    const queueData = (await sendToGrandStream(
+      models,
+      {
+        path: "api",
+        method: "POST",
+        data: {
+          request: {
+            action: "queueapi",
+            startTime: formattedDate,
+            endTime: formattedDate
+          }
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: false,
+        isAddExtention: false
+      },
+      user
+    )) as any;
+
+    if (!queueData.ok) {
+      throw new Error(`HTTP error! Status: ${queueData.status}`);
+    }
+
+    const xmlData = await queueData.text();
+
+    const parser = new XMLParser();
+
+    const jsonObject = parser.parse(xmlData);
+
+    const rootStatistics = jsonObject.root_statistics || {};
+    const queues = rootStatistics.queue || [];
+
+    return queues;
+  },
+
+  async callWaitingList(_root, { queue }) {
+    const redisKey = `callRealtimeHistory:${queue}:waiting`;
+    return await redis.get(redisKey);
+  },
+
+  async callProceedingList(_root, { queue }) {
+    const redisKey = `callRealtimeHistory:${queue}:talking`;
+    return await redis.get(redisKey);
+  },
+
+  async callQueueMemberList(
+    _root,
+    { integrationId, queue },
+    { models, user }: IContext
+  ) {
+    const queueData = (await sendToGrandStream(
+      models,
+      {
+        path: "api",
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: {
+          request: {
+            action: "getCallQueuesMemberMessage",
+            extension: queue
+          }
+        },
+        integrationId: integrationId,
+        retryCount: 3,
+        isConvertToJson: true,
+        isAddExtention: false
+      },
+      user
+    )) as any;
+
+    if (queueData && queueData.response) {
+      const { CallQueueMembersMessage } = queueData?.response;
+
+      if (CallQueueMembersMessage) {
+        return CallQueueMembersMessage;
+      }
+      return [];
+    }
+    return "request failed";
+  }
 };
 
 export default callsQueries;

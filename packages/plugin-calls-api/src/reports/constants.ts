@@ -59,6 +59,7 @@ export const CALL_DIMENSION = [
     { label: 'Status', value: 'status' },
     { label: 'Queue', value: 'queue' },
     { label: 'Type', value: 'type' },
+    { label: 'Date', value: 'createdAt' },
     { label: 'Frequency (day, week, month)', value: 'frequency' },
 ]
 

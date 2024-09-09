@@ -1,8 +1,8 @@
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
-import { sendProductsMessage } from '../messageBroker';
-import { getRatio } from '../utils';
+import { Model } from "mongoose";
+import * as _ from "underscore";
+import { IModels } from "../connectionResolver";
+import { sendProductsMessage } from "../messageBroker";
+import { getRatio } from "../utils";
 import {
   IRemainderCount,
   IRemainderParams,
@@ -11,7 +11,7 @@ import {
   IRemainder,
   IRemainderDocument,
   remainderSchema
-} from './definitions/remainders';
+} from "./definitions/remainders";
 
 export interface IRemainderModel extends Model<IRemainderDocument> {
   getRemainder(_id: string): Promise<IRemainderDocument>;
@@ -51,7 +51,7 @@ export const loadRemainderClass = (models: IModels) => {
     public static async getRemainder(_id: string) {
       const result: any = await models.Remainders.findById(_id);
 
-      if (!result) throw new Error('Remainder not found!');
+      if (!result) throw new Error("Remainder not found!");
 
       return result;
     }
@@ -79,7 +79,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       const product: any = await sendProductsMessage({
         subdomain,
-        action: 'findOne',
+        action: "productFindOne",
         data: {
           query: { _id: productId }
         },
@@ -102,12 +102,12 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       params: IRemainderProductsParams
     ) {
-      const query: any = { status: { $ne: 'deleted' } };
+      const query: any = { status: { $ne: "deleted" } };
 
       if (params.categoryId) {
         const productCategories = await sendProductsMessage({
           subdomain,
-          action: 'categories.withChilds',
+          action: "categories.withChilds",
           data: {
             _id: params.categoryId
           },
@@ -125,7 +125,7 @@ export const loadRemainderClass = (models: IModels) => {
       if (params.searchValue) {
         const regexOption = {
           $regex: `.*${params.searchValue}.*`,
-          $options: 'i'
+          $options: "i"
         };
 
         query.$or = [
@@ -143,7 +143,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
+        action: "productFind",
         data: {
           query,
           sort: { code: 1 },
@@ -155,7 +155,7 @@ export const loadRemainderClass = (models: IModels) => {
 
       const totalCount = await sendProductsMessage({
         subdomain,
-        action: 'count',
+        action: "productCount",
         data: {
           query
         },
@@ -214,12 +214,8 @@ export const loadRemainderClass = (models: IModels) => {
       subdomain: string,
       params: IRemaindersParams
     ) {
-      const {
-        departmentIds,
-        branchIds,
-        productCategoryId,
-        productIds
-      } = params;
+      const { departmentIds, branchIds, productCategoryId, productIds } =
+        params;
       const filter: any = {};
 
       if (departmentIds && departmentIds.length) {
@@ -233,7 +229,7 @@ export const loadRemainderClass = (models: IModels) => {
       if (productCategoryId) {
         const limit: number = await sendProductsMessage({
           subdomain,
-          action: 'count',
+          action: "productCount",
           data: {
             query: {},
             categoryId: productCategoryId
@@ -243,7 +239,7 @@ export const loadRemainderClass = (models: IModels) => {
 
         const products: any = await sendProductsMessage({
           subdomain,
-          action: 'find',
+          action: "productFind",
           data: {
             query: {},
             categoryId: productCategoryId,
@@ -307,7 +303,7 @@ export const loadRemainderClass = (models: IModels) => {
       const productIds = productsData.map(pd => pd.productId);
       const products = await sendProductsMessage({
         subdomain,
-        action: 'find',
+        action: "productFind",
         data: { query: { _id: { $in: productIds } }, limit: productIds.length },
         isRPC: true,
         defaultValue: []

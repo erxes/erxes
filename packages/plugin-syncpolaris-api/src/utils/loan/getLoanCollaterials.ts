@@ -7,7 +7,7 @@ export const getLoanCollaterials = async (subdomain, params) => {
     subdomain,
     op: '13610904',
     data: sendData,
-  }).then((response) => JSON.parse(response));
+  });
 
   return loanCollaterials;
 };

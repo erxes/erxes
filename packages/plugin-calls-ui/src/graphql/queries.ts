@@ -1,4 +1,4 @@
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const callsIntegrationDetail: string = `
   query callsIntegrationDetail($integrationId: String!) {
@@ -22,6 +22,7 @@ const callUserIntegrations: any = `
       phone
       wsServer
       token
+      queues
     }
   }
 `;
@@ -36,20 +37,12 @@ const callCustomerDetail: string = `
       phones
       phone
       tagIds
-        ${
-          isEnabled('tags')
-            ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
-
-          }
-        `
-            : ``
-        }
-     
+      getTags {
+          _id
+          name
+          colorCode
+          type
+      }
     }
 }
 `;
@@ -136,18 +129,12 @@ const callHistories = `
       avatar
       email
       firstName
-      ${
-        isEnabled('tags')
-          ? `
-          getTags {
-            _id
-            name
-            colorCode
-                    type
+      getTags {
+        _id
+        name
+        colorCode
+        type
 
-          }
-        `
-          : ``
       }
       phone
       primaryEmail
@@ -181,6 +168,30 @@ const callExtensionList = `
 }
 `;
 
+const callQueueList = `
+  query callQueueList($integrationId: String!) {
+  callQueueList(integrationId: $integrationId)
+}
+`;
+
+const callWaitingList = `
+  query callWaitingList($queue: String!) {
+  callWaitingList(queue: $queue)
+}
+`;
+
+const callProceedingList = `
+  query callProceedingList( $queue: String!) {
+  callProceedingList(queue: $queue)
+}
+`;
+
+const callQueueMemberList = `
+  query callQueueMemberList($integrationId: String!, $queue: String!) {
+  callQueueMemberList(integrationId: $integrationId, queue: $queue)
+}
+`;
+
 export default {
   callsIntegrationDetail,
   callUserIntegrations,
@@ -192,4 +203,8 @@ export default {
   callsGetConfigs,
   callGetAgentStatus,
   callExtensionList,
+  callQueueList,
+  callWaitingList,
+  callProceedingList,
+  callQueueMemberList
 };

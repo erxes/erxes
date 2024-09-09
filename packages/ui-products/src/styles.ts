@@ -1,5 +1,6 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import Table from '@erxes/ui/src/components/table';
-import { colors } from '@erxes/ui/src/styles';
 import { lighten } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 
@@ -17,6 +18,23 @@ export const BarcodeItem = styled.div`
     text-decoration: line-through;
   }
 `;
+
+export const GroupWrapper = styled.div`
+  border: 1px solid ${colors.colorSecondary};
+  position: relative;
+  border-radius: ${dimensions.unitSpacing - 5}px;
+  padding: ${dimensions.unitSpacing}px 15px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > button {
+    position: absolute;
+    padding: 5px 8px;
+    top: -${dimensions.unitSpacing - 5}px;
+    right: -${dimensions.unitSpacing}px;
+    background: ${colors.bgActive} !important;
+  }
+`;
+
 
 export const TableBarcode = styled(Table)`
   margin-top: 10px;
@@ -77,5 +95,19 @@ export const TableOver = styled.table`
   }
   td.active {
     color: red;
+  }
+`;
+
+export const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
   }
 `;

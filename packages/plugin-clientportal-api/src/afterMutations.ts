@@ -1,13 +1,13 @@
-import { cardUpdateHandler, cardDeleteHandler } from './afterMutations/cards';
-import { kbHandler } from './afterMutations/knowledgeBase';
-import { IModels } from './connectionResolver';
+import { cardUpdateHandler, cardDeleteHandler } from "./afterMutations/cards";
+import { kbHandler } from "./afterMutations/knowledgeBase";
+import { IModels } from "./connectionResolver";
 
 export default {
-  'cards:ticket': ['update', 'delete'],
-  'cards:task': ['update', 'delete'],
-  'knowledgebase:knowledgeBaseArticle': ['create', 'update'],
-  'cards:deal': ['update', 'delete'],
-  'cards:purchase': ['update', 'delete']
+  "tickets:ticket": ["update", "delete"],
+  "tasks:task": ["update", "delete"],
+  "knowledgebase:knowledgeBaseArticle": ["create", "update"],
+  "sales:deal": ["update", "delete"],
+  "purchases:purchase": ["update", "delete"]
 };
 
 export const afterMutationHandlers = async (
@@ -16,24 +16,30 @@ export const afterMutationHandlers = async (
   params
 ) => {
   if (
-    ['cards:task', 'cards:ticket', 'cards:deal', 'cards:purchase'].includes(
-      params.type
-    ) &&
-    params.action === 'update'
+    [
+      "tasks:task",
+      "tickets:ticket",
+      "sales:deal",
+      "purchases:purchase"
+    ].includes(params.type) &&
+    params.action === "update"
   ) {
     await cardUpdateHandler(models, subdomain, params);
   }
 
   if (
-    ['cards:task', 'cards:ticket', 'cards:deal', 'cards:purchase'].includes(
-      params.type
-    ) &&
-    params.action === 'delete'
+    [
+      "tasks:task",
+      "tickets:ticket",
+      "sales:deal",
+      "purchases:purchase"
+    ].includes(params.type) &&
+    params.action === "delete"
   ) {
     await cardDeleteHandler(models, subdomain, params);
   }
 
-  if (params.type === 'knowledgebase:knowledgeBaseArticle') {
+  if (params.type === "knowledgebase:knowledgeBaseArticle") {
     await kbHandler(models, subdomain, params);
   }
 

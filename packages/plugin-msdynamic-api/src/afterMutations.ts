@@ -1,10 +1,11 @@
-import { generateModels } from './connectionResolver';
-import { customerToDynamic, dealToDynamic } from './utils';
+import { generateModels } from "./connectionResolver";
+import { customerToDynamic } from "./utilsCustomer";
+import { dealToDynamic } from "./utils";
 
 const allowTypes = {
-  'contacts:customer': ['create'],
-  'contacts:company': ['create'],
-  'pos:order': ['synced'],
+  "core:customer": ["create"],
+  "core:company": ["create"],
+  "pos:order": ["synced"]
 };
 
 export const afterMutationHandlers = async (subdomain, params) => {
@@ -13,13 +14,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const models = await generateModels(subdomain);
 
   const syncLogDoc = {
-    type: '',
+    type: "",
     contentType: type,
     contentId: params.object._id,
     createdAt: new Date(),
     createdBy: user._id,
     consumeData: params,
-    consumeStr: JSON.stringify(params),
+    consumeStr: JSON.stringify(params)
   };
 
   let syncLog;
@@ -33,28 +34,20 @@ export const afterMutationHandlers = async (subdomain, params) => {
   }
 
   try {
-    if (type === 'contacts:customer') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-      if (action === 'create') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
-        return;
-      }
+    if (type === "core:customer" && action === "create") {
+      customerToDynamic(subdomain, params.object, models);
+      return;
     }
 
-    if (type === 'contacts:company') {
-      syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-
-      if (action === 'create') {
-        customerToDynamic(subdomain, syncLog, params.object, models);
-        return;
-      }
+    if (type === "core:company" && action === "create") {
+      customerToDynamic(subdomain, params.object, models);
+      return;
     }
 
-    if (type === 'pos:order') {
+    if (type === "pos:order") {
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
 
-      if (action === 'synced') {
+      if (action === "synced") {
         dealToDynamic(subdomain, syncLog, params.object, models);
         return;
       }
@@ -62,7 +55,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
-      { $set: { error: e.message } },
+      { $set: { error: e.message } }
     );
   }
 };
