@@ -83,7 +83,7 @@ export const getValue = (obj, path) => {
 
 export const extractData = (data: any) => {
 
-  if (_.isObject(data)) {
+  if ((data || {}).hasOwnProperty('list')) {
     return (data as any || {}).list || []
   }
 
