@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.16.0-rc.4](https://github.com/erxes/erxes/compare/1.16.0-rc.3...1.16.0-rc.4) (2024-09-09)
+
 ## [1.16.0-rc.3](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-09-08)
 
 
