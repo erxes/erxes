@@ -5,7 +5,7 @@ import {
   EdgeProps,
   getBezierPath
 } from 'reactflow';
-import { EdgeButton } from './styles';
+import { EdgeButton } from '../styles';
 
 const Edge: FC<EdgeProps> = ({
   id,

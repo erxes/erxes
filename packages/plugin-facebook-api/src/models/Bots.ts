@@ -20,7 +20,7 @@ const validateDoc = async (models: IModels, doc: any, isUpdate?: boolean) => {
   if (
     !isUpdate &&
     (await models.Bots.findOne({
-      pageId: doc.pageId,
+      pageId: doc.pageId
     }))
   ) {
     throw new Error('This page has already been registered as a bot');
@@ -65,14 +65,14 @@ export const loadBotClass = (models: IModels) => {
         pageTokenResponse = await getPageAccessToken(pageId, account.token);
       } catch (e) {
         debugError(
-          `Error ocurred while trying to get page access token with ${e.message}`,
+          `Error ocurred while trying to get page access token with ${e.message}`
         );
       }
 
       const bot = await models.Bots.create({
         ...doc,
         uid: account.uid,
-        token: pageTokenResponse,
+        token: pageTokenResponse
       });
 
       try {
@@ -81,6 +81,8 @@ export const loadBotClass = (models: IModels) => {
           botId: bot._id,
           persistentMenus: bot.persistentMenus,
           greetText: bot?.greetText,
+          isEnabledBackBtn: bot?.isEnabledBackBtn,
+          backButtonText: bot?.backButtonText
         });
       } catch (error) {
         await models.Bots.deleteOne({ _id: bot._id });
@@ -103,7 +105,7 @@ export const loadBotClass = (models: IModels) => {
 
         const pageAccessToken = await getPageAccessToken(
           bot.pageId,
-          relatedAccount.token,
+          relatedAccount.token
         );
 
         if (bot.token !== pageAccessToken) {
@@ -119,6 +121,8 @@ export const loadBotClass = (models: IModels) => {
           pageAccessToken: bot.token,
           persistentMenus: bot.persistentMenus,
           greetText: bot.greetText,
+          isEnabledBackBtn: bot?.isEnabledBackBtn,
+          backButtonText: bot?.backButtonText
         });
       } catch (err) {
         throw new Error(err.message);
@@ -134,16 +138,30 @@ export const loadBotClass = (models: IModels) => {
         throw new Error(error.message);
       }
 
-      const { pageId, persistentMenus, greetText } = doc;
+      const {
+        pageId,
+        persistentMenus,
+        greetText,
+        isEnabledBackBtn,
+        backButtonText
+      } = doc;
 
       const bot = await this.getBot(_id);
 
       if (
-        JSON.stringify({ pageId, persistentMenus, greetText }) !==
+        JSON.stringify({
+          pageId,
+          persistentMenus,
+          greetText,
+          isEnabledBackBtn,
+          backButtonText
+        }) !==
         JSON.stringify({
           pageId: bot.pageId,
           persistentMenus: bot.persistentMenus,
           greetText: bot.greetText,
+          isEnabledBackBtn: bot.isEnabledBackBtn,
+          backButtonText: bot.backButtonText
         })
       ) {
         try {
@@ -156,6 +174,8 @@ export const loadBotClass = (models: IModels) => {
             pageAccessToken: bot.token,
             persistentMenus: doc.persistentMenus,
             greetText: greetText !== bot.greetText ? greetText : undefined,
+            isEnabledBackBtn: bot?.isEnabledBackBtn,
+            backButtonText: bot?.backButtonText
           });
         } catch (error) {
           throw new Error(error.message);
@@ -183,6 +203,8 @@ export const loadBotClass = (models: IModels) => {
       pageAccessToken,
       persistentMenus,
       greetText,
+      isEnabledBackBtn,
+      backButtonText
     }) {
       let generatedPersistentMenus: any[] = [];
 
@@ -193,7 +215,7 @@ export const loadBotClass = (models: IModels) => {
               type: 'web_url',
               title: text,
               url: link,
-              webview_height_ratio: 'full',
+              webview_height_ratio: 'full'
             });
           } else {
             generatedPersistentMenus.push({
@@ -201,15 +223,27 @@ export const loadBotClass = (models: IModels) => {
               title: text,
               payload: JSON.stringify({
                 botId,
-                persistentMenuId: _id,
-              }),
+                persistentMenuId: _id
+              })
             });
           }
         }
       }
 
+      if (isEnabledBackBtn) {
+        generatedPersistentMenus.push({
+          type: 'postback',
+          title: backButtonText || 'Back',
+          payload: JSON.stringify({
+            botId,
+            isBackBtn: true,
+            persistentMenuId: Math.random()
+          })
+        });
+      }
+
       await graphRequest.post('/me/subscribed_apps', pageAccessToken, {
-        subscribed_fields: ['messages', 'messaging_postbacks'],
+        subscribed_fields: ['messages', 'messaging_postbacks']
       });
 
       let doc: any = {
@@ -222,20 +256,20 @@ export const loadBotClass = (models: IModels) => {
               {
                 type: 'postback',
                 title: 'Get Started',
-                payload: JSON.stringify({ botId: botId }),
+                payload: JSON.stringify({ botId: botId })
               },
-              ...generatedPersistentMenus,
-            ],
-          },
-        ],
+              ...generatedPersistentMenus
+            ]
+          }
+        ]
       };
 
       if (greetText) {
         doc.greeting = [
           {
             locale: 'default',
-            text: greetText,
-          },
+            text: greetText
+          }
         ];
       }
 
@@ -251,7 +285,7 @@ export const loadBotClass = (models: IModels) => {
 
       await graphRequest.delete(`/me/messenger_profile`, pageAccessToken, {
         fields: ['get_started', 'persistent_menu'],
-        access_token: pageAccessToken,
+        access_token: pageAccessToken
       });
 
       await models.Bots.deleteOne({ _id });

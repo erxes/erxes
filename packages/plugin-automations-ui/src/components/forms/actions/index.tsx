@@ -10,6 +10,7 @@ import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import { renderDynamicComponent } from '../../../utils';
 import SendMail from './subForms/SendMail';
+import WorkFlow from '../../../containers/forms/actions/subForms/Workflow';
 type Props = {
   onSave: () => void;
   closeModal: () => void;
@@ -19,7 +20,7 @@ type Props = {
   propertyTypesConst: any[];
 };
 
-const renderExtraContent = props => {
+const renderExtraContent = (props) => {
   const {
     activeAction: { type }
   } = props;
@@ -30,7 +31,8 @@ const renderExtraContent = props => {
     setProperty: <SetProperty {...props} />,
     if: <IfForm {...props} />,
     customCode: <CustomCode {...props} />,
-    sendEmail: <SendMail {...props} />
+    sendEmail: <SendMail {...props} />,
+    workflow: <WorkFlow {...props} />
   };
 
   const Component = renderDynamicComponent(
@@ -52,7 +54,7 @@ class DefaultForm extends React.Component<Props> {
     const { activeAction, onSave, closeModal, actionsConst } = this.props;
 
     const currentAction = actionsConst.find(
-      action => action.type === activeAction.type && action.component
+      (action) => action.type === activeAction.type && action.component
     );
 
     if (currentAction) {

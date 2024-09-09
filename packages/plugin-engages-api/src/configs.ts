@@ -11,6 +11,7 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import app from '@erxes/api-utils/src/app';
+import automations from './automations';
 
 export default {
   name: 'engages',
@@ -18,12 +19,19 @@ export default {
   graphql: async () => {
     return {
       typeDefs: await typeDefs(),
-      resolvers,
+      resolvers
     };
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: { tags, logs: { consumers: logs }, webhooks, cronjobs, permissions },
+  meta: {
+    tags,
+    logs: { consumers: logs },
+    webhooks,
+    cronjobs,
+    permissions,
+    automations
+  },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
@@ -39,5 +47,5 @@ export default {
     // Insert routes below
     app.use('/telnyx', telnyx);
   },
-  setupMessageConsumers,
+  setupMessageConsumers
 };
