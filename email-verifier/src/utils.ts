@@ -37,7 +37,7 @@ interface IRequestParams {
  * Sends post request to specific url
  */
 export const sendRequest = async (
-  { url, method, headers, form, body, params }: IRequestParams,
+  { url, method, headers, body }: IRequestParams,
   errorMessage?: string
 ) => {
   // debugBase(`
