@@ -286,6 +286,11 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       }
 
       const transferCall = findTransferCall(lastCreatedObject);
+      const answeredCall = findAnsweredCall(lastCreatedObject);
+
+      if (answeredCall) {
+        lastCreatedObject = answeredCall;
+      }
 
       if (transferCall) {
         lastCreatedObject = transferCall;
@@ -389,12 +394,33 @@ function findTransferCall(data: any): any {
   });
 
   if (transferredCalls.length === 1) {
-    return transferredCalls[0]; // Return single object if only one match is found
+    return transferredCalls[0];
   } else if (transferredCalls.length > 1) {
     return transferredCalls;
   }
   if (Array.isArray(data) && data.find) {
     return data.find((item) => item.action_type === 'TRANSFER');
+  } else {
+    return null;
+  }
+}
+
+function findAnsweredCall(data: any): any {
+  if (!data) {
+    return null;
+  }
+  const answeredCalls = Object.values(data).filter((subCdr) => {
+    const typedSubCdr = subCdr as any;
+    return typedSubCdr.disposition === 'ANSWERED' && typedSubCdr.recordfiles;
+  });
+
+  if (answeredCalls.length === 1) {
+    return answeredCalls[0];
+  } else if (answeredCalls.length > 1) {
+    return answeredCalls;
+  }
+  if (Array.isArray(data) && data.find) {
+    return data.find((item) => item.disposition === 'ANSWERED');
   } else {
     return null;
   }
