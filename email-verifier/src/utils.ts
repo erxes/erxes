@@ -391,15 +391,13 @@ export const getProgressStatus = async (listId: string) => {
 
   const url = `${CLEAR_OUT_API_URL}/email_verify/bulk/progress_status?list_id=${listId}`;
   try {
-    const res = await fetch(url, {
+    return await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer:${CLEAR_OUT_API_KEY}`,
       },
     }).then((r) => r.json());
-
-    return res;
   } catch (e) {
     throw e;
   }
