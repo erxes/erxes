@@ -1,17 +1,15 @@
 import * as schedule from 'node-schedule';
 import { getBulkResult, getStatus } from '../apiPhoneVerifier';
+import { Emails } from '../models';
 import {
   debugBase,
   debugCrons,
   getArray,
   getEnv,
-  getProgressStatus,
-  getResult,
   sendRequest,
-  setArray,
+  setArray
 } from '../utils';
 import fetch = require('node-fetch');
-import { Emails } from '../models';
 
 schedule.scheduleJob('1 * * * * *', async () => {
   const listIds = await getArray('erxes_phone_verifier_list_ids');
