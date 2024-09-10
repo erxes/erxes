@@ -132,7 +132,7 @@ export const sendRPCMessage = async (
 
     return channel.assertQueue('', { exclusive: true }).then(q => {
       const timeoutMs = message.timeout || process.env.RPC_TIMEOUT || 590000;
-      var interval = setInterval(() => {
+      let interval = setInterval(() => {
         channel.deleteQueue(q.queue);
 
         clearInterval(interval);
