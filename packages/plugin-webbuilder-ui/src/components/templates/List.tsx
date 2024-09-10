@@ -41,11 +41,6 @@ function List(props: Props) {
   let timer;
   const navigate = useNavigate();
   const location = useLocation();
-
-  const [name, setName] = useState('');
-  const [coverImage, setCoverImage] = useState<IAttachment | undefined>(
-    undefined,
-  );
   const [category, setCategory] = useState('');
 
   const { templates, templatesCount, queryParams } = props;
@@ -80,15 +75,6 @@ function List(props: Props) {
     setCategory(value);
   };
 
-  const onChangeCoverImage = (attachment: IAttachment[]) => {
-    if (attachment.length) {
-      setCoverImage(attachment[0]);
-
-      return;
-    }
-
-    setCoverImage(undefined);
-  };
 
   const renderCategories = (cat: any, index: number) => {
     return (
