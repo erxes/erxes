@@ -73,8 +73,8 @@ class CalendarWrapper extends React.Component<Props, State> {
     const color = {};
 
     this.props.accounts.map(acc => {
-      return acc.calendars.map(calendar => {
-        return (color[calendar.providerCalendarId] = acc.color);
+      acc.calendars.map(calendar => {
+        (color[calendar.providerCalendarId] = acc.color);
       });
     });
 
@@ -127,9 +127,6 @@ class CalendarWrapper extends React.Component<Props, State> {
     );
   };
 
-  renderOptions = (list: string[]) => {
-    return list.map(item => ({ value: item, label: item.toUpperCase() }));
-  };
 
   renderTypeChooser = () => {
     const { type } = this.state;
