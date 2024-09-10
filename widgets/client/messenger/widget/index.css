@@ -14,6 +14,19 @@
   border-radius: 1rem;
 }
 
+.erxes-launcher {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border: none;
+  z-index: 2147483649;
+  overflow: hidden;
+  height: 76px;
+  width: 76px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
 .erxes-messenger-hidden {
   position: fixed;
   height: min(720px, 100% - 104px);
