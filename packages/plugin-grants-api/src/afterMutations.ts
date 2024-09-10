@@ -44,7 +44,7 @@ export const afterMutationHandlers = async (
           ]
         });
 
-        if (!!requests.length) {
+        if (requests.length) {
           const itemIds: string[] = [];
           const sourceContentTypes: string[] = [];
 
@@ -101,7 +101,7 @@ export const afterMutationHandlers = async (
             }
           }
 
-          if (!!receiverIds.length) {
+          if (receiverIds.length) {
             const link = await sendCardsMessage({
               subdomain,
               action: 'getLink',
