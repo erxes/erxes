@@ -71,79 +71,79 @@ export interface IOrderUpdate extends IOrderCreate {
 }
 
 export interface IItem {
-  _id?: string;
-  id?: string;
-  name: string;
-  barCode?: string;
-  barCodeType?: string;
-  classificationCode?: string;
-  taxProductCode?: string;
-  measureUnit?: string;
-  qty: number;
-  unitPrice: number;
-  totalBonus?: number;
-  totalVAT?: number;
-  totalCityTax?: number;
-  totalAmount: number;
-  data?: any;
+  _id?: string
+  id?: string
+  name: string
+  barCode?: string
+  barCodeType?: string
+  classificationCode?: string
+  taxProductCode?: string
+  measureUnit?: string
+  qty: number
+  unitPrice: number
+  totalBonus?: number
+  totalVAT?: number
+  totalCityTax?: number
+  totalAmount: number
+  data?: any
 }
 
 export interface IReceipt {
-  _id?: string;
-  id?: string;
-  totalAmount: number;
-  totalVAT?: number;
-  totalCityTax?: number;
-  taxType: string;
-  merchantTin: string;
-  bankAccountNo?: string;
-  data?: any;
-  items: IItem[];
+  _id?: string
+  id?: string
+  totalAmount: number
+  totalVAT?: number
+  totalCityTax?: number
+  taxType: string
+  merchantTin: string
+  bankAccountNo?: string
+  data?: any
+  items: IItem[]
 }
 
 export interface IPutResponse {
-  number: string;
+  number: string
 
   // Холбогдох обьект
-  contentType: string;
-  contentId: string;
-  posToken?: string;
+  contentType: string
+  contentId: string
+  posToken?: string
 
-  totalAmount?: number;
-  totalVAT?: number;
-  totalCityTax?: number;
-  districtCode?: string;
-  branchNo?: string;
-  merchantTin?: string;
-  posNo?: string;
-  customerTin?: string;
-  customerName?: string;
-  consumerNo?: string;
-  type: string;
-  inactiveId?: string;
-  invoiceId?: string;
-  reportMonth?: string;
-  data?: any;
-  receipts?: IReceipt[];
-  payments?: any[];
+  totalAmount?: number
+  totalVAT?: number
+  totalCityTax?: number
+  districtCode?: string
+  branchNo?: string
+  merchantTin?: string
+  posNo?: string
+  customerTin?: string
+  customerName?: string
+  consumerNo?: string
+  type: string
+  inactiveId?: string
+  invoiceId?: string
+  reportMonth?: string
+  data?: any
+  receipts?: IReceipt[]
+  payments?: any[]
 
-  easy?: boolean;
+  easy?: boolean
 
   // Ебаримт руу илгээсэн мэдээлэл
   sendInfo?: any
-  state?: string;
+  state?: string
 
-  _id: string;
-  createdAt: Date;
-  modifiedAt: Date;
+  _id: string
+  createdAt: Date
+  modifiedAt: Date
 
-  id?: string;
-  posId?: number;
-  status?: string;
-  message?: string;
-  qrData?: string;
-  lottery?: string;
-  date?: string;
+  id?: string
+  posId?: number
+  status?: string
+  message?: string
+  qrData?: string
+  lottery?: string
+  date?: string
 }
 export interface IOrderUser {
   _id: string
@@ -167,6 +167,7 @@ export interface IOrder extends IOrderCommon {
   paidDate?: string
   cashAmount?: number
   mobileAmount?: number
+  directIsAmount?: boolean
   directDiscount?: number
   printedEbarimt?: boolean
   number?: string
