@@ -1,7 +1,5 @@
 import * as compose from 'lodash.flowright';
-
 import React, { useEffect, useRef, useState } from 'react';
-
 import { gql } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import { queries as userQuery } from '@erxes/ui/src/team/graphql';
@@ -9,7 +7,6 @@ import { withProps } from '@erxes/ui/src/utils';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import UserFilter from '../../components/filters/UserFilter';
 import uniqBy from 'lodash/unionBy';
-import { useLocation, useNavigate } from 'react-router-dom';
 
 type Props = {
   usersQuery?: UsersQueryResponse;

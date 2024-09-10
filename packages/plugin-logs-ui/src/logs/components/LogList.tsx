@@ -23,7 +23,6 @@ type Props = {
 type commonProps = {
   logs: ILog[];
   count: number;
-  refetchQueries: any;
 };
 
 const breadcrumb = [
