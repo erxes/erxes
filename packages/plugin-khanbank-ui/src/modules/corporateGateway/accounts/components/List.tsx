@@ -4,10 +4,9 @@ import { Description, SidebarListItem } from "@erxes/ui-settings/src/styles";
 
 import { FieldStyle } from "@erxes/ui/src/layout/styles";
 import { IKhanbankAccount } from "../types";
-import { Link } from "react-router-dom";
+import { Link , useLocation, useNavigate } from "react-router-dom";
 import React from "react";
 import WithPermission from "coreui/withPermission";
-import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   queryParams: any;
@@ -28,7 +27,6 @@ const List = (props: any) => {
   };
 
   return (accounts || []).map((account) => (
-    <>
       <WithPermission action="khanbankAccounts">
         <SidebarListItem
           id={account.number}
@@ -44,7 +42,6 @@ const List = (props: any) => {
           </Link>
         </SidebarListItem>
       </WithPermission>
-    </>
   ));
 };
 
