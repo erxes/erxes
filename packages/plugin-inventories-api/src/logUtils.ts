@@ -15,7 +15,7 @@ export const LOG_ACTIONS = {
 };
 
 const gatherTagNames = async (prevList?: LogDesc[]) => {
-  const options: LogDesc[] = prevList ? prevList : [];
+  const options: LogDesc[] = prevList || [];
 
   return options;
 };

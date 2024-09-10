@@ -1,5 +1,5 @@
 import { queries as formQueries } from "@erxes/ui-forms/src/forms/graphql";
-import { IAttachment } from "@erxes/ui/src/types";
+import { IAttachment , IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import Datetime from "@nateradebaugh/react-datetime";
 import React, { useState } from "react";
 import Select from "react-select";
@@ -17,7 +17,6 @@ import { FlexContent, FlexItem } from "@erxes/ui/src/layout/styles";
 import { ModalFooter } from "@erxes/ui/src/styles/main";
 import SelectBranches from "@erxes/ui/src/team/containers/SelectBranches";
 import SelectDepartments from "@erxes/ui/src/team/containers/SelectDepartments";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import { __ } from "@erxes/ui/src/utils";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 

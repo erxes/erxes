@@ -1,5 +1,4 @@
-import { dimensions, colors, ContentHeader } from '@erxes/ui/src';
-import { Table } from '@erxes/ui/src';
+import { dimensions, colors, ContentHeader, Table } from '@erxes/ui/src';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
