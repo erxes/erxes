@@ -1,0 +1,18 @@
+{
+  "Method" : "Method",
+  "Post Url" : "Post Url",
+  "Headers (optional)  " : "Headers (optional)  ",
+  "Params (optional)  " : "Params (optional)  ",
+  "Use specified fields" : "Use specified fields",
+  "Choose actions" : "Choose actions",
+  "Type to search" : "Type to search",
+  "Enpoint" : "Enpoint",
+  "Status" : "Status",
+  "Actions" : "Actions",
+  "Settings" : "Settings",
+  "Webhooks" : "Webhooks",
+  "Outgoing webhooks" : "Outgoing webhooks",
+  "Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time" : "Webhooks allow you to listen for triggers in your app, which will send relevant data to external URLs in real-time",
+  "Add Webhook" : "Add Webhook",
+  "Copy token" : "Copy token"
+}
