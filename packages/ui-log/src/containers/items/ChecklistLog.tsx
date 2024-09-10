@@ -1,8 +1,7 @@
 import * as compose from 'lodash.flowright';
 
-import { ActivityLogQueryResponse } from '@erxes/ui-log/src/activityLogs/types';
+import { ActivityLogQueryResponse,IActivityLog  } from '@erxes/ui-log/src/activityLogs/types';
 import ChecklistLog from '../../components/items/checklist/ChecklistLog';
-import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { gql } from '@apollo/client';

@@ -22,8 +22,6 @@ type Props = {
   contentType: string;
   contentTypeId: string;
   showEmail: boolean;
-  toEmail?: string;
-  toEmails?: string[];
   extraTabs?: React.ReactNode;
 };
 
