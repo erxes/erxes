@@ -171,7 +171,7 @@ const ChartComponent: React.FC<IChartProps> = ({
 
       const options: ChartOptions = {};
 
-      const cfg = {
+      const cfg: any = {
         type: 'bar',
         data: {
           datasets: [
@@ -186,7 +186,6 @@ const ChartComponent: React.FC<IChartProps> = ({
       };
       const myChart = new Chart(chartRef.current, cfg);
 
-      // setChartImageUrl(myChart.toBase64Image('image/png', 1));
       return () => {
         myChart.destroy();
       };
