@@ -297,6 +297,10 @@ query PosOrderCustomers ($page: Int, $perPage: Int, $sortField: String, $sortDir
 `;
 
 const commonSubsQueryParams = `
+  $page: Int,
+  $perPage: Int,
+  $sortField: String,
+  $sortDirection: Int
   $customerId:String
   $userId:String
   $companyId:String
@@ -306,6 +310,10 @@ const commonSubsQueryParams = `
 `;
 
 const commonSubsQueryParamsDef = `
+  page: $page,
+  perPage: $perPage,
+  sortField: $sortField,
+  sortDirection: $sortDirection
   customerId:$customerId,
   userId:$userId,
   companyId:$companyId,

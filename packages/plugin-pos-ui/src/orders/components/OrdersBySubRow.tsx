@@ -67,10 +67,10 @@ const Row = ({ item }: Props) => {
   };
 
   const onClick = () => {
-    let params = `customerId=${item._id}`;
+    let params = `customerId=${item.customerId}`;
 
     if (customerType === 'user') {
-      params = `userId=${item._id}`;
+      params = `userId=${item.customerId}`;
     }
 
     navigate(`/pos-orders?${params}`);

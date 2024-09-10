@@ -149,6 +149,7 @@ const groupParams = `
 `;
 
 const commonSubsQueryParams = `
+  ${commonQueryParams}
   customerId:String,
   userId:String,
   companyId:String,
@@ -168,7 +169,7 @@ export const queries = `
   posOrderRecordsCount(${queryParams}): Int
   posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
   posOrderCustomersTotalCount(${commonQueryParams}):Int
-  checkSubscription(customerId:String, productId:String): PosOrder
+  checkSubscription(customerId:String, productId:String,productIds:[String]): PosOrder
   posOrderBySubscriptions(${commonSubsQueryParams}):[PosOrdersBySubs]
 `;
 

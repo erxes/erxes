@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { Title } from '@erxes/ui-settings/src/styles';
 import {
   Button,
   DataWithLoader,
@@ -9,16 +9,15 @@ import {
   Wrapper,
   __
 } from '@erxes/ui/src';
-import { PosOrdersBySub } from '../types';
-import { menuPos } from '../../constants';
-import Row from './OrdersBySubRow';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { CSSTransition } from 'react-transition-group';
-import { RightMenuContainer, RightMenuWrapper } from '../../styles';
-import { isEnabled, router } from '@erxes/ui/src/utils/core';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { setParams } from '@erxes/ui/src/utils/router';
+import { isEnabled, router } from '@erxes/ui/src/utils/core';
+import React, { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { CSSTransition } from 'react-transition-group';
+import { menuPos } from '../../constants';
+import { RightMenuContainer, RightMenuWrapper } from '../../styles';
+import { PosOrdersBySub } from '../types';
+import Row from './OrdersBySubRow';
 
 const SelectCustomers = asyncComponent(
   () =>
@@ -51,7 +50,7 @@ const checkIsFiltered = (queryParams: any) => {
   );
 };
 
-const OrdersByCustomers = ({
+const OrdersBySubs = ({
   list,
   loading,
   totalCount,
@@ -211,4 +210,4 @@ const OrdersByCustomers = ({
   );
 };
 
-export default OrdersByCustomers;
+export default OrdersBySubs;
