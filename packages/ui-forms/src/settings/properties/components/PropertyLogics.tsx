@@ -49,15 +49,9 @@ function FieldLogics(props: Props) {
   );
 
   const onChangeLogic = (name, value, index) => {
-    // find current editing one
-    const currentLogic = logics.find((l, i) => i === index);
-
-    // set new value
-    if (currentLogic) {
-      currentLogic[name] = value;
-    }
-
-    setLogics(logics);
+    const NewLogics = [...logics];
+    NewLogics[index] = value;
+    setLogics(NewLogics);
     onLogicsChange(logics);
   };
 

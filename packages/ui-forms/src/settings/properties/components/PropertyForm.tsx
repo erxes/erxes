@@ -201,11 +201,7 @@ class PropertyForm extends React.Component<Props, State> {
 
   onChangeObjectListConfig = (objectListConfigs) => {
     this.setState({ objectListConfigs });
-  };
-
-  onRemoveOption = (options) => {
-    this.setState({ options });
-  };
+  }
 
   onTypeChange = (e) => {
     const value = e.target.value;
