@@ -13,11 +13,14 @@ import { AUTO_BOT_MESSAGES } from "../../models/definitions/constants";
 import { debugError } from "@erxes/api-utils/src/debuggers";
 import {
   sendContactsMessage,
-  sendCardsMessage,
   sendCoreMessage,
   sendNotificationsMessage,
   sendCommonMessage,
-  sendAutomationsMessage
+  sendAutomationsMessage,
+  sendSalesMessage,
+  sendTicketsMessage,
+  sendPurchasesMessage,
+  sendTasksMessage
 } from "../../messageBroker";
 import { putUpdateLog } from "../../logUtils";
 import QueryBuilder, { IListArgs } from "../../conversationQueryBuilder";
@@ -652,12 +655,38 @@ const conversationMutations = {
       user
     };
 
-    return sendCardsMessage({
-      subdomain,
-      action: "conversationConvert",
-      data: args,
-      isRPC: true
-    });
+    switch (params.type) {
+      case "deal":
+        return sendSalesMessage({
+          subdomain,
+          action: "conversationConvert",
+          data: args,
+          isRPC: true
+        });
+      case "ticket":
+        return sendTicketsMessage({
+          subdomain,
+          action: "conversationConvert",
+          data: args,
+          isRPC: true
+        });
+      case "purchase":
+        return sendPurchasesMessage({
+          subdomain,
+          action: "conversationConvert",
+          data: args,
+          isRPC: true
+        });
+      case "task":
+        return sendTasksMessage({
+          subdomain,
+          action: "conversationConvert",
+          data: args,
+          isRPC: true
+        });
+      default:
+        break;
+    }
   },
 
   async conversationEditCustomFields(

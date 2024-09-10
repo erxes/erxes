@@ -2,7 +2,7 @@ import {
   ChecklistItem,
   ChecklistText,
   FormControlWrapper,
-  FormWrapper,
+  FormWrapper
 } from "../styles";
 import React, { useEffect, useState } from "react";
 
@@ -108,7 +108,7 @@ function Item(props: Props) {
   }
 
   function renderContent() {
-    const onChangeContent = (e) => {
+    const onChangeContent = e => {
       setContent((e.currentTarget as HTMLTextAreaElement).value);
     };
 
@@ -161,7 +161,7 @@ function Item(props: Props) {
         >
           <li>
             <a onClick={onConvert} href="#convert">
-              Convert to Card
+              Convert to Tasks
             </a>
           </li>
           <li>

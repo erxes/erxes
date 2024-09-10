@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { IModels } from "../connectionResolver";
-import { sendCardsMessage, sendCoreMessage } from "../messageBroker";
+import { sendCoreMessage, sendSalesMessage } from "../messageBroker";
 import { goalSchema, IGoal, IGoalDocument } from "./definitions/goals";
 import { CONTRIBUTIONTYPE, TEAMGOALTYPE } from "../constants";
 export interface IGoalModel extends Model<IGoalDocument> {
@@ -116,7 +116,7 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
         }
       }
       // Send the request
-      amount = await sendCardsMessage({
+      amount = await sendSalesMessage({
         subdomain,
         action: item.entity + "s.find",
         data: {

@@ -191,7 +191,16 @@ const archivedTicketsCount = `
   }
 `;
 
+const convertToInfo = `
+  query ticketsConvertToInfo($conversationId: String!) {
+    ticketsConvertToInfo(conversationId: $conversationId) {
+      ticketUrl
+    }
+  }
+`;
+
 export default {
+  convertToInfo,
   tickets,
   ticketsTotalCount,
   ticketDetail,

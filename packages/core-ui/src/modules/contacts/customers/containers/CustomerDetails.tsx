@@ -1,6 +1,6 @@
 import {
   PropertyConsumer,
-  PropertyProvider,
+  PropertyProvider
 } from "@erxes/ui-contacts/src/customers/propertyContext";
 import { gql, useQuery } from "@apollo/client";
 
@@ -18,10 +18,10 @@ type Props = {
 function CustomerDetailsContainer(props: Props) {
   const { id } = props;
 
-  const { loading, error, data } = useQuery<CustomerDetailQueryResponse>(
+  const { loading, data } = useQuery<CustomerDetailQueryResponse>(
     gql(queries.customerDetail),
     {
-      variables: { _id: id },
+      variables: { _id: id }
     }
   );
 
@@ -40,14 +40,14 @@ function CustomerDetailsContainer(props: Props) {
   const taggerRefetchQueries = [
     {
       query: gql(queries.customerDetail),
-      variables: { _id: id },
-    },
+      variables: { _id: id }
+    }
   ];
 
   const updatedProps = {
     ...props,
     customer: customerDetail || ({} as any),
-    taggerRefetchQueries,
+    taggerRefetchQueries
   };
 
   return (
@@ -57,7 +57,7 @@ function CustomerDetailsContainer(props: Props) {
           deviceFields,
           customerVisibility,
           deviceVisibility,
-          customerFields,
+          customerFields
         }) => {
           return (
             <CustomerDetails
