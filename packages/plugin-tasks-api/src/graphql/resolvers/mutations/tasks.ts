@@ -1,6 +1,6 @@
 import {
   IItemCommonFields as ITask,
-  IItemDragCommonFields
+  IItemDragCommonFields,
 } from '../../../models/definitions/boards';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import {
@@ -9,7 +9,7 @@ import {
   itemsChange,
   itemsCopy,
   itemsEdit,
-  itemsRemove
+  itemsRemove,
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
@@ -65,8 +65,8 @@ const taskMutations = {
         action: 'registerOnboardHistory',
         data: {
           type: `taskAssignUser`,
-          user
-        }
+          user,
+        },
       });
     }
 
@@ -118,7 +118,7 @@ const taskMutations = {
     { _id, proccessId }: { _id: string; proccessId: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsCopy(
+    return await itemsCopy(
       models,
       subdomain,
       _id,
@@ -136,7 +136,7 @@ const taskMutations = {
     { user, models, subdomain }: IContext
   ) {
     return itemsArchive(models, subdomain, stageId, 'task', proccessId, user);
-  }
+  },
 };
 
 checkPermission(taskMutations, 'tasksAdd', 'tasksAdd');

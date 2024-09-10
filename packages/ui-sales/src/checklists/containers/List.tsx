@@ -1,21 +1,21 @@
-import { gql } from "@apollo/client";
-import * as compose from "lodash.flowright";
-import { IItemParams } from "../../boards/types";
-import ButtonMutate from "@erxes/ui/src/components/ButtonMutate";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
-import React, { useEffect } from "react";
-import { graphql } from "@apollo/client/react/hoc";
-import List from "../components/List";
-import { mutations, queries, subscriptions } from "../graphql";
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import { IItemParams } from '../../boards/types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import React, { useEffect } from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import List from '../components/List';
+import { mutations, queries, subscriptions } from '../graphql';
 import {
   AddItemMutationResponse,
   EditMutationResponse,
   IChecklistItemDoc,
   IChecklistItemsUpdateOrderDoc,
   RemoveMutationResponse,
-  UpdateItemsOrderMutationResponse
-} from "../types";
+  UpdateItemsOrderMutationResponse,
+} from '../types';
 
 type Props = {
   listId: string;
@@ -42,7 +42,7 @@ function ListContainer(props: FinalProps) {
       variables: { _id: listId },
       updateQuery: () => {
         checklistDetailQuery.refetch();
-      }
+      },
     });
   });
 
@@ -52,8 +52,8 @@ function ListContainer(props: FinalProps) {
     checklistItemsOrderMutation({
       variables: {
         _id: sourceItem._id,
-        destinationIndex
-      }
+        destinationIndex,
+      },
     });
   }
 
@@ -63,7 +63,7 @@ function ListContainer(props: FinalProps) {
     confirm().then(() => {
       removeMutation({ variables: { _id: checklistId } })
         .then(() => {
-          Alert.success("You successfully deleted a checklist");
+          Alert.success('You successfully deleted a checklist');
           localStorage.removeItem(checklistId);
           refetch && refetch();
         })
@@ -79,8 +79,8 @@ function ListContainer(props: FinalProps) {
     addItemMutation({
       variables: {
         checklistId: listId,
-        content
-      }
+        content,
+      },
     });
   }
 
@@ -89,7 +89,7 @@ function ListContainer(props: FinalProps) {
 
     const afterConvert = () => {
       callback();
-      Alert.success("You successfully converted a card");
+      Alert.success('You successfully converted a card');
     };
 
     props.addItem({ stageId, name }, afterConvert);
@@ -107,11 +107,11 @@ function ListContainer(props: FinalProps) {
         mutation={mutations.checklistsEdit}
         variables={values}
         callback={callBackResponse}
-        refetchQueries={["checklistDetail"]}
+        refetchQueries={['checklistDetail']}
         isSubmitted={isSubmitted}
-        btnSize="small"
-        type="submit"
-        icon="check-1"
+        btnSize='small'
+        type='submit'
+        icon='check-1'
       />
     );
   }
@@ -120,7 +120,7 @@ function ListContainer(props: FinalProps) {
     return null;
   }
 
-  const item = checklistDetailQuery.checklistDetail;
+  const item = checklistDetailQuery.salesChecklistDetail;
 
   const listProps = {
     item,
@@ -128,7 +128,7 @@ function ListContainer(props: FinalProps) {
     renderButton,
     remove,
     convertToCard,
-    updateOrderItems
+    updateOrderItems,
   };
 
   return <List {...listProps} />;
@@ -138,26 +138,26 @@ const options = (props: Props) => ({
   refetchQueries: [
     {
       query: gql(queries.checklistDetail),
-      variables: { _id: props.listId }
-    }
-  ]
+      variables: { _id: props.listId },
+    },
+  ],
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.checklistDetail), {
-      name: "checklistDetailQuery",
+      name: 'checklistDetailQuery',
       options: ({ listId }) => ({
         variables: {
-          _id: listId
-        }
-      })
+          _id: listId,
+        },
+      }),
     }),
     graphql<Props, AddItemMutationResponse, IChecklistItemDoc>(
       gql(mutations.checklistItemsAdd),
       {
-        name: "addItemMutation",
-        options
+        name: 'addItemMutation',
+        options,
       }
     ),
     graphql<
@@ -165,16 +165,16 @@ export default withProps<Props>(
       UpdateItemsOrderMutationResponse,
       IChecklistItemsUpdateOrderDoc
     >(gql(mutations.checklistItemsOrder), {
-      name: "checklistItemsOrderMutation",
-      options
+      name: 'checklistItemsOrderMutation',
+      options,
     }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.checklistsRemove),
       {
-        name: "removeMutation",
+        name: 'removeMutation',
         options: () => ({
-          refetchQueries: ["checklists"]
-        })
+          refetchQueries: ['checklists'],
+        }),
       }
     )
   )(ListContainer)

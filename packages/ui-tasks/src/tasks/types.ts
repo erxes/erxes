@@ -13,7 +13,9 @@ export type EditMutationVariables = {
 };
 
 export type EditMutationResponse = ({
-  variables: EditMutationVariables
+  variables,
+}: {
+  variables: EditMutationVariables;
 }) => Promise<any>;
 
 export type RemoveMutationResponse = {

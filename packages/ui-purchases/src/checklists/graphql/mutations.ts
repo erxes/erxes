@@ -1,4 +1,4 @@
-import { checklistFields } from "./queries";
+import { checklistFields } from './queries';
 
 export const commonVariables = `
   $contentType: String,
@@ -64,7 +64,7 @@ const checklistItemsAdd = `
   mutation checklistItemsAdd(
     ${commonItemVariables}
   ) {
-    checklistItemsAdd(
+    purchasesChecklistItemsAdd(
       ${commonItemParams}
     ) {
       _id
@@ -113,5 +113,5 @@ export default {
   checklistItemsAdd,
   checklistItemsEdit,
   checklistItemsOrder,
-  checklistItemsRemove
+  checklistItemsRemove,
 };
