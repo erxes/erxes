@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { orderCollapsibleAtom, refetchOrderAtom } from "@/store"
+import { refetchOrderAtom } from "@/store"
 import { cartChangedAtom } from "@/store/cart.store"
 import { configAtom } from "@/store/config.store"
 import { activeOrderIdAtom, setOrderStatesAtom } from "@/store/order.store"
@@ -13,20 +13,13 @@ import { onError } from "@/components/ui/use-toast"
 
 import { queries, subscriptions } from "./graphql"
 
-const OrderDetail = ({
-  children,
-  inCheckout,
-}: {
-  children: React.ReactNode
-  inCheckout?: boolean
-}) => {
+const OrderDetail = ({ children }: { children: React.ReactNode }) => {
   const _id = useAtomValue(activeOrderIdAtom)
   const isChanged = useAtomValue(cartChangedAtom) //ene heregtei shuu
   const { token } = useAtomValue(configAtom) || {}
   const setOrderStates = useSetAtom(setOrderStatesAtom)
   const setPaymentSheet = useSetAtom(paymentSheetAtom)
   const setRefetchOrder = useSetAtom(refetchOrderAtom)
-  const setOrderCollapsible = useSetAtom(orderCollapsibleAtom)
 
   const [getOrderDetail, { loading, data, refetch, subscribeToMore }] =
     useLazyQuery(queries.orderDetail, {
@@ -57,9 +50,7 @@ const OrderDetail = ({
     const { orderDetail } = data || {}
     if (orderDetail?._id === _id) {
       setOrderStates(orderDetail)
-      inCheckout && setOrderCollapsible(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_id, data, setOrderStates])
 
   useEffect(() => {
