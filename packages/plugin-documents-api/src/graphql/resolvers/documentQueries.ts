@@ -61,11 +61,11 @@ const documentQueries = {
       contentType: string;
       subTypes?: string[];
     }> = [
-      {
-        label: 'Team members',
-        contentType: 'core:user',
-      },
-    ];
+        {
+          label: 'Team members',
+          contentType: 'core:user',
+        },
+      ];
 
     for (const serviceName of services) {
       const service = await getService(serviceName);
@@ -107,7 +107,7 @@ const documentQueries = {
 
     let data: any = {};
 
-    if (contentType.match(new RegExp('contacts:'))) {
+    if (contentType.match(/contacts:/)) {
       data.contentType = contentType;
       contentType = 'contacts';
     }
