@@ -7,7 +7,7 @@ export default {
     return models.JobCategories.findOne({ _id });
   },
 
-  async productCount(category: IJobCategoryDocument, {}, { models }: IContext) {
+  async productCount(category: IJobCategoryDocument, _, { models }: IContext) {
     const jobRefers = await models.JobRefers.find({
       categoryId: category._id,
       status: { $ne: JOB_CATEGORY_STATUSES.ARCHIVED }

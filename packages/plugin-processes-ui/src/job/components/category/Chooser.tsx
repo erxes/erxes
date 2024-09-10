@@ -52,7 +52,7 @@ class JobCategoryChooser extends React.Component<Props, State> {
         {option.label}
       </>
     );
-    const order = option.order.match(/[/]/gi);
+    const order = option.order.match(/\//gi);
     let space = "";
 
     if (order) {

@@ -121,11 +121,11 @@ class BulkDocuments extends React.Component<Props, State> {
     this.setState({ [name]: e.currentTarget.value } as any);
   };
 
-  onChangeSelect = (name, value) => {
-    this.setState({ [name]: value } as any, () => {
-      localStorage.setItem(`erxes_products_documents_${name}`, value);
-    });
-  };
+  // onChangeSelect = (name, value) => {
+  //   this.setState({ [name]: value } as any, () => {
+  //     localStorage.setItem(`erxes_products_documents_${name}`, value);
+  //   });
+  // };
 
   renderPopup() {
     const { showPopup } = this.state;

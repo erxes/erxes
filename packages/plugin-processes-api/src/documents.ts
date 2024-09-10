@@ -81,7 +81,7 @@ export default {
     }
   ],
 
-  editorAttributes: async ({}) => {
+  editorAttributes: async (_) => {
     return [
       { value: 'startAt', name: 'Start At' },
       { value: 'endAt', name: 'End At' },

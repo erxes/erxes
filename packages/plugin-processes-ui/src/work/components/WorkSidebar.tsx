@@ -30,7 +30,7 @@ interface Props {
 
 const { Section } = Wrapper.Sidebar;
 
-const generateQueryParams = () => {
+const GenerateQueryParams = () => {
   const location = useLocation();
   return queryString.parse(location.search);
 };
@@ -44,7 +44,7 @@ const Sidebar = (props: Props) => {
   let timer;
 
   const isFiltered = (): boolean => {
-    const params = generateQueryParams();
+    const params = GenerateQueryParams();
 
     for (const param in params) {
       if (
@@ -70,26 +70,12 @@ const Sidebar = (props: Props) => {
   };
 
   const clearFilter = () => {
-    const params = generateQueryParams();
+    const params = GenerateQueryParams();
     router.removeParams(navigate, location, ...Object.keys(params));
   };
 
   const setFilter = (name, value) => {
     setFilterParams({ ...filterParams, [name]: value });
-  };
-
-  const onInputChange = (e) => {
-    e.preventDefault();
-
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const value = e.target.value;
-    const name = e.target.name;
-    timer = setTimeout(() => {
-      setFilter(name, value);
-    }, 500);
   };
 
   const onSelectDate = (value, name) => {
@@ -230,7 +216,7 @@ const Sidebar = (props: Props) => {
             >
               <option value="">All type</option>
               {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
-                <option value={jt} key={Math.random()}>
+                <option value={jt} key={jt}>
                   {JOB_TYPE_CHOISES[jt]}
                 </option>
               ))}

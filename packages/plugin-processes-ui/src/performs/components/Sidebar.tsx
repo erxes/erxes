@@ -30,7 +30,7 @@ interface Props {
 
 const { Section } = Wrapper.Sidebar;
 
-const generateQueryParams = () => {
+const GenerateQueryParams = () => {
   const location = useLocation();
   return queryString.parse(location.search);
 };
@@ -43,7 +43,7 @@ const PerformSidebar = (props: Props) => {
   );
 
   const isFiltered = (): boolean => {
-    const params = generateQueryParams();
+    const params = GenerateQueryParams();
 
     for (const param in params) {
       if (
@@ -68,15 +68,8 @@ const PerformSidebar = (props: Props) => {
     return false;
   };
 
-  const gotoBack = () => {
-    navigate(
-      `/processes/overallWorks?${queryString.stringify({
-        ...props.queryParams,
-      })}`
-    );
-  };
   const clearFilter = () => {
-    const params = generateQueryParams();
+    const params = GenerateQueryParams();
     router.removeParams(navigate, location, ...Object.keys(params));
   };
 
@@ -218,7 +211,7 @@ const PerformSidebar = (props: Props) => {
               >
                 <option value="">All type</option>
                 {Object.keys(JOB_TYPE_CHOISES).map((jt) => (
-                  <option value={jt} key={Math.random()}>
+                  <option value={jt} key={jt}>
                     {JOB_TYPE_CHOISES[jt]}
                   </option>
                 ))}
@@ -295,7 +288,7 @@ const PerformSidebar = (props: Props) => {
                 onChange={(e) => setFilter("status", (e.target as any).value)}
               >
                 {Object.keys(PERFORM_STATUSES).map((key) => (
-                  <option value={key} key={Math.random()}>
+                  <option value={key} key={key}>
                     {PERFORM_STATUSES[key]}
                   </option>
                 ))}

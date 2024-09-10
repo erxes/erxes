@@ -104,7 +104,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
   }
 
   onClick = () => {
-    this.setState({ expand: !this.state.expand }, () => {
+    this.setState((prevState) => ({ expand: !prevState.expand }), () => {
       localStorage.setItem('expand', this.state.expand.toString());
     });
   };
@@ -113,7 +113,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
     e.stopPropagation();
   };
 
-  renderAmount = (amount = {}, order) => {
+  renderAmount = (order, amount = {}) => {
     if (Object.keys(amount).length === 0) {
       return null;
     }
@@ -156,7 +156,7 @@ class HeaderDescription extends React.PureComponent<Props, State> {
   // }
 
   render() {
-    const { icon, title, summary, actionBar } = this.props;
+    const { icon, title, actionBar } = this.props;
 
     return (
       <>
