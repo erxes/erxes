@@ -17,7 +17,7 @@ const CheckoutMain = () => {
   const [orderCollapsible, setOrderCollapsible] = useAtom(orderCollapsibleAtom)
   const mode = useAtomValue(modeAtom)
   return (
-    <OrderDetail inCheckout>
+    <OrderDetail>
       <div className="pb-4 md:p-4">
         <Customer />
       </div>
