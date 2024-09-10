@@ -55,6 +55,11 @@ export const orderCollapsibleAtom = atom<boolean>(false)
 
 export const scrollWidthAtom = atomWithStorage<number>("scrollWidth", 8)
 
+export const printOnlyNewItemsAtom = atomWithStorage<boolean>(
+  "printOnlyNew",
+  false
+)
+
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(
   "mobileTab",
   "products"
