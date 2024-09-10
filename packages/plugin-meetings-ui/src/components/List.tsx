@@ -36,7 +36,9 @@ function List(props: Props) {
   useEffect(() => {
     switch (routePath) {
       case "myMeetings":
-        <MyMeetings {...props} />;
+        setComponent(
+          <MyMeetings {...props} />
+        );
         break;
       default:
         setComponent(
