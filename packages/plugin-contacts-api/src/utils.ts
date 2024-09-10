@@ -629,12 +629,22 @@ export const prepareEngageCustomers = async (
   const customersCursor = Customers.find(customersSelector, fieldsOption).cursor();
 
   try {
-    for await (const customer of customersCursor) {
-      customerTransformerStream.write(customer);
-    }
-    customerTransformerStream.end();
+    // Process the stream and wait for it to finish
+    await new Promise<void>((resolve, reject) => {
+      customersCursor.pipe(customerTransformerStream);
 
-    await onFinishPiping();
+      // Resolve the promise when the stream finishes processing
+      customerTransformerStream.on('finish', async () => {
+        await onFinishPiping();
+        resolve();
+      });
+
+      // Reject the promise if there is an error
+      customerTransformerStream.on('error', (error) => {
+        reject(error);
+      });
+    });
+
     return { status: 'done', customerInfos };
   } catch (error) {
     customerTransformerStream.destroy();
@@ -643,6 +653,8 @@ export const prepareEngageCustomers = async (
     await customersCursor.close();
   }
 };
+
+
 
 export const generateSystemFields = ({ data: { groupId } }) => {
   const contactsFields: any = [];
