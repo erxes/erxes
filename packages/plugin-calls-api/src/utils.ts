@@ -131,6 +131,7 @@ const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
+  console.log(callCookie, 'cookie');
   if (callCookie) {
     return callCookie;
   }
@@ -171,7 +172,7 @@ const getOrSetCallCookie = async (wsServer) => {
     const { cookie } = loginData.response;
 
     await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
-
+    console.log(cookie, 'cok');
     return cookie;
   } catch (error) {
     console.error('Error in getOrSetCallCookie:', error);
@@ -191,7 +192,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
   } = params;
 
   if (transferedCallStatus === 'local' && callType === 'incoming') {
-    return 'Check transferred call record URL!';
+    return 'Check the transferred call record URL!';
   }
 
   const history = await getCallHistory(models, _id);
@@ -246,7 +247,6 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extentionNumber;
         callee = customerPhone;
       }
-
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -281,16 +281,29 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
       if (!lastCreatedObject) {
+        console.log('lastCreatedObject:', lastCreatedObject);
         throw new Error('Not found cdr');
       }
 
       const transferCall = findTransferCall(lastCreatedObject);
+      const answeredCall = findAnsweredCall(lastCreatedObject);
+
+      if (answeredCall) {
+        lastCreatedObject = answeredCall;
+      }
 
       if (transferCall) {
         lastCreatedObject = transferCall;
         fileDir = 'monitor';
       }
       if (lastCreatedObject?.disposition !== 'ANSWERED' && !transferCall) {
+        console.log(
+          'caller callee:',
+          caller,
+          callee,
+          'startedDate: ',
+          startDate,
+        );
         throw new Error('Last created object disposition is not ANSWERED');
       }
 
@@ -303,7 +316,16 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         fileDir = 'queue';
       }
       const recordfiles = lastCreatedObject?.recordfiles;
-      if (!recordfiles) throw new Error('Record files not found');
+      if (!recordfiles) {
+        console.log(
+          'record not found:',
+          caller,
+          callee,
+          'startedDate: ',
+          startDate,
+        );
+        throw new Error('Record files not found');
+      }
 
       const parts = recordfiles.split('/');
       const fileNameWithoutExtension = parts[1].split('@')[0];
@@ -372,12 +394,33 @@ function findTransferCall(data: any): any {
   });
 
   if (transferredCalls.length === 1) {
-    return transferredCalls[0]; // Return single object if only one match is found
+    return transferredCalls[0];
   } else if (transferredCalls.length > 1) {
     return transferredCalls;
   }
   if (Array.isArray(data) && data.find) {
     return data.find((item) => item.action_type === 'TRANSFER');
+  } else {
+    return null;
+  }
+}
+
+function findAnsweredCall(data: any): any {
+  if (!data) {
+    return null;
+  }
+  const answeredCalls = Object.values(data).filter((subCdr) => {
+    const typedSubCdr = subCdr as any;
+    return typedSubCdr.disposition === 'ANSWERED' && typedSubCdr.recordfiles;
+  });
+
+  if (answeredCalls.length === 1) {
+    return answeredCalls[0];
+  } else if (answeredCalls.length > 1) {
+    return answeredCalls;
+  }
+  if (Array.isArray(data) && data.find) {
+    return data.find((item) => item.disposition === 'ANSWERED');
   } else {
     return null;
   }

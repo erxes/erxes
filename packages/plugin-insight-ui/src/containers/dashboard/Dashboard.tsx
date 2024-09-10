@@ -95,7 +95,9 @@ const DashboardContainer = (props: Props) => {
     });
   };
 
-  const [dashboardChartsEditMutation] = useMutation(gql(mutations.chartsEdit));
+  const [dashboardChartsEditMutation] = useMutation(gql(mutations.chartsEdit), {
+    refetchQueries: ['dashboardDetail']
+  });
 
   const [dashboardChartsRemoveMutation] = useMutation(
     gql(mutations.chartsRemove),
@@ -103,6 +105,23 @@ const DashboardContainer = (props: Props) => {
       refetchQueries: ["dashboards", "dashboardDetail"],
     }
   );
+
+  const [chartDuplicateMutation] = useMutation(
+    gql(mutations.chartDuplicate),
+    {
+      refetchQueries: ["dashboards", "dashboardDetail"],
+    }
+  );
+
+  const chartDuplicate = (_id: string) => {
+    chartDuplicateMutation({ variables: { _id } })
+      .then((res) => {
+        Alert.success("Successfully duplicated a chart");
+      })
+      .catch((err) => {
+        Alert.error(err.message);
+      });
+  };
 
   const dashboardChartsEdit = (_id: string, values: any) => {
     dashboardChartsEditMutation({ variables: { _id, ...values } });
@@ -128,6 +147,7 @@ const DashboardContainer = (props: Props) => {
     dashboardRemove,
     dashboardChartsEdit,
     dashboardChartsRemove,
+    chartDuplicate
   };
 
   return <Dashboard {...updatedProps} />;

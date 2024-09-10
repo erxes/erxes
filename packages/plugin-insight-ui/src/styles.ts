@@ -7,6 +7,7 @@ import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu'
 import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import Table from '@erxes/ui/src/components/table';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -728,6 +729,29 @@ const ControlRange = styled.div`
   padding-top: 5px;
 `;
 
+const ChartTable = styled(Table)`
+  th:last-child {
+    display: flex;
+    justify-content: end;
+    
+    div {
+      position: relative;
+      top: -2px;
+    }
+  }
+`;
+
+const PivotTable = styled(Table)`
+  tr:first-child {
+
+    th:last-child {
+      text-align: left;
+      padding: 8px 18px 8px 0;
+    }
+  }
+`;
+
+
 export {
   DragField,
   ChartTitle,
@@ -752,5 +776,7 @@ export {
   FormWrapper,
   ControlRange,
   DateRangeWrapper,
-  Divider
+  Divider,
+  ChartTable,
+  PivotTable
 };

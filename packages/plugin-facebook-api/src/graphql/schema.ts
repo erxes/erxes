@@ -1,4 +1,4 @@
-import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import { attachmentType } from "@erxes/api-utils/src/commonTypeDefs";
 
 const commonCommentAndMessageFields = `
   content: String
@@ -114,6 +114,8 @@ export const types = `
     profileUrl:String
     greetText:String
     tag:String
+    isEnabledBackBtn:Boolean
+    backButtonText:String
   }
 `;
 
@@ -147,7 +149,9 @@ const commonBotParams = `
   pageId:String,
   persistentMenus:[BotPersistentMenuInput],
   greetText:String
-  tag:String
+  tag:String,
+  isEnabledBackBtn:Boolean,
+  backButtonText:String
 `;
 
 export const mutations = `

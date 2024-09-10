@@ -137,7 +137,7 @@ const callsMutations = {
       user,
     );
 
-    return models.CallHistory.getCallHistory(history.timeStamp);
+    return models.CallHistory.getCallHistory(history);
   },
 
   async callHistoryEdit(
@@ -149,7 +149,6 @@ const callsMutations = {
     const history = await models.CallHistory.findOne({
       _id,
     });
-
     if (history && history.callStatus === 'active') {
       let callStatus = doc.callStatus;
       if (doc.transferedCallStatus) {
@@ -160,7 +159,6 @@ const callsMutations = {
         timeStamp: doc.timeStamp,
         callStatus: 'cancelled',
       });
-
       await models.CallHistory.updateOne(
         { _id },
         {
@@ -209,7 +207,7 @@ const callsMutations = {
       const callRecordUrl = await getRecordUrl(doc, user, models, subdomain);
       if (
         callRecordUrl &&
-        callRecordUrl !== 'Check transfered call record url!'
+        callRecordUrl !== 'Check the transferred call record URL!'
       ) {
         await models.CallHistory.updateOne(
           { _id },
@@ -217,7 +215,7 @@ const callsMutations = {
         );
         return callRecordUrl;
       }
-      if (callRecordUrl === 'Check transfered call record url!') {
+      if (callRecordUrl === 'Check the transferred call record URL!') {
         return callRecordUrl;
       }
       return 'success';

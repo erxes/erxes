@@ -1,7 +1,8 @@
 import React from "react";
-import Table from "@erxes/ui/src/components/table";
 import styled from "styled-components";
 import { commarizeNumbers } from "../../utils";
+import { colors } from "@erxes/ui/src/styles";
+import { ChartTable } from "../../styles";
 
 const ScrollWrapper = styled.div`
   height: 50vh;
@@ -13,6 +14,43 @@ const ScrollWrapper = styled.div`
   margin-top: -5px;
 `;
 
+const SortWrapper = styled.th`
+  position: relative;
+  cursor: pointer;
+`;
+
+const ArrowWrapper = styled.div`
+  position: absolute;
+  top: 5px;
+  flex-direction: column;
+  gap: 3px;
+
+  .arrow {
+    position: absolute;
+    left: -15px;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+
+    &.up {
+      border-bottom: 5px solid #bbb;
+      top: 4px;
+
+      &.active {
+        border-bottom-color: ${colors.colorSecondary};
+      }
+    }
+
+    &.down {
+      border-top: 5px solid #bbb;
+      top: 12px;
+
+      &.active {
+        border-top-color: ${colors.colorSecondary};
+      }
+    }
+  }
+`;
+
 type IDataSet = {
   title: string;
   data: number[] | any;
@@ -21,21 +59,63 @@ type IDataSet = {
 
 type Props = {
   dataset: IDataSet;
+  filters: any,
+  setFilter?: (fieldName: string, value: any) => void
 };
 
 const TableList = (props: Props) => {
-  const { dataset: { data = [], labels = [], title }, } = props;
+  const { dataset: { data = [], labels = [], title }, filters, setFilter } = props;
 
   const headers: any = labels?.length ? [title?.split(" ").at(-1), 'Total Count'] : data.length > 0 ? Object.keys(data[0]) : []
   const array = labels?.length ? labels : data || []
 
+  const checkSortActive = (field, direction) => {
+
+    const activeSort = (filters["sortBy"] || []).find((s) => s.field === field);
+
+    if (activeSort && ((direction === 1 && activeSort.direction === 1) || (direction === -1 && activeSort.direction === -1))) {
+      return 'active';
+    }
+    return '';
+  };
+
+  const sortHandler = (field, direction) => {
+    const sort = [...(filters["sortBy"] || [])];
+
+    const existingSort = sort.find((s) => s.field === field);
+
+    let newSort;
+    if (existingSort && existingSort.direction === (direction === 'asc' ? 1 : -1)) {
+      newSort = sort.filter((s) => s.field !== field);
+    } else {
+      newSort = sort.filter((s) => s.field !== field);
+      newSort.push({ field, direction: direction === 'asc' ? 1 : -1 });
+    }
+
+    if (setFilter) {
+      setFilter("sortBy", newSort);
+    }
+  };
+
+  const renderSorter = (label) => {
+    return (
+      <SortWrapper>
+        <ArrowWrapper>
+          <span className={`arrow up ${checkSortActive(label, 1)}`} onClick={() => sortHandler(label, 'asc')} />
+          <span className={`arrow down ${checkSortActive(label, -1)}`} onClick={() => sortHandler(label, 'desc')} />
+        </ArrowWrapper>
+        {label}
+      </SortWrapper>
+    )
+  }
+
   return (
     <ScrollWrapper>
-      <Table>
+      <ChartTable>
         <thead>
           <tr>
             {(headers || []).map(header => (
-              <th key={header}>{header}</th>
+              <>{renderSorter(header)}</>
             ))}
           </tr>
         </thead>
@@ -66,7 +146,7 @@ const TableList = (props: Props) => {
             )
           })}
         </tbody>
-      </Table>
+      </ChartTable>
     </ScrollWrapper>
   );
 };
