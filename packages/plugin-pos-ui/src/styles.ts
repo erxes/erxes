@@ -128,7 +128,7 @@ export const PreviewWrapper = styled.div`
 export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${props => props.isActive && colors.bgActive};
+  background: ${(props) => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -162,7 +162,7 @@ export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
   &:hover {
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 35px;
@@ -407,9 +407,9 @@ export const CustomRangeContainer = styled.div`
 
 export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   padding: 5px 20px;
-  background: ${props =>
+  background: ${(props) =>
     props.selected ? colors.colorSecondary : colors.bgActive};
-  color: ${props =>
+  color: ${(props) =>
     props.selected ? colors.colorWhite : colors.textSecondary};
   line-height: 20px;
   width: 100%;
@@ -422,7 +422,7 @@ export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
   transition: all 0.3s ease;
 
   &:hover {
-    background: ${props =>
+    background: ${(props) =>
       props.selected ? colors.colorPrimaryDark : colors.bgGray};
     cursor: pointer;
   }

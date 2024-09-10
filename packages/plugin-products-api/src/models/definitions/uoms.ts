@@ -18,13 +18,13 @@ const subscriptionConfigSchema = new Schema({
   specificDay: field({
     type: String,
     label: 'Subscription Start Day',
-    optional: true
+    optional: true,
   }),
   subsRenewable: field({
     type: Boolean,
     label: 'Subscription Renewable',
-    optional: true
-  })
+    optional: true,
+  }),
 });
 
 export const uomSchema = schemaWrapper(
@@ -35,17 +35,17 @@ export const uomSchema = schemaWrapper(
     createdAt: field({
       type: Date,
       default: new Date(),
-      label: 'Created at'
+      label: 'Created at',
     }),
     isForSubscription: field({
       type: Boolean,
       optional: true,
-      label: 'Uom for subscription'
+      label: 'Uom for subscription',
     }),
     subscriptionConfig: field({
       type: subscriptionConfigSchema,
       optional: true,
-      label: 'Subscription configuration'
-    })
-  })
+      label: 'Subscription configuration',
+    }),
+  }),
 );
