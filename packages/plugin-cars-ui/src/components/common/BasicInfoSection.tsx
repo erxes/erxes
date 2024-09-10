@@ -5,7 +5,6 @@ import {
   DropdownToggle,
   Icon,
   MainStyleInfoWrapper as InfoWrapper,
-  ModalTrigger,
   Sidebar,
   __,
   confirm,

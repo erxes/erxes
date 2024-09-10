@@ -1,4 +1,3 @@
-import { IContext } from '../../connectionResolver';
 import { IChatMessageReaction } from '../../models/definitions/chat';
 
 export default {

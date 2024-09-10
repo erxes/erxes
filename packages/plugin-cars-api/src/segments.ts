@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 export default {
   contentTypes: [{ type: 'car', description: 'Car', esIndex: 'cars' }],
 

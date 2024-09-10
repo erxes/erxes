@@ -82,7 +82,7 @@ export const sendMobileNotification = async (
         .send({
           token,
           notification: { title, body },
-          data: { conversationId: conversationId || 'fakeId' },
+          data: { conversationId: conversationId ?? 'fakeId' },
         })
         .then((response) => {
           debugInfo(`Successfully sent message: ${JSON.stringify(response)}`);

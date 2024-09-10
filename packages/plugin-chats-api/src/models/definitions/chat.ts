@@ -44,7 +44,7 @@ export const VISIBILITIES = {
   ALL: ['public', 'private'],
 };
 export interface IChatMessageDocument extends IChatMessage, Document {
-  _id: String;
+  _id: string;
 }
 
 export const chatMessageSchema = schemaHooksWrapper(
@@ -96,7 +96,7 @@ const seenSchema = {
   lastSeenMessageId: String,
 };
 export interface IChatDocument extends IChat, Document {
-  _id: String;
+  _id: string;
 }
 
 export const chatSchema = schemaHooksWrapper(
@@ -149,7 +149,7 @@ export interface IUserStatus {
 }
 
 export interface IUserStatusDocument extends IUserStatus, Document {
-  _id: String;
+  _id: string;
 }
 
 export const userStatusSchema = schemaHooksWrapper(
