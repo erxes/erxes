@@ -64,7 +64,6 @@ export const RichTextEditorControlsGroup = (
           {({ open }) => (
             <div className="relative">
               <Listbox.Button
-                as='div'
                 data-group-dropdown={true}
                 style={{
                   position: 'relative',
@@ -73,7 +72,6 @@ export const RichTextEditorControlsGroup = (
                   width: '45px',
                   border: '0',
                   borderRadius: '0.25rem',
-                  cursor: 'pointer',
                 }}
                 id="rte-controls-group-dropdown-button"
                 ref={setReferenceElement}
@@ -115,7 +113,7 @@ export const RichTextEditorControlsGroup = (
                     return (
                       /** as="span" here is a just workaround. Since it doesnt work well with form submission when as button. */
                       <Listbox.Option
-                        key={`${index}`}
+                        key={`${child.toString()}-${index}`}
                         value={child}
                         disabled={isSourceEnabled}
                         as="span"

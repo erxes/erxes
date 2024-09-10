@@ -107,17 +107,17 @@ export function getToolbarControl({
   } else {
     if (!isValidToolbarParam(control)) return null;
 
-    const controlItems = control.items.map((item: any) =>
-      getControlItem(item, item)
+    const controlItems = control.items.map((item: any, index: number) =>
+      getControlItem(item, item + index)
     );
 
     if (!control.isMoreControl)
       return (
         <RichTextEditor.ControlsGroup
-        key={control.items.join('-')}
           isDropdown={true}
           controlNames={getControlNames(control.items)}
           toolbarPlacement={toolbarLocation}
+          key={getControlNames(control.items).toString()}
         >
           {controlItems}
         </RichTextEditor.ControlsGroup>
@@ -125,7 +125,7 @@ export function getToolbarControl({
     return (
       <RichTextEditor.MoreControl
         toolbarPlacement={toolbarLocation}
-        key={control.items.join('-')}
+        key={getControlNames(control.items).toString()}
       >
         {controlItems}
       </RichTextEditor.MoreControl>
@@ -141,12 +141,12 @@ export const getToolbar = ({ toolbar, toolbarLocation }: ToolbarParamType) => {
       // Separator encountered, push the current group to the controlGroups array
       if (currentGroup.length > 0) {
         controlGroups.push(
-          <React.Fragment key={`${item}-${index}`}>
-            <RichTextEditor.ControlsGroup>
+          <>
+            <RichTextEditor.ControlsGroup key={`$${item}-${index}`}>
               {currentGroup}
             </RichTextEditor.ControlsGroup>
-            <RichTextEditor.Separator/>
-          </React.Fragment>
+            <RichTextEditor.Separator />
+          </>
         );
         currentGroup = [];
       }
