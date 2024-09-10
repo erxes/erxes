@@ -8,14 +8,14 @@ import { IModels } from '../connectionResolver';
 import { IUser } from '@erxes/api-utils/src/types';
 
 export interface IMeetingModel extends Model<IMeetingDocument> {
-  meetingDetail(_id: String, userId: string): Promise<IMeetingDocument>;
+  meetingDetail(_id: string, userId: string): Promise<IMeetingDocument>;
   createMeeting(
     args: IMeeting,
-    participantIds: String[],
+    participantIds: string[],
     user: IUser
   ): Promise<IMeetingDocument>;
   updateMeeting(args: IMeeting, user: IUser): Promise<IMeetingDocument>;
-  removeMeeting(_id: String, user: IUser): Promise<IMeetingDocument>;
+  removeMeeting(_id: string, user: IUser): Promise<IMeetingDocument>;
 }
 
 export const loadMeetingClass = (model: IModels) => {
@@ -36,7 +36,7 @@ export const loadMeetingClass = (model: IModels) => {
     // create
     public static async createMeeting(
       doc: IMeeting,
-      participantIds: String[],
+      participantIds: string[],
       user
     ) {
       return await model.Meetings.create({

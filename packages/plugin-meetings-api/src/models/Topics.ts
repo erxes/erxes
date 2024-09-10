@@ -5,7 +5,7 @@ import { ITopic, ITopicDocument, topicSchema } from './definitions/topic';
 
 export interface ITopicModel extends Model<ITopicDocument> {
   createTopic(args: ITopic, user: IUser): Promise<ITopicDocument>;
-  updateTopic(_id: String, args: ITopic, user: IUser): Promise<ITopicDocument>;
+  updateTopic(_id: string, args: ITopic, user: IUser): Promise<ITopicDocument>;
 }
 
 export const loadTopicClass = (model: IModels) => {
