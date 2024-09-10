@@ -54,7 +54,6 @@ type State = {
   teamGoalType: string | undefined;
   contributionType: string;
   metric: string;
-  target: number;
   goalTypeChoose: string;
   startDate: Date;
   endDate: Date;
@@ -94,8 +93,7 @@ const initialState: State = {
   endDate: new Date(),
   stageId: undefined,
   pipelineId: undefined,
-  boardId: undefined,
-  target: 0
+  boardId: undefined
 };
 
 const reducer = (state, action) => {
@@ -136,7 +134,6 @@ const goalForm = (props: Props) => {
       branch,
       contributionType,
       metric,
-      target,
       goalTypeChoose,
       teamGoalType,
       pipelineLabels,
@@ -171,8 +168,7 @@ const goalForm = (props: Props) => {
       pipelineLabels,
       periodGoal,
       startDate,
-      endDate,
-      target
+      endDate
     };
   };
 
@@ -527,21 +523,6 @@ const goalForm = (props: Props) => {
               </FormControl>
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('Target')}</ControlLabel>
-              <FormGroup>
-                <FormControl
-                  type='number'
-                  name='target'
-                  value={
-                    state.target !== undefined && state.target !== null
-                      ? state.target
-                      : 0
-                  }
-                  onChange={onChangeTargetPeriod}
-                />
-              </FormGroup>
-            </FormGroup>
-            <FormGroup>
               <ControlLabel>{__('choose specific period goals')}</ControlLabel>
               <FormControl
                 {...formProps}
@@ -638,12 +619,14 @@ const goalForm = (props: Props) => {
   return <Form renderContent={renderContent} />;
 };
 
-const mapMonths = (startDate, endDate): string[] => {
-  const startDateObject = new Date(startDate); // Ensure startDate is a Date object
-  const endDateObject = new Date(endDate); // Ensure endDate is a Date object
+const mapMonths = (startDate: Date, endDate: Date): string[] => {
+  const startDateObject = new Date(startDate);
+  const endDateObject = new Date(endDate);
   const startMonth = startDateObject.getMonth();
+  const startYear = startDateObject.getFullYear();
   const endMonth = endDateObject.getMonth();
-  const year = startDateObject.getFullYear(); //
+  const endYear = endDateObject.getFullYear();
+
   const monthNames = [
     'January',
     'February',
@@ -658,11 +641,18 @@ const mapMonths = (startDate, endDate): string[] => {
     'November',
     'December'
   ];
+
   const months: string[] = [];
 
-  for (let i = startMonth; i <= endMonth; i++) {
-    months.push(`Month of ${monthNames[i]} ${year}`);
+  for (let year = startYear; year <= endYear; year++) {
+    const start = year === startYear ? startMonth : 0;
+    const end = year === endYear ? endMonth : 11;
+
+    for (let month = start; month <= end; month++) {
+      months.push(`Month of ${monthNames[month]} ${year}`);
+    }
   }
+
   return months;
 };
 

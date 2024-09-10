@@ -22,17 +22,9 @@ export interface IGoalTypeDoc {
   unit: string[];
   branch: string[];
   specificPeriodGoals: ISpecificPeriodGoal[];
-  progress: {
-    current: string;
-    progress: string;
-    amountData: string;
-    target: number;
-    _id: string;
-  };
   chooseStage: string;
   startDate: Date;
   endDate: Date;
-  target: number;
   segmentIds: string[];
   stageRadio: boolean;
   segmentRadio: boolean;

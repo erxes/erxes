@@ -14,7 +14,6 @@ const commonFields = `
     $specificPeriodGoals:JSON
     $startDate:Date
     $endDate:Date
-    $target:Float
     $segmentIds: [String] 
     $segmentRadio:Boolean
     $stageRadio:Boolean
@@ -38,7 +37,6 @@ const commonVariables = `
   specificPeriodGoals:$specificPeriodGoals
   startDate:$startDate
   endDate:$endDate
-  target:$target
   segmentIds: $segmentIds
   segmentRadio:$segmentRadio
   stageRadio:$stageRadio
@@ -65,7 +63,6 @@ const goalTypesAdd = `
       specificPeriodGoals
       startDate
       endDate
-      target
       segmentIds
       segmentRadio
       stageRadio
@@ -94,7 +91,6 @@ const goalTypesEdit = `
       specificPeriodGoals
       startDate
       endDate
-      target
       segmentIds
       segmentRadio
       segmentRadio

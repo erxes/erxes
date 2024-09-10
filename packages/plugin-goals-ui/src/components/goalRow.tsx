@@ -194,9 +194,6 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       <td key={'metric'}>{displayValue(goalType, 'metric')}</td>
       <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
       <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
-      <td key={'current'}>{displayValue(goalType.progress, 'current')}</td>
-      <td key={'target'}>{displayValue(goalType, 'target')}</td>
-      <td key={'progress'}>{displayValue(goalType.progress, 'progress')}</td>
       <td>
         <ActionButtons>
           {renderViewAction(

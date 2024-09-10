@@ -19,8 +19,6 @@ export interface IGoal {
   segmentIds: string[];
   startDate: Date;
   endDate: Date;
-  target: number;
-  progress: any;
   stageRadio: boolean;
   segmentRadio: boolean;
   periodGoal: string;
@@ -56,11 +54,6 @@ export const goalSchema = schemaHooksWrapper(
     contribution: field({ type: [String], label: 'contribution' }),
     startDate: field({ type: Date, label: 'StartDate Durable' }),
     endDate: field({ type: Date, label: 'EndDate Durable' }),
-    target: field({ type: Number, min: 0, label: 'Target' }),
-    progress: {
-      type: Object,
-      label: 'Progress'
-    },
     department: {
       type: [String],
       label: 'Department'
