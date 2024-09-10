@@ -1,7 +1,6 @@
 import { ICategory } from '@erxes/ui/src/utils/categories';
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { IField, IFieldLogic, QueryResponse } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse } from '@erxes/ui/src/types';
 
 export type FieldsQueryResponse = {
   fields: IField[];

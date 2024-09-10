@@ -3,8 +3,7 @@ import { IProductCategory } from '@erxes/ui-products/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 import { IField } from '@erxes/ui/src/types';
-import { gql } from '@apollo/client';
-import { useQuery } from '@apollo/client';
+import { gql , useQuery } from '@apollo/client';
 import { queries } from '../../../../plugin-inbox-ui/src/bookings/graphql';
 import FieldForm from '../components/FieldForm';
 
