@@ -408,7 +408,7 @@ const boardQueries = {
     return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async taskItemsCountByAssignedUser(
+  async tasksItemsCountByAssignedUser(
     _root,
     {
       pipelineId,
@@ -564,7 +564,7 @@ const boardQueries = {
    *  Archived stages
    */
 
-  async taskArchivedStages(
+  async tasksArchivedStages(
     _root,
     {
       pipelineId,
@@ -582,7 +582,7 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  async taskArchivedStagesCount(
+  async tasksArchivedStagesCount(
     _root,
     { pipelineId, search }: { pipelineId: string; search?: string },
     { models: { Stages } }: IContext
@@ -599,7 +599,7 @@ const boardQueries = {
   /**
    *  ConvertTo info
    */
-  async taskConvertToInfo(
+  async tasksConvertToInfo(
     _root,
     { conversationId }: { conversationId: string },
     { models: { Stages, Pipelines, Boards, Tasks } }: IContext

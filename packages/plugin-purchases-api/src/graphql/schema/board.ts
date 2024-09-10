@@ -85,7 +85,7 @@ export const types = () => `
   }
 
   type PurchasesConvertTo {
-    purchaseUrl:String,
+    purchaseUrl: String
   }
 
   type PurchasesBoardCount {
