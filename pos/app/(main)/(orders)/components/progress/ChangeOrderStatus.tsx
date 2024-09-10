@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect } from "react"
 import useChangeOrderStatus from "@/modules/orders/hooks/useChangeOrderStatus"
 import { showRecieptAtom } from "@/store/progress.store"
 import { useSetAtom } from "jotai"
@@ -21,19 +21,21 @@ const ChangeOrderStatus = ({
 
   const { changeStatus, loading } = useChangeOrderStatus()
 
-  const handleChangeStatus = (status: string) =>
-    changeStatus({
-      variables: {
-        _id,
-        status,
-      },
-      onCompleted(data) {
-        const { orderChangeStatus } = data
-        orderChangeStatus.status === ORDER_STATUSES.DONE && setShowReciept(_id)
-      },
-    })
-
-  const memorisedValue = useMemo<OrderItem[]>(() => items, [items])
+  const handleChangeStatus = useCallback(
+    (status: string) =>
+      changeStatus({
+        variables: {
+          _id,
+          status,
+        },
+        onCompleted(data) {
+          const { orderChangeStatus } = data
+          orderChangeStatus.status === ORDER_STATUSES.DONE &&
+            setShowReciept(_id)
+        },
+      }),
+    [_id, changeStatus, setShowReciept]
+  )
 
   useEffect(() => {
     const doneItems = items.filter(
@@ -44,8 +46,7 @@ const ChangeOrderStatus = ({
 
     if (doneItems.length === items.length)
       handleChangeStatus(ORDER_STATUSES.DONE)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memorisedValue])
+  }, [handleChangeStatus, items, status])
 
   return (
     <>

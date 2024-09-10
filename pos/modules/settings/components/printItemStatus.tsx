@@ -10,7 +10,9 @@ const PrintItemStatus = () => {
   const config = useAtomValue(configAtom)
   const { isActive, isPrint } = config?.kitchenScreen || {}
 
-  if (isActive || !isPrint) return null
+  if (isActive || !isPrint) {
+    return null
+  }
 
   return (
     <Label
