@@ -9,7 +9,6 @@ import { ISegment } from '@erxes/ui-segments/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
-  segmentId: string;
   children: any;
 };
 
@@ -18,10 +17,6 @@ type FinalProps = {
 } & Props;
 
 class AttributesForm extends React.Component<FinalProps> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { segmentDetailQuery, children } = this.props;
 

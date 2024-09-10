@@ -7,7 +7,6 @@ import dayjs from "dayjs";
 
 type Props = {
   config: any;
-  triggerType: string;
   setConfig: (config: any) => void;
   inputName?: string;
 };
