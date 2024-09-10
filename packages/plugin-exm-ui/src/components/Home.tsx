@@ -3,7 +3,6 @@ import EditForm from '../containers/EditForm';
 import { IExm } from '../types';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   exm?: IExm;
