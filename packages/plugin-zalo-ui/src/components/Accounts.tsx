@@ -64,7 +64,7 @@ const Accounts = (props: Props) => {
     return accounts.map((account) => (
       <AccountItem key={account._id}>
         <span>
-          <img src={account.avatar} width="45" height="45" />
+          <img alt='accountAvatar' src={account.avatar} width="45" height="45" />
         </span>
         <span>{account.name}</span>
 

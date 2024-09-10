@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { gql } from '@apollo/client';
+import { gql , useQuery } from '@apollo/client';
 import strip from 'strip';
 import { queries } from '../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -8,7 +8,6 @@ import { sendDesktopNotification } from '@erxes/ui/src/utils';
 import { subscriptions } from '@erxes/ui-inbox/src/inbox/graphql';
 
 import Message from './message/Message';
-import { useQuery } from '@apollo/client';
 
 type Props = {
   currentId: string;
