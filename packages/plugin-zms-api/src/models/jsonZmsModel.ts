@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { Zmss } from '.';
 
-interface Io_c_address {
+interface IoCAddress {
   o_c_address_full: string;
   o_c_address_aimag_city_name: string;
   o_c_address_aimag_city_code: string;
@@ -16,7 +16,7 @@ interface Io_c_address {
   o_c_address_zipcode: number;
 }
 
-interface c_job {
+interface C_job {
   c_job_position: string;
   c_job_name: string;
   c_job_address: string;
@@ -81,7 +81,7 @@ interface o_c_coll_state_registration {
   o_c_coll_confirmed_date: Date;
 }
 
-interface o_c_coll_other_registration {
+interface o_c_coll_ther_registration {
   o_c_coll_other_certificateno: string;
   o_c_coll_other_regnum: string;
   o_c_coll_other_name: string;
@@ -159,7 +159,7 @@ export interface IZms {
     c_familyname: string;
     o_c_isforeign: boolean;
     o_c_birthdate: Date;
-    o_c_address: Io_c_address;
+    o_c_address: IoCAddress;
     o_c_phone: number;
     o_c_email: string;
     c_tax_number: string;
@@ -167,7 +167,7 @@ export interface IZms {
     c_family_numof_unemployed: number;
     c_isemployed: boolean;
     c_occupation: string; //хавсрал У
-    c_job: c_job;
+    c_job: C_job;
     o_c_related_orgs: [o_c_related_orgs];
     o_c_related_customers: [o_c_related_customers];
     o_c_customer_bank_relation: string; // хавсрал З болон И нэгтгэх
@@ -259,7 +259,7 @@ export interface IZms {
       o_c_coll_zipcode: number;
       o_c_coll_is_real_estate: boolean;
       o_c_coll_state_registration: o_c_coll_state_registration;
-      o_c_coll_other_registration: o_c_coll_other_registration;
+      o_c_coll_other_registration: o_c_coll_ther_registration;
       o_c_coll_customer: o_c_coll_customer;
       o_c_coll_org: o_c_coll_org;
     }

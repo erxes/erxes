@@ -1,11 +1,9 @@
-import { gql } from '@apollo/client';
+import { gql,useQuery, useMutation } from '@apollo/client';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import { mutations, queries } from '../../graphql';
 import { ProductsConfigsQueryResponse, IConfigsMap } from '../../types';
 import { UomsQueryResponse } from '@erxes/ui-products/src/types';
-import { useQuery, useMutation } from '@apollo/client';
-
 type Props = {
   component: any;
 };

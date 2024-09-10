@@ -23,11 +23,9 @@ type Props = {
   isAllSelected: boolean;
   bulk: IBookingIntegration[];
   emptyBulk: () => void;
-  loading: boolean;
   refetch: () => void;
   toggleBulk: (target: IBookingIntegration, toAdd: boolean) => void;
   toggleAll: (bulk: IBookingIntegration[], name: string) => void;
-  history: any;
   remove: (bookingId: string) => void;
   totalCount: number;
   counts: IntegrationsCount;

@@ -27,11 +27,8 @@ type Props = {
   responseTemplates: IResponseTemplate[];
   hasMore: boolean;
   onSelect: (responseTemplate?: IResponseTemplate) => void;
-  onSearchChange: (name: string, value: string) => void;
   onSelectTemplate: () => void;
-  attachments?: IAttachment[];
   brands: IBrand[];
-  content?: string;
   refetchResponseTemplates: (
     content: string,
     brandId: string,

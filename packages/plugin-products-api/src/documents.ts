@@ -115,7 +115,7 @@ export default {
 
         if (Object.keys(discount).length) {
           let unitPrice = (product.unitPrice =
-            (product.unitPrice || 0) - discount.value);
+            (product.unitPrice ?? 0) - discount.value);
           if (unitPrice < 0) {
             unitPrice = 0;
           }

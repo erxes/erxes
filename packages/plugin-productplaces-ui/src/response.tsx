@@ -3,8 +3,8 @@ import React from 'react';
 
 const returnResponse = ({ currentUser }) => {
   return (
-    <React.Fragment>
-      <Response />
+    <React.Fragment>;
+      <Response />;
     </React.Fragment>
   );
 };

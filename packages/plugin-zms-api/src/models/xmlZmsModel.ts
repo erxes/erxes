@@ -170,9 +170,9 @@ interface o_c_leasingperformance {
 interface o_c_leasinginterestdetail {
   o_c_leasinginterestdetail_datetopay: Date;
   o_c_leasinginterestdetail_amounttopay: number;
-  o_c_leasinginterestperformances: [o_c_leasinginterestperformance];
+  o_c_leasinginterestperformances: [OCleasinginterestperformance];
 }
-interface o_c_leasinginterestperformance {
+interface OCleasinginterestperformance {
   o_c_leasinginterestperformance_datetopay: Date;
   o_c_leasinginterestperformance_amounttopay: number;
 }
@@ -217,7 +217,7 @@ interface o_c_accreditmrtno {
   o_c_accredit_balance: number;
   o_c_accredit_isapproved: boolean;
 }
-interface o_c_onus_information {
+interface o_c_onusInformation {
   action: string;
   o_c_loan_provideLoanSize: number;
   o_c_loanline: [o_c_loanline];
@@ -238,11 +238,11 @@ interface o_c_mortgage_information {
     o_c_mrtvalue: number;
     o_c_mrtmaxlimit: number;
     o_c_mrt_address: string;
-    o_c_registeredtoauthority: o_c_registeredtoauthority;
+    o_c_registeredtoauthority: Ocregisteredtoauthority;
     o_c_customer: o_c_customer;
   };
 }
-interface o_c_registeredtoauthority {
+interface Ocregisteredtoauthority {
   o_c_mrtregistereddate: Date;
   o_c_mrtstateregisterno: string;
   o_c_mrtcertificateno: string;
@@ -285,9 +285,9 @@ export interface IXmlZms {
       o_c_president_family_firstname: string;
       o_c_president_family_lastname: string;
       o_c_president_family_isforeign: string;
-      o_c_president_family_registerno: string;
+      o_c_president_family_registerno: string;  
     };
-    o_c_onus_information: o_c_onus_information;
+    o_c_onus_information: o_c_onusInformation;
     o_c_mortgage_information: [o_c_mortgage_information];
   };
 }

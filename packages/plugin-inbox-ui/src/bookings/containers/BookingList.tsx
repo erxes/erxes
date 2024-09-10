@@ -99,7 +99,6 @@ function BookingListContainer(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    loading: integrationsQuery.loading,
     refetch,
     remove,
     counts,

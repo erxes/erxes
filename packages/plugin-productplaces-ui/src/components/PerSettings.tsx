@@ -9,7 +9,7 @@ import {
 import { MainStyleModalFooter as ModalFooter } from "@erxes/ui/src/styles/eindex";
 import { FormColumn, FormWrapper } from "@erxes/ui/src/styles/main";
 import { __ } from "@erxes/ui/src/utils";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IConfigsMap } from "../types";
 import PerConditions from "./PerConditions";
 
@@ -25,7 +25,7 @@ const PerSettings = (props: Props) => {
   const { configsMap, currentConfigKey, save } = props;
 
   const [config, setConfig] = useState(props.config);
-  const [conditions, setconditions] = useState(props.config.conditions || []);
+  const [conditions, setConditions] = useState(props.config.conditions || []);
 
   const onChangeBoard = (boardId: string) => {
     setConfig({ ...config, boardId });
@@ -71,13 +71,13 @@ const PerSettings = (props: Props) => {
     conditions.push({
       id: Math.random().toString(),
     });
-    setconditions(conditions);
+    setConditions(conditions);
     onChangeConfig("conditions", conditions);
   };
 
   const renderConditions = () => {
     const remove = (id) => {
-      setconditions(conditions.filter((c) => c.id !== id));
+      setConditions(conditions.filter((c) => c.id !== id));
       onChangeConfig(
         "conditions",
         conditions.filter((c) => c.id !== id)
@@ -88,7 +88,7 @@ const PerSettings = (props: Props) => {
       const updated = (conditions || []).map((c) =>
         c.id === id ? condition : c
       );
-      setconditions(updated);
+      setConditions(updated);
       onChangeConfig("conditions", updated);
     };
 
@@ -105,8 +105,8 @@ const PerSettings = (props: Props) => {
   return (
     <CollapseContent
       title={__(config.title)}
-      open={currentConfigKey === "newPlacesConfig" ? true : false}
-    >
+      open={currentConfigKey === "newPlacesConfig"}
+      >
       <FormGroup>
         <ControlLabel>{"Title"}</ControlLabel>
         <FormControl
@@ -167,8 +167,8 @@ const PerSettings = (props: Props) => {
           icon="check-circle"
           onClick={onSave}
           uppercase={false}
-          disabled={config.stageId ? false : true}
-        >
+          disabled={!config.stageId}
+          >
           Save
         </Button>
       </ModalFooter>

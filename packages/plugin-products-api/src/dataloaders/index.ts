@@ -1,5 +1,4 @@
 import * as DataLoader from 'dataloader';
-import * as _ from 'underscore';
 import productCategory from './productCategory';
 import tag from './tag';
 import company from './company';

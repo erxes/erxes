@@ -120,7 +120,8 @@ const commonOptions = () => ({
 export default compose(
   graphql(gql(queries.templateTotalCount), {
     name: "emailTemplatesTotalCountQuery",
-    skip: !isEnabled("engages") ? true : false,
+    skip: !isEnabled("engages"),
+
   }),
   graphql<FinalProps>(gql(queries.emailTemplates), {
     name: "emailTemplatesQuery",
@@ -129,7 +130,8 @@ export default compose(
         perPage: emailTemplatesTotalCountQuery.emailTemplatesTotalCount,
       },
     }),
-    skip: !isEnabled("engages") ? true : false,
+    skip: !isEnabled("engages"),
+
   }),
   graphql<
     {},

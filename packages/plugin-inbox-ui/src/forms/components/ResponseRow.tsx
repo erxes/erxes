@@ -1,4 +1,4 @@
-import TextInfo from '@erxes/ui/src/components/TextInfo';
+
 import { IFormResponse } from '@erxes/ui-forms/src/forms/types';
 import React from 'react';
 import Icon from '@erxes/ui/src/components/Icon';

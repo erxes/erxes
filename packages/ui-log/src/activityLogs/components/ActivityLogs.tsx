@@ -65,7 +65,6 @@ class ActivityLogs extends React.PureComponent<Props, State> {
               user={currentUser}
               activities={activityLogs}
               target={target}
-              type={currentTab}
               activityRenderItem={activityRenderItem}
             />
           }

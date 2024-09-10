@@ -11,7 +11,7 @@ export default {
   },
 
   isRoot(category: IProductCategoryDocument, {}) {
-    return category.parentId ? false : true;
+    return !category.parentId;
   },
 
   async productCount(

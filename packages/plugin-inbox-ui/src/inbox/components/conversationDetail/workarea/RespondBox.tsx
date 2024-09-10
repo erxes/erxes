@@ -222,7 +222,8 @@ const RespondBox = (props: Props) => {
           ...prevState,
           attachments: [
             ...state.attachments,
-            Object.assign({ url: response }, fileInfo),
+            { ...fileInfo, url: response }
+  
           ],
         }));
 
@@ -234,7 +235,8 @@ const RespondBox = (props: Props) => {
 
       afterRead: ({ result, fileInfo }) => {
         if (setAttachmentPreview) {
-          setAttachmentPreview(Object.assign({ data: result }, fileInfo));
+          setAttachmentPreview({ ...fileInfo, data: result });
+
         }
       },
     });
