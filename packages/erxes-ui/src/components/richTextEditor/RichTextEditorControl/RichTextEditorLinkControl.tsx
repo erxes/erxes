@@ -133,6 +133,7 @@ export const RichTextEditorLinkControl = (
                 }
               >
                 <button
+                  type="button"
                   onClick={() => setExternal((e) => !e)}
                   data-active={external || undefined}
                 >

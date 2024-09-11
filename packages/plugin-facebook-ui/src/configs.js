@@ -27,7 +27,9 @@ module.exports = {
       description: 'Generate Facebook Messenger Bots',
       logo: '/images/integrations/fb-messenger.png',
       list: './messenger-bots',
-      createUrl: '/settings/facebook-messenger-bot/create'
+      createUrl: '/settings/facebook-messenger-bot/create',
+      totalCountQuery:
+        'query FacebootMessengerBotsTotalCount { facebootMessengerBotsTotalCount }'
     }
   ],
   inboxIntegrationSettings: './inboxIntegrationSettings',

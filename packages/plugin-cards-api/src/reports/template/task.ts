@@ -343,7 +343,7 @@ export const taskCharts = [
         templateType: "TasksTotalCount",
         serviceType: 'cards',
         name: 'Total Tasks Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', "pivotTable"],
         getChartResult: async (
             models: IModels,
             filter: any,

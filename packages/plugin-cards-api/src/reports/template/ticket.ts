@@ -2466,7 +2466,7 @@ export const ticketCharts = [
         templateType: "TicketsTotalCount",
         serviceType: 'cards',
         name: 'Total Tickets Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', "pivotTable"],
         getChartResult: async (
             models: IModels,
             filter: any,

@@ -29,20 +29,30 @@ export const stream = async (
     },
   });
 
-  const chldCursor = generateChildStream().cursor();
+  const childCursor = generateChildStream().cursor();
 
   try {
-    for await (const doc of chldCursor) {
-      parentTransformerStream.write(doc);
-    }
-    parentTransformerStream.end();
+    // Process the stream and wait for it to finish
+    await new Promise<void>((resolve, reject) => {
+      childCursor.pipe(parentTransformerStream);
 
-    await onFinishPiping();
+      // Resolve the promise when the stream finishes processing
+      parentTransformerStream.on('finish', async () => {
+        await onFinishPiping();
+        resolve();
+      });
+
+      // Reject the promise if there is an error
+      parentTransformerStream.on('error', (error) => {
+        reject(error);
+      });
+    });
+
     return 'done';
   } catch (error) {
     parentTransformerStream.destroy();
     throw error;
   } finally {
-    await chldCursor.close();
+    await childCursor.close();
   }
 };

@@ -730,6 +730,13 @@ const ControlRange = styled.div`
 `;
 
 const ChartTable = styled(Table)`
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
   th:last-child {
     display: flex;
     justify-content: end;
@@ -739,6 +746,39 @@ const ChartTable = styled(Table)`
       top: -2px;
     }
   }
+`;
+
+const PivotTable = styled(Table)`
+
+  .pl-0 {
+    padding-left: 0;
+  }
+
+  .total {
+    font-weight: bold;
+  }
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  tr:first-child {
+
+    th:last-child {
+      text-align: left;
+      padding: 8px 18px 8px 0;
+    }
+  }
+`;
+
+const ScrollWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
+  padding: 0px 10px 0 20px;
+  margin-left: -20px;
+  margin-right: -10px;
 `;
 
 export {
@@ -766,5 +806,7 @@ export {
   ControlRange,
   DateRangeWrapper,
   Divider,
-  ChartTable
+  ChartTable,
+  PivotTable,
+  ScrollWrapper
 };

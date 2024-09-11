@@ -2836,7 +2836,7 @@ export const dealCharts = [
         templateType: "DealsTotalCount",
         serviceType: 'cards',
         name: 'Total Deals Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', 'pivotTable'],
         getChartResult: async (
             models: IModels,
             filter: any,

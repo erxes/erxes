@@ -6,7 +6,7 @@ import {
   IntegrationRow,
   IntegrationWrapper,
 } from "@erxes/ui-inbox/src/settings/integrations/components/store/styles";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import Collapse from "@erxes/ui/src/components/Collapse";
 import ErrorBoundary from "@erxes/ui/src/components/ErrorBoundary";
@@ -17,6 +17,7 @@ import Sidebar from "../../Sidebar";
 import { Title } from "@erxes/ui-settings/src/styles";
 import { Wrapper } from "@erxes/ui/src/layout";
 import { __ } from "@erxes/ui/src/utils";
+import { gql, useQuery } from "@apollo/client";
 
 const breadcrumb = [
   { title: __("Settings"), link: "/settings" },
@@ -68,23 +69,35 @@ function Settings() {
       setPlatform(selectedPlatform?.name !== platform.name ? platform : null);
     };
 
-    return platforms.map((platform) => (
-      <IntegrationItem
-        key={platform.name}
-        onClick={() => handleSelectPlatform(platform)}
-      >
-        <Box $isInMessenger={false}>
-          <img alt="logo" src={platform.logo} />
+    return platforms.map((platform) => {
+      const {
+        loading,
+        data = {},
+        error,
+      } = useQuery(gql(platform.totalCountQuery));
 
-          <h5>{platform.label}</h5>
-          <p>{__(platform.description)}</p>
-        </Box>
-        <Link to={platform.createUrl}>+ {__("Add")}</Link>
-      </IntegrationItem>
-    ));
+      const totalCount = !loading && !error ? data[Object.keys(data)[0]] : 0;
+
+      return (
+        <IntegrationItem
+          key={platform.name}
+          onClick={() => handleSelectPlatform(platform)}
+        >
+          <Box $isInMessenger={false}>
+            <img alt="logo" src={platform.logo} />
+
+            <h5>
+              {platform.label} {`(${totalCount})`}
+            </h5>
+            <p>{__(platform.description)}</p>
+          </Box>
+          <Link to={platform.createUrl}>+ {__("Add")}</Link>
+        </IntegrationItem>
+      );
+    });
   };
 
-  const renderList = () => {
+  const renderList = useMemo(() => {
     if (!selectedPlatform) {
       return null;
     }
@@ -98,7 +111,7 @@ function Settings() {
         />
       </ErrorBoundary>
     );
-  };
+  }, [selectedPlatform]);
 
   const content = (
     <Content>
@@ -106,7 +119,7 @@ function Settings() {
         <IntegrationRow>{renderBotsByPlatform()}</IntegrationRow>
 
         <Collapse show={!!selectedPlatform} unmount={true}>
-          <CollapsibleContent>{renderList()}</CollapsibleContent>
+          <CollapsibleContent>{renderList}</CollapsibleContent>
         </Collapse>
       </IntegrationWrapper>
     </Content>
