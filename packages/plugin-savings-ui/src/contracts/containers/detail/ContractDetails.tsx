@@ -34,14 +34,15 @@ const ContractDetailsContainer = (props: FinalProps) => {
   );
 
   useEffect(() => {
-    return contractDetailQuery.subscribeToMore({
+    contractDetailQuery.subscribeToMore({
       document: gql(subscriptions.savingsContractChanged),
-      variables: { _id: id },
-      updateQuery: () => {
-        contractDetailQuery.refetch();
+      variables: { ids: [id] },
+      updateQuery: (prev) => {
+        contractDetailQuery.refetch();        
+        return prev
       }
     });
-  });
+  }, []);
 
   const [contractsEdit] = useMutation<EditMutationResponse>(
     gql(mutations.contractsEdit),

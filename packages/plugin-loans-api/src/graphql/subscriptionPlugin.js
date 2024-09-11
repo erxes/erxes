@@ -3,14 +3,24 @@ var { withFilter } = require('graphql-subscriptions');
 module.exports = {
   name: 'loans',
   typeDefs: `
-      loansContractChanged(_id: String!): LoanContract
+      loansContractChanged(ids: [String]): LoanContract
       loansSchedulesChanged(contractId: String!): [LoanSchedule]
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
       loansContractChanged: {
-        subscribe: (_, { _id }) =>
-          graphqlPubsub.asyncIterator(`loansContractChanged:${_id}`),
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator(`loansContractChanged`),
+          (payload, variables) => {
+            const contract = payload.loansContractChanged._doc ? payload.loansContractChanged._doc : payload.loansContractChanged;
+
+            if (variables.ids.includes(contract._id)) {
+              return true;
+            };
+            return false;
+          }
+
+        ),
       },
       loansSchedulesChanged: {
         resolve(payload, _args, { dataSources: { gatewayDataSource } }, info) {

@@ -1,7 +1,9 @@
+import { contractFields } from "./queries";
+
 const loansContractChanged = `
-  subscription loansContractChanged($_id: String!) {
-    loansContractChanged(_id: $_id) {
-      _id
+  subscription loansContractChanged($ids: [String]) {
+    loansContractChanged(ids: $ids) {
+      ${contractFields}
     }
   }
 `;

@@ -16,12 +16,12 @@ import {
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
 
-const loansContractChanged = (contract: IContractDocument) => {
+const loansContractChanged = async (contract: IContractDocument) => {
   graphqlPubsub.publish(
-    `loansContractChanged:${contract._id}`,
+    'loansContractChanged',
     {
       loansContractChanged: {
-        _id: contract._id,
+        ...contract
       },
     },
   );
@@ -434,7 +434,7 @@ const contractMutations = {
       contract
     );
   },
-  
+
   clientCreditLoanCalculate: async (
     _root,
     {

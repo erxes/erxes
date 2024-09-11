@@ -5,7 +5,7 @@ export const types = () => `
   }
 
   type SavingContract {
-    _id: String!
+    _id: String
     contractTypeId: String
     number: String
     branchId:String

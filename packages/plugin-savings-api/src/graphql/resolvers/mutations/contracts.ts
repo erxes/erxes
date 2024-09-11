@@ -10,12 +10,12 @@ import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { TRANSACTION_TYPE } from "../../../models/definitions/constants";
 import { sendMessageBroker } from "../../../messageBroker";
 
-export const savingsContractChanged = (contract: IContractDocument) => {
+export const savingsContractChanged = async (contract: IContractDocument) => {
   graphqlPubsub.publish(
-    `savingsContractChanged:${contract._id}`,
+    'savingsContractChanged',
     {
       savingsContractChanged: {
-        _id: contract._id,
+        ...contract
       },
     },
   );
