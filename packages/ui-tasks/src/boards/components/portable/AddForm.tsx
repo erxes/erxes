@@ -397,7 +397,7 @@ class AddForm extends React.Component<Props, State> {
         <RelationForm
           {...this.props}
           onChange={this.onRelationsChange}
-          contentType={`sales:${type}`}
+          contentType={`tasks:${type}`}
         />
 
         <FormFooter>

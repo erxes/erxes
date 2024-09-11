@@ -195,37 +195,25 @@ export default class FacebookComment extends React.Component<
               >
                 {isEnabled("tickets") && (
                   <li key="ticket">
-                    <TicketConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.ticketUrl}
-                    />
+                    <TicketConvertTrigger {...triggerProps} />
                   </li>
                 )}
 
                 {isEnabled("sales") && (
                   <li key="deal">
-                    <DealConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.dealUrl}
-                    />
+                    <DealConvertTrigger {...triggerProps} />
                   </li>
                 )}
 
                 {isEnabled("tasks") && (
                   <li key="task">
-                    <TaskConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.taskUrl}
-                    />
+                    <TaskConvertTrigger {...triggerProps} />
                   </li>
                 )}
 
                 {isEnabled("purchases") && (
                   <li key="purchase">
-                    <PurchaseConvertTrigger
-                      {...triggerProps}
-                      url={convertToInfo.purchaseUrl}
-                    />
+                    <PurchaseConvertTrigger {...triggerProps} />
                   </li>
                 )}
               </Dropdown>
