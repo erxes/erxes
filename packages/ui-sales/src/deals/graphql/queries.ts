@@ -220,9 +220,18 @@ const checkDiscount = `
   }
 `;
 
+const convertToInfo = `
+  query tasksConvertToInfo($conversationId: String!) {
+    tasksConvertToInfo(conversationId: $conversationId) {
+      taskUrl
+    }
+  }
+`;
+
 const productCategories = queries.productCategories;
 
 export default {
+  convertToInfo,
   deals,
   dealsTotalCount,
   dealDetail,

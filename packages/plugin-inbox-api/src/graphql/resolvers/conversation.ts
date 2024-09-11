@@ -1,8 +1,8 @@
-import { IConversationDocument } from '../../models/definitions/conversations';
-import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendCallsMessage, sendIntegrationsMessage } from '../../messageBroker';
-import { IContext } from '../../connectionResolver';
-import { debugError } from '@erxes/api-utils/src/debuggers';
+import { IConversationDocument } from "../../models/definitions/conversations";
+import { MESSAGE_TYPES } from "../../models/definitions/constants";
+import { sendCallsMessage, sendIntegrationsMessage } from "../../messageBroker";
+import { IContext } from "../../connectionResolver";
+import { debugError } from "@erxes/api-utils/src/debuggers";
 
 export default {
   /**
@@ -19,8 +19,8 @@ export default {
   customer(conversation: IConversationDocument) {
     return (
       conversation.customerId && {
-        __typename: 'Customer',
-        _id: conversation.customerId,
+        __typename: "Customer",
+        _id: conversation.customerId
       }
     );
   },
@@ -28,32 +28,32 @@ export default {
   async integration(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext,
+    { models }: IContext
   ) {
     return models.Integrations.findOne({
-      _id: conversation.integrationId,
+      _id: conversation.integrationId
     });
   },
 
   user(conversation: IConversationDocument) {
     return (
-      conversation.userId && { __typename: 'User', _id: conversation.userId }
+      conversation.userId && { __typename: "User", _id: conversation.userId }
     );
   },
 
   assignedUser(conversation: IConversationDocument) {
     return (
       conversation.assignedUserId && {
-        __typename: 'User',
-        _id: conversation.assignedUserId,
+        __typename: "User",
+        _id: conversation.assignedUserId
       }
     );
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return (conv.participatedUserIds || []).map((_id) => ({
-      __typename: 'User',
-      _id,
+    return (conv.participatedUserIds || []).map(_id => ({
+      __typename: "User",
+      _id
     }));
   },
 
@@ -64,20 +64,20 @@ export default {
   async messages(conv: IConversationDocument, _, { dataLoaders }: IContext) {
     const messages =
       await dataLoaders.conversationMessagesByConversationId.load(conv._id);
-    return messages.filter((message) => message);
+    return messages.filter(message => message);
   },
 
   async callProAudio(
     conv: IConversationDocument,
     _args,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain }: IContext
   ) {
     const integration =
       (await models.Integrations.findOne({
-        _id: conv.integrationId,
+        _id: conv.integrationId
       })) || ({} as any);
 
-    if (integration && integration.kind !== 'callpro') {
+    if (integration && integration.kind !== "callpro") {
       return null;
     }
 
@@ -85,15 +85,15 @@ export default {
       try {
         const response = await sendIntegrationsMessage({
           subdomain,
-          action: 'getCallproAudio',
+          action: "getCallproAudio",
           data: {
             erxesApiId: conv._id,
-            integrationId: integration._id,
+            integrationId: integration._id
           },
-          isRPC: true,
+          isRPC: true
         });
 
-        return response ? response.audioSrc : '';
+        return response ? response.audioSrc : "";
       } catch (e) {
         debugError(e);
         return null;
@@ -104,17 +104,17 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
+    return (conv.tagIds || []).map(_id => ({ __typename: "Tag", _id }));
   },
 
   async videoCallData(
     conversation: IConversationDocument,
     _args,
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const message = await models.ConversationMessages.findOne({
       conversationId: conversation._id,
-      contentType: MESSAGE_TYPES.VIDEO_CALL,
+      contentType: MESSAGE_TYPES.VIDEO_CALL
     }).lean();
 
     if (!message) {
@@ -124,11 +124,11 @@ export default {
     try {
       const response = await sendIntegrationsMessage({
         subdomain,
-        action: 'getDailyActiveRoom',
+        action: "getDailyActiveRoom",
         data: {
-          erxesApiConversationId: conversation._id,
+          erxesApiConversationId: conversation._id
         },
-        isRPC: true,
+        isRPC: true
       });
 
       return response;
@@ -140,14 +140,14 @@ export default {
   async callHistory(
     conversation: IConversationDocument,
     _args,
-    { models, subdomain }: IContext,
+    { models, subdomain }: IContext
   ) {
     const integration =
       (await models.Integrations.findOne({
-        _id: conversation.integrationId,
+        _id: conversation.integrationId
       })) || ({} as any);
 
-    if (integration && integration.kind !== 'calls') {
+    if (integration && integration.kind !== "calls") {
       return null;
     }
 
@@ -155,14 +155,14 @@ export default {
     try {
       const response = await sendCallsMessage({
         subdomain,
-        action: 'getCallHistory',
+        action: "getCallHistory",
         data: {
-          erxesApiConversationId: conversation._id,
+          erxesApiConversationId: conversation._id
         },
-        isRPC: true,
+        isRPC: true
       });
 
-      return response ? response : '';
+      return response ? response : "";
     } catch (e) {
       debugError(e);
       return null;
@@ -170,5 +170,5 @@ export default {
     // }
 
     return null;
-  },
+  }
 };

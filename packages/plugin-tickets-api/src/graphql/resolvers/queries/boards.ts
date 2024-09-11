@@ -408,7 +408,7 @@ const boardQueries = {
     return Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();
   },
 
-  async ticketItemsCountByAssignedUser(
+  async ticketsItemsCountByAssignedUser(
     _root,
     {
       pipelineId,
@@ -564,7 +564,7 @@ const boardQueries = {
    *  Archived stages
    */
 
-  async ticketArchivedStages(
+  async ticketsArchivedStages(
     _root,
     {
       pipelineId,
@@ -582,7 +582,7 @@ const boardQueries = {
     return paginate(Stages.find(filter).sort({ createdAt: -1 }), listArgs);
   },
 
-  async ticketArchivedStagesCount(
+  async ticketsArchivedStagesCount(
     _root,
     { pipelineId, search }: { pipelineId: string; search?: string },
     { models: { Stages } }: IContext
@@ -599,7 +599,7 @@ const boardQueries = {
   /**
    *  ConvertTo info
    */
-  async ticketConvertToInfo(
+  async ticketsConvertToInfo(
     _root,
     { conversationId }: { conversationId: string },
     { models: { Stages, Pipelines, Boards, Tickets } }: IContext
@@ -786,7 +786,7 @@ const boardQueries = {
     return result;
   },
 
-  async ticketCheckFreeTimes(
+  async ticketsCheckFreeTimes(
     _root,
     { pipelineId, intervals },
     { models, subdomain }: IContext

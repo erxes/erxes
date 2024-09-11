@@ -227,7 +227,16 @@ const productsPriceLast = `
 
 const productCategories = queries.productCategories;
 
+const convertToInfo = `
+  query purchasesConvertToInfo($conversationId: String!) {
+     purchasesConvertToInfo(conversationId: $conversationId) {
+      purchaseUrl
+    }
+  }
+`;
+
 export default {
+  convertToInfo,
   purchases,
   purchasesTotalCount,
   purchaseDetail,

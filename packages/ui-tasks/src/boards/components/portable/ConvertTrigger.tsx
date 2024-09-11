@@ -1,7 +1,7 @@
-import AddForm from '../../containers/portable/AddForm';
-import { IOptions } from '../../types';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
+import AddForm from "../../containers/portable/AddForm";
+import { IOptions } from "../../types";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import React from "react";
 
 type Props = {
   relType: string;
@@ -42,7 +42,7 @@ export default function ConvertTrigger(props: Props) {
     return (
       <a
         onClick={() => {
-          window.open(url, '_blank');
+          window.open(url, "_blank");
         }}
         id={autoOpenKey}
       >

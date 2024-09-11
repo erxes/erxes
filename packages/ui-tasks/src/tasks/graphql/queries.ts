@@ -170,7 +170,16 @@ const archivedTasksCount = `
   }
 `;
 
+const convertToInfo = `
+  query tasksConvertToInfo($conversationId: String!) {
+    tasksConvertToInfo(conversationId: $conversationId) {
+      dealUrl
+    }
+  }
+`;
+
 export default {
+  convertToInfo,
   tasks,
   tasksTotalCount,
   taskDetail,

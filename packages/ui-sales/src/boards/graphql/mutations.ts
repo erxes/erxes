@@ -1,5 +1,3 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
-
 const createTicketComment = `
   mutation createTicketComment(
     $ticketId: String!
@@ -201,8 +199,8 @@ export const commonFields = `
 `;
 
 const pipelinesWatch = `
-  mutation pipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
-    pipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
+  mutation salesPipelinesWatch($_id: String!, $isAdd: Boolean, $type: String!) {
+    salesPipelinesWatch(_id: $_id, isAdd: $isAdd, type: $type) {
       _id
       isWatched
     }
@@ -210,68 +208,68 @@ const pipelinesWatch = `
 `;
 
 const stagesEdit = `
-  mutation stagesEdit($_id: String!, $type: String, $name: String, $status: String) {
-    stagesEdit(_id: $_id, type: $type, name: $name, status: $status) {
+  mutation salesStagesEdit($_id: String!, $type: String, $name: String, $status: String) {
+    salesStagesEdit(_id: $_id, type: $type, name: $name, status: $status) {
       _id
     }
   }
 `;
 
 const stagesRemove = `
-  mutation stagesRemove($_id: String!) {
-    stagesRemove(_id: $_id)
+  mutation salesStagesRemove($_id: String!) {
+    salesStagesRemove(_id: $_id)
   }
 `;
 
 const boardItemUpdateTimeTracking = `
-  mutation boardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
-    boardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+  mutation salesBoardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
+    salesBoardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
   }
 `;
 
 const stagesSortItems = `
-  mutation stagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
-    stagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
+  mutation salesStagesSortItems($stageId: String!, $type: String, $proccessId: String, $sortType: String) {
+    salesStagesSortItems(stageId: $stageId, type: $type, proccessId: $proccessId, sortType: $sortType)
   }
 `;
 
 const pipelineLabelsAdd = `
-  mutation pipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
-    pipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation salesPipelineLabelsAdd($name: String!, $colorCode: String!, $pipelineId: String!) {
+    salesPipelineLabelsAdd(name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
       _id
     }
   }
 `;
 
 const pipelineLabelsEdit = `
-  mutation pipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
-    pipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
+  mutation salesPipelineLabelsEdit($_id: String!, $name: String!, $colorCode: String!, $pipelineId: String!) {
+    salesPipelineLabelsEdit(_id: $_id, name: $name, colorCode: $colorCode, pipelineId: $pipelineId) {
       _id
     }
   }
 `;
 
 const pipelineLabelsRemove = `
-  mutation pipelineLabelsRemove($_id: String!) {
-    pipelineLabelsRemove(_id: $_id)
+  mutation salesPipelineLabelsRemove($_id: String!) {
+    salesPipelineLabelsRemove(_id: $_id)
   }
 `;
 
 const pipelineLabelsLabel = `
-  mutation pipelineLabelsLabel($pipelineId: String!, $targetId: String!, $labelIds: [String!]!) {
-    pipelineLabelsLabel(pipelineId: $pipelineId, targetId: $targetId, labelIds: $labelIds)
+  mutation salesPipelineLabelsLabel($pipelineId: String!, $targetId: String!, $labelIds: [String!]!) {
+    salesPipelineLabelsLabel(pipelineId: $pipelineId, targetId: $targetId, labelIds: $labelIds)
   }
 `;
 
 const boardItemsSaveForGanttTimeline = `
-  mutation boardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
-    boardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
+  mutation salesBoardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
+    salesBoardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
   }
 `;
 
 const stagesUpdateOrder = `
-  mutation stagesUpdateOrder($orders: [SalesOrderItem]) {
-    stagesUpdateOrder(orders: $orders) {
+  mutation salesStagesUpdateOrder($orders: [SalesOrderItem]) {
+    salesStagesUpdateOrder(orders: $orders) {
       _id
     }
   }

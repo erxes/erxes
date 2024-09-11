@@ -26,18 +26,10 @@ const Container = styled.div`
 
 type Props = {
   conversation: IConversation;
-  conversationMessage: IMessage;
-  convertToInfo: {
-    ticketUrl?: string;
-    dealUrl?: string;
-    taskUrl?: string;
-    purchaseUrl?: string;
-  };
-  refetch: () => void;
 };
 
 export default function ConvertTo(props: Props) {
-  const { conversation, convertToInfo, conversationMessage, refetch } = props;
+  const { conversation } = props;
 
   const assignedUserIds = conversation.assignedUserId
     ? [conversation.assignedUserId]
@@ -45,16 +37,11 @@ export default function ConvertTo(props: Props) {
   const customerIds = conversation.customerId ? [conversation.customerId] : [];
   const sourceConversationId = conversation._id;
 
-  const message: IMessage = conversationMessage || ({} as IMessage);
-  const mailData = message.mailData || ({} as IMail);
-
   const triggerProps: any = {
     assignedUserIds,
     relTypeIds: customerIds,
     relType: "customer",
-    sourceConversationId,
-    subject: mailData.subject ? mailData.subject : "",
-    refetch
+    sourceConversationId
   };
 
   return (
@@ -68,10 +55,7 @@ export default function ConvertTo(props: Props) {
         <Dropdown.Menu>
           {isEnabled("tickets") && (
             <li key="ticket">
-              <TicketConvertTrigger
-                {...triggerProps}
-                url={convertToInfo.ticketUrl}
-              />
+              <TicketConvertTrigger {...triggerProps} />
             </li>
           )}
 
@@ -80,26 +64,19 @@ export default function ConvertTo(props: Props) {
               <DealConvertTrigger
                 {...triggerProps}
                 bookingProductId={conversation.bookingProductId}
-                url={convertToInfo.dealUrl}
               />
             </li>
           )}
 
           {isEnabled("tasks") && (
             <li key="task">
-              <TaskConvertTrigger
-                {...triggerProps}
-                url={convertToInfo.taskUrl}
-              />
+              <TaskConvertTrigger {...triggerProps} />
             </li>
           )}
 
           {isEnabled("purchases") && (
             <li key="purchase">
-              <PurchaseConvertTrigger
-                {...triggerProps}
-                url={convertToInfo.purchaseUrl}
-              />
+              <PurchaseConvertTrigger {...triggerProps} />
             </li>
           )}
         </Dropdown.Menu>

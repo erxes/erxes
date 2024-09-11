@@ -86,7 +86,7 @@ export const types = () => `
   }
 
   type TicketsConvertTo {
-    ticketUrl:String,
+    ticketUrl: String
   }
 
   type TicketsBoardCount {
