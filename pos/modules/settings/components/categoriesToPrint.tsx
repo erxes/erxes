@@ -40,9 +40,11 @@ const CategoriesToPrint = () => {
     )
   }
 
-  const getMainCategories = (rCategories: ICategory[]) => {
+  const getMainCategories: (rCategories: ICategory[]) => ICategory[] = (
+    rCategories
+  ) => {
     if (!(rCategories || []).length) {
-      return []
+      return [] as ICategory[]
     }
     if (rCategories.length === 1) {
       return getMainCategories(getDirectChildren(rCategories[0]))
