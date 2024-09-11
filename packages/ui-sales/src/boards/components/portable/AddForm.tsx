@@ -331,12 +331,12 @@ class AddForm extends React.Component<Props, State> {
 
     let stageValues: any;
 
-    if (stages && stages.length > 0) {
-      stageValues = (stages || []).map(stage => ({
-        label: stage.name,
-        value: stage._id
-      }));
-    }
+    // if (stages && stages.length > 0) {
+    //   stageValues = (stages || []).map(stage => ({
+    //     label: stage.name,
+    //     value: stage._id
+    //   }));
+    // }
 
     const { type } = this.props.options;
     return (
@@ -398,7 +398,7 @@ class AddForm extends React.Component<Props, State> {
         {loadDynamicComponent("relationForm", {
           ...this.props,
           onChange: this.onRelationsChange,
-          contentType: `cards:${type}`
+          contentType: `sales:${type}`
         })}
 
         <FormFooter>

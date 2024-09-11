@@ -61,6 +61,7 @@ class BoardSelectContainer extends React.Component<FinalProps> {
         this.props.onChangePipeline(pipelineId, stages);
 
         if (
+          stages &&
           stages.length > 0 &&
           typeof this.props.autoSelectStage === "undefined"
         ) {

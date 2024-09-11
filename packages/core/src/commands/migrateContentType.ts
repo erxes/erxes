@@ -26,19 +26,19 @@ const switchContentType = contentType => {
 
   switch (contentType) {
     case "deal":
-      changedContentType = `cards:${contentType}`;
+      changedContentType = `sales:${contentType}`;
       break;
     case "purchase":
-      changedContentType = `cards:${contentType}`;
+      changedContentType = `purchases:${contentType}`;
       break;
     case "ticket":
-      changedContentType = `cards:${contentType}`;
+      changedContentType = `tickets:${contentType}`;
       break;
     case "task":
-      changedContentType = `cards:${contentType}`;
+      changedContentType = `tasks:${contentType}`;
       break;
     case "growthHack":
-      changedContentType = `cards:${contentType}`;
+      changedContentType = `growthhacks:${contentType}`;
       break;
     case "customer":
       changedContentType = `core:${contentType}`;

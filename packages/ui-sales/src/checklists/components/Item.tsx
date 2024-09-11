@@ -161,7 +161,7 @@ function Item(props: Props) {
         >
           <li>
             <a onClick={onConvert} href="#convert">
-              Convert to Sales
+              Convert to Deal
             </a>
           </li>
           <li>

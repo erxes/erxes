@@ -173,7 +173,7 @@ const archivedTasksCount = `
 const convertToInfo = `
   query tasksConvertToInfo($conversationId: String!) {
     tasksConvertToInfo(conversationId: $conversationId) {
-      dealUrl
+      taskUrl
     }
   }
 `;

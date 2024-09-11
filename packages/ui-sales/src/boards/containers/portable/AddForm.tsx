@@ -186,7 +186,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           variables: { stageId: item.stageId, _ids: [item._id] }
         })
         .then(({ data }: any) => {
-          if (data && data[`${type}s`] && data[`${type}s`].length) {
+          if (data && data[`${type}s`]) {
             getAssociatedItem(data[`${type}s`][0]);
           }
         });
@@ -287,10 +287,9 @@ export default (props: IProps) =>
       }),
       graphql<FinalProps>(gql(formQueries.fieldsGroups), {
         name: "fieldsGroupsQuery",
-        skip: !isEnabled("forms"),
-        options: ({ options, pipelineId }) => ({
+        options: ({ options }) => ({
           variables: {
-            contentType: `cards:${options.type}`,
+            contentType: `sales:${options.type}`,
             isDefinedByErxes: true
           }
         })

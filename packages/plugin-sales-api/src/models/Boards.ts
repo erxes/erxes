@@ -73,7 +73,7 @@ const removeItems = async (
   await sendCoreMessage({
     subdomain,
     action: "removeInternalNotes",
-    data: { contentType: `cards:${type}`, contentTypeIds: itemIds }
+    data: { contentType: `sales:${type}`, contentTypeIds: itemIds }
   });
 
   await collection.deleteMany({ stageId: { $in: stageIds } });
