@@ -24,6 +24,7 @@ import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
 import { IButtonMutateProps } from "../../../types";
 import UserMovementForm from "../../containers/UserMovementForm";
 import Activities from "@erxes/ui-log/src/activityLogs/components/teammember/Activities";
+import LeadState from "@erxes/ui-contacts/src/customers/containers/LeadState";
 
 type Props = {
   user: IUser;
@@ -246,7 +247,8 @@ function UserDetails({
           >
             <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
-          {loadDynamicComponent("contactDetailHeader", { customer: user })}
+
+          <LeadState customer={user} />
         </UserHeader>
       }
       leftSidebar={

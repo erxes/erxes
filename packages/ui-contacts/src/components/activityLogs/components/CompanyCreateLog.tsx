@@ -6,42 +6,41 @@ import {
 
 import { IActivityLogItemProps } from "@erxes/ui-log/src/activityLogs/types";
 import React from "react";
-import Tags from "@erxes/ui/src/components/Tags";
 import Tip from "@erxes/ui/src/components/Tip";
 import dayjs from "dayjs";
 import { renderUserFullName } from "@erxes/ui/src/utils";
 
-class TaggedLog extends React.Component<IActivityLogItemProps> {
+class CustomerCreateLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {
     const { activity } = this.props;
-    const { contentDetail, createdByDetail } = activity;
-
-    let userName = "Unknown";
+    const { createdByDetail } = activity;
 
     if (createdByDetail && createdByDetail.type === "user") {
       const { content } = createdByDetail;
 
+      let userName = "Unknown";
+
       if (content && content.details) {
-        userName = renderUserFullName(createdByDetail.content);
+        userName = renderUserFullName(createdByDetail.content || "");
       }
+
+      return (
+        <span>
+          <strong>{userName}</strong> created&nbsp; this company
+        </span>
+      );
     }
-
-    const { tags } = contentDetail;
-
-    const tagNames = tags.map(tag => {
-      return <Tags key={tag._id} tags={[tag]} size="medium" />;
-    });
 
     return (
       <span>
-        {userName} change tag to
-        {tagNames}
+        This customer <b>registered</b> to erxes
       </span>
     );
   };
 
   render() {
-    const { createdAt } = this.props.activity;
+    const { activity } = this.props;
+    const { createdAt } = activity;
 
     return (
       <FlexCenterContent>
@@ -56,4 +55,4 @@ class TaggedLog extends React.Component<IActivityLogItemProps> {
   }
 }
 
-export default TaggedLog;
+export default CustomerCreateLog;

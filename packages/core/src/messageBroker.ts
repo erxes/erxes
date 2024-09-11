@@ -1170,8 +1170,6 @@ export const setupMessageConsumers = async (): Promise<void> => {
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
 
-      console.log(query, "1231231231");
-
       return {
         status: "success",
         data: await models.FieldsGroups.findOne(query).lean()
