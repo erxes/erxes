@@ -1,12 +1,12 @@
-import { gql } from "@apollo/client";
-import * as compose from "lodash.flowright";
-import { IItemParams } from "../../boards/types";
-import { withProps } from "@erxes/ui/src/utils";
-import React, { useEffect } from "react";
-import { graphql } from "@apollo/client/react/hoc";
-import { queries, subscriptions } from "../graphql";
-import { ChecklistsQueryResponse, IChecklistsParam } from "../types";
-import List from "./List";
+import { gql } from '@apollo/client';
+import * as compose from 'lodash.flowright';
+import { IItemParams } from '../../boards/types';
+import { withProps } from '@erxes/ui/src/utils';
+import React, { useEffect } from 'react';
+import { graphql } from '@apollo/client/react/hoc';
+import { queries, subscriptions } from '../graphql';
+import { ChecklistsQueryResponse, IChecklistsParam } from '../types';
+import List from './List';
 
 type IProps = {
   contentType: string;
@@ -29,11 +29,11 @@ function ChecklistsContainer(props: FinalProps) {
       variables: { contentType, contentTypeId },
       updateQuery: () => {
         checklistsQuery.refetch();
-      }
+      },
     });
   });
 
-  const checklists = checklistsQuery.checklists || [];
+  const checklists = checklistsQuery.salesChecklists || [];
 
   return checklists.map(list => (
     <List
@@ -51,14 +51,14 @@ export default withProps<IProps>(
     graphql<IProps, ChecklistsQueryResponse, IChecklistsParam>(
       gql(queries.checklists),
       {
-        name: "checklistsQuery",
+        name: 'checklistsQuery',
         options: ({ contentType, contentTypeId }) => ({
           variables: {
             contentType,
-            contentTypeId
+            contentTypeId,
           },
-          refetchQueries: ["checklists"]
-        })
+          refetchQueries: ['checklists'],
+        }),
       }
     )
   )(ChecklistsContainer)

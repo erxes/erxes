@@ -31,7 +31,7 @@ const checklists = `
     salesChecklists(
       ${commonParamDefs}
     ) {
-      _id
+         ${checklistFields}
     }
   }
 `;
@@ -46,5 +46,5 @@ const checklistDetail = `
 
 export default {
   checklists,
-  checklistDetail
+  checklistDetail,
 };

@@ -2,30 +2,30 @@ import {
   Content,
   ContentWrapper,
   LeftContainer,
-  TitleRow
-} from "../../styles/item";
+  TitleRow,
+} from '../../styles/item';
 import {
   EditorActions,
-  EditorWrapper
-} from "@erxes/ui-internalnotes/src/components/Form";
-import { IItem, IItemParams, IOptions } from "../../types";
-import React, { useEffect, useState } from "react";
-import { __, extractAttachment } from "@erxes/ui/src/utils";
+  EditorWrapper,
+} from '@erxes/ui-internalnotes/src/components/Form';
+import { IItem, IItemParams, IOptions } from '../../types';
+import React, { useEffect, useState } from 'react';
+import { __, extractAttachment } from '@erxes/ui/src/utils';
 
-import Actions from "./Actions";
-import ActivityInputs from "@erxes/ui-log/src/activityLogs/components/ActivityInputs";
-import ActivityLogs from "@erxes/ui-log/src/activityLogs/containers/ActivityLogs";
-import Button from "@erxes/ui/src/components/Button";
-import { RichTextEditor } from "@erxes/ui/src/components/richTextEditor/TEditor";
-import Checklists from "../../../checklists/containers/Checklists";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import { IAttachment } from "@erxes/ui/src/types";
-import Icon from "@erxes/ui/src/components/Icon";
-import Labels from "../label/Labels";
-import Uploader from "@erxes/ui/src/components/Uploader";
-import { isEnabled } from "@erxes/ui/src/utils/core";
-import xss from "xss";
+import Actions from './Actions';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
+import Button from '@erxes/ui/src/components/Button';
+import { RichTextEditor } from '@erxes/ui/src/components/richTextEditor/TEditor';
+import Checklists from '../../../checklists/containers/Checklists';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IAttachment } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Labels from '../label/Labels';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import xss from 'xss';
 
 type DescProps = {
   item: IItem;
@@ -67,9 +67,9 @@ const Description = (props: DescProps) => {
     return (
       <EditorActions>
         <Button
-          icon="times-circle"
-          btnStyle="simple"
-          size="small"
+          icon='times-circle'
+          btnStyle='simple'
+          size='small'
           onClick={toggleEdit}
         >
           Cancel
@@ -77,9 +77,9 @@ const Description = (props: DescProps) => {
         {item.description !== description && (
           <Button
             onClick={onSend}
-            btnStyle="success"
-            size="small"
-            icon="check-circle"
+            btnStyle='success'
+            size='small'
+            icon='check-circle'
           >
             Save
           </Button>
@@ -93,8 +93,8 @@ const Description = (props: DescProps) => {
       <ContentWrapper $isEditing={edit}>
         <TitleRow>
           <ControlLabel>
-            <Icon icon="align-left-justify" />
-            {__("Description")}
+            <Icon icon='align-left-justify' />
+            {__('Description')}
           </ControlLabel>
         </TitleRow>
 
@@ -104,7 +104,7 @@ const Description = (props: DescProps) => {
             dangerouslySetInnerHTML={{
               __html: item.description
                 ? xss(item.description)
-                : `${__("Add a more detailed description")}...`
+                : `${__('Add a more detailed description')}...`,
             }}
           />
         ) : (
@@ -112,19 +112,19 @@ const Description = (props: DescProps) => {
             <RichTextEditor
               content={description}
               onChange={onChangeDescription}
-              height={"max-content"}
+              height={'max-content'}
               isSubmitted={isSubmitted}
               autoFocus={true}
               name={`${contentType}_description_${item._id}`}
               toolbar={[
-                "bold",
-                "italic",
-                "orderedList",
-                "bulletList",
-                "link",
-                "unlink",
-                "|",
-                "image"
+                'bold',
+                'italic',
+                'orderedList',
+                'bulletList',
+                'link',
+                'unlink',
+                '|',
+                'image',
               ]}
               onCtrlEnter={onSend}
             />
@@ -161,7 +161,7 @@ const Left = (props: Props) => {
     addItem,
     sendToBoard,
     onChangeStage,
-    onChangeRefresh
+    onChangeRefresh,
   } = props;
 
   const onChangeAttachment = (files: IAttachment[]) =>
@@ -188,8 +188,8 @@ const Left = (props: Props) => {
         <FormGroup>
           <TitleRow>
             <ControlLabel>
-              <Icon icon="label-alt" />
-              {__("Labels")}
+              <Icon icon='label-alt' />
+              {__('Labels')}
             </ControlLabel>
           </TitleRow>
 
@@ -200,8 +200,8 @@ const Left = (props: Props) => {
       <FormGroup>
         <TitleRow>
           <ControlLabel>
-            <Icon icon="paperclip" />
-            {__("Attachments")}
+            <Icon icon='paperclip' />
+            {__('Attachments')}
           </ControlLabel>
         </TitleRow>
 
@@ -229,9 +229,9 @@ const Left = (props: Props) => {
           contentId={item._id}
           contentType={`tickets:${options.type}`}
           extraTabs={
-            options.type === "tickets:task" && isEnabled("tasks")
+            options.type === 'tickets:task' && isEnabled('tasks')
               ? []
-              : [{ name: "tickets:task", label: "Ticket" }]
+              : [{ name: 'tickets:task', label: 'Ticket' }]
           }
         />
       }

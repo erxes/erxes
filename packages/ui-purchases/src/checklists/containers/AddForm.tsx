@@ -15,24 +15,24 @@ class AddFormContainer extends React.Component<Props> {
     const renderButton = ({
       values,
       isSubmitted,
-      callback
+      callback,
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
           mutation={mutations.checklistsAdd}
           variables={values}
           callback={callback}
-          refetchQueries={['checklists']}
+          refetchQueries={['purchasesChecklists']}
           isSubmitted={isSubmitted}
-          btnSize="small"
-          type="submit"
+          btnSize='small'
+          type='submit'
         />
       );
     };
 
     const updatedProps = {
       ...this.props,
-      renderButton
+      renderButton,
     };
 
     return <AddForm {...updatedProps} />;
