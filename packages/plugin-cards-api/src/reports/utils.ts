@@ -2252,13 +2252,14 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
             const bodyCell = {
                 content: row,
-                rowspan: colspan === -1 ? 0 : colspan
+                rowspan: colspan === -1 ? 0 : colspan,
+                className: 'pl-0'
             };
 
             return bodyCell
         })
 
-        const bodyCol = colKeys.map((colKey: any) => {
+        const bodyCol = colKeys.map((colKey: any, colIndex: number) => {
 
             const flatColKey = colKey.join(String.fromCharCode(0))
 
@@ -2268,11 +2269,16 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
                 content: aggregator?.value() || '-',
             };
 
+            if (colIndex === 0) {
+                Object.assign(bodyCell, { className: 'pl-0' })
+            }
+
             return bodyCell
         })
 
         const totalColCell = {
-            content: totalAggregator.value()
+            content: totalAggregator.value(),
+            className: "total"
         }
 
         body.push([...bodyRow, ...bodyCol, totalColCell])
@@ -2280,19 +2286,27 @@ export const buildPivotTableData = (data: any, rows: string[], cols: string[], v
 
     const totalRowCell = {
         content: "Totals",
-        colspan: rows.length
+        colspan: rows.length,
+        className: "total"
     }
 
-    const totalColCell = colKeys.map((colKey: any) => {
+    const totalColCell = colKeys.map((colKey: any, colIndex: number) => {
 
         const totalAggregator = colTotals[colKey.join(String.fromCharCode(0))]
 
-        return {
-            content: totalAggregator?.value() || '-'
+        const totalCell = {
+            content: totalAggregator?.value() || '-',
+            className: "total"
         }
+
+        if (colIndex === 0) {
+            totalCell.className += ' pl-0';
+        }
+
+        return totalCell
     })
 
-    const grandTotalCell = { content: allTotal }
+    const grandTotalCell = { content: allTotal, className: "total" }
 
     body.push([totalRowCell, ...totalColCell, grandTotalCell])
 
