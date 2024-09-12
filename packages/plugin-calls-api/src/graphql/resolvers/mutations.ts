@@ -219,7 +219,11 @@ const callsMutations = {
         return callRecordUrl;
       }
       return 'success';
-    } else if (doc.callStatus === 'cancelled') {
+    } else if (
+      doc.callStatus === 'cancelled' &&
+      doc.timeStamp &&
+      doc.timeStamp !== 0
+    ) {
       const cancelledCall = await models.CallHistory.findOne({
         timeStamp: doc.timeStamp,
       });
