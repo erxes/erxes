@@ -19,7 +19,7 @@ const Progress = () => {
   const id = searchParams.get("id")
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
-  const [itemsToPrint, setNewItems] = useState([])
+  const [itemsToPrint, setItemsToPrint] = useState([])
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
     {}
@@ -37,7 +37,7 @@ const Progress = () => {
       }
 
       if (categoryOrders.length) {
-        return getCategoryOrders({
+        getCategoryOrders({
           variables: { ids: newItems.map((it: OrderItem) => it.productId) },
           onCompleted({ poscProducts }) {
             const productsNeedProcess = (poscProducts || [])
@@ -52,17 +52,17 @@ const Progress = () => {
               })
               .map((product: IProduct) => product._id)
 
-            const newItems = items.filter(
-              (item: OrderItem) =>
-                item.status !== ORDER_ITEM_STATUSES.DONE &&
-                productsNeedProcess.includes(item.productId)
+            const itemsShouldPrint = items.filter((item: OrderItem) =>
+              productsNeedProcess.includes(item.productId)
             )
-            setNewItems(newItems)
-            newItems.length > 0
+
+            setItemsToPrint(itemsShouldPrint)
+            itemsShouldPrint.length > 0
               ? setTimeout(() => window.print())
               : handleAfterPrint()
           },
         })
+        return
       }
 
       return setTimeout(() => window.print())
