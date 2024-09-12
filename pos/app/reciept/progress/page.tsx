@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { queries } from "@/modules/orders/graphql"
 import { queries as productQueries } from "@/modules/products/graphql"
@@ -19,10 +19,38 @@ const Progress = () => {
   const id = searchParams.get("id")
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
+  const [itemsToPrint, setItemsToPrint] = useState([])
+
+  const filterProductsNeedProcess = (products: IProduct[]) =>
+    (products || [])
+      .filter(function (product: IProduct) {
+        let included = false
+        ;(categoryOrders || []).forEach((order) => {
+          if (product?.category?.order?.includes(order)) {
+            included = true
+          }
+        })
+        return included
+      })
+      .map((product: IProduct) => product._id)
 
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
-    {}
+    {
+      onCompleted({ poscProducts }) {
+        const productsNeedProcess = filterProductsNeedProcess(poscProducts)
+
+        const itemsShouldPrint = items.filter((item: OrderItem) =>
+          productsNeedProcess.includes(item.productId)
+        )
+
+        setItemsToPrint(itemsShouldPrint)
+
+        itemsShouldPrint.length > 0
+          ? setTimeout(() => window.print())
+          : handleAfterPrint()
+      },
+    }
   )
 
   const { loading, data } = useQuery(queries.progressDetail, {
@@ -37,12 +65,10 @@ const Progress = () => {
       }
 
       if (categoryOrders.length) {
-        return getCategoryOrders({
+        getCategoryOrders({
           variables: { ids: newItems.map((it: OrderItem) => it.productId) },
-          onCompleted() {
-            setTimeout(() => window.print())
-          },
         })
+        return
       }
 
       return setTimeout(() => window.print())
@@ -65,24 +91,6 @@ const Progress = () => {
 
   const { number, modifiedAt, items, description } = data?.orderDetail || {}
 
-  const productsNeedProcess = (ordersQuery.data?.poscProducts || [])
-    .filter((product: IProduct) => {
-      let included = false
-      ;(categoryOrders || []).forEach((order) => {
-        if (product?.category?.order?.includes(order)) {
-          included = true
-        }
-      })
-      return included
-    })
-    .map((product: IProduct) => product._id)
-
-  const newItems = items.filter(
-    (item: OrderItem) =>
-      item.status !== ORDER_ITEM_STATUSES.DONE &&
-      productsNeedProcess.includes(item.productId)
-  )
-
   return (
     <div className="space-y-1 text-[13px]">
       <div className="flex items-center justify-between font-semibold text-xs">
@@ -101,7 +109,7 @@ const Progress = () => {
           <span>Т/Ш</span>
         </div>
         <Separator />
-        {newItems.map((item: OrderItem) => (
+        {itemsToPrint.map((item: OrderItem) => (
           <div className="flex items-center justify-between" key={item._id}>
             <span>{item.productName}</span>
             <span>
