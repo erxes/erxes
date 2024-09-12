@@ -75,12 +75,13 @@ export const formConnectMutation = `
         _id
         title
         description
+        leadData
+        languageCode
       }
       integration {
         _id
         name
-        leadData
-        languageCode
+        
       }
     }
   }

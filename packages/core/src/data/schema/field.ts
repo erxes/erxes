@@ -12,7 +12,6 @@ const fieldCommonFields = `
   logicAction: String
   
   column: Int
-  groupName: String
   pageNumber: Int
   code: String
   searchable: Boolean

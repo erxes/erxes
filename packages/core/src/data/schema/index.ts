@@ -163,7 +163,7 @@ export let types = ({ inboxEnabled }) => {
   ${EmailDeliveryTypes}
   ${ActivityLogTypes}
   ${SegmentTypes}
-  ${FormTypes}
+  ${FormTypes(inboxEnabled)}
   ${FieldsTypes}
   ${FieldsGroupsTypes}
   ${ContactsTypes}

@@ -1,4 +1,4 @@
-export const types = `
+export const types = (inboxEnabled) => `
   extend type Customer @key(fields: "_id") {
       _id: String! @external
   }
@@ -89,6 +89,39 @@ export const types = `
     byBrand: JSON
     byStatus: JSON
   }
+
+
+  type FormConnectResponse {
+      integration: ${inboxEnabled ? "Integration" : "JSON"}
+      form: Form
+  }
+
+  type SaveFormResponse {
+    status: String!
+    errors: [Error]
+    conversationId: String
+    customerId: String
+    userId: String
+  }
+
+  type Error {
+    fieldId: String
+    code: String
+    text: String
+  }
+
+  input FieldValueInput {
+    _id: String!
+    type: String
+    validation: String
+    text: String
+    value: JSON
+    associatedFieldId: String
+    stageId: String
+    groupId: String
+    column: Int
+    productId: String
+  }
 `;
 
 const commonFields = `
@@ -143,4 +176,18 @@ export const mutations = `
 
   formSubmissionsRemove(customerId: String!, contentTypeId: String!): JSON
   formSubmissionsEdit(contentTypeId: String!, customerId: String!, submissions: [FormSubmissionInput]): Submission
+
+
+  widgetsLeadConnect(
+    brandCode: String!,
+    formCode: String!,
+    cachedCustomerId: String
+  ): FormConnectResponse
+
+  widgetsSaveLead(
+      formId: String!
+      submissions: [FieldValueInput]
+      browserInfo: JSON!
+      cachedCustomerId: String
+    ): SaveFormResponse
 `;

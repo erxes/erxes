@@ -115,7 +115,6 @@ export interface IField {
   };
   logics?: IFieldLogic[];
   logicAction?: string;
-  groupName?: string;
   pageNumber?: number;
   searchable?: boolean;
   showInCard?: boolean;

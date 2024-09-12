@@ -36,6 +36,7 @@ const Form: React.FC<IProps> = ({
   getIntegration,
   onSubmit,
 }) => {
+  console.log("FORM container")
   const integration = getIntegration();
   const form = getForm();
 

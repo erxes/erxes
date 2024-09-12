@@ -42,13 +42,6 @@ export const field = {
     );
   },
 
-  async groupName(root: IFieldDocument, _params, { models }: IContext) {
-    const { groupId } = root;
-
-    const group = await models.FieldsGroups.findOne({ _id: groupId });
-    return group && group.name;
-  },
-
   async products(root: IFieldDocument, _args, { models }: IContext) {
     const { productCategoryId } = root;
 

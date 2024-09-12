@@ -4,8 +4,8 @@ import { AppConsumer } from "./AppContext";
 
 const container = () => (
   <AppConsumer>
-    {({ isFormVisible, toggleShoutbox, getIntegrationConfigs }) => {
-      const leadData = getIntegrationConfigs();
+    {({ isFormVisible, toggleShoutbox, getFormConfigs }) => {
+      const leadData = getFormConfigs();
 
       return (
         <ShoutboxLauncher

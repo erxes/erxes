@@ -143,7 +143,6 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       contentType,
       contentTypeId,
       groupId,
-      groupName,
       ...fields
     }: IField) {
       if (fields.code) {
@@ -158,20 +157,6 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
       if (contentTypeId) {
         query.contentTypeId = contentTypeId;
-      }
-
-      if (groupName) {
-        let group = await models.FieldsGroups.findOne({ name: groupName });
-
-        if (!group) {
-          group = await models.FieldsGroups.createGroup({
-            name: groupName,
-            contentType,
-            isDefinedByErxes: false
-          });
-        }
-
-        groupId = group._id;
       }
 
       // Generate order

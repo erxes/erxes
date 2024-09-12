@@ -492,11 +492,11 @@ export const updateContactsField = async (
     browserInfo: any;
     cachedCustomerId?: string;
     integration: any;
-    submissionsGrouped: any;
+    submissions: any;
   }
 ) => {
   let { cachedCustomerId } = args;
-  const { browserInfo, integration, submissionsGrouped } = args;
+  const { browserInfo, integration, submissions } = args;
   const { leadData } = integration;
 
   const conformityIds: {
@@ -508,7 +508,6 @@ export const updateContactsField = async (
   const customerSchemaLabels = await getSchemaLabels("customer");
   const companySchemaLabels = await getSchemaLabels("company");
 
-  for (const groupId of Object.keys(submissionsGrouped)) {
     const customerLinks: ILink = {};
     const companyLinks: ILink = {};
     const customerDoc: any = {};
@@ -518,7 +517,7 @@ export const updateContactsField = async (
     const companyCustomData: ICustomField[] = [];
     const phones: string[] = [];
 
-    for (const submission of submissionsGrouped[groupId]) {
+    for (const submission of submissions) {
       const submissionType = submission.type || "";
 
       if (submissionType.includes("customerLinks")) {
@@ -633,7 +632,7 @@ export const updateContactsField = async (
       }
     }
 
-    if (groupId === "default") {
+ 
       cachedCustomer = await models.Customers.getWidgetCustomer({
         integrationId: integration._id,
         cachedCustomerId,
@@ -670,36 +669,7 @@ export const updateContactsField = async (
         customerId: cachedCustomer._id,
         companyId: ""
       };
-    } else {
-      let customer = await findCustomer(models, subdomain, {
-        customerPrimaryEmail: customerDoc.email || "",
-        customerPrimaryPhone: customerDoc.phone || ""
-      });
-
-      if (!customer) {
-        customer = await createCustomer(
-          models,
-          integration._id,
-          customerDoc,
-          integration.brandId || ""
-        );
-      }
-
-      await updateCustomerFromForm(
-        models,
-        browserInfo,
-        {
-          ...customerDoc,
-          customFieldsData,
-          links: customerLinks,
-          phones,
-          scopeBrandIds: [integration.brandId || ""]
-        },
-        customer
-      );
-
-      conformityIds[groupId] = { customerId: customer._id, companyId: "" };
-    }
+    
 
     if (
       !(
@@ -765,7 +735,7 @@ export const updateContactsField = async (
       companyId: company._id,
       customerId: conformityIds[groupId].customerId
     };
-  }
+  
 
   let mainCompanyId = "";
   const relTypeIds: string[] = [];

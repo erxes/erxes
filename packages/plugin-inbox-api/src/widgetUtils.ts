@@ -131,26 +131,7 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
   return customer;
 };
 
-const groupSubmissions = (submissions: any[]) => {
-  const submissionsGrouped: { [key: string]: any[] } = {};
 
-  submissions.forEach(submission => {
-    if (submission.groupId) {
-      if (submissionsGrouped[submission.groupId]) {
-        submissionsGrouped[submission.groupId].push(submission);
-      } else {
-        submissionsGrouped[submission.groupId] = [submission];
-      }
-    } else {
-      if (submissionsGrouped.default) {
-        submissionsGrouped.default.push(submission);
-      } else {
-        submissionsGrouped.default = [submission];
-      }
-    }
-  });
-  return submissionsGrouped;
-};
 
 export const solveSubmissions = async (
   models: IModels,
