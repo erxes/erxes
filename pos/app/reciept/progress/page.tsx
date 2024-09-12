@@ -25,6 +25,19 @@ const Progress = () => {
     {}
   )
 
+  const filterProductsNeedProcess = (products: IProduct[]) =>
+    (products || [])
+      .filter(function (product: IProduct) {
+        let included = false
+        ;(categoryOrders || []).forEach((order) => {
+          if (product?.category?.order?.includes(order)) {
+            included = true
+          }
+        })
+        return included
+      })
+      .map((product: IProduct) => product._id)
+
   const { loading, data } = useQuery(queries.progressDetail, {
     variables: { id },
     onCompleted({ orderDetail }) {
@@ -40,23 +53,14 @@ const Progress = () => {
         getCategoryOrders({
           variables: { ids: newItems.map((it: OrderItem) => it.productId) },
           onCompleted({ poscProducts }) {
-            const productsNeedProcess = (poscProducts || [])
-              .filter((product: IProduct) => {
-                let included = false
-                ;(categoryOrders || []).forEach((order) => {
-                  if (product?.category?.order?.includes(order)) {
-                    included = true
-                  }
-                })
-                return included
-              })
-              .map((product: IProduct) => product._id)
+            const productsNeedProcess = filterProductsNeedProcess(poscProducts)
 
             const itemsShouldPrint = items.filter((item: OrderItem) =>
               productsNeedProcess.includes(item.productId)
             )
 
             setItemsToPrint(itemsShouldPrint)
+
             itemsShouldPrint.length > 0
               ? setTimeout(() => window.print())
               : handleAfterPrint()
