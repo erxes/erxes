@@ -1,12 +1,12 @@
-import { WhiteBoxRoot, colors, dimensions } from '@erxes/ui/src';
-import styled, { css } from 'styled-components';
+import { WhiteBoxRoot, colors, dimensions } from "@erxes/ui/src";
+import styled, { css } from "styled-components";
 
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { BoxRoot } from '@erxes/ui/src/styles/main';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { highlight } from '@erxes/ui/src/utils/animations';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styledTS from 'styled-components-ts';
+import BoardSelectContainer from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+import { BoxRoot } from "@erxes/ui/src/styles/main";
+import { LeftItem } from "@erxes/ui/src/components/step/styles";
+import { highlight } from "@erxes/ui/src/utils/animations";
+import { rgba } from "@erxes/ui/src/styles/ecolor";
+import styledTS from "styled-components-ts";
 
 export const GridContainer = styledTS<{
   horizontal?: boolean;
@@ -16,7 +16,7 @@ export const GridContainer = styledTS<{
     display:grid;
     gap:${props => props.gap || 0}
     grid-template-columns:${props =>
-      props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto'}
+      props.column ? `repeat(${props.column},${100 / props.column}%)` : "auto"}
 `;
 
 export const FormGroupRow = styledTS<{
@@ -82,9 +82,9 @@ export const Padding = styledTS<{
 }>(styled.div)`
   padding: ${({ $horizontal, $vertical, padding }) =>
     !$horizontal && !$vertical
-      ? '10px'
-      : `${$vertical ? (padding ? `${padding}px` : '10px') : '0px'} ${
-          $horizontal ? (padding ? `${padding}px` : '10px') : '0px'
+      ? "10px"
+      : `${$vertical ? (padding ? `${padding}px` : "10px") : "0px"} ${
+          $horizontal ? (padding ? `${padding}px` : "10px") : "0px"
         }`}
 `;
 
@@ -108,33 +108,33 @@ export const FormContainer = styledTS<{
 }>(styled.div)`
   display: flex;
   flex-wrap: wrap;
-  padding:${({ padding }) => (padding ? padding : '')};
-  flex-direction: ${({ $row }) => $row && 'row'} ${({ $column }) =>
-  $column && 'column'};
+  padding:${({ padding }) => (padding ? padding : "")};
+  flex-direction: ${({ $row }) => $row && "row"} ${({ $column }) =>
+    $column && "column"};
   justify-content: ${({ $spaceBetween }) =>
-    $spaceBetween ? 'space-between' : ''} ${({ $spaceAround }) =>
-  $spaceAround ? 'space-around' : ''};
-  gap: ${({ $gap }) => ($gap ? '25px' : '')};
-  gap: ${({ $gapBetween }) => ($gapBetween ? `${$gapBetween}px` : '')};
-  place-items:${({ align }) => (align ? align : '')};
-  justify-content:${({ $justifyCenter }) => ($justifyCenter ? 'center' : '')}; 
-  justify-content:${({ justify }) => (justify ? justify : '')}; 
-  place-content:${({ placeContent }) => (placeContent ? placeContent : '')};
-  flex-wrap: ${({ $flexWrap }) => ($flexWrap ? 'wrap' : '')};
-  align-self:${({ alignSelf }) => (alignSelf ? alignSelf : '')};
-  width:${({ width }) => (width ? width : '')};
+    $spaceBetween ? "space-between" : ""} ${({ $spaceAround }) =>
+    $spaceAround ? "space-around" : ""};
+  gap: ${({ $gap }) => ($gap ? "25px" : "")};
+  gap: ${({ $gapBetween }) => ($gapBetween ? `${$gapBetween}px` : "")};
+  place-items:${({ align }) => (align ? align : "")};
+  justify-content:${({ $justifyCenter }) => ($justifyCenter ? "center" : "")}; 
+  justify-content:${({ justify }) => (justify ? justify : "")}; 
+  place-content:${({ placeContent }) => (placeContent ? placeContent : "")};
+  flex-wrap: ${({ $flexWrap }) => ($flexWrap ? "wrap" : "")};
+  align-self:${({ alignSelf }) => (alignSelf ? alignSelf : "")};
+  width:${({ width }) => (width ? width : "")};
   ${({ $flex }) =>
     $flex
       ? `div {
         flex:  1
       }`
-      : ''}
+      : ""}
       ${({ $maxItemsRow }) =>
         $maxItemsRow
           ? `div {
         flex:  1 0 ${100 / $maxItemsRow}%
       }`
-          : ''}
+          : ""}
 `;
 
 export const BoxItem = styled.div`
@@ -202,7 +202,7 @@ export const ColorBox = styledTS<{ color?: string; pointer?: boolean }>(
   width: 10px;
   background-color: ${({ color }) => color}
   border-radius: 15px;
-  ${({ pointer }) => (pointer ? 'cursor:pointer' : '')}
+  ${({ pointer }) => (pointer ? "cursor:pointer" : "")}
 `;
 
 export const ColorButton = styledTS<{ color?: string }>(styled.div)`
@@ -258,8 +258,8 @@ export const Typography = styledTS<{
   fontSize: number;
 }>(styled.div)`
   font-size: ${({ fontSize }) => `${fontSize}px`};
-  font-weight: ${({ bold }) => (bold ? 'bold' : 'inheri')}}
-  color: ${({ color }) => (color ? `${color}` : 'inherit')}
+  font-weight: ${({ bold }) => (bold ? "bold" : "inheri")}}
+  color: ${({ color }) => (color ? `${color}` : "inherit")}
 `;
 
 export const CustomRangeContainer = styled.div`
@@ -270,7 +270,7 @@ export const CustomRangeContainer = styled.div`
   > div {
     flex: 1;
     margin-right: 8px;
-    input[type='text'] {
+    input[type="text"] {
       border: none;
       width: 100%;
       height: 34px;
@@ -321,7 +321,7 @@ export const TriggerTabs = styled.div`
 export const Divider = styled.div`
   &:before,
   &:after {
-    content: '';
+    content: "";
     flex: 1;
     height: 0;
     align-self: center;
@@ -444,8 +444,8 @@ export const ScheduleCard = styledTS<{
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: ${({ minWidth }) => (minWidth ? minWidth : '400px')};
-  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : '400px')};;
+  min-width: ${({ minWidth }) => (minWidth ? minWidth : "400px")};
+  max-width: ${({ maxWidth }) => (maxWidth ? maxWidth : "400px")};;
   box-shadow: 0 0 5px 0 rgba(221, 221, 221, 0.7);
   border-radius: 15px;
   place-items: center;

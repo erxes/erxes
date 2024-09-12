@@ -6,21 +6,23 @@ import {
   EmptyState,
   FormGroup,
   Toggle,
-  __,
+  __
 } from "@erxes/ui/src";
 import {
   FormColumn,
   FormWrapper,
-  ModalFooter,
+  ModalFooter
 } from "@erxes/ui/src/styles/main";
 import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
 import {
   SelectCustomFields,
   SelectIndicatorGroups,
-  SelectIndicators,
+  SelectIndicators
 } from "../../common/utils";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import TaskBoardSelect from "@erxes/ui-tasks/src/boards/containers/BoardSelect";
+import TicketBoardSelect from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
+
 import React from "react";
 import Select from "react-select";
 import { cardTypes } from "../../common/constants";
@@ -57,9 +59,9 @@ class Form extends React.Component<Props, State> {
     let useMultipleIndicators = false;
     if (useCustomFields) {
       useMultipleIndicators = props.config.configs.every(
-        (config) => !!config?.indicatorIds?.length
+        config => !!config?.indicatorIds?.length
       );
-      useGroups = props?.config?.configs.every((config) => config.groupId);
+      useGroups = props?.config?.configs.every(config => config.groupId);
     }
 
     if (props.config?.configs?.indicatorIds) {
@@ -81,7 +83,7 @@ class Form extends React.Component<Props, State> {
       useMultipleIndicators,
       indicatorId: props?.config?.indicatorId || "",
       indicatorIds: props?.config?.indicatorIds || [],
-      groupId: props?.config?.groupId || "",
+      groupId: props?.config?.groupId || ""
     };
 
     this.renderForm = this.renderForm.bind(this);
@@ -97,7 +99,7 @@ class Form extends React.Component<Props, State> {
       customFieldId,
       configs,
       indicatorId,
-      groupId,
+      groupId
     } = this.state;
 
     const doc = {
@@ -108,7 +110,7 @@ class Form extends React.Component<Props, State> {
       customFieldId,
       configs,
       indicatorId,
-      groupId,
+      groupId
     };
 
     if (config) {
@@ -126,13 +128,13 @@ class Form extends React.Component<Props, State> {
       pipelineId,
       cardType,
       useGroups,
-      useMultipleIndicators,
+      useMultipleIndicators
     } = this.state;
     const onChangeCustomFields = ({ value, _id }) => {
       this.setState({ customFieldId: _id, configs: value });
     };
     const onChangeConfig = (value, name, field) => {
-      const updatedFieldConfig = configs.map((fieldConfig) =>
+      const updatedFieldConfig = configs.map(fieldConfig =>
         fieldConfig.value === field.value
           ? { ...fieldConfig, [name]: value }
           : fieldConfig
@@ -201,7 +203,7 @@ class Form extends React.Component<Props, State> {
       useMultipleIndicators,
       indicatorId,
       indicatorIds,
-      groupId,
+      groupId
     } = this.state;
 
     if (useCustomFields) {
@@ -248,26 +250,26 @@ class Form extends React.Component<Props, State> {
       stageId,
       useCustomFields,
       useGroups,
-      useMultipleIndicators,
+      useMultipleIndicators
     } = this.state;
     const { renderButton, closeModal } = this.props;
     const { isSubmitted } = formProps;
 
-    const onChangeCardType = (e) => {
+    const onChangeCardType = e => {
       this.setState({ cardType: e.value });
     };
 
-    const onChangeBoard = (e) => {
+    const onChangeBoard = e => {
       this.setState({ boardId: e });
     };
-    const onChangePipeline = (e) => {
+    const onChangePipeline = e => {
       this.setState({ pipelineId: e });
     };
-    const onChangeStage = (e) => {
+    const onChangeStage = e => {
       this.setState({ stageId: e });
     };
 
-    const toggleChange = (e) => {
+    const toggleChange = e => {
       const { name } = e.currentTarget as HTMLInputElement;
       const { configs } = this.state;
       const { config } = this.props;
@@ -275,10 +277,10 @@ class Form extends React.Component<Props, State> {
       const isOpen = e.target.checked;
 
       if (name === "useMultipleIndicators") {
-        return this.setState((prev) => ({
+        return this.setState(prev => ({
           useMultipleIndicators: isOpen,
-          indicatorIds: [prev.indicatorId].filter((i) => i),
-          indicatorId: "",
+          indicatorIds: [prev.indicatorId].filter(i => i),
+          indicatorId: ""
         }));
       }
 
@@ -287,8 +289,28 @@ class Form extends React.Component<Props, State> {
         configs: name === "useGroups" ? configs : [],
         indicatorId: config?.indicatorId || "",
         indicatorIds: config?.indicatorIds || [],
-        groupId: config?.groupId || "",
+        groupId: config?.groupId || ""
       } as any);
+    };
+
+    const renderBoardSelector = () => {
+      const commonProps = {
+        type: cardType,
+        boardId: boardId,
+        pipelineId: pipelineId,
+        stageId: stageId,
+        onChangeBoard: onChangeBoard,
+        onChangePipeline: onChangePipeline,
+        onChangeStage: onChangeStage,
+        autoSelectStage: false
+      };
+
+      if (cardType === "ticket") {
+        return <TicketBoardSelect {...commonProps} />;
+      }
+      if (cardType === "task") {
+        return <TaskBoardSelect {...commonProps} />;
+      }
     };
     return (
       <>
@@ -298,25 +320,14 @@ class Form extends React.Component<Props, State> {
             <ControlLabel>{__("Type")}</ControlLabel>
             <Select
               placeholder={__("Select Type")}
-              value={cardTypes.find((o) => o.value === cardType)}
+              value={cardTypes.find(o => o.value === cardType)}
               options={cardTypes}
               isMulti={false}
               isClearable={true}
               onChange={onChangeCardType}
             />
           </FormGroup>
-          <Features isToggled={!!cardType}>
-            <BoardSelectContainer
-              type={cardType}
-              boardId={boardId}
-              pipelineId={pipelineId}
-              stageId={stageId}
-              onChangeBoard={onChangeBoard}
-              onChangePipeline={onChangePipeline}
-              onChangeStage={onChangeStage}
-              autoSelectStage={false}
-            />
-          </Features>
+          <Features isToggled={!!cardType}>{renderBoardSelector()}</Features>
         </Block>
         <Features isToggled={!!boardId && !!pipelineId}>
           <Block>
@@ -361,7 +372,7 @@ class Form extends React.Component<Props, State> {
             values: this.generateDoc(),
             callback: closeModal,
             isSubmitted,
-            object: this.props.config,
+            object: this.props.config
           })}
         </ModalFooter>
       </>

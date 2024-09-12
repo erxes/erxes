@@ -1,5 +1,3 @@
-import { CARDTYPES, STRUCTURETYPES } from "../common/constants";
-import { Column, DateContainer } from "@erxes/ui/src/styles/main";
 import {
   ControlLabel,
   DateControl,
@@ -7,15 +5,16 @@ import {
   FormGroup,
   __
 } from "@erxes/ui/src";
+import { Column, DateContainer } from "@erxes/ui/src/styles/main";
+import { CARDTYPES, STRUCTURETYPES } from "../common/constants";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 import { Columns } from "@erxes/ui/src/styles/chooser";
-import { FormContainer } from "../../styles";
 import React from "react";
 import Select from "react-select";
-import { SelectStructure } from "../common/utils";
 import { SelectTags } from "../../indicator/common/utils";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { FormContainer } from "../../styles";
+import { SelectStructure } from "../common/utils";
 type Props = {
   onChange: (value, name) => void;
   plan: any;

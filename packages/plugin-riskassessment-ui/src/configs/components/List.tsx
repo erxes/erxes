@@ -10,7 +10,7 @@ import {
   SortHandler,
   Table,
   __,
-  confirm,
+  confirm
 } from "@erxes/ui/src";
 import { DefaultWrapper, SelectCustomFields } from "../../common/utils";
 import { Padding, SidebarHeader } from "../../styles";
@@ -19,7 +19,7 @@ import { cardTypes, subMenu } from "../../common/constants";
 import { removeParams, setParams } from "@erxes/ui/src/utils/router";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import BoardSelectContainer from "@erxes/ui-cards/src/boards/containers/BoardSelect";
+import BoardSelectContainer from "@erxes/ui-tickets/src/boards/containers/BoardSelect";
 import Form from "../containers/Form";
 import Row from "./Row";
 import Select from "react-select";
@@ -205,7 +205,7 @@ const List = (props: Props) => {
     leftActionBar,
     subMenu,
     totalCount,
-    sidebar,
+    sidebar
   };
 
   return <DefaultWrapper {...updatedProps} />;

@@ -8,10 +8,10 @@ import {
   Label,
   Tip,
   Toggle,
-  __,
+  __
 } from "@erxes/ui/src";
 
-import Assignees from "@erxes/ui-cards/src/boards/components/Assignees";
+import Assignees from "@erxes/ui-tickets/src/boards/components/Assignees";
 import { DetailPopOver } from "../../assessments/common/utils";
 import { DetailPopoverWrapper } from "../../styles";
 import { IPLan } from "../common/types";
@@ -37,7 +37,7 @@ class Row extends React.Component<Props> {
     const { plan, selectedItems, handleSelect, duplicate, changeStatus } =
       this.props;
 
-    const onClick = (e) => {
+    const onClick = e => {
       e.stopPropagation();
     };
 
