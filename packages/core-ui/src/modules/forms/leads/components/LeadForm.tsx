@@ -18,7 +18,7 @@ import { Content } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IField } from '@erxes/ui/src/types';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { IForm, IFormData } from '@erxes/ui-forms/src/forms/types';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
 import { LeftContent } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { Link } from 'react-router-dom';
@@ -33,6 +33,8 @@ import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ILeadData } from '../../types';
 
 type Props = {
+  form?: IForm;
+  formId?: string;
   integration?: IIntegration;
   integrationId?: string;
   loading?: boolean;
@@ -108,10 +110,10 @@ class Lead extends React.Component<Props, State> {
     // IIntegration
     const integration = props.integration || ({} as any);
 
-    const { leadData = {} as ILeadData } = integration;
-    const callout = leadData.callout || {};
-    const form = integration.form || ({} as any);
+    const form = props.form || ({} as any);
     const channels = integration.channels || [];
+    const { leadData = {} as ILeadData } = form;
+    const callout = leadData.callout || {};
 
     this.state = {
       type: leadData.loadType || 'shoutbox',
@@ -130,10 +132,10 @@ class Lead extends React.Component<Props, State> {
       isStepActive: false,
       verifyEmail: leadData.verifyEmail || false,
 
-      brand: integration.brandId,
+      brand: form.brandId,
       channelIds: channels.map((item) => item._id) || [],
-      language: integration.languageCode,
-      title: integration.name || 'Lead',
+      language: form.languageCode,
+      title: form.name || 'Lead',
       calloutTitle: callout.title || 'Call Out Title',
       bodyValue: callout.body || 'Call Out Body',
       calloutBtnText: callout.buttonText || 'Start',
@@ -141,7 +143,7 @@ class Lead extends React.Component<Props, State> {
       logoPreviewStyle: {},
       defaultValue: {},
       formData: {
-        title: form.title || 'Form Title',
+        title: form.title || '',
         description: form.hasOwnProperty('description')
           ? form.description
           : 'Form Description',
@@ -165,8 +167,8 @@ class Lead extends React.Component<Props, State> {
       successImage: leadData.successImage || '',
       successImageSize: leadData.successImageSize || '',
       successPreviewStyle: {},
-      departmentIds: integration.departmentIds || [],
-      visibility: integration.visibility || 'public',
+      departmentIds: form.departmentIds || [],
+      visibility: form.visibility || 'public',
     };
   }
 
@@ -341,9 +343,9 @@ class Lead extends React.Component<Props, State> {
       visibility,
     } = this.state;
 
-    const { integration = {} as any, emailTemplates, configs } = this.props;
-    const leadData = integration && integration.leadData;
-    const brand = integration && integration.brand;
+    const { form = {} as any, emailTemplates, configs } = this.props;
+    const leadData = form && form.leadData;
+    const brand = form && form.brand;
     const breadcrumb = [{ title: __('Leads'), link: '/forms/leads' }];
 
     return (
@@ -389,13 +391,12 @@ class Lead extends React.Component<Props, State> {
                 title={'Content'}
                 onClick={this.onStepClick}
               >
-              <FormStep
+                <FormStep
                   type={type}
                   color={color}
                   theme={theme}
-                  formId={integration && integration.formId}
-                  formData={formData}
-                
+                  formId={this.props.formId}
+                  form={formData}
                   onDocChange={this.onFormDocChange}
                   onInit={this.onFormInit}
                   isReadyToSaveForm={this.props.isReadyToSaveForm}
@@ -431,7 +432,6 @@ class Lead extends React.Component<Props, State> {
                   integrationId={this.props.integrationId}
                   isIntegrationSubmitted={this.props.isIntegrationSubmitted}
                   onChange={this.onChange}
-             
                 />
               </Step>
 
@@ -458,7 +458,7 @@ class Lead extends React.Component<Props, State> {
                   theme={theme}
                   successAction={successAction}
                   leadData={leadData}
-                  formId={integration && integration.formId}
+                  formId={form && form._id}
                   emailTemplates={emailTemplates ? emailTemplates : []}
                   successImage={successImage}
                   successPreviewStyle={successPreviewStyle}
@@ -470,7 +470,7 @@ class Lead extends React.Component<Props, State> {
             </Steps>
             <ControlWrapper>
               <Indicator>
-                {__('You are')} {integration ? 'editing' : 'creating'}{' '}
+                {__('You are')} {form ? 'editing' : 'creating'}{' '}
                 <strong>{title}</strong> {__('form')}
               </Indicator>
               {this.renderButtons()}

@@ -43,7 +43,7 @@ type Props = {
 };
 
 const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
-  console.log("leads container")
+
   const { data, refetch, loading } = useQuery(FORMS_QUERY, {
     variables: {
       ...generatePaginationParams(queryParams),

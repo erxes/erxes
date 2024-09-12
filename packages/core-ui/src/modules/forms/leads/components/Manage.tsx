@@ -9,9 +9,10 @@ import ReactMarkdown from 'react-markdown';
 import { getEnv } from '@erxes/ui/src/utils/core';
 import { __ } from '@erxes/ui/src/utils';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
 
 type Props = {
-  integration: IIntegration;
+  form: IForm;
   closeModal: () => void;
 };
 
@@ -56,16 +57,15 @@ const getButtonCode = (formCode: string) => {
   `;
 };
 
-const Manage: React.FC<Props> = ({ integration, closeModal }) => {
+const Manage: React.FC<Props> = ({ form, closeModal }) => {
   const [code, setCode] = useState<string>('');
   const [embedCode, setEmbedCode] = useState<string>('');
   const [buttonCode, setButtonCode] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
 
   useEffect(() => {
-    if (integration._id) {
-      const brand = integration.brand;
-      const form = integration.form || ({} as any);
+    if (form._id) {
+      const brand = form.brand;
 
       if (brand) {
         setCode(getInstallCode(brand.code, form.code || ''));
@@ -74,12 +74,11 @@ const Manage: React.FC<Props> = ({ integration, closeModal }) => {
       setEmbedCode(getEmbedCode(form.code || ''));
       setButtonCode(getButtonCode(form.code || ''));
     }
-  }, [integration]);
+  }, [form]);
 
   const onSimulate = () => {
     const { REACT_APP_CDN_HOST } = getEnv();
-    const brand = integration.brand || ({} as IIntegration);
-    const form = integration.form || ({} as any);
+    const brand = form.brand || ({} as IIntegration);
 
     window.open(
       `${REACT_APP_CDN_HOST}/test?type=form&brand_id=${brand.code}&form_id=${form.code}`,
@@ -96,28 +95,32 @@ const Manage: React.FC<Props> = ({ integration, closeModal }) => {
         <ReactMarkdown children={code || ''} />
         {code ? (
           <CopyToClipboard text={code} onCopy={onCopy}>
-            <Button btnStyle="primary" icon="copy-1">
+            <Button btnStyle='primary' icon='copy-1'>
               {copied ? 'Copied' : 'Copy to clipboard'}
             </Button>
           </CopyToClipboard>
         ) : (
           <EmptyState
-            icon="copy"
-            text="No copyable code. You should connect Form to brand first"
-            size="small"
+            icon='copy'
+            text='No copyable code. You should connect Form to brand first'
+            size='small'
           />
         )}
       </MarkdownWrapper>
       <br />
       <Info>
-        {__('If your form style is embedded, additionally paste this code after the main code.')}
+        {__(
+          'If your form style is embedded, additionally paste this code after the main code.'
+        )}
       </Info>
       <MarkdownWrapper>
         <ReactMarkdown children={embedCode || ''} />
       </MarkdownWrapper>
       <br />
       <Info>
-        {__('If your form style is a popup, additionally paste this code after the main code.')}
+        {__(
+          'If your form style is a popup, additionally paste this code after the main code.'
+        )}
       </Info>
       <MarkdownWrapper>
         <ReactMarkdown children={buttonCode || ''} />
@@ -128,25 +131,19 @@ const Manage: React.FC<Props> = ({ integration, closeModal }) => {
   return (
     <>
       <Info>
-        {__(' Paste this main code before the body tag on every page you want this form to appear.')}
+        {__(
+          ' Paste this main code before the body tag on every page you want this form to appear.'
+        )}
       </Info>
 
       {renderContent()}
 
       <ModalFooter>
-        <Button
-          btnStyle="primary"
-          icon="plus-circle"
-          onClick={onSimulate}
-        >
+        <Button btnStyle='primary' icon='plus-circle' onClick={onSimulate}>
           Simulate
         </Button>
 
-        <Button
-          btnStyle="simple"
-          icon="times-circle"
-          onClick={closeModal}
-        >
+        <Button btnStyle='simple' icon='times-circle' onClick={closeModal}>
           Close
         </Button>
       </ModalFooter>

@@ -11,6 +11,7 @@ const commonParamsDef = `
   $departmentIds: [String]
   $tagIds: [String]
   $brandId: String
+  $integrationId: String
 `;
 
 const commonParams = `
@@ -26,6 +27,7 @@ const commonParams = `
     departmentIds: $departmentIds
     tagIds: $tagIds
     brandId: $brandId
+    integrationId: $integrationId
 `;
 
 const addForm = `

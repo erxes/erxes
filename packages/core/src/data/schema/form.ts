@@ -47,6 +47,7 @@ export const types = `
     tags: [Tag]
     brandId: String
     brand: Brand
+    integrationId: String
   }
 
   type FormSubmission {
@@ -105,6 +106,7 @@ const commonFields = `
   languageCode: String
   departmentIds: [String]
   tagIds: [String]
+  integrationId: String
 `;
 
 const commonFormSubmissionFields = `

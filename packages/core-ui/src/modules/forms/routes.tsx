@@ -69,15 +69,14 @@ const CreateLeadComponent = () => {
 };
 
 const EditLeadComponent = () => {
-  const { contentTypeId, formId } = useParams();
   const location = useLocation();
   const queryParams = queryString.parse(location.search);
+  const {formId} = useParams();
 
   return (
     <EditLead
       queryParams={queryParams}
       formId={formId}
-      contentTypeId={contentTypeId}
     />
   );
 };
@@ -89,8 +88,8 @@ const routes = () => (
     <Route path='/forms/leads/' element={<Leads />} />
     <Route path='/forms/leads/create' element={<CreateLeadComponent />} />
     <Route
-      key='/forms/leads/edit/:contentTypeId?/:formId?'
-      path='/forms/leads/edit/:contentTypeId/:formId?'
+      key='/forms/leads/edit/:formId'
+      path='/forms/leads/edit/:formId'
       element={<EditLeadComponent />}
     />
   </Routes>

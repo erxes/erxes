@@ -330,11 +330,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
       { leadData = {}, ...mainDoc }: IIntegration,
       userId: string
     ) {
-      const doc = { ...mainDoc, kind: "lead", leadData };
-
-      if (Object.keys(leadData).length === 0) {
-        throw new Error("leadData must be supplied");
-      }
+      const doc = { ...mainDoc, kind: "lead" };
 
       return models.Integrations.createIntegration(doc, userId);
     }

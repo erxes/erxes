@@ -23,6 +23,7 @@ export interface IForm {
   status?: string;
   brandId?: string;
   leadData?: ILeadData;
+  integrationId?: string;
 }
 
 export interface IFormSubmissionFilter {
@@ -280,5 +281,6 @@ export const formSchema = schemaWrapper(
     visibility: field({ type: String, optional: true, label: 'Visibility' }),
     tagIds: field({ type: [String], optional: true, label: 'Tags' }),
     status: field({ type: String, optional: true, label: 'Status', enum: ['active', 'archived'], default:'active' }),
+    integrationId: field({ type: String, optional: true, label: 'Integration' }),
   })
 );

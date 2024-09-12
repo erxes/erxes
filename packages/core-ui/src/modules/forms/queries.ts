@@ -15,8 +15,6 @@ export const commonFields = `
   languageCode
   leadData
   formId
-
-
       tags {
         _id
         name
@@ -77,6 +75,7 @@ query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: 
     brand {
       _id
       name
+      code
     }
   }
 }
@@ -143,6 +142,58 @@ const integrationDetail = `
   }
 `;
 
+const formDetail = `
+query FormDetail($id: String!) {
+  formDetail(_id: $id) {
+    _id
+    name
+    title
+    code
+    type
+    description
+    buttonText
+    numberOfPages
+    status
+    googleMapApiKey
+    integrationId
+    fields {
+      _id
+      associatedFieldId
+      column
+      content
+      contentType
+      contentTypeId
+      description
+      field
+      isRequired
+      order
+      pageNumber
+      productCategoryId
+      regexValidation
+      text
+      type
+      validation
+      logicAction
+      logics {
+        fieldId
+        logicOperator
+        logicValue
+      }
+    }
+    visibility
+    leadData
+    languageCode
+    departmentIds
+    brandId
+    brand {
+      _id
+      name
+    }
+  }
+}
+
+`
+
 export default {
   forms,
   relations,
@@ -151,4 +202,5 @@ export default {
   templateTotalCount,
   integrationDetail,
   formsTotalCount,
+  formDetail,
 };

@@ -8,7 +8,7 @@ import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ITag } from '@erxes/ui-tags/src/types';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Row from './Row';
@@ -63,6 +63,9 @@ const List = ({
   location,
   navigate,
 }: Props) => {
+  const [searchParams] = useSearchParams();
+  const showInstallCode = searchParams.get('showInstallCode');
+
   const onChange = () => {
     toggleAll(forms, 'forms');
   };
@@ -76,7 +79,7 @@ const List = ({
         form={form}
         remove={remove}
         archive={archive}
-        showCode={form._id === queryParams?.showInstallCode}
+        showCode={form._id === showInstallCode}
         copy={copy}
       />
     ));

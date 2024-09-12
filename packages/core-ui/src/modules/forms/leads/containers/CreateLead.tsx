@@ -82,10 +82,20 @@ const CreateLeadContainer: React.FC = () => {
     }
   };
 
-  const save = (doc) => {
-    console.log(doc)
+  const save = async (doc) => {
     const { formData } = doc;
     const { fields = [] } = formData;
+
+    let integrationResult: any;
+    if (isEnabled('inbox')) {
+      integrationResult = await addIntegrationMutation({
+        variables: {
+          brandId: doc.brandId,
+          channelIds: doc.channelIds,
+          name: doc.name,
+        },
+      });
+    }
 
     addFormMutation({
       variables: {
@@ -100,6 +110,8 @@ const CreateLeadContainer: React.FC = () => {
         languageCode: doc.languageCode,
         departmentIds: doc.departmentIds,
         brandId: doc.brandId,
+        integrationId:
+          integrationResult?.data?.integrationsCreateLeadIntegration?._id,
       },
     }).then(({ data }) => {
       const formId = data?.formsAdd._id;
@@ -128,19 +140,8 @@ const CreateLeadContainer: React.FC = () => {
         });
       }
 
-      if (isEnabled('inbox') || doc.channelIds.length) {
-        addIntegrationMutation({
-          variables: {
-            brandId: doc.brandId,
-            formId,
-            channelIds: doc.channelIds,
-            name: doc.name,
-          },
-        });
-      }
-
       Alert.success('You successfully added a form');
-      console.log("FORM ID + ",formId)
+
       navigate({
         pathname: '/forms/leads',
         search: `?popUpRefetchList=true&showInstallCode=${formId}`,

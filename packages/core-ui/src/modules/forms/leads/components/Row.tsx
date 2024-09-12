@@ -29,7 +29,8 @@ const Row = ({
   copy,
   showCode,
 }) => {
-  const manageAction = (form) => {
+  console.log("showCode", showCode, '  form', form._id)
+  const renderEditAction = (form) => {
     
 
     return (
@@ -43,7 +44,7 @@ const Row = ({
     );
   };
 
-  const renderEditAction = (integration) => {
+  const renderInstall = (form) => {
     const trigger = (
       <Button btnStyle='link'>
         <Tip text={__('Install code')} placement='top'>
@@ -52,11 +53,11 @@ const Row = ({
       </Button>
     );
 
-    const content = (props) => <Manage integration={integration} {...props} />;
+    const content = (props) => <Manage form={form} {...props} />;
 
     return (
       <ModalTrigger
-        title={`Install code of ${integration.name}`}
+        title={`Install code of ${form.name}`}
         size='lg'
         trigger={trigger}
         content={content}
@@ -224,8 +225,9 @@ const Row = ({
 
       <td>
         <ActionButtons>
-          {manageAction(form)}
+          
           {renderEditAction(form)}
+          {renderInstall(form)}
           {renderArchiveAction()}
           {renderUnarchiveAction()}
           {renderExportAction()}

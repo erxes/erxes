@@ -1,19 +1,17 @@
-import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
-import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import Form from '@erxes/ui-forms/src/forms/components/Form';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { FlexItem } from '@erxes/ui/src/components/step/style';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { FlexItem } from '@erxes/ui/src/components/step/style';
 
 type Props = {
   type: string;
   color: string;
   theme: string;
   isReadyToSaveForm: boolean;
-  formData: IFormData;
+  form: IFormData;
   formId?: string;
-  afterDbSave: (formId: string) => void;
+  // afterDbSave: (formId: string) => void;
   onDocChange?: (doc: IFormData) => void;
   onInit?: (fields: IField[]) => void;
   currentMode?: 'create' | 'update' | undefined;
@@ -25,41 +23,24 @@ class FormStep extends React.Component<Props> {
     const {
       formId,
       onDocChange,
-      afterDbSave,
+
       onInit,
-      formData,
-      isReadyToSaveForm
+      form,
+      isReadyToSaveForm,
     } = this.props;
 
+    // isReadyToSave: boolean;
+    // type: string;
+
     const doc = {
-      afterDbSave,
       onDocChange,
       isReadyToSave: isReadyToSaveForm,
       onInit,
-      formData,
+      formData: form,
       showMessage: false,
       type: 'lead',
-      formId
+      formId,
     };
-
-    // if (formId) {
-    //   return <EditForm {...doc} formId={formId} />;
-    // }
-
-    // return <CreateForm {...doc} />;
-
-    // fields: IField[];
-    // renderPreviewWrapper?: (previewRenderer, fields: IField[]) => any;
-    // onDocChange?: (doc: IFormData) => void;
-    // saveForm: (params: IFormData) => void;
-    // formData?: IFormData;
-    // isReadyToSave: boolean;
-    // type: string;
-    // form?: IForm;
-    // hideOptionalFields?: boolean;
-    // currentMode?: 'create' | 'update' | undefined;
-    // currentField?: IField;
-    // color?: string;
 
     return <Form {...doc} />;
   }
