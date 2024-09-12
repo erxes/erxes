@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { queries } from "@/modules/orders/graphql"
 import { queries as productQueries } from "@/modules/products/graphql"
@@ -19,7 +19,7 @@ const Progress = () => {
   const id = searchParams.get("id")
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
-
+  const [itemsToPrint, setNewItems] = useState([])
   const [getCategoryOrders, ordersQuery] = useLazyQuery(
     productQueries.getCategoryOrders,
     {}
@@ -39,8 +39,28 @@ const Progress = () => {
       if (categoryOrders.length) {
         return getCategoryOrders({
           variables: { ids: newItems.map((it: OrderItem) => it.productId) },
-          onCompleted() {
-            setTimeout(() => window.print())
+          onCompleted({ poscProducts }) {
+            const productsNeedProcess = (poscProducts || [])
+              .filter((product: IProduct) => {
+                let included = false
+                ;(categoryOrders || []).forEach((order) => {
+                  if (product?.category?.order?.includes(order)) {
+                    included = true
+                  }
+                })
+                return included
+              })
+              .map((product: IProduct) => product._id)
+
+            const newItems = items.filter(
+              (item: OrderItem) =>
+                item.status !== ORDER_ITEM_STATUSES.DONE &&
+                productsNeedProcess.includes(item.productId)
+            )
+            setNewItems(newItems)
+            newItems.length > 0
+              ? setTimeout(() => window.print())
+              : handleAfterPrint()
           },
         })
       }
@@ -65,24 +85,6 @@ const Progress = () => {
 
   const { number, modifiedAt, items, description } = data?.orderDetail || {}
 
-  const productsNeedProcess = (ordersQuery.data?.poscProducts || [])
-    .filter((product: IProduct) => {
-      let included = false
-      ;(categoryOrders || []).forEach((order) => {
-        if (product?.category?.order?.includes(order)) {
-          included = true
-        }
-      })
-      return included
-    })
-    .map((product: IProduct) => product._id)
-
-  const newItems = items.filter(
-    (item: OrderItem) =>
-      item.status !== ORDER_ITEM_STATUSES.DONE &&
-      productsNeedProcess.includes(item.productId)
-  )
-
   return (
     <div className="space-y-1 text-[13px]">
       <div className="flex items-center justify-between font-semibold text-xs">
@@ -101,7 +103,7 @@ const Progress = () => {
           <span>Т/Ш</span>
         </div>
         <Separator />
-        {newItems.map((item: OrderItem) => (
+        {itemsToPrint.map((item: OrderItem) => (
           <div className="flex items-center justify-between" key={item._id}>
             <span>{item.productName}</span>
             <span>
