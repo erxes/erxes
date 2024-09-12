@@ -10,12 +10,12 @@ import {
   Tip,
   Wrapper,
   __,
-  router,
+  router
 } from "@erxes/ui/src";
 import {
   ContainerBox,
   CustomRangeContainer,
-  EndDateContainer,
+  EndDateContainer
 } from "../../../style";
 import React, { useState } from "react";
 
@@ -43,13 +43,11 @@ const fields = [
   "customerId",
   "assetId",
   "createdAtFrom",
-  "createdAtTo",
+  "createdAtTo"
 ];
 
 const Sidebar = (props: Props) => {
   const { queryParams, navigate, location } = props;
-
-  console.log(props);
 
   const handleSelect = (value, name) => {
     if (["createdAtFrom", "createdAtTo"].includes(name)) {
@@ -67,9 +65,9 @@ const Sidebar = (props: Props) => {
       : router.setParams(navigate, location, { [name]: !value });
   };
 
-  const clearParams = (field) => {
+  const clearParams = field => {
     if (Array.isArray(field)) {
-      field.forEach((name) => {
+      field.forEach(name => {
         // this.setState({ [name]: undefined });
         return router.removeParams(navigate, location, name);
       });
@@ -82,7 +80,7 @@ const Sidebar = (props: Props) => {
     label,
     field,
     clearable,
-    children,
+    children
   }: {
     label: string;
     field: string | string[];
@@ -119,7 +117,7 @@ const Sidebar = (props: Props) => {
       <Section.Title>
         {__("Addition Filters")}
         <Section.QuickButtons>
-          {fields.some((field) => queryParams[field]) && extraButton}
+          {fields.some(field => queryParams[field]) && extraButton}
         </Section.QuickButtons>
       </Section.Title>
       <ContainerBox $vertical $column gap={5}>
@@ -232,7 +230,7 @@ const Sidebar = (props: Props) => {
                 name="createdAtFrom"
                 placeholder="Choose start date"
                 value={queryParams?.createdAtFrom || ""}
-                onChange={(e) => handleSelect(e, "createdAtFrom")}
+                onChange={e => handleSelect(e, "createdAtFrom")}
               />
             </DateContainer>
             <EndDateContainer>
@@ -241,7 +239,7 @@ const Sidebar = (props: Props) => {
                   name="createdAtTo"
                   placeholder="Choose end date"
                   value={queryParams?.createdAtTo || ""}
-                  onChange={(e) => handleSelect(e, "createdAtTo")}
+                  onChange={e => handleSelect(e, "createdAtTo")}
                 />
               </DateContainer>
             </EndDateContainer>

@@ -2,7 +2,7 @@ import * as _ from "underscore";
 import redis from "./redis";
 import { IUserDocument } from "./types";
 import { isEnabled } from "./serviceDiscovery";
-import { sendMessage, consumeRPCQueue } from "./messageBroker";
+import { sendMessage,  } from "./messageBroker";
 
 export interface ILogDataParams {
   type: string;
@@ -251,26 +251,26 @@ export interface IActivityLogParams {
 
 export const putActivityLog = async (
   subdomain: string,
-  params: IActivityLogParams
+  params: IActivityLogParams,
 ) => {
   const { data } = params;
-  const isAutomationsAvailable = await isEnabled("automations");
+  const isAutomationsAvailable = await isEnabled('automations');
 
   try {
     if (isAutomationsAvailable && data.target) {
-      sendMessage("automations:trigger", {
+      sendMessage('automations:trigger', {
         subdomain,
         data: {
           type: `${data.contentType}`,
           targets: [data.target],
-          ...(data.automations || {})
-        }
+          ...(data.automations || {}),
+        },
       });
     }
 
-    return sendMessage("putActivityLog", {
+    return sendMessage('putActivityLog', {
       data: params,
-      subdomain
+      subdomain,
     });
   } catch (e) {
     return e.message;

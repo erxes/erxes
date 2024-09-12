@@ -6,9 +6,7 @@ module.exports = {
   exposes: {
     "./routes": "./src/routes.tsx",
     "./activityLog": "./src/activityLogs/activityLog.tsx",
-    "./automation": "./src/automations/automation.tsx",
-    "./contactDetailHeader": "./src/customers/containers/LeadState",
-    "./selectRelation": "./src/relation/SelectRelation.tsx"
+    "./automation": "./src/automations/automation.tsx"
   },
   routes: {
     url: "http://localhost:3011/remoteEntry.js",
@@ -17,8 +15,7 @@ module.exports = {
   },
   activityLog: "./activityLog",
   automation: "./automation",
-  selectRelation: "./selectRelation",
-  contactDetailHeader: "./contactDetailHeader",
+
   menus: [
     {
       text: "Contacts",

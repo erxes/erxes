@@ -7,7 +7,7 @@ import {
   CustomersQueryResponse,
   EditMutationResponse,
   ICustomer,
-  ICustomerDoc,
+  ICustomerDoc
 } from "../types";
 
 import LeadState from "../components/LeadState";
@@ -37,13 +37,13 @@ class CustomerChooser extends React.Component<FinalProps> {
           customersChangeState({
             variables: {
               _id: customer._id,
-              value,
-            },
+              value
+            }
           })
             .then(() => {
               Alert.success("You successfully converted to customer");
             })
-            .catch((e) => {
+            .catch(e => {
               Alert.error(e.message);
             })
       );
@@ -51,12 +51,12 @@ class CustomerChooser extends React.Component<FinalProps> {
 
     const saveState = (state: string) => {
       customersEdit({
-        variables: { _id: customer._id, leadStatus: state },
+        variables: { _id: customer._id, leadStatus: state }
       })
         .then(() => {
           Alert.success("You successfully updated state");
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
@@ -79,9 +79,9 @@ export default compose(
       name: "customersEdit",
       options: () => {
         return {
-          refetchQueries: ["customersMain", "customers"],
+          refetchQueries: ["customersMain", "customers"]
         };
-      },
+      }
     }
   ),
   graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
@@ -89,8 +89,8 @@ export default compose(
     {
       name: "customersChangeState",
       options: {
-        refetchQueries: ["customersMain", "customerCounts", "customerDetail"],
-      },
+        refetchQueries: ["customersMain", "customerCounts", "customerDetail"]
+      }
     }
   )
 )(CustomerChooser);

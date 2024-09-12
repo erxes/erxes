@@ -1,4 +1,4 @@
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export type GetEnvQueryResponse = {
   configsGetEnv: {
@@ -35,16 +35,16 @@ export type Plugin = {
 
 type Integration = {
   name: string;
-  description: string,
-  isAvailable: boolean,
-  inMessenger?: boolean,
-  kind: string,
-  logo: string,
-  createModal: string,
-  createUrl?: string,
-  category?: string,
-  components?: string[],
-}
+  description: string;
+  isAvailable: boolean;
+  inMessenger?: boolean;
+  kind: string;
+  logo: string;
+  createModal: string;
+  createUrl?: string;
+  category?: string;
+  components?: string[];
+};
 
 type Bots = {
   name: string;
@@ -53,14 +53,14 @@ type Bots = {
   logo: string;
   list: string;
   createUrl: string;
-}
+};
 
 type Base = {
   text?: string;
   url?: string;
   scope: string;
   module: string;
-}
+};
 
 export type PluginConfig = {
   actionForms?: string;
@@ -69,13 +69,13 @@ export type PluginConfig = {
   customNavigationLabel?: Base;
   exposes: {
     [key: string]: string;
-  }
+  };
   integrationDetailsForm?: string;
   menus?: Plugin[];
   name: string;
   port: number;
   routes: Base;
-  scope:string;
+  scope: string;
   srcDir: string;
   layout?: Base;
   inboxIntegrationForm?: string;
@@ -109,12 +109,12 @@ export type PluginConfig = {
       query: string;
       name: string;
       integrationKind: string;
-    }
+    };
     countQuery: {
       query: string;
       name: string;
       integrationKind: string;
-    }
+    };
   };
   userRightSidebarSection?: Base[];
   selectPayments?: string;
@@ -133,19 +133,19 @@ export type PluginConfig = {
   extendSystemConfig?: string;
   carRightSidebarSection?: string;
   template?: string;
-}
+};
 
 export type Action = {
-  name: string,
-  text: string,
-  icon: string,
-  url: string,
-  type?: string
-}
+  name: string;
+  text: string;
+  icon: string;
+  url: string;
+  type?: string;
+};
 
 export type GeneralSetting = {
-  name: string,
-  text: string,
-  icon: string,
-  url:string
-}
+  name: string;
+  text: string;
+  icon: string;
+  url: string;
+};

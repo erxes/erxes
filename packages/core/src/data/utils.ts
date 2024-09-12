@@ -20,7 +20,6 @@ import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
-import { putActivityLog } from "../logUtils";
 
 export interface IEmailParams {
   toEmails?: string[];

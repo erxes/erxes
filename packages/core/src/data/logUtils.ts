@@ -224,18 +224,23 @@ export const putDeleteLog = async (
   );
 };
 
-
-export async function logTaggingActivity(subdomain, user, type, target, tagIds) {
+export async function logTaggingActivity(
+  subdomain,
+  user,
+  type,
+  target,
+  tagIds
+) {
   await putActivityLog(subdomain, {
-    action: 'createTagLog',
+    action: "createTagLog",
     data: {
       contentId: target._id,
-      userId: user ? user._id : '',
-      contentType: type,
+      userId: user ? user._id : "",
+      contentType: `core:${type}`,
       target,
       content: { tagIds: tagIds || [] },
       createdBy: user._id,
-      action: 'tagged',
-    },
+      action: "tagged"
+    }
   });
 }

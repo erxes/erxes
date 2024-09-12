@@ -6,6 +6,8 @@ import React from "react";
 import { __ } from "@erxes/ui/src/utils";
 import { loadDynamicComponent } from "@erxes/ui/src/utils/core";
 
+import SelectContactsRelation from "@erxes/ui-contacts/src/components/relation/SelectRelation";
+
 type Props = {
   contentType: string;
   fields: IField[];
@@ -20,6 +22,9 @@ const RelationForm = (props: Props) => {
       {fields.map(field => (
         <FormGroup key={field._id}>
           <ControlLabel>{`Select ${field.text}`}</ControlLabel>
+
+          <SelectContactsRelation field={field} {...props} />
+
           {loadDynamicComponent(
             "selectRelation",
             {
