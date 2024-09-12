@@ -357,6 +357,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
           callee,
           'startedDate: ',
           startDate,
+          'lastObj:',
+          lastCreatedObject,
         );
         throw new Error('Record files not found');
       }
