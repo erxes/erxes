@@ -1,213 +1,187 @@
+import { ILink } from '@erxes/api-utils/src/definitions/common';
 import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
+import { ICustomField } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 import { sendCommonMessage } from '../../../messageBroker';
+import {
+  getSchemaLabels,
+  getSocialLinkKey,
+} from '../../../messageBrokers/utils';
+import { graphqlPubsub } from '../../../pubsub';
+import { registerOnboardHistory } from '../../utils';
 
-const groupSubmissions = (submissions: any[]) => {
-  const submissionsGrouped: { [key: string]: any[] } = {};
+// helpers
 
-  submissions.forEach(submission => {
-    if (submission.groupId) {
-      if (submissionsGrouped[submission.groupId]) {
-        submissionsGrouped[submission.groupId].push(submission);
+// Helper function to merge customer custom field data
+const mergeCustomFieldsData = (
+  existingFields: ICustomField[],
+  newFields: ICustomField[]
+): ICustomField[] => {
+  if (existingFields.length === 0) return newFields;
+
+  const updatedFields = [...existingFields];
+  newFields.forEach((newField) => {
+    const existingField = updatedFields.find((e) => e.field === newField.field);
+    if (existingField) {
+      if (Array.isArray(existingField.value)) {
+        existingField.value = [...existingField.value, newField.value];
       } else {
-        submissionsGrouped[submission.groupId] = [submission];
+        existingField.value = newField.value;
       }
     } else {
-      if (submissionsGrouped.default) {
-        submissionsGrouped.default.push(submission);
-      } else {
-        submissionsGrouped.default = [submission];
-      }
+      updatedFields.push(newField);
     }
   });
-  return submissionsGrouped;
+
+  return updatedFields;
 };
 
-export const solveSubmissions = async (
-  models: IModels,
-  subdomain: string,
-  args: {
-    integrationId: string;
-    formId: string;
-    submissions;
-    browserInfo: any;
-    cachedCustomerId?: string;
+function mapPronounToCode(pronoun: string): number {
+  switch (pronoun) {
+    case 'Male':
+      return 1;
+    case 'Female':
+      return 2;
+    case 'Not applicable':
+      return 9;
+    default:
+      return 0;
   }
-) => {
-  const { cachedCustomerId } = args;
-  const { integrationId, browserInfo } = args;
-  const integration: any = await models.Integrations.findOne({
-    _id: integrationId
-  });
+}
 
-  const submissionsGrouped = groupSubmissions(args.submissions);
+function handleCompanyFields(
+  submissionType: string,
+  value: any,
+  companyDoc: any
+) {
+  if (submissionType === 'company_avatar' && value.length > 0) {
+    companyDoc.avatar = value[0].url;
+  } else {
+    const key = submissionType.split('_')[1];
+    companyDoc[key] = value;
+  }
+}
 
-  return sendContactsMessage({
+function isCustomField(type: string): boolean {
+  return [
+    'input',
+    'select',
+    'multiSelect',
+    'file',
+    'textarea',
+    'radio',
+    'check',
+    'map',
+  ].includes(type);
+}
+
+async function createConversationAndMessage({
+  customer,
+  form,
+  integration,
+  submissions,
+  subdomain,
+}) {
+  const conversation = await sendCommonMessage({
     subdomain,
-    action: "updateContactsField",
+    action: 'conversations.createConversation',
+    serviceName: 'inbox',
     data: {
-      cachedCustomerId,
-      browserInfo,
-      integration,
-      submissionsGrouped,
-      prepareCustomFieldsData: true
+      customerId: customer._id,
+      integrationId: integration?._id,
+      content: form.title,
     },
     isRPC: true,
-    defaultValue: {}
   });
-};
 
-export const createFormConversation = async (
+  await sendCommonMessage({
+    subdomain,
+    action: 'conversations.createMessage',
+    serviceName: 'inbox',
+    data: {
+      conversationId: conversation._id,
+      customerId: customer._id,
+      content: form.title,
+      formWidgetData: submissions,
+    },
+    isRPC: true,
+  });
+
+  return conversation._id;
+}
+
+async function saveFormSubmissions(
   models: IModels,
-  subdomain: string,
-  args: {
-    formId: string;
-    submissions: any[];
-    browserInfo: any;
-    cachedCustomerId?: string;
-    userId?: string;
-  },
-  generateContent: (form) => string,
-  generateConvData: () => {
-    conversation?: any;
-    message: any;
-  },
-  type?: string
-) => {
-  const { formId, submissions } = args;
-
-  const form = await models.Forms.findOne({_id: formId}).lean();
-
-  if (!form) {
-    throw new Error("Form not found");
-  }
-
-  const errors =await models.Forms.validateForm(formId, submissions)
-
-  if (errors.length > 0) {
-    return { status: "error", errors };
-  }
-
-  const content = await generateContent(form);
-
-  const cachedCustomer = await solveSubmissions(models, subdomain, {...args, integrationId: form.integrationId || ''});
-
-  const conversationData = await generateConvData();
-
-  // create conversation
-  const conversation = await models.Conversations.createConversation({
-    integrationId,
-    customerId: cachedCustomer._id,
-    content,
-    ...conversationData.conversation
-  });
-
-  // create message
-  const message = await models.ConversationMessages.createMessage({
-    conversationId: conversation._id,
-    customerId: cachedCustomer._id,
-    content,
-    ...conversationData.message
-  });
-
-  await pConversationClientMessageInserted(models, subdomain, message);
-
-  graphqlPubsub.publish(
-    `conversationMessageInserted:${message.conversationId}`,
-    {
-      conversationMessageInserted: message
-    }
-  );
-
-  if (type === "lead") {
-    // increasing form submitted count
-    await models.Integrations.increaseContactsGathered(formId);
-
-    const formData = {
-      formId: args.formId,
-      submissions: args.submissions,
-      customer: cachedCustomer,
-      cachedCustomerId: cachedCustomer._id,
-      conversationId: conversation._id
-    };
-
-    // await sendToWebhook({
-    //   subdomain,
-    //   data: {
-    //     action: "create",
-    //     type: "inbox:popupSubmitted",
-    //     params: formData
-    //   }
-    // });
-  }
-
-  const docs: any[] = [];
-  for (const submission of submissions) {
-    let value: any = submission.value || "";
-
-    if (submission.validation === "number") {
-      value = Number(submission.value);
-    }
-
-    if (
-      submission.validation &&
-      ["datetime", "date"].includes(submission.validation)
-    ) {
+  { submissions, formId, customerId, conversationId }
+) {
+  const submissionDocs = submissions.map((submission) => {
+    let value = submission.value || '';
+    if (submission.validation === 'number') value = Number(submission.value);
+    if (['datetime', 'date'].includes(submission.validation))
       value = new Date(submission.value);
-    }
+    if (submission.validation === 'email') value = value.toLowerCase();
 
-    docs.push({
-      contentTypeId: conversation._id,
-      contentType: type,
+    return {
       formFieldId: submission._id,
       formId,
       value,
-      customerId: cachedCustomer._id,
-      userId: args.userId
-    });
-  }
-
-  await sendCoreMessage({
-    subdomain,
-    action: "submissions.createFormSubmission",
-    data: {
-      submissions: docs
-    },
-    isRPC: false
+      customerId,
+      contentType: 'lead',
+      conversationId: conversationId || undefined,
+    };
   });
 
-  // automation trigger =========
-  if (cachedCustomer) {
-    const submissionValues = {};
+  await models.FormSubmissions.insertMany(submissionDocs);
+}
 
-    for (const submit of submissions) {
-      submissionValues[submit._id] = submit.value;
-    }
-
-    sendAutomationsMessage({
-      subdomain,
-      action: "trigger",
-      data: {
-        type: `core:${cachedCustomer.state}`,
-        targets: [
-          {
-            ...cachedCustomer,
-            ...submissionValues,
-            isFormSubmission: true,
-            conversationId: conversation._id,
-            userId: args.userId
-          }
-        ]
-      }
-    });
+function updateCustomerDoc(
+  customer,
+  customerDoc,
+  form,
+  integration,
+  customFieldsData,
+  customerLinks
+) {
+  if (!customer.scopeBrandIds?.includes(form.brandId || '')) {
+    customerDoc.scopeBrandIds = [
+      ...(customer.scopeBrandIds || []),
+      form.brandId,
+    ];
   }
 
-  return {
-    status: "ok",
-    conversationId: conversation._id,
-    customerId: cachedCustomer._id
-  };
-};
+  if (
+    integration &&
+    !customer.relatedIntegrationIds?.includes(integration._id || '')
+  ) {
+    customerDoc.relatedIntegrationIds = [
+      ...(customer.relatedIntegrationIds || []),
+      integration._id,
+    ];
+  }
+
+  if (!customer.customFieldsData) {
+    customerDoc.customFieldsData = customFieldsData;
+  } else if (customFieldsData.length > 0) {
+    customerDoc.customFieldsData = mergeCustomFieldsData(
+      customer.customFieldsData,
+      customFieldsData
+    );
+  }
+
+  if (Object.keys(customerLinks.links).length > 0) {
+    const links: any = customer.links || {};
+  
+    Object.entries(customerLinks.links).forEach(([key, value]) => {
+      if (typeof value === 'string' || Array.isArray(value)) {
+        if (value.length > 0) {
+          links[key] = value;
+        }
+      }
+    });
+  
+    customerDoc.links = links;
+  }
+}
 
 const mutations = {
   async widgetsLeadConnect(
@@ -223,12 +197,6 @@ const mutations = {
       throw new Error('Invalid configuration');
     }
 
-    // find integration by brandId & formId
-    // const integ = await models.Integrations.getIntegration({
-    //   brandId: brand._id,
-    //   formId: form._id,
-    //   isActive: true,
-    // });
     let integration = null;
 
     if (isEnabled('inbox') && form.integrationId) {
@@ -244,39 +212,29 @@ const mutations = {
       });
     }
 
-    // if (integ.leadData && integ.leadData.loadType === 'embedded') {
-    //   await models.Integrations.increaseViewCount(form._id);
-    // }
+    if (form.leadData && form.leadData.loadType === 'embedded') {
+      await models.Forms.increaseViewCount(form._id);
+    }
 
-    // if (integ.createdUserId) {
-    //   const user = await sendCoreMessage({
-    //     subdomain,
-    //     action: 'users.findOne',
-    //     data: {
-    //       _id: integ.createdUserId,
-    //     },
-    //     isRPC: true,
-    //     defaultValue: {},
-    //   });
-
-    //   await sendCoreMessage({
-    //     subdomain,
-    //     action: 'registerOnboardHistory',
-    //     data: {
-    //       type: 'leadIntegrationInstalled',
-    //       user,
-    //     },
-    //   });
-    // }
+    if (form.createdUserId) {
+      const user = await models.Users.findOne({ _id: form.createdUserId });
+      if (user) {
+        await registerOnboardHistory({
+          models,
+          type: 'leadIntegrationInstalled',
+          user,
+        });
+      }
+    }
 
     if (form.leadData?.isRequireOnce && args.cachedCustomerId) {
-      //   const conversation = await models.Conversations.findOne({
-      //     customerId: args.cachedCustomerId,
-      //     integrationId: integ._id,
-      //   });
-      //   if (conversation) {
-      //     return null;
-      //   }
+      const submission = await models.FormSubmissions.findOne({
+        formId: form._id,
+        customerId: args.cachedCustomerId,
+      });
+      if (submission) {
+        return null;
+      }
     }
 
     // return integration details
@@ -293,31 +251,144 @@ const mutations = {
       submissions: any[];
       browserInfo: any;
       cachedCustomerId?: string;
-      userId?: string;
     },
     { models, subdomain, user }: IContext
   ) {
-    const { submissions } = args;
+    const { submissions, formId } = args;
 
-    return createFormConversation(
-      models,
-      subdomain,
-      {
-        ...args,
-        userId: args.userId || user ? user._id : ""
-      },
-      form => {
-        return form.title;
-      },
-      () => {
-        return {
-          message: {
-            formWidgetData: submissions
-          }
-        };
-      },
-      "lead"
-    );
+    // Step 1: Validate form and submissions
+    const form = await models.Forms.getForm(formId);
+    const errors = await models.Forms.validateForm(formId, submissions);
+    if (errors.length > 0) return { status: 'error', errors };
+
+    // Step 2: Handle integration
+    let integration: any = null;
+    if (isEnabled('inbox')) {
+      integration = await sendCommonMessage({
+        serviceName: 'inbox',
+        action: 'integrations.findOne',
+        data: { _id: form.integrationId },
+        isRPC: true,
+        defaultValue: null,
+        subdomain,
+      });
+    }
+
+    const customerSchemaLabels = await getSchemaLabels('customer');
+    const companySchemaLabels = await getSchemaLabels('company');
+    const customerDoc: any = {};
+    const companyDoc: any = {};
+    const customFieldsData: ICustomField[] = [];
+    const companyCustomData: ICustomField[] = [];
+    const customerLinks: ILink = {};
+    const companyLinks: ILink = {};
+
+    // Step 3: Process submissions
+    for (const submission of submissions) {
+      const submissionType = submission.type || '';
+      const value = submission.value || '';
+
+      // Handle links (customer or company)
+      if (submissionType.includes('customerLinks')) {
+        customerLinks[getSocialLinkKey(submissionType)] = value;
+      } else if (submissionType.includes('companyLinks')) {
+        companyLinks[getSocialLinkKey(submissionType)] = value;
+      }
+
+      // Handle pronouns
+      if (submissionType === 'pronoun') {
+        customerDoc.pronoun = mapPronounToCode(value);
+      }
+
+      // Handle customer-specific fields
+      if (customerSchemaLabels.some((e) => e.name === submissionType)) {
+        if (submissionType === 'avatar' && value.length > 0) {
+          customerDoc.avatar = value[0].url;
+        } else {
+          customerDoc[submissionType] = value;
+        }
+      }
+
+      // Handle company-specific fields
+      if (submissionType.includes('company_')) {
+        handleCompanyFields(submissionType, value, companyDoc);
+      }
+
+      if (companySchemaLabels.some((e) => e.name === submissionType)) {
+        companyDoc[submissionType] = value;
+      }
+
+      // Handle custom field submissions
+      if (submission.associatedFieldId && isCustomField(submissionType)) {
+        const field = await models.Fields.findOne({
+          _id: submission.associatedFieldId,
+        });
+        if (!field) continue;
+
+        const fieldGroup = await models.FieldsGroups.findOne({
+          _id: field.groupId,
+        });
+        if (!fieldGroup) continue;
+
+        const targetData =
+          fieldGroup.contentType === 'core:company'
+            ? companyCustomData
+            : customFieldsData;
+        targetData.push({ field: submission.associatedFieldId, value });
+      }
+    }
+
+    // Step 4: Create or update customer
+    let customer = await models.Customers.findOne({
+      _id: args.cachedCustomerId,
+    });
+    if (!customer) {
+      customer = await models.Customers.createCustomer({
+        ...customerDoc,
+        state: 'lead',
+        links: customerLinks,
+        customFieldsData,
+        integrationId: integration?._id,
+        relatedIntegrationIds: [integration?._id],
+        scopeBrandIds: [form.brandId],
+      });
+    } else {
+      updateCustomerDoc(
+        customer,
+        customerDoc,
+        form,
+        integration,
+        customFieldsData,
+        customerLinks
+      );
+      await models.Customers.updateCustomer(customer._id, customerDoc);
+    }
+
+    // Step 5: Handle conversation and messages (if inbox is enabled)
+    let conversationId = '';
+    if (isEnabled('inbox')) {
+      conversationId = await createConversationAndMessage({
+        customer,
+        form,
+        integration,
+        submissions,
+        subdomain,
+      });
+    }
+
+    // Step 6: Save form submissions
+    await saveFormSubmissions(models,{
+      submissions,
+      formId,
+      customerId: customer._id,
+      conversationId,
+    });
+
+    return {
+      status: 'ok',
+      customerId: customer._id,
+      conversationId: conversationId || null,
+    };
   },
 };
 

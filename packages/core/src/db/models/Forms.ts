@@ -40,7 +40,10 @@ export interface IFormModel extends Model<IForm> {
 
   removeForm(_id: string): void;
   duplicate(_id: string): Promise<IFormDocument>;
-
+  increaseViewCount(
+    formId: string,
+    get?: boolean
+  ): Promise<IFormDocument>;
   validateForm(formId: string, submissions: ISubmission[]): Promise<IError[]>;
 }
 
@@ -148,6 +151,14 @@ export const loadFormClass = (models: IModels) => {
       }
 
       return newForm;
+    }
+
+    public static async increaseViewCount(formId: string, get = false) {
+      const response = await models.Forms.updateOne(
+        { _id: formId, leadData: { $exists: true } },
+        { $inc: { 'leadData.viewCount': 1 } }
+      );
+      return get ? models.Forms.findOne({ formId }) : response;
     }
 
     public static async validateForm(

@@ -184,22 +184,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
      */
     public static async updateField(_id: string, doc: IField) {
       await this.checkIsDefinedByErxes(_id);
-      const { groupName } = doc;
-
-      if (groupName) {
-        let group = await models.FieldsGroups.findOne({ name: groupName });
-
-        if (!group) {
-          group = await models.FieldsGroups.createGroup({
-            name: groupName,
-            contentType: "form",
-            isDefinedByErxes: false
-          });
-        }
-
-        doc.groupId = group._id;
-      }
-
+      
       const field = await models.Fields.findOne({ _id });
 
       if (!field) {
