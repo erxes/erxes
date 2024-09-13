@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.16.0-rc.8](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.8) (2024-09-13)
+
+
+### Features
+
+* **RTE:** Upgrade tiptap version (2.6.6) & remove warnings related to the RTE ([9c91dd8](https://github.com/erxes/erxes/commit/9c91dd8d3d3acea1123d8335cf2a2e04584313a5))
+
+
+### Bug Fixes
+
+* **Insight:** Correct the table header and row cells in the Insight table ([febc731](https://github.com/erxes/erxes/commit/febc731d62cf1783435b8483734deaa758979339))
+* **widgets:** add onload to messenger iframe ([3443d01](https://github.com/erxes/erxes/commit/3443d01537f32214033d14c88aa0be4b91597d31))
+
+
+### Reverts
+
+* reverting RTE changes ([e714748](https://github.com/erxes/erxes/commit/e714748fb6a71aa938859aae01ae6d530240b3fc))
+
 ## [1.16.0-rc.6](https://github.com/erxes/erxes/compare/1.16.0-rc.5...1.16.0-rc.6) (2024-09-09)
 
 ### Features
