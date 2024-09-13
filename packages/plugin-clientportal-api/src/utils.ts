@@ -22,7 +22,7 @@ import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 export const getConfig = async (
   code: string,
   subdomain: string,
-  defaultValue?: string,
+  defaultValue?: string
 ) => {
   const configs = await sendCoreMessage({
     subdomain,
@@ -79,19 +79,19 @@ export const sendSms = async (
   subdomain: string,
   type: string,
   phoneNumber: string,
-  content: string,
+  content: string
 ) => {
   if (type === 'messagePro') {
     const MESSAGE_PRO_API_KEY = await getConfig(
       'MESSAGE_PRO_API_KEY',
       subdomain,
-      '',
+      ''
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
       'MESSAGE_PRO_PHONE_NUMBER',
       subdomain,
-      '',
+      ''
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
@@ -106,7 +106,7 @@ export const sendSms = async (
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
             text: content,
-          }),
+          })
       );
 
       return 'sent';
@@ -143,7 +143,7 @@ export const generateRandomPassword = (len: number = 10) => {
     exclusions: string,
     string: string,
     min: number,
-    max: number,
+    max: number
   ) => {
     let n;
     let chars = '';
@@ -157,7 +157,7 @@ export const generateRandomPassword = (len: number = 10) => {
     let i = 0;
     while (i < n) {
       const character = string.charAt(
-        Math.floor(Math.random() * string.length),
+        Math.floor(Math.random() * string.length)
       );
       if (exclusions.indexOf(character) < 0 && chars.indexOf(character) < 0) {
         chars += character;
@@ -249,7 +249,7 @@ interface ISendNotification {
 export const sendNotification = async (
   models: IModels,
   subdomain: string,
-  doc: ISendNotification,
+  doc: ISendNotification
 ) => {
   const {
     createdUser,
@@ -296,7 +296,7 @@ export const sendNotification = async (
           eventData,
           groupId: doc?.groupId || '',
         },
-        createdUser && createdUser._id,
+        createdUser && createdUser._id
       );
 
     graphqlPubsub.publish(`clientPortalNotificationInserted:${recipient._id}`, {
@@ -325,7 +325,7 @@ export const sendNotification = async (
         },
       },
       modifier: (data: any, email: string) => {
-        const user = recipients.find((item) => item.email === email);
+        const user = recipients.find(item => item.email === email);
 
         if (user) {
           data.uid = user._id;
@@ -383,10 +383,10 @@ export const sendNotification = async (
             },
           };
 
-          await transporter.sendMulticast(multicastMessage);
+          await transporter.sendEachForMulticast(multicastMessage);
         } catch (e) {
           debugError(
-            `Error occurred during Firebase multicast send: ${e.message}`,
+            `Error occurred during Firebase multicast send: ${e.message}`
           );
           expiredTokens.push(...tokensChunk);
         }
@@ -408,7 +408,7 @@ export const sendNotification = async (
     if (expiredTokens.length > 0) {
       await models.ClientPortalUsers.updateMany(
         {},
-        { $pull: { deviceTokens: { $in: expiredTokens } } },
+        { $pull: { deviceTokens: { $in: expiredTokens } } }
       );
     }
   }
@@ -420,7 +420,7 @@ export const customFieldsDataByFieldCode = async (object, subdomain) => {
       ? object.customFieldsData.toObject()
       : object.customFieldsData || [];
 
-  const fieldIds = customFieldsData.map((data) => data.field);
+  const fieldIds = customFieldsData.map(data => data.field);
 
   const fields = await sendCommonMessage({
     serviceName: 'forms',
@@ -458,7 +458,7 @@ export const sendAfterMutation = async (
   action: string,
   object: any,
   newData: any,
-  extraDesc: any,
+  extraDesc: any
 ) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
@@ -488,7 +488,7 @@ export const sendAfterMutation = async (
 export const getCards = async (
   type: 'ticket' | 'deal' | 'task' | 'purchase',
   context: IContext,
-  args: any,
+  args: any
 ) => {
   const { subdomain, models, cpUser } = context;
   if (!cpUser) {
@@ -558,7 +558,7 @@ export const getCards = async (
     return [];
   }
 
-  const stageIds = stages.map((stage) => stage._id);
+  const stageIds = stages.map(stage => stage._id);
 
   let oneStageId = '';
   if (args.stageId) {
@@ -672,7 +672,7 @@ export const getUserCards = async (
   userId: string,
   contentType: string,
   models: IModels,
-  subdomain,
+  subdomain
 ) => {
   const cardIds = await models.ClientPortalUserCards.find({
     cpUserId: userId,
