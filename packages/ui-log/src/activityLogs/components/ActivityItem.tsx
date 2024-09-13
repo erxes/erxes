@@ -10,6 +10,8 @@ import InternalNote from "../containers/items/InternalNote";
 import React from "react";
 import { RenderDynamicComponent } from "@erxes/ui/src/utils/core";
 import Tip from "@erxes/ui/src/components/Tip";
+import ContactsActivityLog from "@erxes/ui-contacts/src/components/activityLogs/activityLog";
+import TaggedLog from "@erxes/ui-tags/src/components/activityLogs/activityLog";
 
 type Props = {
   activity: IActivityLog;
@@ -23,7 +25,8 @@ type Props = {
 class ActivityItem extends React.Component<Props> {
   render() {
     const { activity, currentUser } = this.props;
-    const { contentType, _id, contentTypeDetail } = activity;
+
+    const { contentType, _id, contentTypeDetail, action } = activity;
 
     const type = contentType.split(":")[1];
 
@@ -49,6 +52,39 @@ class ActivityItem extends React.Component<Props> {
     }
 
     const pluginName = contentType.split(":")[0];
+
+    if (pluginName === "core") {
+      switch (action) {
+        case "tagged":
+          return (
+            <TaggedLog
+              activity={activity}
+              contentType={contentType}
+              currentUser={currentUser}
+            />
+          );
+      }
+
+      switch (type) {
+        case "customer":
+          return (
+            <ContactsActivityLog
+              activity={activity}
+              currentUser={currentUser}
+              contentType={contentType}
+            />
+          );
+
+        case "company":
+          return (
+            <ContactsActivityLog
+              activity={activity}
+              currentUser={currentUser}
+              contentType={contentType}
+            />
+          );
+      }
+    }
 
     for (const plugin of plugins) {
       const hasIntegration =

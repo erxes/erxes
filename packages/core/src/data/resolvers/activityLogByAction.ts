@@ -1,3 +1,4 @@
+import { act } from "react";
 import { IContext } from "../../connectionResolver";
 import { IActivityLogDocument } from "../../db/models/definitions/activityLogs";
 import { getContentTypeDetail } from "../../messageBroker";

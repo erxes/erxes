@@ -149,7 +149,7 @@ export const putActivityLog = async (
     ...params,
     data: {
       ...data,
-      contentType: `${data.contentType}`,
+      contentType: `core:${data.contentType}`,
       automations: {
         type: data.contentType
       }

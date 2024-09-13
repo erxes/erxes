@@ -1,25 +1,25 @@
 import {
   checkPermission,
-  requireLogin,
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
+  requireLogin
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
 
 // import { fixRelatedItems, tagObject } from "../../../utils";
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
 
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
-import { ITag } from '../../../db/models/definitions/tags';
-import { logTaggingActivity } from '../../logUtils';
+import { getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { ITag } from "../../../db/models/definitions/tags";
+import { logTaggingActivity } from "../../logUtils";
 import {
   fixRelatedItems,
   handleTagsPublishChange,
-  tagObject,
-} from '../../utils';
+  tagObject
+} from "../../utils";
 interface ITagsEdit extends ITag {
   _id: string;
 }
 
-const TAG = 'tag';
+const TAG = "tag";
 
 const tagMutations = {
   /**
@@ -78,7 +78,7 @@ const tagMutations = {
       subdomain,
       type: tag.type,
       sourceId: tag._id,
-      action: 'remove',
+      action: "remove"
     });
 
     await putDeleteLog(models, subdomain, { type: TAG, object: tag }, user);
@@ -94,14 +94,14 @@ const tagMutations = {
     {
       type,
       targetIds,
-      tagIds,
+      tagIds
     }: { type: string; targetIds: string[]; tagIds: string[] },
     { models, subdomain, user }: IContext
   ) {
     const services = await getServices();
-    const [serviceNameFromType] = (type || '').split(':');
+    const [serviceNameFromType] = (type || "").split(":");
 
-    if (!type.includes('core')) {
+    if (!type.includes("core")) {
       await handleTagsPublishChange(
         services,
         serviceNameFromType,
@@ -112,11 +112,11 @@ const tagMutations = {
 
     const existingTagsCount = await models.Tags.countDocuments({
       _id: { $in: tagIds },
-      type,
+      type
     });
 
     if (existingTagsCount !== tagIds.length) {
-      throw new Error('Tag not found.');
+      throw new Error("Tag not found.");
     }
 
     const taggedTargets = await tagObject(
@@ -144,21 +144,21 @@ const tagMutations = {
       type: source.type,
       sourceId,
       destId,
-      action: 'merge',
+      action: "merge"
     });
 
     // remove old tag
     await models.Tags.removeTag(sourceId);
 
     return models.Tags.getTag(destId);
-  },
+  }
 };
 
-requireLogin(tagMutations, 'tagsTag');
+requireLogin(tagMutations, "tagsTag");
 
-checkPermission(tagMutations, 'tagsAdd', 'manageTags');
-checkPermission(tagMutations, 'tagsEdit', 'manageTags');
-checkPermission(tagMutations, 'tagsRemove', 'manageTags');
-checkPermission(tagMutations, 'tagsMerge', 'manageTags');
+checkPermission(tagMutations, "tagsAdd", "manageTags");
+checkPermission(tagMutations, "tagsEdit", "manageTags");
+checkPermission(tagMutations, "tagsRemove", "manageTags");
+checkPermission(tagMutations, "tagsMerge", "manageTags");
 
 export default tagMutations;
