@@ -1,24 +1,26 @@
-import { Alert, __, confirm } from "@erxes/ui/src/utils";
-import { Box, States } from "../../styles";
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
+import { Box, States } from '../../styles';
 
-import { Actions } from "@erxes/ui/src/styles/main";
-import Button from "@erxes/ui/src/components/Button";
-import CompaniesMerge from "../../../companies/components/detail/CompaniesMerge";
-import CompanyForm from "@erxes/ui-contacts/src/companies/containers/CompanyForm";
-import { ControlLabel } from "@erxes/ui/src/components/form";
-import CustomerForm from "../../containers/CustomerForm";
-import CustomersMerge from "../detail/CustomersMerge";
-import EmailWidget from "@erxes/ui-inbox/src/inbox/components/EmailWidget";
-import { ICompany } from "@erxes/ui-contacts/src/companies/types";
-import { ICustomer } from "../../types";
-import Icon from "@erxes/ui/src/components/Icon";
-import { Menu } from "@headlessui/react";
-import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
-import React from "react";
-import SmsForm from "@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm";
-import TargetMerge from "./TargetMerge";
-import Tip from "@erxes/ui/src/components/Tip";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { Actions } from '@erxes/ui/src/styles/main';
+import Button from '@erxes/ui/src/components/Button';
+import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
+import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import CustomerForm from '../../containers/CustomerForm';
+import CustomersMerge from '../detail/CustomersMerge';
+import EmailWidget from '@erxes/ui-inbox/src/inbox/components/EmailWidget';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Menu } from '@headlessui/react';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
+import TargetMerge from './TargetMerge';
+import Tip from '@erxes/ui/src/components/Tip';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import Dropdown from '@erxes/ui/src/components/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 
 type Props = {
   coc: ICustomer | ICompany;
@@ -38,7 +40,7 @@ class ActionSection extends React.Component<
     super(props);
 
     this.state = {
-      customerState: props.cocType === "customer" ? props.coc.state : "",
+      customerState: props.cocType === 'customer' ? props.coc.state : '',
       show: false,
     };
   }
@@ -46,6 +48,12 @@ class ActionSection extends React.Component<
   renderActions() {
     const { coc, cocType } = this.props;
     const { primaryPhone, primaryEmail } = coc;
+    let emailValidationStatus = 'unknown';
+
+    if (cocType === 'customer') {
+      emailValidationStatus =
+        (coc as ICustomer).emailValidationStatus || 'unknown';
+    }
 
     const smsForm = (props) => (
       <SmsForm {...props} primaryPhone={primaryPhone} />
@@ -53,65 +61,48 @@ class ActionSection extends React.Component<
 
     return (
       <>
-        {(isEnabled("engages") || isEnabled("imap")) && (
+        {(isEnabled('engages') || isEnabled('imap')) && (
           <EmailWidget
-            disabled={primaryEmail ? false : true}
-            buttonStyle={primaryEmail ? "primary" : "simple"}
+            disabled={
+              emailValidationStatus === 'valid' && primaryEmail ? false : true
+            }
+            buttonStyle={
+              emailValidationStatus === 'valid' && primaryEmail
+                ? 'primary'
+                : 'simple'
+            }
             emailTo={primaryEmail}
-            customerId={cocType === "customer" ? coc._id : undefined}
-            buttonSize="small"
-            type="action"
+            customerId={cocType === 'customer' ? coc._id : undefined}
+            buttonSize='small'
+            type='action'
           />
         )}
         <ModalTrigger
-          dialogClassName="middle"
+          dialogClassName='middle'
           title={`Send SMS to (${primaryPhone})`}
-          tipText="Send SMS"
+          tipText='Send SMS'
           trigger={
             <Button
               disabled={primaryPhone ? false : true}
-              size="small"
-              btnStyle={primaryPhone ? "primary" : "simple"}
+              size='small'
+              btnStyle={primaryPhone ? 'primary' : 'simple'}
             >
-              <Icon icon="message" />
+              <Icon icon='message' />
             </Button>
           }
           content={smsForm}
         />
-        <Tip text="Call" placement="top-end">
+        <Tip text='Call' placement='top-end'>
           <Button
             href={primaryPhone && `tel:${primaryPhone}`}
-            size="small"
-            btnStyle={primaryPhone ? "primary" : "simple"}
+            size='small'
+            btnStyle={primaryPhone ? 'primary' : 'simple'}
             disabled={primaryPhone ? false : true}
           >
-            <Icon icon="phone" />
+            <Icon icon='phone' />
           </Button>
         </Tip>
       </>
-    );
-  }
-
-  renderEditButton() {
-    const { cocType, coc } = this.props;
-
-    const customerForm = (props) => {
-      return <CustomerForm {...props} size="lg" customer={coc} />;
-    };
-
-    const companyForm = (props) => {
-      return <CompanyForm {...props} size="lg" company={coc} />;
-    };
-
-    return (
-      <Menu.Item>
-        <ModalTrigger
-          title="Edit basic info"
-          trigger={<a>{__("Edit")}</a>}
-          size="lg"
-          content={cocType === "company" ? companyForm : customerForm}
-        />
-      </Menu.Item>
     );
   }
 
@@ -129,7 +120,7 @@ class ActionSection extends React.Component<
 
     return (
       <Box
-        id="customerChangeStateBox"
+        id='customerChangeStateBox'
         key={index}
         $selected={this.state.customerState === type}
         onClick={onClick}
@@ -143,12 +134,12 @@ class ActionSection extends React.Component<
   renderChangeStateForm() {
     const options = [
       {
-        value: "lead",
-        desc: __("A person who preparing to buy some service or product"),
+        value: 'lead',
+        desc: __('A person who preparing to buy some service or product'),
       },
       {
-        value: "customer",
-        desc: __("A person who already bought some service or product"),
+        value: 'customer',
+        desc: __('A person who already bought some service or product'),
       },
     ];
 
@@ -167,8 +158,8 @@ class ActionSection extends React.Component<
 
     return (
       <ModalTrigger
-        title={__("Change state")}
-        trigger={<a>{__("Change state")}</a>}
+        title={__('Change state')}
+        trigger={<a>{__('Change state')}</a>}
         content={modalContent}
         hideHeader={true}
         centered={true}
@@ -196,7 +187,7 @@ class ActionSection extends React.Component<
           cus.middleName ||
           cus.primaryEmail ||
           cus.primaryPhone ||
-          "Unknown",
+          'Unknown',
       }));
     };
 
@@ -204,48 +195,62 @@ class ActionSection extends React.Component<
       return companies.map((c, key) => ({
         key,
         value: JSON.stringify(c),
-        label: c.primaryName || c.website || "Unknown",
+        label: c.primaryName || c.website || 'Unknown',
       }));
     };
 
-    const MenuButton = React.forwardRef(function (props, ref) {
-      return <Button size="small" btnStyle="default" {...props} />;
-    });
+    const customerForm = (props) => {
+      return <CustomerForm {...props} size='lg' customer={coc} />;
+    };
+
+    const companyForm = (props) => {
+      return <CompanyForm {...props} size='lg' company={coc} />;
+    };
+
+    const menuItems = [
+      {
+        title: 'Edit basic info',
+        trigger: <a href='#edit'>{__('Edit Profile')}</a>,
+        content: cocType === 'company' ? companyForm : customerForm,
+        additionalModalProps: { size: 'lg' },
+      },
+    ];
 
     return (
-      <Menu as="div" className="relative">
-        <Menu.Button as={MenuButton}>
-          {this.props.isSmall ? (
-            <Icon icon="ellipsis-h" />
-          ) : (
-            <>
-              {__("Action")} <Icon icon="angle-down" />
-            </>
-          )}
-        </Menu.Button>
-        <Menu.Items className="absolute" unmount={false}>
-          {this.renderEditButton()}
-          <Menu.Item>
-            <TargetMerge
-              onSave={merge}
-              object={coc}
-              searchObject={search}
-              mergeForm={
-                cocType === "customer" ? CustomersMerge : CompaniesMerge
-              }
-              generateOptions={
-                cocType === "customer" ? generateOptions : targetMergeOptions
-              }
-            />
-          </Menu.Item>
-          <Menu.Item>
-            <a href="#delete" onClick={onClick}>
-              {__("Delete")}
-            </a>
-          </Menu.Item>
-          <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
-        </Menu.Items>
-      </Menu>
+      <Dropdown
+        as={DropdownToggle}
+        toggleComponent={
+          <Button size='small' btnStyle='default'>
+            {this.props.isSmall ? (
+              <Icon icon='ellipsis-h' />
+            ) : (
+              <>
+                {__('Action')} <Icon icon='angle-down' />
+              </>
+            )}
+          </Button>
+        }
+        modalMenuItems={menuItems}
+        unmount={false}
+      >
+        <Menu.Item>
+          <TargetMerge
+            onSave={merge}
+            object={coc}
+            searchObject={search}
+            mergeForm={cocType === 'customer' ? CustomersMerge : CompaniesMerge}
+            generateOptions={
+              cocType === 'customer' ? generateOptions : targetMergeOptions
+            }
+          />
+        </Menu.Item>
+        <Menu.Item>
+          <a href='#delete' onClick={onClick}>
+            {__('Delete')}
+          </a>
+        </Menu.Item>
+        <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
+      </Dropdown>
     );
   }
 

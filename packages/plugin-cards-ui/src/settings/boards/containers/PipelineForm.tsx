@@ -2,7 +2,7 @@ import * as compose from 'lodash.flowright';
 
 import {
   BoardsQueryResponse,
-  StagesQueryResponse
+  StagesQueryResponse,
 } from '@erxes/ui-cards/src/boards/types';
 
 import { DepartmentsQueryResponse } from '@erxes/ui/src/team/types';
@@ -46,7 +46,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       boardId,
       renderButton,
       options,
-      tagsQuery
+      tagsQuery,
     } = this.props;
 
     if (
@@ -70,7 +70,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       departments,
       boardId,
       renderButton,
-      tags
+      tags,
     };
 
     const Form = options?.PipelineForm || PipelineForm;
@@ -84,8 +84,8 @@ export default withProps<Props>(
     graphql(gql(tagQueries.tags), {
       name: 'tagsQuery',
       options: (props: Props) => ({
-        variables: { type: `cards:${props.type}` }
-      })
+        variables: { type: `cards:${props.type}` },
+      }),
     }),
 
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
@@ -95,18 +95,18 @@ export default withProps<Props>(
         skip: props => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
           variables: { pipelineId: pipeline ? pipeline._id : '', isAll: true },
-          fetchPolicy: 'network-only'
-        })
+          fetchPolicy: 'network-only',
+        }),
       }
     ),
     graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
-      name: 'departmentsQuery'
+      name: 'departmentsQuery',
     }),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
       name: 'boardsQuery',
       options: ({ type }) => ({
-        variables: { type }
-      })
+        variables: { type },
+      }),
     })
   )(PipelineFormContainer)
 );

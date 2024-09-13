@@ -332,6 +332,7 @@ const ordersEdit = async (
     type: doc.type,
     totalAmount: getTotalAmount(preparedDoc.items),
     directDiscount: doc.directDiscount,
+    directIsAmount: doc.directIsAmount,
     billType: doc.billType || BILL_TYPES.CITIZEN,
     registerNumber: doc.registerNumber || '',
     slotCode: doc.slotCode,

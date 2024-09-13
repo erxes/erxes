@@ -20,7 +20,7 @@ const loginMiddleware = async (req, res) => {
   );
 
   const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-  const API_DOMAIN = DOMAIN.includes('ngrok') ? DOMAIN : `${DOMAIN}/gateway`;
+  const API_DOMAIN = DOMAIN.includes('zrok') ? DOMAIN : `${DOMAIN}/gateway`;
   const FACEBOOK_LOGIN_REDIRECT_URL = await getConfig(
     models,
     'FACEBOOK_LOGIN_REDIRECT_URL',
@@ -61,7 +61,6 @@ const loginMiddleware = async (req, res) => {
     code: req.query.code
   };
   debugResponse(debugFacebook, req, JSON.stringify(config));
-  console.log(req, JSON.stringify(config), 'req, JSON.stringify(config)');
   // If this branch executes user is already being redirected back with
   // code (whatever that is)
   // code is set
@@ -102,7 +101,7 @@ const loginMiddleware = async (req, res) => {
       });
     }
 
-    const reactAppUrl = !DOMAIN.includes('ngrok')
+    const reactAppUrl = !DOMAIN.includes('zrok')
       ? DOMAIN
       : 'http://localhost:3000';
     const url = `${reactAppUrl}/settings/fb-authorization?fbAuthorized=true`;

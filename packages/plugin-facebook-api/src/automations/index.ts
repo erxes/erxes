@@ -160,7 +160,7 @@ export default {
 
     switch (collectionType) {
       case 'messages':
-        return checkMessageTrigger(subdomain, data);
+        return await checkMessageTrigger(subdomain, data);
       case 'comments':
         return await checkCommentTrigger(subdomain, data);
       default:

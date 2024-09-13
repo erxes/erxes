@@ -534,7 +534,7 @@ export const prepareEngageCustomers = async (
     await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
-  // make sure email & phone are valid
+  
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
     customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
@@ -611,12 +611,10 @@ export const prepareEngageCustomers = async (
         });
       }
 
-      // signal upstream that we are ready to take more data
       callback();
     },
   });
 
-  // generate fields option =======
   const fieldsOption = {
     primaryEmail: 1,
     emailValidationStatus: 1,
@@ -628,24 +626,35 @@ export const prepareEngageCustomers = async (
     fieldsOption[field] = 1;
   }
 
-  const customersStream = (
-    Customers.find(customersSelector, fieldsOption) as any
-  ).cursor();
+  const customersCursor = Customers.find(customersSelector, fieldsOption).cursor();
 
-  return new Promise((resolve, reject) => {
-    const pipe = customersStream.pipe(customerTransformerStream);
+  try {
+    // Process the stream and wait for it to finish
+    await new Promise<void>((resolve, reject) => {
+      customersCursor.pipe(customerTransformerStream);
 
-    pipe.on('finish', async () => {
-      try {
+      // Resolve the promise when the stream finishes processing
+      customerTransformerStream.on('finish', async () => {
         await onFinishPiping();
-      } catch (e) {
-        return reject(e);
-      }
+        resolve();
+      });
 
-      resolve({ status: 'done', customerInfos });
+      // Reject the promise if there is an error
+      customerTransformerStream.on('error', (error) => {
+        reject(error);
+      });
     });
-  });
+
+    return { status: 'done', customerInfos };
+  } catch (error) {
+    customerTransformerStream.destroy();
+    throw error;
+  } finally {
+    await customersCursor.close();
+  }
 };
+
+
 
 export const generateSystemFields = ({ data: { groupId } }) => {
   const contactsFields: any = [];

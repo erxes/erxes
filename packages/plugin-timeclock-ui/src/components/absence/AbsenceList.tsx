@@ -377,7 +377,7 @@ function AbsenceList(props: Props) {
           <th>{__("Date")}</th>
           <th>{__("From")}</th>
           <th>{__("To")}</th>
-          <th>{__("Total hours ")}</th>
+          <th>{__("Total hours")}</th>
           <th onClick={toggleSeeDates} style={{ cursor: "pointer" }}>
             <div style={{ display: "flex", flex: "row", alignItems: "center" }}>
               <div>{__("See dates")}</div>

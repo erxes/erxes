@@ -59,20 +59,25 @@ type GolomtBankAccountHolder {
     credit: Float
     debit: Float
   }
-  
+  type Statement {
+    requestId: String
+    recNum: String
+    tranId: String
+    tranDate: String
+    drOrCr: String
+    tranAmount: Float
+    tranDesc: String
+    tranPostedDate: Date
+    tranCrnCode: String
+    exchRate: Int
+    balance: String
+    accName: String
+    accNum: String
+  }
   type GolomtBankStatement {
-    account: String
-    iban: String
-    currency: String
-    customerName: String
-    productName: String
-    branch: String
-    branchName: String
-    beginBalance: Float
-    endBalance: Float
-    beginDate: String
-    endDate: String
-    
+    requestId: String
+    accountId: String
+    statements: [Statement]
   }
 
   type GolomtBankAccountBalance {
@@ -99,7 +104,5 @@ export const queries = `
   golomtBankAccountDetail(configId: String!, accountId: String!): GolomtBankAccountDetail
   golomtBankAccountBalance(configId: String!, accountId: String!): GolomtBankAccountBalance
   golomtBankAccountHolder(configId: String!, accountId: String! bankCode: String): GolomtBankAccountHolder
-
   golomtBankStatements(configId: String!, accountId: String!, ${paginationParams} ${dateParams} ): GolomtBankStatement
-  golomtBankStatementsAfterRecord(configId: String!, accountId: String!, record: Int! ${paginationParams}): GolomtBankStatement
 `;

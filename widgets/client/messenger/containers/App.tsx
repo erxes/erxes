@@ -1,61 +1,43 @@
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
-import * as React from "react";
-import DumbApp from "../components/App";
-import { AppConsumer, AppProvider } from "./AppContext";
+import '@nateradebaugh/react-datetime/scss/styles.scss';
+import * as React from 'react';
+import DumbApp from '../components/App';
 import '../sass/style.min.css';
+// import '../sass/style.css';
 
 import * as dayjs from 'dayjs';
 import * as localizedFormat from 'dayjs/plugin/localizedFormat';
 import * as relativeTime from 'dayjs/plugin/relativeTime';
+import client from '../../apollo-client';
+import { getMessengerData } from '../utils/util';
+import { ConversationProvider } from '../context/Conversation';
+import MessageHandler from '../components/MessageHandler';
+import { ConfigProvider } from '../context/Config';
+import { RouterProvider } from '../context/Router';
+import { MessageProvider } from '../context/Message';
+import { ApolloProvider } from '@apollo/client';
+import { AnimateSharedLayout } from 'framer-motion';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
 
-type Props = {
-  toggle: (isVisible?: boolean) => void;
-  isMessengerVisible: boolean;
-  saveBrowserInfo: () => void;
-  showLauncher: boolean;
+const App = () => {
+  const { showLauncher } = getMessengerData();
+
+  return (
+    <ApolloProvider client={client}>
+      <ConfigProvider>
+        <RouterProvider>
+          <ConversationProvider>
+            <MessageHandler>
+              <MessageProvider>
+                <DumbApp showLauncher={showLauncher} />
+              </MessageProvider>
+            </MessageHandler>
+          </ConversationProvider>
+        </RouterProvider>
+      </ConfigProvider>
+    </ApolloProvider>
+  );
 };
 
-class App extends React.Component<Props> {
-  componentDidMount() {
-    window.addEventListener("message", event => {
-      if (event.data.fromPublisher) {
-        // receive show messenger command from publisher
-        if (event.data.action === "showMessenger") {
-          this.props.toggle(false);
-        }
-      }
-    });
-  }
-
-  render() {
-    return (
-      <DumbApp
-        isMessengerVisible={this.props.isMessengerVisible}
-        saveBrowserInfo={this.props.saveBrowserInfo}
-        showLauncher={this.props.showLauncher}
-      />
-    );
-  }
-}
-
-const WithContext = () => (
-  <AppProvider>
-    <AppConsumer>
-      {({ isMessengerVisible, saveBrowserInfo, getMessengerData, toggle }) => {
-        return (
-          <App
-            toggle={toggle}
-            isMessengerVisible={isMessengerVisible}
-            saveBrowserInfo={saveBrowserInfo}
-            showLauncher={getMessengerData().showLauncher}
-          />
-        );
-      }}
-    </AppConsumer>
-  </AppProvider>
-);
-
-export default WithContext;
+export default App;

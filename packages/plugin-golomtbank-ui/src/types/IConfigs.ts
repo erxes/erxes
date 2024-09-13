@@ -1,16 +1,17 @@
-
-import { QueryResponse } from '@erxes/ui/src/types';
+import { QueryResponse } from "@erxes/ui/src/types";
 
 export interface IGolomtBankConfigsItem {
-  _id: string
-  name: string
-  organizationName: string
-  clientId: string
-  ivKey: string
-  sessionKey: string
-  configPassword: string
-  registerId: string
-  accountId: string
+  _id: string;
+  name: string;
+  organizationName: string;
+  clientId: string;
+  ivKey: string;
+  sessionKey: string;
+  configPassword: string;
+  registerId: string;
+  accountId: string;
+  golomtCode: string;
+  apiUrl: string;
 }
 
 export type ConfigsListQueryResponse = {

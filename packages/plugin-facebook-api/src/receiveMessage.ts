@@ -111,8 +111,8 @@ const receiveMessage = async (
   }
 
   const formattedAttachments = (attachments || [])
-    .filter(att => att.type !== 'fallback')
-    .map(att => ({
+    .filter((att) => att.type !== 'fallback')
+    .map((att) => ({
       type: att.type,
       url: att.payload ? att.payload.url : ''
     }));
@@ -194,7 +194,7 @@ const receiveMessage = async (
         isRPC: true,
         defaultValue: null
       })
-        .catch(err => {
+        .catch((err) => {
           debugError(`Error sending automation message: ${err.message}`);
           throw err;
         })
