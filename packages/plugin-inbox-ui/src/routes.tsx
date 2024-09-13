@@ -1,4 +1,3 @@
-import BookingSettings from './bookings/routes';
 import ChannelSettings from './settings/channels/routes';
 import FormsSettings from './forms/routes';
 import InboxRoutes from './inbox/routes';
@@ -19,7 +18,6 @@ const routes = () => {
       <IntegrationConfigs />
       <ResponseTemplates />
       <SkillSettings />
-      <BookingSettings />
       <FormsSettings />
       <VideoCallRoutes />
       <ScriptRoutes />

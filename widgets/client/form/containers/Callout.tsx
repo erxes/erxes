@@ -6,10 +6,8 @@ const container = () => (
   <AppConsumer>
     {({ showForm, setHeight, getFormConfigs }) => {
       const leadData = getFormConfigs();
-      console.log(leadData);
       const { callout, themeColor } = leadData;
 
-      console.log(themeColor)
       return (
         <Callout
           onSubmit={showForm}

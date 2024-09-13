@@ -234,7 +234,6 @@ export default class WorkArea extends React.Component<Props, State> {
     const showInternal =
       this.isMailConversation(kind) ||
       kind === "lead" ||
-      kind === "booking" ||
       kind === "imap" ||
       kind === "calls" ||
       kind === "webhook";

@@ -62,19 +62,6 @@ export const types = ({ products, knowledgeBase }) => `
     supporters: [User]
     isOnline: Boolean
   }
-
-  ${
-    products
-      ? `
-      type BookingProduct {
-        product: Product
-        fields: [Field]
-      }
-    `
-      : ""
-  }
-
-
 `;
 
 export const queries = ({ products, knowledgeBase }) => `
@@ -96,14 +83,8 @@ export const queries = ({ products, knowledgeBase }) => `
       : ""
   }
 
-  ${
-    products
-      ? `
-      widgetsProductCategory(_id: String!): ProductCategory
-      widgetsBookingProductWithFields(_id: String!): BookingProduct
-    `
-      : ""
-  }
+
+  widgetsProductCategory(_id: String!): ProductCategory
 `;
 
 export const mutations = () => `
@@ -151,9 +132,6 @@ export const mutations = () => `
 
   widgetsReadConversationMessages(conversationId: String): JSON
   widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
-
-  widgetsBookingConnect(_id: String): Integration
-
 
   widgetsSendEmail(
     toEmails: [String]

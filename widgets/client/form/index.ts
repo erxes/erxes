@@ -61,7 +61,6 @@ widgetConnect({
     connection.data = response;
 
     // set language
-    console.log("LOCALE",response.form.languageCode)
     setLocale(response.form.languageCode || "en");
   },
 

@@ -94,8 +94,6 @@ export const types = ({ contacts, dailyco, calls }) => `
     ${dailyco ? "videoCallData: VideoCallData" : ""}
     ${calls ? "callHistory: CallHistoryData" : ""}
     customFieldsData: JSON
-
-    bookingProductId: String
   }
 
   type EngageData {
@@ -129,7 +127,6 @@ export const types = ({ contacts, dailyco, calls }) => `
     mailData: MailData
     ${dailyco ? "videoCallData: VideoCallData" : ""}
     contentType: String
-    bookingWidgetData: JSON
     mid: String
   }
 
@@ -226,7 +223,6 @@ const convertParams = `
   itemId: String
   itemName: String
   stageId: String
-  bookingProductId: String
   customFieldsData: JSON
   priority: String
   assignedUserIds: [String]

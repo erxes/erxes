@@ -97,6 +97,4 @@ export default `
   readUserIds
   callProAudio
   customFieldsData
-  
-  bookingProductId
 `;

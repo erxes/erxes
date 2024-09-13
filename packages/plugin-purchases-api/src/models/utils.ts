@@ -506,7 +506,6 @@ export const conversationConvertToCard = async (
     itemId,
     itemName,
     stageId,
-    bookingProductId,
     conversation,
     user,
   } = args;
@@ -515,22 +514,6 @@ export const conversationConvertToCard = async (
 
   if (itemId) {
     const oldItem = await collection.findOne({ _id: itemId }).lean();
-
-    if (bookingProductId) {
-      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-        subdomain,
-        bookingProductId
-      );
-
-      oldItem.productsData.push({
-        _id: product._id,
-        productId: product._id,
-        unitPrice: product.unitPrice,
-        uom: dealUOM,
-        currency: dealCurrency,
-        quantity: product.productCount,
-      });
-    }
 
     const doc = { ...oldItem, ...args };
 
@@ -606,24 +589,6 @@ export const conversationConvertToCard = async (
     doc.stageId = stageId;
     doc.sourceConversationIds = [_id];
     doc.customerIds = [conversation.customerId];
-
-    if (bookingProductId) {
-      const { product, dealUOM, dealCurrency } = await checkBookingConvert(
-        subdomain,
-        bookingProductId
-      );
-
-      doc.productsData = [
-        {
-          _id: product._id,
-          productId: product._id,
-          unitPrice: product.unitPrice,
-          uom: dealUOM,
-          currency: dealCurrency,
-          quantity: product.productCount,
-        },
-      ];
-    }
 
     const item = await itemsAdd(models, subdomain, doc, type, create, user);
 

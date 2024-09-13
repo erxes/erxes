@@ -54,10 +54,6 @@ const generateFilterQuery = async (
     query.isActive = status === "active" ? true : false;
   }
 
-  if (formLoadType) {
-    query["leadData.loadType"] = formLoadType;
-  }
-
   return query;
 };
 

@@ -82,32 +82,33 @@ async function createConversationAndMessage({
   submissions,
   subdomain,
 }) {
-  const conversation = await sendCommonMessage({
+  const message = await sendCommonMessage({
     subdomain,
-    action: 'conversations.createConversation',
+    action: 'createConversationAndMessage',
     serviceName: 'inbox',
     data: {
       customerId: customer._id,
       integrationId: integration?._id,
-      content: form.title,
-    },
-    isRPC: true,
-  });
-
-  await sendCommonMessage({
-    subdomain,
-    action: 'conversations.createMessage',
-    serviceName: 'inbox',
-    data: {
-      conversationId: conversation._id,
-      customerId: customer._id,
       content: form.title,
       formWidgetData: submissions,
     },
     isRPC: true,
   });
 
-  return conversation._id;
+  // await sendCommonMessage({
+  //   subdomain,
+  //   action: 'conversations.createMessage',
+  //   serviceName: 'inbox',
+  //   data: {
+  //     conversationId: conversation._id,
+  //     customerId: customer._id,
+  //     content: form.title,
+  //     formWidgetData: submissions,
+  //   },
+  //   isRPC: true,
+  // });
+
+  return message.conversationId;
 }
 
 async function saveFormSubmissions(
@@ -168,9 +169,9 @@ function updateCustomerDoc(
     );
   }
 
-  if (Object.keys(customerLinks.links).length > 0) {
+  if (Object.keys(customerLinks.links || []).length > 0) {
     const links: any = customer.links || {};
-  
+
     Object.entries(customerLinks.links).forEach(([key, value]) => {
       if (typeof value === 'string' || Array.isArray(value)) {
         if (value.length > 0) {
@@ -178,7 +179,7 @@ function updateCustomerDoc(
         }
       }
     });
-  
+
     customerDoc.links = links;
   }
 }
@@ -377,7 +378,7 @@ const mutations = {
     }
 
     // Step 6: Save form submissions
-    await saveFormSubmissions(models,{
+    await saveFormSubmissions(models, {
       submissions,
       formId,
       customerId: customer._id,

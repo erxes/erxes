@@ -29,13 +29,6 @@ module.exports = {
       permission: 'showConversations'
     },
     {
-      text: 'Bookings',
-      url: '/bookings',
-      icon: 'icon-paste',
-      location: 'mainNavigation',
-      permission: 'showIntegrations'
-    },
-    {
       text: 'Skills',
       to: '/settings/skills',
       image: '/images/icons/erxes-29.png',

@@ -65,7 +65,6 @@ class Callout extends React.Component<Props, State> {
 
   renderHead(title: string) {
     const { hasTopBar, color } = this.props;
-    console.log('color ', color);
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
@@ -120,7 +119,6 @@ class Callout extends React.Component<Props, State> {
 }
 
 export default (props: Props) => {
-  console.log('props ===== ', props);
   return (
     <Callout
       {...props}

@@ -130,39 +130,3 @@ export const receiveVisitorDetail = async (subdomain: string, visitor) => {
 
   return customer;
 };
-
-
-
-export const solveSubmissions = async (
-  models: IModels,
-  subdomain: string,
-  args: {
-    integrationId: string;
-    formId: string;
-    submissions;
-    browserInfo: any;
-    cachedCustomerId?: string;
-  }
-) => {
-  const { cachedCustomerId } = args;
-  const { integrationId, browserInfo } = args;
-  const integration: any = await models.Integrations.findOne({
-    _id: integrationId
-  });
-
-  const submissionsGrouped = groupSubmissions(args.submissions);
-
-  return sendContactsMessage({
-    subdomain,
-    action: "updateContactsField",
-    data: {
-      cachedCustomerId,
-      browserInfo,
-      integration,
-      submissionsGrouped,
-      prepareCustomFieldsData: true
-    },
-    isRPC: true,
-    defaultValue: {}
-  });
-};

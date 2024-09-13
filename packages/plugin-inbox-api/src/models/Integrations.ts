@@ -5,7 +5,6 @@ import { IModels } from "../connectionResolver";
 import { sendContactsMessage, sendCoreMessage } from "../messageBroker";
 
 import {
-  IBookingData,
   IIntegration,
   IIntegrationDocument,
   ILeadData,
@@ -146,15 +145,6 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     integration: Pick<IIntegration, "messengerData">,
     userTimezone?: string
   ): boolean;
-  createBookingIntegration(
-    doc: IIntegration,
-    userId: string
-  ): Promise<IIntegrationDocument>;
-  updateBookingIntegration(
-    _id: string,
-    doc: IIntegration
-  ): Promise<IIntegrationDocument>;
-  increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
 export const loadClass = (models: IModels, subdomain: string) => {
@@ -584,82 +574,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       }
 
       return false;
-    }
-
-    /**
-     * Create a booking kind integration
-     */
-    public static async createBookingIntegration(
-      { bookingData = {}, ...mainDoc }: IIntegration,
-      userId: string
-    ) {
-      // check duplication
-      const isDuplicated = await models.Integrations.findOne({
-        "bookingData.productCategoryId": bookingData.productCategoryId
-      });
-
-      if (isDuplicated) {
-        throw new Error("Product main category already registered!");
-      }
-
-      const doc = { ...mainDoc, kind: "booking", bookingData };
-
-      if (Object.keys(bookingData).length === 0) {
-        throw new Error("bookingData must be supplied");
-      }
-
-      return models.Integrations.createIntegration(doc, userId);
-    }
-
-    /**
-     * Update booking integration
-     */
-    public static async updateBookingIntegration(
-      _id: string,
-      { bookingData = {}, ...mainDoc }: IIntegration
-    ) {
-      const prevEntry = await models.Integrations.getIntegration({ _id });
-      const prevBookingData: IBookingData = prevEntry.bookingData || {};
-
-      // check duplication
-      const isDuplicated = await models.Integrations.findOne({
-        "bookingData.productCategoryId": bookingData.productCategoryId,
-        _id: { $ne: prevEntry._id }
-      });
-
-      if (isDuplicated) {
-        throw new Error("Product main category already registered!");
-      }
-
-      const doc = {
-        ...mainDoc,
-        kind: "booking",
-        bookingData: {
-          ...bookingData,
-          viewCount: prevBookingData.viewCount
-        }
-      };
-
-      await models.Integrations.updateOne(
-        { _id },
-        { $set: doc },
-        { runValidators: true }
-      );
-
-      return models.Integrations.findOne({ _id });
-    }
-
-    /**
-     * Increase booking view count
-     */
-
-    public static async increaseBookingViewCount(_id: string) {
-      await models.Integrations.updateOne(
-        { _id, bookingData: { $exists: true } },
-        { $inc: { "bookingData.viewCount": 1 } }
-      );
-
-      return models.Integrations.findOne({ _id });
     }
   }
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { IEmailParams, IIntegration } from '../../types';
+import { IEmailParams, IIntegration, ILeadData } from '../../types';
 import {
   __,
   checkLogicFulfilled,
@@ -23,6 +23,7 @@ import TopBar from './TopBar';
 import { getColor } from '../../messenger/utils/util';
 
 type Props = {
+  leadData: ILeadData;
   form: IForm;
   integration: IIntegration;
   currentStatus: ICurrentStatus;
@@ -576,10 +577,10 @@ class Form extends React.Component<Props, State> {
 
     return (
       <div className='erxes-form'>
-        {this.renderHead(thankTitle || form.title)}
+        {this.renderHead((thankTitle || form.title) || '') }
         <div className='erxes-form-content'>
           <div className='erxes-callout-body'>
-            {this.renderSuccessImage(successImage || '', form.title)}
+            {this.renderSuccessImage(successImage || '', form.title || '')}
             {thankContent ||
               __('Thanks for your message. We will respond as soon as we can.')}
           </div>
@@ -589,7 +590,7 @@ class Form extends React.Component<Props, State> {
   }
 
   render() {
-    const { form, currentStatus, sendEmail, integration } = this.props;
+    const { form, currentStatus, sendEmail, leadData } = this.props;
     const doc = this.state.doc;
 
     if (currentStatus.status === 'SUCCESS') {
@@ -606,7 +607,7 @@ class Form extends React.Component<Props, State> {
         thankContent,
         attachments,
         successImage,
-      } = form.leadData;
+      } = leadData;
 
       // redirect to some url
       if (successAction === 'redirect') {
@@ -660,9 +661,8 @@ class Form extends React.Component<Props, State> {
 }
 
 export default (props: Props) => {
-  console.log(props)
-  const { form } = props;
-  const color = form.leadData?.themeColor;
+  const { leadData } = props;
+  const color = leadData?.themeColor;
   return (
     <Form
       {...props}

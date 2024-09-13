@@ -23,7 +23,8 @@ const createConversationAndMessage = async (
   visitorId,
   integrationId,
   content,
-  engageData
+  engageData,
+  formWidgetData
 ) => {
   // create conversation
   const conversation = await models.Conversations.createConversation({
@@ -38,6 +39,7 @@ const createConversationAndMessage = async (
   // create message
   return models.ConversationMessages.createMessage({
     engageData,
+    formWidgetData,
     conversationId: conversation._id,
     userId,
     customerId,
@@ -57,7 +59,8 @@ export const setupMessageConsumers = () => {
         visitorId,
         integrationId,
         content,
-        engageData
+        engageData,
+        formWidgetData
       } = data;
       const models = await generateModels(subdomain);
 
@@ -69,7 +72,8 @@ export const setupMessageConsumers = () => {
         visitorId,
         integrationId,
         content,
-        engageData
+        engageData,
+        formWidgetData
       );
 
       return { data: response, status: "success" };
