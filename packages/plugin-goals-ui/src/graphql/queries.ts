@@ -1,5 +1,61 @@
-import { pipeline } from 'stream';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+const conformityQueryFields = `
+  $mainType: String,
+  $mainTypeId: String,
+  $relType: String,
+  $isRelated: Boolean,
+  $isSaved: Boolean,
+`;
+export const companyFields = `
+  _id
+  createdAt
+  modifiedAt
+  avatar
+  primaryName
+  names
+  size
+  industry
+  plan
+  location
 
+  parentCompanyId
+  emails
+  primaryEmail
+  ownerId
+  phones
+  primaryPhone
+  businessType
+  description
+  isSubscribed
+  code
+  links
+  owner {
+    _id
+    details {
+      fullName
+    }
+  }
+  parentCompany {
+    _id
+    primaryName
+  }
+
+  customFieldsData
+  trackedData
+  tagIds
+  ${
+    isEnabled('tags')
+      ? `
+    getTags {
+      _id
+      name
+      colorCode
+    }
+  `
+      : ``
+  }
+  score
+`;
 const insuranceTypeFields = `
       _id
       name
@@ -172,6 +228,25 @@ const detailFields = `
   operatorPhone
   ${nameFields}
 `;
+
+const companies = `
+  $page: Int
+  $perPage: Int
+  $segment: String
+  $tag: String
+  $ids: [String]
+  $excludeIds: Boolean
+  $searchValue: String
+  $autoCompletion: Boolean
+  $autoCompletionType: String
+  $brand: String
+  $sortField: String
+  $sortDirection: Int
+  $dateFilters: String
+  $segmentData: String
+  ${conformityQueryFields}
+`;
+
 const segmentFields = `
   _id
   name
@@ -318,5 +393,6 @@ export default {
   branchesMain,
   unitsMain,
   departmentsMain,
-  userDetail
+  userDetail,
+  companies
 };

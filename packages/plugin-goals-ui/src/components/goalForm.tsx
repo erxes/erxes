@@ -33,13 +33,17 @@ import { IGoalType, IGoalTypeDoc } from '../types';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
-
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { PipelineLabelsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   segmentIds: string[];
+  pipelineLabelsQuery: PipelineLabelsQueryResponse;
 };
 
 type State = {
@@ -61,6 +65,8 @@ type State = {
   contribution: string | undefined;
   branch: string[];
   department: string[];
+  companies: string[];
+  tags: string[];
   unit: string[];
   pipelineLabels: IPipelineLabel[] | undefined;
   stageId?: any;
@@ -75,6 +81,8 @@ const initialState: State = {
   segmentIds: [],
   branch: [],
   department: [],
+  companies: [],
+  tags: [],
   unit: [],
   specificPeriodGoals: [],
   stageRadio: undefined,
@@ -130,6 +138,8 @@ const goalForm = (props: Props) => {
       segmentIds,
       entity,
       department,
+      companies,
+      tags,
       unit,
       branch,
       contributionType,
@@ -149,6 +159,8 @@ const goalForm = (props: Props) => {
       ...state,
       entity,
       department,
+      companies,
+      tags,
       unit,
       branch,
       segmentIds,
@@ -194,6 +206,30 @@ const goalForm = (props: Props) => {
   };
   const onChangeDepartments = (value) => {
     dispatch({ type: 'updateState', payload: { department: value } });
+  };
+  const onChangeCompanies = (value) => {
+    dispatch({
+      type: 'updateState',
+      payload: {
+        company: value
+      }
+    });
+  };
+  const onChangeTags = (value) => {
+    dispatch({
+      type: 'updateState',
+      payload: {
+        type: value
+      }
+    });
+  };
+  const onChangeProduct = (value) => {
+    dispatch({
+      type: 'updateState',
+      payload: {
+        product: value
+      }
+    });
   };
   const onChangeUnites = (value) => {
     dispatch({ type: 'updateState', payload: { unit: value } });
@@ -466,6 +502,19 @@ const goalForm = (props: Props) => {
                 </FormControl>
               </FormGroup>
             )}
+            {state.teamGoalType === 'Companies' &&
+              state.contributionType === 'team' && (
+                <FormGroup>
+                  <ControlLabel>{__('Companies')}</ControlLabel>
+                  <SelectCompanies
+                    label='Choose an Companies'
+                    name='parentCompanyId'
+                    initialValue={state?.companies}
+                    onSelect={onChangeCompanies}
+                    multi={true}
+                  />
+                </FormGroup>
+              )}
             {state.teamGoalType === 'Departments' &&
               state.contributionType === 'team' && (
                 <FormGroup>
@@ -523,7 +572,28 @@ const goalForm = (props: Props) => {
               </FormControl>
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('choose specific period goals')}</ControlLabel>
+              <ControlLabel>{__('Tags')}</ControlLabel>
+              <SelectTags
+                tagsType={'cards:' + state.entity}
+                label='Choose an Tags'
+                name='tagId'
+                initialValue={state.tags}
+                onSelect={onChangeTags}
+                multi={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Product')}</ControlLabel>
+              <SelectProducts
+                label='Select products'
+                name='productId'
+                multi={true}
+                initialValue={state.product}
+                onSelect={onChangeProduct}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('choose specific period goals')}.</ControlLabel>
               <FormControl
                 {...formProps}
                 name='periodGoal'

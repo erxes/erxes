@@ -7,7 +7,8 @@ export const ENTITY = [
 export const GOAL_STRUCTURE = [
   { name: 'Branches', value: 'Branches' },
   { name: 'Departments', value: 'Departments' },
-  { name: 'Units', value: 'Units' }
+  { name: 'Units', value: 'Units' },
+  { name: 'Companies', value: 'Companies' }
 ];
 export const SPECIFIC_PERIOD_GOAL = [
   {
