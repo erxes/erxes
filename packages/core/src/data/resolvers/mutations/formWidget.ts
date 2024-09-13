@@ -91,22 +91,10 @@ async function createConversationAndMessage({
       integrationId: integration?._id,
       content: form.title,
       formWidgetData: submissions,
+      status: 'new'
     },
     isRPC: true,
   });
-
-  // await sendCommonMessage({
-  //   subdomain,
-  //   action: 'conversations.createMessage',
-  //   serviceName: 'inbox',
-  //   data: {
-  //     conversationId: conversation._id,
-  //     customerId: customer._id,
-  //     content: form.title,
-  //     formWidgetData: submissions,
-  //   },
-  //   isRPC: true,
-  // });
 
   return message.conversationId;
 }
@@ -182,6 +170,16 @@ function updateCustomerDoc(
 
     customerDoc.links = links;
   }
+
+  if (customerDoc.email && !customer.emails.includes(customerDoc.email)) {
+    customerDoc.emails = [...customer.emails, customerDoc.email];
+  }
+
+  if (customerDoc.phone && !customer.phones.includes(customerDoc.phone)) {
+    customerDoc.phones = [...customer.phones, customerDoc.phone];
+  }
+
+  return customerDoc
 }
 
 const mutations = {
@@ -346,6 +344,8 @@ const mutations = {
     if (!customer) {
       customer = await models.Customers.createCustomer({
         ...customerDoc,
+        emails: [customerDoc.email],
+        phones: [customerDoc.phones],
         state: 'lead',
         links: customerLinks,
         customFieldsData,
@@ -354,7 +354,7 @@ const mutations = {
         scopeBrandIds: [form.brandId],
       });
     } else {
-      updateCustomerDoc(
+      const doc = updateCustomerDoc(
         customer,
         customerDoc,
         form,
@@ -362,7 +362,7 @@ const mutations = {
         customFieldsData,
         customerLinks
       );
-      await models.Customers.updateCustomer(customer._id, customerDoc);
+      await models.Customers.updateCustomer(customer._id, doc);
     }
 
     // Step 5: Handle conversation and messages (if inbox is enabled)
