@@ -162,7 +162,6 @@ export const loadFormClass = (models: IModels) => {
     }
 
     public static async increaseViewCount(formId: string, get = false) {
-      console.log('increaseViewCount');
       const response = await models.Forms.updateOne(
         { _id: formId, leadData: { $exists: true } },
         { $inc: { 'leadData.viewCount': 1 } }

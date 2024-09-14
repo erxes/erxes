@@ -115,9 +115,6 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
         action = 'unarchived';
       }
 
-      console.log("formId", formId)
-      console.log("status", status)
-
       confirm(message).then(() => {
         toggleStatusMutation({ variables: { id: formId } })
           .then(({ data }) => {

@@ -29,7 +29,7 @@ const Row = ({
   copy,
   showCode,
 }) => {
-  console.log('showCode', showCode, '  form', form._id);
+  
   const renderEditAction = (form) => {
     return (
       <Link to={`/forms/leads/edit/${form._id}`}>
