@@ -1,29 +1,27 @@
 import * as routerUtils from '@erxes/ui/src/utils/router';
 
-import { BarItems } from '@erxes/ui/src/layout/styles';
+import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
+import { ITag } from '@erxes/ui-tags/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { ITag } from '@erxes/ui-tags/src/types';
-import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
 import React from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import Row from './Row';
 
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
-import Table from '@erxes/ui/src/components/table';
 import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IForm } from '@erxes/ui-forms/src/forms/types';
 import { __ } from '../../../common/utils';
 import Sidebar from './Sidebar';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { IForm } from '@erxes/ui-forms/src/forms/types';
 
 type Props = {
   forms: IForm[];
@@ -37,10 +35,10 @@ type Props = {
   toggleBulk: (target: IForm, toAdd: boolean) => void;
   toggleAll: (bulk: IForm[], name: string) => void;
   loading: boolean;
-  remove: (integrationId: string) => void;
-  archive: (integrationId: string, status: boolean) => void;
+  remove: (formId: string) => void;
+  archive: (formId: string, status: boolean) => void;
   refetch?: () => void;
-  copy: (integrationId: string) => void;
+  copy: (formId: string) => void;
   counts: any;
   location: any;
   navigate: any;

@@ -29,10 +29,8 @@ const Row = ({
   copy,
   showCode,
 }) => {
-  console.log("showCode", showCode, '  form', form._id)
+  console.log('showCode', showCode, '  form', form._id);
   const renderEditAction = (form) => {
-    
-
     return (
       <Link to={`/forms/leads/edit/${form._id}`}>
         <Button btnStyle='link'>
@@ -69,17 +67,12 @@ const Row = ({
 
   const renderArchiveAction = () => {
     const onClick = () => archive(form._id, true);
-
-    if (!archive || !form.isActive) {
-      return null;
-    }
-
+    const tipText = form.status === 'active' ? 'Archive' : 'Activate';
+    const icon = form.status === 'active' ? 'archive-alt' : 'redo';
     return (
-      <WithPermission action='integrationsArchive'>
-        <Tip text={__('Archive')} placement='top'>
-          <Button btnStyle='link' onClick={onClick} icon='archive-alt' />
-        </Tip>
-      </WithPermission>
+      <Tip text={__(tipText)} placement='top'>
+        <Button btnStyle='link' onClick={onClick} icon={icon} />
+      </Tip>
     );
   };
 
@@ -225,11 +218,10 @@ const Row = ({
 
       <td>
         <ActionButtons>
-          
           {renderEditAction(form)}
           {renderInstall(form)}
           {renderArchiveAction()}
-          {renderUnarchiveAction()}
+          {/* {renderUnarchiveAction()} */}
           {renderExportAction()}
           {renderSubmissionsAction()}
           {renderCopyAction()}

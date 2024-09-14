@@ -172,6 +172,9 @@ export const queries = `
 export const mutations = `
   formsAdd(${commonFields}): Form
   formsEdit(_id: String!, ${commonFields} ): Form
+  formsRemove(_id: String!): JSON
+  formsToggleStatus(_id: String!): Form
+  formsDuplicate(_id: String!): Form
   formSubmissionsSave(${commonFormSubmissionFields}): Boolean
 
   formSubmissionsRemove(customerId: String!, contentTypeId: String!): JSON
@@ -190,4 +193,6 @@ export const mutations = `
       browserInfo: JSON!
       cachedCustomerId: String
     ): SaveFormResponse
+
+
 `;

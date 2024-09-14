@@ -190,7 +190,7 @@ const mutations = {
   ) {
     const brand = await models.Brands.findOne({ code: args.brandCode }).lean();
 
-    const form = await models.Forms.findOne({ code: args.formCode }).lean();
+    const form = await models.Forms.findOne({ code: args.formCode, status:"active" }).lean();
 
     if (!brand || !form) {
       throw new Error('Invalid configuration');
@@ -353,6 +353,9 @@ const mutations = {
         relatedIntegrationIds: [integration?._id],
         scopeBrandIds: [form.brandId],
       });
+
+      await models.Forms.increaseContactsGathered(form._id)
+
     } else {
       const doc = updateCustomerDoc(
         customer,

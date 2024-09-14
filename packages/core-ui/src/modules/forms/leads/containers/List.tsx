@@ -10,7 +10,7 @@ import List from '../components/List';
 
 import { useMutation, useQuery } from '@apollo/client';
 import queries from '../../queries';
-
+import mutations from '../../mutations';
 
 const FORMS_QUERY = gql`
   ${queries.forms}
@@ -20,22 +20,21 @@ const FORMS_TOTAL_COUNT_QUERY = gql`
   ${queries.formsTotalCount}
 `;
 
-
 // const INTEGRATIONS_TOTAL_COUNT_QUERY = gql`
 //   ${queries.integrationsTotalCount}
 // `;
 
-// const REMOVE_MUTATION = gql`
-//   ${mutations.integrationRemove}
-// `;
+const REMOVE_MUTATION = gql`
+  ${mutations.formRemove}
+`;
 
-// const ARCHIVE_MUTATION = gql`
-//   ${mutations.integrationsArchive}
-// `;
+const TOGGLE_STATUS = gql`
+  ${mutations.formToggleStatus}
+`;
 
-// const COPY_MUTATION = gql`
-//   ${mutations.formCopy}
-// `;
+const COPY_MUTATION = gql`
+  ${mutations.formCopy}
+`;
 
 type Props = {
   queryParams: any;
@@ -43,13 +42,12 @@ type Props = {
 };
 
 const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
-
   const { data, refetch, loading } = useQuery(FORMS_QUERY, {
     variables: {
       ...generatePaginationParams(queryParams),
       tag: queryParams.tag,
       brandId: queryParams.brand,
-      kind: INTEGRATION_KINDS.FORMS,
+      type: 'lead',
       status: queryParams.status,
       sortField: queryParams.sortField,
       searchValue: queryParams.searchValue,
@@ -68,12 +66,15 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     },
   });
 
-  // const [removeMutation] = useMutation('REMOVE_MUTATION');
-  // const [archiveMutation] = useMutation(ARCHIVE_MUTATION);
-  // const [copyMutation] = useMutation('COPY_MUTATION');
+  const [removeMutation] = useMutation(REMOVE_MUTATION);
+  const [toggleStatusMutation] = useMutation(TOGGLE_STATUS);
+  const [copyMutation] = useMutation(COPY_MUTATION);
 
   useEffect(() => {
-    const shouldRefetchList = routerUtils.getParam(location, 'popUpRefetchList');
+    const shouldRefetchList = routerUtils.getParam(
+      location,
+      'popUpRefetchList'
+    );
     if (shouldRefetchList) {
       refetch();
     }
@@ -83,71 +84,74 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     refetch();
   }, [queryParams.page, refetch]);
 
-  // const remove = useCallback(
-  //   (integrationId: string) => {
-  //     const message =
-  //       'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
+  const remove = useCallback(
+    (formId: string) => {
+      const message =
+        'If you delete a form, all previous submissions and contacts gathered through this form will also be deleted. Are you sure?';
 
-  //     confirm(message).then(() => {
-  //       removeMutation({
-  //         variables: { _id: integrationId },
-  //       })
-  //         .then(() => {
-  //           refetch();
-  //           Alert.success('You successfully deleted a form.');
-  //         })
-  //         .catch((e) => {
-  //           Alert.error(e.message);
-  //         });
-  //     });
-  //   },
-  //   [removeMutation, refetch]
-  // );
+      confirm(message).then(() => {
+        removeMutation({
+          variables: { id: formId },
+        })
+          .then(() => {
+            refetch();
+            Alert.success('You successfully deleted a form.');
+          })
+          .catch((e) => {
+            Alert.error(e.message);
+          });
+      });
+    },
+    [removeMutation, refetch]
+  );
 
-  // const archive = useCallback(
-  //   (integrationId: string, status: boolean) => {
-  //     let message = `If you archive this form, the live form on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
-  //     let action = 'archived';
+  const archive = useCallback(
+    (formId: string, status: string) => {
+      let message = `If you archive this form, the live form on your website or erxes messenger will no longer be visible. But you can still see the contacts and submissions you've received.`;
+      let action = 'archived';
 
-  //     if (!status) {
-  //       message = 'You are going to unarchive this form. Are you sure?';
-  //       action = 'unarchived';
-  //     }
+      if (!status) {
+        message = 'You are going to unarchive this form. Are you sure?';
+        action = 'unarchived';
+      }
 
-  //     confirm(message).then(() => {
-  //       archiveMutation({ variables: { _id: integrationId, status } })
-  //         .then(({ data }) => {
-  //           const integration = data.integrationsArchive;
+      console.log("formId", formId)
+      console.log("status", status)
 
-  //           if (integration) {
-  //             Alert.success(`Form has been ${action}.`);
-  //           }
+      confirm(message).then(() => {
+        toggleStatusMutation({ variables: { id: formId } })
+          .then(({ data }) => {
+            const form = data.formsToggleStatus;
 
-  //           refetch();
-  //         })
-  //         .catch((e: Error) => {
-  //           Alert.error(e.message);
-  //         });
-  //     });
-  //   },
-  //   [archiveMutation, refetch]
-  // );
+            if (form) {
+              Alert.success('Form status has changed');
+            }
 
-  // const copy = useCallback(
-  //   (integrationId: string) => {
-  //     copyMutation({
-  //       variables: { _id: integrationId },
-  //     })
-  //       .then(() => {
-  //         refetch();
-  //         Alert.success('You successfully copied a form.');
-  //       })
-  //       .catch((e) => {
-  //         Alert.error(e.message);
-  //       });
-  //   },
-  //   [copyMutation, refetch]
-  // );
+            refetch();
+          })
+          .catch((e: Error) => {
+            Alert.error(e.message);
+          });
+      });
+    },
+    [toggleStatusMutation, refetch]
+  );
+
+  const copy = useCallback(
+    (formId: string) => {
+      copyMutation({
+        variables: { id: formId },
+      })
+        .then(() => {
+          refetch();
+          Alert.success('You successfully copied a form.');
+        })
+        .catch((e) => {
+          Alert.error(e.message);
+        });
+    },
+    [copyMutation, refetch]
+  );
 
   const forms = data?.forms || [];
   const counts = countData?.integrationsTotalCount || null;
@@ -158,10 +162,10 @@ const ListContainer: React.FC<Props> = ({ queryParams, location }) => {
     forms,
     counts,
     totalCount,
-    // remove,
+    remove,
     loading,
-    // archive,
-    // copy,
+    archive,
+    copy,
     refetch,
   };
 

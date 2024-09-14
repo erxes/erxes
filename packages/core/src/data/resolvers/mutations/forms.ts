@@ -1,8 +1,9 @@
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { IContext } from "../../../connectionResolver";
-import { sendInboxMessage } from "../../../messageBroker";
-import { IForm } from "../../../db/models/definitions/forms";
-import { registerOnboardHistory } from "../../utils";
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import { sendInboxMessage } from '../../../messageBroker';
+import { IForm } from '../../../db/models/definitions/forms';
+import { registerOnboardHistory } from '../../utils';
+import { isEnabled } from '@erxes/api-utils/src/serviceDiscovery';
 
 interface IFormsEdit extends IForm {
   _id: string;
@@ -25,9 +26,22 @@ const formMutations = {
     doc: IForm,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    await registerOnboardHistory({ models, type: "formCreate", user });
+    await registerOnboardHistory({ models, type: 'formCreate', user });
+    let document = docModifier(doc);
 
-    return models.Forms.createForm(docModifier(doc), user._id);
+    if (doc.type === 'lead') {
+      if (!Object.keys(document.leadData).length) {
+        throw new Error('leadData must be supplied');
+      }
+
+      document.leadData = {
+        ...document.leadData,
+        viewCount: 0,
+        contactsGathered: 0,
+      };
+    }
+
+    return models.Forms.createForm(document, user._id);
   },
 
   /**
@@ -35,6 +49,65 @@ const formMutations = {
    */
   async formsEdit(_root, { _id, ...doc }: IFormsEdit, { models }: IContext) {
     return models.Forms.updateForm(_id, doc);
+  },
+
+  /**
+   * Duplicate a form
+   */
+
+  async formsDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models, user, subdomain }: IContext
+  ) {
+    const form = await models.Forms.duplicate(_id, user._id);
+
+    if (isEnabled('inbox')) {
+      const integration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.copyLeadIntegration',
+        data: { _id: form.integrationId, userId: user._id },
+        isRPC: true,
+        defaultValue: null,
+      });
+
+      if (integration) {
+        form.integrationId = integration._id;
+        form.save();
+      }
+    }
+
+    return form;
+  },
+
+  /**
+   * Remove a form
+   */
+  async formsRemove(_root, { _id }: { _id: string }, { models, subdomain }: IContext) {
+    const form = await models.Forms.getForm(_id);
+
+    if (isEnabled('inbox')) {
+      sendInboxMessage({
+        subdomain,
+        action: 'integrations.remove',
+        data: { _id: form.integrationId },
+      });
+    }
+
+    await models.Fields.deleteMany({ contentTypeId: _id })
+    await models.FormSubmissions.deleteMany({ formId: _id })
+
+    return models.Forms.removeForm(_id);
+  },
+
+  async formsToggleStatus(_root, { _id }: { _id: string; status: boolean }, { models }: IContext) {
+    const form = await models.Forms.getForm(_id);
+    const status = form.status === 'active' ? 'archived' : 'active';
+
+    form.status = status;
+
+    form.save();
+    return form;
   },
 
   /**
@@ -47,7 +120,7 @@ const formMutations = {
       contentTypeId,
       contentType,
       formSubmissions,
-      userId
+      userId,
     }: IFormSubmission,
     { models }: IContext
   ) {
@@ -59,7 +132,7 @@ const formMutations = {
       const formSubmission = await models.FormSubmissions.findOne({
         contentTypeId,
         contentType,
-        formFieldId
+        formFieldId,
       });
 
       if (formSubmission) {
@@ -73,7 +146,7 @@ const formMutations = {
           formFieldId,
           formId,
           userId,
-          value: formSubmissions[formFieldId]
+          value: formSubmissions[formFieldId],
         };
 
         models.FormSubmissions.createFormSubmission(doc);
@@ -92,17 +165,17 @@ const formMutations = {
 
     const conversation = await sendInboxMessage({
       subdomain,
-      action: "findOne",
+      action: 'findOne',
       data: {
         _id: contentTypeId,
-        customerId
+        customerId,
       },
       isRPC: true,
-      defaultValue: null
+      defaultValue: null,
     });
 
     if (!conversation) {
-      throw new Error("Form submission not found !");
+      throw new Error('Form submission not found !');
     }
 
     for (const submission of submissions) {
@@ -111,13 +184,13 @@ const formMutations = {
     }
 
     const formSubmissions = await models.FormSubmissions.find({
-      contentTypeId
+      contentTypeId,
     }).lean();
 
     return {
       ...conversation,
       contentTypeId: conversation._id,
-      submissions: formSubmissions
+      submissions: formSubmissions,
     };
   },
 
@@ -129,20 +202,22 @@ const formMutations = {
     const { customerId, contentTypeId } = params;
     sendInboxMessage({
       subdomain,
-      action: "removeConversation",
+      action: 'removeConversation',
       data: {
-        _id: contentTypeId
-      }
+        _id: contentTypeId,
+      },
     });
 
     return models.FormSubmissions.deleteOne({ customerId, contentTypeId });
-  }
+  },
 };
 
-checkPermission(formMutations, "formsAdd", "manageForms");
-checkPermission(formMutations, "formsEdit", "manageForms");
-checkPermission(formMutations, "formSubmissionsSave", "manageForms");
-checkPermission(formMutations, "formSubmissionsEdit", "manageForms");
-checkPermission(formMutations, "formSubmissionsRemove", "manageForms");
+checkPermission(formMutations, 'formsAdd', 'manageForms');
+checkPermission(formMutations, 'formsEdit', 'manageForms');
+checkPermission(formMutations, 'formsRemove', 'manageForms');
+checkPermission(formMutations, 'formsDuplicate', 'manageForms');
+checkPermission(formMutations, 'formSubmissionsSave', 'manageForms');
+checkPermission(formMutations, 'formSubmissionsEdit', 'manageForms');
+checkPermission(formMutations, 'formSubmissionsRemove', 'manageForms');
 
 export default formMutations;

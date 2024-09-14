@@ -12,8 +12,8 @@ export const commonFields = `
     _id
     name
   }
-  languageCode
-  leadData
+  
+  
   formId
       tags {
         _id
@@ -77,6 +77,7 @@ query Forms($page: Int, $perPage: Int, $type: String, $brandId: String, $tagId: 
       name
       code
     }
+      leadData
   }
 }
 `;

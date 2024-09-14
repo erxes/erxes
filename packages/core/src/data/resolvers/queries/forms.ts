@@ -73,6 +73,10 @@ const formQueries = {
       sort[args.sortField] = args.sortDirection;
     }
 
+    if (args.type === 'lead') {
+      return models.Forms.findLeadForms(qry, args);
+    }
+
     return paginate(models.Forms.find(qry).sort(sort), args);
   },
 

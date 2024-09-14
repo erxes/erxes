@@ -1008,12 +1008,12 @@ export const setupMessageConsumers = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue("core:duplicate", async ({ subdomain, data: { formId } }) => {
+  consumeRPCQueue("core:duplicate", async ({ subdomain, data: { formId, userId} }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: "success",
-      data: await models.Forms.duplicate(formId)
+      data: await models.Forms.duplicate(formId, userId)
     };
   });
 

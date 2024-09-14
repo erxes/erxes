@@ -197,11 +197,13 @@ export const leadDataSchema = new Schema(
       type: Number,
       optional: true,
       label: 'View count',
+      default: 0,
     }),
     contactsGathered: field({
       type: Number,
       optional: true,
       label: 'Contacts gathered',
+      default: 0,
     }),
     rules: field({
       type: [ruleSchema],

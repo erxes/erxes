@@ -36,19 +36,31 @@ const integrationsEditLeadIntegration = `
 `;
 
 const formCopy = `
-  mutation integrationsCopyLeadIntegration($_id: String!) {
-    integrationsCopyLeadIntegration(_id: $_id) {
-      _id
-    }
+mutation FormsDuplicate($id: String!) {
+  formsDuplicate(_id: $id) {
+    _id
   }
+}
 `;
 
+const formRemove = `
+mutation FormsRemove($id: String!) {
+  formsRemove(_id: $id)
+}`
 
-
+const formToggleStatus = `
+mutation FormsToggleStatus($id: String!) {
+  formsToggleStatus(_id: $id) {
+    _id
+  }
+}
+`
 
 export default {
   integrationRemove,
   integrationsEditLeadIntegration,
   integrationsCreateLeadIntegration,
-  formCopy
+  formCopy,
+  formRemove,
+  formToggleStatus
 };
