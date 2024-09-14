@@ -37,7 +37,8 @@
     "migrateUserPositions": "node_modules/.bin/ts-node src/commands/migrateUserPositions.ts",
     "migrateCardsRelations": "node_modules/.bin/ts-node src/commands/migrateCardsRelations.ts",
     "migrateCardsBoards": "node_modules/.bin/ts-node src/commands/migrateCardsBoards.ts",
-    "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts"
+    "migrateCardName": "node_modules/.bin/ts-node src/commands/migrateCardName.ts",
+    "migrateForms": "node_modules/.bin/ts-node src/commands/migrateLeadForms.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.9.3",
