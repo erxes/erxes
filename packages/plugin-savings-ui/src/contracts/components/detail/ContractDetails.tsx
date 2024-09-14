@@ -53,19 +53,25 @@ const ContractDetails = (props: Props) => {
         isFirst={false}
       ></ScheduleSection>
 
-      <ActivityInputs
-        contentTypeId={contract._id}
-        contentType="savingContract"
-        showEmail={false}
-      />
+      {
+        isEnabled("logs") && (
+          <>
+            <ActivityInputs
+              contentTypeId={contract._id}
+              contentType="savingContract"
+              showEmail={false}
+            />
 
-      <ActivityLogs
-        target={contract.number || ''}
-        contentId={contract._id}
-        contentType="savingContract"
-        extraTabs={[{ name: 'savings:interestStore', label: 'Interest store' }]}
-        activityRenderItem={ActivityItem}
-      />
+            <ActivityLogs
+              target={contract.number || ''}
+              contentId={contract._id}
+              contentType="savingContract"
+              extraTabs={[{ name: 'savings:interestStore', label: 'Interest store' }]}
+              activityRenderItem={ActivityItem}
+            />
+          </>
+        )
+      }
     </>
   );
 

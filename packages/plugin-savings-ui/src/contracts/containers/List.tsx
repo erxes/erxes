@@ -5,7 +5,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from "../types";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { mutations, queries } from "../graphql";
 import { useMutation, useQuery } from "@apollo/client";
 
@@ -14,6 +14,7 @@ import { FILTER_PARAMS_CONTRACT } from "../../constants";
 import { gql } from "@apollo/client";
 import queryString from "query-string";
 import { useLocation, useNavigate } from "react-router-dom";
+import subscriptions from "../graphql/subscriptions";
 
 type Props = {
   queryParams: any;
@@ -139,6 +140,17 @@ const ContractListContainer = (props: Props) => {
     contractsMainQuery?.data?.savingsContractsMain || {};
   const alerts: SavingAlert[] =
     savingsContractsAlertQuery?.data?.savingsContractsAlert || [];
+
+  useEffect(() => {
+    return contractsMainQuery.subscribeToMore({
+      document: gql(subscriptions.savingsContractChanged),
+      variables: { ids: list.map(l => l._id) },
+      updateQuery: (prev) => {
+        contractsMainQuery.refetch();
+        return prev
+      }
+    });
+  });
 
   const updatedProps = {
     ...props,
