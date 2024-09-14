@@ -63,8 +63,6 @@ const conversationQueries: any = {
 
     serverTiming.startTime("conversationsQuery");
 
-    console.log("query = ",qb.mainQuery())
-
     const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .skip(params.skip || 0)
