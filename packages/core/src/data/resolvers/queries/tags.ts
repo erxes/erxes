@@ -16,7 +16,6 @@ const tagQueries = {
   async tagsGetTypes() {
     const services = await getServices();
     const fieldTypes: Array<{ description: string; contentType: string }> = [];
-
     for (const serviceName of services) {
       const service = await getService(serviceName);
       const meta = service.config.meta || {};

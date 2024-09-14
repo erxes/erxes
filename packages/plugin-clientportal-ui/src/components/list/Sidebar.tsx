@@ -1,4 +1,4 @@
-import DateFilters from "@erxes/ui-forms/src/forms/containers/DateFilters";
+import DateFilters from "@erxes/ui-forms/src/forms/containers/filters/DateFilters";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { Counts } from "@erxes/ui/src/types";
 

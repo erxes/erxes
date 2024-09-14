@@ -137,16 +137,16 @@ export const EMPTY_CONTENT_SCRIPT = {
 };
 
 export const EMPTY_CONTENT_POPUPS = {
-  title: __("Getting Started with erxes forms"),
+  title: __("Getting Started with erxes leads"),
   description: __(
     "Never miss a potential lead by capturing them with a customizable Forms"
   ),
   steps: [
     {
-      title: __("Create Form"),
-      description: __("Fill out the details and create your form"),
-      url: "/forms/create",
-      urlText: "Create Form"
+      title: __("Create Lead"),
+      description: __("Fill out the details and create your lead"),
+      url: "/forms/leads/create",
+      urlText: "Create Lead"
     },
     {
       title: "Install the script",

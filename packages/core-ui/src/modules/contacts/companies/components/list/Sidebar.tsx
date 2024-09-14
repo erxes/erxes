@@ -1,4 +1,4 @@
-import DateFilters from "@erxes/ui-forms/src/forms/containers/DateFilters";
+import DateFilters from "@erxes/ui-forms/src/forms/containers/filters/DateFilters";
 import React from "react";
 import SegmentFilter from "../../containers/filters/SegmentFilter";
 import TagFilter from "../../containers/filters/TagFilter";

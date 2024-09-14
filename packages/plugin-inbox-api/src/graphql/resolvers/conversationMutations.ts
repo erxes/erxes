@@ -55,7 +55,6 @@ interface IConversationConvert {
   itemId: string;
   stageId: string;
   itemName: string;
-  bookingProductId?: string;
   customFieldsData?: { [key: string]: any };
   priority?: string;
   assignedUserIds?: string[];

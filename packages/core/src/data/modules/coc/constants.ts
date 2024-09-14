@@ -346,5 +346,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
 
 export const TAG_TYPES = {
   CUSTOMER: "core:customer",
-  COMPANY: "core:company"
+  COMPANY: "core:company",
+  PRODUCT: "core:product",
+  FORM: "core:form"
 };

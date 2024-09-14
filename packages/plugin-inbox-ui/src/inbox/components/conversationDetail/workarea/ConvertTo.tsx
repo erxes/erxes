@@ -63,7 +63,6 @@ export default function ConvertTo(props: Props) {
             <li key="deal">
               <DealConvertTrigger
                 {...triggerProps}
-                bookingProductId={conversation.bookingProductId}
               />
             </li>
           )}

@@ -1,5 +1,5 @@
 import BrandFilter from "../../containers/filters/BrandFilter";
-import DateFilters from "@erxes/ui-forms/src/forms/containers/DateFilters";
+import DateFilters from "@erxes/ui-forms/src/forms/containers/filters/DateFilters";
 import IntegrationFilter from "../../containers/filters/IntegrationFilter";
 import LeadFilter from "../../containers/filters/LeadFilter";
 import LeadStatusFilter from "../../containers/filters/LeadStatusFilter";

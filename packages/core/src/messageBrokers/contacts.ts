@@ -8,7 +8,6 @@ import {
   findCustomer,
   getContactsContentItem,
   prepareEngageCustomers,
-  updateContactsField
 } from "./utils";
 import {
   AWS_EMAIL_STATUSES,
@@ -442,14 +441,6 @@ export const setupContactsMessageBroker = async (): Promise<void> => {
     }
   );
 
-  consumeRPCQueue("core:updateContactsField", async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-
-    return {
-      status: "success",
-      data: await updateContactsField(models, subdomain, data)
-    };
-  });
 
   consumeRPCQueue(
     "core:customers.createOrUpdate",

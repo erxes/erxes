@@ -42,7 +42,7 @@ type IProps = {
   type?: string;
   description?: string;
   attachments?: any[];
-  bookingProductId?: string;
+  
   tagIds?: string[];
   startDate?: Date;
   closeDate?: Date;
@@ -71,7 +71,7 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-      bookingProductId,
+      
       parentId
     } = this.props;
 
@@ -96,7 +96,7 @@ class AddFormContainer extends React.Component<FinalProps> {
           itemId: doc._id,
           itemName: doc.name,
           stageId: doc.stageId,
-          bookingProductId,
+          
           _id: sourceConversationId || ""
         }
       })

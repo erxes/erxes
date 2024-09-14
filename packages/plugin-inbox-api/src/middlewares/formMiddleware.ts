@@ -1,6 +1,6 @@
 import { getSubdomain } from "@erxes/api-utils/src/core";
 import { IModels, generateModels } from "../connectionResolver";
-import { createFormConversation } from "../graphql/resolvers/widgetMutations";
+
 import { sendCoreMessage } from "../messageBroker";
 
 const formMiddleware = async (req, res, _next) => {
@@ -119,24 +119,24 @@ const formMiddleware = async (req, res, _next) => {
     browserInfo: {}
   };
 
-  await createFormConversation(
-    models,
-    subdomain,
-    {
-      ...submissionParams
-    },
-    form => {
-      return form.title;
-    },
-    () => {
-      return {
-        message: {
-          formWidgetData: submissions
-        }
-      };
-    },
-    "lead"
-  );
+  // await createFormConversation(
+  //   models,
+  //   subdomain,
+  //   {
+  //     ...submissionParams
+  //   },
+  //   form => {
+  //     return form.title;
+  //   },
+  //   () => {
+  //     return {
+  //       message: {
+  //         formWidgetData: submissions
+  //       }
+  //     };
+  //   },
+  //   "lead"
+  // );
 
   return res.json("success");
 };

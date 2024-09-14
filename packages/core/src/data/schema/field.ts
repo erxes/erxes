@@ -12,7 +12,6 @@ const fieldCommonFields = `
   logicAction: String
   
   column: Int
-  groupName: String
   pageNumber: Int
   code: String
   searchable: Boolean
@@ -143,7 +142,7 @@ const fieldsCommonFields = `
 
 export const fieldsMutations = `
   fieldsAdd(contentType: String!, contentTypeId: String, ${fieldsCommonFields}): Field
-  fieldsBulkAddAndEdit(contentType: String!, contentTypeId: String, addingFields:[FieldItem], editingFields:[FieldItem]): [Field]
+  fieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FieldItem], updatedFields:[FieldItem]): [Field]
   fieldsEdit(_id: String!, ${fieldsCommonFields}): Field
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]

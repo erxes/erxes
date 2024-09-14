@@ -68,10 +68,6 @@ export const getUsageByPluginType = async (args: {
     pluginType = "inbox:messenger";
   }
 
-  if (methodName === "integrationsCreateBookingIntegration") {
-    pluginType = "inbox:booking";
-  }
-
   if (methodName === "knowledgeBaseTopicsAdd") {
     pluginType = "knowledgebase";
   }
@@ -250,21 +246,6 @@ export const getUsageByPluginType = async (args: {
 
   if (pluginType === "inbox:popups") {
     const selector = { kind: "lead" };
-
-    if (models) {
-      totalUsage = await models.Integrations.find(selector).countDocuments();
-    } else {
-      totalUsage = await sendCommonMessage({
-        subdomain,
-        serviceName: "inbox",
-        action: "integrations.count",
-        data: { selector }
-      });
-    }
-  }
-
-  if (pluginType === "inbox:booking") {
-    const selector = { kind: "booking" };
 
     if (models) {
       totalUsage = await models.Integrations.find(selector).countDocuments();

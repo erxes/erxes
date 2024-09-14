@@ -536,7 +536,6 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderGroupedField()}
 
           {this.renderOptions()}
-          {this.renderGroupName()}
 
           {this.renderLocationOptions()}
 
@@ -755,33 +754,6 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderGroupName() {
-    const { field } = this.state;
-    if (field.type === "parentField") {
-      return null;
-    }
-
-    const groupName = e =>
-      this.onFieldChange(
-        "groupName",
-        (e.currentTarget as HTMLInputElement).value
-      );
-    return (
-      <FormGroup>
-        <ControlLabel htmlFor="text" required={false}>
-          Group Name
-        </ControlLabel>
-        <p>Use with logic and group multiple fields</p>
-        <FormControl
-          id="GroupName"
-          type="text"
-          value={field.groupName || ""}
-          onChange={groupName}
-          autoFocus={false}
-        />
-      </FormGroup>
-    );
-  }
 
   renderCustomProperty() {
     const { selectedOption, group } = this.state;

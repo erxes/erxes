@@ -1,7 +1,56 @@
+import { IConditionsRule } from "@erxes/ui/src/types";
+import { IUser } from "../auth/types";
+import { ITag } from "../tags/types";
+import { IForm } from "@erxes/ui-forms/src/forms/types";
+import { IAttachment } from "../common/types";
+
 export interface IContentTypeFields {
   _id: string;
   name: string;
   label: string;
+}
+
+export interface ICallout {
+  title?: string;
+  body?: string;
+  buttonText?: string;
+  featuredImage?: string;
+  imgSize?: string;
+  skip?: boolean;
+}
+
+export interface ILeadData {
+  loadType?: string;
+  successAction?: string;
+  fromEmail?: string;
+  userEmailTitle?: string;
+  userEmailContent?: string;
+  adminEmails?: string[];
+  adminEmailTitle?: string;
+  adminEmailContent?: string;
+  thankTitle?: string;
+  thankContent?: string;
+  redirectUrl?: string;
+  themeColor?: string;
+  callout?: ICallout;
+  rules?: IConditionsRule[];
+  createdUserId?: string;
+  createdUser?: IUser;
+  createdDate?: Date;
+  viewCount?: number;
+  contactsGathered?: number;
+  tagIds?: string[];
+  getTags?: ITag[];
+  form?: IForm;
+  isRequireOnce?: boolean;
+  saveAsCustomer?: boolean;
+  templateId?: string;
+  attachments?: IAttachment[];
+  css?: string;
+  conversionRate?: number;
+  successImage?: string;
+  successImageSize?: string;
+  verifyEmail?: boolean;
 }
 
 // query types

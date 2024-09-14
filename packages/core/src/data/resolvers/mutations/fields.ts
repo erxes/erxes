@@ -29,8 +29,8 @@ interface IFieldsGroupsEdit extends IFieldGroup {
 interface IFieldsBulkAddAndEditParams {
   contentType: string;
   contentTypeId: string;
-  addingFields: IField[];
-  editingFields: IFieldsEdit[];
+  newFields: IField[];
+  updatedFields: IFieldsEdit[];
 }
 
 const fieldsGroupsHook = async (
@@ -87,21 +87,21 @@ const fieldMutations = {
     return field;
   },
 
-  async fieldsBulkAddAndEdit(
+  async fieldsBulkAction(
     _root,
     args: IFieldsBulkAddAndEditParams,
     { user, models }: IContext
   ) {
-    const { contentType, contentTypeId, addingFields, editingFields } = args;
+    const { contentType, contentTypeId, newFields, updatedFields } = args;
     const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
 
-    if (!addingFields && !editingFields) {
+    if (!newFields && !updatedFields) {
       return;
     }
 
-    for (const f of addingFields) {
+    for (const f of newFields) {
       if (f.logics && f.logics.length > 0) {
         logicalFields.push(f);
         continue;
@@ -147,7 +147,7 @@ const fieldMutations = {
       response.push(field);
     }
 
-    for (const { _id, ...doc } of editingFields || []) {
+    for (const { _id, ...doc } of updatedFields || []) {
       if (doc.logics) {
         for (const logic of doc.logics) {
           if (!logic.fieldId && logic.tempFieldId) {
@@ -360,7 +360,7 @@ const fieldsGroupsMutations = {
 };
 
 checkPermission(fieldMutations, "fieldsAdd", "manageForms");
-checkPermission(fieldMutations, "fieldsBulkAddAndEdit", "manageForms");
+checkPermission(fieldMutations, "fieldsBulkAction", "manageForms");
 checkPermission(fieldMutations, "fieldsEdit", "manageForms");
 checkPermission(fieldMutations, "fieldsRemove", "manageForms");
 checkPermission(fieldMutations, "fieldsUpdateOrder", "manageForms");

@@ -248,39 +248,6 @@ export default {
     };
   },
 
-  async widgetsBookingProductWithFields(
-    _root,
-    { _id }: { _id: string },
-    { subdomain }: IContext
-  ) {
-    const fields = await sendCoreMessage({
-      subdomain,
-      action: "fields.find",
-      data: {
-        query: {
-          contentType: "product"
-        },
-        sort: {
-          order: 1
-        }
-      },
-      isRPC: true
-    });
-
-    return {
-      fields: fields.map(field => {
-        return {
-          __typename: "Field",
-          _id: field._id
-        };
-      }),
-      product: {
-        __typename: "Product",
-        _id
-      }
-    };
-  },
-
   /*
    * Search published articles that contain searchString (case insensitive)
    * in a topic found by topicId

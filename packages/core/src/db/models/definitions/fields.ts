@@ -90,7 +90,7 @@ export interface IField extends IVisibility {
   logicAction?: string;
   tempFieldId?: string;
   column?: number;
-  groupName?: string;
+
   pageNumber?: number;
   showInCard?: boolean;
   productCategoryId?: string;

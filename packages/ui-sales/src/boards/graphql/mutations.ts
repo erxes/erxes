@@ -281,7 +281,7 @@ mutation conversationConvertToCard(
   $type: String!
   $assignedUserIds: [String]
   $attachments: [AttachmentInput]
-  $bookingProductId: String
+  
   $closeDate: Date
   $customFieldsData: JSON
   $description: String
@@ -297,7 +297,7 @@ mutation conversationConvertToCard(
     type: $type
     assignedUserIds: $assignedUserIds
     attachments: $attachments
-    bookingProductId: $bookingProductId
+    
     closeDate: $closeDate
     customFieldsData: $customFieldsData
     description: $description

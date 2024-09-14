@@ -148,7 +148,7 @@ class WithCurrentId extends React.Component<WithCurrentIdFinalProps> {
     const {
       queryParams: { _id },
     } = this.props;
-console.log("qqqq", this.props.queryParams)
+
     const updatedProps = {
       ...this.props,
       currentBrandId: _id,

@@ -13,7 +13,7 @@ type Props = {
   sourceConversationId?: string;
   description?: string;
   attachments?: any[];
-  bookingProductId?: string;
+  
 };
 
 export default (props: Props) => {
