@@ -517,6 +517,10 @@ export const prepareEngageCustomers = async (
   subdomain: string,
   { engageMessage, customersSelector, action, user }
 ): Promise<any> => {
+  if (subdomain === 'apose') {
+    console.log('prepareEngageCustomers ===========================');
+  }
+
   const customerInfos: Array<{
     _id: string;
     primaryEmail?: string;
@@ -529,12 +533,22 @@ export const prepareEngageCustomers = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
+  if (subdomain === 'apose') {
+    console.log('before getEditorAttributeUtil ===========================');
+  }
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
+
+  if (subdomain === 'apose') {
+    console.log('after getEditorAttributeUtil ===========================');
+  }
   const customerFields =
     await editorAttributeUtil.getCustomerFields(emailContent);
 
+  if (subdomain === 'apose') {
+    console.log('after getCustomerFields ===========================');
+  }
   const exists = { $exists: true, $nin: [null, '', undefined] };
-  
+
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
     customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
@@ -545,6 +559,7 @@ export const prepareEngageCustomers = async (
   }
 
   const onFinishPiping = async () => {
+    console.log('onFinishPiping', customerInfos);
     await sendEngagesMessage({
       subdomain,
       action: 'pre-notification',
@@ -575,7 +590,7 @@ export const prepareEngageCustomers = async (
 
       for (const chunk of chunks) {
         data.customers = chunk;
-                
+
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
@@ -626,7 +641,18 @@ export const prepareEngageCustomers = async (
     fieldsOption[field] = 1;
   }
 
-  const customersCursor = Customers.find(customersSelector, fieldsOption).cursor();
+  if (subdomain === 'apose') {
+    console.log('customersSelector ===================== ', customersSelector);
+  }
+  const customersCursor = Customers.find(
+    customersSelector,
+    fieldsOption
+  ).cursor();
+
+  if (subdomain === 'apose') {
+    const res = await Customers.find(customersSelector, fieldsOption).lean();
+    console.log('customers count ===================== ', res.length);
+  }
 
   try {
     // Process the stream and wait for it to finish
@@ -653,8 +679,6 @@ export const prepareEngageCustomers = async (
     await customersCursor.close();
   }
 };
-
-
 
 export const generateSystemFields = ({ data: { groupId } }) => {
   const contactsFields: any = [];
