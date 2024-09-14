@@ -86,7 +86,6 @@ export class AccountsApi extends BaseApi {
         path: `accounts/cam/`,
         params:{acct:accountNumber,bank_code:bankCode}
       });
-
       return {
         number: res.iban,
         currency: res.alias,

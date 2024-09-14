@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { DEFAULT_GRID_DIMENSIONS } from './constants';
 
 export const deserializeItem = (i) => {
@@ -15,6 +16,7 @@ export const defaultLayout = (i, index) => {
     y: hasLayout ? i.layout.y : 0,
     w: hasLayout ? i.layout.w : DEFAULT_GRID_DIMENSIONS.w,
     h: hasLayout ? i.layout.h : DEFAULT_GRID_DIMENSIONS.h,
+    static: hasLayout ? i.layout.static : false,
     minW: 1,
     minH: 1,
   };
@@ -67,16 +69,111 @@ export const filterChartTemplates = (chartTemplates, reportTemplates, item) => {
 };
 
 export const getValue = (obj, path) => {
-  const keys = path.split('.');
+  const keys = path?.split('.');
+
+  if (!keys) {
+    return {}
+  }
+
   return keys.reduce(
     (acc, key) => (acc && acc[key] !== 'undefined' ? acc[key] : undefined),
     obj,
   );
 };
 
-export const commarizeNumbers = (number) => {
-  if (number == null) {
-    return '';
+export const extractData = (data: any) => {
+
+  if ((data || {}).hasOwnProperty('list')) {
+    return (data as any || {}).list || []
+  }
+
+  return data
+}
+
+export const generateOptions = (data, parentData, filterType) => {
+
+  const { fieldValueVariable, fieldLabelVariable, fieldParentVariable } = filterType
+
+  const extractedData = extractData(data)
+
+  const options = (extractedData || []).map((item) => ({
+    value: getValue(item, fieldValueVariable),
+    label: getValue(item, fieldLabelVariable),
+    ...(fieldParentVariable && {
+      parent: getValue(item, fieldParentVariable),
+    }),
+  }))
+
+  if (fieldParentVariable === 'contentType' && options?.length) {
+    const groupedOptions = Object.entries(
+      options.reduce((acc, { label, value, parent }) => {
+
+        const contentType = parent.split(':').pop();
+        if (!acc[contentType]) {
+          acc[contentType] = [];
+        }
+
+        acc[contentType].push({ label, value });
+
+        return acc;
+      }, {})
+    ).map(([label, options]) => ({ label, options }));
+
+    return groupedOptions
+  }
+
+  if (fieldParentVariable && parentData?.length && options?.length) {
+    const groupedOptions = (parentData || []).map(parent => {
+      const children = (options || []).filter(option => option.parent === parent._id).map(option => ({
+        value: option.value,
+        label: option.label,
+      }));
+
+      return {
+        label: parent.name,
+        options: children,
+      };
+    });
+
+    return groupedOptions
+  }
+
+  return options
+}
+
+export const getVariables = (fieldValues, filterType) => {
+
+  const { logics, fieldQueryVariables } = filterType
+
+  const logicFieldVariables = {};
+
+  if (logics) {
+    for (const logic of logics) {
+      const { logicFieldName, logicFieldVariable, logicFieldExtraVariable } = logic;
+
+      if (logicFieldExtraVariable) {
+        Object.assign(logicFieldVariables, JSON.parse(logicFieldExtraVariable));
+      }
+
+      if (logicFieldVariable) {
+        const logicFieldValue = fieldValues[logicFieldName];
+        if (logicFieldValue) {
+          logicFieldVariables[logicFieldVariable] = logicFieldValue;
+        }
+      }
+    }
+  }
+
+  if (Object.values(logicFieldVariables).length) {
+    return logicFieldVariables
+  }
+
+  return fieldQueryVariables ? JSON.parse(fieldQueryVariables) : {}
+}
+
+export const commarizeNumbers = (number: number) => {
+  if (!number) {
+    return null;
   }
 
   let strNum = number.toString();
@@ -87,7 +184,8 @@ export const commarizeNumbers = (number) => {
 
   integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  return integerPart + decimalPart;
+
+  return (integerPart + decimalPart.substring(0, 3))
 };
 
 export const abbrevateNumbers = (number) => {
@@ -230,3 +328,15 @@ export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
     return acc;
   }, []);
 };
+
+export const compareValues = (a: any, b: any, operator: string) => {
+
+  switch (operator) {
+    case 'eq':
+      return a === b;
+    case 'ne':
+      return a !== b;
+    default:
+      return a === b;
+  }
+}

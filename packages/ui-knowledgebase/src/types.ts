@@ -15,6 +15,7 @@ export interface IArticle {
   createdBy: string;
   createdUser: IUser;
   createdDate: Date;
+  scheduledDate: Date;
   modifiedBy: string;
   modifiedDate: Date;
   topicId: string;
@@ -23,6 +24,8 @@ export interface IArticle {
   attachments: [IAttachment];
   forms: IErxesForm[];
   code?: string;
+  publishedUserId?: string;
+  publishedUser?: IUser;
 }
 
 export interface ITopic {

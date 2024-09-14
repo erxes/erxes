@@ -2,6 +2,7 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IGoal {
+  name: string;
   entity: string;
   stageId: string;
   pipelineId: string;
@@ -35,6 +36,7 @@ export interface IGoalDocument extends IGoal, Document {
 export const goalSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    name: field({ type: String, label: 'name' }),
     entity: field({ type: String, label: 'Choose Entity' }),
     contributionType: field({
       type: String,

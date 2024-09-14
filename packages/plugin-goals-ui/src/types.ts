@@ -8,6 +8,7 @@ export interface ISpecificPeriodGoal {
 
 export interface IGoalTypeDoc {
   createdAt?: Date;
+  name: String;
   entity: string;
   stageId: any;
   stageName: string;

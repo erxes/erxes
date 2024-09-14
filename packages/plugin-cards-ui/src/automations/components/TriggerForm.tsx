@@ -8,7 +8,7 @@ import { useState } from 'react';
 import Select from 'react-select';
 import { PROBABILITY } from '../../settings/boards/constants';
 
-const PROBABILITY_DEAL = PROBABILITY.deal.ALL.map(p => ({
+const PROBABILITY_DEAL = PROBABILITY.deal.ALL.map((p) => ({
   value: p,
   label: p
 }));
@@ -55,7 +55,7 @@ export default function TriggerForm({
           value={PROBABILITY_DEAL.find(
             ({ value }) => config?.probability === value
           )}
-          onChange={option => onChangeConfig('probability', option?.value)}
+          onChange={(option) => onChangeConfig('probability', option?.value)}
         />
       </FormGroup>
       <BoardSelect
@@ -63,11 +63,11 @@ export default function TriggerForm({
         boardId={config?.boardId || ''}
         pipelineId={config?.pipelineId || ''}
         stageId={config?.stageId || ''}
-        onChangeBoard={boardId => onChangeConfig('boardId', boardId)}
-        onChangePipeline={pipelineId =>
+        onChangeBoard={(boardId) => onChangeConfig('boardId', boardId)}
+        onChangePipeline={(pipelineId) =>
           onChangeConfig('pipelineId', pipelineId)
         }
-        onChangeStage={stageId => onChangeConfig('stageId', stageId)}
+        onChangeStage={(stageId) => onChangeConfig('stageId', stageId)}
         autoSelectStage
         isOptional
       />

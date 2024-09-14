@@ -47,7 +47,7 @@ const goalQueries = {
     params,
     { commonQuerySelector, models }: IContext,
   ) => {
-    return paginate(
+    return await paginate(
       models.Goals.find(await generateFilter(params, commonQuerySelector)),
       {
         page: params.page,
@@ -69,11 +69,11 @@ const goalQueries = {
     await models.Goals.progressIdsGoals(filter, params);
 
     return {
-      list: paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
+      list: await paginate(models.Goals.find(filter).sort(sortBuilder(params)), {
         page: params.page,
         perPage: params.perPage,
       }),
-      totalCount: models.Goals.find(filter).countDocuments(),
+      totalCount: await models.Goals.find(filter).countDocuments(),
     };
   },
 

@@ -1,6 +1,7 @@
 import { IModels } from '../../connectionResolver';
-import { ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_DEAL, STATUS_TYPES, USER_TYPES } from '../constants';
-import { buildMatchFilter, buildPipeline, buildData } from '../utils';
+import { AMOUNT_RANGE_ATTRIBUTES, ATTACHMENT_TYPES, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_BY_TYPES, DATERANGE_TYPES, DUE_DATERANGE_TYPES, DUE_TYPES, MONTH_NAMES, PRIORITY, PROBABILITY_DEAL, STATUS_TYPES, USER_TYPES } from '../constants';
+import { buildMatchFilter, buildPipeline, buildData, buildOptions } from '../utils';
+const util = require('util')
 
 const MEASURE_OPTIONS = [
     { label: 'Total Count', value: 'count' },
@@ -35,12 +36,12 @@ const DIMENSION_OPTIONS = [
     { label: 'Stage changed at', value: 'stageChangedDate' },
     { label: 'Start Date', value: 'startDate' },
     { label: 'Close Date', value: 'closeDate' },
+    { label: 'Custom Propertry', value: 'field' },
 ];
 
 export const dealCharts = [
     {
         templateType: "DealCountByTag",
-        serviceType: 'cards',
         name: 'Total Deal Count By Tag',
         chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table'],
         getChartResult: async (
@@ -629,9 +630,7 @@ export const dealCharts = [
                     $unwind: "$customFieldsData",
                 },
                 {
-                    $match: {
-                        ...matchFilter
-                    },
+                    $unwind: "$customFieldsData.value",
                 },
                 {
                     $lookup: {
@@ -645,45 +644,29 @@ export const dealCharts = [
                     $unwind: "$field",
                 },
                 {
+                    $match: {
+                        ...matchFilter
+                    },
+                },
+                {
                     $group: {
-                        _id: "$customFieldsData.field",
-                        field: { $first: "$field.text" },
-                        fieldType: { $first: "$field.type" },
-                        fieldOptions: { $first: "$field.options" },
-                        selectedOptions: { $push: "$customFieldsData.value" },
+                        _id: "$customFieldsData.value",
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        field: "$_id",
+                        count: 1,
                     },
                 },
             ]
 
             const deals = await models.Deals.aggregate(pipeline)
 
-            const totalCountByCustomProperties = (deals || []).reduce((acc, { 
-                fieldType,
-                fieldOptions,
-                selectedOptions,
-            }) => {
-
-                (selectedOptions || []).map(selectedOption => {
-                    if (fieldType === 'multiSelect') {
-                        const optionArray = (selectedOption || '').split(',');
-                        optionArray.forEach(opt => {
-                            if (fieldOptions.includes(opt)) {
-                                acc[opt.trim()] = (acc[opt.trim()] || 0) + 1;
-                            }
-                        });
-                    } else if (Array.isArray(selectedOption)) {
-                        selectedOption.flatMap(option => {
-                            if (fieldOptions.includes(option)) {
-                                acc[option] = (acc[option] || 0) + 1
-                            }
-                        })
-                    } else if (fieldOptions.includes(selectedOption)) {
-                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
-                    } else {
-                        acc[selectedOption] = (acc[selectedOption] || 0) + 1
-                    }
-                })
-
+            const totalCountByCustomProperties = (deals || []).reduce((acc, { count, field }) => {
+                acc[field] = count;
                 return acc;
             }, {});
 
@@ -2853,41 +2836,62 @@ export const dealCharts = [
         templateType: "DealsTotalCount",
         serviceType: 'cards',
         name: 'Total Deals Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', 'pivotTable'],
         getChartResult: async (
             models: IModels,
             filter: any,
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension = ['createdBy'], measure = ['count'] } = filter
-
             const matchFilter = await buildMatchFilter(filter, 'deal', subdomain, models)
 
-            let deals
-
-            if (chartType === "number") {
-                const dealsCount = await models.Deals.find(matchFilter).countDocuments()
-
-                deals = { labels: "Total Count", data: dealsCount }
-            } else {
-                const pipeline = buildPipeline(filter, "deal", matchFilter)
-
-                deals = await models.Deals.aggregate(pipeline)
-            }
+            const pipeline = buildPipeline(filter, "deal", matchFilter)
+            const deals = await models.Deals.aggregate(pipeline)
 
             const title = 'Total Deals Count';
 
-            return { title, ...buildData({ chartType, data: deals, measure, dimension }) };
+            return { title, ...buildData({ chartType, data: deals, filter }), ...buildOptions(filter) };
         },
         filterTypes: [
             // DIMENSION FILTER
             {
+                fieldName: 'rowDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select row',
+            },
+            {
+                fieldName: 'colDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select column',
+            },
+            {
                 fieldName: 'dimension',
                 fieldType: 'select',
                 multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                        logicFieldOperator: "ne",
+                    },
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER
@@ -2903,12 +2907,6 @@ export const dealCharts = [
             {
                 fieldName: 'frequencyType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'frequency',
-                    },
-                ],
                 multi: false,
                 fieldDefaultValue: '%Y',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
@@ -2918,27 +2916,25 @@ export const dealCharts = [
             {
                 fieldName: 'userType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
-                    },
-                ],
                 multi: false,
                 fieldDefaultValue: 'userId',
                 fieldOptions: USER_TYPES,
                 fieldLabel: 'Select user type',
             },
+            // GOAL FILTER
+            {
+                fieldName: 'goalType',
+                fieldType: 'select',
+                fieldQuery: 'goalTypesMain',
+                fieldValueVariable: '_id',
+                fieldLabelVariable: 'name',
+                fieldQueryVariables: `{"entity": "deal"}`,
+                fieldLabel: 'Select goal',
+            },
             // USER FILTER
             {
                 fieldName: 'userIds',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
-                    },
-                ],
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',
@@ -3135,6 +3131,18 @@ export const dealCharts = [
                 fieldOptions: DATERANGE_TYPES,
                 fieldLabel: 'Select date range',
                 fieldDefaultValue: 'all',
+            },
+            {
+                fieldName: 'amountRange',
+                fieldType: 'input',
+                fieldAttributes: AMOUNT_RANGE_ATTRIBUTES,
+                fieldLabel: 'Amount range',
+            },
+            {
+                fieldName: 'target',
+                fieldType: 'input',
+                fieldAttributes: [{ name: 'target', type: 'number', min: 0, placeholder: 'Target' }],
+                fieldLabel: 'Target',
             },
             // DATE RANGE TYPE FILTER
             {

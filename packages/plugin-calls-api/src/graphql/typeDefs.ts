@@ -7,6 +7,7 @@ const integrationCommonFields = `
     wsServer: String
     operators: JSON
     token: String
+    queues: [String]
 `;
 
 const types = `
@@ -81,7 +82,12 @@ const types = `
   }
 `;
 
-export const subscriptions = `sessionTerminateRequested(userId: String): JSON`;
+export const subscriptions = `
+  sessionTerminateRequested(userId: String): JSON
+  waitingCallReceived(extension: String): String
+  talkingCallReceived(extension: String): String
+  agentCallReceived(extension: String): String
+  `;
 
 const commonHistoryFields = `
   operatorPhone: String
@@ -121,6 +127,10 @@ const queries = `
   callsGetConfigs: JSON
   callGetAgentStatus: String
   callExtensionList(integrationId: String!): JSON
+  callQueueList(integrationId: String!): JSON
+  callWaitingList(queue: String!): String
+  callProceedingList(queue: String!): String
+  callQueueMemberList(integrationId: String!, queue: String!): JSON
   `;
 
 const mutations = `

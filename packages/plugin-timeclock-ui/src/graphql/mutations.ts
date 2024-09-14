@@ -26,7 +26,9 @@ $lunchBreakInMins: Int
 $configShiftStart: String
 $configShiftEnd: String
 $scheduleConfig: [ShiftInput]
-$overtimeExists: Boolean`;
+$overtimeExists: Boolean
+$locations: [JSON]
+`;
 
 const userFields = `
   _id
@@ -220,7 +222,7 @@ const scheduleShiftRemove = `
   }`;
 
 const scheduleConfigAdd = `mutation scheduleConfigAdd(${scheduleConfigParams}){
-  scheduleConfigAdd(scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists){
+  scheduleConfigAdd(scheduleName: $scheduleName, lunchBreakInMins : $lunchBreakInMins, configShiftStart:$configShiftStart, configShiftEnd: $configShiftEnd, scheduleConfig : $scheduleConfig, overtimeExists: $overtimeExists, locations: $locations){
     _id
   }
 }`;

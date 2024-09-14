@@ -14,6 +14,7 @@ import { gql } from "@apollo/client";
 import { graphql } from "@apollo/client/react/hoc";
 import { queries } from "../../graphql";
 import { withProps } from "@erxes/ui/src/utils/core";
+import PivotTable from "../../components/chart/PivotTable";
 
 const getRandomNumbers = (num?: number) => {
   const getRandomNumber: number = Math.floor(Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1));
@@ -39,13 +40,14 @@ type Props = {
   filter?: any;
   dimension?: any;
   chartHeight?: number;
+  setFilter?: (fieldName: string, value: any) => void
 };
 
 type FinalProps = {
   chartGetResultQuery: any;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { chartGetResultQuery, chartVariables, filter, chartType } = props;
+  const { chartGetResultQuery, chartVariables, filter, chartType, setFilter } = props;
 
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
@@ -73,7 +75,7 @@ const ChartRendererList = (props: FinalProps) => {
     return <ChartRenderer {...finalProps} />;
   }
 
-  const { data, labels, title, options } =
+  const { data, labels, datasets, title, options } =
     chartGetResultQuery?.chartGetResult || {};
 
   const dataset = { data, labels, title };
@@ -81,7 +83,17 @@ const ChartRendererList = (props: FinalProps) => {
   if (chartType === "table") {
     return (
       <TableRenderer
+        filters={filter}
+        setFilter={setFilter}
         dataset={dataset}
+      />
+    );
+  }
+
+  if (chartType === "pivotTable") {
+    return (
+      <PivotTable
+        dataset={chartGetResultQuery?.chartGetResult}
       />
     );
   }
@@ -95,13 +107,24 @@ const ChartRendererList = (props: FinalProps) => {
     );
   }
 
-  const datasets =
+  const chartGetResult =
     !data && !labels && !title && chartGetResultQuery.chartGetResult;
+
+  const randomNums = getRandomNumbers(datasets?.[0]?.data?.length);
+  const extendedDatasets = (datasets || []).map((set, index) => {
+    const newSet = { ...set };
+
+    newSet.backgroundColor = DEFAULT_BACKGROUND_COLORS[randomNums[index]];
+    newSet.borderColor = DEFAULT_BORDER_COLORS[randomNums[index]];
+
+    return newSet;
+  });
 
   finalProps = {
     ...props,
     options,
-    datasets,
+    datasets: extendedDatasets,
+    dataset: chartGetResult,
     data,
     labels,
     title,

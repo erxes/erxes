@@ -7,6 +7,7 @@ import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu'
 import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import Table from '@erxes/ui/src/components/table';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -246,6 +247,78 @@ const FlexRow = styled.div`
   justify-content: space-between;
 `;
 
+const Divider = styled.div`
+  width: 1px;
+  background-color: #e5e5ea;
+  min-height: 100%;
+  margin: 0 5px;
+`;
+
+const DateRangeWrapper = styled.div`
+  width: 100%;
+  min-width: 465px;
+  min-height: 256px;
+  display: flex;
+
+  .rdtStatic {
+    flex: 1;
+    min-height: 100%;
+  }
+
+  .rdtPicker {
+    min-height: 100%;
+    box-shadow: unset !important;
+    width: 100%;
+    border: none !important;
+    min-width: 220px;
+    padding: 0 !important;
+  }
+
+  .rdtPicker .rdtDay {
+    position: relative;
+    transition: background-color 0.2s ease, color 0.2s ease-in-out;
+    border-radius: 8px;
+
+    &:after {
+      content: '';
+      border-radius: 8px;
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+    }
+  }
+
+  .rdtPicker .rdtDay:hover { 
+    border-radius: 8px;
+  }
+
+  .rdtPicker .rdtDay.rdtInRange { 
+    background-color: #8A8DD8 !important;
+    color: #FFF;
+    border-radius: 8px;
+  }
+
+  .rdtPicker td.rdtStart,
+  .rdtPicker td.rdtStart:hover {
+    background-color: ${colors.colorSecondary} !important;
+    border-radius: 8px;
+  }
+
+  .rdtPicker td.rdtEnd,
+  .rdtPicker td.rdtEnd:hover {
+    background-color: ${colors.colorSecondary} !important;
+    border-radius: 8px;
+  }
+
+  .rdtPicker td.rdtDay.rdtHover:not(.rdtActive):not(.rdtInRange) {
+    background-color: #8A8DD8 !important;
+    color: #FFF;
+    border-radius: 8px;
+  }
+`;
+
 const FlexColumn = styled.div`
   flex: 1 2;
   display: flex;
@@ -310,25 +383,47 @@ const FormContent = styled.div`
     }
   }
 
+  .css-13cymwt-control, .css-t3ipsp-control, .css-t3ipsp-control:hover {
+    border-bottom: none;
+  }
+
   > div {
     > label {
       margin-bottom: 5px;
     }
 
-    .Select-control {
+    .css-b62m3t-container {
       margin-bottom: 7px;
       border: 1px solid #eee;
       border-radius: 5px;
+    }
 
-      .Select-value,
-      .Select-placeholder,
-      .Select-input {
-        margin-left: 5px;
+    .css-13cymwt-control > div, .css-t3ipsp-control > div {
+      margin: 5px 8px 5px 5px;
+      padding: 0;
+    }
 
-        input {
-          border: none;
-        }
-      }
+    .css-1p3m7a8-multiValue {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
+    .css-12a83d4-MultiValueRemove {
+      position: unset;
+    }
+
+    .css-1nmdiq5-menu {
+      box-shadow: 0 4px 11px hsla(0, 0%, 0%, 0.1);
+      border: 1px solid #eee;
+    }
+
+    .css-d7l1ni-option, .css-tr4s17-option {
+      background-color: #F0F0F0;
+      color: inherit;
     }
 
     .Select.is-focused > .Select-control,
@@ -355,6 +450,20 @@ const FormContent = styled.div`
 
     .Select-option-group > .Select-option {
       padding-left: 30px;
+    }
+
+    .date-range {
+      > div {
+        gap: 10px;
+
+        > .css-b62m3t-container {
+          flex: 1;
+        }
+
+        > div:last-child {
+          margin: 0 0 7px 0;
+        }
+      }
     }
   }
 `;
@@ -612,6 +721,66 @@ const FormWrapper = styled.div`
   }
 `;
 
+const ControlRange = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding-top: 5px;
+`;
+
+const ChartTable = styled(Table)`
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  th:last-child {
+    display: flex;
+    justify-content: end;
+    
+    div {
+      position: relative;
+      top: -2px;
+    }
+  }
+`;
+
+const PivotTable = styled(Table)`
+
+  .pl-0 {
+    padding-left: 0;
+  }
+
+  .total {
+    font-weight: bold;
+  }
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  tr:first-child {
+
+    th:last-child {
+      text-align: left;
+      padding: 8px 18px 8px 0;
+    }
+  }
+`;
+
+const ScrollWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
+  padding: 0px 10px 0 20px;
+  margin-left: -20px;
+  margin-right: -10px;
+`;
+
 export {
   DragField,
   ChartTitle,
@@ -634,4 +803,10 @@ export {
   Title,
   FormChart,
   FormWrapper,
+  ControlRange,
+  DateRangeWrapper,
+  Divider,
+  ChartTable,
+  PivotTable,
+  ScrollWrapper
 };
