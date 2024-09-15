@@ -268,25 +268,30 @@ const engageMutations = {
 
     let replacedContent = content;
 
-    const customer = await sendContactsMessage({
-      isRPC: true,
-      subdomain,
-      action: 'customers.findOne',
-      data: { customerPrimaryEmail: to },
-    });
-
     const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
       subdomain,
       isRPC: true,
+      defaultValue: null
     });
+
+    const fromUser = await sendCoreMessage({
+      data: { email: from },
+      action: 'users.findOne',
+      subdomain,
+      isRPC: true,
+      defaultValue: null
+    })
+
+    if (!targetUser && !fromUser) {
+      throw new Error('User not found');
+    }
 
     const attributeUtil = await getEditorAttributeUtil(subdomain);
 
     replacedContent = await attributeUtil.replaceAttributes({
       content,
-      customer,
       user: targetUser,
     });
 

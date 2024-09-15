@@ -530,11 +530,12 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
+
   const customerFields =
     await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
-  
+
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
     customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
@@ -545,6 +546,7 @@ export const prepareEngageCustomers = async (
   }
 
   const onFinishPiping = async () => {
+    console.log('onFinishPiping', customerInfos);
     await sendEngagesMessage({
       subdomain,
       action: 'pre-notification',
@@ -575,7 +577,7 @@ export const prepareEngageCustomers = async (
 
       for (const chunk of chunks) {
         data.customers = chunk;
-                
+
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
@@ -626,7 +628,10 @@ export const prepareEngageCustomers = async (
     fieldsOption[field] = 1;
   }
 
-  const customersCursor = Customers.find(customersSelector, fieldsOption).cursor();
+  const customersCursor = Customers.find(
+    customersSelector,
+    fieldsOption
+  ).cursor();
 
   try {
     // Process the stream and wait for it to finish
@@ -653,8 +658,6 @@ export const prepareEngageCustomers = async (
     await customersCursor.close();
   }
 };
-
-
 
 export const generateSystemFields = ({ data: { groupId } }) => {
   const contactsFields: any = [];
