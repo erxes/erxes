@@ -89,9 +89,16 @@ export const setupMessageConsumers = async () => {
         };
       }
 
+      let queues;
+      if (typeof details?.queues === 'string') {
+        queues = details.queues.split(',');
+      } else {
+        queues = [];
+      }
+
       await models.Integrations.updateOne(
         { inboxId: integrationId },
-        { $set: details },
+        { $set: { ...details, queues: queues } },
       );
 
       const updatedIntegration = await models.Integrations.findOne({

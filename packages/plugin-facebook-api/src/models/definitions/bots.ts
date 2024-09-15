@@ -1,5 +1,5 @@
-import { Document, Schema } from 'mongoose';
-import { field } from './utils';
+import { Document, Schema } from "mongoose";
+import { field } from "./utils";
 
 interface IPersistentMenus {
   _id: number;
@@ -17,6 +17,8 @@ export interface IBot {
   persistentMenus: IPersistentMenus[];
   greetText?: string;
   tag?: string;
+  isEnabledBackBtn?: boolean;
+  backButtonText?: string;
 }
 
 export interface IBotDocument extends IBot, Document {
@@ -41,4 +43,6 @@ export const botSchema = new Schema({
   greetText: { type: String, optional: true },
   tag: { type: String, optional: true },
   createdAt: { type: Date, default: Date.now() },
+  isEnabledBackBtn: { type: Boolean, optional: true },
+  backButtonText: { type: String, optional: true },
 });

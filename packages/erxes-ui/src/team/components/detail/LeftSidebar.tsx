@@ -41,13 +41,31 @@ function LeftSidebar({
   excludeUserSkill,
   renderSkillForm,
 }: Props) {
-  const { details = {} } = user;
+  const { details = {}, positions = [] } = user;
 
   const renderRow = (title: string, value: any, nowrap?: boolean) => {
     return (
       <li>
         <FieldStyle>{__(title)}:</FieldStyle>
         <SidebarCounter $nowrap={nowrap}>{value || "-"}</SidebarCounter>
+      </li>
+    );
+  };
+
+  const renderArrayRow = (title: string, value: any[], nowrap?: boolean) => {
+    return (
+      <li>
+        <FieldStyle>{__(title)}:</FieldStyle>
+        <SidebarCounter $nowrap={nowrap}>
+          {value.length > 0
+            ? value.map((v) => (
+                <>
+                  {v.title}
+                  <br />
+                </>
+              ))
+            : "-"}
+        </SidebarCounter>
       </li>
     );
   };
@@ -71,6 +89,7 @@ function LeftSidebar({
               : "-"
           )}
           {renderRow("Position", details ? details.position : "-")}
+          {renderArrayRow("Positions", positions, true)}
           {renderRow("Score", user.score)}
           {renderRow(
             "Joined date",

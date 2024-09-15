@@ -8,8 +8,16 @@ export default {
 
   createdUser(article: IArticleDocument, _args) {
     return {
-      __typename: "User",
+      __typename: 'User',
       _id: article.createdBy
-    }
+    };
   },
+  publishedUser(article: IArticleDocument, _args) {
+    return article?.publishedUserId
+      ? {
+          __typename: 'User',
+          _id: article?.publishedUserId
+        }
+      : null;
+  }
 };

@@ -33,6 +33,27 @@ export const PROBABILITY_CLOSED = {
     ticket: ['Resolved'],
 }
 
+export const AMOUNT_RANGE_ATTRIBUTES = [
+    { name: 'min', placeholder: 'Min', type: 'number', min: 0 },
+    { name: 'max', placeholder: 'Max', type: 'number', min: 0 }
+]
+
+export const GOAL_MAP = {
+    department: { fieldId: "$department._id", foreignField: "$department" },
+    branch: { fieldId: "$branch._id", foreignField: "$branch" },
+    createdBy: { fieldId: "$createdBy._id", foreignField: "$contribution" },
+    modifiedBy: { fieldId: "$modifiedBy._id", foreignField: "$contribution" },
+    assignedTo: { fieldId: "$assignedTo._id", foreignField: "$contribution" },
+    board: { fieldId: "$board._id", foreignField: "$boardId" },
+    pipeline: { fieldId: "$pipeline._id", foreignField: "$pipelineId" },
+    stage: { fieldId: "$stage._id", foreignField: "$stageId" },
+    count: "Count",
+    totalAmount: "Value",
+    averageAmount: "Value",
+    unusedAmount: "Value",
+    forecastAmount: "Value"
+}
+
 export const DIMENSION_OPTIONS = [
     { label: 'Total count', value: 'count' },
     { label: 'Team members', value: 'teamMember' },
@@ -103,7 +124,7 @@ export const FIELD_MAP = {
 }
 
 export const CUSTOM_DATE_FREQUENCY_TYPES = [
-    { label: 'By week', value: '%V' },
+    { label: 'By week', value: '%Y-%V' },
     { label: 'By month', value: '%m' },
     { label: 'By year', value: '%Y' },
     { label: 'By Date', value: '%Y-%m-%d' },

@@ -1,7 +1,9 @@
 import { useCallback } from "react"
+import { selectedTabAtom, slotFilterAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
+import { setInitialAtom, slotCodeAtom } from "@/store/order.store"
 import { gql, useQuery } from "@apollo/client"
-import { useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
 import { ISlot } from "@/types/slots.type"
 
@@ -20,7 +22,7 @@ const useSlots = () => {
         variables: { token },
         updateQuery: (prev, { subscriptionData }) => {
           if (!subscriptionData.data) return prev
-          
+
           const changedSlots = subscriptionData.data.slotsStatusUpdated || []
           const { poscSlots } = prev || {}
 
@@ -36,6 +38,23 @@ const useSlots = () => {
   )
 
   return { slots, loading, subToSlots }
+}
+
+export const useCreateSlots = ({ code }: { code: string }) => {
+  const setInitial = useSetAtom(setInitialAtom)
+  const [slotCode, setSlot] = useAtom(slotCodeAtom)
+  const setSelectedTab = useSetAtom(selectedTabAtom)
+  const [slotFilter, setSlotFilter] = useAtom(slotFilterAtom)
+  const handleCreate = () => {
+    if (slotCode === code) {
+      return setSlot(null)
+    }
+    setInitial()
+    setSlot(code)
+    setSelectedTab("products")
+    slotFilter !== code && setSlotFilter("")
+  }
+  return { handleCreate }
 }
 
 export default useSlots

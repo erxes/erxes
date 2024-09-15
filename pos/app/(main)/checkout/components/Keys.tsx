@@ -47,7 +47,7 @@ const ControlButton = ({ value }: { value: string | number }) => {
   }
 
   return (
-    <AspectRatio ratio={1}>
+    <AspectRatio ratio={mode === "mobile" ? 1.5 : 1}>
       <Button
         onClick={handleClick}
         className={cn(

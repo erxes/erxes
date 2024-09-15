@@ -11,11 +11,11 @@ export class TransferApi extends BaseApi {
 
   /**
    * make transfer from golomtBank to golomtBank
-   * @param {string} type 
-   * @param {string} fromAccount 
-   * @param {number} toAccount 
-   * @param {string} amount 
-   * @param {string} description 
+   * @param {string} type
+   * @param {string} fromAccount
+   * @param {number} toAccount
+   * @param {string} amount
+   * @param {string} description
    * @param {string} fromCurrency
    * @param {string} toCurrency
    * @param {string} toAccountName

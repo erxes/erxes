@@ -1,29 +1,31 @@
-import { Alert, EmptyState, Spinner, confirm } from "@erxes/ui/src";
-import React, { useEffect } from "react";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { mutations, queries } from "../graphql";
+import { Alert, EmptyState, Spinner, confirm } from '@erxes/ui/src';
+import React, { useEffect } from 'react';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { mutations, queries } from '../graphql';
 
-import ListComponent from "../components/List";
-import { generateCardFiltersQueryParams } from "../common/utils";
-import { generateParamsIds } from "../../common/utils";
-import { router } from "@erxes/ui/src/utils/core";
+import ListComponent from '../components/List';
+import { generateCardFiltersQueryParams } from '../common/utils';
+import { generateParamsIds } from '../../common/utils';
+import { router } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;
 };
 
 const List = ({ queryParams }: Props) => {
+  const variables = generateParams({ queryParams });
+
   const { loading: listLoading, data: listData } = useQuery(
     gql(queries.riskAssessments),
     {
-      variables: generateParams({ queryParams }),
+      variables
     }
   );
 
   const { data: totalCountData, refetch: refetchTotalCount } = useQuery(
     gql(queries.totalCount),
     {
-      variables: generateParams({ queryParams }),
+      variables
     }
   );
 
@@ -31,29 +33,29 @@ const List = ({ queryParams }: Props) => {
     refetchQueries: [
       {
         query: gql(queries.riskAssessments),
-        variables: { ...generateParams({ queryParams }) },
+        variables
       },
       {
         query: gql(queries.totalCount),
-        variables: { ...generateParams({ queryParams }) },
-      },
-    ],
+        variables
+      }
+    ]
   });
 
   useEffect(() => {
     refetchTotalCount();
   }, [queryParams]);
 
-  const remove = (ids) => {
+  const remove = ids => {
     confirm(
-      "This action will erase every data of assessments. Are you sure?"
+      'This action will erase every data of assessments. Are you sure?'
     ).then(() => {
       removeAssessments({ variables: { ids } })
         .then(() => {
-          Alert.success("Removed successfully");
+          Alert.success('Removed successfully');
           refetchTotalCount();
         })
-        .catch((err) => {
+        .catch(err => {
           Alert.error(err.message);
         });
     });
@@ -67,7 +69,7 @@ const List = ({ queryParams }: Props) => {
     list: listData?.riskAssessments || [],
     totalCount: totalCountData?.riskAssessmentsTotalCount,
     queryParams,
-    remove,
+    remove
   };
 
   return <ListComponent {...updatedProps} />;
@@ -90,7 +92,7 @@ export const generateParams = ({ queryParams }) => ({
   operationIds: generateParamsIds(queryParams.operationIds),
   tagIds: generateParamsIds(queryParams.tagIds),
   groupIds: generateParamsIds(queryParams.groupIds),
-  cardFilter: generateCardFiltersQueryParams(queryParams),
+  cardFilter: generateCardFiltersQueryParams(queryParams)
 });
 
 export default List;

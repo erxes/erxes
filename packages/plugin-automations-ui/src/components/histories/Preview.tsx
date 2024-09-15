@@ -6,8 +6,9 @@ import ReactFlow, {
   EdgeTypes
 } from 'reactflow';
 import { IAutomation, IAutomationHistory } from '../../types';
-import PrimaryEdge from '../editor/Egde';
-import CustomNode, { ScratchNode } from '../editor/Node';
+import PrimaryEdge from '../editor/edges/PrimaryEgde';
+import CustomNode from '../editor/nodes/PrimaryNode';
+import ScratchNode from '../editor/nodes/ScratchNode';
 import { generateEdges, generateNodes } from '../editor/utils';
 import { renderDynamicComponent } from '../../utils';
 import { generateActionResult } from './Row';
@@ -50,7 +51,11 @@ const renderPopover = (Component, info?) => {
   );
 };
 
-export default function Preview({ automation, constants, history }: Props) {
+export default async function Preview({
+  automation,
+  constants,
+  history
+}: Props) {
   const { triggers, actions } = automation;
 
   const additionalContent = (id, type) => {
@@ -69,7 +74,7 @@ export default function Preview({ automation, constants, history }: Props) {
 
     if (type === 'action') {
       const action = (history?.actions || []).find(
-        action => action.actionId === id
+        (action) => action.actionId === id
       );
 
       if (action) {

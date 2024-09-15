@@ -24,6 +24,14 @@ module.exports = {
     scope: "calls",
     module: "./call",
   },
+  menus: [
+    {
+      text: 'Call Center',
+      url: '/calls/switchboard',
+      icon: 'icon-phone-call',
+      location: 'mainNavigation',
+      permission: 'showCallDashboard'
+    }],
   inboxIntegrationForm: "./inboxIntegrationForm",
   invoiceDetailRightSection: "./invoiceDetailRightSection",
   integrationDetailsForm: "./integrationDetailsForm",

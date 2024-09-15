@@ -1,10 +1,11 @@
-import { modeAtom } from "@/store"
+import { mobileTabAtom, modeAtom } from "@/store"
 import { addToCartAtom } from "@/store/cart.store"
 import { useAtomValue, useSetAtom } from "jotai"
 
 import { IProduct } from "@/types/product.types"
 import { formatNum } from "@/lib/utils"
 import Image from "@/components/ui/image"
+import { ToastAction } from "@/components/ui/toast"
 import {
   Tooltip,
   TooltipContent,
@@ -23,6 +24,7 @@ const ProductItem = ({
 }: IProduct) => {
   const addToCart = useSetAtom(addToCartAtom)
   const mode = useAtomValue(modeAtom)
+  const setTab = useSetAtom(mobileTabAtom)
 
   return (
     <div
@@ -34,6 +36,14 @@ const ProductItem = ({
           toast({
             variant: "default",
             description: `${name} сагсанд нэмэгдлээ`,
+            action: (
+              <ToastAction
+                altText="Goto cart"
+                onClick={() => setTab("checkout")}
+              >
+                Сагс руу очих
+              </ToastAction>
+            ),
           })
       }}
     >

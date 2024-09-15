@@ -29,7 +29,7 @@ const BasicInfoSection: React.FC<Props> = ({
   isSmall,
 }: Props) => {
   const renderActions = () => {
-    const { phone, email } = clientPortalUser;
+    const { phone, email, isEmailVerified } = clientPortalUser;
 
     const smsForm = (props) => <SmsForm {...props} phone={phone} />;
 
@@ -37,8 +37,8 @@ const BasicInfoSection: React.FC<Props> = ({
       <>
         {(isEnabled("engages") || isEnabled("imap")) && (
           <EmailWidget
-            disabled={email ? false : true}
-            buttonStyle={email ? "primary" : "simple"}
+            disabled={isEmailVerified && email ? false : true}
+            buttonStyle={isEmailVerified && email ? "primary" : "simple"}
             emailTo={email}
             customerId={clientPortalUser._id || undefined}
             buttonSize="small"

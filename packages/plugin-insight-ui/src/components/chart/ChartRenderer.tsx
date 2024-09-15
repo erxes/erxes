@@ -5,8 +5,10 @@ import Chart from 'chart.js/auto';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 import {
+  DATALABELS_CONFIGS,
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
+  horizontalDottedLine
 } from './utils';
 import {
   commarizeNumbers,
@@ -18,7 +20,7 @@ Chart.register([Colors, ChartDataLabels, Tooltip]);
 
 interface IChartProps {
   datasets?: any;
-
+  dataset?: any
   data?: number[];
   labels?: string[];
   options?: any;
@@ -34,6 +36,7 @@ const ChartRenderer = (props: IChartProps) => {
     labels,
     chartType,
     datasets,
+    dataset,
     data,
     title,
     loading,
@@ -53,23 +56,26 @@ const ChartRenderer = (props: IChartProps) => {
 
   const chartData = {
     labels: labels,
-    datasets: datasets || [
+    datasets: datasets?.length ? datasets : dataset || [
       {
         label: title || 'Default Dataset',
         data,
         backgroundColor: DEFAULT_BACKGROUND_COLORS,
         borderColor: DEFAULT_BORDER_COLORS,
         borderWidth: 1,
-      },
+      }
     ],
   };
+
+  const datalabelsConfig = DATALABELS_CONFIGS[chartType]
 
   let plugins: any = {
     datalabels: {
       display: 'auto',
-      color: 'white', formatter: (value, ctx) => {
+      formatter: (value, ctx) => {
         return formatNumbers(value, 'y', formatType)
-      }
+      },
+      ...datalabelsConfig
     },
     tooltip: {
       enabled: true,
@@ -95,17 +101,19 @@ const ChartRenderer = (props: IChartProps) => {
     }
   };
 
-  if (!datasets) {
+  if (options && Object.keys(options).length) {
     plugins = {
       ...plugins,
       legend: { labels: { boxWidth: 0, boxHeight: 0 } },
+      ...(options?.hasOwnProperty('plugins') ? options.plugins : {})
     };
   }
 
   const DEFAULT_CONFIG = {
     type: chartType,
     data: chartData,
-    plugins: [ChartDataLabels],
+    plugins: [ChartDataLabels, horizontalDottedLine],
+    // plugins: [ChartDataLabels],
     options: {
       scales: {
         y: {
@@ -116,8 +124,14 @@ const ChartRenderer = (props: IChartProps) => {
           }
         }
       },
-      ...options, plugins
-    }
+      ...options, plugins,
+      elements: {
+        line: {
+          fill: true,
+          tension: 0.4
+        }
+      }
+    },
   };
 
   useEffect(() => {

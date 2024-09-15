@@ -36,7 +36,6 @@ function generateNumber(
     value >>= 8;
     i--;
   }
-
   const signKey = Buffer.from(key);
   const hmac = createHmac("sha1", signKey);
   hmac.update(data);

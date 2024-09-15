@@ -1,3 +1,4 @@
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
   IContract,
   IContractDocument
@@ -8,6 +9,17 @@ import { IContext } from "../../../connectionResolver";
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { TRANSACTION_TYPE } from "../../../models/definitions/constants";
 import { sendMessageBroker } from "../../../messageBroker";
+
+export const savingsContractChanged = async (contract: IContractDocument) => {
+  graphqlPubsub.publish(
+    'savingsContractChanged',
+    {
+      savingsContractChanged: {
+        ...contract
+      },
+    },
+  );
+};
 
 const contractMutations = {
   savingsContractsAdd: async (
@@ -181,7 +193,7 @@ const contractMutations = {
     };
 
     await createLog(subdomain, user, logData);
-
+    await savingsContractChanged(contract)
     return contract;
   },
 
@@ -206,7 +218,7 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
-
+    await savingsContractChanged(updated);
     return updated;
   },
   savingsContractsDealEdit: async (
@@ -238,7 +250,7 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
-
+    await savingsContractChanged(updated);
     return updated;
   },
 
@@ -266,6 +278,7 @@ const contractMutations = {
     };
 
     await updateLog(subdomain, user, logData);
+    await savingsContractChanged(updated);
 
     return updated;
   },
@@ -297,15 +310,17 @@ const contractMutations = {
 
     return contractIds;
   },
+
   savingsExpandDuration: async (
     _root,
     { _id, contractTypeId }: { _id: string; contractTypeId: string },
     { models }: IContext
   ) => {
     const contract = await models.Contracts.expandDuration(_id, contractTypeId);
-
+    await savingsContractChanged(contract);
     return contract;
   },
+
   savingsInterestChange: async (
     _root,
     {
@@ -331,6 +346,7 @@ const contractMutations = {
 
     return updatedContract;
   },
+
   savingsInterestReturn: async (
     _root,
     {
@@ -349,6 +365,7 @@ const contractMutations = {
       invDate,
       interestAmount
     });
+    await savingsContractChanged(updatedContract);
     return updatedContract;
   }
 };

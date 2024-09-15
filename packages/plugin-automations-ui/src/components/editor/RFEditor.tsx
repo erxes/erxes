@@ -1,15 +1,13 @@
 import { IAction } from '@erxes/ui-automations/src/types';
-import { Alert, Icon } from '@erxes/ui/src';
+import { Alert } from '@erxes/ui/src';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
+  addEdge,
   Background,
   ConnectionMode,
-  ControlButton,
   Controls,
-  EdgeTypes,
-  MiniMap,
-  addEdge,
   getOutgoers,
+  MiniMap,
   updateEdge,
   useEdgesState,
   useNodesState
@@ -21,16 +19,17 @@ import {
   IAutomationNote,
   ITrigger
 } from '../../types';
-import ConnectionLine from './ConnectionLine';
-import Edge from './Egde';
-import CustomNode, { ScratchNode } from './Node';
-import { generateEdges, generateNodes, generatePostion } from './utils';
+import edgeTypes from './edges';
+import ConnectionLine from './edges/ConnectionLine';
 import Info from './Info';
+import nodeTypes from './nodes';
+import { generateEdges, generateNodes, generatePostion } from './utils';
 
 type Props = {
   automation: IAutomation;
   triggers: ITrigger[];
   actions: IAction[];
+  workFlowActions?: { workflowId: string; actions: IAction[] }[];
   automationNotes?: IAutomationNote[];
   onConnection: ({
     sourceId,
@@ -55,14 +54,8 @@ type Props = {
   onChangePositions: (type: string, id: string, postions: any) => void;
   addAction: (data: IAction, actionId?: string, config?: any) => void;
   handelSave: () => void;
-};
-
-const nodeTypes = {
-  primary: CustomNode,
-  scratch: ScratchNode
-};
-const edgeTypes: EdgeTypes = {
-  primary: Edge
+  addWorkFlowAction: (workflowId: string, actions: IAction[]) => void;
+  removeWorkFlowAction: (workflowId: string) => void;
 };
 
 const fitViewOptions = { padding: 4, minZoom: 0.8 };
@@ -91,18 +84,20 @@ const onDisConnection = ({ nodes, edge, setEdges, onConnect }) => {
 function AutomationEditor({
   triggers,
   actions,
+  workFlowActions,
   onConnection,
   onChangePositions,
   ...props
 }: Props) {
   const edgeUpdateSuccessful = useRef(true);
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    generateNodes({ triggers, actions }, props)
+    generateNodes({ triggers, actions, workFlowActions }, props)
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
     generateEdges({
       triggers,
       actions,
+      workFlowActions,
       onDisconnect: edge =>
         onDisConnection({ nodes, edge, setEdges, onConnect })
     })
@@ -112,7 +107,10 @@ function AutomationEditor({
   const [copiedNodes, setCopiedNodes] = useState([]) as any[];
 
   const resetNodes = () => {
-    const updatedNodes: any[] = generateNodes({ triggers, actions }, props);
+    const updatedNodes: any[] = generateNodes(
+      { triggers, actions, workFlowActions },
+      props
+    );
 
     const mergedArray = updatedNodes.map(node1 => {
       let node2 = nodes.find(o => o.id === node1.id);
@@ -127,6 +125,7 @@ function AutomationEditor({
       generateEdges({
         triggers,
         actions,
+        workFlowActions,
         onDisconnect: edge =>
           onDisConnection({ nodes, edge, setEdges, onConnect })
       })
@@ -135,7 +134,11 @@ function AutomationEditor({
 
   useEffect(() => {
     resetNodes();
-  }, [JSON.stringify(triggers), JSON.stringify(actions)]);
+  }, [
+    JSON.stringify(triggers),
+    JSON.stringify(actions),
+    JSON.stringify(workFlowActions)
+  ]);
 
   const generateConnect = (params, source) => {
     const { sourceHandle } = params;
@@ -153,6 +156,21 @@ function AutomationEditor({
         info.optionalConnectId = optionalConnectId;
         info.connectType = 'optional';
       }
+    }
+
+    const targetWorkflow = workFlowActions?.find(({ actions }) =>
+      actions.some(action => action.id === info.targetId)
+    );
+    if (targetWorkflow) {
+      info.workflowId = targetWorkflow.workflowId;
+    }
+
+    const sourceWorkflow = workFlowActions?.find(({ actions }) =>
+      actions.some(action => action.id === info.sourceId)
+    );
+
+    if (sourceWorkflow && info.targetId) {
+      info.workflowId = sourceWorkflow.workflowId;
     }
 
     return info;
@@ -204,6 +222,21 @@ function AutomationEditor({
         }
       };
 
+      if (target?.parentId && connection?.source && target.id) {
+        const workflow = (workFlowActions || []).find(
+          node => node.workflowId === target.parentId
+        );
+
+        if (
+          workflow &&
+          [connection?.source, target.id].every(id =>
+            (workflow.actions || []).find(action => action.id === id)
+          )
+        ) {
+          return false;
+        }
+      }
+
       return !hasCycle(target);
     },
     [nodes, edges]
@@ -249,7 +282,7 @@ function AutomationEditor({
 
     for (const action of copyPastedActions) {
       delete action.nextActionId;
-      delete action.config.optionalConnects;
+      delete action.config?.optionalConnects;
 
       action.position = generatePostion(action.position);
 

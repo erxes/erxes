@@ -15,7 +15,11 @@ import {
   notifiedUserIds,
   sendNotifications,
 } from './graphql/utils';
-import { conversationConvertToCard, createBoardItem } from './models/utils';
+import {
+  conversationConvertToCard,
+  createBoardItem,
+  updateName,
+} from './models/utils';
 import { getCardItem } from './utils';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
@@ -120,7 +124,7 @@ export const setupMessageConsumers = async () => {
         doc,
         processId,
         user,
-        collection[`update${typeUpperCase}`],
+        collection[`update${typeUpperCase}`]
       ),
     };
   });
@@ -146,7 +150,7 @@ export const setupMessageConsumers = async () => {
       models,
       subdomain,
       { parentId: itemId, stageId: parent.stageId, ...doc },
-      type,
+      type
     );
 
     return {
@@ -164,7 +168,7 @@ export const setupMessageConsumers = async () => {
       models,
       subdomain,
       { name, stageId },
-      type,
+      type
     );
 
     await sendCoreMessage({
@@ -193,7 +197,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Tasks.removeTasks(_ids),
       };
-    },
+    }
   );
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
@@ -221,7 +225,7 @@ export const setupMessageConsumers = async () => {
           data: {
             type: `cards:deal`,
             targets: [deal],
-            withDelay:true
+            withDelay: true,
           },
           isRPC: true,
           defaultValue: null,
@@ -244,7 +248,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Deals.removeDeals(_ids),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -256,7 +260,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Purchases.removePurchases(_ids),
       };
-    },
+    }
   );
 
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
@@ -295,7 +299,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Tickets.removeTickets(_ids),
       };
-    },
+    }
   );
 
   consumeRPCQueue('cards:stages.find', async ({ subdomain, data }) => {
@@ -370,7 +374,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Boards.find(selector).countDocuments(),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -382,7 +386,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.GrowthHacks.countDocuments(selector),
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -394,7 +398,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Checklists.removeChecklists(type, itemIds),
       };
-    },
+    }
   );
 
   consumeRPCQueue('cards:conversationConvert', async ({ subdomain, data }) => {
@@ -486,11 +490,11 @@ export const setupMessageConsumers = async () => {
     };
   });
 
-  consumeRPCQueue('cards:deals.generateAmounts', async (productsData) => {
+  consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue('cards:purchases.generateAmounts', async (productsData) => {
+  consumeRPCQueue('cards:purchases.generateAmounts', async productsData => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
@@ -501,7 +505,7 @@ export const setupMessageConsumers = async () => {
         data: await generateProducts(subdomain, data),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -511,7 +515,7 @@ export const setupMessageConsumers = async () => {
         data: await generateProducts(subdomain, data),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
@@ -530,7 +534,7 @@ export const setupMessageConsumers = async () => {
       }).distinct('productsData.productId');
 
       return { data: dealProductIds, status: 'success' };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -543,7 +547,7 @@ export const setupMessageConsumers = async () => {
       }).distinct('productsData.productId');
 
       return { data: purchaseProductIds, status: 'success' };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -555,7 +559,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Tickets.updateMany(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -567,7 +571,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Tasks.updateMany(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -579,7 +583,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Deals.updateMany(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -591,7 +595,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Purchases.updateMany(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -603,7 +607,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Deals.updateOne(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -615,7 +619,7 @@ export const setupMessageConsumers = async () => {
         data: await models.Purchases.updateOne(selector, modifier),
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
@@ -661,7 +665,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -687,7 +691,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.Pipelines.getPipeline(pipelineId),
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -699,7 +703,7 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: await models.PipelineLabels.find(query, fields),
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -717,7 +721,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -742,7 +746,7 @@ export const setupMessageConsumers = async () => {
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeQueue(
@@ -750,11 +754,11 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data: { addedTypeIds, removedTypeIds, doc } }) => {
       const targetTypes = ['deal', 'task', 'ticket', 'purchase'];
       const targetRelTypes = ['company', 'customer'];
-
       if (
         targetTypes.includes(doc.mainType) &&
         targetRelTypes.includes(doc.relType)
       ) {
+        await updateName(subdomain, doc.mainType, doc.mainTypeId);
         await publishHelper(subdomain, doc.mainType, doc.mainTypeId);
       }
 
@@ -766,11 +770,10 @@ export const setupMessageConsumers = async () => {
           await publishHelper(subdomain, doc.relType, typeId);
         }
       }
-
       return {
         status: 'success',
       };
-    },
+    }
   );
 
   consumeRPCQueue(
@@ -801,12 +804,12 @@ export const setupMessageConsumers = async () => {
         status: 'success',
         data: filter,
       };
-    },
+    }
   );
 };
 
 export const sendContactsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'contacts',
@@ -815,7 +818,7 @@ export const sendContactsMessage = async (
 };
 
 export const sendInternalNotesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'internalnotes',
@@ -824,7 +827,7 @@ export const sendInternalNotesMessage = async (
 };
 
 export const sendCoreMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'core',
@@ -833,7 +836,7 @@ export const sendCoreMessage = async (
 };
 
 export const sendFormsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'forms',
@@ -842,7 +845,7 @@ export const sendFormsMessage = async (
 };
 
 export const sendEngagesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'engages',
@@ -851,7 +854,7 @@ export const sendEngagesMessage = async (
 };
 
 export const sendInboxMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'inbox',
@@ -860,7 +863,7 @@ export const sendInboxMessage = async (
 };
 
 export const sendProductsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'products',
@@ -869,7 +872,7 @@ export const sendProductsMessage = async (
 };
 
 export const sendNotificationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'notifications',
@@ -878,7 +881,7 @@ export const sendNotificationsMessage = async (
 };
 
 export const sendLogsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'logs',
@@ -887,7 +890,7 @@ export const sendLogsMessage = async (
 };
 
 export const sendSegmentsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'segments',
@@ -896,7 +899,7 @@ export const sendSegmentsMessage = async (
 };
 
 export const sendLoyaltiesMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'loyalties',
@@ -914,7 +917,7 @@ export const fetchSegment = (
   subdomain: string,
   segmentId: string,
   options?,
-  segmentData?: any,
+  segmentData?: any
 ) =>
   sendSegmentsMessage({
     subdomain,
@@ -924,7 +927,7 @@ export const fetchSegment = (
   });
 
 export const sendTagsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'tags',
@@ -933,7 +936,7 @@ export const sendTagsMessage = async (
 };
 
 export const sendAutomationsMessage = async (
-  args: MessageArgsOmitService,
+  args: MessageArgsOmitService
 ): Promise<any> => {
   return sendMessage({
     serviceName: 'automations',

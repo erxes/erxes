@@ -1,6 +1,6 @@
 import { IModels } from "../../connectionResolver";
 import { MONTH_NAMES, PROBABILITY_CLOSED, CUSTOM_DATE_FREQUENCY_TYPES, DATERANGE_TYPES, DATERANGE_BY_TYPES, ATTACHMENT_TYPES, PRIORITY, STATUS_TYPES, PROBABILITY_TICKET, USER_TYPES, INTEGRATION_OPTIONS } from "../constants";
-import { buildData, buildMatchFilter, buildPipeline, getDimensionPipeline, getIntegrationsKinds, getStageIds } from "../utils";
+import { buildData, buildMatchFilter, buildPipeline, getIntegrationsKinds, getStageIds } from "../utils";
 
 const DIMENSION_OPTIONS = [
     { label: 'Team members', value: 'teamMember' },
@@ -28,6 +28,7 @@ const DIMENSION_OPTIONS = [
     { label: 'Stage changed at', value: 'stageChangedDate' },
     { label: 'Start Date', value: 'startDate' },
     { label: 'Close Date', value: 'closeDate' },
+    { label: 'Custom Propertry', value: 'field' },
 ]
 
 const MEASURE_OPTIONS = [
@@ -2465,41 +2466,63 @@ export const ticketCharts = [
         templateType: "TicketsTotalCount",
         serviceType: 'cards',
         name: 'Total Tickets Count',
-        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number'],
+        chartTypes: ['bar', 'line', 'pie', 'doughnut', 'radar', 'polarArea', 'table', 'number', "pivotTable"],
         getChartResult: async (
             models: IModels,
             filter: any,
             chartType: string,
             subdomain: string,
         ) => {
-            const { dimension = ['createdBy'], measure = ['count'] } = filter
 
             const matchFilter = await buildMatchFilter(filter, 'ticket', subdomain, models)
 
-            let tickets
-
-            if (chartType === "number") {
-                const ticketsCount = await models.Tickets.find(matchFilter).countDocuments()
-
-                tickets = { labels: "Total Count", data: ticketsCount }
-            } else {
-                const pipeline = buildPipeline(filter, "ticket", matchFilter)
-
-                tickets = await models.Tickets.aggregate(pipeline)
-            }
+            const pipeline = buildPipeline(filter, "ticket", matchFilter)
+            const tickets = await models.Tickets.aggregate(pipeline)
 
             const title = 'Total Tickets Count';
 
-            return { title, ...buildData({ chartType, data: tickets, measure, dimension }) };
+            return { title, ...buildData({ chartType, data: tickets, filter }) };
         },
         filterTypes: [
             // DIMENSION FILTER
             {
+                fieldName: 'rowDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select row',
+            },
+            {
+                fieldName: 'colDimension',
+                fieldType: 'select',
+                multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                    },
+                ],
+                fieldOptions: DIMENSION_OPTIONS,
+                fieldLabel: 'Select column',
+            },
+            {
                 fieldName: 'dimension',
                 fieldType: 'select',
                 multi: true,
+                logics: [
+                    {
+                        logicFieldName: 'chartType',
+                        logicFieldValue: 'pivotTable',
+                        logicFieldOperator: "ne",
+                    },
+                ],
                 fieldOptions: DIMENSION_OPTIONS,
-                fieldDefaultValue: ['createdBy'],
                 fieldLabel: 'Select dimension',
             },
             // MEASURE FILTER
@@ -2515,12 +2538,6 @@ export const ticketCharts = [
             {
                 fieldName: 'frequencyType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'frequency',
-                    },
-                ],
                 multi: false,
                 fieldDefaultValue: '%Y',
                 fieldOptions: CUSTOM_DATE_FREQUENCY_TYPES,
@@ -2530,12 +2547,6 @@ export const ticketCharts = [
             {
                 fieldName: 'userType',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
-                    },
-                ],
                 multi: false,
                 fieldDefaultValue: 'userId',
                 fieldOptions: USER_TYPES,
@@ -2545,12 +2556,6 @@ export const ticketCharts = [
             {
                 fieldName: 'userIds',
                 fieldType: 'select',
-                logics: [
-                    {
-                        logicFieldName: 'dimension',
-                        logicFieldValue: 'teamMember',
-                    },
-                ],
                 multi: true,
                 fieldQuery: 'users',
                 fieldLabel: 'Select users',

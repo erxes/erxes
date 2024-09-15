@@ -7,10 +7,10 @@ import { IUser } from '../../types';
 import { __, readFile, urlify } from '../../utils';
 import Attachment from '../components/common/Attachment';
 import User from '../components/common/User';
-import { MESSAGE_TYPES } from '../containers/AppContext';
 import { IAttachment, IMessengerAppData, IVideoCallData } from '../types';
 import VideoCallMessage from './VideoCallMessage';
 import VideoCallRequest from './VideoCallRequest';
+import { MESSAGE_TYPES } from '../constants';
 
 type Props = {
   content: string;
@@ -56,8 +56,8 @@ class Message extends React.Component<Props> {
     if (hasAttachment) {
       const result: React.ReactNode[] = [];
 
-      attachments.map(att => {
-        result.push(<Attachment attachment={att} />);
+      attachments.map((att) => {
+        result.push(<Attachment key={att.name} attachment={att} />);
       });
 
       return result;
@@ -75,16 +75,22 @@ class Message extends React.Component<Props> {
       content,
       contentType,
       videoCallData,
-      textColor
+      textColor,
     } = this.props;
+
     const messageClasses = classNames('erxes-message', {
       attachment: attachments && attachments.length > 0,
-      'from-customer': !user
+      'from-customer': !user,
     });
 
     const messageBackground = {
-      backgroundColor: !user ? color : '',
-      color: !user ? textColor : ''
+      backgroundColor: user ? '' : color,
+      ...(color
+        ? {
+            background: color,
+          }
+        : {}),
+      color: user ? '' : textColor,
     };
 
     if (contentType === MESSAGE_TYPES.VIDEO_CALL) {
