@@ -1,7 +1,7 @@
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
-import { ControlLabel, EmptyState, FormGroup, __ } from '@erxes/ui/src';
-import React from 'react';
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
+import { ControlLabel, EmptyState, FormGroup, __ } from "@erxes/ui/src";
+import React from "react";
 type Props = {
   type: string;
   value: string | string[];
@@ -40,7 +40,7 @@ class SelectRecipients extends React.Component<Props> {
           onSelect={onSelect}
           filterParams={{
             type,
-            emailValidationStatus: 'valid'
+            emailValidationStatus: "valid"
           }}
         />
       </FormGroup>

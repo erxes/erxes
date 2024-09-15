@@ -221,23 +221,6 @@ export default {
         description:
           "Start with a blank workflow that enrolls and is triggered off company"
       }
-    ],
-    emailRecipientTypes: [
-      {
-        type: "lead",
-        name: "leadIds",
-        label: "Leads"
-      },
-      {
-        type: "customer",
-        name: "customerIds",
-        label: "Customers"
-      },
-      {
-        type: "company",
-        name: "companyIds",
-        label: "Companies"
-      }
     ]
   }
 };

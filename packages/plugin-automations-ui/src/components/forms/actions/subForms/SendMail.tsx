@@ -14,24 +14,26 @@ import {
   Tabs,
   __,
   colors
-} from '@erxes/ui/src';
+} from "@erxes/ui/src";
 
-import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
-import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
-import { DrawerDetail, ItemRowHeader } from '@erxes/ui-automations/src/styles';
-import { IAction } from '@erxes/ui-automations/src/types';
-import EmailTemplate from '@erxes/ui-emailtemplates/src/containers/EmailTemplate';
-import AddTemplateForm from '@erxes/ui-emailtemplates/src/containers/Form';
-import SelectEmailTemplates from '@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate';
-import { FlexRow } from '@erxes/ui-settings/src/styles';
-import Popover from '@erxes/ui/src/components/Popover';
-import { Avatar } from '@erxes/ui/src/components/SelectWithSearch';
-import { PopoverContent } from '@erxes/ui/src/components/filterableList/styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
-import { renderDynamicComponent } from '../../../../utils';
-import { Padding } from '../styles';
-import { ItemRow } from '@erxes/ui-automations/src/components/forms/actions/ItemRow';
+import Common from "@erxes/ui-automations/src/components/forms/actions/Common";
+import PlaceHolderInput from "@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput";
+import { DrawerDetail, ItemRowHeader } from "@erxes/ui-automations/src/styles";
+import { IAction } from "@erxes/ui-automations/src/types";
+import EmailTemplate from "@erxes/ui-emailtemplates/src/containers/EmailTemplate";
+import AddTemplateForm from "@erxes/ui-emailtemplates/src/containers/Form";
+import SelectEmailTemplates from "@erxes/ui-emailtemplates/src/containers/SelectEmailtTemplate";
+import { FlexRow } from "@erxes/ui-settings/src/styles";
+import Popover from "@erxes/ui/src/components/Popover";
+import { Avatar } from "@erxes/ui/src/components/SelectWithSearch";
+import { PopoverContent } from "@erxes/ui/src/components/filterableList/styles";
+import { isEnabled } from "@erxes/ui/src/utils/core";
+import React, { useState } from "react";
+import { renderDynamicComponent } from "../../../../utils";
+import { Padding } from "../styles";
+import { ItemRow } from "@erxes/ui-automations/src/components/forms/actions/ItemRow";
+import SelectCompanies from "@erxes/ui-contacts/src/companies/containers/SelectCompanies";
+import SelectCustomers from "@erxes/ui-contacts/src/customers/containers/SelectCustomers";
 
 type Props = {
   activeAction: any;
@@ -54,11 +56,11 @@ const checkToFieldConfigured = (emailRecipientsConst, config) => {
 };
 
 const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const addTemplateForm = () => {
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
-        {__('Add template')}
+        {__("Add template")}
       </Button>
     );
 
@@ -89,13 +91,13 @@ const EmailTemplatesList = ({ triggerType, onChangeConfig }) => {
   };
 
   const selectTemplate = (id: string) => {
-    onChangeConfig('templateId', id);
+    onChangeConfig("templateId", id);
   };
 
   return (
     <>
       <FormGroup>
-        <ControlLabel>{__('Search')}</ControlLabel>
+        <ControlLabel>{__("Search")}</ControlLabel>
         <BarItems>
           <FormControl
             name="searchValue"
@@ -121,7 +123,7 @@ const RecipientsForm = ({
   config,
   onChangeConfig
 }) => {
-  const [selectedTab, setTab] = useState('general');
+  const [selectedTab, setTab] = useState("general");
 
   const onSelect = (value, name) => {
     onChangeConfig({ ...config, [name]: value });
@@ -130,7 +132,7 @@ const RecipientsForm = ({
   const renderAttrubutionInput = () => {
     const onChange = updatedConfig => onChangeConfig(updatedConfig);
 
-    const isAvailableTriggerExecutor = ['contacts', 'user'].some(c =>
+    const isAvailableTriggerExecutor = ["contacts", "user"].some(c =>
       triggerType.includes(c)
     );
 
@@ -138,9 +140,9 @@ const RecipientsForm = ({
       ? [
           {
             _id: String(Math.random()),
-            label: 'Trigger Executors',
-            name: 'triggerExecutors',
-            type: 'segment'
+            label: "Trigger Executors",
+            name: "triggerExecutors",
+            type: "segment"
           }
         ]
       : [];
@@ -152,8 +154,8 @@ const RecipientsForm = ({
         inputName="attributionMails"
         placeholder="Please select  some attributes from attributes section"
         label="Dynamic mails"
-        attrTypes={['user', 'contact', 'segment']}
-        attrWithSegmentConfig={triggerType === 'forms:form_submission'}
+        attrTypes={["user", "contact", "segment"]}
+        attrWithSegmentConfig={triggerType === "forms:form_submission"}
         triggerConfig={triggerConfig}
         onChange={onChange}
         customAttributions={customAttributions}
@@ -164,7 +166,7 @@ const RecipientsForm = ({
               <Icon color={colors.colorCoreRed} icon="question-circle" />
             }
           >
-            <PopoverContent style={{ width: '200px', padding: '10px' }}>
+            <PopoverContent style={{ width: "200px", padding: "10px" }}>
               This type does not include (From Mail) and (Not Verified mails)
             </PopoverContent>
           </Popover>
@@ -177,24 +179,24 @@ const RecipientsForm = ({
     const onChange = e => {
       const { value } = e.currentTarget;
       if (
-        e.key === 'Enter' &&
+        e.key === "Enter" &&
         value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
       ) {
-        onSelect((config?.customMails || []).concat(value), 'customMails');
-        e.currentTarget.value = '';
+        onSelect((config?.customMails || []).concat(value), "customMails");
+        e.currentTarget.value = "";
       }
     };
 
     const removeMail = mail => {
       onSelect(
         (config?.customMails || []).filter(value => value !== mail),
-        'customMails'
+        "customMails"
       );
     };
 
     return (
       <FormGroup>
-        <ControlLabel>{__('Custom Mail')}</ControlLabel>
+        <ControlLabel>{__("Custom Mail")}</ControlLabel>
         {(config?.customMails || []).map(customMail => (
           <Chip
             key={customMail}
@@ -213,7 +215,7 @@ const RecipientsForm = ({
     if (serviceName) {
       return renderDynamicComponent(
         {
-          componentType: 'selectRecipients',
+          componentType: "selectRecipients",
           type,
           value: config[name],
           label,
@@ -225,34 +227,61 @@ const RecipientsForm = ({
     }
 
     switch (type) {
-      case 'customMail':
+      case "customMail":
         return renderCustomMailInput();
-      case 'teamMember':
+      case "teamMember":
         return (
           <FormGroup>
             <ControlLabel>{__(label)}</ControlLabel>
             <SelectTeamMembers
               name={name}
-              initialValue={config[name] || ''}
+              initialValue={config[name] || ""}
               label={label}
               onSelect={onSelect}
               filterParams={{
-                status: 'Verified'
+                status: "Verified"
               }}
             />
           </FormGroup>
         );
+
       default:
-        return null;
+        const Components = {
+          lead: SelectCustomers,
+          customer: SelectCustomers,
+          company: SelectCompanies
+        };
+
+        const Component = Components[type];
+
+        if (!Component) {
+          return <EmptyState text="Empty" icon="info-circle" />;
+        }
+
+        return (
+          <FormGroup>
+            <ControlLabel>{__(label)}</ControlLabel>
+            <Component
+              name={name}
+              initialValue={config[name] || ""}
+              label={label}
+              onSelect={onSelect}
+              filterParams={{
+                type,
+                emailValidationStatus: "valid"
+              }}
+            />
+          </FormGroup>
+        );
     }
   };
 
   const renderToEmailsContent = () => {
-    if (selectedTab === 'general') {
+    if (selectedTab === "general") {
       return renderAttrubutionInput();
     }
 
-    if (selectedTab === 'static') {
+    if (selectedTab === "static") {
       return (emailRecipientsConst || []).map(emailRType =>
         renderRecipientTypeComponent(emailRType)
       );
@@ -263,14 +292,14 @@ const RecipientsForm = ({
 
   return (
     <FormGroup>
-      <ControlLabel>{__('To Emails')}</ControlLabel>
+      <ControlLabel>{__("To Emails")}</ControlLabel>
       <DrawerDetail>
         <Tabs full>
           <TabTitle
-            className={selectedTab === 'general' ? 'active' : ''}
-            onClick={() => setTab('general')}
+            className={selectedTab === "general" ? "active" : ""}
+            onClick={() => setTab("general")}
           >
-            {__('General')}
+            {__("General")}
             {config?.attributionMails && (
               <Label lblStyle="danger">
                 <Icon icon="check" />
@@ -278,14 +307,14 @@ const RecipientsForm = ({
             )}
           </TabTitle>
           <TabTitle
-            className={selectedTab === 'static' ? 'active' : ''}
-            onClick={() => setTab('static')}
+            className={selectedTab === "static" ? "active" : ""}
+            onClick={() => setTab("static")}
           >
-            {__('Static')}
+            {__("Static")}
             {checkToFieldConfigured(emailRecipientsConst, config) && (
               <Label lblStyle="danger" shake={true} ignoreTrans={true}>
                 {`${emailRecipientsConst
-                  .filter(({ name }) => name !== 'attributionMails')
+                  .filter(({ name }) => name !== "attributionMails")
                   .reduce((acc, item) => {
                     if (
                       config.hasOwnProperty(item.name) &&
@@ -330,31 +359,31 @@ const ConfigForm = ({
     >
       <DrawerDetail>
         <ItemRow
-          title={'Sender'}
+          title={"Sender"}
           description="Who is sending email"
           buttonText="sender"
           isDone={config?.fromUserId}
           config={config}
           content={(doc, onChange) => (
             <FormGroup>
-              <ControlLabel>{'Sender'}</ControlLabel>
+              <ControlLabel>{"Sender"}</ControlLabel>
               <SelectTeamMembers
                 name="fromUserId"
                 initialValue={doc?.fromUserId || config?.fromUserId}
                 label="Select sender user"
                 onSelect={(value, name) => onChange({ ...doc, [name]: value })}
                 filterParams={{
-                  status: 'Verified'
+                  status: "Verified"
                 }}
                 multi={false}
               />
             </FormGroup>
           )}
-          onSave={({ fromUserId }) => onSelect(fromUserId, 'fromUserId')}
-          subContent={config?.fromUserId ? '' : 'Select Sender'}
+          onSave={({ fromUserId }) => onSelect(fromUserId, "fromUserId")}
+          subContent={config?.fromUserId ? "" : "Select Sender"}
         />
         <ItemRow
-          title={'Reciepent'}
+          title={"Reciepent"}
           description=""
           buttonText="select recipients"
           config={config}
@@ -369,10 +398,10 @@ const ConfigForm = ({
             />
           )}
           onSave={setConfig}
-          subContent={config?.to ? '' : 'Select recipients'}
+          subContent={config?.to ? "" : "Select recipients"}
         />
         <ItemRow
-          title={'Subject'}
+          title={"Subject"}
           description="Configure the subject of the email"
           buttonText="subject"
           config={config}
@@ -390,17 +419,17 @@ const ConfigForm = ({
               triggerType={triggerType}
             />
           )}
-          subContent={config?.subject ? '' : 'Enter subject'}
+          subContent={config?.subject ? "" : "Enter subject"}
           onSave={doc => setConfig({ ...config, ...doc })}
         />
 
         <FlexRow $justifyContent="space-between">
           <FlexRow $alignItems="baseline">
-            <ItemRowHeader>{__('Selected Email Template')}</ItemRowHeader>
+            <ItemRowHeader>{__("Selected Email Template")}</ItemRowHeader>
             <Icon
               color={colors.colorCoreGreen}
               icon="check-circle"
-              style={{ paddingLeft: '6px' }}
+              style={{ paddingLeft: "6px" }}
             />
           </FlexRow>
           <ModalTrigger
@@ -433,7 +462,7 @@ export default function SendEmail({
   closeModal,
   triggerConfig
 }: Props) {
-  if (!isEnabled('emailtemplates')) {
+  if (!isEnabled("emailtemplates")) {
     return (
       <EmptyState
         image="/images/actions/33.svg"
@@ -453,7 +482,7 @@ export default function SendEmail({
 
   if (config?.templateId) {
     const { emailRecipientsConst = [] } =
-      actionsConst.find(action => action.type === 'sendEmail') || {};
+      actionsConst.find(action => action.type === "sendEmail") || {};
 
     const updatedProps = {
       emailRecipientsConst,
