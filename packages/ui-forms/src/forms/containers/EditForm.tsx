@@ -111,7 +111,7 @@ class EditFormContainer extends React.Component<FinalProps> {
             return { ...rest, logics, objectListConfigs };
           });
 
-          const addingFields = fields
+          const newFields = fields
             .filter((field) => field._id.startsWith("tempId"))
             .map(({ _id, ...rest }) => {
               return {
@@ -120,7 +120,7 @@ class EditFormContainer extends React.Component<FinalProps> {
               };
             });
 
-          const editingFields = fields.filter(
+          const updatedFields = fields.filter(
             (field) => !field._id.startsWith("tempId")
           );
 
@@ -128,8 +128,8 @@ class EditFormContainer extends React.Component<FinalProps> {
             variables: {
               contentType: "form",
               contentTypeId: formId,
-              addingFields,
-              editingFields,
+              newFields,
+              updatedFields,
             },
           });
 
@@ -229,8 +229,8 @@ export default withProps<Props>(
       Props,
       FieldsBulkAddAndEditMutationResponse,
       BulkEditAndAddMutationVariables
-    >(gql(mutations.fieldsBulkAddAndEdit), {
-      name: "fieldsBulkAddAndEditMutation",
+    >(gql(mutations.fieldsBulkAction), {
+      name: "fieldsBulkAction",
     }),
     graphql<Props, EditFormMutationResponse, EditFormMutationVariables>(
       gql(mutations.editForm),

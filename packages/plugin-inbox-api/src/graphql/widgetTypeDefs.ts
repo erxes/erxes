@@ -17,10 +17,7 @@ export const types = ({ products, knowledgeBase }) => `
       _id: String! @external
     }
 
-    type FormConnectResponse {
-      integration: Integration
-      form: Form
-    }
+ 
 
   ${
     knowledgeBase
@@ -55,19 +52,7 @@ export const types = ({ products, knowledgeBase }) => `
     supporters: [User]
   }
 
-  type SaveFormResponse {
-    status: String!
-    errors: [Error]
-    conversationId: String
-    customerId: String
-    userId: String
-  }
 
-  type Error {
-    fieldId: String
-    code: String
-    text: String
-  }
 
   extend type User {
     isOnline: Boolean
@@ -76,30 +61,6 @@ export const types = ({ products, knowledgeBase }) => `
   type MessengerSupportersResponse {
     supporters: [User]
     isOnline: Boolean
-  }
-
-  ${
-    products
-      ? `
-      type BookingProduct {
-        product: Product
-        fields: [Field]
-      }
-    `
-      : ""
-  }
-
-  input FieldValueInput {
-    _id: String!
-    type: String
-    validation: String
-    text: String
-    value: JSON
-    associatedFieldId: String
-    stageId: String
-    groupId: String
-    column: Int
-    productId: String
   }
 `;
 
@@ -122,14 +83,8 @@ export const queries = ({ products, knowledgeBase }) => `
       : ""
   }
 
-  ${
-    products
-      ? `
-      widgetsProductCategory(_id: String!): ProductCategory
-      widgetsBookingProductWithFields(_id: String!): BookingProduct
-    `
-      : ""
-  }
+
+  widgetsProductCategory(_id: String!): ProductCategory
 `;
 
 export const mutations = () => `
@@ -177,31 +132,6 @@ export const mutations = () => `
 
   widgetsReadConversationMessages(conversationId: String): JSON
   widgetsSaveCustomerGetNotified(customerId: String, visitorId: String, type: String!, value: String!): JSON
-  widgetsLeadConnect(
-      brandCode: String!,
-      formCode: String!,
-      cachedCustomerId: String
-    ): FormConnectResponse
-
-  widgetsSaveLead(
-      integrationId: String!
-      formId: String!
-      submissions: [FieldValueInput]
-      browserInfo: JSON!
-      cachedCustomerId: String
-      userId: String
-    ): SaveFormResponse
-
-  widgetsBookingConnect(_id: String): Integration
-
-  widgetsSaveBooking(
-      integrationId: String!
-      formId: String!
-      submissions: [FieldValueInput]
-      browserInfo: JSON!
-      cachedCustomerId: String
-      productId: String
-    ): SaveFormResponse
 
   widgetsSendEmail(
     toEmails: [String]

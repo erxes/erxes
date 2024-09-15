@@ -15,6 +15,7 @@ export const TAG_TYPES = {
   PURCHASE: __("purchases:purchase"),
   DASHBOARD: __("dashboard:dashboard"),
   REPORT: __("reports:reports"),
+  FORM: __("core:form"),
   ALL_LIST: [
     "conversation",
     "customer",
@@ -24,6 +25,9 @@ export const TAG_TYPES = {
     "product",
     "productTemplate",
     "deal",
-    "purchase"
+    "purchase",
+    "dashboard",
+    "report",
+    "leadForm"
   ]
 };

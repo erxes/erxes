@@ -773,46 +773,6 @@ const integrationMutations = {
     });
 
     return copiedIntegration;
-  },
-  /**
-   * Create a new booking integration
-   */
-  async integrationsCreateBookingIntegration(
-    _root,
-    doc: IIntegration,
-    { user, models, subdomain }: IContext
-  ) {
-    const integration = await models.Integrations.createBookingIntegration(
-      doc,
-      user._id
-    );
-
-    return createIntegration(
-      models,
-      subdomain,
-      doc,
-      integration,
-      user,
-      "booking"
-    );
-  },
-
-  /**
-   * Edit a boooking integration
-   */
-  async integrationsEditBookingIntegration(
-    _root,
-    { _id, ...doc }: IEditIntegration,
-    { user, models, subdomain }: IContext
-  ) {
-    const integration = await models.Integrations.getIntegration({ _id });
-
-    const updated = await models.Integrations.updateBookingIntegration(
-      _id,
-      doc
-    );
-
-    return editIntegration(subdomain, doc, integration, user, updated, models);
   }
 };
 
@@ -860,16 +820,6 @@ checkPermission(
   integrationMutations,
   "integrationsCopyLeadIntegration",
   "integrationsCreateLeadIntegration"
-);
-checkPermission(
-  integrationMutations,
-  "integrationsCreateBookingIntegration",
-  "integrationsCreateBookingIntegration"
-);
-checkPermission(
-  integrationMutations,
-  "integrationsEditBookingIntegration",
-  "integrationsEditBookingIntegration"
 );
 
 export default integrationMutations;

@@ -65,7 +65,6 @@ class Callout extends React.Component<Props, State> {
 
   renderHead(title: string) {
     const { hasTopBar, color } = this.props;
-
     if (hasTopBar) {
       return <TopBar title={title} color={color} />;
     }
@@ -97,18 +96,18 @@ class Callout extends React.Component<Props, State> {
     }
 
     return (
-      <div className="erxes-form">
+      <div className='erxes-form'>
         {this.renderHead(title)}
 
-        <div className="erxes-form-content">
-          <div className="erxes-callout-body" ref={this.callOutRef}>
+        <div className='erxes-form-content'>
+          <div className='erxes-callout-body' ref={this.callOutRef}>
             {this.renderFeaturedImage(featuredImage, title, calloutImgSize)}
             {body}
           </div>
           <button
             style={{ background: color }}
-            type="button"
-            className="erxes-button btn-block"
+            type='button'
+            className='erxes-button btn-block'
             onClick={onSubmit}
           >
             {buttonText}
@@ -119,11 +118,13 @@ class Callout extends React.Component<Props, State> {
   }
 }
 
-export default (props: Props) => (
-  <Callout
-    {...props}
-    // if lead is in a messenger, return messenger theme color (getColor())
-    // else return lead theme color
-    color={getColor ? getColor() : props.color}
-  />
-);
+export default (props: Props) => {
+  return (
+    <Callout
+      {...props}
+      // if lead is in a messenger, return messenger theme color (getColor())
+      // else return lead theme color
+      color={props.color ? props.color : getColor()}
+    />
+  );
+};

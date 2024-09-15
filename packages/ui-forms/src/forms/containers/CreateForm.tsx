@@ -35,9 +35,7 @@ const CreateFormContainer: React.FC<Props> = ({
     refetchQueries: ['fields'],
   });
 
-  const [fieldsBulkAddAndEditMutation] = useMutation(
-    gql(mutations.fieldsBulkAddAndEdit)
-  );
+  const [manageFieldsMutation] = useMutation(gql(mutations.fieldsBulkAction));
 
   const saveForm = useCallback(
     (doc: IFormData) => {
@@ -67,16 +65,22 @@ const CreateFormContainer: React.FC<Props> = ({
           }
         })
         .then(() => {
-          const cleanedFields = fields.map(({ _id, ...rest }) => ({
-            tempFieldId: _id,
-            ...rest,
-          }));
+          const cleanedFields = fields.map(({ _id, ...rest }) => {
+            const f: any = rest;
 
-          fieldsBulkAddAndEditMutation({
+            delete f.contentType;
+
+            return {
+              tempFieldId: _id,
+              ...f,
+            };
+          });
+
+          manageFieldsMutation({
             variables: {
               contentType: 'form',
               contentTypeId: formId,
-              addingFields: cleanedFields,
+              newFields: cleanedFields,
             },
           });
         })
@@ -89,10 +93,8 @@ const CreateFormContainer: React.FC<Props> = ({
           Alert.error(error.message);
         });
     },
-    [addFormMutation, fieldsBulkAddAndEditMutation, afterDbSave, showMessage]
+    [addFormMutation, manageFieldsMutation, afterDbSave, showMessage]
   );
-
-  console.log("configsLoading",configsLoading)
 
   if (configsLoading) {
     return <Spinner objective={true} />;

@@ -15,10 +15,9 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  fields: IField[];
   renderPreviewWrapper?: (previewRenderer, fields: IField[]) => any;
   onDocChange?: (doc: IFormData) => void;
-  saveForm: (params: IFormData) => void;
+  // saveForm: (params: IFormData) => void;
   formData?: IFormData;
   isReadyToSave: boolean;
   type: string;
@@ -48,7 +47,7 @@ class Form extends React.Component<Props, State> {
     const { form = {} as IForm } = props;
 
     this.state = {
-      fields: (props.formData ? props.formData.fields : props.fields) || [],
+      fields: (props.formData ? props.formData.fields : []) || [],
       title: form.title || 'Form Title',
       description: form.description || '',
       buttonText: form.buttonText || 'Send',
@@ -61,8 +60,7 @@ class Form extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { saveForm, type, isReadyToSave, formData } = this.props;
-    const { title, buttonText, description, fields } = this.state;
+    const { formData } = this.props;
 
     if (nextProps.formData && nextProps.formData !== formData) {
       this.setState({
@@ -70,19 +68,19 @@ class Form extends React.Component<Props, State> {
       });
     }
 
-    if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
-      saveForm(
-        nextProps.formData
-          ? { ...nextProps.formData, type: nextProps.type }
-          : {
-              title,
-              description,
-              buttonText,
-              fields,
-              type,
-            }
-      );
-    }
+    // if (nextProps.isReadyToSave && isReadyToSave !== nextProps.isReadyToSave) {
+    //   saveForm(
+    //     nextProps.formData
+    //       ? { ...nextProps.formData, type: nextProps.type }
+    //       : {
+    //           title,
+    //           description,
+    //           buttonText,
+    //           fields,
+    //           type,
+    //         }
+    //   );
+    // }
   }
 
   renderOptionalFields = () => {
@@ -237,9 +235,7 @@ class Form extends React.Component<Props, State> {
   }
 
   render() {
-    const { renderPreviewWrapper } = this.props;
-    const { currentMode, currentField, fields, description, numberOfPages } =
-      this.state;
+    const { currentMode, currentField, fields, numberOfPages } = this.state;
 
     return (
       <FlexContent>

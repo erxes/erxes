@@ -2,7 +2,16 @@ export const types = (cardAvailable, kbAvailable, productsAvailable) => `
 ${
   cardAvailable
     ? `
-   extend type Stage @key(fields: "_id") {
+  extend type TasksStage @key(fields: "_id") {
+    _id: String! @external
+  }
+  extend type SalesStage @key(fields: "_id") {
+    _id: String! @external
+  }
+    extend type TicketsStage @key(fields: "_id") {
+    _id: String! @external
+  }
+    extend type PurchasesStage @key(fields: "_id") {
     _id: String! @external
   }
   extend type Task @key(fields: "_id") {
@@ -17,19 +26,22 @@ ${
   extend type Deal @key(fields: "_id") {
     _id: String! @external
   }
-  extend input TicketsItemDate{
-  _id: String!
+  input TicketsItemDate {
+    month: Int
+    year: Int
   }
-  extend input SalesItemDate{
-  _id: String! 
+  input SalesItemDate {
+    month: Int
+    year: Int
   }
-  extend input PurhcasesItemDate{
-  _id: String! 
+  input PurchasesItemDate {
+    month: Int
+    year: Int
   }
-  extend input TasksItemDate{
-  _id: String! 
+  input TasksItemDate {
+    month: Int
+    year: Int
   }
-  
    `
     : ''
 }
@@ -366,18 +378,18 @@ export const queries = (cardAvailable, kbAvailable) => `
   ${
     cardAvailable
       ? `
-    clientPortalGetTaskStages: [Stage]
-    clientPortalGetTasks(stageId: String!): [Task]
+    clientPortalGetTaskStages: [TasksStage]
+    clientPortalGetTasks(stageId: String!): [TasksStage]
     clientPortalTickets(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TicketsItemDate): [Ticket]
     clientPortalDeals(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: SalesItemDate): [Deal]
-    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurhcasesItemDate): [Purchase]
-    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [Task]
+    clientPortalPurchases(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: PurchasesItemDate): [Purchase]
+    clientPortalTasks(priority: [String], labelIds:[String], stageId: String, userIds: [String], closeDateType: String, date: TasksItemDate): [TasksStage]
     clientPortalTicket(_id: String!): Ticket
     clientPortalCardUsers(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalUser]
     clientPortalUserTickets(userId: String): [Ticket]
     clientPortalUserDeals(userId: String): [Deal]
     clientPortalUserPurchases(userId: String): [Purchase]
-    clientPortalUserTasks(userId: String): [Task]
+    clientPortalUserTasks(userId: String): [TasksStage]
     clientPortalParticipantDetail(_id: String, contentType:String, contentTypeId:String, cpUserId:String): ClientPortalParticipant
     clientPortalParticipants(contentType: String!, contentTypeId: String!, userKind: BusinessPortalKind): [ClientPortalParticipant]
    `

@@ -443,7 +443,6 @@ export type ConvertToMutationVariables = {
   itemId?: string;
   itemName?: string;
   stageId?: string;
-  bookingProductId?: string;
 };
 
 export type ConvertToMutationResponse = {

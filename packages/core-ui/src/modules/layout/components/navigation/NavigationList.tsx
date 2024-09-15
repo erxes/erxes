@@ -32,7 +32,14 @@ const CORE_PLUGINS = [
     icon: "icon-chart-pie-alt",
     location: "mainNavigation",
     permission: "showSegments"
-  }
+  },
+  {
+    text: 'Forms',
+    url: '/forms',
+    icon: 'icon-laptop',
+    location: 'mainNavigation',
+    permission: 'showForms'
+  },
 ];
 
 export default class NavigationList extends React.Component<Props, State> {
