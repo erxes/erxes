@@ -2,17 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { commarizeNumbers } from "../../utils";
 import { colors } from "@erxes/ui/src/styles";
-import { ChartTable } from "../../styles";
-
-const ScrollWrapper = styled.div`
-  height: 50vh;
-  height: 100%;
-  overflow: auto;
-  padding: 0px 10px 0 20px;
-  margin-left: -20px;
-  margin-right: -10px;
-  margin-top: -5px;
-`;
+import { ChartTable, ScrollWrapper } from "../../styles";
 
 const SortWrapper = styled.th`
   position: relative;

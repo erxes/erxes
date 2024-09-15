@@ -353,6 +353,7 @@ const sendEmailOrSms = async (
     );
   }
 
+  console.log("SENDING prepareEngageCustomers to CONTACTS =============")
   // customer info will be prepared at contacts api
   sendContactsMessage({
     isRPC: false,
