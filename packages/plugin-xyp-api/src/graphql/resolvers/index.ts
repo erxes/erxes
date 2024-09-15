@@ -2,6 +2,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import mutations from './mutations';
 import queries from './queries';
+import XypSyncRule from './xypSyncRule'
 import { IContext } from '../../connectionResolver';
 
 const XypData = {
@@ -14,6 +15,7 @@ const XypData = {
 const resolvers: any = async () => ({
   ...customScalars,
   XypData,
+  XypSyncRule,
   Mutation: {
     ...mutations,
   },

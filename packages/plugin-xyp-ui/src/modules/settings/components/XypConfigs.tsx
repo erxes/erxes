@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import SelectServices from './settings/containers/SelectServices';
+import SelectServices from '../containers/SelectServices';
 import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
@@ -83,7 +83,6 @@ const XypConfigs = (props: Props) => {
             value={configs.servicelist}
             onChange={value => {
               const list = value.map(d => d.value);
-              console.log('this works', list);
               onChangeService(list);
             }}
           />
