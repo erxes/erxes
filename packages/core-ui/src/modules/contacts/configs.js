@@ -5,7 +5,6 @@ module.exports = {
   scope: "contacts",
   exposes: {
     "./routes": "./src/routes.tsx",
-    "./activityLog": "./src/activityLogs/activityLog.tsx",
     "./automation": "./src/automations/automation.tsx"
   },
   routes: {
@@ -13,7 +12,6 @@ module.exports = {
     scope: "contacts",
     module: "./routes"
   },
-  activityLog: "./activityLog",
   automation: "./automation",
 
   menus: [

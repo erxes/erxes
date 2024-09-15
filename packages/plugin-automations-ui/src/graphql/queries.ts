@@ -102,6 +102,7 @@ export const automations = `
 export const automationsMain = `
   query automationsMain(${listParamsDef}) {
     automationsMain(${listParamsValue}) {
+      totalCount
       list {
         _id
         name
@@ -123,9 +124,10 @@ export const automationsMain = `
           ${userFields}
         }
 
-        ${`tags {${tagFields}}`}
-
-      totalCount
+        tags {
+         ${tagFields}
+        }
+      }
     }
   }
 `;
