@@ -268,6 +268,11 @@ const engageMutations = {
 
     let replacedContent = content;
 
+    const emails = to.split(',');
+    if (emails.length > 1) {
+      throw new Error('Test email can only be sent to one recipient');
+    }
+
     const targetUser = await sendCoreMessage({
       data: { email: to },
       action: 'users.findOne',
