@@ -35,6 +35,7 @@ import SelectProperty from "@erxes/ui-forms/src/settings/properties/containers/S
 import Toggle from "@erxes/ui/src/components/Toggle";
 import { isEnabled } from "@erxes/ui/src/utils/core";
 import { stringToRegex } from "../../settings/properties/utils";
+import SelectProductCategory from "@erxes/ui-products/src/containers/form/SelectProductCategory";
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -434,6 +435,14 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderProductField() {
+    const { field } = this.state;
+
+    return (
+      <SelectProductCategory field={field} onChange={this.onFieldChange} />
+    );
+  }
+
   renderGroupedField() {
     const { fields } = this.props;
     const { field } = this.state;
@@ -544,10 +553,7 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderObjectListOptions()}
 
           {this.renderColumn()}
-          {loadDynamicComponent("extendFormField", {
-            field,
-            onChange: this.onFieldChange
-          })}
+          {this.renderProductField()}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
@@ -753,7 +759,6 @@ class FieldForm extends React.Component<Props, State> {
       </FormGroup>
     );
   }
-
 
   renderCustomProperty() {
     const { selectedOption, group } = this.state;

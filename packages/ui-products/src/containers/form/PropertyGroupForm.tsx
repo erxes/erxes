@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import SelectCategory from '@erxes/ui-forms/src/settings/properties/containers/SelectProductCategory';
+import React, { useState, useEffect } from "react";
+import SelectCategory from "@erxes/ui-forms/src/settings/properties/containers/SelectProductCategory";
 
-const Form: React.FC<any> = (props) => {
+const Form: React.FC<any> = props => {
   const config = props.config || {};
 
   const [selectCategories, setSelectCategories] = useState(
-    config.categories || [],
+    config.categories || []
   );
 
   useEffect(() => {
-    props.onChangeItems(selectCategories, 'categories');
+    props.onChangeItems(selectCategories, "categories");
   }, [selectCategories]);
 
-  const onChange = (categories) => {
+  const onChange = categories => {
     // this.props.onChangeItems(boardsPipelines);
     setSelectCategories(categories);
   };

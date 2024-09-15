@@ -23,10 +23,6 @@ class FieldPreview extends React.Component<Props, {}> {
       }
     };
 
-    if (field.type === "productCategory") {
-      return <p>Products service is not enabled</p>;
-    }
-
     return (
       <FieldItem
         $hasLogic={hasLogic}

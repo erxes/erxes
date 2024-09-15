@@ -1,8 +1,8 @@
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
-import { Collection, Db, MongoClient } from 'mongodb';
+import { Collection, Db, MongoClient } from "mongodb";
 
 const { MONGO_URL } = process.env;
 
@@ -21,10 +21,10 @@ const command = async () => {
   await client.connect();
   db = client.db() as Db;
 
-  Integrations = db.collection('integrations');
-  Forms = db.collection('forms');
+  Integrations = db.collection("integrations");
+  Forms = db.collection("forms");
 
-  const leadIntegrations = await Integrations.find({ kind: 'lead' }).toArray();
+  const leadIntegrations = await Integrations.find({ kind: "lead" }).toArray();
 
   for (const integration of leadIntegrations) {
     const form = await Forms.findOne({ _id: integration.formId });
@@ -39,7 +39,7 @@ const command = async () => {
         tagIds: integration.tagIds,
         kind: integration.kind,
         languageCode: integration.languageCode,
-        integrationId: integration._id,
+        integrationId: integration._id
       };
 
       await Forms.updateOne({ _id: form._id }, { $set: formDoc });
@@ -52,7 +52,7 @@ const command = async () => {
         scopeBrandIds: integration.scopeBrandIds,
         tagIds: integration.tagIds,
         createdUserId: integration.createdUserId,
-        createdAt: integration.createdAt,
+        createdAt: integration.createdAt
       };
       await Integrations.updateOne({ _id: integration._id }, integrationDoc);
     }

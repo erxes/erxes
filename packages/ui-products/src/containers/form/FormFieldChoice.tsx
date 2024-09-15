@@ -1,6 +1,6 @@
-import { FieldWrapper } from '@erxes/ui-forms/src/forms/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
+import { FieldWrapper } from "@erxes/ui-forms/src/forms/styles";
+import Icon from "@erxes/ui/src/components/Icon";
+import React from "react";
 
 type Props = {
   onChoiceClick: (choice: string) => void;
@@ -8,12 +8,12 @@ type Props = {
 
 const FieldChoice = (props: Props) => {
   const onClick = () => {
-    props.onChoiceClick('productCategory');
+    props.onChoiceClick("productCategory");
   };
 
   return (
     <FieldWrapper onClick={onClick}>
-      <Icon icon={'shoppingcart'} size={25} />
+      <Icon icon={"shoppingcart"} size={25} />
       Product/Service
     </FieldWrapper>
   );
