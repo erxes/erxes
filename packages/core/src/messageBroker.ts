@@ -56,6 +56,7 @@ import { setupContactsMessageBroker } from "./messageBrokers/contacts";
 import search from "./search";
 import { setupProductMessageBroker } from "./messageBrokers/products";
 import tags from "./tags";
+import { setupInternalNotesMessageBroker } from "./messageBrokers/internalNotes";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -64,6 +65,8 @@ export const initBroker = async (): Promise<void> => {
 export const setupMessageConsumers = async (): Promise<void> => {
   await setupContactsMessageBroker();
   await setupProductMessageBroker();
+  await setupInternalNotesMessageBroker();
+
   consumeQueue(
     "core:manage-installation-notification",
     async ({
@@ -1008,14 +1011,17 @@ export const setupMessageConsumers = async (): Promise<void> => {
     };
   });
 
-  consumeRPCQueue("core:duplicate", async ({ subdomain, data: { formId, userId} }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    "core:duplicate",
+    async ({ subdomain, data: { formId, userId } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: "success",
-      data: await models.Forms.duplicate(formId, userId)
-    };
-  });
+      return {
+        status: "success",
+        data: await models.Forms.duplicate(formId, userId)
+      };
+    }
+  );
 
   consumeRPCQueue(
     "core:createForm",
