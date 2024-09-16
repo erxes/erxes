@@ -1,20 +1,20 @@
 const reportTemplates = [
   {
-    serviceType: "ticket",
-    title: "Tickets chart",
-    serviceName: "cards",
-    description: "Tickets conversation charts",
+    serviceType: 'ticket',
+    title: 'Tickets chart',
+    serviceName: 'tickets',
+    description: 'Tickets conversation charts',
     charts: [
-      "TicketsTotalCount",
-      "TicketCustomProperties",
-      "TicketClosedTotalsByTags",
-      "TicketClosedTotalsByLabel",
-      "TicketClosedTotalsByRep",
-      "TicketTotalsByFrequency",
-      "TicketAverageTimeToCloseByRep",
-      "TicketTotalsBySource"
+      'TicketsTotalCount',
+      'TicketCustomProperties',
+      'TicketClosedTotalsByTags',
+      'TicketClosedTotalsByLabel',
+      'TicketClosedTotalsByRep',
+      'TicketTotalsByFrequency',
+      'TicketAverageTimeToCloseByRep',
+      'TicketTotalsBySource',
     ],
-    img: "https://sciter.com/wp-content/uploads/2022/08/chart-js.png"
+    img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
   }
 ];
 

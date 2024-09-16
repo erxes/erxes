@@ -22,6 +22,7 @@ import { __ } from "@erxes/ui/src/utils/index";
 import confirm from "@erxes/ui/src/utils/confirmation/confirm";
 import { getEnv } from "@erxes/ui/src/utils/index";
 import queryString from "query-string";
+import ChartGridLayout from "../chart/ChartGridLayout";
 
 type Props = {
   queryParams: any;
@@ -31,6 +32,7 @@ type Props = {
   dashboardChartsEdit: (_id: string, values: any) => void;
   dashboardDuplicate: (_id: string) => void;
   dashboardRemove: (ids: string) => void;
+  chartDuplicate: (_id: string) => void;
 };
 
 const Dashboard = (props: Props) => {
@@ -42,6 +44,7 @@ const Dashboard = (props: Props) => {
     dashboardChartsEdit,
     dashboardDuplicate,
     dashboardRemove,
+    chartDuplicate
   } = props;
 
   const { charts = [] } = dashboard;
@@ -145,6 +148,7 @@ const Dashboard = (props: Props) => {
         y: l.y,
         w: l.w,
         h: l.h,
+        static: l.static || false,
       });
 
       if (item && toUpdate !== item.layout) {
@@ -184,42 +188,18 @@ const Dashboard = (props: Props) => {
         data-grid={defaultLayout(chart, index)}
         style={{ overflow: "hidden" }}
       >
-        <ChartTitle>
-          <div>{chart.name}</div>
-          {chartType && chartType === "table" && (
-            <span
-              className="db-chart-action"
-              onClick={() => exportTable(chart)}
-            >
-              export
-            </span>
-          )}
-          <span
-            className="db-chart-action"
-            onClick={() => {
-              setCurrentChart(chart);
-              setShowDrawer(!showDrawer);
-            }}
-          >
-            edit
-          </span>
-          <span
-            className="db-chart-action"
-            onClick={() => handleChartDelete(chart._id)}
-          >
-            delete
-          </span>
-        </ChartTitle>
-        <ChartRenderer
+        <ChartGridLayout
           queryParams={queryParams}
-          chartType={chart.chartType}
-          chartHeight={defaultLayout(chart, index).h * 160}
-          chartVariables={{
-            serviceName: chart.serviceName,
-            templateType: chart.templateType,
-          }}
-          filter={chart.filter}
-          dimension={chart.dimension}
+          chart={chart}
+          chartType={chartType}
+          showDrawer={showDrawer}
+          chartIndex={index}
+          exportTable={exportTable}
+          setCurrentChart={setCurrentChart}
+          setShowDrawer={setShowDrawer}
+          handleChartDelete={handleChartDelete}
+          dashboardChartsEdit={dashboardChartsEdit}
+          chartDuplicate={chartDuplicate}
         />
       </div>
     );

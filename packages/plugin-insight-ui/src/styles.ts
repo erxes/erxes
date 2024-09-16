@@ -1,17 +1,18 @@
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import RGL, { WidthProvider } from "react-grid-layout";
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import RGL, { WidthProvider } from 'react-grid-layout';
 
-import { ContentBox, Contents } from "@erxes/ui/src/layout/styles";
-import { RightMenuContainer } from "@erxes/ui-sales/src/boards/styles/rightMenu";
-import { lighten, rgba } from "@erxes/ui/src/styles/ecolor";
-import { ActionButtons } from "@erxes/ui-settings/src/styles";
-import { colors, dimensions } from "@erxes/ui/src/styles";
+import { ContentBox, Contents } from '@erxes/ui/src/layout/styles';
+import { RightMenuContainer } from '@erxes/ui-sales/src/boards/styles/rightMenu';
+import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
+import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import Table from '@erxes/ui/src/components/table';
 
 const ReactGridLayout = WidthProvider(RGL);
 
 const DragField = styledTS<{ haveChart?: boolean } & any>(
-  styled(ReactGridLayout)
+  styled(ReactGridLayout),
 )`
 
   background-image: radial-gradient(
@@ -19,7 +20,7 @@ const DragField = styledTS<{ haveChart?: boolean } & any>(
     ${colors.colorWhite} 20%
   );
 
-  ${props => (props.haveChart ? "" : "height: 100% !important")};
+  ${(props) => (props.haveChart ? '' : 'height: 100% !important')};
   min-height: 100% !important;
   
   background-size: 10px 10px;
@@ -212,17 +213,18 @@ const ChartTitle = styled.div`
 `;
 
 const RightDrawerContainer = styledTS<{ width?: number } & any>(
-  styled(RightMenuContainer)
+  styled(RightMenuContainer),
 )`
   background: ${colors.colorWhite};
-  width: ${props => (props.width ? `calc(100% - ${props.width}px)` : "500px")};
+  width: ${(props) =>
+    props.width ? `calc(100% - ${props.width}px)` : '500px'};
   padding: ${dimensions.unitSpacing}px;
   z-index: 10;
   top: 0;
 `;
 
 const MarginY = styledTS<{ margin: number }>(styled.div)`
-  margin: ${props => props.margin}px 0;
+  margin: ${(props) => props.margin}px 0;
 `;
 
 const Description = styled.div`
@@ -274,13 +276,11 @@ const DateRangeWrapper = styled.div`
 
   .rdtPicker .rdtDay {
     position: relative;
-    transition:
-      background-color 0.2s ease,
-      color 0.2s ease-in-out;
+    transition: background-color 0.2s ease, color 0.2s ease-in-out;
     border-radius: 8px;
 
     &:after {
-      content: "";
+      content: '';
       border-radius: 8px;
       position: absolute;
       top: -5px;
@@ -290,13 +290,13 @@ const DateRangeWrapper = styled.div`
     }
   }
 
-  .rdtPicker .rdtDay:hover {
+  .rdtPicker .rdtDay:hover { 
     border-radius: 8px;
   }
 
-  .rdtPicker .rdtDay.rdtInRange {
-    background-color: #8a8dd8 !important;
-    color: #fff;
+  .rdtPicker .rdtDay.rdtInRange { 
+    background-color: #8A8DD8 !important;
+    color: #FFF;
     border-radius: 8px;
   }
 
@@ -313,8 +313,8 @@ const DateRangeWrapper = styled.div`
   }
 
   .rdtPicker td.rdtDay.rdtHover:not(.rdtActive):not(.rdtInRange) {
-    background-color: #8a8dd8 !important;
-    color: #fff;
+    background-color: #8A8DD8 !important;
+    color: #FFF;
     border-radius: 8px;
   }
 `;
@@ -383,9 +383,7 @@ const FormContent = styled.div`
     }
   }
 
-  .css-13cymwt-control,
-  .css-t3ipsp-control,
-  .css-t3ipsp-control:hover {
+  .css-13cymwt-control, .css-t3ipsp-control, .css-t3ipsp-control:hover {
     border-bottom: none;
   }
 
@@ -400,8 +398,7 @@ const FormContent = styled.div`
       border-radius: 5px;
     }
 
-    .css-13cymwt-control > div,
-    .css-t3ipsp-control > div {
+    .css-13cymwt-control > div, .css-t3ipsp-control > div {
       margin: 5px 8px 5px 5px;
       padding: 0;
     }
@@ -424,9 +421,8 @@ const FormContent = styled.div`
       border: 1px solid #eee;
     }
 
-    .css-d7l1ni-option,
-    .css-tr4s17-option {
-      background-color: #f0f0f0;
+    .css-d7l1ni-option, .css-tr4s17-option {
+      background-color: #F0F0F0;
       color: inherit;
     }
 
@@ -551,7 +547,7 @@ const TemplateBox = styledTS<{ showMore: boolean }>(styled.div)`
   }
 
   > ul {
-    ${props => !props.showMore && "height: 88px"};
+    ${(props) => !props.showMore && 'height: 88px'};
     transition: 0.5s ease;
     overflow: hidden;
     margin: unset;
@@ -601,7 +597,7 @@ const SectionListItem = styledTS<{
   backgroundColor?: string;
 }>(styled.li)`
   position: relative;
-  background: ${props =>
+  background: ${(props) =>
     (props.isActive && rgba(colors.colorPrimary, 0.2)) ||
     props.backgroundColor ||
     colors.colorWhite};
@@ -621,18 +617,18 @@ const SectionListItem = styledTS<{
   }
 
   span, i {
-    color: ${props => props.isActive && colors.colorPrimary} !important;
+    color: ${(props) => props.isActive && colors.colorPrimary} !important;
   }
   
   a {
     white-space: normal;
     padding: 0;
-    color: ${props => props.isActive && colors.colorPrimary} !important;
-    font-weight: ${props => (props.isActive ? 500 : 400)};
+    color: ${(props) => props.isActive && colors.colorPrimary} !important;
+    font-weight: ${(props) => (props.isActive ? 500 : 400)};
 
     &:hover {
       background: none;
-      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+      color: ${(props) => !props.isActive && lighten(colors.textPrimary, 40)};
     }
 
     &:focus {
@@ -674,14 +670,14 @@ const SectionListItem = styledTS<{
   &:hover {
 
     cursor: pointer;
-    background: ${props => !props.isActive && colors.bgLight};
+    background: ${(props) => !props.isActive && colors.bgLight};
     
     ${ActionButtons} {
       position:absolute;
       right : 0;
       width: 40px;
       z-index: 1;
-      background: ${props => (props.isActive ? "#e2dcf2" : colors.bgLight)};
+      background: ${(props) => (props.isActive ? '#e2dcf2' : colors.bgLight)};
     }
   }
 `;
@@ -690,8 +686,8 @@ const Title = styledTS<{ isOpen: boolean }>(styled.p)`
   max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${props =>
-    props.isOpen ? "overflow-wrap: break-word" : "white-space: nowrap"};
+  ${(props) =>
+    props.isOpen ? 'overflow-wrap: break-word' : 'white-space: nowrap'};
   margin: unset;
 `;
 
@@ -733,6 +729,58 @@ const ControlRange = styled.div`
   padding-top: 5px;
 `;
 
+const ChartTable = styled(Table)`
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  th:last-child {
+    display: flex;
+    justify-content: end;
+    
+    div {
+      position: relative;
+      top: -2px;
+    }
+  }
+`;
+
+const PivotTable = styled(Table)`
+
+  .pl-0 {
+    padding-left: 0;
+  }
+
+  .total {
+    font-weight: bold;
+  }
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  tr:first-child {
+
+    th:last-child {
+      text-align: left;
+      padding: 8px 18px 8px 0;
+    }
+  }
+`;
+
+const ScrollWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
+  padding: 0px 10px 0 20px;
+  margin-left: -20px;
+  margin-right: -10px;
+`;
+
 export {
   DragField,
   ChartTitle,
@@ -757,5 +805,8 @@ export {
   FormWrapper,
   ControlRange,
   DateRangeWrapper,
-  Divider
+  Divider,
+  ChartTable,
+  PivotTable,
+  ScrollWrapper
 };
