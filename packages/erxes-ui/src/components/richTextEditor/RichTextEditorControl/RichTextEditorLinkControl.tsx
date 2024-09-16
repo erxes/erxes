@@ -144,7 +144,7 @@ export const RichTextEditorLinkControl = (
               </Tip>
             </InputAction>
           </InputWrapper>
-          <LinkButton onClick={handleSave}>
+          <LinkButton type="button" onClick={handleSave}>
             {ctx.labels.linkEditorSave}
           </LinkButton>
         </LinkWrapper>
