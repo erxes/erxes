@@ -6,7 +6,7 @@ import { generateModels } from "../connectionResolver";
 
 export const setupInternalNotesMessageBroker = async (): Promise<void> => {
   consumeQueue(
-    "internalnotes:batchUpdate",
+    "core:batchUpdate",
     async ({
       subdomain,
       data: { contentType, oldContentTypeIds, newContentTypeId }
@@ -24,22 +24,19 @@ export const setupInternalNotesMessageBroker = async (): Promise<void> => {
   );
 
   consumeQueue(
-    "internalnotes:removeInternalNotes",
+    "core:removeInternalNotes",
     async ({ subdomain, data: { contentType, contentTypeIds } }) => {
       const models = await generateModels(subdomain);
       models.InternalNotes.removeInternalNotes(contentType, contentTypeIds);
     }
   );
 
-  consumeRPCQueue(
-    "internalnotes:findInternalNotes",
-    async ({ subdomain, data }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue("core:findInternalNotes", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        data: await models.InternalNotes.find(data).lean(),
-        status: "success"
-      };
-    }
-  );
+    return {
+      data: await models.InternalNotes.find(data).lean(),
+      status: "success"
+    };
+  });
 };
