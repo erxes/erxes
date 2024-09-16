@@ -24,7 +24,7 @@ class List extends React.Component<FinalProps> {
       listQueryResponse,
       totalCountQueryResponse,
       removeMutation,
-      repairMutation,
+      repairMutation
     } = this.props;
 
     if (listQueryResponse?.loading) {
@@ -59,7 +59,7 @@ class List extends React.Component<FinalProps> {
       totalCount:
         totalCountQueryResponse?.facebootMessengerBotsTotalCount || [],
       remove,
-      repair,
+      repair
     };
 
     return <ListComponent {...updatedProps} />;
@@ -69,22 +69,19 @@ class List extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.list), {
-      name: 'listQueryResponse',
-      options: () => ({
-        fetchPolicy: 'cache-and-network',
-      }),
+      name: 'listQueryResponse'
     }),
     graphql<Props>(gql(queries.totalCount), {
-      name: 'totalCountQueryResponse',
+      name: 'totalCountQueryResponse'
     }),
     graphql(gql(mutations.removeBot), {
-      name: 'removeMutation',
+      name: 'removeMutation'
     }),
     graphql(gql(mutations.removeBot), {
-      name: 'removeMutation',
+      name: 'removeMutation'
     }),
     graphql(gql(mutations.repairBot), {
-      name: 'repairMutation',
-    }),
-  )(List),
+      name: 'repairMutation'
+    })
+  )(List)
 );

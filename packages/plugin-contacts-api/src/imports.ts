@@ -7,6 +7,7 @@ import {
   sendFormsMessage,
   sendTagsMessage,
 } from './messageBroker';
+import { getEnv } from '@erxes/api-utils/src/core';
 
 export default {
   insertImportItems: async ({ subdomain, data }) => {
@@ -21,6 +22,7 @@ export default {
     const updateDocs: any = [];
 
     try {
+      const emails: any[] = [];
       if (contentType === 'customer' || contentType === 'lead') {
         for (const doc of docs) {
           if (!doc.ownerId && user) {
@@ -71,7 +73,7 @@ export default {
 
               const updatedCustomer = await models.Customers.updateOne(
                 { _id: previousCustomer._id },
-                { $set: { ...doc } },
+                { $set: { ...doc } }
               );
 
               updateDocs.push(updatedCustomer);
@@ -85,6 +87,34 @@ export default {
 
             objects.push(insertedCustomer);
           }
+
+          if (doc.primaryEmail) {
+            emails.push(doc.primaryEmail);
+          }
+        }
+
+        const EMAIL_VERIFIER_ENDPOINT = getEnv({
+          name: 'EMAIL_VERIFIER_ENDPOINT',
+          defaultValue: '',
+        });
+
+        if (EMAIL_VERIFIER_ENDPOINT) {
+          const DOMAIN = getEnv({ name: 'DOMAIN' })
+            ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+            : 'http://localhost:4000';
+          const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+          const callback_url = `${domain}/pl:contacts`;
+          const endpoint = `${EMAIL_VERIFIER_ENDPOINT}/verify-bulk`;
+         
+          await fetch(endpoint, {
+            method: 'POST',
+            body: JSON.stringify({
+              emails,
+              hostname: callback_url,
+            }),
+            headers: { 'Content-Type': 'application/json' },
+          });
         }
       }
 
@@ -106,7 +136,7 @@ export default {
             if (previousCompany) {
               await models.Companies.updateOne(
                 { _id: previousCompany._id },
-                { $set: { ...doc } },
+                { $set: { ...doc } }
               );
 
               updated++;
@@ -123,14 +153,14 @@ export default {
         }
       }
 
-    sendCoreMessage({
-      subdomain,
-      action: 'registerOnboardHistory',
-      data: {
-        type: `ImportCustomerData`,
-        user,
-      },
-    });
+      sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: `ImportCustomerData`,
+          user,
+        },
+      });
 
       return { objects, updated };
     } catch (e) {

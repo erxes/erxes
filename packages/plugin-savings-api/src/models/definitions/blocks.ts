@@ -31,6 +31,13 @@ export const blockSchema = schemaHooksWrapper(
       label: 'Saving Contract Type',
       index: true
     }),
+    blockType: field({
+      type: String,
+      label: 'Block Type',
+      enum: ['scheduleTransaction', 'loanPayment'],
+      // loanPayment - orj irenguut ni avah, scheduleTransaction gartsiig haaj baiga
+      optional: true,
+    }),
     number: field({
       type: String,
       label: 'Number',

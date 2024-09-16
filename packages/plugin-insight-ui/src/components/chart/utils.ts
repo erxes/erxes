@@ -77,6 +77,14 @@ export const DEFAULT_LABELS_PER_CHART: {
   radar: lastSixMonths,
 };
 
+export const DATALABELS_CONFIGS = {
+  bar: {
+    anchor: 'end',
+    align: 'top',
+    offset: 2
+  }
+}
+
 export const horizontalDottedLine = {
   id: 'horizontalDottedLine',
   beforeDatasetsDraw(chart, args, options) {
@@ -87,6 +95,11 @@ export const horizontalDottedLine = {
     const targetValue = options.targetValue || 0;
     const showLine = options.showLine !== undefined ? options.showLine : true;
     const label = options.label || '';
+
+    if (targetValue > y.max) {
+      y.options.max = targetValue + 50;
+      chart.update();
+    }
 
     if (targetValue > 0 && showLine) {
       ctx.strokeStyle = 'grey';

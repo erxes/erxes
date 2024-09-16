@@ -1,9 +1,10 @@
 import { sendCoreMessage, sendFormsMessage, sendInboxMessage, sendLogsMessage, sendTagsMessage } from "../messageBroker";
-import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP } from './constants';
+import { NOW, PROBABILITY_CLOSED, PROBABILITY_OPEN, DIMENSION_MAP, FIELD_MAP, COLLECTION_MAP, GOAL_MAP, MONTH_NAMES } from './constants';
 import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { getService, getServices, isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+const util = require('util');
 
 dayjs.extend(isoWeek);
 
@@ -140,11 +141,35 @@ const buildFormatType = (dateRange, startDate, endDate) => {
 
 }
 
+export const getGoalStage = (goalType) => {
+
+    const goalStage = {
+        $lookup: {
+            from: "goals",
+            let: { fieldId: goalType },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ['$_id', "$$fieldId"] }
+                            ]
+                        },
+                    },
+                },
+            ],
+            as: "goal",
+        },
+    }
+
+    return goalStage
+}
+
 export const buildPipeline = (filter, type, matchFilter) => {
 
-    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt" } = filter
+    const { dimension, measure, userType = 'userId', frequencyType, dateRange, startDate, endDate, dateRangeType = "createdAt", sortBy, goalType, colDimension, rowDimension } = filter
 
-    const dimensions = Array.isArray(dimension) ? dimension : dimension?.split(",") || []
+    const dimensions = colDimension?.length || rowDimension?.length ? [...colDimension, ...rowDimension] : Array.isArray(dimension) ? dimension : dimension?.split(",") || []
     const measures = Array.isArray(measure) ? measure : measure?.split(",") || []
 
     const pipeline: any[] = [];
@@ -738,7 +763,10 @@ export const buildPipeline = (filter, type, matchFilter) => {
                         {
                             $match: {
                                 $expr: {
-                                    $or: conditions
+                                    $and: [
+                                        { $or: conditions },
+                                        { $eq: ["$isActive", true] },
+                                    ]
                                 }
                             }
                         },
@@ -967,6 +995,15 @@ export const buildPipeline = (filter, type, matchFilter) => {
         _id: 0,
     };
 
+    if (isEnabled('goals') && goalType) {
+        const goalStage = getGoalStage(goalType)
+
+        if (goalStage) {
+            pipeline.push(goalStage)
+            projectionFields.goal = 1;
+        }
+    }
+
     measures.forEach((measure) => {
         projectionFields[measure] = 1;
     });
@@ -1113,6 +1150,15 @@ export const buildPipeline = (filter, type, matchFilter) => {
                 $match: additionalMatch
             });
         }
+    }
+
+    if (sortBy?.length) {
+        const sortFields = (sortBy || []).reduce((acc, { field, direction }) => {
+            acc[field] = direction;
+            return acc;
+        }, {});
+
+        pipeline.push({ $sort: sortFields });
     }
 
     return pipeline;
@@ -1651,7 +1697,7 @@ export const formatData = (data, filter) => {
 
 export const buildData = ({ chartType, data, filter }) => {
 
-    const { measure, dimension } = filter
+    const { measure, dimension, rowDimension, colDimension } = filter
 
     const formattedData = formatData(data, filter);
 
@@ -1662,9 +1708,11 @@ export const buildData = ({ chartType, data, filter }) => {
         case 'doughnut':
         case 'radar':
         case 'polarArea':
-            return buildChartData(formattedData, measure, dimension)
+            return buildChartData(formattedData, measure, dimension, filter)
         case 'table':
             return buildTableData(formattedData, measure, dimension)
+        case 'pivotTable':
+            return buildPivotTableData(data, rowDimension, colDimension, measure)
         case 'number':
             return buildNumberData(formattedData, measure, dimension)
         default:
@@ -1682,12 +1730,82 @@ export const buildNumberData = (data: any, measures: any, dimensions: any) => {
     return { data: totals, labels }
 }
 
-export const buildChartData = (data: any, measures: any, dimensions: any) => {
+export const buildChartData = (data: any, measures: any, dimensions: any, filter: any) => {
 
-    const datasets = (data || []).map(item => item[DEAL_LABELS[measures[0]]])
-    const labels = (data || []).map(item => item[dimensions[0]])
+    const { src } = filter
 
-    return { data: datasets, labels };
+    if (src && src === 'aputpm') {
+        const datasets = (data || []).map(item => item[DEAL_LABELS[measures[0]]])
+        const labels = (data || []).map(item => item[dimensions[0]])
+
+        return { data: datasets, labels };
+    }
+
+    const hasGoal = (data || []).every(obj => Array.isArray(obj?.goal) && obj?.goal?.length === 0);
+
+    const datasets = (data || []).reduce(
+        (acc, item) => {
+            const label = (dimensions || []).map((dimension) => item[dimension]);
+
+            const labelExists = acc.labels.some((existingLabel) =>
+                existingLabel.every((value, index) => value === label[index])
+            );
+
+            if (!labelExists) {
+                acc.labels.push(label);
+            }
+
+            measures.forEach((measure) => {
+                let dataset = acc.datasets.find((d) => d.label === DEAL_LABELS[measure]);
+
+                if (!dataset) {
+                    dataset = {
+                        label: DEAL_LABELS[measure],
+                        data: [],
+                        borderWidth: 1,
+                        skipNull: true,
+                    };
+                    acc.datasets.push(dataset);
+                }
+
+                dataset.data.push(item[DEAL_LABELS[measure]] || 0);
+            });
+
+            if (item.goal && !hasGoal) {
+                let goalDataset = acc.datasets.find((d) => d.label === "Target");
+
+                if (!goalDataset) {
+                    goalDataset = {
+                        label: "Target",
+                        data: [],
+                        borderWidth: 1,
+                        skipNull: true,
+                    };
+                    acc.datasets.push(goalDataset);
+                }
+
+                if (item?.hasOwnProperty('frequency')) {
+
+                    const specificPeriodGoals = item.goal?.[0]?.specificPeriodGoals || []
+                    const periodGoal = specificPeriodGoals.find(goal => goal.addMonthly.includes(item.frequency));
+
+                    if (periodGoal) {
+                        item.goal[0].target = periodGoal.addTarget;
+                    }
+                }
+
+                goalDataset.data.push(item.goal?.[0]?.target || null);
+            }
+
+            return acc;
+        },
+        {
+            labels: [],
+            datasets: [],
+        }
+    );
+
+    return datasets
 }
 
 export const buildTableData = (data: any, measures: any, dimensions: any) => {
@@ -1728,20 +1846,19 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 }
 
 export const buildOptions = (filter) => {
-
     const { target } = filter
 
-    const plugins = {}
+    const options: any = {}
 
-    if (target) {
-        Object.assign(plugins, {
+    if (target?.target) {
+        options.plugins = {
             horizontalDottedLine: {
                 targetValue: parseInt(target.target, 10)
             }
-        })
+        };
     }
 
-    return { options: { plugins: plugins } }
+    return { options }
 }
 
 export const getStageIds = async (filter: any, type: string, models: IModels,) => {
@@ -1821,3 +1938,377 @@ export const getIntegrationsKinds = async () => {
 
     return response;
 };
+
+const rx = /(\d+)|(\D+)/g;
+const rd = /\d/;
+const rz = /^0/;
+
+export const naturalSort = (as: any, bs: any) => {
+    // nulls first
+    if (bs !== null && as === null) {
+        return -1;
+    }
+    if (as !== null && bs === null) {
+        return 1;
+    }
+
+    // then raw NaNs
+    if (typeof as === 'number' && isNaN(as)) {
+        return -1;
+    }
+    if (typeof bs === 'number' && isNaN(bs)) {
+        return 1;
+    }
+
+    // numbers and numbery strings group together
+    const nas = Number(as);
+    const nbs = Number(bs);
+    if (nas < nbs) {
+        return -1;
+    }
+    if (nas > nbs) {
+        return 1;
+    }
+
+    // within that, true numbers before numbery strings
+    if (typeof as === 'number' && typeof bs !== 'number') {
+        return -1;
+    }
+    if (typeof bs === 'number' && typeof as !== 'number') {
+        return 1;
+    }
+    if (typeof as === 'number' && typeof bs === 'number') {
+        return 0;
+    }
+
+    // 'Infinity' is a textual number, so less than 'A'
+    if (isNaN(nbs) && !isNaN(nas)) {
+        return -1;
+    }
+    if (isNaN(nas) && !isNaN(nbs)) {
+        return 1;
+    }
+
+    // finally, "smart" string sorting per http://stackoverflow.com/a/4373421/112871
+    let a: any = String(as);
+    let b: any = String(bs);
+    if (a === b) {
+        return 0;
+    }
+    if (!rd.test(a) || !rd.test(b)) {
+        return a > b ? 1 : -1;
+    }
+
+    // special treatment for strings containing digits
+    a = a.match(rx);
+    b = b.match(rx);
+    while (a.length && b.length) {
+        const a1 = a.shift();
+        const b1 = b.shift();
+        if (a1 !== b1) {
+            if (rd.test(a1) && rd.test(b1)) {
+                return a1.replace(rz, '.0') - b1.replace(rz, '.0');
+            }
+            return a1 > b1 ? 1 : -1;
+        }
+    }
+    return a.length - b.length;
+};
+
+export const getSort = (sorters: any, attr: any) => {
+    if (sorters) {
+        if (typeof sorters === 'function') {
+            const sort = sorters(attr);
+            if (typeof sort === 'function') {
+                return sort;
+            }
+        } else if (attr in sorters) {
+            return sorters[attr];
+        }
+    }
+    return naturalSort;
+};
+
+export const arrSort = (attrs: any) => {
+    let a;
+    const sortersArr = (() => {
+        const result: any[] = [];
+        for (a of Array.from(attrs)) {
+            result.push(getSort({}, a));
+        }
+        return result;
+    })();
+    return function (a: any, b: any) {
+        for (const i of Object.keys(sortersArr || {}) as any) {
+            const sorter = sortersArr[i];
+            const comparison = sorter(a[i], b[i]);
+            if (comparison !== 0) {
+                return comparison;
+            }
+        }
+        return 0;
+    };
+}
+
+export const sortKeys = (keys: any, dimensions: any) => {
+    return keys.sort(arrSort(dimensions));
+}
+
+const aggregator = (rowKey: any[], colKey: any[], vals?: string[]) => {
+    const aggregatedValues: any = {};
+
+    (vals || []).forEach((val) => {
+
+        const value = DEAL_LABELS[val]
+
+        aggregatedValues[value] = 0;
+    });
+
+    return {
+        push: function (record: any) {
+            (vals || []).forEach((val) => {
+
+                const value = DEAL_LABELS[val]
+
+                if (typeof record[value] === 'number') {
+                    aggregatedValues[value] += record[value];
+                } else if (typeof record[value] === 'string') {
+                    aggregatedValues[value] += parseFloat(record[value]) || 0;
+                }
+            });
+        },
+        value: function () {
+            return aggregatedValues['Total Count'];
+        }
+    };
+};
+
+export const createPivotTable = (data: any, rows: any, cols: any, vals: any) => {
+    const tree: any = {}
+    const rowKeys: any[] = [];
+    const colKeys: any[] = [];
+    const rowTotals: any = {}
+    const colTotals: any = {}
+    const allTotal = aggregator([], [], vals);
+
+    data.forEach((record: any) => {
+
+        const colKey: any = [];
+        const rowKey: any = [];
+
+        for (const x of Array.from(cols) as any) {
+            colKey.push(x in record ? record[x] : 'null');
+        }
+
+        for (const x of Array.from(rows) as any) {
+            rowKey.push(x in record ? record[x] : 'null');
+        }
+
+        const flatRowKey = rowKey.join(String.fromCharCode(0));
+        const flatColKey = colKey.join(String.fromCharCode(0));
+
+        allTotal.push(record);
+
+        if (rowKey.length !== 0) {
+            if (!rowTotals[flatRowKey]) {
+                rowKeys.push(rowKey);
+                rowTotals[flatRowKey] = aggregator(rowKey, [], vals);
+            }
+            rowTotals[flatRowKey].push(record);
+        }
+
+        if (colKey.length !== 0) {
+            if (!colTotals[flatColKey]) {
+                colKeys.push(colKey);
+                colTotals[flatColKey] = aggregator([], colKey, vals);
+            }
+            colTotals[flatColKey].push(record);
+        }
+
+        if (colKey.length !== 0 && rowKey.length !== 0) {
+            if (!tree[flatRowKey]) {
+                tree[flatRowKey] = {};
+            }
+
+            if (!tree[flatRowKey][flatColKey]) {
+                tree[flatRowKey][flatColKey] = aggregator(
+                    rowKey,
+                    colKey,
+                    vals
+                );
+            }
+
+            tree[flatRowKey][flatColKey].push(record);
+        }
+    })
+
+    const sortedRowKeys = sortKeys(rowKeys, rows)
+    const sortedColKeys = sortKeys(colKeys, cols)
+
+    return {
+        tree,
+        rowKeys: sortedRowKeys,
+        colKeys: sortedColKeys,
+        rowTotals,
+        colTotals,
+        allTotal: allTotal.value()
+    }
+}
+
+export const spanSize = (arr: any[], i: number, j: number) => {
+    let x;
+    if (i !== 0) {
+        let asc, end;
+        let noDraw = true;
+        for (
+            x = 0, end = j, asc = end >= 0;
+            asc ? x <= end : x >= end;
+            asc ? x++ : x--
+        ) {
+            if (arr[i - 1][x] !== arr[i][x]) {
+                noDraw = false;
+            }
+        }
+        if (noDraw) {
+            return -1;
+        }
+    }
+    let len = 0;
+    while (i + len < arr.length) {
+        let asc1, end1;
+        let stop = false;
+        for (
+            x = 0, end1 = j, asc1 = end1 >= 0;
+            asc1 ? x <= end1 : x >= end1;
+            asc1 ? x++ : x--
+        ) {
+            if (arr[i][x] !== arr[i + len][x]) {
+                stop = true;
+            }
+        }
+        if (stop) {
+            break;
+        }
+        len++;
+    }
+    return len;
+};
+
+export const buildPivotTableData = (data: any, rows: string[], cols: string[], value: any) => {
+
+    const { tree, rowKeys, colKeys, rowTotals, colTotals, allTotal } = createPivotTable(data, rows, cols, value)
+
+    const headers: any[] = [];
+
+    const headerRows = (rows || []).map((row: any, rowIndex: any) => {
+        const headerCell = {
+            content: row,
+            rowspan: cols.length + 1
+        };
+
+        return headerCell
+    });
+
+    headers.push(headerRows);
+
+    (cols || []).map((_, colIndex: number) => {
+
+        const headerCols: any[] = colKeys.map((colKey: any, colKeyIndex: number) => {
+            const colspan = spanSize(colKeys, colKeyIndex, colIndex);
+
+            const headerCell = {
+                content: colKey[colIndex],
+                colspan: colspan === -1 ? 0 : colspan
+            };
+
+            return headerCell
+        });
+
+        if (colIndex === 0) {
+
+            const headerTotalColCell = {
+                content: "Totals",
+                rowspan: cols.length
+            }
+
+            headers.push([...headerCols, headerTotalColCell])
+        } else {
+            headers.push(headerCols)
+        }
+
+    })
+
+    const body: any[] = [];
+
+    (rowKeys || []).map((rowKey: any, rowKeyIndex: number) => {
+
+        const flatRowKey = rowKey.join(String.fromCharCode(0))
+
+        const totalAggregator = rowTotals[flatRowKey]
+
+        const bodyRow: any[] = rowKey.map((row: any, rowIndex: number) => {
+
+            const colspan = spanSize(rowKeys, rowKeyIndex, rowIndex);
+
+            const bodyCell = {
+                content: row,
+                rowspan: colspan === -1 ? 0 : colspan,
+                className: 'pl-0'
+            };
+
+            return bodyCell
+        })
+
+        const bodyCol = colKeys.map((colKey: any, colIndex: number) => {
+
+            const flatColKey = colKey.join(String.fromCharCode(0))
+
+            const aggregator = tree[flatRowKey][flatColKey]
+
+            const bodyCell = {
+                content: aggregator?.value() || '-',
+            };
+
+            if (colIndex === 0) {
+                Object.assign(bodyCell, { className: 'pl-0' })
+            }
+
+            return bodyCell
+        })
+
+        const totalColCell = {
+            content: totalAggregator.value(),
+            className: "total"
+        }
+
+        body.push([...bodyRow, ...bodyCol, totalColCell])
+    })
+
+    const totalRowCell = {
+        content: "Totals",
+        colspan: rows.length,
+        className: "total"
+    }
+
+    const totalColCell = colKeys.map((colKey: any, colIndex: number) => {
+
+        const totalAggregator = colTotals[colKey.join(String.fromCharCode(0))]
+
+        const totalCell = {
+            content: totalAggregator?.value() || '-',
+            className: "total"
+        }
+
+        if (colIndex === 0) {
+            totalCell.className += ' pl-0';
+        }
+
+        return totalCell
+    })
+
+    const grandTotalCell = { content: allTotal, className: "total" }
+
+    body.push([totalRowCell, ...totalColCell, grandTotalCell])
+
+    return { headers, body }
+}

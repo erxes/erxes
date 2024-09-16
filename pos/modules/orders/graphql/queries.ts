@@ -19,6 +19,7 @@ export const orderFields = `
   description
   isPre
   directDiscount
+  directIsAmount
 `
 export const orderItemBaseFields = `
  _id
@@ -218,8 +219,10 @@ export const progressDetail = gql`
       items {
         _id
         productName
+        productId
         unitPrice
         count
+        status
       }
       description
       type

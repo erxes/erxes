@@ -693,8 +693,14 @@ export const ToolBarRemoveBtn = styled(ToolBarButton)`
   border: 1px solid ${colors.colorCoreRed};
 `;
 
-export const ToolbarNoteBtn = styled(ToolBarButton)`
-  background: ${rgba(colors.colorSecondary, 0.12)};
-  color: ${colors.colorSecondary};
-  border: 1px solid ${colors.colorSecondary};
+export const ToolbarBtn = styledTS<{ $color: string }>(styled(ToolBarButton))`
+  background: ${({ $color }) => rgba($color, 0.12)};
+  color: ${({ $color }) => $color};
+  border: 1px solid ${({ $color }) => $color};
+`;
+
+export const ToolbarText = styled.span`
+  margin-left: 10px;
+  color: #444;
+  font-weight: 500;
 `;

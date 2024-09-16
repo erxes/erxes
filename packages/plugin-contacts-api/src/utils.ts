@@ -530,11 +530,12 @@ export const prepareEngageCustomers = async (
   const emailContent = emailConf.content || '';
 
   const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
+
   const customerFields =
     await editorAttributeUtil.getCustomerFields(emailContent);
 
   const exists = { $exists: true, $nin: [null, '', undefined] };
-  
+
   if (engageMessage.method === 'email') {
     customersSelector.primaryEmail = exists;
     customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
@@ -545,6 +546,7 @@ export const prepareEngageCustomers = async (
   }
 
   const onFinishPiping = async () => {
+    console.log('onFinishPiping', customerInfos);
     await sendEngagesMessage({
       subdomain,
       action: 'pre-notification',
@@ -575,7 +577,7 @@ export const prepareEngageCustomers = async (
 
       for (const chunk of chunks) {
         data.customers = chunk;
-                
+
         await sendEngagesMessage({
           subdomain,
           action: 'notification',
@@ -626,15 +628,28 @@ export const prepareEngageCustomers = async (
     fieldsOption[field] = 1;
   }
 
-  const customersCursor = Customers.find(customersSelector, fieldsOption).cursor();
+  const customersCursor = Customers.find(
+    customersSelector,
+    fieldsOption
+  ).cursor();
 
   try {
-    for await (const customer of customersCursor) {
-      customerTransformerStream.write(customer);
-    }
-    customerTransformerStream.end();
+    // Process the stream and wait for it to finish
+    await new Promise<void>((resolve, reject) => {
+      customersCursor.pipe(customerTransformerStream);
 
-    await onFinishPiping();
+      // Resolve the promise when the stream finishes processing
+      customerTransformerStream.on('finish', async () => {
+        await onFinishPiping();
+        resolve();
+      });
+
+      // Reject the promise if there is an error
+      customerTransformerStream.on('error', (error) => {
+        reject(error);
+      });
+    });
+
     return { status: 'done', customerInfos };
   } catch (error) {
     customerTransformerStream.destroy();

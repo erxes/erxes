@@ -1,3 +1,4 @@
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 import {
   ICollateralData,
   IContract,
@@ -14,6 +15,17 @@ import {
 } from "../../../messageBroker";
 import { createLog, deleteLog, updateLog } from "../../../logUtils";
 import { putActivityLog } from "@erxes/api-utils/src/logUtils";
+
+const loansContractChanged = async (contract: IContractDocument) => {
+  graphqlPubsub.publish(
+    'loansContractChanged',
+    {
+      loansContractChanged: {
+        ...contract
+      },
+    },
+  );
+};
 
 const contractMutations = {
   contractsAdd: async (
@@ -104,6 +116,7 @@ const contractMutations = {
       }
     });
 
+    await loansContractChanged(updated);
     return updated;
   },
 
@@ -135,6 +148,7 @@ const contractMutations = {
       updatedDocument: { ...contract, dealId },
       extraParams: { models }
     };
+    await loansContractChanged(contract);
     return contract;
   },
 
@@ -156,6 +170,7 @@ const contractMutations = {
       extraParams: { models }
     };
 
+    await loansContractChanged(updated);
     await updateLog(subdomain, user, logData);
 
     return updated;
@@ -293,14 +308,19 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-    return await models.InterestCorrection.stopInterest({
+
+    const result = await models.InterestCorrection.stopInterest({
       contractId,
       stoppedDate,
       interestAmount,
       isStopLoss,
       lossAmount
     });
+    const updated = await models.Contracts.getContract({ _id: contractId });
+    await loansContractChanged(updated);
+    return result
   },
+
   interestChange: async (
     _root,
     {
@@ -317,13 +337,17 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-    return await models.InterestCorrection.interestChange({
+    const result = await models.InterestCorrection.interestChange({
       contractId,
       stoppedDate,
       interestAmount,
       lossAmount
     });
+    const updated = await models.Contracts.getContract({ _id: contractId });
+    await loansContractChanged(updated);
+    return result
   },
+
   interestReturn: async (
     _root,
     {
@@ -337,12 +361,16 @@ const contractMutations = {
     },
     { models }: IContext
   ) => {
-    return await models.InterestCorrection.interestReturn({
+    const result = await models.InterestCorrection.interestReturn({
       contractId,
       invDate,
       interestAmount
     });
+    const updated = await models.Contracts.getContract({ _id: contractId });
+    await loansContractChanged(updated);
+    return result
   },
+
   clientCreditLoanRequest: async (
     _root,
     {
@@ -406,6 +434,7 @@ const contractMutations = {
       contract
     );
   },
+
   clientCreditLoanCalculate: async (
     _root,
     {

@@ -1,4 +1,5 @@
 const commonFields = `
+    $name: String
     $entity: String
     $stageId: String
     $pipelineId: String
@@ -22,6 +23,7 @@ const commonFields = `
 `;
 
 const commonVariables = `
+  name:$name
   entity:$entity
   stageId:$stageId
   pipelineId:$pipelineId
@@ -48,6 +50,7 @@ const goalTypesAdd = `
   mutation goalsAdd(${commonFields}) {
     goalsAdd(${commonVariables}) {
       _id
+      name
       entity
       boardId
       pipelineId
@@ -76,6 +79,7 @@ const goalTypesEdit = `
   mutation goalsEdit($_id: String!, ${commonFields}) {
     goalsEdit(_id: $_id, ${commonVariables}) {
       _id
+      name
       entity
       stageId
       pipelineId

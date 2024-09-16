@@ -47,6 +47,7 @@ export const types = `
     image: Attachment
     publishedUserId:String
     publishedUser:User
+    scheduledDate: Date
 
     forms: [FormCode]
   }
@@ -64,7 +65,7 @@ export const types = `
     categoryId: String
     image: AttachmentInput
     attachments: [AttachmentInput]
-
+    scheduledDate: Date
     forms: [FormCodeInput]
   }
 

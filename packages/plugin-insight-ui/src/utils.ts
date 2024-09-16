@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { DEFAULT_GRID_DIMENSIONS } from './constants';
 
 export const deserializeItem = (i) => {
@@ -15,6 +16,7 @@ export const defaultLayout = (i, index) => {
     y: hasLayout ? i.layout.y : 0,
     w: hasLayout ? i.layout.w : DEFAULT_GRID_DIMENSIONS.w,
     h: hasLayout ? i.layout.h : DEFAULT_GRID_DIMENSIONS.h,
+    static: hasLayout ? i.layout.static : false,
     minW: 1,
     minH: 1,
   };
@@ -79,11 +81,22 @@ export const getValue = (obj, path) => {
   );
 };
 
+export const extractData = (data: any) => {
+
+  if ((data || {}).hasOwnProperty('list')) {
+    return (data as any || {}).list || []
+  }
+
+  return data
+}
+
 export const generateOptions = (data, parentData, filterType) => {
 
   const { fieldValueVariable, fieldLabelVariable, fieldParentVariable } = filterType
 
-  const options = (data || []).map((item) => ({
+  const extractedData = extractData(data)
+
+  const options = (extractedData || []).map((item) => ({
     value: getValue(item, fieldValueVariable),
     label: getValue(item, fieldLabelVariable),
     ...(fieldParentVariable && {
@@ -315,3 +328,15 @@ export const generateParentOptionsFromField = (queryFieldOptions: any[]) => {
     return acc;
   }, []);
 };
+
+export const compareValues = (a: any, b: any, operator: string) => {
+
+  switch (operator) {
+    case 'eq':
+      return a === b;
+    case 'ne':
+      return a !== b;
+    default:
+      return a === b;
+  }
+}

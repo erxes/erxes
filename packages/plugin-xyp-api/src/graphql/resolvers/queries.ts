@@ -7,11 +7,48 @@ export interface IXypConfig {
   token: string;
 }
 
+const generateFilterRules = (params) => {
+  const {
+    serviceName,
+    responseKey,
+    objectType,
+    fieldGroup,
+    formField,
+    title,
+  } = params;
+  const filter: any = {};
+
+  if (serviceName) {
+    filter.serviceName = serviceName
+  }
+  if (responseKey) {
+    filter.responseKey = responseKey
+  }
+  if (objectType) {
+    filter.objectType = objectType
+  }
+  if (fieldGroup) {
+    filter.fieldGroup = fieldGroup
+  }
+  if (formField) {
+    filter.formField = formField
+  }
+  if (title) {
+    filter.title = title
+  }
+  return filter;
+}
 const xypQueries = {
   async xypDataList(_root, { contentType, contentTypeIds }, { models }: IContext) {
-    let query = {};
-    if (contentType) query['contentType'] = contentType;
-    if (contentTypeIds) query['contentTypeId'] = { $in: contentTypeIds };
+    let query: any = {};
+    if (contentType) {
+      query.contentType = contentType;
+    }
+
+    if (contentTypeIds?.length) {
+      query.contentTypeId = { $in: contentTypeIds };
+    }
+
     return models.XypData.find(query);
   },
 
@@ -102,7 +139,7 @@ const xypQueries = {
     return response;
   },
 
-  async xypServiceListChoosen(_root, {}, { models, subdomain }: IContext) {
+  async xypServiceListChoosen(_root, { }, { models, subdomain }: IContext) {
     const xypConfigs = await sendCommonMessage({
       subdomain,
       serviceName: 'core',
@@ -122,6 +159,49 @@ const xypQueries = {
 
     return xypConfigs;
   },
+
+  async checkXypData(_root, params: { serviceName: string, customerId?: string, contentType?: string, contentTypeId?: string }, { models }: IContext) {
+    const { serviceName, customerId, contentType, contentTypeId } = params;
+
+    if (!serviceName) {
+      throw new Error('less params serviceName')
+    }
+    const filter: any = {
+      'data.serviceName': serviceName
+    };
+
+    if (customerId) {
+      filter.customerId = customerId;
+    }
+    if (contentType) {
+      filter.contentType = contentType;
+    }
+    if (contentTypeId) {
+      filter.contentTypeId = contentTypeId;
+    }
+
+    if (!Object.keys(filter).length) {
+      throw new Error('less params')
+    }
+
+    return models.XypData.find(filter)
+  },
+
+  async xypSyncRules(_root, params, { models }: IContext) {
+    const filter = await generateFilterRules(params);
+
+    return await models.SyncRules.find(filter).lean();
+  },
+
+  async xypSyncRulesCount(_root, params, { models }: IContext) {
+    const filter = await generateFilterRules(params);
+    return await models.SyncRules.find(filter).countDocuments();
+  },
+
+  async xypSyncRulesDetail(_root, params, { models }: IContext) {
+    const { _id } = params;
+    return await models.SyncRules.getSyncRule(_id);
+  }
 };
 
 export default xypQueries;

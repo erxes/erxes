@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { IModels } from '../connectionResolver';
 import { debugError } from '../debuggers';
-import { sendInboxMessage } from '../messageBroker';
+import { sendAutomationsMessage, sendInboxMessage } from '../messageBroker';
 import { IBotDocument } from '../models/definitions/bots';
 import { IConversation } from '../models/definitions/conversations';
 import { ICustomer } from '../models/definitions/customers';
@@ -13,6 +13,8 @@ import {
   generatePayloadString,
   getUrl
 } from './utils';
+import { getEnv } from '../commonUtils';
+import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
 
 const generateMessages = async (
   subdomain: string,
@@ -124,7 +126,7 @@ const generateMessages = async (
     if (type === 'quickReplies') {
       generatedMessages.push({
         text: text || '',
-        quick_replies: quickReplies.map(quickReply => ({
+        quick_replies: quickReplies.map((quickReply) => ({
           content_type: 'text',
           title: quickReply?.text || '',
           payload: generatePayloadString(
@@ -156,10 +158,34 @@ const generateMessages = async (
   return generatedMessages;
 };
 
-export const checkMessageTrigger = (subdomain, { target, config }) => {
+export const checkMessageTrigger = async (subdomain, { target, config }) => {
   const { conditions = [], botId } = config;
+
   if (target.botId !== botId) {
     return;
+  }
+
+  const payload = target?.payload || {};
+  const { persistentMenuId, isBackBtn } = payload;
+
+  if (persistentMenuId && isBackBtn) {
+    await sendAutomationsMessage({
+      subdomain,
+      action: 'excutePrevActionExecution',
+      data: {
+        query: {
+          triggerType: 'facebook:messages',
+          'target.botId': botId,
+          'target.conversationId': target.conversationId,
+          'target.customerId': target.customerId
+        }
+      },
+      isRPC: true
+    }).catch((error) => {
+      console.log(error.message);
+    });
+
+    return false;
   }
 
   for (const {
@@ -173,9 +199,7 @@ export const checkMessageTrigger = (subdomain, { target, config }) => {
         return true;
       }
 
-      if (type === 'persistentMenu' && target?.payload) {
-        const { persistentMenuId } = target.payload || {};
-
+      if (type === 'persistentMenu' && payload) {
         if ((persistentMenuIds || []).includes(String(persistentMenuId))) {
           return true;
         }
@@ -211,9 +235,9 @@ const generateObjectToWait = ({
   };
   let propertyName = 'payload.btnId';
 
-  if (messages.some(msg => msg.type === 'input')) {
+  if (messages.some((msg) => msg.type === 'input')) {
     const inputMessageConfig =
-      messages.find(msg => msg.type === 'input')?.input || {};
+      messages.find((msg) => msg.type === 'input')?.input || {};
 
     if (inputMessageConfig.timeType === 'day') {
       obj.startWaitingDate = moment()
@@ -234,7 +258,7 @@ const generateObjectToWait = ({
 
     const actionIdIfNotReply =
       optionalConnects.find(
-        connect => connect?.optionalConnectId === 'ifNotReply'
+        (connect) => connect?.optionalConnectId === 'ifNotReply'
       )?.actionId || null;
 
     obj.waitingActionId = actionIdIfNotReply;
@@ -314,17 +338,143 @@ const sendMessage = async (
   }
 };
 
-export const actionCreateMessage = async (
+const getData = async (
   models: IModels,
-  subdomain,
-  action,
-  execution
+  subdomain: string,
+  triggerType: string,
+  target: any,
+  config: any
 ) => {
-  const { target, triggerType } = execution || {};
-  const { config } = action || {};
+  if (triggerType === 'facebook:comments') {
+    const { senderId, recipientId, erxesApiId } = target;
 
-  if (!['facebook:messages', 'facebook:comments'].includes(triggerType)) {
-    throw new Error('Unsupported trigger type');
+    const { botId } = config;
+
+    let conversation = await models.Conversations.findOne({
+      senderId,
+      recipientId
+    });
+
+    const customer = await models.Customers.findOne({
+      erxesApiId: target.customerId
+    });
+
+    if (!customer) {
+      throw new Error(
+        `Error occurred during send message with trigger type ${triggerType}`
+      );
+    }
+    const integration = await models.Integrations.findOne({
+      erxesApiId: customer?.integrationId
+    });
+
+    if (!integration) {
+      throw new Error(
+        `Error occurred during send message with trigger type ${triggerType}`
+      );
+    }
+
+    const bot = await models.Bots.findOne({ _id: botId });
+
+    if (!bot) {
+      throw new Error('Bot not found');
+    }
+
+    const DOMAIN = getEnv({
+      name: 'DOMAIN',
+      subdomain
+    });
+
+    const timestamp = new Date();
+    if (!conversation) {
+      try {
+        conversation = await models.Conversations.create({
+          timestamp,
+          senderId,
+          recipientId,
+          content: 'Start conversation from comment',
+          integrationId: integration._id,
+          isBot: true,
+          botId
+        });
+      } catch (e) {
+        throw new Error(
+          e.message.includes('duplicate')
+            ? 'Concurrent request: conversation duplication'
+            : e
+        );
+      }
+    }
+
+    // save on api
+    try {
+      const apiConversationResponse = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.receive',
+        data: {
+          action: 'create-or-update-conversation',
+          payload: JSON.stringify({
+            customerId: customer.erxesApiId,
+            integrationId: integration.erxesApiId,
+            content: 'Start conversation from comment',
+            conversationId: conversation.erxesApiId,
+            updatedAt: timestamp
+          })
+        },
+        isRPC: true
+      });
+
+      conversation.erxesApiId = apiConversationResponse._id;
+
+      await conversation.save();
+    } catch (e) {
+      await models.Conversations.deleteOne({ _id: conversation._id });
+      throw new Error(e);
+    }
+
+    const created = await models.ConversationMessages.addMessage({
+      conversationId: conversation._id,
+      content: '<p>Bot Message</p>',
+      internal: true,
+      botId,
+      botData: [
+        {
+          type: 'text',
+          text: `${DOMAIN}/inbox/index?_id=${erxesApiId}`
+        }
+      ],
+      fromBot: true,
+      mid: ''
+    });
+
+    await sendInboxMessage({
+      subdomain,
+      action: 'conversationClientMessageInserted',
+      data: {
+        ...created.toObject(),
+        conversationId: conversation.erxesApiId
+      }
+    });
+
+    graphqlPubsub.publish(
+      `conversationMessageInserted:${conversation.erxesApiId}`,
+      {
+        conversationMessageInserted: {
+          ...created.toObject(),
+          conversationId: conversation.erxesApiId
+        }
+      }
+    );
+
+    return {
+      conversation,
+      integration,
+      customer,
+      bot,
+      recipientId,
+      senderId,
+      botId
+    };
   }
 
   const conversation = await models.Conversations.findOne({
@@ -344,7 +494,9 @@ export const actionCreateMessage = async (
   }
   const { recipientId, senderId, botId } = conversation;
 
-  const customer = await models.Customers.findOne({ userId: senderId }).lean();
+  const customer = await models.Customers.findOne({
+    userId: senderId
+  }).lean();
 
   if (!customer) {
     throw new Error(`Customer not found`);
@@ -355,6 +507,39 @@ export const actionCreateMessage = async (
   if (!bot) {
     throw new Error(`Bot not found`);
   }
+
+  return {
+    conversation,
+    integration,
+    customer,
+    bot,
+    recipientId,
+    senderId,
+    botId
+  };
+};
+
+export const actionCreateMessage = async (
+  models: IModels,
+  subdomain,
+  action,
+  execution
+) => {
+  const { target, triggerType, triggerConfig } = execution || {};
+  const { config } = action || {};
+
+  if (!['facebook:messages', 'facebook:comments'].includes(triggerType)) {
+    throw new Error('Unsupported trigger type');
+  }
+  const {
+    conversation,
+    customer,
+    integration,
+    bot,
+    senderId,
+    recipientId,
+    botId
+  } = await getData(models, subdomain, triggerType, target, triggerConfig);
 
   let result: any[] = [];
 
@@ -367,7 +552,7 @@ export const actionCreateMessage = async (
     );
 
     if (!messages?.length) {
-      return;
+      return 'There are no generated messages to send.';
     }
 
     for (const { botData, inputData, ...message } of messages) {
