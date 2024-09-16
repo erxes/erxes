@@ -1,24 +1,24 @@
 const reportTemplates = [
   {
-    serviceType: "deal",
-    title: "Deals chart",
-    serviceName: "cards",
-    description: "Deals charts",
+    serviceType: 'deal',
+    title: 'Deals chart',
+    serviceName: 'sales',
+    description: 'Deals charts',
     charts: [
-      "DealsTotalCount",
-      "DealCountByTag",
-      "DealCountByLabel",
-      "DealCountByCustomProperties",
-      "DealAverageAmountByRep",
-      "DealLeaderBoardAmountClosedByRep",
-      "DealsClosedLostByRep",
-      "DealsClosedWonByRep",
-      "DealRevenueByStage",
-      "DealsTotalCountByDueDate",
-      "DealAverageTimeSpentInEachStage",
-      "ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown"
+      'DealsTotalCount',
+      'DealCountByTag',
+      'DealCountByLabel',
+      'DealCountByCustomProperties',
+      'DealAverageAmountByRep',
+      'DealLeaderBoardAmountClosedByRep',
+      'DealsClosedLostByRep',
+      'DealsClosedWonByRep',
+      'DealRevenueByStage',
+      'DealsTotalCountByDueDate',
+      'DealAverageTimeSpentInEachStage',
+      'ClosedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown',
     ],
-    img: "https://sciter.com/wp-content/uploads/2022/08/chart-js.png"
+    img: 'https://sciter.com/wp-content/uploads/2022/08/chart-js.png',
   }
 ];
 
