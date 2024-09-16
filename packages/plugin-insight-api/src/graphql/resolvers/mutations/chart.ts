@@ -1,13 +1,15 @@
-import { getService } from '@erxes/api-utils/src/serviceDiscovery';
-import { IContext } from '../../../connectionResolver';
-import { IChart, IChartDocument } from '../../../models/definitions/insight';
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
+import { IContext } from "../../../connectionResolver";
+import { IChart, IChartDocument } from "../../../models/definitions/insight";
 
 const chartsMutations = {
   async chartsAdd(_root, doc: IChart, { models }: IContext) {
+    const { contentType } = doc;
 
-    const { contentType } = doc
-
-    return await models.Charts.createChart({ ...doc, contentType: `insight:${contentType}` });
+    return await models.Charts.createChart({
+      ...doc,
+      contentType: `insight:${contentType}`
+    });
   },
 
   async chartsAddMany(_root, doc: any, { models }: IContext) {
@@ -25,7 +27,7 @@ const chartsMutations = {
         if (serviceName in totalChartsDict) {
           totalChartsDict[serviceName] = [
             ...totalChartsDict[serviceName],
-            ...serviceType,
+            ...serviceType
           ];
           continue;
         }
@@ -40,19 +42,19 @@ const chartsMutations = {
 
           const chartTemplates = service.config?.meta?.reports?.chartTemplates;
 
-          const getChartTemplates = chartTemplates?.filter((t) =>
-            totalCharts.includes(t.templateType),
+          const getChartTemplates = chartTemplates?.filter(t =>
+            totalCharts.includes(t.templateType)
           );
 
           if (getChartTemplates.length) {
             insertManyDocs.push(
-              ...getChartTemplates.map((c) => ({
+              ...getChartTemplates.map(c => ({
                 serviceName,
                 contentId,
                 contentType: `insight:${contentType}`,
                 chartType: c.chartTypes[0],
-                ...c,
-              })),
+                ...c
+              }))
             );
           }
         }
@@ -67,9 +69,8 @@ const chartsMutations = {
   async chartsEdit(
     _root,
     { _id, ...doc }: IChartDocument,
-    { models }: IContext,
+    { models }: IContext
   ) {
-
     return await models.Charts.updateChart(_id, { ...doc });
   },
 
@@ -99,9 +100,7 @@ const chartsMutations = {
       }
 
       const existingChartsSet = new Set(existingChartsList);
-      const newCharts = new Set(
-        charts.filter((c) => !existingChartsSet.has(c)),
-      );
+      const newCharts = new Set(charts.filter(c => !existingChartsSet.has(c)));
       const insertCharts: any[] = [];
 
       for (const chartTemplate of chartTemplates) {
@@ -117,15 +116,15 @@ const chartsMutations = {
       // insert charts
       if (insertCharts.length) {
         await models.Charts.insertMany(
-          insertCharts.map((c) => {
+          insertCharts.map(c => {
             return {
               serviceName,
               chartType: c.chartTypes[0],
               contentId,
               contentType: `insight:${contentType}`,
-              ...c,
+              ...c
             };
-          }),
+          })
         );
       }
     }
@@ -133,7 +132,7 @@ const chartsMutations = {
     return await models.Reports.updateReport(contentId, {
       ...doc,
       updatedAt: new Date(),
-      updatedBy: user?._id || null,
+      updatedBy: user?._id || null
     });
   },
 
@@ -145,18 +144,18 @@ const chartsMutations = {
     const chart = await models.Charts.findById(_id);
 
     if (!chart) {
-      throw new Error('Chart not found');
+      throw new Error("Chart not found");
     }
 
     const { _id: _, ...dup } = chart.toObject();
 
     const duplicatedChart = await models.Charts.createChart({
       ...dup,
-      name: `${chart.name} copied`,
+      name: `${chart.name} copied`
     });
 
-    return duplicatedChart
-  },
+    return duplicatedChart;
+  }
 };
 
 export default chartsMutations;

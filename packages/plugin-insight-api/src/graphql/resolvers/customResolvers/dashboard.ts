@@ -1,13 +1,8 @@
-import { IContext } from '../../../connectionResolver';
-import { IDashboardDocument } from '../../../models/definitions/insight';
+import { IContext } from "../../../connectionResolver";
+import { IDashboardDocument } from "../../../models/definitions/insight";
 
 export default {
-  async charts(
-    dashboard: IDashboardDocument,
-    {},
-    { models }: IContext,
-    { queryParams },
-  ) {
+  async charts(dashboard: IDashboardDocument, {}, { models }: IContext) {
     try {
       const { _id } = dashboard;
       return models.Charts.find({ contentId: _id });
@@ -26,23 +21,23 @@ export default {
   createdBy(dashboard: IDashboardDocument) {
     return (
       dashboard.createdBy && {
-        __typename: 'User',
-        _id: dashboard.createdBy,
+        __typename: "User",
+        _id: dashboard.createdBy
       }
     );
   },
   updatedBy(dashboard: IDashboardDocument) {
     return (
       dashboard.updatedBy && {
-        __typename: 'User',
-        _id: dashboard.updatedBy,
+        __typename: "User",
+        _id: dashboard.updatedBy
       }
     );
   },
   members(dashboard: IDashboardDocument) {
-    return (dashboard.assignedUserIds || []).map((_id) => ({
-      __typename: 'User',
-      _id,
+    return (dashboard.assignedUserIds || []).map(_id => ({
+      __typename: "User",
+      _id
     }));
-  },
+  }
 };

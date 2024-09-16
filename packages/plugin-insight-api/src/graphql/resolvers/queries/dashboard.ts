@@ -1,6 +1,4 @@
-import { IContext } from '../../../connectionResolver';
-import { paginate } from '@erxes/api-utils/src';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import { IContext } from "../../../connectionResolver";
 
 const generateFilter = async (params, commonQuerySelector) => {
   const { branch, department, unit, contribution, date, endDate } = params;
@@ -27,7 +25,7 @@ const generateFilter = async (params, commonQuerySelector) => {
   return filter;
 };
 
-export const sortBuilder = (params) => {
+export const sortBuilder = params => {
   const sortField = params.sortField;
   const sortDirection = params.sortDirection || 0;
 
@@ -46,13 +44,11 @@ const DashboardQueries = {
   dashboardList: async (
     _root,
     params,
-    { commonQuerySelector, models }: IContext,
+    { commonQuerySelector, models }: IContext
   ) => {
     const totalCount = await models.Dashboards.countDocuments({});
-    const filter = await generateFilter(params, commonQuerySelector)
-    const list = await models.Dashboards.find(
-      filter
-    ).sort({ createdAt: -1 })
+    const filter = await generateFilter(params, commonQuerySelector);
+    const list = await models.Dashboards.find(filter).sort({ createdAt: -1 });
 
     return { list, totalCount };
   },
@@ -64,8 +60,6 @@ const DashboardQueries = {
     const dashboard = await models.Dashboards.getDashboard(_id);
     return dashboard;
   }
-
-
 };
 
 export default DashboardQueries;

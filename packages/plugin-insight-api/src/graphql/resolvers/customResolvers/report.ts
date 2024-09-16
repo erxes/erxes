@@ -3,12 +3,7 @@ import { sendCoreMessage } from "../../../messageBroker";
 import { IReportDocument } from "../../../models/definitions/insight";
 
 export default {
-  async charts(
-    report: IReportDocument,
-    {},
-    { models }: IContext,
-    { queryParams }
-  ) {
+  async charts(report: IReportDocument, {}, { models }: IContext) {
     try {
       const { _id } = report;
       return models.Charts.find({ contentId: _id });

@@ -1,10 +1,7 @@
-import { getService } from '@erxes/api-utils/src/serviceDiscovery';
-import { IContext } from '../../../connectionResolver';
-import {
-    IReport,
-    IReportDocument,
-} from '../../../models/definitions/insight';
-import { sendCoreMessage } from '../../../messageBroker';
+import { getService } from "@erxes/api-utils/src/serviceDiscovery";
+import { IContext } from "../../../connectionResolver";
+import { IReport, IReportDocument } from "../../../models/definitions/insight";
+import { sendCoreMessage } from "../../../messageBroker";
 
 const reportsMutations = {
   async reportAdd(_root, doc: IReport, { models, user, subdomain }: IContext) {
@@ -13,7 +10,7 @@ const reportsMutations = {
       createdBy: user._id,
       createdAt: new Date(),
       updatedBy: user._id,
-      updatedAt: new Date(),
+      updatedAt: new Date()
     });
 
     if (doc.serviceType) {
@@ -24,7 +21,7 @@ const reportsMutations = {
 
       const reportTemplate =
         service.config?.meta?.reports?.reportTemplates?.find(
-          (t) => t.serviceType === doc.serviceType,
+          t => t.serviceType === doc.serviceType
         );
 
       const chartTemplates = service.config?.meta?.reports?.chartTemplates;
@@ -34,38 +31,38 @@ const reportsMutations = {
       let getChartTemplates;
 
       if (charts) {
-        getChartTemplates = chartTemplates?.filter((t) =>
-          charts.includes(t.templateType),
+        getChartTemplates = chartTemplates?.filter(t =>
+          charts.includes(t.templateType)
         );
       } else {
         // create with default charts
-        getChartTemplates = chartTemplates?.filter((t) =>
-          reportTemplate.charts.includes(t.templateType),
+        getChartTemplates = chartTemplates?.filter(t =>
+          reportTemplate.charts.includes(t.templateType)
         );
       }
 
       if (getChartTemplates) {
         await models.Charts.insertMany(
-          getChartTemplates.map((c) => {
+          getChartTemplates.map(c => {
             return {
               serviceName,
               chartType: c.chartTypes[0],
               contentId: report._id,
-              contentType: 'insight:report',
-              ...c,
+              contentType: "insight:report",
+              ...c
             };
-          }),
+          })
         );
       }
     }
 
     sendCoreMessage({
       subdomain,
-      action: 'registerOnboardHistory',
+      action: "registerOnboardHistory",
       data: {
         type: `InsightCreate`,
-        user,
-      },
+        user
+      }
     });
 
     return report;
@@ -73,7 +70,7 @@ const reportsMutations = {
   async reportEdit(
     _root,
     { _id, ...doc }: IReportDocument,
-    { models, user }: IContext,
+    { models, user }: IContext
   ) {
     if (doc.charts) {
       const { charts } = doc;
@@ -86,7 +83,7 @@ const reportsMutations = {
     return models.Reports.updateReport(_id, {
       ...doc,
       updatedAt: new Date(),
-      updatedBy: user._id,
+      updatedBy: user._id
     });
   },
   async reportRemove(_root, _id: string, { models }: IContext) {
@@ -103,7 +100,7 @@ const reportsMutations = {
   async reportDuplicate(_root, _id: string, { models, user }: IContext) {
     const report = await models.Reports.findById(_id);
     if (!report) {
-      throw new Error('Report not found');
+      throw new Error("Report not found");
     }
 
     const { _id: _, ...dup } = report.toObject();
@@ -114,19 +111,19 @@ const reportsMutations = {
       createdBy: user._id,
       createdAt: new Date(),
       updatedBy: user._id,
-      updatedAt: new Date(),
+      updatedAt: new Date()
     });
 
     const charts = await models.Charts.find({ contentId: _id });
-    const duplicatedCharts = charts.map((existingChart) => ({
+    const duplicatedCharts = charts.map(existingChart => ({
       ...existingChart.toObject(),
       _id: undefined,
-      contentId: duplicatedReport._id,
+      contentId: duplicatedReport._id
     }));
     await models.Charts.insertMany(duplicatedCharts);
 
     return duplicatedReport;
-  },
+  }
 };
 
 export default reportsMutations;
