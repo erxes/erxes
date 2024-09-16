@@ -31,6 +31,10 @@ export interface IGoalTypeDoc {
   periodGoal: string;
   teamGoalType: string;
   segmentCount: number;
+  pipelineLabels: string[];
+  productIds: string[];
+  companyIds: string[];
+  tagsIds: string[];
 }
 
 export interface IGoalType extends IGoalTypeDoc {

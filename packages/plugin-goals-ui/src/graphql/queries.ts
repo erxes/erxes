@@ -71,6 +71,11 @@ const insuranceTypeFields = `
       segmentRadio
       stageRadio
       periodGoal
+      pipelineLabels
+      productIds
+      companyIds
+      tagsIds
+      teamGoalType
       unit
       department
       branch
@@ -382,6 +387,21 @@ const userDetail = `
   }
 `;
 
+const pipelineLabelFields = `
+  _id
+  name
+  colorCode
+  pipelineId
+  createdBy
+  createdAt
+`;
+const pipelineLabels = `
+  query pipelineLabels($pipelineId: String!) {
+    pipelineLabels(pipelineId: $pipelineId) {
+      ${pipelineLabelFields}
+    }
+  }
+`;
 export default {
   goalTypes,
   goalTypesMain,
@@ -394,5 +414,6 @@ export default {
   unitsMain,
   departmentsMain,
   userDetail,
-  companies
+  companies,
+  pipelineLabels
 };

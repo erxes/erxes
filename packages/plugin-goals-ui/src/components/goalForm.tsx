@@ -3,6 +3,8 @@ import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
 import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
 import SelectSegments from '@erxes/ui-segments/src/containers/SelectSegments';
+import Select, { MultiValue, ActionMeta } from 'react-select';
+
 import {
   Button,
   ControlLabel,
@@ -36,14 +38,13 @@ import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import { PipelineLabelsQueryResponse } from '@erxes/ui-cards/src/boards/types';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
   closeModal: () => void;
   pipelineLabels?: IPipelineLabel[];
   segmentIds: string[];
-  pipelineLabelsQuery: PipelineLabelsQueryResponse;
 };
 
 type State = {
@@ -67,17 +68,22 @@ type State = {
   department: string[];
   companies: string[];
   tags: string[];
+  tagsExcluded?: string[];
   unit: string[];
-  pipelineLabels: IPipelineLabel[] | undefined;
+  pipelineLabels: IPipelineLabel[];
   stageId?: any;
   pipelineId?: any;
   boardId: any;
   segmentIds: any;
   stageRadio: boolean | undefined;
   segmentRadio: boolean | undefined;
+  productIds: string[];
+  selectedLabelIds: string[];
 };
 
 const initialState: State = {
+  selectedLabelIds: [],
+  productIds: [],
   segmentIds: [],
   branch: [],
   department: [],
@@ -89,7 +95,7 @@ const initialState: State = {
   periodGoal: undefined,
   segmentRadio: undefined,
   contribution: undefined,
-  pipelineLabels: undefined,
+  pipelineLabels: [],
   name: '',
   entity: ENTITY[0].value,
   teamGoalType: undefined,
@@ -115,7 +121,7 @@ const reducer = (state, action) => {
 
 const goalForm = (props: Props) => {
   const { goalType, closeModal, renderButton } = props;
-
+  console.log(props, 'asdkopasdkp');
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -136,9 +142,11 @@ const goalForm = (props: Props) => {
       period,
       specificPeriodGoals,
       segmentIds,
+      pipelineLabels,
+      productIds,
       entity,
       department,
-      companies,
+      companyIds: companies,
       tags,
       unit,
       branch,
@@ -146,7 +154,6 @@ const goalForm = (props: Props) => {
       metric,
       goalTypeChoose,
       teamGoalType,
-      pipelineLabels,
       periodGoal
     } = state;
     const finalValues = values;
@@ -154,16 +161,33 @@ const goalForm = (props: Props) => {
       finalValues._id = goalType._id;
     }
 
+    if (!Array.isArray(state.pipelineLabels)) {
+      console.error('pipelineLabels is not an array:', state.pipelineLabels);
+      return [];
+    }
+    const transformedPipelineLabels = pipelineLabels
+      .map((label) => {
+        if (label && typeof label._id === 'string') {
+          return label._id;
+        } else {
+          console.error('Invalid label:', label);
+          return null; // or handle accordingly
+        }
+      })
+      .filter((id) => id !== null); // Filter out any null values
+
     return {
       _id: finalValues._id,
       ...state,
       entity,
       department,
-      companies,
-      tags,
+      companyIds: companies,
+      tagsIds: tags,
       unit,
       branch,
       segmentIds,
+      pipelineLabels: transformedPipelineLabels,
+      productIds,
       specificPeriodGoals, // Renamed the property
       stageRadio,
       segmentRadio,
@@ -177,7 +201,6 @@ const goalForm = (props: Props) => {
       metric,
       goalType: goalTypeChoose,
       teamGoalType,
-      pipelineLabels,
       periodGoal,
       startDate,
       endDate
@@ -204,6 +227,33 @@ const goalForm = (props: Props) => {
   const onChangeBranchId = (value) => {
     dispatch({ type: 'updateState', payload: { branch: value } });
   };
+  const labelOptions = (
+    Array.isArray(state.pipelineLabels) ? state.pipelineLabels : []
+  )
+    .filter((label) => label !== null && label !== undefined)
+    .map((label) => ({
+      label: label.name || 'Unknown',
+      value: label._id || ''
+    }));
+
+  const selectedLabelIds = state.selectedLabelIds || []; // Ensure this is always an array
+
+  const onChangePipelineLabel = (
+    newValue: MultiValue<{ value: string }>,
+    actionMeta: ActionMeta<{ value: string }>
+  ) => {
+    const selectedValues = newValue
+      ? (newValue as { value: string }[]).map((option) => option.value)
+      : [];
+    dispatch({
+      type: 'updateState',
+      payload: { selectedLabelIds: selectedValues }
+    });
+  };
+  const selectedOptions = labelOptions.filter(
+    (option) => selectedLabelIds.includes(option.name) // Ensure selectedLabelIds is an array
+  );
+
   const onChangeDepartments = (value) => {
     dispatch({ type: 'updateState', payload: { department: value } });
   };
@@ -211,7 +261,7 @@ const goalForm = (props: Props) => {
     dispatch({
       type: 'updateState',
       payload: {
-        company: value
+        companies: value
       }
     });
   };
@@ -219,7 +269,7 @@ const goalForm = (props: Props) => {
     dispatch({
       type: 'updateState',
       payload: {
-        type: value
+        tags: value
       }
     });
   };
@@ -227,7 +277,7 @@ const goalForm = (props: Props) => {
     dispatch({
       type: 'updateState',
       payload: {
-        product: value
+        productIds: value
       }
     });
   };
@@ -509,7 +559,7 @@ const goalForm = (props: Props) => {
                   <SelectCompanies
                     label='Choose an Companies'
                     name='parentCompanyId'
-                    initialValue={state?.companies}
+                    initialValue={goalType?.companyIds || state.companyIds}
                     onSelect={onChangeCompanies}
                     multi={true}
                   />
@@ -572,25 +622,53 @@ const goalForm = (props: Props) => {
               </FormControl>
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('Tags')}</ControlLabel>
-              <SelectTags
-                tagsType={'cards:' + state.entity}
-                label='Choose an Tags'
-                name='tagId'
-                initialValue={state.tags}
-                onSelect={onChangeTags}
-                multi={true}
-              />
+              {isEnabled('tags') && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>{__('Tags')}</ControlLabel>
+                    <SelectTags
+                      tagsType={'cards:' + state.entity}
+                      label='Choose an Tags'
+                      name='tagsIds'
+                      initialValue={goalType?.tagsIds || state.tagsIds}
+                      onSelect={onChangeTags}
+                      multi={true}
+                    />
+                  </FormGroup>
+                </>
+              )}
             </FormGroup>
             <FormGroup>
-              <ControlLabel>{__('Product')}</ControlLabel>
-              <SelectProducts
-                label='Select products'
-                name='productId'
-                multi={true}
-                initialValue={state.product}
-                onSelect={onChangeProduct}
-              />
+              <FormGroup>
+                {isEnabled('products') && (
+                  <>
+                    <FormGroup>
+                      <ControlLabel>{__('Product')}</ControlLabel>
+                      <SelectProducts
+                        label='Choose products'
+                        name='productIds'
+                        multi={true}
+                        initialValue={goalType?.productIds || state.productIds}
+                        onSelect={(productIds) => onChangeProduct(productIds)}
+                      />
+                    </FormGroup>
+                  </>
+                )}
+              </FormGroup>
+            </FormGroup>
+            <FormGroup>
+              <FormGroup>
+                <FormGroup>
+                  <ControlLabel>{__('Select labels')}</ControlLabel>
+                  <Select
+                    isMulti
+                    name='labelIds'
+                    options={labelOptions}
+                    value={selectedOptions}
+                    onChange={onChangePipelineLabel}
+                  />
+                </FormGroup>
+              </FormGroup>
             </FormGroup>
             <FormGroup>
               <ControlLabel>{__('choose specific period goals')}.</ControlLabel>

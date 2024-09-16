@@ -23,6 +23,10 @@ segmentRadio:Boolean
   startDate: Date
   endDate: Date
   segmentCount:Float
+  pipelineLabels:[String]
+  productIds:[String]
+  companyIds:[String]
+  tagsIds:[String]
  },
   type GoalType {
   _id: String!
@@ -47,6 +51,10 @@ segmentRadio:Boolean
   startDate: Date
   endDate: Date
   segmentCount:Float
+  pipelineLabels:[String]
+  productIds:[String]
+  companyIds:[String]
+  tagsIds:[String]
   },
     type GoalTypesListResponse {
     list: [GoalType],
@@ -74,7 +82,11 @@ export const queries = `
   goals(entity:String, name: String, contributionType:String,metric:String,  segmentIds: [String],goalTypeChoose:String, contribution: [String],specificPeriodGoals:JSON stageId:String,pipelineId:String,boardId:String, periodGoal:String
    stageRadio:Boolean, segmentRadio:Boolean, periodGoal:String, teamGoalType:String,
   department:[String],unit:[String],branch:[String],
-  startDate: Date, segmentCount:Float
+  startDate: Date, segmentCount:Float,
+    pipelineLabels:[String],
+  productIds:[String],
+  companyIds:[String],
+  tagsIds:[String],
   endDate: Date): [Goal]
   goalDetail(_id: String!): JSON
   goalTypesMain(${queryParams}): GoalTypesListResponse
@@ -98,6 +110,10 @@ const params = `
   startDate:Date
   endDate:Date
   segmentCount: Float
+  pipelineLabels:[String]
+  productIds:[String]
+  companyIds:[String]
+  tagsIds:[String]
   segmentIds: [String]
   periodGoal:String
   segmentRadio:Boolean

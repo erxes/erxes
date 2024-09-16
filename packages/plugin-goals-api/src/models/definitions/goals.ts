@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
+import { lazy } from 'react';
 
 export interface IGoal {
   name: string;
@@ -24,6 +25,10 @@ export interface IGoal {
   periodGoal: string;
   teamGoalType: string;
   segmentCount: number;
+  pipelineLabels: [String];
+  productIds: string[];
+  companyIds: string[];
+  tagsIds: string[];
 }
 
 export interface IGoalDocument extends IGoal, Document {
@@ -71,7 +76,14 @@ export const goalSchema = schemaHooksWrapper(
     segmentIds: field({ type: [String], label: 'Segment Data' }),
     periodGoal: field({ type: String, label: 'Period ' }),
     teamGoalType: field({ type: String, label: 'Choose  Structure' }),
-    segmentCount: field({ type: Number, min: 0, label: 'segmentCount' })
+    segmentCount: field({ type: Number, min: 0, label: 'segmentCount' }),
+    pipelineLabels: field({
+      type: [{ type: [String], label: 'PipelineLabel' }],
+      label: 'pipelineLabels'
+    }),
+    productIds: field({ type: [String], label: 'productIds' }),
+    companyIds: field({ type: [String], label: 'companyIds' }),
+    tagsIds: field({ type: [String], label: 'tagsIds' })
   }),
   'erxes_goals'
 );

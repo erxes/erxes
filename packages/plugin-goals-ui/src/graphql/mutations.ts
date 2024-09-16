@@ -19,6 +19,10 @@ const commonFields = `
     $stageRadio:Boolean
     $periodGoal:String
     $teamGoalType:String
+    $pipelineLabels:[String]
+    $productIds:[String]
+    $companyIds:[String]
+    $tagsIds:[String]
 `;
 
 const commonVariables = `
@@ -41,6 +45,10 @@ const commonVariables = `
   segmentRadio:$segmentRadio
   stageRadio:$stageRadio
   periodGoal:$periodGoal
+  pipelineLabels: $pipelineLabels
+  productIds: $productIds
+  companyIds: $companyIds
+  tagsIds: $tagsIds
   teamGoalType:$teamGoalType
 `;
 
@@ -67,6 +75,10 @@ const goalTypesAdd = `
       segmentRadio
       stageRadio
       periodGoal
+      pipelineLabels
+      productIds
+      companyIds
+      tagsIds
       teamGoalType
     }
   }
@@ -95,6 +107,10 @@ const goalTypesEdit = `
       segmentRadio
       segmentRadio
       periodGoal
+      pipelineLabels
+      productIds
+      companyIds
+      tagsIds
       teamGoalType
     }
   }
