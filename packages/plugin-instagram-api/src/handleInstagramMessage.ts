@@ -101,7 +101,6 @@ export const handleInstagramMessage = async (
         models,
         `${id}/replies`,
         data,
-        recipientId,
         inboxConversation && inboxConversation.integrationId
       );
 
@@ -133,37 +132,25 @@ export const handleInstagramMessage = async (
       throw new Error(e.message);
     }
   }
+
   if (action === 'reply-messenger') {
-    const {
-      integrationId,
-      conversationId,
-      content = '',
-      attachments = [],
-      extraInfo
-    } = doc;
+    const { integrationId, conversationId, content, attachments, extraInfo } =
+      doc;
     const tag = extraInfo && extraInfo.tag ? extraInfo.tag : '';
-
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
-
     const images: string[] = (content.match(regex) || []).map((m) =>
       m.replace(regex, '$1')
     );
-
     images.forEach((img) => {
       attachments.push({ type: 'image', url: img });
     });
-
-    let strippedContent = strip(content);
-
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
-
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId
     });
-
-    const { recipientId, senderId } = conversation;
+    let strippedContent = strip(content);
+    strippedContent = strippedContent.replace(/&amp;/g, '&');
+    const { senderId, recipientId } = conversation;
     let localMessage;
-
     try {
       if (strippedContent) {
         try {
@@ -175,10 +162,8 @@ export const handleInstagramMessage = async (
               message: { text: strippedContent },
               tag
             },
-            recipientId,
             integrationId
           );
-
           if (resp) {
             localMessage = await models.ConversationMessages.addMessage(
               {
@@ -190,42 +175,33 @@ export const handleInstagramMessage = async (
               doc.userId
             );
           }
+          return { status: 'success' };
         } catch (e) {
           await models.ConversationMessages.deleteOne({
             _id: localMessage && localMessage._id
           });
-
           throw new Error(e.message);
         }
       }
 
-      const generatedAttachments = generateAttachmentMessages(
+      for (const message of generateAttachmentMessages(
         subdomain,
         attachments
-      );
-
-      for (const message of generatedAttachments) {
+      )) {
         try {
           await sendReply(
             models,
             'me/messages',
-            { recipient: { id: senderId }, message, tag },
-            recipientId,
+            { recipient: { id: senderId }, message },
             integrationId
           );
         } catch (e) {
           throw new Error(e.message);
         }
       }
+      return { status: 'success' };
     } catch (e) {
       throw new Error(e.message);
     }
-
-    return {
-      status: 'success',
-      // inbox conversation id is used for mutation response,
-      // therefore override local id
-      data: { ...localMessage.toObject(), conversationId }
-    };
   }
 };

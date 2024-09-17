@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.0-rc.9](https://github.com/erxes/erxes/compare/1.16.0-rc.8...1.16.0-rc.9) (2024-09-17)
+
+
+### Bug Fixes
+
+* **RTE:** Fix prosemirror model duplications & upgrade tiptap version ([325c926](https://github.com/erxes/erxes/commit/325c92644bdade4b538c44a6b1c777757e51add8))
+* **widgets messenger:** fix iframe load call ([624b71d](https://github.com/erxes/erxes/commit/624b71da8a7e6294b5e116b6c685709054f1cddd))
+
 ## [1.16.0-rc.8](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.8) (2024-09-13)
 
 
