@@ -223,6 +223,14 @@ class Settings extends React.PureComponent {
               "",
               ["showProducts", "manageProducts"]
             )}
+
+            {this.renderBox(
+              "Email Templates",
+              "/images/icons/erxes-09.svg",
+              "/settings/email-templates",
+              "emailTemplateAll",
+              ["showEmailTemplates"]
+            )}
           </div>
         </Row>
         {this.renderPluginSettings()}

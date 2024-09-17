@@ -119,6 +119,12 @@ import {
   mutations as FormMutations
 } from "./form";
 
+import {
+  types as EmailTemplatesTypes,
+  queries as EmailTemplatesQueries,
+  mutations as EmailTemplatesMutations
+} from "./emailTemplate";
+
 export let types = ({ inboxEnabled }) => {
   return `
   scalar JSON
@@ -136,13 +142,13 @@ export let types = ({ inboxEnabled }) => {
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
   ${
-      inboxEnabled
-        ? `
+    inboxEnabled
+      ? `
         extend type Integration @key(fields: "_id") {
           _id: String! @external
         }
       `
-        : ""
+      : ""
   }  
   
 
@@ -171,6 +177,7 @@ export let types = ({ inboxEnabled }) => {
   ${CustomerTypes(inboxEnabled)}
   ${ProductTypes}
   ${UomTypes}
+  ${EmailTemplatesTypes}
   `;
 };
 
@@ -200,6 +207,7 @@ export let queries = `
   ${CustomerQueries}
   ${ProductQueries}
   ${UomQueries}
+  ${EmailTemplatesQueries}
 `;
 
 export let mutations = `
@@ -223,6 +231,7 @@ export let mutations = `
   ${CustomerMutations}
   ${ProductMutations}
   ${UomMutations}
+  ${EmailTemplatesMutations}
 `;
 
 export let subscriptions = `

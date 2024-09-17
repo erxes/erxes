@@ -11,6 +11,7 @@ import React from "react";
 import TeamRoutes from "./team/routes";
 import LogsRoutes from "./logs/routes";
 import EmailDeliveriesRoutes from "./emailDelivery/routes";
+import EmailTemplatesRoutes from "../emailtemplates/routes";
 
 const SettingsRoute = () => (
   <>
@@ -26,6 +27,7 @@ const SettingsRoute = () => (
     <MarketplaceRoutes key="Store" />
     <LogsRoutes key="Logs" />
     <EmailDeliveriesRoutes key="EmailDeliveries" />
+    <EmailTemplatesRoutes key="EmailTemplates" />
   </>
 );
 

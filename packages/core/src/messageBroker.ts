@@ -57,6 +57,7 @@ import search from "./search";
 import { setupProductMessageBroker } from "./messageBrokers/products";
 import tags from "./tags";
 import { setupInternalNotesMessageBroker } from "./messageBrokers/internalNotes";
+import { setupMessageEmailTemplatesConsumers } from "./messageBrokers/emailTemplates";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -66,6 +67,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   await setupContactsMessageBroker();
   await setupProductMessageBroker();
   await setupInternalNotesMessageBroker();
+  await setupMessageEmailTemplatesConsumers();
 
   consumeQueue(
     "core:manage-installation-notification",

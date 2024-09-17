@@ -8,7 +8,8 @@ export const MODULE_NAMES = {
   CUSTOMER: "customer",
   PRODUCT: "product",
   PRODUCT_CATEGORY: "productCategory",
-  UOM: "uom"
+  UOM: "uom",
+  EMAIl_TEMPLATE: "emailTemplate"
 };
 
 export const SEGMENT_STRING_OPERATORS = ["e", "dne", "c", "dnc"];

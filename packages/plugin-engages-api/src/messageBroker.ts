@@ -172,15 +172,6 @@ export const sendIntegrationsMessage = async (
   });
 };
 
-export const sendEmailTemplatesMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "emailtemplates",
-    ...args
-  });
-};
-
 export const sendClientPortalMessage = (args: MessageArgsOmitService) => {
   return sendMessage({
     serviceName: "clientportal",

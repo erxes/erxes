@@ -26,6 +26,7 @@ import Company from "./company";
 import Product from "./product";
 import ProductCategory from "./productCategory";
 import Uom from "./uom";
+import EmailTemplate from "./emailTemplates";
 
 const resolvers: any = {
   ...customScalars,
@@ -59,7 +60,8 @@ const resolvers: any = {
   Company,
   Product,
   ProductCategory,
-  Uom
+  Uom,
+  EmailTemplate
 };
 
 export default resolvers;

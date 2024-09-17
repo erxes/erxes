@@ -124,6 +124,14 @@ import {
   IProductsConfigDocument,
   IUomDocument
 } from "./db/models/definitions/products";
+
+import { IEmailTemplateDocument } from "./db/models/definitions/emailTemplates";
+
+import {
+  IEmailTemplateModel,
+  loadEmailTemplateClass
+} from "./db/models/EmailTemplates";
+
 import { IDataLoaders } from "./data/dataLoaders";
 
 export interface IModels {
@@ -160,6 +168,7 @@ export interface IModels {
   ProductCategories: IProductCategoryModel;
   ProductsConfigs: IProductsConfigModel;
   Uoms: IUomModel;
+  EmailTemplates: IEmailTemplateModel;
 }
 
 export interface IContext extends IMainContext {
@@ -299,6 +308,7 @@ export const loadClasses = (
     "products",
     loadProductClass(models, subdomain)
   );
+
   models.Uoms = db.model<IUomDocument, IUomModel>(
     "uoms",
     loadUomClass(models, subdomain)
@@ -307,10 +317,16 @@ export const loadClasses = (
     IProductsConfigDocument,
     IProductsConfigModel
   >("products_configs", loadProductsConfigClass(models));
+
   models.ProductCategories = db.model<
     IProductCategoryDocument,
     IProductCategoryModel
   >("product_categories", loadProductCategoryClass(models));
+
+  models.EmailTemplates = db.model<IEmailTemplateDocument, IEmailTemplateModel>(
+    "email_templates",
+    loadEmailTemplateClass(models)
+  );
 
   return models;
 };

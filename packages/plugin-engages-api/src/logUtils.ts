@@ -15,7 +15,7 @@ import {
   IEngageMessageDocument,
   IEngageMessage
 } from "./models/definitions/engages";
-import { sendCoreMessage, sendEmailTemplatesMessage } from "./messageBroker";
+import { sendCoreMessage } from "./messageBroker";
 import configs from "./configs";
 
 export const LOG_ACTIONS = {
@@ -144,10 +144,10 @@ const gatherEngageFieldNames = async (
   if (doc.email && doc.email.templateId) {
     const template = await sendRPCMessage(
       {
-        action: "findOne",
+        action: "emailTemplatesFindOne",
         data: { _id: doc.email.templateId }
       },
-      sendEmailTemplatesMessage
+      sendCoreMessage
     );
 
     if (template) {

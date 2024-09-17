@@ -20,6 +20,7 @@ import products from "./products";
 import productConfigs from "./productConfigs";
 import uoms from "./uoms";
 import formWidgets from "./formWidget";
+import emailTemplates from "./emailTemplates";
 
 import {
   fieldMutations as fields,
@@ -48,5 +49,6 @@ export default {
   ...products,
   ...productConfigs,
   ...uoms,
-  ...formWidgets
+  ...formWidgets,
+  ...emailTemplates
 };

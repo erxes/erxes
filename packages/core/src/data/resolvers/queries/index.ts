@@ -28,6 +28,7 @@ import contact from "./contact";
 import products from "./products";
 import productConfigs from "./productConfigs";
 import uoms from "./uoms";
+import emailTemplates from "./emailTemplates";
 
 export default {
   ...users,
@@ -55,5 +56,6 @@ export default {
   ...contact,
   ...products,
   ...productConfigs,
-  ...uoms
+  ...uoms,
+  ...emailTemplates
 };

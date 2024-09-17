@@ -20,6 +20,7 @@ import {
 import { IUserDocument, userSchema } from "./db/models/definitions/users";
 import { generateModels, IModels } from "./connectionResolver";
 import { configSchema } from "./db/models/definitions/configs";
+import { emailTemplateSchema } from "./db/models/definitions/emailTemplates";
 import { ITagDocument } from "./db/models/definitions/tags";
 
 const LOG_MAPPINGS = [
@@ -42,6 +43,10 @@ const LOG_MAPPINGS = [
   {
     name: MODULE_NAMES.CONFIG,
     schemas: [configSchema]
+  },
+  {
+    name: MODULE_NAMES.EMAIl_TEMPLATE,
+    schemas: [emailTemplateSchema]
   }
 ];
 

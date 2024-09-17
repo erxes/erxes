@@ -1,10 +1,11 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { Model } from "mongoose";
+
 import {
   emailTemplateSchema,
   IEmailTemplate,
   IEmailTemplateDocument
-} from './definitions/emailTemplates';
+} from "./definitions/emailTemplates";
+import { IModels } from "../../connectionResolver";
 
 export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
   getEmailTemplate(_id: string): IEmailTemplateDocument;
@@ -26,7 +27,7 @@ export const loadEmailTemplateClass = (models: IModels) => {
       const emailTemplate = await models.EmailTemplates.findOne({ _id });
 
       if (!emailTemplate) {
-        throw new Error('Email template not found');
+        throw new Error("Email template not found");
       }
 
       return emailTemplate;
@@ -41,7 +42,7 @@ export const loadEmailTemplateClass = (models: IModels) => {
         createdAt: new Date(),
         modifiedAt: new Date(),
         createdBy: user._id,
-        status: 'active'
+        status: "active"
       });
 
       return models.EmailTemplates.getEmailTemplate(template._id);
@@ -66,7 +67,9 @@ export const loadEmailTemplateClass = (models: IModels) => {
      * Delete email template
      */
     public static async removeEmailTemplate(_id: string) {
-      const emailTemplateObj = await models.EmailTemplates.findOneAndDelete({ _id });
+      const emailTemplateObj = await models.EmailTemplates.findOneAndDelete({
+        _id
+      });
 
       if (!emailTemplateObj) {
         throw new Error(`Email template not found with id ${_id}`);

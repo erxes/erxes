@@ -114,12 +114,3 @@ export const sendSegmentsMessage = async (
     ...args
   });
 };
-
-export const sendEmailTemplateMessage = async (
-  args: MessageArgsOmitService
-): Promise<any> => {
-  return sendMessage({
-    serviceName: "emailtemplates",
-    ...args
-  });
-};

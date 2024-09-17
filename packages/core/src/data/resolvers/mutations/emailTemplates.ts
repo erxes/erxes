@@ -1,9 +1,9 @@
-import { IEmailTemplate } from '../../../models/definitions/emailTemplates';
-import { putCreateLog, putDeleteLog, putUpdateLog } from '../../../logUtils';
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
+import { IEmailTemplate } from "../../../db/models/definitions/emailTemplates";
+import { putCreateLog, putDeleteLog, putUpdateLog } from "../../../logUtils";
+import { checkPermission } from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
 
-const EMAIL_TEMPLATE = 'emailTemplate';
+const EMAIL_TEMPLATE = "emailTemplate";
 
 interface IEmailTemplatesEdit extends IEmailTemplate {
   _id: string;
@@ -26,6 +26,7 @@ const emailTemplateMutations = {
     );
 
     await putCreateLog(
+      models,
       subdomain,
       {
         type: EMAIL_TEMPLATE,
@@ -54,6 +55,7 @@ const emailTemplateMutations = {
     );
 
     await putUpdateLog(
+      models,
       subdomain,
       {
         type: EMAIL_TEMPLATE,
@@ -84,6 +86,7 @@ const emailTemplateMutations = {
     const updated = await models.EmailTemplates.findOne({ _id });
 
     await putUpdateLog(
+      models,
       subdomain,
       {
         type: EMAIL_TEMPLATE,
@@ -109,6 +112,7 @@ const emailTemplateMutations = {
     const removed = await models.EmailTemplates.removeEmailTemplate(_id);
 
     await putDeleteLog(
+      models,
       subdomain,
       {
         type: EMAIL_TEMPLATE,
@@ -140,28 +144,28 @@ const emailTemplateMutations = {
 
 checkPermission(
   emailTemplateMutations,
-  'emailTemplatesAdd',
-  'manageEmailTemplate'
+  "emailTemplatesAdd",
+  "manageEmailTemplate"
 );
 checkPermission(
   emailTemplateMutations,
-  'emailTemplatesEdit',
-  'manageEmailTemplate'
+  "emailTemplatesEdit",
+  "manageEmailTemplate"
 );
 checkPermission(
   emailTemplateMutations,
-  'emailTemplatesChangeStatus',
-  'manageEmailTemplate'
+  "emailTemplatesChangeStatus",
+  "manageEmailTemplate"
 );
 checkPermission(
   emailTemplateMutations,
-  'emailTemplatesRemove',
-  'removeEmailTemplate'
+  "emailTemplatesRemove",
+  "removeEmailTemplate"
 );
 checkPermission(
   emailTemplateMutations,
-  'emailTemplatesDuplicate',
-  'manageEmailTemplate'
+  "emailTemplatesDuplicate",
+  "manageEmailTemplate"
 );
 
 export default emailTemplateMutations;

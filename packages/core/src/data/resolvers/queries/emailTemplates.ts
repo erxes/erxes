@@ -1,9 +1,9 @@
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
-import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+} from "@erxes/api-utils/src/permissions";
+import { IContext } from "../../../connectionResolver";
+import { escapeRegExp, paginate } from "@erxes/api-utils/src/core";
 
 interface IListParams {
   page: number;
@@ -18,14 +18,14 @@ const generateFilter = (commonSelector, args: IListParams) => {
   const filter: any = commonSelector;
 
   if (searchValue) {
-    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    filter.name = new RegExp(`.*${searchValue}.*`, "i");
   }
 
   if (status) {
-    const elseActive = status === 'active' ? [null, undefined] : [];
+    const elseActive = status === "active" ? [null, undefined] : [];
 
     filter.status = {
-      $in: [...elseActive, new RegExp(`.*${escapeRegExp(status)}.*`, 'i')]
+      $in: [...elseActive, new RegExp(`.*${escapeRegExp(status)}.*`, "i")]
     };
   }
 
@@ -56,7 +56,7 @@ const emailTemplateQueries = {
     const filter: any = {};
 
     if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+      filter.name = new RegExp(`.*${searchValue}.*`, "i");
     }
 
     return models.EmailTemplates.find(filter).countDocuments();
@@ -67,18 +67,18 @@ const emailTemplateQueries = {
   }
 };
 
-requireLogin(emailTemplateQueries, 'emailTemplatesTotalCount');
+requireLogin(emailTemplateQueries, "emailTemplatesTotalCount");
 checkPermission(
   emailTemplateQueries,
-  'emailTemplates',
-  'showEmailTemplates',
+  "emailTemplates",
+  "showEmailTemplates",
   []
 );
 
 checkPermission(
   emailTemplateQueries,
-  'emailTemplate',
-  'showEmailTemplates',
+  "emailTemplate",
+  "showEmailTemplates",
   {}
 );
 

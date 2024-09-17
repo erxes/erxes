@@ -1,7 +1,6 @@
 import {
   sendCommonMessage,
   sendCoreMessage,
-  sendEmailTemplateMessage,
   sendSegmentsMessage
 } from "../messageBroker";
 import { EMAIL_RECIPIENTS_TYPES } from "../constants";
@@ -206,9 +205,9 @@ export const generateDoc = async ({
   const { templateId, fromUserId, sender } = config;
   const [serviceName, type] = triggerType.split(":");
 
-  const template = await sendEmailTemplateMessage({
+  const template = await sendCoreMessage({
     subdomain,
-    action: "findOne",
+    action: "emailTemplatesFindOne",
     data: {
       _id: templateId
     },

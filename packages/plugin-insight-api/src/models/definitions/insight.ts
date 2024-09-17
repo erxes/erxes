@@ -1,27 +1,27 @@
-import { Document, Schema } from 'mongoose';
-import { field, schemaHooksWrapper } from './utils';
+import { Document, Schema } from "mongoose";
+import { field, schemaHooksWrapper } from "./utils";
 
 enum IVisibilityType {
-  PUBLIC = 'public',
-  PRIVATE = 'private',
+  PUBLIC = "public",
+  PRIVATE = "private"
 }
 
 enum IChartFilterType {
-  DATE = 'date',
-  STRING = 'string',
-  NUMBER = 'number',
+  DATE = "date",
+  STRING = "string",
+  NUMBER = "number"
 }
 
 enum IChartType {
-  PIE = 'pie',
-  BAR = 'bar',
-  LINE = 'line',
-  DOUGHNUT = 'doughnut',
-  RADAR = 'radar',
-  POLARAREA = 'polarArea',
-  TABLE = 'table',
-  NUMBER = 'number',
-  PIVOTTABLE = 'pivotTable'
+  PIE = "pie",
+  BAR = "bar",
+  LINE = "line",
+  DOUGHNUT = "doughnut",
+  RADAR = "radar",
+  POLARAREA = "polarArea",
+  TABLE = "table",
+  NUMBER = "number",
+  PIVOTTABLE = "pivotTable"
 }
 
 export interface IChartEdit {
@@ -129,132 +129,136 @@ export interface IChartDocument extends IChart, Document {
 export const dashboardSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    sectionId: field({ type: String, label: 'Section id' }),
+    name: field({ type: String, label: "Name" }),
+    sectionId: field({ type: String, label: "Section id" }),
     visibility: field({
       type: String,
       enum: Object.values(IVisibilityType),
-      label: 'Dashboard visibility',
+      label: "Dashboard visibility"
     }),
-    assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
+    assignedUserIds: field({ type: [String], label: "Assigned member ids" }),
     assignedDepartmentIds: field({
       type: [String],
-      label: 'Assigned department ids',
+      label: "Assigned department ids"
     }),
-    serviceNames: field({ type: [String], label: 'Selected service names' }),
-    serviceTypes: field({ type: [String], label: 'Selected types' }),
+    serviceNames: field({ type: [String], label: "Selected service names" }),
+    serviceTypes: field({ type: [String], label: "Selected types" }),
     createdAt: field({
       default: Date.now(),
       type: Date,
-      label: 'Created at',
-      index: true,
+      label: "Created at",
+      index: true
     }),
     createdBy: field({
       type: String,
-      label: 'Created by user id',
-      index: true,
+      label: "Created by user id",
+      index: true
     }),
     updatedAt: field({
       type: Date,
-      label: 'Last updated at',
+      label: "Last updated at"
     }),
     updatedBy: field({
       type: String,
-      label: 'Last updated by user id',
-    }),
+      label: "Last updated by user id"
+    })
   }),
-  'erxes_dashboard',
+  "erxes_dashboard"
 );
 
 export const reportSchema = new Schema({
   _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Report name', index: true }),
+  name: field({ type: String, label: "Report name", index: true }),
   visibility: field({
     type: String,
     enum: Object.values(IVisibilityType),
-    label: 'Report visibility',
+    label: "Report visibility"
   }),
-  assignedUserIds: field({ type: [String], label: 'Assigned member ids' }),
+  assignedUserIds: field({ type: [String], label: "Assigned member ids" }),
   assignedDepartmentIds: field({
     type: [String],
-    label: 'Assigned department ids',
+    label: "Assigned department ids"
   }),
-  tagIds: field({ type: [String], label: 'Assigned tag ids' }),
+  tagIds: field({ type: [String], label: "Assigned tag ids" }),
   createdAt: field({
     default: Date.now(),
     type: Date,
-    label: 'Created at',
-    index: true,
+    label: "Created at",
+    index: true
   }),
-  serviceName: field({ type: String, label: 'Service name' }),
-  serviceType: field({ type: String, label: 'Service type' }),
-  sectionId: field({ type: String, label: 'Section id' }),
+  serviceName: field({ type: String, label: "Service name" }),
+  serviceType: field({ type: String, label: "Service type" }),
+  sectionId: field({ type: String, label: "Section id" }),
   createdBy: field({
     type: String,
-    label: 'Created by user id',
-    index: true,
+    label: "Created by user id",
+    index: true
   }),
   updatedAt: field({
     type: Date,
-    label: 'Last updated at',
+    label: "Last updated at"
   }),
   updatedBy: field({
     type: String,
-    label: 'Last updated by user id',
-  }),
+    label: "Last updated by user id"
+  })
 });
 
 export const sectionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    type: field({ type: String, label: 'Type' }),
+    name: field({ type: String, label: "Name" }),
+    type: field({ type: String, label: "Type" }),
     createdAt: field({
       default: Date.now(),
       type: Date,
-      label: 'Created at',
-      index: true,
+      label: "Created at",
+      index: true
     }),
     createdBy: field({
       type: String,
-      label: 'Created by user id',
-      index: true,
+      label: "Created by user id",
+      index: true
     }),
     updatedAt: field({
       type: Date,
-      label: 'Last updated at',
+      label: "Last updated at"
     }),
     updatedBy: field({
       type: String,
-      label: 'Last updated by user id',
-    }),
+      label: "Last updated by user id"
+    })
   }),
-  'erxes_section',
+  "erxes_section"
 );
 
 export const chartSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Chart name', index: true }),
+    name: field({ type: String, label: "Chart name", index: true }),
     contentId: field({
       type: String,
-      label: 'Id of a corresponding insight',
-      index: true,
+      label: "Id of a corresponding insight",
+      index: true
     }),
-    contentType: field({ type: String, label: 'Content type' }),
-    serviceName: field({ type: String, label: 'Service name' }),
-    layout: field({ type: String, label: 'Insight item - layout' }),
+    contentType: field({ type: String, label: "Content type" }),
+    serviceName: field({ type: String, label: "Service name" }),
+    layout: field({ type: String, label: "Insight item - layout" }),
     vizState: field({ type: String }),
     templateType: field({
       type: String,
-      label: 'Template name coming from plugins config',
-      index: true,
+      label: "Template name coming from plugins config",
+      index: true
     }),
-    order: field({ type: Number, label: 'Order number' }),
-    chartType: field({ type: String, enum: Object.values(IChartType), label: 'Chart type' }),
-    filter: field({ type: JSON, label: 'Filters' }),
-    dimension: field({ type: JSON, label: 'Dimension' }),
-    defaultFilterId: field({ type: String, label: 'Default filter id' }),
+    order: field({ type: Number, label: "Order number" }),
+    chartType: field({
+      type: String,
+      enum: Object.values(IChartType),
+      label: "Chart type"
+    }),
+    filter: field({ type: JSON, label: "Filters" }),
+    dimension: field({ type: JSON, label: "Dimension" }),
+    defaultFilterId: field({ type: String, label: "Default filter id" })
   }),
-  'erxes_insight_chart',
+  "erxes_insight_chart"
 );
