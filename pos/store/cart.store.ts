@@ -7,7 +7,7 @@ import {
   OrderItem,
   OrderItemInput,
 } from "@/types/order.types"
-import { ORDER_STATUSES } from "@/lib/constants"
+import { ORDER_ITEM_STATUSES, ORDER_STATUSES } from "@/lib/constants"
 import { getCartTotal, getItemInputs } from "@/lib/utils"
 
 import { banFractionsAtom, orderPasswordAtom } from "./config.store"
@@ -132,15 +132,18 @@ export const addToCartAtom = atom(
 )
 export const updateCartAtom = atom(
   () => "",
-  (get, set, update: IUpdateItem) => {
+  (get, set, { status, ...update }: IUpdateItem) => {
     if (
       !!get(orderPasswordAtom) &&
       !!get(activeOrderIdAtom) &&
       !update.allowed &&
       update.count === (get(banFractionsAtom) ? 0 : -1) &&
-      update.status !== "new"
+      [ORDER_ITEM_STATUSES.DONE, ORDER_ITEM_STATUSES.CONFIRM].includes(
+        status || ""
+      )
     ) {
-      return set(requirePasswordAtom, update)
+      set(requirePasswordAtom, update)
+      return
     }
     set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
     set(
