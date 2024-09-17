@@ -51,11 +51,7 @@ const renderPopover = (Component, info?) => {
   );
 };
 
-export default async function Preview({
-  automation,
-  constants,
-  history
-}: Props) {
+export default function Preview({ automation, constants, history }: Props) {
   const { triggers, actions } = automation;
 
   const additionalContent = (id, type) => {

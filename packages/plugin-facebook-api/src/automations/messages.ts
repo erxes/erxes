@@ -205,10 +205,13 @@ export const checkMessageTrigger = async (subdomain, { target, config }) => {
         }
       }
 
-      if (type === "direct" && directMessageCondtions?.length > 0) {
-        if (
-          checkContentConditions(target?.content || "", directMessageCondtions)
-        ) {
+      if (type === "direct") {
+        if (directMessageCondtions?.length > 0) {
+          return !!checkContentConditions(
+            target?.content || "",
+            directMessageCondtions
+          );
+        } else if (!!target?.content) {
           return true;
         }
       }

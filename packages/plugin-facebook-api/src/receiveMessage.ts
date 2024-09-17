@@ -133,7 +133,7 @@ const receiveMessage = async (
       type: "text",
       text: `<div class="ads"> 
               <img src="${referral.ads_context_data.photo_url}" alt="${referral.ads_context_data.ad_title}"/>
-              <p>${referral.ads_context_data.ad_title}</p>
+              <h5>${referral.ads_context_data.ad_title}</h5>
             </div>`,
       mid: message.mid,
       adId: referral.ad_id,
@@ -219,11 +219,11 @@ const receiveMessage = async (
         const adsMessage = await models.ConversationMessages.addMessage({
           conversationId: conversation._id,
           content: "<p>Conversation started from Facebook ads </p>",
-          internal: true,
           botId,
           botData: [adData],
           fromBot: true,
-          mid: adData.mid
+          mid: adData.mid,
+          createdAt: new Date(new Date(timestamp).getTime() - 500)
         });
 
         await sendInboxMessage({

@@ -7,7 +7,11 @@ import receiveComment from "./receiveComment";
 import receiveMessage from "./receiveMessage";
 import receivePost from "./receivePost";
 import { FACEBOOK_POST_TYPES, INTEGRATION_KINDS } from "./constants";
-import { getAdapter, getPageAccessTokenFromMap } from "./utils";
+import {
+  checkIsAdsOpenThread,
+  getAdapter,
+  getPageAccessTokenFromMap
+} from "./utils";
 import { generateModels } from "./connectionResolver";
 
 const init = async app => {
@@ -81,16 +85,7 @@ const init = async app => {
 
     const data = req.body;
 
-    console.log(JSON.stringify(data));
-
-    const referral = data?.entry[0]?.messaging[0]?.message?.referral;
-    const isAdsOpenThread =
-      referral &&
-      referral.source === "ADS" &&
-      referral.type === "OPEN_THREAD" &&
-      referral.ads_context_data;
-
-    if (data.object !== "page" && !isAdsOpenThread) {
+    if (data.object !== "page" && !checkIsAdsOpenThread(data?.entry)) {
       return;
     }
     const adapter = await getAdapter(models);
