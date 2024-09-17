@@ -289,8 +289,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           mobileAmountsData,
           paymentsData: data
         };
-        // console.log(amountData, 'amountData');
-        // console.log(updatedGoals, 'updatedGoals');
         try {
           await models.Goals.updateOne(
             { _id: item._id },
@@ -300,7 +298,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
               }
             }
           );
-          console.log('Goals updated successfully');
         } catch (error) {
           console.error('Error updating goals:', error);
         }
@@ -324,7 +321,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
             };
           });
         }
-        console.log(item, '********');
         // Step 2: Filter goals and calculate their current and progress
         const countGoal: Goal[] = await getFilteredGoals(item, amount);
 
@@ -357,7 +353,6 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
               }
             }
           );
-          console.log('Goals updated successfully');
         } catch (error) {
           console.error('Error updating goals:', error);
         }

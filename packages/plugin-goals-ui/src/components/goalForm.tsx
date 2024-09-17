@@ -126,7 +126,9 @@ const goalForm = (props: Props) => {
 
   useEffect(() => {
     dispatch({ type: 'updateState', payload: goalType });
+  }, [goalType]);
 
+  useEffect(() => {
     if (state.pipelineId) {
       client
         .query({
@@ -152,7 +154,7 @@ const goalForm = (props: Props) => {
           console.error('Error while fetching pipeline labels: ', e.message);
         });
     }
-  }, [goalType, state.pipelineId]);
+  }, [state.pipelineId]);
 
   const generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
     const {
