@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.17.0](https://github.com/erxes/erxes/compare/1.16.0-rc.9...1.17.0) (2024-09-17)
+
+
+### Features
+
+* **facebook:** add ability get ads direct message in chatbot ([cf81aac](https://github.com/erxes/erxes/commit/cf81aaca662f8d28f1abbbea7327f672fea757c8))
+
+
+### Bug Fixes
+
+* **instagram:** instagram reply fixs ([18ea4cc](https://github.com/erxes/erxes/commit/18ea4ccdbbb2e324c1d276870ad857add17b5081))
+
 ## [1.16.0-rc.9](https://github.com/erxes/erxes/compare/1.16.0-rc.8...1.16.0-rc.9) (2024-09-17)
 
 
