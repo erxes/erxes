@@ -51,13 +51,13 @@ export const getPostDetails = async (
 
   try {
     const response: any = await graphRequest.get(
-      `/${postId}?fields=permalink_url,message,created_time`,
+      `/${postId}?fields=permalink_url,message,created_time,`,
       pageAccessToken
     );
 
     return response;
   } catch (e) {
-    debugError(`Error occurred while getting facebook post: ${e.message}`);
+    debugError(`Error occurred while getting instagram post: ${e.message}`);
     return null;
   }
 };
@@ -174,7 +174,6 @@ export const getPageList = async (
   }
 
   const pages: any[] = [];
-
   for (const page of response.data) {
     if (page.instagram_business_account) {
       const pageId = page.instagram_business_account.id;
@@ -205,7 +204,6 @@ export const getPageAccessTokenFromMap = (
 ): string => {
   return (pageTokens || {})[pageId];
 };
-
 export const getInstagramUser = async (
   userId: string,
   facebookPageId: string,
@@ -217,10 +215,9 @@ export const getInstagramUser = async (
       facebookPageTokensMap
     );
     const accounInfo: any = await graphRequest.get(
-      `${userId}?fields=name,profile_pic`,
+      `${userId}?fields=name,username,profile_pic`,
       token
     );
-
     return accounInfo;
   } else {
     throw new Error(
@@ -233,30 +230,36 @@ export const sendReply = async (
   models: IModels,
   url: string,
   data: any,
-  recipientId: string,
   integrationId: string
 ) => {
-  let integration;
-  try {
-    integration = await models.Integrations.findOne({
-      erxesApiId: integrationId
-    });
-  } catch (error) {
-    throw new Error(error);
+  const integration = await models.Integrations.findOne({
+    erxesApiId: integrationId
+  });
+  if (!integration) {
+    throw new Error('Integration not found');
   }
-
   const { facebookPageTokensMap = {}, facebookPageId } = integration;
 
-  let pageAccessToken;
+  let pageAccessToken: string | undefined;
 
   try {
+    if (!facebookPageId) {
+      throw new Error('Facebook page ID is not defined.');
+    }
+
     pageAccessToken = getPageAccessTokenFromMap(
       facebookPageId,
       facebookPageTokensMap
     );
+
+    if (!pageAccessToken) {
+      throw new Error('Page access token not found.');
+    }
+
+    // Continue processing with `pageAccessToken`
   } catch (e) {
     debugError(
-      `Error ocurred while trying to get page access token with ${e.message}`
+      `Error occurred while trying to get page access token: ${e.message}`
     );
     return e;
   }
@@ -266,7 +269,7 @@ export const sendReply = async (
       ...data
     });
     debugInstagram(
-      `Successfully sent data to Instagram ${JSON.stringify(data)}`
+      `Successfully sent data to instagram ${JSON.stringify(data)}`
     );
     return response;
   } catch (e) {
@@ -276,37 +279,24 @@ export const sendReply = async (
       } data: ${JSON.stringify(data)}`
     );
 
-    if (e.message.includes('access token')) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'page-token', error: `${e.message}` } }
-      );
-    } else if (e.code !== 10) {
-      await models.Integrations.updateOne(
-        { _id: integration._id },
-        { $set: { healthStatus: 'account-token', error: `${e.message}` } }
-      );
-    }
-    if (e.message.includes('does not exist')) {
-      throw new Error('Comment has been deleted by the customer');
-    }
-
     throw new Error(e.message);
   }
 };
-
 export const generateAttachmentMessages = (
   subdomain: string,
   attachments: IAttachment[]
 ) => {
   const messages: IAttachmentMessage[] = [];
+
   for (const attachment of attachments || []) {
     let type = 'file';
 
     if (attachment.type.startsWith('image')) {
       type = 'image';
     }
+
     const url = generateAttachmentUrl(subdomain, attachment.url);
+
     messages.push({
       attachment: {
         type,
