@@ -1,5 +1,5 @@
-import * as xlsxPopulate from 'xlsx-populate';
-import { chartGetResult } from './graphql/resolvers/utils';
+import * as xlsxPopulate from "xlsx-populate";
+import { chartGetResult } from "./graphql/resolvers/utils";
 /**
  * Creates blank workbook
  */
@@ -22,7 +22,7 @@ const addIntoSheet = async (
   startRowIdx: string,
   endRowIdx: string,
   sheet: any,
-  customStyles?: any,
+  customStyles?: any
 ) => {
   let r;
 
@@ -38,20 +38,31 @@ const addIntoSheet = async (
   r.style({ wrapText: true });
 };
 
-const prepareHeader = async (sheet: any, title?: string, dimensions?: string[], measures?: string[]) => {
-  const headers = dimensions && measures ? [...dimensions, ...measures] : [title, "count"];
+const prepareHeader = async (
+  sheet: any,
+  title?: string,
+  dimensions?: string[],
+  measures?: string[]
+) => {
+  const headers =
+    dimensions && measures ? [...dimensions, ...measures] : [title, "count"];
 
   for (let i = 0; i < headers.length; i++) {
     const columnLetter = String.fromCharCode(65 + i);
     sheet.column(columnLetter).width(15);
   }
 
-  addIntoSheet([headers], 'A1', `${String.fromCharCode(65 + headers.length - 1)}1`, sheet);
+  addIntoSheet(
+    [headers],
+    "A1",
+    `${String.fromCharCode(65 + headers.length - 1)}1`,
+    sheet
+  );
 };
 
-const isArrayPrimitive = (arr) => {
+const isArrayPrimitive = arr => {
   for (const element of arr) {
-    if (typeof element !== 'object' && typeof element !== 'function') {
+    if (typeof element !== "object" && typeof element !== "function") {
       return true; // If a non-object element is found, return true (primitive type)
     }
   }
@@ -89,11 +100,17 @@ const extractAndAddIntoSheet = async (
     });
   }
 
-  const dataRange = sheet.range(`A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`);
-  dataRange.style({ border: 'thin' });
+  const dataRange = sheet.range(
+    `A${startRowIdx - 1}:${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`
+  );
+  dataRange.style({ border: "thin" });
 
-  addIntoSheet(extractValuesIntoArr, `A${startRowIdx}`, `${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`, sheet);
-
+  addIntoSheet(
+    extractValuesIntoArr,
+    `A${startRowIdx}`,
+    `${String.fromCharCode(65 + headers.length - 1)}${endRowIdx}`,
+    sheet
+  );
 };
 const toCamelCase = (str: string) => {
   return str.replace(/[-_](.)/g, function (match, group) {
@@ -101,7 +118,7 @@ const toCamelCase = (str: string) => {
   });
 };
 
-export const buildFile = async (subdomain: string, params: any) => {
+export const buildChartFile = async (subdomain: string, params: any) => {
   const { workbook, sheet } = await createXlsFile();
   const dataset = await chartGetResult(params, subdomain);
 
@@ -113,6 +130,6 @@ export const buildFile = async (subdomain: string, params: any) => {
 
   return {
     name: `${toCamelCase(title)}`,
-    response: await generateXlsx(workbook),
+    response: await generateXlsx(workbook)
   };
 };

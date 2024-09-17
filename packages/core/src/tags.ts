@@ -8,6 +8,9 @@ const modelChanger = (type: string, models: IModels) => {
   if (type === "product") {
     return models.Products;
   }
+  if (type === "reports") {
+    return models.Reports;
+  }
 
   return models.Companies;
 };
@@ -29,6 +32,10 @@ export default {
     {
       description: "Form",
       type: "form"
+    },
+    {
+      description: "Reports",
+      type: "reports"
     }
   ],
   tag: async ({ subdomain, data }) => {

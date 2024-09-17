@@ -1,7 +1,10 @@
 import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext } from "../../../connectionResolver";
-import { IReport, IReportDocument } from "../../../models/definitions/insight";
-import { sendCoreMessage } from "../../../messageBroker";
+import {
+  IReport,
+  IReportDocument
+} from "../../../db/models/definitions/insight";
+import { registerOnboardHistory } from "../../utils";
 
 const reportsMutations = {
   async reportAdd(_root, doc: IReport, { models, user, subdomain }: IContext) {
@@ -48,7 +51,7 @@ const reportsMutations = {
               serviceName,
               chartType: c.chartTypes[0],
               contentId: report._id,
-              contentType: "insight:report",
+              contentType: "core:report",
               ...c
             };
           })
@@ -56,14 +59,7 @@ const reportsMutations = {
       }
     }
 
-    sendCoreMessage({
-      subdomain,
-      action: "registerOnboardHistory",
-      data: {
-        type: `InsightCreate`,
-        user
-      }
-    });
+    registerOnboardHistory({ models, user, type: `InsightCreate` });
 
     return report;
   },

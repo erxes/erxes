@@ -20,6 +20,7 @@ import SegmentRoutes from "./modules/segments/routes";
 import ProductRoutes from "./modules/products/routes";
 import FormRoutes from "./modules/forms/routes";
 import WelcomeRoutes from "./modules/welcome/routes";
+import InsightRoutes from "./modules/insights/routes";
 import asyncComponent from "modules/common/components/AsyncComponent";
 import { getVersion } from "@erxes/ui/src/utils/core";
 import queryString from "query-string";
@@ -155,6 +156,7 @@ const renderRoutes = currentUser => {
         <SegmentRoutes />
         <ContactRoutes />
         <ProductRoutes />
+        <InsightRoutes />
         <WelcomeRoutes currentUser={currentUser} />
         {pluginLayouts(currentUser)}
         {pluginRouters()}

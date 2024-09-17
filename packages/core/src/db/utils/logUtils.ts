@@ -300,7 +300,7 @@ export const fetchActivityLogs = async (
         })
         .skip(perPage * (page - 1))
         .limit(perPage),
-      totalCount: await models.ActivityLogs.countDocuments(filter)
+      totalCount: await models.ActivityLogs.find(filter).countDocuments()
     };
   }
 
@@ -308,7 +308,7 @@ export const fetchActivityLogs = async (
     activityLogs: await models.ActivityLogs.find(filter)
       .sort({ createdAt: -1 })
       .lean(),
-    totalCount: await models.ActivityLogs.countDocuments(filter)
+    totalCount: await models.ActivityLogs.find(filter).countDocuments()
   };
 };
 

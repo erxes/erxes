@@ -1,5 +1,5 @@
 import { IContext } from "../../../connectionResolver";
-import { ISection } from "../../../models/definitions/insight";
+import { ISection } from "../../../db/models/definitions/insight";
 
 interface ISectionEdit extends ISection {
   _id: string;
@@ -35,11 +35,7 @@ const sectionMutations = {
    * Removes a section
    */
 
-  async sectionRemove(
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain }: IContext
-  ) {
+  async sectionRemove(_root, { _id }: { _id: string }, { models }: IContext) {
     const section = await models.Sections.getSection(_id);
 
     const { type } = section;

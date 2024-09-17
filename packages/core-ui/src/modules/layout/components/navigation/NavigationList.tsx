@@ -34,12 +34,18 @@ const CORE_PLUGINS = [
     permission: "showSegments"
   },
   {
-    text: 'Forms',
-    url: '/forms',
-    icon: 'icon-laptop',
-    location: 'mainNavigation',
-    permission: 'showForms'
+    text: "Forms",
+    url: "/forms",
+    icon: "icon-laptop",
+    location: "mainNavigation",
+    permission: "showForms"
   },
+  {
+    text: "Insight",
+    url: "/forms",
+    icon: "icon-reload",
+    location: "mainNavigation"
+  }
 ];
 
 export default class NavigationList extends React.Component<Props, State> {

@@ -27,6 +27,9 @@ import Product from "./product";
 import ProductCategory from "./productCategory";
 import Uom from "./uom";
 import EmailTemplate from "./emailTemplates";
+import Dashboard from "./dashboard";
+import Report from "./report";
+import Section from "./section";
 
 const resolvers: any = {
   ...customScalars,
@@ -61,7 +64,10 @@ const resolvers: any = {
   Product,
   ProductCategory,
   Uom,
-  EmailTemplate
+  EmailTemplate,
+  Dashboard,
+  Report,
+  Section
 };
 
 export default resolvers;

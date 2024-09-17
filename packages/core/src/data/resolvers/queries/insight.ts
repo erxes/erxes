@@ -1,5 +1,3 @@
-import { IUserDocument } from "@erxes/api-utils/src/types";
-
 import { IContext } from "../../../connectionResolver";
 import { sendCommonMessage } from "../../../messageBroker";
 import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
@@ -8,7 +6,7 @@ const insightQueries = {
   /**
    * Get last dashboard
    */
-  async insightGetLast(_root, params, { models, subdomain }: IContext) {
+  async insightGetLast(_root, params, { models }: IContext) {
     const dashboard = await models.Dashboards.findOne({}).sort({
       createdAt: -1
     });

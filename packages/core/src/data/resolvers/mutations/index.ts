@@ -21,6 +21,10 @@ import productConfigs from "./productConfigs";
 import uoms from "./uoms";
 import formWidgets from "./formWidget";
 import emailTemplates from "./emailTemplates";
+import dashboards from "./dashboard";
+import reports from "./report";
+import sections from "./section";
+import charts from "./chart";
 
 import {
   fieldMutations as fields,
@@ -50,5 +54,9 @@ export default {
   ...productConfigs,
   ...uoms,
   ...formWidgets,
-  ...emailTemplates
+  ...emailTemplates,
+  ...dashboards,
+  ...reports,
+  ...sections,
+  ...charts
 };

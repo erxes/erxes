@@ -125,6 +125,12 @@ import {
   mutations as EmailTemplatesMutations
 } from "./emailTemplate";
 
+import {
+  types as InsightTypes,
+  queries as InsightQueries,
+  mutations as InsightMutations
+} from "./insight";
+
 export let types = ({ inboxEnabled }) => {
   return `
   scalar JSON
@@ -178,6 +184,7 @@ export let types = ({ inboxEnabled }) => {
   ${ProductTypes}
   ${UomTypes}
   ${EmailTemplatesTypes}
+  ${InsightTypes}
   `;
 };
 
@@ -208,6 +215,7 @@ export let queries = `
   ${ProductQueries}
   ${UomQueries}
   ${EmailTemplatesQueries}
+  ${InsightQueries}
 `;
 
 export let mutations = `
@@ -232,6 +240,7 @@ export let mutations = `
   ${ProductMutations}
   ${UomMutations}
   ${EmailTemplatesMutations}
+  ${InsightMutations}
 `;
 
 export let subscriptions = `

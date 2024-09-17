@@ -1,5 +1,5 @@
-import { ISectionDocument } from "./../../../models/definitions/insight";
-import { IContext } from "../../../connectionResolver";
+import { ISectionDocument } from "../../db/models/definitions/insight";
+import { IContext } from "../../connectionResolver";
 
 export default {
   async list(section: ISectionDocument, {}, { models }: IContext) {
@@ -17,11 +17,7 @@ export default {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
-  async listCount(
-    section: ISectionDocument,
-    {},
-    { models, subdomain }: IContext
-  ) {
+  async listCount(section: ISectionDocument, {}, { models }: IContext) {
     try {
       const { _id, type } = section;
 
@@ -36,20 +32,10 @@ export default {
       return new Error(`Invalid ${error.path}: ${error.value}`);
     }
   },
-  createdBy(section: ISectionDocument) {
-    return (
-      section.createdBy && {
-        __typename: "User",
-        _id: section.createdBy
-      }
-    );
+  async createdBy(section: ISectionDocument, _params, { models }: IContext) {
+    return models.Users.findOne({ _id: section.createdBy });
   },
-  updatedBy(section: ISectionDocument) {
-    return (
-      section.updatedBy && {
-        __typename: "User",
-        _id: section.updatedBy
-      }
-    );
+  async updatedBy(section: ISectionDocument, _params, { models }: IContext) {
+    return models.Users.findOne({ _id: section.updatedBy });
   }
 };

@@ -1,8 +1,6 @@
 import { IUserDocument } from "@erxes/api-utils/src/types";
 
-import { IContext } from "../../../connectionResolver";
-import { sendCoreMessage } from "../../../messageBroker";
-import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
+import { IContext, IModels } from "../../../connectionResolver";
 
 interface IListParams {
   searchValue: string;
@@ -16,23 +14,17 @@ interface IListParams {
 }
 
 const generateFilter = async (
+  models: IModels,
   params: IListParams,
-  user: IUserDocument,
-  subdomain: string
+  user: IUserDocument
 ) => {
   const { searchValue, tag, departmentId } = params;
 
   let filter: any = {};
 
   if (user && !user.isOwner) {
-    const departments = await sendCoreMessage({
-      subdomain,
-      action: "departments.find",
-      data: {
-        userIds: { $in: [user._id] }
-      },
-      isRPC: true,
-      defaultValue: []
+    const departments = await models.Departments.find({
+      userIds: { $in: [user._id] }
     });
 
     const departmentIds = departments.map(d => d._id);
@@ -71,10 +63,10 @@ const generateFilter = async (
 };
 
 const reportsQueries = {
-  async reportList(_root, params, { models, subdomain, user }: IContext) {
+  async reportList(_root, params, { models, user }: IContext) {
     const totalCount = await models.Reports.countDocuments({});
 
-    const filter = await generateFilter(params, user, subdomain);
+    const filter = await generateFilter(models, params, user);
 
     const list = await models.Reports.find(filter).sort({
       createdAt: 1,
@@ -88,18 +80,10 @@ const reportsQueries = {
     return models.Reports.getReport(reportId);
   },
 
-  async reportsCountByTags(_root, _params, { models, subdomain }: IContext) {
+  async reportsCountByTags(_root, _params, { models }: IContext) {
     const counts = {};
 
-    const tags = await sendCoreMessage({
-      subdomain,
-      action: "tagFind",
-      data: {
-        type: "reports:reports"
-      },
-      isRPC: true,
-      defaultValue: []
-    });
+    const tags = await models.Tags.find({ type: "reports:reports" });
 
     for (const tag of tags) {
       counts[tag._id] = await models.Reports.find({

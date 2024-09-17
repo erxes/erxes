@@ -9,17 +9,15 @@ import { router } from "@erxes/ui/src/utils";
 
 const Dashboard = asyncComponent(
   () =>
-    import(
-      /* webpackChunkName: "DashboardComponent" */ "../containers/dashboard/Dashboard"
-    )
+    import(/* webpackChunkName: "DashboardComponent" */ "./dashboard/Dashboard")
 );
 
 const Goal = asyncComponent(
-  () => import(/* webpackChunkName: "Goal" */ "../containers/goal/Goal")
+  () => import(/* webpackChunkName: "Goal" */ "./goal/Goal")
 );
 
 const Report = asyncComponent(
-  () => import(/* webpackChunkName: "Report" */ "../containers/report/Report")
+  () => import(/* webpackChunkName: "Report" */ "./report/Report")
 );
 
 const Empty = asyncComponent(
@@ -55,7 +53,7 @@ const InsightContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    component,
+    component
   };
 
   return <Insight {...updatedProps} />;
@@ -74,7 +72,7 @@ const withLastDashboard = (props: Props) => {
 
   const dashboardGetLastQuery = useQuery(gql(queries.insightGetLast), {
     skip: dashboardId || goalId || reportId,
-    fetchPolicy: "network-only",
+    fetchPolicy: "network-only"
   });
 
   const dashboard = dashboardGetLastQuery?.data?.insightGetLast;
@@ -98,7 +96,7 @@ const withLastDashboard = (props: Props) => {
   const updatedProps = {
     ...props,
     currentDashboardId: dashboard?._id,
-    loading: dashboardGetLastQuery.loading,
+    loading: dashboardGetLastQuery.loading
   };
 
   return <InsightContainer {...updatedProps} />;

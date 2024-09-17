@@ -29,6 +29,9 @@ import products from "./products";
 import productConfigs from "./productConfigs";
 import uoms from "./uoms";
 import emailTemplates from "./emailTemplates";
+import dashboards from "./dashboard";
+import reports from "./report";
+import sections from "./section";
 
 export default {
   ...users,
@@ -57,5 +60,8 @@ export default {
   ...products,
   ...productConfigs,
   ...uoms,
-  ...emailTemplates
+  ...emailTemplates,
+  ...dashboards,
+  ...reports,
+  ...sections
 };

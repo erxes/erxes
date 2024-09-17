@@ -1,9 +1,11 @@
-import { IDashboardDocument } from "./../../../models/definitions/insight";
-import { IContext } from "../../../connectionResolver";
-import { IDashboard } from "../../../models/definitions/insight";
 import { getService } from "@erxes/api-utils/src/serviceDiscovery";
-import { compareArrays } from "../../../utils";
-import { sendCoreMessage } from "../../../messageBroker";
+import {
+  IDashboard,
+  IDashboardDocument
+} from "../../../db/models/definitions/insight";
+import { IContext } from "../../../connectionResolver";
+import { registerOnboardHistory } from "../../utils";
+import { compareArrays } from "../../modules/insight/utils";
 
 interface IDashboardEdit extends IDashboard {
   _id: string;
@@ -30,7 +32,7 @@ const addChartsForDashboard = async (
         serviceName,
         chartType: c.chartTypes[0],
         contentId,
-        contentType: "insight:dashboard",
+        contentType: "core:dashboard",
         ...c
       }))
     );
@@ -75,14 +77,7 @@ const dashboardMutations = {
       }
     }
 
-    sendCoreMessage({
-      subdomain,
-      action: "registerOnboardHistory",
-      data: {
-        type: `InsightCreate`,
-        user
-      }
-    });
+    registerOnboardHistory({ models, type: `InsightCreate`, user });
 
     return dashboard;
   },

@@ -1,6 +1,6 @@
 import { IContext } from "../../../connectionResolver";
 
-const generateFilter = async (params, commonQuerySelector) => {
+const generateFilter = async params => {
   const { branch, department, unit, contribution, date, endDate } = params;
   let filter: any = {};
   if (branch) {
@@ -41,13 +41,9 @@ const DashboardQueries = {
    * Dashboard list
    */
 
-  dashboardList: async (
-    _root,
-    params,
-    { commonQuerySelector, models }: IContext
-  ) => {
+  dashboardList: async (_root, params, { models }: IContext) => {
     const totalCount = await models.Dashboards.countDocuments({});
-    const filter = await generateFilter(params, commonQuerySelector);
+    const filter = await generateFilter(params);
     const list = await models.Dashboards.find(filter).sort({ createdAt: -1 });
 
     return { list, totalCount };

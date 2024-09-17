@@ -7,7 +7,7 @@ import {
   findCompany,
   findCustomer,
   getContactsContentItem,
-  prepareEngageCustomers,
+  prepareEngageCustomers
 } from "./utils";
 import {
   AWS_EMAIL_STATUSES,
@@ -82,7 +82,7 @@ export const setupContactsMessageBroker = async (): Promise<void> => {
 
       return {
         status: "success",
-        data: await models.Customers.countDocuments(selector)
+        data: await models.Customers.find(selector).countDocuments()
       };
     }
   );
@@ -440,7 +440,6 @@ export const setupContactsMessageBroker = async (): Promise<void> => {
       }
     }
   );
-
 
   consumeRPCQueue(
     "core:customers.createOrUpdate",

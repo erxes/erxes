@@ -132,7 +132,18 @@ import {
   loadEmailTemplateClass
 } from "./db/models/EmailTemplates";
 
+import { IDashboardModel, loadDashboardClass } from "./db/models/Dashboard";
+import { ISectionModel, loadSectionClass } from "./db/models/Section";
+import { IChartModel, loadChartClass } from "./db/models/Chart";
+import { IReportModel, loadReportClass } from "./db/models/Report";
+
 import { IDataLoaders } from "./data/dataLoaders";
+import {
+  IChartDocument,
+  IDashboardDocument,
+  IReportDocument,
+  ISectionDocument
+} from "./db/models/definitions/insight";
 
 export interface IModels {
   Users: IUserModel;
@@ -169,6 +180,10 @@ export interface IModels {
   ProductsConfigs: IProductsConfigModel;
   Uoms: IUomModel;
   EmailTemplates: IEmailTemplateModel;
+  Dashboards: IDashboardModel;
+  Sections: ISectionModel;
+  Charts: IChartModel;
+  Reports: IReportModel;
 }
 
 export interface IContext extends IMainContext {
@@ -326,6 +341,26 @@ export const loadClasses = (
   models.EmailTemplates = db.model<IEmailTemplateDocument, IEmailTemplateModel>(
     "email_templates",
     loadEmailTemplateClass(models)
+  );
+
+  models.Dashboards = db.model<IDashboardDocument, IDashboardModel>(
+    "dashboards",
+    loadDashboardClass(models, subdomain)
+  );
+
+  models.Charts = db.model<IChartDocument, IChartModel>(
+    "insight_chart",
+    loadChartClass(models)
+  );
+
+  models.Reports = db.model<IReportDocument, IReportModel>(
+    "report",
+    loadReportClass(models)
+  );
+
+  models.Sections = db.model<ISectionDocument, ISectionModel>(
+    "sections",
+    loadSectionClass(models, subdomain)
   );
 
   return models;

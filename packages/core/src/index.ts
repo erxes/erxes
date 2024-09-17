@@ -13,6 +13,7 @@ import * as mongoose from "mongoose";
 import * as path from "path";
 import { initApolloServer } from "./apolloClient";
 import { templateExport } from "./data/modules/fileExporter/templateExport";
+import { buildChartFile } from "./data/modules/insight/export";
 
 import * as fs from "fs";
 
@@ -151,6 +152,21 @@ app.get(
 // app.post('/webhooks/:id', webhookMiddleware);
 
 app.use("/static", express.static(path.join(__dirname, "private")));
+
+app.get(
+  "/chart-table-export",
+  routeErrorHandling(async (req: any, res) => {
+    const { query } = req;
+
+    const subdomain = getSubdomain(req);
+
+    const result = await buildChartFile(subdomain, query);
+
+    res.attachment(`${result.name}.xlsx`);
+
+    return res.send(result.response);
+  })
+);
 
 app.get(
   "/download-template",

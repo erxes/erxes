@@ -242,7 +242,9 @@ export const loadTagClass = models => {
     public static async removeTag(_id: string) {
       const tag = await models.Tags.getTag(_id);
 
-      const childCount = await models.Tags.countDocuments({ parentId: _id });
+      const childCount = await models.Tags.find({
+        parentId: _id
+      }).countDocuments();
 
       if (childCount > 0) {
         throw new Error("Please remove child tags first");

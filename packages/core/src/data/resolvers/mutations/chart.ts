@@ -1,6 +1,6 @@
 import { getService } from "@erxes/api-utils/src/serviceDiscovery";
 import { IContext } from "../../../connectionResolver";
-import { IChart, IChartDocument } from "../../../models/definitions/insight";
+import { IChart, IChartDocument } from "../../../db/models/definitions/insight";
 
 const chartsMutations = {
   async chartsAdd(_root, doc: IChart, { models }: IContext) {
@@ -8,7 +8,7 @@ const chartsMutations = {
 
     return await models.Charts.createChart({
       ...doc,
-      contentType: `insight:${contentType}`
+      contentType: `core:${contentType}`
     });
   },
 
@@ -51,7 +51,7 @@ const chartsMutations = {
               ...getChartTemplates.map(c => ({
                 serviceName,
                 contentId,
-                contentType: `insight:${contentType}`,
+                contentType: `core:${contentType}`,
                 chartType: c.chartTypes[0],
                 ...c
               }))

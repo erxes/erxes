@@ -1,13 +1,4 @@
 export const types = `
-
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type Tag @key(fields: "_id"){
-    _id: String! @external
-  }
-
   enum VisibilityType {
     public
     private
