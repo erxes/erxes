@@ -57,6 +57,10 @@ const switchContentType = contentType => {
       changedContentType = `core:lead`;
       break;
 
+    case "emailTemplates:emailTemplate":
+      changedContentType = `core:emailTemplate`;
+      break;
+
     default:
       changedContentType = contentType;
   }

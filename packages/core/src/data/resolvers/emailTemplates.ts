@@ -3,7 +3,7 @@ import { IEmailTemplateDocument } from "../../db/models/definitions/emailTemplat
 
 export default {
   /* created user of an email template */
-  createdUser(
+  async createdUser(
     emailTemplate: IEmailTemplateDocument,
     _params,
     { models }: IContext

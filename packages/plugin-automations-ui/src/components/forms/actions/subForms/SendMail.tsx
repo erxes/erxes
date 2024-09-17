@@ -462,22 +462,6 @@ export default function SendEmail({
   closeModal,
   triggerConfig
 }: Props) {
-  if (!isEnabled("emailtemplates")) {
-    return (
-      <EmptyState
-        image="/images/actions/33.svg"
-        text=""
-        extra={
-          <span>
-            The send email action is not available.
-            <br />
-            Because the email template plugin is not working
-          </span>
-        }
-      />
-    );
-  }
-
   const [config, setConfig] = useState<any>(activeAction?.config || {});
 
   if (config?.templateId) {
