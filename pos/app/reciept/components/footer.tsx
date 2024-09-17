@@ -16,7 +16,12 @@ const Footer = () => {
       {!!description && (
         <div className="text-[11px]">Тайлбар: {description}</div>
       )}
-      <div className="text-[11px]">{footerText}</div>
+      {!!footerText && (
+        <div
+          className="text-[11px] whitespace-pre-line"
+          dangerouslySetInnerHTML={{ __html: footerText }}
+        />
+      )}
     </>
   )
 }

@@ -77,6 +77,14 @@ export const DEFAULT_LABELS_PER_CHART: {
   radar: lastSixMonths,
 };
 
+export const DATALABELS_CONFIGS = {
+  bar: {
+    anchor: 'end',
+    align: 'top',
+    offset: 2
+  }
+}
+
 export const horizontalDottedLine = {
   id: 'horizontalDottedLine',
   beforeDatasetsDraw(chart, args, options) {

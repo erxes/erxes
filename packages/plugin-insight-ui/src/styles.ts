@@ -7,6 +7,7 @@ import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu'
 import { lighten, rgba } from '@erxes/ui/src/styles/ecolor';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
+import Table from '@erxes/ui/src/components/table';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -728,6 +729,58 @@ const ControlRange = styled.div`
   padding-top: 5px;
 `;
 
+const ChartTable = styled(Table)`
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  th:last-child {
+    display: flex;
+    justify-content: end;
+    
+    div {
+      position: relative;
+      top: -2px;
+    }
+  }
+`;
+
+const PivotTable = styled(Table)`
+
+  .pl-0 {
+    padding-left: 0;
+  }
+
+  .total {
+    font-weight: bold;
+  }
+
+  thead {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+  }
+
+  tr:first-child {
+
+    th:last-child {
+      text-align: left;
+      padding: 8px 18px 8px 0;
+    }
+  }
+`;
+
+const ScrollWrapper = styled.div`
+  height: 100%;
+  overflow: auto;
+  padding: 0px 10px 0 20px;
+  margin-left: -20px;
+  margin-right: -10px;
+`;
+
 export {
   DragField,
   ChartTitle,
@@ -752,5 +805,8 @@ export {
   FormWrapper,
   ControlRange,
   DateRangeWrapper,
-  Divider
+  Divider,
+  ChartTable,
+  PivotTable,
+  ScrollWrapper
 };

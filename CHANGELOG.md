@@ -1,53 +1,173 @@
 # Changelog
 
-## [1.16.0-rc.1](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-09-02)
-
-
-### Features
-
-* **contacts:** Implement SaaS-specific restrictions and enhancements ([1fe8ce7](https://github.com/erxes/erxes/commit/1fe8ce7f46f8445f33af0b1e8b466899ba474323))
-* **knowledgebase:** add scheduling feature for future article publishing ([99b0373](https://github.com/erxes/erxes/commit/99b03737fc5d18577c4a3532944389da29c4e53c))
+## [1.16.0-rc.9](https://github.com/erxes/erxes/compare/1.16.0-rc.8...1.16.0-rc.9) (2024-09-17)
 
 
 ### Bug Fixes
 
-* msdynamic with reserve remainder ([e01c6cd](https://github.com/erxes/erxes/commit/e01c6cd6e0308f91e5b927a9a4b0d9eba1204321))
+* **RTE:** Fix prosemirror model duplications & upgrade tiptap version ([325c926](https://github.com/erxes/erxes/commit/325c92644bdade4b538c44a6b1c777757e51add8))
+* **widgets messenger:** fix iframe load call ([624b71d](https://github.com/erxes/erxes/commit/624b71da8a7e6294b5e116b6c685709054f1cddd))
+
+## [1.16.0-rc.8](https://github.com/erxes/erxes/compare/1.16.0-rc.6...1.16.0-rc.8) (2024-09-13)
+
+
+### Features
+
+* **RTE:** Upgrade tiptap version (2.6.6) & remove warnings related to the RTE ([9c91dd8](https://github.com/erxes/erxes/commit/9c91dd8d3d3acea1123d8335cf2a2e04584313a5))
+
+
+### Bug Fixes
+
+* **Insight:** Correct the table header and row cells in the Insight table ([febc731](https://github.com/erxes/erxes/commit/febc731d62cf1783435b8483734deaa758979339))
+* **widgets:** add onload to messenger iframe ([3443d01](https://github.com/erxes/erxes/commit/3443d01537f32214033d14c88aa0be4b91597d31))
+
+
+### Reverts
+
+* reverting RTE changes ([e714748](https://github.com/erxes/erxes/commit/e714748fb6a71aa938859aae01ae6d530240b3fc))
+
+## [1.16.0-rc.6](https://github.com/erxes/erxes/compare/1.16.0-rc.5...1.16.0-rc.6) (2024-09-09)
+
+### Features
+
+- **automation:** start campaign action & knowledgebase article published trigger ([dae0873](https://github.com/erxes/erxes/commit/dae08738a2c7b6baa28eb4bbc657625f5cbad2da))
+
+## [1.16.0-rc.5](https://github.com/erxes/erxes/compare/1.16.1...1.16.0-rc.5) (2024-09-09)
+
+### Features
+
+- **contacts:** add email verification during customer import ([ebb6527](https://github.com/erxes/erxes/commit/ebb6527a60b1506c85f0b9b30dd9803c69dd0e5f))
+- pivot table v1 ([73e14f5](https://github.com/erxes/erxes/commit/73e14f5f9635730f05ac812ecb10ce7110c79251))
+
+### Bug Fixes
+
+- **calls:** fixed outgoing call record and other little fixs ([64b4aca](https://github.com/erxes/erxes/commit/64b4aca613d053757949ffa8c1ed64072f2a1096))
+- **calls:** record file ([4c91205](https://github.com/erxes/erxes/commit/4c91205aa558778061030d4dcd2074624c4e30ec))
+- directDiscount by amount only be ([e92a2ee](https://github.com/erxes/erxes/commit/e92a2eebaa4ec175e7e693566e5ad364b8e6ce9c))
+- goal plugin fields ([f9beda4](https://github.com/erxes/erxes/commit/f9beda413ebcd9fb09a87630b9b432577870c295))
+- loans contract add form ([091ddd7](https://github.com/erxes/erxes/commit/091ddd7e7343ee4c0543d253076f08d64e1885df))
+- **loans:** collateral save and form validation up ([#5595](https://github.com/erxes/erxes/issues/5595)) ([8c90a77](https://github.com/erxes/erxes/commit/8c90a77713f531816c4ee6ae7423ec20b6c4e74c))
+- pos direct discount by amount ([#5600](https://github.com/erxes/erxes/issues/5600)) ([53f4ef6](https://github.com/erxes/erxes/commit/53f4ef6a759c81678dffb9dc7807eaf0cec2c462))
+- **riskassessment:** fix over scored assessment command ([2e8a6f6](https://github.com/erxes/erxes/commit/2e8a6f6966a81a6decd4186669d12df3059b80a9))
+
+## [1.16.0-rc.4](https://github.com/erxes/erxes/compare/1.16.1...1.16.0-rc.4) (2024-09-09)
+
+### Features
+
+- **contacts:** add email verification during customer import ([ebb6527](https://github.com/erxes/erxes/commit/ebb6527a60b1506c85f0b9b30dd9803c69dd0e5f))
+- pivot table v1 ([73e14f5](https://github.com/erxes/erxes/commit/73e14f5f9635730f05ac812ecb10ce7110c79251))
+
+### Bug Fixes
+
+- **calls:** fixed outgoing call record and other little fixs ([64b4aca](https://github.com/erxes/erxes/commit/64b4aca613d053757949ffa8c1ed64072f2a1096))
+- **calls:** record file ([4c91205](https://github.com/erxes/erxes/commit/4c91205aa558778061030d4dcd2074624c4e30ec))
+- directDiscount by amount only be ([e92a2ee](https://github.com/erxes/erxes/commit/e92a2eebaa4ec175e7e693566e5ad364b8e6ce9c))
+- goal plugin fields ([f9beda4](https://github.com/erxes/erxes/commit/f9beda413ebcd9fb09a87630b9b432577870c295))
+- loans contract add form ([091ddd7](https://github.com/erxes/erxes/commit/091ddd7e7343ee4c0543d253076f08d64e1885df))
+- **loans:** collateral save and form validation up ([#5595](https://github.com/erxes/erxes/issues/5595)) ([8c90a77](https://github.com/erxes/erxes/commit/8c90a77713f531816c4ee6ae7423ec20b6c4e74c))
+- pos direct discount by amount ([#5600](https://github.com/erxes/erxes/issues/5600)) ([53f4ef6](https://github.com/erxes/erxes/commit/53f4ef6a759c81678dffb9dc7807eaf0cec2c462))
+- **riskassessment:** fix over scored assessment command ([2e8a6f6](https://github.com/erxes/erxes/commit/2e8a6f6966a81a6decd4186669d12df3059b80a9))
+
+## [1.16.0-rc.3](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-09-08)
+
+### Bug Fixes
+
+- **riskassessment:** fix over scored assessment command ([2e8a6f6](https://github.com/erxes/erxes/commit/2e8a6f6966a81a6decd4186669d12df3059b80a9))
+
+## [1.16.0-rc.2](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-09-05)
+
+### Bug Fixes
+
+- **calls:** fixed outgoing call record and other little fixs ([64b4aca](https://github.com/erxes/erxes/commit/64b4aca613d053757949ffa8c1ed64072f2a1096))
+- directDiscount by amount only be ([e92a2ee](https://github.com/erxes/erxes/commit/e92a2eebaa4ec175e7e693566e5ad364b8e6ce9c))
+- goal plugin fields ([f9beda4](https://github.com/erxes/erxes/commit/f9beda413ebcd9fb09a87630b9b432577870c295))
+- **loans:** collateral save and form validation up ([#5595](https://github.com/erxes/erxes/issues/5595)) ([8c90a77](https://github.com/erxes/erxes/commit/8c90a77713f531816c4ee6ae7423ec20b6c4e74c))
+- pos direct discount by amount ([#5600](https://github.com/erxes/erxes/issues/5600)) ([53f4ef6](https://github.com/erxes/erxes/commit/53f4ef6a759c81678dffb9dc7807eaf0cec2c462))
+
+## [1.15.0-rc.15](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-08-17)
+
+### Bug Fixes
+
+- loans contract add form ([091ddd7](https://github.com/erxes/erxes/commit/091ddd7e7343ee4c0543d253076f08d64e1885df))
+
+## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-08-15)
+
+## [1.15.0-rc.13](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-08-14)
+
+## [1.15.0-rc.12](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-08-14)
+
+## [1.16.1](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-09-05)
+
+## [1.16.0](https://github.com/erxes/erxes/compare/1.16.0-rc.2...1.16.0-rc.3) (2024-09-05)
+
+## [1.16.1](https://github.com/erxes/erxes/compare/1.16.0...1.16.1) (2024-09-05)
+
+## [1.16.0](https://github.com/erxes/erxes/compare/1.16.0-rc.1...1.16.0) (2024-09-05)
+
+### Bug Fixes
+
+- **calls:** fixed outgoing call record and other little fixs ([64b4aca](https://github.com/erxes/erxes/commit/64b4aca613d053757949ffa8c1ed64072f2a1096))
+- directDiscount by amount only be ([e92a2ee](https://github.com/erxes/erxes/commit/e92a2eebaa4ec175e7e693566e5ad364b8e6ce9c))
+- goal plugin fields ([f9beda4](https://github.com/erxes/erxes/commit/f9beda413ebcd9fb09a87630b9b432577870c295))
+- **loans:** collateral save and form validation up ([#5595](https://github.com/erxes/erxes/issues/5595)) ([8c90a77](https://github.com/erxes/erxes/commit/8c90a77713f531816c4ee6ae7423ec20b6c4e74c))
+- pos direct discount by amount ([#5600](https://github.com/erxes/erxes/issues/5600)) ([53f4ef6](https://github.com/erxes/erxes/commit/53f4ef6a759c81678dffb9dc7807eaf0cec2c462))
+- **pos:** enhance getCustomerLabel function to include primaryEmail, code, and fallback to \_id ([5fb30c9](https://github.com/erxes/erxes/commit/5fb30c9f522d3bd25e143f3fee1258b4bd51e165))
+
+## [1.15.0-rc.15](https://github.com/erxes/erxes/compare/1.16.0-rc.1...1.16.0-rc.2) (2024-08-17)
+
+### Bug Fixes
+
+- loans contract add form ([091ddd7](https://github.com/erxes/erxes/commit/091ddd7e7343ee4c0543d253076f08d64e1885df))
+
+## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.16.0-rc.1...1.16.0-rc.2) (2024-08-15)
+
+## [1.15.0-rc.13](https://github.com/erxes/erxes/compare/1.16.0-rc.1...1.16.0-rc.2) (2024-08-14)
+
+## [1.15.0-rc.12](https://github.com/erxes/erxes/compare/1.16.0-rc.1...1.16.0-rc.2) (2024-08-14)
+
+## [1.16.0-rc.1](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-09-02)
+
+### Features
+
+- **contacts:** Implement SaaS-specific restrictions and enhancements ([1fe8ce7](https://github.com/erxes/erxes/commit/1fe8ce7f46f8445f33af0b1e8b466899ba474323))
+- **knowledgebase:** add scheduling feature for future article publishing ([99b0373](https://github.com/erxes/erxes/commit/99b03737fc5d18577c4a3532944389da29c4e53c))
+
+### Bug Fixes
+
+- msdynamic with reserve remainder ([e01c6cd](https://github.com/erxes/erxes/commit/e01c6cd6e0308f91e5b927a9a4b0d9eba1204321))
 
 ## [1.15.0](https://github.com/erxes/erxes/compare/1.16.0-rc.0...1.16.0-rc.1) (2024-08-23)
 
 ## [1.16.0-rc.0](https://github.com/erxes/erxes/compare/1.15.0-rc.11...1.16.0-rc.0) (2024-08-26)
 
-
 ### Features
 
-* **calls:** Added realtime dashboard ([bef1bf2](https://github.com/erxes/erxes/commit/bef1bf2186c97310533c60cfcf7fea055f371836))
-
+- **calls:** Added realtime dashboard ([bef1bf2](https://github.com/erxes/erxes/commit/bef1bf2186c97310533c60cfcf7fea055f371836))
 
 ### Bug Fixes
 
-* **cards:** fix bugs cards insights ([5df88f3](https://github.com/erxes/erxes/commit/5df88f33e844fdb0afaa186b68b32752c7704536))
-* **cards:** name auto field ([#5593](https://github.com/erxes/erxes/issues/5593)) ([4251eda](https://github.com/erxes/erxes/commit/4251eda6ef9ae4c3efcb4bf4e51392e2850aa6f8))
-* customers searchText with middleName ([def9620](https://github.com/erxes/erxes/commit/def9620cf11acbae9e5b3d5a44537fa6aa62f5a5))
-* deal to contract ([#5544](https://github.com/erxes/erxes/issues/5544)) ([df8e8fb](https://github.com/erxes/erxes/commit/df8e8fb60835f37630d0df72dce763deb8d9fa3e))
-* duplicated ebarimt re return ([5988deb](https://github.com/erxes/erxes/commit/5988deb022aebb921b0dc139442cb1c1ac9702b1))
-* **facebook:** fixed old conversation and added avatar ([70284aa](https://github.com/erxes/erxes/commit/70284aa4559a00fd9a79f85afd1d0645bd24cea9))
-* Golomt corporate updates ([#5523](https://github.com/erxes/erxes/issues/5523)) ([ab8a7fa](https://github.com/erxes/erxes/commit/ab8a7fa31f005a1ea605898cbdd1f29c4946f57e))
-* loans contract form fill by cards and contacts ([#5584](https://github.com/erxes/erxes/issues/5584)) ([8e90bb5](https://github.com/erxes/erxes/commit/8e90bb59910b43f3822121782dcdfa2b1b8ea23d))
-* loans contract relation deal ([48695be](https://github.com/erxes/erxes/commit/48695be742f7748e7718b0bd11800490ee99e54d))
-* msdynamic external_doc_no and posOrder to cards with payment ([effe8ad](https://github.com/erxes/erxes/commit/effe8adf1d2a742b0e4320b7da14adcb7b8bd7f1))
-* pos mobile print ([#5565](https://github.com/erxes/erxes/issues/5565)) ([96ad3f7](https://github.com/erxes/erxes/commit/96ad3f72671adf2cec63aebacd1cf37308b04857))
-* **reactions:** replace mongoose exists query with countDocuments to return boolean in isHearted & isLiked ([344c5d4](https://github.com/erxes/erxes/commit/344c5d42cebdd3b2e57b6949ba9960399dedc92a))
-* register number duplicated get CIF from polaris ([#5586](https://github.com/erxes/erxes/issues/5586)) ([d3f9380](https://github.com/erxes/erxes/commit/d3f9380a2e77467ca461e33a282ef4773cec4379))
-* selectWithSearch with exact filter ([#5581](https://github.com/erxes/erxes/issues/5581)) ([af945c7](https://github.com/erxes/erxes/commit/af945c7778c74e3f51dfb3e216d5d20fadf3be9d))
-* syncpolaris logs headers show ([6df0f44](https://github.com/erxes/erxes/commit/6df0f44dd8ae88bb2831b895ef336539405b9491))
-* syncpolaris save header ([df4ecef](https://github.com/erxes/erxes/commit/df4ecef2ef89c359eab3fb17cbb907e6365e3e1d))
-* syncpolaris save sendData ([e71aabe](https://github.com/erxes/erxes/commit/e71aabe14519887830abe2f302329758e80b2b29))
-* TransferInputGolomt ([876c733](https://github.com/erxes/erxes/commit/876c733c2ab769055d0731d1eacc85ce65c2caad))
-
+- **cards:** fix bugs cards insights ([5df88f3](https://github.com/erxes/erxes/commit/5df88f33e844fdb0afaa186b68b32752c7704536))
+- **cards:** name auto field ([#5593](https://github.com/erxes/erxes/issues/5593)) ([4251eda](https://github.com/erxes/erxes/commit/4251eda6ef9ae4c3efcb4bf4e51392e2850aa6f8))
+- customers searchText with middleName ([def9620](https://github.com/erxes/erxes/commit/def9620cf11acbae9e5b3d5a44537fa6aa62f5a5))
+- deal to contract ([#5544](https://github.com/erxes/erxes/issues/5544)) ([df8e8fb](https://github.com/erxes/erxes/commit/df8e8fb60835f37630d0df72dce763deb8d9fa3e))
+- duplicated ebarimt re return ([5988deb](https://github.com/erxes/erxes/commit/5988deb022aebb921b0dc139442cb1c1ac9702b1))
+- **facebook:** fixed old conversation and added avatar ([70284aa](https://github.com/erxes/erxes/commit/70284aa4559a00fd9a79f85afd1d0645bd24cea9))
+- Golomt corporate updates ([#5523](https://github.com/erxes/erxes/issues/5523)) ([ab8a7fa](https://github.com/erxes/erxes/commit/ab8a7fa31f005a1ea605898cbdd1f29c4946f57e))
+- loans contract form fill by cards and contacts ([#5584](https://github.com/erxes/erxes/issues/5584)) ([8e90bb5](https://github.com/erxes/erxes/commit/8e90bb59910b43f3822121782dcdfa2b1b8ea23d))
+- loans contract relation deal ([48695be](https://github.com/erxes/erxes/commit/48695be742f7748e7718b0bd11800490ee99e54d))
+- msdynamic external_doc_no and posOrder to cards with payment ([effe8ad](https://github.com/erxes/erxes/commit/effe8adf1d2a742b0e4320b7da14adcb7b8bd7f1))
+- pos mobile print ([#5565](https://github.com/erxes/erxes/issues/5565)) ([96ad3f7](https://github.com/erxes/erxes/commit/96ad3f72671adf2cec63aebacd1cf37308b04857))
+- **reactions:** replace mongoose exists query with countDocuments to return boolean in isHearted & isLiked ([344c5d4](https://github.com/erxes/erxes/commit/344c5d42cebdd3b2e57b6949ba9960399dedc92a))
+- register number duplicated get CIF from polaris ([#5586](https://github.com/erxes/erxes/issues/5586)) ([d3f9380](https://github.com/erxes/erxes/commit/d3f9380a2e77467ca461e33a282ef4773cec4379))
+- selectWithSearch with exact filter ([#5581](https://github.com/erxes/erxes/issues/5581)) ([af945c7](https://github.com/erxes/erxes/commit/af945c7778c74e3f51dfb3e216d5d20fadf3be9d))
+- syncpolaris logs headers show ([6df0f44](https://github.com/erxes/erxes/commit/6df0f44dd8ae88bb2831b895ef336539405b9491))
+- syncpolaris save header ([df4ecef](https://github.com/erxes/erxes/commit/df4ecef2ef89c359eab3fb17cbb907e6365e3e1d))
+- syncpolaris save sendData ([e71aabe](https://github.com/erxes/erxes/commit/e71aabe14519887830abe2f302329758e80b2b29))
+- TransferInputGolomt ([876c733](https://github.com/erxes/erxes/commit/876c733c2ab769055d0731d1eacc85ce65c2caad))
 
 ### Performance Improvements
 
-* slot ux improvement of restaurant theme ([#5563](https://github.com/erxes/erxes/issues/5563)) ([486d613](https://github.com/erxes/erxes/commit/486d613cd73f9f98ac79511dfb8d4ea767fe161a))
+- slot ux improvement of restaurant theme ([#5563](https://github.com/erxes/erxes/issues/5563)) ([486d613](https://github.com/erxes/erxes/commit/486d613cd73f9f98ac79511dfb8d4ea767fe161a))
 
 ## [1.15.0-rc.14](https://github.com/erxes/erxes/compare/1.15.0-rc.13...1.15.0-rc.14) (2024-08-15)
 

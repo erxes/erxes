@@ -1,17 +1,21 @@
+const fields = `
+  _id
+  name
+  account
+  accountId
+  createdAt
+  page
+  pageId
+  profileUrl
+  persistentMenus {
+    _id,text,type,link
+  }
+`;
+
 const list = `
     query FacebootMessengerBots {
       facebootMessengerBots {
-        _id
-        name
-        account
-        accountId
-        createdAt
-        page
-        pageId
-        profileUrl
-        persistentMenus {
-          _id,text,type,link
-        }
+      ${fields}
       }
     }
 `;
@@ -25,19 +29,11 @@ const totalCount = `
 const detail = `
     query FacebootMessengerBot($_id:String) {
       facebootMessengerBot(_id:$_id) {
-        _id
-        name
-        account
-        accountId
-        createdAt
-        page
-        pageId
-        profileUrl
-        persistentMenus {
-          _id,text,type,link
-        }
+        ${fields}
         greetText
         tag
+        isEnabledBackBtn
+        backButtonText
       }
     }
 `;

@@ -5,7 +5,8 @@ import { ICategory } from "@/types/product.types"
 import { queries } from "../graphql"
 
 const useProductCategories = (
-  onCompleted?: (data: any) => void
+  onCompleted?: (data: any) => void,
+  skip?: boolean
 ): {
   loading: boolean
   categories: ICategory[]
@@ -15,6 +16,7 @@ const useProductCategories = (
     onCompleted(data) {
       !!onCompleted && onCompleted((data || {}).poscProductCategories || [])
     },
+    skip,
   })
 
   const categories = (data || {}).poscProductCategories || []

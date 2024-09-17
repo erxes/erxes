@@ -2,7 +2,7 @@ import { checkPermission, paginate } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { IContext, IModels } from '../../../connectionResolver';
 import { statusColors } from '../../../constants';
-import { sendCardsMessage } from '../../../messageBroker';
+import { sendCardsMessage, sendCoreMessage } from '../../../messageBroker';
 import { generateSort } from '../../../utils';
 import { RiskAssessmentGroupParams } from '../types';
 import { generateCardIds } from './utils';
@@ -32,12 +32,36 @@ export const generateFilter = async (
     filter.operationId = { $in: params.operationIds };
   }
 
-  if (params.branchIds) {
-    filter.branchId = { $in: params.branchIds };
+  if (params?.branchIds?.length) {
+    const branchIds = await sendCoreMessage({
+      subdomain,
+      action: 'branches.findWithChild',
+      data: {
+        query: {
+          _id: { $in: params.branchIds }
+        },
+        fields: { _id: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    }).then(branches => branches.map(({ _id }) => _id));
+
+    filter.branchId = { $in: branchIds };
   }
 
-  if (params.departmentIds) {
-    filter.departmentId = { $in: params.departmentIds };
+  if (params?.departmentIds?.length) {
+    const departmentIds = await sendCoreMessage({
+      subdomain,
+      action: 'departments.findWithChild',
+      data: {
+        query: { _id: { $in: params.departmentIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true,
+      defaultValue: []
+    }).then(departments => departments.map(({ _id }) => _id));
+
+    filter.departmentId = { $in: departmentIds };
   }
   if (params.riskIndicatorIds) {
     const groupIds = (
