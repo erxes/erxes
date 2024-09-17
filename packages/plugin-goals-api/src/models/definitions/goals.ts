@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { lazy } from 'react';
 
 export interface IGoal {
   name: string;
