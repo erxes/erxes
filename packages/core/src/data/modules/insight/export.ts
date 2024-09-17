@@ -1,8 +1,31 @@
 import * as xlsxPopulate from "xlsx-populate";
-import { chartGetResult } from "./graphql/resolvers/utils";
+import { sendCommonMessage } from "../../../messageBroker";
+
 /**
  * Creates blank workbook
  */
+
+const chartGetResult = async (
+  { serviceName, templateType, chartType, filter: stringifiedFilter },
+  subdomain: any
+) => {
+  const filter = JSON.parse(stringifiedFilter);
+
+  const chartResult = await sendCommonMessage({
+    subdomain,
+    serviceName,
+    action: "reports.getChartResult",
+    data: {
+      filter,
+      templateType,
+      chartType
+    },
+    isRPC: true
+  });
+
+  return chartResult;
+};
+
 export const createXlsFile = async () => {
   // Generating blank workbook
   const workbook = await xlsxPopulate.fromBlankAsync();

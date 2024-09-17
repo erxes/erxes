@@ -1,12 +1,11 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../../connectionResolver";
 import {
   chartSchema,
   IChart,
   IChartDocument,
-  IChartEdit,
-
-} from './definitions/insight';
+  IChartEdit
+} from "./definitions/insight";
 export interface IChartModel extends Model<IChartDocument> {
   getChart(_id: string): Promise<IChartDocument>;
   createChart(doc: IChart): Promise<IChartDocument>;
@@ -20,7 +19,7 @@ export const loadChartClass = (models: IModels) => {
     public static async getChart(_id: string) {
       const chart = await models.Charts.findOne({ _id });
       if (!chart) {
-        throw new Error('chart not found');
+        throw new Error("chart not found");
       }
       return chart;
     }
@@ -38,7 +37,7 @@ export const loadChartClass = (models: IModels) => {
     public static async removeChart(_id: string) {
       const chart = await models.Charts.getChart(_id);
       if (!chart) {
-        throw new Error('Chart not found');
+        throw new Error("Chart not found");
       }
       return models.Charts.deleteOne({ _id });
     }

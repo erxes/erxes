@@ -1,10 +1,10 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { Model } from "mongoose";
+import { IModels } from "../../connectionResolver";
 import {
   sectionSchema,
   ISection,
-  ISectionDocument,
-} from './definitions/insight';
+  ISectionDocument
+} from "./definitions/insight";
 
 export interface ISectionModel extends Model<ISectionDocument> {
   getSection(_id: string): Promise<ISectionDocument>;
@@ -20,22 +20,22 @@ export const loadSectionClass = (models: IModels, subdomain: string) => {
 
     public static async getSection(_id: string) {
       const section = await models.Sections.findOne({
-        _id,
+        _id
       });
 
       if (!section) {
-        throw new Error('Section not found');
+        throw new Error("Section not found");
       }
       return section;
     }
 
     public static async removeSection(_id: string) {
       const section = await models.Sections.findOne({
-        _id,
+        _id
       });
 
       if (!section) {
-        throw new Error('Section not found');
+        throw new Error("Section not found");
       }
 
       return models.Sections.deleteOne({ _id });
