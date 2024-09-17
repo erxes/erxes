@@ -43,7 +43,7 @@ export type TemplateDocument = HydratedDocument<ITemplate>;
 
 export type TemplateCategoryDocument = HydratedDocument<ITemplateCategory>;
 
-export const relatedContents = new Schema(
+export const relatedContent = new Schema(
     {
         contentType: { type: String, required: true },
         content: { type: [String], required: true },
@@ -58,7 +58,7 @@ export const templateSchema = new Schema<TemplateDocument>(
         description: { type: String },
         content: { type: String, required: true },
         contentType: { type: String, required: true },
-        relatedContents: { type: [relatedContents], default: [], optional: true },
+        relatedContents: { type: [relatedContent], default: [], optional: true },
 
         categoryIds: { type: [String], optional: true },
 
