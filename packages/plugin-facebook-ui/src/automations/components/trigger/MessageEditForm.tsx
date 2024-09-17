@@ -30,8 +30,8 @@ function EditForm({
   const [activeItem, setActiveItem] = useState('');
 
   const onChangeCondtion = (type, condition) => {
-    if (conditions.find(cond => cond.type === type)) {
-      const updatedConditions = conditions.map(cond =>
+    if (conditions.find((cond) => cond.type === type)) {
+      const updatedConditions = conditions.map((cond) =>
         cond.type === type ? { ...cond, ...condition } : cond
       );
       return setConditions(updatedConditions);
@@ -87,7 +87,7 @@ function EditForm({
       return renderDetail({ type, condition });
     }
 
-    const handleClick = e => {
+    const handleClick = (e) => {
       if (type === 'getStarted') {
         return;
       }
@@ -95,11 +95,13 @@ function EditForm({
       setActiveItem(!activeItem ? type : '');
     };
 
-    const handleCheck = isSelected => {
+    const handleCheck = (isSelected) => {
       onChangeCondtion(type, { ...condition, isSelected });
     };
 
-    const isDisabled = type !== 'getStarted' && !Object.keys(condition).length;
+    const isDisabled =
+      !['getStarted', 'direct'].includes(type) &&
+      !Object.keys(condition).length;
 
     return (
       <div key={type}>
@@ -126,10 +128,10 @@ function EditForm({
       <Features isToggled={botId}>
         {!activeItem && <ControlLabel>Triggers</ControlLabel>}
         <TriggersList>
-          {conditionsConst.map(conditionConst => {
+          {conditionsConst.map((conditionConst) => {
             const conditionConfig =
               conditions.find(
-                condition => condition.type === conditionConst.type
+                (condition) => condition.type === conditionConst.type
               ) || {};
 
             return renderCondition(conditionConst, conditionConfig);
