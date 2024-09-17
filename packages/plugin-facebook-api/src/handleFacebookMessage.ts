@@ -162,14 +162,18 @@ export const handleFacebookMessage = async (
       attachments.push({ type: 'image', url: img });
     });
 
-    let strippedContent = strip(content);
+    function stripAndFormat(html) {
+      return html
+        .replace(/<\/p>/g, '\n') // Replace closing <p> with a newline
+        .replace(/<[^>]+>/g, '') // Remove remaining HTML tags
+        .trim(); // Trim any leading or trailing whitespace
+    }
 
-    strippedContent = strippedContent.replace(/&amp;/g, '&');
+    let strippedContent = stripAndFormat(content);
 
     const conversation = await models.Conversations.getConversation({
       erxesApiId: conversationId
     });
-
     const { recipientId, senderId } = conversation;
     let localMessage;
 
