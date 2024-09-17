@@ -135,6 +135,7 @@ const CartItem = ({
                     count: banFractions
                       ? parseInt(e.target.value)
                       : Number(e.target.value),
+                    status,
                   })
                 }
                 value={count.toString()}
