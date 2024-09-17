@@ -41,7 +41,6 @@ export const sendToGrandStream = async (models, args, user) => {
   const {
     method,
     path,
-    params,
     data,
     headers = {},
     integrationId,
@@ -49,9 +48,12 @@ export const sendToGrandStream = async (models, args, user) => {
     isConvertToJson,
     isAddExtention,
     isGetExtension,
+    isCronRunning,
+    extentionNumber: extension,
   } = args;
 
   if (retryCount <= 0) {
+    console.log('Retry limit exceeded:', data);
     throw new Error('Retry limit exceeded.');
   }
 
@@ -62,7 +64,9 @@ export const sendToGrandStream = async (models, args, user) => {
 
   const { wsServer = '' } = integration;
   const operator = integration.operators.find((op) => op.userId === user?._id);
-  const extentionNumber = operator?.gsUsername || '1001';
+  const extentionNumber = isCronRunning
+    ? extension
+    : operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
   cookie = cookie?.toString();
@@ -131,7 +135,7 @@ const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
-  console.log(callCookie, 'cookie');
+
   if (callCookie) {
     return callCookie;
   }
@@ -189,6 +193,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     callEndTime,
     _id,
     transferedCallStatus,
+    isCronRunning,
   } = params;
 
   if (transferedCallStatus === 'local' && callType === 'incoming') {
@@ -215,10 +220,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
               sord: 'asc',
             },
           },
+          extentionNumber: history.extentionNumber,
           integrationId: inboxIntegrationId,
           retryCount,
           isConvertToJson: true,
           isGetExtension: true,
+          isCronRunning: isCronRunning || false,
         },
         user,
       );
@@ -247,6 +254,14 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extentionNumber;
         callee = customerPhone;
       }
+
+      const startTime = isCronRunning
+        ? getPureDate(callStartTime, -10)
+        : `${startDate}T00:00:00`;
+      const endTime = isCronRunning
+        ? getPureDate(callEndTime, 10)
+        : `${endDate}T23:59:59`;
+
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -260,8 +275,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
               caller,
               callee,
               numRecords: '100',
-              startTime: `${startDate}T00:00:00`,
-              endTime: `${endDate}T23:59:59`,
+              startTime,
+              endTime,
             },
           },
           integrationId: inboxIntegrationId,
@@ -273,15 +288,34 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       let cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
-      if (!cdrRoot) throw new Error('CDR root not found');
+
+      if (!cdrRoot) {
+        console.log(
+          'CDR root not found',
+          caller,
+          callee,
+          'startedDate: ',
+          startTime,
+          endTime,
+        );
+        throw new Error('CDR root not found');
+      }
 
       const sortedCdr = cdrRoot.sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
+
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
       if (!lastCreatedObject) {
-        console.log('lastCreatedObject:', lastCreatedObject);
+        console.log(
+          'Not found cdr',
+          caller,
+          callee,
+          'startedDate: ',
+          startTime,
+          endTime,
+        );
         throw new Error('Not found cdr');
       }
 
@@ -425,3 +459,13 @@ function findAnsweredCall(data: any): any {
     return null;
   }
 }
+
+export const getPureDate = (date: Date, updateTime) => {
+  const ndate = new Date(date);
+
+  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+
+  const updatedDate = new Date(ndate.getTime() + updateTime * 1000);
+
+  return new Date(updatedDate.getTime() + diffTimeZone);
+};
