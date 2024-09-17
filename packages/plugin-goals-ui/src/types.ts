@@ -46,8 +46,6 @@ export interface IGoalType extends IGoalTypeDoc {
   forEach(arg0: (goal: any) => void): unknown;
 }
 
-// mutation types
-
 export type EditMutationResponse = {
   goalTypesEdit: (params: { variables: IGoalType }) => Promise<any>;
 };
@@ -76,8 +74,6 @@ export type MergeMutationResponse = {
 export type AddMutationResponse = {
   goalTypesAdd: (params: { variables: IGoalTypeDoc }) => Promise<any>;
 };
-
-// query types
 
 export type ListQueryVariables = {
   page?: number;

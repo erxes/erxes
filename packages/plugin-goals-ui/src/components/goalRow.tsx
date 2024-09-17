@@ -48,27 +48,7 @@ function renderFormTViewier(
   pipelineName: string,
   stageName: string,
   emailName: string
-) {
-  // const content = (props) => (
-  //   <GoalView
-  //     {...props}
-  //     goalType={goalType}
-  //     _id={goalType._id}
-  //     boardName={boardName}
-  //     pipelineName={pipelineName}
-  //     stageName={stageName}
-  //     emailName={emailName}
-  //   />
-  // );
-  // return (
-  //   <ModalTrigger
-  //     size='lg'
-  //     title='View Goal'
-  //     trigger={trigger}
-  //     content={content}
-  //   />
-  // );
-}
+) {}
 
 function renderEditAction(goalType: IGoalType) {
   const trigger = (
@@ -169,7 +149,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
     stageDetail.loading ||
     userDetail.loading
   ) {
-    return null; // or a loading indicator
+    return null;
   }
 
   return (
@@ -194,16 +174,7 @@ function GoalRow({ goalType, isChecked, toggleBulk }: Props) {
       <td key={'startDate'}>{displayValue(goalType, 'startDate')}</td>
       <td key={'endDate'}>{displayValue(goalType, 'endDate')}</td>
       <td>
-        <ActionButtons>
-          {/* {renderViewAction(
-            goalType,
-            boardName,
-            pipelineName,
-            stageName,
-            emailName
-          )} */}
-          {renderEditAction(goalType)}
-        </ActionButtons>
+        <ActionButtons>{renderEditAction(goalType)}</ActionButtons>
       </td>
     </tr>
   );
