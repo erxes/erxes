@@ -1,3 +1,5 @@
+import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
+
 export interface ISpecificPeriodGoal {
   progress: string;
   _id: string;
@@ -31,7 +33,7 @@ export interface IGoalTypeDoc {
   periodGoal: string;
   teamGoalType: string;
   segmentCount: number;
-  pipelineLabels: string[];
+  pipelineLabels: any;
   productIds: string[];
   companyIds: string[];
   tagsIds: string[];

@@ -25,7 +25,7 @@ export interface IGoal {
   periodGoal: string;
   teamGoalType: string;
   segmentCount: number;
-  pipelineLabels: [String];
+  pipelineLabels: object;
   productIds: string[];
   companyIds: string[];
   tagsIds: string[];
@@ -77,10 +77,7 @@ export const goalSchema = schemaHooksWrapper(
     periodGoal: field({ type: String, label: 'Period ' }),
     teamGoalType: field({ type: String, label: 'Choose  Structure' }),
     segmentCount: field({ type: Number, min: 0, label: 'segmentCount' }),
-    pipelineLabels: field({
-      type: [{ type: [String], label: 'PipelineLabel' }],
-      label: 'pipelineLabels'
-    }),
+    pipelineLabels: field({ type: [Object], label: 'PipelineLabel' }),
     productIds: field({ type: [String], label: 'productIds' }),
     companyIds: field({ type: [String], label: 'companyIds' }),
     tagsIds: field({ type: [String], label: 'tagsIds' })

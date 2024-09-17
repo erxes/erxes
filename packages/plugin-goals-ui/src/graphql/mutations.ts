@@ -19,7 +19,7 @@ const commonFields = `
     $stageRadio:Boolean
     $periodGoal:String
     $teamGoalType:String
-    $pipelineLabels:[String]
+    $pipelineLabels:JSON
     $productIds:[String]
     $companyIds:[String]
     $tagsIds:[String]

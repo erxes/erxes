@@ -23,7 +23,7 @@ segmentRadio:Boolean
   startDate: Date
   endDate: Date
   segmentCount:Float
-  pipelineLabels:[String]
+  pipelineLabels:JSON
   productIds:[String]
   companyIds:[String]
   tagsIds:[String]
@@ -51,7 +51,7 @@ segmentRadio:Boolean
   startDate: Date
   endDate: Date
   segmentCount:Float
-  pipelineLabels:[String]
+  pipelineLabels:JSON
   productIds:[String]
   companyIds:[String]
   tagsIds:[String]
@@ -83,7 +83,7 @@ export const queries = `
    stageRadio:Boolean, segmentRadio:Boolean, periodGoal:String, teamGoalType:String,
   department:[String],unit:[String],branch:[String],
   startDate: Date, segmentCount:Float,
-    pipelineLabels:[String],
+  pipelineLabels:JSON,
   productIds:[String],
   companyIds:[String],
   tagsIds:[String],
@@ -110,7 +110,7 @@ const params = `
   startDate:Date
   endDate:Date
   segmentCount: Float
-  pipelineLabels:[String]
+  pipelineLabels:JSON
   productIds:[String]
   companyIds:[String]
   tagsIds:[String]

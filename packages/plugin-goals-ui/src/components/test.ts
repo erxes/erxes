@@ -39,7 +39,7 @@ import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectC
 import SelectTags from '@erxes/ui-tags/src/containers/SelectTags';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import { pipeline } from 'stream/promises';
-
+import { useQuery } from '@apollo/client';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   goalType: IGoalType;
@@ -72,8 +72,8 @@ type State = {
   tagsExcluded?: string[];
   unit: string[];
   pipelineLabels: IPipelineLabel[];
-  stageId?: any;
-  pipelineId?: any;
+  stageId: any;
+  pipelineId: string;
   boardId: any;
   segmentIds: any;
   stageRadio: boolean | undefined;
@@ -107,7 +107,7 @@ const initialState: State = {
   startDate: new Date(),
   endDate: new Date(),
   stageId: undefined,
-  pipelineId: undefined,
+  pipelineId: '',
   boardId: undefined
 };
 
@@ -127,32 +127,37 @@ const goalForm = (props: Props) => {
   useEffect(() => {
     dispatch({ type: 'updateState', payload: goalType });
 
-    if (state.pipelineId) {
-      client
-        .query({
-          query: gql(pipelineQuery.pipelineLabels),
-          variables: { pipelineId: state.pipelineId }
-        })
-        .then((data) => {
-          const fetchedLabels = data.data.pipelineLabels;
-          const selectedLabels = goalType.pipelineLabels.map((label) => ({
-            label: label.name,
-            value: label._id
-          }));
+    // if (state.pipelineId) {
+    //   client
+    //     .query({
+    //       query: gql(pipelineQuery.pipelineLabels),
+    //       variables: { pipelineId: state.pipelineId }
+    //     })
+    //     .then((data) => {
+    //       const fetchedLabels = data.data.pipelineLabels;
+    //       const selectedLabels = goalType.pipelineLabels.map((label) => ({
+    //         label: label.name,
+    //         value: label._id
+    //       }));
 
-          dispatch({
-            type: 'updateState',
-            payload: {
-              pipelineLabels: fetchedLabels,
-              selectedLabelIds: selectedLabels.map((label) => label.value)
-            }
-          });
-        })
-        .catch((e) => {
-          console.error('Error while fetching pipeline labels: ', e.message);
-        });
+    //       dispatch({
+    //         type: 'updateState',
+    //         payload: {
+    //           pipelineLabels: fetchedLabels,
+    //           selectedLabelIds: selectedLabels.map((label) => label.value)
+    //         }
+    //       });
+    //     })
+    //     .catch((e) => {
+    //       console.error('Error while fetching pipeline labels: ', e.message);
+    //     });
+    // }
+  }, [goalType]); // Add state.pipelineId as a dependency
+  const getPipelineId = useQuery(gql(pipelineQuery.pipelineLabels), {
+    variables: {
+      pipelineId: state.pipelineId
     }
-  }, [goalType, state.pipelineId]);
+  });
 
   const generateDoc = (values: { _id: string } & IGoalTypeDoc) => {
     const {
@@ -262,6 +267,8 @@ const goalForm = (props: Props) => {
     value: label._id || ''
   }));
 
+  
+
   const onChangeDepartments = (value) => {
     dispatch({ type: 'updateState', payload: { department: value } });
   };
@@ -269,7 +276,7 @@ const goalForm = (props: Props) => {
     dispatch({
       type: 'updateState',
       payload: {
-        companyIds: value
+        companies: value
       }
     });
   };
@@ -298,6 +305,10 @@ const goalForm = (props: Props) => {
   };
 
   const onChangePipeline = (plId) => {
+    // Update the state with the new pipelineId
+    dispatch({ type: 'updateState', payload: { pipelineId: plId } });
+
+    // Fetch and update pipeline labels
     client
       .query({
         query: gql(pipelineQuery.pipelineLabels),
@@ -311,11 +322,30 @@ const goalForm = (props: Props) => {
         });
       })
       .catch((e) => {
-        Alert.error(e.message);
+        console.error('Error while fetching pipeline labels: ', e.message);
       });
-
-    dispatch({ type: 'updateState', payload: { pipelineId: plId } });
   };
+
+  // const onChangePipeline = (plId) => {
+
+  //   client
+  //     .query({
+  //       query: gql(pipelineQuery.pipelineLabels),
+  //       fetchPolicy: 'network-only',
+  //       variables: { pipelineId: plId }
+  //     })
+  //     .then((data) => {
+  //       dispatch({
+  //         type: 'updateState',
+  //         payload: { pipelineLabels: data.data.pipelineLabels }
+  //       });
+  //     })
+  //     .catch((e) => {
+  //       Alert.error(e.message);
+  //     });
+
+  //   dispatch({ type: 'updateState', payload: { pipelineId: plId } });
+  // };
 
   const onChangeBoard = (brId) => {
     dispatch({ type: 'updateState', payload: { boardId: brId } });
