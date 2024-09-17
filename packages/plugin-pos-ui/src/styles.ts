@@ -526,3 +526,10 @@ export const SlotDetailStyled = styled.div`
 export const SideBarFooter = styled.div`
   padding: 0 1.5rem 1rem;
 `;
+
+export const RightMenuWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0.5rem;
+`;
