@@ -141,6 +141,7 @@ export const queries = `
   facebootMessengerBot(_id:String):FacebookMessengerBot
   facebookGetBotPosts(botId:String):JSON
   facebookGetBotPost(botId:String,postId:String):JSON
+  facebookGetBotAds(botId:String):JSON
 `;
 
 const commonBotParams = `

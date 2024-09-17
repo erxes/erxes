@@ -1,17 +1,18 @@
-import { Activity } from 'botbuilder';
-import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
+import graphqlPubsub from "@erxes/api-utils/src/graphqlPubsub";
+import { Activity } from "botbuilder";
 
-import { IModels } from './connectionResolver';
-import { INTEGRATION_KINDS } from './constants';
-import { sendAutomationsMessage, sendInboxMessage } from './messageBroker';
-import { getOrCreateCustomer } from './store';
-import { IChannelData } from './types';
-import { debugError } from './debuggers';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
+import { debugInfo } from "@erxes/api-utils/src/debuggers";
+import { IModels } from "./connectionResolver";
+import { INTEGRATION_KINDS } from "./constants";
+import { debugError } from "./debuggers";
+import { sendAutomationsMessage, sendInboxMessage } from "./messageBroker";
+import { getOrCreateCustomer } from "./store";
+import { IChannelData } from "./types";
+import { IConversationMessageDocument } from "./models/definitions/conversationMessages";
 
 const checkIsBot = async (models: IModels, message, recipientId) => {
   if (message?.payload) {
-    const payload = JSON.parse(message?.payload || '{}');
+    const payload = JSON.parse(message?.payload || "{}");
     if (payload.botId) {
       return payload.botId;
     }
@@ -19,7 +20,50 @@ const checkIsBot = async (models: IModels, message, recipientId) => {
 
   const bot = await models.Bots.findOne({ pageId: recipientId });
 
-  return bot?._id;
+  return bot;
+};
+
+const handleAutomation = async (
+  subdomain: string,
+  {
+    conversationMessage,
+    payload,
+    adData
+  }: {
+    conversationMessage: IConversationMessageDocument;
+    payload: any;
+    adData: any;
+  }
+) => {
+  const target = { ...conversationMessage.toObject() };
+  let type = "facebook:messages";
+
+  if (payload) {
+    target.payload = JSON.parse(payload || "{}");
+  }
+
+  if (adData) {
+    target.adData = adData;
+    type = "facebook:ads";
+  }
+
+  await sendAutomationsMessage({
+    subdomain,
+    action: "trigger",
+    data: {
+      type,
+      targets: [target]
+    },
+    isRPC: true,
+    defaultValue: null
+  })
+    .catch(err => {
+      debugError(`Error sending automation message: ${err.message}`);
+      throw err;
+    })
+    .then(() => {
+      debugInfo(`Sent message successfully`);
+    });
 };
 
 const receiveMessage = async (
@@ -36,6 +80,8 @@ const receiveMessage = async (
     message,
     postback
   } = activity.channelData as IChannelData;
+
+  let adData;
 
   if (!text && !message && !!postback) {
     text = postback.title;
@@ -78,7 +124,26 @@ const receiveMessage = async (
     recipientId: recipient.id
   });
 
-  const botId = await checkIsBot(models, message, recipient.id);
+  const bot = await checkIsBot(models, message, recipient.id);
+  const botId = bot?._id;
+
+  if (message.referral && bot) {
+    const referral = message.referral;
+    adData = {
+      type: "text",
+      text: `<div class="ads"> 
+              <img src="${referral.ads_context_data.photo_url}" alt="${referral.ads_context_data.ad_title}"/>
+              <p>${referral.ads_context_data.ad_title}</p>
+            </div>`,
+      mid: message.mid,
+      adId: referral.ad_id,
+      postId: referral.ads_context_data.post_id,
+      messageText: text,
+      pageId: recipient.id
+    };
+  }
+
+  // <a href="${referral.ads_context_data.post_id}">See ads in facebook</a>
 
   // create conversation
   if (!conversation) {
@@ -96,8 +161,8 @@ const receiveMessage = async (
       });
     } catch (e) {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
+        e.message.includes("duplicate")
+          ? "Concurrent request: conversation duplication"
           : e
       );
     }
@@ -107,27 +172,27 @@ const receiveMessage = async (
     if (bot) {
       conversation.botId = botId;
     }
-    conversation.content = text || '';
+    conversation.content = text || "";
   }
 
   const formattedAttachments = (attachments || [])
-    .filter((att) => att.type !== 'fallback')
-    .map((att) => ({
+    .filter(att => att.type !== "fallback")
+    .map(att => ({
       type: att.type,
-      url: att.payload ? att.payload.url : ''
+      url: att.payload ? att.payload.url : ""
     }));
 
   // save on api
   try {
     const apiConversationResponse = await sendInboxMessage({
       subdomain,
-      action: 'integrations.receive',
+      action: "integrations.receive",
       data: {
-        action: 'create-or-update-conversation',
+        action: "create-or-update-conversation",
         payload: JSON.stringify({
           customerId: customer.erxesApiId,
           integrationId: integration.erxesApiId,
-          content: text || '',
+          content: text || "",
           attachments: formattedAttachments,
           conversationId: conversation.erxesApiId,
           updatedAt: timestamp
@@ -150,6 +215,26 @@ const receiveMessage = async (
 
   if (!conversationMessage) {
     try {
+      if (adData) {
+        const adsMessage = await models.ConversationMessages.addMessage({
+          conversationId: conversation._id,
+          content: "<p>Conversation started from Facebook ads </p>",
+          internal: true,
+          botId,
+          botData: [adData],
+          fromBot: true,
+          mid: adData.mid
+        });
+
+        await sendInboxMessage({
+          subdomain,
+          action: "conversationClientMessageInserted",
+          data: {
+            ...adsMessage.toObject(),
+            conversationId: conversation.erxesApiId
+          }
+        });
+      }
       const created = await models.ConversationMessages.create({
         conversationId: conversation._id,
         mid: message.mid,
@@ -159,9 +244,10 @@ const receiveMessage = async (
         attachments: formattedAttachments,
         botId
       });
+
       await sendInboxMessage({
         subdomain,
-        action: 'conversationClientMessageInserted',
+        action: "conversationClientMessageInserted",
         data: {
           ...created.toObject(),
           conversationId: conversation.erxesApiId
@@ -179,32 +265,15 @@ const receiveMessage = async (
       );
       conversationMessage = created;
 
-      await sendAutomationsMessage({
-        subdomain,
-        action: 'trigger',
-        data: {
-          type: `facebook:messages`,
-          targets: [
-            {
-              ...conversationMessage.toObject(),
-              payload: JSON.parse(message.payload || '{}')
-            }
-          ]
-        },
-        isRPC: true,
-        defaultValue: null
-      })
-        .catch((err) => {
-          debugError(`Error sending automation message: ${err.message}`);
-          throw err;
-        })
-        .then(() => {
-          debugInfo(`Sent message successfully`);
-        });
+      await handleAutomation(subdomain, {
+        conversationMessage,
+        payload: message?.payload,
+        adData
+      });
     } catch (e) {
       throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation message duplication'
+        e.message.includes("duplicate")
+          ? "Concurrent request: conversation message duplication"
           : e
       );
     }
