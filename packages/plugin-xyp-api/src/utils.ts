@@ -1,6 +1,5 @@
-import fetch from 'node-fetch';
-import { sendCommonMessage } from './messageBroker';
-import { xypServiceData } from './models/definitions/xypdata';
+import { sendCommonMessage, sendContactsMessage, sendFormsMessage } from './messageBroker';
+import { IXypDataDocument } from './models/definitions/xypdata';
 
 import { nanoid } from 'nanoid';
 import { IModels } from './connectionResolver';
@@ -162,3 +161,84 @@ export const convertToPropertyData = async (
     throw new Error(e);
   }
 };
+
+const getObject = async (subdomain: string, type: string, doc: IXypDataDocument) => {
+  const { contentType, contentTypeId, customerId } = doc;
+  if (type === 'contacts:customer') {
+    return await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: customerId },
+      isRPC: true,
+      defaultValue: {}
+    });
+  }
+  if (type === 'contacts:company') {
+    return;
+  }
+  if (type === 'products:product') {
+    return;
+  }
+  if (type === 'inbox:conversation') {
+    return;
+  }
+  if (type === 'contacts:device') {
+    return;
+  }
+  if (type === 'core:user') {
+    return;
+  }
+
+  return;
+}
+
+const saveObject =async  (subdomain, type) => {
+  if (type === 'contacts:customer') {
+    return await sendContactsMessage({
+      subdomain,
+      action: 'customers.updateOne',
+      // data: { _id: customerId },
+      isRPC: true,
+      defaultValue: {}
+    });
+  }
+}
+export const syncData = async (subdomain: string, models: IModels, doc: IXypDataDocument) => {
+  for (const docData of doc.data) {
+    const { serviceName, data } = docData;
+    if (!data) {
+      continue;
+    }
+
+    const syncRules = await models.SyncRules.find({ serviceName });
+    if (!syncRules.length) {
+      continue;
+    }
+
+    const objectTypes = [...new Set(syncRules.map(sr => sr.objectType))];
+
+    if (!objectTypes.length) {
+      continue;
+    }
+
+    for (const objectType of objectTypes) {
+      //
+      const objSyncRules = syncRules.filter(sr => sr.objectType === objectType);
+      const relObject = await getObject(subdomain, objectType, doc);
+
+      // sendFormsMessage({
+      //   subdomain,
+      //   action: 'fields.find',
+      //   data: {
+      //     query: {
+
+      //     }
+      //   }
+      // })
+
+      // await saveObject()
+    }
+  }
+
+
+}

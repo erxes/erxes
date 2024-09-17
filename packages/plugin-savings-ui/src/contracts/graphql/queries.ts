@@ -3,7 +3,7 @@ import {
   conformityQueryFields,
 } from '@erxes/ui-cards/src/conformity';
 
-const contractFields = `
+export const contractFields = `
   _id
   contractTypeId
   number

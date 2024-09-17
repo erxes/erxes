@@ -3,24 +3,19 @@ import queryString from "query-string";
 import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 
-// const List = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "List - Xyps" */ './modules/settings/containers/List'
-//   )
-// );
+const List = asyncComponent(
+  () => import(/* webpackChunkName: "List" */ './modules/settings/containers/SyncRules')
+);
 
-const Xyps = () => {
+const SettingsComponent = () => {
   const location = useLocation();
-  const queryParams = queryString.parse(location.search);
-  const { type } = queryParams;
-
-  return <div></div>; //<List typeId={type} history={history} />;
+  return <List queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
   return (
     <Routes>
-      <Route path="/xyps/" element={<Xyps />} />
+      <Route key="/xyp-sync-rules" path="/xyp-sync-rules" element={<SettingsComponent />} />
     </Routes>
   );
 };

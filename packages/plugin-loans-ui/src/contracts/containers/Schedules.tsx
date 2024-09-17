@@ -5,6 +5,7 @@ import SchedulesList from '../components/schedules/SchedulesList';
 import { queries } from '../graphql';
 import { SchedulesQueryResponse, ScheduleYearsQueryResponse } from '../types';
 import { useQuery } from '@apollo/client';
+import subscriptions from '../graphql/subscriptions';
 
 type Props = {
   contractId: string;
@@ -29,6 +30,17 @@ const SchedulesListContainer = (props: Props) => {
       fetchPolicy: 'network-only',
     },
   );
+
+  useEffect(() => {
+    return schedulesQuery.subscribeToMore({
+      document: gql(subscriptions.loansSchedulesChanged),
+      variables: { contractId },
+      updateQuery: () => {
+        schedulesQuery.refetch();
+      }
+    });
+  });
+
 
   const scheduleYearsQuery = useQuery<ScheduleYearsQueryResponse>(
     gql(queries.scheduleYears),

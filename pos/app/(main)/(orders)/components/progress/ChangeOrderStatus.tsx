@@ -1,7 +1,6 @@
-import { useEffect, useMemo } from "react"
-import { mutations } from "@/modules/orders/graphql"
+import { useCallback, useEffect } from "react"
+import useChangeOrderStatus from "@/modules/orders/hooks/useChangeOrderStatus"
 import { showRecieptAtom } from "@/store/progress.store"
-import { useMutation } from "@apollo/client"
 import { useSetAtom } from "jotai"
 import { CheckIcon } from "lucide-react"
 
@@ -20,25 +19,23 @@ const ChangeOrderStatus = ({
 }) => {
   const setShowReciept = useSetAtom(showRecieptAtom)
 
-  const [orderChangeStatus, { loading }] = useMutation(
-    mutations.orderChangeStatus,
-    {
-      onCompleted(data) {
-        const { orderChangeStatus } = data
-        orderChangeStatus.status === ORDER_STATUSES.DONE && setShowReciept(_id)
-      },
-    }
+  const { changeStatus, loading } = useChangeOrderStatus()
+
+  const handleChangeStatus = useCallback(
+    (status: string) =>
+      changeStatus({
+        variables: {
+          _id,
+          status,
+        },
+        onCompleted(data) {
+          const { orderChangeStatus } = data
+          orderChangeStatus.status === ORDER_STATUSES.DONE &&
+            setShowReciept(_id)
+        },
+      }),
+    [_id, changeStatus, setShowReciept]
   )
-
-  const handleChangeStatus = (status: string) =>
-    orderChangeStatus({
-      variables: {
-        _id,
-        status,
-      },
-    })
-
-  const memorisedValue = useMemo<OrderItem[]>(() => items, [items])
 
   useEffect(() => {
     const doneItems = items.filter(
@@ -49,8 +46,7 @@ const ChangeOrderStatus = ({
 
     if (doneItems.length === items.length)
       handleChangeStatus(ORDER_STATUSES.DONE)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memorisedValue])
+  }, [handleChangeStatus, items, status])
 
   return (
     <>

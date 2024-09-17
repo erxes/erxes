@@ -4,7 +4,10 @@ const list = `
       _id
       contentType
       contentTypeId
-      data
+      data {
+        serviceName
+        data
+      }
     }
   }
 `;

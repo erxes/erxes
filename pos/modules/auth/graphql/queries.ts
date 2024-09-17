@@ -50,6 +50,7 @@ const currentConfig = gql`
       departmentId
       initialCategoryIds
       ebarimtConfig {
+        companyName
         ebarimtUrl
         companyRD
         footerText

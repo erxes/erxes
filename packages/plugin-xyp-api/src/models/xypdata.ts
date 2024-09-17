@@ -1,16 +1,15 @@
 import { Model } from 'mongoose';
 import {
   xypDataSchema,
-  IXypconfigDocument,
-  IXypData,
+  IXypDataDocument,
 } from './definitions/xypdata';
 
-export interface IXypDataModel extends Model<IXypconfigDocument> {
-  getXypData(doc: any): IXypconfigDocument;
-  createXypData(doc: any, user?: any): IXypconfigDocument;
-  updateXypData(_id: string, doc: any, user: any): IXypconfigDocument;
-  removeXypData(_id: string): IXypconfigDocument;
-  createOrUpdateXypData(doc: any): IXypconfigDocument;
+export interface IXypDataModel extends Model<IXypDataDocument> {
+  getXypData(doc: any): IXypDataDocument;
+  createXypData(doc: any, user?: any): IXypDataDocument;
+  updateXypData(_id: string, doc: any, user: any): IXypDataDocument;
+  removeXypData(_id: string): IXypDataDocument;
+  createOrUpdateXypData(doc: any, user: any): IXypDataDocument;
 }
 
 export const loadxypConfigClass = (models) => {
@@ -25,26 +24,31 @@ export const loadxypConfigClass = (models) => {
       }
       return xypdataObj;
     }
+
     /*
      * Create new comment
      */
     public static async createXypData(doc: any, user: any) {
-      const config = await models.XypData.create({
-        // createdBy: user._id,
+      const xypData = await models.XypData.create({
+        createdBy: user?._id,
         createdAt: new Date(),
         ...doc,
       });
-      return config;
+
+      // utils.convertData (xypData, models);
+
+      return xypData;
     }
+
     /*
      * Update comment
      */
-    public static async updateXypData(_id: string, doc: any, user: any) {
+    public static async updateXypData(_id: string, doc: any, user?: any) {
       const ret = await models.XypData.updateOne(
         { _id },
         {
           $set: {
-            updatedBy: user._id,
+            updatedBy: user?._id,
             updatedAt: new Date(),
             ...doc,
           },
@@ -52,6 +56,7 @@ export const loadxypConfigClass = (models) => {
       );
       return models.XypData.findOne({ _id });
     }
+
     /*
      * Update comment
      */
@@ -61,22 +66,25 @@ export const loadxypConfigClass = (models) => {
         contentType,
         contentTypeId,
       });
+
       if (xypdataObj) {
         const unique = xypdataObj?.data.filter(
           (d) => d.wsOperationName !== data.wsOperationName,
         );
+
         await models.XypData.updateOne(
           { _id: xypdataObj._id },
           {
             $set: {
               updatedAt: new Date(),
+              updatedBy: user?._id,
               data: [...unique, data],
             },
           },
         );
       } else {
         const ret = await models.XypData.create({
-          // createdBy: user._id,
+          createdBy: user?._id,
           createdAt: new Date(),
           contentType,
           contentTypeId,
@@ -90,6 +98,7 @@ export const loadxypConfigClass = (models) => {
 
       return xypdata;
     }
+
     /*
      * Remove comment
      */

@@ -219,8 +219,10 @@ export const progressDetail = gql`
       items {
         _id
         productName
+        productId
         unitPrice
         count
+        status
       }
       description
       type
