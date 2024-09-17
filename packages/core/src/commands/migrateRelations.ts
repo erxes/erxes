@@ -184,6 +184,19 @@ const command = async () => {
       { $set: { serviceName: "purchases" } }
     );
 
+    await Charts.updateMany(
+      { contentType: { $regex: new RegExp("^insight:") } },
+      [
+        {
+          $set: {
+            contentType: {
+              $replaceOne: { input: "$contentType", find: "insight:", replacement: "core:" }
+            }
+          }
+        }
+      ]
+    );
+
     await Reports.updateMany(
       { serviceType: "task" },
       { $set: { serviceName: "tasks" } }

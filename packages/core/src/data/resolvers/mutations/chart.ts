@@ -121,7 +121,7 @@ const chartsMutations = {
               serviceName,
               chartType: c.chartTypes[0],
               contentId,
-              contentType: `insight:${contentType}`,
+              contentType: `core:${contentType}`,
               ...c
             };
           })

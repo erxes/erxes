@@ -32,6 +32,7 @@ import emailTemplates from "./emailTemplates";
 import dashboards from "./dashboard";
 import reports from "./report";
 import sections from "./section";
+import insights from "./insight";
 
 export default {
   ...users,
@@ -63,5 +64,6 @@ export default {
   ...emailTemplates,
   ...dashboards,
   ...reports,
-  ...sections
+  ...sections,
+  ...insights
 };

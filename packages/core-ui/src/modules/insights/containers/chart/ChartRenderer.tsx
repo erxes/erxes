@@ -49,6 +49,11 @@ type FinalProps = {
 const ChartRendererList = (props: FinalProps) => {
   const { chartGetResultQuery, chartVariables, filter, chartType, setFilter } = props;
 
+  if (!chartVariables.serviceName || !chartVariables.templateType) {
+    return null;
+  }
+
+
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
   }
@@ -138,6 +143,7 @@ export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.chartGetResult), {
       name: "chartGetResultQuery",
+      skip: ({ chartVariables }) => !chartVariables.serviceName || !chartVariables.templateType,
       options: ({ chartVariables, filter, dimension, chartType }) => ({
         variables: {
           serviceName: chartVariables.serviceName,
