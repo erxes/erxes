@@ -21,6 +21,7 @@ interface IUpdateItem {
   attachment?: { url?: string } | null
   fromAdd?: boolean
   allowed?: boolean
+  status?: IOrderItemStatus
 }
 
 export const changeCartItem = (
@@ -134,11 +135,12 @@ export const updateCartAtom = atom(
   (get, set, update: IUpdateItem) => {
     if (
       !!get(orderPasswordAtom) &&
+      !!get(activeOrderIdAtom) &&
       !update.allowed &&
-      update.count === (get(banFractionsAtom) ? 0 : -1)
+      update.count === (get(banFractionsAtom) ? 0 : -1) &&
+      update.status !== "new"
     ) {
-      set(requirePasswordAtom, update)
-      return
+      return set(requirePasswordAtom, update)
     }
     set(cartChangedAtom, get(activeOrderIdAtom) ?? "-")
     set(

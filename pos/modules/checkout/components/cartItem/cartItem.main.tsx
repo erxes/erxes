@@ -119,7 +119,9 @@ const CartItem = ({
           <div className="flex w-5/12 items-center justify-end">
             <Button
               className={countBtnClass}
-              onClick={() => changeItem({ _id, count: (count || 0) - 1 })}
+              onClick={() =>
+                changeItem({ _id, count: (count || 0) - 1, status })
+              }
             >
               <Minus className="h-3 w-3" strokeWidth={4} />
             </Button>
