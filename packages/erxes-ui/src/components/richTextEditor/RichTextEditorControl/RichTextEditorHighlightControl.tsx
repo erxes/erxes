@@ -147,7 +147,7 @@ export const RichTextEditorHighlightControl = () => {
 
   return (
     <Popover id="background-color-picker">
-      <Popover.Button disabled={isSourceEnabled}>
+      <Popover.Button as="span" disabled={isSourceEnabled}>
         <RichTextEditorControlBase
           icon={LinkIcon}
           aria-label={labels.highlightControlLabel}

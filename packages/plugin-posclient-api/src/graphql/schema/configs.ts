@@ -23,6 +23,7 @@ export const types = `
     vatPercent: Int
     cityTaxPercent: Int
     footerText: String
+    headerText: String
     hasCopy: Boolean
   }
 

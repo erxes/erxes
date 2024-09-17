@@ -199,6 +199,12 @@ window.addEventListener('message', async (event: MessageEvent) => {
     const { widgetsMessengerConnect } = connectionInfo || {};
     const { uiOptions } = widgetsMessengerConnect || {};
 
+    try {
+      await handleLauncherIframeLoad()
+    } catch (error) {
+      console.error(error);
+    }
+
     if (!uiOptions) {
       return console.error('Messenger: uiOptions is not defined');
     }
