@@ -242,7 +242,8 @@ export const loadGoalClass = (models: IModels, subdomain: string) => {
           }
 
           // Calculate progress as a percentage
-          const progress = ((goal.addTarget / goalTotalAmount) * 100).toFixed(
+
+          const progress = ((goalTotalAmount / goal.addTarget) * 100).toFixed(
             2
           );
 
