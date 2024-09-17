@@ -5,7 +5,7 @@ import { atomWithStorage } from "jotai/utils"
 
 import { IConfig, ICurrentUser, IPermissionConfig } from "@/types/config.types"
 
-export const configAtom = atom<IConfig | null>(null)
+export const configAtom = atomWithStorage<IConfig | null>("posConfig", null)
 
 export const orderPasswordAtom = atom<string | undefined>(
   (get) => get(configAtom)?.orderPassword
