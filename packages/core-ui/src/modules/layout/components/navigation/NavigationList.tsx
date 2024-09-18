@@ -42,7 +42,7 @@ const CORE_PLUGINS = [
   },
   {
     text: "Insight",
-    url: "/forms",
+    url: "/insight",
     icon: "icon-reload",
     location: "mainNavigation"
   }
