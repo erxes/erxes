@@ -18,7 +18,7 @@ const Delivery = () => {
   const isPre = useAtomValue(isPreAtom)
   const paidAmount = useAtomValue(getTotalPaidAmountAtom)
 
-  const changeTimeOfDate = (date: string, time: string) => {
+  const changeTimeOfDate = (date?: string, time?: string) => {
     const timeArr = time ? time.split(":") : ["00", ["00"]]
 
     return setMinutes(
@@ -28,8 +28,8 @@ const Delivery = () => {
   }
 
   const changeDate = (date?: string) => {
-    const formattedDate = !!dueDate
-      ? changeTimeOfDate(date || "", format(new Date(dueDate), "HH:mm"))
+    const formattedDate = dueDate
+      ? changeTimeOfDate(date, format(new Date(dueDate), "HH:mm"))
       : date
 
     setDueDate(formattedDate)
@@ -43,7 +43,7 @@ const Delivery = () => {
         <div className="flex-auto">
           <Label className="block pb-1">Хүргэх өдөр</Label>
           <DatePicker
-            date={!!dueDate ? new Date(dueDate) : undefined}
+            date={dueDate ? new Date(dueDate) : undefined}
             setDate={(date) => changeDate(date?.toISOString())}
             fromDate={new Date()}
             className="w-full"
@@ -56,7 +56,7 @@ const Delivery = () => {
             type="time"
             value={dueDate ? format(new Date(dueDate), "HH:mm") : ""}
             onChange={(e) =>
-              setDueDate(changeTimeOfDate(dueDate || "", e.target.value))
+              setDueDate(changeTimeOfDate(dueDate, e.target.value))
             }
             disabled={disableOnPre}
           />
