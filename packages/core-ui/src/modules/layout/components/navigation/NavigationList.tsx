@@ -99,17 +99,6 @@ export default class NavigationList extends React.Component<Props, State> {
           <Route path="/" key="root" element={index()} />
         </Routes>
         <Nav id="navigation">
-          {CORE_PLUGINS.map((plugin: Plugin, i: number) => (
-            <NavigationItem
-              key={i}
-              plugin={plugin}
-              navCollapse={navCollapse}
-              showMenu={showMenu}
-              clickedMenu={clickedMenu}
-              toggleMenu={this.toggleMenu}
-            />
-          ))}
-
           {plugins.map((plugin: Plugin, i: number) => (
             <NavigationItem
               key={i}

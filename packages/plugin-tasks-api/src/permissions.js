@@ -1,247 +1,124 @@
 module.exports = {
-  deals: {
-    name: "deals",
-    description: "Deals",
+  tasks: {
+    name: "tasks",
+    description: "Tasks",
     actions: [
       {
-        name: "dealsAll",
+        name: "tasksAll",
         description: "All",
         use: [
-          "showDeals",
-          "dealBoardsAdd",
-          "dealBoardsEdit",
-          "dealBoardsRemove",
-          "dealPipelinesAdd",
-          "dealPipelinesEdit",
-          "dealPipelinesUpdateOrder",
-          "dealPipelinesWatch",
-          "dealPipelinesRemove",
-          "dealPipelinesArchive",
-          "dealPipelinesCopied",
-          "dealStagesAdd",
-          "dealStagesEdit",
-          "dealStagesUpdateOrder",
-          "dealStagesRemove",
-          "dealsAdd",
-          "dealsEdit",
-          "dealsRemove",
-          "dealsWatch",
-          "dealsArchive",
-          "dealsSort",
-          "exportDeals",
-          "dealUpdateTimeTracking"
+          "showTasks",
+          "taskBoardsAdd",
+          "taskBoardsEdit",
+          "taskBoardsRemove",
+          "taskPipelinesAdd",
+          "taskPipelinesEdit",
+          "taskPipelinesUpdateOrder",
+          "taskPipelinesWatch",
+          "taskPipelinesRemove",
+          "taskPipelinesArchive",
+          "taskPipelinesCopied",
+          "taskStagesAdd",
+          "taskStagesEdit",
+          "taskStagesUpdateOrder",
+          "taskStagesRemove",
+          "tasksAdd",
+          "tasksEdit",
+          "tasksRemove",
+          "tasksWatch",
+          "tasksArchive",
+          "tasksSort",
+          "taskUpdateTimeTracking",
+          "exportTasks"
         ]
       },
       {
-        name: "showDeals",
-        description: "Show deals"
+        name: "showTasks",
+        description: "Show tasks"
       },
       {
-        name: "dealBoardsAdd",
-        description: "Add deal board"
+        name: "taskBoardsAdd",
+        description: "Add task board"
       },
       {
-        name: "dealBoardsRemove",
-        description: "Remove deal board"
+        name: "taskBoardsRemove",
+        description: "Remove task board"
       },
       {
-        name: "dealPipelinesAdd",
-        description: "Add deal pipeline"
+        name: "taskPipelinesAdd",
+        description: "Add task pipeline"
       },
       {
-        name: "dealPipelinesEdit",
-        description: "Edit deal pipeline"
+        name: "taskPipelinesEdit",
+        description: "Edit task pipeline"
       },
       {
-        name: "dealPipelinesRemove",
-        description: "Remove deal pipeline"
+        name: "taskPipelinesRemove",
+        description: "Remove task pipeline"
       },
       {
-        name: "dealPipelinesArchive",
-        description: "Archive deal pipeline"
+        name: "taskPipelinesArchive",
+        description: "Archive task pipeline"
       },
       {
-        name: "dealPipelinesCopied",
-        description: "Duplicate deal pipeline"
+        name: "taskPipelinesCopied",
+        description: "Duplicate task pipeline"
       },
       {
-        name: "dealPipelinesUpdateOrder",
+        name: "taskPipelinesWatch",
+        description: "Task pipeline watch"
+      },
+      {
+        name: "taskPipelinesUpdateOrder",
         description: "Update pipeline order"
       },
       {
-        name: "dealPipelinesWatch",
-        description: "Deal pipeline watch"
+        name: "taskStagesAdd",
+        description: "Add task stage"
       },
       {
-        name: "dealStagesAdd",
-        description: "Add deal stage"
+        name: "taskStagesEdit",
+        description: "Edit task stage"
       },
       {
-        name: "dealStagesEdit",
-        description: "Edit deal stage"
-      },
-      {
-        name: "dealStagesUpdateOrder",
+        name: "taskStagesUpdateOrder",
         description: "Update stage order"
       },
       {
-        name: "dealStagesRemove",
-        description: "Remove deal stage"
+        name: "taskStagesRemove",
+        description: "Remove task stage"
       },
       {
-        name: "dealsAdd",
-        description: "Add deal"
+        name: "tasksAdd",
+        description: "Add task"
       },
       {
-        name: "dealsEdit",
-        description: "Edit deal"
+        name: "tasksEdit",
+        description: "Edit task"
       },
       {
-        name: "dealsRemove",
-        description: "Remove deal"
+        name: "tasksRemove",
+        description: "Remove task"
       },
       {
-        name: "dealsWatch",
-        description: "Watch deal"
+        name: "tasksWatch",
+        description: "Watch task"
       },
       {
-        name: "dealsArchive",
-        description: "Archive all deals in a specific stage"
+        name: "tasksArchive",
+        description: "Archive all tasks in a specific stage"
       },
       {
-        name: "dealsSort",
-        description: "Sort all deals in a specific stage"
+        name: "tasksSort",
+        description: "Sort all tasks in a specific stage"
       },
       {
-        name: "exportDeals",
-        description: "Export deals"
-      },
-      {
-        name: "dealUpdateTimeTracking",
+        name: "taskUpdateTimeTracking",
         description: "Update time tracking"
-      }
-    ]
-  },
-  tickets: {
-    name: "tickets",
-    description: "Tickets",
-    actions: [
-      {
-        name: "ticketsAll",
-        description: "All",
-        use: [
-          "showTickets",
-          "ticketBoardsAdd",
-          "ticketBoardsEdit",
-          "ticketBoardsRemove",
-          "ticketPipelinesAdd",
-          "ticketPipelinesEdit",
-          "ticketPipelinesUpdateOrder",
-          "ticketPipelinesWatch",
-          "ticketPipelinesRemove",
-          "ticketPipelinesArchive",
-          "ticketPipelinesCopied",
-          "ticketStagesAdd",
-          "ticketStagesEdit",
-          "ticketStagesUpdateOrder",
-          "ticketStagesRemove",
-          "ticketsAdd",
-          "ticketsEdit",
-          "ticketsRemove",
-          "ticketsWatch",
-          "ticketsArchive",
-          "ticketsSort",
-          "exportTickets",
-          "ticketUpdateTimeTracking"
-        ]
       },
       {
-        name: "showTickets",
-        description: "Show tickets"
-      },
-      {
-        name: "ticketBoardsAdd",
-        description: "Add ticket board"
-      },
-      {
-        name: "ticketBoardsRemove",
-        description: "Remove ticket board"
-      },
-      {
-        name: "ticketPipelinesAdd",
-        description: "Add ticket pipeline"
-      },
-      {
-        name: "ticketPipelinesEdit",
-        description: "Edit ticket pipeline"
-      },
-      {
-        name: "ticketPipelinesRemove",
-        description: "Remove ticket pipeline"
-      },
-      {
-        name: "ticketPipelinesArchive",
-        description: "Archive ticket pipeline"
-      },
-      {
-        name: "ticketPipelinesCopied",
-        description: "Duplicate ticket pipeline"
-      },
-      {
-        name: "ticketPipelinesUpdateOrder",
-        description: "Update pipeline order"
-      },
-      {
-        name: "ticketPipelinesWatch",
-        description: "ticket pipeline watch"
-      },
-      {
-        name: "ticketStagesAdd",
-        description: "Add ticket stage"
-      },
-      {
-        name: "ticketStagesEdit",
-        description: "Edit ticket stage"
-      },
-      {
-        name: "ticketStagesUpdateOrder",
-        description: "Update stage order"
-      },
-      {
-        name: "ticketStagesRemove",
-        description: "Remove ticket stage"
-      },
-      {
-        name: "ticketsAdd",
-        description: "Add ticket"
-      },
-      {
-        name: "ticketsEdit",
-        description: "Edit ticket"
-      },
-      {
-        name: "ticketsRemove",
-        description: "Remove ticket"
-      },
-      {
-        name: "ticketsWatch",
-        description: "Watch ticket"
-      },
-      {
-        name: "ticketsArchive",
-        description: "Archive all tickets in a specific stage"
-      },
-      {
-        name: "ticketsSort",
-        description: "Sort all tickets in a specific stage"
-      },
-      {
-        name: "exporttickets",
-        description: "Export tickets"
-      },
-      {
-        name: "ticketUpdateTimeTracking",
-        description: "Update time tracking"
+        name: "exportTasks",
+        description: "Export tasks"
       }
     ]
   }
