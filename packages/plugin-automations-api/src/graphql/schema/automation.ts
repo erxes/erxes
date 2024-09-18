@@ -21,7 +21,7 @@ const commonActionTypes = `
   nextActionId: String
 `;
 
-export const types = ({ tags }) => `
+export const types = () => `
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
