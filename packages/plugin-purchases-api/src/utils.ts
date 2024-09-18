@@ -4,6 +4,7 @@ import { generateModels, IModels } from "./connectionResolver";
 import { sendCoreMessage, sendTasksMessage } from "./messageBroker";
 import { IUserDocument } from "@erxes/api-utils/src/types";
 import { debugError } from "@erxes/api-utils/src/debuggers";
+import { isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
 
 export const configReplacer = config => {
   const now = new Date();
@@ -24,6 +25,10 @@ export const collectItems = async (
 
   if (contentType === "activity") {
     return;
+  }
+
+  if (!isEnabled("tasks")) {
+    return tasks;
   }
 
   const relatedTaskIds = await sendCoreMessage({
