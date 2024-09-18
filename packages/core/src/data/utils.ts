@@ -14,17 +14,9 @@ import fetch from "node-fetch";
 import { IModels } from "../connectionResolver";
 import { IUserDocument } from "../db/models/definitions/users";
 import { debugBase, debugError } from "../debuggers";
-import {
-  sendCommonMessage,
-  sendContactsMessage,
-  sendLogsMessage
-} from "../messageBroker";
+import { sendCommonMessage } from "../messageBroker";
 import { graphqlPubsub } from "../pubsub";
-import {
-  getService,
-  getServices,
-  isEnabled
-} from "@erxes/api-utils/src/serviceDiscovery";
+import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 import redis from "@erxes/api-utils/src/redis";
 import sanitizeFilename from "@erxes/api-utils/src/sanitize-filename";
 import { randomAlphanumeric } from "@erxes/api-utils/src/random";
