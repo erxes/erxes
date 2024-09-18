@@ -130,9 +130,9 @@ const command = async () => {
         action.type = switchContentType(action.type);
 
         const { module } = action.config;
-        const [serviceName, collectionType] = module.split(":");
 
         if (module) {
+          const [serviceName, collectionType] = module.split(":");
           action.config.module = `${switchService(serviceName)}:${collectionType}`;
         }
 
