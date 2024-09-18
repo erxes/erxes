@@ -19,7 +19,7 @@ const Delivery = () => {
   const paidAmount = useAtomValue(getTotalPaidAmountAtom)
 
   const changeTimeOfDate = (date?: string, time?: string) => {
-    const timeArr = time ? time.split(":") : ["00", ["00"]]
+    const timeArr = time ? time.split(":") : ["00", "00"]
 
     return setMinutes(
       setHours(date ? new Date(date) : new Date(), Number(timeArr[0])),
