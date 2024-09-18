@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-import fetch from "node-fetch";
-import { sendCommonMessage } from "./messageBroker";
-import { xypServiceData } from "./models/definitions/xypdata";
-=======
-import { sendCommonMessage, sendContactsMessage, sendFormsMessage } from './messageBroker';
-import { IXypDataDocument } from './models/definitions/xypdata';
->>>>>>> ebfb981399baa64d1e0155b866551cd611485dbe
+import { sendCommonMessage, sendCoreMessage } from "./messageBroker";
+import { IXypDataDocument } from "./models/definitions/xypdata";
 
 import { nanoid } from "nanoid";
 import { IModels } from "./connectionResolver";
@@ -166,48 +160,56 @@ export const convertToPropertyData = async (
   }
 };
 
-const getObject = async (subdomain: string, type: string, doc: IXypDataDocument) => {
+const getObject = async (
+  subdomain: string,
+  type: string,
+  doc: IXypDataDocument
+) => {
   const { contentType, contentTypeId, customerId } = doc;
-  if (type === 'contacts:customer') {
-    return await sendContactsMessage({
+  if (type === "core:customer") {
+    return await sendCoreMessage({
       subdomain,
-      action: 'customers.findOne',
+      action: "customers.findOne",
       data: { _id: customerId },
       isRPC: true,
       defaultValue: {}
     });
   }
-  if (type === 'contacts:company') {
+  if (type === "core:company") {
     return;
   }
-  if (type === 'products:product') {
+  if (type === "core:product") {
     return;
   }
-  if (type === 'inbox:conversation') {
+  if (type === "inbox:conversation") {
     return;
   }
-  if (type === 'contacts:device') {
+  if (type === "core:device") {
     return;
   }
-  if (type === 'core:user') {
+  if (type === "core:user") {
     return;
   }
 
   return;
-}
+};
 
-const saveObject =async  (subdomain, type) => {
-  if (type === 'contacts:customer') {
-    return await sendContactsMessage({
+const saveObject = async (subdomain, type) => {
+  if (type === "contacts:customer") {
+    return await sendCoreMessage({
       subdomain,
-      action: 'customers.updateOne',
+      action: "customers.updateOne",
       // data: { _id: customerId },
       isRPC: true,
       defaultValue: {}
     });
   }
-}
-export const syncData = async (subdomain: string, models: IModels, doc: IXypDataDocument) => {
+};
+export const syncData = async (
+  subdomain: string,
+  models: IModels,
+  doc: IXypDataDocument
+) => {
   for (const docData of doc.data) {
     const { serviceName, data } = docData;
     if (!data) {
@@ -243,6 +245,4 @@ export const syncData = async (subdomain: string, models: IModels, doc: IXypData
       // await saveObject()
     }
   }
-
-
-}
+};
