@@ -18,7 +18,7 @@ const Delivery = () => {
   const isPre = useAtomValue(isPreAtom)
   const paidAmount = useAtomValue(getTotalPaidAmountAtom)
 
-  const chageTimeOfDate = (date: string, time: string) => {
+  const changeTimeOfDate = (date: string, time: string) => {
     const timeArr = time ? time.split(":") : ["00", ["00"]]
 
     return setMinutes(
@@ -29,7 +29,7 @@ const Delivery = () => {
 
   const changeDate = (date?: string) => {
     const formattedDate = !!dueDate
-      ? chageTimeOfDate(date || "", format(new Date(dueDate), "HH:mm"))
+      ? changeTimeOfDate(date || "", format(new Date(dueDate), "HH:mm"))
       : date
 
     setDueDate(formattedDate)
@@ -56,7 +56,7 @@ const Delivery = () => {
             type="time"
             value={dueDate ? format(new Date(dueDate), "HH:mm") : ""}
             onChange={(e) =>
-              setDueDate(chageTimeOfDate(dueDate || "", e.target.value))
+              setDueDate(changeTimeOfDate(dueDate || "", e.target.value))
             }
             disabled={disableOnPre}
           />

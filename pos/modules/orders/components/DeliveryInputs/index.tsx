@@ -13,10 +13,10 @@ import { CollapsibleContent } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
 import OrderCancel from "@/app/(main)/(orders)/components/history/orderCancel"
 
-const Delivery = dynamic(() => import("./Delivery"))
-const Description = dynamic(() => import("./Description"))
-const DirectDiscount = dynamic(() => import("./directDiscount"))
-const PreOrder = dynamic(() => import("./preOrder"))
+const Delivery: any = dynamic(() => import("./Delivery"))
+const Description: any = dynamic(() => import("./Description"))
+const DirectDiscount: any = dynamic(() => import("./directDiscount"))
+const PreOrder: any = dynamic(() => import("./preOrder"))
 
 const DeliveryInputs = () => {
   const mode = useAtomValue(modeAtom)

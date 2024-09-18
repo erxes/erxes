@@ -11,14 +11,11 @@ import {
 import { useAtomValue } from "jotai"
 
 import { mergePaidAmounts } from "@/lib/utils"
+import { Label } from "@/components/ui/label"
 
-const Market: any = dynamic(
-  () => import("./paidType.market"),
-
-  {
-    loading: () => <div className="h-10 w-full" />,
-  }
-)
+const Market: any = dynamic(() => import("./paidType.market"), {
+  loading: () => <div className="h-10 w-full" />,
+})
 const Main: any = dynamic(
   () => import("./paidType.main"),
 
@@ -40,6 +37,9 @@ const PaidTypes = () => {
 
   return (
     <>
+      {mode === "main" && (
+        <Label className="block pb-2">Төлбөрийн төрөл:</Label>
+      )}
       {!!cashAmount && <PaidType type="cash" amount={cashAmount} />}
       {!!mobileAmount && <PaidType type="mobile" amount={mobileAmount} />}
       {!!paidAmounts.length &&

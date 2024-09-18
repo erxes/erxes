@@ -11,27 +11,28 @@ import {
 import { useAtom, useAtomValue } from "jotai"
 
 import { Collapsible } from "@/components/ui/collapsible"
-import { Label } from "@/components/ui/label"
 
-const TotalAmount = dynamic(
+const TotalAmount: any = dynamic(
   () => import("@/modules/checkout/components/totalAmount/totalAmount.main")
 )
-const OrderCUButton = dynamic(
+const OrderCUButton: any = dynamic(
   () => import("@/modules/orders/components/orderCUButton/orderCUButton.market")
 )
-const MakePayment = dynamic(
+const MakePayment: any = dynamic(
   () => import("@/modules/orders/components/settlePayment/settlePayment.market")
 )
-const DeliveryInputs = dynamic(
+const DeliveryInputs: any = dynamic(
   () => import("../orders/components/DeliveryInputs")
 )
-const SettingsTrigger = dynamic(
+const SettingsTrigger: any = dynamic(
   () => import("../orders/components/DeliveryInputs/trigger")
 )
-const BillType = dynamic(() => import("./components/ebarimt/billType"))
-const OddAmount = dynamic(() => import("./components/OddAmount/OddAmount"))
-const PaidTypes = dynamic(() => import("./components/paymentType/paidTypes"))
-const PaymentTypes = dynamic(
+const BillType: any = dynamic(() => import("./components/ebarimt/billType"))
+const OddAmount: any = dynamic(() => import("./components/OddAmount/OddAmount"))
+const PaidTypes: any = dynamic(
+  () => import("./components/paymentType/paidTypes")
+)
+const PaymentTypes: any = dynamic(
   () => import("./components/paymentTypes/paymentTypes.market")
 )
 
@@ -92,12 +93,7 @@ const CheckoutContent: React.FC<CheckoutContentProps> = ({
   isItemsRegistered,
 }) => (
   <div className="flex-auto">
-    {!!activeOrder && (
-      <>
-        <Label className="block pb-2">Төлбөрийн төрөл:</Label>
-        <PaidTypes />
-      </>
-    )}
+    {!!activeOrder && <PaidTypes />}
     {isItemsRegistered && <PaymentTypes />}
     {isReadyToPrint && <BillType />}
   </div>
