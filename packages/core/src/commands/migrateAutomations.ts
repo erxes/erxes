@@ -7,16 +7,15 @@ import { Collection, Db, MongoClient } from "mongodb";
 const { MONGO_URL } = process.env;
 
 if (!MONGO_URL) {
-  throw new Error("Environment variable MONGO_URL not set.");
+  throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const client = new MongoClient("mongodb://127.0.0.1:27017/erxes");
+const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
 let Automations: Collection<any>;
 let Executions: Collection<any>;
-let Notes: Collection<any>;
 
 const switchContentType = contentType => {
   let changedContentType = contentType;
@@ -109,7 +108,6 @@ const command = async () => {
   db = client.db() as Db;
 
   Automations = db.collection("automations");
-  Notes = db.collection("automations_notes");
   Executions = db.collection("automations_Executions");
 
   try {

@@ -54,7 +54,10 @@ const command = async () => {
         createdUserId: integration.createdUserId,
         createdAt: integration.createdAt
       };
-      await Integrations.updateOne({ _id: integration._id }, integrationDoc);
+      await Integrations.updateOne(
+        { _id: integration._id },
+        { $set: integrationDoc }
+      );
     }
   }
 
