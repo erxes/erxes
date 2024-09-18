@@ -591,7 +591,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       this.checkPassword(password);
 
       if (phone.includes("@")) {
-        const field = isSecondary ? "password" : "secondaryPassword";
+        const field = isSecondary ? "secondaryPassword" : "password";
         await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
           isEmailVerified: true,
           [field]: await this.generatePassword(password)
@@ -601,7 +601,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       // set new password
-      const field = isSecondary ? "password" : "secondaryPassword";
+      const field = isSecondary ? "secondaryPassword" : "password";
 
       await models.ClientPortalUsers.findByIdAndUpdate(user._id, {
         isPhoneVerified: true,

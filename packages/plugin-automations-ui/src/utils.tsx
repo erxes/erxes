@@ -162,7 +162,8 @@ export const connection = (
   triggers: ITrigger[],
   actions: IAction[],
   info: any,
-  actionId: any
+  actionId: any,
+  workFlowActions: { workflowId: string; actions: IAction[] }[]
 ) => {
   const { sourceId, type, connectType, optionalConnectId } = info || {};
 
@@ -171,6 +172,10 @@ export const connection = (
 
     if (trigger) {
       trigger.actionId = actionId;
+
+      if (info?.workflowId) {
+        trigger.workflowId = info.workflowId;
+      }
     }
   } else {
     const sourceAction = actions.find(a => a.id.toString() === sourceId);
@@ -234,6 +239,23 @@ export const connection = (
         };
       } else {
         sourceAction.nextActionId = actionId;
+      }
+    }
+
+    const workflow = workFlowActions.find(
+      ({ workflowId, actions }) =>
+        workflowId === info?.workflowId &&
+        actions.some(({ id }) => id.toString() === sourceId)
+    );
+
+    if (workflow) {
+      const sourceAction = actions.find(({ id }) => id === workflow.workflowId);
+
+      if (sourceAction) {
+        sourceAction.config = {
+          ...(sourceAction.config || {}),
+          workflowConnection: { sourceId, targetId: actionId }
+        };
       }
     }
   }

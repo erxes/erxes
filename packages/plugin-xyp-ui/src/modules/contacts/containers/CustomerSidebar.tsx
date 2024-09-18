@@ -80,6 +80,7 @@ const CustomerSidebarContainer = (props: Props) => {
               _id: detail?.data?.xypDataDetail._id,
               contentType,
               contentTypeId: props.id,
+              customerID: props.id,
               data: [...unique, ...xypData]
             }
           }).then(({ data }) => {
@@ -129,7 +130,7 @@ const CustomerSidebarContainer = (props: Props) => {
     showConvertButton: contentType === "core:customer",
     fetchData
   };
-  console.log("here custom config");
+
   return <CustomerSidebar {...updatedProps} />;
 };
 

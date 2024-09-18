@@ -88,13 +88,21 @@ export const sendSms = async (
     const MESSAGE_PRO_API_KEY = await getConfig(
       "MESSAGE_PRO_API_KEY",
       subdomain,
+<<<<<<< HEAD
       ""
+=======
+      ''
+>>>>>>> ebfb981399baa64d1e0155b866551cd611485dbe
     );
 
     const MESSAGE_PRO_PHONE_NUMBER = await getConfig(
       "MESSAGE_PRO_PHONE_NUMBER",
       subdomain,
+<<<<<<< HEAD
       ""
+=======
+      ''
+>>>>>>> ebfb981399baa64d1e0155b866551cd611485dbe
     );
 
     if (!MESSAGE_PRO_API_KEY || !MESSAGE_PRO_PHONE_NUMBER) {
@@ -108,7 +116,11 @@ export const sendSms = async (
             key: MESSAGE_PRO_API_KEY,
             from: MESSAGE_PRO_PHONE_NUMBER,
             to: phoneNumber,
+<<<<<<< HEAD
             text: content
+=======
+            text: content,
+>>>>>>> ebfb981399baa64d1e0155b866551cd611485dbe
           })
       );
 
@@ -386,7 +398,7 @@ export const sendNotification = async (
             }
           };
 
-          await transporter.sendMulticast(multicastMessage);
+          await transporter.sendEachForMulticast(multicastMessage);
         } catch (e) {
           debugError(
             `Error occurred during Firebase multicast send: ${e.message}`

@@ -1,33 +1,29 @@
-import React, { memo, useEffect, useRef } from 'react';
-import { ChartType, Colors, Tooltip } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import Chart from 'chart.js/auto';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import React, { memo, useEffect, useRef } from "react";
+import { ChartType, Colors, Tooltip } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
+import Chart from "chart.js/auto";
+import Spinner from "@erxes/ui/src/components/Spinner";
 
 import {
   DATALABELS_CONFIGS,
   DEFAULT_BACKGROUND_COLORS,
   DEFAULT_BORDER_COLORS,
   horizontalDottedLine
-} from './utils';
-import {
-  commarizeNumbers,
-  formatNumbers,
-} from '../../utils';
+} from "./utils";
+import { commarizeNumbers, formatNumbers } from "../../utils";
 
-
-Chart.register([Colors, ChartDataLabels, Tooltip]); 
+Chart.register([Colors, ChartDataLabels, Tooltip]);
 
 interface IChartProps {
   datasets?: any;
-  dataset?: any
+  dataset?: any;
   data?: number[];
   labels?: string[];
   options?: any;
   chartType: ChartType | string;
   title?: string;
   loading?: boolean;
-  chartVariables?: any
+  chartVariables?: any;
   chartHeight?: number;
 }
 
@@ -45,35 +41,39 @@ const ChartRenderer = (props: IChartProps) => {
     chartVariables
   } = props;
 
-  const { templateType } = chartVariables
+  const { templateType } = chartVariables;
 
   if (loading) {
     return <Spinner />;
   }
 
   const chartRef = useRef<HTMLCanvasElement>(null);
-  const formatType = templateType.toLowerCase().includes('time') ? 'time' : undefined
+  const formatType = templateType.toLowerCase().includes("time")
+    ? "time"
+    : undefined;
 
   const chartData = {
     labels: labels,
-    datasets: datasets?.length ? datasets : dataset || [
-      {
-        label: title || 'Default Dataset',
-        data,
-        backgroundColor: DEFAULT_BACKGROUND_COLORS,
-        borderColor: DEFAULT_BORDER_COLORS,
-        borderWidth: 1,
-      }
-    ],
+    datasets: datasets?.length
+      ? datasets
+      : dataset || [
+          {
+            label: title || "Default Dataset",
+            data,
+            backgroundColor: DEFAULT_BACKGROUND_COLORS,
+            borderColor: DEFAULT_BORDER_COLORS,
+            borderWidth: 1
+          }
+        ]
   };
 
-  const datalabelsConfig = DATALABELS_CONFIGS[chartType]
+  const datalabelsConfig = DATALABELS_CONFIGS[chartType];
 
   let plugins: any = {
     datalabels: {
-      display: 'auto',
+      display: "auto",
       formatter: (value, ctx) => {
-        return formatNumbers(value, 'y', formatType)
+        return formatNumbers(value, "y", formatType);
       },
       ...datalabelsConfig
     },
@@ -82,15 +82,15 @@ const ChartRenderer = (props: IChartProps) => {
       displayColors: false,
       callbacks: {
         label: function (context) {
-          let label = context.dataset.label || '';
-          let value = context.parsed.y
+          let label = context.dataset.label || "";
+          let value = context.parsed.y;
 
           if (label) {
-            label += ': ';
+            label += ": ";
           }
 
-          if (formatType === 'time') {
-            return formatNumbers(value, 'x', formatType)
+          if (formatType === "time") {
+            return formatNumbers(value, "x", formatType);
           }
 
           label += commarizeNumbers(value);
@@ -105,7 +105,7 @@ const ChartRenderer = (props: IChartProps) => {
     plugins = {
       ...plugins,
       legend: { labels: { boxWidth: 0, boxHeight: 0 } },
-      ...(options?.hasOwnProperty('plugins') ? options.plugins : {})
+      ...(options?.hasOwnProperty("plugins") ? options.plugins : {})
     };
   }
 
@@ -118,20 +118,21 @@ const ChartRenderer = (props: IChartProps) => {
       scales: {
         y: {
           ticks: {
-            callback: ((context, index) => {
-              return formatNumbers(context, 'y', formatType)
-            })
+            callback: (context, index) => {
+              return formatNumbers(context, "y", formatType);
+            }
           }
         }
       },
-      ...options, plugins,
+      ...options,
+      plugins,
       elements: {
         line: {
           fill: true,
           tension: 0.4
         }
       }
-    },
+    }
   };
 
   useEffect(() => {
@@ -146,7 +147,12 @@ const ChartRenderer = (props: IChartProps) => {
   return (
     <div
       className="canvas"
-      style={{ width: `auto`, height: `${chartHeight}px`, display: 'flex', justifyContent: 'center' }}
+      style={{
+        width: `auto`,
+        height: `${chartHeight}px`,
+        display: "flex",
+        justifyContent: "center"
+      }}
     >
       <canvas ref={chartRef} />
     </div>

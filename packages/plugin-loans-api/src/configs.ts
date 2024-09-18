@@ -45,7 +45,12 @@ export default {
       resolvers: await resolvers(),
     };
   },
-
+  hasSubscriptions: true,
+  subscriptionPluginPath: require('path').resolve(
+    __dirname,
+    'graphql',
+    'subscriptionPlugin.js',
+  ),
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

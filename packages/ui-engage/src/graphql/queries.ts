@@ -344,6 +344,14 @@ const engageLogs = `
   }
 `;
 
+const verifiedUsers = `
+  query VerifiedUsers {
+    users(status: "Verfied") {
+      _id
+      email
+    }
+}`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -364,5 +372,6 @@ export default {
   engagesConfigDetail,
   emailTemplates,
   totalCount,
-  engageLogs
+  engageLogs,
+  verifiedUsers
 };

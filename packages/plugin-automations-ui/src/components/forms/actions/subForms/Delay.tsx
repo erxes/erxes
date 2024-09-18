@@ -41,8 +41,8 @@ export default function Delay(props: Props) {
   const onChange = (name: string, value: any) =>
     setConfig({ ...config, [name]: value });
 
-  const onChangeValue = e => onChange('value', e.target.value);
-  const onChangeSelect = option => onChange('type', option?.value);
+  const onChangeValue = (e) => onChange('value', e.target.value);
+  const onChangeSelect = (option) => onChange('type', option?.value);
 
   const renderContent = () => {
     return (
@@ -51,7 +51,7 @@ export default function Delay(props: Props) {
           <ControlLabel required={true}>{__('Type')}</ControlLabel>
 
           <Select
-            value={options.find(o => o.value === (config?.type || 'hour'))}
+            value={options.find((o) => o.value === (config?.type || 'hour'))}
             options={options}
             onChange={onChangeSelect}
             isClearable={false}
@@ -66,6 +66,7 @@ export default function Delay(props: Props) {
             <FormControl
               type="number"
               onChange={onChangeValue}
+              defaultValue={0}
               value={config?.value}
             />
           </FormGroup>

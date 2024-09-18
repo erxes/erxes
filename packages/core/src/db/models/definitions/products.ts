@@ -67,6 +67,12 @@ const subscriptionConfigSchema = new Schema({
     type: String,
     label: "Subscription Start Day",
     optional: true
+  }),
+
+  subsRenewable: field({
+    type: Boolean,
+    label: "Subscription Renewable",
+    optional: true
   })
 });
 
@@ -283,3 +289,17 @@ export const productsConfigSchema = new Schema({
   code: field({ type: String, unique: true }),
   value: field({ type: Object })
 });
+
+import { Schema, Document } from "mongoose";
+
+import { field, schemaWrapper } from "./utils";
+
+export interface IUom {
+  code: string;
+  name: string;
+}
+
+export interface IUomDocument extends IUom, Document {
+  _id: string;
+  createdAt: Date;
+}

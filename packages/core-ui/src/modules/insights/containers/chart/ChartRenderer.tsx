@@ -2,7 +2,7 @@ import * as compose from "lodash.flowright";
 
 import {
   DEFAULT_BACKGROUND_COLORS,
-  DEFAULT_BORDER_COLORS,
+  DEFAULT_BORDER_COLORS
 } from "../../components/chart/utils";
 
 import ChartRenderer from "../../components/chart/ChartRenderer";
@@ -17,7 +17,9 @@ import { withProps } from "@erxes/ui/src/utils/core";
 import PivotTable from "../../components/chart/PivotTable";
 
 const getRandomNumbers = (num?: number) => {
-  const getRandomNumber: number = Math.floor(Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1));
+  const getRandomNumber: number = Math.floor(
+    Math.random() * (DEFAULT_BACKGROUND_COLORS.length - (num || 0) - 1)
+  );
 
   if (!num) {
     return getRandomNumber;
@@ -40,19 +42,15 @@ type Props = {
   filter?: any;
   dimension?: any;
   chartHeight?: number;
-  setFilter?: (fieldName: string, value: any) => void
+  setFilter?: (fieldName: string, value: any) => void;
 };
 
 type FinalProps = {
   chartGetResultQuery: any;
 } & Props;
 const ChartRendererList = (props: FinalProps) => {
-  const { chartGetResultQuery, chartVariables, filter, chartType, setFilter } = props;
-
-  if (!chartVariables.serviceName || !chartVariables.templateType) {
-    return null;
-  }
-
+  const { chartGetResultQuery, chartVariables, filter, chartType, setFilter } =
+    props;
 
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
@@ -62,7 +60,7 @@ const ChartRendererList = (props: FinalProps) => {
 
   let finalProps: any = {
     ...props,
-    loading: chartGetResultQuery.loading,
+    loading: chartGetResultQuery.loading
   };
 
   if (getResult && Array.isArray(getResult)) {
@@ -72,7 +70,7 @@ const ChartRendererList = (props: FinalProps) => {
       ...d,
       backgroundColor: DEFAULT_BACKGROUND_COLORS[randomNums[index]],
       borderColor: DEFAULT_BORDER_COLORS[randomNums[index]],
-      borderWidth: 1,
+      borderWidth: 1
     }));
 
     finalProps = { ...finalProps, datasets };
@@ -87,20 +85,12 @@ const ChartRendererList = (props: FinalProps) => {
 
   if (chartType === "table") {
     return (
-      <TableRenderer
-        filters={filter}
-        setFilter={setFilter}
-        dataset={dataset}
-      />
+      <TableRenderer filters={filter} setFilter={setFilter} dataset={dataset} />
     );
   }
 
   if (chartType === "pivotTable") {
-    return (
-      <PivotTable
-        dataset={chartGetResultQuery?.chartGetResult}
-      />
-    );
+    return <PivotTable dataset={chartGetResultQuery?.chartGetResult} />;
   }
 
   if (chartType === "number") {
@@ -133,7 +123,7 @@ const ChartRendererList = (props: FinalProps) => {
     data,
     labels,
     title,
-    loading: chartGetResultQuery.loading,
+    loading: chartGetResultQuery.loading
   };
 
   return <ChartRenderer {...finalProps} />;
@@ -143,17 +133,18 @@ export default withProps<Props>(
   compose(
     graphql<any>(gql(queries.chartGetResult), {
       name: "chartGetResultQuery",
-      skip: ({ chartVariables }) => !chartVariables.serviceName || !chartVariables.templateType,
+      skip: ({ chartVariables }) =>
+        !chartVariables.serviceName || !chartVariables.templateType,
       options: ({ chartVariables, filter, dimension, chartType }) => ({
         variables: {
           serviceName: chartVariables.serviceName,
           templateType: chartVariables.templateType,
           filter: { ...filter },
           dimension: { ...dimension },
-          chartType,
+          chartType
         },
-        fetchPolicy: "network-only",
-      }),
+        fetchPolicy: "network-only"
+      })
     })
   )(ChartRendererList)
 );

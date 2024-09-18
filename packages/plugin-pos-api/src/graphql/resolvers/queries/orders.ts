@@ -160,6 +160,37 @@ const generateFilterPosQuery = async (
   return query;
 };
 
+const generateFilterSubsQuery = async (params: any) => {
+  const filter: any = {};
+
+  if (params?.customerId) {
+    filter.customerId = params.customerId;
+  }
+  if (params?.userId) {
+    filter.customerId = params.userId;
+  }
+  if (params?.companyId) {
+    filter.customerId = params.companyId;
+  }
+
+  if (params?.status) {
+    filter.subscriptionInfo.subscriptionId = params.status;
+  }
+
+  if (params?.closeFrom) {
+    filter.items.closeDate = { $gte: new Date(params.closeFrom) };
+  }
+
+  if (params?.closeTo) {
+    filter.items.closeDate = {
+      ...(filter?.items?.closeDate || {}),
+      $lte: new Date(params.closeTo)
+    };
+  }
+
+  return filter;
+};
+
 export const posOrderRecordsQuery = async (
   subdomain,
   models,
@@ -880,7 +911,6 @@ const queries = {
           orders: { $push: "$$ROOT" }
         }
       },
-
       {
         $count: "totalDocuments"
       }
@@ -891,14 +921,22 @@ const queries = {
 
   async checkSubscription(
     _root,
-    { customerId, productId },
+    { customerId, productId, productIds },
     { models }: IContext
   ) {
-    const subscription = await models.PosOrders.findOne({
+    const filter: any = {
       customerId,
       "items.productId": productId,
       "subscriptionInfo.status": SUBSCRIPTION_INFO_STATUS.ACTIVE,
       "items.closeDate": { $gte: new Date() }
+    };
+
+    if (productIds) {
+      filter["items.productId"] = productIds;
+    }
+
+    const subscription = await models.PosOrders.findOne(filter).sort({
+      createdAt: -1
     });
 
     if (!subscription) {
@@ -906,6 +944,44 @@ const queries = {
     }
 
     return subscription;
+  },
+
+  async posOrderBySubscriptions(_root, params, { models }: IContext) {
+    const filter = await generateFilterSubsQuery(params);
+
+    return await paginate(
+      models.PosOrders.aggregate([
+        {
+          $match: {
+            "subscriptionInfo.subscriptionId": { $nin: [null, "", undefined] },
+            customerId: { $nin: [null, "", undefined] },
+            ...filter
+          }
+        },
+        { $unwind: "$items" },
+        { $sort: { createdAt: -1, "items.closeDate": -1 } },
+        {
+          $group: {
+            _id: "$subscriptionInfo.subscriptionId",
+            customerId: { $first: "$customerId" },
+            customerType: { $first: "$customerType" },
+            status: { $first: "$subscriptionInfo.status" },
+            closeDate: { $first: "$items.closeDate" },
+            createdAt: { $first: "$items.createdAt" },
+            orders: {
+              $push: {
+                $cond: {
+                  if: { $ne: ["$items.closeDate", null] },
+                  then: "$$ROOT",
+                  else: "$$REMOVE"
+                }
+              }
+            }
+          }
+        }
+      ]),
+      params
+    );
   }
 };
 

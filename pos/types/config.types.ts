@@ -45,10 +45,12 @@ export interface IConfig {
 }
 
 export interface IEbarimtConfig {
+  headerText?: string
   footerText?: string
   hasCopy?: boolean
   ebarimtUrl?: string
   companyRD?: string
+  companyName?: string
 }
 
 export interface IPaymentType {

@@ -1,7 +1,4 @@
-import {
-  fetchByQuery,
-  fetchByQueryWithScroll
-} from "@erxes/api-utils/src/elasticsearch";
+import { fetchByQueryWithScroll } from "@erxes/api-utils/src/elasticsearch";
 import { generateModels } from "./connectionResolver";
 import {
   sendCommonMessage,
@@ -30,7 +27,10 @@ export default {
     }
   ],
 
-  propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
+  propertyConditionExtender: async ({
+    subdomain,
+    data: { condition, ...rest }
+  }) => {
     const models = await generateModels(subdomain);
 
     let positive;
@@ -47,6 +47,26 @@ export default {
           stageId: stageIds
         }
       };
+    }
+
+    if (condition.propertyName === "stageProbability") {
+      const { propertyType, propertyValue } = condition || {};
+
+      const [_serviceName, contentType] = propertyType.split(":");
+
+      const stageIds = await models.Stages.find({
+        type: contentType,
+        probability: propertyValue
+      })
+        .distinct("_id")
+        .lean();
+
+      positive = {
+        terms: {
+          stageId: stageIds
+        }
+      };
+      ignoreThisPostiveQuery = true;
     }
 
     const productIds = await generateProductsCategoryProductIds(

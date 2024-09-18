@@ -1,5 +1,5 @@
 import { IContractDoc, IInvoice } from "../../types";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import ActivityItem from "./ActivityItem";
 import CollateralsSection from "./CollateralsSection";
@@ -9,7 +9,6 @@ import { IUser } from "@erxes/ui/src/auth/types";
 import InvoiceList from "../invoices/InvoiceList";
 import { LEASE_TYPES } from "../../../contractTypes/constants";
 import LeftSidebar from "./LeftSidebar";
-import PolarisData from "../polaris";
 import RightSidebar from "./RightSidebar";
 import ScheduleSection from "../schedules/ScheduleSection";
 import StoreInterestSection from "../storeInterest/StoreInterestSection";
@@ -18,7 +17,6 @@ import TransactionSection from "../transaction/TransactionSection";
 import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
 import { __ } from "coreui/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const ActivityInputs = asyncComponent(
   () =>
@@ -57,17 +55,13 @@ type State = {
 
 const ContractDetails = (props: Props) => {
   const { saveItem, contract } = props;
-  const [amount, setAmount] = useState(contract.amount || {});
+
   const [collateralsData, setCollateralsData] = useState(
     contract.collaterals ? contract.collaterals.map(p => ({ ...p })) : []
   );
   const [collaterals, setCollaterals] = useState(
     contract.collaterals ? contract.collaterals.map(p => p.collateral) : []
   );
-
-  useEffect(() => {
-    saveItem({ ...contract, collateralsData });
-  }, [amount, collaterals, collateralsData]);
 
   const saveCollateralsData = () => {
     const collaterals: IProduct[] = [];
@@ -93,7 +87,8 @@ const ContractDetails = (props: Props) => {
     });
     setCollateralsData(filteredCollateralsData);
     setCollaterals(collaterals);
-    setAmount(amount);
+
+    saveItem({ ...contract, collateralsData: filteredCollateralsData });
   };
 
   const onChangeField = <T extends keyof State>(name: T, value: State[T]) => {
@@ -172,22 +167,20 @@ const ContractDetails = (props: Props) => {
       <>
         <Tabs tabs={tabs} />
 
-        {
-          <>
-            <ActivityInputs
-              contentTypeId={contract._id}
-              contentType="loans:contract"
-              showEmail={false}
-            />
-            <ActivityLogs
-              target={contract.number || ""}
-              contentId={contract._id}
-              contentType="loans:contract"
-              extraTabs={[]}
-              activityRenderItem={ActivityItem}
-            />
-          </>
-        }
+        <>
+          <ActivityInputs
+            contentTypeId={contract._id}
+            contentType="loans:contract"
+            showEmail={false}
+          />
+          <ActivityLogs
+            target={contract.number || ""}
+            contentId={contract._id}
+            contentType="loans:contract"
+            extraTabs={[]}
+            activityRenderItem={ActivityItem}
+          />
+        </>
       </>
     );
   };

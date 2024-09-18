@@ -31,6 +31,7 @@ export const automationFields = `
     description
     position
     isCustom
+    workflowId
     count
   }
   actions {
@@ -43,6 +44,7 @@ export const automationFields = `
     label
     description
     position
+    workflowId
   }
   createdAt
   updatedAt

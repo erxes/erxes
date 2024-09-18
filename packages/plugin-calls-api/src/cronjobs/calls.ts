@@ -1,6 +1,6 @@
 import { getEnv } from '@erxes/api-utils/src';
 import graphqlPubsub from '@erxes/api-utils/src/graphqlPubsub';
-import { sendToGrandStream } from '../utils';
+import { getRecordUrl, sendToGrandStream } from '../utils';
 import { generateModels } from '../connectionResolver';
 import redis from '../redlock';
 
@@ -13,7 +13,7 @@ function arraysEqual(arr1: any[], arr2: any[]): boolean {
 }
 
 export default {
-  handle3SecondlyJob: async ({ data, subdomain, action }) => {
+  handle3SecondlyJob: async ({ subdomain }) => {
     const models = await generateModels(subdomain);
     const integrations = await models.Integrations.find({}).lean();
     for (const integration of integrations) {
@@ -187,6 +187,39 @@ export default {
                 }
               }
             }
+          }
+        }
+      }
+    }
+  },
+
+  handleHourlyJob: async ({ subdomain }) => {
+    const models = await generateModels(subdomain);
+    const integrations = await models.Integrations.find({}).lean();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (const integration of integrations) {
+      if (integration.inboxId) {
+        const noUrlHistories = await models.CallHistory.find({
+          inboxIntegrationId: integration.inboxId,
+          callStatus: 'connected',
+          $or: [{ recordUrl: { $exists: false } }, { recordUrl: '' }],
+          createdAt: { $gte: today },
+        }).lean();
+
+        for (const history of noUrlHistories) {
+          const callRecordUrl = await getRecordUrl(
+            { ...history, isCronRunning: true },
+            '',
+            models,
+            subdomain,
+          );
+          if (callRecordUrl) {
+            await models.CallHistory.updateOne(
+              { _id: history?._id },
+              { $set: { recordUrl: callRecordUrl } },
+            );
           }
         }
       }

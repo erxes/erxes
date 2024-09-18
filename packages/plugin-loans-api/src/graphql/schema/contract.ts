@@ -24,7 +24,7 @@ export const types = () => `
   }
 
   type LoanContract {
-    _id: String!
+    _id: String
     contractTypeId: String
     number: String
     branchId:String

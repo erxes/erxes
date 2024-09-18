@@ -41,7 +41,6 @@ export const sendToGrandStream = async (models, args, user) => {
   const {
     method,
     path,
-    params,
     data,
     headers = {},
     integrationId,
@@ -49,9 +48,12 @@ export const sendToGrandStream = async (models, args, user) => {
     isConvertToJson,
     isAddExtention,
     isGetExtension,
+    isCronRunning,
+    extentionNumber: extension,
   } = args;
 
   if (retryCount <= 0) {
+    console.log('Retry limit exceeded:', data);
     throw new Error('Retry limit exceeded.');
   }
 
@@ -62,7 +64,9 @@ export const sendToGrandStream = async (models, args, user) => {
 
   const { wsServer = '' } = integration;
   const operator = integration.operators.find((op) => op.userId === user?._id);
-  const extentionNumber = operator?.gsUsername || '1001';
+  const extentionNumber = isCronRunning
+    ? extension
+    : operator?.gsUsername || '1001';
 
   let cookie = await getOrSetCallCookie(wsServer);
   cookie = cookie?.toString();
@@ -131,6 +135,7 @@ const getOrSetCallCookie = async (wsServer) => {
   }
 
   let callCookie = await redis.get('callCookie');
+
   if (callCookie) {
     return callCookie;
   }
@@ -171,7 +176,7 @@ const getOrSetCallCookie = async (wsServer) => {
     const { cookie } = loginData.response;
 
     await redis.set('callCookie', cookie, 'EX', CALL_API_EXPIRY);
-
+    console.log(cookie, 'cok');
     return cookie;
   } catch (error) {
     console.error('Error in getOrSetCallCookie:', error);
@@ -188,6 +193,7 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
     callEndTime,
     _id,
     transferedCallStatus,
+    isCronRunning,
   } = params;
 
   if (transferedCallStatus === 'local' && callType === 'incoming') {
@@ -214,10 +220,12 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
               sord: 'asc',
             },
           },
+          extentionNumber: history.extentionNumber,
           integrationId: inboxIntegrationId,
           retryCount,
           isConvertToJson: true,
           isGetExtension: true,
+          isCronRunning: isCronRunning || false,
         },
         user,
       );
@@ -246,6 +254,14 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         caller = extentionNumber;
         callee = customerPhone;
       }
+
+      const startTime = isCronRunning
+        ? getPureDate(callStartTime, -10)
+        : `${startDate}T00:00:00`;
+      const endTime = isCronRunning
+        ? getPureDate(callEndTime, 10)
+        : `${endDate}T23:59:59`;
+
       const cdrData = await sendToGrandStream(
         models,
         {
@@ -259,8 +275,8 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
               caller,
               callee,
               numRecords: '100',
-              startTime: `${startDate}T00:00:00`,
-              endTime: `${endDate}T23:59:59`,
+              startTime,
+              endTime,
             },
           },
           integrationId: inboxIntegrationId,
@@ -272,24 +288,56 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
       );
 
       let cdrRoot = cdrData.response?.cdr_root || cdrData.cdr_root;
-      if (!cdrRoot) throw new Error('CDR root not found');
+
+      if (!cdrRoot) {
+        console.log(
+          'CDR root not found',
+          caller,
+          callee,
+          'startedDate: ',
+          startTime,
+          endTime,
+        );
+        throw new Error('CDR root not found');
+      }
 
       const sortedCdr = cdrRoot.sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
+
       let lastCreatedObject = sortedCdr[sortedCdr.length - 1];
       if (!lastCreatedObject) {
+        console.log(
+          'Not found cdr',
+          caller,
+          callee,
+          'startedDate: ',
+          startTime,
+          endTime,
+        );
         throw new Error('Not found cdr');
       }
 
       const transferCall = findTransferCall(lastCreatedObject);
+      const answeredCall = findAnsweredCall(lastCreatedObject);
+
+      if (answeredCall) {
+        lastCreatedObject = answeredCall;
+      }
 
       if (transferCall) {
         lastCreatedObject = transferCall;
         fileDir = 'monitor';
       }
       if (lastCreatedObject?.disposition !== 'ANSWERED' && !transferCall) {
+        console.log(
+          'caller callee:',
+          caller,
+          callee,
+          'startedDate: ',
+          startDate,
+        );
         throw new Error('Last created object disposition is not ANSWERED');
       }
 
@@ -302,7 +350,16 @@ export const getRecordUrl = async (params, user, models, subdomain) => {
         fileDir = 'queue';
       }
       const recordfiles = lastCreatedObject?.recordfiles;
-      if (!recordfiles) throw new Error('Record files not found');
+      if (!recordfiles) {
+        console.log(
+          'record not found:',
+          caller,
+          callee,
+          'startedDate: ',
+          startDate,
+        );
+        throw new Error('Record files not found');
+      }
 
       const parts = recordfiles.split('/');
       const fileNameWithoutExtension = parts[1].split('@')[0];
@@ -371,7 +428,7 @@ function findTransferCall(data: any): any {
   });
 
   if (transferredCalls.length === 1) {
-    return transferredCalls[0]; // Return single object if only one match is found
+    return transferredCalls[0];
   } else if (transferredCalls.length > 1) {
     return transferredCalls;
   }
@@ -381,3 +438,34 @@ function findTransferCall(data: any): any {
     return null;
   }
 }
+
+function findAnsweredCall(data: any): any {
+  if (!data) {
+    return null;
+  }
+  const answeredCalls = Object.values(data).filter((subCdr) => {
+    const typedSubCdr = subCdr as any;
+    return typedSubCdr.disposition === 'ANSWERED' && typedSubCdr.recordfiles;
+  });
+
+  if (answeredCalls.length === 1) {
+    return answeredCalls[0];
+  } else if (answeredCalls.length > 1) {
+    return answeredCalls;
+  }
+  if (Array.isArray(data) && data.find) {
+    return data.find((item) => item.disposition === 'ANSWERED');
+  } else {
+    return null;
+  }
+}
+
+export const getPureDate = (date: Date, updateTime) => {
+  const ndate = new Date(date);
+
+  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+
+  const updatedDate = new Date(ndate.getTime() + updateTime * 1000);
+
+  return new Date(updatedDate.getTime() + diffTimeZone);
+};

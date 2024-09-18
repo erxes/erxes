@@ -1,3 +1,5 @@
+import { QueryResponse } from "@erxes/ui/src/types";
+
 export interface IXyp {
   _id: string;
   name?: string;
@@ -53,3 +55,55 @@ export type EditTypeMutationResponse = {
 export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export type ISyncRule = {
+  _id: string;
+  title: string;
+  serviceName: string;
+  responseKey?: string;
+  extractType?: string;
+  extractKey?: string;
+
+  objectType: string;
+  fieldGroup: string;
+  formField: string;
+
+  createdBy?: string;
+  createdAt?: Date;
+  updatedBy?: string;
+  updatedAt?: Date;
+
+  fieldGroupObj?: any;
+  formFieldObj?: any;
+};
+
+export type SyncRulesQueryResponse = {
+  xypSyncRules: ISyncRule[];
+} & QueryResponse;
+
+export type SyncRulesCountQueryResponse = {
+  xypSyncRulesCount: number;
+} & QueryResponse;
+
+export type SyncRulesDetailQueryResponse = {
+  xypSyncRulesDetail: ISyncRule;
+} & QueryResponse;
+
+export type MutationSyncRuleVariables = {
+  _id?: string;
+  name: string;
+  code: string;
+};
+
+export type SyncRuleAddMutationResponse = {
+  syncRulesAdd: (mutation: { variables: MutationSyncRuleVariables }) => Promise<any>;
+};
+
+export type SyncRuleEditMutationResponse = {
+  syncRulesEdit: (mutation: { variables: MutationSyncRuleVariables }) => Promise<any>;
+};
+
+export type SyncRulesRemoveMutationResponse = {
+  syncRulesRemove: (mutation: { variables: { _ids: string[] } }) => Promise<any>;
+};
+

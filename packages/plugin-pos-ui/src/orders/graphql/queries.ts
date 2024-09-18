@@ -1,5 +1,4 @@
 import { queries as productQueries } from "@erxes/ui-products/src/graphql";
-import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const listParamsDef = `
   $page: Int
@@ -284,6 +283,45 @@ query PosOrderCustomers ($page: Int, $perPage: Int, $sortField: String, $sortDir
 }
 `;
 
+const commonSubsQueryParams = `
+  $page: Int,
+  $perPage: Int,
+  $sortField: String,
+  $sortDirection: Int
+  $customerId:String
+  $userId:String
+  $companyId:String
+  $status:String
+  $closeFrom:String
+  $closeTo:String
+`;
+
+const commonSubsQueryParamsDef = `
+  page: $page,
+  perPage: $perPage,
+  sortField: $sortField,
+  sortDirection: $sortDirection
+  customerId:$customerId,
+  userId:$userId,
+  companyId:$companyId,
+  status:$status,
+  closeFrom:$closeFrom,
+  closeTo:$closeTo,
+`;
+
+const posOrdersBySubs = `
+  query PosOrderBySubscriptions(${commonSubsQueryParams}) {
+    posOrderBySubscriptions(${commonSubsQueryParamsDef}) {
+      _id
+      customerId
+      customerType
+      customer
+      status
+      closeDate
+    }
+  }
+`;
+
 export default {
   posOrders,
   posOrdersSummary,
@@ -296,5 +334,6 @@ export default {
   coverDetail,
   posOrderRecords,
   posOrderRecordsCount,
-  posOrdersByCustomers
+  posOrdersByCustomers,
+  posOrdersBySubs
 };

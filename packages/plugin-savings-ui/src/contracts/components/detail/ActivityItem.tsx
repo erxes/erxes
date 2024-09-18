@@ -8,9 +8,6 @@ const renderInvoices = (activity: IActivityLog) => {
 const activityItem = (activity: IActivityLog) => {
   const { contentType, action } = activity;
 
-  console.log('action', action);
-  console.log('contentType', contentType);
-
   switch ((action && action) || contentType) {
     default:
       return renderInvoices(activity);

@@ -12,6 +12,7 @@ export interface IAction {
   icon?: string;
   label?: string;
   description?: string;
+  workflowId?: string;
 }
 
 export type TriggerType =
@@ -38,6 +39,7 @@ export interface ITrigger {
   label?: string;
   description?: string;
   isCustom?: boolean;
+  workflowId?: string;
 }
 
 export interface IAutomation {
@@ -71,7 +73,8 @@ export const triggerSchema = new Schema(
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
     description: { type: String, optional: true },
-    isCustom: { type: Boolean, optional: true }
+    isCustom: { type: Boolean, optional: true },
+    workflowId: { type: String, optional: true }
   },
   { _id: false }
 );
@@ -86,7 +89,8 @@ export const actionSchema = new Schema(
     position: { type: Object },
     icon: { type: String, optional: true },
     label: { type: String, optional: true },
-    description: { type: String, optional: true }
+    description: { type: String, optional: true },
+    workflowId: { type: String, optional: true }
   },
   { _id: false }
 );
