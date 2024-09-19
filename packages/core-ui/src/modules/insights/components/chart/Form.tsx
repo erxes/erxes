@@ -23,6 +23,7 @@ import FormGroup from "@erxes/ui/src/components/form/Group";
 import { IChart } from "../../types";
 import Select from "react-select";
 import { __ } from "@erxes/ui/src/utils";
+import { SERVICE_MAP } from "modules/insights/constants";
 
 type Props = {
   queryParams: any;
@@ -240,7 +241,7 @@ const Form = (props: Props) => {
     const serviceOptions = (serviceNames || []).map((st) => {
       return {
         label: st,
-        value: st,
+        value: SERVICE_MAP[st],
       };
     });
 

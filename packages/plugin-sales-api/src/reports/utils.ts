@@ -4,6 +4,7 @@ import { IModels } from "../connectionResolver";
 import * as dayjs from 'dayjs';
 import * as isoWeek from 'dayjs/plugin/isoWeek';
 import { getService, getServices, isEnabled } from "@erxes/api-utils/src/serviceDiscovery";
+const util = require('util');
 
 dayjs.extend(isoWeek);
 
@@ -75,7 +76,7 @@ export const buildGroupBy = ({ fields, action, extraFields }: {
 export const buildAction = (measures: string[]): object => {
   const actions = {};
 
-  measures.forEach((measure) => {
+  (measures || []).forEach((measure) => {
     switch (measure) {
       case 'count':
         actions[measure] = { $sum: 1 };
@@ -1003,7 +1004,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
     }
     }
 
-  measures.forEach((measure) => {
+  (measures || []).forEach((measure) => {
     projectionFields[measure] = 1;
   });
 
@@ -1754,7 +1755,7 @@ export const buildChartData = (data: any, measures: any, dimensions: any, filter
         acc.labels.push(label);
       }
 
-      measures.forEach((measure) => {
+      (measures || []).forEach((measure) => {
         let dataset = acc.datasets.find((d) => d.label === MEASURE_LABELS[measure]);
 
         if (!dataset) {
@@ -1813,13 +1814,13 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
     const order = {};
 
     if (dimensions?.length) {
-      dimensions.forEach(dimension => {
+      (dimensions || []).forEach(dimension => {
         order[dimension] = item[dimension];
       });
     }
 
     if (measures?.length) {
-      measures.forEach(measure => {
+      (measures || []).forEach(measure => {
         order[measure] = item[MEASURE_LABELS[measure]];
       });
     }
@@ -1831,7 +1832,7 @@ export const buildTableData = (data: any, measures: any, dimensions: any) => {
 
   if (measures?.length) {
     total = data.reduce((acc, item) => {
-      measures.forEach(measure => {
+      (measures || []).forEach(measure => {
         if (item[measure] !== undefined) {
           acc[measure] = (acc[measure] || 0) + item[measure];
         }

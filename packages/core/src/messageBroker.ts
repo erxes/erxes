@@ -17,6 +17,7 @@ import { importExportCunsomers } from "@erxes/api-utils/src/consumers/importExpo
 import { segmentsCunsomers } from "@erxes/api-utils/src/consumers/segments";
 import { searchCunsomers } from "@erxes/api-utils/src/consumers/search";
 import { tagConsumers } from "@erxes/api-utils/src/consumers/tags";
+import { reportsCunsomers } from "@erxes/api-utils/src/consumers/reports";
 
 import { registerOnboardHistory } from "./data/modules/robot";
 
@@ -58,6 +59,7 @@ import { setupProductMessageBroker } from "./messageBrokers/products";
 import tags from "./tags";
 import { setupInternalNotesMessageBroker } from "./messageBrokers/internalNotes";
 import { setupMessageEmailTemplatesConsumers } from "./messageBrokers/emailTemplates";
+import reports from "./reports/reports";
 
 export const initBroker = async (): Promise<void> => {
   await connectToMessageBroker(setupMessageConsumers);
@@ -656,7 +658,7 @@ export const setupMessageConsumers = async (): Promise<void> => {
   });
 
   tagConsumers({ name: "core", tags });
-
+  reportsCunsomers({ name: "core", reports })
   importExportCunsomers({ name: "core", imports, exporter });
   segmentsCunsomers({ name: "core", segments });
   searchCunsomers({ name: "core", search });

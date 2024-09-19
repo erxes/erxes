@@ -115,7 +115,7 @@ const TableList = (props: Props) => {
 
             if (labels?.length) {
               return (
-                <tr key={index}>
+                <tr>
                   <td>
                     <b>{item}</b>
                   </td>
@@ -131,7 +131,11 @@ const TableList = (props: Props) => {
                     return <td dangerouslySetInnerHTML={{ __html: item[header] }} />
                   }
 
-                  return <td key={header}>{item[header] || '-'}</td>;
+                  if (["count", "totalAmount", "averageAmount", "unusedAmount", "forecastAmount"].includes(header)) {
+                    return <td>{commarizeNumbers(item[header]) || '-'}</td>;
+                  }
+
+                  return <td>{item[header] || '-'}</td>;
                 })}
               </tr>
             )

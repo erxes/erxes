@@ -43,3 +43,12 @@ export const METRIC = [
   { name: 'Value', value: 'Value' },
   { name: 'Count', value: 'Count' },
 ];
+
+export const SERVICE_MAP = {
+  'Deals': 'sales',
+  'Tickets': 'tickets',
+  'Tasks': 'tasks',
+  'Inbox': 'inbox',
+  'Calls': 'calls',
+  'Contacts': 'core',
+}

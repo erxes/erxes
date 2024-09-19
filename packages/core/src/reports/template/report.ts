@@ -3,6 +3,7 @@ const reportTemplates = [
     serviceType: "contacts",
     title: "Contact chart",
     serviceName: "core",
+    serviceLabel: "Contacts",
     description: "Contact charts",
     charts: [
       "TotalContactCount",
