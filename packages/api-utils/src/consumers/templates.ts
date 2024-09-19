@@ -7,4 +7,11 @@ export const templatesCunsomers = ({ name, templates }) => {
       data: await templates.useTemplate(args)
     }));
   }
+
+  if (templates.getRelatedContent) {
+    consumeRPCQueue(`${name}:templates.getRelatedContent`, async args => ({
+      status: 'success',
+      data: await templates.getRelatedContent(args),
+    }));
+  }
 };
