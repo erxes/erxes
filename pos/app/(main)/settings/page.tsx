@@ -3,6 +3,7 @@
 import ChooseTheme from "@/modules/settings/ChooseTheme"
 import GolomtConfig from "@/modules/settings/components/GolomtConfig"
 import Grid from "@/modules/settings/components/Grid"
+import PrintItemStatus from "@/modules/settings/components/printItemStatus"
 import ProductSimilarityConfig from "@/modules/settings/components/ProductSimilarityConfig"
 import ScrollerWidth from "@/modules/settings/components/ScrollerWidth"
 import StatusExplain from "@/modules/settings/components/StatusExplain"
@@ -35,6 +36,7 @@ const Settings = () => {
       <GolomtConfig />
       <ProductSimilarityConfig />
       <ScrollerWidth />
+      <PrintItemStatus />
       <StatusExplain />
     </>
   )

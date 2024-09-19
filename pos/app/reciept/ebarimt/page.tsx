@@ -81,6 +81,7 @@ const Reciept = () => {
     return () => {
       window.removeEventListener("afterprint", handleAfterPrint)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleAfterPrint])
 
   if (loading) {
