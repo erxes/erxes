@@ -5,6 +5,7 @@ const reportTemplates = [
         serviceType: 'calls',
         title: 'Call charts',
         serviceName: 'calls',
+        serviceLabel: "Calls",
         description: 'Call charts',
         charts: [
             'callsCount',

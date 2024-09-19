@@ -52,6 +52,10 @@ const ChartRendererList = (props: FinalProps) => {
   const { chartGetResultQuery, chartVariables, filter, chartType, setFilter } =
     props;
 
+  if (!chartVariables.serviceName || !chartVariables.templateType) {
+    return null
+  }
+
   if (chartGetResultQuery && chartGetResultQuery.loading) {
     return <Spinner />;
   }

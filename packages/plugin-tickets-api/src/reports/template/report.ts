@@ -3,6 +3,7 @@ const reportTemplates = [
     serviceType: 'ticket',
     title: 'Tickets chart',
     serviceName: 'tickets',
+    serviceLabel: "Tickets",
     description: 'Tickets conversation charts',
     charts: [
       'TicketsTotalCount',

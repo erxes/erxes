@@ -3,6 +3,7 @@ const reportTemplates = [
     serviceType: 'deal',
     title: 'Deals chart',
     serviceName: 'sales',
+    serviceLabel: "Deals",
     description: 'Deals charts',
     charts: [
       'DealsTotalCount',
